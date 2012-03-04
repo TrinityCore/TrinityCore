@@ -68,6 +68,8 @@ enum BattlegroundDSData
     BG_DS_WATERFALL_TIMER_MAX                    = 60000,
     BG_DS_WATERFALL_WARNING_DURATION             = 7000,
     BG_DS_WATERFALL_DURATION                     = 10000,
+    BG_DS_WATERFALL_KNOCKBACK_TIMER              = 500,
+
     BG_DS_PIPE_KNOCKBACK_FIRST_DELAY             = 5000,
     BG_DS_PIPE_KNOCKBACK_DELAY                   = 3000,
     BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT             = 2,
@@ -106,6 +108,7 @@ class BattlegroundDS : public Battleground
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;
+        uint32 _waterfallKnockbackTimer;
         uint32 _pipeKnockBackTimer;
         uint8 _pipeKnockBackCount;
 
@@ -115,6 +118,8 @@ class BattlegroundDS : public Battleground
         void setWaterFallStatus(uint8 status) { _waterfallStatus = status; };
         uint32 getWaterFallTimer() { return _waterfallTimer; };
         void setWaterFallTimer(uint32 timer) { _waterfallTimer = timer; };
+        uint32 getWaterFallKnockbackTimer() { return _waterfallTimer; };
+        void setWaterFallKnockbackTimer(uint32 timer) { _waterfallKnockbackTimer = timer; };
         uint8 getPipeKnockBackCount() { return _pipeKnockBackCount; };
         void setPipeKnockBackCount(uint8 count) { _pipeKnockBackCount = count; };
         uint32 getPipeKnockBackTimer() { return _pipeKnockBackTimer; };
