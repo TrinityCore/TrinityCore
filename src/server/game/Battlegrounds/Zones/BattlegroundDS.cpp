@@ -65,6 +65,19 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
             setPipeKnockBackTimer(getPipeKnockBackTimer() - diff);
     }
 
+    if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_ON) // Repeat knockback while the waterfall still active
+    {
+        if (getWaterFallKnockbackTimer() < diff)
+        {
+            if (Creature* waterSpout = GetBgMap()->GetCreature(BgCreatures[BG_DS_NPC_WATERFALL_KNOCKBACK]))
+                waterSpout->CastSpell(waterSpout, BG_DS_SPELL_WATER_SPOUT, true);
+
+            setWaterFallKnockbackTimer(BG_DS_WATERFALL_KNOCKBACK_TIMER);
+        }
+        else
+            setWaterFallKnockbackTimer(getWaterFallKnockbackTimer() - diff);
+    }
+
     if (getWaterFallTimer() < diff)
     {
         if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_OFF) // Add the water
@@ -83,6 +96,7 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
 
             setWaterFallTimer(BG_DS_WATERFALL_DURATION);
             setWaterFallStatus(BG_DS_WATERFALL_STATUS_ON);
+            setWaterFallKnockbackTimer(BG_DS_WATERFALL_KNOCKBACK_TIMER);
         }
         else //if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_ON) // Remove collision and water
         {
