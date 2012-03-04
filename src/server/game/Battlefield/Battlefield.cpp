@@ -944,40 +944,40 @@ void BfCapturePoint::SendChangePhase()
     SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
 }
 
-bool BfCapturePoint::SetCapturePointData(uint32 entry, uint32 /*map */ , float x, float y, float z, float o)
+bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
 {
-    sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Creating capture point %u", entry);
+    ASSERT(capturePoint);
+
+    sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Creating capture point %u", capturePoint->GetEntry());
+
+    m_capturePoint = capturePoint;
 
     // check info existence
-    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
+    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(capturePoint->GetEntry());
     if (!goinfo || goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
     {
-        sLog->outError("OutdoorPvP: GO %u is not capture point!", entry);
+        sLog->outError("OutdoorPvP: GO %u is not capture point!", capturePoint->GetEntry());
         return false;
     }
-    m_capturePoint = m_Bf->SpawnGameObject(entry, x, y, z, o);
-    if (m_capturePoint)
+
+    // get the needed values from goinfo
+    m_maxValue = goinfo->capturePoint.maxTime;
+    m_maxSpeed = m_maxValue / (goinfo->capturePoint.minTime ? goinfo->capturePoint.minTime : 60);
+    m_neutralValuePct = goinfo->capturePoint.neutralPercent;
+    m_minValue = m_maxValue * goinfo->capturePoint.neutralPercent / 100;
+    m_capturePointEntry = capturePoint->GetEntry();
+    if (m_team == TEAM_ALLIANCE)
     {
-        // get the needed values from goinfo
-        m_maxValue = goinfo->capturePoint.maxTime;
-        m_maxSpeed = m_maxValue / (goinfo->capturePoint.minTime ? goinfo->capturePoint.minTime : 60);
-        m_neutralValuePct = goinfo->capturePoint.neutralPercent;
-        m_minValue = m_maxValue * goinfo->capturePoint.neutralPercent / 100;
-        m_capturePointEntry = entry;
-        if (m_team == TEAM_ALLIANCE)
-        {
-            m_value = m_maxValue;
-            m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE;
-        }
-        else
-        {
-            m_value = -m_maxValue;
-            m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
-        }
-        return true;
+        m_value = m_maxValue;
+        m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE;
+    }
+    else
+    {
+        m_value = -m_maxValue;
+        m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
     }
 
-    return false;
+    return true;
 }
 
 bool BfCapturePoint::DelCapturePoint()
