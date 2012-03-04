@@ -58,7 +58,7 @@ Loot* Roll::getLoot()
 
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
 m_dungeonDifficulty(DUNGEON_DIFFICULTY_NORMAL), m_raidDifficulty(RAID_DIFFICULTY_10MAN_NORMAL),
-m_bgGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
+m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
 m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
@@ -103,7 +103,7 @@ bool Group::Create(Player* leader)
     m_leaderGuid = leaderGuid;
     m_leaderName = leader->GetName();
 
-    m_groupType  = isBGGroup() ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
+    m_groupType  = (isBGGroup() || isBFGroup()) ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
 
     if (m_groupType & GROUPTYPE_RAID)
         _initRaidSubGroupsCounter();
@@ -115,7 +115,7 @@ bool Group::Create(Player* leader)
     m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;
     m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
 
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         m_dungeonDifficulty = leader->GetDungeonDifficulty();
         m_raidDifficulty = leader->GetRaidDifficulty();
@@ -231,7 +231,7 @@ void Group::ConvertToLFG()
 {
     m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_UNK1);
     m_lootMethod = NEED_BEFORE_GREED;
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
@@ -250,7 +250,7 @@ void Group::ConvertToRaid()
 
     _initRaidSubGroupsCounter();
 
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
@@ -273,7 +273,7 @@ bool Group::AddInvite(Player* player)
     if (!player || player->GetGroupInvite())
         return false;
     Group* group = player->GetGroup();
-    if (group && group->isBGGroup())
+    if (group && (group->isBGGroup() || group->isBFGroup()))
         group = player->GetOriginalGroup();
     if (group)
         return false;
@@ -370,8 +370,8 @@ bool Group::AddMember(Player* player)
     if (player)
     {
         player->SetGroupInvite(NULL);
-        if (player->GetGroup() && isBGGroup()) //if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
-            player->SetBattlegroundRaid(this, subGroup);
+        if (player->GetGroup() && (isBGGroup() || isBFGroup())) //if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
+            player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
         else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
             player->SetOriginalGroup(this, subGroup);
         else //if player is not in group, then call set group
@@ -390,7 +390,7 @@ bool Group::AddMember(Player* player)
     }
 
     // insert into the table if we're not a battleground group
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GROUP_MEMBER);
 
@@ -409,7 +409,7 @@ bool Group::AddMember(Player* player)
 
     if (player)
     {
-        if (!IsLeader(player->GetGUID()) && !isBGGroup())
+        if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
         {
             // reset the new member's instances, unless he is currently in one of them
             // including raid/heroic instances that they are not permanently bound to!
@@ -454,15 +454,15 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
     if (isLFGGroup() && method == GROUP_REMOVEMETHOD_KICK)
         return m_memberSlots.size();
 
-    // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG allow 1 member group)
-    if (GetMembersCount() > ((isBGGroup() || isLFGGroup()) ? 1u : 2u))
+    // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
+    if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
         Player* player = ObjectAccessor::FindPlayer(guid);
         if (player)
         {
             // Battleground group handling
-            if (isBGGroup())
-                player->RemoveFromBattlegroundRaid();
+            if (isBGGroup() || isBFGroup())
+                player->RemoveFromBattlegroundOrBattlefieldRaid();
             else
             // Regular group
             {
@@ -493,13 +493,16 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
         }
 
         // Remove player from group in DB
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
+        if (!isBGGroup() && !isBFGroup())
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
 
-        stmt->setUInt32(0, GUID_LOPART(guid));
+            stmt->setUInt32(0, GUID_LOPART(guid));
 
-        CharacterDatabase.Execute(stmt);
+            CharacterDatabase.Execute(stmt);
 
-        DelinkMember(guid);
+            DelinkMember(guid);
+        }
 
         // Reevaluate group enchanter if the leaving player had enchanting skill or the player is offline
         if ((player && player->GetSkillValue(SKILL_ENCHANTING)) || !player)
@@ -590,7 +593,7 @@ void Group::ChangeLeader(uint64 guid)
 
     sScriptMgr->OnGroupChangeLeader(this, m_leaderGuid, guid);
 
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         // Remove the groups permanent instance bindings
         for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
@@ -650,8 +653,8 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         //we cannot call _removeMember because it would invalidate member iterator
         //if we are removing player from battleground raid
-        if (isBGGroup())
-            player->RemoveFromBattlegroundRaid();
+        if (isBGGroup() || isBFGroup())
+            player->RemoveFromBattlegroundOrBattlefieldRaid();
         else
         {
             //we can remove player who is in battleground from his original group
@@ -695,7 +698,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
     RemoveAllInvites();
 
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         trans->PAppend("DELETE FROM groups WHERE guid = %u", m_dbStoreId);
@@ -1339,7 +1342,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         Player* member = ObjectAccessor::FindPlayer(citr->guid);
 
         uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
-        onlineState = onlineState | ((isBGGroup()) ? MEMBER_STATUS_PVP : 0);
+        onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
 
         data << citr->name;
         data << uint64(citr->guid);                     // guid
@@ -1430,7 +1433,7 @@ bool Group::_setMembersGroup(uint64 guid, uint8 group)
 
     SubGroupCounterIncrease(group);
 
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SUBGROUP);
 
@@ -1481,7 +1484,7 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
     SubGroupCounterDecrease(prevSubGroup);
 
     // Preserve new sub group in database for non-raid groups
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SUBGROUP);
 
@@ -1676,7 +1679,7 @@ void Roll::targetObjectBuildLink()
 void Group::SetDungeonDifficulty(Difficulty difficulty)
 {
     m_dungeonDifficulty = difficulty;
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_DIFFICULTY);
 
@@ -1700,7 +1703,7 @@ void Group::SetDungeonDifficulty(Difficulty difficulty)
 void Group::SetRaidDifficulty(Difficulty difficulty)
 {
     m_raidDifficulty = difficulty;
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_RAID_DIFFICULTY);
 
@@ -1736,7 +1739,7 @@ bool Group::InCombatToInstance(uint32 instanceId)
 
 void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
 {
-    if (isBGGroup())
+    if (isBGGroup() || isBFGroup())
         return;
 
     // method can be INSTANCE_RESET_ALL, INSTANCE_RESET_CHANGE_DIFFICULTY, INSTANCE_RESET_GROUP_DISBAND
@@ -1851,7 +1854,7 @@ InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
 
 InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, bool load)
 {
-    if (!save || isBGGroup())
+    if (!save || isBGGroup() || isBFGroup())
         return NULL;
 
     InstanceGroupBind& bind = m_boundInstances[save->GetDifficulty()][save->GetMapId()];
@@ -1981,6 +1984,11 @@ bool Group::isBGGroup() const
     return m_bgGroup != NULL;
 }
 
+bool Group::isBFGroup() const
+{
+    return m_bfGroup != NULL;
+}
+
 bool Group::IsCreated() const
 {
     return GetMembersCount() > 0;
@@ -2094,6 +2102,11 @@ uint8 Group::GetMemberGroup(uint64 guid) const
 void Group::SetBattlegroundGroup(Battleground* bg)
 {
     m_bgGroup = bg;
+}
+
+void Group::SetBattlefieldGroup(Battlefield *bg)
+{
+    m_bfGroup = bg;
 }
 
 void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)

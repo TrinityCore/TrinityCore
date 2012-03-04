@@ -178,6 +178,7 @@ void Vehicle::ApplyAllImmunities()
         case 510: // Isle of Conquest
             _me->SetControlled(true, UNIT_STATE_ROOT);
             // why we need to apply this? we can simple add immunities to slow mechanic in DB
+            //me->m_movementInfo.flags2=59;
             _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
             break;
         default:
