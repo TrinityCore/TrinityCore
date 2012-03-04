@@ -769,7 +769,7 @@ class spell_dk_death_grip : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_grip_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
                 Position const* pos = GetTargetDest();
