@@ -100,8 +100,8 @@ public:
     virtual void ChangeTeam(TeamId /*oldTeam */ ) {}
     virtual void SendChangePhase();
 
-    bool SetCapturePointData(uint32 entry, uint32 map, float x, float y, float z, float o);
-    GameObject *GetCapturePointGo() { return m_capturePoint; }
+    bool SetCapturePointData(GameObject* capturePoint);
+    GameObject* GetCapturePointGo() { return m_capturePoint; }
 
     TeamId GetTeamId() {return m_team;}
 protected:

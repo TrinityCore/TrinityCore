@@ -36,11 +36,11 @@ class BattlefieldWG;
 class BfCapturePointWG;
 
 struct BfWGGameObjectBuilding;
-struct BfWGWorkShopData;
+struct WGWorkshop;
 
 typedef std::set<GameObject *>GameObjectSet;
 typedef std::set<BfWGGameObjectBuilding *> GameObjectBuilding;
-typedef std::set<BfWGWorkShopData *> WorkShop;
+typedef std::set<WGWorkshop*> Workshop;
 //typedef std::set<BfCapturePointWG *> CapturePointSet; unused ?
 typedef std::set<Group *> GroupSet;
 
@@ -260,9 +260,9 @@ const BfWGCoordGY WGGraveYard[BATTLEFIELD_WG_GY_MAX] = {
 class BfCapturePointWG : public BfCapturePoint
 {
     public:
-        BfCapturePointWG(BattlefieldWG *bf, TeamId control);
+        BfCapturePointWG(BattlefieldWG* bf, TeamId control);
 
-        void LinkToWorkShop(BfWGWorkShopData *ws)
+        void LinkToWorkShop(WGWorkshop* ws)
         {
             m_WorkShop = ws;
         }
@@ -274,7 +274,7 @@ class BfCapturePointWG : public BfCapturePoint
         }
 
     protected:
-        BfWGWorkShopData *m_WorkShop;
+        WGWorkshop *m_WorkShop;
 };
 
 /*#########################
@@ -361,6 +361,8 @@ class BattlefieldWG : public Battlefield
          */
         void OnCreatureRemove(Creature* creature);
 
+        void OnGameObjectCreate(GameObject* go);
+
         /**
          * \brief Called when a wall/tower is broken
          * -Update quest
@@ -436,7 +438,7 @@ class BattlefieldWG : public Battlefield
         GameObjectBuilding BuildingsInZone;
         GuidSet KeepCreature[2];
         GuidSet OutsideCreature[2];
-        WorkShop WorkShopList;
+        Workshop WorkshopsList;
         GuidSet CanonList;
         GameObjectSet DefenderPortalList;
         GameObjectSet m_KeepGameObject[2];
@@ -471,7 +473,7 @@ enum eWGGameObjectState
     BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY,
 };
 
-enum eWGWorkShopType
+enum WGWorkshopId
 {
     BATTLEFIELD_WG_WORKSHOP_NE,
     BATTLEFIELD_WG_WORKSHOP_NW,
@@ -481,6 +483,15 @@ enum eWGWorkShopType
     BATTLEFIELD_WG_WORKSHOP_KEEP_EAST,
 };
 
+enum WGWorldstate
+{
+    WORLDSTATE_WORKSHOP_NE = 3701,
+    WORLDSTATE_WORKSHOP_NW = 3700,
+    WORLDSTATE_WORKSHOP_SE = 3703,
+    WORLDSTATE_WORKSHOP_SW = 3702,
+    WORLDSTATE_WORKSHOP_K_W = 3698,
+    WORLDSTATE_WORKSHOP_K_E = 3699
+};
 enum eWGTeamControl
 {
     BATTLEFIELD_WG_TEAM_ALLIANCE,
@@ -518,7 +529,7 @@ enum eWGText
 // *INDENT-ON*
 };
 
-enum eWGObject
+enum WGObject
 {
 // *INDENT-OFF*
     BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_NE  = 190475,
@@ -1100,219 +1111,29 @@ const BfWGTurretData TowerTurret[WG_MAX_TOWERTURRET] =
 // *****************WorkShop Data & Element*****************
 // *********************************************************
 
-struct BfWGWorkShopDataBase
-{
-    uint32 entry;
-    uint32 worldstate;
-    uint32 type;
-    uint32 nameid;
-    BfWGObjectPosition CapturePoint;
-    uint8 nbcreature;
-    BfWGObjectPosition CreatureData[10];
-    uint8 nbgob;
-    BfWGObjectPosition GameObjectData[10];
-};
-// 6 engineer per faction in sql / 6 engineer per faction in header
 #define WG_MAX_WORKSHOP  6
-const BfWGWorkShopDataBase WGWorkShopDataBase[WG_MAX_WORKSHOP] = {
-    {
-        192031,
-        3701,
-        BATTLEFIELD_WG_WORKSHOP_NE,
-        BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NE,
-        { 4949.344238f, 2432.585693f, 320.176971f, 1.386214f, BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_NE, BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_NE },
-        1,
-        {
-            { 4939.759766f, 2389.060059f, 326.153015f, 3.263770f, 30400, 30499 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        },
-        6,
-        {
-            { 4778.189f, 2438.060f, 345.644f, -2.940f, 192280, 192274 },
-            { 5024.569f, 2532.750f, 344.023f, -1.937f, 192280, 192274 },
-            { 4811.399f, 2441.899f, 358.207f, -2.003f, 192435, 192406 },
-            { 4805.669f, 2407.479f, 358.191f, 1.780f, 192435, 192406 },
-            { 5004.350f, 2486.360f, 358.449f, 2.172f, 192435, 192406 },
-            { 4983.279f, 2503.090f, 358.177f, -0.427f, 192435, 192406 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        }
-    },
-    {
-        192030,
-        3700,
-        BATTLEFIELD_WG_WORKSHOP_NW,
-        BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NW,
-        { 4948.524414f, 3342.337891f, 376.875366f, 4.400566f, BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_NW, BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_NW },
-        1,
-        {
-            { 4964.890137f, 3383.060059f, 382.911011f, 6.126110f, 30400, 30499 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        },
-        4,
-        {
-            { 5006.339f, 3280.399f, 371.162f, 2.225f, 192280, 192274 },
-            { 5041.609f, 3294.399f, 382.149f, -1.631f, 192434, 192406 },
-            { 4857.970f, 3335.439f, 368.881f, -2.945f, 192280, 192274 },
-            { 4855.629f, 3297.620f, 376.739f, -3.132f, 192435, 192406 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        }
-    },
-    {
-        192033,
-        3703,
-        BATTLEFIELD_WG_WORKSHOP_SE,
-        BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SE,
-        { 4398.076660f, 2356.503662f, 376.190491f, 0.525406f, BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_SE, BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_SE },
-        9,
-        {
-            { 4417.919922f, 2331.239990f, 370.919006f, 5.846850f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4418.609863f, 2355.290039f, 372.490997f, 6.021390f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4391.669922f, 2300.610107f, 374.743011f, 4.921830f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4349.120117f, 2299.280029f, 374.743011f, 4.904380f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4333.549805f, 2333.909912f, 376.156006f, 0.973007f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4413.430176f, 2393.449951f, 376.359985f, 1.064650f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4388.129883f, 2411.979980f, 374.743011f, 1.640610f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4349.540039f, 2411.260010f, 374.743011f, 2.059490f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4357.669922f, 2357.989990f, 382.006989f, 1.675520f, 30400, 30499 },
-            { 0, 0, 0, 0, 0, 0 }
-        },
-        2,
-        {
-            { 4417.250f, 2301.139f, 377.213f, 0.026f, 192435, 192406 },
-            { 4417.939f, 2324.810f, 371.576f, 3.080f, 192280, 192274 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        }
-    },
-    {
-        192032,
-        3702,
-        BATTLEFIELD_WG_WORKSHOP_SW,
-        BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SW,
-        { 4390.776367f, 3304.094482f, 372.429077f, 6.097023f, BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_SW, BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_SW },
-        9,
-        {
-            { 4425.290039f, 3291.510010f, 370.773987f, 0.122173f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4424.609863f, 3321.100098f, 369.800995f, 0.034907f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4392.399902f, 3354.610107f, 369.597992f, 1.570800f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4370.979980f, 3355.020020f, 371.196991f, 1.675520f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4394.660156f, 3231.989990f, 369.721985f, 4.625120f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4366.979980f, 3233.560059f, 371.584991f, 4.939280f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4337.029785f, 3261.659912f, 373.524994f, 3.263770f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4323.779785f, 3287.100098f, 378.894989f, 2.862340f, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },
-            { 4354.149902f, 3312.820068f, 378.045990f, 1.675520f, 30400, 30499 },
-            { 0, 0, 0, 0, 0, 0 }
-        },
-        3,
-        {
-            { 4438.299f, 3361.080f, 371.567f, -0.017f, 192435, 192406 },
-            { 4448.169f, 3235.629f, 370.411f, -1.562f, 192435, 192406 },
-            { 4424.149f, 3286.540f, 371.545f, 3.124f, 192280, 192274 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        }
-    },
-    {
-        192028,
-        3698,
-        BATTLEFIELD_WG_WORKSHOP_KEEP_WEST,
-        0,
-        { 0, 0, 0, 0, 0, 0 },
-        1,
-        {
-            { 5392.910156f, 2975.260010f, 415.222992f, 4.555310f, 30400, 30499 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        },
-        0,
-        {
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        }
-    },
-    {
-        192029,
-        3699,
-        BATTLEFIELD_WG_WORKSHOP_KEEP_EAST,
-        0,
-        { 0, 0, 0, 0, 0, 0 },
-        1,
-        {
-            { 5391.609863f, 2707.719971f, 415.050995f, 4.555310f, 30400, 30499 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        },
-        0,
-        {
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0 }
-        }
-    }
+
+struct WGWorkshopData
+{
+    uint8 id;
+    uint32 worldstate;
+    uint32 text;
+};
+
+const WGWorkshopData WorkshopsData[WG_MAX_WORKSHOP] =
+{
+    // NE
+    {BATTLEFIELD_WG_WORKSHOP_NE, WORLDSTATE_WORKSHOP_NE, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NE},
+    // NW
+    {BATTLEFIELD_WG_WORKSHOP_NW, WORLDSTATE_WORKSHOP_NW, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NW},
+    // SE
+    {BATTLEFIELD_WG_WORKSHOP_SE, WORLDSTATE_WORKSHOP_SE, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SE},
+    // SW
+    {BATTLEFIELD_WG_WORKSHOP_SW, WORLDSTATE_WORKSHOP_SW, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SW},
+    // KEEP WEST - It can't be taken, so it doesn't have a textid
+    {BATTLEFIELD_WG_WORKSHOP_KEEP_WEST, WORLDSTATE_WORKSHOP_K_W, NULL},
+    // KEEP EAST - It can't be taken, so it doesn't have a textid
+    {BATTLEFIELD_WG_WORKSHOP_KEEP_EAST, WORLDSTATE_WORKSHOP_K_E, NULL}
 };
 
 // ********************************************************************
@@ -1768,6 +1589,76 @@ struct BfWGGameObjectBuilding
     void Save()
     {
         sWorld->setWorldState(m_WorldState, m_State);
+    }
+};
+
+struct WGWorkshop
+{
+    // pointer to the battlefield that the workshop belongs to
+    BattlefieldWG* bf;
+    // id of the workshop, useful to retrieve data of the WorkshopsData array
+    uint8 workshopId;
+    // team that controls the node
+    uint8 teamControl;
+    // for worldstate
+    uint32 state;
+
+    WGWorkshop(BattlefieldWG* _bf, uint8 _workshopId)
+    {
+        ASSERT(bf);
+        ASSERT(_workshopId < WG_MAX_WORKSHOP);
+
+        bf = _bf;
+        workshopId = _workshopId;
+    }
+
+    void ChangeControl(uint8 team, bool init /* for first call in setup */ )
+    {
+        switch (team)
+        {
+            case BATTLEFIELD_WG_TEAM_NEUTRAL:
+            {
+                // Send warning message to all player to inform a faction attack to a workshop
+                // alliance / horde attacking a workshop
+                bf->SendWarningToAllInZone(teamControl ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text + 1);
+                break;
+            }
+            case BATTLEFIELD_WG_TEAM_ALLIANCE:
+            case BATTLEFIELD_WG_TEAM_HORDE:
+            {
+                // Updating worldstate
+                state = team == BATTLEFIELD_WG_TEAM_ALLIANCE ? BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT : BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT;
+                bf->SendUpdateWorldState(WorkshopsData[workshopId].worldstate, state);
+
+                // Warning message
+                if (!init)                              // workshop taken - alliance
+                    bf->SendWarningToAllInZone(team == BATTLEFIELD_WG_TEAM_ALLIANCE ? WorkshopsData[workshopId].text : WorkshopsData[workshopId].text+1);
+
+                // Found associate graveyard and update it
+                if (workshopId < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
+                    if (bf->GetGraveYardById(workshopId))
+                        bf->GetGraveYardById(workshopId)->ChangeControl(team == BATTLEFIELD_WG_TEAM_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE);
+
+                teamControl = team;
+                break;
+            }
+        }
+
+        if (!init)
+            bf->UpdateCounterVehicle(false);
+    }
+
+    void UpdateGraveYardAndWorkshop()
+    {
+        if (workshopId < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
+            bf->GetGraveYardById(workshopId)->ChangeControl(TeamId(teamControl));
+        else
+            ChangeControl(bf->GetDefenderTeam(), true);
+    }
+
+    void Save()
+    {
+        sWorld->setWorldState(WorkshopsData[workshopId].worldstate, state);
     }
 };
 

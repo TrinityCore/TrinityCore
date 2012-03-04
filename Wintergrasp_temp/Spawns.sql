@@ -1,3 +1,13 @@
+-- Before pushing to master check if guids are free.
+-- Spawns Workshop Capture Points
+SET @GUID := 4594;
+DELETE FROM gameobject WHERE guid IN (@GUID+1,@GUID+2,@GUID+3,@GUID+4);
+INSERT INTO gameobject (guid,id,position_x,position_y,position_z,orientation,map) VALUES
+(@GUID+1, 190475, 4949.344238, 2432.585693, 320.176971, 1.386214, 571), -- ne
+(@GUID+2, 190487, 4948.524414, 3342.337891, 376.875366, 4.400566, 571), -- nw
+(@GUID+3, 194959, 4398.076660, 2356.503662, 376.190491, 0.525406, 571), -- se
+(@GUID+4, 194962, 4390.776367, 3304.094482, 372.429077, 6.097023, 571); -- sw
+
 -- EVERYTHING UNDER HERE IS WIP
 /*
 SET @OGUID := XXXXX;

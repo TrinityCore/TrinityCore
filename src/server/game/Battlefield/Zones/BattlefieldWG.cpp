@@ -99,37 +99,21 @@ bool BattlefieldWG::SetupBattlefield()
         m_GraveYardList[i] = gy;
     }
 
+
     // Spawn workshop creatures and gameobjects
     for (uint8 i = 0; i < WG_MAX_WORKSHOP; i++)
     {
-        BfWGWorkShopData *ws = new BfWGWorkShopData(this);      // Create new object
-        // Init:setup variable
-        ws->Init(WGWorkShopDataBase[i].worldstate, WGWorkShopDataBase[i].type, WGWorkShopDataBase[i].nameid);
-        // Spawn associate npc on this point (Guard/Engineer)
-        for (uint8 c = 0; c < WGWorkShopDataBase[i].nbcreature; c++)
-            ws->AddCreature(WGWorkShopDataBase[i].CreatureData[c]);
-
-        // Spawn associate gameobject on this point (Horde/Alliance flags)
-        for (uint8 g = 0; g < WGWorkShopDataBase[i].nbgob; g++)
-            ws->AddGameObject(WGWorkShopDataBase[i].GameObjectData[g]);
-
-        // Create PvPCapturePoint
-        if (WGWorkShopDataBase[i].type < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
-        {
-            ws->ChangeControl(GetAttackerTeam(), true);     // Update control of this point
-            // Create Object
-            BfCapturePointWG *workshop = new BfCapturePointWG(this, GetAttackerTeam());
-            // Spawn gameobject associate (see in OnGameObjectCreate, of OutdoorPvP for see association)
-            workshop->SetCapturePointData(WGWorkShopDataBase[i].CapturePoint.entryh, 571,
-                                          WGWorkShopDataBase[i].CapturePoint.x, WGWorkShopDataBase[i].CapturePoint.y, WGWorkShopDataBase[i].CapturePoint.z, 0);
-            workshop->LinkToWorkShop(ws);                   // Link our point to the capture point (for faction changement)
-            AddCapturePoint(workshop);                      // Add this capture point to list for update this (view in Update() of OutdoorPvP)
-        }
+        WGWorkshop* workshop = new WGWorkshop(this, i);
+        if (i < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
+            workshop->ChangeControl(GetAttackerTeam(), true);
         else
-            ws->ChangeControl(GetDefenderTeam(), true);     // Update control of this point (Keep workshop= to deffender team)
+            workshop->ChangeControl(GetDefenderTeam(), true);
 
-        WorkShopList.insert(ws);
+        //Note: Capture point is added once the gameobject is created.
+
+        WorkshopsList.insert(workshop);
     }
+
     // Spawning npc in keep
     for (uint8 i = 0; i < WG_MAX_KEEP_NPC; i++)
     {
@@ -285,7 +269,7 @@ void BattlefieldWG::OnBattleStart()
     m_Data32[BATTLEFIELD_WG_DATA_DAMAGED_TOWER_DEF] = 0;
 
     // Update graveyard (in no war time all graveyard is to deffender, in war time, depend of base)
-    for (WorkShop::const_iterator itr = WorkShopList.begin(); itr != WorkShopList.end(); ++itr)
+    for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
     {
         if (*itr)
             (*itr)->UpdateGraveYardAndWorkshop();
@@ -320,13 +304,13 @@ void BattlefieldWG::UpdateCounterVehicle(bool init)
     m_Data32[BATTLEFIELD_WG_DATA_MAX_VEHICLE_H] = 0;
     m_Data32[BATTLEFIELD_WG_DATA_MAX_VEHICLE_A] = 0;
 
-    for (WorkShop::const_iterator itr = WorkShopList.begin(); itr != WorkShopList.end(); ++itr)
+    for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
     {
-        if (BfWGWorkShopData* workshop = *itr)
+        if (WGWorkshop* workshop = (*itr))
         {
-            if (workshop->m_TeamControl == TEAM_ALLIANCE)
+            if (workshop->teamControl == TEAM_ALLIANCE)
                 m_Data32[BATTLEFIELD_WG_DATA_MAX_VEHICLE_A] = m_Data32[BATTLEFIELD_WG_DATA_MAX_VEHICLE_A] + 4;
-            else if (workshop->m_TeamControl == TEAM_HORDE)
+            else if (workshop->teamControl == TEAM_HORDE)
                 m_Data32[BATTLEFIELD_WG_DATA_MAX_VEHICLE_H] = m_Data32[BATTLEFIELD_WG_DATA_MAX_VEHICLE_H] + 4;
         }
     }
@@ -408,7 +392,7 @@ void BattlefieldWG::OnBattleEnd(bool endbytimer)
     // Saving data
     for (GameObjectBuilding::const_iterator itr = BuildingsInZone.begin(); itr != BuildingsInZone.end(); ++itr)
         (*itr)->Save();
-    for (WorkShop::const_iterator itr = WorkShopList.begin(); itr != WorkShopList.end(); ++itr)
+    for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
         (*itr)->Save();
 
     uint32 WinHonor = 0;
@@ -702,6 +686,52 @@ void BattlefieldWG::OnCreatureRemove(Creature* creature)
     }
 }
 
+void BattlefieldWG::OnGameObjectCreate(GameObject* go)
+{
+    bool isWorkshop = false;
+    uint8 workshopId = 0;
+
+    switch (go->GetEntry())
+    {
+        case BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_NE:
+            isWorkshop = true;
+            workshopId = BATTLEFIELD_WG_WORKSHOP_NE;
+            break;
+        case BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_NW:
+            isWorkshop = true;
+            workshopId = BATTLEFIELD_WG_WORKSHOP_NW;
+            break;
+        case BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_SE:
+            isWorkshop = true;
+            workshopId = BATTLEFIELD_WG_WORKSHOP_SE;
+            break;
+        case BATTLEFIELD_WG_GAMEOBJECT_FACTORY_BANNER_SW:
+            isWorkshop = true;
+            workshopId = BATTLEFIELD_WG_WORKSHOP_SW;
+            break;
+
+    }
+
+    if (isWorkshop)
+    {
+        for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
+        {
+            if (WGWorkshop* workshop = (*itr))
+            {
+                if (workshop->workshopId == workshopId)
+                {
+                    BfCapturePointWG* capturePoint = new BfCapturePointWG(this, GetAttackerTeam());
+
+                    capturePoint->SetCapturePointData(go);
+                    capturePoint->LinkToWorkShop(workshop);
+                    AddCapturePoint(capturePoint);
+                    break;
+                }
+            }
+        }
+    }
+}
+
 // Called when player kill a unit in wg zone
 void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
 {
@@ -924,12 +954,12 @@ uint32 BattlefieldWG::GetData(uint32 data)
 // Method sending worldsate to player
 WorldPacket BattlefieldWG::BuildInitWorldStates()
 {
-    WorldPacket data(SMSG_INIT_WORLD_STATES, (4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (WorkShopList.size() * 8)));
+    WorldPacket data(SMSG_INIT_WORLD_STATES, (4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (WorkshopsList.size() * 8)));
 
     data << uint32(m_MapId);
     data << uint32(m_ZoneId);
     data << uint32(0);
-    data << uint16(4 + 2 + 4 + BuildingsInZone.size() + WorkShopList.size());
+    data << uint16(4 + 2 + 4 + BuildingsInZone.size() + WorkshopsList.size());
 
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER) << uint32(GetAttackerTeam());
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) << uint32(GetDefenderTeam());
@@ -948,9 +978,12 @@ WorldPacket BattlefieldWG::BuildInitWorldStates()
     {
         data << (*itr)->m_WorldState << (*itr)->m_State;
     }
-    for (WorkShop::const_iterator itr = WorkShopList.begin(); itr != WorkShopList.end(); ++itr)
+    for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
     {
-        data << (*itr)->m_WorldState << (*itr)->m_State;
+        if (!*itr)
+            continue;
+
+        data << WorkshopsData[(*itr)->workshopId].worldstate << (*itr)->state;
     }
     return data;
 }
