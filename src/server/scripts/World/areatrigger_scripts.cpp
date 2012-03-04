@@ -427,13 +427,14 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
 
 enum Area52Entrance
 {
-    NPC_SPOTLIGHT       = 19913,
-    SUMMON_COOLDOWN     = 5,
+    SPELL_A52_NEURALYZER  = 34400,
+    NPC_SPOTLIGHT         = 19913,
+    SUMMON_COOLDOWN       = 5,
 
-    AT_AREA_52_SOUTH    = 4472,
-    AT_AREA_52_NORTH    = 4466,
-    AT_AREA_52_WEST     = 4471,
-    AT_AREA_52_EAST     = 4422,
+    AT_AREA_52_SOUTH      = 4472,
+    AT_AREA_52_NORTH      = 4466,
+    AT_AREA_52_WEST       = 4471,
+    AT_AREA_52_EAST       = 4422,
 };
 
 class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
@@ -446,14 +447,41 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
+            float x, y, z;
+
             if (!player->isAlive())
                 return false;
 
+            uint32 triggerId = trigger->id;
             if (sWorld->GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
                 return false;
 
-            player->SummonCreature(NPC_SPOTLIGHT, trigger->x, trigger->y, trigger->z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+            switch (triggerId)
+            {
+                case AT_AREA_52_EAST:
+                    x = 3044.176f;
+                    y = 3610.692f;
+                    z = 143.61f;
+                    break;
+                case AT_AREA_52_NORTH:
+                    x = 3114.87f;
+                    y = 3687.619f;
+                    z = 143.62f;
+                    break;
+                case AT_AREA_52_WEST:
+                    x = 3017.79f;
+                    y = 3746.806f;
+                    z = 144.27f;
+                    break;
+                case AT_AREA_52_SOUTH:
+                    x = 2950.63f;
+                    y = 3719.905f;
+                    z = 143.33f;
+                    break;
+            }
 
+            player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+            player->AddAura(SPELL_A52_NEURALYZER, player);
             _triggerTimes[trigger->id] = sWorld->GetGameTime();
             return false;
         }
