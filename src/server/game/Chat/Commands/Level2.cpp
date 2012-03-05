@@ -38,11 +38,11 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-#include "OutdoorPvPMgr.h"
-#include "OutdoorPvPWG.h"
 #include "Transport.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
+#include "OutdoorPvPMgr.h"
+#include "OutdoorPvPWG.h"
 
 //mute player for some times
 bool ChatHandler::HandleMuteCommand(const char* args)
@@ -1155,7 +1155,7 @@ bool ChatHandler::HandleWintergraspTimerCommand(const char* args)
     time *= MINUTE * IN_MILLISECONDS;
 
     pvpWG->setTimer((uint32)time);
-
+    sWorld->SendWintergraspState(); //Update WG time at bg tab
     PSendSysMessage(LANG_BG_WG_CHANGE_TIMER, secsToTimeString(pvpWG->GetTimer(), true).c_str());
     return true;
 }

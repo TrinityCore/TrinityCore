@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2008 - 2011 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008 - 2012 Trinity <http://www.trinitycore.org/>
  *
- * Copyright (C) 2011 Patch supported by ChaosUA & TCRU community http://trinity-core.ru/
+ * Copyright (C) 2012 Patch supported by ChaosUA & TCRU community http://trinity-core.ru/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "OutdoorPvPWG.h"
@@ -973,7 +973,7 @@ void OutdoorPvPWG::RebuildAllBuildings()
         if (itr->second->building && itr->second->building->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
         {
             UpdateGameObjectInfo(itr->second->building);
-            //itr->second->building->Rebuild();
+            itr->second->building->Refresh();
             itr->second->building->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
             itr->second->health = itr->second->building->GetGOValue()->Building.Health;
             itr->second->damageState = DAMAGE_INTACT;
@@ -1057,6 +1057,21 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
             {
                 creature->SetVisible(false);
                 creature->setFaction(35);
+
+                // Prevent from hiding
+                switch (entry)
+                {
+                    case 30560: // The RP-GG
+                    case 27852: // This creature is neded for spell_target in workshops while building siege machines
+                    case 27869: // Wintergrasp Detection Unit
+                    case 23472: // World Trigger (Large AOI, Not Immune PC/NPC)
+                    {
+                        creature->SetPhaseMask(1, true);
+                        creature->RestoreFaction();
+                        creature->SetVisible(true);
+                    }
+                    break;
+                }
             } else {
                 creature->RestoreFaction();
                 creature->SetVisible(true);
@@ -1104,7 +1119,7 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
         case CREATURE_GUARD:
         case CREATURE_SPECIAL:
         {
-            //TDB users comment this block if your guards doesn't spawn by pairs A+H at fortress
+            //TDB users comment this block if your guards doesn't spawned by pairs A+H at fortress
             if (creature->GetAreaId()==4575)
             {
                 switch (entry)
@@ -1113,18 +1128,30 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
                     case 32308://Alliance guard
                     {
                         if (getDefenderTeam() == TEAM_ALLIANCE)
+                        {
                             creature->SetPhaseMask(1, true);
+                            creature->SetVisible(true);
+                        }
                         else 
+                        {
                             creature->SetPhaseMask(2, true);
+                            creature->SetVisible(false);
+                        }
                         break;
                     }
                     case 30739://Horde champion
                     case 32307://Horde guard
                     {
                         if (getDefenderTeam() == TEAM_ALLIANCE)
+                        {
                             creature->SetPhaseMask(2, true);
+                            creature->SetVisible(false);
+                        }
                         else 
+                        {
                             creature->SetPhaseMask(1, true);
+                            creature->SetVisible(true);
+                        }
                         break;
                     }
                 }
@@ -1166,7 +1193,9 @@ bool OutdoorPvPWG::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
         {
             creature->CombatStop(true);
             creature->getHostileRefManager().deleteReferences();
+            creature->AI()->EnterEvadeMode();
         }
+
         creature->SetHomePosition(pos);
         if (creature->GetEntry() != 30400 || creature->GetEntry() != 30499)
             creature->SetReactState(REACT_AGGRESSIVE);

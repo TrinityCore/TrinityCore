@@ -44,9 +44,9 @@ INSERT INTO `outdoorpvp_template` (`TypeId`, `ScriptName`, `comment`) VALUES
 /* Teleport WG SPELLs*/
 DELETE FROM `spell_target_position` WHERE id IN ('59096', '58632', '58633');
 INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
-('59096', '571', '5325.06', '2843.36', '409.285', '3.20278'),
-('58632', '571', '5097.79', '2180.29', '365.61', '2.41'),
-('58633', '571', '5026.80', '3676.69', '362.58', '3.94');
+('59096', '571', '4561.58', '2835.33', '389.79', '0.34'),
+('58632', '571', '5025.71', '3673.41', '362.687', '0'),
+('58633', '571', '5094.67', '2170.33', '365.601', '0');
 
 /* Defender's Portal Activate Proper Spell */
 DELETE FROM `spell_linked_spell` WHERE spell_trigger=54640;
@@ -71,7 +71,7 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_demolisher_engineerer' WHERE 
 DELETE FROM `creature` WHERE `id` IN (32170, 32169);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (NULL, 32170, 571, 1, 65535, 27801, 0, 5917.69, 584.167, 660.49, 5.17983, 300, 0, 0, 504000, 440700, 0, 0, 0, 0),
-(NULL, 32170, 571, 1, 65535, 0, 0, 5939.59, 556.516, 640.001, 2.70112, 300, 0, 0, 504000, 440700, 0, 0, 0, 0),
+(NULL, 32170, 571, 1, 65535, 0, 2796, 5939.59, 556.516, 640.001, 2.70112, 300, 0, 0, 504000, 440700, 0, 0, 0, 0),
 (NULL, 32169, 571, 1, 65535, 0, 0, 5698.38, 777.562, 647.852, 5.56938, 900, 0, 0, 504000, 440700, 0, 0, 0, 0);
 
 UPDATE `creature_template` SET `ScriptName`='npc_wg_ally_battle_mage' WHERE `entry`=32169;
@@ -153,3 +153,11 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_start_active`, 
 (57940, 4494, 0, 0, 0, 0, 0, 2, 1),
 (57940, 4603, 0, 0, 0, 0, 0, 2, 1),
 (58045, 4197, 0, 0, 0, 0, 0, 2, 1);
+
+/* Spell target conditions for spawning WG siege machines in proper place while building it */
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (56575,56661,56663,61408);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 56575, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL),
+(13, 1, 56661, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL),
+(13, 1, 56663, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL),
+(13, 1, 61408, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL);

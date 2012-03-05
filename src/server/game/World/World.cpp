@@ -51,7 +51,6 @@
 #include "CreatureAIRegistry.h"
 #include "BattlegroundMgr.h"
 #include "OutdoorPvPMgr.h"
-#include "OutdoorPvPWG.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
@@ -78,6 +77,7 @@
 #include "WardenCheckMgr.h"
 #include "Warden.h"
 #include "CalendarMgr.h"
+#include "OutdoorPvPWG.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;

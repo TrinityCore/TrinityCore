@@ -48,7 +48,6 @@
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
 #include "OutdoorPvPMgr.h"
-#include "OutdoorPvPWG.h"
 #include "Language.h"
 #include "SocialMgr.h"
 #include "Util.h"
@@ -64,6 +63,7 @@
 #include "GameObjectAI.h"
 #include "AccountMgr.h"
 #include "InstanceScript.h"
+#include "OutdoorPvPWG.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {

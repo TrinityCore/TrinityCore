@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2008 - 2011 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008 - 2012 Trinity <http://www.trinitycore.org/>
  *
- * Copyright (C) 2011 Patch supported by ChaosUA & TCRU community http://trinity-core.ru/
+ * Copyright (C) 2012 Patch supported by ChaosUA & TCRU community http://trinity-core.ru/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,12 +10,12 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #ifndef OUTDOOR_PVP_WG_
@@ -30,7 +30,10 @@
 #define POS_X_CENTER             5100
 #define MAX_VEHICLE_PER_WORKSHOP    4
 
-const uint32 WintergraspFaction[3] = {1802, 1801, 35};
+//Creature faction. Needed for proper displaying data(count) about summoned siege machines by teams
+const uint32 WintergraspFaction[3] = {1802, 1801, 35}; //YTDB
+//const uint32 WintergraspFaction[3] = {1732, 1735, 35}; //TDB
+
 const uint32 WG_MARK_OF_HONOR = 43589;
 const uint32 VehNumWorldState[2] = {3680,3490};
 const uint32 MaxVehNumWorldState[2] = {3681,3491};
@@ -58,8 +61,8 @@ enum OutdoorPvPWGSpell
     SPELL_DAMAGED_BUILDING                       = 59201,
     SPELL_INTACT_BUILDING                        = 59203,
 
-    SPELL_TELEPORT_ALLIENCE_CAMP                 = 58632,
-    SPELL_TELEPORT_HORDE_CAMP                    = 58633,
+    SPELL_TELEPORT_ALLIENCE_CAMP                 = 58633,
+    SPELL_TELEPORT_HORDE_CAMP                    = 58632,
     SPELL_TELEPORT_FORTRESS                      = 59096,
 
     SPELL_TELEPORT_DALARAN                       = 53360,

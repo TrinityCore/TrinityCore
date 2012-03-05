@@ -163,15 +163,15 @@ enum WorldBoolConfigs
     CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES,
     CONFIG_PRESERVE_CUSTOM_CHANNELS,
     CONFIG_ARMORY_ENABLE,
-    CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED,
-    CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR,
-    CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE,
     CONFIG_CHANNEL_ON_CITY_ONLY_FLAG,
     CONFIG_PDUMP_NO_PATHS,
     CONFIG_PDUMP_NO_OVERWRITE,
     CONFIG_QUEST_IGNORE_AUTO_ACCEPT,
     CONFIG_QUEST_IGNORE_AUTO_COMPLETE,
     CONFIG_WARDEN_ENABLED,
+    CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED,
+    CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR,
+    CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -318,6 +318,13 @@ enum WorldIntConfigs
     CONFIG_DB_PING_INTERVAL,
     CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION,
     CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS,
+    CONFIG_MAX_INSTANCES_PER_HOUR,
+    CONFIG_WARDEN_CLIENT_RESPONSE_DELAY,
+    CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF,
+    CONFIG_WARDEN_CLIENT_FAIL_ACTION,
+    CONFIG_WARDEN_CLIENT_BAN_DURATION,
+    CONFIG_WARDEN_NUM_MEM_CHECKS,
+    CONFIG_WARDEN_NUM_OTHER_CHECKS,
     CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME,
     CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME,
     CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL,
@@ -330,13 +337,6 @@ enum WorldIntConfigs
     CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD,
     CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK,
     CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF,
-    CONFIG_MAX_INSTANCES_PER_HOUR,
-    CONFIG_WARDEN_CLIENT_RESPONSE_DELAY,
-    CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF,
-    CONFIG_WARDEN_CLIENT_FAIL_ACTION,
-    CONFIG_WARDEN_CLIENT_BAN_DURATION,
-    CONFIG_WARDEN_NUM_MEM_CHECKS,
-    CONFIG_WARDEN_NUM_OTHER_CHECKS,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -797,9 +797,7 @@ class World
         void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
         void DeleteCharaceterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
 
-        uint32 GetCleaningFlags() const { return m_CleaningFlags; }
-        void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
-		
+        // Wintergrasp
         uint32 GetWintergrapsTimer() { return m_WintergrapsTimer; }
         uint32 GetWintergrapsState() { return m_WintergrapsState; }
         uint32 m_WintergrapsTimer;
@@ -811,6 +809,9 @@ class World
             m_WintergrapsState = state;
         }
 
+        uint32 GetCleaningFlags() const { return m_CleaningFlags; }
+        void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+		
         void   ResetEventSeasonalQuests(uint16 event_id);
     protected:
         void _UpdateGameTime();
