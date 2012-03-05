@@ -34,7 +34,6 @@
 #include "Opcodes.h"
 #include "DisableMgr.h"
 #include "Group.h"
-
 #include "OutdoorPvPWG.h"
 #include "OutdoorPvPMgr.h"
 
@@ -588,7 +587,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recv_data)
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
     }
     else
-    {  // Wintergrasp Hack till 3.2 and it's implemented as BG
+    {  // Wintergrasp Hack till 3.3.5 and it's implemented as BG
         if (GetPlayer()->GetZoneId() == 4197)
         {
             OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
@@ -619,7 +618,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
         bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
 	}
     else
-    {  // Wintergrasp Hack till 3.2 and it's implemented as BG
+    {  // Wintergrasp Hack till 3.3.5 and it's implemented as BG
         if (GetPlayer()->GetZoneId() == 4197)
         {
             OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);

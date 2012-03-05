@@ -463,7 +463,7 @@ void GameObject::Update(uint32 diff)
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
 
-                        // allow to use scripts
+                        // allow go to use wg script
                         if (ok->GetTypeId() == TYPEID_PLAYER)
                             if (sScriptMgr->OnGossipHello(ok->ToPlayer(), this))
                                 return;
@@ -1836,8 +1836,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
-            // WG Temporary hack for Fortress towers when it cannot be damaged after been half damaged
-            if (m_goInfo->entry != 190378 && m_goInfo->entry != 190377 && m_goInfo->entry != 190373 && m_goInfo->entry != 190221)
             SetDisplayId(modelId);
 
             if (setHealth)

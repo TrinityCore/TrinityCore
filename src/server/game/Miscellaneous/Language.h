@@ -723,7 +723,6 @@ enum TrinityStrings
     LANG_BG_WG_ENABLE                   = 770,
     LANG_BG_WG_RANK1                    = 771,
     LANG_BG_WG_RANK2                    = 772,
-
     LANG_BG_WG_WORLD_ANNOUNCE_30        = 780,
     LANG_BG_WG_WORLD_ANNOUNCE_10        = 781,
     LANG_BG_WG_WORLD_NO_DEF             = 782,
