@@ -31,19 +31,9 @@ HmacHash::~HmacHash()
     HMAC_CTX_cleanup(&m_ctx);
 }
 
-void HmacHash::UpdateBigNumber(BigNumber* bn)
-{
-    UpdateData(bn->AsByteArray(), bn->GetNumBytes());
-}
-
-void HmacHash::UpdateData(const uint8 *data, int length)
-{
-    HMAC_Update(&m_ctx, data, length);
-}
-
 void HmacHash::UpdateData(const std::string &str)
 {
-    UpdateData((uint8 const*)str.c_str(), str.length());
+    HMAC_Update(&m_ctx, (uint8 const*)str.c_str(), str.length());
 }
 
 void HmacHash::Finalize()
