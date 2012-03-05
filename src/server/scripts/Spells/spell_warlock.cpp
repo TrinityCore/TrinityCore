@@ -348,9 +348,6 @@ class spell_warl_soulshatter : public SpellScriptLoader
 
 enum LifeTap
 {
-    SPELL_LIFE_TAP_RANK_6       = 11689,
-    SPELL_LIFE_TAP_RANK_7       = 27222,
-    SPELL_LIFE_TAP_RANK_8       = 57946,
     SPELL_LIFE_TAP_ENERGIZE     = 31818,
     SPELL_LIFE_TAP_ENERGIZE_2   = 32553,
     ICON_ID_IMPROVED_LIFE_TAP   = 208,
@@ -373,9 +370,7 @@ class spell_warl_life_tap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_RANK_6) || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_RANK_7)
-                    || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_RANK_8) || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_ENERGIZE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_ENERGIZE_2))
+                if (!sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_ENERGIZE) || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_ENERGIZE_2))
                     return false;
                 return true;
             }
