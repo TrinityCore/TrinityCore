@@ -143,8 +143,8 @@ void BattlegroundDS::StartingEventOpenDoors()
     // Remove effects of Demonic Circle Summon
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            if (itr->HasAura(48018))
-                itr->RemoveAurasDueToSpell(48018);
+            if (player->HasAura(48018))
+                player->RemoveAurasDueToSpell(48018);
 }
 
 void BattlegroundDS::AddPlayer(Player* player)
