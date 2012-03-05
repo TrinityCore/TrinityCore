@@ -12700,8 +12700,18 @@ void Unit::setDeathState(DeathState s)
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
-        GetMotionMaster()->Clear(false);
-        GetMotionMaster()->MoveIdle();
+
+        if (!isPet() || (isPet() && IsInWorld()))
+        {
+            // Only clear MotionMaster for non-pet entities OR if pet and in world
+            // Fixes crash when:
+            //  * Using 'call pet' on dead pets
+            //  * Using 'call stabled pet'
+            //  * Logging in with dead pets
+            GetMotionMaster()->Clear(false);
+            GetMotionMaster()->MoveIdle();
+        }
+
         StopMoving();
         // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         // do not why since in IncreaseMaxHealth currenthealth is checked
