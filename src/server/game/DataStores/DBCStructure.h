@@ -1223,16 +1223,19 @@ struct LiquidTypeEntry
     uint32      type;                                       // 3        0: Water, 1: Ocean, 2: Magma, 3: Slime
     uint32      soundid;                                    // 4        Reference to SoundEntries.dbc
     uint32      spellID;                                    // 5        Reference to Spell.dbc
-    float       unk0[4];                                    // 6-9
-    uint32      unk1;                                       // 10       Light?
+    float       maxDarkenDepth                              // 6        Only Slime (6) and Magma (7)
+    float       fogDarkenIntensity                          // 7        Only oceans got values here!
+    float       ambDarkenIntensity                          // 8        Only oceans got values here!
+    float       dirDarkenIntensity                          // 9        Only oceans got values here!
+    uint32      lightID                                     // 10       Only Slime (6) and Magma (7)
     float       particleScale                               // 11       0: Slime, 1: Water/Ocean, 4: Magma
-    uint32      particleMovement;                           // 12
-    uint32      unk2                                        // 13
+    uint32      particleMovement                            // 12
+    uint32      particleTexSlots                            // 13
     uint32      LiquidMaterialID                            // 14       Reference to LiquidMaterial.dbc
     char*       texture[6];                                 // 15-20
-    uint32      unk3[2]                                     // 21-22
-    float       unk4[18];                                   // 23-40
-    uint32      unk5[4]                                     // 41-44
+    uint32      color[2]                                    // 21-22
+    float       floats[18];                                 // 23-40    Most likely these are attributes for the shaders. Water: (23, TextureTilesPerBlock),(24, Rotation) Magma: (23, AnimationX),(24, AnimationY)
+    uint32      ints[4]                                     // 41-44
 };
 */
 
