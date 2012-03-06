@@ -200,16 +200,16 @@ void ArcherAI::AttackStart(Unit* who)
 
     if (me->IsWithinCombatRange(who, m_minRange))
     {
-        if (me->Attack(who, true) && !who->IsFlying())
+        if (me->Attack(who, true) && !who->isFlying())
             me->GetMotionMaster()->MoveChase(who);
     }
     else
     {
-        if (me->Attack(who, false) && !who->IsFlying())
+        if (me->Attack(who, false) && !who->isFlying())
             me->GetMotionMaster()->MoveChase(who, me->m_CombatDistance);
     }
 
-    if (who->IsFlying())
+    if (who->isFlying())
         me->GetMotionMaster()->MoveIdle();
 }
 

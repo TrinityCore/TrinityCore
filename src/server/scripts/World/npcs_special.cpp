@@ -240,7 +240,7 @@ public:
                             return;
 
                         // ROOFTOP only triggers if the player is on the ground
-                        if (!playerTarget->IsFlying() && !lastSpawnedGuard->getVictim())
+                        if (!playerTarget->isFlying() && !lastSpawnedGuard->getVictim())
                             lastSpawnedGuard->AI()->AttackStart(who);
 
                         break;
