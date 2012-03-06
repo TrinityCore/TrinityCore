@@ -325,7 +325,7 @@ void WardenWin::RequestData()
     for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
         stream << *itr << " ";
 
-    sLog->outWarden("%s", stream.str().c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "%s", stream.str().c_str());
 }
 
 void WardenWin::HandleData(ByteBuffer &buff)
