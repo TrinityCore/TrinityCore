@@ -44,8 +44,19 @@ enum Yells
     SAY_YS_HELP                                 = -1603259
 };
 
-#define SAY_TIME_1                              "Warning, this zone will be destroyed in 10 minutes!"
-#define SAY_ALARM_HARD_MODE                     "Self destruction frequence initalized!"
+#define SAY_TIME_1                              "This zone will be destroyed in 10 minutes!"
+#define SAY_TIME_2                              "This zone will be destroyed in 9 minutes!"         //soundid 15416  and below
+#define SAY_TIME_3                              "This zone will be destroyed in 8 minutes!"
+#define SAY_TIME_4                              "This zone will be destroyed in 7 minutes!"
+#define SAY_TIME_5                              "This zone will be destroyed in 6 minutes!"
+#define SAY_TIME_6                              "This zone will be destroyed in 5 minutes!"
+#define SAY_TIME_7                              "This zone will be destroyed in 4 minutes!"
+#define SAY_TIME_8                              "This zone will be destroyed in 3 minutes!"
+#define SAY_TIME_9                              "This zone will be destroyed in 2 minutes!"
+#define SAY_TIME_10                             "This zone will be destroyed in 1 minute!"
+#define SAY_TIME_UP                             "End of the self-destruction-frequence. Have a nice day!"
+#define SAY_TIME_CANCEL                         "Self-destruction-frequence abborded. Transmitter code A905."
+#define SAY_ALARM_HARD_MODE                     "Self-destruction-frequence initalized!"
 #define EMOTE_LEVIATHAN                         "Leviathan MK II begins to cast Plasma Blast!"
 
 enum Spells
@@ -101,6 +112,18 @@ enum Spells
 
 enum Events
 {
+    //Hardmode announcing
+    EVENT_9MINS,
+    EVENT_8MINS,
+    EVENT_7MINS,
+    EVENT_6MINS,
+    EVENT_5MINS,
+    EVENT_4MINS,
+    EVENT_3MINS,
+    EVENT_2MINS,
+    EVENT_1MINS,
+    EVENT_TIMEUP,
+    EVENT_CANCEL,
     // Leviathan MK II
     EVENT_PROXIMITY_MINE = 1,
     EVENT_NAPALM_SHELL,
@@ -330,8 +353,78 @@ class boss_mimiron : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                // prevent mimiron staying infight with leviathan introduced in rev #b40bf69
-                // TODO: find out why this happens
+            events.Update(diff);
+
+            if (_mimironHardMode)
+            {
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_9MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15416);
+                            me->MonsterYell(SAY_TIME_2, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_8MINS, 60000);
+                            break;
+                        case EVENT_8MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15417);
+                            me->MonsterYell(SAY_TIME_3, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_7MINS, 60000);
+                            break;
+                        case EVENT_7MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15418);
+                            me->MonsterYell(SAY_TIME_4, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_6MINS, 60000);
+                            break;
+                        case EVENT_6MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15419);
+                            me->MonsterYell(SAY_TIME_5, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_5MINS, 60000);
+                            break;
+                        case EVENT_5MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15420);
+                            me->MonsterYell(SAY_TIME_6, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_4MINS, 60000);
+                            break;
+                        case EVENT_4MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15421);
+                            me->MonsterYell(SAY_TIME_7, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_3MINS, 60000);
+                            break;
+                        case EVENT_3MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15422);
+                            me->MonsterYell(SAY_TIME_8, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_2MINS, 60000);
+                            break;
+                        case EVENT_2MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15423);
+                            me->MonsterYell(SAY_TIME_9, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_1MINS, 60000);
+                            break;
+                        case EVENT_1MINS:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15424);
+                            me->MonsterYell(SAY_TIME_10, LANG_UNIVERSAL, 0);
+//                            events.ScheduleEvent(EVENT_TIMEUP, 60000);
+                            break;
+                        case EVENT_TIMEUP:
+                            me->SetName("Computer");
+                            me->PlayDirectSound(15425);
+                            me->MonsterYell(SAY_TIME_UP, LANG_UNIVERSAL, 0);
+                            break;
+                    }
+                }
+            }
+
+
                 if (_checkTargetTimer < diff)
                 {
                     if (!SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
@@ -479,7 +572,7 @@ class boss_mimiron : public CreatureScript
                                 me->SetName("Mimiron");
                                 me->ChangeSeat(5);
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
-                                JumpToNextStep(2500);
+                                JumpToNextStep(3000);
                                 break;
                             case 6:
                                 DoScriptText(SAY_MKII_ACTIVATE, me);
@@ -498,9 +591,21 @@ class boss_mimiron : public CreatureScript
                                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                         Leviathan->AI()->DoAction(DO_START_ENCOUNTER);
                                         _phase = PHASE_COMBAT;
+                                        me->SetName("Computer");
+                                        events.ScheduleEvent(EVENT_9MINS, 60000);
+                                        events.ScheduleEvent(EVENT_8MINS, 120000);
+                                        events.ScheduleEvent(EVENT_7MINS, 180000);
+                                        events.ScheduleEvent(EVENT_6MINS, 240000);
+                                        events.ScheduleEvent(EVENT_5MINS, 300000);
+                                        events.ScheduleEvent(EVENT_4MINS, 360000);
+                                        events.ScheduleEvent(EVENT_3MINS, 420000);
+                                        events.ScheduleEvent(EVENT_2MINS, 480000);
+                                        events.ScheduleEvent(EVENT_1MINS, 540000);
+                                        events.ScheduleEvent(EVENT_TIMEUP, 600000);
+
                                     }
                                 }
-                                break;
+                                break;                                 
                             default:
                                 break;
                         }
