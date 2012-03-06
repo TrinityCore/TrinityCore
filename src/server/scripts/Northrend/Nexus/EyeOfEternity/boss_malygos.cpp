@@ -241,7 +241,7 @@ public:
             _cannotMove = true;
 
             me->SetFlying(true);
-            
+
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
@@ -362,7 +362,7 @@ public:
             Talk(SAY_AGGRO_P_ONE);
 
             DoCast(SPELL_BERSEKER); // periodic aura, first tick in 10 minutes
-            
+
             if (instance)
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }

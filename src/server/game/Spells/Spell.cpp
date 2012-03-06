@@ -6444,7 +6444,7 @@ void Spell::UpdatePointers()
         SpellDestination& dest = m_destTargets[effIndex];
         if (!dest._transportGUID)
             continue;
-        
+
         if (!transport || transport->GetGUID() != dest._transportGUID)
             transport = ObjectAccessor::GetWorldObject(*m_caster, dest._transportGUID);
 

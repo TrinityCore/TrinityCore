@@ -1303,10 +1303,10 @@ public:
                 return false;
 
             char* mask2 = strtok(NULL, " \n");
-            
+
             uint32 moveFlags = (uint32)atoi(mask1);
             target->SetUnitMovementFlags(moveFlags);
-            
+
             if (mask2)
             {
                 uint32 moveFlagsExtra = uint32(atoi(mask2));
@@ -1316,7 +1316,7 @@ public:
             target->SendMovementFlagUpdate();
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
         }
-        
+
         return true;
     }
 };
