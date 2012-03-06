@@ -47,9 +47,9 @@ INSERT INTO `gameobject` VALUES
 (NULL, 194625, 603, 3, 1, 1995.03, -52.98, 241.02, 0, 0, 0, 1, 0, 300, 0, 1);
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (34072, 34122, 34123);
 INSERT INTO `npc_spellclick_spells` VALUES
-(34072, 63989, 0, 0, 0, 3, 0, 0, 0), -- Stormwind
-(34122, 63997, 0, 0, 0, 3, 0, 0, 0), -- Chamber
-(34123, 63998, 0, 0, 0, 3, 0, 0, 0); -- Icecrown
+(34072, 63989, 3, 0), -- Stormwind
+(34122, 63997, 3, 0), -- Chamber
+(34123, 63998, 3, 0); -- Icecrown
 -- Cancel Illusion Room Aura
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 63992;
 INSERT INTO `spell_linked_spell` VALUES
@@ -72,8 +72,8 @@ UPDATE `creature_template` SET `minlevel` = 82, `maxlevel` = 82, `faction_A` = 1
 UPDATE creature_model_info SET bounding_radius = 0.306, combat_reach = 1.5 WHERE modelid = 28815;
 -- Constrictor vehicle
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 33983;
-INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`quest_start_active`,`quest_end`,`cast_flags`,`aura_required`,`aura_forbidden`,`user_type`) VALUES
-(33983,46598,0,0,0,0,0,0,0);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
+(33983,46598,0,0);
 UPDATE `creature_template` SET `difficulty_entry_1` = 33967, `faction_A` = 14, `faction_H` = 14, `baseattacktime` = 1800, `ScriptName` = 'npc_crusher_tentacle' WHERE `entry` = 33966;
 UPDATE `creature_template` SET `minlevel` = 81, `maxlevel` = 81, `faction_A` = 14, `faction_H` = 14, `baseattacktime` = 1800 WHERE `entry` = 33967;
 UPDATE creature_model_info SET bounding_radius = 0.985, combat_reach = 5 WHERE modelid = 28814;
@@ -121,32 +121,32 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_sanity_well' WHERE `entry` = 
 -- Death Ray Target
 DELETE FROM conditions WHERE SourceEntry IN (63882, 63886);
 INSERT INTO conditions VALUES 
-(13, 0, 63882, 0, 18, 1, 33134, 0, 0, '', 'Death Ray Warning (Yogg-Saron)'),
-(13, 0, 63886, 0, 18, 1, 33134, 0, 0, '', 'Death Ray Damage (Yogg-Saron)');
+(13, 0, 63882, 0, 18, 1, 0, 33134, 0, 0, 0, 0, '', 'Death Ray Warning (Yogg-Saron)'),
+(13, 0, 63886, 0, 18, 1, 0, 33134, 0, 0, 0, 0, '', 'Death Ray Damage (Yogg-Saron)');
 
 -- Shattered Illusion Targets
 DELETE FROM conditions WHERE SourceEntry = 64173;
 INSERT INTO conditions VALUES 
-(13, 0, 64173, 0, 18, 1, 33966, 0, 0, '', 'Shattered Illusion (Yogg-Saron)'),
-(13, 0, 64173, 0, 18, 1, 33983, 0, 0, '', 'Shattered Illusion (Yogg-Saron)'),
-(13, 0, 64173, 0, 18, 1, 33985, 0, 0, '', 'Shattered Illusion (Yogg-Saron)');
+(13, 0, 64173, 0, 18, 1, 0, 33966, 0, 0, 0, 0, '', 'Shattered Illusion (Yogg-Saron)'),
+(13, 0, 64173, 0, 18, 1, 0, 33983, 0, 0, 0, 0, '', 'Shattered Illusion (Yogg-Saron)'),
+(13, 0, 64173, 0, 18, 1, 0, 33985, 0, 0, 0, 0, '', 'Shattered Illusion (Yogg-Saron)');
 
 -- Thorim's Titanic Storm
 DELETE FROM conditions WHERE SourceEntry = 64172;
 INSERT INTO conditions VALUES 
-(13, 0, 64172, 0, 18, 1, 33988, 0, 0, '', 'Thorim''s Titanic Storm (Yogg-Saron)');
+(13, 0, 64172, 0, 18, 1, 0, 33988, 0, 0, 0, 0, '', 'Thorim''s Titanic Storm (Yogg-Saron)');
 
 -- Empowering Shadows
 DELETE FROM conditions WHERE SourceEntry = 64468;
 INSERT INTO conditions VALUES 
-(13, 0, 64468, 0, 18, 1, 33288, 0, 0, '', 'Empowering Shadows (Yogg-Saron)'),
-(13, 0, 64468, 0, 18, 1, 33988, 0, 0, '', 'Empowering Shadows (Yogg-Saron)');
+(13, 0, 64468, 0, 18, 1, 0, 33288, 0, 0, 0, 0, '', 'Empowering Shadows (Yogg-Saron)'),
+(13, 0, 64468, 0, 18, 1, 0, 33988, 0, 0, 0, 0, '', 'Empowering Shadows (Yogg-Saron)');
 
 -- Shadow Nova Target
 DELETE FROM conditions WHERE SourceEntry IN (62714, 65209);
 INSERT INTO conditions VALUES 
-(13, 0, 62714, 0, 18, 1, 33134, 0, 0, '', 'Shadow Nova (Yogg-Saron)'),
-(13, 0, 65209, 0, 18, 1, 33134, 0, 0, '', 'Shadow Nova (Yogg-Saron)');
+(13, 0, 62714, 0, 18, 1, 0, 33134, 0, 0, 0, 0, '', 'Shadow Nova (Yogg-Saron)'),
+(13, 0, 65209, 0, 18, 1, 0, 33134, 0, 0, 0, 0, '', 'Shadow Nova (Yogg-Saron)');
 
 -- Spell Scripts
 DELETE FROM spell_script_names WHERE spell_id IN (64164, 64168, 64059);
