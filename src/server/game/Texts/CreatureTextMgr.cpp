@@ -160,7 +160,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
             LocaleConstant locale = LocaleConstant(i);
-            ObjectMgr::AddLocaleString(fields[2 + i - 1].GetString(), locale, loc.Text);
+            ObjectMgr::AddLocaleString(fields[3 + i - 1].GetString(), locale, loc.Text);
         }
 
         ++textCount;
