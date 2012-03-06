@@ -37,17 +37,17 @@ INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`m
 (33298,35332,0,1, 'Darnassian Nightsaber');
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` in (33299,33418,33409,33300,33408,33301,33414,33297,33416,33298);
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) VALUES
-(33299, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33418, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33409, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33300, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33408, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33301, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33414, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33297, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33416, 68503, 0, 0, 0, 1, 0, 0, 0),
-(33298, 68503, 0, 0, 0, 1, 0, 0, 0);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(33299, 68503, 1, 0),
+(33418, 68503, 1, 0),
+(33409, 68503, 1, 0),
+(33300, 68503, 1, 0),
+(33408, 68503, 1, 0),
+(33301, 68503, 1, 0),
+(33414, 68503, 1, 0),
+(33297, 68503, 1, 0),
+(33416, 68503, 1, 0),
+(33298, 68503, 1, 0);
 
 DELETE FROM `vehicle_template_accessory` WHERE `entry` in (33318,33319,33316,33317,33217,33324,33322,33320,33323,33321);
 INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`minion`,`description`) VALUES
