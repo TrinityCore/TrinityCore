@@ -1294,7 +1294,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                     default:
                         break;
                 }
-                
+
                 switch (spellInfo->Effects[i].TargetB.GetSelectionCategory())
                 {
                     case TARGET_SELECT_CATEGORY_NEARBY:
