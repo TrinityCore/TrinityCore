@@ -348,9 +348,6 @@ class spell_warl_soulshatter : public SpellScriptLoader
 
 enum LifeTap
 {
-    SPELL_LIFE_TAP_RANK_6       = 11689,
-    SPELL_LIFE_TAP_RANK_7       = 27222,
-    SPELL_LIFE_TAP_RANK_8       = 57946,
     SPELL_LIFE_TAP_ENERGIZE     = 31818,
     SPELL_LIFE_TAP_ENERGIZE_2   = 32553,
     ICON_ID_IMPROVED_LIFE_TAP   = 208,
@@ -373,9 +370,7 @@ class spell_warl_life_tap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_RANK_6) || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_RANK_7)
-                    || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_RANK_8) || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_ENERGIZE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_ENERGIZE_2))
+                if (!sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_ENERGIZE) || !sSpellMgr->GetSpellInfo(SPELL_LIFE_TAP_ENERGIZE_2))
                     return false;
                 return true;
             }
@@ -388,15 +383,7 @@ class spell_warl_life_tap : public SpellScriptLoader
                     SpellInfo const* spellInfo = GetSpellInfo();
                     float spFactor = 0.0f;
                     int32 damage = int32(GetEffectValue() + (6.3875 * spellInfo->BaseLevel));
-                    switch (spellInfo->Id)
-                    {
-                        case SPELL_LIFE_TAP_RANK_6: spFactor = 0.2f; break;
-                        case SPELL_LIFE_TAP_RANK_7:
-                        case SPELL_LIFE_TAP_RANK_8: spFactor = 0.5f; break;
-                        default: break;
-                    }
-
-                    int32 mana = int32(damage + (caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+SPELL_SCHOOL_SHADOW) * spFactor));
+                    int32 mana = int32(damage + (caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+SPELL_SCHOOL_SHADOW) * 0.5f));
 
                     // Shouldn't Appear in Combat Log
                     target->ModifyHealth(-damage);
@@ -423,9 +410,7 @@ class spell_warl_life_tap : public SpellScriptLoader
             SpellCastResult CheckCast()
             {
                 if ((int32(GetCaster()->GetHealth()) > int32(GetSpellInfo()->Effects[EFFECT_0].CalcValue() + (6.3875 * GetSpellInfo()->BaseLevel))))
-                {
                     return SPELL_CAST_OK;
-                }
                 return SPELL_FAILED_FIZZLE;
             }
 
