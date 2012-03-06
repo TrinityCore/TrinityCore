@@ -169,6 +169,8 @@ uint8 *BigNumber::AsByteArray(int minSize, bool reverse)
 {
     int length = (minSize >= GetNumBytes()) ? minSize : GetNumBytes();
 
+    ACE_GUARD_RETURN(ACE_Mutex, g, _lock, 0);
+
     if (_array)
     {
         delete[] _array;
