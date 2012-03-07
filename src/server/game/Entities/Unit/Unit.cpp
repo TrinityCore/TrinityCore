@@ -17108,20 +17108,6 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << (float)m_movementInfo.splineElevation;
 }
 
-void Unit::SetFlying(bool apply)
-{
-    if (apply)
-    {
-        SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
-    }
-    else
-    {
-        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
-    }
-}
-
 void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool casting /*= false*/)
 {
     DisableSpline();
@@ -17466,6 +17452,25 @@ bool Unit::SetLevitate(bool enable)
         AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+
+    return true;
+}
+
+bool Unit::SetFlying(bool enable)
+{
+    if (enable == isFlying() && enable == canFly())
+        return false;
+
+    if (enable)
+    {
+        SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
+    }
+    else
+    {
+        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
+    }
 
     return true;
 }

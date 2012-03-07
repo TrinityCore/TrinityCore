@@ -522,6 +522,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool SetWalk(bool enable);
         bool SetLevitate(bool enable);
+        bool SetFlying(bool enable);
 
         uint32 GetShieldBlockValue() const                  //dunno mob block value
         {

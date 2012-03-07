@@ -1517,7 +1517,7 @@ void Creature::setDeathState(DeathState s)
         if (m_formation && m_formation->getLeader() == this)
             m_formation->FormationReset(true);
 
-        if ((canFly() || IsFlying()))
+        if ((canFly() || isFlying()))
             i_motionMaster.MoveFall();
 
         Unit::setDeathState(CORPSE);
@@ -2425,6 +2425,17 @@ bool Creature::SetLevitate(bool enable)
         return false;
 
     WorldPacket data(enable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
+    data.append(GetPackGUID());
+    SendMessageToSet(&data, true);
+    return true;
+}
+
+bool Creature::SetFlying(bool enable)
+{
+    if (!Unit::SetFlying(enable))
+        return false;
+
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_FLYING : SMSG_SPLINE_MOVE_UNSET_FLYING, 9);
     data.append(GetPackGUID());
     SendMessageToSet(&data, true);
     return true;
