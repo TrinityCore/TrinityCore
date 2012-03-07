@@ -73,7 +73,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -253,7 +252,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -299,7 +297,6 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
     };
-
 };
 
 /*######
@@ -313,10 +310,10 @@ class npc_overseer_nuaar : public CreatureScript
 public:
     npc_overseer_nuaar() : CreatureScript("npc_overseer_nuaar") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->SEND_GOSSIP_MENU(10533, creature->GetGUID());
             player->AreaExploredOrEventHappens(10682);
@@ -333,7 +330,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -348,10 +344,10 @@ class npc_saikkal_the_elder : public CreatureScript
 public:
     npc_saikkal_the_elder() : CreatureScript("npc_saikkal_the_elder") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_STE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -374,7 +370,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -423,7 +418,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -469,7 +463,6 @@ public:
 
         void UpdateAI(const uint32 /*uiDiff*/) {}
     };
-
 };
 
 /*######
@@ -534,7 +527,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
