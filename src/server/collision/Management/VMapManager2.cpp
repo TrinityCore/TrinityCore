@@ -30,6 +30,7 @@
 #include <ace/Null_Mutex.h>
 #include <ace/Singleton.h>
 #include "DisableMgr.h"
+#include "DBCStores.h"
 
 using G3D::Vector3;
 
@@ -234,7 +235,7 @@ namespace VMAP
                     floor = info.ground_Z;
                     ASSERT(floor < std::numeric_limits<float>::max());
                     type = info.hitModel->GetLiquidType();  // entry from LiquidType.dbc
-                    if (reqLiquidType && !(type & reqLiquidType))
+                    if (reqLiquidType && !(GetLiquidFlags(type) & reqLiquidType))
                         return false;
                     if (info.hitInstance->GetLiquidLevel(pos, info, level))
                         return true;
