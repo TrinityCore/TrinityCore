@@ -80,9 +80,9 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool ok_loot = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+        bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
 
-        if (!ok_loot || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        if (!lootAllowed || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
         {
             player->SendLootRelease(lguid);
             return;

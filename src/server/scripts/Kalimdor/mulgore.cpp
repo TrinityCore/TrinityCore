@@ -43,10 +43,10 @@ class npc_skorn_whitecloud : public CreatureScript
 public:
     npc_skorn_whitecloud() : CreatureScript("npc_skorn_whitecloud") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF)
+        if (action == GOSSIP_ACTION_INFO_DEF)
             player->SEND_GOSSIP_MENU(523, creature->GetGUID());
 
         return true;

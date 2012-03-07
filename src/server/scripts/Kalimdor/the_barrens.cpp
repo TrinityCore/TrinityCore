@@ -51,10 +51,10 @@ class npc_beaten_corpse : public CreatureScript
 public:
     npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
+        if (action == GOSSIP_ACTION_INFO_DEF +1)
         {
             player->SEND_GOSSIP_MENU(3558, creature->GetGUID());
             player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
@@ -186,10 +186,10 @@ class npc_sputtervalve : public CreatureScript
 public:
     npc_sputtervalve() : CreatureScript("npc_sputtervalve") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF)
+        if (action == GOSSIP_ACTION_INFO_DEF)
         {
             player->SEND_GOSSIP_MENU(2013, creature->GetGUID());
             player->AreaExploredOrEventHappens(6981);

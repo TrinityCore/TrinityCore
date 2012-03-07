@@ -43,8 +43,8 @@ public:
 
         void Reset()
         {
-            GroundTremor_Timer   = 12000;
-            Frenzy_Timer         = 0;
+            GroundTremor_Timer = 12000;
+            Frenzy_Timer =0;
         }
 
         void EnterCombat(Unit* /*who*/) {}

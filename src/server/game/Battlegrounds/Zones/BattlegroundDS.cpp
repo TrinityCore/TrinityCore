@@ -65,6 +65,19 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
             setPipeKnockBackTimer(getPipeKnockBackTimer() - diff);
     }
 
+    if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_ON) // Repeat knockback while the waterfall still active
+    {
+        if (getWaterFallKnockbackTimer() < diff)
+        {
+            if (Creature* waterSpout = GetBgMap()->GetCreature(BgCreatures[BG_DS_NPC_WATERFALL_KNOCKBACK]))
+                waterSpout->CastSpell(waterSpout, BG_DS_SPELL_WATER_SPOUT, true);
+
+            setWaterFallKnockbackTimer(BG_DS_WATERFALL_KNOCKBACK_TIMER);
+        }
+        else
+            setWaterFallKnockbackTimer(getWaterFallKnockbackTimer() - diff);
+    }
+
     if (getWaterFallTimer() < diff)
     {
         if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_OFF) // Add the water
@@ -83,6 +96,7 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
 
             setWaterFallTimer(BG_DS_WATERFALL_DURATION);
             setWaterFallStatus(BG_DS_WATERFALL_STATUS_ON);
+            setWaterFallKnockbackTimer(BG_DS_WATERFALL_KNOCKBACK_TIMER);
         }
         else //if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_ON) // Remove collision and water
         {
@@ -125,6 +139,12 @@ void BattlegroundDS::StartingEventOpenDoors()
     // Turn off collision
     if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
         gob->SetGoState(GO_STATE_ACTIVE);
+
+    // Remove effects of Demonic Circle Summon
+    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            if (player->HasAura(48018))
+                player->RemoveAurasDueToSpell(48018);
 }
 
 void BattlegroundDS::AddPlayer(Player* player)
@@ -173,6 +193,10 @@ void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
     {
         case 5347:
         case 5348:
+            // Remove effects of Demonic Circle Summon
+            if (Source->HasAura(48018))
+                Source->RemoveAurasDueToSpell(48018);
+
             // Someone has get back into the pipes and the knockback has already been performed,
             // so we reset the knockback count for kicking the player again into the arena.
             if (getPipeKnockBackCount() >= BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT)

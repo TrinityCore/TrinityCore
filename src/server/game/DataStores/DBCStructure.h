@@ -527,6 +527,7 @@ struct AreaTableEntry
     char*   area_name[16];                                  // 11-26
                                                             // 27, string flags, unused
     uint32  team;                                           // 28
+    uint32  LiquidTypeOverride[4];                          // 29-32 liquid override by type
 
     // helpers
     bool IsSanctuary() const
@@ -1214,27 +1215,29 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (type << 24); }
 };
 
-/*
+
 struct LiquidTypeEntry
 {
-    uint32      ID;                                         // 0
-    char*       name;                                       // 1
-    uint32      flags;                                      // 2        Water: 1|2|4|8, Magma: 8|16|32|64, Slime: 2|64|256, WMO Ocean: 1|2|4|8|512
-    uint32      type;                                       // 3        0: Water, 1: Ocean, 2: Magma, 3: Slime
-    uint32      soundid;                                    // 4        Reference to SoundEntries.dbc
-    uint32      spellID;                                    // 5        Reference to Spell.dbc
-    float       unk0[4];                                    // 6-9
-    uint32      unk1;                                       // 10       Light?
-    float       particleScale                               // 11       0: Slime, 1: Water/Ocean, 4: Magma
-    uint32      particleMovement;                           // 12
-    uint32      unk2                                        // 13
-    uint32      LiquidMaterialID                            // 14       Reference to LiquidMaterial.dbc
-    char*       texture[6];                                 // 15-20
-    uint32      unk3[2]                                     // 21-22
-    float       unk4[18];                                   // 23-40
-    uint32      unk5[4]                                     // 41-44
+    uint32 Id;
+    //char*  Name;
+    //uint32 Flags;
+    uint32 Type;
+    //uint32 SoundId;
+    uint32 SpellId;
+    //float MaxDarkenDepth;
+    //float FogDarkenIntensity;
+    //float AmbDarkenIntensity;
+    //float DirDarkenIntensity;
+    //uint32 LightID;
+    //float ParticleScale;
+    //uint32 ParticleMovement;
+    //uint32 ParticleTexSlots;
+    //uint32 LiquidMaterialID;
+    //char* Texture[6];
+    //uint32 Color[2];
+    //float Unk1[18];
+    //uint32 Unk2[4];
 };
-*/
 
 #define MAX_LOCK_CASE 8
 

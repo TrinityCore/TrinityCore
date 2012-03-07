@@ -157,10 +157,10 @@ class npc_zulaman_hostage : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
-            if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
                 player->CLOSE_GOSSIP_MENU();
 
             if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))

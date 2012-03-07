@@ -99,12 +99,12 @@ public:
                 {
                     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
-                        Player* pGroupie = itr->getSource();
-                        if (pGroupie &&
-                            pGroupie->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
-                            pGroupie->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
+                        Player* groupie = itr->getSource();
+                        if (groupie &&
+                            groupie->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
+                            groupie->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
                         {
-                            pGroupie->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
+                            groupie->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
                             if (!CanDoQuest)
                                 CanDoQuest = true;
                         }
@@ -150,7 +150,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -183,7 +182,6 @@ public:
                         DoCast(me, 39130, true);
         }
     };
-
 };
 
 /*######
@@ -245,7 +243,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######
@@ -278,7 +275,6 @@ public:
                         DoCast(me, 39134, true);
         }
     };
-
 };
 
 /*######
@@ -331,7 +327,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -358,15 +353,15 @@ class npc_floon : public CreatureScript
 public:
     npc_floon() : CreatureScript("npc_floon") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF)
+        if (action == GOSSIP_ACTION_INFO_DEF)
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             player->SEND_GOSSIP_MENU(9443, creature->GetGUID());
         }
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
             creature->setFaction(FACTION_HOSTILE_FL);
@@ -439,7 +434,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -533,7 +527,6 @@ public:
     {
         return new npc_isla_starmaneAI(creature);
     }
-
 };
 
 /*######
@@ -549,12 +542,12 @@ class go_skull_pile : public GameObjectScript
 public:
     go_skull_pile() : GameObjectScript("go_skull_pile") { }
 
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiSender)
+        switch (sender)
         {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, go, uiAction); break;
+            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, go, action); break;
         }
         return true;
     }
@@ -573,9 +566,9 @@ public:
         return true;
     }
 
-    void SendActionMenu(Player* player, GameObject* /*go*/, uint32 uiAction)
+    void SendActionMenu(Player* player, GameObject* /*go*/, uint32 action)
     {
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                   player->CastSpell(player, 40642, false);
@@ -607,10 +600,10 @@ class npc_slim : public CreatureScript
 public:
     npc_slim() : CreatureScript("npc_slim") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_TRADE)
+        if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
 
         return true;
@@ -628,7 +621,6 @@ public:
 
         return true;
     }
-
 };
 
 /*########
@@ -695,7 +687,6 @@ public:
             summon->AI()->AttackStart(me);
         }
     };
-
 };
 
 void AddSC_terokkar_forest()

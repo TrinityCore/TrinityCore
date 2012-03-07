@@ -40,12 +40,12 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     float x, y, z;
     //! Following block of code deleted by MrSmite in issue 4891
     //! Code kept for learning and diagnostical purposes
-// 
+//
 //     if (i_offset && i_target->IsWithinDistInMap(&owner,2*i_offset))
 //     {
 //         if (!owner.movespline->Finalized())
 //             return;
-// 
+//
 //         owner.GetPosition(x, y, z);
 //     }
 //     else

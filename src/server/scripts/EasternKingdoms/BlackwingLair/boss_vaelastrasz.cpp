@@ -51,20 +51,20 @@ class boss_vaelastrasz : public CreatureScript
 public:
     boss_vaelastrasz() : CreatureScript("boss_vaelastrasz") { }
 
-    void SendDefaultMenu(Player* player, Creature* creature, uint32 Action)
+    void SendDefaultMenu(Player* player, Creature* creature, uint32 action)
     {
-        if (Action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
         {
             player->CLOSE_GOSSIP_MENU();
             CAST_AI(boss_vaelastrasz::boss_vaelAI, creature->AI())->BeginSpeech(player);
         }
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 Action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (Sender == GOSSIP_SENDER_MAIN)
-            SendDefaultMenu(player, creature, Action);
+        if (sender == GOSSIP_SENDER_MAIN)
+            SendDefaultMenu(player, creature, action);
 
         return true;
     }
@@ -108,17 +108,17 @@ public:
 
         void Reset()
         {
-            PlayerGUID             = 0;
-            SpeechTimer            = 0;
-            SpeechNum              = 0;
-            Cleave_Timer           = 8000;     //These times are probably wrong
-            FlameBreath_Timer      = 11000;
-            BurningAdrenalineCaster_Timer    = 15000;
-            BurningAdrenalineTank_Timer      = 45000;
-            FireNova_Timer         = 5000;
-            TailSwipe_Timer        = 20000;
-            HasYelled              = false;
-            DoingSpeech            = false;
+            PlayerGUID = 0;
+            SpeechTimer = 0;
+            SpeechNum = 0;
+            Cleave_Timer = 8000;                                // These times are probably wrong
+            FlameBreath_Timer = 11000;
+            BurningAdrenalineCaster_Timer = 15000;
+            BurningAdrenalineTank_Timer = 45000;
+            FireNova_Timer = 5000;
+            TailSwipe_Timer = 20000;
+            HasYelled = false;
+            DoingSpeech = false;
         }
 
         void BeginSpeech(Unit* target)

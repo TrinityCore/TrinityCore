@@ -43,8 +43,8 @@ public:
 
         void Reset()
         {
-            WhirlWind_Timer     = 12000;
-            MortalStrike_Timer  = 22000;
+            WhirlWind_Timer = 12000;
+            MortalStrike_Timer = 22000;
         }
 
         void EnterCombat(Unit* /*who*/)

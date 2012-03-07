@@ -106,6 +106,7 @@ public:
             { "lfg_dungeon_rewards",          SEC_ADMINISTRATOR, true,  &HandleReloadLfgRewardsCommand,                 "", NULL },
             { "locales_achievement_reward",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesAchievementRewardCommand,   "", NULL },
             { "locales_creature",             SEC_ADMINISTRATOR, true,  &HandleReloadLocalesCreatureCommand,            "", NULL },
+            { "locales_creature_text",        SEC_ADMINISTRATOR, true,  &HandleReloadLocalesCreatureTextCommand,        "", NULL },
             { "locales_gameobject",           SEC_ADMINISTRATOR, true,  &HandleReloadLocalesGameobjectCommand,          "", NULL },
             { "locales_gossip_menu_option",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesGossipMenuOptionCommand,    "", NULL },
             { "locales_item",                 SEC_ADMINISTRATOR, true,  &HandleReloadLocalesItemCommand,                "", NULL },
@@ -152,7 +153,7 @@ public:
             { "spell_threats",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellThreatsCommand,               "", NULL },
             { "spell_group_stack_rules",      SEC_ADMINISTRATOR, true,  &HandleReloadSpellGroupStackRulesCommand,       "", NULL },
             { "trinity_string",               SEC_ADMINISTRATOR, true,  &HandleReloadTrinityStringCommand,              "", NULL },
-            { "warden_action",                SEC_ADMINISTRATOR, true,  &HandleReloadWardenActionCommand,               "", NULL },
+            { "warden_action",                SEC_ADMINISTRATOR, true,  &HandleReloadWardenactionCommand,               "", NULL },
             { "waypoint_scripts",             SEC_ADMINISTRATOR, true,  &HandleReloadWpScriptsCommand,                  "", NULL },
             { "waypoint_data",                SEC_ADMINISTRATOR, true,  &HandleReloadWpCommand,                         "", NULL },
             { "vehicle_accessory",            SEC_ADMINISTRATOR, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
@@ -319,6 +320,7 @@ public:
     {
         HandleReloadLocalesAchievementRewardCommand(handler, "a");
         HandleReloadLocalesCreatureCommand(handler, "a");
+        HandleReloadLocalesCreatureTextCommand(handler, "a");
         HandleReloadLocalesGameobjectCommand(handler, "a");
         HandleReloadLocalesGossipMenuOptionCommand(handler, "a");
         HandleReloadLocalesItemCommand(handler, "a");
@@ -726,7 +728,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadWardenActionCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadWardenactionCommand(ChatHandler* handler, const char* /*args*/)
     {
         if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
         {
@@ -1168,6 +1170,14 @@ public:
         sLog->outString("Re-Loading Locales Creature ...");
         sObjectMgr->LoadCreatureLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_creature` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLocalesCreatureTextCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        sLog->outString("Re-Loading Locales Creature Texts...");
+        sCreatureTextMgr->LoadCreatureTextLocales();
+        handler->SendGlobalGMSysMessage("DB table `locales_creature_text` reloaded.");
         return true;
     }
 
