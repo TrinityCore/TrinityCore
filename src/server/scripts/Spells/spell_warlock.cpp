@@ -449,7 +449,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
             {
                 if (GameObject* circle = GetTarget()->GetGameObject(GetId()))
                 {
-                    // Here we check if player is in demonic circle teleport range, if so add 
+                    // Here we check if player is in demonic circle teleport range, if so add
                     // WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST; allowing him to cast the WARLOCK_DEMONIC_CIRCLE_TELEPORT.
                     // If not in range remove the WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST.
 
