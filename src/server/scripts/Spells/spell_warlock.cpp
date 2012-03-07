@@ -381,7 +381,7 @@ class spell_warl_life_tap : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     SpellInfo const* spellInfo = GetSpellInfo();
-                    int32 damage = int32(GetEffectValue() + (6.3875 * spellInfo->BaseLevel));
+                    int32 damage = GetEffectValue();
                     int32 mana = int32(damage + (caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+SPELL_SCHOOL_SHADOW) * 0.5f));
 
                     // Shouldn't Appear in Combat Log
