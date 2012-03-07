@@ -23075,7 +23075,12 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
             RemoveAurasDueToSpell(_lastLiquid->SpellId);
 
         if (liquid && liquid->SpellId)
-            AddAura(liquid->SpellId, this);
+        {
+            if (res & (LIQUID_MAP_UNDER_WATER | LIQUID_MAP_IN_WATER | LIQUID_MAP_WATER_WALK))
+                CastSpell(this, liquid->SpellId, this);
+            else
+                RemoveAurasDueToSpell(liquid->SpellId);
+        }
 
         _lastLiquid = liquid;
     }
