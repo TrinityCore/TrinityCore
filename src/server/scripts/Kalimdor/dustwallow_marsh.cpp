@@ -157,11 +157,11 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (uiAction == GOSSIP_SENDER_INFO)
+        if (action == GOSSIP_SENDER_INFO)
         {
             player->CLOSE_GOSSIP_MENU();
             switch (urand(0, 1))
@@ -255,11 +255,11 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
 
-        if (uiAction == GOSSIP_SENDER_INFO)
+        if (action == GOSSIP_SENDER_INFO)
         {
             player->CLOSE_GOSSIP_MENU();
             player->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
@@ -337,10 +337,10 @@ class npc_lady_jaina_proudmoore : public CreatureScript
 public:
     npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_SENDER_INFO)
+        if (action == GOSSIP_SENDER_INFO)
         {
             player->SEND_GOSSIP_MENU(7012, creature->GetGUID());
             player->CastSpell(player, SPELL_JAINAS_AUTOGRAPH, false);
@@ -377,10 +377,10 @@ class npc_nat_pagle : public CreatureScript
 public:
     npc_nat_pagle() : CreatureScript("npc_nat_pagle") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_TRADE)
+        if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
 
         return true;

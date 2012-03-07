@@ -52,16 +52,16 @@ class npc_henry_stern : public CreatureScript
 public:
     npc_henry_stern() : CreatureScript("npc_henry_stern") { }
 
-    bool OnGossipSelect (Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect (Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CastSpell(player, SPELL_TEACHING_GOLDTHORN_TEA, true);
             player->SEND_GOSSIP_MENU(GOSSIP_TEXT_TEA_ANSWER, creature->GetGUID());
         }
 
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
+        if (action == GOSSIP_ACTION_INFO_DEF + 2)
         {
             player->CastSpell(player, SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION, true);
             player->SEND_GOSSIP_MENU(GOSSIP_TEXT_POTION_ANSWER, creature->GetGUID());

@@ -48,8 +48,8 @@ public:
 
         void Reset()
         {
-            FieryBurst_Timer    = 5000;
-            WarStomp_Timer      = 0;
+            FieryBurst_Timer = 5000;
+            WarStomp_Timer =0;
         }
 
         void EnterCombat(Unit* /*who*/) {}

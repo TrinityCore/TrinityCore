@@ -126,11 +126,11 @@ public:
 
         InstanceScript* instance;
 
-        uint8  EventPhase;
+        uint8 EventPhase;
         uint32 Event_Timer;
 
-        uint8  MobSpawnId;
-        uint8  MobCount;
+        uint8 MobSpawnId;
+        uint8 MobCount;
         uint32 MobDeath_Timer;
 
         uint64 RingMobGUID[4];
@@ -142,16 +142,16 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            EventPhase         = 0;
-            Event_Timer        = 1000;
+            EventPhase = 0;
+            Event_Timer = 1000;
 
-            MobCount           = 0;
-            MobDeath_Timer     = 0;
+            MobCount = 0;
+            MobDeath_Timer = 0;
 
             for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
                 RingMobGUID[i] = 0;
 
-            RingBossGUID       = 0;
+            RingBossGUID = 0;
 
             CanWalk = false;
         }
@@ -183,24 +183,24 @@ public:
             {
             case 0:
                 DoScriptText(SCRIPT_TEXT1, me);//2
-                CanWalk      = false;
-                Event_Timer  = 5000;
+                CanWalk = false;
+                Event_Timer = 5000;
                 break;
             case 1:
                 DoScriptText(SCRIPT_TEXT2, me);//4
-                CanWalk      = false;
-                Event_Timer  = 5000;
+                CanWalk = false;
+                Event_Timer = 5000;
                 break;
             case 2:
-                CanWalk      = false;
+                CanWalk = false;
                 break;
             case 3:
                 DoScriptText(SCRIPT_TEXT3, me);//5
                 break;
             case 4:
                 DoScriptText(SCRIPT_TEXT4, me);//6
-                CanWalk      = false;
-                Event_Timer  = 5000;
+                CanWalk = false;
+                Event_Timer = 5000;
                 break;
             case 5:
                 if (instance)
@@ -227,16 +227,16 @@ public:
             {
                 if (MobDeath_Timer <= diff)
                 {
-                    MobDeath_Timer           = 2500;
+                    MobDeath_Timer = 2500;
 
                     if (RingBossGUID)
                     {
                         Creature* boss = Unit::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->isAlive() && boss->isDead())
                         {
-                            RingBossGUID    = 0;
-                            Event_Timer     = 5000;
-                            MobDeath_Timer  = 0;
+                            RingBossGUID = 0;
+                            Event_Timer = 5000;
+                            MobDeath_Timer = 0;
                             return;
                         }
                         return;
@@ -247,7 +247,7 @@ public:
                         Creature* mob = Unit::GetCreature(*me, RingMobGUID[i]);
                         if (mob && !mob->isAlive() && mob->isDead())
                         {
-                            RingMobGUID[i]  = 0;
+                            RingMobGUID[i] = 0;
                             --MobCount;
 
                             //seems all are gone, so set timer to continue and discontinue this
@@ -363,9 +363,9 @@ public:
 
         void Reset()
         {
-            ThunderClap_Timer       = 12000;
-            FireballVolley_Timer    = 0;
-            MightyBlow_Timer        = 15000;
+            ThunderClap_Timer = 12000;
+            FireballVolley_Timer = 0;
+            MightyBlow_Timer = 15000;
         }
 
         void UpdateAI(const uint32 diff)
@@ -426,7 +426,7 @@ class npc_kharan_mighthammer : public CreatureScript
 public:
     npc_kharan_mighthammer() : CreatureScript("npc_kharan_mighthammer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*Sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -520,7 +520,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 public:
     npc_lokhtos_darkbargainer() : CreatureScript("npc_lokhtos_darkbargainer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*Sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -564,7 +564,6 @@ enum DughalQuests
     QUEST_JAIL_BREAK                      = 4322
 };
 
-// DELETE THIS IF IT IS NOT NEEDED!
 #define SAY_DUGHAL_FREE         "Thank you, $N! I'm free!!!"
 #define GOSSIP_DUGHAL           "You're free, Dughal! Get out of here!"
 
@@ -585,7 +584,7 @@ public:
         return dughal_stormwingAI;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -619,7 +618,7 @@ public:
             case 0:me->Say(SAY_DUGHAL_FREE, LANG_UNIVERSAL, PlayerGUID); break;
             case 1:instance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_OBJECTIVE_COMPLETED);break;
             case 2:
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 instance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_ENDED);
@@ -634,7 +633,7 @@ public:
         {
             if (IsBeingEscorted && killer == me)
             {
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 instance->SetData(DATA_DUGHAL, ENCOUNTER_STATE_ENDED);
@@ -646,13 +645,13 @@ public:
             if (instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
             if ((instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& instance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_ENDED)
             {
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
             else
             {
-                me->SetVisibility(VISIBILITY_ON);
+                me->SetVisible(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -767,7 +766,7 @@ public:
                 instance->SetData(DATA_GATE_SC, 0);
                 break;
             case 19:
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SummonCreature(MOB_ENTRY_REGINALD_WINDSOR, 403.61f, -51.71f, -63.92f, 3.600434f, TEMPSUMMON_DEAD_DESPAWN, 0);
@@ -810,13 +809,13 @@ public:
                 }
             if ((instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& instance->GetData(DATA_SUPPLY_ROOM) == ENCOUNTER_STATE_ENDED)
             {
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
             else
             {
-                me->SetVisibility(VISIBILITY_ON);
+                me->SetVisible(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -1065,7 +1064,7 @@ public:
         return tobias_seecherAI;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -1099,7 +1098,7 @@ public:
         {
             if (IsBeingEscorted && killer == me)
             {
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 instance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_ENDED);
@@ -1114,7 +1113,7 @@ public:
             case 2:
                 instance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_OBJECTIVE_COMPLETED);break;
             case 4:
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 instance->SetData(DATA_TOBIAS, ENCOUNTER_STATE_ENDED);
@@ -1127,13 +1126,13 @@ public:
             if (instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
             if ((instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS || instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_FAILED || instance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_ENDED)&& instance->GetData(DATA_TOBIAS) == ENCOUNTER_STATE_ENDED)
             {
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
             else
             {
-                me->SetVisibility(VISIBILITY_ON);
+                me->SetVisible(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -1217,8 +1216,8 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            BreakKeg_Timer    = 0;
-            BreakDoor_Timer   = 0;
+            BreakKeg_Timer = 0;
+            BreakDoor_Timer = 0;
         }
 
         void DoGo(uint32 id, uint32 state)
@@ -1263,8 +1262,8 @@ public:
                 if (BreakKeg_Timer <= diff)
                 {
                     DoGo(DATA_GO_BAR_KEG, 0);
-                    BreakKeg_Timer     = 0;
-                    BreakDoor_Timer    = 1000;
+                    BreakKeg_Timer = 0;
+                    BreakDoor_Timer = 1000;
                 } else BreakKeg_Timer -= diff;
             }
 
