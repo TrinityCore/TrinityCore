@@ -49,10 +49,10 @@ class npcs_dithers_and_arbington : public CreatureScript
 public:
     npcs_dithers_and_arbington() : CreatureScript("npcs_dithers_and_arbington") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_TRADE:
                 player->GetSession()->SendListInventory(creature->GetGUID());
@@ -100,7 +100,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -121,10 +120,10 @@ class npc_myranda_the_hag : public CreatureScript
 public:
     npc_myranda_the_hag() : CreatureScript("npc_myranda_the_hag") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, SPELL_SCARLET_ILLUSION, false);
@@ -149,7 +148,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -229,7 +227,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -264,7 +261,6 @@ public:
                 CAST_PLR(who)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
         }
     };
-
 };
 
 /*######
@@ -395,7 +391,6 @@ public:
                 m_uiChatTimer = 6000;
         }
     };
-
 };
 
 /*######

@@ -47,11 +47,11 @@ public:
 
         void Reset()
         {
-            MightyBlow_Timer   = 8000;
-            HamString_Timer    = 12000;
-            Cleave_Timer       = 16000;
-            Adds_Timer         = 0;
-            Medics             = false;
+            MightyBlow_Timer = 8000;
+            HamString_Timer = 12000;
+            Cleave_Timer = 16000;
+            Adds_Timer = 0;
+            Medics = false;
         }
 
         void EnterCombat(Unit* /*who*/) {}

@@ -157,10 +157,10 @@ private:
 public:
     npc_jaina_or_sylvanas_hor(bool isSylvana, const char* name) : CreatureScript(name), m_isSylvana(isSylvana) { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
@@ -248,7 +248,7 @@ public:
             {
                 case EVENT_START_INTRO:
                     me->GetMotionMaster()->MovePoint(0, MoveThronePos);
-                    // Begining of intro is differents between factions as the speech sequence and timers are differents.
+                    // Begining of intro is differents between fActions as the speech sequence and timers are differents.
                     if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         events.ScheduleEvent(EVENT_INTRO_A2_1, 0);
                     else

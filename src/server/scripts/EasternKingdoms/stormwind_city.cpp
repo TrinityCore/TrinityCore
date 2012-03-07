@@ -47,10 +47,10 @@ class npc_archmage_malin : public CreatureScript
 public:
     npc_archmage_malin() : CreatureScript("npc_archmage_malin") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF)
+        if (action == GOSSIP_ACTION_INFO_DEF)
         {
             player->CLOSE_GOSSIP_MENU();
             creature->CastSpell(player, 42711, true);
@@ -71,7 +71,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -143,7 +142,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -160,10 +158,10 @@ class npc_lady_katrana_prestor : public CreatureScript
 public:
     npc_lady_katrana_prestor() : CreatureScript("npc_lady_katrana_prestor") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -197,7 +195,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -370,7 +367,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -457,7 +453,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -606,7 +601,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -636,7 +630,6 @@ public:
         }
         return false;
     }
-
 };
 
 void AddSC_stormwind_city()

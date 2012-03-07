@@ -564,10 +564,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->CastSpell(player, SPELL_CREATE_1_FLASK_OF_BEAST, false);
@@ -623,10 +623,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->CastSpell(player, SPELL_CREATE_1_FLASK_OF_SORCERER, false);
@@ -1087,10 +1087,10 @@ public:
             return true;
     }
 
-    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
+        if (action == GOSSIP_ACTION_INFO_DEF +1)
         {
             player->CLOSE_GOSSIP_MENU();
             Creature* target = GetClosestCreatureWithEntry(player, NPC_OUTHOUSE_BUNNY, 3.0f);

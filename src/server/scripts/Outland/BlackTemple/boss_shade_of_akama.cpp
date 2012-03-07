@@ -541,10 +541,10 @@ class npc_akama_shade : public CreatureScript
 public:
     npc_akama_shade() : CreatureScript("npc_akama_shade") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
         {
             player->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_akama_shade::npc_akamaAI, creature->AI())->BeginEvent(player);
