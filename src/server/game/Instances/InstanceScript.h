@@ -179,6 +179,9 @@ class InstanceScript : public ZoneScript
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
+        // Complete Achievement for all players in instance
+        void DoCompleteAchievement(uint32 achievement);		
+		
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell);
 
