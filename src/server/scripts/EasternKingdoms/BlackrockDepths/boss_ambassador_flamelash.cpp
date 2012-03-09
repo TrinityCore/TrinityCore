@@ -42,8 +42,8 @@ public:
 
         void Reset()
         {
-            FireBlast_Timer    = 2000;
-            Spirit_Timer       = 24000;
+            FireBlast_Timer = 2000;
+            Spirit_Timer = 24000;
         }
 
         void EnterCombat(Unit* /*who*/) {}

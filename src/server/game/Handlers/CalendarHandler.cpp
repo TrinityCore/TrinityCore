@@ -207,7 +207,7 @@ void WorldSession::HandleCalendarGuildFilter(WorldPacket& recvData)
 void WorldSession::HandleCalendarArenaTeam(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_ARENA_TEAM [" UI64FMTD "]", _player->GetGUID());
-    
+
     int32 unk1;
     recvData >> unk1;
 

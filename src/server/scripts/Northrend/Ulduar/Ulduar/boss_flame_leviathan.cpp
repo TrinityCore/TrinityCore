@@ -171,7 +171,7 @@ enum Yells
 
 enum MiscellanousData
 {
-    // Other actions are in Ulduar.h
+    // Other Actions are in Ulduar.h
     ACTION_START_HARD_MODE    = 5,
     ACTION_SPAWN_VEHICLES     = 6,
     // Amount of seats depending on Raid mode

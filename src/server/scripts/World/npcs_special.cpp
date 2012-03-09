@@ -1496,7 +1496,6 @@ public:
             else
                 me->SetReactState(REACT_AGGRESSIVE);
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -1759,14 +1758,12 @@ public:
     struct mob_mojoAI : public ScriptedAI
     {
         mob_mojoAI(Creature* c) : ScriptedAI(c) {Reset();}
-
-        uint32 Hearts;
-        uint64 VictimGUID;
-
+        uint32 hearts;
+        uint64 victimGUID;
         void Reset()
         {
-            VictimGUID = 0;
-            Hearts = 15000;
+            victimGUID = 0;
+            hearts = 15000;
             if (Unit* own = me->GetOwner())
                 me->GetMotionMaster()->MoveFollow(own, 0, 0);
         }
@@ -1777,12 +1774,11 @@ public:
         {
             if (me->HasAura(20372))
             {
-                if (Hearts <= diff)
+                if (hearts <= diff)
                 {
                     me->RemoveAurasDueToSpell(20372);
-                    Hearts = 15000;
-                }
-                Hearts -= diff;
+                    hearts = 15000;
+                } hearts -= diff;
             }
         }
 
@@ -1826,14 +1822,14 @@ public:
                 }
 
                 me->MonsterWhisper(whisp.c_str(), player->GetGUID());
-                if (VictimGUID)
-                    if (Player* victim = Unit::GetPlayer(*me, VictimGUID))
+                if (victimGUID)
+                    if (Player* victim = Unit::GetPlayer(*me, victimGUID))
                         victim->RemoveAura(43906);//remove polymorph frog thing
                 me->AddAura(43906, player);//add polymorph frog thing
-                VictimGUID = player->GetGUID();
+                victimGUID = player->GetGUID();
                 DoCast(me, 20372, true);//tag.hearts
                 me->GetMotionMaster()->MoveFollow(player, 0, 0);
-                Hearts = 15000;
+                hearts = 15000;
             }
         }
     };
@@ -1995,7 +1991,7 @@ public:
     {
         npc_ebon_gargoyleAI(Creature* c) : CasterAI(c) {}
 
-        uint32 DespawnTimer;
+        uint32 despawnTimer;
 
         void InitializeAI()
         {
@@ -2004,7 +2000,7 @@ public:
             if (!ownerGuid)
                 return;
             // Not needed to be despawned now
-            DespawnTimer = 0;
+            despawnTimer = 0;
             // Find victim of Summon Gargoyle spell
             std::list<Unit*> targets;
             Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
@@ -2053,15 +2049,15 @@ public:
             me->GetMotionMaster()->MovePoint(0, x, y, z);
 
             // Despawn as soon as possible
-            DespawnTimer = 4 * IN_MILLISECONDS;
+            despawnTimer = 4 * IN_MILLISECONDS;
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (DespawnTimer > 0)
+            if (despawnTimer > 0)
             {
-                if (DespawnTimer > diff)
-                    DespawnTimer -= diff;
+                if (despawnTimer > diff)
+                    despawnTimer -= diff;
                 else
                     me->DespawnOrUnsummon();
                 return;
@@ -2122,19 +2118,19 @@ public:
     {
         npc_training_dummyAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            Entry = creature->GetEntry();
+            entry = creature->GetEntry();
         }
 
-        uint32 Entry;
-        uint32 ResetTimer;
-        uint32 DespawnTimer;
+        uint32 entry;
+        uint32 resetTimer;
+        uint32 despawnTimer;
 
         void Reset()
         {
             me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
 
-            ResetTimer = 5000;
-            DespawnTimer = 15000;
+            resetTimer = 5000;
+            despawnTimer = 15000;
         }
 
         void EnterEvadeMode()
@@ -2147,13 +2143,13 @@ public:
 
         void DamageTaken(Unit* /*doneBy*/, uint32& damage)
         {
-            ResetTimer = 5000;
+            resetTimer = 5000;
             damage = 0;
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (Entry != NPC_ADVANCED_TARGET_DUMMY && Entry != NPC_TARGET_DUMMY)
+            if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
                 return;
         }
 
@@ -2165,23 +2161,23 @@ public:
             if (!me->HasUnitState(UNIT_STATE_STUNNED))
                 me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
 
-            if (Entry != NPC_ADVANCED_TARGET_DUMMY && Entry != NPC_TARGET_DUMMY)
+            if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
             {
-                if (ResetTimer <= diff)
+                if (resetTimer <= diff)
                 {
                     EnterEvadeMode();
-                    ResetTimer = 5000;
+                    resetTimer = 5000;
                 }
                 else
-                    ResetTimer -= diff;
+                    resetTimer -= diff;
                 return;
             }
             else
             {
-                if (DespawnTimer <= diff)
+                if (despawnTimer <= diff)
                     me->DespawnOrUnsummon();
                 else
-                    DespawnTimer -= diff;
+                    despawnTimer -= diff;
             }
         }
         void MoveInLineOfSight(Unit* /*who*/){return;}

@@ -94,7 +94,6 @@ public:
                         DoScriptText(SAY_QUINN, Quinn);
                     break;}
             case 26: DoScriptText(SAY_ON_BYE, me, NULL); break;
-
             }
         }
 
@@ -123,7 +122,6 @@ public:
     {
         return new npc_deathstalker_erlandAI(creature);
     }
-
 };
 
 /*######
@@ -309,7 +307,6 @@ public:
             ++Phase; //prepare next phase
         }
     };
-
 };
 
 /*######

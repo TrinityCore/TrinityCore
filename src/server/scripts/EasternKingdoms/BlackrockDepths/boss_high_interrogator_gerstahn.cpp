@@ -47,10 +47,10 @@ public:
 
         void Reset()
         {
-            ShadowWordPain_Timer     = 4000;
-            ManaBurn_Timer           = 14000;
-            PsychicScream_Timer      = 32000;
-            ShadowShield_Timer       = 8000;
+            ShadowWordPain_Timer = 4000;
+            ManaBurn_Timer = 14000;
+            PsychicScream_Timer = 32000;
+            ShadowShield_Timer = 8000;
         }
 
         void EnterCombat(Unit* /*who*/) {}

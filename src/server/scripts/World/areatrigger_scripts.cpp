@@ -447,7 +447,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
-            float x, y, z;
+            float x = 0.0f, y = 0.0f, z = 0.0f;
 
             if (!player->isAlive())
                 return false;

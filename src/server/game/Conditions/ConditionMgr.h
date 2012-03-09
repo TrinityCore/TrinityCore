@@ -89,10 +89,10 @@ enum ConditionTypes
     The following steps only apply if your condition can be grouped:
 
     Step 6: Determine how you are going to store your conditions. You need to add a new storage container
-            for it in ConditionMgr class, along with a function like: 
+            for it in ConditionMgr class, along with a function like:
             ConditionList GetConditionsForXXXYourNewSourceTypeXXX(parameters...)
 
-            The above function should be placed in upper level (practical) code that actually 
+            The above function should be placed in upper level (practical) code that actually
             checks the conditions.
 
     Step 7: Implement loading for your source type in ConditionMgr::LoadConditions.
