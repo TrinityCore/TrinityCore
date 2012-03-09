@@ -314,7 +314,6 @@ class Battlefield:public ZoneScript
 
     /// Return if we can use mount in battlefield
     bool CanFlyIn() { return !m_BattlefieldActive; }  // Used for check if we can use flying mount or not
-    bool IncrementQuest(Player * player, uint32 quest, bool complete = false);
     void SendAreaSpiritHealerQueryOpcode(Player * pl, const uint64 & guid);
 
     void StartBattle();
