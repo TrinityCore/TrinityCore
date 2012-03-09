@@ -327,6 +327,8 @@ void Battlefield::StartBattle()
 
 void Battlefield::EndBattle(bool endbytimer)
 {
+    if (!m_BattlefieldActive)
+        return false;
     m_BattlefieldActive = false;
 
     m_StartGrouping = false;
