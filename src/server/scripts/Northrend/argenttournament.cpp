@@ -1394,6 +1394,7 @@ SELECT * FROM quest_template WHERE title LIKE 'The Valiant%s Challenge'
 
 enum eSquireDanny
 {
+    GOSSIP_TEXTID_SQUIRE                                = 14407,
     NPC_ARGENT_CHAMPION_CREDIT                          = 33708,
     NPC_ARGENT_CHAMPION                                 = 33707,
     SAY_START_VALIANT                                   = -1850013,//"You believe you are ready to be a champion? Defend yourself!"  
@@ -2706,6 +2707,8 @@ enum eSquireCavin
 };
 
 #define GOSSIP_SQUIRE_C_ITEM_1 "Ask Cavian to summon the black knight"
+#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
+#define GOSSIP_TEXTID_SQUIRE "Are you prepared to fight a valiant of the Argent Crusade?"
 #define SQUIRE_CAVIN_YELL "$N challenges the Black Knight to trial by combat!"
 #define SQUIRE_CAVIN_SAY "Good luck, $N"
 
