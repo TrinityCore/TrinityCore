@@ -4784,14 +4784,15 @@ SpellCastResult Spell::CheckCast(bool strict)
             // TODO: using WorldSession::SendNotification is not blizzlike
             if (Player* playerCaster = m_caster->ToPlayer())
             {
-                if (playerCaster->GetSession()
+                // mLastFailedCondition can be NULL if there was an error processing the condition in Condition::Meets (i.e. wrong data for ConditionTarget or others)
+                if (playerCaster->GetSession() && condInfo.mLastFailedCondition
                     && condInfo.mLastFailedCondition->ErrorTextId)
                 {
                     playerCaster->GetSession()->SendNotification(condInfo.mLastFailedCondition->ErrorTextId);
                     return SPELL_FAILED_DONT_REPORT;
                 }
             }
-            if (!condInfo.mLastFailedCondition->ConditionTarget)
+            if (!condInfo.mLastFailedCondition || !condInfo.mLastFailedCondition->ConditionTarget)
                 return SPELL_FAILED_CASTER_AURASTATE;
             return SPELL_FAILED_BAD_TARGETS;
         }
