@@ -61,7 +61,7 @@ public:
 
         Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleid);
 
-        if (!bf || bf->)
+        if (!bf)
             return false;
 
         bf->StartBattle();
