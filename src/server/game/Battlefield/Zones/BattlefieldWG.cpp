@@ -410,7 +410,6 @@ void BattlefieldWG::OnBattleEnd(bool endbytimer)
                 player->RewardHonor(NULL, 1, WinHonor);
                 RewardMarkOfHonor(player, 2);
             }
-            IncrementQuest(player, WGQuest[player->GetTeamId()][1], true);
             // Send Wintergrasp victory achievement
             DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WIN_WG, player);
             // Award achievement for succeeding in Wintergrasp in 10 minutes or less
@@ -719,8 +718,6 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
     bool again = false;
     if (victim->GetTypeId() == TYPEID_PLAYER)
     {
-        IncrementQuest(killer, WGQuest[killer->GetTeamId()][4]);
-        IncrementQuest(killer, WGQuest[killer->GetTeamId()][5]);
         for (GuidSet::const_iterator itr = m_PlayersInWar[killer->GetTeamId()].begin(); itr != m_PlayersInWar[killer->GetTeamId()].end(); ++itr)
         {
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
@@ -739,12 +736,6 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
                 if (victim->GetEntry() == creature->GetEntry() && !again)
                 {
                     again = true;
-                    for (GuidSet::const_iterator iter = m_PlayersInWar[killer->GetTeamId()].begin(); iter != m_PlayersInWar[killer->GetTeamId()].end(); ++iter)
-                    {
-                        if (Player* player = sObjectAccessor->FindPlayer(*iter))
-                            if (player->GetDistance2d(killer) < 40)
-                                IncrementQuest(player, WGQuest[player->GetTeamId()][0]);
-                    }
                 }
             }
         }
@@ -759,8 +750,6 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
                 if (victim->GetEntry() == creature->GetEntry() && !again)
                 {
                     again = true;
-                    IncrementQuest(killer, WGQuest[killer->GetTeamId()][4]);
-                    IncrementQuest(killer, WGQuest[killer->GetTeamId()][5]);
                     for (GuidSet::const_iterator iter = m_PlayersInWar[killer->GetTeamId()].begin(); iter != m_PlayersInWar[killer->GetTeamId()].end(); ++iter)
                     {
                         if (Player* player = sObjectAccessor->FindPlayer(*iter))
@@ -960,14 +949,15 @@ void BattlefieldWG::SendInitWorldStatesToAll()
 
 void BattlefieldWG::BrokenWallOrTower(TeamId team)
 {
-    if (team == GetDefenderTeam())
+// might be some use for this in the future. old code commented out below. KL
+/*    if (team == GetDefenderTeam())
     {
         for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
         {
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 IncrementQuest(player, WGQuest[player->GetTeamId()][2], true);
         }
-    }
+    }*/
 }
 // Called when a tower is broke
 void BattlefieldWG::AddBrokenTower(TeamId team)
@@ -989,7 +979,6 @@ void BattlefieldWG::AddBrokenTower(TeamId team)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
             {
                 player->CastSpell(player, SPELL_TOWER_CONTROL, true);
-                IncrementQuest(player, WGQuest[player->GetTeamId()][3], true);
                 DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WG_TOWER_DESTROY, player);
             }
         // If the threw south tower is destroy
