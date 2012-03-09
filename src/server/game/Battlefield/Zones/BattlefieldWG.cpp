@@ -321,7 +321,7 @@ void BattlefieldWG::UpdateCounterVehicle(bool init)
 void BattlefieldWG::OnBattleEnd(bool endbytimer)
 {
     // Remove relic
-    if (m_relic && m_relic->isSpawned())
+    if (m_relic)
         m_relic->RemoveFromWorld();
     m_relic = NULL;
 

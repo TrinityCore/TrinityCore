@@ -83,7 +83,7 @@ public:
 
         Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleid);
 
-        if (!bf)
+        if (!bf || !bf->IsWarTime())
             return false;
 
         bf->EndBattle(true);
