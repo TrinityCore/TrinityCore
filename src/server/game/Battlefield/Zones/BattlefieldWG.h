@@ -1607,7 +1607,7 @@ struct WGWorkshop
 
     WGWorkshop(BattlefieldWG* _bf, uint8 _workshopId)
     {
-        ASSERT(bf);
+        ASSERT(_bf);
         ASSERT(_workshopId < WG_MAX_WORKSHOP);
 
         bf = _bf;
