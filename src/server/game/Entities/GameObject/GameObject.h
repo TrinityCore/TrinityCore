@@ -402,7 +402,6 @@ struct GameObjectTemplate
         } raw;
     };
 
-
     std::string AIName;
     uint32 ScriptId;
 

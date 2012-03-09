@@ -79,7 +79,8 @@ void SystemMgr::LoadScriptTexts()
 
         m_mTextDataMap[iId] = temp;
         ++uiCount;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outString(">> Loaded %u additional Script Texts data in %u ms", uiCount, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
@@ -140,7 +141,8 @@ void SystemMgr::LoadScriptTextsCustom()
 
         m_mTextDataMap[iId] = temp;
         ++uiCount;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outString(">> Loaded %u additional Custom Texts data.", uiCount);
     sLog->outString();
@@ -199,7 +201,8 @@ void SystemMgr::LoadScriptWaypoints()
 
         m_mPointMoveMap[uiEntry].push_back(temp);
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outString(">> Loaded %u Script Waypoint nodes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();

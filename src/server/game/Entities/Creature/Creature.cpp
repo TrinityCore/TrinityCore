@@ -1663,9 +1663,9 @@ bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) 
     return Unit::IsImmunedToSpellEffect(spellInfo, index);
 }
 
-SpellInfo const* Creature::reachWithSpellAttack(Unit* pVictim)
+SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
 {
-    if (!pVictim)
+    if (!victim)
         return NULL;
 
     for (uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
@@ -1698,7 +1698,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* pVictim)
             continue;
         float range = spellInfo->GetMaxRange(false);
         float minrange = spellInfo->GetMinRange(false);
-        float dist = GetDistance(pVictim);
+        float dist = GetDistance(victim);
         if (dist > range || dist < minrange)
             continue;
         if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
@@ -1710,9 +1710,9 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* pVictim)
     return NULL;
 }
 
-SpellInfo const* Creature::reachWithSpellCure(Unit* pVictim)
+SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
 {
-    if (!pVictim)
+    if (!victim)
         return NULL;
 
     for (uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
@@ -1742,8 +1742,8 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* pVictim)
 
         float range = spellInfo->GetMaxRange(true);
         float minrange = spellInfo->GetMinRange(true);
-        float dist = GetDistance(pVictim);
-        //if (!isInFront(pVictim, range) && spellInfo->AttributesEx)
+        float dist = GetDistance(victim);
+        //if (!isInFront(victim, range) && spellInfo->AttributesEx)
         //    continue;
         if (dist > range || dist < minrange)
             continue;
@@ -1980,30 +1980,30 @@ void Creature::SaveRespawnTime()
 }
 
 // this should not be called by petAI or
-bool Creature::canCreatureAttack(Unit const* pVictim, bool /*force*/) const
+bool Creature::canCreatureAttack(Unit const* victim, bool /*force*/) const
 {
-    if (!pVictim->IsInMap(this))
+    if (!victim->IsInMap(this))
         return false;
 
-    if (!IsValidAttackTarget(pVictim))
+    if (!IsValidAttackTarget(victim))
         return false;
 
-    if (!pVictim->isInAccessiblePlaceFor(this))
+    if (!victim->isInAccessiblePlaceFor(this))
         return false;
 
-    if (IsAIEnabled && !AI()->CanAIAttack(pVictim))
+    if (IsAIEnabled && !AI()->CanAIAttack(victim))
         return false;
 
     if (sMapStore.LookupEntry(GetMapId())->IsDungeon())
         return true;
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
-    float dist = std::max(GetAttackDistance(pVictim), sWorld->getFloatConfig(CONFIG_THREAT_RADIUS)) + m_CombatDistance;
+    float dist = std::max(GetAttackDistance(victim), sWorld->getFloatConfig(CONFIG_THREAT_RADIUS)) + m_CombatDistance;
 
     if (Unit* unit = GetCharmerOrOwner())
-        return pVictim->IsWithinDist(unit, dist);
+        return victim->IsWithinDist(unit, dist);
     else
-        return pVictim->IsInDist(&m_homePosition, dist);
+        return victim->IsInDist(&m_homePosition, dist);
 }
 
 CreatureAddon const* Creature::GetCreatureAddon() const
