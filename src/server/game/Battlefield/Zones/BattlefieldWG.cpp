@@ -208,20 +208,6 @@ bool BattlefieldWG::Update(uint32 diff)
     else
         m_saveTimer -= diff;
 
-    if (m_BattlefieldActive)
-    {
-        for (uint8 team = 0; team < 2; ++team)
-            for (GuidSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
-                if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                {
-                    if (unit->IsInWater() && !unit->HasAura(SPELL_WINTERGRASP_WATER))
-                        unit->AddAura(SPELL_WINTERGRASP_WATER, unit);
-                    if (!unit->IsInWater() && unit->HasAura(SPELL_WINTERGRASP_WATER))
-                        unit->RemoveAurasDueToSpell(SPELL_WINTERGRASP_WATER);
-                }
-
-    }
-
     return m_return;
 }
 
