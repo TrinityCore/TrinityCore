@@ -181,7 +181,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
 
     if (pData->uiSoundId)
     {
-        if (GetSoundEntriesStore()->LookupEntry(pData->uiSoundId))
+        if (sSoundEntriesStore.LookupEntry(pData->uiSoundId))
             pSource->SendPlaySound(pData->uiSoundId, false);
         else
             sLog->outError("TSCR: DoScriptText entry %i tried to process invalid sound id %u.", iTextEntry, pData->uiSoundId);
