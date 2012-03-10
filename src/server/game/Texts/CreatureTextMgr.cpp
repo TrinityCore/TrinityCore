@@ -453,8 +453,7 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 textGrou
     if (locItr == mLocaleTextMap.end())
         return baseText;
 
-    if (locItr->second.Text[locale].length())
-        return locItr->second.Text[locale];
+    ObjectMgr::GetLocaleString(locItr->second.Text, locale, baseText);
 
     return baseText;
 }
