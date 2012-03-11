@@ -84,7 +84,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/MoltenCore/instance_molten_core.cpp
   EasternKingdoms/MoltenCore/boss_sulfuron_harbinger.cpp
   EasternKingdoms/MoltenCore/boss_magmadar.cpp
-  EasternKingdoms/MoltenCore/molten_core.cpp
   EasternKingdoms/MoltenCore/boss_shazzrah.cpp
   EasternKingdoms/Stratholme/boss_baroness_anastari.cpp
   EasternKingdoms/Stratholme/boss_nerubenkan.cpp
