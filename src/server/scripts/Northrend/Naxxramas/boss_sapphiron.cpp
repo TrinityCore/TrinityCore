@@ -19,6 +19,7 @@
 #include "naxxramas.h"
 
 #define MAX_FROST_RESISTANCE            100
+#define ACHIEVEMENT_THE_HUNDRED_CLUB    RAID_MODE(2146, 2147)
 
 enum ScriptTexts
 {
@@ -161,6 +162,19 @@ public:
             me->CastSpell(me, SPELL_DIES, true);
 
             CheckPlayersFrostResist();
+            if (CanTheHundredClub)
+            {
+                AchievementEntry const* AchievTheHundredClub = sAchievementStore.LookupEntry(ACHIEVEMENT_THE_HUNDRED_CLUB);
+                if (AchievTheHundredClub)
+                {
+                    if (map && map->IsDungeon())
+                    {
+                        Map::PlayerList const &players = map->GetPlayers();
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            itr->getSource()->CompletedAchievement(AchievTheHundredClub);
+                    }
+                }
+            }
         }
 
         void MovementInform(uint32, uint32 id)

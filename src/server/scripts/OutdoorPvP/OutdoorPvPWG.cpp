@@ -2923,7 +2923,7 @@ bool OutdoorPvPWG::IncrementQuest(Player *player, uint32 quest, bool complete)
 
 void OutdoorPvPWG::DoCompleteOrIncrementAchievement(uint32 achievement, Player * player, uint8 /*incrementNumber*/)
 {
-   AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
+   AchievementEntry const* AE = sAchievementStore.LookupEntry(achievement);
    
    switch (achievement)
    {

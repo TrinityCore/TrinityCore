@@ -116,7 +116,7 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spe
 
 void DynamicObject::Update(uint32 p_time)
 {
-    // caster has to be always avalible and in the same map
+    // caster has to be always available and in the same map
     ASSERT(_caster);
     ASSERT(_caster->GetMap() == GetMap());
 
@@ -127,7 +127,7 @@ void DynamicObject::Update(uint32 p_time)
         if (!_aura->IsRemoved())
             _aura->UpdateOwner(p_time, this);
 
-        // m_aura may be set to null in Aura::UpdateOwner call
+        // _aura may be set to null in Aura::UpdateOwner call
         if (_aura && (_aura->IsRemoved() || _aura->IsExpired()))
             expired = true;
     }
