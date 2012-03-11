@@ -60,6 +60,8 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
 
 uint32 const* /*[MAX_TALENT_TABS]*/ GetTalentTabPages(uint8 cls);
 
+uint32 GetLiquidFlags(uint32 liquidType);
+
 PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
 PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
@@ -122,7 +124,7 @@ extern DBCStorage <ItemRandomPropertiesEntry>    sItemRandomPropertiesStore;
 extern DBCStorage <ItemRandomSuffixEntry>        sItemRandomSuffixStore;
 extern DBCStorage <ItemSetEntry>                 sItemSetStore;
 extern DBCStorage <LFGDungeonEntry>              sLFGDungeonStore;
-//extern DBCStorage <LiquidTypeEntry>              sLiquidTypeStore;
+extern DBCStorage <LiquidTypeEntry>              sLiquidTypeStore;
 extern DBCStorage <LockEntry>                    sLockStore;
 extern DBCStorage <MailTemplateEntry>            sMailTemplateStore;
 extern DBCStorage <MapEntry>                     sMapStore;
@@ -176,13 +178,4 @@ extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
 void LoadDBCStores(const std::string& dataPath);
 
-// script support functions
- DBCStorage <SoundEntriesEntry>          const* GetSoundEntriesStore();
- DBCStorage <SpellRangeEntry>            const* GetSpellRangeStore();
- DBCStorage <FactionEntry>               const* GetFactionStore();
- DBCStorage <ItemEntry>                  const* GetItemDisplayStore();
- DBCStorage <CreatureDisplayInfoEntry>   const* GetCreatureDisplayStore();
- DBCStorage <EmotesEntry>                const* GetEmotesStore();
- DBCStorage <EmotesTextEntry>            const* GetEmotesTextStore();
- DBCStorage <AchievementEntry>           const* GetAchievementStore();
 #endif

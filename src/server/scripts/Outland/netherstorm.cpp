@@ -295,7 +295,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -350,7 +349,6 @@ public:
         }
         return true;
     }
-
 };
 
 /*######
@@ -633,7 +631,6 @@ public:
             }
          }
     };
-
 };
 
 class at_commander_dawnforge : public AreaTriggerScript
@@ -659,7 +656,6 @@ public:
         }
         return false;
     }
-
 };
 
 /*######
@@ -690,10 +686,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             creature->CastSpell(player, SPELL_PHASE_DISTRUPTOR, false);
             player->CLOSE_GOSSIP_MENU();
@@ -714,7 +710,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -849,7 +844,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -888,7 +882,6 @@ public:
 
     struct npc_bessyAI : public npc_escortAI
     {
-
         npc_bessyAI(Creature* c) : npc_escortAI(c) {}
 
         void JustDied(Unit* /*killer*/)
@@ -937,9 +930,7 @@ public:
         {
             me->RestoreFaction();
         }
-
     };
-
 };
 
 /*######

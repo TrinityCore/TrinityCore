@@ -64,8 +64,8 @@ public:
                     disabled = true;
                     break;
            case 34475:
-                if (const SpellInfo* pSpellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
-                    Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
+                if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
+                    Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
                     break;
         }
 
@@ -264,7 +264,7 @@ class item_petrov_cluster_bombs : public ItemScript
 public:
     item_petrov_cluster_bombs() : ItemScript("item_petrov_cluster_bombs") { }
 
-    bool OnUse(Player* player, Item* pItem, const SpellCastTargets & /*pTargets*/)
+    bool OnUse(Player* player, Item* pItem, const SpellCastTargets & /*targets*/)
     {
         if (player->GetZoneId() != ZONE_ID_HOWLING)
             return false;
@@ -273,8 +273,8 @@ public:
         {
             player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
 
-            if (const SpellInfo* pSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
-                Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_HERE);
+            if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
+                Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_HERE);
 
             return true;
         }
@@ -330,7 +330,7 @@ class item_dehta_trap_smasher : public ItemScript
 public:
     item_dehta_trap_smasher() : ItemScript("item_dehta_trap_smasher") { }
 
-    bool OnUse(Player* player, Item* /*pItem*/, const SpellCastTargets & /*pTargets*/)
+    bool OnUse(Player* player, Item* /*pItem*/, const SpellCastTargets & /*targets*/)
     {
         if (player->GetQuestStatus(QUEST_CANNOT_HELP_THEMSELVES) != QUEST_STATUS_INCOMPLETE)
             return false;
@@ -367,7 +367,7 @@ class item_trident_of_nazjan : public ItemScript
 public:
     item_trident_of_nazjan() : ItemScript("item_Trident_of_Nazjan") { }
 
-    bool OnUse(Player* player, Item* pItem, const SpellCastTargets & /*pTargets*/)
+    bool OnUse(Player* player, Item* pItem, const SpellCastTargets & /*targets*/)
     {
         if (player->GetQuestStatus(QUEST_THE_EMISSARY) == QUEST_STATUS_INCOMPLETE)
         {

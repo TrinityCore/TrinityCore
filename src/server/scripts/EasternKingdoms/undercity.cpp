@@ -143,7 +143,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -201,7 +200,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -219,15 +217,15 @@ class npc_parqual_fintallas : public CreatureScript
 public:
     npc_parqual_fintallas() : CreatureScript("npc_parqual_fintallas") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
             creature->CastSpell(player, SPELL_MARK_OF_SHAME, false);
         }
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
+        if (action == GOSSIP_ACTION_INFO_DEF+2)
         {
             player->CLOSE_GOSSIP_MENU();
             player->AreaExploredOrEventHappens(6628);
@@ -252,7 +250,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######

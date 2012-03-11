@@ -50,10 +50,10 @@ class npc_royal_historian_archesonus : public CreatureScript
 public:
     npc_royal_historian_archesonus() : CreatureScript("npc_royal_historian_archesonus") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ROYAL_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -94,7 +94,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######

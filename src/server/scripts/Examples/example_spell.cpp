@@ -92,7 +92,7 @@ class spell_ex_5581 : public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                sLog->outString("All immediate actions for the spell are finished now");
+                sLog->outString("All immediate Actions for the spell are finished now");
                 // this is a safe for triggering additional effects for a spell without interfering
                 // with visuals or with other effects of the spell
                 //GetCaster()->CastSpell(target, SPELL_TRIGGERED, true);

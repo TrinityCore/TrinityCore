@@ -546,14 +546,11 @@ void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
-    if (GetPlayer()->m_trade)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-
     uint64 ID;
     recvPacket >> ID;
+
+    if (GetPlayer()->m_trade)
+        return;
 
     if (!GetPlayer()->isAlive())
     {
@@ -728,4 +725,3 @@ void WorldSession::HandleClearTradeItemOpcode(WorldPacket& recvPacket)
 
     my_trade->SetItem(TradeSlots(tradeSlot), NULL);
 }
-
