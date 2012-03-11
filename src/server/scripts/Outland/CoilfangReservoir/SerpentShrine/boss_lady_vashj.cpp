@@ -608,24 +608,21 @@ public:
 
             VashjGUID = 0;
 
-            for (int i = 0; i<8; ++i)//search for nearest waypoint (up on stairs)
+            x = ElementWPPos[0][0];
+            y = ElementWPPos[0][1];
+            z = ElementWPPos[0][2];
+
+            //search for nearest waypoint (up on stairs)
+            for (uint32 i = 1; i < 8; ++i)
             {
-                if (!x || !y || !z)
+                if (me->GetDistance(ElementWPPos[i][0], ElementWPPos[i][1], ElementWPPos[i][2]) < me->GetDistance(x, y, z))
                 {
                     x = ElementWPPos[i][0];
                     y = ElementWPPos[i][1];
                     z = ElementWPPos[i][2];
                 }
-                else
-                {
-                    if (me->GetDistance(ElementWPPos[i][0], ElementWPPos[i][1], ElementWPPos[i][2]) < me->GetDistance(x, y, z))
-                    {
-                        x = ElementWPPos[i][0];
-                        y = ElementWPPos[i][1];
-                        z = ElementWPPos[i][2];
-                    }
-                }
             }
+
             if (instance)
                 VashjGUID = instance->GetData64(DATA_LADYVASHJ);
         }
