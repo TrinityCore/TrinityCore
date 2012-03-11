@@ -796,7 +796,7 @@ class boss_sister_svalna : public CreatureScript
             {
                 _JustReachedHome();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlying(false);
+                me->SetCanFly(false);
             }
 
             void DoAction(int32 const action)
@@ -844,7 +844,7 @@ class boss_sister_svalna : public CreatureScript
                 _isEventInProgress = false;
                 me->setActive(false);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                me->SetFlying(false);
+                me->SetCanFly(false);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)

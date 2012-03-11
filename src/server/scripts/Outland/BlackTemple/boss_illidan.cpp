@@ -798,7 +798,7 @@ public:
             {
             case 1: // lift off
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
                 me->StopMoving();
                 me->MonsterYell(SAY_TAKEOFF, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_TAKEOFF);
@@ -867,7 +867,7 @@ public:
                 Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
                 break;
             case 9: // land
-                me->SetLevitate(false);
+                me->SetDisableGravity(false);
                 me->StopMoving();
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                 for (uint8 i = 0; i < 2; ++i)
@@ -1869,7 +1869,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-    me->SetLevitate(false);
+    me->SetDisableGravity(false);
     me->setActive(false);
     Summons.DespawnAll();
 }

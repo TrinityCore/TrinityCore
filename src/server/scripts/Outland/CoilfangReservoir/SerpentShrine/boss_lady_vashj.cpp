@@ -731,7 +731,7 @@ public:
 
         void Reset()
         {
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             me->setFaction(14);
             MovementTimer = 0;
             ToxicSporeTimer = 5000;

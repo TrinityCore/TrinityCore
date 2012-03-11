@@ -324,14 +324,14 @@ class boss_akilzon : public CreatureScript
                     target->GetPosition(x, y, z);
                     if (target)
                     {
-                        target->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+                        target->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
                         target->MonsterMoveWithSpeed(x, y, me->GetPositionZ()+15, 0);
                     }
                     Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
                     if (Cloud)
                     {
                         CloudGUID = Cloud->GetGUID();
-                        Cloud->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+                        Cloud->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
                         Cloud->StopMoving();
                         Cloud->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
                         Cloud->setFaction(35);
@@ -409,7 +409,7 @@ class mob_akilzon_eagle : public CreatureScript
                 EagleSwoop_Timer = urand(5000, 10000);
                 arrived = true;
                 TargetGUID = 0;
-                me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
             }
 
             void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}

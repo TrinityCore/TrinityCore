@@ -121,7 +121,7 @@ public:
             MovePhase = 0;
 
             me->SetSpeed(MOVE_RUN, 2.0f);
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             me->SetWalk(false);
             me->setActive(true);
 
@@ -240,7 +240,7 @@ public:
 
             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             (*me).GetMotionMaster()->Clear(false);
             (*me).GetMotionMaster()->MovePoint(0, IntroWay[2][0], IntroWay[2][1], IntroWay[2][2]);
 

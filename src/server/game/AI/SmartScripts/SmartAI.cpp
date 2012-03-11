@@ -729,17 +729,7 @@ void SmartAI::SetRun(bool run)
 
 void SmartAI::SetFly(bool fly)
 {
-    if (fly)
-    {
-        me->SetLevitate(true);
-        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
-    }
-    else
-    {
-        me->SetLevitate(false);
-        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
-    }
-    me->SetFlying(fly);
+    me->SetDisableGravity(fly);
     me->SendMovementFlagUpdate();
 }
 
