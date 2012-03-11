@@ -608,6 +608,10 @@ public:
 
             VashjGUID = 0;
 
+            x = 0.0f;
+            y = 0.0f;
+            z = 0.0f;
+
             for (int i = 0; i<8; ++i)//search for nearest waypoint (up on stairs)
             {
                 if (!x || !y || !z)
