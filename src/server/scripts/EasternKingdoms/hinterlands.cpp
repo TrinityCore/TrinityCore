@@ -146,7 +146,6 @@ public:
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
     };
-
 };
 
 /*######
@@ -345,7 +344,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_hinterlands()

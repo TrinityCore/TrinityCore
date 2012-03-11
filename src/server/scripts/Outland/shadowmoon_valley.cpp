@@ -96,12 +96,12 @@ public:
             CastTimer = 5000;
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell)
+        void SpellHit(Unit* pCaster, SpellInfo const* spell)
         {
             if (bCanEat || bIsEating)
                 return;
 
-            if (pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
+            if (pCaster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
             {
                 uiPlayerGUID = pCaster->GetGUID();
                 bCanEat = true;
@@ -179,7 +179,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*###
@@ -321,7 +320,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*#####
@@ -401,7 +399,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -413,10 +410,10 @@ class npc_drake_dealer_hurlunk : public CreatureScript
 public:
     npc_drake_dealer_hurlunk() : CreatureScript("npc_drake_dealer_hurlunk") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_TRADE)
+        if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
 
         return true;
@@ -431,7 +428,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -446,10 +442,10 @@ class npcs_flanis_swiftwing_and_kagrosh : public CreatureScript
 public:
     npcs_flanis_swiftwing_and_kagrosh() : CreatureScript("npcs_flanis_swiftwing_and_kagrosh") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             ItemPosCountVec dest;
             uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30658, 1, NULL);
@@ -459,7 +455,7 @@ public:
                 player->PlayerTalkClass->ClearMenus();
             }
         }
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
+        if (action == GOSSIP_ACTION_INFO_DEF+2)
         {
             ItemPosCountVec dest;
             uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30659, 1, NULL);
@@ -483,7 +479,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -504,10 +499,10 @@ class npc_murkblood_overseer : public CreatureScript
 public:
     npc_murkblood_overseer() : CreatureScript("npc_murkblood_overseer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -552,7 +547,6 @@ public:
         player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -572,10 +566,10 @@ class npc_oronok_tornheart : public CreatureScript
 public:
     npc_oronok_tornheart() : CreatureScript("npc_oronok_tornheart") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_TRADE:
                 player->GetSession()->SendListInventory(creature->GetGUID());
@@ -628,7 +622,6 @@ public:
 
         return true;
     }
-
 };
 
 /*####
@@ -884,7 +877,6 @@ public:
             } else ConversationTimer -= diff;
         }
     };
-
 };
 
 /*####
@@ -1061,7 +1053,6 @@ public:
             }
         }
     };
-
 };
 
 /*#####
@@ -1265,7 +1256,6 @@ public:
                 me->CombatStop();
             } else if (!Timers)
             {
-
                 SpellTimer1 = SpawnCast[6].Timer1;
                 SpellTimer2 = SpawnCast[7].Timer1;
                 SpellTimer3 = SpawnCast[8].Timer1;
@@ -1321,7 +1311,6 @@ public:
             }
         }
     };
-
 };
 
 /*#####
@@ -1467,7 +1456,6 @@ public:
                 EnterEvadeMode();
         }
     };
-
 };
 
 /*######
@@ -1586,7 +1574,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
@@ -1680,7 +1667,6 @@ public:
         }
      return true;
     }
-
 };
 
 /*####
@@ -1801,7 +1787,6 @@ public:
             }
         }
     };
-
 };
 
 /*#####

@@ -335,7 +335,7 @@ namespace VMAP
 
     void TileAssembler::exportGameobjectModels()
     {
-        FILE* model_list = fopen((iSrcDir + "/" + GAMEOBJECT_MODELS).c_str(), "rb");
+        FILE* model_list = fopen((iSrcDir + "/" + "temp_gameobject_models").c_str(), "rb");
         FILE* model_list_copy = fopen((iDestDir + "/" + GAMEOBJECT_MODELS).c_str(), "wb");
         if (!model_list || !model_list_copy)
             return;

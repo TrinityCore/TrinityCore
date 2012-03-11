@@ -115,57 +115,57 @@ public:
         {
             memset(&encounter, 0, sizeof(encounter));
 
-            EmperorGUID                 = 0;
-            PhalanxGUID                 = 0;
-            MagmusGUID                  = 0;
-            MoiraGUID                   = 0;
+            EmperorGUID = 0;
+            PhalanxGUID = 0;
+            MagmusGUID = 0;
+            MoiraGUID = 0;
 
-            GoArena1GUID                = 0;
-            GoArena2GUID                = 0;
-            GoArena3GUID                = 0;
-            GoArena4GUID                = 0;
-            GoShadowLockGUID            = 0;
-            GoShadowMechGUID            = 0;
-            GoShadowGiantGUID           = 0;
-            GoShadowDummyGUID           = 0;
-            GoBarKegGUID                = 0;
-            GoBarKegTrapGUID            = 0;
-            GoBarDoorGUID               = 0;
-            GoTombEnterGUID             = 0;
-            GoTombExitGUID              = 0;
-            GoLyceumGUID                = 0;
-            GoSFSGUID                   = 0;
-            GoSFNGUID                   = 0;
-            GoGolemNGUID                = 0;
-            GoGolemSGUID                = 0;
-            GoThroneGUID                = 0;
-            GoChestGUID                 = 0;
-            GoSpectralChaliceGUID       = 0;
+            GoArena1GUID = 0;
+            GoArena2GUID = 0;
+            GoArena3GUID = 0;
+            GoArena4GUID = 0;
+            GoShadowLockGUID = 0;
+            GoShadowMechGUID = 0;
+            GoShadowGiantGUID = 0;
+            GoShadowDummyGUID = 0;
+            GoBarKegGUID = 0;
+            GoBarKegTrapGUID = 0;
+            GoBarDoorGUID = 0;
+            GoTombEnterGUID = 0;
+            GoTombExitGUID = 0;
+            GoLyceumGUID = 0;
+            GoSFSGUID = 0;
+            GoSFNGUID = 0;
+            GoGolemNGUID = 0;
+            GoGolemSGUID = 0;
+            GoThroneGUID = 0;
+            GoChestGUID = 0;
+            GoSpectralChaliceGUID = 0;
 
-            BarAleCount                 = 0;
-            GhostKillCount              = 0;
-            TombEventStarterGUID        = 0;
+            BarAleCount = 0;
+            GhostKillCount = 0;
+            TombEventStarterGUID = 0;
             TombTimer = TIMER_TOMBOFTHESEVEN;
-            TombEventCounter            = 0;
+            TombEventCounter = 0;
 
             for (uint8 i = 0; i < 7; ++i)
-                TombBossGUIDs[i]        = 0;
+                TombBossGUIDs[i] = 0;
         }
 
         void OnCreatureCreate(Creature* creature)
         {
             switch (creature->GetEntry())
             {
-            case NPC_EMPEROR:  EmperorGUID       = creature->GetGUID(); break;
-            case NPC_PHALANX:  PhalanxGUID       = creature->GetGUID(); break;
-            case NPC_MOIRA:    MoiraGUID         = creature->GetGUID(); break;
-            case NPC_DOOMREL:  TombBossGUIDs[0]  = creature->GetGUID(); break;
-            case NPC_DOPEREL:  TombBossGUIDs[1]  = creature->GetGUID(); break;
-            case NPC_HATEREL:  TombBossGUIDs[2]  = creature->GetGUID(); break;
-            case NPC_VILEREL:  TombBossGUIDs[3]  = creature->GetGUID(); break;
-            case NPC_SEETHREL: TombBossGUIDs[4]  = creature->GetGUID(); break;
-            case NPC_GLOOMREL: TombBossGUIDs[5]  = creature->GetGUID(); break;
-            case NPC_ANGERREL: TombBossGUIDs[6]  = creature->GetGUID(); break;
+            case NPC_EMPEROR: EmperorGUID = creature->GetGUID(); break;
+            case NPC_PHALANX: PhalanxGUID = creature->GetGUID(); break;
+            case NPC_MOIRA: MoiraGUID = creature->GetGUID(); break;
+            case NPC_DOOMREL: TombBossGUIDs[0] = creature->GetGUID(); break;
+            case NPC_DOPEREL: TombBossGUIDs[1] = creature->GetGUID(); break;
+            case NPC_HATEREL: TombBossGUIDs[2] = creature->GetGUID(); break;
+            case NPC_VILEREL: TombBossGUIDs[3] = creature->GetGUID(); break;
+            case NPC_SEETHREL: TombBossGUIDs[4] = creature->GetGUID(); break;
+            case NPC_GLOOMREL: TombBossGUIDs[5] = creature->GetGUID(); break;
+            case NPC_ANGERREL: TombBossGUIDs[6] = creature->GetGUID(); break;
             case NPC_MAGMUS:
                 MagmusGUID = creature->GetGUID();
                 if (!creature->isAlive())

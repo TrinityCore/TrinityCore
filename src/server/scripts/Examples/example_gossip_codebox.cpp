@@ -58,10 +58,10 @@ class example_gossip_codebox : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
-            if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
+            if (action == GOSSIP_ACTION_INFO_DEF+2)
             {
                 DoScriptText(SAY_NOT_INTERESTED, creature);
                 player->CLOSE_GOSSIP_MENU();
@@ -70,12 +70,12 @@ class example_gossip_codebox : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction, const char* code)
+        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
         {
             player->PlayerTalkClass->ClearMenus();
-            if (uiSender == GOSSIP_SENDER_MAIN)
+            if (sender == GOSSIP_SENDER_MAIN)
             {
-                switch (uiAction)
+                switch (action)
                 {
                 case GOSSIP_ACTION_INFO_DEF+1:
                     if (std::strcmp(code, player->GetName()) != 0)

@@ -124,7 +124,6 @@ public:
 
         void Reset()
         {
-
           timer = 2000;
           questPhase = 0;
           summonerGuid = 0;
@@ -366,10 +365,8 @@ public:
 
         void StartEvent()
         {
-
             if (questPhase == 1)
             { // no player check, quest can be finished as group, so no complex PlayerGUID/group search code
-
                 for (uint8 i = 0; i < 4; ++i)
                 if (Creature* summoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000))
                     paladinGuid[i] = summoned->GetGUID();
@@ -428,7 +425,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -512,7 +508,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -621,7 +616,6 @@ public:
             } else WaveTimer -= diff;
         }
     };
-
 };
 
 void AddSC_eversong_woods()

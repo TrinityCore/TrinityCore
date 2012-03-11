@@ -158,6 +158,8 @@ class CreatureTextLocalizer
                 case CHAT_MSG_RAID_BOSS_WHISPER:
                     data.put<uint64>(whisperGUIDpos, player->GetGUID());
                     break;
+                default:
+                    break;
             }
 
             player->SendDirectMessage(&data);
