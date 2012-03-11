@@ -377,9 +377,9 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                          54      55      56      57      58      59      60          61            62       63       64       65         66
                                              "spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             67          68         69         70          71           72          73          74          75          76          77
-                                             "InhabitType, Health_mod, Mana_mod, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, "
+                                             "InhabitType, HoverHeight, Health_mod, Mana_mod, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
     //                                            78           79           80               81                82           83
-                                             "movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
+                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
     if (!result)
@@ -463,20 +463,21 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.AIName         = fields[65].GetString();
         creatureTemplate.MovementType   = uint32(fields[66].GetUInt8());
         creatureTemplate.InhabitType    = uint32(fields[67].GetUInt8());
-        creatureTemplate.ModHealth      = fields[68].GetFloat();
-        creatureTemplate.ModMana        = fields[69].GetFloat();
-        creatureTemplate.ModArmor       = fields[70].GetFloat();
-        creatureTemplate.RacialLeader   = fields[71].GetBool();
+        creatureTemplate.HoverHeight    = fields[68].GetFloat();
+        creatureTemplate.ModHealth      = fields[69].GetFloat();
+        creatureTemplate.ModMana        = fields[70].GetFloat();
+        creatureTemplate.ModArmor       = fields[71].GetFloat();
+        creatureTemplate.RacialLeader   = fields[72].GetBool();
 
         for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            creatureTemplate.questItems[i] = fields[72 + i].GetUInt32();
+            creatureTemplate.questItems[i] = fields[73 + i].GetUInt32();
 
-        creatureTemplate.movementId         = fields[78].GetUInt32();
-        creatureTemplate.RegenHealth        = fields[79].GetBool();
-        creatureTemplate.equipmentId        = fields[80].GetUInt32();
-        creatureTemplate.MechanicImmuneMask = fields[81].GetUInt32();
-        creatureTemplate.flags_extra        = fields[82].GetUInt32();
-        creatureTemplate.ScriptID           = GetScriptId(fields[83].GetCString());
+        creatureTemplate.movementId         = fields[79].GetUInt32();
+        creatureTemplate.RegenHealth        = fields[80].GetBool();
+        creatureTemplate.equipmentId        = fields[81].GetUInt32();
+        creatureTemplate.MechanicImmuneMask = fields[82].GetUInt32();
+        creatureTemplate.flags_extra        = fields[83].GetUInt32();
+        creatureTemplate.ScriptID           = GetScriptId(fields[84].GetCString());
 
         ++count;
     }
@@ -494,7 +495,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6
+    //                                                0       1       2      3       4       5      6     
     QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, auras FROM creature_template_addon");
 
     if (!result)
@@ -549,7 +550,10 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         }
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
-            sLog->outErrorDb("Creature (Entry: %u) has invalid emote (%u) defined in `creature_template_addon`.", entry, creatureAddon.emote);
+        {
+            sLog->outErrorDb("Creature (Entry: %u) has invalid emote (%u) defined in `creature_addon`.", entry, creatureAddon.emote);
+            creatureAddon.emote = 0;
+        }
 
         ++count;
     }
@@ -793,6 +797,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->InhabitType = INHABIT_ANYWHERE;
     }
 
+    if (cInfo->HoverHeight < 0.0f)
+    {
+        sLog->outErrorDb("Creature (Entry: %u) has wrong value (%f) in `HoverHeight`", cInfo->Entry, cInfo->HoverHeight);
+        const_cast<CreatureTemplate*>(cInfo)->HoverHeight = 1.0f;
+    }
+
     if (cInfo->VehicleId)
     {
         VehicleEntry const* vehId = sVehicleStore.LookupEntry(cInfo->VehicleId);
@@ -862,7 +872,7 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6
+    //                                                0       1       2      3       4       5      6 
     QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, auras FROM creature_addon");
 
     if (!result)
@@ -899,7 +909,7 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.bytes1  = fields[3].GetUInt32();
         creatureAddon.bytes2  = fields[4].GetUInt32();
         creatureAddon.emote   = fields[5].GetUInt32();
-
+        
         Tokens tokens(fields[6].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
@@ -914,7 +924,7 @@ void ObjectMgr::LoadCreatureAddons()
             creatureAddon.auras[i++] = uint32(atol(*itr));
         }
 
-      if (creatureAddon.mount)
+        if (creatureAddon.mount)
         {
             if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
             {
@@ -924,7 +934,10 @@ void ObjectMgr::LoadCreatureAddons()
         }
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
+        {
             sLog->outErrorDb("Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", guid, creatureAddon.emote);
+            creatureAddon.emote = 0;
+        }
 
         ++count;
     }

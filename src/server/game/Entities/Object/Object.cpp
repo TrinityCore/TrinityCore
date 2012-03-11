@@ -340,7 +340,10 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
             *data << ((WorldObject*)this)->GetPositionX();
             *data << ((WorldObject*)this)->GetPositionY();
-            *data << ((WorldObject*)this)->GetPositionZ();
+            if (isType(TYPEMASK_UNIT))
+                *data << ((Unit*)this)->GetPositionZMinusOffset();
+            else
+                *data << ((WorldObject*)this)->GetPositionZ();
 
             if (transport)
             {
@@ -352,7 +355,10 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             {
                 *data << ((WorldObject*)this)->GetPositionX();
                 *data << ((WorldObject*)this)->GetPositionY();
-                *data << ((WorldObject*)this)->GetPositionZ();
+                if (isType(TYPEMASK_UNIT))
+                    *data << ((Unit*)this)->GetPositionZMinusOffset();
+                else
+                    *data << ((WorldObject*)this)->GetPositionZ();
             }
 
             *data << ((WorldObject*)this)->GetOrientation();
@@ -369,7 +375,10 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             {
                 *data << ((WorldObject*)this)->GetPositionX();
                 *data << ((WorldObject*)this)->GetPositionY();
-                *data << ((WorldObject*)this)->GetPositionZ();
+                if (isType(TYPEMASK_UNIT))
+                    *data << ((Unit*)this)->GetPositionZMinusOffset();
+                else
+                    *data << ((WorldObject*)this)->GetPositionZ();
                 *data << ((WorldObject*)this)->GetOrientation();
             }
         }
@@ -1557,7 +1566,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         {
             // non fly unit don't must be in air
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
-            if (!ToCreature()->canFly())
+            if (!ToCreature()->CanFly())
             {
                 bool canSwim = ToCreature()->canSwim();
                 float ground_z = z;
@@ -1583,7 +1592,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         case TYPEID_PLAYER:
         {
             // for server controlled moves playr work same as creature (but it can always swim)
-            if (!ToPlayer()->canFly())
+            if (!ToPlayer()->CanFly())
             {
                 float ground_z = z;
                 float max_z = GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));

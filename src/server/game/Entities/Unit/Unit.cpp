@@ -3049,7 +3049,7 @@ bool Unit::isInAccessiblePlaceFor(Creature const* c) const
     if (IsInWater())
         return c->canSwim();
     else
-        return c->canWalk() || c->canFly();
+        return c->canWalk() || c->CanFly();
 }
 
 bool Unit::IsInWater() const
@@ -12597,15 +12597,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 return;
         }
 
-        data.append(GetPackGUID());
-        data << uint32(0);                                  // movement flags
-        data << uint16(0);                                  // unk flags
-        data << uint32(getMSTime());
-        data << float(GetPositionX());
-        data << float(GetPositionY());
-        data << float(GetPositionZ());
-        data << float(GetOrientation());
-        data << uint32(0);                                  // fall time
+        BuildMovementPacket(&data);
         data << float(GetSpeed(mtype));
         SendMessageToSet(&data, true);
     }
@@ -12662,14 +12654,6 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         data << float(GetSpeed(mtype));
         SendMessageToSet(&data, true);
     }
-}
-
-void Unit::SetHover(bool on)
-{
-    if (on)
-        CastSpell(this, 11010, true);
-    else
-        RemoveAurasDueToSpell(11010);
 }
 
 void Unit::setDeathState(DeathState s)
@@ -17058,12 +17042,12 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
 void Unit::BuildMovementPacket(ByteBuffer *data) const
 {
-    *data << uint32(GetUnitMovementFlags()); // movement flags
-    *data << uint16(m_movementInfo.flags2);    // 2.3.0
-    *data << uint32(getMSTime());            // time
+    *data << uint32(GetUnitMovementFlags());            // movement flags
+    *data << uint16(GetExtraUnitMovementFlags());       // 2.3.0
+    *data << uint32(getMSTime());                       // time / counter
     *data << GetPositionX();
     *data << GetPositionY();
-    *data << GetPositionZ();
+    *data << GetPositionZMinusOffset();
     *data << GetOrientation();
 
     // 0x00000200
@@ -17108,18 +17092,12 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << (float)m_movementInfo.splineElevation;
 }
 
-void Unit::SetFlying(bool apply)
+void Unit::SetCanFly(bool apply)
 {
     if (apply)
-    {
-        SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
-    }
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
     else
-    {
-        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
-    }
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
 }
 
 void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool casting /*= false*/)
@@ -17165,11 +17143,20 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     return (relocated || turn);
 }
 
+//! Only server-side orientation update, does not broadcast to client
 void Unit::UpdateOrientation(float orientation)
 {
     SetOrientation(orientation);
     if (IsVehicle())
-        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), GetPositionZ(), orientation);
+}
+
+//! Only server-side height update, does not broadcast to client
+void Unit::UpdateHeight(float newZ)
+{
+    Relocate(GetPositionX(), GetPositionY(), newZ);
+    if (IsVehicle())
+        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), newZ, GetOrientation());
 }
 
 void Unit::SendThreatListUpdate()
@@ -17457,15 +17444,65 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetLevitate(bool enable)
+bool Unit::SetDisableGravity(bool disable)
 {
-    if (enable == IsLevitating())
+    if (disable == IsLevitating())
+        return false;
+    
+    if (disable)
+        AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+
+    return true;
+}
+
+bool Unit::SetHover(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         return false;
 
     if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+    {
+        //! No need to check height on ascent
+        AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+        if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
+            UpdateHeight(GetPositionZ() + hh);
+    }
     else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+    {
+        RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
+        if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
+        {
+            float newZ = GetPositionZ() - hh;
+            UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
+            UpdateHeight(newZ);
+        }
+    }
 
     return true;
+}
+
+void Unit::SendMovementHover()
+{
+    WorldPacket data(MSG_MOVE_HOVER, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, true);
+}
+
+void Unit::SendMovementWaterWalking() 
+{
+    WorldPacket data(MSG_MOVE_WATER_WALK, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, true);
+}
+
+void Unit::SendMovementFeatherFall()
+{
+    WorldPacket data(MSG_MOVE_FEATHER_FALL, 64);
+    data.append(GetPackGUID());
+    BuildMovementPacket(&data);
+    SendMessageToSet(&data, true);
 }

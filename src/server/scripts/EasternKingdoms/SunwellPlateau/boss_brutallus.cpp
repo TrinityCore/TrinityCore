@@ -216,7 +216,7 @@ public:
                     break;
                 case 3:
                     DoCast(me, SPELL_INTRO_FROST_BLAST);
-                    Madrigosa->SetLevitate(true);
+                    Madrigosa->SetDisableGravity(true);
                     me->AttackStop();
                     Madrigosa->AttackStop();
                     IntroFrostBoltTimer = 3000;

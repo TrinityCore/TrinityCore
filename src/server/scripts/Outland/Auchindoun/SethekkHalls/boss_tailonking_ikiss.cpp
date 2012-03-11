@@ -101,7 +101,7 @@ public:
                     DoScriptText(SAY_INTRO, me);
                 }
 
-                if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                     return;
 
                 float attackRadius = me->GetAttackDistance(who);

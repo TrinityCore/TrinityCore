@@ -218,7 +218,7 @@ public:
                         m_uiActivedCreatureGUID = temp->GetGUID();
                         temp->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
                         temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                        temp->SetLevitate(true);
+                        temp->SetDisableGravity(true);
                         switch (m_uiActiveOrder[m_uiActivedNumber])
                         {
                             case 0: m_bIsActiveWithBJORN  = true; break;

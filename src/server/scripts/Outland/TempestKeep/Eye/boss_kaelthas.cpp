@@ -399,7 +399,7 @@ class boss_kaelthas : public CreatureScript
             {
                 if (!me->HasUnitState(UNIT_STATE_STUNNED) && me->canCreatureAttack(who))
                 {
-                    if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                    if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;
 
                     float attackRadius = me->GetAttackDistance(who);

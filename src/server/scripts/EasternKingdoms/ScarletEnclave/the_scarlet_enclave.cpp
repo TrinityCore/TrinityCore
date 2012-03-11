@@ -46,7 +46,7 @@ public:
             me->setActive(true);
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlying(true);
+            me->SetCanFly(true);
             FlyBackTimer = 500;
             phase = 0;
 
