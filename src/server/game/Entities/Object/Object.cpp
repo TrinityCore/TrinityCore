@@ -2663,36 +2663,37 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     destx = pos.m_positionX + dist * cos(angle);
     desty = pos.m_positionY + dist * sin(angle);
 
-    // Prevent invalid coordinates here
-    if (Trinity::IsValidMapCoord(destx, desty))
+    // Prevent invalid coordinates here, position is unchanged
+    if (!Trinity::IsValidMapCoord(destx, desty))
     {
-        ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
-        floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
-        destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
+        sLog->outCrash("WorldObject::MovePosition invalid coordinates X: %f and Y: %f were passed!", destx, desty);
+        return;
+    }
 
-        float step = dist/10.0f;
+    ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
+    floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
+    destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
 
-        for (uint8 j = 0; j < 10; ++j)
+    float step = dist/10.0f;
+
+    for (uint8 j = 0; j < 10; ++j)
+    {
+        // do not allow too big z changes
+        if (fabs(pos.m_positionZ - destz) > 6)
         {
-            // do not allow too big z changes
-            if (fabs(pos.m_positionZ - destz) > 6)
-            {
-                destx -= step * cos(angle);
-                desty -= step * sin(angle);
-                ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
-                floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
-                destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
-            }
-            // we have correct destz now
-            else
-            {
-                pos.Relocate(destx, desty, destz);
-                break;
-            }
+            destx -= step * cos(angle);
+            desty -= step * sin(angle);
+            ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
+            floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
+            destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
+        }
+        // we have correct destz now
+        else
+        {
+            pos.Relocate(destx, desty, destz);
+            break;
         }
     }
-    else
-        sLog->outCrash("WorldObject::MovePosition invalid coordinates X: %f and Y: %f were passed!", destx, desty);
 
     Trinity::NormalizeMapCoord(pos.m_positionX);
     Trinity::NormalizeMapCoord(pos.m_positionY);
