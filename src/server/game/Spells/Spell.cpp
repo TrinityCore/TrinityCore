@@ -1548,7 +1548,7 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
     else if (GameObject* gobj = m_targets.GetGOTarget())
         AddGOTarget(gobj, 1 << effIndex);
     else
-        AddItemTarget(m_targets.GetItemTarget(), effIndex);
+        AddItemTarget(m_targets.GetItemTarget(), 1 << effIndex);
 
     if (WorldObject* target = m_targets.GetObjectTarget())
         SelectImplicitChainTargets(effIndex, targetType, target, 1 << effIndex);
