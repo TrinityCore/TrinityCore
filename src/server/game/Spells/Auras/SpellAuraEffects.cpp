@@ -2845,7 +2845,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
     }
 
     if (target->GetTypeId() == TYPEID_UNIT)
-        target->SetFlying(apply);
+        target->SetCanFly(apply);
 
     if (Player* player = target->m_movedPlayer)
     {
@@ -2856,7 +2856,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
         else
             data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
         data.append(target->GetPackGUID());
-        data << uint32(0);                                      // unk
+        data << uint32(0);                                      // movement counter
         player->SendDirectMessage(&data);
     }
 }
@@ -2875,14 +2875,16 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
             return;
     }
 
-    WorldPacket data;
     if (apply)
-        data.Initialize(SMSG_MOVE_WATER_WALK, 8+4);
+    {
+        target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+        target->SendMovementWaterWalking();
+    }
     else
-        data.Initialize(SMSG_MOVE_LAND_WALK, 8+4);
-    data.append(target->GetPackGUID());
-    data << uint32(0);
-    target->SendMessageToSet(&data, true);
+    {
+        target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+        target->SendMovementFlagUpdate();
+    }
 }
 
 void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2899,14 +2901,16 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
             return;
     }
 
-    WorldPacket data;
     if (apply)
-        data.Initialize(SMSG_MOVE_FEATHER_FALL, 8+4);
+    {
+        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        target->SendMovementFeatherFall();
+    }
     else
-        data.Initialize(SMSG_MOVE_NORMAL_FALL, 8+4);
-    data.append(target->GetPackGUID());
-    data << uint32(0);
-    target->SendMessageToSet(&data, true);
+    {
+        target->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        target->SendMovementFlagUpdate();
+    }
 
     // start fall from current height
     if (!apply && target->GetTypeId() == TYPEID_PLAYER)
@@ -2927,14 +2931,11 @@ void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool
             return;
     }
 
-    WorldPacket data;
+    target->SetHover(apply);    //! Sets movementflags
     if (apply)
-        data.Initialize(SMSG_MOVE_SET_HOVER, 8+4);
+        target->SendMovementHover();
     else
-        data.Initialize(SMSG_MOVE_UNSET_HOVER, 8+4);
-    data.append(target->GetPackGUID());
-    data << uint32(0);
-    target->SendMessageToSet(&data, true);
+        target->SendMovementFlagUpdate();
 }
 
 void AuraEffect::HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const

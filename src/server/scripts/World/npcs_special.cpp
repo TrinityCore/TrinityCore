@@ -421,7 +421,7 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
             me->Relocate(x, y, z + 0.94f);
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
             WorldPacket data;                       //send update position to client
             me->BuildHeartBeatMsg(&data);
@@ -1937,6 +1937,7 @@ public:
             me->CastSpell(me, 54661, true);
             me->SetReactState(REACT_PASSIVE);
 
+            //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
             // Fly Away
             me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_ASCENDING|MOVEMENTFLAG_FLYING);
             me->SetSpeed(MOVE_FLIGHT, 0.75f, true);

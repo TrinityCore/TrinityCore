@@ -321,6 +321,7 @@ public:
 
         void Reset()
         {
+            //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_HOVER);
             me->SetSpeed(MOVE_SWIM, 1.0f);
             me->SetSpeed(MOVE_RUN, 1.0f);

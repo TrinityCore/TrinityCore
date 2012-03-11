@@ -184,10 +184,10 @@ enum UnitStandFlags
 // byte flags value (UNIT_FIELD_BYTES_1, 3)
 enum UnitBytes1_Flags
 {
-    UNIT_BYTE1_FLAG_ALWAYS_STAND = 0x01,
-    UNIT_BYTE1_FLAG_UNK_2        = 0x02,
-    UNIT_BYTE1_FLAG_UNK_3        = 0x04,
-    UNIT_BYTE1_FLAG_ALL          = 0xFF
+    UNIT_BYTE1_FLAG_ALWAYS_STAND    = 0x01,
+    UNIT_BYTE1_FLAG_HOVER           = 0x02,
+    UNIT_BYTE1_FLAG_UNK_3           = 0x04,
+    UNIT_BYTE1_FLAG_ALL             = 0xFF
 };
 
 // high byte (3 from 0..3) of UNIT_FIELD_BYTES_2
@@ -676,7 +676,7 @@ enum MovementFlags
     MOVEMENTFLAG_PITCH_DOWN            = 0x00000080,
     MOVEMENTFLAG_WALKING               = 0x00000100,               // Walking
     MOVEMENTFLAG_ONTRANSPORT           = 0x00000200,               // Used for flying on some creatures
-    MOVEMENTFLAG_LEVITATING            = 0x00000400,
+    MOVEMENTFLAG_DISABLE_GRAVITY       = 0x00000400,               // Former MOVEMENTFLAG_LEVITATING. This is used when walking is not possible.
     MOVEMENTFLAG_ROOT                  = 0x00000800,               // Must not be set along with MOVEMENTFLAG_MASK_MOVING
     MOVEMENTFLAG_JUMPING               = 0x00001000,
     MOVEMENTFLAG_FALLING               = 0x00002000,               // damage dealt on that type of falling
@@ -690,8 +690,8 @@ enum MovementFlags
     MOVEMENTFLAG_SWIMMING              = 0x00200000,               // appears with fly flag also
     MOVEMENTFLAG_ASCENDING             = 0x00400000,               // press "space" when flying
     MOVEMENTFLAG_DESCENDING            = 0x00800000,
-    MOVEMENTFLAG_CAN_FLY               = 0x01000000,               // can fly
-    MOVEMENTFLAG_FLYING                = 0x02000000,               // hover
+    MOVEMENTFLAG_CAN_FLY               = 0x01000000,               // Appears when unit can fly AND also walk
+    MOVEMENTFLAG_FLYING                = 0x02000000,               // unit is actually flying. pretty sure this is only used for players. creatures use disable_gravity
     MOVEMENTFLAG_SPLINE_ELEVATION      = 0x04000000,               // used for flight paths
     MOVEMENTFLAG_SPLINE_ENABLED        = 0x08000000,               // used for flight paths
     MOVEMENTFLAG_WATERWALKING          = 0x10000000,               // prevent unit from falling through water
@@ -706,6 +706,10 @@ enum MovementFlags
 
     MOVEMENTFLAG_MASK_TURNING =
         MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,
+
+    //! TODO if needed: add more flags to this masks that are exclusive to players
+    MOVEMENTFLAG_MASK_PLAYER_ONLY = 
+        MOVEMENTFLAG_FLYING,
 };
 enum MovementFlags2
 {
@@ -1615,6 +1619,7 @@ class Unit : public WorldObject
         // returns true if unit's position really changed
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateOrientation(float orientation);
+        void UpdateHeight(float newZ);
 
         void KnockbackFrom(float x, float y, float speedXY, float speedZ);
         void JumpTo(float speedXY, float speedZ, bool forward = true);
@@ -1626,10 +1631,14 @@ class Unit : public WorldObject
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMonsterMoveTransport(Unit* vehicleOwner);
         void SendMovementFlagUpdate();
-        bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_LEVITATING);}
+        void SendMovementHover();
+        void SendMovementFeatherFall();
+        void SendMovementWaterWalking();
+        bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
         virtual bool SetWalk(bool enable);
-        virtual bool SetLevitate(bool enable);
+        virtual bool SetDisableGravity(bool disable);
+        bool SetHover(bool enable);
 
         void SetInFront(Unit const* target);
         void SetFacingTo(float ori);
@@ -2053,7 +2062,6 @@ class Unit : public WorldObject
         void SetSpeed(UnitMoveType mtype, float rate, bool forced = false);
         float m_TempSpeed;
 
-        void SetHover(bool on);
         bool isHover() const { return HasAuraType(SPELL_AURA_HOVER); }
 
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
@@ -2077,7 +2085,7 @@ class Unit : public WorldObject
 
         void AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }
         void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }
-        uint32 HasUnitMovementFlag(uint32 f) const { return m_movementInfo.flags & f; }
+        bool HasUnitMovementFlag(uint32 f) const { return (m_movementInfo.flags & f) == f; }
         uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
         void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
 
@@ -2086,6 +2094,15 @@ class Unit : public WorldObject
         uint16 HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.flags2 & f; }
         uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.flags2; }
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
+
+        float GetPositionZMinusOffset() const
+        {
+            float offset = 0.0f;
+            if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+                offset = GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+
+            return GetPositionZ() - offset;
+        }
 
         void SetControlled(bool apply, UnitState state);
 
@@ -2171,9 +2188,9 @@ class Unit : public WorldObject
 
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
-        bool canFly() const     { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
-        bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
-        void SetFlying(bool apply);
+        virtual bool CanFly() const = 0;
+        bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
+        void SetCanFly(bool apply);
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 

@@ -575,7 +575,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 _Reset();
                 phase = 0;
                 me->RemoveAllAuras();
-                me->SetLevitate(false);
+                me->SetDisableGravity(false);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);  // Should be interruptable unless overridden by spell (Overload)
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);   // Reset immumity, Brundir should be stunnable by default
                 RespawnEncounter(instance, me);

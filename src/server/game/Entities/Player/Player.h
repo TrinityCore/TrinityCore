@@ -2287,6 +2287,8 @@ class Player : public Unit, public GridObject<Player>
             m_mover->m_movedPlayer = this;
         }
 
+        bool SetHover(bool enable);
+
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
         WorldObject* GetViewpoint() const;
@@ -2479,6 +2481,10 @@ class Player : public Unit, public GridObject<Player>
         void AddWhisperWhiteList(uint64 guid) { WhisperList.push_back(guid); }
         bool IsInWhisperWhiteList(uint64 guid);
 
+        #pragma region Player Movement
+
+        bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
+
         //! Return collision height sent to client
         float GetCollisionHeight(bool mounted)
         {
@@ -2511,8 +2517,9 @@ class Player : public Unit, public GridObject<Player>
 
                 return modelData->CollisionHeight;
             }
-            //! TODO: Need a proper calculation for collision height when mounted
         }
+        #pragma endregion Player Movement
+
 
     protected:
         // Gamemaster whisper whitelist

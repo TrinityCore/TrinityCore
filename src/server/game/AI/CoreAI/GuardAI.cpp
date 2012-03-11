@@ -54,7 +54,7 @@ bool GuardAI::CanSeeAlways(WorldObject const* obj)
 void GuardAI::MoveInLineOfSight(Unit* unit)
 {
     // Ignore Z for flying creatures
-    if (!me->canFly() && me->GetDistanceZ(unit) > CREATURE_Z_ATTACK_RANGE)
+    if (!me->CanFly() && me->GetDistanceZ(unit) > CREATURE_Z_ATTACK_RANGE)
         return;
 
     if (!me->getVictim() && me->IsValidAttackTarget(unit) &&
