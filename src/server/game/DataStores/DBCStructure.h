@@ -504,7 +504,7 @@ struct AchievementCriteriaEntry
         uint32  additionalRequirement_value;
     } additionalRequirements[MAX_CRITERIA_REQUIREMENTS];
 
-    char*  name[16];                                        // 9-24
+    //char*  name[16];                                      // 9-24
     //uint32 name_flags;                                    // 25
     uint32  flags;                                          // 26
     uint32  timedType;                                      // 27
@@ -512,7 +512,7 @@ struct AchievementCriteriaEntry
                                                             // for timed spells it is spell id for
                                                             // timed kills it is creature id
     uint32  timeLimit;                                      // 29 time limit in seconds
-    uint32  showOrder;                                      // 30 show order, also used in achievement shift-links as index in state bitmask
+    //uint32 showOrder;                                     // 30 show order
 };
 
 struct AreaTableEntry
@@ -726,7 +726,7 @@ struct CreatureDisplayInfoEntry
     uint32      Displayid;                                  // 0        m_ID
     uint32      ModelId;                                    // 1        m_modelID
                                                             // 2        m_soundID
-    uint32      ExtendedDisplayInfoID;                      // 3        m_extendedDisplayInfoID -> CreatureDisplayInfoExtraEntry::DisplayExtraId
+                                                            // 3        m_extendedDisplayInfoID
     float       scale;                                      // 4        m_creatureModelScale
                                                             // 5        m_creatureModelAlpha
                                                             // 6-8      m_textureVariation[3]
@@ -737,22 +737,6 @@ struct CreatureDisplayInfoEntry
                                                             // 13       m_particleColorID
                                                             // 14       m_creatureGeosetData
                                                             // 15       m_objectEffectPackageID
-};
-
-struct CreatureDisplayInfoExtraEntry
-
-{
-    uint32      DisplayExtraId;                             // 0        CreatureDisplayInfoEntry::m_extendedDisplayInfoID
-    uint32      Race;                                       // 1
-    //uint32    Gender;                                     // 2        Model gender, exist not small amount cases when query creature data return different gender from used model, so can't be replacement for model gender field.
-    //uint32    SkinColor;                                  // 3
-    //uint32    FaceType;                                   // 4
-    //uint32    HairType;                                   // 5        CharHairGeosets.dbc
-    //uint32    HairStyle;                                  // 6        CharSections.dbc, where GeneralType=3
-    //uint32    BeardStyle;                                 // 7
-    //uint32    Equipment[11];                              // 8-18     equipped static items EQUIPMENT_SLOT_HEAD..EQUIPMENT_SLOT_HANDS, client show its by self
-    //uint32    CanEquip;                                   // 19       0..1 Can equip additional things when used for players
-    //char*                                                 // 20       CreatureDisplayExtra-*.blp
 };
 
 struct CreatureFamilyEntry
