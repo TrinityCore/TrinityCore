@@ -7,7 +7,7 @@
  * in effect in addition to the GNU General Public License.
  * Copyright (c) 2006, 2007 by Mutsuo Saito, Makoto Matsumoto and Hiroshima University.
  * Copyright (c) 2008 by Agner Fog.
- * Copyright (c) 2010 Trinity Core
+ * Copyright (c) 2012 Trinity Core
  * 
  *  BSD License:
  *  Redistribution and use in source and binary forms, with or without 
