@@ -70,6 +70,8 @@ enum Texts
     SAY_TERENAS_INTRO_3             = 2,
 };
 
+#define SAY_DEATH                   "..."
+
 enum Spells
 {
     // The Lich King
@@ -262,6 +264,8 @@ enum Events
     EVENT_TELEPORT                  = 62,
     EVENT_MOVE_TO_LICH_KING         = 63,
     EVENT_DESPAWN_SELF              = 64,
+    //Play Movie on death
+    EVENT_MOVIE                     = 65,
 };
 
 enum EventGroups
@@ -499,10 +503,13 @@ class boss_the_lich_king : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
-                DoCastAOE(SPELL_PLAY_MOVIE, false);
+                //DoCastAOE(SPELL_PLAY_MOVIE, false);
                 me->SetLevitate(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x03);
                 me->GetMotionMaster()->MoveFall();
+                me->PlayDirectSound(17374);
+                me->MonsterYell(SAY_DEATH, LANG_UNIVERSAL, 0);
+                events.ScheduleEvent(EVENT_MOVIE, 8000);
             }
 
             void EnterCombat(Unit* target)
@@ -1086,6 +1093,9 @@ class boss_the_lich_king : public CreatureScript
                         case EVENT_BERSERK:
                             Talk(SAY_LK_BERSERK);
                             DoCast(me, SPELL_BERSERK2);
+                            break;
+                        case EVENT_MOVIE:
+                            DoCastAOE(SPELL_PLAY_MOVIE, false);
                             break;
                         default:
                             break;
