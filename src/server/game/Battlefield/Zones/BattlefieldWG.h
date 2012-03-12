@@ -315,30 +315,30 @@ class BattlefieldWG : public Battlefield
          * -Teleport if it needed
          * -Update worldstate
          * -Update tenacity
-         * \param plr: Player who accept invite
+         * \param player: Player who accept invite
          */
-        void OnPlayerJoinWar(Player *plr);
+        void OnPlayerJoinWar(Player *player);
 
         /**
          * \brief Called when player leave battle
          * -Update player aura
-         * \param plr : Player who leave battle
+         * \param player : Player who leave battle
          */
-        void OnPlayerLeaveWar(Player *plr);
+        void OnPlayerLeaveWar(Player *player);
 
         /**
          * \brief Called when player leave WG zone
-         * \param plr : Player who leave zone
+         * \param player : Player who leave zone
          */
-        void OnPlayerLeaveZone(Player *plr);
+        void OnPlayerLeaveZone(Player *player);
 
         /**
          * \brief Called when player enter in WG zone
          * -Update aura
          * -Update worldstate
-         * \param plr : Player who leave zone
+         * \param player : Player who leave zone
          */
-        void OnPlayerEnterZone(Player *plr);
+        void OnPlayerEnterZone(Player *player);
 
         /**
          * \brief Called for update battlefield data
@@ -415,13 +415,13 @@ class BattlefieldWG : public Battlefield
             m_CanClickOnOrb = allow;
         }
 
-        void RewardMarkOfHonor(Player *plr, uint32 count);
+        void RewardMarkOfHonor(Player *player, uint32 count);
 
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
         WorldPacket BuildInitWorldStates();
-        void SendInitWorldStatesTo(Player * plr);
+        void SendInitWorldStatesTo(Player * player);
         void SendInitWorldStatesToAll();
 
         void HandleKill(Player *killer, Unit *victim);

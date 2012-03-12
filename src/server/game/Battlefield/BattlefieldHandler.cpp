@@ -75,7 +75,7 @@ void WorldSession::SendBfQueueInviteResponce(uint32 BattleId,uint32 ZoneId, bool
 //Param1:(BattleId) the BattleId of Bf
 void WorldSession::SendBfEntered(uint32 BattleId)
 {
-//    m_PlayerInWar[plr->GetTeamId()].insert(plr->GetGUID());
+//    m_PlayerInWar[player->GetTeamId()].insert(player->GetGUID());
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED, 7);
     data << uint32(BattleId);
     data << uint8(1);                                       //unk
