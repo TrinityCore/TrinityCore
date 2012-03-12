@@ -390,16 +390,10 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (!unitTarget->HasAura(27825))
                             return;
                         break;
-                    // Cataclysmic Bolt
-                    case 38441:
+                    case 38441: // Cataclysmic Bolt
+                    case 66316: // Spinning Pain Spike
                     {
                         damage = unitTarget->CountPctFromMaxHealth(50);
-                        break;
-                    }
-                    // Spinning Pain Spike
-                    case 66316:
-                    {
-                        damage = unitTarget->CountPctFromMaxHealth(100);
                         break;
                     }
                     case 20625: // Ritual of Doom Sacrifice
