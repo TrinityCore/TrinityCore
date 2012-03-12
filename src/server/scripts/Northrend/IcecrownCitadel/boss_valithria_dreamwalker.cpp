@@ -329,8 +329,13 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _events.ScheduleEvent(EVENT_BERSERK, 420000);
             }
 
-            void HealReceived(Unit* /*healer*/, uint32& heal)
+            void HealReceived(Unit* healer, uint32& heal)
             {
+                if (!me->hasLootRecipient())
+                    me->SetLootRecipient(healer);
+
+                me->LowerPlayerDamageReq(heal);
+
                 // encounter complete
                 if (me->HealthAbovePctHealed(100, heal) && !_done)
                 {
