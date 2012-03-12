@@ -751,7 +751,7 @@ class npc_simon_bunny : public CreatureScript
             // Used for getting involved player guid. Parameter id is used for defining if is a large(Monument) or small(Relic) node
             void SetGUID(uint64 guid, int32 id)
             {
-                me->SetFlying(true);
+                me->SetCanFly(true);
 
                 large = (bool)id;
                 playerGUID = guid;
