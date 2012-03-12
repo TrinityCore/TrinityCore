@@ -55,6 +55,8 @@ GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new Game
     m_DBTableGuid = 0;
     m_rotation = 0;
 
+    m_lootRecipient = 0;
+    m_lootRecipientGroup = 0;
     m_groupLootTimer = 0;
     lootingGroupLowGUID = 0;
 
@@ -1967,4 +1969,58 @@ void GameObject::UpdateModel()
     m_model = GameObjectModel::Create(*this);
     if (m_model)
         GetMap()->Insert(*m_model);
+}
+
+Player* GameObject::GetLootRecipient() const
+{
+    if (!m_lootRecipient)
+        return NULL;
+    return ObjectAccessor::FindPlayer(m_lootRecipient);
+}
+
+Group* GameObject::GetLootRecipientGroup() const
+{
+    if (!m_lootRecipientGroup)
+        return NULL;
+    return sGroupMgr->GetGroupByGUID(m_lootRecipientGroup);
+}
+
+void GameObject::SetLootRecipient(Unit* unit)
+{
+    // set the player whose group should receive the right
+    // to loot the creature after it dies
+    // should be set to NULL after the loot disappears
+
+    if (!unit)
+    {
+        m_lootRecipient = 0;
+        m_lootRecipientGroup = 0;
+        return;
+    }
+
+    if (unit->GetTypeId() != TYPEID_PLAYER && !unit->IsVehicle())
+        return;
+
+    Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
+    if (!player)                                             // normal creature, no player involved
+        return;
+
+    m_lootRecipient = player->GetGUID();
+    if (Group* group = player->GetGroup())
+        m_lootRecipientGroup = group->GetLowGUID();
+}
+
+bool GameObject::IsLootAllowedFor(Player const* player) const
+{
+    if (!m_lootRecipient && !m_lootRecipientGroup)
+        return true;
+
+    if (player->GetGUID() == m_lootRecipient)
+        return true;
+
+    Group const* playerGroup = player->GetGroup();
+    if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
+        return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
+
+    return true;
 }
