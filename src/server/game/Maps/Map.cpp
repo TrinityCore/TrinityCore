@@ -493,6 +493,7 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
             markCell(cell_id);
             CellCoord pair(x, y);
             Cell cell(pair);
+            cell.SetNoCreate();
             Visit(cell, gridVisitor);
             Visit(cell, worldVisitor);
         }
@@ -509,9 +510,9 @@ void Map::Update(const uint32 t_diff)
         if (player && player->IsInWorld())
         {
             //player->Update(t_diff);
-            WorldSession* pSession = player->GetSession();
-            MapSessionFilter updater(pSession);
-            pSession->Update(t_diff, updater);
+            WorldSession* session = player->GetSession();
+            MapSessionFilter updater(session);
+            session->Update(t_diff, updater);
         }
     }
     /// update active cells around players and active objects
