@@ -395,9 +395,83 @@ public:
 
 };
 
+enum QuestBearTrap
+{
+    QUEST_PLAGUED_LANDS = 2118,
+    RABID_THISTLE_BEAR = 2164,
+    CAPTURED_RABID_THISTLE_BEAR = 11836,
+    BEAR_ALIVE = true
+};
+
+class spell_bear_capture_trap : public SpellScriptLoader
+{
+public:
+    spell_bear_capture_trap() : SpellScriptLoader("spell_bear_capture_trap") {}
+
+    class spell_bear_capture_trap_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_bear_capture_trap_SpellScript);
+
+        void CaptureBear()
+        {
+            Player *player = GetOriginalCaster()->ToPlayer();
+            if (!player || !player->IsActiveQuest(QUEST_PLAGUED_LANDS))
+                return;
+
+            Unit *caster = GetCaster();
+            Spell *spell = GetSpell();
+            float range = spell->GetSpellInfo()->GetMaxRange(true, caster, spell);
+            Creature *bear = caster->FindNearestCreature(RABID_THISTLE_BEAR, range, BEAR_ALIVE);
+            if (!bear || bear->GetCreatureTemplate()->Entry != RABID_THISTLE_BEAR)
+                return;
+
+            Position pos;
+            bear->GetPosition(&pos);
+            TempSummon *captBear = player->SummonCreature(CAPTURED_RABID_THISTLE_BEAR,
+                    pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetAngle(&pos),
+                    TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10 * 60 * 1000 /* 10 min */);
+            bear->DespawnOrUnsummon(0);
+            captBear->GetMotionMaster()->MoveFollow(player, 0, 0);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_bear_capture_trap_SpellScript::CaptureBear);
+        }
+    };
+
+    SpellScript *GetSpellScript() const
+    {
+        return new spell_bear_capture_trap_SpellScript();
+    }
+};
+
+class npc_tharnariun_treetender : public CreatureScript
+{
+public:
+    npc_tharnariun_treetender() : CreatureScript("npc_tharnariun_treetender") {}
+
+    // Completes the bear quest
+    uint32 GetDialogStatus(Player* player, Creature* creature)
+    {
+        if (player->IsActiveQuest(QUEST_PLAGUED_LANDS) && player->GetQuestStatus(QUEST_PLAGUED_LANDS) == QUEST_STATUS_INCOMPLETE)
+        {
+            if (Creature *mob = player->FindNearestCreature(CAPTURED_RABID_THISTLE_BEAR, 100, BEAR_ALIVE))
+            {
+                player->KilledMonsterCredit(CAPTURED_RABID_THISTLE_BEAR, 0);
+                mob->DespawnOrUnsummon(0);
+            }
+        }
+        
+        return 100;
+    }
+};
+
 void AddSC_darkshore()
 {
     new npc_kerlonian();
     new npc_prospector_remtravel();
     new npc_threshwackonator();
+    new npc_tharnariun_treetender();
+    new spell_bear_capture_trap();
 }

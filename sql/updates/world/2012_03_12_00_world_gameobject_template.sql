@@ -1,0 +1,1 @@
+UPDATE `gameobject_template` SET `data2`=1 WHERE  `entry`=109515 LIMIT 1;
