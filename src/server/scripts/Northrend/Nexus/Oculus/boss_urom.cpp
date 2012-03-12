@@ -316,7 +316,9 @@ public:
                     LeaveCombat();
                     break;
                 case SPELL_TELEPORT:
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY); // with out it the npc will fall down while is casting
+                    //! Unconfirmed, previous below
+                    me->SetDisableGravity(true);
+                    //me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY); // with out it the npc will fall down while is casting
                     canCast = true;
                     break;
                 default:

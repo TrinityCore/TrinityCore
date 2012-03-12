@@ -170,6 +170,7 @@ class npc_azure_ring_captain : public CreatureScript
                 targetGUID = 0;
 
                 me->SetWalk(true);
+                //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
                 me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
                 me->SetReactState(REACT_AGGRESSIVE);
             }

@@ -137,7 +137,7 @@ public:
 
             uiFlightCount = 0;
 
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
@@ -254,7 +254,7 @@ public:
                 events.ScheduleEvent(EVENT_FLIGHT, 60000);
                 break;
             case PHASE_FLIGHT:
-                me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1000);
                 uiFlightCount = 0;
                 uiBreathCount = 0;
@@ -391,7 +391,7 @@ public:
                 }
                 break;
             case 10:
-                me->SetLevitate(false);
+                me->SetDisableGravity(false);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                 EnterPhase(PHASE_GROUND);
                 AttackStart(SelectTarget(SELECT_TARGET_TOPAGGRO));

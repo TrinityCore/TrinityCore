@@ -100,7 +100,7 @@ namespace Movement
     {
         // mix existing state into new
         args.flags.walkmode = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
-        args.flags.flying = unit.m_movementInfo.HasMovementFlag((MovementFlags)(MOVEMENTFLAG_FLYING|MOVEMENTFLAG_LEVITATING));
+        args.flags.flying = unit.m_movementInfo.HasMovementFlag((MovementFlags)(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_DISABLE_GRAVITY));
     }
 
     void MoveSplineInit::SetFacing(const Unit * target)

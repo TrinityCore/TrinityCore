@@ -459,7 +459,7 @@ public:
                 {
                     trigger->SetVisible(false);
                     trigger->setFaction(me->getFaction());
-                    trigger->SetLevitate(true);
+                    trigger->SetDisableGravity(true);
                     trigger->CastSpell(me, SPELL_METEOR, true);
                 }
                 me->GetMotionMaster()->Clear();
@@ -1176,7 +1176,7 @@ public:
         {
             FrostBreathTimer = 5000;
             MoveTimer = 0;
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 i)
@@ -1298,7 +1298,7 @@ public:
             Zpos = 10.0f;
             StrikeTimer = 2000+rand()%5000;
             MoveTimer = 0;
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 i)

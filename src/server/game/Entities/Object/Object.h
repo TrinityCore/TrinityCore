@@ -773,7 +773,8 @@ class WorldObject : public Object, public WorldLocation
                 GetClosePoint(x, y, z, GetObjectSize());
                 ang = GetOrientation();
             }
-            Position pos = {x, y, z, ang};
+            Position pos;
+            pos.Relocate(x, y, z, ang);
             return SummonCreature(id, pos, spwtype, despwtime, 0);
         }
         GameObject* SummonGameObject(uint32 entry, const Position &pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime) const;

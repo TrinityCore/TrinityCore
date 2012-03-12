@@ -217,7 +217,7 @@ public:
 
         void JustReachedHome()
         {
-            me->SetFlying(false);
+            me->SetCanFly(false);
             me->Dismount();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             if (Unit::GetCreature((*me), m_uiGraufGUID) == NULL)
@@ -284,7 +284,7 @@ public:
                 if (m_uiSpellHitCount >= 3)
                 {
                     Phase = SKADI;
-                    me->SetFlying(false);
+                    me->SetCanFly(false);
                     me->Dismount();
                     if (Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
                     {
@@ -328,7 +328,7 @@ public:
                     if (m_uiMountTimer && m_uiMountTimer <= diff)
                     {
                         me->Mount(DATA_MOUNT);
-                        me->SetFlying(true);
+                        me->SetCanFly(true);
                         m_uiMountTimer = 0;
                     } else m_uiMountTimer -= diff;
 

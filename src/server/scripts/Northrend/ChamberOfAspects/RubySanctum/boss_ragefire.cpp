@@ -119,11 +119,11 @@ public:
             if (command)
             {
                 me->HandleEmoteCommand(EMOTE_ONESHOT_FLY_SIT_GROUND_UP);
-                me->SetFlying(true);
+                me->SetCanFly(true);
             }
             else
             {
-                me->SetFlying(false);
+                me->SetCanFly(false);
             }
         }
 
