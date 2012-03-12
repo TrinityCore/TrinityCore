@@ -71,31 +71,31 @@ void BattlefieldMgr::AddZone(uint32 zoneid, Battlefield *handle)
     m_BattlefieldMap[zoneid] = handle;
 }
 
-void BattlefieldMgr::HandlePlayerEnterZone(Player * plr, uint32 zoneid)
+void BattlefieldMgr::HandlePlayerEnterZone(Player * player, uint32 zoneid)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneid);
     if (itr == m_BattlefieldMap.end())
         return;
 
-    if (itr->second->HasPlayer(plr))
+    if (itr->second->HasPlayer(player))
         return;
     if (itr->second->GetEnable() == false)
         return;
-    itr->second->HandlePlayerEnterZone(plr, zoneid);
-    sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u entered outdoorpvp id %u", plr->GetGUIDLow(), itr->second->GetTypeId());
+    itr->second->HandlePlayerEnterZone(player, zoneid);
+    sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
 
-void BattlefieldMgr::HandlePlayerLeaveZone(Player * plr, uint32 zoneid)
+void BattlefieldMgr::HandlePlayerLeaveZone(Player * player, uint32 zoneid)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneid);
     if (itr == m_BattlefieldMap.end())
         return;
 
     // teleport: remove once in removefromworld, once in updatezone
-    if (!itr->second->HasPlayer(plr))
+    if (!itr->second->HasPlayer(player))
         return;
-    itr->second->HandlePlayerLeaveZone(plr, zoneid);
-    sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u left outdoorpvp id %u", plr->GetGUIDLow(), itr->second->GetTypeId());
+    itr->second->HandlePlayerLeaveZone(player, zoneid);
+    sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u left outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
 
 Battlefield *BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneid)
