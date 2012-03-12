@@ -91,6 +91,7 @@ enum SvalaPhase
     INTRO,
     NORMAL,
     SACRIFICING,
+    SVALADEAD
 };
 
 #define DATA_INCREDIBLE_HULK 2043
