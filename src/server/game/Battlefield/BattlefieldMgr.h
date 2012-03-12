@@ -40,11 +40,11 @@ class BattlefieldMgr
     // create battlefield events
     void InitBattlefield();
     // called when a player enters an battlefield area
-    void HandlePlayerEnterZone(Player * plr, uint32 areaflag);
+    void HandlePlayerEnterZone(Player * player, uint32 areaflag);
     // called when player leaves an battlefield area
-    void HandlePlayerLeaveZone(Player * plr, uint32 areaflag);
+    void HandlePlayerLeaveZone(Player * player, uint32 areaflag);
     // called when player resurrects
-    void HandlePlayerResurrects(Player * plr, uint32 areaflag);
+    void HandlePlayerResurrects(Player * player, uint32 areaflag);
     // return assigned battlefield
     Battlefield *GetBattlefieldToZoneId(uint32 zoneid);
     Battlefield *GetBattlefieldByBattleId(uint32 battleid);
@@ -59,7 +59,7 @@ class BattlefieldMgr
 
     bool CanTalkTo(Player * player, Creature * creature, GossipMenuItems gso);
 
-    void HandleDropFlag(Player * plr, uint32 spellId);
+    void HandleDropFlag(Player * player, uint32 spellId);
 
     typedef std::vector < Battlefield * >BattlefieldSet;
     typedef std::map < uint32 /* zoneid */ , Battlefield * >BattlefieldMap;
