@@ -1188,7 +1188,7 @@ namespace Trinity
     class AllGameObjectsWithEntryInRange
     {
     public:
-        AllGameObjectsWithEntryInRange(const WorldObject* pObject, uint32 uiEntry, float fMaxRange) : m_pObject(pObject), m_uiEntry(uiEntry), m_fRange(fMaxRange) {}
+        AllGameObjectsWithEntryInRange(const WorldObject* object, uint32 uiEntry, float fMaxRange) : m_pObject(object), m_uiEntry(uiEntry), m_fRange(fMaxRange) {}
         bool operator() (GameObject* go)
         {
             if (go->GetEntry() == m_uiEntry && m_pObject->IsWithinDist(go, m_fRange, false))
@@ -1205,7 +1205,7 @@ namespace Trinity
     class AllCreaturesOfEntryInRange
     {
         public:
-            AllCreaturesOfEntryInRange(const WorldObject* pObject, uint32 uiEntry, float fMaxRange) : m_pObject(pObject), m_uiEntry(uiEntry), m_fRange(fMaxRange) {}
+            AllCreaturesOfEntryInRange(const WorldObject* object, uint32 uiEntry, float fMaxRange) : m_pObject(object), m_uiEntry(uiEntry), m_fRange(fMaxRange) {}
             bool operator() (Unit* unit)
             {
                 if (unit->GetEntry() == m_uiEntry && m_pObject->IsWithinDist(unit, m_fRange, false))
@@ -1257,7 +1257,7 @@ namespace Trinity
     class AllWorldObjectsInRange
     {
     public:
-        AllWorldObjectsInRange(const WorldObject* pObject, float fMaxRange) : m_pObject(pObject), m_fRange(fMaxRange) {}
+        AllWorldObjectsInRange(const WorldObject* object, float fMaxRange) : m_pObject(object), m_fRange(fMaxRange) {}
         bool operator() (WorldObject* go)
         {
             return m_pObject->IsWithinDist(go, m_fRange, false);
