@@ -58,18 +58,18 @@ class npc_wg_demolisher_engineer : public CreatureScript
     {
     }
 
-    bool OnGossipHello(Player* player, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            player->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
         Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(1);
 
         if (!BfWG)
             return true;
 
-        if (BfWG->GetData(pCreature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_MAX_VEHICLE_H : BATTLEFIELD_WG_DATA_MAX_VEHICLE_A) >
-            BfWG->GetData(pCreature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_VEHICLE_H : BATTLEFIELD_WG_DATA_VEHICLE_A))
+        if (BfWG->GetData(creature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_MAX_VEHICLE_H : BATTLEFIELD_WG_DATA_MAX_VEHICLE_A) >
+            BfWG->GetData(creature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_VEHICLE_H : BATTLEFIELD_WG_DATA_VEHICLE_A))
         {
             if (player->HasAura(SPELL_CORPORAL))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -83,11 +83,11 @@ class npc_wg_demolisher_engineer : public CreatureScript
         else
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* pCreature, uint32 /*sender */ , uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender */ , uint32 action)
     {
         player->CLOSE_GOSSIP_MENU();
 
@@ -96,24 +96,24 @@ class npc_wg_demolisher_engineer : public CreatureScript
         if (!BfWG)
             return true;
 
-        if (BfWG->GetData(pCreature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_MAX_VEHICLE_H : BATTLEFIELD_WG_DATA_MAX_VEHICLE_A) >
-            BfWG->GetData(pCreature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_VEHICLE_H : BATTLEFIELD_WG_DATA_VEHICLE_A))
+        if (BfWG->GetData(creature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_MAX_VEHICLE_H : BATTLEFIELD_WG_DATA_MAX_VEHICLE_A) >
+            BfWG->GetData(creature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_VEHICLE_H : BATTLEFIELD_WG_DATA_VEHICLE_A))
         {
             switch (action - GOSSIP_ACTION_INFO_DEF)
             {
                 case 0:
-                    player->CastSpell(player, SPELL_BUILD_CATAPULT, false, NULL, NULL, pCreature->GetGUID());
+                    player->CastSpell(player, SPELL_BUILD_CATAPULT, false, NULL, NULL, creature->GetGUID());
                     break;
                 case 1:
-                    player->CastSpell(player, SPELL_BUILD_DEMOLISHER, false, NULL, NULL, pCreature->GetGUID());
+                    player->CastSpell(player, SPELL_BUILD_DEMOLISHER, false, NULL, NULL, creature->GetGUID());
                     break;
                 case 2:
-                    player->CastSpell(player, player->GetTeamId() ? SPELL_BUILD_SIEGE_ENGINE : SPELL_BUILD_SIEGE_ENGINE2, false, NULL, NULL, pCreature->GetGUID());
+                    player->CastSpell(player, player->GetTeamId() ? SPELL_BUILD_SIEGE_ENGINE : SPELL_BUILD_SIEGE_ENGINE2, false, NULL, NULL, creature->GetGUID());
                     break;
             }
             //spell 49899 Emote : 406 from sniff
             //INSERT INTO `spell_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES ('49899', '0', '1', '406', '0', '0', '0', '0', '0', '0');
-            if (Creature* creature = pCreature->FindNearestCreature(27852, 30.0f, true))
+            if (Creature* creature = creature->FindNearestCreature(27852, 30.0f, true))
                 creature->CastSpell(creature, SPELL_ACTIVATE_ROBOTIC_ARMS, true);
         }
         return true;
@@ -127,10 +127,10 @@ class npc_wg_spirit_guide : public CreatureScript
     {
     }
 
-    bool OnGossipHello(Player* player, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            player->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
         Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
         if (BfWG)
@@ -146,11 +146,11 @@ class npc_wg_spirit_guide : public CreatureScript
             }
         }
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(pCreature), pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*pCreature */ , uint32 /*sender */ , uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature */ , uint32 /*sender */ , uint32 action)
     {
         player->CLOSE_GOSSIP_MENU();
 
@@ -178,10 +178,10 @@ class npc_wg_queue : public CreatureScript
     {
     }
 
-    bool OnGossipHello(Player* player, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            player->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
         Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
         if (BfWG)
@@ -190,7 +190,7 @@ class npc_wg_queue : public CreatureScript
             if (BfWG->IsWarTime())
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                player->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam()? WG_NPCQUEUE_TEXT_H_WAR : WG_NPCQUEUE_TEXT_A_WAR, pCreature->GetGUID());
+                player->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam()? WG_NPCQUEUE_TEXT_H_WAR : WG_NPCQUEUE_TEXT_A_WAR, creature->GetGUID());
             }
             else
             {
@@ -199,18 +199,18 @@ class npc_wg_queue : public CreatureScript
                 if (uiTime < 15 * MINUTE)
                 {
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, sObjectMgr->GetTrinityStringForDBCLocale(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    player->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam() ? WG_NPCQUEUE_TEXT_H_QUEUE : WG_NPCQUEUE_TEXT_A_QUEUE, pCreature->GetGUID());
+                    player->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam() ? WG_NPCQUEUE_TEXT_H_QUEUE : WG_NPCQUEUE_TEXT_A_QUEUE, creature->GetGUID());
                 }
                 else
                 {
-                    player->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam() ? WG_NPCQUEUE_TEXT_H_NOWAR : WG_NPCQUEUE_TEXT_A_NOWAR, pCreature->GetGUID());
+                    player->SEND_GOSSIP_MENU(BfWG->GetDefenderTeam() ? WG_NPCQUEUE_TEXT_H_NOWAR : WG_NPCQUEUE_TEXT_A_NOWAR, creature->GetGUID());
                 }
             }
         }
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*pCreature */ , uint32 /*sender */ , uint32 /*action */ )
+    bool OnGossipSelect(Player* player, Creature* /*creature */ , uint32 /*sender */ , uint32 /*action */ )
     {
         player->CLOSE_GOSSIP_MENU();
 
@@ -297,24 +297,24 @@ class npc_wg_quest_giver : public CreatureScript
     {
     }
 
-    bool OnGossipHello(Player* player, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            player->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
         Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
         if (BfWG)
         {
-            if (pCreature->isQuestGiver())
+            if (creature->isQuestGiver())
             {
-                Object* pObject = (Object *) pCreature;
-                QuestRelations* pObjectQR = sObjectMgr->GetCreatureQuestRelationMap();
-                QuestRelations* pObjectQIR = sObjectMgr->GetCreatureQuestInvolvedRelation();
+                Object* object = (Object *) creature;
+                QuestRelations* objectQR = sObjectMgr->GetCreatureQuestRelationMap();
+                QuestRelations* objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelation();
 
                 QuestMenu & qm = player->PlayerTalkClass->GetQuestMenu();
                 qm.ClearMenu();
 
-                for (QuestRelations::const_iterator i = pObjectQIR->lower_bound(pObject->GetEntry()); i != pObjectQIR->upper_bound(pObject->GetEntry()); ++i)
+                for (QuestRelations::const_iterator i = objectQIR->lower_bound(object->GetEntry()); i != objectQIR->upper_bound(object->GetEntry()); ++i)
                 {
                     uint32 quest_id = i->second;
                     QuestStatus status = player->GetQuestStatus(quest_id);
@@ -324,7 +324,7 @@ class npc_wg_quest_giver : public CreatureScript
                         qm.AddMenuItem(quest_id, 4);
                 }
 
-                for (QuestRelations::const_iterator i = pObjectQR->lower_bound(pObject->GetEntry()); i != pObjectQR->upper_bound(pObject->GetEntry()); ++i)
+                for (QuestRelations::const_iterator i = objectQR->lower_bound(object->GetEntry()); i != objectQR->upper_bound(object->GetEntry()); ++i)
                 {
                     uint32 quest_id = i->second;
                     Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
@@ -412,7 +412,7 @@ class npc_wg_quest_giver : public CreatureScript
                     }
                 }
             }
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(pCreature), pCreature->GetGUID());
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
             return true;
         }
         return true;
