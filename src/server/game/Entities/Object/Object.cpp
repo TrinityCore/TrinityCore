@@ -486,6 +486,10 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
             }
             updateMask->SetBit(GAMEOBJECT_DYNAMIC);
             updateMask->SetBit(GAMEOBJECT_BYTES_1);
+
+            if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST && ToGameObject()->GetGOInfo()->chest.groupLootRules &&
+                ToGameObject()->HasLootRecipient())
+                updateMask->SetBit(GAMEOBJECT_FLAGS);
         }
         else if (isType(TYPEMASK_UNIT))
         {
@@ -708,6 +712,15 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                         *data << uint16(0);
                         *data << uint16(-1);
                     }
+                }
+                else if (index == GAMEOBJECT_FLAGS)
+                {
+                    uint32 flags = m_uint32Values[index];
+                    if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST)
+                        if (ToGameObject()->GetGOInfo()->chest.groupLootRules && !ToGameObject()->IsLootAllowedFor(target))
+                            flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
+
+                    *data << flags;
                 }
                 else
                     *data << m_uint32Values[index];                // other cases

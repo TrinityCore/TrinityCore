@@ -331,7 +331,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _events.ScheduleEvent(EVENT_BERSERK, 420000);
             }
 
-            void HealReceived(Unit* /*healer*/, uint32& heal)
+            void HealReceived(Unit* healer, uint32& heal)
             {
                 // Do not receive heal while encounter not in progress
                 if (_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) != IN_PROGRESS)
@@ -339,6 +339,11 @@ class boss_valithria_dreamwalker : public CreatureScript
                     heal = 0;
                     return;
                 }
+
+                if (!me->hasLootRecipient())
+                    me->SetLootRecipient(healer);
+
+                me->LowerPlayerDamageReq(heal);
 
                 // encounter complete
                 if (me->HealthAbovePctHealed(100, heal) && !_done)
