@@ -87,7 +87,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* pCreature, uint32 /*uiSender */ , uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* pCreature, uint32 /*sender */ , uint32 action)
     {
         player->CLOSE_GOSSIP_MENU();
 
@@ -99,7 +99,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
         if (BfWG->GetData(pCreature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_MAX_VEHICLE_H : BATTLEFIELD_WG_DATA_MAX_VEHICLE_A) >
             BfWG->GetData(pCreature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_VEHICLE_H : BATTLEFIELD_WG_DATA_VEHICLE_A))
         {
-            switch (uiAction - GOSSIP_ACTION_INFO_DEF)
+            switch (action - GOSSIP_ACTION_INFO_DEF)
             {
                 case 0:
                     player->CastSpell(player, SPELL_BUILD_CATAPULT, false, NULL, NULL, pCreature->GetGUID());
@@ -150,7 +150,7 @@ class npc_wg_spirit_guide : public CreatureScript
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*pCreature */ , uint32 /*uiSender */ , uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*pCreature */ , uint32 /*sender */ , uint32 action)
     {
         player->CLOSE_GOSSIP_MENU();
 
@@ -160,7 +160,7 @@ class npc_wg_spirit_guide : public CreatureScript
             GraveYardVect gy = BfWG->GetGraveYardVect();
             for (uint8 i = 0; i < gy.size(); i++)
             {
-                if (uiAction - GOSSIP_ACTION_INFO_DEF == i && gy[i]->GetControlTeamId() == player->GetTeamId())
+                if (action - GOSSIP_ACTION_INFO_DEF == i && gy[i]->GetControlTeamId() == player->GetTeamId())
                 {
                     WorldSafeLocsEntry const* ws = sWorldSafeLocsStore.LookupEntry(gy[i]->GetGraveYardId());
                     player->TeleportTo(ws->map_id, ws->x, ws->y, ws->z, 0);
@@ -210,7 +210,7 @@ class npc_wg_queue : public CreatureScript
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*pCreature */ , uint32 /*uiSender */ , uint32 /*uiAction */ )
+    bool OnGossipSelect(Player* player, Creature* /*pCreature */ , uint32 /*sender */ , uint32 /*action */ )
     {
         player->CLOSE_GOSSIP_MENU();
 
@@ -327,8 +327,8 @@ class npc_wg_quest_giver : public CreatureScript
                 for (QuestRelations::const_iterator i = pObjectQR->lower_bound(pObject->GetEntry()); i != pObjectQR->upper_bound(pObject->GetEntry()); ++i)
                 {
                     uint32 quest_id = i->second;
-                    Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
-                    if (!pQuest)
+                    Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+                    if (!quest)
                         continue;
 
                     switch (quest_id)
@@ -344,9 +344,9 @@ class npc_wg_quest_giver : public CreatureScript
                             {
                                 QuestStatus status = player->GetQuestStatus(quest_id);
 
-                                if (pQuest->IsAutoComplete() && player->CanTakeQuest(pQuest, false))
+                                if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
                                     qm.AddMenuItem(quest_id, 4);
-                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(pQuest, false))
+                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
                                     qm.AddMenuItem(quest_id, 2);
                             }
                             break;
@@ -362,9 +362,9 @@ class npc_wg_quest_giver : public CreatureScript
                             {
                                 QuestStatus status = player->GetQuestStatus(quest_id);
 
-                                if (pQuest->IsAutoComplete() && player->CanTakeQuest(pQuest, false))
+                                if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
                                     qm.AddMenuItem(quest_id, 4);
-                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(pQuest, false))
+                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
                                     qm.AddMenuItem(quest_id, 2);
                             }
                             break;
@@ -378,9 +378,9 @@ class npc_wg_quest_giver : public CreatureScript
                             {
                                 QuestStatus status = player->GetQuestStatus(quest_id);
 
-                                if (pQuest->IsAutoComplete() && player->CanTakeQuest(pQuest, false))
+                                if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
                                     qm.AddMenuItem(quest_id, 4);
-                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(pQuest, false))
+                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
                                     qm.AddMenuItem(quest_id, 2);
                             }
                             break;
@@ -395,18 +395,18 @@ class npc_wg_quest_giver : public CreatureScript
                             {
                                 QuestStatus status = player->GetQuestStatus(quest_id);
 
-                                if (pQuest->IsAutoComplete() && player->CanTakeQuest(pQuest, false))
+                                if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
                                     qm.AddMenuItem(quest_id, 4);
-                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(pQuest, false))
+                                else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
                                     qm.AddMenuItem(quest_id, 2);
                             }
                             break;
                         default:
                             QuestStatus status = player->GetQuestStatus(quest_id);
 
-                            if (pQuest->IsAutoComplete() && player->CanTakeQuest(pQuest, false))
+                            if (quest->IsAutoComplete() && player->CanTakeQuest(quest, false))
                                 qm.AddMenuItem(quest_id, 4);
-                            else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(pQuest, false))
+                            else if (status == QUEST_STATUS_NONE && player->CanTakeQuest(quest, false))
                                 qm.AddMenuItem(quest_id, 2);
                             break;
                     }
