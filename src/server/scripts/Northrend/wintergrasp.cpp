@@ -253,23 +253,23 @@ class go_wg_vehicle_teleporter : public GameObjectScript
             if (uiCheckTimer <= diff)
             {
                 for (uint8 i = 0; i < 4; i++)
-                    if (Creature* pVehicle = go->FindNearestCreature(Vehicules[i], 3.0f, true))
-                        if (!pVehicle->HasAura(SPELL_VEHICLE_TELEPORT))
+                    if (Creature* vehicle = go->FindNearestCreature(Vehicules[i], 3.0f, true))
+                        if (!vehicle->HasAura(SPELL_VEHICLE_TELEPORT))
                         {
-                            if (pVehicle->GetVehicle())
+                            if (vehicle->GetVehicle())
                             {
-                                if (Unit* player = pVehicle->GetVehicle()->GetPassenger(0))
+                                if (Unit* player = vehicle->GetVehicle()->GetPassenger(0))
                                 {
                                     uint32 gofaction = go->GetUInt32Value(GAMEOBJECT_FACTION);
                                     uint32 plfaction = player->getFaction();
                                     if (gofaction == plfaction)
                                     {
-                                        pVehicle->CastSpell(pVehicle, SPELL_VEHICLE_TELEPORT, true);
-                                        if (Creature* TargetTeleport = pVehicle->FindNearestCreature(23472, 100.0f, true))
+                                        vehicle->CastSpell(vehicle, SPELL_VEHICLE_TELEPORT, true);
+                                        if (Creature* TargetTeleport = vehicle->FindNearestCreature(23472, 100.0f, true))
                                         {
                                             float x, y, z, o;
                                             TargetTeleport->GetPosition(x, y, z, o);
-                                            pVehicle->GetVehicle()->TeleportVehicle(x, y, z, o);
+                                            vehicle->GetVehicle()->TeleportVehicle(x, y, z, o);
                                         }
                                     }
                                 }
