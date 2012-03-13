@@ -4079,11 +4079,11 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             // most likely will never be used, haven't heard of cases where players unlearn a mount
             if (Has310Flyer(false) && _spell_idx->second->skillId == SKILL_MOUNTS)
             {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                        spellInfo->Effects[i].CalcValue() == 310)
-                        Has310Flyer(true, spell_id);    // with true as first argument its also used to set/remove the flag
+                if (spellInfo)
+                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
+                            spellInfo->Effects[i].CalcValue() == 310)
+                            Has310Flyer(true, spell_id);    // with true as first argument its also used to set/remove the flag
             }
         }
     }
