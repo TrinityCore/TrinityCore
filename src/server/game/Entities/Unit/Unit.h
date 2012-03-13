@@ -341,6 +341,7 @@ class Transport;
 class Vehicle;
 
 typedef std::list<Unit*> UnitList;
+typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
 
 struct SpellImmune
 {
@@ -1813,6 +1814,8 @@ class Unit : public WorldObject
 
         AuraApplication * GetAuraApplicationOfRankedSpell(uint32 spellId, uint64 casterGUID = 0, uint64 itemCasterGUID = 0, uint8 reqEffMask = 0, AuraApplication * except = NULL) const;
         Aura* GetAuraOfRankedSpell(uint32 spellId, uint64 casterGUID = 0, uint64 itemCasterGUID = 0, uint8 reqEffMask = 0) const;
+
+        void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList);
 
         bool HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster = 0) const;
         uint32 GetAuraCount(uint32 spellId) const;
