@@ -490,6 +490,33 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
         std::map<uint32, time_t> _triggerTimes;
 };
 
+/*#####
+## at_azure_dragons_sanctuary
+######*/
+
+enum DragonsSanctuary
+{
+    QUEST_THE_END_OF_THE_LINE_A                  = 12107,
+    QUEST_THE_END_OF_THE_LINE_H                  = 12110,
+    NPC_THE_END_OF_THE_LINE_AT_KILL_CREDIT_BUNNY = 26889,
+};
+
+class AreaTrigger_at_azure_dragons_sanctuary : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_azure_dragons_sanctuary() : AreaTriggerScript("at_azure_dragons_sanctuary") {}
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
+        {
+            if (player->GetQuestStatus(QUEST_THE_END_OF_THE_LINE_A) != QUEST_STATUS_INCOMPLETE)
+                || player->GetQuestStatus(QUEST_THE_END_OF_THE_LINE_H) != QUEST_STATUS_INCOMPLETE)
+                return false;
+
+            player->KilledMonsterCredit(NPC_THE_END_OF_THE_LINE_AT_KILL_CREDIT_BUNNY, 0);
+            return true;
+        }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -502,4 +529,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_bring_your_orphan_to();
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
+    new AreaTrigger_at_azure_dragons_sanctuary();
 }
