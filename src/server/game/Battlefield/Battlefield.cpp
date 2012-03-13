@@ -810,15 +810,15 @@ Creature *Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
     }
 
     //Create creature
-    Creature* pCreature = new Creature;
-    if (!pCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, team, x, y, z, o))
+    Creature* creature = new Creature;
+    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, team, x, y, z, o))
     {
         sLog->outError("Can't create creature entry: %u", entry);
-        delete pCreature;
+        delete creature;
         return NULL;
     }
 
-    pCreature->SetHomePosition(x, y, z, o);
+    creature->SetHomePosition(x, y, z, o);
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
@@ -827,14 +827,14 @@ Creature *Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
         return NULL;
     }
     // force using DB speeds -- do we really need this?
-    pCreature->SetSpeed(MOVE_WALK, cinfo->speed_walk);
-    pCreature->SetSpeed(MOVE_RUN, cinfo->speed_run);
+    creature->SetSpeed(MOVE_WALK, cinfo->speed_walk);
+    creature->SetSpeed(MOVE_RUN, cinfo->speed_run);
 
     // Set creature in world
-    map->AddToMap(pCreature);
-    pCreature->setActive(true);
+    map->AddToMap(creature);
+    creature->setActive(true);
 
-    return pCreature;
+    return creature;
 }
 
 // Method for spawning gameobject on map
