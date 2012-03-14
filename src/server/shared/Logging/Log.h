@@ -51,6 +51,7 @@ enum DebugLogFilters
     LOG_FILTER_GUILD                    = 0x00200000,   // Guild related
     LOG_FILTER_TRANSPORTS               = 0x00400000,   // Transport related
     LOG_FILTER_WARDEN                   = 0x00800000,   // Warden related
+    LOG_FILTER_BATTLEFIELD              = 0x01000000,   // Battlefield related
 };
 
 enum LogTypes
