@@ -530,8 +530,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     if (m_attackType == RANGED_ATTACK)
         // wand case
         if ((m_caster->getClassMask() & CLASSMASK_WAND_USERS) != 0 && m_caster->GetTypeId() == TYPEID_PLAYER)
-            if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
-                m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->Damage[0].DamageType);
+            if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
+                m_spellSchoolMask = SpellSchoolMask(1 << item->GetTemplate()->Damage[0].DamageType);
 
     if (originalCasterGUID)
         m_originalCasterGUID = originalCasterGUID;
@@ -3952,12 +3952,12 @@ void Spell::WriteAmmoToPacket(WorldPacket* data)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
-        if (pItem)
+        Item* item = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
+        if (item)
         {
-            ammoInventoryType = pItem->GetTemplate()->InventoryType;
+            ammoInventoryType = item->GetTemplate()->InventoryType;
             if (ammoInventoryType == INVTYPE_THROWN)
-                ammoDisplayID = pItem->GetTemplate()->DisplayInfoID;
+                ammoDisplayID = item->GetTemplate()->DisplayInfoID;
             else
             {
                 uint32 ammoID = m_caster->ToPlayer()->GetUInt32Value(PLAYER_AMMO_ID);
@@ -4361,15 +4361,15 @@ void Spell::TakeAmmo()
 {
     if (m_attackType == RANGED_ATTACK && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
+        Item* item = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
 
         // wands don't have ammo
-        if (!pItem  || pItem->IsBroken() || pItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
+        if (!item  || item->IsBroken() || item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
             return;
 
-        if (pItem->GetTemplate()->InventoryType == INVTYPE_THROWN)
+        if (item->GetTemplate()->InventoryType == INVTYPE_THROWN)
         {
-            if (pItem->GetMaxStackCount() == 1)
+            if (item->GetMaxStackCount() == 1)
             {
                 // decrease durability for non-stackable throw weapon
                 m_caster->ToPlayer()->DurabilityPointLossForEquipSlot(EQUIPMENT_SLOT_RANGED);
@@ -4378,7 +4378,7 @@ void Spell::TakeAmmo()
             {
                 // decrease items amount for stackable throw weapon
                 uint32 count = 1;
-                m_caster->ToPlayer()->DestroyItemCount(pItem, count, true);
+                m_caster->ToPlayer()->DestroyItemCount(item, count, true);
             }
         }
         else if (uint32 ammo = m_caster->ToPlayer()->GetUInt32Value(PLAYER_AMMO_ID))
@@ -6216,15 +6216,15 @@ SpellCastResult Spell::CheckItems()
                 if (m_caster->GetTypeId() != TYPEID_PLAYER) return SPELL_FAILED_TARGET_NOT_PLAYER;
                 if (m_attackType != RANGED_ATTACK)
                     break;
-                Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType);
-                if (!pItem || pItem->IsBroken())
+                Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType);
+                if (!item || item->IsBroken())
                     return SPELL_FAILED_EQUIPPED_ITEM;
 
-                switch (pItem->GetTemplate()->SubClass)
+                switch (item->GetTemplate()->SubClass)
                 {
                     case ITEM_SUBCLASS_WEAPON_THROWN:
                     {
-                        uint32 ammo = pItem->GetEntry();
+                        uint32 ammo = item->GetEntry();
                         if (!m_caster->ToPlayer()->HasItemCount(ammo, 1))
                             return SPELL_FAILED_NO_AMMO;
                     };  break;
@@ -6250,7 +6250,7 @@ SpellCastResult Spell::CheckItems()
                             return SPELL_FAILED_NO_AMMO;
 
                         // check ammo ws. weapon compatibility
-                        switch (pItem->GetTemplate()->SubClass)
+                        switch (item->GetTemplate()->SubClass)
                         {
                             case ITEM_SUBCLASS_WEAPON_BOW:
                             case ITEM_SUBCLASS_WEAPON_CROSSBOW:
@@ -6286,10 +6286,10 @@ SpellCastResult Spell::CheckItems()
                  if (!pProto)
                      return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
 
-                 if (Item* pitem = p_caster->GetItemByEntry(item_id))
+                 if (Item* item = p_caster->GetItemByEntry(item_id))
                  {
                      for (int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                         if (pProto->Spells[x].SpellCharges != 0 && pitem->GetSpellCharges(x) == pProto->Spells[x].SpellCharges)
+                         if (pProto->Spells[x].SpellCharges != 0 && item->GetSpellCharges(x) == pProto->Spells[x].SpellCharges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
                  break;
