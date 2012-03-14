@@ -2168,7 +2168,7 @@ public:
 
     struct blade_of_azzinothAI : public NullCreatureAI
     {
-        blade_of_azzinothAI(Creature* c) : NullCreatureAI(c) {}
+        blade_of_azzinothAI(Creature* creature) : NullCreatureAI(creature) {}
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {

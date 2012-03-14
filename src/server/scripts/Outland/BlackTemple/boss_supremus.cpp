@@ -65,7 +65,7 @@ public:
 
     struct molten_flameAI : public NullCreatureAI
     {
-        molten_flameAI(Creature* c) : NullCreatureAI(c) {}
+        molten_flameAI(Creature* creature) : NullCreatureAI(creature) {}
 
         void InitializeAI()
         {

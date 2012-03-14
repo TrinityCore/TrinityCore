@@ -490,9 +490,9 @@ class mob_solarium_priest : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_solarium_priestAI (Creature);
+            return new mob_solarium_priestAI(creature);
         }
 };
 

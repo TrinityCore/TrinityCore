@@ -198,9 +198,9 @@ class mob_abyssal : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_abyssalAI(Creature);
+            return new mob_abyssalAI(creature);
         }
 };
 
@@ -464,9 +464,9 @@ class boss_magtheridon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_magtheridonAI(Creature);
+            return new boss_magtheridonAI(creature);
         }
 };
 
@@ -583,9 +583,9 @@ class mob_hellfire_channeler : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_hellfire_channelerAI(Creature);
+            return new mob_hellfire_channelerAI(creature);
         }
 };
 
