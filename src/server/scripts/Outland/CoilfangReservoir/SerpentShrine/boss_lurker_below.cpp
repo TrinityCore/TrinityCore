@@ -78,9 +78,9 @@ public:
 
     struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
     {
-        boss_the_lurker_belowAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me)
+        boss_the_lurker_belowAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
         {
-            Instance = c->GetInstanceScript();
+            Instance = creature->GetInstanceScript();
         }
 
         InstanceScript* Instance;
@@ -368,7 +368,7 @@ public:
 
     struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
     {
-        mob_coilfang_ambusherAI(Creature* c) : Scripted_NoMovementAI(c)
+        mob_coilfang_ambusherAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
         }
 

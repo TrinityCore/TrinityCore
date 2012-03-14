@@ -61,9 +61,9 @@ EndScriptData */
 
 struct boss_twinemperorsAI : public ScriptedAI
 {
-    boss_twinemperorsAI(Creature* c): ScriptedAI(c)
+    boss_twinemperorsAI(Creature* creature): ScriptedAI(creature)
     {
-        instance = c->GetInstanceScript();
+        instance = creature->GetInstanceScript();
     }
 
     InstanceScript* instance;
