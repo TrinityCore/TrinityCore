@@ -180,7 +180,7 @@ public:
           DoScriptText(SAY_MARWYN_DEATH, me);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
             switch(urand(0,1))
             {
@@ -189,7 +189,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pVictim)
+        void EnterCombat(Unit* victim)
         {
             if (!m_pInstance) return;
           //me->RemoveFlag(MOVEFLAG_WALK, MOVEMENTFLAG_WALK_MODE);

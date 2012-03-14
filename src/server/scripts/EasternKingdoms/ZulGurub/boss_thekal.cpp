@@ -66,9 +66,9 @@ class boss_thekal : public CreatureScript
 
         struct boss_thekalAI : public ScriptedAI
         {
-            boss_thekalAI(Creature* c) : ScriptedAI(c)
+            boss_thekalAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = c->GetInstanceScript();
+                m_instance = creature->GetInstanceScript();
             }
 
             uint32 MortalCleave_Timer;
@@ -277,9 +277,9 @@ class mob_zealot_lorkhan : public CreatureScript
 
         struct mob_zealot_lorkhanAI : public ScriptedAI
         {
-            mob_zealot_lorkhanAI(Creature* c) : ScriptedAI(c)
+            mob_zealot_lorkhanAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = c->GetInstanceScript();
+                m_instance = creature->GetInstanceScript();
             }
 
             uint32 Shield_Timer;
@@ -437,9 +437,9 @@ class mob_zealot_zath : public CreatureScript
 
         struct mob_zealot_zathAI : public ScriptedAI
         {
-            mob_zealot_zathAI(Creature* c) : ScriptedAI(c)
+            mob_zealot_zathAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = c->GetInstanceScript();
+                m_instance = creature->GetInstanceScript();
             }
 
             uint32 SweepingStrikes_Timer;

@@ -233,7 +233,7 @@ public:
 
     struct npc_mrfloppyAI : public ScriptedAI
     {
-        npc_mrfloppyAI(Creature* c) : ScriptedAI(c) {}
+        npc_mrfloppyAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 EmilyGUID;
         uint64 RWORGGUID;
@@ -471,7 +471,7 @@ public:
 
     struct npc_wounded_skirmisherAI : public ScriptedAI
     {
-        npc_wounded_skirmisherAI(Creature* c) : ScriptedAI(c) {}
+        npc_wounded_skirmisherAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 uiPlayerGUID;
 

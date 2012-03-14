@@ -55,9 +55,9 @@ class boss_hakkar : public CreatureScript
 
         struct boss_hakkarAI : public ScriptedAI
         {
-            boss_hakkarAI(Creature* c) : ScriptedAI(c)
+            boss_hakkarAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = c->GetInstanceScript();
+                m_instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_instance;

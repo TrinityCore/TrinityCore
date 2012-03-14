@@ -282,9 +282,9 @@ public:
 
     struct npc_thrall_old_hillsbradAI : public npc_escortAI
     {
-        npc_thrall_old_hillsbradAI(Creature* c) : npc_escortAI(c)
+        npc_thrall_old_hillsbradAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             HadMount = false;
             me->setActive(true);
         }
@@ -624,9 +624,9 @@ public:
 
     struct npc_tarethaAI : public npc_escortAI
     {
-        npc_tarethaAI(Creature* c) : npc_escortAI(c)
+        npc_tarethaAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;

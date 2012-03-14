@@ -91,14 +91,14 @@ public:
           me->SetVisible(false);
         }
 
-        void EnterCombat(Unit* pVictim)
+        void EnterCombat(Unit* victim)
         {
           //me->RemoveFlag(MOVEFLAG_WALK, NULL);
           DoScriptText(SAY_FALRIC_AGGRO, me);
           DoCast(me, SPELL_HOPELESSNESS);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
             switch(urand(0,1))
             {

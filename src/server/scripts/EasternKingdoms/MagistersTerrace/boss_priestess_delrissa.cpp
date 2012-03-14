@@ -99,9 +99,9 @@ public:
 
     struct boss_priestess_delrissaAI : public ScriptedAI
     {
-        boss_priestess_delrissaAI(Creature* c) : ScriptedAI(c)
+        boss_priestess_delrissaAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             memset(&m_auiLackeyGUID, 0, sizeof(m_auiLackeyGUID));
             LackeyEntryList.clear();
         }
@@ -341,9 +341,9 @@ enum eHealingPotion
 //all 8 possible lackey use this common
 struct boss_priestess_lackey_commonAI : public ScriptedAI
 {
-    boss_priestess_lackey_commonAI(Creature* c) : ScriptedAI(c)
+    boss_priestess_lackey_commonAI(Creature* creature) : ScriptedAI(creature)
     {
-        instance = c->GetInstanceScript();
+        instance = creature->GetInstanceScript();
         memset(&m_auiLackeyGUIDs, 0, sizeof(m_auiLackeyGUIDs));
         AcquireGUIDs();
     }
