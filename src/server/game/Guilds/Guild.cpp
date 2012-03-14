@@ -348,8 +348,8 @@ bool Guild::BankTab::LoadItemFromDB(Field* fields)
         return false;
     }
 
-    Item* pItem = NewItemOrBag(proto);
-    if (!pItem->LoadFromDB(itemGuid, 0, fields, itemEntry))
+    Item* item = NewItemOrBag(proto);
+    if (!item->LoadFromDB(itemGuid, 0, fields, itemEntry))
     {
         sLog->outError("Item (GUID %u, id: %u) not found in item_instance, deleting from guild bank!", itemGuid, itemEntry);
 
@@ -359,12 +359,12 @@ bool Guild::BankTab::LoadItemFromDB(Field* fields)
         stmt->setUInt8 (2, slotId);
         CharacterDatabase.Execute(stmt);
 
-        delete pItem;
+        delete item;
         return false;
     }
 
-    pItem->AddToWorld();
-    m_items[slotId] = pItem;
+    item->AddToWorld();
+    m_items[slotId] = item;
     return true;
 }
 
@@ -372,13 +372,13 @@ bool Guild::BankTab::LoadItemFromDB(Field* fields)
 void Guild::BankTab::Delete(SQLTransaction& trans, bool removeItemsFromDB)
 {
     for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
-        if (Item* pItem = m_items[slotId])
+        if (Item* item = m_items[slotId])
         {
-            pItem->RemoveFromWorld();
+            item->RemoveFromWorld();
             if (removeItemsFromDB)
-                pItem->DeleteFromDB(trans);
-            delete pItem;
-            pItem = NULL;
+                item->DeleteFromDB(trans);
+            delete item;
+            item = NULL;
         }
 }
 
@@ -392,29 +392,29 @@ inline void Guild::BankTab::WritePacket(WorldPacket& data) const
 // Writes information about contents of specified slot into packet.
 void Guild::BankTab::WriteSlotPacket(WorldPacket& data, uint8 slotId) const
 {
-    Item* pItem = GetItem(slotId);
-    uint32 itemEntry = pItem ? pItem->GetEntry() : 0;
+    Item* item = GetItem(slotId);
+    uint32 itemEntry = item ? item->GetEntry() : 0;
 
     data << uint8(slotId);
     data << uint32(itemEntry);
     if (itemEntry)
     {
         data << uint32(0);                                  // 3.3.0 (0x00018020, 0x00018000)
-        data << uint32(pItem->GetItemRandomPropertyId());   // Random item property id
+        data << uint32(item->GetItemRandomPropertyId());   // Random item property id
 
-        if (pItem->GetItemRandomPropertyId())
-            data << uint32(pItem->GetItemSuffixFactor());   // SuffixFactor
+        if (item->GetItemRandomPropertyId())
+            data << uint32(item->GetItemSuffixFactor());   // SuffixFactor
 
-        data << uint32(pItem->GetCount());                  // ITEM_FIELD_STACK_COUNT
+        data << uint32(item->GetCount());                  // ITEM_FIELD_STACK_COUNT
         data << uint32(0);
-        data << uint8(abs(pItem->GetSpellCharges()));       // Spell charges
+        data << uint8(abs(item->GetSpellCharges()));       // Spell charges
 
         uint8 enchCount = 0;
         size_t enchCountPos = data.wpos();
 
         data << uint8(enchCount);                           // Number of enchantments
         for (uint32 i = PERM_ENCHANTMENT_SLOT; i < MAX_ENCHANTMENT_SLOT; ++i)
-            if (uint32 enchId = pItem->GetEnchantmentId(EnchantmentSlot(i)))
+            if (uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(i)))
             {
                 data << uint8(i);
                 data << uint32(enchId);
@@ -456,13 +456,13 @@ void Guild::BankTab::SetText(const std::string& text)
 }
 
 // Sets/removes contents of specified slot.
-// If pItem == NULL contents are removed.
-bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem)
+// If item == NULL contents are removed.
+bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
 {
     if (slotId >= GUILD_BANK_MAX_SLOTS)
         return false;
 
-    m_items[slotId] = pItem;
+    m_items[slotId] = item;
 
     PreparedStatement* stmt = NULL;
 
@@ -472,19 +472,19 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem)
     stmt->setUInt8 (2, slotId);
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
-    if (pItem)
+    if (item)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_BANK_ITEM);
         stmt->setUInt32(0, m_guildId);
         stmt->setUInt8 (1, m_tabId);
         stmt->setUInt8 (2, slotId);
-        stmt->setUInt32(3, pItem->GetGUIDLow());
+        stmt->setUInt32(3, item->GetGUIDLow());
         CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
-        pItem->SetUInt64Value(ITEM_FIELD_CONTAINED, 0);
-        pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0);
-        pItem->FSetState(ITEM_NEW);
-        pItem->SaveToDB(trans);                                 // Not in inventory and can be saved standalone
+        item->SetUInt64Value(ITEM_FIELD_CONTAINED, 0);
+        item->SetUInt64Value(ITEM_FIELD_OWNER, 0);
+        item->FSetState(ITEM_NEW);
+        item->SaveToDB(trans);                                 // Not in inventory and can be saved standalone
     }
     return true;
 }
@@ -759,12 +759,12 @@ bool Guild::MoveItemData::CheckItem(uint32& splitedAmount)
     return true;
 }
 
-bool Guild::MoveItemData::CanStore(Item* pItem, bool swap, bool sendError)
+bool Guild::MoveItemData::CanStore(Item* item, bool swap, bool sendError)
 {
     m_vec.clear();
-    InventoryResult msg = CanStore(pItem, swap);
+    InventoryResult msg = CanStore(item, swap);
     if (sendError && msg != EQUIP_ERR_OK)
-        m_pPlayer->SendEquipError(msg, pItem);
+        m_pPlayer->SendEquipError(msg, item);
     return (msg == EQUIP_ERR_OK);
 }
 
@@ -834,12 +834,12 @@ void Guild::PlayerMoveItemData::RemoveItem(SQLTransaction& trans, MoveItemData* 
     }
 }
 
-Item* Guild::PlayerMoveItemData::StoreItem(SQLTransaction& trans, Item* pItem)
+Item* Guild::PlayerMoveItemData::StoreItem(SQLTransaction& trans, Item* item)
 {
-    ASSERT(pItem);
-    m_pPlayer->MoveItemToInventory(m_vec, pItem, true);
+    ASSERT(item);
+    m_pPlayer->MoveItemToInventory(m_vec, item, true);
     m_pPlayer->SaveInventoryAndGoldToDB(trans);
-    return pItem;
+    return item;
 }
 
 void Guild::PlayerMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const
@@ -850,9 +850,9 @@ void Guild::PlayerMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData
         pFrom->GetItem()->GetEntry(), count);
 }
 
-inline InventoryResult Guild::PlayerMoveItemData::CanStore(Item* pItem, bool swap)
+inline InventoryResult Guild::PlayerMoveItemData::CanStore(Item* item, bool swap)
 {
-    return m_pPlayer->CanStoreItem(m_container, m_slotId, m_vec, pItem, swap);
+    return m_pPlayer->CanStoreItem(m_container, m_slotId, m_vec, item, swap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -900,24 +900,24 @@ void Guild::BankMoveItemData::RemoveItem(SQLTransaction& trans, MoveItemData* pO
         m_pGuild->_DecreaseMemberRemainingSlots(trans, m_pPlayer->GetGUID(), m_container);
 }
 
-Item* Guild::BankMoveItemData::StoreItem(SQLTransaction& trans, Item* pItem)
+Item* Guild::BankMoveItemData::StoreItem(SQLTransaction& trans, Item* item)
 {
-    if (!pItem)
+    if (!item)
         return NULL;
 
     BankTab* pTab = m_pGuild->GetBankTab(m_container);
     if (!pTab)
         return NULL;
 
-    Item* pLastItem = pItem;
+    Item* pLastItem = item;
     for (ItemPosCountVec::const_iterator itr = m_vec.begin(); itr != m_vec.end(); )
     {
         ItemPosCount pos(*itr);
         ++itr;
 
         sLog->outDebug(LOG_FILTER_GUILD, "GUILD STORAGE: StoreItem tab = %u, slot = %u, item = %u, count = %u",
-            m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());
-        pLastItem = _StoreItem(trans, pTab, pItem, pos, itr != m_vec.end());
+            m_container, m_slotId, item->GetEntry(), item->GetCount());
+        pLastItem = _StoreItem(trans, pTab, item, pos, itr != m_vec.end());
     }
     return pLastItem;
 }
@@ -946,7 +946,7 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
             m_pGuild->GetId());
 }
 
-Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const
+Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, Item* item, ItemPosCount& pos, bool clone) const
 {
     uint8 slotId = uint8(pos.pos);
     uint32 count = pos.count;
@@ -957,20 +957,20 @@ Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, 
         pItemDest->SaveToDB(trans);
         if (!clone)
         {
-            pItem->RemoveFromWorld();
-            pItem->DeleteFromDB(trans);
-            delete pItem;
+            item->RemoveFromWorld();
+            item->DeleteFromDB(trans);
+            delete item;
         }
         return pItemDest;
     }
 
     if (clone)
-        pItem = pItem->CloneItem(count);
+        item = item->CloneItem(count);
     else
-        pItem->SetCount(count);
+        item->SetCount(count);
 
-    if (pItem && pTab->SetItem(trans, slotId, pItem))
-        return pItem;
+    if (item && pTab->SetItem(trans, slotId, item))
+        return item;
 
     return NULL;
 }
@@ -979,13 +979,13 @@ Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, 
 // If item in destination slot exists it must be the item of the same entry
 // and stack must have enough space to take at least one item.
 // Returns false if destination item specified and it cannot be used to reserve space.
-bool Guild::BankMoveItemData::_ReserveSpace(uint8 slotId, Item* pItem, Item* pItemDest, uint32& count)
+bool Guild::BankMoveItemData::_ReserveSpace(uint8 slotId, Item* item, Item* pItemDest, uint32& count)
 {
-    uint32 requiredSpace = pItem->GetMaxStackCount();
+    uint32 requiredSpace = item->GetMaxStackCount();
     if (pItemDest)
     {
         // Make sure source and destination items match and destination item has space for more stacks.
-        if (pItemDest->GetEntry() != pItem->GetEntry() || pItemDest->GetCount() >= pItem->GetMaxStackCount())
+        if (pItemDest->GetEntry() != item->GetEntry() || pItemDest->GetCount() >= item->GetMaxStackCount())
             return false;
         requiredSpace -= pItemDest->GetCount();
     }
@@ -1002,7 +1002,7 @@ bool Guild::BankMoveItemData::_ReserveSpace(uint8 slotId, Item* pItem, Item* pIt
     return true;
 }
 
-void Guild::BankMoveItemData::CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count)
+void Guild::BankMoveItemData::CanStoreItemInTab(Item* item, uint8 skipSlotId, bool merge, uint32& count)
 {
     for (uint8 slotId = 0; (slotId < GUILD_BANK_MAX_SLOTS) && (count > 0); ++slotId)
     {
@@ -1011,25 +1011,25 @@ void Guild::BankMoveItemData::CanStoreItemInTab(Item* pItem, uint8 skipSlotId, b
             continue;
 
         Item* pItemDest = m_pGuild->_GetItem(m_container, slotId);
-        if (pItemDest == pItem)
+        if (pItemDest == item)
             pItemDest = NULL;
 
         // If merge skip empty, if not merge skip non-empty
         if ((pItemDest != NULL) != merge)
             continue;
 
-        _ReserveSpace(slotId, pItem, pItemDest, count);
+        _ReserveSpace(slotId, item, pItemDest, count);
     }
 }
 
-InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
+InventoryResult Guild::BankMoveItemData::CanStore(Item* item, bool swap)
 {
     sLog->outDebug(LOG_FILTER_GUILD, "GUILD STORAGE: CanStore() tab = %u, slot = %u, item = %u, count = %u",
-        m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());
+        m_container, m_slotId, item->GetEntry(), item->GetCount());
 
-    uint32 count = pItem->GetCount();
+    uint32 count = item->GetCount();
     // Soulbound items cannot be moved
-    if (pItem->IsSoulBound())
+    if (item->IsSoulBound())
         return EQUIP_ERR_CANT_DROP_SOULBOUND;
 
     // Make sure destination bank tab exists
@@ -1041,10 +1041,10 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
     {
         Item* pItemDest = m_pGuild->_GetItem(m_container, m_slotId);
         // Ignore swapped item (this slot will be empty after move)
-        if ((pItemDest == pItem) || swap)
+        if ((pItemDest == item) || swap)
             pItemDest = NULL;
 
-        if (!_ReserveSpace(m_slotId, pItem, pItemDest, count))
+        if (!_ReserveSpace(m_slotId, item, pItemDest, count))
             return EQUIP_ERR_ITEM_CANT_STACK;
 
         if (count == 0)
@@ -1053,15 +1053,15 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 
     // Slot was not specified or it has not enough space for all the items in stack
     // Search for stacks to merge with
-    if (pItem->GetMaxStackCount() > 1)
+    if (item->GetMaxStackCount() > 1)
     {
-        CanStoreItemInTab(pItem, m_slotId, true, count);
+        CanStoreItemInTab(item, m_slotId, true, count);
         if (count == 0)
             return EQUIP_ERR_OK;
     }
 
     // Search free slot for item
-    CanStoreItemInTab(pItem, m_slotId, false, count);
+    CanStoreItemInTab(item, m_slotId, false, count);
     if (count == 0)
         return EQUIP_ERR_OK;
 

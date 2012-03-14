@@ -476,7 +476,7 @@ private:
         void SendText(const Guild* guild, WorldSession* session) const;
 
         inline Item* GetItem(uint8 slotId) const { return slotId < GUILD_BANK_MAX_SLOTS ?  m_items[slotId] : NULL; }
-        bool SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem);
+        bool SetItem(SQLTransaction& trans, uint8 slotId, Item* item);
 
     private:
         uint32 m_guildId;
@@ -506,13 +506,13 @@ private:
         // Defines if player has rights to withdraw item from container
         virtual bool HasWithdrawRights(MoveItemData* /*pOther*/) const { return true; }
         // Checks if container can store specified item
-        bool CanStore(Item* pItem, bool swap, bool sendError);
+        bool CanStore(Item* item, bool swap, bool sendError);
         // Clones stored item
         bool CloneItem(uint32 count);
         // Remove item from container (if splited update items fields)
         virtual void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0) = 0;
         // Saves item to container
-        virtual Item* StoreItem(SQLTransaction& trans, Item* pItem) = 0;
+        virtual Item* StoreItem(SQLTransaction& trans, Item* item) = 0;
         // Log bank event
         virtual void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const = 0;
         // Log GM action
@@ -524,7 +524,7 @@ private:
         uint8 GetContainer() const { return m_container; }
         uint8 GetSlotId() const { return m_slotId; }
     protected:
-        virtual InventoryResult CanStore(Item* pItem, bool swap) = 0;
+        virtual InventoryResult CanStore(Item* item, bool swap) = 0;
 
         Guild* m_pGuild;
         Player* m_pPlayer;
@@ -544,10 +544,10 @@ private:
         bool IsBank() const { return false; }
         bool InitItem();
         void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount = 0);
-        Item* StoreItem(SQLTransaction& trans, Item* pItem);
+        Item* StoreItem(SQLTransaction& trans, Item* item);
         void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const;
     protected:
-        InventoryResult CanStore(Item* pItem, bool swap);
+        InventoryResult CanStore(Item* item, bool swap);
     };
 
     class BankMoveItemData : public MoveItemData
@@ -561,17 +561,17 @@ private:
         bool HasStoreRights(MoveItemData* pOther) const;
         bool HasWithdrawRights(MoveItemData* pOther) const;
         void RemoveItem(SQLTransaction& trans, MoveItemData* pOther, uint32 splitedAmount);
-        Item* StoreItem(SQLTransaction& trans, Item* pItem);
+        Item* StoreItem(SQLTransaction& trans, Item* item);
         void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const;
         void LogAction(MoveItemData* pFrom) const;
 
     protected:
-        InventoryResult CanStore(Item* pItem, bool swap);
+        InventoryResult CanStore(Item* item, bool swap);
 
     private:
-        Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const;
-        bool _ReserveSpace(uint8 slotId, Item* pItem, Item* pItemDest, uint32& count);
-        void CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
+        Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item* item, ItemPosCount& pos, bool clone) const;
+        bool _ReserveSpace(uint8 slotId, Item* item, Item* pItemDest, uint32& count);
+        void CanStoreItemInTab(Item* item, uint8 skipSlotId, bool merge, uint32& count);
     };
 
     typedef UNORDERED_MAP<uint32, Member*> Members;

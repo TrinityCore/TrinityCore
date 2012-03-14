@@ -176,9 +176,9 @@ public:
             {
                 if (AggroYellTimer <= diff)
             {
-                if (Unit* pMember = Unit::GetUnit(*me, Council[YellCounter]))
+                if (Unit* member = Unit::GetUnit(*me, Council[YellCounter]))
                 {
-                    DoScriptText(CouncilAggro[YellCounter].entry, pMember);
+                    DoScriptText(CouncilAggro[YellCounter].entry, member);
                     AggroYellTimer = CouncilAggro[YellCounter].timer;
                 }
                 ++YellCounter;
@@ -191,10 +191,10 @@ public:
             {
                 if (EnrageTimer <= diff)
             {
-                if (Unit* pMember = Unit::GetUnit(*me, Council[YellCounter]))
+                if (Unit* member = Unit::GetUnit(*me, Council[YellCounter]))
                 {
-                    pMember->CastSpell(pMember, SPELL_BERSERK, true);
-                    DoScriptText(CouncilEnrage[YellCounter].entry, pMember);
+                    member->CastSpell(member, SPELL_BERSERK, true);
+                    DoScriptText(CouncilEnrage[YellCounter].entry, member);
                     EnrageTimer = CouncilEnrage[YellCounter].timer;
                 }
                 ++YellCounter;
@@ -242,19 +242,19 @@ public:
 
             DeathCount = 0;
 
-            Creature* pMember = NULL;
+            Creature* member = NULL;
             for (uint8 i = 0; i < 4; ++i)
             {
-                pMember = Unit::GetCreature((*me), Council[i]);
-                if (!pMember)
+                member = Unit::GetCreature((*me), Council[i]);
+                if (!member)
                     continue;
 
-                if (!pMember->isAlive())
+                if (!member->isAlive())
                 {
-                    pMember->RemoveCorpse();
-                    pMember->Respawn();
+                    member->RemoveCorpse();
+                    member->Respawn();
                 }
-                pMember->AI()->EnterEvadeMode();
+                member->AI()->EnterEvadeMode();
             }
 
             if (instance)
@@ -332,9 +332,9 @@ public:
                         return;
                     }
 
-                    Creature* pMember = (Unit::GetCreature(*me, Council[DeathCount]));
-                    if (pMember && pMember->isAlive())
-                        pMember->DealDamage(pMember, pMember->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    Creature* member = (Unit::GetCreature(*me, Council[DeathCount]));
+                    if (member && member->isAlive())
+                        member->DealDamage(member, member->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     ++DeathCount;
                     EndEventTimer = 1500;
                 } else EndEventTimer -= diff;
