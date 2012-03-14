@@ -646,9 +646,338 @@ public:
 
 };
 
+/*######
+# npc_hastings
+######*/
+
+int32 SAY_NPC_ROKAD_THE_RAVAGER          = -1880000;    // Rokad the Ravager howls through the halls...!
+int32 SAY_NPC_HYAKISS_THE_LURKER         = -1880001;    // Hyakiss the Lurker skitters out from the shadows...!
+int32 SAY_NPC_SHADIKITH_THE_G_L_I_D_E_R  = -1880002;    // Shadikith the Glider flaps down from the ceiling...!
+
+enum Actions
+{
+    ACTION_START_SUMMON             = 1,
+};
+
+enum Creatures
+{
+    NPC_ROKAD_THE_RAVAGER           = 16181,
+    NPC_HYAKISS_THE_LURKER          = 16179,
+    NPC_SHADIKITH_THE_G_L_I_D_E_R   = 16180,
+};
+
+
+enum Events
+{
+    EVENT_SUMMON_BONUS_BOSS     = 1,
+    // Rokad the Ravager
+    EVENT_RAVAGE                = 2,
+    // Shadikith the Glider
+    EVENT_DIVE                  = 3,
+    EVEMT_SONIC_BURST           = 4,
+    EVENT_WING_BUFFET           = 5,
+    // Hyakiss the Lurker
+    EVENT_ACID_FANG             = 6,
+    EVENT_HYAKISS_WEB           = 7,
+};
+
+enum Spells
+{
+    // Rokad the Ravager
+    SPELL_RAVAGE        = 29906,
+    // Shadikith the Glider
+    SPELL_DIVE          = 29903,
+    SPELL_SONIC_BURST   = 29904,
+    SPELL_WING_BUFFET   = 29905,
+    // Hyakiss the Lurker
+    SPELL_ACID_FANG     = 29901,
+    SPELL_HYAKISS_WEB   = 29896,
+};
+
+class npc_hastings : public CreatureScript
+{
+public:
+    npc_hastings() : CreatureScript("npc_hastings") { }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+
+        switch (action)
+        {
+            case 1200: // Previous Menu Help you with what sitation?
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Big ones?", GOSSIP_SENDER_MAIN, 1201);
+                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+                break;
+            case 1201:
+                player->CLOSE_GOSSIP_MENU();
+                if (creature->AI())
+                    creature->AI()->DoAction(ACTION_START_SUMMON);
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                break;
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        // Not allow in combat
+        if (player->isInCombat())
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->MonsterSay("You are in combat!", LANG_UNIVERSAL, NULL);
+            return true;
+        }
+        else
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Help you with what sitation?", GOSSIP_SENDER_MAIN, 1200);
+
+        player->PlayerTalkClass->SendGossipMenu(907, creature->GetGUID());
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_hastingsAI(creature);
+    }
+
+    struct npc_hastingsAI : public ScriptedAI
+    {
+        npc_hastingsAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _instance = me->GetInstanceScript();
+        }
+
+        void Reset()
+        {
+            _events.ScheduleEvent(EVENT_SUMMON_BONUS_BOSS, 60 *IN_MILLISECONDS);
+            Spawn = false;
+        }
+
+        void DoAction(const int32 actionId)
+        {
+            switch(actionId)
+            {
+                case ACTION_START_SUMMON:
+                    _events.ScheduleEvent(EVENT_SUMMON_BONUS_BOSS, 6 *IN_MILLISECONDS);
+                    Spawn = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_SUMMON_BONUS_BOSS:
+                    {
+                        switch(rand()%3)
+                        {
+                            case 0:
+                                me->SummonCreature(NPC_ROKAD_THE_RAVAGER, -10891.3f, -2083.73f, 49.4745f, 2.3974f, TEMPSUMMON_TIMED_DESPAWN, 600 * IN_MILLISECONDS);
+                                me->YellToZone(SAY_NPC_ROKAD_THE_RAVAGER, LANG_UNIVERSAL, 0);
+                                break;
+                            case 1:
+                                me->SummonCreature(NPC_HYAKISS_THE_LURKER, -10896.1f, -2075.4f, 49.5f, 1.4f, TEMPSUMMON_TIMED_DESPAWN, 600 * IN_MILLISECONDS);
+                                me->YellToZone(SAY_NPC_HYAKISS_THE_LURKER, LANG_UNIVERSAL, 0);
+                                break;
+                            case 2:
+                                me->SummonCreature(NPC_SHADIKITH_THE_G_L_I_D_E_R, -10877.2f, -2013.4f, 49.4753f, 3.06986f, TEMPSUMMON_TIMED_DESPAWN, 600 * IN_MILLISECONDS);
+                                me->YellToZone(SAY_NPC_SHADIKITH_THE_G_L_I_D_E_R, LANG_UNIVERSAL, 0);
+                                break;
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                    }
+                }
+        }
+        private:
+            bool Spawn;
+            EventMap _events;
+            InstanceScript* _instance;
+    };
+};
+
+/*######
+# npc_rokad_the_ravager
+######*/
+
+class npc_rokad_the_ravager : public CreatureScript
+{
+public:
+    npc_rokad_the_ravager() : CreatureScript("npc_rokad_the_ravager") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_rokad_the_ravagerAI(creature);
+    }
+
+    struct npc_rokad_the_ravagerAI : public ScriptedAI
+    {
+        npc_rokad_the_ravagerAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset()
+        {
+            _events.ScheduleEvent(EVENT_RAVAGE, 15 * IN_MILLISECONDS);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_RAVAGE:
+                        DoCast(me->getVictim(), SPELL_RAVAGE);
+                        _events.ScheduleEvent(EVENT_RAVAGE, 15 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+        }
+        private:
+            EventMap _events;
+    };
+};
+
+/*######
+# npc_shadikith_the_glider
+######*/
+
+class npc_shadikith_the_glider : public CreatureScript
+{
+public:
+    npc_shadikith_the_glider() : CreatureScript("npc_shadikith_the_glider") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_shadikith_the_gliderAI(creature);
+    }
+
+    struct npc_shadikith_the_gliderAI : public ScriptedAI
+    {
+        npc_shadikith_the_gliderAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset()
+        {
+            _events.ScheduleEvent(EVENT_DIVE, 8 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVEMT_SONIC_BURST, 10 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_WING_BUFFET, 15 * IN_MILLISECONDS);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_DIVE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 45.0f, true))
+                            DoCast(target, SPELL_DIVE);
+                        _events.ScheduleEvent(EVENT_DIVE, 8 * IN_MILLISECONDS);
+                        break;
+                    case EVEMT_SONIC_BURST:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 0, true))
+                            DoCast(target, SPELL_SONIC_BURST);
+                        _events.ScheduleEvent(EVEMT_SONIC_BURST, 10 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_WING_BUFFET:
+                        DoCast(me->getVictim(), SPELL_WING_BUFFET);
+                        _events.ScheduleEvent(EVENT_WING_BUFFET, 15 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+        }
+        private:
+            EventMap _events;
+    };
+};
+
+/*######
+# npc_hyakiss_the_lurker
+######*/
+
+class npc_hyakiss_the_lurker : public CreatureScript
+{
+public:
+    npc_hyakiss_the_lurker() : CreatureScript("npc_hyakiss_the_lurker") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_hyakiss_the_lurkerAI(creature);
+    }
+
+    struct npc_hyakiss_the_lurkerAI : public ScriptedAI
+    {
+        npc_hyakiss_the_lurkerAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset()
+        {
+            _events.ScheduleEvent(EVENT_ACID_FANG, 8 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_HYAKISS_WEB, 15 * IN_MILLISECONDS);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_ACID_FANG:
+                        DoCast(me->getVictim(), SPELL_ACID_FANG);
+                        _events.ScheduleEvent(EVENT_ACID_FANG, 8 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_HYAKISS_WEB:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                            DoCast(target, SPELL_HYAKISS_WEB);
+                        _events.ScheduleEvent(EVENT_HYAKISS_WEB, 15 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+        }
+        private:
+            EventMap _events;
+    };
+};
+
 void AddSC_karazhan()
 {
     new npc_barnes();
     new npc_berthold();
     new npc_image_of_medivh();
+    new npc_hastings();
+    new npc_rokad_the_ravager();
+    new npc_shadikith_the_glider();
+    new npc_hyakiss_the_lurker();
 }
