@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 5.5.19, for Win64 (x86)
+-- MySQL dump 10.13  Distrib 5.5.19, for Unix
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
