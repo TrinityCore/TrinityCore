@@ -153,18 +153,18 @@ void Bag::RemoveItem(uint8 slot, bool /*update*/)
     SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (slot * 2), 0);
 }
 
-void Bag::StoreItem(uint8 slot, Item* item, bool /*update*/)
+void Bag::StoreItem(uint8 slot, Item* pItem, bool /*update*/)
 {
     ASSERT(slot < MAX_BAG_SIZE);
 
-    if (item && item->GetGUID() != this->GetGUID())
+    if (pItem && pItem->GetGUID() != this->GetGUID())
     {
-        m_bagslot[slot] = item;
-        SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (slot * 2), item->GetGUID());
-        item->SetUInt64Value(ITEM_FIELD_CONTAINED, GetGUID());
-        item->SetUInt64Value(ITEM_FIELD_OWNER, GetOwnerGUID());
-        item->SetContainer(this);
-        item->SetSlot(slot);
+        m_bagslot[slot] = pItem;
+        SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (slot * 2), pItem->GetGUID());
+        pItem->SetUInt64Value(ITEM_FIELD_CONTAINED, GetGUID());
+        pItem->SetUInt64Value(ITEM_FIELD_OWNER, GetOwnerGUID());
+        pItem->SetContainer(this);
+        pItem->SetSlot(slot);
     }
 }
 
@@ -189,22 +189,22 @@ bool Bag::IsEmpty() const
 
 uint32 Bag::GetItemCount(uint32 item, Item* eItem) const
 {
-    Item* item;
+    Item* pItem;
     uint32 count = 0;
     for (uint32 i=0; i < GetBagSize(); ++i)
     {
-        item = m_bagslot[i];
-        if (item && item != eItem && item->GetEntry() == item)
-            count += item->GetCount();
+        pItem = m_bagslot[i];
+        if (pItem && pItem != eItem && pItem->GetEntry() == item)
+            count += pItem->GetCount();
     }
 
     if (eItem && eItem->GetTemplate()->GemProperties)
     {
         for (uint32 i=0; i < GetBagSize(); ++i)
         {
-            item = m_bagslot[i];
-            if (item && item != eItem && item->GetTemplate()->Socket[0].Color)
-                count += item->GetGemCountWithID(item);
+            pItem = m_bagslot[i];
+            if (pItem && pItem != eItem && pItem->GetTemplate()->Socket[0].Color)
+                count += pItem->GetGemCountWithID(item);
         }
     }
 
@@ -215,9 +215,9 @@ uint32 Bag::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) 
 {
     uint32 count = 0;
     for (uint32 i = 0; i < GetBagSize(); ++i)
-        if (Item* item = m_bagslot[i])
-            if (item != skipItem)
-                if (ItemTemplate const* pProto = item->GetTemplate())
+        if (Item* pItem = m_bagslot[i])
+            if (pItem != skipItem)
+                if (ItemTemplate const* pProto = pItem->GetTemplate())
                     if (pProto->ItemLimitCategory == limitCategory)
                         count += m_bagslot[i]->GetCount();
 

@@ -1021,14 +1021,14 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
 
         ASSERT(count !=0 && "pProto->Stackable == 0 but checked at loading already");
 
-        Item* item = NewItemOrBag(pProto);
-        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), item, player))
+        Item* pItem = NewItemOrBag(pProto);
+        if (pItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), item, player))
         {
-            item->SetCount(count);
-            return item;
+            pItem->SetCount(count);
+            return pItem;
         }
         else
-            delete item;
+            delete pItem;
     }
     else
         ASSERT(false);

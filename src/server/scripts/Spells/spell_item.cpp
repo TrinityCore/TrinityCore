@@ -55,8 +55,8 @@ class spell_item_trigger_spell : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (Item* item = GetCastItem())
-                    caster->CastSpell(caster, _triggeredSpellId, true, item);
+                if (Item* pItem = GetCastItem())
+                    caster->CastSpell(caster, _triggeredSpellId, true, pItem);
             }
 
             void Register()
