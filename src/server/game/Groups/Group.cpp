@@ -1927,12 +1927,12 @@ void Group::BroadcastGroupUpdate(void)
 void Group::ResetMaxEnchantingLevel()
 {
     m_maxEnchantingLevel = 0;
-    Player* pMember = NULL;
+    Player* member = NULL;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        pMember = ObjectAccessor::FindPlayer(citr->guid);
-        if (pMember && m_maxEnchantingLevel < pMember->GetSkillValue(SKILL_ENCHANTING))
-            m_maxEnchantingLevel = pMember->GetSkillValue(SKILL_ENCHANTING);
+        member = ObjectAccessor::FindPlayer(citr->guid);
+        if (member && m_maxEnchantingLevel < member->GetSkillValue(SKILL_ENCHANTING))
+            m_maxEnchantingLevel = member->GetSkillValue(SKILL_ENCHANTING);
     }
 }
 
