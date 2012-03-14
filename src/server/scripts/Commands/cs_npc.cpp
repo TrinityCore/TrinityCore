@@ -163,15 +163,15 @@ public:
         if (!*args)
             return false;
 
-        char* pitem  = handler->extractKeyFromLink((char*)args, "Hitem");
-        if (!pitem)
+        char* item  = handler->extractKeyFromLink((char*)args, "Hitem");
+        if (!item)
         {
             handler->SendSysMessage(LANG_COMMAND_NEEDITEMSEND);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        int32 item_int = atol(pitem);
+        int32 item_int = atol(item);
         if (item_int <= 0)
             return false;
 
@@ -411,14 +411,14 @@ public:
             return false;
         }
 
-        char* pitem  = handler->extractKeyFromLink((char*)args, "Hitem");
-        if (!pitem)
+        char* item  = handler->extractKeyFromLink((char*)args, "Hitem");
+        if (!item)
         {
             handler->SendSysMessage(LANG_COMMAND_NEEDITEMSEND);
             handler->SetSentErrorMessage(true);
             return false;
         }
-        uint32 itemId = atol(pitem);
+        uint32 itemId = atol(item);
 
         if (!sObjectMgr->RemoveVendorItem(vendor->GetEntry(), itemId))
         {
