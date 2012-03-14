@@ -81,9 +81,9 @@ public:
 
     struct boss_algalonAI : public ScriptedAI
     {
-        boss_algalonAI(Creature* c) : ScriptedAI(c)
+        boss_algalonAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             Summon = false; // not in reset. intro speech done only once.
         }
 

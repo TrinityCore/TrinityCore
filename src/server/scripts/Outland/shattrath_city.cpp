@@ -83,9 +83,9 @@ public:
 
     struct npc_raliq_the_drunkAI : public ScriptedAI
     {
-        npc_raliq_the_drunkAI(Creature* c) : ScriptedAI(c)
+        npc_raliq_the_drunkAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_uiNormFaction = c->getFaction();
+            m_uiNormFaction = creature->getFaction();
         }
 
         uint32 m_uiNormFaction;
@@ -151,7 +151,7 @@ public:
 
     struct npc_salsalabimAI : public ScriptedAI
     {
-        npc_salsalabimAI(Creature* c) : ScriptedAI(c) {}
+        npc_salsalabimAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 MagneticPull_Timer;
 
@@ -317,7 +317,7 @@ public:
     struct npc_kservantAI : public npc_escortAI
     {
     public:
-        npc_kservantAI(Creature* c) : npc_escortAI(c) {}
+        npc_kservantAI(Creature* creature) : npc_escortAI(creature) {}
 
         void WaypointReached(uint32 i)
         {
@@ -402,7 +402,7 @@ public:
 
     struct npc_dirty_larryAI : public ScriptedAI
     {
-        npc_dirty_larryAI(Creature* c) : ScriptedAI(c) {}
+        npc_dirty_larryAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool Event;
         bool Attack;

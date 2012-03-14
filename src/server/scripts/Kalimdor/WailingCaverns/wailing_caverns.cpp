@@ -136,9 +136,9 @@ public:
 
     struct npc_disciple_of_naralexAI : public npc_escortAI
     {
-        npc_disciple_of_naralexAI(Creature* c) : npc_escortAI(c)
+        npc_disciple_of_naralexAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             eventTimer = 0;
             currentEvent = 0;
             eventProgress = 0;

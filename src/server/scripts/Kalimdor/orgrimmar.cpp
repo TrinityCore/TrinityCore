@@ -61,7 +61,7 @@ public:
 
     struct npc_shenthulAI : public ScriptedAI
     {
-        npc_shenthulAI(Creature* c) : ScriptedAI(c) {}
+        npc_shenthulAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool CanTalk;
         bool CanEmote;
@@ -205,7 +205,7 @@ public:
 
     struct npc_thrall_warchiefAI : public ScriptedAI
     {
-        npc_thrall_warchiefAI(Creature* c) : ScriptedAI(c) {}
+        npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ChainLightning_Timer;
         uint32 Shock_Timer;

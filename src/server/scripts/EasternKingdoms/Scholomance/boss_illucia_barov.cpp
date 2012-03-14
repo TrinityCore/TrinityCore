@@ -43,7 +43,7 @@ public:
 
     struct boss_illuciabarovAI : public ScriptedAI
     {
-        boss_illuciabarovAI(Creature* c) : ScriptedAI(c) {}
+        boss_illuciabarovAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 CurseOfAgony_Timer;
         uint32 ShadowShock_Timer;

@@ -51,9 +51,9 @@ class boss_marli : public CreatureScript
 
         struct boss_marliAI : public ScriptedAI
         {
-            boss_marliAI(Creature* c) : ScriptedAI(c)
+            boss_marliAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = c->GetInstanceScript();
+                m_instance = creature->GetInstanceScript();
             }
 
             InstanceScript* m_instance;
@@ -230,7 +230,7 @@ class mob_spawn_of_marli : public CreatureScript
 
         struct mob_spawn_of_marliAI : public ScriptedAI
         {
-            mob_spawn_of_marliAI(Creature* c) : ScriptedAI(c) {}
+            mob_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 LevelUp_Timer;
 
