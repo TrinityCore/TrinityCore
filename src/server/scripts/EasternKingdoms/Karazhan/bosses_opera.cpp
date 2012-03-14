@@ -114,9 +114,9 @@ public:
 
     struct boss_dorotheeAI : public ScriptedAI
     {
-        boss_dorotheeAI(Creature* c) : ScriptedAI(c)
+        boss_dorotheeAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -229,7 +229,7 @@ public:
 
     struct mob_titoAI : public ScriptedAI
     {
-        mob_titoAI(Creature* c) : ScriptedAI(c) {}
+        mob_titoAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 DorotheeGUID;
         uint32 YipTimer;
@@ -296,9 +296,9 @@ public:
 
     struct boss_strawmanAI : public ScriptedAI
     {
-        boss_strawmanAI(Creature* c) : ScriptedAI(c)
+        boss_strawmanAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -411,9 +411,9 @@ public:
 
     struct boss_tinheadAI : public ScriptedAI
     {
-        boss_tinheadAI(Creature* c) : ScriptedAI(c)
+        boss_tinheadAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -521,9 +521,9 @@ public:
 
     struct boss_roarAI : public ScriptedAI
     {
-        boss_roarAI(Creature* c) : ScriptedAI(c)
+        boss_roarAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -630,9 +630,9 @@ public:
 
     struct boss_croneAI : public ScriptedAI
     {
-        boss_croneAI(Creature* c) : ScriptedAI(c)
+        boss_croneAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -712,7 +712,7 @@ public:
 
     struct mob_cycloneAI : public ScriptedAI
     {
-        mob_cycloneAI(Creature* c) : ScriptedAI(c) {}
+        mob_cycloneAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 MoveTimer;
 
@@ -805,9 +805,9 @@ public:
 
     struct boss_bigbadwolfAI : public ScriptedAI
     {
-        boss_bigbadwolfAI(Creature* c) : ScriptedAI(c)
+        boss_bigbadwolfAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -1004,9 +1004,9 @@ public:
 
     struct boss_julianneAI : public ScriptedAI
     {
-        boss_julianneAI(Creature* c) : ScriptedAI(c)
+        boss_julianneAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             EntryYellTimer = 1000;
             AggroYellTimer = 10000;
             IsFakingDeath = false;
@@ -1127,9 +1127,9 @@ public:
 
     struct boss_romuloAI : public ScriptedAI
     {
-        boss_romuloAI(Creature* c) : ScriptedAI(c)
+        boss_romuloAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             EntryYellTimer = 8000;
             AggroYellTimer = 15000;
         }

@@ -40,7 +40,7 @@ public:
 
     struct boss_hungarfenAI : public ScriptedAI
     {
-        boss_hungarfenAI(Creature* c) : ScriptedAI(c)
+        boss_hungarfenAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -112,7 +112,7 @@ public:
 
     struct mob_underbog_mushroomAI : public ScriptedAI
     {
-        mob_underbog_mushroomAI(Creature* c) : ScriptedAI(c) {}
+        mob_underbog_mushroomAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool Stop;
         uint32 Grow_Timer;

@@ -48,7 +48,7 @@ public:
 
     struct boss_murmurAI : public ScriptedAI
     {
-        boss_murmurAI(Creature* c) : ScriptedAI(c)
+        boss_murmurAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
         }

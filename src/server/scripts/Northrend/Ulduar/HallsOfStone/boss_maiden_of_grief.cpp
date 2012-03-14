@@ -65,7 +65,7 @@ public:
 
     struct boss_maiden_of_griefAI : public ScriptedAI
     {
-        boss_maiden_of_griefAI(Creature* c) : ScriptedAI(c)
+        boss_maiden_of_griefAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
         }

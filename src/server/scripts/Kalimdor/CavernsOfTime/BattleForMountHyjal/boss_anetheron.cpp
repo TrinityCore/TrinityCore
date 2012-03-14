@@ -64,9 +64,9 @@ public:
 
     struct boss_anetheronAI : public hyjal_trashAI
     {
-        boss_anetheronAI(Creature* c) : hyjal_trashAI(c)
+        boss_anetheronAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             go = false;
             pos = 0;
         }
@@ -248,9 +248,9 @@ public:
 
     struct mob_towering_infernalAI : public ScriptedAI
     {
-        mob_towering_infernalAI(Creature* c) : ScriptedAI(c)
+        mob_towering_infernalAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             if (instance)
                 AnetheronGUID = instance->GetData64(DATA_ANETHERON);
         }

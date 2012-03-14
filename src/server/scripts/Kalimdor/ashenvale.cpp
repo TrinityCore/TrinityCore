@@ -185,7 +185,7 @@ class npc_ruul_snowhoof : public CreatureScript
 
         struct npc_ruul_snowhoofAI : public npc_escortAI
         {
-            npc_ruul_snowhoofAI(Creature* c) : npc_escortAI(c) {}
+            npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) {}
 
             void WaypointReached(uint32 i)
             {

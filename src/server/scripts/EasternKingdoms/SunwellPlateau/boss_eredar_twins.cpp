@@ -97,9 +97,9 @@ public:
 
     struct boss_sacrolashAI : public ScriptedAI
     {
-        boss_sacrolashAI(Creature* c) : ScriptedAI(c)
+        boss_sacrolashAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -355,9 +355,9 @@ public:
 
     struct boss_alythessAI : public Scripted_NoMovementAI
     {
-        boss_alythessAI(Creature* c) : Scripted_NoMovementAI(c)
+        boss_alythessAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             IntroStepCounter = 10;
         }
 
@@ -684,7 +684,7 @@ public:
 
     struct mob_shadow_imageAI : public ScriptedAI
     {
-        mob_shadow_imageAI(Creature* c) : ScriptedAI(c) {}
+        mob_shadow_imageAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;
