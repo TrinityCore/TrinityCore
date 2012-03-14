@@ -55,15 +55,15 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
     }
     else if (IS_ITEM_GUID(lguid))
     {
-        Item* item = player->GetItemByGuid(lguid);
+        Item* pItem = player->GetItemByGuid(lguid);
 
-        if (!item)
+        if (!pItem)
         {
             player->SendLootRelease(lguid);
             return;
         }
 
-        loot = &item->loot;
+        loot = &pItem->loot;
     }
     else if (IS_CORPSE_GUID(lguid))
     {
@@ -357,29 +357,29 @@ void WorldSession::DoLootRelease(uint64 lguid)
     }
     else if (IS_ITEM_GUID(lguid))
     {
-        Item* item = player->GetItemByGuid(lguid);
-        if (!item)
+        Item* pItem = player->GetItemByGuid(lguid);
+        if (!pItem)
             return;
 
-        ItemTemplate const* proto = item->GetTemplate();
+        ItemTemplate const* proto = pItem->GetTemplate();
 
         // destroy only 5 items from stack in case prospecting and milling
         if (proto->Flags & (ITEM_PROTO_FLAG_PROSPECTABLE | ITEM_PROTO_FLAG_MILLABLE))
         {
-            item->m_lootGenerated = false;
-            item->loot.clear();
+            pItem->m_lootGenerated = false;
+            pItem->loot.clear();
 
-            uint32 count = item->GetCount();
+            uint32 count = pItem->GetCount();
 
             // >=5 checked in spell code, but will work for cheating cases also with removing from another stacks.
             if (count > 5)
                 count = 5;
 
-            player->DestroyItemCount(item, count, true);
+            player->DestroyItemCount(pItem, count, true);
         }
         else
             // FIXME: item must not be deleted in case not fully looted state. But this pre-request implement loot saving in DB at item save. Or cheating possible.
-            player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+            player->DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
         return;                                             // item can be looted only single player
     }
     else
