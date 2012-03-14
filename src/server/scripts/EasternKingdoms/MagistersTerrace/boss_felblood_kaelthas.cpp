@@ -154,14 +154,18 @@ public:
             if (!instance)
                 return;
 
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
             // Open the encounter door
+            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
+
+            // Enable the Translocation Orb Exit
+            if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ESCAPE_ORB)))
+                    escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (damage > me->GetHealth())
-                RemoveGravityLapse();                           // Remove Gravity Lapse so that players fall to ground if they kill him when in air.
+                RemoveGravityLapse(); // Remove Gravity Lapse so that players fall to ground if they kill him when in air.
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -169,8 +173,8 @@ public:
             if (!instance)
                 return;
 
+            //Close the encounter door, open it in JustDied/Reset
             instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), false);
-           //Close the encounter door, open it in JustDied/Reset
         }
 
         void MoveInLineOfSight(Unit* who)
