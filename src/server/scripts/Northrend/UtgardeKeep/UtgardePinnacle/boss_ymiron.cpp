@@ -108,9 +108,9 @@ public:
 
     struct boss_ymironAI : public ScriptedAI
     {
-        boss_ymironAI(Creature* c) : ScriptedAI(c)
+        boss_ymironAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             for (int i = 0; i < 4; ++i)
                 m_uiActiveOrder[i] = i;
             for (int i = 0; i < 3; ++i)

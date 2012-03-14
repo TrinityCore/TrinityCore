@@ -293,7 +293,7 @@ public:
 
     struct master_kelerun_bloodmournAI : public ScriptedAI
     {
-        master_kelerun_bloodmournAI(Creature* c) : ScriptedAI(c) {}
+        master_kelerun_bloodmournAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8  questPhase;
         uint8  paladinPhase;
@@ -457,7 +457,7 @@ public:
 
     struct npc_apprentice_mirvedaAI : public ScriptedAI
     {
-        npc_apprentice_mirvedaAI(Creature* c) : ScriptedAI(c), Summons(me) {}
+        npc_apprentice_mirvedaAI(Creature* creature) : ScriptedAI(creature), Summons(me) {}
 
         uint32 KillCount;
         uint64 PlayerGUID;
@@ -547,7 +547,7 @@ public:
 
     struct npc_infused_crystalAI : public Scripted_NoMovementAI
     {
-        npc_infused_crystalAI(Creature* c) : Scripted_NoMovementAI(c) {}
+        npc_infused_crystalAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
         uint32 EndTimer;
         uint32 WaveTimer;

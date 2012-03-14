@@ -121,7 +121,7 @@ public:
 
     struct mob_ashtongue_channelerAI : public ScriptedAI
     {
-        mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
+        mob_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature) {ShadeGUID = 0;}
 
         uint64 ShadeGUID;
 
@@ -147,7 +147,7 @@ public:
 
     struct mob_ashtongue_sorcererAI : public ScriptedAI
     {
-        mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
+        mob_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature) {ShadeGUID = 0;}
 
         uint64 ShadeGUID;
         uint32 CheckTimer;
@@ -202,9 +202,9 @@ public:
 
     struct boss_shade_of_akamaAI : public ScriptedAI
     {
-        boss_shade_of_akamaAI(Creature* c) : ScriptedAI(c), summons(me)
+        boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             AkamaGUID = instance ? instance->GetData64(DATA_AKAMA_SHADE) : 0;
             me->setActive(true);//if view distance is too low
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -571,11 +571,11 @@ public:
 
     struct npc_akamaAI : public ScriptedAI
     {
-        npc_akamaAI(Creature* c) : ScriptedAI(c), summons(me)
+        npc_akamaAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             ShadeHasDied = false;
             StartCombat = false;
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             if (instance)
                 ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
             else

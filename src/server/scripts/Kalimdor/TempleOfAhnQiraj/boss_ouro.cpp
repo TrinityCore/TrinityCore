@@ -45,7 +45,7 @@ public:
 
     struct boss_ouroAI : public ScriptedAI
     {
-        boss_ouroAI(Creature* c) : ScriptedAI(c) {}
+        boss_ouroAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Sweep_Timer;
         uint32 SandBlast_Timer;

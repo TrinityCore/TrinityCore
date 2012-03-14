@@ -88,9 +88,9 @@ public:
 
     struct boss_hydross_the_unstableAI : public ScriptedAI
     {
-        boss_hydross_the_unstableAI(Creature* c) : ScriptedAI(c), Summons(me)
+        boss_hydross_the_unstableAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;

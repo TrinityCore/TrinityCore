@@ -232,7 +232,7 @@ class mob_archaedas_minions : public CreatureScript
 
         struct mob_archaedas_minionsAI : public ScriptedAI
         {
-            mob_archaedas_minionsAI(Creature* c) : ScriptedAI(c)
+            mob_archaedas_minionsAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
             }
