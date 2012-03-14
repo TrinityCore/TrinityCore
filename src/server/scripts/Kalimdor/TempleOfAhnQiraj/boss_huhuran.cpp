@@ -47,7 +47,7 @@ public:
 
     struct boss_huhuranAI : public ScriptedAI
     {
-        boss_huhuranAI(Creature* c) : ScriptedAI(c) {}
+        boss_huhuranAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Frenzy_Timer;
         uint32 Wyvern_Timer;

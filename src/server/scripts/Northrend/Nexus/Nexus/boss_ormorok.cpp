@@ -61,9 +61,9 @@ public:
 
     struct boss_ormorokAI : public ScriptedAI
     {
-        boss_ormorokAI(Creature* c) : ScriptedAI(c)
+        boss_ormorokAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -234,7 +234,7 @@ public:
 
     struct mob_crystal_spikeAI : public Scripted_NoMovementAI
     {
-        mob_crystal_spikeAI(Creature* c) : Scripted_NoMovementAI(c)
+        mob_crystal_spikeAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
         }
 
@@ -277,7 +277,7 @@ public:
 
     struct mob_crystalline_tanglerAI : public ScriptedAI
     {
-        mob_crystalline_tanglerAI(Creature* c) : ScriptedAI(c) {}
+        mob_crystalline_tanglerAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiRootsTimer;
 

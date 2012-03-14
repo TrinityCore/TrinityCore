@@ -51,7 +51,7 @@ public:
 
     struct boss_maiden_of_virtueAI : public ScriptedAI
     {
-        boss_maiden_of_virtueAI(Creature* c) : ScriptedAI(c) {}
+        boss_maiden_of_virtueAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Repentance_Timer;
         uint32 Holyfire_Timer;

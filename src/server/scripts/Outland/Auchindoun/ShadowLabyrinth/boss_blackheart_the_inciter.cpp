@@ -66,9 +66,9 @@ public:
 
     struct boss_blackheart_the_inciterAI : public ScriptedAI
     {
-        boss_blackheart_the_inciterAI(Creature* c) : ScriptedAI(c)
+        boss_blackheart_the_inciterAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
