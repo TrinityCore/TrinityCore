@@ -482,7 +482,7 @@ void BattlefieldWG::OnBattleEnd(bool endbytimer)
 // *****************************************************
 void BattlefieldWG::DoCompleteOrIncrementAchievement(uint32 achievement, Player *player, uint8 /*incrementNumber */ )
 {
-    AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
+    AchievementEntry const* AE = sAchievementStore.LookupEntry(achievement);
 
     switch (achievement)
     {
