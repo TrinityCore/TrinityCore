@@ -221,8 +221,8 @@ public:
                     {
                         uiVehicle1GUID = pBoss->GetGUID();
                         uint64 uiGrandChampionBoss1 = 0;
-                        if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                            if (Unit* unit = pVehicle->GetPassenger(0))
+                        if (Vehicle* vehicle = pBoss->GetVehicleKit())
+                            if (Unit* unit = vehicle->GetPassenger(0))
                                 uiGrandChampionBoss1 = unit->GetGUID();
                         if (instance)
                         {
@@ -236,8 +236,8 @@ public:
                     {
                         uiVehicle2GUID = pBoss->GetGUID();
                         uint64 uiGrandChampionBoss2 = 0;
-                        if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                            if (Unit* unit = pVehicle->GetPassenger(0))
+                        if (Vehicle* vehicle = pBoss->GetVehicleKit())
+                            if (Unit* unit = vehicle->GetPassenger(0))
                                 uiGrandChampionBoss2 = unit->GetGUID();
                         if (instance)
                         {
@@ -251,8 +251,8 @@ public:
                     {
                         uiVehicle3GUID = pBoss->GetGUID();
                         uint64 uiGrandChampionBoss3 = 0;
-                        if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                            if (Unit* unit = pVehicle->GetPassenger(0))
+                        if (Vehicle* vehicle = pBoss->GetVehicleKit())
+                            if (Unit* unit = vehicle->GetPassenger(0))
                                 uiGrandChampionBoss3 = unit->GetGUID();
                         if (instance)
                         {

@@ -255,14 +255,14 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
         }
     }
 
-    Item* pItem  = _player->GetItemByPos(bag, slot);
-    if (!pItem)
+    Item* item  = _player->GetItemByPos(bag, slot);
+    if (!item)
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (pItem->GetTemplate()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
+    if (item->GetTemplate()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
     {
         _player->SendEquipError(EQUIP_ERR_CANT_DROP_SOULBOUND, NULL, NULL);
         return;
@@ -271,7 +271,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
     if (count)
     {
         uint32 i_count = count;
-        _player->DestroyItemCount(pItem, i_count, true);
+        _player->DestroyItemCount(item, i_count, true);
     }
     else
         _player->DestroyItem(bag, slot, true);
@@ -445,13 +445,13 @@ void WorldSession::HandleReadItem(WorldPacket & recv_data)
     recv_data >> bag >> slot;
 
     //sLog->outDetail("STORAGE: Read bag = %u, slot = %u", bag, slot);
-    Item* pItem = _player->GetItemByPos(bag, slot);
+    Item* item = _player->GetItemByPos(bag, slot);
 
-    if (pItem && pItem->GetTemplate()->PageText)
+    if (item && item->GetTemplate()->PageText)
     {
         WorldPacket data;
 
-        InventoryResult msg = _player->CanUseItem(pItem);
+        InventoryResult msg = _player->CanUseItem(item);
         if (msg == EQUIP_ERR_OK)
         {
             data.Initialize (SMSG_READ_ITEM_OK, 8);
@@ -461,9 +461,9 @@ void WorldSession::HandleReadItem(WorldPacket & recv_data)
         {
             data.Initialize(SMSG_READ_ITEM_FAILED, 8);
             sLog->outDetail("STORAGE: Unable to read item");
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, item, NULL);
         }
-        data << pItem->GetGUID();
+        data << item->GetGUID();
         SendPacket(&data);
     }
     else
@@ -506,25 +506,25 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    Item* pItem = _player->GetItemByGuid(itemguid);
-    if (pItem)
+    Item* item = _player->GetItemByGuid(itemguid);
+    if (item)
     {
         // prevent sell not owner item
-        if (_player->GetGUID() != pItem->GetOwnerGUID())
+        if (_player->GetGUID() != item->GetOwnerGUID())
         {
             _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
             return;
         }
 
         // prevent sell non empty bag by drag-and-drop at vendor's item list
-        if (pItem->IsNotEmptyBag())
+        if (item->IsNotEmptyBag())
         {
             _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
             return;
         }
 
         // prevent sell currently looted item
-        if (_player->GetLootGUID() == pItem->GetGUID())
+        if (_player->GetLootGUID() == item->GetGUID())
         {
             _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
             return;
@@ -533,44 +533,44 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
         // prevent selling item for sellprice when the item is still refundable
         // this probably happens when right clicking a refundable item, the client sends both
         // CMSG_SELL_ITEM and CMSG_REFUND_ITEM (unverified)
-        if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
+        if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
             return; // Therefore, no feedback to client
 
         // special case at auto sell (sell all)
         if (count == 0)
         {
-            count = pItem->GetCount();
+            count = item->GetCount();
         }
         else
         {
             // prevent sell more items that exist in stack (possible only not from client)
-            if (count > pItem->GetCount())
+            if (count > item->GetCount())
             {
                 _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
                 return;
             }
         }
 
-        ItemTemplate const* pProto = pItem->GetTemplate();
+        ItemTemplate const* pProto = item->GetTemplate();
         if (pProto)
         {
             if (pProto->SellPrice > 0)
             {
-                if (count < pItem->GetCount())               // need split items
+                if (count < item->GetCount())               // need split items
                 {
-                    Item* pNewItem = pItem->CloneItem(count, _player);
+                    Item* pNewItem = item->CloneItem(count, _player);
                     if (!pNewItem)
                     {
-                        sLog->outError("WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
+                        sLog->outError("WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", item->GetEntry(), count);
                         _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
                         return;
                     }
 
-                    pItem->SetCount(pItem->GetCount() - count);
-                    _player->ItemRemovedQuestCheck(pItem->GetEntry(), count);
+                    item->SetCount(item->GetCount() - count);
+                    _player->ItemRemovedQuestCheck(item->GetEntry(), count);
                     if (_player->IsInWorld())
-                        pItem->SendUpdateToPlayer(_player);
-                    pItem->SetState(ITEM_CHANGED, _player);
+                        item->SendUpdateToPlayer(_player);
+                    item->SetState(ITEM_CHANGED, _player);
 
                     _player->AddItemToBuyBackSlot(pNewItem);
                     if (_player->IsInWorld())
@@ -578,10 +578,10 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
                 }
                 else
                 {
-                    _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-                    _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-                    pItem->RemoveFromUpdateQueueOf(_player);
-                    _player->AddItemToBuyBackSlot(pItem);
+                    _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+                    _player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+                    item->RemoveFromUpdateQueueOf(_player);
+                    _player->AddItemToBuyBackSlot(item);
                 }
 
                 uint32 money = pProto->SellPrice * count;
@@ -617,28 +617,28 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    Item* pItem = _player->GetItemFromBuyBackSlot(slot);
-    if (pItem)
+    Item* item = _player->GetItemFromBuyBackSlot(slot);
+    if (item)
     {
         uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + slot - BUYBACK_SLOT_START);
         if (!_player->HasEnoughMoney(price))
         {
-            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry(), 0);
+            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, item->GetEntry(), 0);
             return;
         }
 
         ItemPosCountVec dest;
-        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, item, false);
         if (msg == EQUIP_ERR_OK)
         {
             _player->ModifyMoney(-(int32)price);
             _player->RemoveItemFromBuyBackSlot(slot, false);
-            _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-            _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
-            _player->StoreItem(dest, pItem, true);
+            _player->ItemAddedQuestCheck(item->GetEntry(), item->GetCount());
+            _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item->GetEntry(), item->GetCount());
+            _player->StoreItem(dest, item, true);
         }
         else
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, item, NULL);
         return;
     }
     else
@@ -815,8 +815,8 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket & recv_data)
     recv_data >> srcbag >> srcslot >> dstbag;
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u", srcbag, srcslot, dstbag);
 
-    Item* pItem = _player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    Item* item = _player->GetItemByPos(srcbag, srcslot);
+    if (!item)
         return;
 
     if (!_player->IsValidPos(dstbag, NULL_SLOT, false))      // can be autostore pos
@@ -825,7 +825,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket & recv_data)
         return;
     }
 
-    uint16 src = pItem->GetPos();
+    uint16 src = item->GetPos();
 
     // check unequip potability for equipped items and bank bags
     if (_player->IsEquipmentPos (src) || _player->IsBagPos (src))
@@ -833,16 +833,16 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket & recv_data)
         InventoryResult msg = _player->CanUnequipItem(src, !_player->IsBagPos (src));
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, item, NULL);
             return;
         }
     }
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreItem(dstbag, NULL_SLOT, dest, pItem, false);
+    InventoryResult msg = _player->CanStoreItem(dstbag, NULL_SLOT, dest, item, false);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, pItem, NULL);
+        _player->SendEquipError(msg, item, NULL);
         return;
     }
 
@@ -850,12 +850,12 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket & recv_data)
     if (dest.size() == 1 && dest[0].pos == src)
     {
         // just remove grey item state
-        _player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+        _player->SendEquipError(EQUIP_ERR_NONE, item, NULL);
         return;
     }
 
     _player->RemoveItem(srcbag, srcslot, true);
-    _player->StoreItem(dest, pItem, true);
+    _player->StoreItem(dest, item, true);
 }
 
 void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
@@ -919,27 +919,27 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
     recvPacket >> srcbag >> srcslot;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
-    Item* pItem = _player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    Item* item = _player->GetItemByPos(srcbag, srcslot);
+    if (!item)
         return;
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, pItem, NULL);
+        _player->SendEquipError(msg, item, NULL);
         return;
     }
 
-    if (dest.size() == 1 && dest[0].pos == pItem->GetPos())
+    if (dest.size() == 1 && dest[0].pos == item->GetPos())
     {
-        _player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+        _player->SendEquipError(EQUIP_ERR_NONE, item, NULL);
         return;
     }
 
     _player->RemoveItem(srcbag, srcslot, true);
-    _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-    _player->BankItem(dest, pItem, true);
+    _player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+    _player->BankItem(dest, item, true);
 }
 
 void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
@@ -950,36 +950,36 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     recvPacket >> srcbag >> srcslot;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
-    Item* pItem = _player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    Item* item = _player->GetItemByPos(srcbag, srcslot);
+    if (!item)
         return;
 
     if (_player->IsBankPos(srcbag, srcslot))                 // moving from bank to inventory
     {
         ItemPosCountVec dest;
-        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, item, false);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, item, NULL);
             return;
         }
 
         _player->RemoveItem(srcbag, srcslot, true);
-        _player->StoreItem(dest, pItem, true);
-        _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
+        _player->StoreItem(dest, item, true);
+        _player->ItemAddedQuestCheck(item->GetEntry(), item->GetCount());
     }
     else                                                    // moving from inventory to bank
     {
         ItemPosCountVec dest;
-        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, item, NULL);
             return;
         }
 
         _player->RemoveItem(srcbag, srcslot, true);
-        _player->BankItem(dest, pItem, true);
+        _player->BankItem(dest, item, true);
     }
 }
 

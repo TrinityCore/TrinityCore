@@ -64,9 +64,9 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
         return &mNeutralAuctions;
 }
 
-uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
+uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* item, uint32 count)
 {
-    uint32 MSV = pItem->GetTemplate()->SellPrice;
+    uint32 MSV = item->GetTemplate()->SellPrice;
 
     if (MSV <= 0)
         return AH_MINIMUM_DEPOSIT;
@@ -89,8 +89,8 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
 //does not clear ram
 void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& trans)
 {
-    Item* pItem = GetAItem(auction->item_guidlow);
-    if (!pItem)
+    Item* item = GetAItem(auction->item_guidlow);
+    if (!item)
         return;
 
     uint32 bidder_accId = 0;
@@ -127,7 +127,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
             uint32 owner_accid = sObjectMgr->GetPlayerAccountIdByGUID(auction->owner);
 
             sLog->outCommand(bidder_accId, "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: %u. Original owner %s (Account: %u)",
-                bidder_name.c_str(), bidder_accId, pItem->GetTemplate()->Name1.c_str(), pItem->GetEntry(), pItem->GetCount(), auction->bid, owner_name.c_str(), owner_accid);
+                bidder_name.c_str(), bidder_accId, item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(), auction->bid, owner_name.c_str(), owner_accid);
         }
     }
 
@@ -147,7 +147,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         // owner in `data` will set at mail receive and item extracting
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
         stmt->setUInt32(0, auction->bidder);
-        stmt->setUInt32(1, pItem->GetGUIDLow());
+        stmt->setUInt32(1, item->GetGUIDLow());
         trans->Append(stmt);
 
         if (bidder)
@@ -158,7 +158,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         }
 
         MailDraft(msgAuctionWonSubject.str(), msgAuctionWonBody.str())
-            .AddItem(pItem)
+            .AddItem(item)
             .SendMailTo(trans, MailReceiver(bidder, auction->bidder), auction, MAIL_CHECK_MASK_COPIED);
     }
 }
@@ -234,8 +234,8 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransa
 void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransaction& trans)
 {
     //return an item in auction to its owner by mail
-    Item* pItem = GetAItem(auction->item_guidlow);
-    if (!pItem)
+    Item* item = GetAItem(auction->item_guidlow);
+    if (!item)
         return;
 
     uint64 owner_guid = MAKE_NEW_GUID(auction->owner, 0, HIGHGUID_PLAYER);
@@ -251,7 +251,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
             owner->GetSession()->SendAuctionOwnerNotification(auction);
 
         MailDraft(subject.str(), "")                        // TODO: fix body
-            .AddItem(pItem)
+            .AddItem(item)
             .SendMailTo(trans, MailReceiver(owner, auction->owner), auction, MAIL_CHECK_MASK_COPIED, 0);
     }
 }
