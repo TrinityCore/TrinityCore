@@ -52,7 +52,7 @@ public:
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
     {
-        boss_shirrak_the_dead_watcherAI(Creature* c) : ScriptedAI(c)
+        boss_shirrak_the_dead_watcherAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -170,7 +170,7 @@ public:
 
     struct mob_focus_fireAI : public ScriptedAI
     {
-        mob_focus_fireAI(Creature* c) : ScriptedAI(c)
+        mob_focus_fireAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 

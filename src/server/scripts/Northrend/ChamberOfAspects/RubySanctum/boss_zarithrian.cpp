@@ -100,14 +100,14 @@ public:
                  }
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
         switch (urand(0,1)) {
             case 0:
-                   DoScriptText(-1666201,me,pVictim);
+                   DoScriptText(-1666201,me,victim);
                    break;
             case 1:
-                   DoScriptText(-1666202,me,pVictim);
+                   DoScriptText(-1666202,me,victim);
                    break;
             }
         }

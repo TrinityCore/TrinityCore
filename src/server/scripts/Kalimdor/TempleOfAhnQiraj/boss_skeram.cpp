@@ -63,7 +63,7 @@ public:
 
     struct boss_skeramAI : public ScriptedAI
     {
-        boss_skeramAI(Creature* c) : ScriptedAI(c)
+        boss_skeramAI(Creature* creature) : ScriptedAI(creature)
         {
             IsImage = false;
         }

@@ -72,9 +72,9 @@ class boss_akilzon : public CreatureScript
 
         struct boss_akilzonAI : public ScriptedAI
         {
-            boss_akilzonAI(Creature* c) : ScriptedAI(c)
+            boss_akilzonAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
             InstanceScript* instance;
 
@@ -398,7 +398,7 @@ class mob_akilzon_eagle : public CreatureScript
 
         struct mob_akilzon_eagleAI : public ScriptedAI
         {
-            mob_akilzon_eagleAI(Creature* c) : ScriptedAI(c) {}
+            mob_akilzon_eagleAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 EagleSwoop_Timer;
             bool arrived;

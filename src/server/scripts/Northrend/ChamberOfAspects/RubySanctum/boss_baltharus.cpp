@@ -144,14 +144,14 @@ public:
             pInstance->SetData(TYPE_BALTHARUS, DONE);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
         switch (urand(0,1)) {
             case 0:
-                   DoScriptText(-1666301,me,pVictim);
+                   DoScriptText(-1666301,me,victim);
                    break;
             case 1:
-                   DoScriptText(-1666302,me,pVictim);
+                   DoScriptText(-1666302,me,victim);
                    break;
             }
         }
@@ -337,14 +337,14 @@ public:
             me->SetRespawnDelay(7*DAY);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
         switch (urand(0,1)) {
             case 0:
-                   DoScriptText(-1666301,me,pVictim);
+                   DoScriptText(-1666301,me,victim);
                    break;
             case 1:
-                   DoScriptText(-1666302,me,pVictim);
+                   DoScriptText(-1666302,me,victim);
                    break;
             }
         }

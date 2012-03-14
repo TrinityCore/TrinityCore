@@ -1357,7 +1357,7 @@ public:
             AttackStart(pWho);
         }
 
-        void EnterCombat(Unit* pVictim)
+        void EnterCombat(Unit* victim)
         {
             if (!m_pInstance)
                 return;

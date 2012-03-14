@@ -273,15 +273,15 @@ public:
 			}		
 		}
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
             switch (urand(0,1))
             {
                 case 0:
-                    DoScriptText(-1666106,me,pVictim);
+                    DoScriptText(-1666106,me,victim);
                     break;
                 case 1:
-                    DoScriptText(-1666107,me,pVictim);
+                    DoScriptText(-1666107,me,victim);
                     break;
             }
         }
@@ -665,15 +665,15 @@ public:
 			me->ForcedDespawn();
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* victim)
         {
             switch (urand(0,1))
             {
                 case 0:
-                    DoScriptText(-1666106,me,pVictim);
+                    DoScriptText(-1666106,me,victim);
                     break;
                 case 1:
-                    DoScriptText(-1666107,me,pVictim);
+                    DoScriptText(-1666107,me,victim);
                     break;
             }
         }

@@ -41,7 +41,7 @@ public:
 
     struct boss_timmy_the_cruelAI : public ScriptedAI
     {
-        boss_timmy_the_cruelAI(Creature* c) : ScriptedAI(c) {}
+        boss_timmy_the_cruelAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 RavenousClaw_Timer;
         bool HasYelled;

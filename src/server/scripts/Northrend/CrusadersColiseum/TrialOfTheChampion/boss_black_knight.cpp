@@ -373,7 +373,7 @@ public:
                     pInstance->HandleGameObject(pGO->GetGUID(),false);
         }
 
-    	void KilledUnit(Unit* pVictim)
+    	void KilledUnit(Unit* victim)
         {
             if (pInstance)
                 pInstance->SetData(BOSS_BLACK_KNIGHT,IN_PROGRESS);

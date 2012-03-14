@@ -44,7 +44,7 @@ public:
 
     struct boss_rasfrostAI : public ScriptedAI
     {
-        boss_rasfrostAI(Creature* c) : ScriptedAI(c) {}
+        boss_rasfrostAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 IceArmor_Timer;
         uint32 Frostbolt_Timer;

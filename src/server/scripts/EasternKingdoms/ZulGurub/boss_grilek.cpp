@@ -40,7 +40,7 @@ class boss_grilek : public CreatureScript
 
         struct boss_grilekAI : public ScriptedAI
         {
-            boss_grilekAI(Creature* c) : ScriptedAI(c) {}
+            boss_grilekAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 Avartar_Timer;
             uint32 GroundTremor_Timer;

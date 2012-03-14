@@ -469,9 +469,9 @@ bool CalendarMgr::RemoveEvent(uint64 eventId)
     bool val = true;
 
     CalendarInviteIdList const& invites = itr->second.GetInviteIdList();
-    for (CalendarInviteIdList::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+    for (CalendarInviteIdList::const_iterator itrInvites = invites.begin(); itrInvites != invites.end(); ++itrInvites)
     {
-        CalendarInvite* invite = GetInvite(*itr);
+        CalendarInvite* invite = GetInvite(*itrInvites);
         if (!invite || !RemovePlayerEvent(invite->GetInvitee(), eventId))
             val = false;
     }

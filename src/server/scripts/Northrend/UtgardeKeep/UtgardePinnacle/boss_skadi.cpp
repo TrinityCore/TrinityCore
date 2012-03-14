@@ -168,9 +168,9 @@ public:
 
     struct boss_skadiAI : public ScriptedAI
     {
-        boss_skadiAI(Creature* c) : ScriptedAI(c), Summons(me)
+        boss_skadiAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            m_instance = c->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_instance;
