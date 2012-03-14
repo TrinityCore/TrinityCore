@@ -298,8 +298,6 @@ public:
                 {
                     //Spawn 2 random types of creatures at the 2 locations
                     uint32 CreatureID;
-                    Creature* Spawned = NULL;
-                    Unit* target = NULL;
 
                     //1 in 3 chance it will be a chromatic
                     if (urand(0, 2) == 0)
@@ -310,8 +308,8 @@ public:
                     ++SpawnedAdds;
 
                     //Spawn Creature and force it to start attacking a random target
-                    Spawned = me->SummonCreature(CreatureID, ADD_X1, ADD_Y1, ADD_Z1, 5.000f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    Creature* Spawned = me->SummonCreature(CreatureID, ADD_X1, ADD_Y1, ADD_Z1, 5.000f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (target && Spawned)
                     {
                         Spawned->AI()->AttackStart(target);

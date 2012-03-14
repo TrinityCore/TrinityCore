@@ -358,10 +358,7 @@ public:
         {
             if (instance)
             {
-                Creature* Karathress = NULL;
-                Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)));
-
-                if (Karathress)
+                if (Creature* Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS))))
                     if (!me->isAlive() && Karathress)
                         CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
             }
@@ -498,10 +495,7 @@ public:
         {
             if (instance)
             {
-                Creature* Karathress = NULL;
-                Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)));
-
-                if (Karathress)
+                if (Creature* Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS))))
                     if (!me->isAlive() && Karathress)
                         CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
             }
@@ -625,10 +619,7 @@ public:
         {
             if (instance)
             {
-                Creature* Karathress = NULL;
-                Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)));
-
-                if (Karathress)
+                if (Creature* Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS))))
                     if (!me->isAlive() && Karathress)
                         CAST_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
             }

@@ -393,7 +393,7 @@ public:
     struct boss_veknilashAI : public boss_twinemperorsAI
     {
         bool IAmVeklor() {return false;}
-        boss_veknilashAI(Creature* c) : boss_twinemperorsAI(c) {}
+        boss_veknilashAI(Creature* creature) : boss_twinemperorsAI(creature) {}
 
         uint32 UpperCut_Timer;
         uint32 UnbalancingStrike_Timer;
@@ -479,7 +479,7 @@ public:
     struct boss_veklorAI : public boss_twinemperorsAI
     {
         bool IAmVeklor() {return true;}
-        boss_veklorAI(Creature* c) : boss_twinemperorsAI(c) {}
+        boss_veklorAI(Creature* creature) : boss_twinemperorsAI(creature) {}
 
         uint32 ShadowBolt_Timer;
         uint32 Blizzard_Timer;
@@ -539,17 +539,14 @@ public:
             //Blizzard_Timer
             if (Blizzard_Timer <= diff)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true))
                     DoCast(target, SPELL_BLIZZARD);
                 Blizzard_Timer = 15000+rand()%15000;
             } else Blizzard_Timer -= diff;
 
             if (ArcaneBurst_Timer <= diff)
             {
-                Unit* mvic;
-                if ((mvic=SelectTarget(SELECT_TARGET_NEAREST, 0, NOMINAL_MELEE_RANGE, true)) != NULL)
+                if (Unit* mvic = SelectTarget(SELECT_TARGET_NEAREST, 0, NOMINAL_MELEE_RANGE, true))
                 {
                     DoCast(mvic, SPELL_ARCANEBURST);
                     ArcaneBurst_Timer = 5000;

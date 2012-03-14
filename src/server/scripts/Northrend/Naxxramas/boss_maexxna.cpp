@@ -68,7 +68,7 @@ public:
 
     struct boss_maexxnaAI : public BossAI
     {
-        boss_maexxnaAI(Creature* c) : BossAI(c, BOSS_MAEXXNA) {}
+        boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA) {}
 
         bool enraged;
 
@@ -159,7 +159,7 @@ public:
 
     struct mob_webwrapAI : public NullCreatureAI
     {
-        mob_webwrapAI(Creature* c) : NullCreatureAI(c), victimGUID(0) {}
+        mob_webwrapAI(Creature* creature) : NullCreatureAI(creature), victimGUID(0) {}
 
         uint64 victimGUID;
 

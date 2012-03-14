@@ -57,7 +57,7 @@ public:
 
     struct boss_gluthAI : public BossAI
     {
-        boss_gluthAI(Creature* c) : BossAI(c, BOSS_GLUTH)
+        boss_gluthAI(Creature* creature) : BossAI(creature, BOSS_GLUTH)
         {
             // Do not let Gluth be affected by zombies' debuff
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);

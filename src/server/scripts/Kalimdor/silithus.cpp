@@ -842,7 +842,6 @@ public:
         void UpdateAI(const uint32 diff)
         {
             Unit* target = NULL;
-            //Player* player = me->GetPlayer(PlayerGUID);
 
             if (!Timers)
             {

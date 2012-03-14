@@ -122,9 +122,7 @@ class boss_marli : public CreatureScript
                         if (!target)
                             return;
 
-                        Creature* Spider = NULL;
-
-                        Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                        Creature* Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Spider)
                             Spider->AI()->AttackStart(target);
                         Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -174,13 +172,13 @@ class boss_marli : public CreatureScript
                         if (Charge_Timer <= diff)
                         {
                             Unit* target = NULL;
-                            int i = 0;
+                            uint8 i = 0;
                             while (i < 3)                           // max 3 tries to get a random target with power_mana
                             {
                                 ++i;
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);  // not aggro leader
                                 if (target && target->getPowerType() == POWER_MANA)
-                                        i = 3;
+                                    i = 3;
                             }
                             if (target)
                             {

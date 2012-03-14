@@ -72,9 +72,7 @@ public:
             //Wrath
             if (Wrath_Timer <= diff)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_WRATH);
                 Wrath_Timer = 8000;
             }

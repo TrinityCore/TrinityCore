@@ -140,21 +140,27 @@ class boss_jeklik : public CreatureScript
 
                             Creature* Bat = NULL;
                             Bat = me->SummonCreature(11368, -12291.6220f, -1380.2640f, 144.8304f, 5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                            if (target && Bat) Bat ->AI()->AttackStart(target);
+                            if (target && Bat)
+                                Bat ->AI()->AttackStart(target);
 
                             Bat = me->SummonCreature(11368, -12289.6220f, -1380.2640f, 144.8304f, 5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                            if (target && Bat) Bat ->AI()->AttackStart(target);
+                            if (target && Bat)
+                                Bat ->AI()->AttackStart(target);
 
                             Bat = me->SummonCreature(11368, -12293.6220f, -1380.2640f, 144.8304f, 5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                            if (target && Bat) Bat ->AI()->AttackStart(target);
+                            if (target && Bat)
+                                Bat ->AI()->AttackStart(target);
 
                             Bat = me->SummonCreature(11368, -12291.6220f, -1380.2640f, 144.8304f, 5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                            if (target && Bat) Bat ->AI()->AttackStart(target);
+                            if (target && Bat)
+                                Bat ->AI()->AttackStart(target);
 
                             Bat = me->SummonCreature(11368, -12289.6220f, -1380.2640f, 144.8304f, 5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                            if (target && Bat) Bat ->AI()->AttackStart(target);
+                            if (target && Bat)
+                                Bat ->AI()->AttackStart(target);
                             Bat = me->SummonCreature(11368, -12293.6220f, -1380.2640f, 144.8304f, 5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                            if (target && Bat) Bat ->AI()->AttackStart(target);
+                            if (target && Bat)
+                                Bat ->AI()->AttackStart(target);
 
                             SpawnBats_Timer = 60000;
                         } else SpawnBats_Timer -= diff;
