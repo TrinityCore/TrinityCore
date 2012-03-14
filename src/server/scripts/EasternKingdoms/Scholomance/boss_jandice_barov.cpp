@@ -43,7 +43,7 @@ public:
 
     struct boss_jandicebarovAI : public ScriptedAI
     {
-        boss_jandicebarovAI(Creature* c) : ScriptedAI(c) {}
+        boss_jandicebarovAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 CurseOfBlood_Timer;
         uint32 Illusion_Timer;
@@ -165,7 +165,7 @@ public:
 
     struct mob_illusionofjandicebarovAI : public ScriptedAI
     {
-        mob_illusionofjandicebarovAI(Creature* c) : ScriptedAI(c) {}
+        mob_illusionofjandicebarovAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Cleave_Timer;
 

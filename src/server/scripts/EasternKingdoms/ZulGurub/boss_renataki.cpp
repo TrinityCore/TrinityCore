@@ -42,7 +42,7 @@ class boss_renataki : public CreatureScript
 
         struct boss_renatakiAI : public ScriptedAI
         {
-            boss_renatakiAI(Creature* c) : ScriptedAI(c) {}
+            boss_renatakiAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 Invisible_Timer;
             uint32 Ambush_Timer;

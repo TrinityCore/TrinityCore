@@ -47,7 +47,7 @@ public:
 
     struct boss_the_black_stalkerAI : public ScriptedAI
     {
-        boss_the_black_stalkerAI(Creature* c) : ScriptedAI(c)
+        boss_the_black_stalkerAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 

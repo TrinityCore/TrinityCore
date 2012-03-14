@@ -278,10 +278,10 @@ public:
 
     struct mob_nadox_eggsAI : public Scripted_NoMovementAI
     {
-        mob_nadox_eggsAI(Creature* c) : Scripted_NoMovementAI(c)
+        mob_nadox_eggsAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            c->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            c->UpdateAllStats();
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            creature->UpdateAllStats();
         }
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}

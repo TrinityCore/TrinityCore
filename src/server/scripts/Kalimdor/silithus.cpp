@@ -492,7 +492,7 @@ public:
 
     struct npc_anachronos_the_ancientAI : public ScriptedAI
     {
-        npc_anachronos_the_ancientAI(Creature* c) : ScriptedAI(c) {}
+        npc_anachronos_the_ancientAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 AnimationTimer;
         uint8 AnimationCount;
@@ -820,7 +820,7 @@ public:
 
     struct mob_qiraj_war_spawnAI : public ScriptedAI
     {
-        mob_qiraj_war_spawnAI(Creature* c) : ScriptedAI(c) {}
+        mob_qiraj_war_spawnAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 MobGUID;
         uint64 PlayerGUID;
@@ -935,7 +935,7 @@ public:
 
     struct npc_anachronos_quest_triggerAI : public ScriptedAI
     {
-        npc_anachronos_quest_triggerAI(Creature* c) : ScriptedAI(c) {}
+        npc_anachronos_quest_triggerAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 PlayerGUID;
 

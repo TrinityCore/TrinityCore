@@ -71,9 +71,9 @@ public:
 
     struct boss_tharon_jaAI : public ScriptedAI
     {
-        boss_tharon_jaAI(Creature* c) : ScriptedAI(c)
+        boss_tharon_jaAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         uint32 uiPhaseTimer;

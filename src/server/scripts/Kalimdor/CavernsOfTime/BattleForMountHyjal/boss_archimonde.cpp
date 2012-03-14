@@ -86,9 +86,9 @@ public:
 
     struct mob_ancient_wispAI : public ScriptedAI
     {
-        mob_ancient_wispAI(Creature* c) : ScriptedAI(c)
+        mob_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             ArchimondeGUID = 0;
         }
 
@@ -142,7 +142,7 @@ public:
 
     struct mob_doomfireAI : public ScriptedAI
     {
-        mob_doomfireAI(Creature* c) : ScriptedAI(c) {}
+        mob_doomfireAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() { }
 
@@ -167,7 +167,7 @@ public:
 
     struct mob_doomfire_targettingAI : public ScriptedAI
     {
-        mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) {}
+        mob_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 TargetGUID;
         uint32 ChangeTargetTimer;
@@ -233,9 +233,9 @@ public:
 
     struct boss_archimondeAI : public hyjal_trashAI
     {
-        boss_archimondeAI(Creature* c) : hyjal_trashAI(c)
+        boss_archimondeAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;

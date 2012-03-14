@@ -379,7 +379,7 @@ public:
 
     struct flame_of_azzinothAI : public ScriptedAI
     {
-        flame_of_azzinothAI(Creature* c) : ScriptedAI(c) {}
+        flame_of_azzinothAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
@@ -471,9 +471,9 @@ public:
 
     struct boss_illidan_stormrageAI : public ScriptedAI
     {
-        boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c), Summons(me)
+        boss_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             DoCast(me, SPELL_DUAL_WIELD, true);
         }
 
@@ -1157,7 +1157,7 @@ public:
 
     struct boss_maievAI : public ScriptedAI
     {
-        boss_maievAI(Creature* c) : ScriptedAI(c) {};
+        boss_maievAI(Creature* creature) : ScriptedAI(creature) {};
 
         uint64 IllidanGUID;
 
@@ -1372,9 +1372,9 @@ public:
 
     struct npc_akama_illidanAI : public ScriptedAI
     {
-        npc_akama_illidanAI(Creature* c) : ScriptedAI(c)
+        npc_akama_illidanAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             JustCreated = true;
         }
         bool JustCreated;
@@ -2019,7 +2019,7 @@ public:
 
     struct cage_trap_triggerAI : public ScriptedAI
     {
-        cage_trap_triggerAI(Creature* c) : ScriptedAI(c) {}
+        cage_trap_triggerAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 IllidanGUID;
         uint32 DespawnTimer;
@@ -2117,7 +2117,7 @@ public:
 
     struct shadow_demonAI : public ScriptedAI
     {
-        shadow_demonAI(Creature* c) : ScriptedAI(c) {}
+        shadow_demonAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 TargetGUID;
 
@@ -2192,9 +2192,9 @@ public:
     // Shadowfiends interact with Illidan, setting more targets in Illidan's hashmap
     struct mob_parasitic_shadowfiendAI : public ScriptedAI
     {
-        mob_parasitic_shadowfiendAI(Creature* c) : ScriptedAI(c)
+        mob_parasitic_shadowfiendAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
