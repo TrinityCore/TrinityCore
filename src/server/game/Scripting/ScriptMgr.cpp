@@ -1341,10 +1341,10 @@ void ScriptMgr::OnGuildMemberDepositMoney(Guild* guild, Player* player, uint32 &
     FOREACH_SCRIPT(GuildScript)->OnMemberDepositMoney(guild, player, amount);
 }
 
-void ScriptMgr::OnGuildItemMove(Guild* guild, Player* player, Item* item, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
+void ScriptMgr::OnGuildItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
             bool isDestBank, uint8 destContainer, uint8 destSlotId)
 {
-    FOREACH_SCRIPT(GuildScript)->OnItemMove(guild, player, item, isSrcBank, srcContainer, srcSlotId, isDestBank, destContainer, destSlotId);
+    FOREACH_SCRIPT(GuildScript)->OnItemMove(guild, player, pItem, isSrcBank, srcContainer, srcSlotId, isDestBank, destContainer, destSlotId);
 }
 
 void ScriptMgr::OnGuildEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)

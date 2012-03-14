@@ -504,8 +504,8 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     if (auction && auction->owner == player->GetGUIDLow())
     {
-        Item* item = sAuctionMgr->GetAItem(auction->item_guidlow);
-        if (item)
+        Item* pItem = sAuctionMgr->GetAItem(auction->item_guidlow);
+        if (pItem)
         {
             if (auction->bidder > 0)                        // If we have a bidder, we have to send him the money he paid
             {
@@ -522,7 +522,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
 
             // item will deleted or added to received mail list
             MailDraft(msgAuctionCanceledOwner.str(), "")    // TODO: fix body
-                .AddItem(item)
+                .AddItem(pItem)
                 .SendMailTo(trans, player, auction, MAIL_CHECK_MASK_COPIED);
         }
         else

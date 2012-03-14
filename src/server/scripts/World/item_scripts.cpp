@@ -47,9 +47,9 @@ class item_only_for_flight : public ItemScript
 public:
     item_only_for_flight() : ItemScript("item_only_for_flight") { }
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/)
+    bool OnUse(Player* player, Item* pItem, SpellCastTargets const& /*targets*/)
     {
-        uint32 itemId = item->GetEntry();
+        uint32 itemId = pItem->GetEntry();
         bool disabled = false;
 
         //for special scripts
@@ -74,7 +74,7 @@ public:
             return false;
 
         // error
-        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, NULL);
+        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
         return true;
     }
 };
@@ -110,13 +110,13 @@ class item_gor_dreks_ointment : public ItemScript
 public:
     item_gor_dreks_ointment() : ItemScript("item_gor_dreks_ointment") { }
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
+    bool OnUse(Player* player, Item* pItem, SpellCastTargets const& targets)
     {
         if (targets.GetUnitTarget() && targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT &&
             targets.GetUnitTarget()->GetEntry() == 20748 && !targets.GetUnitTarget()->HasAura(32578))
             return false;
 
-        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, NULL);
+        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
         return true;
     }
 };
@@ -130,13 +130,13 @@ class item_incendiary_explosives : public ItemScript
 public:
     item_incendiary_explosives() : ItemScript("item_incendiary_explosives") { }
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const & /*targets*/)
+    bool OnUse(Player* player, Item* pItem, SpellCastTargets const & /*targets*/)
     {
         if (player->FindNearestCreature(26248, 15) || player->FindNearestCreature(26249, 15))
             return false;
         else
         {
-            player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
+            player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
             return true;
         }
     }
@@ -219,7 +219,7 @@ class item_pile_fake_furs : public ItemScript
 public:
     item_pile_fake_furs() : ItemScript("item_pile_fake_furs") { }
 
-    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const & /*targets*/)
+    bool OnUse(Player* player, Item* /*pItem*/, SpellCastTargets const & /*targets*/)
     {
         GameObject* go = NULL;
         for (uint8 i = 0; i < CaribouTrapsNum; ++i)
@@ -264,14 +264,14 @@ class item_petrov_cluster_bombs : public ItemScript
 public:
     item_petrov_cluster_bombs() : ItemScript("item_petrov_cluster_bombs") { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets & /*targets*/)
+    bool OnUse(Player* player, Item* pItem, const SpellCastTargets & /*targets*/)
     {
         if (player->GetZoneId() != ZONE_ID_HOWLING)
             return false;
 
         if (!player->GetTransport() || player->GetAreaId() != AREA_ID_SHATTERED_STRAITS)
         {
-            player->SendEquipError(EQUIP_ERR_NONE, item, NULL);
+            player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
 
             if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
                 Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_HERE);
@@ -330,7 +330,7 @@ class item_dehta_trap_smasher : public ItemScript
 public:
     item_dehta_trap_smasher() : ItemScript("item_dehta_trap_smasher") { }
 
-    bool OnUse(Player* player, Item* /*item*/, const SpellCastTargets & /*targets*/)
+    bool OnUse(Player* player, Item* /*pItem*/, const SpellCastTargets & /*targets*/)
     {
         if (player->GetQuestStatus(QUEST_CANNOT_HELP_THEMSELVES) != QUEST_STATUS_INCOMPLETE)
             return false;
@@ -367,7 +367,7 @@ class item_trident_of_nazjan : public ItemScript
 public:
     item_trident_of_nazjan() : ItemScript("item_Trident_of_Nazjan") { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets & /*targets*/)
+    bool OnUse(Player* player, Item* pItem, const SpellCastTargets & /*targets*/)
     {
         if (player->GetQuestStatus(QUEST_THE_EMISSARY) == QUEST_STATUS_INCOMPLETE)
         {
@@ -376,9 +376,9 @@ public:
                 pLeviroth->AI()->AttackStart(player);
                 return false;
             } else
-                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
+                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
         } else
-            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, NULL);
+            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
         return true;
     }
 };
@@ -394,17 +394,17 @@ class item_captured_frog : public ItemScript
 public:
     item_captured_frog() : ItemScript("item_captured_frog") { }
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/)
+    bool OnUse(Player* player, Item* pItem, SpellCastTargets const& /*targets*/)
     {
         if (player->GetQuestStatus(QUEST_THE_PERFECT_SPIES) == QUEST_STATUS_INCOMPLETE)
         {
             if (player->FindNearestCreature(NPC_VANIRAS_SENTRY_TOTEM, 10.0f))
                 return false;
             else
-                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
+                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
         }
         else
-            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, NULL);
+            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
         return true;
     }
 };

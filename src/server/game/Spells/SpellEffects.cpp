@@ -1777,22 +1777,22 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     if (num_to_add)
     {
         // create the new item and store it
-        Item* item = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
+        Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
 
         // was it successful? return error if not
-        if (!item)
+        if (!pItem)
         {
             player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
             return;
         }
 
         // set the "Crafted by ..." property of the item
-        if (item->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && item->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
-            item->SetUInt32Value(ITEM_FIELD_CREATOR, player->GetGUIDLow());
+        if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
+            pItem->SetUInt32Value(ITEM_FIELD_CREATOR, player->GetGUIDLow());
 
         // send info to the client
-        if (item)
-            player->SendNewItem(item, num_to_add, true, bgType == 0);
+        if (pItem)
+            player->SendNewItem(pItem, num_to_add, true, bgType == 0);
 
         // we succeeded in creating at least one item, so a levelup is possible
         if (bgType == 0)
@@ -6672,11 +6672,11 @@ void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    if (Item* item = player->GetItemByEntry(item_id))
+    if (Item* pItem = player->GetItemByEntry(item_id))
     {
         for (int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-            item->SetSpellCharges(x, pProto->Spells[x].SpellCharges);
-        item->SetState(ITEM_CHANGED, player);
+            pItem->SetSpellCharges(x, pProto->Spells[x].SpellCharges);
+        pItem->SetState(ITEM_CHANGED, player);
     }
 }
 
