@@ -94,8 +94,8 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     uint32 updateTime = sWorld->GetUpdateTime();
 
     SendSysMessage(_FULLVERSION);
+    PSendSysMessage("FReeDOM-WoW.BiZ");
     PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
-    PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
     PSendSysMessage(LANG_UPDATE_DIFF, updateTime);
     //! Can't use sWorld->ShutdownMsg here in case of console command
