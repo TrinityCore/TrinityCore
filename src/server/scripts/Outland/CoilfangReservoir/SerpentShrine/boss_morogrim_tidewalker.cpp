@@ -89,9 +89,9 @@ public:
 
     struct boss_morogrim_tidewalkerAI : public ScriptedAI
     {
-        boss_morogrim_tidewalkerAI(Creature* c) : ScriptedAI(c)
+        boss_morogrim_tidewalkerAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -296,7 +296,7 @@ public:
 
     struct mob_water_globuleAI : public ScriptedAI
     {
-        mob_water_globuleAI(Creature* c) : ScriptedAI(c) {}
+        mob_water_globuleAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Check_Timer;
 

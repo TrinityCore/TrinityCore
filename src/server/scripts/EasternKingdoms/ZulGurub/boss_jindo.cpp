@@ -52,7 +52,7 @@ class boss_jindo : public CreatureScript
 
         struct boss_jindoAI : public ScriptedAI
         {
-            boss_jindoAI(Creature* c) : ScriptedAI(c) {}
+            boss_jindoAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 BrainWashTotem_Timer;
             uint32 HealingWard_Timer;
@@ -187,9 +187,9 @@ class mob_healing_ward : public CreatureScript
 
         struct mob_healing_wardAI : public ScriptedAI
         {
-            mob_healing_wardAI(Creature* c) : ScriptedAI(c)
+            mob_healing_wardAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             uint32 Heal_Timer;
@@ -241,7 +241,7 @@ class mob_shade_of_jindo : public CreatureScript
 
         struct mob_shade_of_jindoAI : public ScriptedAI
         {
-            mob_shade_of_jindoAI(Creature* c) : ScriptedAI(c) {}
+            mob_shade_of_jindoAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 ShadowShock_Timer;
 

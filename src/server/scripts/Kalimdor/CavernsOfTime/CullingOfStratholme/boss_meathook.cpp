@@ -57,9 +57,9 @@ public:
 
     struct boss_meathookAI : public ScriptedAI
     {
-        boss_meathookAI(Creature* c) : ScriptedAI(c)
+        boss_meathookAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             if (instance)
                 DoScriptText(SAY_SPAWN, me);
         }

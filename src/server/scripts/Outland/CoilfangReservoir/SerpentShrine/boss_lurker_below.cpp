@@ -78,12 +78,12 @@ public:
 
     struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
     {
-        boss_the_lurker_belowAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me)
+        boss_the_lurker_belowAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
         {
-            Instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* Instance;
+        InstanceScript* instance;
         SummonList Summons;
 
         bool Spawned;
@@ -103,7 +103,7 @@ public:
 
         bool CheckCanStart()//check if players fished
         {
-            if (Instance && Instance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+            if (instance && instance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
                 return false;
             return true;
         }
@@ -128,10 +128,10 @@ public:
 
             Summons.DespawnAll();
 
-            if (Instance)
+            if (instance)
             {
-                Instance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
-                Instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
+                instance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
+                instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
             }
             DoCast(me, SPELL_SUBMERGE); // submerge anim
             me->SetVisible(false); // we start invis under water, submerged
@@ -141,10 +141,10 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Instance)
+            if (instance)
             {
-                Instance->SetData(DATA_THELURKERBELOWEVENT, DONE);
-                Instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
+                instance->SetData(DATA_THELURKERBELOWEVENT, DONE);
+                instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
             }
 
             Summons.DespawnAll();
@@ -152,8 +152,8 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (Instance)
-                Instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
             Scripted_NoMovementAI::EnterCombat(who);
         }
 
@@ -368,7 +368,7 @@ public:
 
     struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
     {
-        mob_coilfang_ambusherAI(Creature* c) : Scripted_NoMovementAI(c)
+        mob_coilfang_ambusherAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
         }
 

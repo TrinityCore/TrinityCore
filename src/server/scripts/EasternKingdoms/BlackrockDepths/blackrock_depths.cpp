@@ -355,7 +355,7 @@ public:
 
     struct mob_phalanxAI : public ScriptedAI
     {
-        mob_phalanxAI(Creature* c) : ScriptedAI(c) {}
+        mob_phalanxAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ThunderClap_Timer;
         uint32 FireballVolley_Timer;
@@ -609,7 +609,7 @@ public:
 
     struct npc_dughal_stormwingAI : public npc_escortAI
     {
-        npc_dughal_stormwingAI(Creature* c) : npc_escortAI(c) {}
+        npc_dughal_stormwingAI(Creature* creature) : npc_escortAI(creature) {}
 
         void WaypointReached(uint32 i)
         {
@@ -725,9 +725,9 @@ public:
 
     struct npc_marshal_windsorAI : public npc_escortAI
     {
-        npc_marshal_windsorAI(Creature* c) : npc_escortAI(c)
+        npc_marshal_windsorAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         void WaypointReached(uint32 i)
@@ -896,7 +896,7 @@ public:
 
     struct npc_marshal_reginald_windsorAI : public npc_escortAI
     {
-        npc_marshal_reginald_windsorAI(Creature* c) : npc_escortAI(c)
+        npc_marshal_reginald_windsorAI(Creature* creature) : npc_escortAI(creature)
         {
         }
 
