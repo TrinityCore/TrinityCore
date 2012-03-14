@@ -304,9 +304,7 @@ public:
 
                 if (instance && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
                 {
-                    Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
-                    if (victim)
+                    if (Unit* victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER)))
                         me->getThreatManager().addThreat(victim, 1);
                     StartEvent();
                 }
@@ -566,11 +564,10 @@ public:
                 //at this point he divides himself in two parts
                 CastConsumingMadness();
                 DespawnDemon();
-                Creature* Copy = NULL;
-                Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000);
-                if (Copy)
-                 {
-                     Demon = Copy->GetGUID();
+
+                if (Creature* Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000))
+                {
+                    Demon = Copy->GetGUID();
                     if (me->getVictim())
                         Copy->AI()->AttackStart(me->getVictim());
                 }
@@ -738,9 +735,7 @@ public:
 
                 if (!me->isInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
                 {
-                    Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
-                    if (victim)
+                    if (Unit* victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER)))
                         AttackStart(victim);
                 }
             }

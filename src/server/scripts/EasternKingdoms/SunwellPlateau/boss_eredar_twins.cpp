@@ -230,8 +230,7 @@ public:
             {
                 if (instance)
                 {
-                    Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
+                    Unit* Temp = Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_ALYTHESS_DEAD, me);
@@ -561,8 +560,7 @@ public:
             {
                 if (instance)
                 {
-                    Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
+                    Unit* Temp = Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_SACROLASH_DEAD, me);
@@ -595,9 +593,7 @@ public:
                 {
                     if (!me->IsNonMeleeSpellCasted(false))
                     {
-                        Unit* target = NULL;
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (target)
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SHADOW_NOVA);
                         ShadownovaTimer= 30000+(rand()%5000);
                     }
@@ -610,8 +606,7 @@ public:
                     if (!me->IsNonMeleeSpellCasted(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        Unit* target = NULL;
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
                             DoCast(target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000+(rand()%5000);

@@ -365,10 +365,7 @@ public:
         {
             if (instance)
             {
-                Creature* Maulgar = NULL;
-                Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR)));
-
-                if (Maulgar)
+                if (Creature* Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR))))
                     CAST_AI(boss_high_king_maulgar::boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
 
                 if (CheckAllBossDied(instance, me))
@@ -478,10 +475,7 @@ public:
         {
             if (instance)
             {
-                Creature* Maulgar = NULL;
-                Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR)));
-
-                if (Maulgar)
+                if (Creature* Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR))))
                     CAST_AI(boss_high_king_maulgar::boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
 
                 if (CheckAllBossDied(instance, me))
@@ -598,10 +592,7 @@ public:
         {
             if (instance)
             {
-                Creature* Maulgar = NULL;
-                Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR)));
-
-                if (Maulgar)
+                if (Creature* Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR))))
                     CAST_AI(boss_high_king_maulgar::boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
 
                 if (CheckAllBossDied(instance, me))
@@ -708,10 +699,7 @@ public:
         {
             if (instance)
             {
-                Creature* Maulgar = NULL;
-                Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR)));
-
-                if (Maulgar)
+                if (Creature* Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR))))
                     CAST_AI(boss_high_king_maulgar::boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
 
                 if (CheckAllBossDied(instance, me))

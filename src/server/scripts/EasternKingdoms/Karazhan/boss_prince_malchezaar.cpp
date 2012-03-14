@@ -365,9 +365,7 @@ public:
                 pos.Relocate(point->x, point->y, INFERNAL_Z);
             }
 
-            Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
-
-            if (Infernal)
+            if (Creature* Infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000))
             {
                 Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
                 Infernal->setFaction(me->getFaction());

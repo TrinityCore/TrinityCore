@@ -302,10 +302,8 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            Creature* Spawned = NULL;
-
                             //Spawn claw tentacle on the random target
-                            Spawned = me->SummonCreature(MOB_CLAW_TENTACLE, *target, TEMPSUMMON_CORPSE_DESPAWN, 500);
+                            Creature* Spawned = me->SummonCreature(MOB_CLAW_TENTACLE, *target, TEMPSUMMON_CORPSE_DESPAWN, 500);
 
                             if (Spawned && Spawned->AI())
                                 Spawned->AI()->AttackStart(target);
