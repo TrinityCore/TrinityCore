@@ -174,7 +174,7 @@ class boss_marli : public CreatureScript
                         if (Charge_Timer <= diff)
                         {
                             Unit* target = NULL;
-                            int i = 0;
+                            uint8 i = 0;
                             while (i < 3)                           // max 3 tries to get a random target with power_mana
                             {
                                 ++i;

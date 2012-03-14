@@ -78,9 +78,8 @@ public:
             //Immolate_Timer
             if (Immolate_Timer <= diff)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target) DoCast(target, SPELL_IMMOLATE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_IMMOLATE);
 
                 Immolate_Timer = 12000;
             } else Immolate_Timer -= diff;

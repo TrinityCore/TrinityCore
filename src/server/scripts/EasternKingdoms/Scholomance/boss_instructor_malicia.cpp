@@ -96,9 +96,8 @@ public:
             //Corruption_Timer
             if (Corruption_Timer <= diff)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target) DoCast(target, SPELL_CORRUPTION);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_CORRUPTION);
 
                 Corruption_Timer = 24000;
             } else Corruption_Timer -= diff;

@@ -759,10 +759,8 @@ public:
 
             if (Mindblast_Timer <= diff)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-
-                if (target)DoCast(target, SPELL_MINDBLAST);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_MINDBLAST);
 
                 Mindblast_Timer = urand(10000, 15000);
             } else Mindblast_Timer -= diff;

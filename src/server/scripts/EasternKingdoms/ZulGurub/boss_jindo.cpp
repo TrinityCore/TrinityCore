@@ -123,8 +123,7 @@ class boss_jindo : public CreatureScript
                 //Teleporting a random gamer and spawning 9 skeletons that will attack this gamer
                 if (Teleport_Timer <= diff)
                 {
-                    Unit* target = NULL;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (target && target->GetTypeId() == TYPEID_PLAYER)
                     {
                         DoTeleportPlayer(target, -11583.7783f, -1249.4278f, 77.5471f, 4.745f);
