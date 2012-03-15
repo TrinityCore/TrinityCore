@@ -4953,7 +4953,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
             }
 
-    if (!hasDispellableAura)
+    if (!hasDispellableAura && m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
         return SPELL_FAILED_NOTHING_TO_DISPEL;
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
