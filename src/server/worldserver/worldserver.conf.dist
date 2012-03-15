@@ -60,7 +60,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "home/server/wow/lk/data"
+DataDir = "/home/server/wow/lk/data"
 
 #
 #    LogsDir
@@ -69,7 +69,7 @@ DataDir = "home/server/wow/lk/data"
 #                     Logs directory must exists, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = "home/server/wow/lk/logs"
+LogsDir = "/home/server/wow/lk/logs"
 
 #
 #    LoginDatabaseInfo
