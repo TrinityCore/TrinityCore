@@ -94,7 +94,8 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     uint32 updateTime = sWorld->GetUpdateTime();
 
     SendSysMessage(_FULLVERSION);
-    PSendSysMessage("FReeDOM-WoW.BiZ");
+    PSendSysMessage("Fork developer: Vitasic");
+    PSendSysMessage("freedom-wow.biz");
     PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
     PSendSysMessage(LANG_UPDATE_DIFF, updateTime);
