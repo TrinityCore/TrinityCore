@@ -269,6 +269,9 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
+                if (_dead)
+                    return;
+
                 if (!instance->CheckRequiredBosses(DATA_DEATHBRINGER_SAURFANG, who->ToPlayer()))
                 {
                     EnterEvadeMode();
@@ -336,8 +339,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
+                if (damage >= me->GetHealth())
+                    damage = me->GetHealth() - 1;
+
                 if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
                 {
                     _frenzied = true;
@@ -350,6 +356,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     _dead = true;
                     _JustDied();
                     _EnterEvadeMode();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
 
                     DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
                     DoCast(me, SPELL_ACHIEVEMENT, true);
