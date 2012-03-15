@@ -192,7 +192,3 @@ UPDATE `smart_scripts` SET `event_param1`=6763 WHERE  `entryorguid` =15664;
 -- Fix repetable of event for object 185861 (23.12.2011)
 UPDATE `creature_ai_scripts` SET `event_flags`=1 WHERE `creature_id`=23119;
 
--- Fix dualspec learning gossips for YTDB616
-UPDATE `conditions` SET `ConditionValue2` = '3' WHERE `SourceTypeOrReferenceId` = 15 AND `ConditionTypeOrReference` = 27 AND `ConditionValue1` = 40 AND `ConditionValue2` = 1;
-UPDATE `conditions` SET `ConditionValue2` = '3' WHERE `SourceTypeOrReferenceId` = 15 AND `ConditionTypeOrReference` = 27 AND `ConditionValue1` = 10 AND `ConditionValue2` = 1;
-UPDATE `conditions` SET `NegativeCondition` = '1' WHERE `SourceTypeOrReferenceId` = 15 AND `ConditionTypeOrReference` = 25 AND `ConditionValue1` = 63680;
