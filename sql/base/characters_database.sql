@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 5.5.9, for Win64 (x86)
+-- MySQL dump 10.13  Distrib 5.5.9, for Unix
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
