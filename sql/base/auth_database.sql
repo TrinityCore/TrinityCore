@@ -117,7 +117,7 @@ CREATE TABLE `ip_banned` (
   `ip` varchar(32) NOT NULL DEFAULT '127.0.0.1',
   `bandate` bigint(40) NOT NULL,
   `unbandate` bigint(40) NOT NULL,
-  `bannedby` varchar(50) NOT NULL DEFAULT '[Console]',
+  `bannedby` varchar(50) NOT NULL DEFAULT '[Server]',
   `banreason` varchar(255) NOT NULL DEFAULT 'no reason',
   PRIMARY KEY (`ip`,`bandate`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Banned IPs';
@@ -210,7 +210,7 @@ CREATE TABLE `realmlist` (
 
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
-INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1',8085,1,0,1,0,0,12340);
+INSERT INTO `realmlist` VALUES (1,'TriniCore','127.0.0.1',8085,0,1,1,0,0,12340);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
