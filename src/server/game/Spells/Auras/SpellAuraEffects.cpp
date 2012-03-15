@@ -2876,15 +2876,12 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
     }
 
     if (apply)
-    {
         target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-        target->SendMovementWaterWalking();
-    }
-    else
-    {
+     else
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-        target->SendMovementFlagUpdate();
-    }
+        
+    target->SendMovementWaterWalking();
+
 }
 
 void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2902,15 +2899,11 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
     }
 
     if (apply)
-    {
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-        target->SendMovementFeatherFall();
-    }
     else
-    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-        target->SendMovementFlagUpdate();
-    }
+
+    target->SendMovementFeatherFall();
 
     // start fall from current height
     if (!apply && target->GetTypeId() == TYPEID_PLAYER)
@@ -2932,10 +2925,7 @@ void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool
     }
 
     target->SetHover(apply);    //! Sets movementflags
-    if (apply)
-        target->SendMovementHover();
-    else
-        target->SendMovementFlagUpdate();
+    target->SendMovementHover();
 }
 
 void AuraEffect::HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
