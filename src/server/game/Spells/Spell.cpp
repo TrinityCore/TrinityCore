@@ -4941,6 +4941,12 @@ SpellCastResult Spell::CheckCast(bool strict)
     bool hasDispellableAura = false;
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
         if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DISPEL)
+        {
+            if (m_spellInfo->Effects[i].TargetA.IsArea() || m_spellInfo->Effects[i].TargetB.IsArea())
+            {
+                hasDispellableAura = true;
+                break;
+            }
             if (Unit* target = m_targets.GetUnitTarget())
             {
                 DispelChargesList dispelList;
@@ -4952,6 +4958,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     break;
                 }
             }
+        }
 
     if (!hasDispellableAura && m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
         return SPELL_FAILED_NOTHING_TO_DISPEL;
