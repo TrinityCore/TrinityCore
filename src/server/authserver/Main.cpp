@@ -100,6 +100,7 @@ extern int main(int argc, char **argv)
     sLog->Initialize();
 
     sLog->outString("%s (authserver)", _FULLVERSION);
+    sLog->outString("Fork developer: Vitasic        ");
     sLog->outString("<Ctrl-C> to stop.\n");
     sLog->outString("Using configuration file %s.", cfg_file);
 
