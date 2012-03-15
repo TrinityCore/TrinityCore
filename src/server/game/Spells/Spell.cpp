@@ -4942,7 +4942,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
         if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DISPEL)
         {
-            if (m_spellInfo->Effects[i].TargetA.IsArea() || m_spellInfo->Effects[i].TargetB.IsArea())
+            if (m_spellInfo->Effects[i].IsTargetingArea())
             {
                 hasDispellableAura = true;
                 break;
