@@ -178,7 +178,7 @@ Compression = 1
 #                     1+  - (Enabled)
 #                     0   - (Disabled, No limit)
 
-PlayerLimit = 100
+PlayerLimit = 500
 
 #
 #    SaveRespawnTimeImmediately
@@ -428,7 +428,7 @@ LogFile = "Server.log"
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-LogTimestamp = 0
+LogTimestamp = 1
 
 #
 #    LogFileLevel
@@ -558,7 +558,7 @@ GmLogFile = "GM.log"
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-GmLogTimestamp = 0
+GmLogTimestamp = 1
 
 #
 #    GmLogPerAccount
@@ -583,7 +583,7 @@ RaLogFile = "RA.log"
 #        Example:     "Arena.log" - (Enabled)
 #        Default:     ""          - (Disabled)
 
-ArenaLogFile = ""
+ArenaLogFile = "Arena.log"
 
 #
 #    ArenaLog.ExtendedInfo
@@ -592,7 +592,7 @@ ArenaLogFile = ""
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ArenaLog.ExtendedInfo = 0
+ArenaLog.ExtendedInfo = 1
 
 #
 #    SQLDeveloperLogFile
@@ -639,7 +639,7 @@ SQLDriverQueryLogging = 0
 #        Example:     "13 11 9 5" - (Enabled)
 #        Default:     ""          - (Disabled)
 
-LogColors = ""
+LogColors = "13 11 9 5"
 
 #
 #    EnableLogDB
@@ -713,7 +713,7 @@ ChatLogFile = "Chat.log"
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ChatLogTimestamp = 0
+ChatLogTimestamp = 1
 
 #
 #    ChatLogs.Channel
@@ -721,7 +721,7 @@ ChatLogTimestamp = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ChatLogs.Channel = 0
+ChatLogs.Channel = 1
 
 #
 #    ChatLogs.Whisper
@@ -729,7 +729,7 @@ ChatLogs.Channel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ChatLogs.Whisper = 0
+ChatLogs.Whisper = 1
 
 #
 #    ChatLogs.SysChan
@@ -737,7 +737,7 @@ ChatLogs.Whisper = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ChatLogs.SysChan = 0
+ChatLogs.SysChan = 1
 
 #
 #    ChatLogs.Party
@@ -771,7 +771,7 @@ ChatLogs.Guild = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ChatLogs.Public = 0
+ChatLogs.Public = 1
 
 #
 #    ChatLogs.Addon
@@ -1363,7 +1363,7 @@ ClientCacheVersion = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Event.Announce = 0
+Event.Announce = 1
 
 #
 #    BeepAtStart
@@ -1380,7 +1380,7 @@ BeepAtStart = 1
 #        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
-Motd = "Welcome to a Trinity Core server."
+Motd = "Welcome to a Trini Core server."
 
 #
 #    Server.LoginInfo
@@ -1388,7 +1388,7 @@ Motd = "Welcome to a Trinity Core server."
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Server.LoginInfo = 0
+Server.LoginInfo = 1
 
 #
 #    Command.LookupMaxResults
@@ -1812,7 +1812,7 @@ ChatStrictLinkChecking.Kick = 0
 #        Default:     10 - (Enabled)
 #                     0  - (Disabled)
 
-ChatFlood.MessageCount = 10
+ChatFlood.MessageCount = 4
 
 #
 #    ChatFlood.MessageDelay
@@ -2400,7 +2400,7 @@ Die.Command.Mode = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AutoBroadcast.On = 0
+AutoBroadcast.On = 1
 
 #
 #    AutoBroadcast.Center
@@ -2409,14 +2409,14 @@ AutoBroadcast.On = 0
 #                     1 - (Notify)
 #                     2 - (Both)
 
-AutoBroadcast.Center = 0
+AutoBroadcast.Center = 2
 
 #
 #    AutoBroadcast.Timer
 #        Description: Timer (in milliseconds) for auto broadcasts.
 #        Default:     60000 - (60 seconds)
 
-AutoBroadcast.Timer = 60000
+AutoBroadcast.Timer = 180000
 
 #
 ###################################################################################################
@@ -2437,7 +2437,7 @@ Battleground.CastDeserter = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Battleground.QueueAnnouncer.Enable = 0
+Battleground.QueueAnnouncer.Enable = 1
 
 #
 #    Battleground.QueueAnnouncer.PlayerOnly
@@ -2445,7 +2445,7 @@ Battleground.QueueAnnouncer.Enable = 0
 #        Default:     0 - (System message, Anyone can see it)
 #                     1 - (Private, Only queued players can see it)
 
-Battleground.QueueAnnouncer.PlayerOnly = 0
+Battleground.QueueAnnouncer.PlayerOnly = 1
 
 #
 #    Battleground.InvitationType
@@ -2519,7 +2519,7 @@ Arena.RatingDiscardTimer = 600000
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Arena.AutoDistributePoints = 0
+Arena.AutoDistributePoints = 1
 
 #
 #    Arena.AutoDistributeInterval
@@ -2535,7 +2535,7 @@ Arena.AutoDistributeInterval = 7
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Arena.QueueAnnouncer.Enable = 0
+Arena.QueueAnnouncer.Enable = 1
 
 #
 #    Arena.ArenaSeason.ID
@@ -2701,7 +2701,7 @@ CharDelete.MinLevel = 0
 #        Default:     30 - (Enabled)
 #                     0  - (Disabled, Don't delete any characters)
 
-CharDelete.KeepDays = 30
+CharDelete.KeepDays = 360
 
 #
 ###################################################################################################
