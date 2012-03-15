@@ -650,9 +650,12 @@ public:
 # npc_hastings
 ######*/
 
-int32 SAY_NPC_ROKAD_THE_RAVAGER          = -1880000;    // Rokad the Ravager howls through the halls...!
-int32 SAY_NPC_HYAKISS_THE_LURKER         = -1880001;    // Hyakiss the Lurker skitters out from the shadows...!
-int32 SAY_NPC_SHADIKITH_THE_G_L_I_D_E_R  = -1880002;    // Shadikith the Glider flaps down from the ceiling...!
+enum Texts
+{
+    SAY_NPC_ROKAD_THE_RAVAGER          = -1880000;    // Rokad the Ravager howls through the halls...!
+    SAY_NPC_HYAKISS_THE_LURKER         = -1880001;    // Hyakiss the Lurker skitters out from the shadows...!
+    SAY_NPC_SHADIKITH_THE_G_L_I_D_E_R  = -1880002;    // Shadikith the Glider flaps down from the ceiling...!
+};
 
 enum Actions
 {
