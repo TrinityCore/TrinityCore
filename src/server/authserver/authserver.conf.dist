@@ -36,7 +36,7 @@
 #                     Logs directory must exists, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "/home/server/wow/lk/logs"
 
 #
 #    MaxPingTime
@@ -127,7 +127,7 @@ LogTimestamp = 0
 #                     2 - (Detail)
 #                     3 - (Full/Debug)
 
-LogFileLevel = 0
+LogFileLevel = 1
 
 #
 #    LogColors
@@ -150,7 +150,7 @@ LogFileLevel = 0
 #        Example:     "13 11 9 5" - (Enabled)
 #        Default:     ""          - (Disabled)
 
-LogColors = ""
+LogColors = "13 11 9 5"
 
 #
 #    EnableLogDB
@@ -233,9 +233,9 @@ WrongPass.BanType = 0
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
 #                                                                           Unix/Linux)
-#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
+#        Default:     "127.0.0.1;3306;root;pass;auth"
 
-LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
+LoginDatabaseInfo = "127.0.0.1;3306;root;pass;auth"
 
 #
 #    LoginDatabase.WorkerThreads
