@@ -4951,7 +4951,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     hasDispellableAura = true;
                     break;
                 }
-            }            
+            }
 
     if (!hasDispellableAura)
         return SPELL_FAILED_NOTHING_TO_DISPEL;
