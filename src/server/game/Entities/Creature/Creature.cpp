@@ -763,7 +763,7 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
         return false;
 
     //! Need to be called after CreateFromProto
-    if (HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY))
+    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         z += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
 
     Relocate(x, y, z, ang);
