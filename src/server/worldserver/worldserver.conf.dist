@@ -60,7 +60,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "home/server/wow/lk/data"
 
 #
 #    LogsDir
@@ -69,7 +69,7 @@ DataDir = "."
 #                     Logs directory must exists, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "home/server/wow/lk/logs"
 
 #
 #    LoginDatabaseInfo
@@ -82,13 +82,13 @@ LogsDir = ""
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
 #                                                                           Unix/Linux)
-#        Default:     "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
-#                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
-#                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
+#        Default:     "127.0.0.1;3306;root;pass;auth"       - (LoginDatabaseInfo)
+#                     "127.0.0.1;3306;root;pass;world"      - (WorldDatabaseInfo)
+#                     "127.0.0.1;3306;root;pass;characters" - (CharacterDatabaseInfo)
 
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo     = "127.0.0.1;3306;root;pass;auth"
+WorldDatabaseInfo     = "127.0.0.1;3306;root;pass;world"
+CharacterDatabaseInfo = "127.0.0.1;3306;root;pass;characters"
 
 #
 #    LoginDatabase.WorkerThreads
