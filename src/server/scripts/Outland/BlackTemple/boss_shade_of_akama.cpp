@@ -121,7 +121,10 @@ public:
 
     struct mob_ashtongue_channelerAI : public ScriptedAI
     {
-        mob_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature) {ShadeGUID = 0;}
+        mob_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            ShadeGUID = 0;
+        }
 
         uint64 ShadeGUID;
 
@@ -147,7 +150,10 @@ public:
 
     struct mob_ashtongue_sorcererAI : public ScriptedAI
     {
-        mob_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature) {ShadeGUID = 0;}
+        mob_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
+        {
+            ShadeGUID = 0;
+        }
 
         uint64 ShadeGUID;
         uint32 CheckTimer;

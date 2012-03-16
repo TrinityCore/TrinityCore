@@ -445,6 +445,7 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
+
         void UpdateAI(const uint32 diff)
         {
             if (uiDespawnTimer <= diff)
@@ -455,7 +456,6 @@ public:
             } else uiDespawnTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_ingvar_the_plunderer()
