@@ -430,7 +430,10 @@ public:
             }
         }
 
-        void SetGlaiveGUID(uint64 guid){ GlaiveGUID = guid; }
+        void SetGlaiveGUID(uint64 guid)
+        {
+            GlaiveGUID = guid;
+        }
 
         void UpdateAI(const uint32 diff)
         {
