@@ -293,7 +293,7 @@ public:
 
     struct npc_unworthy_initiate_anchorAI : public PassiveAI
     {
-        npc_unworthy_initiate_anchorAI(Creature* c) : PassiveAI(c), prisonerGUID(0) {}
+        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID(0) {}
 
         uint64 prisonerGUID;
 
@@ -868,14 +868,14 @@ class npc_scarlet_miner_cart : public CreatureScript
 public:
     npc_scarlet_miner_cart() : CreatureScript("npc_scarlet_miner_cart") { }
 
-    CreatureAI* GetAI(Creature* _Creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_scarlet_miner_cartAI(_Creature);
+        return new npc_scarlet_miner_cartAI(creature);
     }
 
     struct npc_scarlet_miner_cartAI : public PassiveAI
     {
-        npc_scarlet_miner_cartAI(Creature* c) : PassiveAI(c), minerGUID(0)
+        npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature), minerGUID(0)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
@@ -924,9 +924,9 @@ class npc_scarlet_miner : public CreatureScript
 public:
     npc_scarlet_miner() : CreatureScript("npc_scarlet_miner") { }
 
-    CreatureAI* GetAI(Creature* _Creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_scarlet_minerAI(_Creature);
+        return new npc_scarlet_minerAI(creature);
     }
 
     struct npc_scarlet_minerAI : public npc_escortAI
