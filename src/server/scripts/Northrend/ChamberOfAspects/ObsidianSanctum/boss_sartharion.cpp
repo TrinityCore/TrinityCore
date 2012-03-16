@@ -926,9 +926,7 @@ struct dummy_dragonAI : public ScriptedAI
                 if (instance && instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
                     instance->SetData(TYPE_SHADRON_PREKILLED, 1);
                 if (Creature* pAcolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_SHADRON, 100.0f))
-                {
                     pAcolyte->Kill(pAcolyte);
-                }
                 break;
             case NPC_VESPERON:
                 iTextId = SAY_VESPERON_DEATH;
@@ -936,9 +934,7 @@ struct dummy_dragonAI : public ScriptedAI
                 if (instance && instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
                     instance->SetData(TYPE_VESPERON_PREKILLED, 1);
                 if (Creature* pAcolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_VESPERON, 100.0f))
-                {
                     pAcolyte->Kill(pAcolyte);
-                }
                 break;
         }
 

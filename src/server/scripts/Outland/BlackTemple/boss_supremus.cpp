@@ -65,7 +65,7 @@ public:
 
     struct molten_flameAI : public NullCreatureAI
     {
-        molten_flameAI(Creature* c) : NullCreatureAI(c) {}
+        molten_flameAI(Creature* creature) : NullCreatureAI(creature) {}
 
         void InitializeAI()
         {
@@ -165,8 +165,15 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summon) {summons.Summon(summon);}
-        void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
+        void JustSummoned(Creature* summon)
+        {
+            summons.Summon(summon);
+        }
+
+        void SummonedCreatureDespawn(Creature* summon)
+        {
+            summons.Despawn(summon);
+        }
 
         Unit* CalculateHatefulStrikeTarget()
         {

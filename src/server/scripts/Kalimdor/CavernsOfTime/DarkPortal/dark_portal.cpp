@@ -111,7 +111,7 @@ public:
                 instance->SetData(TYPE_MEDIVH, IN_PROGRESS);
                 DoCast(me, SPELL_CHANNEL, false);
                 Check_Timer = 5000;
-                     }
+            }
             else if (who->GetTypeId() == TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))
             {
                 if (instance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
@@ -170,7 +170,7 @@ public:
             {
                 if (SpellCorrupt_Timer <= diff)
                 {
-                        instance->SetData(TYPE_MEDIVH, SPECIAL);
+                    instance->SetData(TYPE_MEDIVH, SPECIAL);
 
                     if (me->HasAura(SPELL_CORRUPT_AEONUS))
                         SpellCorrupt_Timer = 1000;

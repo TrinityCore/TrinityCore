@@ -301,9 +301,9 @@ class boss_grand_warlock_nethekurse : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_grand_warlock_nethekurseAI (Creature);
+            return new boss_grand_warlock_nethekurseAI(creature);
         }
 };
 
@@ -383,9 +383,9 @@ class mob_fel_orc_convert : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_fel_orc_convertAI (Creature);
+            return new mob_fel_orc_convertAI(creature);
         }
 };
 
