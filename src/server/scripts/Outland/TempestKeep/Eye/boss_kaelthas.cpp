@@ -998,9 +998,9 @@ class boss_kaelthas : public CreatureScript
                 }
             }
         };
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_kaelthasAI(Creature);
+            return new boss_kaelthasAI(creature);
         }
 };
 
@@ -1096,9 +1096,9 @@ class boss_thaladred_the_darkener : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_thaladred_the_darkenerAI(Creature);
+            return new boss_thaladred_the_darkenerAI(creature);
         }
 };
 
@@ -1164,9 +1164,9 @@ class boss_lord_sanguinar : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_lord_sanguinarAI(Creature);
+            return new boss_lord_sanguinarAI(creature);
         }
 };
 //Grand Astromancer Capernian AI
@@ -1308,9 +1308,9 @@ class boss_grand_astromancer_capernian : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_grand_astromancer_capernianAI(Creature);
+            return new boss_grand_astromancer_capernianAI(creature);
         }
 };
 
@@ -1391,9 +1391,9 @@ class boss_master_engineer_telonicus : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_master_engineer_telonicusAI(Creature);
+            return new boss_master_engineer_telonicusAI(creature);
         }
 };
 
@@ -1455,9 +1455,9 @@ class mob_kael_flamestrike : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_kael_flamestrikeAI(Creature);
+            return new mob_kael_flamestrikeAI(creature);
         }
 };
 
@@ -1509,9 +1509,9 @@ class mob_phoenix_tk : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_phoenix_tkAI(Creature);
+            return new mob_phoenix_tkAI(creature);
         }
 };
 

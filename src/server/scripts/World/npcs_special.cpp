@@ -1842,7 +1842,7 @@ public:
 
     struct npc_mirror_imageAI : CasterAI
     {
-        npc_mirror_imageAI(Creature* c) : CasterAI(c) {}
+        npc_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
 
         void InitializeAI()
         {
@@ -1888,7 +1888,7 @@ public:
 
     struct npc_ebon_gargoyleAI : CasterAI
     {
-        npc_ebon_gargoyleAI(Creature* c) : CasterAI(c) {}
+        npc_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) {}
 
         uint32 despawnTimer;
 
@@ -1979,7 +1979,7 @@ public:
 
     struct npc_lightwellAI : public PassiveAI
     {
-        npc_lightwellAI(Creature* c) : PassiveAI(c) {}
+        npc_lightwellAI(Creature* creature) : PassiveAI(creature) {}
 
         void Reset()
         {

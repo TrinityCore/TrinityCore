@@ -219,9 +219,9 @@ class boss_omor_the_unscarred : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_omor_the_unscarredAI (Creature);
+            return new boss_omor_the_unscarredAI(creature);
         }
 };
 
