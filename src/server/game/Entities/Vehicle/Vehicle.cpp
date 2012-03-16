@@ -424,7 +424,7 @@ void Vehicle::RemovePassenger(Unit* unit)
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
     // only for flyable vehicles
-    if (unit->HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
+    if (unit->IsFlying())
         _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)

@@ -1393,60 +1393,63 @@ struct ScalingStatValuesEntry
     uint32  ssdMultiplier[4];                               // 2-5 Multiplier for ScalingStatDistribution
     uint32  armorMod[4];                                    // 6-9 Armor for level
     uint32  dpsMod[6];                                      // 10-15 DPS mod for level
-    uint32  spellBonus;                                     // 16 spell power for level
+    uint32  spellPower;                                     // 16 spell power for level
     uint32  ssdMultiplier2;                                 // 17 there's data from 3.1 dbc ssdMultiplier[3]
     uint32  ssdMultiplier3;                                 // 18 3.3
-    //uint32 unk2;                                          // 19 unk, probably also Armor for level (flag 0x80000?)
-    uint32  armorMod2[4];                                   // 20-23 Armor for level
+    uint32  armorMod2[5];                                   // 20-23 Armor for level
 
-    uint32  getssdMultiplier(uint32 mask) const
+    uint32 getssdMultiplier(uint32 mask) const
     {
         if (mask & 0x4001F)
         {
-            if (mask & 0x00000001) return ssdMultiplier[0];
-            if (mask & 0x00000002) return ssdMultiplier[1];
-            if (mask & 0x00000004) return ssdMultiplier[2];
+            if (mask & 0x00000001) return ssdMultiplier[0]; // Shoulder
+            if (mask & 0x00000002) return ssdMultiplier[1]; // Trinket
+            if (mask & 0x00000004) return ssdMultiplier[2]; // Weapon1H
             if (mask & 0x00000008) return ssdMultiplier2;
-            if (mask & 0x00000010) return ssdMultiplier[3];
+            if (mask & 0x00000010) return ssdMultiplier[3]; // Ranged
             if (mask & 0x00040000) return ssdMultiplier3;
         }
         return 0;
     }
 
-    uint32  getArmorMod(uint32 mask) const
+    uint32 getArmorMod(uint32 mask) const
     {
         if (mask & 0x00F001E0)
         {
-            if (mask & 0x00000020) return armorMod[0];
-            if (mask & 0x00000040) return armorMod[1];
-            if (mask & 0x00000080) return armorMod[2];
-            if (mask & 0x00000100) return armorMod[3];
+            if (mask & 0x00000020) return armorMod[0];      // Cloth shoulder
+            if (mask & 0x00000040) return armorMod[1];      // Leather shoulder
+            if (mask & 0x00000080) return armorMod[2];      // Mail shoulder
+            if (mask & 0x00000100) return armorMod[3];      // Plate shoulder
 
-            if (mask & 0x00100000) return armorMod2[0];      // cloth
-            if (mask & 0x00200000) return armorMod2[1];      // leather
-            if (mask & 0x00400000) return armorMod2[2];      // mail
-            if (mask & 0x00800000) return armorMod2[3];      // plate
+            if (mask & 0x00080000) return armorMod2[0];      // cloak
+            if (mask & 0x00100000) return armorMod2[1];      // cloth
+            if (mask & 0x00200000) return armorMod2[2];      // leather
+            if (mask & 0x00400000) return armorMod2[3];      // mail
+            if (mask & 0x00800000) return armorMod2[4];      // plate
         }
         return 0;
     }
+
     uint32 getDPSMod(uint32 mask) const
     {
-        if (mask&0x7E00)
+        if (mask & 0x7E00)
         {
-            if (mask & 0x00000200) return dpsMod[0];
-            if (mask & 0x00000400) return dpsMod[1];
-            if (mask & 0x00000800) return dpsMod[2];
-            if (mask & 0x00001000) return dpsMod[3];
-            if (mask & 0x00002000) return dpsMod[4];
-            if (mask & 0x00004000) return dpsMod[5];         // not used?
+            if (mask & 0x00000200) return dpsMod[0];        // Weapon 1h
+            if (mask & 0x00000400) return dpsMod[1];        // Weapon 2h
+            if (mask & 0x00000800) return dpsMod[2];        // Caster dps 1h
+            if (mask & 0x00001000) return dpsMod[3];        // Caster dps 2h
+            if (mask & 0x00002000) return dpsMod[4];        // Ranged
+            if (mask & 0x00004000) return dpsMod[5];        // Wand
         }
         return 0;
     }
+
     uint32 getSpellBonus(uint32 mask) const
     {
-        if (mask & 0x00008000) return spellBonus;
+        if (mask & 0x00008000) return spellPower;
         return 0;
     }
+
     uint32 getFeralBonus(uint32 mask) const                 // removed in 3.2.x?
     {
         if (mask & 0x00010000) return 0;                    // not used?
@@ -1982,7 +1985,7 @@ struct WorldMapAreaEntry
     float   x2;                                             // 7
     int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
     // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
-    // uint32  someMapID;                                   // 10
+    // uint32  parentMapID;                                 // 10
 };
 
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4
