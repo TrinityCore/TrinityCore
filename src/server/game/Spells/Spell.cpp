@@ -4956,29 +4956,40 @@ SpellCastResult Spell::CheckCast(bool strict)
         return castResult;
 
     bool hasDispellableAura = false;
+    bool hasOnlyDispelEffect = false;
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
         if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DISPEL)
         {
-            if (m_spellInfo->Effects[i].IsTargetingArea())
+            hasOnlyDispelEffect = true;
+        }
+        else if (m_spellInfo->Effects[i].Effect) // does this spell have other effects?
+        {
+            hasOnlyDispelEffect = false;
+            break;
+        }
+    }
+
+    if (hasOnlyDispelEffect) {
+        if (m_spellInfo->Effects[i].IsTargetingArea())
+        {
+            hasDispellableAura = true;
+            break;
+        }
+        if (Unit* target = m_targets.GetUnitTarget())
+        {
+            DispelChargesList dispelList;
+            uint32 dispelMask = SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[i].MiscValue));
+            target->GetDispellableAuraList(m_caster, dispelMask, dispelList);
+            if (!dispelList.empty())
             {
                 hasDispellableAura = true;
                 break;
             }
-            if (Unit* target = m_targets.GetUnitTarget())
-            {
-                DispelChargesList dispelList;
-                uint32 dispelMask = SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[i].MiscValue));
-                target->GetDispellableAuraList(m_caster, dispelMask, dispelList);
-                if (!dispelList.empty())
-                {
-                    hasDispellableAura = true;
-                    break;
-                }
-            }
         }
 
-    if (!hasDispellableAura && m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
-        return SPELL_FAILED_NOTHING_TO_DISPEL;
+        if (!hasDispellableAura && m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
+            return SPELL_FAILED_NOTHING_TO_DISPEL;
+    }
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
