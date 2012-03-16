@@ -1631,9 +1631,18 @@ class Unit : public WorldObject
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMonsterMoveTransport(Unit* vehicleOwner);
         void SendMovementFlagUpdate();
+
+        /*! These methods send the same packet to the client in apply and unapply case.
+            The client-side interpretation of this packet depends on the presence of relevant movementflags
+            which are sent with movementinfo. Furthermore, these packets are broadcast to nearby players as well
+            as the current unit. 
+        */
         void SendMovementHover();
         void SendMovementFeatherFall();
         void SendMovementWaterWalking();
+        void SendMovementGravityChange();
+        void SendMovementCanFlyChange();
+
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
         virtual bool SetWalk(bool enable);
