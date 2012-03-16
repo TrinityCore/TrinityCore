@@ -195,9 +195,9 @@ class boss_high_botanist_freywinn : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_high_botanist_freywinnAI (Creature);
+            return new boss_high_botanist_freywinnAI(creature);
         }
 };
 

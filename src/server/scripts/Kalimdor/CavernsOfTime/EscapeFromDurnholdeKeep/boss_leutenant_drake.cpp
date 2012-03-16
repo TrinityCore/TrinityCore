@@ -36,9 +36,9 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
-        if (InstanceScript* instance = pGO->GetInstanceScript())
+        if (InstanceScript* instance = go->GetInstanceScript())
         {
             if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
                 return false;

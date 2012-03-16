@@ -316,9 +316,9 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_warchief_kargath_bladefistAI (Creature);
+            return new boss_warchief_kargath_bladefistAI(creature);
         }
 };
 

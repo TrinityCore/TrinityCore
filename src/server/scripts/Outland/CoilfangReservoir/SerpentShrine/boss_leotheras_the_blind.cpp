@@ -112,7 +112,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (!victimGUID) return;
+            if (!victimGUID)
+                return;
         }
 
         void UpdateAI(const uint32 diff)

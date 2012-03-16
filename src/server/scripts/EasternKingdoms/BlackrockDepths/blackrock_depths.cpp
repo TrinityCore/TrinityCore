@@ -1089,7 +1089,7 @@ public:
 
     struct npc_tobias_seecherAI : public npc_escortAI
     {
-        npc_tobias_seecherAI(Creature* c) :npc_escortAI(c) {}
+        npc_tobias_seecherAI(Creature* creature) : npc_escortAI(creature) {}
 
         void EnterCombat(Unit* who) {}
         void Reset() {}

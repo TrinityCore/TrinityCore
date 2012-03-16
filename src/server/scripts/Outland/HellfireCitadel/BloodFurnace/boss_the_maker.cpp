@@ -153,9 +153,9 @@ class boss_the_maker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_the_makerAI (Creature);
+            return new boss_the_makerAI(creature);
         }
 };
 
