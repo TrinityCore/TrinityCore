@@ -597,16 +597,16 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* player, GameObject* pGO)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        InstanceScript* instance = pGO->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
         if (!instance)
             return true;
 
         if (instance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS)
             return true;
-        Creature* Magtheridon =Unit::GetCreature(*pGO, instance->GetData64(DATA_MAGTHERIDON));
+        Creature* Magtheridon =Unit::GetCreature(*go, instance->GetData64(DATA_MAGTHERIDON));
         if (!Magtheridon || !Magtheridon->isAlive())
             return true;
 
@@ -617,7 +617,7 @@ public:
         player->InterruptNonMeleeSpells(false);
         player->CastSpell(player, SPELL_SHADOW_GRASP, true);
         player->CastSpell(player, SPELL_SHADOW_GRASP_VISUAL, false);
-        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(pGO->GetGUID(), player->GetGUID());
+        CAST_AI(boss_magtheridon::boss_magtheridonAI, Magtheridon->AI())->SetClicker(go->GetGUID(), player->GetGUID());
         return true;
     }
 };

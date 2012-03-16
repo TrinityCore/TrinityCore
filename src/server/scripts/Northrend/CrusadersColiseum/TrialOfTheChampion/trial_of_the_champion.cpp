@@ -125,8 +125,8 @@ public:
                     break;
                 case DATA_IN_POSITION: //movement done.
                     me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
-                        instance->HandleGameObject(pGO->GetGUID(), false);
+                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        instance->HandleGameObject(go->GetGUID(), false);
                     NextStep(10000, false, 3);
                     break;
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
