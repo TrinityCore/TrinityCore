@@ -221,7 +221,8 @@ class boss_janalai : public CreatureScript
                     dy = float(irand(-area_dy/2, area_dy/2));
 
                     Creature* bomb = DoSpawnCreature(MOB_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
-                    if (bomb) FireBombGUIDs[i] = bomb->GetGUID();
+                    if (bomb)
+                        FireBombGUIDs[i] = bomb->GetGUID();
                 }
                 BombCount = 0;
             }
