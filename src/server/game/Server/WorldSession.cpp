@@ -809,9 +809,10 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
     //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
     #define VIOLATE_AND_RETURN \
+    { \
         mi->Violated = true; \
         return; \
-
+    } \
     /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid,
         and when used in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD
         it will freeze clients that receive this player's movement info.
