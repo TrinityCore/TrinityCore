@@ -417,10 +417,10 @@ class go_second_trial : public GameObjectScript
 public:
     go_second_trial() : GameObjectScript("go_second_trial") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         // find spawn :: master_kelerun_bloodmourn
-        if (Creature* creature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
+        if (Creature* creature = go->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
            CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, creature->AI())->StartEvent();
 
         return true;

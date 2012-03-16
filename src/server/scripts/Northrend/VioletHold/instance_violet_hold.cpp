@@ -795,7 +795,7 @@ public:
             }
         }
 
-        void ProcessEvent(WorldObject* /*pGO*/, uint32 uiEventId)
+        void ProcessEvent(WorldObject* /*go*/, uint32 uiEventId)
         {
             switch (uiEventId)
             {

@@ -275,8 +275,11 @@ class boss_lich_king_toc : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (!m_instance) return;
-                if (m_instance->GetData(TYPE_EVENT_NPC) != NPC_LICH_KING_1) return;
+                if (!m_instance)
+                    return;
+
+                if (m_instance->GetData(TYPE_EVENT_NPC) != NPC_LICH_KING_1)
+                    return;
 
                 m_uiUpdateTimer = m_instance->GetData(TYPE_EVENT_TIMER);
                 if (m_uiUpdateTimer <= uiDiff)
@@ -318,8 +321,8 @@ class boss_lich_king_toc : public CreatureScript
                             m_instance->SetData(TYPE_EVENT, 5080);
                             break;
                         case 5080:
-                            if (GameObject* pGoFloor = m_instance->instance->GetGameObject(m_instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
-                                pGoFloor->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+                            if (GameObject* go = m_instance->instance->GetGameObject(m_instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                                go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                             me->CastSpell(me, 69016, false);
                             if (m_instance)
                             {
