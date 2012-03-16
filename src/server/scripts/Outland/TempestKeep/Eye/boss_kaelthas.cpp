@@ -445,7 +445,10 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
+            void SummonedCreatureDespawn(Creature* summon)
+            {
+                summons.Despawn(summon);
+            }
 
             void JustDied(Unit* /*Killer*/)
             {

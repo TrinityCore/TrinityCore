@@ -647,7 +647,6 @@ public:
         if (player->isAlive() && player->GetQuestStatus(QUEST_INFO_GATHERING) == QUEST_STATUS_INCOMPLETE)
         {
             Creature* Dawnforge = player->FindNearestCreature(CreatureEntry[1], 30.0f);
-
             if (!Dawnforge)
                 return false;
 
