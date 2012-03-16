@@ -849,6 +849,17 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     //! Cannot hover without SPELL_AURA_HOVER
     if (mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER))
         mi->flags &= ~MOVEMENTFLAG_HOVER;
+
+    /*! Cannot fly if no fly auras present. Exception is being a GM.
+        Note that we check for account level instead of Player::IsGameMaster() because in some
+        situations it may be feasable to use .gm fly on as a GM without having .gm on,
+        e.g. aerial combat.
+    */
+    
+    if (mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
+        !GetPlayer()->HasAuraType(SPELL_AURA_FLY) && 
+        !GetPlayer()->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+        mi->flags &= ~(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 }
 
 void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
