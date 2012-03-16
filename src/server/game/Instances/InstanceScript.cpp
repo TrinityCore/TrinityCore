@@ -407,10 +407,10 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
         case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
             data << uint8(param1);
-            data << uint8(param2);
             break;
         case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
             data << uint8(param1);
+            data << uint8(param2);
             break;
         case ENCOUNTER_FRAME_UNK7:
         default:
