@@ -278,6 +278,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         return;
     }
 
+    //! If some anti-cheat checks in WorldSession::ReadMovementInfo failed, do not process
+    //! the change of movement server-sided.
+    if (movementInfo.Violated)
+    {
+        recv_data.rfinish();
+        return;
+    }
+
     /* handle special cases */
     if (movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
     {
@@ -485,8 +493,15 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
     recv_data.readPackGUID(old_mover_guid);
 
     MovementInfo mi;
-    mi.guid = old_mover_guid;
     ReadMovementInfo(recv_data, &mi);
+
+    if (mi.Violated)
+    {
+        recv_data.rfinish();
+        return;
+    }
+
+    mi.guid = old_mover_guid;
 
     _player->m_movementInfo = mi;
 }
@@ -513,6 +528,13 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
 
     MovementInfo movementInfo;
     ReadMovementInfo(recv_data, &movementInfo);
+    
+    if (movementInfo.Violated)
+    {
+        recv_data.rfinish();
+        return;
+    }
+
     _player->m_movementInfo = movementInfo;
 
     WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
@@ -571,3 +593,4 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recv_data)
     _player->SummonIfPossible(agree);
 }
 
+#undef IF_VIOLATED_RETURN

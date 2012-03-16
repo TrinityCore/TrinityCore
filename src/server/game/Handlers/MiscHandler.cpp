@@ -1621,6 +1621,12 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket & recv_data)
 
     recv_data.read_skip<float>();                           // unk2
 
+    if (movementInfo.Violated)
+    {
+        recv_data.rfinish();
+        return;
+    }
+
     _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
