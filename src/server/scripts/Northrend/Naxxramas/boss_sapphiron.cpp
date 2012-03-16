@@ -81,7 +81,7 @@ public:
 
     struct boss_sapphironAI : public BossAI
     {
-        boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON)
+        boss_sapphironAI(Creature* creature) : BossAI(creature, BOSS_SAPPHIRON)
             , phase(PHASE_NULL)
         {
             map = me->GetMap();

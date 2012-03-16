@@ -93,10 +93,10 @@ class go_gong : public GameObjectScript
 public:
     go_gong() : GameObjectScript("go_gong") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         //basic support, not blizzlike data is missing...
-        InstanceScript* instance = pGO->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
         if (instance)
         {

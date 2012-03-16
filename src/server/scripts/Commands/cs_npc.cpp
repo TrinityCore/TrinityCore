@@ -108,6 +108,7 @@ public:
     {
         if (!*args)
             return false;
+
         char* charID = handler->extractKeyFromLink((char*)args, "Hcreature_entry");
         if (!charID)
             return false;
@@ -135,7 +136,7 @@ public:
             return true;
         }
 
-        Creature* creature = new Creature;
+        Creature* creature = new Creature();
         if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
         {
             delete creature;
@@ -1036,7 +1037,7 @@ public:
         }
 
         if (/*creature->GetMotionMaster()->empty() ||*/
-            creature->GetMotionMaster()->GetCurrentMovementGeneratorType () != FOLLOW_MOTION_TYPE)
+            creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
         {
             handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName());
             handler->SetSentErrorMessage(true);
@@ -1131,17 +1132,17 @@ public:
     //npc tame handling
     static bool HandleNpcTameCommand(ChatHandler* handler, const char* /*args*/)
     {
-        Creature* creatureTarget = handler->getSelectedCreature ();
-        if (!creatureTarget || creatureTarget->isPet ())
+        Creature* creatureTarget = handler->getSelectedCreature();
+        if (!creatureTarget || creatureTarget->isPet())
         {
             handler->PSendSysMessage (LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage (true);
             return false;
         }
 
-        Player* player = handler->GetSession()->GetPlayer ();
+        Player* player = handler->GetSession()->GetPlayer();
 
-        if (player->GetPetGUID ())
+        if (player->GetPetGUID())
         {
             handler->SendSysMessage (LANG_YOU_ALREADY_HAVE_PET);
             handler->SetSentErrorMessage (true);
@@ -1168,8 +1169,8 @@ public:
 
         // place pet before player
         float x, y, z;
-        player->GetClosePoint (x, y, z, creatureTarget->GetObjectSize (), CONTACT_DISTANCE);
-        pet->Relocate (x, y, z, M_PI-player->GetOrientation ());
+        player->GetClosePoint (x, y, z, creatureTarget->GetObjectSize(), CONTACT_DISTANCE);
+        pet->Relocate(x, y, z, M_PI-player->GetOrientation());
 
         // set pet to defensive mode by default (some classes can't control controlled pets in fact).
         pet->SetReactState(REACT_DEFENSIVE);

@@ -18,7 +18,7 @@
 
 #include "ScriptPCH.h"
 
-enum Yells
+enum Texts
 {
     SAY_AGGRO       = 0,
     SAY_EARTHQUAKE  = 1,

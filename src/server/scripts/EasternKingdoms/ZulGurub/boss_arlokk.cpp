@@ -61,10 +61,10 @@ class boss_arlokk : public CreatureScript
         {
             boss_arlokkAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* m_instance;
+            InstanceScript* instance;
 
             uint32 m_uiShadowWordPain_Timer;
             uint32 m_uiGouge_Timer;
@@ -110,8 +110,8 @@ class boss_arlokk : public CreatureScript
 
             void JustReachedHome()
             {
-                if (m_instance)
-                    m_instance->SetData(DATA_ARLOKK, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_ARLOKK, NOT_STARTED);
 
                 //we should be summoned, so despawn
                 me->DespawnOrUnsummon();
@@ -124,8 +124,8 @@ class boss_arlokk : public CreatureScript
                 me->SetDisplayId(MODEL_ID_NORMAL);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                if (m_instance)
-                    m_instance->SetData(DATA_ARLOKK, DONE);
+                if (instance)
+                    instance->SetData(DATA_ARLOKK, DONE);
             }
 
             void DoSummonPhanters()
@@ -271,12 +271,12 @@ class go_gong_of_bethekk : public GameObjectScript
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
-            if (InstanceScript* m_instance = go->GetInstanceScript())
+            if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if (m_instance->GetData(DATA_ARLOKK) == DONE || m_instance->GetData(DATA_ARLOKK) == IN_PROGRESS)
+                if (instance->GetData(DATA_ARLOKK) == DONE || instance->GetData(DATA_ARLOKK) == IN_PROGRESS)
                     return true;
 
-                m_instance->SetData(DATA_ARLOKK, IN_PROGRESS);
+                instance->SetData(DATA_ARLOKK, IN_PROGRESS);
                 return true;
             }
 

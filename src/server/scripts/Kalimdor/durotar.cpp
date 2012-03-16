@@ -55,7 +55,7 @@ public:
         uint32 m_uiRebuffTimer;
         bool work;
 
-        void Reset ()
+        void Reset()
         {
             uiPlayerGUID = 0;
             m_uiRebuffTimer = 0;

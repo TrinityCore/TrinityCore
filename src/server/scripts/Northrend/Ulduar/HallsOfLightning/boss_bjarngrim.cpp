@@ -93,13 +93,13 @@ public:
     {
         boss_bjarngrimAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             m_uiStance = STANCE_DEFENSIVE;
             memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
             canBuff = true;
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         bool m_bIsChangingStance;
         bool canBuff;
@@ -167,8 +167,8 @@ public:
 
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
 
-            if (m_instance)
-                m_instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
         }
 
         void EnterEvadeMode()
@@ -188,8 +188,8 @@ public:
             //must get both lieutenants here and make sure they are with him
             me->CallForHelp(30.0f);
 
-            if (m_instance)
-                m_instance->SetData(TYPE_BJARNGRIM, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_BJARNGRIM, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -201,8 +201,8 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (m_instance)
-                m_instance->SetData(TYPE_BJARNGRIM, DONE);
+            if (instance)
+                instance->SetData(TYPE_BJARNGRIM, DONE);
         }
 
         //TODO: remove when removal is done by the core
@@ -385,10 +385,10 @@ public:
     {
         mob_stormforged_lieutenantAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         uint32 m_uiArcWeld_Timer;
         uint32 m_uiRenewSteel_Timer;
@@ -401,9 +401,9 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (m_instance)
+            if (instance)
             {
-                if (Creature* pBjarngrim = m_instance->instance->GetCreature(m_instance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = instance->instance->GetCreature(instance->GetData64(DATA_BJARNGRIM)))
                 {
                     if (pBjarngrim->isAlive() && !pBjarngrim->getVictim())
                         pBjarngrim->AI()->AttackStart(who);
@@ -427,9 +427,9 @@ public:
 
             if (m_uiRenewSteel_Timer <= uiDiff)
             {
-                if (m_instance)
+                if (instance)
                 {
-                    if (Creature* pBjarngrim = m_instance->instance->GetCreature(m_instance->GetData64(DATA_BJARNGRIM)))
+                    if (Creature* pBjarngrim = instance->instance->GetCreature(instance->GetData64(DATA_BJARNGRIM)))
                     {
                         if (pBjarngrim->isAlive())
                             DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
