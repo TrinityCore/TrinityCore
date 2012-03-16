@@ -663,7 +663,8 @@ public:
                 me->CombatStart(Shade);
                 Shade->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                 Shade->SetTarget(me->GetGUID());
-                if (player) Shade->AddThreat(player, 1.0f);
+                if (player)
+                    Shade->AddThreat(player, 1.0f);
                 DoZoneInCombat(Shade);
                 EventBegun = true;
             }
@@ -676,17 +677,19 @@ public:
 
             switch (id)
             {
-            case 0: ++WayPointId; break;
+                case 0:
+                    ++WayPointId;
+                    break;
 
-            case 1:
-                if (Creature* Shade = Unit::GetCreature(*me, ShadeGUID))
-                {
-                    me->SetTarget(ShadeGUID);
-                    DoCast(Shade, SPELL_AKAMA_SOUL_RETRIEVE);
-                    EndingTalkCount = 0;
-                    SoulRetrieveTimer = 16000;
-                }
-                break;
+                case 1:
+                    if (Creature* Shade = Unit::GetCreature(*me, ShadeGUID))
+                    {
+                        me->SetTarget(ShadeGUID);
+                        DoCast(Shade, SPELL_AKAMA_SOUL_RETRIEVE);
+                        EndingTalkCount = 0;
+                        SoulRetrieveTimer = 16000;
+                    }
+                    break;
             }
         }
 
@@ -879,7 +882,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_shade_of_akama()

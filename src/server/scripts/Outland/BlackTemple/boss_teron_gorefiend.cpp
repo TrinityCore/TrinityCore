@@ -112,9 +112,11 @@ public:
             return;
         }
 
-        void SetTeronGUID(uint64 guid){ TeronGUID = guid; }
+        void SetTeronGUID(uint64 guid)
+        {
+            TeronGUID = guid;
+        }
     };
-
 };
 
 class mob_shadowy_construct : public CreatureScript

@@ -544,11 +544,11 @@ public:
         if (creature->isTrainer())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
-        uint32 eCreature = creature->GetEntry();
+        uint32 creatureId = creature->GetEntry();
         //WEAPONSMITH & ARMORSMITH
         if (player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 225)
         {
-            switch (eCreature)
+            switch (creatureId)
             {
                 case 11145:                                     //Myolor Sunderfury
                 case 11176:                                     //Krathok Moltenfist
@@ -572,7 +572,7 @@ public:
         //WEAPONSMITH SPEC
         if (player->HasSpell(S_WEAPON) && player->getLevel() > 49 && player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 250)
         {
-            switch (eCreature)
+            switch (creatureId)
             {
                 case 11191:                                     //Lilith the Lithe
                     if (!HasWeaponSub(player))
