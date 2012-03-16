@@ -320,7 +320,8 @@ public:
 
         void AttackStart(Unit* who)
         {
-            if (!who || IsBanished) return;
+            if (!who || IsBanished)
+                return;
 
             if (who->isTargetableForAttack() && who != me)
                 DoStartMovement(who);

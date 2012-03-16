@@ -199,7 +199,8 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if (uiType != POINT_MOTION_TYPE) return;
+        if (uiType != POINT_MOTION_TYPE)
+            return;
 
         switch (uiId)
         {
@@ -585,7 +586,8 @@ struct mob_unleashed_ballAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if (uiType != POINT_MOTION_TYPE) return;
+        if (uiType != POINT_MOTION_TYPE)
+            return;
 
         switch (uiId)
         {

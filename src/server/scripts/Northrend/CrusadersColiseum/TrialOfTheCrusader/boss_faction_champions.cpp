@@ -408,7 +408,8 @@ struct boss_faction_championsAI : public ScriptedAI
 
     void AttackStart(Unit* who)
     {
-        if (!who) return;
+        if (!who)
+            return;
 
         if (me->Attack(who, true))
         {
@@ -494,7 +495,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiNatureGraspTimer <= uiDiff)
             {
@@ -588,7 +590,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiHeroismOrBloodlustTimer <= uiDiff)
             {
@@ -687,7 +690,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiBubbleTimer <= uiDiff)
             {
@@ -786,7 +790,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiPsychicScreamTimer <= uiDiff)
             {
@@ -879,7 +884,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiPsychicScreamTimer <= uiDiff)
             {
@@ -990,7 +996,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiFearTimer <= uiDiff)
             {
@@ -1093,7 +1100,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiCounterspellTimer <= uiDiff)
             {
@@ -1204,7 +1212,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiDisengageTimer <= uiDiff)
             {
@@ -1312,7 +1321,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiBarkskinTimer <= uiDiff)
             {
@@ -1424,7 +1434,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiBladestormTimer <= uiDiff)
             {
@@ -1534,7 +1545,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiIceboundFortitudeTimer <= uiDiff)
             {
@@ -1636,7 +1648,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiFanOfKnivesTimer <= uiDiff)
             {
@@ -1773,7 +1786,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiHeroismOrBloodlustTimer <= uiDiff)
             {
@@ -1873,7 +1887,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiRepeteanceTimer <= uiDiff)
             {
@@ -1951,7 +1966,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiDevourMagicTimer <= uiDiff)
             {
@@ -2000,7 +2016,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiClawTimer <= uiDiff)
             {
@@ -2011,10 +2028,7 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
-
-/*========================================================*/
 
 void AddSC_boss_faction_champions()
 {

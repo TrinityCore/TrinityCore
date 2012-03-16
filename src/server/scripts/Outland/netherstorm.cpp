@@ -394,7 +394,7 @@ public:
 
     struct npc_commander_dawnforgeAI : public ScriptedAI
     {
-        npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature) { Reset (); }
+        npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
 
         uint64 PlayerGUID;
         uint64 ardonisGUID;

@@ -148,9 +148,8 @@ public:
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !player->HasSpell(26086))
-        {
             player->CastSpell(player, 26095, false);
-        }
+
         return true;
     }
 };
@@ -167,9 +166,8 @@ public:
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->HasSkill(SKILL_ENGINEERING) && player->GetBaseSkillValue(SKILL_ENGINEERING) >= 300 && !player->HasSpell(22704))
-        {
             player->CastSpell(player, 22864, false);
-        }
+
         return true;
     }
 };
@@ -232,9 +230,8 @@ public:
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->HasSkill(SKILL_ALCHEMY) && player->GetSkillValue(SKILL_ALCHEMY) >= 300 && !player->HasSpell(24266))
-        {
             player->CastSpell(player, 24267, false);
-        }
+
         return true;
     }
 };
@@ -273,7 +270,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
-         player->CastSpell(player, 33382, true);
+            player->CastSpell(player, 33382, true);
 
         return true;
     }
@@ -492,6 +489,7 @@ enum eDalaranCrystal
 };
 
 #define GO_TELE_TO_DALARAN_CRYSTAL_FAILED   "This teleport crystal cannot be used until the teleport crystal in Dalaran has been used at least once."
+
 class go_tele_to_dalaran_crystal : public GameObjectScript
 {
 public:
@@ -500,11 +498,9 @@ public:
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
-        {
             return false;
-        }
-        else
-            player->GetSession()->SendNotification(GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
+
+        player->GetSession()->SendNotification(GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
 
         return true;
     }
@@ -577,7 +573,7 @@ public:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                 player->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, go->GetGUID());
                 break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
+            case GOSSIP_ACTION_INFO_DEF + 2:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 player->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_TEXT, go->GetGUID());

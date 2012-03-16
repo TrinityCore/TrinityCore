@@ -388,7 +388,8 @@ class npc_fizzlebang_toc : public CreatureScript
 
             void MovementInform(uint32 uiType, uint32 uiId)
             {
-                if (uiType != POINT_MOTION_TYPE) return;
+                if (uiType != POINT_MOTION_TYPE)
+                    return;
 
                 switch (uiId)
                 {
@@ -411,9 +412,11 @@ class npc_fizzlebang_toc : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (!instance) return;
+                if (!instance)
+                    return;
 
-                if (instance->GetData(TYPE_EVENT_NPC) != NPC_FIZZLEBANG) return;
+                if (instance->GetData(TYPE_EVENT_NPC) != NPC_FIZZLEBANG)
+                    return;
 
                 m_uiUpdateTimer = instance->GetData(TYPE_EVENT_TIMER);
                 if (m_uiUpdateTimer <= uiDiff)
@@ -537,8 +540,11 @@ class npc_tirion_toc : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (!instance) return;
-                if (instance->GetData(TYPE_EVENT_NPC) != NPC_TIRION) return;
+                if (!instance)
+                    return;
+
+                if (instance->GetData(TYPE_EVENT_NPC) != NPC_TIRION)
+                    return;
 
                 m_uiUpdateTimer = instance->GetData(TYPE_EVENT_TIMER);
                 if (m_uiUpdateTimer <= uiDiff)
@@ -833,8 +839,11 @@ class npc_garrosh_toc : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (!instance) return;
-                if (instance->GetData(TYPE_EVENT_NPC) != NPC_GARROSH) return;
+                if (!instance)
+                    return;
+
+                if (instance->GetData(TYPE_EVENT_NPC) != NPC_GARROSH)
+                    return;
 
                 m_uiUpdateTimer = instance->GetData(TYPE_EVENT_TIMER);
                 if (m_uiUpdateTimer <= uiDiff)
@@ -911,8 +920,11 @@ class npc_varian_toc : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (!instance) return;
-                if (instance->GetData(TYPE_EVENT_NPC) != NPC_VARIAN) return;
+                if (!instance)
+                    return;
+
+                if (instance->GetData(TYPE_EVENT_NPC) != NPC_VARIAN)
+                    return;
 
                 m_uiUpdateTimer = instance->GetData(TYPE_EVENT_TIMER);
                 if (m_uiUpdateTimer <= uiDiff)

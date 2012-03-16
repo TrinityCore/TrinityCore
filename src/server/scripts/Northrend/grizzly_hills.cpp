@@ -477,7 +477,7 @@ public:
 
         uint32 DespawnTimer;
 
-        void Reset ()
+        void Reset()
         {
             DespawnTimer = 5000;
             uiPlayerGUID = 0;
