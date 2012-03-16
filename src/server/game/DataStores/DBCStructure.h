@@ -1396,7 +1396,7 @@ struct ScalingStatValuesEntry
     uint32  spellPower;                                     // 16 spell power for level
     uint32  ssdMultiplier2;                                 // 17 there's data from 3.1 dbc ssdMultiplier[3]
     uint32  ssdMultiplier3;                                 // 18 3.3
-    uint32  armorMod2[5];                                   // 20-23 Armor for level
+    uint32  armorMod2[5];                                   // 19-23 Armor for level
 
     uint32 getssdMultiplier(uint32 mask) const
     {
