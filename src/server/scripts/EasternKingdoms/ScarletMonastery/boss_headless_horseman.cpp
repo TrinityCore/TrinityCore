@@ -319,7 +319,8 @@ public:
                 if (wait <= diff)
                 {
                     wait = 1000;
-                    if (!me->getVictim()) return;
+                    if (!me->getVictim())
+                        return;
                     me->GetMotionMaster()->Clear(false);
                     me->GetMotionMaster()->MoveFleeing(me->getVictim());
                 }
@@ -803,11 +804,15 @@ public:
 
         void Despawn()
         {
-            if (!debuffGUID) return;
+            if (!debuffGUID)
+                return;
+
             Unit* debuff = Unit::GetUnit((*me), debuffGUID);
             if (debuff)
+            {
                 debuff->SetVisible(false);
                 debuffGUID = 0;
+            }
         }
 
         void JustDied(Unit* /*killer*/) { if (!sprouted) Despawn(); }

@@ -68,7 +68,6 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
         }
 
         uint32 SwarmTimer;
@@ -76,7 +75,6 @@ public:
         uint32 AuraTimer;
         uint32 InfernoTimer;
         bool go;
-        uint32 pos;
 
         void Reset()
         {
@@ -119,7 +117,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 7 && instance)
             {
                 Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
