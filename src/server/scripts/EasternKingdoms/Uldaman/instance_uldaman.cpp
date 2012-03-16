@@ -184,8 +184,8 @@ class instance_uldaman : public InstanceMapScript
                     return;        // only want the first one we find
                 }
                 // if we get this far than all four are dead so open the door
-                SetData (DATA_ALTAR_DOORS, DONE);
-                SetDoor (uiArchaedasTempleDoor, true); //open next the door too
+                SetData(DATA_ALTAR_DOORS, DONE);
+                SetDoor(uiArchaedasTempleDoor, true); //open next the door too
             }
 
             void ActivateWallMinions()
@@ -320,7 +320,7 @@ class instance_uldaman : public InstanceMapScript
                     uiIronayaSealDoorTimer -= diff;
             }
 
-            void SetData (uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data)
             {
                 switch (type)
                 {
@@ -386,7 +386,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            void SetData64 (uint32 type, uint64 data)
+            void SetData64(uint32 type, uint64 data)
             {
                 // Archaedas
                 if (type == 0)
@@ -425,7 +425,8 @@ class instance_uldaman : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature)
             {
-                switch (creature->GetEntry()) {
+                switch (creature->GetEntry())
+                {
                     case 4857:    // Stone Keeper
                         SetFrozenState (creature);
                         vStoneKeeper.push_back(creature->GetGUID());
@@ -458,10 +459,10 @@ class instance_uldaman : public InstanceMapScript
                         uiArchaedasGUID = creature->GetGUID();
                         break;
 
-                } // end switch
-            } // end OnCreatureCreate
+                }
+            }
 
-            uint64 GetData64 (uint32 identifier)
+            uint64 GetData64(uint32 identifier)
             {
                 if (identifier == 0) return uiWhoWokeuiArchaedasGUID;
                 if (identifier == 1) return vVaultWalker[0];    // VaultWalker1

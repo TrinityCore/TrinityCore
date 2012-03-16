@@ -130,7 +130,9 @@ public:
 
         bool RemoveImpalingSpine()
         {
-            if (!SpineTargetGUID) return false;
+            if (!SpineTargetGUID)
+                return false;
+
             Unit* target = Unit::GetUnit(*me, SpineTargetGUID);
             if (target && target->HasAura(SPELL_IMPALING_SPINE))
                 target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);

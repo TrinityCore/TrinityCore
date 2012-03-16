@@ -136,7 +136,8 @@ public:
         void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             // Without he comes up through the air to players on the bridge after krikthir if players crossing this bridge!
             CheckDistance(fMaxDistance, diff);

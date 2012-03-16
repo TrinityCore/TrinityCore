@@ -382,7 +382,7 @@ public:
 
         // Let set addon state only for lesser (strong) security level
         // or to self account
-        if (handler->GetSession() && handler->GetSession()->GetAccountId () != accountId &&
+        if (handler->GetSession() && handler->GetSession()->GetAccountId() != accountId &&
             handler->HasLowerSecurityAccount(NULL, accountId, true))
             return false;
 

@@ -87,7 +87,8 @@ public:
         bool IsEncounterInProgress() const
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS) return true;
+                if (m_auiEncounter[i] == IN_PROGRESS)
+                    return true;
 
             return false;
         }
@@ -236,7 +237,8 @@ public:
                     for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {
                         Creature* cr = instance->GetCreature(*itr);
-                        if (!cr || (cr && cr->isAlive())) return 0;
+                        if (!cr || (cr && cr->isAlive()))
+                            return 0;
                     }
                     return 1;
                 case DATA_JEDOGA_TRIGGER_SWITCH: return switchtrigger;

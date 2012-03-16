@@ -64,10 +64,10 @@ public:
     {
         boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            m_instance = (InstanceScript*) creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
         SummonList Summons;
         uint32 m_uiChampionsNotStarted;
         uint32 m_uiChampionsFailed;
@@ -101,7 +101,7 @@ public:
             vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
 
             uint8 healersSubtracted = 2;
-            if (m_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || m_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+            if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
                 healersSubtracted = 1;
             for (uint8 i = 0; i < healersSubtracted; ++i)
             {
@@ -136,7 +136,7 @@ public:
                 vHealersEntries.erase(vHealersEntries.begin()+pos);
             }
 
-            if (m_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || m_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+            if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                 for (uint8 i = 0; i < 4; ++i)
                     vOtherEntries.erase(vOtherEntries.begin()+urand(0, vOtherEntries.size()-1));
 
@@ -214,7 +214,7 @@ public:
                             m_uiChampionsFailed++;
                             if (m_uiChampionsFailed + m_uiChampionsKilled >= Summons.size())
                             {
-                                m_instance->SetData(TYPE_CRUSADERS, FAIL);
+                                instance->SetData(TYPE_CRUSADERS, FAIL);
                                 Summons.DespawnAll();
                                 me->DespawnOrUnsummon();
                             }
@@ -227,16 +227,16 @@ public:
                                 m_uiChampionsKilled = 0;
                                 m_bInProgress = true;
                                 Summons.DoZoneInCombat();
-                                m_instance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
+                                instance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
                             }
                             break;
                         case DONE:
                             m_uiChampionsKilled++;
                             if (m_uiChampionsKilled == 1)
-                                m_instance->SetData(TYPE_CRUSADERS, SPECIAL);
+                                instance->SetData(TYPE_CRUSADERS, SPECIAL);
                             else if (m_uiChampionsKilled >= Summons.size())
                             {
-                                m_instance->SetData(TYPE_CRUSADERS, DONE);
+                                instance->SetData(TYPE_CRUSADERS, DONE);
                                 Summons.DespawnAll();
                                 me->DespawnOrUnsummon();
                             }
@@ -253,11 +253,11 @@ struct boss_faction_championsAI : public ScriptedAI
 {
     boss_faction_championsAI(Creature* creature, uint32 aitype) : ScriptedAI(creature)
     {
-        m_instance = (InstanceScript*) creature->GetInstanceScript();
+        instance = creature->GetInstanceScript();
         mAIType = aitype;
     }
 
-    InstanceScript* m_instance;
+    InstanceScript* instance;
 
     uint64 championControllerGUID;
     uint32 mAIType;
@@ -273,8 +273,8 @@ struct boss_faction_championsAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (m_instance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), m_instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+        if (instance)
+            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -326,8 +326,8 @@ struct boss_faction_championsAI : public ScriptedAI
     void JustDied(Unit* /*killer*/)
     {
         if (mAIType != AI_PET)
-            if (m_instance)
-                if (Creature* pChampionController = Unit::GetCreature((*me), m_instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (instance)
+                if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
     }
 
@@ -335,8 +335,8 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
-        if (m_instance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), m_instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+        if (instance)
+            if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
@@ -351,18 +351,18 @@ struct boss_faction_championsAI : public ScriptedAI
                 if (Player* player = players.begin()->getSource())
                     TeamInInstance = player->GetTeam();
 
-            if (m_instance)
+            if (instance)
             {
                 if (TeamInInstance == ALLIANCE)
                 {
-                    if (Creature* temp = Unit::GetCreature(*me, m_instance->GetData64(NPC_VARIAN)))
+                    if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_VARIAN)))
                         DoScriptText(SAY_VARIAN_KILL_HORDE_PLAYER4+urand(0, 3), temp); // + cause we are on negative
                 }
                 else
                     if (Creature* temp = me->FindNearestCreature(NPC_GARROSH, 300.f))
                         DoScriptText(SAY_GARROSH_KILL_ALLIANCE_PLAYER4+urand(0, 3), temp); // + cause we are on negative
 
-                m_instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
         }
     }
@@ -408,7 +408,8 @@ struct boss_faction_championsAI : public ScriptedAI
 
     void AttackStart(Unit* who)
     {
-        if (!who) return;
+        if (!who)
+            return;
 
         if (me->Attack(who, true))
         {
@@ -494,7 +495,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiNatureGraspTimer <= uiDiff)
             {
@@ -588,7 +590,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiHeroismOrBloodlustTimer <= uiDiff)
             {
@@ -687,7 +690,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiBubbleTimer <= uiDiff)
             {
@@ -786,7 +790,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiPsychicScreamTimer <= uiDiff)
             {
@@ -879,7 +884,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiPsychicScreamTimer <= uiDiff)
             {
@@ -990,7 +996,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiFearTimer <= uiDiff)
             {
@@ -1093,7 +1100,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiCounterspellTimer <= uiDiff)
             {
@@ -1204,7 +1212,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiDisengageTimer <= uiDiff)
             {
@@ -1312,7 +1321,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiBarkskinTimer <= uiDiff)
             {
@@ -1424,7 +1434,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiBladestormTimer <= uiDiff)
             {
@@ -1534,7 +1545,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiIceboundFortitudeTimer <= uiDiff)
             {
@@ -1636,7 +1648,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiFanOfKnivesTimer <= uiDiff)
             {
@@ -1773,7 +1786,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiHeroismOrBloodlustTimer <= uiDiff)
             {
@@ -1873,7 +1887,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiRepeteanceTimer <= uiDiff)
             {
@@ -1951,7 +1966,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiDevourMagicTimer <= uiDiff)
             {
@@ -2000,7 +2016,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             if (m_uiClawTimer <= uiDiff)
             {
@@ -2011,10 +2028,7 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
-
-/*========================================================*/
 
 void AddSC_boss_faction_champions()
 {

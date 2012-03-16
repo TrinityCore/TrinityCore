@@ -430,7 +430,10 @@ public:
             }
         }
 
-        void SetGlaiveGUID(uint64 guid){ GlaiveGUID = guid; }
+        void SetGlaiveGUID(uint64 guid)
+        {
+            GlaiveGUID = guid;
+        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -566,7 +569,9 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim == me) return;
+            if (victim == me)
+                return;
+
             // TODO: Find better way to handle emote
             switch (urand(0, 1))
             {
@@ -747,7 +752,8 @@ public:
             final.y = 2 * final.y - initial.y;
 
             Creature* Trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
-            if (!Trigger) return;
+            if (!Trigger)
+                return;
 
             Trigger->SetSpeed(MOVE_WALK, 3);
             Trigger->SetWalk(true);
@@ -1181,7 +1187,11 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterEvadeMode() {}
-        void GetIllidanGUID(uint64 guid) { IllidanGUID = guid; }
+
+        void GetIllidanGUID(uint64 guid)
+        {
+            IllidanGUID = guid;
+        }
 
         void DamageTaken(Unit* done_by, uint32 &damage)
         {
@@ -2137,9 +2147,11 @@ public:
 
         void UpdateAI(const uint32 /*diff*/)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
-            if (me->getVictim()->GetTypeId() != TYPEID_PLAYER) return; // Only cast the below on players.
+            if (me->getVictim()->GetTypeId() != TYPEID_PLAYER)
+                return; // Only cast the below on players.
 
             if (!me->getVictim()->HasAura(SPELL_PARALYZE))
             {
@@ -2168,7 +2180,7 @@ public:
 
     struct blade_of_azzinothAI : public NullCreatureAI
     {
-        blade_of_azzinothAI(Creature* c) : NullCreatureAI(c) {}
+        blade_of_azzinothAI(Creature* creature) : NullCreatureAI(creature) {}
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
