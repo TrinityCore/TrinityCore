@@ -150,6 +150,7 @@ class item_mysterious_egg : public ItemScript
 {
 public:
     item_mysterious_egg() : ItemScript("item_mysterious_egg") { }
+
     bool OnExpire(Player* player, ItemTemplate const* /*pItemProto*/)
     {
         ItemPosCountVec dest;
@@ -335,8 +336,7 @@ public:
         if (player->GetQuestStatus(QUEST_CANNOT_HELP_THEMSELVES) != QUEST_STATUS_INCOMPLETE)
             return false;
 
-        Creature* pMammoth;
-        pMammoth = player->FindNearestCreature(NPC_TRAPPED_MAMMOTH_CALF, 5.0f);
+        Creature* pMammoth = player->FindNearestCreature(NPC_TRAPPED_MAMMOTH_CALF, 5.0f);
         if (!pMammoth)
             return false;
 

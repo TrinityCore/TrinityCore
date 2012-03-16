@@ -183,7 +183,7 @@ public:
                 DoScriptText(SAY_END2, me, player);
                 Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
                 if (CaptainHelios)
-                DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
+                    DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
                 break;
             }
         }

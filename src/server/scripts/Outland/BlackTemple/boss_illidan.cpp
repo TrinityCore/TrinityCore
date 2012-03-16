@@ -1187,7 +1187,11 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterEvadeMode() {}
-        void GetIllidanGUID(uint64 guid) { IllidanGUID = guid; }
+
+        void GetIllidanGUID(uint64 guid)
+        {
+            IllidanGUID = guid;
+        }
 
         void DamageTaken(Unit* done_by, uint32 &damage)
         {
