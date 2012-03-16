@@ -857,8 +857,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     */
     
     if (mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
-        !GetPlayer()->HasAuraType(SPELL_AURA_FLY) && 
-        !GetPlayer()->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) && 
+        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
         mi->flags &= ~(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 }
 
