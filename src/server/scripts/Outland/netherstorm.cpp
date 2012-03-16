@@ -1009,12 +1009,12 @@ public:
                 if (uiTakeTimer < uiDiff)
                 {
                     me->HandleEmoteCommand(EMOTE_STATE_NONE);
-                    if (GameObject* pGO = GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
+                    if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
                     {
                         SetEscortPaused(false);
                         bTake=false;
                         uiTakeTimer = 3000;
-                        pGO->Delete();
+                        go->Delete();
                     }
                 }
                 else

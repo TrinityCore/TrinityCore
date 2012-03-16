@@ -394,7 +394,7 @@ class go_altar_of_archaedas : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* /*pGO*/)
+        bool OnGossipHello(Player* player, GameObject* /*go*/)
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance)
