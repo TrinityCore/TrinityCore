@@ -792,7 +792,7 @@ public:
 
     struct npc_phantom_hallucinationAI : public npc_phantom_mage::npc_phantom_mageAI
     {
-        npc_phantom_hallucinationAI(Creature* c) : npc_phantom_mage::npc_phantom_mageAI(c)
+        npc_phantom_hallucinationAI(Creature* creature) : npc_phantom_mage::npc_phantom_mageAI(creature)
         {
         }
 

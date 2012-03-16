@@ -143,9 +143,9 @@ class mob_omrogg_heads : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_omrogg_headsAI (Creature);
+            return new mob_omrogg_headsAI(creature);
         }
 };
 
