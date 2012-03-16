@@ -18,7 +18,7 @@
 
 #include "ScriptPCH.h"
 
-enum Yells
+enum Texts
 {
     SAY_INTRO       = 0,
     SAY_AGGRO       = 1,

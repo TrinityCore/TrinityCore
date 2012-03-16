@@ -607,7 +607,8 @@ public:
                 if (WisperTimer <= diff)
                 {
                     Map* map = me->GetMap();
-                    if (!map->IsDungeon()) return;
+                    if (!map->IsDungeon())
+                        return;
 
                     //Play random sound to the zone
                     Map::PlayerList const &PlayerList = map->GetPlayers();

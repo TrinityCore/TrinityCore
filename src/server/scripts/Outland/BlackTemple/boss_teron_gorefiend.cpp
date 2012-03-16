@@ -316,7 +316,8 @@ public:
 
         void SetThreatList(Creature* Blossom)
         {
-            if (!Blossom) return;
+            if (!Blossom)
+                return;
 
             std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();

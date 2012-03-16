@@ -1727,7 +1727,7 @@ public:
     {
         npc_enraged_spiritAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()   { }
+        void Reset() { }
 
         void EnterCombat(Unit* /*who*/){}
 
@@ -1739,7 +1739,8 @@ public:
             uint32 entry = 0;
             uint32 credit = 0;
 
-            switch (me->GetEntry()) {
+            switch (me->GetEntry())
+            {
               case ENTRY_ENRAGED_FIRE_SPIRIT:
                 entry  = ENTRY_FIERY_SOUL;
                 //credit = SPELL_FIERY_SOUL_CAPTURED_CREDIT;

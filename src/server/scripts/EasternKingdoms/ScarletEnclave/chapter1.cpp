@@ -303,9 +303,11 @@ public:
                 prisonerGUID = guid;
         }
 
-        uint64 GetGUID(int32 /*id*/) { return prisonerGUID; }
+        uint64 GetGUID(int32 /*id*/)
+        {
+            return prisonerGUID;
+        }
     };
-
 };
 
 class go_acherus_soul_prison : public GameObjectScript
@@ -702,7 +704,9 @@ public:
         void Reset()
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
-            if (!deathcharger) return;
+            if (!deathcharger)
+                return;
+
             deathcharger->RestoreFaction();
             deathcharger->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             deathcharger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -713,7 +717,9 @@ public:
         void JustDied(Unit* killer)
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
-            if (!deathcharger) return;
+            if (!deathcharger)
+                return;
+
             if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
             {
                 deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);

@@ -643,7 +643,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
 
             uint32 NapalmTimer;
 
-            void Reset ()
+            void Reset()
             {
                 NapalmTimer = 5*IN_MILLISECONDS;
                 DoCast(me, AURA_STEALTH_DETECTION);

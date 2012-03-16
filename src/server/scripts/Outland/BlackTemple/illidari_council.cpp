@@ -313,7 +313,8 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!EventBegun) return;
+            if (!EventBegun)
+                return;
 
             if (EndEventTimer)
             {

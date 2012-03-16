@@ -71,7 +71,7 @@ public:
         npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){}
         uint32 PotTimer;
 
-        void Reset ()
+        void Reset()
         {
             SetDespawnAtFar(false);
             PotTimer = 10000; //10 sec cooldown on potion

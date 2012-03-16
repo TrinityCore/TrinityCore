@@ -454,7 +454,8 @@ struct boss_jormungarAI : public ScriptedAI
 
     void UpdateAI(uint32 const diff)
     {
-        if (!UpdateVictim()) return;
+        if (!UpdateVictim())
+            return;
 
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !enraged)
         {
