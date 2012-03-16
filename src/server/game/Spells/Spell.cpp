@@ -3751,12 +3751,12 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
              uint32 item = 0;
-             for (int8 x = 0; x < 3; x++)
-                 if (spellInfo->Effects[x].ItemType)
-                     item = spellInfo->Effects[x].ItemType;
-             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-             if (pProto && pProto->ItemLimitCategory)
-                 data << uint32(pProto->ItemLimitCategory);
+             for (int8 eff = 0; eff < MAX_SPELL_EFFECTS; eff++)
+                 if (spellInfo->Effects[eff].ItemType)
+                     item = spellInfo->Effects[eff].ItemType;
+             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
+             if (proto && proto->ItemLimitCategory)
+                 data << uint32(proto->ItemLimitCategory);
              break;
         }
         case SPELL_FAILED_CUSTOM_ERROR:
@@ -3783,6 +3783,23 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             data << uint32(missingItem);  // first missing item
             break;
         }
+        case SPELL_FAILED_PREVENTED_BY_MECHANIC:
+            data << uint32(spellInfo->Mechanic);
+            break;
+        case SPELL_FAILED_NEED_EXOTIC_AMMO:
+            data << uint32(spellInfo->EquippedItemSubClassMask);
+            break;
+        case SPELL_FAILED_NEED_MORE_ITEMS:
+            data << uint32(0); // Item entry
+            data << uint32(0); // Count
+            break;
+        case SPELL_FAILED_MIN_SKILL:
+            data << uint32(0); // SkillLine.dbc Id
+            data << uint32(0); // Amount
+            break;
+        case SPELL_FAILED_FISHING_TOO_LOW:
+            data << uint32(0); // Skill level
+            break;
         default:
             break;
     }
@@ -3856,6 +3873,7 @@ void Spell::SendSpellGo()
 
     if (m_spellInfo->Attributes & SPELL_ATTR0_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
+
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
         && m_spellInfo->PowerType != POWER_HEALTH)
@@ -3868,7 +3886,6 @@ void Spell::SendSpellGo()
     {
         castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
         castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
-        castFlags |= CAST_FLAG_UNKNOWN_9;                    // ??
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
@@ -3931,7 +3948,7 @@ void Spell::SendSpellGo()
     if (castFlags & CAST_FLAG_AMMO)
         WriteAmmoToPacket(&data);
 
-    if (castFlags & CAST_FLAG_UNKNOWN_20)
+    if (castFlags & CAST_FLAG_VISUAL_CHAIN)
     {
         data << uint32(0);
         data << uint32(0);
