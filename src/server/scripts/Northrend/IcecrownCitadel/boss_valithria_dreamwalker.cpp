@@ -232,7 +232,7 @@ class ValithriaDespawner : public BasicEvent
             {
                 case NPC_VALITHRIA_DREAMWALKER:
                     if (InstanceScript* instance = creature->GetInstanceScript())
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, creature);
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, creature);
                     break;
                 case NPC_BLAZING_SKELETON:
                 case NPC_SUPPRESSER:
@@ -304,7 +304,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
                 // Glyph of Dispel Magic - not a percent heal by effect, its cast with custom basepoints
                 me->ApplySpellImmune(0, IMMUNITY_ID, 56131, true);
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _missedPortals = 0;
                 _under25PercentTalkDone = false;
                 _over75PercentTalkDone = false;
@@ -322,7 +322,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     return;
 
                 DoCast(me, SPELL_COPY_DAMAGE);
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 _events.ScheduleEvent(EVENT_INTRO_TALK, 15000);
                 _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));
                 if (IsHeroic())
@@ -341,7 +341,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 {
                     _done = true;
                     Talk(SAY_VALITHRIA_SUCCESS);
-                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
                     DoCastAOE(SPELL_DREAMWALKERS_RAGE);
@@ -376,7 +376,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                         {
                             _justDied = true;
                             Talk(SAY_VALITHRIA_DEATH);
-                            _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                            _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                             if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_TRIGGER)))
                                 trigger->AI()->DoAction(ACTION_DEATH);
                         }
