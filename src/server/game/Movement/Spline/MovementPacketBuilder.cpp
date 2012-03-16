@@ -44,11 +44,17 @@ namespace Movement
     void PacketBuilder::WriteCommonMonsterMovePart(const MoveSpline& move_spline, WorldPacket& data)
     {
         MoveSplineFlag splineflags = move_spline.splineflags;
-        /*if (mov.IsBoarded())
+        /*if (unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
         {
             data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            data << mov.GetTransport()->Owner.GetPackGUID();
-            data << int8(mov.m_unused.transport_seat);
+            if (unit->GetVehicle())
+                data << unit->GetVehicle()->GetBase()->GetPackGUID();
+            else if (unit->GetTransport())
+                data << unit->GetTransport()->GetPackGUID();
+            else
+                data << uint64(0);
+
+            data << int8(unit->GetTransSeat());
         }*/
 
         data << uint8(0);
@@ -57,21 +63,21 @@ namespace Movement
 
         switch(splineflags & MoveSplineFlag::Mask_Final_Facing)
         {
-        default:
-            data << uint8(MonsterMoveNormal);
-            break;
-        case MoveSplineFlag::Final_Target:
-            data << uint8(MonsterMoveFacingTarget);
-            data << move_spline.facing.target;
-            break;
-        case MoveSplineFlag::Final_Angle:
-            data << uint8(MonsterMoveFacingAngle);
-            data << move_spline.facing.angle;
-            break;
-        case MoveSplineFlag::Final_Point:
-            data << uint8(MonsterMoveFacingSpot);
-            data << move_spline.facing.f.x << move_spline.facing.f.y << move_spline.facing.f.z;
-            break;
+            case MoveSplineFlag::Final_Target:
+                data << uint8(MonsterMoveFacingTarget);
+                data << move_spline.facing.target;
+                break;
+            case MoveSplineFlag::Final_Angle:
+                data << uint8(MonsterMoveFacingAngle);
+                data << move_spline.facing.angle;
+                break;
+            case MoveSplineFlag::Final_Point:
+                data << uint8(MonsterMoveFacingSpot);
+                data << move_spline.facing.f.x << move_spline.facing.f.y << move_spline.facing.f.z;
+                break;
+            default:
+                data << uint8(MonsterMoveNormal);
+                break;
         }
 
         // add fake Enter_Cycle flag - needed for client-side cyclic movement (client will erase first spline vertex after first cycle done)
