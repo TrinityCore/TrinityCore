@@ -807,48 +807,53 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
         data >> mi->splineElevation;
 
+    //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
+    #define VIOLATE_AND_RETURN \
+        mi->Violated = true; \
+        return; \
+
     /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid,
         and when used in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD
         it will freeze clients that receive this player's movement info.
     */
     if (mi->HasMovementFlag(MOVEMENTFLAG_ROOT))
-        mi->flags &= ~MOVEMENTFLAG_ROOT;
+        VIOLATE_AND_RETURN;
 
     //! Cannot hover and jump at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && mi->HasMovementFlag(MOVEMENTFLAG_JUMPING))
-        mi->flags &= ~MOVEMENTFLAG_JUMPING;
+        VIOLATE_AND_RETURN;
 
     //! Cannot ascend and descend at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING))
-        mi->flags &= ~(MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
+        VIOLATE_AND_RETURN;
 
     //! Cannot move left and right at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT))
-        mi->flags &= ~(MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
+        VIOLATE_AND_RETURN;
 
     //! Cannot strafe left and right at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
-        mi->flags &= ~(MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+        VIOLATE_AND_RETURN;
 
     //! Cannot pitch up and down at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN))
-        mi->flags &= ~(MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
+        VIOLATE_AND_RETURN;
 
     //! Cannot move forwards and backwards at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD))
-        mi->flags &= ~(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
+        VIOLATE_AND_RETURN;
 
     //! Cannot walk on water without SPELL_AURA_WATER_WALK
     if (mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK))
-        mi->flags &= ~MOVEMENTFLAG_WATERWALKING;
+        VIOLATE_AND_RETURN;
 
     //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
     if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !GetPlayer()->HasAuraType(SPELL_AURA_FEATHER_FALL))
-        mi->flags &= ~MOVEMENTFLAG_FALLING_SLOW;
+        VIOLATE_AND_RETURN;
 
     //! Cannot hover without SPELL_AURA_HOVER
     if (mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER))
-        mi->flags &= ~MOVEMENTFLAG_HOVER;
+        VIOLATE_AND_RETURN;
 
     /*! Cannot fly if no fly auras present. Exception is being a GM.
         Note that we check for account level instead of Player::IsGameMaster() because in some
@@ -859,7 +864,9 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     if (mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
         !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) && 
         !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
-        mi->flags &= ~(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
+        VIOLATE_AND_RETURN;
+
+    #undef VIOLATE_AND_RETURN
 }
 
 void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
