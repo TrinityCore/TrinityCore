@@ -130,8 +130,13 @@ public:
                 {
                     switch (urand(0, 1))
                     {
-                        case 0: target->CastSpell(target, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID()); break;
-                        case 1: target->CastSpell(target, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID()); break;
+                        case 0:
+                            target->CastSpell(target, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID());
+                            break;
+
+                        case 1:
+                            target->CastSpell(target, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID());
+                            break;
                     }
                 }
             }

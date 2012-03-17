@@ -865,7 +865,6 @@ public:
     bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets)
     {
         InstanceScript* instance = player->GetInstanceScript();
-
         if (!instance)
         {
             player->GetSession()->SendNotification(TEXT_NOT_INITIALIZED);
@@ -908,12 +907,8 @@ public:
                 }
 
                 // get and remove channel
-                
                 if (Unit* channel = Unit::GetCreature(*vashj, CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))
-                {
-                    // call Unsummon()
-                    channel->setDeathState(JUST_DIED);
-                }
+                    channel->setDeathState(JUST_DIED); // call Unsummon()
 
                 instance->SetData(identifier, 1);
 
