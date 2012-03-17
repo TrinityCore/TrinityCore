@@ -177,13 +177,9 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             if (CorruptedForm)
-            {
                 DoScriptText(RAND(SAY_CORRUPT_SLAY1, SAY_CORRUPT_SLAY2), me);
-            }
             else
-            {
                 DoScriptText(RAND(SAY_CLEAN_SLAY1, SAY_CLEAN_SLAY2), me);
-            }
         }
 
         void JustSummoned(Creature* summoned)
@@ -242,12 +238,29 @@ public:
 
                         switch (MarkOfCorruption_Count)
                         {
-                            case 0: mark_spell = SPELL_MARK_OF_CORRUPTION1; break;
-                            case 1: mark_spell = SPELL_MARK_OF_CORRUPTION2; break;
-                            case 2: mark_spell = SPELL_MARK_OF_CORRUPTION3; break;
-                            case 3: mark_spell = SPELL_MARK_OF_CORRUPTION4; break;
-                            case 4: mark_spell = SPELL_MARK_OF_CORRUPTION5; break;
-                            case 5: mark_spell = SPELL_MARK_OF_CORRUPTION6; break;
+                            case 0:
+                                mark_spell = SPELL_MARK_OF_CORRUPTION1;
+                                break;
+
+                            case 1:
+                                mark_spell = SPELL_MARK_OF_CORRUPTION2;
+                                break;
+
+                            case 2:
+                                mark_spell = SPELL_MARK_OF_CORRUPTION3;
+                                break;
+
+                            case 3:
+                                mark_spell = SPELL_MARK_OF_CORRUPTION4;
+                                break;
+
+                            case 4:
+                                mark_spell = SPELL_MARK_OF_CORRUPTION5;
+                                break;
+
+                            case 5:
+                                mark_spell = SPELL_MARK_OF_CORRUPTION6;
+                                break;
                         }
 
                         DoCast(me->getVictim(), mark_spell);
@@ -309,12 +322,29 @@ public:
 
                         switch (MarkOfHydross_Count)
                         {
-                            case 0:  mark_spell = SPELL_MARK_OF_HYDROSS1; break;
-                            case 1:  mark_spell = SPELL_MARK_OF_HYDROSS2; break;
-                            case 2:  mark_spell = SPELL_MARK_OF_HYDROSS3; break;
-                            case 3:  mark_spell = SPELL_MARK_OF_HYDROSS4; break;
-                            case 4:  mark_spell = SPELL_MARK_OF_HYDROSS5; break;
-                            case 5:  mark_spell = SPELL_MARK_OF_HYDROSS6; break;
+                            case 0:
+                                mark_spell = SPELL_MARK_OF_HYDROSS1;
+                                break;
+
+                            case 1:
+                                mark_spell = SPELL_MARK_OF_HYDROSS2;
+                                break;
+
+                            case 2:
+                                mark_spell = SPELL_MARK_OF_HYDROSS3;
+                                break;
+
+                            case 3:
+                                mark_spell = SPELL_MARK_OF_HYDROSS4;
+                                break;
+
+                            case 4:
+                                mark_spell = SPELL_MARK_OF_HYDROSS5;
+                                break;
+
+                            case 5:
+                                mark_spell = SPELL_MARK_OF_HYDROSS6;
+                                break;
                         }
 
                         DoCast(me->getVictim(), mark_spell);
@@ -375,7 +405,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_hydross_the_unstable()

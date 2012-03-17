@@ -309,7 +309,6 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-
         if (player->GetQuestStatus(QUEST_SPIRITS_WATCH_OVER_US) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
@@ -588,6 +587,7 @@ public:
             Phase = 1;
             go_caribouGUID = 0;
         }
+
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
@@ -617,7 +617,6 @@ public:
                         uiPhaseTimer = 2000;
                         Phase = 2;
                         break;
-
                     case 2:
                         if (GameObject* go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
                             me->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
@@ -645,7 +644,6 @@ public:
                         uiPhaseTimer = 500;
                         Phase = 7;
                         break;
-
                     case 7:
                     {
                         GameObject* go_caribou = NULL;
@@ -662,7 +660,7 @@ public:
                         Phase = 8;
                         uiPhaseTimer = 1000;
                     }
-                        break;
+                    break;
                     case 8:
                         DoCast(me, SPELL_TRAPPED, true);
                         Phase = 0;
@@ -1017,7 +1015,6 @@ public:
         void WaypointReached(uint32 uiPointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
@@ -1965,8 +1962,7 @@ public:
             switch (i)
             {
                 case 29:
-                    if (player)
-                        player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
+                    player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
                     break;
             }
         }
@@ -2036,7 +2032,7 @@ public:
             uiTimer = 1500;
             bStarted = false;
 
-            GameObject* pTrap;
+            GameObject* pTrap = NULL;
             for (uint8 i = 0; i < MammothTrapsNum; ++i)
             {
                 pTrap = me->FindNearestGameObject(MammothTraps[i], 11.0f);
@@ -2071,11 +2067,12 @@ public:
 
         void MovementInform(uint32 uiType, uint32 /*uiId*/)
         {
-
             if (uiType != POINT_MOTION_TYPE)
                 return;
+
             me->DisappearAndDie();
-            GameObject* pTrap;
+
+            GameObject* pTrap = NULL;
             for (uint8 i = 0; i < MammothTrapsNum; ++i)
             {
                 pTrap = me->FindNearestGameObject(MammothTraps[i], 11.0f);
@@ -2150,13 +2147,15 @@ public:
 
     struct npc_seaforium_depth_chargeAI : public ScriptedAI
     {
-        npc_seaforium_depth_chargeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_seaforium_depth_chargeAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiExplosionTimer;
+
         void Reset()
         {
             uiExplosionTimer = urand(5000, 10000);
         }
+
         void UpdateAI(const uint32 diff)
         {
             if (uiExplosionTimer < diff)
@@ -2229,7 +2228,6 @@ public:
             if (!UpdateVictim())
                 return;
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -2561,31 +2559,31 @@ public:
 
 void AddSC_borean_tundra()
 {
-    new npc_sinkhole_kill_credit;
-    new npc_khunok_the_behemoth;
-    new npc_keristrasza;
-    new npc_corastrasza;
-    new npc_iruk;
-    new mob_nerubar_victim;
-    new npc_scourge_prisoner;
-    new npc_jenny;
-    new npc_fezzix_geartwist;
-    new npc_nesingwary_trapper;
-    new npc_lurgglbr;
-    new npc_nexus_drake_hatchling;
-    new npc_thassarian;
-    new npc_image_lich_king;
-    new npc_counselor_talbot;
-    new npc_leryssa;
-    new npc_general_arlos;
-    new npc_beryl_sorcerer;
-    new npc_imprisoned_beryl_sorcerer;
-    new npc_mootoo_the_younger;
-    new npc_bonker_togglevolt;
-    new npc_trapped_mammoth_calf;
-    new npc_magmoth_crusher;
-    new npc_seaforium_depth_charge;
-    new npc_valiance_keep_cannoneer;
-    new npc_warmage_coldarra;
-    new npc_hidden_cultist;
+    new npc_sinkhole_kill_credit();
+    new npc_khunok_the_behemoth();
+    new npc_keristrasza();
+    new npc_corastrasza();
+    new npc_iruk();
+    new mob_nerubar_victim();
+    new npc_scourge_prisoner();
+    new npc_jenny();
+    new npc_fezzix_geartwist();
+    new npc_nesingwary_trapper();
+    new npc_lurgglbr();
+    new npc_nexus_drake_hatchling();
+    new npc_thassarian();
+    new npc_image_lich_king();
+    new npc_counselor_talbot();
+    new npc_leryssa();
+    new npc_general_arlos();
+    new npc_beryl_sorcerer();
+    new npc_imprisoned_beryl_sorcerer();
+    new npc_mootoo_the_younger();
+    new npc_bonker_togglevolt();
+    new npc_trapped_mammoth_calf();
+    new npc_magmoth_crusher();
+    new npc_seaforium_depth_charge();
+    new npc_valiance_keep_cannoneer();
+    new npc_warmage_coldarra();
+    new npc_hidden_cultist();
 }
