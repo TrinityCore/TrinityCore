@@ -4038,7 +4038,9 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     while (bag) // 256 = 0 due to var type
                     {
                         item = m_caster->ToPlayer()->GetItemByPos(bag, slot);
-                        if (item && item->GetEntry() == 38587) break;
+                        if (item && item->GetEntry() == 38587)
+                            break;
+
                         ++slot;
                         if (slot == 39)
                         {
