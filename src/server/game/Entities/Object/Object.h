@@ -482,9 +482,6 @@ struct MovementInfo
     // spline
     float   splineElevation;
 
-    //! Server side only:
-    bool Violated;
-
     MovementInfo()
     {
         pos.Relocate(0, 0, 0, 0);
@@ -497,7 +494,6 @@ struct MovementInfo
         t_guid = 0;
         t_pos.Relocate(0, 0, 0, 0);
         t_seat = -1;
-        Violated = false;
     }
 
     uint32 GetMovementFlags() { return flags; }
@@ -509,6 +505,8 @@ struct MovementInfo
     uint16 GetExtraMovementFlags() { return flags2; }
     void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
     bool HasExtraMovementFlag(uint16 flag) const { return flags2 & flag; }
+
+    void SetFallTime(uint32 time) { fallTime = time; }
 
     void OutDebug();
 };

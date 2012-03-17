@@ -796,7 +796,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
     data >> mi->fallTime;
 
-    if (mi->HasMovementFlag(MOVEMENTFLAG_JUMPING))
+    if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING))
     {
         data >> mi->j_zspeed;
         data >> mi->j_sinAngle;
@@ -808,56 +808,63 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         data >> mi->splineElevation;
 
     //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
-    #define VIOLATE_AND_RETURN \
+    //! Might be subject to latency, so just remove improper flags.
+    #ifdef TRINITY_DEBUG
+    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
     { \
-        sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found. " \
-            "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Player will not be relocated.", \
-            mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUIDLow()); \
-        mi->Violated = true; \
-        return; \
-    } \
-    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid,
-        and when used in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD
-        it will freeze clients that receive this player's movement info.
+        if (check) \
+        { \
+            sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
+                "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
+                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUIDLow(), maskToRemove); \
+            mi->RemoveMovementFlag((maskToRemove)); \
+        } \
+    }
+    #else
+    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
+        if (check) \
+            mi->RemoveMovementFlag((maskToRemove));
+    #endif
+    
+    
+    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
+        in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
+        It will freeze clients that receive this player's movement info.
     */
-    if (mi->HasMovementFlag(MOVEMENTFLAG_ROOT))
-        VIOLATE_AND_RETURN;
-
-    //! Cannot hover and jump at the same time
-    if (mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && mi->HasMovementFlag(MOVEMENTFLAG_JUMPING))
-        VIOLATE_AND_RETURN;
-
-    //! Cannot ascend and descend at the same time
-    if (mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING))
-        VIOLATE_AND_RETURN;
-
-    //! Cannot move left and right at the same time
-    if (mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT))
-        VIOLATE_AND_RETURN;
-
-    //! Cannot strafe left and right at the same time
-    if (mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
-        VIOLATE_AND_RETURN;
-
-    //! Cannot pitch up and down at the same time
-    if (mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN))
-        VIOLATE_AND_RETURN;
-
-    //! Cannot move forwards and backwards at the same time
-    if (mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD))
-        VIOLATE_AND_RETURN;
-
-    //! Cannot walk on water without SPELL_AURA_WATER_WALK
-    if (mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK))
-        VIOLATE_AND_RETURN;
-
-    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
-    if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !GetPlayer()->HasAuraType(SPELL_AURA_FEATHER_FALL))
-        VIOLATE_AND_RETURN;
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_MASK_MOVING), 
+        MOVEMENTFLAG_MASK_MOVING);
 
     //! Cannot hover without SPELL_AURA_HOVER
-    if (mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER))
-        VIOLATE_AND_RETURN;
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER),
+        MOVEMENTFLAG_HOVER);
+
+    //! Cannot ascend and descend at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
+        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
+
+    //! Cannot move left and right at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
+
+    //! Cannot strafe left and right at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
+        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+
+    //! Cannot pitch up and down at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
+        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
+
+    //! Cannot move forwards and backwards at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
+        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
+
+    //! Cannot walk on water without SPELL_AURA_WATER_WALK
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK),
+        MOVEMENTFLAG_WATERWALKING);
+
+    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !GetPlayer()->HasAuraType(SPELL_AURA_FEATHER_FALL),
+        MOVEMENTFLAG_FALLING_SLOW);
 
     /*! Cannot fly if no fly auras present. Exception is being a GM.
         Note that we check for account level instead of Player::IsGameMaster() because in some
@@ -865,12 +872,12 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         e.g. aerial combat.
     */
 
-    if (mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
         !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) &&
-        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
-        VIOLATE_AND_RETURN;
+        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
+        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 
-    #undef VIOLATE_AND_RETURN
+    #undef REMOVE_VIOLATING_FLAGS
 }
 
 void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
@@ -899,7 +906,7 @@ void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
 
     *data << mi->fallTime;
 
-    if (mi->HasMovementFlag(MOVEMENTFLAG_JUMPING))
+    if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING))
     {
         *data << mi->j_zspeed;
         *data << mi->j_sinAngle;
