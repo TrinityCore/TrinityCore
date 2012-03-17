@@ -759,7 +759,7 @@ class spell_powering_up : public SpellScriptLoader
 
             uint32 spellId;
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SURGE_OF_SPEED, GetCaster());
                 if (!sSpellMgr->GetSpellInfo(spellId))
