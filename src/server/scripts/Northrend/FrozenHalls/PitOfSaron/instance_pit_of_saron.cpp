@@ -39,7 +39,7 @@ static const Position SlaveLeaderPos2[3] =
     {847.959351f, -11.114618f, 509.794922f, 2.366650f},
 };
 // Slaves Alliance and Horde If Gargrost Dead For Events  from sniff
-const Position spawnPoints1[2] =
+const Position spawnPoints1[4] =
 {
     {770.746033f, -40.480698f, 508.355469f, 3.915185f},
     {773.266174f, -43.121738f, 508.355469f, 3.954455f},
