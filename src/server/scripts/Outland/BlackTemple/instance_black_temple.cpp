@@ -164,28 +164,75 @@ public:
         {
             switch (go->GetEntry())
             {
-            case 185483: NajentusGate = go->GetGUID();// Gate past Naj'entus (at the entrance to Supermoose's courtyards)
-                if (m_auiEncounter[0] == DONE)HandleGameObject(0, true, go);break;
-            case 185882: MainTempleDoors = go->GetGUID();// Main Temple Doors - right past Supermoose (Supremus)
-                if (m_auiEncounter[1] == DONE)HandleGameObject(0, true, go);break;
-            case 185478: ShadeOfAkamaDoor = go->GetGUID();break;
-            case 185480: CommonDoor = go->GetGUID();
-                if (m_auiEncounter[3] == DONE)HandleGameObject(0, true, go);break;
-            case 186153: TeronDoor = go->GetGUID();
-                if (m_auiEncounter[3] == DONE)HandleGameObject(0, true, go);break;
-            case 185892: GuurtogDoor = go->GetGUID();
-                if (m_auiEncounter[4] == DONE)HandleGameObject(0, true, go);break;
-            case 185479: TempleDoor = go->GetGUID();
-                if (m_auiEncounter[5] == DONE)HandleGameObject(0, true, go);break;
-            case 185482: MotherDoor = go->GetGUID();
-                if (m_auiEncounter[6] == DONE)HandleGameObject(0, true, go);break;
-            case 185481: CouncilDoor = go->GetGUID();
-                if (m_auiEncounter[7] == DONE)HandleGameObject(0, true, go);break;
-            case 186152: SimpleDoor = go->GetGUID();
-                if (m_auiEncounter[7] == DONE)HandleGameObject(0, true, go);break;
-            case 185905: IllidanGate = go->GetGUID(); break; // Gate leading to Temple Summit
-            case 186261: IllidanDoor[0] = go->GetGUID(); break; // Right door at Temple Summit
-            case 186262: IllidanDoor[1] = go->GetGUID(); break; // Left door at Temple Summit
+            case 185483:
+                NajentusGate = go->GetGUID();// Gate past Naj'entus (at the entrance to Supermoose's courtyards)
+                if (m_auiEncounter[0] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 185882:
+                MainTempleDoors = go->GetGUID();// Main Temple Doors - right past Supermoose (Supremus)
+                if (m_auiEncounter[1] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 185478:
+                ShadeOfAkamaDoor = go->GetGUID();
+                break;
+
+            case 185480:
+                CommonDoor = go->GetGUID();
+                if (m_auiEncounter[3] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 186153:
+                TeronDoor = go->GetGUID();
+                if (m_auiEncounter[3] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 185892:
+                GuurtogDoor = go->GetGUID();
+                if (m_auiEncounter[4] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 185479:
+                TempleDoor = go->GetGUID();
+                if (m_auiEncounter[5] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 185482:
+                MotherDoor = go->GetGUID();
+                if (m_auiEncounter[6] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 185481:
+                CouncilDoor = go->GetGUID();
+                if (m_auiEncounter[7] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 186152:
+                SimpleDoor = go->GetGUID();
+                if (m_auiEncounter[7] == DONE)
+                    HandleGameObject(0, true, go);
+                break;
+
+            case 185905:
+                IllidanGate = go->GetGUID(); // Gate leading to Temple Summit
+                break;
+
+            case 186261:
+                IllidanDoor[0] = go->GetGUID(); // Right door at Temple Summit
+                break;
+
+            case 186262:
+                IllidanDoor[1] = go->GetGUID(); // Left door at Temple Summit
+                break;
             }
         }
 
@@ -221,63 +268,65 @@ public:
             {
             case DATA_HIGHWARLORDNAJENTUSEVENT:
                 if (data == DONE)
-                {
                     HandleGameObject(NajentusGate, true);
-                }
-                m_auiEncounter[0] = data;break;
+                m_auiEncounter[0] = data;
+                break;
             case DATA_SUPREMUSEVENT:
                 if (data == DONE)
-                {
                     HandleGameObject(NajentusGate, true);
-                }
-                m_auiEncounter[1] = data; break;
+                m_auiEncounter[1] = data;
+                break;
             case DATA_SHADEOFAKAMAEVENT:
                 if (data == IN_PROGRESS)
-                {
                     HandleGameObject(ShadeOfAkamaDoor, false);
-                } else HandleGameObject(ShadeOfAkamaDoor, true);
-                m_auiEncounter[2] = data; break;
+                else
+                    HandleGameObject(ShadeOfAkamaDoor, true);
+                m_auiEncounter[2] = data;
+                break;
             case DATA_TERONGOREFIENDEVENT:
                 if (data == IN_PROGRESS)
                 {
                     HandleGameObject(TeronDoor, false);
                     HandleGameObject(CommonDoor, false);
-                }else
+                }
+                else
                 {
                     HandleGameObject(TeronDoor, true);
                     HandleGameObject(CommonDoor, true);
                 }
-                m_auiEncounter[3] = data; break;
+                m_auiEncounter[3] = data;
+                break;
             case DATA_GURTOGGBLOODBOILEVENT:
                 if (data == DONE)
-                {
                     HandleGameObject(GuurtogDoor, true);
-                }
-                m_auiEncounter[4] = data; break;
+                m_auiEncounter[4] = data;
+                break;
             case DATA_RELIQUARYOFSOULSEVENT:
                 if (data == DONE)
-                {
                     HandleGameObject(TempleDoor, true);
-                }
-                m_auiEncounter[5] = data;         break;
+                m_auiEncounter[5] = data;
+                break;
             case DATA_MOTHERSHAHRAZEVENT:
                 if (data == DONE)
-                {
                     HandleGameObject(MotherDoor, true);
-                }
-                m_auiEncounter[6] = data; break;
+                m_auiEncounter[6] = data;
+                break;
             case DATA_ILLIDARICOUNCILEVENT:
                 if (data == IN_PROGRESS)
                 {
                     HandleGameObject(CouncilDoor, false);
                     HandleGameObject(SimpleDoor, false);
-                }else
+                }
+                else
                 {
                     HandleGameObject(CouncilDoor, true);
                     HandleGameObject(SimpleDoor, true);
                 }
-                m_auiEncounter[7] = data; break;
-            case DATA_ILLIDANSTORMRAGEEVENT:      m_auiEncounter[8] = data;         break;
+                m_auiEncounter[7] = data;
+                break;
+            case DATA_ILLIDANSTORMRAGEEVENT:
+                m_auiEncounter[8] = data;
+                break;
             }
 
             if (data == DONE)
