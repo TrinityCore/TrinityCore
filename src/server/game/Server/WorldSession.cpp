@@ -812,7 +812,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     { \
         sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found. "
             "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Player will not be relocated.",
-            mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUIDLow());
+            mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUIDLow()); \
         mi->Violated = true; \
         return; \
     } \
