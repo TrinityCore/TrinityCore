@@ -2855,13 +2855,21 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
     //! Not entirely sure if this should be sent for creatures as well, but I don't think so.
     target->SetCanFly(apply);
     if (!apply)
+    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
+        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        target->m_movementInfo.SetFallTime(0);
+    }
+
     Player* player = target->ToPlayer();
     if (!player)
         player = target->m_movedPlayer;
 
     if (player)
         player->SendMovementCanFlyChange();
+
+    //! We still need to initiate a server-side MoveFall here,
+    //! which requires MSG_MOVE_FALL_LAND on landing.
 }
 
 void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2880,11 +2888,13 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
 
     if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-     else
+    else
+    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    }
 
     target->SendMovementWaterWalking();
-
 }
 
 void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3242,13 +3252,21 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
         {
             target->SetCanFly(apply);
             if (!apply)
+            {
                 target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
+                target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+                target->m_movementInfo.SetFallTime(0);
+            }
+
             Player* player = target->ToPlayer();
             if (!player)
                 player = target->m_movedPlayer;
 
             if (player)
                 player->SendMovementCanFlyChange();
+
+            //! We still need to initiate a server-side MoveFall here,
+            //! which requires MSG_MOVE_FALL_LAND on landing.
         }
 
         //! Someone should clean up these hacks and remove it from this function. It doesn't even belong here.
