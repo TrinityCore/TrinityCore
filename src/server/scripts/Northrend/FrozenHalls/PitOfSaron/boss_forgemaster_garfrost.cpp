@@ -26,6 +26,9 @@ enum Yells
     SAY_DEATH           = -1658004,
     SAY_PHASE2          = -1658005,
     SAY_PHASE3          = -1658006,
+    
+    EMOTE_THROW_SARONITE = -1658022,
+    EMOTE_DEEP_FREEZE    = -1658023,
 
     SAY_TYRANNUS_DEATH  = -1658007,
 };
@@ -199,7 +202,10 @@ class boss_garfrost : public CreatureScript
                     {
                         case EVENT_THROW_SARONITE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            {
+                                DoScriptText(EMOTE_THROW_SARONITE, me, target);
                                 DoCast(target, SPELL_THROW_SARONITE);
+                            }
                             events.ScheduleEvent(EVENT_THROW_SARONITE, urand(12500, 20000));
                             break;
                         case EVENT_CHILLING_WAVE:
@@ -208,7 +214,10 @@ class boss_garfrost : public CreatureScript
                             break;
                         case EVENT_DEEP_FREEZE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            {
+                                DoScriptText(EMOTE_DEEP_FREEZE, me, target);
                                 DoCast(target, SPELL_DEEP_FREEZE);
+                            }
                             events.ScheduleEvent(EVENT_DEEP_FREEZE, 35000, 0, PHASE_THREE);
                             break;
                         case EVENT_JUMP:
