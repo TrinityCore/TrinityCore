@@ -116,9 +116,9 @@ public:
             DoUpdateWorldState(WORLD_STATE_BM_RIFT, 0);
         }
 
-        bool IsEncounterInProgress()
+        bool IsEncounterInProgress() const
         {
-            if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
+            if (const_cast<instance_dark_portal_InstanceMapScript*>(this)->GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return true;
 
             return false;
