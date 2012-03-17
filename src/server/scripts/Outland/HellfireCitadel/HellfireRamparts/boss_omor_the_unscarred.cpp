@@ -143,7 +143,7 @@ class boss_omor_the_unscarred : public CreatureScript
                         if (Player* temp = Unit::GetPlayer(*me, PlayerGUID))
                         {
                             //if unit dosen't have this flag, then no pulling back (script will attempt cast, even if orbital strike was resisted)
-                            if (temp->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+                            if (temp->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR))
                             {
                                 me->InterruptNonMeleeSpells(false);
                                 DoCast(temp, SPELL_SHADOW_WHIP);

@@ -456,7 +456,7 @@ class boss_krick : public CreatureScript
                         case EVENT_OUTRO_10:
                             //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR);
                             me->GetMotionMaster()->MovePoint(0, outroPos[6]);
                             _events.ScheduleEvent(EVENT_OUTRO_11, 2000);
                             break;
