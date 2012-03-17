@@ -16452,7 +16452,26 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
         return;
 
     if (IsInWorld())
-        RemoveNotOwnSingleTargetAuras(newPhaseMask);        // we can lost access to caster or target
+    {
+        RemoveNotOwnSingleTargetAuras(newPhaseMask);            // we can lost access to caster or target
+
+        // set offline state to hostile references which are not in new phasemask
+        HostileReference* ref = getHostileRefManager().getFirst();
+
+        while (ref)
+        {
+            // these cases deal with hostile references themselves
+            if (Player* player = ToPlayer())
+                if (player->isGameMaster() || player->GetSession()->PlayerLogout())
+                    break;
+
+            if (Unit* unit = ref->getSource()->getOwner())
+                if (Creature* creature = unit->ToCreature())
+                    getHostileRefManager().setOnlineOfflineState(creature, creature->InSamePhase(newPhaseMask));
+
+            ref = ref->next();
+        }
+    }
 
     WorldObject::SetPhaseMask(newPhaseMask, update);
 
