@@ -1695,13 +1695,14 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
                 (spellInfo->Effects[j].Effect == SPELL_EFFECT_INSTAKILL)            ||
                 (spellInfo->Effects[j].Effect == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE) ||
                 (spellInfo->Effects[j].Effect == SPELL_EFFECT_HEALTH_LEECH)
-)
+                )
             {
                 bcontinue = false;
                 break;
             }
         }
-        if (bcontinue) continue;
+        if (bcontinue)
+            continue;
 
         if (spellInfo->ManaCost > GetPower(POWER_MANA))
             continue;
@@ -1744,7 +1745,8 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
                 break;
             }
         }
-        if (bcontinue) continue;
+        if (bcontinue)
+            continue;
 
         if (spellInfo->ManaCost > GetPower(POWER_MANA))
             continue;
