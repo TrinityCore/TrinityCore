@@ -880,7 +880,7 @@ class at_pit_of_saron_start : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {
             InstanceScript* instance = player->GetInstanceScript();
-            if(instance->GetData(DATA_TYRANNUS_START) == IN_PROGRESS && instance->GetData(DATA_TYRANNUS_START) == DONE || player->isGameMaster() || !instance)
+            if(instance->GetData(DATA_TYRANNUS_START) == IN_PROGRESS || instance->GetData(DATA_TYRANNUS_START) == DONE || player->isGameMaster() || !instance)
                       return false;
                       
                instance->SetData(DATA_TYRANNUS_START, IN_PROGRESS);
