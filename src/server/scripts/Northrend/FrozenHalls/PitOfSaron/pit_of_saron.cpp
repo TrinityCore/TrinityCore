@@ -872,7 +872,22 @@ public:
         bool event;
     };
 };
+class at_pit_of_saron_start : public AreaTriggerScript
+{
+    public:
+        at_pit_of_saron_start() : AreaTriggerScript("at_pit_of_saron_start") { }
 
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+            InstanceScript* instance = player->GetInstanceScript();
+            if(instance->GetData(DATA_TYRANNUS_START) == IN_PROGRESS || player->isGameMaster() || !instance)
+                      return false;
+                          
+               instance->SetData(DATA_TYRANNUS_START, IN_PROGRESS);
+              
+            return false;
+        }
+};
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
@@ -881,4 +896,5 @@ void AddSC_pit_of_saron()
     new mob_geist_ambusher();
     new spell_trash_mob_glacial_strike();
     new pitofsaron_start();
+    new at_pit_of_saron_start();
 }

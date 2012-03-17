@@ -72,8 +72,6 @@ class instance_pit_of_saron : public InstanceMapScript
             {
                 if (!_teamInInstance)
                     _teamInInstance = player->GetTeam();
-                if(GetData(DATA_TYRANNUS_START) != DONE)
-                SetData(DATA_TYRANNUS_START, IN_PROGRESS);
             }
 
             void OnCreatureCreate(Creature* creature)
