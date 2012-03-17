@@ -864,9 +864,9 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         situations it may be feasable to use .gm fly on as a GM without having .gm on,
         e.g. aerial combat.
     */
-    
+
     if (mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
-        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) && 
+        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) &&
         !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
         VIOLATE_AND_RETURN;
 
@@ -889,6 +889,9 @@ void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
        *data << mi->t_pos.PositionXYZOStream();
        *data << mi->t_time;
        *data << mi->t_seat;
+
+       if (mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
+           *data << mi->t_time2;
     }
 
     if (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || mi->HasExtraMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))

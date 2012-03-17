@@ -2882,7 +2882,7 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
         target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
      else
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-        
+
     target->SendMovementWaterWalking();
 
 }
@@ -3234,7 +3234,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
 
     Unit* target = aurApp->GetTarget();
 
-    //! Update ability to fly 
+    //! Update ability to fly
     if (GetAuraType() == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
