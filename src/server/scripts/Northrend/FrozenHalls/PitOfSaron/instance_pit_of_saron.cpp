@@ -66,6 +66,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 _jainaOrSylvanas2GUID = 0;
                 _teamInInstance = 0;
                 _tyrannusEventStart = NOT_STARTED;
+                _areaTriggerYmirjar = NOT_STARTED;
             }
 
             void OnPlayerEnter(Player* player)
@@ -264,6 +265,8 @@ class instance_pit_of_saron : public InstanceMapScript
                         return _teamInInstance;
                     case DATA_TYRANNUS_START:
                     return _tyrannusEventStart;
+                    case DATA_AREA_TRIGGER_YMIRJAR:
+                    return _areaTriggerYmirjar;
                     default:
                         break;
                 }
@@ -302,6 +305,8 @@ class instance_pit_of_saron : public InstanceMapScript
            {
             if(type == DATA_TYRANNUS_START)
                 _tyrannusEventStart = data;
+            if(type == DATA_AREA_TRIGGER_YMIRJAR)
+                _areaTriggerYmirjar = data;
            }
             std::string GetSaveData()
             {
@@ -361,6 +366,7 @@ class instance_pit_of_saron : public InstanceMapScript
 
             uint32 _teamInInstance;
             uint8  _tyrannusEventStart;
+            uint8  _areaTriggerYmirjar;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
