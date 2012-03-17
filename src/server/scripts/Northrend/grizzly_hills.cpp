@@ -323,8 +323,13 @@ public:
                 DoCast(me, SPELL_DUST_FIELD, true);
                 switch (m_gender)
                 {
-                    case GENDER_FEMALE: DoPlaySoundToSet(me, SOUND_FEMALE); break;
-                    case GENDER_MALE: DoPlaySoundToSet(me, SOUND_MALE); break;
+                    case GENDER_FEMALE:
+                        DoPlaySoundToSet(me, SOUND_FEMALE);
+                        break;
+
+                    case GENDER_MALE:
+                        DoPlaySoundToSet(me, SOUND_MALE);
+                        break;
                 }
             }
         }

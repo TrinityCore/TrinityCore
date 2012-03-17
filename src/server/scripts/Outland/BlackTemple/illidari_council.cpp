@@ -543,8 +543,13 @@ public:
                 {
                     switch (urand(0, 1))
                     {
-                        case 0: DoCast(unit, SPELL_BLESS_SPELLWARD);  break;
-                        case 1: DoCast(unit, SPELL_BLESS_PROTECTION); break;
+                        case 0:
+                            DoCast(unit, SPELL_BLESS_SPELLWARD);
+                            break;
+
+                        case 1:
+                            DoCast(unit, SPELL_BLESS_PROTECTION);
+                            break;
                     }
                 }
                 BlessingTimer = 60000;
