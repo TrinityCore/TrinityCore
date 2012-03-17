@@ -476,6 +476,7 @@ class boss_krick : public CreatureScript
                                     DoScriptText(SAY_JAYNA_OUTRO_10, jainaOrSylvanas);
                                 else
                                     DoScriptText(SAY_SYLVANAS_OUTRO_10, jainaOrSylvanas);
+                                jainaOrSylvanas->GetMotionMaster()->MovePoint(0, 847.737610f, -6.079165f, 509.911835f);
                             }
                             // End of OUTRO. for now...
                             _events.ScheduleEvent(EVENT_OUTRO_END, 3000);

@@ -872,134 +872,22 @@ public:
         bool event;
     };
 };
-
-
-
-/*Порабощенные солдаты*/
-
-class ball_and_chain : public GameObjectScript
+class at_pit_of_saron_start : public AreaTriggerScript
 {
-public:
-    ball_and_chain() : GameObjectScript("ball_and_chain") { }
+    public:
+        at_pit_of_saron_start() : AreaTriggerScript("at_pit_of_saron_start") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGO)
-    {
-           if (player->getFaction() == HORDE)
-          {
-            Creature* pHordeSlave = pGO->FindNearestCreature(36770, 1.0f);
-            if (pHordeSlave)
-            {
-                pHordeSlave->MonsterTextEmote("делает жест рукой, как бы поднимая бокал за ваше здоровье", player->GetGUID());
-                pHordeSlave->GetMotionMaster()->MovePoint(0, 427.36f, 212.636f, 529.47f);
-                pHordeSlave->DisappearAndDie();
-            }
-          }
-          else
-           {
-            Creature* pAllianceSlave = pGO->FindNearestCreature(36764, 1.0f);
-            if (pAllianceSlave)
-            {
-                pAllianceSlave->MonsterTextEmote("делает жест рукой, как бы поднимая бокал за ваше здоровье", player->GetGUID());
-                pAllianceSlave->GetMotionMaster()->MovePoint(0, 427.36f, 212.636f, 529.47f);
-                pAllianceSlave->DisappearAndDie();
-            }
-           }
-        return true;
-    }
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+            InstanceScript* instance = player->GetInstanceScript();
+            if(instance->GetData(DATA_TYRANNUS_START) == IN_PROGRESS || player->isGameMaster() || !instance)
+                      return false;
+                          
+               instance->SetData(DATA_TYRANNUS_START, IN_PROGRESS);
+              
+            return false;
+        }
 };
-
-/*Порабощенные солдаты, нападение Горгульи */
-
-class npc_slave_p : public CreatureScript
-{
-public:
-    npc_slave_p() : CreatureScript("npc_slave_p") { }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_slave_pAI(pCreature);
-    }
-
-    struct npc_slave_pAI : public ScriptedAI
-    {
-        npc_slave_pAI(Creature *c) : ScriptedAI(c)
-        {
-			instance = c->GetInstanceScript();
-            Reset();
-        }
-
-        void Reset()
-        {
-            Stage = 0;
-            Time = 4000;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-                if (Time <= diff)
-                {
-                    switch (Stage)
-                    {
-                      case 0:
-                            if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            {
-                                GetCreatureListWithEntryInGrid(gargoyle, me, 36896, 50.0f);
-                                for(std::list<Creature*>::iterator itr = gargoyle.begin(); itr != gargoyle.end(); ++itr)
-                                {
-                                    Creature *sGargoyle = *itr;
-                                    if (!sGargoyle)
-                                        continue;
-
-                                    if (sGargoyle->isAlive())
-                                        if (Creature* sSlave = me->FindNearestCreature(36771, 50.0f, true))
-                                       {
-                                          if(sGargoyle->isAlive())
-                                          {
-                                            sGargoyle->Attack(sSlave, true);
-                                            sGargoyle->GetMotionMaster()->MoveChase(sSlave);
-                                            DoPlaySoundToSet(sSlave, 17152);
-                                            sSlave->Kill(sSlave);
-                                          }
-                                       }
-                                }
-                            }
-                            else
-                           {
-                            GetCreatureListWithEntryInGrid(gargoyle, me, 36896, 50.0f);
-                                for(std::list<Creature*>::iterator itr = gargoyle.begin(); itr != gargoyle.end(); ++itr)
-                                {
-                                    Creature *sGargoyle = *itr;
-                                    if (!sGargoyle)
-                                        continue;
-
-                                    if (sGargoyle->isAlive())
-                                        if (Creature* sSlave = me->FindNearestCreature(36765, 50.0f, true))
-                                       {
-                                          if(sSlave->isAlive())
-                                          {
-                                            sGargoyle->Attack(sSlave, true);
-                                            sGargoyle->GetMotionMaster()->MoveChase(sSlave);
-                                            sSlave->Kill(sSlave);
-                                          }
-                                       }
-                                }
-                            }
-                       ++Stage;
-                        Time = 4000;
-                       break;
-                    
-                    }
-                }else Time -= diff;
-        }
-        
-        private:
-		InstanceScript* instance;
-        std::list<Creature*> gargoyle;
-        uint32 Time;
-        uint8 Stage;
-    };
-};
-
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
@@ -1008,6 +896,5 @@ void AddSC_pit_of_saron()
     new mob_geist_ambusher();
     new spell_trash_mob_glacial_strike();
     new pitofsaron_start();
-    new ball_and_chain();
-    new npc_slave_p();
+    new at_pit_of_saron_start();
 }
