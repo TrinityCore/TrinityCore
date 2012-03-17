@@ -392,7 +392,10 @@ public:
             GlaiveGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoZoneInCombat();
+        }
 
         void ChargeCheck()
         {
@@ -2093,7 +2096,6 @@ public:
                 // }
         }
     };
-
 };
 
 class gameobject_cage_trap : public GameObjectScript
@@ -2112,7 +2114,6 @@ public:
         go->SetGoState(GO_STATE_ACTIVE);
         return true;
     }
-
 };
 
 class mob_shadow_demon : public CreatureScript
@@ -2131,7 +2132,10 @@ public:
 
         uint64 TargetGUID;
 
-        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoZoneInCombat();
+        }
 
         void Reset()
         {
@@ -2165,7 +2169,6 @@ public:
                 DoCast(me->getVictim(), SPELL_CONSUME_SOUL);
         }
     };
-
 };
 
 class mob_blade_of_azzinoth : public CreatureScript
@@ -2224,7 +2227,10 @@ public:
             DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);
         }
 
-        void EnterCombat(Unit* /*who*/) { DoZoneInCombat(); }
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoZoneInCombat();
+        }
 
         void DoMeleeAttackIfReady()
         {
@@ -2270,7 +2276,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_illidan()

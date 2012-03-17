@@ -94,6 +94,7 @@ public:
         {
             if (Creature* nether = player->SummonCreature(22408, player->GetPositionX(), player->GetPositionY()+20, player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000))
                 nether->AI()->AttackStart(player);
+
             if (Creature* nether = player->SummonCreature(22408, player->GetPositionX(), player->GetPositionY()-20, player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000))
                 nether->AI()->AttackStart(player);
         }
@@ -340,7 +341,7 @@ public:
         if (!pMammoth)
             return false;
 
-        GameObject* pTrap;
+        GameObject* pTrap = NULL;
         for (uint8 i = 0; i < MammothTrapsNum; ++i)
         {
             pTrap = player->FindNearestGameObject(MammothTraps[i], 11.0f);
