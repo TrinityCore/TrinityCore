@@ -18,10 +18,18 @@
 #include "ScriptPCH.h"
 #include "pit_of_saron.h"
 
-// positions for Martin Victus (37591) and Gorkun Ironskull (37592)
-Position const SlaveLeaderPos  = {689.7158f, -104.8736f, 513.7360f, 0.0f};
 // position for Jaina and Sylvanas
 Position const EventLeaderPos2 = {1054.368f, 107.14620f, 628.4467f, 0.0f};
+//Slaves For Alliance and Horde. Martin Victus and Gorkun Ironskull 
+const uint32 NpcSlaveAlliance[3] = {37591, 37572, 37575 };
+const uint32 NpcSlaveHorde[3] = {37592, 37578, 37579};
+//Dead Garfrost from sniff
+static const Position SlaveLeaderPos[3] =
+{
+    {693.281555f, -169.690872f, 526.965454f, 1.485173f}, 
+    {696.024902f, -169.953308f, 526.870850f, 1.603771f}, 
+    {690.887512f, -169.970963f, 526.891357f, 1.269191f},
+};
 
 class instance_pit_of_saron : public InstanceMapScript
 {
@@ -188,10 +196,13 @@ class instance_pit_of_saron : public InstanceMapScript
                         {
                             if (Creature* summoner = instance->GetCreature(_garfrostGUID))
                             {
+                                for (int i = 0; i < 3; ++i)
+                               {
                                 if (_teamInInstance == ALLIANCE)
-                                    summoner->SummonCreature(NPC_MARTIN_VICTUS_1, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
+                                    summoner->SummonCreature(NpcSlaveAlliance[i], SlaveLeaderPos[i], TEMPSUMMON_MANUAL_DESPAWN);
                                 else
-                                    summoner->SummonCreature(NPC_GORKUN_IRONSKULL_2, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
+                                    summoner->SummonCreature(NpcSlaveHorde[i], SlaveLeaderPos[i], TEMPSUMMON_MANUAL_DESPAWN);
+                               }
                             }
                             
                             if(GetBossState(DATA_ICK)==DONE)
