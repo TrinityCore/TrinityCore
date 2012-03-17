@@ -3033,6 +3033,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 40246: case 40247: // Simon Game Visual
             case 42835: // Spout, remove damage effect, only anim is needed
                 spellInfo->Effect[0] = 0;
+                break;
             case 23881: // Warrior's Bloodthirst
                 spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
                 break;
