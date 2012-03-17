@@ -643,7 +643,8 @@ uint32 WorldSession::getDialogStatus(Player* player, Object* questgiver, uint32 
         uint32 result2 = 0;
         uint32 quest_id = i->second;
         Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
-        if (!quest) continue;
+        if (!quest)
+            continue;
 
         ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK, quest->GetQuestId());
         if (!sConditionMgr->IsObjectMeetToConditions(player, conditions))
