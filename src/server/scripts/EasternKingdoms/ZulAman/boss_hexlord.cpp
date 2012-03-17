@@ -186,7 +186,10 @@ struct boss_hexlord_addAI : public ScriptedAI
 
     void Reset() {}
 
-    void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
+    void EnterCombat(Unit* /*who*/)
+    {
+        DoZoneInCombat();
+    }
 
     void UpdateAI(const uint32 /*diff*/)
     {

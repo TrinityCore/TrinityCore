@@ -318,10 +318,10 @@ public:
 
         void DoSelectSummon()
         {
-            uint32 entry = 0;
-
             if ((mRiftWaveCount > 2 && mWaveId < 1) || mRiftWaveCount > 3)
                 mRiftWaveCount = 0;
+
+            uint32 entry = 0;
 
             entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
             sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);

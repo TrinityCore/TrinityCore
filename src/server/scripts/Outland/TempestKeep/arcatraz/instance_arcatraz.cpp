@@ -103,15 +103,41 @@ class instance_arcatraz : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
-                case CONTAINMENT_CORE_SECURITY_FIELD_ALPHA: Containment_Core_Security_Field_AlphaGUID = go->GetGUID(); break;
-                case CONTAINMENT_CORE_SECURITY_FIELD_BETA:  Containment_Core_Security_Field_BetaGUID =  go->GetGUID(); break;
-                case POD_ALPHA:                             Pod_AlphaGUID = go->GetGUID();                             break;
-                case POD_GAMMA:                             Pod_GammaGUID = go->GetGUID();                             break;
-                case POD_BETA:                              Pod_BetaGUID =  go->GetGUID();                             break;
-                case POD_DELTA:                             Pod_DeltaGUID = go->GetGUID();                             break;
-                case POD_OMEGA:                             Pod_OmegaGUID = go->GetGUID();                             break;
-                case SEAL_SPHERE:                           GoSphereGUID = go->GetGUID();                              break;
-                //case WARDENS_SHIELD:                        Wardens_ShieldGUID = go->GetGUID();                        break;
+                case CONTAINMENT_CORE_SECURITY_FIELD_ALPHA:
+                    Containment_Core_Security_Field_AlphaGUID = go->GetGUID();
+                    break;
+
+                case CONTAINMENT_CORE_SECURITY_FIELD_BETA:
+                    Containment_Core_Security_Field_BetaGUID = go->GetGUID();
+                    break;
+
+                case POD_ALPHA:
+                    Pod_AlphaGUID = go->GetGUID();
+                    break;
+
+                case POD_GAMMA:
+                    Pod_GammaGUID = go->GetGUID();
+                    break;
+
+                case POD_BETA:
+                    Pod_BetaGUID = go->GetGUID();
+                    break;
+
+                case POD_DELTA:
+                    Pod_DeltaGUID = go->GetGUID();
+                    break;
+
+                case POD_OMEGA:
+                    Pod_OmegaGUID = go->GetGUID();
+                    break;
+
+                case SEAL_SPHERE:
+                    GoSphereGUID = go->GetGUID();
+                    break;
+
+                /*case WARDENS_SHIELD:
+                    Wardens_ShieldGUID = go->GetGUID();
+                    break;*/
                 }
             }
 
