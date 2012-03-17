@@ -169,8 +169,8 @@ enum eArgentValiant
 {
     SPELL_CHARGE                = 63010,
     SPELL_SHIELD_BREAKER        = 65147,
-    SPELL_KILL_CREDIT			= 63049,
-	AURA_MOUNTED				= 63034,
+    SPELL_KILL_CREDIT		= 63049,
+    AURA_MOUNTED		= 63034,
 };
 
 class npc_argent_valiant : public CreatureScript
@@ -209,7 +209,7 @@ public:
             {
                 uiDamage = 0;
                 if (pDoneBy->HasAura(AURA_MOUNTED))
-    				pDoneBy->CastSpell(pDoneBy,SPELL_KILL_CREDIT, true);
+    			pDoneBy->CastSpell(pDoneBy,SPELL_KILL_CREDIT, true);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
