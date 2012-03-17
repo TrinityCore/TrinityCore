@@ -810,8 +810,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
     #define VIOLATE_AND_RETURN \
     { \
-        sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found. "
-            "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Player will not be relocated.",
+        sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found. " \
+            "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Player will not be relocated.", \
             mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUIDLow()); \
         mi->Violated = true; \
         return; \
