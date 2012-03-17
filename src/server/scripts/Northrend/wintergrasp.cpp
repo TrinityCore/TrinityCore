@@ -63,13 +63,13 @@ class npc_wg_demolisher_engineer : public CreatureScript
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(1);
+        Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
 
-        if (!BfWG)
+		if (!BfWG)
             return true;
 
-        if (BfWG->GetData(creature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_MAX_VEHICLE_H : BATTLEFIELD_WG_DATA_MAX_VEHICLE_A) >
-            BfWG->GetData(creature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_VEHICLE_H : BATTLEFIELD_WG_DATA_VEHICLE_A))
+		if ((creature->GetEntry() == 30400 ? BfWG->GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H) : BfWG->GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A)) >=
+            (creature->GetEntry() == 30400 ? BfWG->GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) : BfWG->GetData(BATTLEFIELD_WG_DATA_VEHICLE_A)))
         {
             if (player->HasAura(SPELL_CORPORAL))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -91,13 +91,13 @@ class npc_wg_demolisher_engineer : public CreatureScript
     {
         player->CLOSE_GOSSIP_MENU();
 
-        Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(1);
+        Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
 
         if (!BfWG)
             return true;
 
-        if (BfWG->GetData(creature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_MAX_VEHICLE_H : BATTLEFIELD_WG_DATA_MAX_VEHICLE_A) >
-            BfWG->GetData(creature->GetEntry() == 30400 ? BATTLEFIELD_WG_DATA_VEHICLE_H : BATTLEFIELD_WG_DATA_VEHICLE_A))
+        if ((creature->GetEntry() == 30400 ? BfWG->GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H) : BfWG->GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A)) >=
+            (creature->GetEntry() == 30400 ? BfWG->GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) : BfWG->GetData(BATTLEFIELD_WG_DATA_VEHICLE_A)))
         {
             switch (action - GOSSIP_ACTION_INFO_DEF)
             {
@@ -113,8 +113,8 @@ class npc_wg_demolisher_engineer : public CreatureScript
             }
             //spell 49899 Emote : 406 from sniff
             //INSERT INTO `spell_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES ('49899', '0', '1', '406', '0', '0', '0', '0', '0', '0');
-            if (Creature* creature = creature->FindNearestCreature(27852, 30.0f, true))
-                creature->CastSpell(creature, SPELL_ACTIVATE_ROBOTIC_ARMS, true);
+            //if (Creature* creature = creature->FindNearestCreature(27852, 30.0f, true))
+            //    creature->CastSpell(creature, SPELL_ACTIVATE_ROBOTIC_ARMS, true);
         }
         return true;
     }
@@ -267,9 +267,10 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                                         vehicle->CastSpell(vehicle, SPELL_VEHICLE_TELEPORT, true);
                                         if (Creature* TargetTeleport = vehicle->FindNearestCreature(23472, 100.0f, true))
                                         {
-                                            float x, y, z, o;
-                                            TargetTeleport->GetPosition(x, y, z, o);
-                                            vehicle->GetVehicle()->TeleportVehicle(x, y, z, o);
+                                           Position TargetPos;
+                                           TargetTeleport->GetPosition(&TargetPos);
+                                           TargetPos.m_positionX -= 30;
+                                           vehicle->Relocate(TargetPos);
                                         }
                                     }
                                 }
