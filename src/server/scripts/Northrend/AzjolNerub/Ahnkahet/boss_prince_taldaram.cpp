@@ -402,8 +402,13 @@ public:
 
             switch (go->GetEntry())
             {
-                case GO_SPHERE1: instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS); break;
-                case GO_SPHERE2: instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS); break;
+                case GO_SPHERE1:
+                    instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS);
+                    break;
+
+                case GO_SPHERE2:
+                    instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS);
+                    break;
             }
 
             CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();

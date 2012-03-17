@@ -516,7 +516,6 @@ public:
         {
         }
     };
-
 };
 
 void AddSC_azshara()
