@@ -73,21 +73,29 @@ class npc_professor_phizzlethorpe : public CreatureScript
 
                 switch (uiPointId)
                 {
-                case 4:Talk(SAY_PROGRESS_2, player->GetGUID());break;
-                case 5:Talk(SAY_PROGRESS_3, player->GetGUID());break;
-                case 8:Talk(EMOTE_PROGRESS_4);break;
+                case 4:
+                    Talk(SAY_PROGRESS_2, player->GetGUID());
+                    break;
+                case 5:
+                    Talk(SAY_PROGRESS_3, player->GetGUID());
+                    break;
+                case 8:
+                    Talk(EMOTE_PROGRESS_4);
+                    break;
                 case 9:
-                    {
                     me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     break;
-                    }
-                case 10:Talk(SAY_PROGRESS_5, player->GetGUID());break;
+                case 10:
+                    Talk(SAY_PROGRESS_5, player->GetGUID());
+                    break;
                 case 11:
                     Talk(SAY_PROGRESS_6, player->GetGUID());
                     SetRun();
                     break;
-                case 19:Talk(SAY_PROGRESS_7, player->GetGUID()); break;
+                case 19:
+                    Talk(SAY_PROGRESS_7, player->GetGUID());
+                    break;
                 case 20:
                     Talk(EMOTE_PROGRESS_8);
                     Talk(SAY_PROGRESS_9, player->GetGUID());

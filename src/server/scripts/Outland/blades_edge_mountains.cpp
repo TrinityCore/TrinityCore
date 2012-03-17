@@ -790,20 +790,42 @@ class npc_simon_bunny : public CreatureScript
                         {
                             switch (go->GetGOInfo()->displayId)
                             {
-                                case GO_BLUE_CLUSTER_DISPLAY_LARGE: clusterIds[SIMON_BLUE] = go->GetEntry(); break;
-                                case GO_RED_CLUSTER_DISPLAY_LARGE: clusterIds[SIMON_RED] = go->GetEntry(); break;
-                                case GO_GREEN_CLUSTER_DISPLAY_LARGE: clusterIds[SIMON_GREEN] = go->GetEntry(); break;
-                                case GO_YELLOW_CLUSTER_DISPLAY_LARGE: clusterIds[SIMON_YELLOW] = go->GetEntry(); break;
+                                case GO_BLUE_CLUSTER_DISPLAY_LARGE:
+                                    clusterIds[SIMON_BLUE] = go->GetEntry();
+                                    break;
+
+                                case GO_RED_CLUSTER_DISPLAY_LARGE:
+                                    clusterIds[SIMON_RED] = go->GetEntry();
+                                    break;
+
+                                case GO_GREEN_CLUSTER_DISPLAY_LARGE:
+                                    clusterIds[SIMON_GREEN] = go->GetEntry();
+                                    break;
+
+                                case GO_YELLOW_CLUSTER_DISPLAY_LARGE:
+                                    clusterIds[SIMON_YELLOW] = go->GetEntry();
+                                    break;
                             }
                         }
                         else
                         {
                             switch (go->GetGOInfo()->displayId)
                             {
-                                case GO_BLUE_CLUSTER_DISPLAY: clusterIds[SIMON_BLUE] = go->GetEntry(); break;
-                                case GO_RED_CLUSTER_DISPLAY: clusterIds[SIMON_RED] = go->GetEntry(); break;
-                                case GO_GREEN_CLUSTER_DISPLAY: clusterIds[SIMON_GREEN] = go->GetEntry(); break;
-                                case GO_YELLOW_CLUSTER_DISPLAY: clusterIds[SIMON_YELLOW] = go->GetEntry(); break;
+                                case GO_BLUE_CLUSTER_DISPLAY:
+                                    clusterIds[SIMON_BLUE] = go->GetEntry();
+                                    break;
+
+                                case GO_RED_CLUSTER_DISPLAY:
+                                    clusterIds[SIMON_RED] = go->GetEntry();
+                                    break;
+
+                                case GO_GREEN_CLUSTER_DISPLAY:
+                                    clusterIds[SIMON_GREEN] = go->GetEntry();
+                                    break;
+
+                                case GO_YELLOW_CLUSTER_DISPLAY:
+                                    clusterIds[SIMON_YELLOW] = go->GetEntry();
+                                    break;
                             }
                         }
                     }
