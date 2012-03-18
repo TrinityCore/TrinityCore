@@ -43,7 +43,7 @@ public:
 
     struct boss_ramstein_the_gorgerAI : public ScriptedAI
     {
-        boss_ramstein_the_gorgerAI(Creature* c) : ScriptedAI(c)
+        boss_ramstein_the_gorgerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
         }

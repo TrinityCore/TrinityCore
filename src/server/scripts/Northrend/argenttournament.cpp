@@ -2474,7 +2474,7 @@ public:
             if (who && apply)
             {
                     wp_reached = true;
-                    me->SetFlying(true);
+                    me->SetCanFly(true);
                     me->SetSpeed(MOVE_FLIGHT, 5.0f);
             }
         }

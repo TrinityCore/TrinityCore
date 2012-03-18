@@ -110,7 +110,8 @@ public:
         bool IsEncounterInProgress() const
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS) return true;
+                if (m_auiEncounter[i] == IN_PROGRESS)
+                    return true;
 
             return false;
         }
@@ -175,17 +176,23 @@ public:
         {
             switch (type)
             {
-                case DATA_RAGEWINTERCHILLEVENT: m_auiEncounter[0] = data; break;
+                case DATA_RAGEWINTERCHILLEVENT:
+                    m_auiEncounter[0] = data;
+                    break;
                 case DATA_ANETHERONEVENT:
                     m_auiEncounter[1] = data;
                     break;
-                case DATA_KAZROGALEVENT:        m_auiEncounter[2] = data; break;
+                case DATA_KAZROGALEVENT:
+                    m_auiEncounter[2] = data;
+                    break;
                 case DATA_AZGALOREVENT:
                     {
                         m_auiEncounter[3] = data;
                         if (data == DONE)
                         {
-                            if (ArchiYell)break;
+                            if (ArchiYell)
+                                break;
+
                             ArchiYell = true;
 
                             Creature* creature = instance->GetCreature(Azgalor);
@@ -219,12 +226,17 @@ public:
                         }
                     }
                     break;
-                case DATA_ARCHIMONDEEVENT:      m_auiEncounter[4] = data; break;
-                case DATA_RESET_TRASH_COUNT:    Trash = 0;            break;
-
+                case DATA_ARCHIMONDEEVENT:
+                    m_auiEncounter[4] = data;
+                    break;
+                case DATA_RESET_TRASH_COUNT:
+                    Trash = 0;
+                    break;
                 case DATA_TRASH:
-                    if (data) Trash = data;
-                    else     Trash--;
+                    if (data)
+                        Trash = data;
+                    else
+                        Trash--;
                     DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, Trash);
                     break;
                 case TYPE_RETREAT:

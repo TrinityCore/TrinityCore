@@ -387,7 +387,7 @@ public:
         void Reset()
         {
             boltTimer = urand(3000, 6000);
-            me->SetFlying(true);
+            me->SetCanFly(true);
             me->SetSpeed(MOVE_FLIGHT, 2.1f);
         }
 
@@ -429,7 +429,7 @@ public:
         void Reset()
         {
             boltTimer = urand(6000, 12000);
-            me->SetFlying(true);
+            me->SetCanFly(true);
             me->SetSpeed(MOVE_FLIGHT, 3.1f);
         }
 

@@ -340,7 +340,10 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
             *data << ((WorldObject*)this)->GetPositionX();
             *data << ((WorldObject*)this)->GetPositionY();
-            *data << ((WorldObject*)this)->GetPositionZ();
+            if (isType(TYPEMASK_UNIT))
+                *data << ((Unit*)this)->GetPositionZMinusOffset();
+            else
+                *data << ((WorldObject*)this)->GetPositionZ();
 
             if (transport)
             {
@@ -352,7 +355,10 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             {
                 *data << ((WorldObject*)this)->GetPositionX();
                 *data << ((WorldObject*)this)->GetPositionY();
-                *data << ((WorldObject*)this)->GetPositionZ();
+                if (isType(TYPEMASK_UNIT))
+                    *data << ((Unit*)this)->GetPositionZMinusOffset();
+                else
+                    *data << ((WorldObject*)this)->GetPositionZ();
             }
 
             *data << ((WorldObject*)this)->GetOrientation();
@@ -369,7 +375,10 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             {
                 *data << ((WorldObject*)this)->GetPositionX();
                 *data << ((WorldObject*)this)->GetPositionY();
-                *data << ((WorldObject*)this)->GetPositionZ();
+                if (isType(TYPEMASK_UNIT))
+                    *data << ((Unit*)this)->GetPositionZMinusOffset();
+                else
+                    *data << ((WorldObject*)this)->GetPositionZ();
                 *data << ((WorldObject*)this)->GetOrientation();
             }
         }
@@ -477,6 +486,10 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
             }
             updateMask->SetBit(GAMEOBJECT_DYNAMIC);
             updateMask->SetBit(GAMEOBJECT_BYTES_1);
+
+            if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST && ToGameObject()->GetGOInfo()->chest.groupLootRules &&
+                ToGameObject()->HasLootRecipient())
+                updateMask->SetBit(GAMEOBJECT_FLAGS);
         }
         else if (isType(TYPEMASK_UNIT))
         {
@@ -699,6 +712,15 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                         *data << uint16(0);
                         *data << uint16(-1);
                     }
+                }
+                else if (index == GAMEOBJECT_FLAGS)
+                {
+                    uint32 flags = m_uint32Values[index];
+                    if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST)
+                        if (ToGameObject()->GetGOInfo()->chest.groupLootRules && !ToGameObject()->IsLootAllowedFor(target))
+                            flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
+
+                    *data << flags;
                 }
                 else
                     *data << m_uint32Values[index];                // other cases
@@ -1164,7 +1186,7 @@ void MovementInfo::OutDebug()
         sLog->outString("pitch: %f", pitch);
 
     sLog->outString("fallTime: %u", fallTime);
-    if (flags & MOVEMENTFLAG_JUMPING)
+    if (flags & MOVEMENTFLAG_FALLING)
         sLog->outString("j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed);
 
     if (flags & MOVEMENTFLAG_SPLINE_ELEVATION)
@@ -1557,7 +1579,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         {
             // non fly unit don't must be in air
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
-            if (!ToCreature()->canFly())
+            if (!ToCreature()->CanFly())
             {
                 bool canSwim = ToCreature()->canSwim();
                 float ground_z = z;
@@ -1583,7 +1605,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         case TYPEID_PLAYER:
         {
             // for server controlled moves playr work same as creature (but it can always swim)
-            if (!ToPlayer()->canFly())
+            if (!ToPlayer()->CanFly())
             {
                 float ground_z = z;
                 float max_z = GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));

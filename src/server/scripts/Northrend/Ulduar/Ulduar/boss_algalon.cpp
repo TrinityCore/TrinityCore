@@ -306,7 +306,7 @@ class boss_algalon : public CreatureScript
                     instance->SetData(BOSS_ALGALON, NOT_STARTED);
 
                 me->setFaction(FACTION_NEUTRAL);
-                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                 me->SendMovementFlagUpdate();
                 me->SetVisible(false);
                 me->SetSheath(SHEATH_STATE_UNARMED);
@@ -381,7 +381,7 @@ class boss_algalon : public CreatureScript
                     Summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, me->GetGUID());
                     break;
                 case CREATURE_UNLEASHED_DARK_MATTER:
-                    Summon->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    Summon->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                     Summon->SetInCombatWithZone();
                     if (Unit* Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         Summon->AI()->AttackStart(Target);
@@ -559,7 +559,7 @@ class boss_algalon : public CreatureScript
                         break;
                     case 3:
                         Talk(SAY_SUMMON_2);
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                         me->SendMovementFlagUpdate();
                         DoCastAOE(SPELL_REORIGINATION);
                         JumpToNextStep(8000);
@@ -1042,7 +1042,7 @@ class mob_living_constellation : public CreatureScript
             {
                 active = false;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC);
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->SendMovementFlagUpdate();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 6);
@@ -1116,7 +1116,7 @@ class mob_dark_matter_algalon : public CreatureScript
             void InitializeAI()
             {
                 me->SetPhaseMask(16, true);
-                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                 Reset();
             }
 
@@ -1518,7 +1518,7 @@ class spell_algalon_summon_asteroid_stalkers : public SpellScriptLoader
                 summon->SetReactState(REACT_PASSIVE);
                 if (entry == CREATURE_ALGALON_ASTEROID_2)
                 {
-                    summon->SetFlying(true);
+                    summon->SetCanFly(true);
                     summon->SendMovementFlagUpdate();
                 }
                 summon->setFaction(GetOriginalCaster()->getFaction());

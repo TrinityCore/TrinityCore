@@ -37,9 +37,9 @@ public:
 
     struct boss_moraggAI : public ScriptedAI
     {
-        boss_moraggAI(Creature* c) : ScriptedAI(c)
+        boss_moraggAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         uint32 uiOpticLinkTimer;

@@ -225,7 +225,7 @@ class boss_malygos : public CreatureScript
                 addsCount = 0;
 
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->SetSpeed(MOVE_FLIGHT, 2.0f, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -247,7 +247,7 @@ class boss_malygos : public CreatureScript
                         break;
                     case NPC_STATIC_FIELD:
                         summon->SetDisplayId(11686);
-                        summon->SetFlying(true);
+                        summon->SetCanFly(true);
                         summon->SetInCombatWithZone();
                         summon->AddUnitState(UNIT_STATE_ROOT);
                         summon->SetReactState(REACT_PASSIVE);
@@ -350,7 +350,7 @@ class boss_malygos : public CreatureScript
                                 if (Creature* vortex = me->SummonCreature(NPC_VORTEX, Locations[2], TEMPSUMMON_TIMED_DESPAWN, 10*IN_MILLISECONDS))
                                 {
                                     vortex->SetDisplayId(11686);
-                                    vortex->SetFlying(true);
+                                    vortex->SetCanFly(true);
                                     player->CastSpell(vortex, SPELL_VORTEX_PLAYER, true);
                                 }
                             }
@@ -362,7 +362,7 @@ class boss_malygos : public CreatureScript
                         if (Creature* spark = me->SummonCreature(NPC_POWER_SPARK, SparkLocations[urand(0, 3)], TEMPSUMMON_TIMED_DESPAWN, 90*IN_MILLISECONDS))
                         {
                             DoScriptText(SAY_SPARK_SUMMON, me);
-                            spark->SetFlying(true);
+                            spark->SetCanFly(true);
                             spark->SetSpeed(MOVE_FLIGHT, 0.8f);
                             spark->SetReactState(REACT_PASSIVE);
                             spark->SetInCombatWithZone();
@@ -426,7 +426,7 @@ class boss_malygos : public CreatureScript
                                 if (Creature* temp = me->SummonCreature(NPC_HOVER_DISK_MELEE, Locations[1], TEMPSUMMON_CORPSE_DESPAWN))
                                 {
                                     scion->CastSpell(temp, SPELL_ADD_RIDE_VEHICLE, true);
-                                    temp->SetFlying(true);
+                                    temp->SetCanFly(true);
                                     temp->SetSpeed(MOVE_FLIGHT, 0.7f);
                                     temp->SetReactState(REACT_PASSIVE);
                                     temp->GetMotionMaster()->MovePoint(0, Locations[2]);
@@ -451,7 +451,7 @@ class boss_malygos : public CreatureScript
                                 if (Creature* mount = player->SummonCreature(NPC_WYRMREST_SKYTALON, player->GetPositionX(), player->GetPositionY(),
                                     220.0f, player->GetOrientation()))
                                 {
-                                    mount->SetFlying(true);
+                                    mount->SetCanFly(true);
                                     mount->SetSpeed(MOVE_FLIGHT, 2.0f);
                                     mounts.push_back(std::pair<uint64, uint64>(mount->GetGUID(), player->GetGUID()));
                                 }
@@ -611,7 +611,7 @@ class boss_malygos : public CreatureScript
                         if (instance)
                             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
-                        me->SetFlying(false);
+                        me->SetCanFly(false);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
@@ -636,7 +636,7 @@ class boss_malygos : public CreatureScript
                     case POINT_FLYDOWN:
                     {
                         SparkMovement(true);
-                        me->SetFlying(false);
+                        me->SetCanFly(false);
 
                         if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->GetMotionMaster()->MoveChase(victim);
@@ -749,7 +749,7 @@ class boss_malygos : public CreatureScript
                             break;
                         case EVENT_VORTEXFLYUP:
                             SparkMovement(false);
-                            me->SetFlying(true);
+                            me->SetCanFly(true);
                             me->SetReactState(REACT_PASSIVE);
                             me->GetMotionMaster()->MoveTakeoff(POINT_VORTEX, Locations[1], 10.0f);
                             events.CancelEvent(EVENT_STORM);
@@ -774,7 +774,7 @@ class boss_malygos : public CreatureScript
 
                                     if (phase == PHASE_ADDS)
                                     {
-                                        me->SetFlying(true);
+                                        me->SetCanFly(true);
                                         me->SetSpeed(MOVE_FLIGHT, 10.0f);
                                         me->SetReactState(REACT_AGGRESSIVE);
                                         me->GetMotionMaster()->Clear();
@@ -868,7 +868,7 @@ class boss_malygos : public CreatureScript
                     if (!me->HasAura(SPELL_ENRAGE))
                     {
                         DoScriptText(SAY_PHASE1_END, me);
-                        me->SetFlying(true);
+                        me->SetCanFly(true);
                         me->SetReactState(REACT_PASSIVE);
                         me->GetMotionMaster()->MoveTakeoff(POINT_PHASE_2, Locations[3], 2.5f);
                         events.CancelEvent(EVENT_STORM);
@@ -1041,7 +1041,7 @@ class npc_alexstrasza : public CreatureScript
             {
                 _step = 1;
                 _stepTimer = 5*IN_MILLISECONDS;
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->setActive(true);
             }
 
@@ -1094,7 +1094,7 @@ class npc_alexstrasza : public CreatureScript
                             DoScriptText(SAY_OUTRO_2, me);
                             if (Creature* gift = me->SummonCreature(NPC_ALEXSTRASZAS_GIFT, Locations[5], TEMPSUMMON_TIMED_DESPAWN, 90*IN_MILLISECONDS))
                             {
-                                gift->SetFlying(true);
+                                gift->SetCanFly(true);
                                 gift->SetDisplayId(11686);
                                 gift->CastSpell(gift, SPELL_ALEXSTRASZAS_GIFT_VISUAL, true);
                                 DoCast(SPELL_ALEXSTRASZAS_GIFT_BEAM);
@@ -1205,7 +1205,7 @@ class npc_power_spark : public CreatureScript
                     damage = me->GetHealth() - 1;
                     DoCast(me, SPELL_POWER_SPARK_PLAYERS, true);
 
-                    me->SetFlying(false);
+                    me->SetCanFly(false);
                     me->SetReactState(REACT_PASSIVE);
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveFall();
@@ -1421,7 +1421,7 @@ class go_focusing_iris : public GameObjectScript
                     TEMPSUMMON_TIMED_DESPAWN, 6*IN_MILLISECONDS))
                 {
                     trigger->SetDisplayId(11686);
-                    trigger->SetFlying(true);
+                    trigger->SetCanFly(true);
                     trigger->SetReactState(REACT_PASSIVE);
                     trigger->CastSpell(trigger, SPELL_IRIS_VISUAL, true);
                 }

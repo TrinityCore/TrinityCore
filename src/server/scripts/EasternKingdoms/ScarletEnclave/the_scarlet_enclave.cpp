@@ -35,7 +35,7 @@ public:
 
     struct npc_valkyr_battle_maidenAI : public PassiveAI
     {
-        npc_valkyr_battle_maidenAI(Creature* c) : PassiveAI(c) {}
+        npc_valkyr_battle_maidenAI(Creature* creature) : PassiveAI(creature) {}
 
         uint32 FlyBackTimer;
         float x, y, z;
@@ -46,7 +46,7 @@ public:
             me->setActive(true);
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlying(true);
+            me->SetCanFly(true);
             FlyBackTimer = 500;
             phase = 0;
 

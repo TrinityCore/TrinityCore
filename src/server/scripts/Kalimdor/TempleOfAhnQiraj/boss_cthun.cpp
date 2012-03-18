@@ -176,9 +176,9 @@ public:
 
     struct eye_of_cthunAI : public Scripted_NoMovementAI
     {
-        eye_of_cthunAI(Creature* c) : Scripted_NoMovementAI(c)
+        eye_of_cthunAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             if (!instance)
                 sLog->outError("TSCR: No Instance eye_of_cthunAI");
         }
@@ -480,11 +480,11 @@ public:
 
     struct cthunAI : public Scripted_NoMovementAI
     {
-        cthunAI(Creature* c) : Scripted_NoMovementAI(c)
+        cthunAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             SetCombatMovement(false);
 
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             if (!instance)
                 sLog->outError("TSCR: No Instance eye_of_cthunAI");
         }
@@ -607,7 +607,8 @@ public:
                 if (WisperTimer <= diff)
                 {
                     Map* map = me->GetMap();
-                    if (!map->IsDungeon()) return;
+                    if (!map->IsDungeon())
+                        return;
 
                     //Play random sound to the zone
                     Map::PlayerList const &PlayerList = map->GetPlayers();
@@ -935,7 +936,7 @@ public:
 
     struct eye_tentacleAI : public Scripted_NoMovementAI
     {
-        eye_tentacleAI(Creature* c) : Scripted_NoMovementAI(c)
+        eye_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             if (Creature* pPortal = me->SummonCreature(MOB_SMALL_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
             {
@@ -1008,7 +1009,7 @@ public:
 
     struct claw_tentacleAI : public Scripted_NoMovementAI
     {
-        claw_tentacleAI(Creature* c) : Scripted_NoMovementAI(c)
+        claw_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1118,7 +1119,7 @@ public:
 
     struct giant_claw_tentacleAI : public Scripted_NoMovementAI
     {
-        giant_claw_tentacleAI(Creature* c) : Scripted_NoMovementAI(c)
+        giant_claw_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1237,7 +1238,7 @@ public:
 
     struct giant_eye_tentacleAI : public Scripted_NoMovementAI
     {
-        giant_eye_tentacleAI(Creature* c) : Scripted_NoMovementAI(c)
+        giant_eye_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1301,7 +1302,7 @@ public:
 
     struct flesh_tentacleAI : public Scripted_NoMovementAI
     {
-        flesh_tentacleAI(Creature* c) : Scripted_NoMovementAI(c)
+        flesh_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             SetCombatMovement(false);
         }

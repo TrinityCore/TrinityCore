@@ -57,7 +57,7 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 & /*diff*/)
 }
 
 template<class T>
-void PointMovementGenerator<T>:: Finalize(T &unit)
+void PointMovementGenerator<T>::Finalize(T &unit)
 {
     unit.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
 

@@ -79,7 +79,7 @@ public:
 
     struct mob_inner_demonAI : public ScriptedAI
     {
-        mob_inner_demonAI(Creature* c) : ScriptedAI(c)
+        mob_inner_demonAI(Creature* creature) : ScriptedAI(creature)
         {
             victimGUID = 0;
         }
@@ -112,7 +112,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (!victimGUID) return;
+            if (!victimGUID)
+                return;
         }
 
         void UpdateAI(const uint32 diff)
@@ -170,10 +171,10 @@ public:
 
     struct boss_leotheras_the_blindAI : public ScriptedAI
     {
-        boss_leotheras_the_blindAI(Creature* c) : ScriptedAI(c)
+        boss_leotheras_the_blindAI(Creature* creature) : ScriptedAI(creature)
         {
-            c->GetPosition(x, y, z);
-            instance = c->GetInstanceScript();
+            creature->GetPosition(x, y, z);
+            instance = creature->GetInstanceScript();
             Demon = 0;
 
             for (uint8 i = 0; i < 3; ++i)//clear guids
@@ -600,7 +601,7 @@ public:
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
     {
-        boss_leotheras_the_blind_demonformAI(Creature* c) : ScriptedAI(c) {}
+        boss_leotheras_the_blind_demonformAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ChaosBlast_Timer;
         bool DealDamage;
@@ -673,9 +674,9 @@ public:
 
     struct mob_greyheart_spellbinderAI : public ScriptedAI
     {
-        mob_greyheart_spellbinderAI(Creature* c) : ScriptedAI(c)
+        mob_greyheart_spellbinderAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             leotherasGUID = 0;
             AddedBanish = false;
         }

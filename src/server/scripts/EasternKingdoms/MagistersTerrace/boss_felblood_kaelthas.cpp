@@ -89,9 +89,9 @@ public:
 
     struct boss_felblood_kaelthasAI : public ScriptedAI
     {
-        boss_felblood_kaelthasAI(Creature* c) : ScriptedAI(c)
+        boss_felblood_kaelthasAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -154,14 +154,18 @@ public:
             if (!instance)
                 return;
 
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
             // Open the encounter door
+            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
+
+            // Enable the Translocation Orb Exit
+            if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ESCAPE_ORB)))
+                    escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (damage > me->GetHealth())
-                RemoveGravityLapse();                           // Remove Gravity Lapse so that players fall to ground if they kill him when in air.
+                RemoveGravityLapse(); // Remove Gravity Lapse so that players fall to ground if they kill him when in air.
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -169,8 +173,8 @@ public:
             if (!instance)
                 return;
 
+            //Close the encounter door, open it in JustDied/Reset
             instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), false);
-           //Close the encounter door, open it in JustDied/Reset
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -441,7 +445,7 @@ public:
 
     struct mob_felkael_flamestrikeAI : public ScriptedAI
     {
-        mob_felkael_flamestrikeAI(Creature* c) : ScriptedAI(c)
+        mob_felkael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -483,9 +487,9 @@ public:
 
     struct mob_felkael_phoenixAI : public ScriptedAI
     {
-        mob_felkael_phoenixAI(Creature* c) : ScriptedAI(c)
+        mob_felkael_phoenixAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -497,7 +501,7 @@ public:
         void Reset()
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             DoCast(me, SPELL_PHOENIX_BURN, true);
             BurnTimer = 2000;
             Death_Timer = 3000;
@@ -603,7 +607,7 @@ public:
 
     struct mob_felkael_phoenix_eggAI : public ScriptedAI
     {
-        mob_felkael_phoenix_eggAI(Creature* c) : ScriptedAI(c) {}
+        mob_felkael_phoenix_eggAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 HatchTimer;
 
@@ -640,7 +644,7 @@ public:
 
     struct mob_arcane_sphereAI : public ScriptedAI
     {
-        mob_arcane_sphereAI(Creature* c) : ScriptedAI(c) { Reset(); }
+        mob_arcane_sphereAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
 
         uint32 DespawnTimer;
         uint32 ChangeTargetTimer;
@@ -651,7 +655,7 @@ public:
             ChangeTargetTimer = urand(6000, 12000);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             me->setFaction(14);
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }

@@ -34,7 +34,7 @@ public:
 
     struct generic_creatureAI : public ScriptedAI
     {
-        generic_creatureAI(Creature* c) : ScriptedAI(c) {}
+        generic_creatureAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 GlobalCooldown;      //This variable acts like the global cooldown that players have (1.5 seconds)
         uint32 BuffTimer;           //This variable keeps track of buffs
@@ -174,7 +174,7 @@ public:
 
     struct trigger_periodicAI : public NullCreatureAI
     {
-        trigger_periodicAI(Creature* c) : NullCreatureAI(c)
+        trigger_periodicAI(Creature* creature) : NullCreatureAI(creature)
         {
             spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0]) : NULL;
             interval = me->GetAttackTime(BASE_ATTACK);
@@ -210,7 +210,7 @@ public:
 
     struct trigger_deathAI : public NullCreatureAI
     {
-        trigger_deathAI(Creature* c) : NullCreatureAI(c) {}
+        trigger_deathAI(Creature* creature) : NullCreatureAI(creature) {}
         void JustDied(Unit* killer)
         {
             if (me->m_spells[0])

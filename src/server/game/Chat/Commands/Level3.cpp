@@ -586,11 +586,10 @@ bool ChatHandler::HandleSetSkillCommand(const char *args)
         return false;
 
     char *level_p = strtok (NULL, " ");
-
     if (!level_p)
         return false;
 
-    char *max_p   = strtok (NULL, " ");
+    char *max_p = strtok (NULL, " ");
 
     int32 skill = atoi(skill_p);
     if (skill <= 0)
@@ -627,7 +626,7 @@ bool ChatHandler::HandleSetSkillCommand(const char *args)
         return false;
     }
 
-    int32 max   = max_p ? atol (max_p) : target->GetPureMaxSkillValue(skill);
+    int32 max = max_p ? atol (max_p) : target->GetPureMaxSkillValue(skill);
 
     if (level <= 0 || level > max || max <= 0)
         return false;
@@ -1130,7 +1129,7 @@ bool ChatHandler::HandleListObjectCommand(const char *args)
     QueryResult result;
 
     uint32 obj_count = 0;
-    result=WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='%u'", go_id);
+    result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='%u'", go_id);
     if (result)
         obj_count = (*result)[0].GetUInt32();
 
@@ -1202,7 +1201,7 @@ bool ChatHandler::HandleListCreatureCommand(const char *args)
     QueryResult result;
 
     uint32 cr_count = 0;
-    result=WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='%u'", cr_id);
+    result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='%u'", cr_id);
     if (result)
         cr_count = (*result)[0].GetUInt32();
 
@@ -2642,16 +2641,12 @@ bool ChatHandler::HandleExploreCheatCommand(const char *args)
             ChatHandler(chr).PSendSysMessage(LANG_YOURS_EXPLORE_SET_NOTHING, GetNameLink().c_str());
     }
 
-    for (uint8 i=0; i<PLAYER_EXPLORED_ZONES_SIZE; ++i)
+    for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
     {
         if (flag != 0)
-        {
             m_session->GetPlayer()->SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
-        }
         else
-        {
             m_session->GetPlayer()->SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0);
-        }
     }
 
     return true;
@@ -2933,7 +2928,9 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
     for (uint16 i = 0; i < TOTAL_AURAS; ++i)
     {
         Unit::AuraEffectList const& uAuraList = unit->GetAuraEffectsByType(AuraType(i));
-        if (uAuraList.empty()) continue;
+        if (uAuraList.empty())
+            continue;
+
         PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, uAuraList.size(), i);
         for (Unit::AuraEffectList::const_iterator itr = uAuraList.begin(); itr != uAuraList.end(); ++itr)
         {
@@ -3238,7 +3235,7 @@ bool ChatHandler::HandleServerShutDownCommand(const char *args)
         if (exitcode < 0 || exitcode > 125)
             return false;
 
-        sWorld->ShutdownServ (time, 0, exitcode);
+        sWorld->ShutdownServ(time, 0, exitcode);
     }
     else
         sWorld->ShutdownServ(time, 0, SHUTDOWN_EXIT_CODE);
@@ -3273,7 +3270,7 @@ bool ChatHandler::HandleServerRestartCommand(const char *args)
         if (exitcode < 0 || exitcode > 125)
             return false;
 
-        sWorld->ShutdownServ (time, SHUTDOWN_MASK_RESTART, exitcode);
+        sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART, exitcode);
     }
     else
         sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
@@ -3308,7 +3305,7 @@ bool ChatHandler::HandleServerIdleRestartCommand(const char *args)
         if (exitcode < 0 || exitcode > 125)
             return false;
 
-        sWorld->ShutdownServ (time, SHUTDOWN_MASK_RESTART|SHUTDOWN_MASK_IDLE, exitcode);
+        sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART|SHUTDOWN_MASK_IDLE, exitcode);
     }
     else
         sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART|SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
@@ -3343,7 +3340,7 @@ bool ChatHandler::HandleServerIdleShutDownCommand(const char *args)
         if (exitcode < 0 || exitcode > 125)
             return false;
 
-        sWorld->ShutdownServ (time, SHUTDOWN_MASK_IDLE, exitcode);
+        sWorld->ShutdownServ(time, SHUTDOWN_MASK_IDLE, exitcode);
     }
     else
         sWorld->ShutdownServ(time, SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE);
@@ -5008,10 +5005,6 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
 
     return true;
 }
-
-/*------------------------------------------
- *-------------TRINITY----------------------
- *-------------------------------------*/
 
 bool ChatHandler::HandlePlayAllCommand(const char *args)
 {
