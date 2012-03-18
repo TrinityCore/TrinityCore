@@ -74,6 +74,14 @@ const Position spawnPointsFallenWarrior[8] =
     {924.945984f, -60.164799f, 591.879028f, 2.237270f},
 };
 
+const Position spawnPointsWrathboneColdwraith[4] =
+{
+    {925.477234f, -1.383301f, 580.479980f, 1.240126f},
+    {935.6500513f, -6.321967f, 582.133972f, 1.141952f},
+    {920.783020f, -44.854099f, 590.411987f, 1.590680f},
+    {933.810974f, -45.009399f, 591.658997f, 1.582540f},
+};
+
 class mob_ymirjar_flamebearer : public CreatureScript
 {
     public:
@@ -944,7 +952,8 @@ class at_ymirjar_flamebearer_pos : public AreaTriggerScript
                    if(Creature *pTyrannus = player->SummonCreature(NPC_TYRANNUS_EVENTS, 940.076355f, 91.047089f, 576.178040f, 3.596342f, TEMPSUMMON_DEAD_DESPAWN, 0))
                    {
                      DoScriptText(SAY_TYRANNUS_AMBUSH_1, pTyrannus);
-                     pTyrannus->GetMotionMaster()->MovePoint(0, 898.798340f, -242.198914f, 695.351074f);
+                     pTyrannus->SetSpeed(MOVE_FLIGHT, 8.5f, true);
+                     pTyrannus->GetMotionMaster()->MovePoint(0, 916.282104f, -71.079742f, 606.430359f);
                    }
                    for (uint8 i = 0; i < 4; i++)
                    {
@@ -975,13 +984,17 @@ class at_fallen_warrior_pos : public AreaTriggerScript
               if (instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
                 {
                    instance->SetData(DATA_AREA_TRIGGER_FALLEN, DONE);
-                   if(Creature *pTyrannus = player->SummonCreature(NPC_TYRANNUS_EVENTS, 916.282104f, -71.079742f, 606.430359f, 1.326541f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                   if(Creature *pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
                    {
                      DoScriptText(SAY_TYRANNUS_AMBUSH_2, pTyrannus);
                    }
                    for (uint8 i = 0; i < 8; i++)
                    {
                       player->SummonCreature(NPC_FALLEN_WARRIOR, spawnPointsFallenWarrior[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   for (uint8 i = 0; i < 4; i++)
+                   {
+                      player->SummonCreature(NPC_WRATHBONE_COLDWRAITH, spawnPointsWrathboneColdwraith[i], TEMPSUMMON_DEAD_DESPAWN, 0);
                    }
                    return false;
                 }

@@ -87,6 +87,7 @@ enum CreatureIds
     NPC_YMIRJAR_FLAMEBEARER                     = 36893,
     NPC_YMIRJAR_WRATBRINGER                     = 36840,
     NPC_FALLEN_WARRIOR                          = 36841,
+    NPC_WRATHBONE_COLDWRAITH                    = 36842,
 
     NPC_FORGEMASTER_STALKER                     = 36495,
     NPC_EXPLODING_ORB                           = 36610,

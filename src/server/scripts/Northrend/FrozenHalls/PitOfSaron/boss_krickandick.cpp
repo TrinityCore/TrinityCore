@@ -368,7 +368,10 @@ class boss_krick : public CreatureScript
             {
                 if (_phase != PHASE_OUTRO)
                     return;
-
+                
+                if(_instanceScript->GetData(DATA_TYRANNUS_START) != DONE)
+                 _instanceScript->SetData(DATA_TYRANNUS_START, DONE);
+                 
                 _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -475,10 +478,17 @@ class boss_krick : public CreatureScript
                             if (Creature* jainaOrSylvanas = ObjectAccessor::GetCreature(*me, _outroNpcGUID))
                             {
                                 if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+								{
                                     DoScriptText(SAY_JAYNA_OUTRO_10, jainaOrSylvanas);
+                                    jainaOrSylvanas->SetSpeed(MOVE_WALK, 0.5f, true);
+                                    jainaOrSylvanas->GetMotionMaster()->MovePoint(0, 847.737610f, -6.079165f, 509.911835f);
+								}
                                 else
+								{
                                     DoScriptText(SAY_SYLVANAS_OUTRO_10, jainaOrSylvanas);
-                                jainaOrSylvanas->GetMotionMaster()->MovePoint(0, 847.737610f, -6.079165f, 509.911835f);
+                                    jainaOrSylvanas->SetSpeed(MOVE_WALK, 0.5f, true);
+                                    jainaOrSylvanas->GetMotionMaster()->MovePoint(0, 847.737610f, -6.079165f, 509.911835f);
+								}
                             }
                             // End of OUTRO. for now...
                             _events.ScheduleEvent(EVENT_OUTRO_END, 3000);
