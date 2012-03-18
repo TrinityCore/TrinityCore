@@ -111,6 +111,8 @@ enum Spells
 
     SPELL_RIDE_VEHICLE                  = 70640, // Outro
     SPELL_ACHIEVEMENT                   = 72928,
+    SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION = 72257,
+    SPELL_PERMANENT_FEIGN_DEATH         = 70628,
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
@@ -254,6 +256,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
                 events.SetPhase(PHASE_COMBAT);
                 _frenzied = false;
+                _dead = false;
                 me->SetPower(POWER_ENERGY, 0);
                 DoCast(me, SPELL_ZERO_POWER, true);
                 DoCast(me, SPELL_BLOOD_LINK, true);
@@ -266,6 +269,9 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
+                if (_dead)
+                    return;
+
                 /*if (!instance->CheckRequiredBosses(DATA_DEATHBRINGER_SAURFANG, who->ToPlayer()))
                 {
                     EnterEvadeMode();
@@ -303,13 +309,6 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                _JustDied();
-                DoCast(me, SPELL_ACHIEVEMENT, true);
-                Talk(SAY_DEATH);
-
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SAURFANG_EVENT_NPC)))
-                    creature->AI()->DoAction(ACTION_START_OUTRO);
             }
 
             void AttackStart(Unit* victim)
@@ -340,13 +339,33 @@ class boss_deathbringer_saurfang : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
+                if (damage >= me->GetHealth())
+                    damage = me->GetHealth() - 1;
+
                 if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
                 {
                     _frenzied = true;
                     DoCast(me, SPELL_FRENZY);
                     Talk(SAY_FRENZY);
+                }
+
+                if (!_dead && me->GetHealth() < FightWonValue)
+                {
+                    _dead = true;
+                    _JustDied();
+                    _EnterEvadeMode();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+
+                    DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
+                    DoCast(me, SPELL_ACHIEVEMENT, true);
+                    Talk(SAY_DEATH);
+
+                    //instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
+                    DoCast(me, SPELL_PERMANENT_FEIGN_DEATH);
+                    if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SAURFANG_EVENT_NPC)))
+                        creature->AI()->DoAction(ACTION_START_OUTRO);
                 }
             }
 
@@ -542,10 +561,13 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
             }
 
+            static uint32 const FightWonValue;
+
         private:
             uint32 _fallenChampionCastCount;
             bool _introDone;
             bool _frenzied;   // faster than iterating all auras to find Frenzy
+            bool _dead;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -553,6 +575,8 @@ class boss_deathbringer_saurfang : public CreatureScript
             return GetIcecrownCitadelAI<boss_deathbringer_saurfangAI>(creature);
         }
 };
+
+uint32 const boss_deathbringer_saurfang::boss_deathbringer_saurfangAI::FightWonValue = 100000;
 
 class npc_high_overlord_saurfang_icc : public CreatureScript
 {
@@ -605,7 +629,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         _events.ScheduleEvent(EVENT_OUTRO_HORDE_3, 18000);   // say
                         _events.ScheduleEvent(EVENT_OUTRO_HORDE_4, 24000);   // cast
                         _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 30000);   // move
-                        me->SetLevitate(false);
+                        me->SetDisableGravity(false);
                         me->SendMovementFlagUpdate();
                         me->Relocate(me->GetPositionX(), me->GetPositionY(), 539.2917f);
                         me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), 539.2917f, 0.0f);
@@ -629,7 +653,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
-                    me->SetLevitate(true);
+                    me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
                 }
             }
@@ -655,7 +679,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                             {
                                 deathbringer->CastSpell(me, SPELL_RIDE_VEHICLE, true);  // for the packet logs.
                                 deathbringer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                deathbringer->setDeathState(ALIVE);
+                                deathbringer->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DROWNED);
                             }
                             _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 1000);    // move
                             _events.ScheduleEvent(EVENT_OUTRO_HORDE_6, 4000);    // say
@@ -812,12 +836,16 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                     {
                         me->RemoveAurasDueToSpell(SPELL_GRIP_OF_AGONY);
                         Talk(SAY_OUTRO_ALLIANCE_1);
-                        me->SetLevitate(false);
+                        me->SetDisableGravity(false);
                         me->SendMovementFlagUpdate();
                         me->Relocate(me->GetPositionX(), me->GetPositionY(), 539.2917f);
                         me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), 539.2917f, 0.0f);
                         for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
                             (*itr)->AI()->DoAction(ACTION_DESPAWN);
+
+                        // temp until outro fully done - to put deathbringer on respawn timer (until next reset)
+                        if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
+                            deathbringer->DespawnOrUnsummon(5000);
                         break;
                     }
                     case ACTION_INTERRUPT_INTRO:
@@ -832,7 +860,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
-                    me->SetLevitate(true);
+                    me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
                 }
             }
@@ -934,7 +962,7 @@ class npc_saurfang_event : public CreatureScript
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
-                    me->SetLevitate(true);
+                    me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[_index]);
                 }
             }
@@ -1175,6 +1203,9 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
 
             void FilterTargetsInitial(std::list<Unit*>& unitList)
             {
+                if (unitList.empty())
+                    return;
+
                 // select one random target, with preference of ranged targets
                 uint32 targetsAtRange = 0;
                 uint32 const minTargets = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 10 : 4);
@@ -1189,7 +1220,9 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                 if (targetsAtRange < minTargets)
                     targetsAtRange = std::min<uint32>(unitList.size() - 1, minTargets);
 
-                target = SelectRandomContainerElement(unitList);
+                std::list<Unit*>::const_iterator itr = unitList.begin();
+                std::advance(itr, urand(0, targetsAtRange));
+                target = *itr;
                 unitList.clear();
                 unitList.push_back(target);
             }
@@ -1256,6 +1289,33 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
         }
 };
 
+class spell_deathbringer_remove_marks : public SpellScriptLoader
+{
+    public:
+        spell_deathbringer_remove_marks() : SpellScriptLoader("spell_deathbringer_remove_marks") { }
+
+        class spell_deathbringer_remove_marks_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_deathbringer_remove_marks_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_remove_marks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_deathbringer_remove_marks_SpellScript();
+        }
+};
+
 class achievement_ive_gone_and_made_a_mess : public AchievementCriteriaScript
 {
     public:
@@ -1285,5 +1345,6 @@ void AddSC_boss_deathbringer_saurfang()
     new spell_deathbringer_blood_nova();
     new spell_deathbringer_blood_nova_targeting();
     new spell_deathbringer_boiling_blood();
+    new spell_deathbringer_remove_marks();
     new achievement_ive_gone_and_made_a_mess();
 }

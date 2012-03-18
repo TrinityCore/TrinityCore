@@ -63,7 +63,7 @@ public:
 
     struct mob_doom_blossomAI : public ScriptedAI
     {
-        mob_doom_blossomAI(Creature* c) : ScriptedAI(c) {}
+        mob_doom_blossomAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
@@ -112,9 +112,11 @@ public:
             return;
         }
 
-        void SetTeronGUID(uint64 guid){ TeronGUID = guid; }
+        void SetTeronGUID(uint64 guid)
+        {
+            TeronGUID = guid;
+        }
     };
-
 };
 
 class mob_shadowy_construct : public CreatureScript
@@ -129,7 +131,7 @@ public:
 
     struct mob_shadowy_constructAI : public ScriptedAI
     {
-        mob_shadowy_constructAI(Creature* c) : ScriptedAI(c) {}
+        mob_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 GhostGUID;
         uint64 TeronGUID;
@@ -219,9 +221,9 @@ public:
 
     struct boss_teron_gorefiendAI : public ScriptedAI
     {
-        boss_teron_gorefiendAI(Creature* c) : ScriptedAI(c)
+        boss_teron_gorefiendAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -316,7 +318,8 @@ public:
 
         void SetThreatList(Creature* Blossom)
         {
-            if (!Blossom) return;
+            if (!Blossom)
+                return;
 
             std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();

@@ -133,9 +133,9 @@ class boss_broggok : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_broggokAI (Creature);
+            return new boss_broggokAI(creature);
         }
 };
 

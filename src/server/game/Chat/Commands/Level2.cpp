@@ -196,7 +196,6 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
 {
     if (!*args)
         return false;
-    uint8 srcslot, dstslot;
 
     char* pParam1 = strtok((char*)args, " ");
     if (!pParam1)
@@ -206,8 +205,8 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
     if (!pParam2)
         return false;
 
-    srcslot = (uint8)atoi(pParam1);
-    dstslot = (uint8)atoi(pParam2);
+    uint8 srcslot = (uint8)atoi(pParam1);
+    uint8 dstslot = (uint8)atoi(pParam2);
 
     if (srcslot == dstslot)
         return true;
@@ -869,7 +868,6 @@ bool ChatHandler::HandleLookupPlayerAccountCommand(const char* args)
 
 bool ChatHandler::HandleLookupPlayerEmailCommand(const char* args)
 {
-
     if (!*args)
         return false;
 
@@ -881,7 +879,7 @@ bool ChatHandler::HandleLookupPlayerEmailCommand(const char* args)
 
     QueryResult result = LoginDatabase.PQuery ("SELECT id, username FROM account WHERE email = '%s'", email.c_str ());
 
-    return LookupPlayerSearchCommand (result, limit);
+    return LookupPlayerSearchCommand(result, limit);
 }
 
 bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)

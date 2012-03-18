@@ -913,7 +913,7 @@ public:
             if (who && apply)
             {
                     wp_reached = true;
-                    me->SetFlying(true);
+                    me->SetCanFly(true);
                     me->SetSpeed(MOVE_FLIGHT, 5.0f);
             }
         }
@@ -1014,7 +1014,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
         class npc_hyldsmeet_protodrakeAI : public CreatureAI
         {
             public:
-                npc_hyldsmeet_protodrakeAI(Creature* c) : CreatureAI(c), _accessoryRespawnTimer(0), _vehicleKit(c->GetVehicleKit()) {}
+                npc_hyldsmeet_protodrakeAI(Creature* creature) : CreatureAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) {}
 
                 void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply)
                 {

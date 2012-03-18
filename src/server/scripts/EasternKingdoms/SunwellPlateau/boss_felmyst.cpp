@@ -115,9 +115,9 @@ public:
 
     struct boss_felmystAI : public ScriptedAI
     {
-        boss_felmystAI(Creature* c) : ScriptedAI(c)
+        boss_felmystAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -137,7 +137,7 @@ public:
 
             uiFlightCount = 0;
 
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
@@ -254,7 +254,7 @@ public:
                 events.ScheduleEvent(EVENT_FLIGHT, 60000);
                 break;
             case PHASE_FLIGHT:
-                me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1000);
                 uiFlightCount = 0;
                 uiBreathCount = 0;
@@ -391,7 +391,7 @@ public:
                 }
                 break;
             case 10:
-                me->SetLevitate(false);
+                me->SetDisableGravity(false);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                 EnterPhase(PHASE_GROUND);
                 AttackStart(SelectTarget(SELECT_TARGET_TOPAGGRO));
@@ -522,7 +522,7 @@ public:
 
     struct mob_felmyst_vaporAI : public ScriptedAI
     {
-        mob_felmyst_vaporAI(Creature* c) : ScriptedAI(c)
+        mob_felmyst_vaporAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetSpeed(MOVE_RUN, 0.8f);
@@ -555,7 +555,7 @@ public:
 
     struct mob_felmyst_trailAI : public ScriptedAI
     {
-        mob_felmyst_trailAI(Creature* c) : ScriptedAI(c)
+        mob_felmyst_trailAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             DoCast(me, SPELL_TRAIL_TRIGGER, true);

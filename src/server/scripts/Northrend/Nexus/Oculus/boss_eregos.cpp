@@ -258,7 +258,7 @@ public:
         void Reset()
         {
             uiBlastTimer = 16000;
-            me->SetFlying(true);
+            me->SetCanFly(true);
             me->SetSpeed(MOVE_FLIGHT, 3.1f);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->AddAura(SPELL_PLANAR_DISTORTION, me);

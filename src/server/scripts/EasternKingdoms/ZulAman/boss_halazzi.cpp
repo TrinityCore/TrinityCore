@@ -83,9 +83,9 @@ class boss_halazzi : public CreatureScript
 
         struct boss_halazziAI : public ScriptedAI
         {
-            boss_halazziAI(Creature* c) : ScriptedAI(c)
+            boss_halazziAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             InstanceScript* instance;
@@ -352,7 +352,7 @@ class mob_halazzi_lynx : public CreatureScript
 
         struct mob_halazzi_lynxAI : public ScriptedAI
         {
-            mob_halazzi_lynxAI(Creature* c) : ScriptedAI(c) {}
+            mob_halazzi_lynxAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 FrenzyTimer;
             uint32 shredder_timer;

@@ -68,9 +68,9 @@ public:
 
     struct npc_medivh_bmAI : public ScriptedAI
     {
-        npc_medivh_bmAI(Creature* c) : ScriptedAI(c)
+        npc_medivh_bmAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -111,7 +111,7 @@ public:
                 instance->SetData(TYPE_MEDIVH, IN_PROGRESS);
                 DoCast(me, SPELL_CHANNEL, false);
                 Check_Timer = 5000;
-                     }
+            }
             else if (who->GetTypeId() == TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))
             {
                 if (instance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
@@ -170,7 +170,7 @@ public:
             {
                 if (SpellCorrupt_Timer <= diff)
                 {
-                        instance->SetData(TYPE_MEDIVH, SPECIAL);
+                    instance->SetData(TYPE_MEDIVH, SPECIAL);
 
                     if (me->HasAura(SPELL_CORRUPT_AEONUS))
                         SpellCorrupt_Timer = 1000;
@@ -261,9 +261,9 @@ public:
 
     struct npc_time_riftAI : public ScriptedAI
     {
-        npc_time_riftAI(Creature* c) : ScriptedAI(c)
+        npc_time_riftAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -318,10 +318,10 @@ public:
 
         void DoSelectSummon()
         {
-            uint32 entry = 0;
-
             if ((mRiftWaveCount > 2 && mWaveId < 1) || mRiftWaveCount > 3)
                 mRiftWaveCount = 0;
+
+            uint32 entry = 0;
 
             entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
             sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);

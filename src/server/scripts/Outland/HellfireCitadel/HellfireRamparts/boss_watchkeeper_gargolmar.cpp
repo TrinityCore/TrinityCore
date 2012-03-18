@@ -87,7 +87,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
             {
                 if (!me->getVictim() && me->canCreatureAttack(who))
                 {
-                    if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                    if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;
 
                     float attackRadius = me->GetAttackDistance(who);
@@ -163,9 +163,9 @@ class boss_watchkeeper_gargolmar : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_watchkeeper_gargolmarAI (Creature);
+            return new boss_watchkeeper_gargolmarAI(creature);
         }
 };
 

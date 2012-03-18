@@ -61,7 +61,7 @@ public:
 
     struct mobs_bladespire_ogreAI : public ScriptedAI
     {
-        mobs_bladespire_ogreAI(Creature* c) : ScriptedAI(c) {}
+        mobs_bladespire_ogreAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() { }
 
@@ -112,7 +112,7 @@ public:
 
     struct mobs_nether_drakeAI : public ScriptedAI
     {
-        mobs_nether_drakeAI(Creature* c) : ScriptedAI(c) {}
+        mobs_nether_drakeAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool IsNihil;
         uint32 NihilSpeech_Timer;
@@ -276,7 +276,7 @@ public:
 
     struct npc_daranelleAI : public ScriptedAI
     {
-        npc_daranelleAI(Creature* c) : ScriptedAI(c) {}
+        npc_daranelleAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() { }
 
@@ -492,7 +492,8 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || (!who->isAlive())) return;
+            if (!who || (!who->isAlive()))
+                return;
 
             if (me->IsWithinDistInMap(who, 50.0f))
             {
@@ -751,7 +752,7 @@ class npc_simon_bunny : public CreatureScript
             // Used for getting involved player guid. Parameter id is used for defining if is a large(Monument) or small(Relic) node
             void SetGUID(uint64 guid, int32 id)
             {
-                me->SetFlying(true);
+                me->SetCanFly(true);
 
                 large = (bool)id;
                 playerGUID = guid;
@@ -789,20 +790,42 @@ class npc_simon_bunny : public CreatureScript
                         {
                             switch (go->GetGOInfo()->displayId)
                             {
-                                case GO_BLUE_CLUSTER_DISPLAY_LARGE: clusterIds[SIMON_BLUE] = go->GetEntry(); break;
-                                case GO_RED_CLUSTER_DISPLAY_LARGE: clusterIds[SIMON_RED] = go->GetEntry(); break;
-                                case GO_GREEN_CLUSTER_DISPLAY_LARGE: clusterIds[SIMON_GREEN] = go->GetEntry(); break;
-                                case GO_YELLOW_CLUSTER_DISPLAY_LARGE: clusterIds[SIMON_YELLOW] = go->GetEntry(); break;
+                                case GO_BLUE_CLUSTER_DISPLAY_LARGE:
+                                    clusterIds[SIMON_BLUE] = go->GetEntry();
+                                    break;
+
+                                case GO_RED_CLUSTER_DISPLAY_LARGE:
+                                    clusterIds[SIMON_RED] = go->GetEntry();
+                                    break;
+
+                                case GO_GREEN_CLUSTER_DISPLAY_LARGE:
+                                    clusterIds[SIMON_GREEN] = go->GetEntry();
+                                    break;
+
+                                case GO_YELLOW_CLUSTER_DISPLAY_LARGE:
+                                    clusterIds[SIMON_YELLOW] = go->GetEntry();
+                                    break;
                             }
                         }
                         else
                         {
                             switch (go->GetGOInfo()->displayId)
                             {
-                                case GO_BLUE_CLUSTER_DISPLAY: clusterIds[SIMON_BLUE] = go->GetEntry(); break;
-                                case GO_RED_CLUSTER_DISPLAY: clusterIds[SIMON_RED] = go->GetEntry(); break;
-                                case GO_GREEN_CLUSTER_DISPLAY: clusterIds[SIMON_GREEN] = go->GetEntry(); break;
-                                case GO_YELLOW_CLUSTER_DISPLAY: clusterIds[SIMON_YELLOW] = go->GetEntry(); break;
+                                case GO_BLUE_CLUSTER_DISPLAY:
+                                    clusterIds[SIMON_BLUE] = go->GetEntry();
+                                    break;
+
+                                case GO_RED_CLUSTER_DISPLAY:
+                                    clusterIds[SIMON_RED] = go->GetEntry();
+                                    break;
+
+                                case GO_GREEN_CLUSTER_DISPLAY:
+                                    clusterIds[SIMON_GREEN] = go->GetEntry();
+                                    break;
+
+                                case GO_YELLOW_CLUSTER_DISPLAY:
+                                    clusterIds[SIMON_YELLOW] = go->GetEntry();
+                                    break;
                             }
                         }
                     }

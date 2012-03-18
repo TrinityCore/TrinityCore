@@ -59,7 +59,7 @@ public:
 
     struct npc_sinkhole_kill_creditAI : public ScriptedAI
     {
-        npc_sinkhole_kill_creditAI(Creature* c) : ScriptedAI(c){}
+        npc_sinkhole_kill_creditAI(Creature* creature) : ScriptedAI(creature){}
 
         uint32 uiPhaseTimer;
         uint8  Phase;
@@ -169,7 +169,7 @@ public:
 
     struct npc_khunok_the_behemothAI : public ScriptedAI
     {
-        npc_khunok_the_behemothAI(Creature* c) : ScriptedAI(c) {}
+        npc_khunok_the_behemothAI(Creature* creature) : ScriptedAI(creature) {}
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -371,7 +371,6 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-
         if (player->GetQuestStatus(QUEST_SPIRITS_WATCH_OVER_US) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
@@ -412,7 +411,7 @@ public:
 
     struct mob_nerubar_victimAI : public ScriptedAI
     {
-        mob_nerubar_victimAI(Creature* c) : ScriptedAI(c) {}
+        mob_nerubar_victimAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -465,9 +464,9 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
 
-            if (GameObject* pGO = me->FindNearestGameObject(GO_SCOURGE_CAGE, 5.0f))
-                if (pGO->GetGoState() == GO_STATE_ACTIVE)
-                    pGO->SetGoState(GO_STATE_READY);
+            if (GameObject* go = me->FindNearestGameObject(GO_SCOURGE_CAGE, 5.0f))
+                if (go->GetGoState() == GO_STATE_ACTIVE)
+                    go->SetGoState(GO_STATE_READY);
         }
 
     };
@@ -637,7 +636,7 @@ public:
 
     struct npc_nesingwary_trapperAI : public ScriptedAI
     {
-        npc_nesingwary_trapperAI(Creature* c) : ScriptedAI(c) { c->SetVisible(false); }
+        npc_nesingwary_trapperAI(Creature* creature) : ScriptedAI(creature) { creature->SetVisible(false); }
 
         uint64 go_caribouGUID;
         uint8  Phase;
@@ -650,6 +649,7 @@ public:
             Phase = 1;
             go_caribouGUID = 0;
         }
+
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
@@ -679,7 +679,6 @@ public:
                         uiPhaseTimer = 2000;
                         Phase = 2;
                         break;
-
                     case 2:
                         if (GameObject* go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
                             me->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
@@ -707,7 +706,6 @@ public:
                         uiPhaseTimer = 500;
                         Phase = 7;
                         break;
-
                     case 7:
                     {
                         GameObject* go_caribou = NULL;
@@ -724,7 +722,7 @@ public:
                         Phase = 8;
                         uiPhaseTimer = 1000;
                     }
-                        break;
+                    break;
                     case 8:
                         DoCast(me, SPELL_TRAPPED, true);
                         Phase = 0;
@@ -911,7 +909,7 @@ public:
 
     struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
     {
-        npc_nexus_drake_hatchlingAI(Creature* c) : FollowerAI(c) {}
+        npc_nexus_drake_hatchlingAI(Creature* creature) : FollowerAI(creature) {}
 
         uint64 HarpoonerGUID;
         bool WithRedDragonBlood;
@@ -1094,7 +1092,6 @@ public:
         void WaypointReached(uint32 uiPointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
@@ -1918,7 +1915,7 @@ public:
 
     struct npc_mootoo_the_youngerAI : public npc_escortAI
     {
-        npc_mootoo_the_youngerAI(Creature* c) : npc_escortAI(c) {}
+        npc_mootoo_the_youngerAI(Creature* creature) : npc_escortAI(creature) {}
 
         void Reset()
         {
@@ -2003,7 +2000,7 @@ public:
 
     struct npc_bonker_togglevoltAI : public npc_escortAI
     {
-        npc_bonker_togglevoltAI(Creature* c) : npc_escortAI(c) {}
+        npc_bonker_togglevoltAI(Creature* creature) : npc_escortAI(creature) {}
         uint32 Bonker_agro;
 
         void Reset()
@@ -2042,8 +2039,7 @@ public:
             switch(i)
             {
                 case 29:
-                    if (player)
-                        player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
+                    player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
                     break;
             }
         }
@@ -2103,7 +2099,7 @@ public:
 
     struct npc_trapped_mammoth_calfAI : public ScriptedAI
     {
-        npc_trapped_mammoth_calfAI(Creature* c) : ScriptedAI(c) {}
+        npc_trapped_mammoth_calfAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiTimer;
         bool bStarted;
@@ -2113,7 +2109,7 @@ public:
             uiTimer = 1500;
             bStarted = false;
 
-            GameObject* pTrap;
+            GameObject* pTrap = NULL;
             for (uint8 i = 0; i < MammothTrapsNum; ++i)
             {
                 pTrap = me->FindNearestGameObject(MammothTraps[i], 11.0f);
@@ -2148,11 +2144,12 @@ public:
 
         void MovementInform(uint32 uiType, uint32 /*uiId*/)
         {
-
             if (uiType != POINT_MOTION_TYPE)
                 return;
+
             me->DisappearAndDie();
-            GameObject* pTrap;
+
+            GameObject* pTrap = NULL;
             for (uint8 i = 0; i < MammothTrapsNum; ++i)
             {
                 pTrap = me->FindNearestGameObject(MammothTraps[i], 11.0f);
@@ -2191,7 +2188,7 @@ public:
 
     struct npc_magmoth_crusherAI : public ScriptedAI
     {
-        npc_magmoth_crusherAI(Creature* c) : ScriptedAI(c) {}
+        npc_magmoth_crusherAI(Creature* creature) : ScriptedAI(creature) {}
 
         void JustDied(Unit* killer)
         {
@@ -2227,13 +2224,15 @@ public:
 
     struct npc_seaforium_depth_chargeAI : public ScriptedAI
     {
-        npc_seaforium_depth_chargeAI(Creature* c) : ScriptedAI(c) {}
+        npc_seaforium_depth_chargeAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiExplosionTimer;
+
         void Reset()
         {
             uiExplosionTimer = urand(5000, 10000);
         }
+
         void UpdateAI(const uint32 diff)
         {
             if (uiExplosionTimer < diff)
@@ -2280,7 +2279,7 @@ public:
 
     struct npc_valiance_keep_cannoneerAI : public ScriptedAI
     {
-        npc_valiance_keep_cannoneerAI(Creature* c) : ScriptedAI(c) {}
+        npc_valiance_keep_cannoneerAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiTimer;
 
@@ -2306,7 +2305,6 @@ public:
             if (!UpdateVictim())
                 return;
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const

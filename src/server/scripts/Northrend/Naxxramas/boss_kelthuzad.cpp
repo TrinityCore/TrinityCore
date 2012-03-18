@@ -251,7 +251,7 @@ public:
 
     struct boss_kelthuzadAI : public BossAI
     {
-        boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD), spawns(c)
+        boss_kelthuzadAI(Creature* creature) : BossAI(creature, BOSS_KELTHUZAD), spawns(creature)
         {
             uiFaction = me->getFaction();
         }

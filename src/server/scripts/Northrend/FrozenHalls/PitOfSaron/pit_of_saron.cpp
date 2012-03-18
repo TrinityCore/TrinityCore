@@ -442,7 +442,7 @@ public:
                         case 0:
                             if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
                             {
-                                sTyrannus->SetFlying(true);
+                                sTyrannus->SetCanFly(true);
                                 DoScriptText(SAY_TYRRANUS_1, sTyrannus);
                                 
                                 int32 entryIndex;

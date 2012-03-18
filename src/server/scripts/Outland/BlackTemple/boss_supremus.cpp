@@ -65,7 +65,7 @@ public:
 
     struct molten_flameAI : public NullCreatureAI
     {
-        molten_flameAI(Creature* c) : NullCreatureAI(c) {}
+        molten_flameAI(Creature* creature) : NullCreatureAI(creature) {}
 
         void InitializeAI()
         {
@@ -91,9 +91,9 @@ public:
 
     struct boss_supremusAI : public ScriptedAI
     {
-        boss_supremusAI(Creature* c) : ScriptedAI(c), summons(me)
+        boss_supremusAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -165,8 +165,15 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summon) {summons.Summon(summon);}
-        void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
+        void JustSummoned(Creature* summon)
+        {
+            summons.Summon(summon);
+        }
+
+        void SummonedCreatureDespawn(Creature* summon)
+        {
+            summons.Despawn(summon);
+        }
 
         Unit* CalculateHatefulStrikeTarget()
         {
@@ -263,7 +270,7 @@ public:
 
     struct npc_volcanoAI : public Scripted_NoMovementAI
     {
-        npc_volcanoAI(Creature* c) : Scripted_NoMovementAI(c) {}
+        npc_volcanoAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
         void Reset()
         {

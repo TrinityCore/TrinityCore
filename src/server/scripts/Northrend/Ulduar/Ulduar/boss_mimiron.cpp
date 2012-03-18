@@ -790,7 +790,7 @@ class boss_mimiron : public CreatureScript
                                     if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
                                         if (Creature* AerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
                                         {
-                                            AerialUnit->SetFlying(false);
+                                            AerialUnit->SetCanFly(false);
                                             AerialUnit->EnterVehicle(VX_001, 3);
                                             DoScriptText(SAY_V07TRON_ACTIVATE, me);
                                         }
@@ -1585,7 +1585,7 @@ public:
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->SetVisible(false);
             me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
-            me->SetFlying(true);
+            me->SetCanFly(true);
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
             summons.DespawnAll();

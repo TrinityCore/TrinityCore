@@ -55,7 +55,7 @@ public:
 
     struct boss_razuviousAI : public BossAI
     {
-        boss_razuviousAI(Creature* c) : BossAI(c, BOSS_RAZUVIOUS) {}
+        boss_razuviousAI(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) {}
 
         void DamageTaken(Unit* pDone_by, uint32& uiDamage)
         {

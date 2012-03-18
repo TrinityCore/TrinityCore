@@ -815,9 +815,9 @@ class boss_stormcaller_brundir : public CreatureScript
                     RespawnEncounter(instance, me);
 
                 me->SetSpeed(MOVE_RUN, 1.42857f);
-                if (me->HasUnitMovementFlag(MOVEMENTFLAG_LEVITATING))
+                if (me->HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY))
                 {
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                     me->SendMovementFlagUpdate();
                 }
             }
@@ -885,7 +885,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 if (damage >= me->GetHealth())
                 {
                     // do not die flying
-                    if (me->HasUnitMovementFlag(MOVEMENTFLAG_LEVITATING))
+                    if (me->HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY))
                     {
                         damage = me->GetHealth() - 1;
 
@@ -966,7 +966,7 @@ class boss_stormcaller_brundir : public CreatureScript
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
                         me->SetSpeed(MOVE_RUN, 1.42857f);
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                         me->SendMovementFlagUpdate();
                         if (me->getVictim())
                             me->GetMotionMaster()->MoveChase(me->getVictim());
@@ -1029,7 +1029,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                             me->SendMovementFlagUpdate();
                             me->GetMotionMaster()->MovePoint(POINT_FLY, me->GetPositionX(), me->GetPositionY(), 435.0f);
                             events.DelayEvents(35000, 1);

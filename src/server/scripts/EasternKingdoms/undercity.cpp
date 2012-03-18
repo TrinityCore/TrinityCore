@@ -88,7 +88,7 @@ public:
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
-        npc_lady_sylvanas_windrunnerAI(Creature* c) : ScriptedAI(c) {}
+        npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 LamentEvent_Timer;
         bool LamentEvent;
@@ -114,7 +114,7 @@ public:
                     summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
-                summoned->SetLevitate(true);
+                summoned->SetDisableGravity(true);
                 targetGUID = summoned->GetGUID();
             }
         }
@@ -161,7 +161,7 @@ public:
 
     struct npc_highborne_lamenterAI : public ScriptedAI
     {
-        npc_highborne_lamenterAI(Creature* c) : ScriptedAI(c) {}
+        npc_highborne_lamenterAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 EventMove_Timer;
         uint32 EventCast_Timer;
@@ -184,7 +184,7 @@ public:
             {
                 if (EventMove_Timer <= diff)
                 {
-                    me->SetLevitate(true);
+                    me->SetDisableGravity(true);
                     me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetDistance(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW) / (5000 * 0.001f));
                     me->SetPosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
                     EventMove = false;

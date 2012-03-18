@@ -128,7 +128,7 @@ public:
 
     struct npc_ranger_lilathaAI : public npc_escortAI
     {
-        npc_ranger_lilathaAI(Creature* c) : npc_escortAI(c) {}
+        npc_ranger_lilathaAI(Creature* creature) : npc_escortAI(creature) {}
 
         void WaypointReached(uint32 i)
         {
@@ -183,7 +183,7 @@ public:
                 DoScriptText(SAY_END2, me, player);
                 Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
                 if (CaptainHelios)
-                DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
+                    DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
                 break;
             }
         }

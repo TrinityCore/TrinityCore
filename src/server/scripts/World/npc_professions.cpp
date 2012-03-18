@@ -83,11 +83,8 @@ there is no difference here (except that default text is chosen with `gameobject
 
 #define BOX_UNLEARN_WEAPON_SPEC     "Do you really want to unlearn your weaponsmith specialty and lose all associated recipes? \n Cost: "
 
-#define GOSSIP_LEARN_DRAGON         "I am absolutely certain that i want to learn dragonscale leatherworking"
 #define GOSSIP_UNLEARN_DRAGON       "I wish to unlearn Dragonscale Leatherworking"
-#define GOSSIP_LEARN_ELEMENTAL      "I am absolutely certain that i want to learn elemental leatherworking"
 #define GOSSIP_UNLEARN_ELEMENTAL    "I wish to unlearn Elemental Leatherworking"
-#define GOSSIP_LEARN_TRIBAL         "I am absolutely certain that i want to learn tribal leatherworking"
 #define GOSSIP_UNLEARN_TRIBAL       "I wish to unlearn Tribal Leatherworking"
 
 #define BOX_UNLEARN_LEATHER_SPEC    "Do you really want to unlearn your leatherworking specialty and lose all associated recipes? \n Cost: "
@@ -100,9 +97,6 @@ there is no difference here (except that default text is chosen with `gameobject
 #define GOSSIP_UNLEARN_SHADOWEAVE   "I wish to unlearn Shadoweave Tailoring"
 
 #define BOX_UNLEARN_TAILOR_SPEC     "Do you really want to unlearn your tailoring specialty and lose all associated recipes? \n Cost: "
-
-#define GOSSIP_LEARN_GOBLIN         "I am absolutely certain that i want to learn Goblin engineering"
-#define GOSSIP_LEARN_GNOMISH        "I am absolutely certain that i want to learn Gnomish engineering"
 
 /*###
 # spells defines
@@ -241,14 +235,14 @@ bool EquippedOk(Player* player, uint32 spellId)
         if (!reqSpell)
             continue;
 
-        Item* pItem;
+        Item* item = NULL;
         for (uint8 j = EQUIPMENT_SLOT_START; j < EQUIPMENT_SLOT_END; ++j)
         {
-            pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, j);
-            if (pItem && pItem->GetTemplate()->RequiredSpell == reqSpell)
+            item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, j);
+            if (item && item->GetTemplate()->RequiredSpell == reqSpell)
             {
                 //player has item equipped that require specialty. Not allow to unlearn, player has to unequip first
-                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: player attempt to unlearn spell %u, but item %u is equipped.", reqSpell, pItem->GetEntry());
+                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: player attempt to unlearn spell %u, but item %u is equipped.", reqSpell, item->GetEntry());
                 return false;
             }
         }
@@ -387,8 +381,10 @@ public:
     {
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
+
         if (creature->isVendor())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
         if (creature->isTrainer())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
@@ -512,10 +508,21 @@ public:
         player->PlayerTalkClass->ClearMenus();
         switch (sender)
         {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, creature, action); break;
-            case GOSSIP_SENDER_LEARN:   SendConfirmLearn(player, creature, action); break;
-            case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn(player, creature, action); break;
-            case GOSSIP_SENDER_CHECK:   SendActionMenu(player, creature, action); break;
+            case GOSSIP_SENDER_MAIN:
+                SendActionMenu(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_LEARN:
+                SendConfirmLearn(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_UNLEARN:
+                SendConfirmUnlearn(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_CHECK:
+                SendActionMenu(player, creature, action);
+                break;
         }
         return true;
     }
@@ -539,16 +546,18 @@ public:
     {
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
+
         if (creature->isVendor())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
         if (creature->isTrainer())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
-        uint32 eCreature = creature->GetEntry();
+        uint32 creatureId = creature->GetEntry();
         //WEAPONSMITH & ARMORSMITH
         if (player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 225)
         {
-            switch (eCreature)
+            switch (creatureId)
             {
                 case 11145:                                     //Myolor Sunderfury
                 case 11176:                                     //Krathok Moltenfist
@@ -572,7 +581,7 @@ public:
         //WEAPONSMITH SPEC
         if (player->HasSpell(S_WEAPON) && player->getLevel() > 49 && player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 250)
         {
-            switch (eCreature)
+            switch (creatureId)
             {
                 case 11191:                                     //Lilith the Lithe
                     if (!HasWeaponSub(player))
@@ -729,10 +738,21 @@ public:
         player->PlayerTalkClass->ClearMenus();
         switch (sender)
         {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, creature, action); break;
-            case GOSSIP_SENDER_LEARN:   SendConfirmLearn(player, creature, action); break;
-            case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn(player, creature, action); break;
-            case GOSSIP_SENDER_CHECK:   SendActionMenu(player, creature, action); break;
+            case GOSSIP_SENDER_MAIN:
+                SendActionMenu(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_LEARN:
+                SendConfirmLearn(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_UNLEARN:
+                SendConfirmUnlearn(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_CHECK:
+                SendActionMenu(player, creature, action);
+                break;
         }
         return true;
     }
@@ -763,7 +783,6 @@ enum eEngineeringTrinkets
 #define GOSSIP_ITEM_ZAP         "[PH] Unknown"
 #define GOSSIP_ITEM_JHORDY      "I must build a beacon for this marvelous device!"
 #define GOSSIP_ITEM_KABLAM      "[PH] Unknown"
-#define GOSSIP_ITEM_SMILES      "[PH] Unknown"
 
 class npc_engineering_tele_trinket : public CreatureScript
 {
@@ -866,8 +885,10 @@ public:
     {
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
+
         if (creature->isVendor())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
         if (creature->isTrainer())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
@@ -953,9 +974,17 @@ public:
         player->PlayerTalkClass->ClearMenus();
         switch (sender)
         {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, creature, action); break;
-            case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn(player, creature, action); break;
-            case GOSSIP_SENDER_CHECK:   SendActionMenu(player, creature, action); break;
+            case GOSSIP_SENDER_MAIN:
+                SendActionMenu(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_UNLEARN:
+                SendConfirmUnlearn(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_CHECK:
+                SendActionMenu(player, creature, action);
+                break;
         }
         return true;
     }
@@ -979,8 +1008,10 @@ public:
     {
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
+
         if (creature->isVendor())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
         if (creature->isTrainer())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
@@ -1105,24 +1136,31 @@ public:
         player->PlayerTalkClass->ClearMenus();
         switch (sender)
         {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, creature, action); break;
-            case GOSSIP_SENDER_LEARN:   SendConfirmLearn(player, creature, action); break;
-            case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn(player, creature, action); break;
-            case GOSSIP_SENDER_CHECK:   SendActionMenu(player, creature, action); break;
+            case GOSSIP_SENDER_MAIN:
+                SendActionMenu(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_LEARN:
+                SendConfirmLearn(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_UNLEARN:
+                SendConfirmUnlearn(player, creature, action);
+                break;
+
+            case GOSSIP_SENDER_CHECK:
+                SendActionMenu(player, creature, action);
+                break;
         }
         return true;
     }
 };
 
-/*###
-#
-###*/
-
 void AddSC_npc_professions()
 {
-    new npc_prof_alchemy;
-    new npc_prof_blacksmith;
-    new npc_engineering_tele_trinket;
-    new npc_prof_leather;
-    new npc_prof_tailor;
+    new npc_prof_alchemy();
+    new npc_prof_blacksmith();
+    new npc_engineering_tele_trinket();
+    new npc_prof_leather();
+    new npc_prof_tailor();
 }

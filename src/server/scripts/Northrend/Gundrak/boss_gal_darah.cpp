@@ -75,9 +75,9 @@ public:
 
     struct boss_gal_darahAI : public ScriptedAI
     {
-        boss_gal_darahAI(Creature* c) : ScriptedAI(c)
+        boss_gal_darahAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         uint32 uiStampedeTimer;

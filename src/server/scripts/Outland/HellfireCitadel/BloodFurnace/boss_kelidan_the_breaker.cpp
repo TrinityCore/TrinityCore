@@ -158,7 +158,9 @@ class boss_kelidan_the_breaker : public CreatureScript
             uint64 GetChanneled(Creature* channeler1)
             {
                 SummonChannelers();
-                if (!channeler1) return 0;
+                if (!channeler1)
+                    return 0;
+
                 uint8 i;
                 for (i=0; i<5; ++i)
                 {
@@ -268,9 +270,9 @@ class boss_kelidan_the_breaker : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_kelidan_the_breakerAI (Creature);
+            return new boss_kelidan_the_breakerAI(creature);
         }
 };
 
@@ -371,9 +373,9 @@ class mob_shadowmoon_channeler : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_shadowmoon_channelerAI (Creature);
+            return new mob_shadowmoon_channelerAI(creature);
         }
 };
 

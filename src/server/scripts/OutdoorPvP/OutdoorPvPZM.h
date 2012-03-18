@@ -219,7 +219,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         bool HandleDropFlag(Player* player, uint32 spellId);
 
-        bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
+        bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso);
 
         uint32 GetGraveYardState() const;
 

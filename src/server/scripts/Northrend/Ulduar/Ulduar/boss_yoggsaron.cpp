@@ -528,7 +528,7 @@ public:
         boss_saraAI(Creature *c) : ScriptedAI(c), Summons(me)
         {
             m_pInstance = c->GetInstanceScript();
-            me->SetFlying(true);
+            me->SetCanFly(true);
             SetImmuneToPushPullEffects(true);
         }
 
@@ -1813,7 +1813,7 @@ public:
             SetTentacleType(c->GetEntry());
             once = false;
             me->setFaction(14);
-            me->SetFlying(true);
+            me->SetCanFly(true);
             if(m_pInstance)
             {
                 if(Creature* sara = Creature::GetCreature(*me,m_pInstance->GetData64(TYPE_SARA)))
@@ -2039,7 +2039,7 @@ public:
             m_pInstance = c->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             me->setFaction(14);
-            me->SetFlying(true);
+            me->SetCanFly(true);
         }
 
         void DamageTaken(Unit* /*dealer*/, uint32 &damage)
@@ -2094,7 +2094,7 @@ public:
         {
             m_pInstance = c->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
-            me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING | MOVEMENTFLAG_SWIMMING);
+            me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_SWIMMING);
         }
 
         InstanceScript* m_pInstance;
@@ -2652,7 +2652,7 @@ public:
 
         void Reset()
         {
-            me->SetFlying(true);
+            me->SetCanFly(true);
             me->setFaction(14);
             prepaired = false;
             Summons.DespawnAll();

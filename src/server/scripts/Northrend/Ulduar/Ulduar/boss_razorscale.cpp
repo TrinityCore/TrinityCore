@@ -344,7 +344,7 @@ class boss_razorscale : public CreatureScript
                 }
                 summons.DoAction(MOLE_MACHINE_TRIGGER, ACTION_DESPAWN_ADDS);
                 _Reset();
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
                 PermaGround = false;
@@ -435,7 +435,7 @@ class boss_razorscale : public CreatureScript
                             case EVENT_FLIGHT:
                                 phase = PHASE_FLIGHT;
                                 events.SetPhase(PHASE_FLIGHT);
-                                me->SetFlying(true);
+                                me->SetCanFly(true);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->RemoveAllAuras();
                                 me->SetReactState(REACT_PASSIVE);
@@ -447,7 +447,7 @@ class boss_razorscale : public CreatureScript
                                 ++FlyCount;
                                 return;
                             case EVENT_LAND:
-                                me->SetFlying(false);
+                                me->SetCanFly(false);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                                 if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXPEDITION_COMMANDER) : 0))
@@ -540,7 +540,7 @@ class boss_razorscale : public CreatureScript
                 me->MonsterTextEmote(EMOTE_PERMA, 0, true);
                 phase = PHASE_PERMAGROUND;
                 events.SetPhase(PHASE_PERMAGROUND);
-                me->SetFlying(false);
+                me->SetCanFly(false);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAurasDueToSpell(SPELL_HARPOON_TRIGGER);
