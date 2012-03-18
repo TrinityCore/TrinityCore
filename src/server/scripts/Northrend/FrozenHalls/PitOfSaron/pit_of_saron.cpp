@@ -386,28 +386,24 @@ struct startPosition
     Position movePosition;
 } startPositions[] =
 {
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 445.286f, 214.251f, 528.71f, 0.375996f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 447.246f, 208.189f, 528.71f, 0.0264938f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 437.81f,  231.115f, 528.708f, 0.525224f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 437.444f, 225.798f, 528.712f, 0.36029f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 438.941f, 221.784f, 528.708f, 0.30924f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 440.384f, 216.785f, 528.71f, 0.203211f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 441.479f, 211.472f, 528.709f,0.203211f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 443.986f, 222.103f, 528.709f,6.27373f } },
-    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 448.944f, 204.945f, 528.709f,0.0258984f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 446.613f, 211.37f,  528.709f,0.360472f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 442.647f, 204.635f, 528.707f,0.0887308f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 435.054f, 207.61f,  528.707f,0.173361f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 434.568f, 210.389f, 528.707f,0.173361f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 443.458f, 226.623f, 528.709f,0.232266f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 435.593f, 204.535f, 528.728f,0.173361f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 442.47f,  208.153f, 528.706f,0.259756f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 441.333f, 233.866f, 528.709f,0.255828f } },
-    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 442.124f, 230.78f,  528.709f,0.244047f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 446.739990f, 228.576996f, 528.830994f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 449.187988f, 226.212006f, 528.830994f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 447.351990f, 222.753998f, 528.830994f } },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 442.691010f, 223.524994f, 528.830994f} },
+    { { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE }, { 442.967010f, 219.535004f, 528.830994f} },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 447.290009f, 213.916000f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 450.540985f, 212.276993f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 452.884003f, 209.141006f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 449.834991f, 206.682007f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 445.794006f, 206.057007f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_2_HORDE }, { 446.541992f, 209.985992f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 446.29299f, 195.046997f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 444.035004f, 197.669006f, 528.830994f } },
+    { { NPC_CHAMPION_2_ALLIANCE, NPC_CHAMPION_3_HORDE }, { 443.346008f, 192.343002f, 528.830994f } },
 
-    { { NPC_KORLAEN, NPC_KORALEN }, { 432.386f, 212.979f, 528.709f, 0.237168f } },
-    { { NPC_ELANDRA, NPC_KILARA }, { 431.65f, 216.976f, 528.709f, 0.20104f } },
-    { { NPC_JAINA_PART1, NPC_SYLVANAS_PART1 }, { 438.84f, 213.502f, 528.709f, 0.1900f } },
+    //{ { NPC_KORLAEN, NPC_KORALEN }, { 438.505005f, 211.539993f, 528.708008f } },
+    //{ { NPC_ELANDRA, NPC_KILARA }, { 438.946014f, 215.427002f, 528.708984f } },
+    //{ { NPC_JAINA_PART1, NPC_SYLVANAS_PART1 }, { 440.787994f, 213.759003f, 528.710022f } },
 
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
 };
@@ -448,7 +444,7 @@ public:
                     switch (StartPhase)
                     {
                         case 0:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                             {
                                 sTyrannus->SetCanFly(true);
                                 DoScriptText(SAY_TYRRANUS_1, sTyrannus);
@@ -471,7 +467,7 @@ public:
                             StartTimer = 5000;
                             break;
                         case 1:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 DoScriptText(SAY_TYRRANUS_2, sTyrannus);
                             ++StartPhase;
                             StartTimer = 15000;
@@ -484,7 +480,7 @@ public:
 
                             if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             {
-                                GetCreatureListWithEntryInGrid(Champion1, me, NPC_CHAMPION_1_ALLIANCE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion1, me, NPC_CHAMPION_1_ALLIANCE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -492,14 +488,14 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(367880, 150.0f, true))
+                                        if (Creature* sNecrolyte = me->FindNearestCreature(367880, 250.0f, true))
                                         {
                                             sChampions->Attack(sNecrolyte, true);
                                             sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
                                         }
                                 }
 
-                                GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_ALLIANCE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_ALLIANCE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion2.begin(); itr != Champion2.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -507,7 +503,7 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 150.0f, true))
+                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 250.0f, true))
                                         {
                                             sChampions->Attack(sNecrolyte, true);
                                             sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
@@ -516,7 +512,7 @@ public:
                             }
                             else
                             {
-                                GetCreatureListWithEntryInGrid(Champion1, me, NPC_CHAMPION_1_HORDE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion1, me, NPC_CHAMPION_1_HORDE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -524,14 +520,14 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(367880, 150.0f, true))
+                                        if (Creature* sNecrolyte = me->FindNearestCreature(367880, 250.0f, true))
                                         {
                                             sChampions->Attack(sNecrolyte, true);
                                             sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
                                         }
                                 }
 
-                                GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_HORDE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_HORDE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion2.begin(); itr != Champion2.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -539,14 +535,14 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 150.0f, true))
+                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 250.0f, true))
                                         {
                                             sChampions->Attack(sNecrolyte, true);
                                             sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
                                         }
                                 }
 
-                                GetCreatureListWithEntryInGrid(Champion3, me, NPC_CHAMPION_3_HORDE, 150.0f);
+                                GetCreatureListWithEntryInGrid(Champion3, me, NPC_CHAMPION_3_HORDE, 250.0f);
                                 for(std::list<Creature*>::iterator itr = Champion3.begin(); itr != Champion3.end(); ++itr)
                                 {
                                     Creature *sChampions = *itr;
@@ -554,7 +550,7 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 150.0f, true))
+                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 250.0f, true))
                                         {
                                             sChampions->Attack(sNecrolyte, true);
                                             sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
@@ -565,13 +561,13 @@ public:
                             StartTimer = 1000;
                             break;
                         case 3:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 DoScriptText(SAY_TYRRANUS_3, sTyrannus);
                             ++StartPhase;
                             StartTimer = 2000;
                             break;
                         case 4:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 DoPlaySoundToSet(sTyrannus, SAY_SOUND);
 
                             for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
@@ -616,7 +612,7 @@ public:
                             StartTimer = 5000;
                             break;
                         case 5:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 sTyrannus->CastSpell(sTyrannus, SPELL_NECROMANTIC_POWER, false);
 
                             for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
@@ -705,7 +701,7 @@ public:
                                 sChampions->SetReactState(REACT_PASSIVE);
                             }
 
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 50.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 DoScriptText(SAY_TYRRANUS_4, sTyrannus);
 
                             for(std::list<Creature*>::iterator itr = Champion1.begin(); itr != Champion1.end(); ++itr)
@@ -714,12 +710,12 @@ public:
                                 if (!sChampions)
                                     continue;
 
-                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 150.0f, true))
+                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
                                 }
-                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 150.0f, true))
+                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
@@ -732,12 +728,12 @@ public:
                                 if (!sChampions)
                                     continue;
 
-                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 150.0f, true))
+                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
                                 }
-                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 150.0f, true))
+                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
@@ -750,12 +746,12 @@ public:
                                 if (!sChampions)
                                     continue;
 
-                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 150.0f, true))
+                                if (Creature* pHelper = me->FindNearestCreature(NPC_KORALEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
                                 }
-                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 150.0f, true))
+                                else if (Creature* pHelper = me->FindNearestCreature(NPC_KORLAEN, 250.0f, true))
                                 {
                                     sChampions->Attack(pHelper, true);
                                     sChampions->GetMotionMaster()->MoveChase(pHelper);
@@ -888,7 +884,7 @@ public:
                             StartTimer = 10000;
                             break;
                         case 12:
-                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                            if (Creature* sTyrannus = me->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                                 sTyrannus->GetMotionMaster()->MovePoint(0, 938.125f, 93.928f, 585.39f);
                             instance->SetData(DATA_TYRANNUS_START, DONE);
                             event = false;
@@ -984,7 +980,7 @@ class at_fallen_warrior_pos : public AreaTriggerScript
               if (instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
                 {
                    instance->SetData(DATA_AREA_TRIGGER_FALLEN, DONE);
-                   if(Creature *pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                   if(Creature *pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
                    {
                      DoScriptText(SAY_TYRANNUS_AMBUSH_2, pTyrannus);
                    }
