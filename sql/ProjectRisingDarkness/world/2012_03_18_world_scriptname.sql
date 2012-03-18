@@ -12,10 +12,3 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 DELETE FROM `areatrigger_scripts` where `entry`= 5579;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5579,'at_fallen_warrior_pos');
-
-SET @ENTRY1=36840;
-SET @ENTRY2=36892;
-SET @ENTRY3=36893;
-SET @ENTRY4=36841;
-SET @ENTRY5=36842;
-Delete from creature where id IN (@ENTRY1, @ENTRY2, @ENTRY3, @ENTRY4, @ENTRY5);
