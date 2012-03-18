@@ -28,7 +28,7 @@
 const uint32 VehNumWorldState[2] = { 3680, 3490 };
 const uint32 MaxVehNumWorldState[2] = { 3681, 3491 };
 const uint32 ClockWorldState[2] = { 3781, 4354 };
-const uint32 WintergraspFaction[3] = { 1732, 1735, 35 };
+const uint32 WintergraspFaction[3] = { 1, 116, 35 };
 
 const float WintergraspStalkerPos[4] = { 0, 0, 0, 0 };
 
