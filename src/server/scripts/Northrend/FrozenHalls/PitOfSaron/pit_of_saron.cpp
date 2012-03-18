@@ -43,6 +43,37 @@ enum eEvents
     EVENT_SHOVELLED             = 5,
 };
 
+const Position spawnPoints1[4] =
+{
+    {877.666199f, 61.523361f, 527.974243f, 3.624145f},
+    {885.715027f, 65.515602f, 533.431030f, 3.857180f},
+    {912.531189f, 63.785076f, 547.925720f, 3.235373f},
+    {909.602722f, 83.248398f, 551.600403f, 3.251082f},
+};
+const Position spawnPoints2[4] =
+{    
+    {879.286743f, 41.535030f, 521.009338f, 3.486701f},
+    {889.974548f, 45.270569f, 527.154236f, 3.612364f},
+    {919.853027f, 88.957771f, 558.705993f, 3.592729f},
+    {921.595520f, 69.234627f, 557.946716f, 3.145053f},    
+};
+const Position spawnPointsYmirjar[2] =
+{
+    {883.150024f, 54.626401f, 528.262024f, 3.678787f},
+    {915.107971f, 75.316299f, 553.531006f, 3.678787f},
+};
+const Position spawnPointsFallenWarrior[8] =
+{
+    {937.606506f, 0.776727f, 578.888000f, 1.090893f},
+    {928.419006f, 8.786335f, 577.693970f, 1.122307f},
+    {924.478699f, -7.662051f, 582.044983f, 1.489874f},
+    {935.244568f, -10.427516f, 583.265503f, 1.358702f},
+    {935.098694f, -24.272480f, 588.035400f, 1.653226f},
+    {921.272644f, -22.194103f, 585.452576f, 1.331212f},
+    {930.109009f, -56.889900f, 591.848999f, 2.353980f},
+    {924.945984f, -60.164799f, 591.879028f, 2.237270f},
+};
+
 class mob_ymirjar_flamebearer : public CreatureScript
 {
     public:
@@ -888,6 +919,76 @@ class at_pit_of_saron_start : public AreaTriggerScript
             return false;
         }
 };
+
+enum sTyrannus
+{
+     SAY_TYRANNUS_AMBUSH_1                      = -1658050,
+     SAY_TYRANNUS_AMBUSH_2                      = -1658051,
+     SAY_GAUNTLET_START                         = -1658052,
+};
+
+class at_ymirjar_flamebearer_pos : public AreaTriggerScript
+{
+    public:
+        at_ymirjar_flamebearer_pos() : AreaTriggerScript("at_ymirjar_flamebearer_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+            InstanceScript* instance = player->GetInstanceScript();
+               if(instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE || player->isGameMaster() || !instance)
+                      return false;
+                      
+                if (instance->GetBossState(DATA_GARFROST) == DONE && instance->GetBossState(DATA_ICK) == DONE)
+                {
+                   instance->SetData(DATA_AREA_TRIGGER_YMIRJAR, DONE);
+                   if(Creature *pTyrannus = player->SummonCreature(NPC_TYRANNUS_EVENTS, 940.076355f, 91.047089f, 576.178040f, 3.596342f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                   {
+                     DoScriptText(SAY_TYRANNUS_AMBUSH_1, pTyrannus);
+                     pTyrannus->GetMotionMaster()->MovePoint(0, 898.798340f, -242.198914f, 695.351074f);
+                   }
+                   for (uint8 i = 0; i < 4; i++)
+                   {
+                      player->SummonCreature(NPC_YMIRJAR_FLAMEBEARER, spawnPoints1[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                      player->SummonCreature(NPC_YMIRJAR_WRATBRINGER, spawnPoints2[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   for(uint8 k = 0; k < 2; k++)
+                   {
+                      player->SummonCreature(NPC_YMIRJAR_DEATHBRINGER, spawnPointsYmirjar[k], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   
+                   return false;
+                }
+                return false;
+        }
+};
+class at_fallen_warrior_pos : public AreaTriggerScript
+{
+    public:
+        at_fallen_warrior_pos() : AreaTriggerScript("at_fallen_warrior_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+            InstanceScript* instance = player->GetInstanceScript();
+            if(instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE || player->isGameMaster() || !instance)
+                      return false;
+                      
+              if (instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
+                {
+                   instance->SetData(DATA_AREA_TRIGGER_FALLEN, DONE);
+                   if(Creature *pTyrannus = player->SummonCreature(NPC_TYRANNUS_EVENTS, 916.282104f, -71.079742f, 606.430359f, 1.326541f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                   {
+                     DoScriptText(SAY_TYRANNUS_AMBUSH_2, pTyrannus);
+                   }
+                   for (uint8 i = 0; i < 8; i++)
+                   {
+                      player->SummonCreature(NPC_FALLEN_WARRIOR, spawnPointsFallenWarrior[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   return false;
+                }
+                
+            return false;
+        }
+};
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
@@ -897,4 +998,6 @@ void AddSC_pit_of_saron()
     new spell_trash_mob_glacial_strike();
     new pitofsaron_start();
     new at_pit_of_saron_start();
+    new at_ymirjar_flamebearer_pos();
+    new at_fallen_warrior_pos();
 }

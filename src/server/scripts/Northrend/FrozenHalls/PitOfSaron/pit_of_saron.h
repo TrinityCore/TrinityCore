@@ -36,6 +36,8 @@ enum DataTypes
     DATA_TYRANNUS_EVENT     = 7,
     DATA_TEAM_IN_INSTANCE   = 8,
     DATA_TYRANNUS_START     = 9,
+    DATA_AREA_TRIGGER_YMIRJAR = 10,
+    DATA_AREA_TRIGGER_FALLEN = 11,
 };
 
 enum CreatureIds
@@ -81,10 +83,13 @@ enum CreatureIds
     NPC_MARTIN_VICTUS_2                         = 37580,
     NPC_GORKUN_IRONSKULL_1                      = 37581,
     NPC_GORKUN_IRONSKULL_2                      = 37592,
+    NPC_YMIRJAR_DEATHBRINGER                    = 36892,
+    NPC_YMIRJAR_FLAMEBEARER                     = 36893,
+    NPC_YMIRJAR_WRATBRINGER                     = 36840,
+    NPC_FALLEN_WARRIOR                          = 36841,
 
     NPC_FORGEMASTER_STALKER                     = 36495,
     NPC_EXPLODING_ORB                           = 36610,
-    NPC_YMIRJAR_DEATHBRINGER                    = 36892,
     NPC_ICY_BLAST                               = 36731
 };
 
