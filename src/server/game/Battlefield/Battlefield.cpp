@@ -888,11 +888,18 @@ bool BfCapturePoint::HandlePlayerEnter(Player *player)
     return m_activePlayers[player->GetTeamId()].insert(player->GetGUID()).second;
 }
 
-void BfCapturePoint::HandlePlayerLeave(Player *player)
+GuidSet::iterator BfCapturePoint::HandlePlayerLeave(Player* plr)
 {
     if (m_capturePoint)
-        player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldState1, 0);
-    m_activePlayers[player->GetTeamId()].erase(player->GetGUID());
+        plr->SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldState1, 0);
+    
+    GuidSet::iterator current = m_activePlayers[plr->GetTeamId()].find(plr->GetGUID());
+    
+    if (current == m_activePlayers[plr->GetTeamId()].end())
+        return current; // return end()
+
+    m_activePlayers[plr->GetTeamId()].erase(current++);
+    return current;
 }
 
 void BfCapturePoint::SendChangePhase()
@@ -964,17 +971,27 @@ bool BfCapturePoint::Update(uint32 diff)
     float radius = m_capturePoint->GetGOInfo()->capturePoint.radius;
 
     for (uint8 team = 0; team < 2; ++team)
-        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
-                    HandlePlayerLeave(player);
+    {
+        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
+        {
+            if (Player* plr = sObjectAccessor->FindPlayer(*itr))
+            {
+                if (!m_capturePoint->IsWithinDistInMap(plr, radius) || !plr->IsOutdoorPvPActive())
+                    itr = HandlePlayerLeave(plr);
+                else
+                    ++itr;
+            }
+            else
+                ++itr;
+        }
+    }
 
-    std::list < Player * >players;
+    std::list<Player*> players;
     Trinity::AnyPlayerInObjectRangeCheck checker(m_capturePoint, radius);
-    Trinity::PlayerListSearcher < Trinity::AnyPlayerInObjectRangeCheck > searcher(m_capturePoint, players, checker);
+    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(m_capturePoint, players, checker);
     m_capturePoint->VisitNearbyWorldObject(radius, searcher);
 
-    for (std::list < Player * >::iterator itr = players.begin(); itr != players.end(); ++itr)
+    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
         if ((*itr)->IsOutdoorPvPActive())
             if (m_activePlayers[(*itr)->GetTeamId()].insert((*itr)->GetGUID()).second)
                 HandlePlayerEnter(*itr);

@@ -892,7 +892,7 @@ uint32 BattlefieldWG::GetData(uint32 data)
                 return m_GraveYardList[GetSpiritGraveyardId(data)]->GetControlTeamId();
     }
 
-    return 0;
+    return Battlefield::GetData(data);
 }
 
 // Method sending worldsate to player
