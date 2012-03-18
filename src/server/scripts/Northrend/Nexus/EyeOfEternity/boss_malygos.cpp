@@ -226,6 +226,7 @@ class boss_malygos : public CreatureScript
 
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                 me->SetCanFly(true);
+                me->SetDisableGravity(true);
                 me->SetSpeed(MOVE_FLIGHT, 2.0f, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);

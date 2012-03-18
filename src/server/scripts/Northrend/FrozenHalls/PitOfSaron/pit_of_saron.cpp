@@ -1041,6 +1041,7 @@ class at_ice_cicle_pos : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {    
+            InstanceScript* instance = player->GetInstanceScript();
             if (instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE && instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
             {
                 instance->SetData(DATA_AREA_TRIGGER_ICE_CICLE, IN_PROGRESS);
