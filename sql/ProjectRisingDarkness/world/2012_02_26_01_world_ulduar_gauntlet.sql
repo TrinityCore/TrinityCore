@@ -1,4 +1,6 @@
 -- Delorah texts
+
+DELETE FROM `creature_text` WHERE `entry` = 33701;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33701, 0, 0, 'I heard a story or two of a Lore Keeper in Uldaman that fit your description. Do you serve a similar purpose?', 12, 0, 0, 0, 0, 0, 'Dellorah SAY_EVENT_1'),
 (33701, 1, 0, 'Frontal defense systems? Is there something I should let Brann know before he has anyone attempt to enter the complex?', 12, 0, 0, 0, 0, 0, 'Dellorah SAY_EVENT_2'),
@@ -21,6 +23,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33686, 10, 0, 'Deactivate', 12, 0, 0, 0, 0, 0, 'Norgannon SAY_DEACTIVATE');
 
 -- Rhydian emotes
+DELETE FROM `creature_text` WHERE `entry` = 33696;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33696, 6, 0, '%s nods.', 16, 0, 0, 0, 0, 0, 'Rhydian SAY_EVENT_6'),
 (33696, 11, 0, '%s whispers something to Brann', 16, 0, 0, 0, 0, 0, 'Rhydian SAY_WHISPER');
