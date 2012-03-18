@@ -163,6 +163,7 @@ set(scripts_STAT_SRCS
   Northrend/VioletHold/boss_erekem.cpp
   Northrend/VioletHold/violet_hold.cpp
   Northrend/IcecrownCitadel/instance_icecrown_citadel.cpp
+  Northrend/IcecrownCitadel/icc_trash.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.h
   Northrend/IcecrownCitadel/icecrown_citadel_teleport.cpp
