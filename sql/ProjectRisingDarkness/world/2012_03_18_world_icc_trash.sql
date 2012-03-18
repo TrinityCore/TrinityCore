@@ -1,4 +1,4 @@
-UPDATE creature_template SET AIName = "" WHERE entry IN (36725, 36724, 37012, 37007, 36811, 36807, 36829, 36805, 36808, 37098, 37022, 37038, 37023, 10404, 36880, 37664, 37595, 37663, 37901, 37371, 37662, 37665, 37666, 38125, 37127, 37132, 37134, 37133); 
+UPDATE creature_template SET AIName = "" WHERE entry IN (36725, 36724, 37012, 37007, 36811, 36807, 36829, 36805, 36808, 37098, 37022, 37038, 37023, 10404, 36880, 37664, 37595, 37663, 37901, 37571, 37662, 37665, 37666, 38125, 37127, 37132, 37134, 37133); 
 UPDATE `creature_template` SET `ScriptName` = 'npc_NerubarBroodkeeper' WHERE `entry` = 36725;
 UPDATE `creature_template` SET `ScriptName` = 'npc_ServantoftheThrone' WHERE `entry` = 36724;
 UPDATE `creature_template` SET `ScriptName` = 'npc_AncientSkeletalSoldier' WHERE `entry` = 37012;
@@ -18,7 +18,7 @@ UPDATE creature_template SET scriptname = "npc_darkfallen_archmage" WHERE entry 
 UPDATE creature_template SET scriptname = "npc_darkfallen_blood_knight" WHERE entry = 37595;
 UPDATE creature_template SET scriptname = "npc_darkfallen_noble" WHERE entry = 37663;
 UPDATE creature_template SET scriptname = "npc_vampiric_fiend" WHERE entry = 37901;
-UPDATE creature_template SET scriptname = "npc_darkfallen_advisor" WHERE entry = 37371;
+UPDATE creature_template SET scriptname = "npc_darkfallen_advisor" WHERE entry = 37571;
 UPDATE creature_template SET scriptname = "npc_darkfallen_commander" WHERE entry = 37662;
 UPDATE creature_template SET scriptname = "npc_darkfallen_lieutenant" WHERE entry = 37665;
 UPDATE creature_template SET scriptname = "npc_darkfallen_tactician" WHERE entry = 37666;
