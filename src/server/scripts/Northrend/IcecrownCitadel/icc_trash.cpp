@@ -67,6 +67,46 @@ enum TrashSpells
     //Decaying Colossus
     SPELL_MASSIVE_STOMP_10N                 = 71114,
     SPELL_MASSIVE_STOMP_25N                 = 71115,
+//----------SANCTUARY OF BLOOD----------//
+    //Darkfallen Archmage
+    SPELL_AMPLIFY_MAGIC_10N                 = 70408,
+    SPELL_AMPLIFY_MAGIC_25N                 = 72336,
+    SPELL_BLAST_WAVE_10N                    = 70407,
+    SPELL_BLAST_WAVE_25N                    = 71151,
+    SPELL_FIREBALL_10N                      = 70409,
+    SPELL_FIREBALL_25N                      = 71153,
+    SPELL_POLYMORPH_SPIDER                  = 70410,
+    SPELL_SIPHON_ESSENCE                    = 70299,
+    //Darkfallen Blood Knight
+    SPELL_VAMPIRIC_AURA                     = 71736,
+    SPELL_UNHOLY_STRIKE                     = 70437,
+    SPELL_BLOOD_MIRROR_DAMAGE               = 70445,
+    SPELL_BLOOD_MIRROR_BUFF                 = 70451,
+    SPELL_BLOOD_MIRROR_DUMMY                = 70450,
+    //Darkfallen Noble
+    SPELL_CHAINS_OF_SHADOW                  = 70645,
+    SPELL_SHADOW_BOLT_10N                   = 72960,
+    SPELL_SHADOW_BOLT_25N                   = 72961,
+    //Vampiric Fiend
+    SPELL_DISEASE_CLOUD                     = 41290,
+    SPELL_LEECHING_ROT                      = 70671,
+    //Darkfallen Advisor
+    SPELL_LICH_SLAP_10N                     = 72057,
+    SPELL_LICH_SLAP_25N                     = 72421,
+    SPELL_SHROUD_OF_PROTECTION              = 72065,
+    SPELL_SHROUD_OF_SPELL_WARDING           = 72066,
+    //Darkfallen Commander
+    SPELL_VAMPIRE_RUSH_10N                  = 70449,
+    SPELL_VAMPIRE_RUSH_25N                  = 71155,
+    SPELL_BATTLE_SHOUT                      = 70750,
+    //Darkfallen Lieutenant
+    SPELL_VAMPIRIC_CURSE                    = 70423,
+    SPELL_REND_FLESH_10N                    = 70435,
+    SPELL_REND_FLESH_25N                    = 71154,
+    //Darkfallen Tactician
+    SPELL_SHADOWSTEP                        = 70431,
+    SPELL_BLOOD_SAP                         = 70432,
+//----------FROST WING----------//
 };
 
 enum TrashEvents
@@ -880,7 +920,6 @@ class npc_plague_scientist : public CreatureScript
                 if (m_uiBLAST_Timer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_PLAGUE_BLAST);
-                    // cada 2 a 3 segs se repite
                     m_uiBLAST_Timer = urand(2000, 3000);
                 }
                 else
@@ -932,7 +971,7 @@ class npc_pustulating_horror : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
                         DoCast(target, RAID_MODE(SPELL_BUBBLING_PUS_10N, SPELL_BUBBLING_PUS_25N, SPELL_BUBBLING_PUS_10N, SPELL_BUBBLING_PUS_25N));
-				    if (HealthAbovePct(15))
+                    if (HealthAbovePct(15))
                         m_uiPUS_Timer = urand(15000, 25000);
                 }
                 else
@@ -992,6 +1031,510 @@ class npc_decaying_colossus : public CreatureScript
         }
 };
 
+class npc_darkfallen_archmage : public CreatureScript
+{
+    public:
+        npc_darkfallen_archmage() : CreatureScript("npc_darkfallen_archmage") { }
+
+        struct npc_darkfallen_archmageAI : public ScriptedAI
+        {
+            npc_darkfallen_archmageAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiAMPLIFY_Timer;
+            uint32 m_uiBLAST_Timer;
+            uint32 m_uiFIREBALL_Timer;
+            uint32 m_uiPOLYMORPH_Timer;
+
+            void Reset()
+            {
+                m_uiAMPLIFY_Timer = urand(10000, 15000);
+                m_uiBLAST_Timer = urand(8000, 10000);
+                m_uiFIREBALL_Timer = 2000;
+                m_uiPOLYMORPH_Timer = urand(9000, 12000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiAMPLIFY_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_AMPLIFY_MAGIC_10N, SPELL_AMPLIFY_MAGIC_25N, SPELL_AMPLIFY_MAGIC_10N, SPELL_AMPLIFY_MAGIC_25N));
+                    m_uiAMPLIFY_Timer = urand(15000, 20000);
+                }
+                else
+                    m_uiAMPLIFY_Timer -= uiDiff;
+
+                if (m_uiPOLYMORPH_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_POLYMORPH_SPIDER);
+
+                    m_uiPOLYMORPH_Timer = urand(15000, 18000);
+                }
+                else
+                    m_uiPOLYMORPH_Timer -= uiDiff;
+
+                if (m_uiFIREBALL_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_FIREBALL_10N, SPELL_FIREBALL_25N, SPELL_FIREBALL_10N, SPELL_FIREBALL_25N));
+                    m_uiFIREBALL_Timer = urand(3000, 4000);
+                }
+                else
+                    m_uiFIREBALL_Timer -= uiDiff;
+ 
+                if (m_uiBLAST_Timer <= uiDiff)
+                {
+                    DoCastAOE(RAID_MODE(SPELL_BLAST_WAVE_10N, SPELL_BLAST_WAVE_25N, SPELL_BLAST_WAVE_10N, SPELL_BLAST_WAVE_25N));
+                    m_uiBLAST_Timer = urand(10000, 20000);
+                }
+                else
+                    m_uiBLAST_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_archmageAI(creature);
+        }
+};
+
+class npc_darkfallen_blood_knight : public CreatureScript
+{
+    public:
+        npc_darkfallen_blood_knight() : CreatureScript("npc_darkfallen_blood_knight") { }
+
+        struct npc_darkfallen_blood_knightAI : public ScriptedAI
+        {
+            npc_darkfallen_blood_knightAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiAURA_Timer;
+            uint32 m_uiSTRIKE_Timer;
+            uint32 m_uiMIRROR_Timer;
+
+            void Reset()
+            {
+                m_uiAURA_Timer = urand(12000, 15000);
+                m_uiSTRIKE_Timer = urand(2000, 3000);
+                m_uiMIRROR_Timer = urand(4000, 5000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiSTRIKE_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), SPELL_UNHOLY_STRIKE);
+                    m_uiSTRIKE_Timer = urand(3000, 4000);
+                }
+                else
+                    m_uiSTRIKE_Timer -= uiDiff;
+
+                if (m_uiAURA_Timer <= uiDiff)
+                {
+                    DoCast(me, SPELL_VAMPIRIC_AURA);
+                    m_uiAURA_Timer = urand(12000, 15000);
+                }
+                else
+                    m_uiAURA_Timer -= uiDiff;
+
+                if (m_uiMIRROR_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    {
+                        DoCast(me->getVictim(),SPELL_BLOOD_MIRROR_DUMMY);
+                        me->getVictim()->CastSpell(target,SPELL_BLOOD_MIRROR_DAMAGE,true);
+                        me->CastSpell(me->getVictim(),SPELL_BLOOD_MIRROR_BUFF,true);
+                        m_uiMIRROR_Timer = urand(32000, 37000);
+                    }
+                }
+                else
+                    m_uiMIRROR_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_blood_knightAI(creature);
+        }
+};
+
+enum Noblemisc
+{
+    NPC_VAMPIRIC_FIEND           = 37901,
+};
+class npc_darkfallen_noble : public CreatureScript
+{
+    public:
+        npc_darkfallen_noble() : CreatureScript("npc_darkfallen_noble") { }
+ 
+        struct npc_darkfallen_nobleAI : public ScriptedAI
+        {
+            npc_darkfallen_nobleAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiCHAINS_Timer;
+            uint32 m_uiBOLT_Timer;
+            uint32 m_uiFIEND_Timer;
+
+            void Reset()
+            {
+                m_uiCHAINS_Timer = urand(2000, 4000);
+                m_uiBOLT_Timer = urand(3000, 5000);
+                m_uiFIEND_Timer = 15000;
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiBOLT_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT_10N, SPELL_SHADOW_BOLT_25N, SPELL_SHADOW_BOLT_10N, SPELL_SHADOW_BOLT_25N));
+                    m_uiBOLT_Timer = urand(4000, 5000);
+                }
+                else
+                    m_uiBOLT_Timer -= uiDiff;
+
+                if (m_uiCHAINS_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_CHAINS_OF_SHADOW);
+
+                    m_uiCHAINS_Timer = urand(20000, 25000);
+                }
+                else
+                    m_uiCHAINS_Timer -= uiDiff;
+
+                if (m_uiFIEND_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (me->SummonCreature(NPC_VAMPIRIC_FIEND,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ()))
+                            m_uiFIEND_Timer = 60000;
+                }
+                else
+                    m_uiFIEND_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_nobleAI(creature);
+        }
+};
+
+class npc_vampiric_fiend : public CreatureScript
+{
+    public:
+        npc_vampiric_fiend() : CreatureScript("npc_vampiric_fiend") { }
+
+        struct npc_vampiric_fiendAI : public ScriptedAI
+        {
+            npc_vampiric_fiendAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiLEECHING_Timer;
+
+            void Reset()
+            {
+                m_uiLEECHING_Timer = 10000;
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
+                DoCast(me, SPELL_DISEASE_CLOUD);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiLEECHING_Timer <= uiDiff)
+                {
+                    DoCastAOE(SPELL_LEECHING_ROT);
+                    me->ForcedDespawn(3000); 
+                    m_uiLEECHING_Timer = 10000;
+                }
+                else
+                    m_uiLEECHING_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_vampiric_fiendAI(creature);
+        }
+};
+
+class npc_darkfallen_advisor : public CreatureScript
+{
+    public:
+        npc_darkfallen_advisor() : CreatureScript("npc_darkfallen_advisor") { }
+ 
+        struct npc_darkfallen_advisorAI : public ScriptedAI
+        {
+            npc_darkfallen_advisorAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiLICH_Timer;
+            uint32 m_uiPROTECTION_Timer;
+
+            void Reset()
+            {
+                m_uiLICH_Timer = urand(2000, 5000);
+                m_uiPROTECTION_Timer = urand(10000, 15000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiLICH_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_LICH_SLAP_10N, SPELL_LICH_SLAP_25N, SPELL_LICH_SLAP_10N, SPELL_LICH_SLAP_25N));
+                    m_uiLICH_Timer = 10000;
+                }
+                else
+                    m_uiLICH_Timer -= uiDiff;
+
+                if (m_uiPROTECTION_Timer <= uiDiff)
+                {
+                    if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0) : DoSelectLowestHpFriendly(40.0f))
+                    {
+                        DoCast(target,SPELL_SHROUD_OF_PROTECTION);
+                        DoCast(target,SPELL_SHROUD_OF_SPELL_WARDING);
+                        m_uiPROTECTION_Timer = urand(15000, 20000);
+                    }
+                }
+                else
+                    m_uiPROTECTION_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_advisorAI(creature);
+        }
+};
+
+class npc_darkfallen_commander : public CreatureScript
+{
+    public:
+        npc_darkfallen_commander() : CreatureScript("npc_darkfallen_commander") { }
+ 
+        struct npc_darkfallen_commanderAI : public ScriptedAI
+        {
+            npc_darkfallen_commanderAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiRUSH_Timer;
+            uint32 m_uiSHOUT_Timer;
+
+            void Reset()
+            {
+                m_uiRUSH_Timer = urand(4000, 8000);
+                m_uiSHOUT_Timer = urand(8000, 10000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiSHOUT_Timer <= uiDiff)
+                {
+                    DoCast(me, SPELL_BATTLE_SHOUT);
+                    m_uiSHOUT_Timer = urand(15000, 20000);
+                }
+                else
+                    m_uiSHOUT_Timer -= uiDiff;
+
+                if (m_uiRUSH_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, RAID_MODE(SPELL_VAMPIRE_RUSH_10N,SPELL_VAMPIRE_RUSH_25N ,SPELL_VAMPIRE_RUSH_10N ,SPELL_VAMPIRE_RUSH_25N));
+
+                    m_uiRUSH_Timer = urand(10000, 15000);
+                }
+                else
+                    m_uiRUSH_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_commanderAI(creature);
+        }
+};
+
+class npc_darkfallen_lieutenant : public CreatureScript
+{
+    public:
+        npc_darkfallen_lieutenant() : CreatureScript("npc_darkfallen_lieutenant") { }
+
+        struct npc_darkfallen_lieutenantAI : public ScriptedAI
+        {
+            npc_darkfallen_lieutenantAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiREND_Timer;
+            uint32 m_uiCURSE_Timer;
+
+            void Reset()
+            {
+                m_uiREND_Timer = urand(1000, 2000);
+                m_uiCURSE_Timer = urand(8000, 15000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me, SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiREND_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_REND_FLESH_10N, SPELL_REND_FLESH_25N, SPELL_REND_FLESH_10N, SPELL_REND_FLESH_25N));
+                    m_uiREND_Timer = 25000;
+                }
+                else
+                    m_uiREND_Timer -= uiDiff;
+
+                if (m_uiCURSE_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_VAMPIRIC_CURSE);
+
+                    m_uiCURSE_Timer = urand(10000, 20000);
+                }
+                else
+                    m_uiCURSE_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_lieutenantAI(creature);
+        }
+};
+
+class npc_darkfallen_tactician : public CreatureScript
+{
+    public:
+        npc_darkfallen_tactician() : CreatureScript("npc_darkfallen_tactician") { }
+
+        struct npc_darkfallen_tacticianAI : public ScriptedAI
+        {
+            npc_darkfallen_tacticianAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiSHADOWSTEP_Timer;
+            uint32 m_uiSAP_Timer;
+            uint32 m_uiSTRIKE_Timer;
+
+            void Reset()
+            {
+                m_uiSHADOWSTEP_Timer = urand(1000, 2000);
+                m_uiSAP_Timer = urand(5000, 15000);
+                m_uiSTRIKE_Timer = urand(2000, 3000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiSTRIKE_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), SPELL_UNHOLY_STRIKE);
+                    m_uiSTRIKE_Timer = 6000;
+                }
+                else
+                    m_uiSTRIKE_Timer -= uiDiff;
+
+                if (m_uiSAP_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_BLOOD_SAP);
+
+                    m_uiSAP_Timer = urand(15000, 25000);
+                }
+                else
+                    m_uiSAP_Timer -= uiDiff;
+
+                if (m_uiSHADOWSTEP_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_SHADOWSTEP);
+
+                    m_uiSHADOWSTEP_Timer = urand(15000, 20000);
+                }
+                else
+                    m_uiSHADOWSTEP_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_darkfallen_tacticianAI(creature);
+        }
+};
+
 void AddSC_icc_trash()
 {
     new npc_NerubarBroodkeeper();
@@ -1009,4 +1552,12 @@ void AddSC_icc_trash()
     new npc_plague_scientist();
     new npc_pustulating_horror();
     new npc_decaying_colossus();
+    new npc_darkfallen_archmage();
+    new npc_darkfallen_blood_knight();
+    new npc_darkfallen_noble();
+    new npc_vampiric_fiend();
+    new npc_darkfallen_advisor();
+    new npc_darkfallen_commander();
+    new npc_darkfallen_lieutenant();
+    new npc_darkfallen_tactician();
 }
