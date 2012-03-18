@@ -88,8 +88,8 @@ public:
     void SendObjectiveComplete(uint32 id, uint64 guid);
 
     // used when player is activated/inactivated in the area
-    virtual bool HandlePlayerEnter(Player * player);
-    virtual void HandlePlayerLeave(Player * player);
+    virtual bool HandlePlayerEnter(Player* player);
+    virtual GuidSet::iterator HandlePlayerLeave(Player* player);
     //virtual void HandlePlayerActivityChanged(Player * player);
 
     // checks if player is in range of a capture credit marker
