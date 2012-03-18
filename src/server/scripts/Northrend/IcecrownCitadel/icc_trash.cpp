@@ -107,6 +107,29 @@ enum TrashSpells
     SPELL_SHADOWSTEP                        = 70431,
     SPELL_BLOOD_SAP                         = 70432,
 //----------FROST WING----------//
+    //Ymirjar Deathbringer
+    SPELL_BANISH                            = 71298,
+    SPELL_DEATHS_EMBRACE_10N                = 71299,
+    SPELL_DEATHS_EMBRACE_25N                = 71300,
+    SPELL_SHADOW_BOLT_YMIRJAR_10N           = 71296,
+    SPELL_SHADOW_BOLT_YMIRJAR_25N           = 71297,
+    SPELL_SUMMON_YMIRJAR                    = 71303,
+    //Ymirjar Frostbinder
+    SPELL_ARCTIC_CHILL                      = 71270,
+    SPELL_FROZEN_ORB                        = 71274,
+    SPELL_TWISTED_WINDS                     = 71306,
+    SPELL_SPIRIT_STREAM                     = 69929,
+    //Ymirjar Battle-Maiden
+    SPELL_ADRENALINE_RUSH                   = 71258,
+    SPELL_BARBARIC_STRIKE                   = 71257,
+    //Ymirjar Huntress
+    SPELL_ICE_TRAP                          = 71249,
+    SPELL_RAPID_SHOT                        = 71251,
+    SPELL_SHOOT                             = 71253,
+    SPELL_VOLLEY                            = 71252,
+    SPELL_SUMMON_WARHAWK                    = 71705,
+    //Ymirjar Warlord
+    SPELL_WHIRLWIND                         = 41056,
 };
 
 enum TrashEvents
@@ -1535,6 +1558,303 @@ class npc_darkfallen_tactician : public CreatureScript
         }
 };
 
+class npc_ymirjar_deathbringer : public CreatureScript
+{
+    public:
+        npc_ymirjar_deathbringer() : CreatureScript("npc_ymirjar_deathbringer") { }
+
+        struct npc_ymirjar_deathbringerAI : public ScriptedAI
+        {
+            npc_ymirjar_deathbringerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiBANISH_Timer;
+            uint32 m_uiEMBRACE_Timer;
+            uint32 m_uiBOLT_Timer;
+
+            void Reset()
+            {
+                m_uiBANISH_Timer = urand(5000, 10000);
+                m_uiEMBRACE_Timer = urand(10000, 15000);
+                m_uiBOLT_Timer = urand(1000, 2000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiEMBRACE_Timer <= uiDiff)
+                {
+                    DoCast(me, RAID_MODE(SPELL_DEATHS_EMBRACE_10N, SPELL_DEATHS_EMBRACE_25N, SPELL_DEATHS_EMBRACE_10N, SPELL_DEATHS_EMBRACE_25N));
+                    m_uiEMBRACE_Timer = urand(15000, 25000);
+                }
+                else
+                    m_uiEMBRACE_Timer -= uiDiff;
+
+                if (m_uiBANISH_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_BANISH);
+
+                    m_uiBANISH_Timer = urand(15000, 25000);
+                }
+                else
+                    m_uiBANISH_Timer -= uiDiff;
+
+                if (m_uiBOLT_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT_YMIRJAR_10N, SPELL_SHADOW_BOLT_YMIRJAR_25N, SPELL_SHADOW_BOLT_YMIRJAR_10N, SPELL_SHADOW_BOLT_YMIRJAR_25N));
+                    m_uiBOLT_Timer = 2000;
+                }
+                else
+                    m_uiBOLT_Timer -= uiDiff;
+ 
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_deathbringerAI(creature);
+        }
+};
+
+class npc_ymirjar_frostbinder : public CreatureScript
+{
+    public:
+        npc_ymirjar_frostbinder() : CreatureScript("npc_ymirjar_frostbinder") { }
+
+        struct npc_ymirjar_frostbinderAI : public ScriptedAI
+        {
+            npc_ymirjar_frostbinderAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiORB_Timer;
+
+            void Reset()
+            {
+                m_uiORB_Timer = 1000;
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiORB_Timer <= uiDiff)
+                {
+                    DoCastAOE(SPELL_FROZEN_ORB);
+                    m_uiORB_Timer = urand(3000, 5000);
+                }
+                else
+                    m_uiORB_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_frostbinderAI(creature);
+        }
+};
+
+class npc_ymirjar_battlemaiden : public CreatureScript
+{
+    public:
+        npc_ymirjar_battlemaiden() : CreatureScript("npc_ymirjar_battlemaiden") { }
+
+        struct npc_ymirjar_battlemaidenAI : public ScriptedAI
+        {
+            npc_ymirjar_battlemaidenAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiRUSH_Timer;
+            uint32 m_uiSTRIKE_Timer;
+
+            void Reset()
+            {
+                m_uiRUSH_Timer = urand(10000, 15000);
+                m_uiSTRIKE_Timer = urand(1000, 5000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiSTRIKE_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), SPELL_BARBARIC_STRIKE);
+                    m_uiSTRIKE_Timer = urand(2000, 3000);
+                }
+                else
+                    m_uiSTRIKE_Timer -= uiDiff;
+
+                if (m_uiRUSH_Timer <= uiDiff)
+                {
+                    DoCast(me, SPELL_ADRENALINE_RUSH);
+                    m_uiRUSH_Timer = urand(15000, 25000);
+                }
+                else
+                    m_uiRUSH_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_battlemaidenAI(creature);
+        }
+};
+
+class npc_ymirjar_huntress : public CreatureScript
+{
+    public:
+        npc_ymirjar_huntress() : CreatureScript("npc_ymirjar_huntress") { }
+
+        struct npc_ymirjar_huntressAI : public ScriptedAI
+        {
+            npc_ymirjar_huntressAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiTRAP_Timer;
+            uint32 m_uiRSHOT_Timer;
+            uint32 m_uiSHOT_Timer;
+            uint32 m_uiVOLLEY_Timer;
+
+            void Reset()
+            {
+                m_uiTRAP_Timer = urand(5000, 15000);
+                m_uiRSHOT_Timer = urand(10000, 15000);
+                m_uiSHOT_Timer = urand(1000, 2000);
+                m_uiVOLLEY_Timer = urand(5000, 15000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
+                if (Is25ManRaid())
+                    DoCast(SPELL_SUMMON_WARHAWK);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiRSHOT_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_RAPID_SHOT);
+
+                    m_uiRSHOT_Timer = urand(15000, 25000);
+                }
+                else
+                    m_uiRSHOT_Timer -= uiDiff;
+
+                if (m_uiVOLLEY_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target,SPELL_VOLLEY);
+
+                    m_uiVOLLEY_Timer = urand(10000, 15000);
+                }
+                else
+                    m_uiVOLLEY_Timer -= uiDiff;
+ 
+                if (m_uiTRAP_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_ICE_TRAP);
+
+                    m_uiTRAP_Timer = urand(30000, 35000);
+                }
+                else
+                    m_uiTRAP_Timer -= uiDiff;
+
+                if (me->isAttackReady())
+                {
+                    if (me->IsWithinMeleeRange(me->getVictim()))
+                        DoMeleeAttackIfReady();
+                    else if (m_uiSHOT_Timer <= uiDiff)
+                    {
+                        DoCast(me->getVictim(),SPELL_SHOOT);
+                        m_uiSHOT_Timer = 1000;
+                    }
+                    else
+					    m_uiSHOT_Timer -= uiDiff;
+                }
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_huntressAI(creature);
+        }
+};
+
+class npc_ymirjar_warlord : public CreatureScript
+{
+    public:
+        npc_ymirjar_warlord() : CreatureScript("npc_ymirjar_warlord") { }
+
+        struct npc_ymirjar_warlordAI : public ScriptedAI
+        {
+            npc_ymirjar_warlordAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiWHIRLWIND_Timer;
+
+            void Reset()
+            {
+                m_uiWHIRLWIND_Timer = urand(5000, 15000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiWHIRLWIND_Timer <= uiDiff)
+                {
+                    DoCastAOE(SPELL_WHIRLWIND);
+                    m_uiWHIRLWIND_Timer = urand(12000, 20000);
+                }
+                else
+                    m_uiWHIRLWIND_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_ymirjar_warlordAI(creature);
+        }
+};
+
 void AddSC_icc_trash()
 {
     new npc_NerubarBroodkeeper();
@@ -1560,4 +1880,9 @@ void AddSC_icc_trash()
     new npc_darkfallen_commander();
     new npc_darkfallen_lieutenant();
     new npc_darkfallen_tactician();
+    new npc_ymirjar_deathbringer();
+    new npc_ymirjar_frostbinder();
+    new npc_ymirjar_battlemaiden();
+    new npc_ymirjar_huntress();
+    new npc_ymirjar_warlord();
 }
