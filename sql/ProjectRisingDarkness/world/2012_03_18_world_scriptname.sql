@@ -12,3 +12,7 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 DELETE FROM `areatrigger_scripts` where `entry`= 5579;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5579,'at_fallen_warrior_pos');
+
+DELETE FROM `areatrigger_scripts` where `entry`= 5580;
+INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
+(5580,'at_ice_cicle_pos');

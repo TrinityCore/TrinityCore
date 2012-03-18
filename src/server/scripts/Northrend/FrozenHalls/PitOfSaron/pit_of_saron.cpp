@@ -82,6 +82,39 @@ const Position spawnPointsWrathboneColdwraith[4] =
     {933.810974f, -45.009399f, 591.658997f, 1.582540f},
 };
 
+const Position IceCiclespawnPointsFallenWarrior[8] =
+{
+    {997.252991f, -139.257004f, 615.875000f, 2.722710f},
+    {1000.400024f, -127.873001f, 616.247009f, 3.403390f},
+    {1049.770020f, -113.330002f, 629.814026f, 4.101520f},
+    {1042.160034f, -104.300003f, 630.038025f, 3.892080f},
+    {1062.150024f, -29.850700f, 633.879028f, 4.433140f},
+    {1073.599976f, -31.012199f, 633.408997f, 4.607670f},
+    {1069.910034f, 100.042000f, 631.062012f, 4.869470f},
+    {1059.170044f, 95.906303f, 630.781006f, 4.939280f},
+};
+
+const Position IceCiclespawnPointsWrathboneSkeleton[12] =
+{
+    {1033.609863f, -113.968132f, 627.523987f, 3.794239f},
+    {1043.910034f, -124.613998f, 627.747986f, 3.595380f},
+    {1068.930054f, -88.752602f, 632.828003f, 4.223700f},
+    {1050.0f, -69.646599f, 633.078979f, 4.363320f},
+    {1055.680054f, -52.713402f, 633.510986f, 4.607670f},
+    {1069.369995f, -52.008701f, 633.919983f, 4.520400f},
+    {1069.390015f, -12.805800f, 633.627014f, 4.537860f},
+    {1077.579956f, -14.718200f, 632.726013f, 4.450590f},
+    {1079.089966f, 34.306599f, 629.799988f, 4.607670f},
+    {1071.270020f, 38.016102f, 629.828979f, 4.956740f},
+    {1058.099976f, 92.909897f, 630.413025f, 5.074410f},
+    {1070.369995f, 96.143799f, 631.075012f, 4.910200f},
+};
+
+const Position IceCiclespawnPointsWrathboneSorcerer[2] =
+{
+    {1073.608643f, 49.570923f, 630.635559f, 4.996680f},
+    {1067.034912f, 47.677979f, 630.472473f, 4.851380f},
+};
 class mob_ymirjar_flamebearer : public CreatureScript
 {
     public:
@@ -914,13 +947,16 @@ class at_pit_of_saron_start : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {
-            InstanceScript* instance = player->GetInstanceScript();
+         if (InstanceScript* instance = player->GetInstanceScript())
+         {
             if(instance->GetData(DATA_TYRANNUS_START) == IN_PROGRESS || instance->GetData(DATA_TYRANNUS_START) == DONE || player->isGameMaster() || !instance)
-                      return false;
-                      
-               instance->SetData(DATA_TYRANNUS_START, IN_PROGRESS);
-              
+                return false;
+
+            instance->SetData(DATA_TYRANNUS_START, IN_PROGRESS);
+
             return false;
+          }
+          return false;
         }
 };
 
@@ -998,6 +1034,38 @@ class at_fallen_warrior_pos : public AreaTriggerScript
             return false;
         }
 };
+class at_ice_cicle_pos : public AreaTriggerScript
+{
+    public:
+        at_ice_cicle_pos() : AreaTriggerScript("at_ice_cicle_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {    
+            if (instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE && instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
+            {
+                instance->SetData(DATA_AREA_TRIGGER_ICE_CICLE, IN_PROGRESS);
+                if (Creature* pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
+                {
+                    DoScriptText(SAY_GAUNTLET_START, pTyrannus);
+                    pTyrannus->DespawnOrUnsummon();
+                }
+                for (uint8 i = 0; i < 8; i++)
+                {
+                   player->SummonCreature(NPC_FALLEN_WARRIOR, IceCiclespawnPointsFallenWarrior[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                }
+                for (uint8 i = 0; i < 12; i++)
+                {
+                   player->SummonCreature(NPC_WRATHBONE_SKELETON, IceCiclespawnPointsWrathboneSkeleton[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                }
+                for (uint8 i = 0; i < 2; i++)
+                {
+                   player->SummonCreature(NPC_WRATHBONE_SORCERER, IceCiclespawnPointsWrathboneSorcerer[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                }
+                return false;
+            }
+              return false;   
+        }    
+};
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
@@ -1009,4 +1077,5 @@ void AddSC_pit_of_saron()
     new at_pit_of_saron_start();
     new at_ymirjar_flamebearer_pos();
     new at_fallen_warrior_pos();
+    new at_ice_cicle_pos();
 }

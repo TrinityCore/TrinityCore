@@ -68,6 +68,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 _tyrannusEventStart = NOT_STARTED;
                 _areaTriggerYmirjar = NOT_STARTED;
                 _areaTriggerFallen  = NOT_STARTED;
+                _areaTriggerIceCicle = NOT_STARTED;
             }
 
             void OnPlayerEnter(Player* player)
@@ -265,11 +266,13 @@ class instance_pit_of_saron : public InstanceMapScript
                     case DATA_TEAM_IN_INSTANCE:
                         return _teamInInstance;
                     case DATA_TYRANNUS_START:
-                    return _tyrannusEventStart;
+                        return _tyrannusEventStart;
                     case DATA_AREA_TRIGGER_YMIRJAR:
-                    return _areaTriggerYmirjar;
+                        return _areaTriggerYmirjar;
                     case DATA_AREA_TRIGGER_FALLEN:
-                    return _areaTriggerFallen;
+                        return _areaTriggerFallen;
+                    case DATA_AREA_TRIGGER_ICE_CICLE:
+                        return _areaTriggerIceCicle;
                     default:
                         break;
                 }
@@ -310,8 +313,10 @@ class instance_pit_of_saron : public InstanceMapScript
                 _tyrannusEventStart = data;
             if(type == DATA_AREA_TRIGGER_YMIRJAR)
                 _areaTriggerYmirjar = data;
-             if(type == DATA_AREA_TRIGGER_FALLEN)
+            if(type == DATA_AREA_TRIGGER_FALLEN)
                 _areaTriggerFallen = data;
+            if(type == DATA_AREA_TRIGGER_ICE_CICLE)
+                _areaTriggerIceCicle = data;
            }
             std::string GetSaveData()
             {
@@ -373,6 +378,7 @@ class instance_pit_of_saron : public InstanceMapScript
             uint8  _tyrannusEventStart;
             uint8  _areaTriggerYmirjar;
             uint8  _areaTriggerFallen;
+            uint8  _areaTriggerIceCicle;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

@@ -38,6 +38,7 @@ enum DataTypes
     DATA_TYRANNUS_START     = 9,
     DATA_AREA_TRIGGER_YMIRJAR = 10,
     DATA_AREA_TRIGGER_FALLEN = 11,
+    DATA_AREA_TRIGGER_ICE_CICLE = 12,
 };
 
 enum CreatureIds
@@ -88,6 +89,9 @@ enum CreatureIds
     NPC_YMIRJAR_WRATBRINGER                     = 36840,
     NPC_FALLEN_WARRIOR                          = 36841,
     NPC_WRATHBONE_COLDWRAITH                    = 36842,
+    NPC_WRATHBONE_REAVER                        = 37729,
+    NPC_WRATHBONE_SORCERER                      = 37728,
+    NPC_WRATHBONE_SKELETON                      = 36877,
 
     NPC_FORGEMASTER_STALKER                     = 36495,
     NPC_EXPLODING_ORB                           = 36610,
