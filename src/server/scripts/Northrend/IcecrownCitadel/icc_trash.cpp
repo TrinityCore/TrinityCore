@@ -9,6 +9,8 @@
 
 enum TrashSpells
 {
+    //Quest Spell
+    SPELL_SOUL_FEAST_ALL                    = 71203,
 //----------LOWER SPIRE----------//
     //Nerub'ar Broodkeeper
     SPELL_CRYPTSCARABS                      = 70965,
@@ -54,6 +56,17 @@ enum TrashSpells
     //Vengeful Fleshreaper
     SPELL_LEAPING_FACE_MAUL                 = 71164,
     SPELL_DEVOUR_HUMANOID                   = 71164,
+    //Plague Scientist
+    SPELL_PLAGUE_BLAST                      = 73079,
+    SPELL_PLAGUE_STREAM                     = 69871,
+    SPELL_COMBOBULATING_SPRAY               = 71103,
+    //Pustulating Horror
+    SPELL_BLIGHT_BOMB                       = 71088,
+    SPELL_BUBBLING_PUS_10N                  = 71089,
+    SPELL_BUBBLING_PUS_25N                  = 71090,
+    //Decaying Colossus
+    SPELL_MASSIVE_STOMP_10N                 = 71114,
+    SPELL_MASSIVE_STOMP_25N                 = 71115,
 };
 
 enum TrashEvents
@@ -652,7 +665,7 @@ class npc_valkyr_herald : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                //DoCast(me,SPELL_SOUL_FEAST_ALL);
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
             void UpdateAI(const uint32 uiDiff)
@@ -693,7 +706,7 @@ class npc_blighted_abomination : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                //DoCast(me,SPELL_SOUL_FEAST_ALL);
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
             void Reset()
@@ -765,7 +778,7 @@ class npc_vengeful_fleshreapert : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                //DoCast(me,SPELL_SOUL_FEAST_ALL);
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
             }
 
             void UpdateAI(const uint32 uiDiff)
@@ -803,6 +816,182 @@ class npc_vengeful_fleshreapert : public CreatureScript
         }
 };
 
+class npc_plague_scientist : public CreatureScript
+{
+    public:
+        npc_plague_scientist() : CreatureScript("npc_plague_scientist") { }
+ 
+        struct npc_plague_scientistAI : public ScriptedAI
+        {
+            npc_plague_scientistAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiBLAST_Timer;
+            uint32 m_uiSTREAM_Timer;
+            uint32 m_uiSTREAM_OUT_Timer;
+            uint32 m_uiSPRAY_Timer;    
+
+            void Reset()
+            {
+                m_uiBLAST_Timer = 2000;
+                m_uiSTREAM_Timer = urand(8000, 12000);
+                m_uiSTREAM_OUT_Timer = 24000;
+                m_uiSPRAY_Timer = urand(5000, 8000);
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiSTREAM_Timer <= uiDiff)
+                {
+                    if (m_uiSTREAM_OUT_Timer > uiDiff)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_PLAGUE_STREAM);
+                        // maximo 24 segs para que deje de castear
+                        m_uiSTREAM_OUT_Timer -= uiDiff;
+                    }
+                    else
+                    {
+                        me->CastStop(SPELL_PLAGUE_STREAM);
+                        // se repite de entre 15 a 20 segs
+                        m_uiSTREAM_OUT_Timer = urand(15000, 20000);
+                    }
+                }
+                else
+                    m_uiSTREAM_Timer -= uiDiff;
+
+                if (m_uiSPRAY_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_COMBOBULATING_SPRAY);
+                    // cada 8 a 12 segs se repite
+                    m_uiSPRAY_Timer = urand(8000, 12000);
+                }
+                else
+                    m_uiSPRAY_Timer -= uiDiff;
+ 
+                if (m_uiBLAST_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), SPELL_PLAGUE_BLAST);
+                    // cada 2 a 3 segs se repite
+                    m_uiBLAST_Timer = urand(2000, 3000);
+                }
+                else
+                    m_uiBLAST_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_plague_scientistAI(creature);
+        }
+};
+
+class npc_pustulating_horror : public CreatureScript
+{
+    public:
+        npc_pustulating_horror() : CreatureScript("npc_pustulating_horror") { }
+
+        struct npc_pustulating_horrorAI : public ScriptedAI
+        {
+            npc_pustulating_horrorAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiPUS_Timer;
+
+            void Reset()
+            {
+                m_uiPUS_Timer = 2000;
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (HealthBelowPct(15))
+                {
+                    DoCastAOE(SPELL_BLIGHT_BOMB);
+                    m_uiPUS_Timer = 5000;
+                }
+
+                if (m_uiPUS_Timer <= uiDiff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                        DoCast(target, RAID_MODE(SPELL_BUBBLING_PUS_10N, SPELL_BUBBLING_PUS_25N, SPELL_BUBBLING_PUS_10N, SPELL_BUBBLING_PUS_25N));
+				    if (HealthAbovePct(15))
+                        m_uiPUS_Timer = urand(15000, 25000);
+                }
+                else
+                    m_uiPUS_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+ 
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_pustulating_horrorAI(creature);
+        }
+};
+
+class npc_decaying_colossus : public CreatureScript
+{
+    public:
+        npc_decaying_colossus() : CreatureScript("npc_decaying_colossus") { }
+
+        struct npc_decaying_colossusAI : public ScriptedAI
+        {
+            npc_decaying_colossusAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+            uint32 m_uiSTOMP_Timer;
+
+            void Reset()
+            {
+                m_uiSTOMP_Timer = 5000;
+            }
+
+            void JustDied(Unit* killer)
+            {
+                DoCast(me,SPELL_SOUL_FEAST_ALL);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (m_uiSTOMP_Timer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_MASSIVE_STOMP_10N, SPELL_MASSIVE_STOMP_25N, SPELL_MASSIVE_STOMP_10N, SPELL_MASSIVE_STOMP_25N));
+                    m_uiSTOMP_Timer = urand(15000, 25000);
+                }
+                else
+                    m_uiSTOMP_Timer -= uiDiff;
+
+                DoMeleeAttackIfReady();   
+            }
+        };
+ 
+        CreatureAI *GetAI(Creature *creature) const
+        {
+            return new npc_decaying_colossusAI(creature);
+        }
+};
+
 void AddSC_icc_trash()
 {
     new npc_NerubarBroodkeeper();
@@ -817,4 +1006,7 @@ void AddSC_icc_trash()
     new npc_valkyr_herald();
     new npc_blighted_abomination();
     new npc_vengeful_fleshreapert();
+    new npc_plague_scientist();
+    new npc_pustulating_horror();
+    new npc_decaying_colossus();
 }
