@@ -1540,9 +1540,11 @@ void Creature::setDeathState(DeathState s)
         ResetPlayerDamageReq();
         CreatureTemplate const* cinfo = GetCreatureTemplate();
         SetWalk(true);
-        if (GetCreatureTemplate()->InhabitType & INHABIT_AIR)
+        if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND)
+            SetCanFly(true);
+        else if (cinfo->InhabitType & INHABIT_AIR)
             SetDisableGravity(true);
-        if (GetCreatureTemplate()->InhabitType & INHABIT_WATER)
+        if (cinfo->InhabitType & INHABIT_WATER)
             AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
