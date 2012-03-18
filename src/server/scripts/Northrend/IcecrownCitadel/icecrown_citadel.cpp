@@ -2063,7 +2063,7 @@ void AddSC_icecrown_citadel()
     new npc_captain_brandon();
     new npc_captain_grondel();
     new npc_captain_rupert();
-    new npc_frostwing_vrykul();
+    //new npc_frostwing_vrykul();
     new npc_impaling_spear();
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
