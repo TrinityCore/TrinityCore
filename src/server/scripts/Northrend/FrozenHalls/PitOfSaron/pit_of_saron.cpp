@@ -62,6 +62,18 @@ const Position spawnPointsYmirjar[2] =
     {883.150024f, 54.626401f, 528.262024f, 3.678787f},
     {915.107971f, 75.316299f, 553.531006f, 3.678787f},
 };
+const Position spawnPointsFallenWarrior[8] =
+{
+    {937.606506f, 0.776727f, 578.888000f, 1.090893f},
+    {928.419006f, 8.786335f, 577.693970f, 1.122307f},
+    {924.478699f, -7.662051f, 582.044983f, 1.489874f},
+    {935.244568f, -10.427516f, 583.265503f, 1.358702f},
+    {935.098694f, -24.272480f, 588.035400f, 1.653226f},
+    {921.272644f, -22.194103f, 585.452576f, 1.331212f},
+    {930.109009f, -56.889900f, 591.848999f, 2.353980f},
+    {924.945984f, -60.164799f, 591.879028f, 2.237270f},
+};
+
 class mob_ymirjar_flamebearer : public CreatureScript
 {
     public:
@@ -949,6 +961,34 @@ class at_ymirjar_flamebearer_pos : public AreaTriggerScript
                 return false;
         }
 };
+class at_fallen_warrior_pos : public AreaTriggerScript
+{
+    public:
+        at_fallen_warrior_pos() : AreaTriggerScript("at_fallen_warrior_pos") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+            InstanceScript* instance = player->GetInstanceScript();
+            if(instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE || player->isGameMaster() || !instance)
+                      return false;
+                      
+              if (instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
+                {
+                   instance->SetData(DATA_AREA_TRIGGER_FALLEN, DONE);
+                   if(Creature *pTyrannus = player->SummonCreature(NPC_TYRANNUS_EVENTS, 916.282104f, -71.079742f, 606.430359f, 1.326541f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                   {
+                     DoScriptText(SAY_TYRANNUS_AMBUSH_2, pTyrannus);
+                   }
+                   for (uint8 i = 0; i < 8; i++)
+                   {
+                      player->SummonCreature(NPC_FALLEN_WARRIOR, spawnPointsFallenWarrior[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                   }
+                   return false;
+                }
+                
+            return false;
+        }
+};
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
@@ -959,4 +999,5 @@ void AddSC_pit_of_saron()
     new pitofsaron_start();
     new at_pit_of_saron_start();
     new at_ymirjar_flamebearer_pos();
+    new at_fallen_warrior_pos();
 }
