@@ -150,8 +150,46 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
 
 bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
 {
-    player->TeleportTo(GetMapId(), 763.5f, -284, 28.276f, 2.422f, false);
+    player->TeleportTo(GetMapId(), 763.5f, -284, 28.277f, 2.422f, false);
     return true;
+}
+
+bool BattlegroundRV::IsPlayerUnderMap(Player* player, float x, float y, float z)
+{
+		bool inCage = false;
+			
+		if (z < 28.27)			
+		{
+
+			{
+
+			// starting
+			if (player->HasAura(32727))
+				inCage = true;
+			
+			// Going up with the elevator in the western cage
+			else if (x > 755 && x < 771 && y < -265 && y > -282 && z > 2.78)
+				inCage = true;
+			
+			// Going up with the elevator in the eastern cage
+			else if (x > 755 && x < 771 && y < -286 && y > -302 && z > 2.78)
+				inCage = true;
+
+			else
+				inCage = false;
+			}
+			
+			if (inCage == false)
+				return true;
+
+			else
+				return false;
+		
+			
+			
+		}
+		else
+			return false;
 }
 
 void BattlegroundRV::HandleAreaTrigger(Player* Source, uint32 Trigger)
