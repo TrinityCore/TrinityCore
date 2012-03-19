@@ -30,7 +30,7 @@ AccountOpResult CreateAccount(std::string username, std::string password)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AOR_NAME_TOO_LONG;                           // username's too long
-
+    //
     normalizeString(username);
     normalizeString(password);
 
