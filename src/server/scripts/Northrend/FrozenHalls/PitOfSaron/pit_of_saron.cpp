@@ -521,11 +521,7 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(367880, 250.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                        sChampions->GetMotionMaster()->MovePoint(0, 487.463989f, 246.891006f, 528.708984f);
                                 }
 
                                 GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_ALLIANCE, 250.0f);
@@ -536,11 +532,7 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 250.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                       sChampions->GetMotionMaster()->MovePoint(0, 504.444000f, 211.061996f, 528.710022f);
                                 }
                             }
                             else
@@ -553,11 +545,7 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(367880, 250.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                        sChampions->GetMotionMaster()->MovePoint(0, 487.463989f, 246.891006f, 528.708984f);
                                 }
 
                                 GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_HORDE, 250.0f);
@@ -568,11 +556,7 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 250.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                        sChampions->GetMotionMaster()->MovePoint(0, 504.444000f, 211.061996f, 528.710022f);
                                 }
 
                                 GetCreatureListWithEntryInGrid(Champion3, me, NPC_CHAMPION_3_HORDE, 250.0f);
@@ -583,11 +567,7 @@ public:
                                         continue;
 
                                     if (sChampions->isAlive())
-                                        if (Creature* sNecrolyte = me->FindNearestCreature(36788, 250.0f, true))
-                                        {
-                                            sChampions->Attack(sNecrolyte, true);
-                                            sChampions->GetMotionMaster()->MoveChase(sNecrolyte);
-                                        }
+                                       sChampions->GetMotionMaster()->MovePoint(0, 504.444000f, 211.061996f, 528.710022f);
                                 }
                             }
                             ++StartPhase;
