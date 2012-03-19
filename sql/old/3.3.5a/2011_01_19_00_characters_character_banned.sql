@@ -1,0 +1,6 @@
+ALTER TABLE `character_banned`
+ROW_FORMAT=DEFAULT,
+CHANGE `guid` `guid` INT(10) UNSIGNED DEFAULT '0' NOT NULL COMMENT 'Account id',
+CHANGE `bandate` `bandate` INT(10) UNSIGNED DEFAULT '0' NOT NULL,
+CHANGE `unbandate` `unbandate` INT(10) UNSIGNED DEFAULT '0' NOT NULL,
+CHANGE `active` `active` TINYINT(3) UNSIGNED DEFAULT '1' NOT NULL;

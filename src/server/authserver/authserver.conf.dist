@@ -1,0 +1,249 @@
+###############################################
+# Trinity Core Auth Server configuration file #
+###############################################
+[authserver]
+
+###################################################################################################
+# SECTION INDEX
+#
+#    EXAMPLE CONFIG
+#    AUTH SERVER SETTINGS
+#    MYSQL SETTINGS
+#
+###################################################################################################
+
+###################################################################################################
+# EXAMPLE CONFIG
+#
+#    Variable
+#        Description: Brief description what the variable is doing.
+#        Important:   Annotation for important things about this variable.
+#        Example:     "Example, i.e. if the value is a string"
+#        Default:     10 - (Enabled|Comment|Variable name in case of grouped config options)
+#                     0  - (Disabled|Comment|Variable name in case of grouped config options)
+#
+# Note to developers:
+# - Copy this example to keep the formatting.
+# - Line breaks should be at column 100.
+###################################################################################################
+
+###################################################################################################
+# AUTH SERVER SETTINGS
+#
+#    LogsDir
+#        Description: Logs directory setting.
+#        Important:   LogsDir needs to be quoted, as the string might contain space characters.
+#                     Logs directory must exists, or log file creation will be disabled.
+#        Default:     "" - (Log files will be stored in the current path)
+
+LogsDir = ""
+
+#
+#    MaxPingTime
+#        Description: Time (in minutes) between database pings.
+#        Default:     30
+
+MaxPingTime = 30
+
+#
+#    RealmServerPort
+#        Description: TCP port to reach the auth server.
+#        Default:     3724
+
+RealmServerPort = 3724
+
+#
+#
+#    BindIP
+#        Description: Bind auth server to IP/hostname
+#        Default:     "0.0.0.0" - (Bind to all IPs on the system)
+
+BindIP = "0.0.0.0"
+
+#
+#    PidFile
+#        Description: Auth server PID file.
+#        Example:     "./authserver.pid"  - (Enabled)
+#        Default:     ""                  - (Disabled)
+
+PidFile = ""
+
+#
+#    LogLevel
+#        Description: Server console level of logging
+#        Default:     0 - (Minimum)
+#                     1 - (Basic)
+#                     2 - (Detail)
+#                     3 - (Full/Debug)
+
+LogLevel = 0
+
+#
+#    LogFile
+#        Description: Log file for main server log.
+#        Default:     "Auth.log" - (Enabled)
+#                     ""           - (Disabled)
+
+LogFile = "Auth.log"
+
+#
+#    Debug Log Mask
+#        Description: Bitmask that determines which debug log output (level 3)
+#                     will be logged.
+#        Possible flags:
+#
+#                  64 - Anything related to network input/output,
+#                        such as packet handlers and netcode logs
+#
+#                       Simply add the values together to create a bitmask.
+#                       For more info see enum DebugLogFilters in Log.h
+#
+#             Default: 0 (nothing)
+
+DebugLogMask = 64
+
+#
+#    SQLDriverLogFile
+#        Description: Log file for SQL driver events.
+#        Example:     "SQLDriver.log" - (Enabled)
+#        Default:      ""             - (Disabled)
+
+SQLDriverLogFile = ""
+
+#
+#    LogTimestamp
+#        Description: Append timestamp to the server log file name.
+#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+LogTimestamp = 0
+
+#
+#    LogFileLevel
+#        Description: Server file level of logging
+#        Default:     0 - (Minimum)
+#                     1 - (Basic)
+#                     2 - (Detail)
+#                     3 - (Full/Debug)
+
+LogFileLevel = 0
+
+#
+#    LogColors
+#        Description: Colors for log messages (Format: "normal basic detail debug").
+#        Colors:      0  - Black
+#                     1  - Red
+#                     2  - Green
+#                     3  - Brown
+#                     4  - Blue
+#                     5  - Magenta
+#                     6  - Cyan
+#                     7  - Grey
+#                     8  - Yellow
+#                     9  - Lred
+#                     10 - Lgreen
+#                     11 - Lblue
+#                     12 - Lmagenta
+#                     13 - Lcyan
+#                     14 - White
+#        Example:     "13 11 9 5" - (Enabled)
+#        Default:     ""          - (Disabled)
+
+LogColors = ""
+
+#
+#    EnableLogDB
+#        Description: Write log messages to database (LogDatabaseInfo).
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+EnableLogDB = 0
+
+#
+#    DBLogLevel
+#        Description: Log level of databases logging.
+#        Default:     1 - (Basic)
+#                     0 - (Minimum)
+#                     2 - (Detail)
+#                     3 - (Full/Debug)
+
+DBLogLevel = 1
+
+#
+#    UseProcessors
+#        Description: Processors mask for Windows based multi-processor systems.
+#        Default:     0  - (Selected by OS)
+#                     1+ - (Bit mask value of selected processors)
+
+UseProcessors = 0
+
+#
+#    ProcessPriority
+#        Description: Process priority setting for Windows based systems.
+#        Default:     1 - (High)
+#                     0 - (Normal)
+
+ProcessPriority = 1
+
+#
+#    RealmsStateUpdateDelay
+#        Description: Time (in seconds) between realm list updates.
+#        Default:     20 - (Enabled)
+#                     0  - (Disabled)
+
+RealmsStateUpdateDelay = 20
+
+#
+#    WrongPass.MaxCount
+#        Description: Number of login attemps with wrong password before the account or IP will be
+#                     banned.
+#        Default:     0  - (Disabled)
+#                     1+ - (Enabled)
+
+WrongPass.MaxCount = 0
+
+#
+#    WrongPass.BanTime
+#        Description: Time (in seconds) for banning account or IP for invalid login attempts.
+#        Default:     600 - (10 minutes)
+#                     0   - (Permanent ban)
+
+WrongPass.BanTime = 600
+
+#
+#    WrongPass.BanType
+#        Description: Ban type for invalid login attempts.
+#        Default:     0 - (Ban IP)
+#                     1 - (Ban Account)
+
+WrongPass.BanType = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+# MYSQL SETTINGS
+#
+#    LoginDatabaseInfo
+#        Description: Database connection settings for the realm server.
+#        Example:     "hostname;port;username;password;database"
+#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#                                                                 "enable-named-pipe" to [mysqld]
+#                                                                 section my.ini)
+#                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
+#                                                                           Unix/Linux)
+#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
+
+LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
+
+#
+#    LoginDatabase.WorkerThreads
+#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
+#                     statements. Each worker thread is mirrored with its own connection to the
+#        Default:     1
+
+LoginDatabase.WorkerThreads = 1
+
+#
+###################################################################################################

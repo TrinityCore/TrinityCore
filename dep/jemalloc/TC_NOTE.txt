@@ -1,0 +1,9 @@
+*** THIS FILE CONTAINS INFORMATION ABOUT CHANGES DONE TO THE JEMALLOC LIBRARY FILES ***
+Removed from archive, as OSX does not use jemalloc:
+  src/zone.c
+  include/jemalloc/internal/zone.h
+
+Filename changed, as it messes up Windows-systems (when will Microsoft learn?) :
+  include/jemalloc/internal/prn.h -> include/jemalloc/internal/jemprn.h
+
+References to prn.h has been changed to use the new filename where needed.
