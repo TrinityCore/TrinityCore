@@ -486,5 +486,5 @@ void Master::clearOnlineAccounts()
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
 
     // Battleground instance ids reset at server restart
-    CharacterDatabase.DirectExecute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYERS_BGDATA));
+    CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
 }
