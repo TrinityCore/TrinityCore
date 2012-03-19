@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `mindmg`=509, `maxdmg`=683, `attackpower`=805, `dmg_multiplier`=35, `rangeattacktime`=2000, `minrangedmg`=371, `maxrangedmg`=535, `rangedattackpower`=135 WHERE `entry`=36853;

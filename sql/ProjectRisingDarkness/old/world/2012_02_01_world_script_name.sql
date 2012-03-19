@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName` = 'npc_black_knight_gryphon', `AIName` = '' WHERE `entry` = 33519;

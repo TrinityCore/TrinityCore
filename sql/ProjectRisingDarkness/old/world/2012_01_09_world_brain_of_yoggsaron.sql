@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `difficulty_entry_1`=33954 WHERE `entry`=33890;

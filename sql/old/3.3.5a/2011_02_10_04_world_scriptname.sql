@@ -1,2 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='' WHERE `ScriptName` LIKE 'guard_generic' AND (`spell1`=0 AND `spell2`=0);
-UPDATE `creature_template` SET `ScriptName`='guard_generic' WHERE `ScriptName`='guard_stormwind' OR `ScriptName`='guard_orgrimmar';
