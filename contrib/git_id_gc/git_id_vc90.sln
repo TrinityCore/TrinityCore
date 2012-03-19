@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "git_id", "git_id_vc90.vcproj", "{AD81BF86-050B-4605-8AF2-03C01967D784}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD81BF86-050B-4605-8AF2-03C01967D784}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AD81BF86-050B-4605-8AF2-03C01967D784}.Debug|Win32.Build.0 = Debug|Win32
+		{AD81BF86-050B-4605-8AF2-03C01967D784}.Release|Win32.ActiveCfg = Release|Win32
+		{AD81BF86-050B-4605-8AF2-03C01967D784}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
