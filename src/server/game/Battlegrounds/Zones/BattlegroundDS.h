@@ -105,6 +105,7 @@ class BattlegroundDS : public Battleground
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
+		bool IsPlayerUnderMap(Player* player, float x, float y, float z);
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;
