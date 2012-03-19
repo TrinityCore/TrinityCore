@@ -261,7 +261,7 @@ public:
                         m_uiBellowingRoarTimer = 1000;
                         break;
                     case 10:
-                        me->SetCanFly(true);
+                        me->SetFlying(true);
                         me->GetMotionMaster()->MovePoint(11, Phase2Location.GetPositionX(), Phase2Location.GetPositionY(), Phase2Location.GetPositionZ()+25);
                         me->SetSpeed(MOVE_FLIGHT, 1.0f);
                         DoScriptText(SAY_PHASE_2_TRANS, me);
@@ -414,7 +414,7 @@ public:
                     DoScriptText(SAY_PHASE_3_TRANS, me);
 
                     SetCombatMovement(true);
-                    me->SetCanFly(false);
+                    me->SetFlying(false);
                     m_bIsMoving = false;
                     me->GetMotionMaster()->MovePoint(9, me->GetHomePosition());
                     return;

@@ -94,9 +94,9 @@ public:
 
     struct boss_krik_thirAI : public ScriptedAI
     {
-        boss_krik_thirAI(Creature* creature) : ScriptedAI(creature)
+        boss_krik_thirAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -212,7 +212,7 @@ public:
 
     struct npc_skittering_infectorAI : public ScriptedAI
     {
-        npc_skittering_infectorAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_skittering_infectorAI(Creature* c) : ScriptedAI(c) {}
 
         void JustDied(Unit* /*killer*/)
         {
@@ -234,7 +234,7 @@ public:
 
     struct npc_anub_ar_skirmisherAI : public ScriptedAI
     {
-        npc_anub_ar_skirmisherAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_anub_ar_skirmisherAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiChargeTimer;
         uint32 uiBackstabTimer;
@@ -285,7 +285,7 @@ public:
 
     struct npc_anub_ar_shadowcasterAI : public ScriptedAI
     {
-        npc_anub_ar_shadowcasterAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_anub_ar_shadowcasterAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiShadowBoltTimer;
         uint32 uiShadowNovaTimer;
@@ -331,7 +331,7 @@ public:
 
     struct npc_anub_ar_warriorAI : public ScriptedAI
     {
-        npc_anub_ar_warriorAI(Creature* creature) : ScriptedAI(creature){}
+        npc_anub_ar_warriorAI(Creature* c) : ScriptedAI(c){}
 
         uint32 uiCleaveTimer;
         uint32 uiStrikeTimer;
@@ -376,7 +376,7 @@ public:
 
     struct npc_watcher_gashraAI : public ScriptedAI
     {
-        npc_watcher_gashraAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_watcher_gashraAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -427,7 +427,7 @@ public:
 
     struct npc_watcher_narjilAI : public ScriptedAI
     {
-        npc_watcher_narjilAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_watcher_narjilAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -481,7 +481,7 @@ public:
 
     struct npc_watcher_silthikAI : public ScriptedAI
     {
-        npc_watcher_silthikAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_watcher_silthikAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;

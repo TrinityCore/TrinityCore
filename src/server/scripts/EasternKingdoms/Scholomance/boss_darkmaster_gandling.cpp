@@ -62,7 +62,7 @@ public:
 
     struct boss_darkmaster_gandlingAI : public ScriptedAI
     {
-        boss_darkmaster_gandlingAI(Creature* creature) : ScriptedAI(creature)
+        boss_darkmaster_gandlingAI(Creature* c) : ScriptedAI(c)
         {
             instance = me->GetInstanceScript();
         }

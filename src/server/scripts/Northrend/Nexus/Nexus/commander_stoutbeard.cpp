@@ -49,7 +49,7 @@ public:
 
     struct boss_commander_stoutbeardAI : public ScriptedAI
     {
-        boss_commander_stoutbeardAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_commander_stoutbeardAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/)

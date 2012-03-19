@@ -1,0 +1,1 @@
+UPDATE `version` SET `db_version`='CDB 3.3.5-0.2';

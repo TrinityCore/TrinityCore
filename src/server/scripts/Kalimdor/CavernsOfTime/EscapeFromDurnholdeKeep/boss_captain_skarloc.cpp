@@ -52,9 +52,9 @@ public:
 
     struct boss_captain_skarlocAI : public ScriptedAI
     {
-        boss_captain_skarlocAI(Creature* creature) : ScriptedAI(creature)
+        boss_captain_skarlocAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

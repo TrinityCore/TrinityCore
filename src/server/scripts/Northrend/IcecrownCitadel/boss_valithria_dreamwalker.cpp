@@ -329,13 +329,8 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _events.ScheduleEvent(EVENT_BERSERK, 420000);
             }
 
-            void HealReceived(Unit* healer, uint32& heal)
+            void HealReceived(Unit* /*healer*/, uint32& heal)
             {
-                if (!me->hasLootRecipient())
-                    me->SetLootRecipient(healer);
-
-                me->LowerPlayerDamageReq(heal);
-
                 // encounter complete
                 if (me->HealthAbovePctHealed(100, heal) && !_done)
                 {
@@ -666,7 +661,7 @@ class npc_the_lich_king_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_the_lich_king_controllerAI(creature);
+            return GetIcecrownCitadelAI<npc_the_lich_king_controllerAI>(creature);
         }
 };
 

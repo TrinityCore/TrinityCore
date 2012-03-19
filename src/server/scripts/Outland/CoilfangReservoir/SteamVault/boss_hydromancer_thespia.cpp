@@ -58,9 +58,9 @@ public:
 
     struct boss_thespiaAI : public ScriptedAI
     {
-        boss_thespiaAI(Creature* creature) : ScriptedAI(creature)
+        boss_thespiaAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -158,7 +158,7 @@ public:
 
     struct mob_coilfang_waterelementalAI : public ScriptedAI
     {
-        mob_coilfang_waterelementalAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_coilfang_waterelementalAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 WaterBoltVolley_Timer;
 

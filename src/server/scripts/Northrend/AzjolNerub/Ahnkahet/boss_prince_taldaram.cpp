@@ -49,14 +49,11 @@ enum Misc
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1619021,
-    SAY_SLAY_1                                    = -1619022,
-    SAY_SLAY_2                                    = -1619023,
-    SAY_DEATH                                     = -1619024,
-    SAY_FEED_1                                    = -1619025,
-    SAY_FEED_2                                    = -1619026,
-    SAY_VANISH_1                                  = -1619027,
-    SAY_VANISH_2                                  = -1619028
+    SAY_AGGRO                                     = 0,
+    SAY_VANISH                                    = 1,
+    SAY_FEED                                      = 2,
+    SAY_SLAY                                      = 3,
+    SAY_DEATH                                     = 4,
 };
 enum CombatPhase
 {
@@ -79,9 +76,9 @@ public:
 
     struct boss_taldaramAI : public ScriptedAI
     {
-        boss_taldaramAI(Creature* creature) : ScriptedAI(creature)
+        boss_taldaramAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
@@ -118,7 +115,7 @@ public:
         {
             if (instance)
                 instance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
         void UpdateAI(const uint32 diff)
@@ -179,6 +176,7 @@ public:
                         uiPhaseTimer = 1300;
                         break;
                     case VANISHED:
+                        Talk(SAY_FEED);
                         if (Unit* pEmbraceTarget = GetEmbraceTarget())
                             DoCast(pEmbraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
                         me->GetMotionMaster()->Clear();
@@ -224,7 +222,7 @@ public:
                             //He only vanishes if there are 3 or more alive players
                             if (target_list.size() > 2)
                             {
-                                DoScriptText(RAND(SAY_VANISH_1, SAY_VANISH_2), me);
+                                Talk(SAY_VANISH);
                                 DoCast(me, SPELL_VANISH);
                                 Phase = JUST_VANISHED;
                                 uiPhaseTimer = 500;
@@ -260,7 +258,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
@@ -278,7 +276,7 @@ public:
                 uiPhaseTimer = 0;
                 uiEmbraceTarget = 0;
             }
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         bool CheckSpheres()
@@ -338,9 +336,9 @@ public:
 
     struct mob_taldaram_flamesphereAI : public ScriptedAI
     {
-        mob_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
+        mob_taldaram_flamesphereAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiDespawnTimer;
@@ -349,7 +347,6 @@ public:
         void Reset()
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->setFaction(16);
             me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);

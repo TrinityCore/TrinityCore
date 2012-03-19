@@ -24,6 +24,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "ScriptedSimpleAI.h"
 #include "karazhan.h"
 #include "GameObject.h"
 
@@ -92,9 +93,9 @@ public:
 
     struct boss_aranAI : public ScriptedAI
     {
-        boss_aranAI(Creature* creature) : ScriptedAI(creature)
+        boss_aranAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -522,7 +523,7 @@ public:
 
     struct water_elementalAI : public ScriptedAI
     {
-        water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        water_elementalAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CastTimer;
 
@@ -548,8 +549,33 @@ public:
 
 };
 
+// CONVERT TO ACID
+class mob_shadow_of_aran : public CreatureScript
+{
+public:
+    mob_shadow_of_aran() : CreatureScript("mob_shadow_of_aran") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        sLog->outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", creature->GetEntry());
+        SimpleAI* ai = new SimpleAI (creature);
+
+        ai->Spell[0].Enabled = true;
+        ai->Spell[0].Spell_Id = SPELL_SHADOW_PYRO;
+        ai->Spell[0].Cooldown = 5000;
+        ai->Spell[0].First_Cast = 1000;
+        ai->Spell[0].Cast_Target_Type = CAST_HOSTILE_TARGET;
+
+        ai->EnterEvadeMode();
+
+        return ai;
+    }
+
+};
+
 void AddSC_boss_shade_of_aran()
 {
     new boss_shade_of_aran();
+    new mob_shadow_of_aran();
     new mob_aran_elemental();
 }

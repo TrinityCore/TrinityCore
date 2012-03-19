@@ -55,9 +55,9 @@ public:
 
     struct boss_chrono_lord_dejaAI : public ScriptedAI
     {
-        boss_chrono_lord_dejaAI(Creature* creature) : ScriptedAI(creature)
+        boss_chrono_lord_dejaAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

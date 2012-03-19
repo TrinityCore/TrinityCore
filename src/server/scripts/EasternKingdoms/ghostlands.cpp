@@ -128,7 +128,7 @@ public:
 
     struct npc_ranger_lilathaAI : public npc_escortAI
     {
-        npc_ranger_lilathaAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_ranger_lilathaAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {

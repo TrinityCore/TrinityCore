@@ -63,9 +63,9 @@ public:
 
     struct boss_selin_fireheartAI : public ScriptedAI
     {
-        boss_selin_fireheartAI(Creature* creature) : ScriptedAI(creature)
+        boss_selin_fireheartAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
 
             Crystals.clear();
             //GUIDs per instance is static, so we only need to load them once.
@@ -333,7 +333,7 @@ public:
 
     struct mob_fel_crystalAI : public ScriptedAI
     {
-        mob_fel_crystalAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_fel_crystalAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}

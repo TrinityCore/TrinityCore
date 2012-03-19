@@ -776,8 +776,7 @@ class WorldObject : public Object, public WorldLocation
                 GetClosePoint(x, y, z, GetObjectSize());
                 ang = GetOrientation();
             }
-            Position pos;
-            pos.Relocate(x, y, z, ang);
+            Position pos = {x, y, z, ang};
             return SummonCreature(id, pos, spwtype, despwtime, 0);
         }
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
@@ -785,6 +784,8 @@ class WorldObject : public Object, public WorldLocation
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
+        Player*     FindNearestPlayer(float range, bool alive = true);
+        std::list<Player*>  GetNearestPlayersList(float range, bool alive = true);
 
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;

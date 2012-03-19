@@ -90,9 +90,9 @@ public:
 
     struct boss_sjonnirAI : public ScriptedAI
     {
-        boss_sjonnirAI(Creature* creature) : ScriptedAI(creature), lSummons(me)
+        boss_sjonnirAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         bool bIsFrenzy;
@@ -258,7 +258,7 @@ public:
 
     struct mob_malformed_oozeAI : public ScriptedAI
     {
-        mob_malformed_oozeAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_malformed_oozeAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiMergeTimer;
 
@@ -301,9 +301,9 @@ public:
 
     struct mob_iron_sludgeAI : public ScriptedAI
     {
-        mob_iron_sludgeAI(Creature* creature) : ScriptedAI(creature)
+        mob_iron_sludgeAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

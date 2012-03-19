@@ -69,9 +69,9 @@ public:
 
     struct boss_skarvald_the_constructorAI : public ScriptedAI
     {
-        boss_skarvald_the_constructorAI(Creature* creature) : ScriptedAI(creature)
+        boss_skarvald_the_constructorAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -221,9 +221,9 @@ public:
 
     struct boss_dalronn_the_controllerAI : public ScriptedAI
     {
-        boss_dalronn_the_controllerAI(Creature* creature) : ScriptedAI(creature)
+        boss_dalronn_the_controllerAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

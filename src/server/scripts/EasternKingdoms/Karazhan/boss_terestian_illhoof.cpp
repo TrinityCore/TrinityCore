@@ -68,9 +68,9 @@ public:
 
     struct mob_kilrekAI : public ScriptedAI
     {
-        mob_kilrekAI(Creature* creature) : ScriptedAI(creature)
+        mob_kilrekAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -140,7 +140,7 @@ public:
 
     struct mob_demon_chainAI : public ScriptedAI
     {
-        mob_demon_chainAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_demon_chainAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 SacrificeGUID;
 
@@ -215,7 +215,7 @@ public:
 
     struct mob_fiendish_impAI : public ScriptedAI
     {
-        mob_fiendish_impAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_fiendish_impAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 FireboltTimer;
 
@@ -258,11 +258,11 @@ public:
 
     struct boss_terestianAI : public ScriptedAI
     {
-        boss_terestianAI(Creature* creature) : ScriptedAI(creature)
+        boss_terestianAI(Creature* c) : ScriptedAI(c)
         {
             for (uint8 i = 0; i < 2; ++i)
                 PortalGUID[i] = 0;
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

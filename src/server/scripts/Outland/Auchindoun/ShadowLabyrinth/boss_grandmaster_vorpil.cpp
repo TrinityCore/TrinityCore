@@ -74,7 +74,7 @@ public:
 
     struct mob_voidtravelerAI : public ScriptedAI
     {
-        mob_voidtravelerAI(Creature* creature) : ScriptedAI(creature)
+        mob_voidtravelerAI(Creature* c) : ScriptedAI(c)
         {
         }
 
@@ -147,9 +147,9 @@ public:
 
     struct boss_grandmaster_vorpilAI : public ScriptedAI
     {
-        boss_grandmaster_vorpilAI(Creature* creature) : ScriptedAI(creature)
+        boss_grandmaster_vorpilAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             Intro = false;
         }
 

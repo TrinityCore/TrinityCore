@@ -58,7 +58,7 @@ public:
 
     struct mob_aquementasAI : public ScriptedAI
     {
-        mob_aquementasAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_aquementasAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 SendItem_Timer;
         uint32 SwitchFaction_Timer;
@@ -170,7 +170,7 @@ public:
 
     struct npc_custodian_of_timeAI : public npc_escortAI
     {
-        npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_custodian_of_timeAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {
@@ -426,7 +426,7 @@ public:
 
     struct npc_OOX17AI : public npc_escortAI
     {
-        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) {}
+        npc_OOX17AI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {

@@ -379,7 +379,7 @@ public:
 
     struct flame_of_azzinothAI : public ScriptedAI
     {
-        flame_of_azzinothAI(Creature* creature) : ScriptedAI(creature) {}
+        flame_of_azzinothAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
@@ -471,9 +471,9 @@ public:
 
     struct boss_illidan_stormrageAI : public ScriptedAI
     {
-        boss_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c), Summons(me)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             DoCast(me, SPELL_DUAL_WIELD, true);
         }
 
@@ -798,7 +798,7 @@ public:
             {
             case 1: // lift off
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
                 me->StopMoving();
                 me->MonsterYell(SAY_TAKEOFF, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_TAKEOFF);
@@ -867,7 +867,7 @@ public:
                 Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
                 break;
             case 9: // land
-                me->SetDisableGravity(false);
+                me->SetLevitate(false);
                 me->StopMoving();
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                 for (uint8 i = 0; i < 2; ++i)
@@ -1157,7 +1157,7 @@ public:
 
     struct boss_maievAI : public ScriptedAI
     {
-        boss_maievAI(Creature* creature) : ScriptedAI(creature) {};
+        boss_maievAI(Creature* c) : ScriptedAI(c) {};
 
         uint64 IllidanGUID;
 
@@ -1372,9 +1372,9 @@ public:
 
     struct npc_akama_illidanAI : public ScriptedAI
     {
-        npc_akama_illidanAI(Creature* creature) : ScriptedAI(creature)
+        npc_akama_illidanAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             JustCreated = true;
         }
         bool JustCreated;
@@ -1869,7 +1869,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-    me->SetDisableGravity(false);
+    me->SetLevitate(false);
     me->setActive(false);
     Summons.DespawnAll();
 }
@@ -2019,7 +2019,7 @@ public:
 
     struct cage_trap_triggerAI : public ScriptedAI
     {
-        cage_trap_triggerAI(Creature* creature) : ScriptedAI(creature) {}
+        cage_trap_triggerAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 IllidanGUID;
         uint32 DespawnTimer;
@@ -2117,7 +2117,7 @@ public:
 
     struct shadow_demonAI : public ScriptedAI
     {
-        shadow_demonAI(Creature* creature) : ScriptedAI(creature) {}
+        shadow_demonAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 TargetGUID;
 
@@ -2192,9 +2192,9 @@ public:
     // Shadowfiends interact with Illidan, setting more targets in Illidan's hashmap
     struct mob_parasitic_shadowfiendAI : public ScriptedAI
     {
-        mob_parasitic_shadowfiendAI(Creature* creature) : ScriptedAI(creature)
+        mob_parasitic_shadowfiendAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

@@ -53,6 +53,8 @@
 #include "SpellScript.h"
 #include "InstanceScript.h"
 #include "SpellInfo.h"
+#include "OutdoorPvPWG.h"
+#include "OutdoorPvPMgr.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -1548,7 +1550,7 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
     else if (GameObject* gobj = m_targets.GetGOTarget())
         AddGOTarget(gobj, 1 << effIndex);
     else
-        AddItemTarget(m_targets.GetItemTarget(), 1 << effIndex);
+        AddItemTarget(m_targets.GetItemTarget(), effIndex);
 
     if (WorldObject* target = m_targets.GetObjectTarget())
         SelectImplicitChainTargets(effIndex, targetType, target, 1 << effIndex);
@@ -1891,7 +1893,7 @@ void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, float range, Pos
         return;
     Trinity::WorldObjectSpellAreaTargetCheck check(range, position, m_caster, referer, m_spellInfo, selectionType, condList);
     Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-    SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> > (searcher, containerTypeMask, m_caster, position, range);
+    SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> > (searcher, containerTypeMask, m_caster, m_caster, range);
 }
 
 void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionList* condList, bool isChainHeal)
@@ -2483,6 +2485,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             AuraEffect* aurEff = m_spellAura->GetEffect(1);
             aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
         }
+
+        // Cobra Strikes 	
+        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->SpellFamilyFlags[1] & 0x10000000)	
+            if (Unit * owner = caster->GetOwner())	
+                if (Aura* pAura = owner->GetAura(53257))	
+                    pAura->DropCharge();
         m_damage = damageInfo.damage;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
@@ -3230,7 +3238,7 @@ void Spell::cast(bool skipCheck)
     SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
+    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157 || m_spellInfo->Id == 70802)
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -5476,8 +5484,17 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER && m_originalCaster->isAlive())
                 {
                     if (AreaTableEntry const* pArea = GetAreaEntryByAreaID(m_originalCaster->GetAreaId()))
+                    {
                         if (pArea->flags & AREA_FLAG_NO_FLY_ZONE)
                             return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                        // Wintergrasp Antifly check
+                        if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+                        {
+	                      OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                          if (m_originalCaster->GetZoneId() == 4197 && pvpWG && pvpWG != 0  && pvpWG->isWarTime())
+                              return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                        }
+                    }
                 }
                 break;
             }

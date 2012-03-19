@@ -261,6 +261,16 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         }
     }
 
+    // Not allow to enter Vault of Archavon if not defender
+    if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED) && mapid==624)
+    {
+        if (!player->HasAura(58045))
+        {
+            player->GetSession()->SendAreaTriggerMessage(player->GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED), mapName);
+            return false;
+        }
+    }
+
     //Other requirements
     return player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true);
 }

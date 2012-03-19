@@ -54,9 +54,9 @@ public:
 
     struct mob_naga_distillerAI : public ScriptedAI
     {
-        mob_naga_distillerAI(Creature* creature) : ScriptedAI(creature)
+        mob_naga_distillerAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -112,9 +112,9 @@ public:
 
     struct boss_warlord_kalithreshAI : public ScriptedAI
     {
-        boss_warlord_kalithreshAI(Creature* creature) : ScriptedAI(creature)
+        boss_warlord_kalithreshAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

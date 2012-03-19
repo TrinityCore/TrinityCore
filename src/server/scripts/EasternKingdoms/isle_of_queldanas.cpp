@@ -51,7 +51,7 @@ public:
 
     struct npc_converted_sentryAI : public ScriptedAI
     {
-        npc_converted_sentryAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_converted_sentryAI(Creature* c) : ScriptedAI(c) {}
 
         bool Credit;
         uint32 Timer;
@@ -108,7 +108,7 @@ public:
 
     struct npc_greengill_slaveAI : public ScriptedAI
     {
-        npc_greengill_slaveAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 PlayerGUID;
 

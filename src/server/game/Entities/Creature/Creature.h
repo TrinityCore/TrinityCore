@@ -134,7 +134,6 @@ struct CreatureTemplate
     std::string AIName;
     uint32  MovementType;
     uint32  InhabitType;
-    float   HoverHeight;
     float   ModHealth;
     float   ModMana;
     float   ModArmor;
@@ -468,7 +467,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool isGuard() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD; }
         bool canWalk() const { return GetCreatureTemplate()->InhabitType & INHABIT_GROUND; }
         bool canSwim() const { return GetCreatureTemplate()->InhabitType & INHABIT_WATER; }
-        bool CanFly()  const { return GetCreatureTemplate()->InhabitType & INHABIT_AIR; }
+        //bool canFly()  const { return GetCreatureTemplate()->InhabitType & INHABIT_AIR; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() { return m_reactState; }
@@ -487,7 +486,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
-        bool canCreatureAttack(Unit const* victim, bool force = true) const;
+        bool canCreatureAttack(Unit const* pVictim, bool force = true) const;
         bool IsImmunedToSpell(SpellInfo const* spellInfo);
                                                             // redefine Unit::IsImmunedToSpell
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
@@ -522,8 +521,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         CreatureAI* AI() const { return (CreatureAI*)i_AI; }
 
         bool SetWalk(bool enable);
-        bool SetDisableGravity(bool disable, bool packetOnly = false);
-        bool SetHover(bool enable);
+        bool SetLevitate(bool enable);
 
         uint32 GetShieldBlockValue() const                  //dunno mob block value
         {
@@ -604,8 +602,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
         void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
 
-        SpellInfo const* reachWithSpellAttack(Unit* victim);
-        SpellInfo const* reachWithSpellCure(Unit* victim);
+        SpellInfo const* reachWithSpellAttack(Unit* pVictim);
+        SpellInfo const* reachWithSpellCure(Unit* pVictim);
 
         uint32 m_spells[CREATURE_MAX_SPELLS];
         CreatureSpellCooldowns m_CreatureSpellCooldowns;
@@ -660,6 +658,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool hasInvolvedQuest(uint32 quest_id)  const;
 
         bool isRegeneratingHealth() { return m_regenHealth; }
+        void setRegeneratingHealth(bool state) { m_regenHealth = state; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const
         {

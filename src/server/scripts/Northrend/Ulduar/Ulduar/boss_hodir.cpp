@@ -358,6 +358,8 @@ class boss_hodir : public CreatureScript
                 {
                     damage = 0;
                     DoScriptText(SAY_DEATH, me);
+                    instance->SetBossState(BOSS_HODIR, DONE);
+                    me->CastSpell(me, 64899, true);
                     if (iCouldSayThatThisCacheWasRare)
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
 

@@ -48,7 +48,7 @@ public:
 
     struct mobs_ghoul_flayerAI : public ScriptedAI
     {
-        mobs_ghoul_flayerAI(Creature* creature) : ScriptedAI(creature) {}
+        mobs_ghoul_flayerAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
 
@@ -118,7 +118,7 @@ public:
 
     struct npc_darrowshire_spiritAI : public ScriptedAI
     {
-        npc_darrowshire_spiritAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_darrowshire_spiritAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset()
         {

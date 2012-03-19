@@ -101,11 +101,11 @@ class boss_nalorakk : public CreatureScript
 
         struct boss_nalorakkAI : public ScriptedAI
         {
-            boss_nalorakkAI(Creature* creature) : ScriptedAI(creature)
+            boss_nalorakkAI(Creature* c) : ScriptedAI(c)
             {
                 MoveEvent = true;
                 MovePhase = 0;
-                instance = creature->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
 
             InstanceScript* instance;

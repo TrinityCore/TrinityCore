@@ -102,7 +102,7 @@ public:
 
     struct npc_unworthy_initiateAI : public ScriptedAI
     {
-        npc_unworthy_initiateAI(Creature* creature) : ScriptedAI(creature)
+        npc_unworthy_initiateAI(Creature* c) : ScriptedAI(c)
         {
             me->SetReactState(REACT_PASSIVE);
             if (!me->GetEquipmentId())
@@ -531,7 +531,7 @@ public:
 
     struct npc_dark_rider_of_acherusAI : public ScriptedAI
     {
-        npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dark_rider_of_acherusAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 PhaseTimer;
         uint32 Phase;
@@ -623,7 +623,7 @@ public:
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
     {
-        npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_salanar_the_horsemanAI(Creature* c) : ScriptedAI(c) {}
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
@@ -692,7 +692,7 @@ public:
 
     struct npc_ros_dark_riderAI : public ScriptedAI
     {
-        npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ros_dark_riderAI(Creature* c) : ScriptedAI(c) {}
 
         void EnterCombat(Unit* /*who*/)
         {
@@ -743,7 +743,7 @@ public:
 
     struct npc_dkc1_gothikAI : public ScriptedAI
     {
-        npc_dkc1_gothikAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dkc1_gothikAI(Creature* c) : ScriptedAI(c) {}
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -785,7 +785,7 @@ public:
 
     struct npc_scarlet_ghoulAI : public ScriptedAI
     {
-        npc_scarlet_ghoulAI(Creature* creature) : ScriptedAI(creature)
+        npc_scarlet_ghoulAI(Creature* c) : ScriptedAI(c)
         {
             // Ghouls should display their Birth Animation
             // Crawling out of the ground
@@ -931,7 +931,7 @@ public:
 
     struct npc_scarlet_minerAI : public npc_escortAI
     {
-        npc_scarlet_minerAI(Creature* creature) : npc_escortAI(creature)
+        npc_scarlet_minerAI(Creature* c) : npc_escortAI(c)
         {
             me->SetReactState(REACT_PASSIVE);
         }

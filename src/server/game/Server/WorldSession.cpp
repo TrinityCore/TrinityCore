@@ -45,6 +45,7 @@
 #include "WardenWin.h"
 #include "WardenMac.h"
 
+
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
     OpcodeHandler const& opHandle = opcodeTable[packet->GetOpcode()];
@@ -88,9 +89,9 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
 m_muteTime(mute_time), m_timeOutTime(0), _player(NULL), m_Socket(sock),
-_security(sec), _accountId(id), m_expansion(expansion), _logoutTime(0),
+_security(sec), _ispremium(ispremium), _accountId(id), m_expansion(expansion), _logoutTime(0),
 m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
 m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
@@ -807,48 +808,35 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
         data >> mi->splineElevation;
 
-    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid,
-        and when used in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD
-        it will freeze clients that receive this player's movement info.
-    */
+    // This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid,
+    // and when used in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD
+    // it will freeze clients that receive this player's movement info.
     if (mi->HasMovementFlag(MOVEMENTFLAG_ROOT))
         mi->flags &= ~MOVEMENTFLAG_ROOT;
 
-    //! Cannot hover and jump at the same time
+    // Cannot hover and jump at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && mi->HasMovementFlag(MOVEMENTFLAG_JUMPING))
         mi->flags &= ~MOVEMENTFLAG_JUMPING;
 
-    //! Cannot ascend and descend at the same time
+    // Cannot ascend and descend at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING))
         mi->flags &= ~(MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
 
-    //! Cannot move left and right at the same time
+    // Cannot move left and right at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT))
         mi->flags &= ~(MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
 
-    //! Cannot strafe left and right at the same time
+    // Cannot strafe left and right at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
         mi->flags &= ~(MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
 
-    //! Cannot pitch up and down at the same time
+    // Cannot pitch up and down at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN))
         mi->flags &= ~(MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
 
-    //! Cannot move forwards and backwards at the same time
+    // Cannot move forwards and backwards at the same time
     if (mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD))
         mi->flags &= ~(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
-
-    //! Cannot walk on water without SPELL_AURA_WATER_WALK
-    if (mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK))
-        mi->flags &= ~MOVEMENTFLAG_WATERWALKING;
-
-    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
-    if (mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !GetPlayer()->HasAuraType(SPELL_AURA_FEATHER_FALL))
-        mi->flags &= ~MOVEMENTFLAG_FALLING_SLOW;
-
-    //! Cannot hover without SPELL_AURA_HOVER
-    if (mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER))
-        mi->flags &= ~MOVEMENTFLAG_HOVER;
 }
 
 void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)

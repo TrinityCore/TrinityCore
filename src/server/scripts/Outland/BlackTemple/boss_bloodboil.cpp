@@ -67,9 +67,9 @@ public:
 
     struct boss_gurtogg_bloodboilAI : public ScriptedAI
     {
-        boss_gurtogg_bloodboilAI(Creature* creature) : ScriptedAI(creature)
+        boss_gurtogg_bloodboilAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

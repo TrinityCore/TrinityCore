@@ -1,45 +1,45 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
 
 enum Texts
 {
-    SAY_XERESTRASZA_EVENT       = 0,
-    SAY_XERESTRASZA_EVENT_1     = 1,
-    SAY_XERESTRASZA_EVENT_2     = 2,
-    SAY_XERESTRASZA_EVENT_3     = 3,
-    SAY_XERESTRASZA_EVENT_4     = 4,
-    SAY_XERESTRASZA_EVENT_5     = 5,
-    SAY_XERESTRASZA_EVENT_6     = 6,
-    SAY_XERESTRASZA_EVENT_7     = 7,
-    SAY_XERESTRASZA_INTRO       = 8,
+    SAY_XERESTRASZA_EVENT = 0,
+    SAY_XERESTRASZA_EVENT_1 = 1,
+    SAY_XERESTRASZA_EVENT_2 = 2,
+    SAY_XERESTRASZA_EVENT_3 = 3,
+    SAY_XERESTRASZA_EVENT_4 = 4,
+    SAY_XERESTRASZA_EVENT_5 = 5,
+    SAY_XERESTRASZA_EVENT_6 = 6,
+    SAY_XERESTRASZA_EVENT_7 = 7,
+    SAY_XERESTRASZA_INTRO = 8,
 };
 
 enum Events
 {
-    EVENT_XERESTRASZA_EVENT_1   = 1,
-    EVENT_XERESTRASZA_EVENT_2   = 2,
-    EVENT_XERESTRASZA_EVENT_3   = 3,
-    EVENT_XERESTRASZA_EVENT_4   = 4,
-    EVENT_XERESTRASZA_EVENT_5   = 5,
-    EVENT_XERESTRASZA_EVENT_6   = 6,
-    EVENT_XERESTRASZA_EVENT_7   = 7,
+    EVENT_XERESTRASZA_EVENT_1 = 1,
+    EVENT_XERESTRASZA_EVENT_2 = 2,
+    EVENT_XERESTRASZA_EVENT_3 = 3,
+    EVENT_XERESTRASZA_EVENT_4 = 4,
+    EVENT_XERESTRASZA_EVENT_5 = 5,
+    EVENT_XERESTRASZA_EVENT_6 = 6,
+    EVENT_XERESTRASZA_EVENT_7 = 7,
 };
 
 Position const xerestraszaMovePos = {3151.236f, 379.8733f, 86.31996f, 0.0f};

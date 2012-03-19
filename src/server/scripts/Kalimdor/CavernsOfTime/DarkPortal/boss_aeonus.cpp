@@ -55,9 +55,9 @@ public:
 
     struct boss_aeonusAI : public ScriptedAI
     {
-        boss_aeonusAI(Creature* creature) : ScriptedAI(creature)
+        boss_aeonusAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

@@ -72,9 +72,9 @@ public:
 
     struct boss_novosAI : public Scripted_NoMovementAI
     {
-        boss_novosAI(Creature* creature) : Scripted_NoMovementAI(creature), lSummons(me)
+        boss_novosAI(Creature* c) : Scripted_NoMovementAI(c), lSummons(me)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiTimer;
@@ -260,9 +260,9 @@ public:
 
     struct mob_crystal_handlerAI : public ScriptedAI
     {
-        mob_crystal_handlerAI(Creature* creature) : ScriptedAI(creature)
+        mob_crystal_handlerAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiFlashOfDarknessTimer;
@@ -317,9 +317,9 @@ public:
 
     struct mob_novos_minionAI : public ScriptedAI
     {
-        mob_novos_minionAI(Creature* creature) : ScriptedAI(creature)
+        mob_novos_minionAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

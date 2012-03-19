@@ -21,6 +21,7 @@
 #include "CreatureAI.h"
 #include "ObjectMgr.h"
 #include "TemporarySummon.h"
+#include "Vehicle.h"
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
@@ -226,6 +227,9 @@ void TempSummon::SetTempSummonType(TempSummonType type)
 
 void TempSummon::UnSummon(uint32 msTime)
 {
+    if (m_vehicleKit)
+        m_vehicleKit->RemoveAllPassengers();
+
     if (msTime)
     {
         ForcedUnsummonDelayEvent* pEvent = new ForcedUnsummonDelayEvent(*this);

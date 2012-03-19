@@ -18,16 +18,13 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
-enum Yells
+enum ScriptTexts
 {
-    SAY_GREET       = -1533009,
-    SAY_AGGRO_1     = -1533010,
-    SAY_AGGRO_2     = -1533011,
-    SAY_AGGRO_3     = -1533012,
-    SAY_AGGRO_4     = -1533013,
-    SAY_SLAY_1      = -1533014,
-    SAY_SLAY_2      = -1533015,
-    SAY_DEATH       = -1533016
+    SAY_GREET       = 0,
+    SAY_AGGRO       = 1,
+    SAY_ENRAGE      = 2,
+    SAY_SLAY        = 3,
+    SAY_DEATH       = 4,
 };
 
 enum Spells
@@ -69,7 +66,7 @@ class boss_faerlina : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3, SAY_AGGRO_4), me);
+                Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_POISON, urand(10000, 15000));
                 events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
                 events.ScheduleEvent(EVENT_FRENZY, urand(60000, 80000));
@@ -86,7 +83,7 @@ class boss_faerlina : public CreatureScript
             {
                 if (!_introDone && who->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoScriptText(SAY_GREET, me);
+                    Talk(SAY_GREET);
                     _introDone = true;
                 }
 
@@ -95,14 +92,13 @@ class boss_faerlina : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                if (!urand(0, 2))
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
@@ -155,7 +151,7 @@ class boss_faerlina : public CreatureScript
                             events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
                             break;
                         case EVENT_FRENZY:
-                            // TODO : Add Text
+                            Talk(SAY_ENRAGE);
                             if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
                                 DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY));
                             else
@@ -204,7 +200,7 @@ class mob_faerlina_add : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (_instance && GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FAERLINA)))
+                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_FAERLINA)))
                         DoCast(faerlina, SPELL_WIDOWS_EMBRACE);
             }
 

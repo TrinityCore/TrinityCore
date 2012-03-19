@@ -44,7 +44,7 @@ public:
 
     struct boss_instructormaliciaAI : public ScriptedAI
     {
-        boss_instructormaliciaAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_instructormaliciaAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CallOfGraves_Timer;
         uint32 Corruption_Timer;

@@ -2845,7 +2845,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
     }
 
     if (target->GetTypeId() == TYPEID_UNIT)
-        target->SetCanFly(apply);
+        target->SetFlying(apply);
 
     if (Player* player = target->m_movedPlayer)
     {
@@ -2856,7 +2856,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
         else
             data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
         data.append(target->GetPackGUID());
-        data << uint32(0);                                      // movement counter
+        data << uint32(0);                                      // unk
         player->SendDirectMessage(&data);
     }
 }
@@ -2875,13 +2875,14 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
             return;
     }
 
+    WorldPacket data;
     if (apply)
-        target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-     else
-        target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-        
-    target->SendMovementWaterWalking();
-
+        data.Initialize(SMSG_MOVE_WATER_WALK, 8+4);
+    else
+        data.Initialize(SMSG_MOVE_LAND_WALK, 8+4);
+    data.append(target->GetPackGUID());
+    data << uint32(0);
+    target->SendMessageToSet(&data, true);
 }
 
 void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2898,12 +2899,14 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
             return;
     }
 
+    WorldPacket data;
     if (apply)
-        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        data.Initialize(SMSG_MOVE_FEATHER_FALL, 8+4);
     else
-        target->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-
-    target->SendMovementFeatherFall();
+        data.Initialize(SMSG_MOVE_NORMAL_FALL, 8+4);
+    data.append(target->GetPackGUID());
+    data << uint32(0);
+    target->SendMessageToSet(&data, true);
 
     // start fall from current height
     if (!apply && target->GetTypeId() == TYPEID_PLAYER)
@@ -2924,8 +2927,14 @@ void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool
             return;
     }
 
-    target->SetHover(apply);    //! Sets movementflags
-    target->SendMovementHover();
+    WorldPacket data;
+    if (apply)
+        data.Initialize(SMSG_MOVE_SET_HOVER, 8+4);
+    else
+        data.Initialize(SMSG_MOVE_UNSET_HOVER, 8+4);
+    data.append(target->GetPackGUID());
+    data << uint32(0);
+    target->SendMessageToSet(&data, true);
 }
 
 void AuraEffect::HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -4878,6 +4887,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
                             break;
                         case 58600: // Restricted Flight Area
+                        case 58730: // Restricted Flight Area
                             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                                 target->CastSpell(target, 58601, true);
                             break;
@@ -5648,6 +5658,14 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         target->CastSpell(target, 64774, true, NULL, NULL, GetCasterGUID());
                         target->RemoveAura(64821);
                     }
+                    break;
+                case 68614: // Concentrated Irresistible Cologne Spill
+                    if (!target->HasAura(68530))
+                        caster->CastSpell(target, 68934, true);
+                    break;
+                case 68798: // Concentrated Alluring Perfume Spill
+                    if (!target->HasAura(68529))
+                        caster->CastSpell(target, 68927, true);
                     break;
             }
             break;

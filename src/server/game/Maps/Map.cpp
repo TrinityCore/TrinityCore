@@ -382,6 +382,32 @@ void Map::LoadGrid(float x, float y)
     EnsureGridLoaded(Cell(x, y));
 }
 
+void Map::SendInitTransportsInInstance(Player* player)
+{
+    // Hack to send out transports
+    MapManager::TransportMap& tmap = sMapMgr->m_TransportsByInstanceIdMap;
+ 
+    // no transports at map
+    if (tmap.find(player->GetInstanceId()) == tmap.end())
+        return;
+ 
+    UpdateData transData;
+ 
+    MapManager::TransportSet& tset = tmap[player->GetInstanceId()];
+ 
+    for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
+    {
+        // send data for current transport in other place
+        if ((*i) != player->GetTransport() && (*i)->GetInstanceId() == GetInstanceId())
+        {
+            (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
+        }
+    }
+ 
+    WorldPacket packet;
+    transData.BuildPacket(&packet);
+    player->GetSession()->SendPacket(&packet);
+}
 bool Map::AddPlayerToMap(Player* player)
 {
     CellCoord cellCoord = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
@@ -403,6 +429,9 @@ bool Map::AddPlayerToMap(Player* player)
     SendInitSelf(player);
     SendInitTransports(player);
 
+    // And send init transport in instance
+    if (Instanceable())
+        SendInitTransportsInInstance(player);
     player->m_clientGUIDs.clear();
     player->UpdateObjectVisibility(false);
 
@@ -493,7 +522,6 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
             markCell(cell_id);
             CellCoord pair(x, y);
             Cell cell(pair);
-            cell.SetNoCreate();
             Visit(cell, gridVisitor);
             Visit(cell, worldVisitor);
         }
@@ -510,9 +538,9 @@ void Map::Update(const uint32 t_diff)
         if (player && player->IsInWorld())
         {
             //player->Update(t_diff);
-            WorldSession* session = player->GetSession();
-            MapSessionFilter updater(session);
-            session->Update(t_diff, updater);
+            WorldSession* pSession = player->GetSession();
+            MapSessionFilter updater(pSession);
+            pSession->Update(t_diff, updater);
         }
     }
     /// update active cells around players and active objects
@@ -703,12 +731,6 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
     Cell old_cell(player->GetPositionX(), player->GetPositionY());
     Cell new_cell(x, y);
 
-    //! If hovering, always increase our server-side Z position
-    //! Client automatically projects correct position based on Z coord sent in monster move
-    //! and UNIT_FIELD_HOVERHEIGHT sent in object updates
-    if (player->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += player->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-
     player->Relocate(x, y, z, orientation);
     if (player->IsVehicle())
         player->GetVehicleKit()->RelocatePassengers(x, y, z, orientation);
@@ -737,12 +759,6 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
 
     if (!respawnRelocationOnFail && !getNGrid(new_cell.GridX(), new_cell.GridY()))
         return;
-
-    //! If hovering, always increase our server-side Z position
-    //! Client automatically projects correct position based on Z coord sent in monster move
-    //! and UNIT_FIELD_HOVERHEIGHT sent in object updates
-    if (creature->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += creature->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
 
     // delay creature move for grid/cell to grid/cell moves
     if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))

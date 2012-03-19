@@ -45,7 +45,7 @@ public:
 
     struct mob_yennikuAI : public ScriptedAI
     {
-        mob_yennikuAI(Creature* creature) : ScriptedAI(creature)
+        mob_yennikuAI(Creature* c) : ScriptedAI(c)
         {
             bReset = false;
         }

@@ -61,7 +61,7 @@ public:
 
     struct mobs_bladespire_ogreAI : public ScriptedAI
     {
-        mobs_bladespire_ogreAI(Creature* creature) : ScriptedAI(creature) {}
+        mobs_bladespire_ogreAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() { }
 
@@ -112,7 +112,7 @@ public:
 
     struct mobs_nether_drakeAI : public ScriptedAI
     {
-        mobs_nether_drakeAI(Creature* creature) : ScriptedAI(creature) {}
+        mobs_nether_drakeAI(Creature* c) : ScriptedAI(c) {}
 
         bool IsNihil;
         uint32 NihilSpeech_Timer;
@@ -276,7 +276,7 @@ public:
 
     struct npc_daranelleAI : public ScriptedAI
     {
-        npc_daranelleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_daranelleAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() { }
 
@@ -751,7 +751,7 @@ class npc_simon_bunny : public CreatureScript
             // Used for getting involved player guid. Parameter id is used for defining if is a large(Monument) or small(Relic) node
             void SetGUID(uint64 guid, int32 id)
             {
-                me->SetCanFly(true);
+                me->SetFlying(true);
 
                 large = (bool)id;
                 playerGUID = guid;

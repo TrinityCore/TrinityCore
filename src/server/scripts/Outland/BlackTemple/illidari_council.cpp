@@ -122,7 +122,7 @@ public:
 
     struct mob_blood_elf_council_voice_triggerAI : public ScriptedAI
     {
-        mob_blood_elf_council_voice_triggerAI(Creature* creature) : ScriptedAI(creature)
+        mob_blood_elf_council_voice_triggerAI(Creature* c) : ScriptedAI(c)
         {
             for (uint8 i = 0; i < 4; ++i)
                 Council[i] = 0;
@@ -217,9 +217,9 @@ public:
 
     struct mob_illidari_councilAI : public ScriptedAI
     {
-        mob_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
+        mob_illidari_councilAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             for (uint8 i = 0; i < 4; ++i)
                 Council[i] = 0;
         }
@@ -378,9 +378,9 @@ public:
 
 struct boss_illidari_councilAI : public ScriptedAI
 {
-    boss_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
+    boss_illidari_councilAI(Creature* c) : ScriptedAI(c)
     {
-        instance = creature->GetInstanceScript();
+        instance = c->GetInstanceScript();
         for (uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
         LoadedGUIDs = false;

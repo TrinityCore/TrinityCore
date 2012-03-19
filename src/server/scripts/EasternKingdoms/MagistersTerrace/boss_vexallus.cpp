@@ -71,9 +71,9 @@ public:
 
     struct boss_vexallusAI : public ScriptedAI
     {
-        boss_vexallusAI(Creature* creature) : ScriptedAI(creature)
+        boss_vexallusAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -206,7 +206,7 @@ public:
 
     struct mob_pure_energyAI : public ScriptedAI
     {
-        mob_pure_energyAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_pure_energyAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset() {}
 

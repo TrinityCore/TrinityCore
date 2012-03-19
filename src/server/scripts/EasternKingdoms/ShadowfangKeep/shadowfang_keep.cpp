@@ -90,10 +90,10 @@ public:
 
     struct npc_shadowfang_prisonerAI : public npc_escortAI
     {
-        npc_shadowfang_prisonerAI(Creature* creature) : npc_escortAI(creature)
+        npc_shadowfang_prisonerAI(Creature* c) : npc_escortAI(c)
         {
-            instance = creature->GetInstanceScript();
-            uiNpcEntry = creature->GetEntry();
+            instance = c->GetInstanceScript();
+            uiNpcEntry = c->GetEntry();
         }
 
         InstanceScript* instance;

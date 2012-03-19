@@ -51,9 +51,9 @@ public:
 
     struct boss_hadronoxAI : public ScriptedAI
     {
-        boss_hadronoxAI(Creature* creature) : ScriptedAI(creature)
+        boss_hadronoxAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             fMaxDistance = 50.0f;
             bFirstTime = true;
         }

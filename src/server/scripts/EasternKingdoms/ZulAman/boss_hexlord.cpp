@@ -179,9 +179,9 @@ struct boss_hexlord_addAI : public ScriptedAI
 {
     InstanceScript* instance;
 
-    boss_hexlord_addAI(Creature* creature) : ScriptedAI(creature)
+    boss_hexlord_addAI(Creature* c) : ScriptedAI(c)
     {
-        instance = creature->GetInstanceScript();
+        instance = c->GetInstanceScript();
     }
 
     void Reset() {}
@@ -211,9 +211,9 @@ class boss_hexlord_malacrass : public CreatureScript
 
         struct boss_hex_lord_malacrassAI : public ScriptedAI
         {
-            boss_hex_lord_malacrassAI(Creature* creature) : ScriptedAI(creature)
+            boss_hex_lord_malacrassAI(Creature* c) : ScriptedAI(c)
             {
-                instance = creature->GetInstanceScript();
+                instance = c->GetInstanceScript();
                 SelectAddEntry();
                 for (uint8 i = 0; i < 4; ++i)
                     AddGUID[i] = 0;

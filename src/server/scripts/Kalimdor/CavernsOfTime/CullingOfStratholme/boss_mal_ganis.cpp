@@ -77,9 +77,9 @@ public:
 
     struct boss_mal_ganisAI : public ScriptedAI
     {
-        boss_mal_ganisAI(Creature* creature) : ScriptedAI(creature)
+        boss_mal_ganisAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiCarrionSwarmTimer;
@@ -205,7 +205,7 @@ public:
                                 uiOutroTimer = 8000;
                                 break;
                             case 2:
-                                me->SetTarget(instance ? instance->GetData64(DATA_ARTHAS) : 0);
+                                me->SetUInt64Value(UNIT_FIELD_TARGET, instance ? instance->GetData64(DATA_ARTHAS) : 0);
                                 me->HandleEmoteCommand(29);
                                 DoScriptText(SAY_ESCAPE_SPEECH_2, me);
                                 ++uiOutroStep;

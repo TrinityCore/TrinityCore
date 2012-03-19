@@ -334,8 +334,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     SetSpeed(MOVE_FLIGHT, 1.0f);    // using 1.0 rate
 
     SetFloatValue(OBJECT_FIELD_SCALE_X, cinfo->scale);
-
-    SetFloatValue(UNIT_FIELD_HOVERHEIGHT, cinfo->HoverHeight);
+    SetLevitate(canFly());
 
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(cinfo->MovementType);
@@ -419,25 +418,10 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    //! Suspect it works this way:
-    //! If creature can walk and fly (usually with pathing)
-    //! Set MOVEMENTFLAG_CAN_FLY. Otherwise if it can only fly
-    //! Set MOVEMENTFLAG_DISABLE_GRAVITY
-    //! The only time I saw Movement Flags: DisableGravity, CanFly, Flying (50332672) on the same unit
-    //! it was a vehicle
-    if (cInfo->InhabitType & INHABIT_AIR && cInfo->InhabitType & INHABIT_GROUND)
-        SetCanFly(true);
-    else if (cInfo->InhabitType & INHABIT_AIR)
-        SetDisableGravity(true);
-    /*! Implemented in LoadCreatureAddon. Suspect there's a rule for UNIT_BYTE_1_FLAG_HOVER
-        in relation to DisableGravity also.
+    // TODO: In fact monster move flags should be set - not movement flags.
+    if (cInfo->InhabitType & INHABIT_AIR)
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
 
-    else if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE_1_FLAG_HOVER)
-        SetHover(true); 
-        
-    */
-
-    // TODO: Shouldn't we check whether or not the creature is in water first?
     if (cInfo->InhabitType & INHABIT_WATER)
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
@@ -555,6 +539,18 @@ void Creature::Update(uint32 diff)
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
             if (!isAlive())
                 break;
+
+            // Wintergrasp feature: mechanical units should take damage if isInWater
+            if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && GetZoneId() == 4197)
+            {
+                if (IsInWater())
+                {
+                    if (!HasAura(36444))
+                        CastSpell(this, 36444, true);
+                }
+                else
+                    RemoveAurasDueToSpell(36444);
+            }
 
             if (m_regenTimer > 0)
             {
@@ -758,14 +754,6 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
         return false;
     }
 
-    //oX = x;     oY = y;    dX = x;    dY = y;    m_moveTime = 0;    m_startMove = 0;
-    if (!CreateFromProto(guidlow, Entry, vehId, team, data))
-        return false;
-
-    //! Need to be called after CreateFromProto
-    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-
     Relocate(x, y, z, ang);
 
     if (!IsPositionValid())
@@ -773,6 +761,10 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
         sLog->outError("Creature::Create(): given coordinates for creature (guidlow %d, entry %d) are not valid (X: %f, Y: %f, Z: %f, O: %f)", guidlow, Entry, x, y, z, ang);
         return false;
     }
+
+    //oX = x;     oY = y;    dX = x;    dY = y;    m_moveTime = 0;    m_startMove = 0;
+    if (!CreateFromProto(guidlow, Entry, vehId, team, data))
+        return false;
 
     switch (GetCreatureTemplate()->rank)
     {
@@ -802,6 +794,17 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
         SetNativeDisplayId(displayID);
         SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
     }
+
+    if (GetCreatureTemplate()->InhabitType & INHABIT_AIR)
+    {
+        if (GetDefaultMovementType() == IDLE_MOTION_TYPE)
+            AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+        else
+            SetFlying(true);
+    }
+
+    if (GetCreatureTemplate()->InhabitType & INHABIT_WATER)
+        AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
     LastUsedScriptID = GetCreatureTemplate()->ScriptID;
 
@@ -1074,11 +1077,11 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.equipmentId = GetEquipmentId();
     data.posX = GetPositionX();
     data.posY = GetPositionY();
-    data.posZ = GetPositionZMinusOffset();
+    data.posZ = GetPositionZ();
     data.orientation = GetOrientation();
     data.spawntimesecs = m_respawnDelay;
     // prevent add data integrity problems
-    data.spawndist = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0.0f : m_respawnradius;
+    data.spawndist = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0 : m_respawnradius;
     data.currentwaypoint = 0;
     data.curhealth = GetHealth();
     data.curmana = GetPower(POWER_MANA);
@@ -1296,7 +1299,7 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
     if (m_respawnTime)                          // respawn on Update
     {
         m_deathState = DEAD;
-        if (CanFly())
+        if (canFly())
         {
             float tz = map->GetHeight(GetPhaseMask(), data->posX, data->posY, data->posZ, false);
             if (data->posZ - tz > 0.1f)
@@ -1429,7 +1432,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
     if (who->GetTypeId() == TYPEID_UNIT && who->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
         return false;
 
-    if (!CanFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
+    if (!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
         //|| who->IsControlledByPlayer() && who->IsFlying()))
         // we cannot check flying for other creatures, too much map/vmap calculation
         // TODO: should switch to range attack
@@ -1526,7 +1529,7 @@ void Creature::setDeathState(DeathState s)
         if (m_formation && m_formation->getLeader() == this)
             m_formation->FormationReset(true);
 
-        if ((CanFly() || IsFlying()))
+        if ((canFly() || IsFlying()))
             i_motionMaster.MoveFall();
 
         Unit::setDeathState(CORPSE);
@@ -1541,7 +1544,7 @@ void Creature::setDeathState(DeathState s)
         CreatureTemplate const* cinfo = GetCreatureTemplate();
         SetWalk(true);
         if (GetCreatureTemplate()->InhabitType & INHABIT_AIR)
-            SetDisableGravity(true);
+            AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
         if (GetCreatureTemplate()->InhabitType & INHABIT_WATER)
             AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
@@ -2049,12 +2052,6 @@ bool Creature::LoadCreaturesAddon(bool reload)
         SetByteValue(UNIT_FIELD_BYTES_1, 1, 0);
         SetByteValue(UNIT_FIELD_BYTES_1, 2, uint8((cainfo->bytes1 >> 16) & 0xFF));
         SetByteValue(UNIT_FIELD_BYTES_1, 3, uint8((cainfo->bytes1 >> 24) & 0xFF));
-
-        //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
-        //! If no inhabittype_fly (if no MovementFlag_DisableGravity flag found in sniffs)
-        //! Set MovementFlag_Hover. Otherwise do nothing.
-        if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE1_FLAG_HOVER && !IsLevitating())
-            AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
     if (cainfo->bytes2 != 0)
@@ -2103,7 +2100,6 @@ bool Creature::LoadCreaturesAddon(bool reload)
             sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUIDLow(), GetEntry());
         }
     }
-
     return true;
 }
 
@@ -2431,43 +2427,17 @@ bool Creature::SetWalk(bool enable)
 
     WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_WALK_MODE : SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
     data.append(GetPackGUID());
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
     return true;
 }
 
-bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
+bool Creature::SetLevitate(bool enable)
 {
-    //! It's possible only a packet is sent but moveflags are not updated
-    //! Need more research on this
-    if (!packetOnly && !Unit::SetDisableGravity(disable))
+    if (!Unit::SetLevitate(enable))
         return false;
 
-    if (!movespline->Initialized())
-        return true;
-
-    WorldPacket data(disable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
     data.append(GetPackGUID());
-    SendMessageToSet(&data, false);
-    return true;
-}
-
-bool Creature::SetHover(bool enable)
-{
-    if (!Unit::SetHover(enable))
-        return false;
-
-    //! Unconfirmed for players:
-    if (enable)
-        SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-    else
-        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-
-    if (!movespline->Initialized())
-        return true;
-
-    //! Not always a packet is sent
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_HOVER : SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
-    data.append(GetPackGUID());
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
     return true;
 }

@@ -18,6 +18,12 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
+enum ScriptTexts
+{
+    EMOTE_WRAP                  = 0,
+    EMOTE_SPIDER                = 1,
+};
+
 enum Spells
 {
     SPELL_WEB_WRAP              = 28622,
@@ -82,7 +88,7 @@ public:
             events.ScheduleEvent(EVENT_POISON, urand(10000, 15000));
             events.ScheduleEvent(EVENT_SUMMON, 30000);
         }
-
+	
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim() || !CheckInRoom())
@@ -101,7 +107,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WRAP:
-                        // TODO : Add missing text
+                        Talk(EMOTE_WRAP);
                         for (uint8 i = 0; i < RAID_MODE(1, 2); ++i)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
@@ -132,7 +138,7 @@ public:
                         events.ScheduleEvent(EVENT_FRENZY, 600000);
                         break;
                     case EVENT_SUMMON:
-                        // TODO : Add missing text
+                        Talk(EMOTE_SPIDER);
                         uint8 amount = urand(8, 10);
                         for (uint8 i = 0; i < amount; ++i)
                             DoSummon(MOB_SPIDERLING, me, 0, TEMPSUMMON_CORPSE_DESPAWN);

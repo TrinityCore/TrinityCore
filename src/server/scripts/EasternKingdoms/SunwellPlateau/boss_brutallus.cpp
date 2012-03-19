@@ -78,9 +78,9 @@ public:
 
     struct boss_brutallusAI : public ScriptedAI
     {
-        boss_brutallusAI(Creature* creature) : ScriptedAI(creature)
+        boss_brutallusAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             Intro = true;
         }
 
@@ -216,7 +216,7 @@ public:
                     break;
                 case 3:
                     DoCast(me, SPELL_INTRO_FROST_BLAST);
-                    Madrigosa->SetDisableGravity(true);
+                    Madrigosa->SetLevitate(true);
                     me->AttackStop();
                     Madrigosa->AttackStop();
                     IntroFrostBoltTimer = 3000;

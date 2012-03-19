@@ -68,9 +68,9 @@ public:
 
     struct npc_medivh_bmAI : public ScriptedAI
     {
-        npc_medivh_bmAI(Creature* creature) : ScriptedAI(creature)
+        npc_medivh_bmAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -261,9 +261,9 @@ public:
 
     struct npc_time_riftAI : public ScriptedAI
     {
-        npc_time_riftAI(Creature* creature) : ScriptedAI(creature)
+        npc_time_riftAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

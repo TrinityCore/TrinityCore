@@ -53,7 +53,7 @@ public:
 
     struct mob_stolen_soulAI : public ScriptedAI
     {
-        mob_stolen_soulAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_stolen_soulAI(Creature* c) : ScriptedAI(c) {}
 
         uint8 myClass;
         uint32 Class_Timer;
@@ -162,7 +162,7 @@ public:
 
     struct boss_exarch_maladaarAI : public ScriptedAI
     {
-        boss_exarch_maladaarAI(Creature* creature) : ScriptedAI(creature)
+        boss_exarch_maladaarAI(Creature* c) : ScriptedAI(c)
         {
             HasTaunted = false;
         }
@@ -319,7 +319,7 @@ public:
 
     struct mob_avatar_of_martyredAI : public ScriptedAI
     {
-        mob_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_avatar_of_martyredAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Mortal_Strike_timer;
 

@@ -61,9 +61,9 @@ public:
 
     struct boss_trollgoreAI : public ScriptedAI
     {
-        boss_trollgoreAI(Creature* creature) : ScriptedAI(creature), lSummons(me)
+        boss_trollgoreAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiConsumeTimer;

@@ -276,6 +276,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 
     SetUInt32Value(ITEM_FIELD_DURATION, abs(itemProto->Duration));
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
+
     return true;
 }
 

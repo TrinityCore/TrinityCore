@@ -69,7 +69,7 @@ public:
 
     struct npc_draenei_survivorAI : public ScriptedAI
     {
-        npc_draenei_survivorAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_draenei_survivorAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 pCaster;
 
@@ -223,12 +223,12 @@ public:
 
     struct npc_engineer_spark_overgrindAI : public ScriptedAI
     {
-        npc_engineer_spark_overgrindAI(Creature* creature) : ScriptedAI(creature)
+        npc_engineer_spark_overgrindAI(Creature* c) : ScriptedAI(c)
         {
-            NormFaction = creature->getFaction();
-            NpcFlags = creature->GetUInt32Value(UNIT_NPC_FLAGS);
+            NormFaction = c->getFaction();
+            NpcFlags = c->GetUInt32Value(UNIT_NPC_FLAGS);
 
-            if (creature->GetAreaId() == AREA_COVE || creature->GetAreaId() == AREA_ISLE)
+            if (c->GetAreaId() == AREA_COVE || c->GetAreaId() == AREA_ISLE)
                 IsTreeEvent = true;
         }
 
@@ -301,7 +301,7 @@ public:
 
     struct npc_injured_draeneiAI : public ScriptedAI
     {
-        npc_injured_draeneiAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_injured_draeneiAI(Creature* c) : ScriptedAI(c) {}
 
         void Reset()
         {
@@ -367,7 +367,7 @@ public:
 
     struct npc_magwinAI : public npc_escortAI
     {
-        npc_magwinAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_magwinAI(Creature* c) : npc_escortAI(c) {}
 
         void WaypointReached(uint32 i)
         {
@@ -443,7 +443,7 @@ public:
 
     struct npc_geezleAI : public ScriptedAI
     {
-        npc_geezleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_geezleAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 SparkGUID;
 
@@ -613,7 +613,7 @@ public:
 
     struct npc_death_ravagerAI : public ScriptedAI
     {
-        npc_death_ravagerAI(Creature* creature) : ScriptedAI(creature){}
+        npc_death_ravagerAI(Creature* c) : ScriptedAI(c){}
 
         uint32 RendTimer;
         uint32 EnragingBiteTimer;

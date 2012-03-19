@@ -89,7 +89,7 @@ public:
 
     struct boss_baron_rivendareAI : public ScriptedAI
     {
-        boss_baron_rivendareAI(Creature* creature) : ScriptedAI(creature)
+        boss_baron_rivendareAI(Creature* c) : ScriptedAI(c)
         {
             instance = me->GetInstanceScript();
         }

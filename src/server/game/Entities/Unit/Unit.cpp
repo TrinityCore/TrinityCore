@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "CreatureAIImpl.h"
 #include "Log.h"
@@ -370,7 +371,8 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
 {
-    enum{
+    enum
+    {
         POSITION_UPDATE_DELAY = 400,
     };
 
@@ -390,15 +392,15 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
         Movement::Location loc = movespline->ComputePosition();
 
         if (GetTypeId() == TYPEID_PLAYER)
-            ((Player*)this)->UpdatePosition(loc.x,loc.y,loc.z,loc.orientation);
+            ((Player*)this)->UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
         else
-            GetMap()->CreatureRelocation((Creature*)this,loc.x,loc.y,loc.z,loc.orientation);
+            ((Creature*)this)->UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
     }
 }
 
 void Unit::DisableSpline()
 {
-    m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEMENTFLAG_SPLINE_ENABLED|MOVEMENTFLAG_FORWARD));
+    m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEMENTFLAG_SPLINE_ENABLED | MOVEMENTFLAG_FORWARD));
     movespline->_Interrupt();
 }
 
@@ -660,20 +662,19 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             damage = health - 1;
 
         duel_hasEnded = true;
-    }
-    else if (victim->IsVehicle() && damage >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() ==  TYPEID_PLAYER)
-    {
-        Player* victimRider = victim->GetCharmer()->ToPlayer();
+		
+    } else if (victim->IsVehicle() && damage >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() ==  TYPEID_PLAYER) 
+    { 
+        Player* victimRider = victim->GetCharmer()->ToPlayer(); 
+        if (victimRider && victimRider->duel && victimRider->duel->isMounted) 
+        { 
+            // prevent kill only if killed in duel and killed by opponent or opponent controlled creature 
+            if (victimRider->duel->opponent == this || victimRider->duel->opponent->GetGUID() == GetCharmerGUID()) 
+                damage = health - 1; 
+            duel_wasMounted = true; 
+            duel_hasEnded = true; 
+        } 
 
-        if (victimRider && victimRider->duel && victimRider->duel->isMounted)
-        {
-            // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-            if (victimRider->duel->opponent == this || victimRider->duel->opponent->GetGUID() == GetCharmerGUID())
-                damage = health - 1;
-
-            duel_wasMounted = true;
-            duel_hasEnded = true;
-        }
     }
 
     if (GetTypeId() == TYPEID_PLAYER && this != victim)
@@ -682,9 +683,12 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         // in bg, count dmg if victim is also a player
         if (victim->GetTypeId() == TYPEID_PLAYER)
+        {
             if (Battleground* bg = killer->GetBattleground())
+            {
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
-
+            }
+        }
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, damage, 0, victim);
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
     }
@@ -1904,6 +1908,21 @@ void Unit::HandleProcExtraAttackFor(Unit* victim)
     }
 }
 
+bool isInEvasiveManeuvers(const Unit* victim)
+{
+    if(victim->HasAura(50240))
+    {
+        // we also drop 1 charge of Evasive charges
+        if(Aura* evasiveCharges = victim->GetAura(50241))
+            if(evasiveCharges->GetStackAmount() > 1)
+                evasiveCharges->SetStackAmount(evasiveCharges->GetStackAmount() - 1);
+            else
+                evasiveCharges->Remove();
+        return true;
+    }
+    return false;
+}
+
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackType attType) const
 {
     // This is only wrapper
@@ -1979,6 +1998,10 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
         // Modify dodge chance by attacker SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
         dodge_chance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
         dodge_chance = int32 (float (dodge_chance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
+
+        // If target has evasive maneuvers result should always be dodge
+        if(isInEvasiveManeuvers(victim))
+            return MELEE_HIT_DODGE;
 
         tmp = dodge_chance;
         if ((tmp > 0)                                        // check if unit _can_ dodge
@@ -2433,6 +2456,10 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
             modHitChance -= int32(victim->ToPlayer()->GetRatingBonusValue(CR_HIT_TAKEN_SPELL));
     }
 
+    // If target has evasive maneuvers result should always be dodge
+    if(isInEvasiveManeuvers(victim))
+        return SPELL_MISS_DODGE;
+
     int32 HitChance = modHitChance * 100;
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
     HitChance += int32(m_modSpellHitChance * 100.0f);
@@ -2523,6 +2550,10 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
     // Return evade for units in evade mode
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return SPELL_MISS_EVADE;
+
+    // If target has evasive maneuvers result should always be dodge
+    if(isInEvasiveManeuvers(victim))
+        return SPELL_MISS_RESIST;
 
     // Try victim reflect spell
     if (CanReflect)
@@ -3049,7 +3080,7 @@ bool Unit::isInAccessiblePlaceFor(Creature const* c) const
     if (IsInWater())
         return c->canSwim();
     else
-        return c->canWalk() || c->CanFly();
+        return c->canWalk() || c->canFly();
 }
 
 bool Unit::IsInWater() const
@@ -8802,6 +8833,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Finish movies that add combo
         case 14189: // Seal Fate (Netherblade set)
         case 14157: // Ruthlessness
+        case 70802: // Rogue T10 4P Bonus
         {
             if (!victim || victim == this)
                 return false;
@@ -11480,7 +11512,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
         AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
         for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
             if (spellInfo->Dispel == DISPEL_MAGIC &&                                      // Magic debuff
-                ((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&  // Check school
+                ((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) && !(spellInfo->AttributesEx & SPELL_ATTR1_MELEE_COMBAT_START) && // Check school
                 !spellInfo->IsPositiveEffect(index))                                  // Harmful
                 return true;
     }
@@ -12421,6 +12453,9 @@ void Unit::SetVisible(bool x)
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 {
+    //if (this->ToPlayer())
+    //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
+
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
@@ -12597,7 +12632,15 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 return;
         }
 
-        BuildMovementPacket(&data);
+        data.append(GetPackGUID());
+        data << uint32(0);                                  // movement flags
+        data << uint16(0);                                  // unk flags
+        data << uint32(getMSTime());
+        data << float(GetPositionX());
+        data << float(GetPositionY());
+        data << float(GetPositionZ());
+        data << float(GetOrientation());
+        data << uint32(0);                                  // fall time
         data << float(GetSpeed(mtype));
         SendMessageToSet(&data, true);
     }
@@ -12654,6 +12697,14 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         data << float(GetSpeed(mtype));
         SendMessageToSet(&data, true);
     }
+}
+
+void Unit::SetHover(bool on)
+{
+    if (on)
+        CastSpell(this, 11010, true);
+    else
+        RemoveAurasDueToSpell(11010);
 }
 
 void Unit::setDeathState(DeathState s)
@@ -13336,7 +13387,6 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_RUNE:
         case UNIT_MOD_RUNIC_POWER:          UpdateMaxPower(GetPowerTypeByAuraGroup(unitMod));          break;
 
-        case UNIT_MOD_RESISTANCE_HOLY:
         case UNIT_MOD_RESISTANCE_FIRE:
         case UNIT_MOD_RESISTANCE_NATURE:
         case UNIT_MOD_RESISTANCE_FROST:
@@ -15500,7 +15550,10 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 if (instanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                    {
                         ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
+                        creditedPlayer->CreateWowarmoryFeed(3, creature->GetCreatureTemplate()->Entry, 0, 0);
+                    }
                 }
                 else
                 {
@@ -16457,6 +16510,9 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
+    //if (this->ToPlayer())
+    //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
+
     Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
         player = (Player*)this;
@@ -16990,9 +17046,9 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     m_vehicle->RemovePassenger(this);
 
-    // If player is on mouted duel and exits the mount should immediatly lose the duel
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->duel && ToPlayer()->duel->isMounted)
-        ToPlayer()->DuelComplete(DUEL_FLED);
+    // If player is on mouted duel and exits the mount should immediatly lose the duel 
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->duel && ToPlayer()->duel->isMounted) 
+        ToPlayer()->DuelComplete(DUEL_FLED); 
 
     // This should be done before dismiss, because there may be some aura removal
     Vehicle* vehicle = m_vehicle;
@@ -17042,12 +17098,12 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
 void Unit::BuildMovementPacket(ByteBuffer *data) const
 {
-    *data << uint32(GetUnitMovementFlags());            // movement flags
-    *data << uint16(GetExtraUnitMovementFlags());       // 2.3.0
-    *data << uint32(getMSTime());                       // time / counter
+    *data << uint32(GetUnitMovementFlags()); // movement flags
+    *data << uint16(m_movementInfo.flags2);    // 2.3.0
+    *data << uint32(getMSTime());            // time
     *data << GetPositionX();
     *data << GetPositionY();
-    *data << GetPositionZMinusOffset();
+    *data << GetPositionZ();
     *data << GetOrientation();
 
     // 0x00000200
@@ -17092,12 +17148,18 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << (float)m_movementInfo.splineElevation;
 }
 
-void Unit::SetCanFly(bool apply)
+void Unit::SetFlying(bool apply)
 {
     if (apply)
-        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+    {
+        SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
+    }
     else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+    {
+        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
+    }
 }
 
 void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool casting /*= false*/)
@@ -17143,20 +17205,11 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     return (relocated || turn);
 }
 
-//! Only server-side orientation update, does not broadcast to client
 void Unit::UpdateOrientation(float orientation)
 {
     SetOrientation(orientation);
     if (IsVehicle())
-        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), GetPositionZ(), orientation);
-}
-
-//! Only server-side height update, does not broadcast to client
-void Unit::UpdateHeight(float newZ)
-{
-    Relocate(GetPositionX(), GetPositionY(), newZ);
-    if (IsVehicle())
-        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), newZ, GetOrientation());
+        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 }
 
 void Unit::SendThreatListUpdate()
@@ -17421,14 +17474,14 @@ void Unit::SetFacingTo(float ori)
     init.Launch();
 }
 
-void Unit::SetFacingToObject(WorldObject* object)
+void Unit::SetFacingToObject(WorldObject* pObject)
 {
     // never face when already moving
     if (!IsStopped())
         return;
 
     // TODO: figure out under what conditions creature will move towards object instead of facing it where it currently is.
-    SetFacingTo(GetAngle(object));
+    SetFacingTo(GetAngle(pObject));
 }
 
 bool Unit::SetWalk(bool enable)
@@ -17444,65 +17497,15 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable)
+bool Unit::SetLevitate(bool enable)
 {
-    if (disable == IsLevitating())
-        return false;
-    
-    if (disable)
-        AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-
-    return true;
-}
-
-bool Unit::SetHover(bool enable)
-{
-    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+    if (enable == IsLevitating())
         return false;
 
     if (enable)
-    {
-        //! No need to check height on ascent
-        AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
-            UpdateHeight(GetPositionZ() + hh);
-    }
+        AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
     else
-    {
-        RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
-        {
-            float newZ = GetPositionZ() - hh;
-            UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
-            UpdateHeight(newZ);
-        }
-    }
+        RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
 
     return true;
-}
-
-void Unit::SendMovementHover()
-{
-    WorldPacket data(MSG_MOVE_HOVER, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, true);
-}
-
-void Unit::SendMovementWaterWalking() 
-{
-    WorldPacket data(MSG_MOVE_WATER_WALK, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, true);
-}
-
-void Unit::SendMovementFeatherFall()
-{
-    WorldPacket data(MSG_MOVE_FEATHER_FALL, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, true);
 }

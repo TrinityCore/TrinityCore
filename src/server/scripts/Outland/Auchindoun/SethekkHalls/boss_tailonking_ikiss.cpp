@@ -64,9 +64,9 @@ public:
 
     struct boss_talon_king_ikissAI : public ScriptedAI
     {
-        boss_talon_king_ikissAI(Creature* creature) : ScriptedAI(creature)
+        boss_talon_king_ikissAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -101,7 +101,7 @@ public:
                     DoScriptText(SAY_INTRO, me);
                 }
 
-                if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                     return;
 
                 float attackRadius = me->GetAttackDistance(who);

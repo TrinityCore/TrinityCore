@@ -78,7 +78,7 @@ public:
 
     struct npc_manaforge_control_consoleAI : public ScriptedAI
     {
-        npc_manaforge_control_consoleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_manaforge_control_consoleAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Event_Timer;
         uint32 Wave_Timer;
@@ -394,7 +394,7 @@ public:
 
     struct npc_commander_dawnforgeAI : public ScriptedAI
     {
-        npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature) { Reset (); }
+        npc_commander_dawnforgeAI(Creature* c) : ScriptedAI(c) { Reset (); }
 
         uint64 PlayerGUID;
         uint64 ardonisGUID;
@@ -745,7 +745,7 @@ public:
 
     struct mob_phase_hunterAI : public ScriptedAI
     {
-        mob_phase_hunterAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_phase_hunterAI(Creature* c) : ScriptedAI(c) {}
 
         bool Weak;
         bool Materialize;
@@ -882,7 +882,7 @@ public:
 
     struct npc_bessyAI : public npc_escortAI
     {
-        npc_bessyAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_bessyAI(Creature* c) : npc_escortAI(c) {}
 
         void JustDied(Unit* /*killer*/)
         {

@@ -61,9 +61,9 @@ public:
 
     struct boss_krystallusAI : public ScriptedAI
     {
-        boss_krystallusAI(Creature* creature) : ScriptedAI(creature)
+        boss_krystallusAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiBoulderTossTimer;

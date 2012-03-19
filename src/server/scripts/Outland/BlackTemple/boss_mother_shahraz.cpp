@@ -90,9 +90,9 @@ public:
 
     struct boss_shahrazAI : public ScriptedAI
     {
-        boss_shahrazAI(Creature* creature) : ScriptedAI(creature)
+        boss_shahrazAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

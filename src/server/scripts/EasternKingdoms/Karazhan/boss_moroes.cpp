@@ -72,12 +72,13 @@ public:
 
     struct boss_moroesAI : public ScriptedAI
     {
-        boss_moroesAI(Creature* creature) : ScriptedAI(creature)
+        boss_moroesAI(Creature* c) : ScriptedAI(c)
         {
             for (uint8 i = 0; i < 4; ++i)
+            {
                 AddId[i] = 0;
-
-            instance = creature->GetInstanceScript();
+            }
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -321,12 +322,12 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     uint64 GuestGUID[4];
 
-    boss_moroes_guestAI(Creature* creature) : ScriptedAI(creature)
+    boss_moroes_guestAI(Creature* c) : ScriptedAI(c)
     {
         for (uint8 i = 0; i < 4; ++i)
             GuestGUID[i] = 0;
 
-        instance = creature->GetInstanceScript();
+        instance = c->GetInstanceScript();
     }
 
     void Reset()

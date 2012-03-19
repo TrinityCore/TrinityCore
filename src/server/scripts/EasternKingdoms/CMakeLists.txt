@@ -84,6 +84,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/MoltenCore/instance_molten_core.cpp
   EasternKingdoms/MoltenCore/boss_sulfuron_harbinger.cpp
   EasternKingdoms/MoltenCore/boss_magmadar.cpp
+  EasternKingdoms/MoltenCore/molten_core.cpp
   EasternKingdoms/MoltenCore/boss_shazzrah.cpp
   EasternKingdoms/Stratholme/boss_baroness_anastari.cpp
   EasternKingdoms/Stratholme/boss_nerubenkan.cpp
@@ -162,6 +163,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/loch_modan.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/instance_shadowfang_keep.cpp
+  EasternKingdoms/ShadowfangKeep/boss_apothecary_trio.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.h
   EasternKingdoms/burning_steppes.cpp
   EasternKingdoms/BlackwingLair/boss_chromaggus.cpp

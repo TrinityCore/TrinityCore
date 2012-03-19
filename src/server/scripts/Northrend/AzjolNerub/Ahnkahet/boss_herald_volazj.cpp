@@ -43,16 +43,20 @@ enum Creatures
     MOB_TWISTED_VISAGE                            = 30625
 };
 
-//not in db
 enum Yells
 {
-    SAY_AGGRO                                     = -1619030,
-    SAY_SLAY_1                                    = -1619031,
-    SAY_SLAY_2                                    = -1619032,
-    SAY_SLAY_3                                    = -1619033,
-    SAY_DEATH_1                                   = -1619034,
-    SAY_DEATH_2                                   = -1619035,
-    SAY_PHASE                                     = -1619036
+    SAY_AGGRO                                     = 0,
+    WHISPER_AGGRO                                 = 1,
+    SAY_INSANITY                                  = 2,
+    WHISPER_INSANITY                              = 3,
+    SAY_SLAY1                                     = 4,
+    WHISPER_SLAY1                                 = 5,
+    SAY_SLAY2                                     = 6,
+    WHISPER_SLAY2                                 = 7,
+    SAY_SLAY3                                     = 8,
+    WHISPER_SLAY3                                 = 9,
+    SAY_DEATH                                     = 10,
+    WHISPER_DEATH                                 = 11,
 };
 
 enum Achievements
@@ -70,6 +74,7 @@ public:
         boss_volazjAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
+            killed_unit = 0;    
         }
 
         InstanceScript* instance;
@@ -78,6 +83,7 @@ public:
         uint32 uiShadowBoltVolleyTimer;
         uint32 uiShiverTimer;
         uint32 insanityHandled;
+        uint32 killed_unit;
         SummonList Summons;
 
         // returns the percentage of health after taking the given damage.
@@ -97,6 +103,15 @@ public:
                 (GetHealthPct(0) >= 33 && GetHealthPct(damage) < 33))
             {
                 me->InterruptNonMeleeSpells(false);
+                Map::PlayerList const &playersList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator i = playersList.begin(); i != playersList.end(); ++i)
+                {
+                    if (Player* player = i->getSource())
+                    {
+                        Talk(SAY_INSANITY);
+                        Talk(WHISPER_INSANITY, player->GetGUID());
+                    }
+                }
                 DoCast(me, SPELL_INSANITY, false);
             }
         }
@@ -154,6 +169,7 @@ public:
             uiMindFlayTimer = 8*IN_MILLISECONDS;
             uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
             uiShiverTimer = 15*IN_MILLISECONDS;
+            killed_unit = 0;
 
             if (instance)
             {
@@ -176,7 +192,15 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Map::PlayerList const &playersList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playersList.begin(); i != playersList.end(); ++i)
+            {
+                if (Player* player = i->getSource())
+                {
+                    Talk(SAY_AGGRO);
+                    Talk(WHISPER_AGGRO, player->GetGUID());
+                }
+            }
 
             if (instance)
             {
@@ -299,7 +323,15 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH_1, me);
+            Map::PlayerList const &playersList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playersList.begin(); i != playersList.end(); ++i)
+            {
+                if (Player* player = i->getSource())
+                {
+                    Talk(SAY_DEATH);
+                    Talk(WHISPER_DEATH, player->GetGUID());
+                }
+            }
 
             if (instance)
                 instance->SetData(DATA_HERALD_VOLAZJ, DONE);
@@ -310,7 +342,31 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            killed_unit++;
+            Map::PlayerList const &playersList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playersList.begin(); i != playersList.end(); ++i)
+            {
+                if (Player* player = i->getSource())
+                {
+                    switch (killed_unit)
+                    {
+                        case 1:
+                            Talk(SAY_SLAY1);
+                            Talk(WHISPER_SLAY1, player->GetGUID());
+                            break;
+                        case 2:
+                            Talk(SAY_SLAY2);
+                            Talk(WHISPER_SLAY2, player->GetGUID());
+                            break;
+                        case 3:
+                            Talk(SAY_SLAY3);
+                            Talk(WHISPER_SLAY3, player->GetGUID());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
     };
 

@@ -48,9 +48,9 @@ public:
 
     struct boss_amanitarAI : public ScriptedAI
     {
-        boss_amanitarAI(Creature* creature) : ScriptedAI(creature)
+        boss_amanitarAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             bFirstTime = true;
         }
 
@@ -167,7 +167,7 @@ public:
 
     struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
     {
-        mob_amanitar_mushroomsAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        mob_amanitar_mushroomsAI(Creature* c) : Scripted_NoMovementAI(c) {}
 
         uint32 uiAuraTimer;
         uint32 uiDeathTimer;

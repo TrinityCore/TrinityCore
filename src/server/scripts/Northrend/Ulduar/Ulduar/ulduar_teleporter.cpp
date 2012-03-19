@@ -42,6 +42,8 @@ enum UlduarTeleporter
     ANTECHAMBER                                  = 204,
     WALKWAY                                      = 205,
     CONSERVATORY                                 = 206,
+    SPARK                                        = 207,
+    MADNESS                                      = 208,
 };
 
 class ulduar_teleporter : public GameObjectScript
@@ -87,6 +89,14 @@ class ulduar_teleporter : public GameObjectScript
                     player->TeleportTo(603, 2086.27f, -24.3134f, 421.239f, 0.0f);
                     player->CLOSE_GOSSIP_MENU();
                     break;
+                case SPARK:
+                    player->TeleportTo(603, 2518.13f, 2569.34f, 421.382f, 0.0f);
+                    player->CLOSE_GOSSIP_MENU();
+                    break;
+                case MADNESS:
+                    player->TeleportTo(603, 1855.03f, -11.629f, 334.58f, 0.0f);
+                    player->CLOSE_GOSSIP_MENU();
+                    break;
             }
 
             return true;
@@ -110,6 +120,10 @@ class ulduar_teleporter : public GameObjectScript
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Shattered Walkway", GOSSIP_SENDER_MAIN, WALKWAY);
                 if (instance->GetBossState(BOSS_AURIAYA) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Conservatory of Life", GOSSIP_SENDER_MAIN, CONSERVATORY);
+                if (instance->GetBossState(BOSS_FREYA) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Spark of Imagination", GOSSIP_SENDER_MAIN, SPARK);
+                if (instance->GetBossState(BOSS_VEZAX) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Descent into Madness", GOSSIP_SENDER_MAIN, MADNESS);
             }
 
             player->SEND_GOSSIP_MENU(gameObject->GetGOInfo()->GetGossipMenuId(), gameObject->GetGUID());

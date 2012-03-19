@@ -55,9 +55,9 @@ class boss_mandokir : public CreatureScript
 
         struct boss_mandokirAI : public ScriptedAI
         {
-            boss_mandokirAI(Creature* creature) : ScriptedAI(creature)
+            boss_mandokirAI(Creature* c) : ScriptedAI(c)
             {
-                m_instance = creature->GetInstanceScript();
+                m_instance = c->GetInstanceScript();
             }
 
             uint32 KillCount;
@@ -294,9 +294,9 @@ class mob_ohgan : public CreatureScript
 
         struct mob_ohganAI : public ScriptedAI
         {
-            mob_ohganAI(Creature* creature) : ScriptedAI(creature)
+            mob_ohganAI(Creature* c) : ScriptedAI(c)
             {
-                m_instance = creature->GetInstanceScript();
+                m_instance = c->GetInstanceScript();
             }
 
             uint32 SunderArmor_Timer;

@@ -54,9 +54,9 @@ public:
 
     struct boss_silver_hand_bossesAI : public ScriptedAI
     {
-        boss_silver_hand_bossesAI(Creature* creature) : ScriptedAI(creature)
+        boss_silver_hand_bossesAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

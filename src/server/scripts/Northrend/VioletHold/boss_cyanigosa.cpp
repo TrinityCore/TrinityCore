@@ -57,9 +57,9 @@ public:
 
     struct boss_cyanigosaAI : public ScriptedAI
     {
-        boss_cyanigosaAI(Creature* creature) : ScriptedAI(creature)
+        boss_cyanigosaAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneVacuumTimer;

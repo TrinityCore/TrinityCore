@@ -58,7 +58,7 @@ public:
 
     struct boss_attumenAI : public ScriptedAI
     {
-        boss_attumenAI(Creature* creature) : ScriptedAI(creature)
+        boss_attumenAI(Creature* c) : ScriptedAI(c)
         {
             Phase = 1;
 
@@ -119,7 +119,7 @@ public:
 
     struct boss_midnightAI : public ScriptedAI
     {
-        boss_midnightAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_midnightAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 Attumen;
         uint8 Phase;

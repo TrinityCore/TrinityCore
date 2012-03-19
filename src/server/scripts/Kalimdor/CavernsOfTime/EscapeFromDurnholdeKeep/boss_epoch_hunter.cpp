@@ -54,9 +54,9 @@ public:
 
     struct boss_epoch_hunterAI : public ScriptedAI
     {
-        boss_epoch_hunterAI(Creature* creature) : ScriptedAI(creature)
+        boss_epoch_hunterAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

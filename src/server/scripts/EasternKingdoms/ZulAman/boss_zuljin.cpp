@@ -151,9 +151,9 @@ class boss_zuljin : public CreatureScript
 
         struct boss_zuljinAI : public ScriptedAI
         {
-            boss_zuljinAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+            boss_zuljinAI(Creature* c) : ScriptedAI(c), Summons(me)
             {
-                instance = creature->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
             InstanceScript* instance;
 
@@ -604,7 +604,7 @@ class mob_zuljin_vortex : public CreatureScript
 
         struct mob_zuljin_vortexAI : public ScriptedAI
         {
-            mob_zuljin_vortexAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_zuljin_vortexAI(Creature* c) : ScriptedAI(c) {}
 
             void Reset() {}
 

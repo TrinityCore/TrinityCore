@@ -49,14 +49,14 @@ EndScriptData */
 #define SPELL_FOCUSED_EYEBEAM_VISUAL_RIGHT  63702
 
 // Passive
-#define SPELL_KOLOGARN_REDUCE_PARRY 64651
-#define SPELL_KOLOGARN_PACIFY       63726
-#define SPELL_KOLOGARN_UNK_0        65219   // Not found in DBC
+#define SPELL_KOLOGARN_REDUCE_PARRY     64651
+#define SPELL_KOLOGARN_PACIFY           63726
+#define SPELL_KOLOGARN_UNK_0            65219   // Not found in DBC
 
-#define SPELL_BERSERK           47008 // guess
+#define SPELL_BERSERK                   47008 // guess
 
-#define NPC_RUBBLE_STALKER      33809
-#define NPC_ARM_SWEEP_STALKER   33661
+#define NPC_RUBBLE_STALKER              33809
+#define NPC_ARM_SWEEP_STALKER           33661
 
 enum Events
 {
@@ -98,17 +98,32 @@ class boss_kologarn : public CreatureScript
             {
                 ASSERT(vehicle);
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
 
                 DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
                 SetCombatMovement(false);
-                Reset();
+                emerged = false;
             }
 
             Vehicle* vehicle;
             bool left, right;
+            bool emerged;
             uint64 eyebeamTarget;
+
+            void MoveInLineOfSight(Unit* who)
+            {
+                // Birth animation
+                if (!emerged && me->IsWithinDistInMap(who, 30.0f) && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->isGameMaster())
+                {
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                    emerged = true;
+                }
+            }
 
             void EnterCombat(Unit* /*who*/)
             {
@@ -131,7 +146,6 @@ class boss_kologarn : public CreatureScript
             void Reset()
             {
                 _Reset();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 eyebeamTarget = 0;
             }
 

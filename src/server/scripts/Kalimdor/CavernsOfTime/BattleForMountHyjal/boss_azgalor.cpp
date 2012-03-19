@@ -55,9 +55,9 @@ public:
 
     struct boss_azgalorAI : public hyjal_trashAI
     {
-        boss_azgalorAI(Creature* creature) : hyjal_trashAI(creature)
+        boss_azgalorAI(Creature* c) : hyjal_trashAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             go = false;
             pos = 0;
         }
@@ -215,9 +215,9 @@ public:
 
     struct mob_lesser_doomguardAI : public hyjal_trashAI
     {
-        mob_lesser_doomguardAI(Creature* creature) : hyjal_trashAI(creature)
+        mob_lesser_doomguardAI(Creature* c) : hyjal_trashAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             if (instance)
                 AzgalorGUID = instance->GetData64(DATA_AZGALOR);
         }

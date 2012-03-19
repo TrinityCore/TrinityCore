@@ -63,7 +63,7 @@ public:
 
     struct mob_doom_blossomAI : public ScriptedAI
     {
-        mob_doom_blossomAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_doom_blossomAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
@@ -129,7 +129,7 @@ public:
 
     struct mob_shadowy_constructAI : public ScriptedAI
     {
-        mob_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_shadowy_constructAI(Creature* c) : ScriptedAI(c) {}
 
         uint64 GhostGUID;
         uint64 TeronGUID;
@@ -219,9 +219,9 @@ public:
 
     struct boss_teron_gorefiendAI : public ScriptedAI
     {
-        boss_teron_gorefiendAI(Creature* creature) : ScriptedAI(creature)
+        boss_teron_gorefiendAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

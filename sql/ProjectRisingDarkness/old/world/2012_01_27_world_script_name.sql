@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_ValiantGrandMelee' WHERE `entry` IN (33306,33382,33383,33384,33385,33561,33558,33559,33562);

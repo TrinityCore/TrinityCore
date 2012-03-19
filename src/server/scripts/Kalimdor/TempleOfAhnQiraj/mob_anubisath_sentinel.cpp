@@ -86,7 +86,7 @@ public:
             }
         }
 
-        aqsentinelAI(Creature* creature) : ScriptedAI(creature)
+        aqsentinelAI(Creature* c) : ScriptedAI(c)
         {
             ClearBuddyList();
             abselected = 0;                                     // just initialization of variable

@@ -115,9 +115,9 @@ public:
 
     struct boss_kalecgosAI : public ScriptedAI
     {
-        boss_kalecgosAI(Creature* creature) : ScriptedAI(creature)
+        boss_kalecgosAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             SathGUID = 0;
             DoorGUID = 0;
             bJustReset = false;
@@ -159,7 +159,7 @@ public:
             if (!bJustReset) //first reset at create
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-                me->SetDisableGravity(false);
+                me->SetLevitate(false);
                 me->SetVisible(true);
                 me->SetStandState(UNIT_STAND_STATE_SLEEP);
             }
@@ -231,7 +231,7 @@ public:
                     if (ResetTimer <= diff)
                     {
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetDisableGravity(false);
+                        me->SetLevitate(false);
                         me->SetVisible(true);
                         me->SetStandState(UNIT_STAND_STATE_SLEEP);
                         ResetTimer = 10000;
@@ -400,7 +400,7 @@ public:
                 TalkTimer = 10000;
                 break;
             case 3:
-                me->SetDisableGravity(true);
+                me->SetLevitate(true);
                 me->GetMotionMaster()->MovePoint(0, FLY_X, FLY_Y, FLY_Z);
                 TalkTimer = 600000;
                 break;
@@ -418,7 +418,7 @@ public:
                 TalkTimer = 3000;
                 break;
             case 2:
-                me->SetDisableGravity(true);
+                me->SetLevitate(true);
                 me->GetMotionMaster()->MovePoint(0, FLY_X, FLY_Y, FLY_Z);
                 TalkTimer = 15000;
                 break;
@@ -456,9 +456,9 @@ public:
 
         bool isEnraged; // if demon is enraged
 
-        boss_kalecAI(Creature* creature) : ScriptedAI(creature)
+        boss_kalecAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         void Reset()
@@ -575,9 +575,9 @@ public:
 
     struct boss_sathrovarrAI : public ScriptedAI
     {
-        boss_sathrovarrAI(Creature* creature) : ScriptedAI(creature)
+        boss_sathrovarrAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             KalecGUID = 0;
             KalecgosGUID = 0;
         }

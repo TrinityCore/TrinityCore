@@ -113,9 +113,9 @@ public:
 
     struct boss_entropiusAI : public ScriptedAI
     {
-        boss_entropiusAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        boss_entropiusAI(Creature* c) : ScriptedAI(c), Summons(me)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -213,9 +213,9 @@ public:
 
     struct boss_muruAI : public Scripted_NoMovementAI
     {
-        boss_muruAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+        boss_muruAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -378,9 +378,9 @@ public:
 
     struct npc_muru_portalAI : public Scripted_NoMovementAI
     {
-        npc_muru_portalAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+        npc_muru_portalAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -462,7 +462,7 @@ public:
 
     struct npc_dark_fiendAI : public ScriptedAI
     {
-        npc_dark_fiendAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_dark_fiendAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 WaitTimer;
         bool InAction;
@@ -525,7 +525,7 @@ public:
 
     struct npc_void_sentinelAI : public ScriptedAI
     {
-        npc_void_sentinelAI(Creature* creature) : ScriptedAI(creature){}
+        npc_void_sentinelAI(Creature* c) : ScriptedAI(c){}
 
         uint32 PulseTimer;
         uint32 VoidBlastTimer;
@@ -581,9 +581,9 @@ public:
 
     struct npc_blackholeAI : public ScriptedAI
     {
-        npc_blackholeAI(Creature* creature) : ScriptedAI(creature)
+        npc_blackholeAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;

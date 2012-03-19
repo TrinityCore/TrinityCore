@@ -149,9 +149,9 @@ public:
 
     struct npc_cooshcooshAI : public ScriptedAI
     {
-        npc_cooshcooshAI(Creature* creature) : ScriptedAI(creature)
+        npc_cooshcooshAI(Creature* c) : ScriptedAI(c)
         {
-            m_uiNormFaction = creature->getFaction();
+            m_uiNormFaction = c->getFaction();
         }
 
         uint32 m_uiNormFaction;
@@ -317,7 +317,7 @@ public:
 
     struct npc_kayra_longmaneAI : public npc_escortAI
     {
-        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_kayra_longmaneAI(Creature* c) : npc_escortAI(c) {}
 
         void Reset() { }
 

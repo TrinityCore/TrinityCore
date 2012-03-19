@@ -18,28 +18,38 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
-#define SAY_AGGRO           RAND(-1533109, -1533110, -1533111)
-#define SAY_SLAY            -1533112
-#define SAY_TAUNT           RAND(-1533113, -1533114, -1533115, -1533116, -1533117)
-#define SAY_DEATH           -1533118
+enum ScriptTexts
+{
+    SAY_AGGRO           = 0,
+    SAY_SLAY            = 1,
+    SAY_PHASE           = 2,
+    EMOTE_TELEPORT1     = 3,
+    EMOTE_TELEPORT2     = 4,
+    SAY_DEATH           = 5,
+};
 
-#define SPELL_SPELL_DISRUPTION  29310
-#define SPELL_DECREPIT_FEVER    RAID_MODE(29998, 55011)
-#define SPELL_PLAGUE_CLOUD      29350
+enum Spells
+{
+    SPELL_SPELL_DISRUPTION      = 29310,
+    SPELL_DECREPIT_FEVER_10     = 29998,
+    SPELL_DECREPIT_FEVER_25     = 55011,
+    SPELL_PLAGUE_CLOUD          = 29350,
+};
 
 enum Events
 {
-    EVENT_NONE,
+    EVENT_NONE = 1,
     EVENT_DISRUPT,
     EVENT_FEVER,
     EVENT_ERUPT,
-    EVENT_PHASE,
+    EVENT_PHASE1,
+    EVENT_PHASE2,
 };
 
 enum Phases
 {
-    PHASE_FIGHT = 1,
-    PHASE_DANCE,
+    PHASE_1,
+    PHASE_2,
 };
 
 #define ACTION_SAFETY_DANCE_FAIL 1
@@ -66,8 +76,7 @@ public:
 
         void KilledUnit(Unit* who)
         {
-            if (!(rand()%5))
-                DoScriptText(SAY_SLAY, me);
+            Talk(SAY_SLAY);
             if (who->GetTypeId() == TYPEID_PLAYER)
                 safetyDance = false;
         }
@@ -89,38 +98,26 @@ public:
         void JustDied(Unit* /*Killer*/)
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
-            EnterPhase(PHASE_FIGHT);
+            Talk(SAY_AGGRO);
+            EnterPhaseFight();
             safetyDance = true;
         }
-
-        void EnterPhase(Phases newPhase)
+		
+        void EnterPhaseFight()
         {
-            phase = newPhase;
             events.Reset();
             eruptSection = 3;
-            if (phase == PHASE_FIGHT)
-            {
-                events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
-                events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-                events.ScheduleEvent(EVENT_PHASE, 90000);
-                events.ScheduleEvent(EVENT_ERUPT, 15000);
-            }
-            else
-            {
-                float x, y, z, o;
-                me->GetHomePosition(x, y, z, o);
-                me->NearTeleportTo(x, y, z, o);
-                DoCastAOE(SPELL_PLAGUE_CLOUD);
-                events.ScheduleEvent(EVENT_PHASE, 45000);
-                events.ScheduleEvent(EVENT_ERUPT, 8000);
-            }
+            events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
+            events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
+            events.ScheduleEvent(EVENT_PHASE2, 90000);
+            events.ScheduleEvent(EVENT_ERUPT, 15000);
+            phase = PHASE_1;
         }
 
         void UpdateAI(const uint32 diff)
@@ -139,12 +136,37 @@ public:
                         events.ScheduleEvent(EVENT_DISRUPT, urand(5000, 10000));
                         break;
                     case EVENT_FEVER:
-                        DoCastAOE(SPELL_DECREPIT_FEVER);
+                        DoCastAOE(RAID_MODE(SPELL_DECREPIT_FEVER_10, SPELL_DECREPIT_FEVER_25));
                         events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
                         break;
-                    case EVENT_PHASE:
-                        // TODO : Add missing texts for both phase switches
-                        EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
+                    case EVENT_PHASE1:
+                        Talk(EMOTE_TELEPORT2);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        DoZoneInCombat();
+                        events.Reset();
+                        eruptSection = 3;
+                        events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
+                        events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_PHASE2, 90000);
+                        events.ScheduleEvent(EVENT_ERUPT, 15000);
+                        phase = PHASE_1;
+                        break;
+                    case EVENT_PHASE2:
+                        Talk(SAY_PHASE);
+                        Talk(EMOTE_TELEPORT1);
+                        me->SetReactState(REACT_PASSIVE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->AttackStop();
+                        me->RemoveAllAuras();
+                        float x, y, z, o;
+                        me->GetHomePosition(x, y, z, o);
+                        me->NearTeleportTo(x, y, z, o);
+                        DoCastAOE(SPELL_PLAGUE_CLOUD);
+                        events.Reset();
+                        events.ScheduleEvent(EVENT_PHASE1, 45000);
+                        events.ScheduleEvent(EVENT_ERUPT, 8000);
+                        phase = PHASE_2;
                         break;
                     case EVENT_ERUPT:
                         instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
@@ -157,7 +179,7 @@ public:
 
                         eruptDirection ? ++eruptSection : --eruptSection;
 
-                        events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_FIGHT ? 10000 : 3000);
+                        events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_1 ? 10000 : 3000);
                         break;
                 }
             }
@@ -185,7 +207,7 @@ class spell_heigan_eruption : public SpellScriptLoader
 
                 if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
-                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HEIGAN)))
+                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_HEIGAN)))
                             Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
             }
 

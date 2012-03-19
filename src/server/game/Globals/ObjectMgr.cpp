@@ -377,9 +377,9 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                          54      55      56      57      58      59      60          61            62       63       64       65         66
                                              "spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             67          68         69         70          71           72          73          74          75          76          77
-                                             "InhabitType, HoverHeight, Health_mod, Mana_mod, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
+                                             "InhabitType, Health_mod, Mana_mod, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, "
     //                                            78           79           80               81                82           83
-                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
+                                             "movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
     if (!result)
@@ -463,21 +463,20 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.AIName         = fields[65].GetString();
         creatureTemplate.MovementType   = uint32(fields[66].GetUInt8());
         creatureTemplate.InhabitType    = uint32(fields[67].GetUInt8());
-        creatureTemplate.HoverHeight    = fields[68].GetFloat();
-        creatureTemplate.ModHealth      = fields[69].GetFloat();
-        creatureTemplate.ModMana        = fields[70].GetFloat();
-        creatureTemplate.ModArmor       = fields[71].GetFloat();
-        creatureTemplate.RacialLeader   = fields[72].GetBool();
+        creatureTemplate.ModHealth      = fields[68].GetFloat();
+        creatureTemplate.ModMana        = fields[69].GetFloat();
+        creatureTemplate.ModArmor       = fields[70].GetFloat();
+        creatureTemplate.RacialLeader   = fields[71].GetBool();
 
         for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            creatureTemplate.questItems[i] = fields[73 + i].GetUInt32();
+            creatureTemplate.questItems[i] = fields[72 + i].GetUInt32();
 
-        creatureTemplate.movementId         = fields[79].GetUInt32();
-        creatureTemplate.RegenHealth        = fields[80].GetBool();
-        creatureTemplate.equipmentId        = fields[81].GetUInt32();
-        creatureTemplate.MechanicImmuneMask = fields[82].GetUInt32();
-        creatureTemplate.flags_extra        = fields[83].GetUInt32();
-        creatureTemplate.ScriptID           = GetScriptId(fields[84].GetCString());
+        creatureTemplate.movementId         = fields[78].GetUInt32();
+        creatureTemplate.RegenHealth        = fields[79].GetBool();
+        creatureTemplate.equipmentId        = fields[80].GetUInt32();
+        creatureTemplate.MechanicImmuneMask = fields[81].GetUInt32();
+        creatureTemplate.flags_extra        = fields[82].GetUInt32();
+        creatureTemplate.ScriptID           = GetScriptId(fields[83].GetCString());
 
         ++count;
     }
@@ -495,7 +494,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6     
+    //                                                0       1       2      3       4       5      6
     QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, auras FROM creature_template_addon");
 
     if (!result)
@@ -550,10 +549,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         }
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
-        {
-            sLog->outErrorDb("Creature (Entry: %u) has invalid emote (%u) defined in `creature_addon`.", entry, creatureAddon.emote);
-            creatureAddon.emote = 0;
-        }
+            sLog->outErrorDb("Creature (Entry: %u) has invalid emote (%u) defined in `creature_template_addon`.", entry, creatureAddon.emote);
 
         ++count;
     }
@@ -797,12 +793,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->InhabitType = INHABIT_ANYWHERE;
     }
 
-    if (cInfo->HoverHeight < 0.0f)
-    {
-        sLog->outErrorDb("Creature (Entry: %u) has wrong value (%f) in `HoverHeight`", cInfo->Entry, cInfo->HoverHeight);
-        const_cast<CreatureTemplate*>(cInfo)->HoverHeight = 1.0f;
-    }
-
     if (cInfo->VehicleId)
     {
         VehicleEntry const* vehId = sVehicleStore.LookupEntry(cInfo->VehicleId);
@@ -872,7 +862,7 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6 
+    //                                                0       1       2      3       4       5      6
     QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, auras FROM creature_addon");
 
     if (!result)
@@ -909,7 +899,7 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.bytes1  = fields[3].GetUInt32();
         creatureAddon.bytes2  = fields[4].GetUInt32();
         creatureAddon.emote   = fields[5].GetUInt32();
-        
+
         Tokens tokens(fields[6].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
@@ -924,7 +914,7 @@ void ObjectMgr::LoadCreatureAddons()
             creatureAddon.auras[i++] = uint32(atol(*itr));
         }
 
-        if (creatureAddon.mount)
+      if (creatureAddon.mount)
         {
             if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
             {
@@ -934,10 +924,7 @@ void ObjectMgr::LoadCreatureAddons()
         }
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
-        {
             sLog->outErrorDb("Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", guid, creatureAddon.emote);
-            creatureAddon.emote = 0;
-        }
 
         ++count;
     }
@@ -6677,6 +6664,121 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
 uint32 ObjectMgr::GeneratePetNumber()
 {
     return ++_hiPetNumber;
+}
+
+// Loads the jail conf out of the database
+void ObjectMgr::LoadJailConf(void)
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail_conf`");
+    CharacterDatabase.CommitTransaction(trans);
+
+    if (!result)
+    {
+		sLog->outError(GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR1));
+		sLog->outError(GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR2));
+
+		m_jailconf_max_jails    = 3;
+		m_jailconf_max_duration = 672;
+		m_jailconf_min_reason   = 25;
+		m_jailconf_warn_player  = 1;
+		m_jailconf_amnestie     = 180;
+
+		m_jailconf_ally_x       = -8673.43f;
+		m_jailconf_ally_y       = 631.795f;
+		m_jailconf_ally_z       = 96.9406f;
+		m_jailconf_ally_o       = 2.1785f;
+		m_jailconf_ally_m       = 0;
+
+		m_jailconf_horde_x      = 2179.85f;
+		m_jailconf_horde_y      = -4763.96f;
+		m_jailconf_horde_z      = 54.911f;
+		m_jailconf_horde_o      = 4.44216f;
+		m_jailconf_horde_m      = 1;
+
+		m_jailconf_ban          = 0;
+		m_jailconf_radius       = 10;
+
+        return;
+    }
+do
+{
+    Field *fields = result->Fetch();
+    m_jail_obt = fields[1].GetString();
+	if (m_jail_obt == "m_jailconf_max_jails")
+	{
+      m_jailconf_max_jails    = fields[2].GetUInt32();
+	}
+	if (m_jail_obt == "m_jailconf_max_duration")
+	{
+	  m_jailconf_max_duration = fields[2].GetUInt32();
+	}
+	if (m_jail_obt == "m_jailconf_min_reason")
+	{
+      m_jailconf_min_reason   = fields[2].GetUInt32();
+	}
+	if (m_jail_obt == "m_jailconf_warn_player")
+	{
+      m_jailconf_warn_player  = fields[2].GetUInt32();
+	}
+	if (m_jail_obt == "m_jailconf_amnestie")
+	{
+	  m_jailconf_amnestie     = fields[2].GetUInt32();
+	}
+	if (m_jail_obt == "m_jailconf_ally_x")
+	{
+      m_jailconf_ally_x       = fields[3].GetFloat();
+	}
+	if (m_jail_obt == "m_jailconf_ally_y")
+	{
+      m_jailconf_ally_y       = fields[3].GetFloat();
+	}
+	if (m_jail_obt == "m_jailconf_ally_z")
+	{
+      m_jailconf_ally_z       = fields[3].GetFloat();
+	}
+	if (m_jail_obt == "m_jailconf_ally_o")
+	{
+      m_jailconf_ally_o       = fields[3].GetFloat();
+	}
+	if (m_jail_obt == "m_jailconf_ally_m")
+	{
+      m_jailconf_ally_m       = fields[2].GetUInt32();
+	}
+	if (m_jail_obt == "m_jailconf_horde_x")
+	{
+      m_jailconf_horde_x      = fields[3].GetFloat();
+	}
+	if (m_jail_obt == "m_jailconf_horde_y")
+	{
+      m_jailconf_horde_y      = fields[3].GetFloat();
+	}
+	if (m_jail_obt == "m_jailconf_horde_z")
+	{
+      m_jailconf_horde_z      = fields[3].GetFloat();
+	}
+	if (m_jail_obt == "m_jailconf_horde_o")
+	{
+      m_jailconf_horde_o      = fields[3].GetFloat();
+	}
+	if (m_jail_obt == "m_jailconf_horde_m")
+	{
+      m_jailconf_horde_m      = fields[2].GetUInt32();
+	}
+	if (m_jail_obt == "m_jailconf_ban")
+	{
+      m_jailconf_ban = fields[2].GetUInt32();
+	}
+	if (m_jail_obt == "m_jailconf_radius")
+	{
+      m_jailconf_radius = fields[2].GetUInt32();
+	}
+}
+while (result->NextRow());
+
+    sLog->outString("");
+    sLog->outString(GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
+    sLog->outString("");
 }
 
 void ObjectMgr::LoadCorpses()

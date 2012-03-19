@@ -113,9 +113,9 @@ class boss_janalai : public CreatureScript
 
         struct boss_janalaiAI : public ScriptedAI
         {
-            boss_janalaiAI(Creature* creature) : ScriptedAI(creature)
+            boss_janalaiAI(Creature* c) : ScriptedAI(c)
             {
-                instance = creature->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
 
             InstanceScript* instance;
@@ -448,7 +448,7 @@ class mob_janalai_firebomb : public CreatureScript
 
         struct mob_janalai_firebombAI : public ScriptedAI
         {
-            mob_janalai_firebombAI(Creature* creature) : ScriptedAI(creature){}
+            mob_janalai_firebombAI(Creature* c) : ScriptedAI(c){}
 
             void Reset() {}
 
@@ -484,9 +484,9 @@ class mob_janalai_hatcher : public CreatureScript
 
         struct mob_janalai_hatcherAI : public ScriptedAI
         {
-            mob_janalai_hatcherAI(Creature* creature) : ScriptedAI(creature)
+            mob_janalai_hatcherAI(Creature* c) : ScriptedAI(c)
             {
-                instance = creature->GetInstanceScript();
+                instance =c->GetInstanceScript();
             }
 
             InstanceScript* instance;
@@ -616,9 +616,9 @@ class mob_janalai_hatchling : public CreatureScript
 
         struct mob_janalai_hatchlingAI : public ScriptedAI
         {
-            mob_janalai_hatchlingAI(Creature* creature) : ScriptedAI(creature)
+            mob_janalai_hatchlingAI(Creature* c) : ScriptedAI(c)
             {
-                instance = creature->GetInstanceScript();
+                instance =c->GetInstanceScript();
             }
 
             InstanceScript* instance;
@@ -632,7 +632,7 @@ class mob_janalai_hatchling : public CreatureScript
                 else
                     me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[1][3][2]);
 
-                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
             }
 
             void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}

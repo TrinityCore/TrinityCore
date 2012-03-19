@@ -25,13 +25,9 @@ namespace Movement
 {
     UnitMoveType SelectSpeedType(uint32 moveFlags)
     {
-        /*! Not sure about MOVEMENTFLAG_CAN_FLY here - do creatures that can fly
-            but are on ground right now also have it? If yes, this needs a more
-            dynamic check, such as is flying now
-        */
-        if (moveFlags & (MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY))
+        if (moveFlags & MOVEMENTFLAG_FLYING)
         {
-            if (moveFlags & MOVEMENTFLAG_BACKWARD /*&& speed_obj.flight >= speed_obj.flight_back*/)
+            if ( moveFlags & MOVEMENTFLAG_BACKWARD /*&& speed_obj.flight >= speed_obj.flight_back*/ )
                 return MOVE_FLIGHT_BACK;
             else
                 return MOVE_FLIGHT;
@@ -45,7 +41,7 @@ namespace Movement
         }
         else if (moveFlags & MOVEMENTFLAG_WALKING)
         {
-            //if (speed_obj.run > speed_obj.walk)
+            //if ( speed_obj.run > speed_obj.walk )
             return MOVE_WALK;
         }
         else if (moveFlags & MOVEMENTFLAG_BACKWARD /*&& speed_obj.run >= speed_obj.run_back*/)
@@ -104,7 +100,7 @@ namespace Movement
     {
         // mix existing state into new
         args.flags.walkmode = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
-        args.flags.flying = unit.m_movementInfo.HasMovementFlag((MovementFlags)(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_DISABLE_GRAVITY));
+        args.flags.flying = unit.m_movementInfo.HasMovementFlag((MovementFlags)(MOVEMENTFLAG_FLYING|MOVEMENTFLAG_LEVITATING));
     }
 
     void MoveSplineInit::SetFacing(const Unit * target)

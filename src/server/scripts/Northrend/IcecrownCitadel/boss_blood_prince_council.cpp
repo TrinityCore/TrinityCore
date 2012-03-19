@@ -197,12 +197,12 @@ class boss_blood_council_controller : public CreatureScript
                 if (instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == IN_PROGRESS)
                     return;
 
-                if (!instance->CheckRequiredBosses(DATA_BLOOD_PRINCE_COUNCIL, who->ToPlayer()))
+                /*if (!instance->CheckRequiredBosses(DATA_BLOOD_PRINCE_COUNCIL, who->ToPlayer()))
                 {
                     EnterEvadeMode();
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
-                }
+                }*/
 
                 instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, IN_PROGRESS);
 
@@ -1058,7 +1058,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                me->SetDisableGravity(true);
+                me->SetLevitate(true);
                 if (_instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == DONE)
                 {
                     me->SetVisible(false);

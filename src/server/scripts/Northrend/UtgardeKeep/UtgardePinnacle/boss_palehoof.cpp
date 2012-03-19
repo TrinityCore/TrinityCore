@@ -49,7 +49,6 @@ enum Yells
     SAY_AGGRO                                = -1575000,
     SAY_SLAY_1                               = -1575001,
     SAY_SLAY_2                               = -1575002,
-    SAY_DEATH                                = -1575003
 };
 
 enum Creatures
@@ -94,9 +93,9 @@ public:
 
     struct boss_palehoofAI : public ScriptedAI
     {
-        boss_palehoofAI(Creature* creature) : ScriptedAI(creature)
+        boss_palehoofAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcingSmashTimer;
@@ -152,8 +151,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* who)
         {
+            me->GetMotionMaster()->MoveChase(who);
             DoScriptText(SAY_AGGRO, me);
         }
 
@@ -211,7 +211,6 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
             if (instance)
                 instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, DONE);
             Creature* temp = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_ORB) : 0);
@@ -297,9 +296,9 @@ public:
 
     struct mob_ravenous_furbolgAI : public ScriptedAI
     {
-        mob_ravenous_furbolgAI(Creature* creature) : ScriptedAI(creature)
+        mob_ravenous_furbolgAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiChainLightingTimer;
@@ -323,6 +322,11 @@ public:
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            me->GetMotionMaster()->MoveChase(who);
         }
 
         void UpdateAI(const uint32 diff)
@@ -410,9 +414,9 @@ public:
 
     struct mob_frenzied_worgenAI : public ScriptedAI
     {
-        mob_frenzied_worgenAI(Creature* creature) : ScriptedAI(creature)
+        mob_frenzied_worgenAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiMortalWoundTimer;
@@ -436,6 +440,11 @@ public:
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            me->GetMotionMaster()->MoveChase(who);
         }
 
         void UpdateAI(const uint32 diff)
@@ -526,9 +535,9 @@ public:
 
     struct mob_ferocious_rhinoAI : public ScriptedAI
     {
-        mob_ferocious_rhinoAI(Creature* creature) : ScriptedAI(creature)
+        mob_ferocious_rhinoAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiStompTimer;
@@ -552,6 +561,11 @@ public:
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            me->GetMotionMaster()->MoveChase(who);
         }
 
         void UpdateAI(const uint32 diff)
@@ -646,9 +660,9 @@ public:
 
     struct mob_massive_jormungarAI : public ScriptedAI
     {
-        mob_massive_jormungarAI(Creature* creature) : ScriptedAI(creature)
+        mob_massive_jormungarAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiAcidSpitTimer;
@@ -672,6 +686,11 @@ public:
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            me->GetMotionMaster()->MoveChase(who);
         }
 
         void UpdateAI(const uint32 diff)
@@ -752,9 +771,9 @@ public:
 
     struct mob_palehoof_orbAI : public ScriptedAI
     {
-        mob_palehoof_orbAI(Creature* creature) : ScriptedAI(creature)
+        mob_palehoof_orbAI(Creature* c) : ScriptedAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -765,7 +784,6 @@ public:
         {
             currentPhase = PHASE_NONE;
             SummonTimer = 5000;
-            //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->RemoveAurasDueToSpell(SPELL_ORB_VISUAL);
             me->SetSpeed(MOVE_FLIGHT, 0.5f);
@@ -844,6 +862,10 @@ public:
         {
             pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             pGO->SetGoState(GO_STATE_ACTIVE);
+
+            if(InstanceScript* instance = pGO->GetInstanceScript())
+                if(instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
+                    return true;
 
             CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }

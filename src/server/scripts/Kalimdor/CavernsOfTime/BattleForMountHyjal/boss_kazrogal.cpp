@@ -52,9 +52,9 @@ public:
 
     struct boss_kazrogalAI : public hyjal_trashAI
     {
-        boss_kazrogalAI(Creature* creature) : hyjal_trashAI(creature)
+        boss_kazrogalAI(Creature* c) : hyjal_trashAI(c)
         {
-            instance = creature->GetInstanceScript();
+            instance = c->GetInstanceScript();
             go = false;
             pos = 0;
         }
