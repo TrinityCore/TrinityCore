@@ -309,8 +309,13 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(15));
             switch (rand()%2)
             {
-                case 0: me->SetStandState(UNIT_STAND_STATE_SIT); break;
-                case 1: me->SetStandState(UNIT_STAND_STATE_SLEEP); break;
+                case 0:
+                    me->SetStandState(UNIT_STAND_STATE_SIT);
+                    break;
+
+                case 1:
+                    me->SetStandState(UNIT_STAND_STATE_SLEEP);
+                    break;
             }
         }
 

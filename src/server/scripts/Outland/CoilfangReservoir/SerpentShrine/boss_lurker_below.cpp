@@ -383,12 +383,11 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || me->getVictim()) return;
+            if (!who || me->getVictim())
+                return;
 
             if (who->isInAccessiblePlaceFor(me) && me->IsValidAttackTarget(who) && me->IsWithinDistInMap(who, 45))
-            {
                 AttackStart(who);
-            }
         }
 
         void UpdateAI(const uint32 diff)

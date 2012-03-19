@@ -194,9 +194,9 @@ class boss_nazan : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_nazanAI (Creature);
+            return new boss_nazanAI(creature);
         }
 };
 
@@ -272,9 +272,9 @@ class boss_vazruden : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_vazrudenAI (Creature);
+            return new boss_vazrudenAI(creature);
         }
 };
 
@@ -453,9 +453,9 @@ class boss_vazruden_the_herald : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_vazruden_the_heraldAI (Creature);
+            return new boss_vazruden_the_heraldAI(creature);
         }
 };
 
@@ -503,9 +503,9 @@ class mob_hellfire_sentry : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_hellfire_sentryAI (Creature);
+            return new mob_hellfire_sentryAI(creature);
         }
 };
 void AddSC_boss_vazruden_the_herald()

@@ -112,9 +112,11 @@ public:
             return;
         }
 
-        void SetTeronGUID(uint64 guid){ TeronGUID = guid; }
+        void SetTeronGUID(uint64 guid)
+        {
+            TeronGUID = guid;
+        }
     };
-
 };
 
 class mob_shadowy_construct : public CreatureScript
@@ -316,7 +318,8 @@ public:
 
         void SetThreatList(Creature* Blossom)
         {
-            if (!Blossom) return;
+            if (!Blossom)
+                return;
 
             std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();

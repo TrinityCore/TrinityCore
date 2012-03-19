@@ -35,7 +35,7 @@ public:
 
     struct npc_valkyr_battle_maidenAI : public PassiveAI
     {
-        npc_valkyr_battle_maidenAI(Creature* c) : PassiveAI(c) {}
+        npc_valkyr_battle_maidenAI(Creature* creature) : PassiveAI(creature) {}
 
         uint32 FlyBackTimer;
         float x, y, z;

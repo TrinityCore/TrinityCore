@@ -194,9 +194,7 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
                 if (m_uiChatTimer <= uiDiff)
-                {
                     m_uiChatTimer = 12000;
-                }
                 else
                     m_uiChatTimer -= uiDiff;
             }
@@ -209,9 +207,7 @@ public:
         {
             DoScriptText(SAY_QUEST_ACCEPT, creature);
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(creature, NPC_MRFLOPPY, 180.0f))
-            {
                 Mrfloppy->GetMotionMaster()->MoveFollow(creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-            }
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
                 pEscortAI->Start(true, false, player->GetGUID());
@@ -318,7 +314,7 @@ public:
         void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
              if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
-            {
+             {
                 ++m_counter;
                 if (m_counter < 5)
                     DoCast(pCaster, SPELL_CAMERA_SHAKE, true);
@@ -327,8 +323,13 @@ public:
                 DoCast(me, SPELL_DUST_FIELD, true);
                 switch (m_gender)
                 {
-                    case GENDER_FEMALE: DoPlaySoundToSet(me, SOUND_FEMALE); break;
-                    case GENDER_MALE: DoPlaySoundToSet(me, SOUND_MALE); break;
+                    case GENDER_FEMALE:
+                        DoPlaySoundToSet(me, SOUND_FEMALE);
+                        break;
+
+                    case GENDER_MALE:
+                        DoPlaySoundToSet(me, SOUND_MALE);
+                        break;
                 }
             }
         }
@@ -477,7 +478,7 @@ public:
 
         uint32 DespawnTimer;
 
-        void Reset ()
+        void Reset()
         {
             DespawnTimer = 5000;
             uiPlayerGUID = 0;
@@ -503,7 +504,6 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     me->DespawnOrUnsummon(DespawnTimer);
                 }
-
             }
         }
 
@@ -511,6 +511,7 @@ public:
         {
             if (!UpdateVictim())
                 return;
+
             DoMeleeAttackIfReady();
         }
     };
@@ -695,12 +696,12 @@ public:
 
 void AddSC_grizzly_hills()
 {
-    new npc_emily;
-    new npc_mrfloppy;
-    new npc_outhouse_bunny;
-    new npc_tallhorn_stag;
-    new npc_amberpine_woodsman;
-    new npc_wounded_skirmisher;
+    new npc_emily();
+    new npc_mrfloppy();
+    new npc_outhouse_bunny();
+    new npc_tallhorn_stag();
+    new npc_amberpine_woodsman();
+    new npc_wounded_skirmisher();
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
 }

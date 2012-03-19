@@ -485,8 +485,9 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
     recv_data.readPackGUID(old_mover_guid);
 
     MovementInfo mi;
-    mi.guid = old_mover_guid;
     ReadMovementInfo(recv_data, &mi);
+
+    mi.guid = old_mover_guid;
 
     _player->m_movementInfo = mi;
 }
@@ -513,6 +514,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
 
     MovementInfo movementInfo;
     ReadMovementInfo(recv_data, &movementInfo);
+
     _player->m_movementInfo = movementInfo;
 
     WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
@@ -570,4 +572,3 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recv_data)
 
     _player->SummonIfPossible(agree);
 }
-

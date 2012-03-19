@@ -109,7 +109,8 @@ class instance_zulaman : public InstanceMapScript
             bool IsEncounterInProgress() const
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS) return true;
+                    if (m_auiEncounter[i] == IN_PROGRESS)
+                        return true;
 
                 return false;
             }
@@ -188,7 +189,9 @@ class instance_zulaman : public InstanceMapScript
 
             void Load(const char* load)
             {
-                if (!load) return;
+                if (!load)
+                    return;
+
                 std::istringstream ss(load);
                 //sLog->outError("TSCR: Zul'aman loaded, %s.", ss.str().c_str());
                 char dataHead; // S

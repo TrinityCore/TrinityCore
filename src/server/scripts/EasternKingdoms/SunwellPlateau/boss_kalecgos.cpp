@@ -676,7 +676,9 @@ public:
         void TeleportAllPlayersBack()
         {
             Map* map = me->GetMap();
-            if (!map->IsDungeon()) return;
+            if (!map->IsDungeon())
+                return;
+
             Map::PlayerList const &PlayerList = map->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {

@@ -278,6 +278,7 @@ void PetAI::KilledUnit(Unit* victim)
     // next target selection
     me->AttackStop();
     me->GetCharmInfo()->SetIsCommandAttack(false);
+    me->SendMeleeAttackStop();  // Stops the pet's 'Attack' button from flashing
 
     Unit* nextTarget = SelectNextTarget();
 
@@ -457,7 +458,7 @@ bool PetAI::CanAttack(Unit* target)
 
     // Stay - can attack if target is within range or commanded to
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
-        return (me->IsWithinMeleeRange(target, MIN_MELEE_REACH) || me->GetCharmInfo()->IsCommandAttack());
+        return (me->IsWithinMeleeRange(target, MELEE_RANGE) || me->GetCharmInfo()->IsCommandAttack());
 
     // Follow
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
