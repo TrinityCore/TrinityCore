@@ -1,5 +1,0 @@
-ALTER TABLE `character_gifts`
-CHANGE `guid` `guid` INT(10) UNSIGNED DEFAULT '0' NOT NULL,
-CHANGE `item_guid` `item_guid` INT(10) UNSIGNED DEFAULT '0' NOT NULL,
-CHANGE `entry` `entry` INT(10) UNSIGNED DEFAULT '0' NOT NULL,
-CHANGE `flags` `flags` INT(10) UNSIGNED DEFAULT '0' NOT NULL;
