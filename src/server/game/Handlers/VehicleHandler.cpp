@@ -81,7 +81,9 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
             uint64 guid;        // current vehicle guid
             recv_data.readPackGUID(guid);
 
-            ReadMovementInfo(recv_data, &vehicle_base->m_movementInfo);
+            MovementInfo movementInfo;
+            ReadMovementInfo(recv_data, &movementInfo);
+            vehicle_base->m_movementInfo = movementInfo;
 
             uint64 accessory;        //  accessory guid
             recv_data.readPackGUID(accessory);

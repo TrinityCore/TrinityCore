@@ -293,7 +293,7 @@ public:
 
     struct npc_unworthy_initiate_anchorAI : public PassiveAI
     {
-        npc_unworthy_initiate_anchorAI(Creature* c) : PassiveAI(c), prisonerGUID(0) {}
+        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID(0) {}
 
         uint64 prisonerGUID;
 
@@ -303,9 +303,11 @@ public:
                 prisonerGUID = guid;
         }
 
-        uint64 GetGUID(int32 /*id*/) { return prisonerGUID; }
+        uint64 GetGUID(int32 /*id*/)
+        {
+            return prisonerGUID;
+        }
     };
-
 };
 
 class go_acherus_soul_prison : public GameObjectScript
@@ -702,7 +704,9 @@ public:
         void Reset()
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
-            if (!deathcharger) return;
+            if (!deathcharger)
+                return;
+
             deathcharger->RestoreFaction();
             deathcharger->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             deathcharger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -713,7 +717,9 @@ public:
         void JustDied(Unit* killer)
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
-            if (!deathcharger) return;
+            if (!deathcharger)
+                return;
+
             if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
             {
                 deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -868,14 +874,14 @@ class npc_scarlet_miner_cart : public CreatureScript
 public:
     npc_scarlet_miner_cart() : CreatureScript("npc_scarlet_miner_cart") { }
 
-    CreatureAI* GetAI(Creature* _Creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_scarlet_miner_cartAI(_Creature);
+        return new npc_scarlet_miner_cartAI(creature);
     }
 
     struct npc_scarlet_miner_cartAI : public PassiveAI
     {
-        npc_scarlet_miner_cartAI(Creature* c) : PassiveAI(c), minerGUID(0)
+        npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature), minerGUID(0)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
@@ -924,9 +930,9 @@ class npc_scarlet_miner : public CreatureScript
 public:
     npc_scarlet_miner() : CreatureScript("npc_scarlet_miner") { }
 
-    CreatureAI* GetAI(Creature* _Creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_scarlet_minerAI(_Creature);
+        return new npc_scarlet_minerAI(creature);
     }
 
     struct npc_scarlet_minerAI : public npc_escortAI
@@ -1057,7 +1063,7 @@ class go_inconspicuous_mine_car : public GameObjectScript
 public:
     go_inconspicuous_mine_car() : GameObjectScript("go_inconspicuous_mine_car") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
         {

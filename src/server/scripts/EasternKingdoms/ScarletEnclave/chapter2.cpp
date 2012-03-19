@@ -111,12 +111,33 @@ public:
 
                     switch (uiSpeech_counter)
                     {
-                        case 1: DoScriptText(SAY_PERSUADED1, me); uiSpeech_timer = 8000; break;
-                        case 2: DoScriptText(SAY_PERSUADED2, me); uiSpeech_timer = 8000; break;
-                        case 3: DoScriptText(SAY_PERSUADED3, me); uiSpeech_timer = 8000; break;
-                        case 4: DoScriptText(SAY_PERSUADED4, me); uiSpeech_timer = 8000; break;
-                        case 5: DoScriptText(SAY_PERSUADED5, player); uiSpeech_timer = 8000; break;
-                        case 6: DoScriptText(SAY_PERSUADED6, me);
+                        case 1:
+                            DoScriptText(SAY_PERSUADED1, me);
+                            uiSpeech_timer = 8000;
+                            break;
+
+                        case 2:
+                            DoScriptText(SAY_PERSUADED2, me);
+                            uiSpeech_timer = 8000;
+                            break;
+
+                        case 3:
+                            DoScriptText(SAY_PERSUADED3, me);
+                            uiSpeech_timer = 8000;
+                            break;
+
+                        case 4:
+                            DoScriptText(SAY_PERSUADED4, me);
+                            uiSpeech_timer = 8000;
+                            break;
+
+                        case 5:
+                            DoScriptText(SAY_PERSUADED5, player);
+                            uiSpeech_timer = 8000;
+                            break;
+
+                        case 6:
+                            DoScriptText(SAY_PERSUADED6, me);
                             player->Kill(me);
                             //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -705,7 +726,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -733,7 +756,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -761,7 +786,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -789,7 +816,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -817,7 +846,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -845,7 +876,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -873,7 +906,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -901,7 +936,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -929,7 +966,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -957,7 +996,9 @@ public:
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
-                                case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
+                                case 10:
+                                    DoScriptText(SAY_EXEC_WAITING, me, player);
+                                    break;
                                 case 11:
                                     DoScriptText(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
@@ -979,7 +1020,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_the_scarlet_enclave_c2()

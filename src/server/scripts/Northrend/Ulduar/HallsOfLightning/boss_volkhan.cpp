@@ -79,10 +79,10 @@ public:
     {
         boss_volkhanAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         std::list<uint64> m_lGolemGUIDList;
 
@@ -117,16 +117,16 @@ public:
             DespawnGolem();
             m_lGolemGUIDList.clear();
 
-            if (m_instance)
-                m_instance->SetData(TYPE_VOLKHAN, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_VOLKHAN, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
 
-            if (m_instance)
-                m_instance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who)
@@ -147,8 +147,8 @@ public:
             Talk(SAY_DEATH);
             DespawnGolem();
 
-            if (m_instance)
-                m_instance->SetData(TYPE_VOLKHAN, DONE);
+            if (instance)
+                instance->SetData(TYPE_VOLKHAN, DONE);
 
             if (IsHeroic() && GolemsShattered < 5)
             {

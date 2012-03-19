@@ -108,7 +108,10 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        {
+            damage = 0;
+        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -148,9 +151,12 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
-    };
 
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        {
+            damage = 0;
+        }
+    };
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
@@ -188,7 +194,10 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        {
+            damage = 0;
+        }
 
         void UpdateAI(const uint32 diff)
         {

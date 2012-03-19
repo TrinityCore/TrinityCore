@@ -537,7 +537,13 @@ void Pet::Update(uint32 diff)
                             Regenerate(POWER_FOCUS);
                             m_regenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
                             if (!m_regenTimer) ++m_regenTimer;
+
+                            // Reset if large diff (lag) causes focus to get 'stuck'
+                            if (m_regenTimer > PET_FOCUS_REGEN_INTERVAL)
+                                m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
+
                             break;
+
                         // in creature::update
                         //case POWER_ENERGY:
                         //    Regenerate(POWER_ENERGY);
@@ -1366,7 +1372,8 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     {
         for (PetSpellMap::const_iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
         {
-            if (itr2->second.state == PETSPELL_REMOVED) continue;
+            if (itr2->second.state == PETSPELL_REMOVED)
+                continue;
 
             SpellInfo const* oldRankSpellInfo = sSpellMgr->GetSpellInfo(itr2->first);
 

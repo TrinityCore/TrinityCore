@@ -405,7 +405,6 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetDisplayId(MODEL_INVIS);
             go = false;
-            pos = 0;
             Reset();
         }
 
@@ -413,7 +412,6 @@ public:
         bool CanMove;
         bool WpEnabled;
         bool go;
-        uint32 pos;
         uint32 spawnTimer;
         uint32 FlameBuffetTimer;
         bool imol;
@@ -429,7 +427,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 0 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
@@ -543,13 +540,11 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
             Reset();
         }
 
         bool go;
         uint32 KnockDownTimer;
-        uint32 pos;
         void Reset()
         {
             KnockDownTimer = 10000;
@@ -557,7 +552,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
@@ -644,13 +638,11 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
             Reset();
         }
 
         bool go;
         uint32 FrenzyTimer;
-        uint32 pos;
         uint32 MoveTimer;
         bool RandomMove;
         void Reset()
@@ -662,7 +654,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
@@ -753,13 +744,13 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
             Reset();
         }
+
         SummonList summons;
         bool go;
         uint32 ShadowBoltTimer;
-        uint32 pos;
+
         void Reset()
         {
             ShadowBoltTimer = 1000+rand()%5000;
@@ -773,10 +764,14 @@ public:
                 summon->Attack(target, false);
             summons.Summon(summon);
         }
-        void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
+
+        void SummonedCreatureDespawn(Creature* summon)
+        {
+            summons.Despawn(summon);
+        }
+
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
@@ -815,8 +810,10 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
                 npc_escortAI::UpdateAI(diff);
+
             if (IsEvent)
             {
                 if (!go)
@@ -840,8 +837,10 @@ public:
                     }
                 }
             }
+
             if (!UpdateVictim())
                 return;
+
             if (ShadowBoltTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
@@ -874,7 +873,6 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
             Reset();
         }
 
@@ -882,7 +880,7 @@ public:
         uint32 CourseTimer;
         uint32 WailTimer;
         uint32 ShellTimer;
-        uint32 pos;
+
         void Reset()
         {
             CourseTimer = 20000+rand()%5000;
@@ -892,7 +890,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
@@ -979,13 +976,12 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
             Reset();
         }
 
         bool go;
         uint32 WebTimer;
-        uint32 pos;
+
         void Reset()
         {
             WebTimer = 20000+rand()%5000;
@@ -993,7 +989,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
@@ -1071,13 +1066,12 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
             Reset();
         }
 
         bool go;
         uint32 ManaBurnTimer;
-        uint32 pos;
+
         void Reset()
         {
             ManaBurnTimer = 9000+rand()%5000;
@@ -1085,7 +1079,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
@@ -1163,13 +1156,11 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
             Reset();
         }
 
         bool go;
         uint32 FrostBreathTimer;
-        uint32 pos;
         uint32 MoveTimer;
 
         void Reset()
@@ -1181,7 +1172,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 2 && instance && !IsOverrun)
             {
                 Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
@@ -1280,14 +1270,12 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
             DummyTarget[0] = 0;DummyTarget[1] = 0;DummyTarget[2] = 0;
             Reset();
         }
 
         bool go;
         uint32 StrikeTimer;
-        uint32 pos;
         uint32 MoveTimer;
         float Zpos;
         bool forcemove;
@@ -1303,7 +1291,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 2 && instance && !IsOverrun)
             {
                 Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
@@ -1382,8 +1369,9 @@ public:
                     float x, y, z;
                     me->getVictim()->GetPosition(x, y, z);
                     me->GetMotionMaster()->MovePoint(0, x, y, z+Zpos);
-                    Zpos-=1.0f;
-                    if (Zpos <= 0)Zpos=0;
+                    Zpos -= 1.0f;
+                    if (Zpos <= 0)
+                        Zpos = 0;
                     MoveTimer = 2000;
                 } else MoveTimer-=diff;
             }

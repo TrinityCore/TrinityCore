@@ -153,7 +153,7 @@ class boss_archaedas : public CreatureScript
                 // wake a wall minion
                 if (uiWallMinionTimer <= uiDiff)
                 {
-                    instance->SetData (DATA_MINIONS, IN_PROGRESS);
+                    instance->SetData(DATA_MINIONS, IN_PROGRESS);
 
                     uiWallMinionTimer = 10000;
                 } else uiWallMinionTimer -= uiDiff;
@@ -394,7 +394,7 @@ class go_altar_of_archaedas : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* /*pGO*/)
+        bool OnGossipHello(Player* player, GameObject* /*go*/)
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance)

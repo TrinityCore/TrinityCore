@@ -385,7 +385,8 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || (!who->isAlive())) return;
+            if (!who || (!who->isAlive()))
+                return;
 
             if (me->IsWithinDistInMap(who, 10.0f) && (who->GetTypeId() == TYPEID_PLAYER) && CAST_PLR(who)->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE && !EventInProgress)
             {
@@ -433,8 +434,10 @@ public:
                     if (BigWill)
                     {
                         Creature* creature = Unit::GetCreature((*me), BigWill);
-                        if (creature) {
-                            if (creature->isAlive()) {
+                        if (creature)
+                        {
+                            if (creature->isAlive())
+                            {
                                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 creature->setDeathState(JUST_DIED);

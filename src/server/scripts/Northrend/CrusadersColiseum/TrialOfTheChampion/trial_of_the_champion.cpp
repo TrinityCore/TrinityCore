@@ -363,13 +363,11 @@ public:
                     DoSummonGrandChampion(uiFirstBoss);
                     NextStep(10000,false,1);
                     break;
-                case DATA_IN_POSITION: //movement done.		
-    		    me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);			
-                    me->GetMotionMaster()->MovePoint(1,735.898f, 651.961f, 411.93f);
-                    DoScriptText(SAY_START2, me);
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                    pInstance->HandleGameObject(pGO->GetGUID(),false);
-                    NextStep(20000,false,3);
+                case DATA_IN_POSITION: //movement done.
+                    me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
+                    if (GameObject* go = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                        pInstance->HandleGameObject(go->GetGUID(), false);
+                    NextStep(10000, false, 3);
                     break;
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
                 {
