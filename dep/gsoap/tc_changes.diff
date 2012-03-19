@@ -1,0 +1,16 @@
+diff -r 830b8f9ed332 dep/gsoap/stdsoap2.cpp
+--- a/dep/gsoap/stdsoap2.cpp    Tue Dec 21 10:07:43 2010 -0500
++++ b/dep/gsoap/stdsoap2.cpp    Tue Dec 21 10:07:55 2010 -0500
+@@ -15038,10 +15038,12 @@
+       }
+       s = soap->tmpbuf;
+     }
++/*
+     else if (status == SOAP_OK && soap->action && strlen(soap->action) < sizeof(soap->tmpbuf) - 80)
+     { sprintf(soap->tmpbuf, "%s; action=\"%s\"", s, soap->action);
+       s = soap->tmpbuf;
+     }
++*/
+ #endif
+     if (s && (err = soap->fposthdr(soap, "Content-Type", s)))
+       return err;

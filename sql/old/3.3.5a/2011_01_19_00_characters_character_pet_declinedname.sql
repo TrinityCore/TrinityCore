@@ -1,0 +1,4 @@
+ALTER TABLE `character_pet_declinedname`
+ROW_FORMAT=DEFAULT,
+CHANGE `id` `id` INT(10) UNSIGNED DEFAULT '0' NOT NULL,
+CHANGE `owner` `owner` INT(10) UNSIGNED DEFAULT '0' NOT NULL;
