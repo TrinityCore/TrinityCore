@@ -1,6 +1,8 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008 - 2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * Copyright (C) 2011 - 2012 ArkCORE <http://www.arkania.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,16 +32,20 @@ enum eEnums
 {
     ACHIEV_TIMELY_DEATH_START_EVENT               = 20384,
 
-    SAY_INTRO_1                                   = 0,
-    SAY_INTRO_2                                   = 1,
-    SAY_AGGRO                                     = 2,
-    SAY_NOVA                                      = 3,
-    SAY_SLAY                                      = 4,
-    SAY_75HEALTH                                  = 5,
-    SAY_50HEALTH                                  = 6,
-    SAY_25HEALTH                                  = 7,
-    SAY_DEATH                                     = 8,
-    EMOTE_NOVA                                    = 9,
+    SAY_AGGRO                                     = -1602018,
+    SAY_INTRO_1                                   = -1602019,
+    SAY_INTRO_2                                   = -1602020,
+    SAY_SLAY_1                                    = -1602021,
+    SAY_SLAY_2                                    = -1602022,
+    SAY_SLAY_3                                    = -1602023,
+    SAY_DEATH                                     = -1602024,
+    SAY_NOVA_1                                    = -1602025,
+    SAY_NOVA_2                                    = -1602026,
+    SAY_NOVA_3                                    = -1602027,
+    SAY_75HEALTH                                  = -1602028,
+    SAY_50HEALTH                                  = -1602029,
+    SAY_25HEALTH                                  = -1602030,
+    EMOTE_NOVA                                    = -1602031,
 
     SPELL_ARC_LIGHTNING                           = 52921,
     SPELL_LIGHTNING_NOVA_N                        = 52960,
@@ -68,18 +74,18 @@ public:
     {
         boss_lokenAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
-        InstanceScript* instance;
+        InstanceScript* m_pInstance;
 
         bool m_bIsAura;
+        bool bHit;
 
         uint32 m_uiArcLightning_Timer;
         uint32 m_uiLightningNova_Timer;
         uint32 m_uiPulsingShockwave_Timer;
         uint32 m_uiResumePulsingShockwave_Timer;
-
         uint32 m_uiHealthAmountModifier;
 
         void Reset()
@@ -93,35 +99,61 @@ public:
 
             m_uiHealthAmountModifier = 1;
 
-            if (instance)
+            if (m_pInstance)
             {
-                instance->SetData(TYPE_LOKEN, NOT_STARTED);
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+                m_pInstance->SetData(TYPE_LOKEN, NOT_STARTED);
+                m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
             }
+        }
+
+        void SpellHitTarget(Unit * target, const SpellEntry * spell)
+        {
+            if (spell->Id==SPELL_ARC_LIGHTNING && bHit)
+                if (rand()%100<DUNGEON_MODE(65,80))
+                {
+                    bHit=false;
+                    DoCast(target->GetNextRandomRaidMemberOrPet(10.0f),SPELL_ARC_LIGHTNING);
+                }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            Talk(SAY_AGGRO);
-
-            if (instance)
+            DoScriptText(SAY_AGGRO, me);
+           
+            if(m_pInstance)
             {
-                instance->SetData(TYPE_LOKEN, IN_PROGRESS);
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+                m_pInstance->SetData(TYPE_LOKEN, IN_PROGRESS);
+                m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+               
+                if (m_pInstance->GetData(TYPE_IONAR)!=DONE)
+                {
+                    Map *pMap = me->GetMap();
+                    if (pMap->IsDungeon())
+                    {
+                        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                        if (PlayerList.isEmpty())
+                            return;
+ 
+                        float fDist=0;
+                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                            if (i->getSource() && i->getSource()->isAlive() && !i->getSource()->isGameMaster())
+                                me->DealDamage(i->getSource(),i->getSource()->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    }
+                }
             }
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            Talk(SAY_DEATH);
+            DoScriptText(SAY_DEATH, me);
 
-            if (instance)
-                instance->SetData(TYPE_LOKEN, DONE);
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_LOKEN, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            Talk(SAY_SLAY);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -135,26 +167,25 @@ public:
                 // workaround for PULSING_SHOCKWAVE
                 if (m_uiPulsingShockwave_Timer <= uiDiff)
                 {
-                    Map* map = me->GetMap();
-                    if (map->IsDungeon())
+                    Map* pMap = me->GetMap();
+                    if (pMap->IsDungeon())
                     {
-                        Map::PlayerList const &PlayerList = map->GetPlayers();
+                        Map::PlayerList const &PlayerList = pMap->GetPlayers();
 
                         if (PlayerList.isEmpty())
                             return;
 
+                        float fDist=0;
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                             if (i->getSource() && i->getSource()->isAlive() && i->getSource()->isTargetableForAttack())
                             {
-                                int32 dmg;
-                                float m_fDist = me->GetExactDist(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ());
-
-                                dmg = DUNGEON_MODE(100, 150); // need to correct damage
-                                if (m_fDist > 1.0f) // Further from 1 yard
-                                    dmg = int32(dmg*m_fDist);
-
-                                me->CastCustomSpell(i->getSource(), DUNGEON_MODE(52942, 59837), &dmg, 0, 0, false);
+                                float fDistTemp = me->GetExactDist(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ());
+                                if (fDistTemp>fDist)
+                                    fDist=fDistTemp;
                             }
+                        int32 dmg= int32(DUNGEON_MODE(100, 150)*fDist);
+                        int32 range=200;
+                        me->CastCustomSpell(me->getVictim(), DUNGEON_MODE(52942, 59837), &dmg, &range, 0, false);
                     }
                     m_uiPulsingShockwave_Timer = 2000;
                 } else m_uiPulsingShockwave_Timer -= uiDiff;
@@ -166,7 +197,7 @@ public:
                     //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
                     DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
 
-                    DoCast(me, SPELL_PULSING_SHOCKWAVE_N); // need core support
+                    DoCast(me, DUNGEON_MODE(SPELL_PULSING_SHOCKWAVE_N,SPELL_PULSING_SHOCKWAVE_H)); // need core support
                     m_bIsAura = true;
                     m_uiResumePulsingShockwave_Timer = 0;
                 }
@@ -179,20 +210,21 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_ARC_LIGHTNING);
 
-                m_uiArcLightning_Timer = urand(15000, 16000);
+                bHit=true;
+                m_uiArcLightning_Timer = 15000 + rand()%1000;
             }
             else
                 m_uiArcLightning_Timer -= uiDiff;
 
             if (m_uiLightningNova_Timer <= uiDiff)
             {
-                Talk(SAY_NOVA);
-                Talk(EMOTE_NOVA);
-                DoCast(me, SPELL_LIGHTNING_NOVA_N);
+                DoScriptText(RAND(SAY_NOVA_1, SAY_NOVA_2, SAY_NOVA_3), me);
+                DoScriptText(EMOTE_NOVA, me);
+                DoCast(me, DUNGEON_MODE(SPELL_LIGHTNING_NOVA_N,SPELL_LIGHTNING_NOVA_H));
 
                 m_bIsAura = false;
                 m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura
-                m_uiLightningNova_Timer = urand(20000, 21000);
+                m_uiLightningNova_Timer = 20000 + rand()%1000;
             }
             else
                 m_uiLightningNova_Timer -= uiDiff;
@@ -202,9 +234,9 @@ public:
             {
                 switch (m_uiHealthAmountModifier)
                 {
-                    case 1: Talk(SAY_75HEALTH); break;
-                    case 2: Talk(SAY_50HEALTH); break;
-                    case 3: Talk(SAY_25HEALTH); break;
+                    case 1: DoScriptText(SAY_75HEALTH, me); break;
+                    case 2: DoScriptText(SAY_50HEALTH, me); break;
+                    case 3: DoScriptText(SAY_25HEALTH, me); break;
                 }
 
                 ++m_uiHealthAmountModifier;
@@ -213,7 +245,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_loken()
