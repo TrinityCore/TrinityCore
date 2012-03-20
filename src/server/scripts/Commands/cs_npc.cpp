@@ -131,7 +131,19 @@ public:
         {
             uint32 tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
             if (tguid > 0)
-                WorldDatabase.PExecute("INSERT INTO creature_transport (guid, npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (%u, %u, %f, %f, %f, %f, %u)", tguid, id, chr->GetTransport()->GetEntry(), chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+            {
+                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_TRANSPORT);
+
+                stmt->setInt32(0, int32(tguid));
+                stmt->setInt32(1, int32(id));
+                stmt->setInt32(2, int32(chr->GetTransport()->GetEntry()));
+                stmt->setFloat(3, chr->GetTransOffsetX());
+                stmt->setFloat(4, chr->GetTransOffsetY());
+                stmt->setFloat(5, chr->GetTransOffsetZ());
+                stmt->setFloat(6, chr->GetTransOffsetO());
+
+                WorldDatabase.Execute(stmt);
+            }
 
             return true;
         }
@@ -678,9 +690,16 @@ public:
             return false;
         }
 
-        if (target->GetTransport())
-            if (target->GetGUIDTransport())
-                WorldDatabase.PExecute("UPDATE creature_transport SET emote=%u WHERE transport_entry=%u AND guid=%u", emote, target->GetTransport()->GetEntry(), target->GetGUIDTransport());
+        if (target->GetTransport() && target->GetGUIDTransport())
+        {
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_TRANSPORT_EMOTE);
+
+            stmt->setInt16(0, int16(emote));
+            stmt->setInt32(1, target->GetTransport()->GetEntry());
+            stmt->setInt32(2, target->GetGUIDTransport());
+
+            WorldDatabase.Execute(stmt);
+        }
 
         target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
 

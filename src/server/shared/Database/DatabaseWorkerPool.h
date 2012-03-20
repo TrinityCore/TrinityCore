@@ -133,6 +133,7 @@ class DatabaseWorkerPool
         */
 
         //! Enqueues a one-way SQL operation in string format that will be executed asynchronously.
+        //! This method should only be used for queries that are only executed once, e.g during startup.
         void Execute(const char* sql)
         {
             if (!sql)
@@ -143,6 +144,7 @@ class DatabaseWorkerPool
         }
 
         //! Enqueues a one-way SQL operation in string format -with variable args- that will be executed asynchronously.
+        //! This method should only be used for queries that are only executed once, e.g during startup.
         void PExecute(const char* sql, ...)
         {
             if (!sql)
@@ -166,10 +168,11 @@ class DatabaseWorkerPool
         }
 
         /**
-            Direct syncrhonous one-way statement methods.
+            Direct synchronous one-way statement methods.
         */
 
         //! Directly executes a one-way SQL operation in string format, that will block the calling thread until finished.
+        //! This method should only be used for queries that are only executed once, e.g during startup.
         void DirectExecute(const char* sql)
         {
             if (!sql)
@@ -181,6 +184,7 @@ class DatabaseWorkerPool
         }
 
         //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
+        //! This method should only be used for queries that are only executed once, e.g during startup.
         void DirectPExecute(const char* sql, ...)
         {
             if (!sql)
