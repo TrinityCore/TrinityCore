@@ -890,6 +890,9 @@ uint32 BattlefieldWG::GetData(uint32 data)
             // Graveyards and Workshops are controlled by the same team.
             if (m_GraveYardList[GetSpiritGraveyardId(data)])
                 return m_GraveYardList[GetSpiritGraveyardId(data)]->GetControlTeamId();
+        default:
+            if (m_Data32[data])
+                return m_Data32[data];
     }
 
     return Battlefield::GetData(data);

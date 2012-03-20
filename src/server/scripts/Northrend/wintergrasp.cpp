@@ -38,7 +38,7 @@ enum eWGqueuenpctext
     WG_NPCQUEUE_TEXTOPTION_JOIN         = -1850507,
 };
 
-enum eWGdata
+enum WGscriptdata
 {
     // engineer spells
     SPELL_BUILD_CATAPULT                = 56663,
@@ -49,6 +49,9 @@ enum eWGdata
 
     // teleporter spells
     SPELL_VEHICLE_TELEPORT              = 49759,
+
+    // npcs
+    NPC_ROBOTIC_ARMS                    = 27852,
 };
 
 class npc_wg_demolisher_engineer : public CreatureScript
@@ -63,7 +66,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(1);
+        Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
 
         if (!BfWG)
             return true;
@@ -91,7 +94,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
     {
         player->CLOSE_GOSSIP_MENU();
 
-        Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(1);
+        Battlefield* BfWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
 
         if (!BfWG)
             return true;
@@ -113,8 +116,8 @@ class npc_wg_demolisher_engineer : public CreatureScript
             }
             //spell 49899 Emote : 406 from sniff
             //INSERT INTO `spell_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES ('49899', '0', '1', '406', '0', '0', '0', '0', '0', '0');
-            if (Creature* creature = creature->FindNearestCreature(27852, 30.0f, true))
-                creature->CastSpell(creature, SPELL_ACTIVATE_ROBOTIC_ARMS, true);
+            if (Creature* mechCreature = creature->FindNearestCreature(NPC_ROBOTIC_ARMS, 30.0f, true))
+                creature->CastSpell(mechCreature, SPELL_ACTIVATE_ROBOTIC_ARMS, true);
         }
         return true;
     }
