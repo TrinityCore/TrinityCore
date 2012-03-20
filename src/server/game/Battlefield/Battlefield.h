@@ -177,7 +177,7 @@ protected:
     Battlefield *m_Bf;
 };
 
-class Battlefield:public ZoneScript
+class Battlefield : public ZoneScript
 {
     friend class BattlefieldMgr;
 
