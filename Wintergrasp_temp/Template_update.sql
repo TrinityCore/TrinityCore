@@ -79,6 +79,14 @@ UPDATE `creature_template` SET `spell1`=54109, /* Ram */ `spell2`=0,`spell3`=0,`
 UPDATE `creature_template` SET `spell1`=54107, /* Ram */ `spell2`=50896, /* Hurl Boulder */ `spell3`=0,`spell4`=0,`spell5`=0,`spell6`=0,`spell7`=0,`spell8`=0 WHERE `entry`=28094; -- Wintergrasp Demolisher (H)
 UPDATE `creature_template` SET `spell1`=57606, /* Plague Barrel */ `spell2`=50989, /* Flame Breath */ `spell3`=0,`spell4`=0,`spell5`=0,`spell6`=0,`spell7`=0,`spell8`=0 WHERE `entry`=27881; -- Wintergrasp Catapult (Both)
 
+/* Spell target conditions for spawning WG siege machines in proper place while building it */
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (56575,56661,56663,61408);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 56575, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL),
+(13, 1, 56661, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL),
+(13, 1, 56663, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL),
+(13, 1, 61408, 0, 0, 31, 0, 3, 27852, 0, 0, 0, '', NULL);
+
 -- Note: Siege Engines, Demolisher faction is guess (vehicles get the faction of his driver)
 -- Demolisher spell positions is not confirmed
 -- Wintergrasp Tower Cannon H: 1735 A: 1732
