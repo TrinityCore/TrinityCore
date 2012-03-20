@@ -77,10 +77,9 @@ void BattlefieldMgr::HandlePlayerEnterZone(Player * player, uint32 zoneid)
     if (itr == m_BattlefieldMap.end())
         return;
 
-    if (itr->second->HasPlayer(player))
+    if (itr->second->HasPlayer(player) || !itr->second->IsEnabled())
         return;
-    if (itr->second->GetEnable() == false)
-        return;
+
     itr->second->HandlePlayerEnterZone(player, zoneid);
     sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
@@ -106,7 +105,7 @@ Battlefield *BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneid)
         // no handle for this zone, return
         return NULL;
     }
-    if (itr->second->GetEnable() == false)
+    if (!itr->second->IsEnabled())
         return NULL;
     return itr->second;
 }
@@ -127,7 +126,7 @@ void BattlefieldMgr::Update(uint32 diff)
     if (m_UpdateTimer > BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL)
     {
         for (BattlefieldSet::iterator itr = m_BattlefieldSet.begin(); itr != m_BattlefieldSet.end(); ++itr)
-            if ((*itr)->GetEnable())
+            if ((*itr)->IsEnabled())
                 (*itr)->Update(m_UpdateTimer);
         m_UpdateTimer = 0;
     }

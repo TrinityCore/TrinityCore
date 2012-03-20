@@ -108,15 +108,15 @@ public:
         if (!bf)
             return false;
 
-        if (bf->GetEnable())
+        if (bf->IsEnabled())
         {
-            bf->SetEnable(false);
+            bf->ToggleBattlefield(false);
             if (battleid == 1)
                 handler->SendGlobalGMSysMessage("Wintergrasp is disabled");
         }
         else
         {
-            bf->SetEnable(true);
+            bf->ToggleBattlefield(true);
             if (battleid == 1)
                 handler->SendGlobalGMSysMessage("Wintergrasp is enabled");
         }

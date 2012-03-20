@@ -60,7 +60,7 @@ void WorldSession::SendBfInvitePlayerToQueue(uint32 BattleId)
 //Param2:(ZoneId) the zone where the battle is (4197 for wg)
 //Param3:(CanQueue) if able to queue
 //Param4:(Full) on log in is full
-void WorldSession::SendBfQueueInviteResponce(uint32 BattleId,uint32 ZoneId, bool CanQueue, bool Full)
+void WorldSession::SendBfQueueInviteResponse(uint32 BattleId, uint32 ZoneId, bool CanQueue, bool Full)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 11);
     data << uint32(BattleId);
@@ -81,6 +81,7 @@ void WorldSession::SendBfEntered(uint32 BattleId)
     data << uint8(1);                                       //unk
     data << uint8(1);                                       //unk
     data << uint8(_player->isAFK() ? 1 : 0);                //Clear AFK
+
     SendPacket(&data);
 }
 
@@ -115,24 +116,22 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recv_data)
 //Send by client on clicking in accept or refuse of invitation windows for join game
 void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recv_data)
 {
-    uint32 BattleId;
-    uint8 Accepted;
+    uint32 battleId;
+    uint8 accepted;
 
-    recv_data >> BattleId >> Accepted;
-    sLog->outError("HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
-    Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
-    if (!Bf)
+    recv_data >> battleId >> accepted;
+    sLog->outError("HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u", battleId, accepted);
+    Battlefield* battlefield = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
+    if (!battlefield)
         return;
 
     //If player accept invitation
-    if (Accepted)
-    {
-        Bf->PlayerAcceptInviteToWar(_player);
-    }
+    if (accepted)
+        battlefield->PlayerAcceptInviteToWar(_player);
     else
     {
-        if (_player->GetZoneId() == Bf->GetZoneId())
-            Bf->KickPlayerFromBf(_player->GetGUID());
+        if (_player->GetZoneId() == battlefield->GetZoneId())
+            battlefield->KickPlayerFromBattlefield(_player->GetGUID());
     }
 }
 
