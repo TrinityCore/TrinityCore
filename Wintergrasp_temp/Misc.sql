@@ -44,11 +44,6 @@ INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`que
 (57940,4494,0,0,0,0,0,2,1),
 (57940,4603,0,0,0,0,0,2,1);
 
--- Spell scripts
-DELETE FROM `spell_scripts` WHERE `id`=49899;
-INSERT INTO `spell_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
-(49899,0,1,406,0,0,0,0,0,0); -- Activate Robotic Arms
-
 -- Spell Target position for Wintergrasp Graveyard spells
 DELETE FROM `spell_target_position` WHERE `id` IN (59760,59762,59763,59765,59766,59767,59769);
 INSERT INTO `spell_target_position` (`id`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES

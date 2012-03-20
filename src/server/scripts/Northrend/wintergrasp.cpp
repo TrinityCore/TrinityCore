@@ -40,17 +40,17 @@ enum eWGqueuenpctext
 
 enum Spells
 {
-    // Engineer spell
-    SPELL_BUILD_CATAPULT                = 56663,
-    SPELL_BUILD_DEMOLISHER              = 56575,
-    SPELL_BUILD_SIEGE_ENGINE_ALLIANCE   = 61408,
-    SPELL_BUILD_SIEGE_ENGINE_HORDE      = 56661,
-    SPELL_ACTIVATE_CONTROL_ARMS         = 49899,
+    // Demolisher engineers spells
+    SPELL_BUILD_SIEGE_VEHICLE_FORCE_1         = 61409, //
+    SPELL_BUILD_SIEGE_VEHICLE_FORCE_2         = 56662, // Which faction uses which ?
+    SPELL_BUILD_CATAPULT_FORCE                = 56664,
+    SPELL_BUILD_DEMOLISHER_FORCE              = 56659,
+    SPELL_ACTIVATE_CONTROL_ARMS               = 49899,
 
-    SPELL_VEHICLE_TELEPORT              = 49759,
+    SPELL_VEHICLE_TELEPORT                    = 49759,
 
     // Spirit guide
-    SPELL_CHANNEL_SPIRIT_HEAL           = 22011,
+    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011,
 };
 
 enum CreatureIds
@@ -58,10 +58,6 @@ enum CreatureIds
     NPC_GOBLIN_MECHANIC                 = 30400,
     NPC_GNOMISH_ENGINEER                = 30499,
 
-    NPC_WINTERGRASP_CATAPULT            = 27881,
-    NPC_WINTERGRASP_DEMOLISHER          = 28094,
-    NPC_WINTERGRASP_SIEGE_ENGINE        = 28312,
-    NPC_WINTERGRASP_SIEGE_ENGINE_2      = 32627,
     NPC_WINTERGRASP_CONTROL_ARMS        = 27852,
 
     NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC = 23742,
@@ -103,7 +99,7 @@ uint8 const MAX_WINTERGRASP_VEHICLES = 4;
 uint32 const vehiclesList[MAX_WINTERGRASP_VEHICLES] = {
     NPC_WINTERGRASP_CATAPULT,
     NPC_WINTERGRASP_DEMOLISHER,
-    NPC_WINTERGRASP_SIEGE_ENGINE,
+    NPC_WINTERGRASP_SIEGE_ENGINE_1,
     NPC_WINTERGRASP_SIEGE_ENGINE_2
 };
 
@@ -148,13 +144,13 @@ class npc_wg_demolisher_engineer : public CreatureScript
                 switch (action - GOSSIP_ACTION_INFO_DEF)
                 {
                     case 0:
-                        player->CastSpell(player, SPELL_BUILD_CATAPULT, false, NULL, NULL, creature->GetGUID());
+                        creature->CastSpell(player, SPELL_BUILD_CATAPULT_FORCE, true);
                         break;
                     case 1:
-                        player->CastSpell(player, SPELL_BUILD_DEMOLISHER, false, NULL, NULL, creature->GetGUID());
+                        creature->CastSpell(player, SPELL_BUILD_DEMOLISHER_FORCE, true);
                         break;
                     case 2:
-                        player->CastSpell(player, player->GetTeamId() == TEAM_ALLIANCE ? SPELL_BUILD_SIEGE_ENGINE_ALLIANCE : SPELL_BUILD_SIEGE_ENGINE_HORDE, false, NULL, NULL, creature->GetGUID());
+                        creature->CastSpell(player, player->GetTeamId() == TEAM_ALLIANCE ? SPELL_BUILD_SIEGE_VEHICLE_FORCE_1 : SPELL_BUILD_SIEGE_VEHICLE_FORCE_2, true);
                         break;
                 }
                 if (Creature* controlArms = creature->FindNearestCreature(NPC_WINTERGRASP_CONTROL_ARMS, 30.0f, true))
@@ -273,7 +269,7 @@ class npc_wg_queue : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* /*creature */ , uint32 /*sender */ , uint32 /*action */ )
+        bool OnGossipSelect(Player* player, Creature* /*creature */ , uint32 /*sender */ , uint32 /*action*/)
         {
             player->CLOSE_GOSSIP_MENU();
 
@@ -475,11 +471,52 @@ class npc_wg_quest_giver : public CreatureScript
         }
 };
 
+
+class spell_wintergrasp_force_building : public SpellScriptLoader
+{
+    public:
+        spell_wintergrasp_force_building() : SpellScriptLoader("spell_wintergrasp_force_building") { }
+
+        class spell_wintergrasp_force_building_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_wintergrasp_force_building_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BUILD_CATAPULT_FORCE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_DEMOLISHER_FORCE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_SIEGE_VEHICLE_FORCE_1)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_SIEGE_VEHICLE_FORCE_2))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_force_building_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_wintergrasp_force_building_SpellScript();
+        }
+};
+
 void AddSC_wintergrasp()
 {
     new npc_wg_queue();
     new npc_wg_spirit_guide();
     new npc_wg_demolisher_engineer();
-    new go_wg_vehicle_teleporter();
     new npc_wg_quest_giver();
+
+    new spell_wintergrasp_force_building();
+
+    new go_wg_vehicle_teleporter();
 }
