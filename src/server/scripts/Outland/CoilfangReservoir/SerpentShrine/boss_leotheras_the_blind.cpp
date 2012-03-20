@@ -53,6 +53,7 @@ EndScriptData */
 #define MODEL_NIGHTELF          20514
 #define DEMON_FORM              21875
 #define MOB_SPELLBINDER         21806
+#define INNER_DEMON_VICTIM      1
 
 #define SAY_AGGRO               -1548009
 #define SAY_SWITCH_TO_DEMON     -1548010
@@ -79,7 +80,7 @@ public:
 
     struct mob_inner_demonAI : public ScriptedAI
     {
-        mob_inner_demonAI(Creature* c) : ScriptedAI(c)
+        mob_inner_demonAI(Creature* creature) : ScriptedAI(creature)
         {
             victimGUID = 0;
         }
@@ -94,6 +95,20 @@ public:
             ShadowBolt_Timer = 10000;
             Link_Timer = 1000;
         }
+
+        void SetGUID(uint64 guid, int32 id/* = 0 */)
+        {
+            if (id == INNER_DEMON_VICTIM)
+                victimGUID = guid;
+        }
+
+        uint64 GetGUID(int32 id/* = 0 */)
+        {
+            if (id == INNER_DEMON_VICTIM)
+                return victimGUID;
+            return 0;
+        }
+
         void JustDied(Unit* /*victim*/)
         {
             Unit* unit = Unit::GetUnit((*me), victimGUID);
@@ -112,7 +127,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (!victimGUID) return;
+            if (!victimGUID)
+                return;
         }
 
         void UpdateAI(const uint32 diff)
@@ -170,10 +186,10 @@ public:
 
     struct boss_leotheras_the_blindAI : public ScriptedAI
     {
-        boss_leotheras_the_blindAI(Creature* c) : ScriptedAI(c)
+        boss_leotheras_the_blindAI(Creature* creature) : ScriptedAI(creature)
         {
-            c->GetPosition(x, y, z);
-            instance = c->GetInstanceScript();
+            creature->GetPosition(x, y, z);
+            instance = creature->GetInstanceScript();
             Demon = 0;
 
             for (uint8 i = 0; i < 3; ++i)//clear guids
@@ -218,6 +234,7 @@ public:
             IsFinalForm = false;
             NeedThreatReset = false;
             EnrageUsed = false;
+            memset(InnderDemon, 0, sizeof(InnderDemon));
             InnerDemon_Count = 0;
             me->SetSpeed(MOVE_RUN, 2.0f, true);
             me->SetDisplayId(MODEL_NIGHTELF);
@@ -356,7 +373,7 @@ public:
                     Creature* unit = Unit::GetCreature((*me), InnderDemon[i]);
                     if (unit && unit->isAlive())
                     {
-                        Unit* unit_target = Unit::GetUnit(*unit, CAST_AI(mob_inner_demon::mob_inner_demonAI, unit->AI())->victimGUID);
+                        Unit* unit_target = Unit::GetUnit(*unit, unit->AI()->GetGUID(INNER_DEMON_VICTIM));
                         if (unit_target && unit_target->isAlive())
                         {
                             unit->CastSpell(unit_target, SPELL_CONSUMING_MADNESS, true);
@@ -524,7 +541,7 @@ public:
                             if (demon)
                             {
                                 demon->AI()->AttackStart((*itr));
-                                CAST_AI(mob_inner_demon::mob_inner_demonAI, demon->AI())->victimGUID = (*itr)->GetGUID();
+                                demon->AI()->SetGUID((*itr)->GetGUID(), INNER_DEMON_VICTIM);
 
                                 (*itr)->AddAura(SPELL_INSIDIOUS_WHISPER, *itr);
 
@@ -600,7 +617,7 @@ public:
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
     {
-        boss_leotheras_the_blind_demonformAI(Creature* c) : ScriptedAI(c) {}
+        boss_leotheras_the_blind_demonformAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ChaosBlast_Timer;
         bool DealDamage;
@@ -673,9 +690,9 @@ public:
 
     struct mob_greyheart_spellbinderAI : public ScriptedAI
     {
-        mob_greyheart_spellbinderAI(Creature* c) : ScriptedAI(c)
+        mob_greyheart_spellbinderAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             leotherasGUID = 0;
             AddedBanish = false;
         }

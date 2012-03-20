@@ -51,9 +51,9 @@ public:
 
     struct boss_hadronoxAI : public ScriptedAI
     {
-        boss_hadronoxAI(Creature* c) : ScriptedAI(c)
+        boss_hadronoxAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             fMaxDistance = 50.0f;
             bFirstTime = true;
         }
@@ -136,7 +136,8 @@ public:
         void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             // Without he comes up through the air to players on the bridge after krikthir if players crossing this bridge!
             CheckDistance(fMaxDistance, diff);

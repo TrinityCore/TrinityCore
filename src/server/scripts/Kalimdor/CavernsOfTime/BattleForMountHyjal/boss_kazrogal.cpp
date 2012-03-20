@@ -52,11 +52,10 @@ public:
 
     struct boss_kazrogalAI : public hyjal_trashAI
     {
-        boss_kazrogalAI(Creature* c) : hyjal_trashAI(c)
+        boss_kazrogalAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
         }
 
         uint32 CleaveTimer;
@@ -64,7 +63,6 @@ public:
         uint32 MarkTimer;
         uint32 MarkTimerBase;
         bool go;
-        uint32 pos;
 
         void Reset()
         {
@@ -107,7 +105,6 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            pos = i;
             if (i == 7 && instance)
             {
                 Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));

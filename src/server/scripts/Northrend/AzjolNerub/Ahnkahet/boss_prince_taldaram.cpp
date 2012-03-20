@@ -79,9 +79,9 @@ public:
 
     struct boss_taldaramAI : public ScriptedAI
     {
-        boss_taldaramAI(Creature* c) : ScriptedAI(c)
+        boss_taldaramAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
@@ -338,9 +338,9 @@ public:
 
     struct mob_taldaram_flamesphereAI : public ScriptedAI
     {
-        mob_taldaram_flamesphereAI(Creature* c) : ScriptedAI(c)
+        mob_taldaram_flamesphereAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         uint32 uiDespawnTimer;
@@ -387,23 +387,28 @@ class prince_taldaram_sphere : public GameObjectScript
 public:
     prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
-        InstanceScript* instance = pGO->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
         if (!instance)
             return true;
 
-        Creature* pPrinceTaldaram = Unit::GetCreature(*pGO, instance->GetData64(DATA_PRINCE_TALDARAM));
+        Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance->GetData64(DATA_PRINCE_TALDARAM));
         if (pPrinceTaldaram && pPrinceTaldaram->isAlive())
         {
             // maybe these are hacks :(
-            pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            pGO->SetGoState(GO_STATE_ACTIVE);
+            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->SetGoState(GO_STATE_ACTIVE);
 
-            switch (pGO->GetEntry())
+            switch (go->GetEntry())
             {
-                case GO_SPHERE1: instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS); break;
-                case GO_SPHERE2: instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS); break;
+                case GO_SPHERE1:
+                    instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS);
+                    break;
+
+                case GO_SPHERE2:
+                    instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS);
+                    break;
             }
 
             CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();

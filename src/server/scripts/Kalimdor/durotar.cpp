@@ -48,14 +48,14 @@ public:
 
     struct npc_lazy_peonAI : public ScriptedAI
     {
-        npc_lazy_peonAI(Creature* c) : ScriptedAI(c) {}
+        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 uiPlayerGUID;
 
         uint32 m_uiRebuffTimer;
         bool work;
 
-        void Reset ()
+        void Reset()
         {
             uiPlayerGUID = 0;
             m_uiRebuffTimer = 0;

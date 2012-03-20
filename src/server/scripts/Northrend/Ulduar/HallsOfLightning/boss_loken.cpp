@@ -68,10 +68,10 @@ public:
     {
         boss_lokenAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         bool m_bIsAura;
 
@@ -93,10 +93,10 @@ public:
 
             m_uiHealthAmountModifier = 1;
 
-            if (m_instance)
+            if (instance)
             {
-                m_instance->SetData(TYPE_LOKEN, NOT_STARTED);
-                m_instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+                instance->SetData(TYPE_LOKEN, NOT_STARTED);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
             }
         }
 
@@ -104,10 +104,10 @@ public:
         {
             Talk(SAY_AGGRO);
 
-            if (m_instance)
+            if (instance)
             {
-                m_instance->SetData(TYPE_LOKEN, IN_PROGRESS);
-                m_instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+                instance->SetData(TYPE_LOKEN, IN_PROGRESS);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
             }
         }
 
@@ -115,8 +115,8 @@ public:
         {
             Talk(SAY_DEATH);
 
-            if (m_instance)
-                m_instance->SetData(TYPE_LOKEN, DONE);
+            if (instance)
+                instance->SetData(TYPE_LOKEN, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)

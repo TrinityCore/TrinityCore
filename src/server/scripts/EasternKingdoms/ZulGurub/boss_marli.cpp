@@ -51,12 +51,12 @@ class boss_marli : public CreatureScript
 
         struct boss_marliAI : public ScriptedAI
         {
-            boss_marliAI(Creature* c) : ScriptedAI(c)
+            boss_marliAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* m_instance;
+            InstanceScript* instance;
 
             uint32 SpawnStartSpiders_Timer;
             uint32 PoisonVolley_Timer;
@@ -91,8 +91,8 @@ class boss_marli : public CreatureScript
             void JustDied(Unit* /*Killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
-                if (m_instance)
-                    m_instance->SetData(DATA_MARLI, DONE);
+                if (instance)
+                    instance->SetData(DATA_MARLI, DONE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -230,7 +230,7 @@ class mob_spawn_of_marli : public CreatureScript
 
         struct mob_spawn_of_marliAI : public ScriptedAI
         {
-            mob_spawn_of_marliAI(Creature* c) : ScriptedAI(c) {}
+            mob_spawn_of_marliAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 LevelUp_Timer;
 

@@ -163,9 +163,9 @@ class boss_watchkeeper_gargolmar : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_watchkeeper_gargolmarAI (Creature);
+            return new boss_watchkeeper_gargolmarAI(creature);
         }
 };
 

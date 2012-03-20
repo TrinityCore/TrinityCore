@@ -55,7 +55,7 @@ public:
 
     struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
     {
-        npc_injured_rainspeaker_oracleAI(Creature* c) : npc_escortAI(c) { c_guid = c->GetGUID(); }
+        npc_injured_rainspeaker_oracleAI(Creature* creature) : npc_escortAI(creature) { c_guid = creature->GetGUID(); }
 
         uint64 c_guid;
 
@@ -90,12 +90,12 @@ public:
             case 17:
             case 18:
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_JUMPING);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
                 me->SetSpeed(MOVE_SWIM, 0.85f, true);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_DISABLE_GRAVITY);
                 break;
             case 19:
-                me->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
                 break;
             case 28:
                 player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
@@ -139,7 +139,7 @@ public:
         {
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
             CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(35.0f);
-            creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
+            creature->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
             DoScriptText(SAY_START_IRO, creature);
 
             switch (player->GetTeam()){

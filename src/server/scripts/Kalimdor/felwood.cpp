@@ -53,12 +53,12 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        uint32 eCreature = creature->GetEntry();
-
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (eCreature == 9528)
+        uint32 creatureId = creature->GetEntry();
+
+        if (creatureId == 9528)
         {
             if (player->GetQuestRewardStatus(4101))
             {
@@ -70,7 +70,7 @@ public:
                 player->SEND_GOSSIP_MENU(2844, creature->GetGUID());
         }
 
-        if (eCreature == 9529)
+        if (creatureId == 9529)
         {
             if (player->GetQuestRewardStatus(4102))
             {
@@ -84,7 +84,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_felwood()

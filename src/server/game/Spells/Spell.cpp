@@ -1892,7 +1892,7 @@ void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, float range, Pos
         return;
     Trinity::WorldObjectSpellAreaTargetCheck check(range, position, m_caster, referer, m_spellInfo, selectionType, condList);
     Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-    SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> > (searcher, containerTypeMask, m_caster, m_caster, range);
+    SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> > (searcher, containerTypeMask, m_caster, position, range);
 }
 
 void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionList* condList, bool isChainHeal)
@@ -3506,7 +3506,7 @@ void Spell::update(uint32 difftime)
     // check if the player caster has moved before the spell finished
     if ((m_caster->GetTypeId() == TYPEID_PLAYER && m_timer != 0) &&
         m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
-        (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING)))
+        (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)))
     {
         // don't cancel for melee, autorepeat, triggered and instant spells
         if (!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered())
@@ -3752,12 +3752,12 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
              uint32 item = 0;
-             for (int8 x = 0; x < 3; x++)
-                 if (spellInfo->Effects[x].ItemType)
-                     item = spellInfo->Effects[x].ItemType;
-             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-             if (pProto && pProto->ItemLimitCategory)
-                 data << uint32(pProto->ItemLimitCategory);
+             for (int8 eff = 0; eff < MAX_SPELL_EFFECTS; eff++)
+                 if (spellInfo->Effects[eff].ItemType)
+                     item = spellInfo->Effects[eff].ItemType;
+             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
+             if (proto && proto->ItemLimitCategory)
+                 data << uint32(proto->ItemLimitCategory);
              break;
         }
         case SPELL_FAILED_CUSTOM_ERROR:
@@ -3784,6 +3784,23 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             data << uint32(missingItem);  // first missing item
             break;
         }
+        case SPELL_FAILED_PREVENTED_BY_MECHANIC:
+            data << uint32(spellInfo->Mechanic);
+            break;
+        case SPELL_FAILED_NEED_EXOTIC_AMMO:
+            data << uint32(spellInfo->EquippedItemSubClassMask);
+            break;
+        case SPELL_FAILED_NEED_MORE_ITEMS:
+            data << uint32(0); // Item entry
+            data << uint32(0); // Count
+            break;
+        case SPELL_FAILED_MIN_SKILL:
+            data << uint32(0); // SkillLine.dbc Id
+            data << uint32(0); // Amount
+            break;
+        case SPELL_FAILED_FISHING_TOO_LOW:
+            data << uint32(0); // Skill level
+            break;
         default:
             break;
     }
@@ -3857,6 +3874,7 @@ void Spell::SendSpellGo()
 
     if (m_spellInfo->Attributes & SPELL_ATTR0_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
+
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
         && m_spellInfo->PowerType != POWER_HEALTH)
@@ -3869,7 +3887,6 @@ void Spell::SendSpellGo()
     {
         castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
         castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
-        castFlags |= CAST_FLAG_UNKNOWN_9;                    // ??
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
@@ -3932,7 +3949,7 @@ void Spell::SendSpellGo()
     if (castFlags & CAST_FLAG_AMMO)
         WriteAmmoToPacket(&data);
 
-    if (castFlags & CAST_FLAG_UNKNOWN_20)
+    if (castFlags & CAST_FLAG_VISUAL_CHAIN)
     {
         data << uint32(0);
         data << uint32(0);
@@ -4740,7 +4757,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->isMoving())
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
-        if ((!m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) || m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK) &&
+        if ((!m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) || m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK) &&
             (IsAutoRepeat() || (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED) != 0))
             return SPELL_FAILED_MOVING;
     }
@@ -4938,6 +4955,37 @@ SpellCastResult Spell::CheckCast(bool strict)
     castResult = CallScriptCheckCastHandlers();
     if (castResult != SPELL_CAST_OK)
         return castResult;
+
+    bool hasDispellableAura = false;
+    bool hasNonDispelEffect = false;
+    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DISPEL)
+        {
+            if (m_spellInfo->Effects[i].IsTargetingArea() || m_spellInfo->AttributesEx & SPELL_ATTR1_MELEE_COMBAT_START)
+            {
+                hasDispellableAura = true;
+                break;
+            }
+            if (Unit* target = m_targets.GetUnitTarget())
+            {
+                DispelChargesList dispelList;
+                uint32 dispelMask = SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[i].MiscValue));
+                target->GetDispellableAuraList(m_caster, dispelMask, dispelList);
+                if (!dispelList.empty())
+                {
+                    hasDispellableAura = true;
+                    break;
+                }
+            }
+        }
+        else if (m_spellInfo->Effects[i].IsEffect())
+        {
+            hasNonDispelEffect = true;
+            break;
+        }
+
+    if (!hasNonDispelEffect && !hasDispellableAura && m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
+        return SPELL_FAILED_NOTHING_TO_DISPEL;
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
     {

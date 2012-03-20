@@ -105,9 +105,9 @@ public:
 
     struct npc_bartlebyAI : public ScriptedAI
     {
-        npc_bartlebyAI(Creature* c) : ScriptedAI(c)
+        npc_bartlebyAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_uiNormalFaction = c->getFaction();
+            m_uiNormalFaction = creature->getFaction();
         }
 
         uint32 m_uiNormalFaction;

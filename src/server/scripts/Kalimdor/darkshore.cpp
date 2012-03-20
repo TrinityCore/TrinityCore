@@ -234,7 +234,6 @@ public:
         void WaypointReached(uint32 i)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 

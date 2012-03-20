@@ -277,7 +277,8 @@ public:
         std::string show = show_str;
 
         // Check
-        if ((show != "add") && (show != "mod") && (show != "del") && (show != "listid")) return false;
+        if ((show != "add") && (show != "mod") && (show != "del") && (show != "listid"))
+            return false;
 
         char* arg_id = strtok(NULL, " ");
         uint32 id = 0;

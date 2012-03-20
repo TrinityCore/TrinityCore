@@ -2536,7 +2536,6 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 }
 
 typedef std::list< std::pair<uint32, uint64> > DispelList;
-typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
 void Spell::EffectDispel(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -2545,48 +2544,12 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    DispelChargesList dispel_list;
-
     // Create dispel mask by dispel type
     uint32 dispel_type = m_spellInfo->Effects[effIndex].MiscValue;
     uint32 dispelMask  = SpellInfo::GetDispelMask(DispelType(dispel_type));
 
-    // we should not be able to dispel diseases if the target is affected by unholy blight
-    if (dispelMask & (1 << DISPEL_DISEASE) && unitTarget->HasAura(50536))
-        dispelMask &= ~(1 << DISPEL_DISEASE);
-
-    Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
-    for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-    {
-        Aura* aura = itr->second;
-        AuraApplication * aurApp = aura->GetApplicationOfTarget(unitTarget->GetGUID());
-        if (!aurApp)
-            continue;
-
-        // don't try to remove passive auras
-        if (aura->IsPassive())
-            continue;
-
-        if (aura->GetSpellInfo()->GetDispelMask() & dispelMask)
-        {
-            if (aura->GetSpellInfo()->Dispel == DISPEL_MAGIC)
-            {
-                // do not remove positive auras if friendly target
-                //               negative auras if non-friendly target
-                if (aurApp->IsPositive() == unitTarget->IsFriendlyTo(m_caster))
-                    continue;
-            }
-
-            // The charges / stack amounts don't count towards the total number of auras that can be dispelled.
-            // Ie: A dispel on a target with 5 stacks of Winters Chill and a Polymorph has 1 / (1 + 1) -> 50% chance to dispell
-            // Polymorph instead of 1 / (5 + 1) -> 16%.
-            bool dispel_charges = aura->GetSpellInfo()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES;
-            uint8 charges = dispel_charges ? aura->GetCharges() : aura->GetStackAmount();
-            if (charges > 0)
-                dispel_list.push_back(std::make_pair(aura, charges));
-        }
-    }
-
+    DispelChargesList dispel_list;
+    unitTarget->GetDispellableAuraList(m_caster, dispelMask, dispel_list);
     if (dispel_list.empty())
         return;
 
@@ -4075,7 +4038,9 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     while (bag) // 256 = 0 due to var type
                     {
                         item = m_caster->ToPlayer()->GetItemByPos(bag, slot);
-                        if (item && item->GetEntry() == 38587) break;
+                        if (item && item->GetEntry() == 38587)
+                            break;
+
                         ++slot;
                         if (slot == 39)
                         {

@@ -379,7 +379,7 @@ public:
 
     struct flame_of_azzinothAI : public ScriptedAI
     {
-        flame_of_azzinothAI(Creature* c) : ScriptedAI(c) {}
+        flame_of_azzinothAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
@@ -392,7 +392,10 @@ public:
             GlaiveGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoZoneInCombat();
+        }
 
         void ChargeCheck()
         {
@@ -430,7 +433,10 @@ public:
             }
         }
 
-        void SetGlaiveGUID(uint64 guid){ GlaiveGUID = guid; }
+        void SetGlaiveGUID(uint64 guid)
+        {
+            GlaiveGUID = guid;
+        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -471,9 +477,9 @@ public:
 
     struct boss_illidan_stormrageAI : public ScriptedAI
     {
-        boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c), Summons(me)
+        boss_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             DoCast(me, SPELL_DUAL_WIELD, true);
         }
 
@@ -566,7 +572,9 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim == me) return;
+            if (victim == me)
+                return;
+
             // TODO: Find better way to handle emote
             switch (urand(0, 1))
             {
@@ -747,7 +755,8 @@ public:
             final.y = 2 * final.y - initial.y;
 
             Creature* Trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
-            if (!Trigger) return;
+            if (!Trigger)
+                return;
 
             Trigger->SetSpeed(MOVE_WALK, 3);
             Trigger->SetWalk(true);
@@ -1157,7 +1166,7 @@ public:
 
     struct boss_maievAI : public ScriptedAI
     {
-        boss_maievAI(Creature* c) : ScriptedAI(c) {};
+        boss_maievAI(Creature* creature) : ScriptedAI(creature) {};
 
         uint64 IllidanGUID;
 
@@ -1181,7 +1190,11 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterEvadeMode() {}
-        void GetIllidanGUID(uint64 guid) { IllidanGUID = guid; }
+
+        void GetIllidanGUID(uint64 guid)
+        {
+            IllidanGUID = guid;
+        }
 
         void DamageTaken(Unit* done_by, uint32 &damage)
         {
@@ -1372,9 +1385,9 @@ public:
 
     struct npc_akama_illidanAI : public ScriptedAI
     {
-        npc_akama_illidanAI(Creature* c) : ScriptedAI(c)
+        npc_akama_illidanAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             JustCreated = true;
         }
         bool JustCreated;
@@ -2019,7 +2032,7 @@ public:
 
     struct cage_trap_triggerAI : public ScriptedAI
     {
-        cage_trap_triggerAI(Creature* c) : ScriptedAI(c) {}
+        cage_trap_triggerAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 IllidanGUID;
         uint32 DespawnTimer;
@@ -2083,7 +2096,6 @@ public:
                 // }
         }
     };
-
 };
 
 class gameobject_cage_trap : public GameObjectScript
@@ -2102,7 +2114,6 @@ public:
         go->SetGoState(GO_STATE_ACTIVE);
         return true;
     }
-
 };
 
 class mob_shadow_demon : public CreatureScript
@@ -2117,11 +2128,14 @@ public:
 
     struct shadow_demonAI : public ScriptedAI
     {
-        shadow_demonAI(Creature* c) : ScriptedAI(c) {}
+        shadow_demonAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 TargetGUID;
 
-        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoZoneInCombat();
+        }
 
         void Reset()
         {
@@ -2137,9 +2151,11 @@ public:
 
         void UpdateAI(const uint32 /*diff*/)
         {
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
-            if (me->getVictim()->GetTypeId() != TYPEID_PLAYER) return; // Only cast the below on players.
+            if (me->getVictim()->GetTypeId() != TYPEID_PLAYER)
+                return; // Only cast the below on players.
 
             if (!me->getVictim()->HasAura(SPELL_PARALYZE))
             {
@@ -2153,7 +2169,6 @@ public:
                 DoCast(me->getVictim(), SPELL_CONSUME_SOUL);
         }
     };
-
 };
 
 class mob_blade_of_azzinoth : public CreatureScript
@@ -2168,7 +2183,7 @@ public:
 
     struct blade_of_azzinothAI : public NullCreatureAI
     {
-        blade_of_azzinothAI(Creature* c) : NullCreatureAI(c) {}
+        blade_of_azzinothAI(Creature* creature) : NullCreatureAI(creature) {}
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
@@ -2192,9 +2207,9 @@ public:
     // Shadowfiends interact with Illidan, setting more targets in Illidan's hashmap
     struct mob_parasitic_shadowfiendAI : public ScriptedAI
     {
-        mob_parasitic_shadowfiendAI(Creature* c) : ScriptedAI(c)
+        mob_parasitic_shadowfiendAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -2212,7 +2227,10 @@ public:
             DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);
         }
 
-        void EnterCombat(Unit* /*who*/) { DoZoneInCombat(); }
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoZoneInCombat();
+        }
 
         void DoMeleeAttackIfReady()
         {
@@ -2258,7 +2276,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_illidan()
