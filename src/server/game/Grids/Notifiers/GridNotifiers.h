@@ -858,6 +858,30 @@ namespace Trinity
             float i_range;
     };
 
+    class AnyGroupedUnitInObjectRangeCheck
+    {
+        public:
+            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid) : _source(obj), _refUnit(funit), _range(range), _raid(raid) {}
+            bool operator()(Unit* u)
+            {
+                if (_raid)
+                {
+                    if (!_refUnit->IsInRaidWith(u))
+                        return false;
+                }
+                else if (!_refUnit->IsInPartyWith(u))
+                    return false;
+
+                return !_refUnit->IsHostileTo(u) && u->isAlive() && _source->IsWithinDistInMap(u, _range);
+            }
+
+        private:
+            WorldObject const* _source;
+            Unit const* _refUnit;
+            float _range;
+            bool _raid;
+    };
+
     class AnyUnitInObjectRangeCheck
     {
         public:
