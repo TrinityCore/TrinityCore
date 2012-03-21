@@ -1000,10 +1000,10 @@ class at_ice_cicle_pos : public AreaTriggerScript
         }    
 };
 
-class at_slave_outro_garfrost : public AreaTriggerScript
+class at_slave_rescued : public AreaTriggerScript
 {
     public:
-        at_slave_outro_garfrost() : AreaTriggerScript("at_slave_outro_garfrost") { }
+        at_slave_rescued() : AreaTriggerScript("at_slave_rescued") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {
@@ -1090,6 +1090,6 @@ void AddSC_pit_of_saron()
     new at_ymirjar_flamebearer_pos();
     new at_fallen_warrior_pos();
     new at_ice_cicle_pos();
-    new at_slave_outro_garfrost();
+    new at_slave_rescued();
     new at_geist_ambusher();
 }
