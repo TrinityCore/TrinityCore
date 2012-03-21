@@ -729,6 +729,8 @@ class boss_sister_svalna : public CreatureScript
                     Reset();
 
                 me->SetReactState(REACT_PASSIVE);
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
             }
 
             void Reset()
@@ -736,6 +738,8 @@ class boss_sister_svalna : public CreatureScript
                 _Reset();
                 me->SetReactState(REACT_DEFENSIVE);
                 _isEventInProgress = false;
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
             }
 
             void JustDied(Unit* /*killer*/)
