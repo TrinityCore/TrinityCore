@@ -80,7 +80,7 @@ public:
        uint32 m_uiCheckSummon;
 
        uint8 SummonCount;
-uint8 SummonCountMarwyn;
+       uint8 SummonCountMarwyn;
 
        uint64 pSummon;
 
@@ -93,7 +93,7 @@ uint8 SummonCountMarwyn;
           m_uiFleshTimer = 21000;
           m_uiObliterateTimer = 5000;
           SummonCount = 0;
-SummonCountMarwyn = 5;
+          SummonCountMarwyn = 5;
           m_bIsCall = false;
           m_uiSummonTimer = 15000;
           me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -207,11 +207,11 @@ SummonCountMarwyn = 5;
              ScriptedAI::AttackStart(who);
         }
 
-void AddWave()
+        void AddWave()
         {
             m_pInstance->DoUpdateWorldState(WORLD_STATE_HOR, 1);
             m_pInstance->DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, SummonCountMarwyn);
-}
+        }
 
        void UpdateAI(const uint32 uiDiff)
         {
@@ -222,7 +222,7 @@ void AddWave()
                 if(!m_bIsCall)
                 {
                    m_bIsCall = true;
-++SummonCountMarwyn;
+                   ++SummonCountMarwyn;
                    Summon();
                 }
             }
@@ -231,9 +231,9 @@ void AddWave()
             {
                if(m_uiSummonTimer < uiDiff)
                {
-AddWave();
+                       AddWave();
                        ++SummonCount;
-++SummonCountMarwyn;
+                       ++SummonCountMarwyn;
                        if(SummonCount == 1)
                           DoScriptText(SAY_MARWYN_INTRO, me);
 

@@ -194,11 +194,11 @@ public:
              }
         }
 
-void AddWave()
+        void AddWave()
         {
             m_pInstance->DoUpdateWorldState(WORLD_STATE_HOR, 1);
             m_pInstance->DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, SummonCount);
-}
+        }
 
         void UpdateAI(const uint32 uiDiff)
         {
@@ -215,7 +215,7 @@ void AddWave()
                 if (m_uiSummonTimer < uiDiff)
                 {
                         ++SummonCount;
-AddWave();
+                        AddWave();
                         if(SummonCount > 4)
                         {
                             m_pInstance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
