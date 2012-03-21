@@ -106,13 +106,6 @@ enum UlduarNPCs
     NPC_FIELD_MEDIC_PENNY        = 32897,
     NPC_FIELD_MEDIC_JESSI        = 33326,
 
-    // Yogg_saron
-    NPC_YS_FREYA                                 = 33410,
-    NPC_YS_THORIM                                = 33413,
-    NPC_YS_MIMIRON                               = 33412,
-    NPC_YS_HODIR                                 = 33411,
-    NPC_YOGGSARON_BRAIN                          = 33890,			 
-
     // Freya's trash NPCs
     NPC_CORRUPTED_SERVITOR       = 33354,
     NPC_MISGUIDED_NYMPH          = 33355,
