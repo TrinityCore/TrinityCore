@@ -41,6 +41,7 @@ enum DataTypes
     DATA_AREA_TRIGGER_ICE_CICLE = 12,
     DATA_VICTUS_OR_GORKUN_FREED = 13,
     DATA_SLAVE_OUTRO_GARFROST   = 14,
+    DATA_GEIST_AMBUSHER         = 15,
 };
 
 enum CreatureIds
