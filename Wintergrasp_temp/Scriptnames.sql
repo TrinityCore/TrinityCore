@@ -12,3 +12,11 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_wg_quest_giver' WHERE `entry` 
 
 -- Wintergrasp vehicle teleport GO script
 UPDATE `gameobject_template` SET `ScriptName`= 'go_wg_vehicle_teleporter' WHERE `entry`=192951; -- Vehicle Teleporter
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (61409, 56662, 56664, 56659, 49899);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(61409, 'spell_wintergrasp_force_building'),
+(56659, 'spell_wintergrasp_force_building'),
+(56662, 'spell_wintergrasp_force_building'),
+(56664, 'spell_wintergrasp_force_building'),
+(49899, 'spell_wintergrasp_force_building');
