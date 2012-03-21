@@ -266,7 +266,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                                     uint32 plfaction = passenger->getFaction();
                                     if (gofaction == plfaction)
                                     {
-                                        if (Creature teleportTrigger = vehicleCreature->FindNearestCreature(NPC_WORLD_TRIGGER_WG,100.0f,true))
+                                        if (Creature* teleportTrigger = vehicleCreature->FindNearestCreature(NPC_WORLD_TRIGGER_WG,100.0f,true))
                                             teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
                                     }
                                 }
