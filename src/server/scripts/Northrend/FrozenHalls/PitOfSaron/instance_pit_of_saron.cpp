@@ -39,14 +39,11 @@ static const Position SlaveLeaderPos2[3] =
     {847.959351f, -11.114618f, 509.794922f, 2.366650f},
 };
 // Slaves Alliance and Horde If Gargrost Dead For Events  from sniff
-const Position spawnPoints1[4] =
+static const Position spawnPoints1[2] =
 {
-    {770.746033f, -40.480698f, 508.355469f, 3.915185f},
-    {773.266174f, -43.121738f, 508.355469f, 3.954455f},
-    {768.920044f, -38.462135f, 508.355469f, 3.903403f},
-    {766.413635f, -36.130611f, 508.346466f, 4.056557f},
+    {785.253967f, -19.504539f, 508.234070f, 4.000795f},
+    {789.847778f, -24.215509f, 508.415253f, 3.914401f},
 };
-
 class instance_pit_of_saron : public InstanceMapScript
 {
     public:
@@ -70,6 +67,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 _areaTriggerYmirjar = NOT_STARTED;
                 _areaTriggerFallen  = NOT_STARTED;
                 _areaTriggerIceCicle = NOT_STARTED;
+                _areaTriggerSlaveOutroFargrost = NOT_STARTED;
             }
 
             void OnPlayerEnter(Player* player)
@@ -226,6 +224,7 @@ class instance_pit_of_saron : public InstanceMapScript
                     case DATA_GARFROST:
                         if(state == DONE)
                         {
+                            SetData(DATA_SLAVE_OUTRO_GARFROST, IN_PROGRESS);
                             if (Creature* summoner = instance->GetCreature(_garfrostGUID))
                             {
                                for (int i = 0; i < 3; ++i)
@@ -236,7 +235,7 @@ class instance_pit_of_saron : public InstanceMapScript
                                     summoner->SummonCreature(NpcSlaveHorde[i], SlaveLeaderPos[i], TEMPSUMMON_MANUAL_DESPAWN);
                                }
                             
-                               for (uint8 i = 0; i < 4; i++)
+                               for (uint8 i = 0; i < 2; i++)
                                {
                                summoner->SummonCreature(NpcSlaveIfDeadGarfrost[i], spawnPoints1[i], TEMPSUMMON_MANUAL_DESPAWN);
                                }
@@ -278,6 +277,8 @@ class instance_pit_of_saron : public InstanceMapScript
                         return _areaTriggerFallen;
                     case DATA_AREA_TRIGGER_ICE_CICLE:
                         return _areaTriggerIceCicle;
+                    case DATA_SLAVE_OUTRO_GARFROST:
+                        return _areaTriggerSlaveOutroFargrost;
                     default:
                         break;
                 }
@@ -324,6 +325,8 @@ class instance_pit_of_saron : public InstanceMapScript
                 _areaTriggerFallen = data;
             if(type == DATA_AREA_TRIGGER_ICE_CICLE)
                 _areaTriggerIceCicle = data;
+            if(type == DATA_SLAVE_OUTRO_GARFROST)
+                _areaTriggerSlaveOutroFargrost = data;
            }
             std::string GetSaveData()
             {
@@ -387,6 +390,7 @@ class instance_pit_of_saron : public InstanceMapScript
             uint8  _areaTriggerYmirjar;
             uint8  _areaTriggerFallen;
             uint8  _areaTriggerIceCicle;
+            uint8  _areaTriggerSlaveOutroFargrost;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

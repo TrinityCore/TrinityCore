@@ -1,0 +1,3 @@
+DELETE FROM `script_texts` WHERE entry = -1658071;
+INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
+(36888,-1658071,'This way! We\'re about to mount an assault on the Scourgelord\'s location!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'SAY_RESCOUD_HORDE_ALLIANCE');

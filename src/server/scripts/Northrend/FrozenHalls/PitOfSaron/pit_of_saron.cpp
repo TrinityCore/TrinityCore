@@ -945,6 +945,7 @@ enum sTyrannus
      SAY_TYRANNUS_AMBUSH_1                      = -1658050,
      SAY_TYRANNUS_AMBUSH_2                      = -1658051,
      SAY_GAUNTLET_START                         = -1658052,
+     SAY_RESCOUD_HORDE_ALLIANCE                 = -1658071, // TODO: sound
 };
 
 class at_ymirjar_flamebearer_pos : public AreaTriggerScript
@@ -993,7 +994,7 @@ class at_fallen_warrior_pos : public AreaTriggerScript
             if(instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE || player->isGameMaster() || !instance)
                       return false;
                       
-              if (instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
+                if (instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
                 {
                    instance->SetData(DATA_AREA_TRIGGER_FALLEN, DONE);
                    if(Creature *pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 250.0f, true))
@@ -1022,9 +1023,11 @@ class at_ice_cicle_pos : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {    
             InstanceScript* instance = player->GetInstanceScript();
+            if(instance->GetData(DATA_AREA_TRIGGER_ICE_CICLE) == DONE || player->isGameMaster() || !instance)
+                      return false;
             if (instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE && instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
             {
-                instance->SetData(DATA_AREA_TRIGGER_ICE_CICLE, IN_PROGRESS);
+                instance->SetData(DATA_AREA_TRIGGER_ICE_CICLE, DONE);
                 if (Creature* pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
                 {
                     DoScriptText(SAY_GAUNTLET_START, pTyrannus);
@@ -1047,6 +1050,37 @@ class at_ice_cicle_pos : public AreaTriggerScript
               return false;   
         }    
 };
+
+class at_slave_outro_garfrost : public AreaTriggerScript
+{
+    public:
+        at_slave_outro_garfrost() : AreaTriggerScript("at_slave_outro_garfrost") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+          InstanceScript* instance = player->GetInstanceScript();
+         
+          if(instance->GetData(DATA_SLAVE_OUTRO_GARFROST) == DONE || player->isGameMaster() || !instance)
+               return false;
+               
+           if(instance->GetData(DATA_SLAVE_OUTRO_GARFROST) == IN_PROGRESS)
+           {
+               instance->SetData(DATA_SLAVE_OUTRO_GARFROST, DONE);
+               if(Creature *rSlave = player->FindNearestCreature(36888, 50.0f, true))
+               {
+                     DoScriptText(SAY_RESCOUD_HORDE_ALLIANCE, rSlave);
+                     rSlave->GetMotionMaster()->MovePoint(0, 831.654968f, 6.049870f, 509.910583f); // not correct 
+               }
+               if(Creature *rSlave = player->FindNearestCreature(36889, 50.0f, true))
+               {
+                     rSlave->GetMotionMaster()->MovePoint(0, 835.122620f, 1.335451f, 509.846619f); //not correct 
+               }              
+               return false;
+            }
+            
+          return false;
+        }
+};
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
@@ -1059,4 +1093,5 @@ void AddSC_pit_of_saron()
     new at_ymirjar_flamebearer_pos();
     new at_fallen_warrior_pos();
     new at_ice_cicle_pos();
+    new at_slave_outro_garfrost();
 }
