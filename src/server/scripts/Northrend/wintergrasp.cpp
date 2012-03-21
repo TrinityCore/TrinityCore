@@ -52,6 +52,7 @@ enum WGscriptdata
 
     // npcs
     NPC_ROBOTIC_ARMS                    = 27852,
+    NPC_WORLD_TRIGGER_WG                = 23472,
 };
 
 class npc_wg_demolisher_engineer : public CreatureScript
@@ -256,28 +257,20 @@ class go_wg_vehicle_teleporter : public GameObjectScript
             if (uiCheckTimer <= diff)
             {
                 for (uint8 i = 0; i < 4; i++)
-                    if (Creature* vehicle = go->FindNearestCreature(Vehicules[i], 3.0f, true))
-                        if (!vehicle->HasAura(SPELL_VEHICLE_TELEPORT))
-                        {
-                            if (vehicle->GetVehicle())
-                            {
-                                if (Unit* player = vehicle->GetVehicle()->GetPassenger(0))
+                    if (Creature* vehicleCreature = go->FindNearestCreature(Vehicules[i], 3.0f, true))
+                        if (!vehicleCreature->HasAura(SPELL_VEHICLE_TELEPORT))
+                            if (Vehicle* vehicle = vehicleCreature->GetVehicle())
+                                if (Unit* passenger = vehicle->GetPassenger(0))
                                 {
                                     uint32 gofaction = go->GetUInt32Value(GAMEOBJECT_FACTION);
-                                    uint32 plfaction = player->getFaction();
+                                    uint32 plfaction = passenger->getFaction();
                                     if (gofaction == plfaction)
                                     {
-                                        vehicle->CastSpell(vehicle, SPELL_VEHICLE_TELEPORT, true);
-                                        if (Creature* TargetTeleport = vehicle->FindNearestCreature(23472, 100.0f, true))
-                                        {
-                                            float x, y, z, o;
-                                            TargetTeleport->GetPosition(x, y, z, o);
-                                            vehicle->GetVehicle()->TeleportVehicle(x, y, z, o);
-                                        }
+                                        if (Creature teleportTrigger = vehicleCreature->FindNearestCreature(NPC_WORLD_TRIGGER_WG,100.0f,true))
+                                            teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
                                     }
                                 }
-                            }
-                        }
+
                 uiCheckTimer = 1000;
             }
             else
