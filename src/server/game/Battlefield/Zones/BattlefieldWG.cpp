@@ -31,6 +31,14 @@ enum WGBfData
     BATTLEFIELD_WG_MAPID                         = 571,              // Northrend
 };
 
+enum WGVehicles
+{
+    NPC_WG_SEIGE_ENGINE_ALLIANCE        = 28312,
+    NPC_WG_SEIGE_ENGINE_HORDE           = 32627,
+    NPC_WG_DEMOLISHER                   = 28094,
+    NPC_WG_CATAPULT                     = 27881,
+};
+
 bool BattlefieldWG::SetupBattlefield()
 {
     InitStalker(BATTLEFIELD_WG_NPC_STALKER, WintergraspStalkerPos[0], WintergraspStalkerPos[1], WintergraspStalkerPos[2], WintergraspStalkerPos[3]);
@@ -580,10 +588,10 @@ void BattlefieldWG::OnCreatureCreate(Creature *creature)
     {
         switch (creature->GetEntry())
         {
-            case 28312:
-            case 32627:
-            case 27881:
-            case 28094:
+            case NPC_WG_SEIGE_ENGINE_ALLIANCE:
+            case NPC_WG_SEIGE_ENGINE_HORDE:
+            case NPC_WG_CATAPULT:
+            case NPC_WG_DEMOLISHER:
                 {
                     uint8 team;
                     if (creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
@@ -595,10 +603,10 @@ void BattlefieldWG::OnCreatureCreate(Creature *creature)
 
                     if (team == TEAM_HORDE)
                     {
-                        m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_H]++;
                         if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) <= GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H))
                         {
-                            creature->AddAura(SPELL_HORDE_FLAG, creature);
+                            m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_H]++;
+                            creature->CastSpell(creature, SPELL_HORDE_FLAG, true);
                             m_vehicles[team].insert(creature->GetGUID());
                             UpdateVehicleCountWG();
                         }
@@ -611,10 +619,10 @@ void BattlefieldWG::OnCreatureCreate(Creature *creature)
                     }
                     else
                     {
-                        m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_A]++;
                         if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) <= GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
                         {
-                            creature->AddAura(SPELL_ALLIANCE_FLAG, creature);
+                            m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_A]++;
+                            creature->CastSpell(creature, SPELL_ALLIANCE_FLAG, true);
                             m_vehicles[team].insert(creature->GetGUID());
                             UpdateVehicleCountWG();
                         }
@@ -637,10 +645,10 @@ void BattlefieldWG::OnCreatureRemove(Creature* creature)
     {
         switch (creature->GetEntry())
         {
-            case 28312:
-            case 32627:
-            case 27881:
-            case 28094:
+            case NPC_WG_SEIGE_ENGINE_ALLIANCE:
+            case NPC_WG_SEIGE_ENGINE_HORDE:
+            case NPC_WG_CATAPULT:
+            case NPC_WG_DEMOLISHER:
                 {
                     uint8 team;
                     if (creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
