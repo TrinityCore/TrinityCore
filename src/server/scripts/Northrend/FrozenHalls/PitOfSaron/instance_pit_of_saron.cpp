@@ -68,6 +68,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 _areaTriggerFallen  = NOT_STARTED;
                 _areaTriggerIceCicle = NOT_STARTED;
                 _areaTriggerSlaveOutroFargrost = NOT_STARTED;
+                _areTriggerGeistAmbusher = NOT_STARTED;
             }
 
             void OnPlayerEnter(Player* player)
@@ -279,6 +280,8 @@ class instance_pit_of_saron : public InstanceMapScript
                         return _areaTriggerIceCicle;
                     case DATA_SLAVE_OUTRO_GARFROST:
                         return _areaTriggerSlaveOutroFargrost;
+                    case DATA_GEIST_AMBUSHER:
+                        return _areTriggerGeistAmbusher;
                     default:
                         break;
                 }
@@ -327,6 +330,8 @@ class instance_pit_of_saron : public InstanceMapScript
                 _areaTriggerIceCicle = data;
             if(type == DATA_SLAVE_OUTRO_GARFROST)
                 _areaTriggerSlaveOutroFargrost = data;
+            if(type == DATA_GEIST_AMBUSHER)
+                _areTriggerGeistAmbusher = data;
            }
             std::string GetSaveData()
             {
@@ -391,6 +396,7 @@ class instance_pit_of_saron : public InstanceMapScript
             uint8  _areaTriggerFallen;
             uint8  _areaTriggerIceCicle;
             uint8  _areaTriggerSlaveOutroFargrost;
+            uint8  _areTriggerGeistAmbusher;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

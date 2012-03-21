@@ -296,58 +296,6 @@ class mob_wrathbone_laborer : public CreatureScript
         }
 };
 
-class mob_geist_ambusher : public CreatureScript
-{
-    public:
-        mob_geist_ambusher() : CreatureScript("mob_geist_ambusher") { }
-
-        struct mob_geist_ambusherAI: public ScriptedAI
-        {
-            mob_geist_ambusherAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
-
-            void Reset()
-            {
-                _leapingFaceMaulCooldown = 9000;
-            }
-
-            void MoveInLineOfSight(Unit* who)
-            {
-                if (who->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (me->IsWithinDistInMap(who, 30.0f))
-                    DoCast(who, SPELL_LEAPING_FACE_MAUL);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (_leapingFaceMaulCooldown < diff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
-                        DoCast(target, SPELL_LEAPING_FACE_MAUL);
-                    _leapingFaceMaulCooldown = urand(9000, 14000);
-                }
-                else
-                    _leapingFaceMaulCooldown -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint32 _leapingFaceMaulCooldown;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_geist_ambusherAI(creature);
-        }
-};
-
 class spell_trash_mob_glacial_strike : public SpellScriptLoader
 {
     public:
@@ -945,7 +893,7 @@ enum sTyrannus
      SAY_TYRANNUS_AMBUSH_1                      = -1658050,
      SAY_TYRANNUS_AMBUSH_2                      = -1658051,
      SAY_GAUNTLET_START                         = -1658052,
-     SAY_RESCOUD_HORDE_ALLIANCE                 = -1658071, // TODO: sound
+     SAY_RESCUED_HORDE_ALLIANCE                 = -1658071, // TODO: sound
 };
 
 class at_ymirjar_flamebearer_pos : public AreaTriggerScript
@@ -1068,7 +1016,7 @@ class at_slave_outro_garfrost : public AreaTriggerScript
                instance->SetData(DATA_SLAVE_OUTRO_GARFROST, DONE);
                if(Creature *rSlave = player->FindNearestCreature(36888, 50.0f, true))
                {
-                     DoScriptText(SAY_RESCOUD_HORDE_ALLIANCE, rSlave);
+                     DoScriptText(SAY_RESCUED_HORDE_ALLIANCE, rSlave);
                      rSlave->GetMotionMaster()->MovePoint(0, 831.654968f, 6.049870f, 509.910583f); // not correct 
                }
                if(Creature *rSlave = player->FindNearestCreature(36889, 50.0f, true))
@@ -1081,12 +1029,48 @@ class at_slave_outro_garfrost : public AreaTriggerScript
           return false;
         }
 };
+
+class at_geist_ambusher : public AreaTriggerScript
+{
+    public:
+        at_geist_ambusher() : AreaTriggerScript("at_geist_ambusher") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        {
+          InstanceScript* instance = player->GetInstanceScript();
+         
+          if(instance->GetData(DATA_GEIST_AMBUSHER) == DONE || player->isGameMaster() || !instance)
+               return false;
+               
+           if(instance->GetData(DATA_SLAVE_OUTRO_GARFROST) == DONE)
+           {
+               instance->SetData(DATA_GEIST_AMBUSHER, DONE);
+               uint8 i = 0;
+               GetCreatureListWithEntryInGrid(Geist, player, 36886, 300.0f);
+                for(std::list<Creature*>::iterator itr = Geist.begin(); itr != Geist.end(); ++itr)
+                {
+                   Creature *geist = *itr;
+                    if(!geist)
+                     continue;
+
+                   if (geist->isAlive())  //TODO sound.
+                      geist->GetMotionMaster()->MoveJump(835.122620f, 1.335451f, 509.846619f, 30.0f, 20.0f);
+                      ++i;
+               } 
+               return false;
+            }
+            
+          return false;
+        }
+        
+        private:
+        std::list<Creature*> Geist;
+};
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
     new mob_wrathbone_laborer();
     new mob_iceborn_protodrake();
-    new mob_geist_ambusher();
     new spell_trash_mob_glacial_strike();
     new pitofsaron_start();
     new at_pit_of_saron_start();
@@ -1094,4 +1078,5 @@ void AddSC_pit_of_saron()
     new at_fallen_warrior_pos();
     new at_ice_cicle_pos();
     new at_slave_outro_garfrost();
+    new at_geist_ambusher();
 }
