@@ -534,7 +534,8 @@ public:
         void DoWipe()
         {
 
-            if (GetData(DATA_MARWYN_EVENT) != DONE) {
+            if (GetData(DATA_MARWYN_EVENT) != DONE)
+            {
 
                 SetData(DATA_WAVE_COUNT, FAIL);
                 uiWaveCount = 0;

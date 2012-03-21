@@ -23,62 +23,78 @@ enum TrashSpells
 {
     //Quest Spell
     SPELL_SOUL_FEAST_ALL                    = 71203,
+
 //----------LOWER SPIRE----------//
     //Nerub'ar Broodkeeper
     SPELL_CRYPTSCARABS                      = 70965,
     SPELL_DARKMENDING                       = 71020,
     SPELL_WEBWRAP                           = 70980,
+
     //Servant of the Throne
     SPELL_GLACIALBLAST                      = 71029,
+
     //Ancient Skeletal Soldier
     SPELL_SHIELDBASH                        = 70964,
+
     //Deathbound Ward
     SPELL_DISRUPTINGSHOUT                   = 71022,
     SPELL_SABERLASH                         = 71021,
+
     //Deathspeaker Attendant
     SPELL_SHADOWBOLT                        = 69387,
     SPELL_SHADOWNOVA_10N                    = 69355,
     SPELL_SHADOWNOVA_25N                    = 71106,
+
     //Deathspeaker Disciple
     SPELL_DARKBLESSING                      = 69391,
     SPELL_SHADOWBOLT2                       = 69387,
     SPELL_SHADOWMEND_10N                    = 69389,
     SPELL_SHADOWMEND_25N                    = 71107,
+
     //Deathspeaker High Priest
     SPELL_AURAOFDARKNESS                    = 69491,
     SPELL_DARKRECKONING                     = 69483,
     SPELL_DARKRECKONING_EFFECT              = 69482,
+
     //Deathspeaker Servant
     SPELL_CHAOSBOLT_10N                     = 69576,
     SPELL_CHAOSBOLT_25N                     = 71108,
     SPELL_CONSUMINGSHADOWS                  = 69405,
     SPELL_CURSEOFAGONY_10N                  = 69404,
     SPELL_CURSEOFAGONY_25N                  = 71112,
+
     //Deathspeaker Zealot
     SPELL_SHADOWCLEAVE                      = 69492,
+
 //----------UPPER SPIRE----------//
     //Valkyr Herald
     SPELL_SEVERED_ESSENCE_10N               = 71906,
     SPELL_SEVERED_ESSENCE_25N               = 71942,
+
 //----------PLAGUE WORKS----------//
     //Blighted Abomination
     SPELL_CLEAVE                            = 40504,
     SPELL_PLAGUE_CLOUD                      = 71150,
     SPELL_SCOURGE_HOOK                      = 71140,
+
     //Vengeful Fleshreaper
     SPELL_LEAPING_FACE_MAUL                 = 71164,
     SPELL_DEVOUR_HUMANOID                   = 71164,
+
     //Plague Scientist
     SPELL_PLAGUE_BLAST                      = 73079,
     SPELL_PLAGUE_STREAM                     = 69871,
     SPELL_COMBOBULATING_SPRAY               = 71103,
+
     //Pustulating Horror
     SPELL_BLIGHT_BOMB                       = 71088,
     SPELL_BUBBLING_PUS_10N                  = 71089,
     SPELL_BUBBLING_PUS_25N                  = 71090,
+
     //Decaying Colossus
     SPELL_MASSIVE_STOMP_10N                 = 71114,
     SPELL_MASSIVE_STOMP_25N                 = 71115,
+
 //----------SANCTUARY OF BLOOD----------//
     //Darkfallen Archmage
     SPELL_AMPLIFY_MAGIC_10N                 = 70408,
@@ -89,35 +105,43 @@ enum TrashSpells
     SPELL_FIREBALL_25N                      = 71153,
     SPELL_POLYMORPH_SPIDER                  = 70410,
     SPELL_SIPHON_ESSENCE                    = 70299,
+
     //Darkfallen Blood Knight
     SPELL_VAMPIRIC_AURA                     = 71736,
     SPELL_UNHOLY_STRIKE                     = 70437,
     SPELL_BLOOD_MIRROR_DAMAGE               = 70445,
     SPELL_BLOOD_MIRROR_BUFF                 = 70451,
     SPELL_BLOOD_MIRROR_DUMMY                = 70450,
+
     //Darkfallen Noble
     SPELL_CHAINS_OF_SHADOW                  = 70645,
     SPELL_SHADOW_BOLT_10N                   = 72960,
     SPELL_SHADOW_BOLT_25N                   = 72961,
+
     //Vampiric Fiend
     SPELL_DISEASE_CLOUD                     = 41290,
     SPELL_LEECHING_ROT                      = 70671,
+
     //Darkfallen Advisor
     SPELL_LICH_SLAP_10N                     = 72057,
     SPELL_LICH_SLAP_25N                     = 72421,
     SPELL_SHROUD_OF_PROTECTION              = 72065,
     SPELL_SHROUD_OF_SPELL_WARDING           = 72066,
+
     //Darkfallen Commander
     SPELL_VAMPIRE_RUSH_10N                  = 70449,
     SPELL_VAMPIRE_RUSH_25N                  = 71155,
     SPELL_BATTLE_SHOUT                      = 70750,
+
     //Darkfallen Lieutenant
     SPELL_VAMPIRIC_CURSE                    = 70423,
     SPELL_REND_FLESH_10N                    = 70435,
     SPELL_REND_FLESH_25N                    = 71154,
+
     //Darkfallen Tactician
     SPELL_SHADOWSTEP                        = 70431,
     SPELL_BLOOD_SAP                         = 70432,
+
 //----------FROST WING----------//
     //Ymirjar Deathbringer
     SPELL_BANISH                            = 71298,
@@ -126,20 +150,24 @@ enum TrashSpells
     SPELL_SHADOW_BOLT_YMIRJAR_10N           = 71296,
     SPELL_SHADOW_BOLT_YMIRJAR_25N           = 71297,
     SPELL_SUMMON_YMIRJAR                    = 71303,
+
     //Ymirjar Frostbinder
     SPELL_ARCTIC_CHILL                      = 71270,
     SPELL_FROZEN_ORB                        = 71274,
     SPELL_TWISTED_WINDS                     = 71306,
     SPELL_SPIRIT_STREAM                     = 69929,
+
     //Ymirjar Battle-Maiden
     SPELL_ADRENALINE_RUSH                   = 71258,
     SPELL_BARBARIC_STRIKE                   = 71257,
+
     //Ymirjar Huntress
     SPELL_ICE_TRAP                          = 71249,
     SPELL_RAPID_SHOT                        = 71251,
     SPELL_SHOOT                             = 71253,
     SPELL_VOLLEY                            = 71252,
     SPELL_SUMMON_WARHAWK                    = 71705,
+
     //Ymirjar Warlord
     SPELL_WHIRLWIND                         = 41056,
 };
@@ -150,30 +178,39 @@ enum TrashEvents
     EVENT_CRYPTSCARABS          = 1,
     EVENT_DARKMENDING           = 2,
     EVENT_WEBWRAP               = 3,
+
     //The Damned
     EVENT_BONEFLURRY            = 4,
     EVENT_SHATTEREDBONES        = 5,
+
     //Servant of the Throne
     EVENT_GLACIALBLAST          = 6,
+
     //Ancient Skeletal Soldier
     EVENT_SHIELDBASH            = 7,
+
     //Deathbound Ward
     EVENT_DISRUPTINGSHOUT       = 8,
     EVENT_SABERLASH             = 9,
+
     //Deathspeaker Attendant
     EVENT_SHADOWBOLT            = 10,
     EVENT_SHADOWNOVA            = 11,
+
     //Deathspeaker Disciple
     EVENT_SHADOWBOLT2           = 12,
     EVENT_DARKBLESSING          = 13,
     EVENT_SHADOWMEND            = 14,
+
     //Deathspeaker High Priest
     EVENT_DARKRECKONING         = 15,
     EVENT_DARKRECKONING_EFFECT  = 16,
+
     //Deathspeaker Servant
     EVENT_CHAOSBOLT             = 17,
     EVENT_CONSUMINGSHADOWS      = 18,
     EVENT_CURSEOFAGONY          = 19,
+
     //Deathspeaker Zealot
     EVENT_SHADOWCLEAVE          = 20,
 };
