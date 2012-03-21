@@ -99,6 +99,33 @@ enum Actions
 
 #define GUID_HOARFROST 1
 
+static const Position MoveLocations1[9] =
+{
+    {1064.217896f, 118.629662f, 628.156311f, 0.000000f},
+    {1065.733276f, 126.342400f, 628.156128f, 0.000000f},
+    {1060.914185f, 130.460403f, 628.156128f, 0.000000f},
+    {1059.328003f, 120.532974f, 628.156128f, 0.000000f},
+    {1052.488647f, 122.232979f, 628.156128f, 0.000000f},
+    {1047.673950f, 121.389717f, 628.156128f, 0.000000f},
+    {1043.781250f, 113.463493f, 628.156128f, 0.000000f},
+    {1044.634521f, 109.196129f, 628.518188f, 0.000000f},
+    {1052.443726f, 110.813431f, 628.156250f, 0.000000f},
+};
+
+static const Position MoveLocations2[9] =
+{
+    {1068.739624f, 103.664474f, 630.880005f, 0.000000f},
+    {1062.253784f, 101.495079f, 630.683533f, 0.000000f},
+    {1057.972168f, 100.040573f, 630.238525f, 0.000000f},
+    {1053.684204f, 98.358513f, 629.913330f, 0.000000f},
+    {1060.612793f, 87.334480f, 631.050354f, 0.000000f},
+    {1068.163208f, 90.051262f, 631.533752f, 0.000000f},
+    {1046.957642f, 108.734108f, 628.526245f, 0.000000f},
+    {1044.634521f, 109.196129f, 628.518188f, 0.000000f},
+    {1052.443726f, 110.813431f, 628.156250f, 0.000000f},
+};
+
+static const Position leaderPosOutro1 = {1064.217896f, 118.629662f, 628.156311f, 0.000000f};
 static const Position rimefangPos[10] =
 {
     {1017.299f, 168.9740f, 642.9259f, 0.000000f},
@@ -204,6 +231,33 @@ class boss_tyrannus : public CreatureScript
                     events.ScheduleEvent(EVENT_INTRO_3, 34000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_COMBAT_START, 36000, 0, PHASE_INTRO);
                     instance->SetBossState(DATA_TYRANNUS, IN_PROGRESS);
+                    
+                   if(Creature *pSlave = me->SummonCreature(NPC_GORKUN_IRONSKULL_1, 1075.489868f, 20.001131f, 632.835938f, 1.659531f, TEMPSUMMON_DEAD_DESPAWN, 10000))
+                   {
+                      pSlave->GetMotionMaster()->MovePoint(0, leaderPosOutro1);
+                      pSlave->SetHomePosition(leaderPosOutro1);
+                   }
+
+                   for(uint8 i = 0; i < 9; ++i)
+                  {
+                     if(Creature *pSlave = me->SummonCreature(NPC_FREED_SLAVE_1_HORDE, 1086.112061f, 21.060266f, 631.892273f, 1.995682f, TEMPSUMMON_DEAD_DESPAWN, 30000))
+                     {
+                          pSlave->GetMotionMaster()->MovePoint(0, MoveLocations1[i]);
+                          pSlave->SetHomePosition(MoveLocations1[i]);
+                     }
+                      ++i;
+                     if(Creature *pSlave = me->SummonCreature(NPC_FREED_SLAVE_2_HORDE, 1069.121582f, 18.495785f, 634.020203f, 1.573138f, TEMPSUMMON_DEAD_DESPAWN, 30000))
+                     {
+                          pSlave->GetMotionMaster()->MovePoint(0, MoveLocations1[i]);
+                          pSlave->SetHomePosition(MoveLocations1[i]);
+                     }
+                     ++i;
+                     if(Creature *pSlave = me->SummonCreature(NPC_FREED_SLAVE_3_HORDE, 1075.489868f, 20.001131f, 632.835938f, 1.659531f, TEMPSUMMON_DEAD_DESPAWN, 30000))
+                     {
+                          pSlave->GetMotionMaster()->MovePoint(0, MoveLocations1[i]);
+                          pSlave->SetHomePosition(MoveLocations1[i]);
+                     }
+                  }
                 }
             }
 
@@ -219,7 +273,8 @@ class boss_tyrannus : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_INTRO_1:
-                            //DoScriptText(SAY_GORKUN_INTRO_2, pGorkunOrVictus);
+                            if (Creature* GorkunOrVictus = me->GetCreature(*me, instance->GetData64(DATA_VICTUS_OR_GORKUN_FREED)))
+                            DoScriptText(SAY_GORKUN_INTRO_2, GorkunOrVictus);
                             break;
                         case EVENT_INTRO_2:
                             DoScriptText(SAY_TYRANNUS_INTRO_3, me);
@@ -239,6 +294,51 @@ class boss_tyrannus : public CreatureScript
                             events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(5000, 7000));
                             events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(14000, 16000));
                             events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(25000, 27000));
+                            
+                        for(uint8 i = 0; i < 9; ++i)
+                       {
+                          if(Creature *pReaver = me->SummonCreature(NPC_WRATHBONE_REAVER, 1069.934082f, 49.015617f, 630.590210f, 1.657956f, TEMPSUMMON_DEAD_DESPAWN, 30000))
+                         { 
+                            if (pReaver->isAlive())
+                            {
+                               if (Creature* pSlave = me->FindNearestCreature(NPC_FREED_SLAVE_1_HORDE, 150.0f, true))
+                              {
+                                 pReaver->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                 pReaver->SetHomePosition(MoveLocations2[i]);
+                                 pReaver->Attack(pSlave, true);
+                                 pReaver->GetMotionMaster()->MoveChase(pSlave);
+                              }
+                            }
+                         }
+                           ++i;
+                         if(Creature *pSorcerer = me->SummonCreature(NPC_WRATHBONE_SORCERER, 1069.934082f, 49.015617f, 630.590210f, 1.657956f, TEMPSUMMON_DEAD_DESPAWN, 30000))
+                         {
+                            if (pSorcerer->isAlive())
+                            {
+                               if (Creature* pSlave = me->FindNearestCreature(NPC_FREED_SLAVE_2_HORDE, 150.0f, true))
+                               {
+                                  pSorcerer->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                  pSorcerer->SetHomePosition(MoveLocations2[i]);
+                                  pSorcerer->Attack(pSlave, true);
+                                  pSorcerer->GetMotionMaster()->MoveChase(pSlave);
+                               }
+                            }
+                         }
+                        ++i;
+                          if(Creature *pFallen = me->SummonCreature(NPC_FALLEN_WARRIOR, 1069.934082f, 49.015617f, 630.590210f, 1.657956f, TEMPSUMMON_DEAD_DESPAWN, 30000))
+                          {
+                              if (pFallen->isAlive())
+                              {
+                                 if (Creature* pSlave = me->FindNearestCreature(NPC_FREED_SLAVE_3_HORDE, 150.0f, true))
+                                 {
+                                     pFallen->GetMotionMaster()->MovePoint(0, MoveLocations2[i]);
+                                     pFallen->SetHomePosition(MoveLocations2[i]);
+                                     pFallen->Attack(pSlave, true);
+                                    pFallen->GetMotionMaster()->MoveChase(pSlave);
+                                 }
+                              }
+                          }
+                        }
                             break;
                         case EVENT_OVERLORD_BRAND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))

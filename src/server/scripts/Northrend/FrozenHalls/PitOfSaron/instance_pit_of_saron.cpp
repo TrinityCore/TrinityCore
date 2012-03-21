@@ -65,6 +65,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 _jainaOrSylvanas1GUID = 0;
                 _jainaOrSylvanas2GUID = 0;
                 _teamInInstance = 0;
+                _victusOrGorkunFreedGUID = 0;
                 _tyrannusEventStart = NOT_STARTED;
                 _areaTriggerYmirjar = NOT_STARTED;
                 _areaTriggerFallen  = NOT_STARTED;
@@ -177,6 +178,10 @@ class instance_pit_of_saron : public InstanceMapScript
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_MARTIN_VICTUS_2, ALLIANCE);
                         break;
+                    case NPC_GORKUN_IRONSKULL_1:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_MARTIN_VICTUS_2, ALLIANCE);
+                          _victusOrGorkunFreedGUID = creature->GetGUID();
                     default:
                         break;
                 }
@@ -300,6 +305,8 @@ class instance_pit_of_saron : public InstanceMapScript
                         return _jainaOrSylvanas1GUID;
                     case DATA_JAINA_SYLVANAS_2:
                         return _jainaOrSylvanas2GUID;
+                    case DATA_VICTUS_OR_GORKUN_FREED:
+                    return _victusOrGorkunFreedGUID;
                     default:
                         break;
                 }
@@ -373,6 +380,7 @@ class instance_pit_of_saron : public InstanceMapScript
             uint64 _jainaOrSylvanas1GUID;
             uint64 _jainaOrSylvanas2GUID;
             uint64 uiIceWall;
+            uint64 _victusOrGorkunFreedGUID;
 
             uint32 _teamInInstance;
             uint8  _tyrannusEventStart;
