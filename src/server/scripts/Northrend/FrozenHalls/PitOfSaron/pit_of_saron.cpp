@@ -494,6 +494,7 @@ public:
 
                                     if (sChampions->isAlive())
                                         sChampions->GetMotionMaster()->MovePoint(0, 487.463989f, 246.891006f, 528.708984f);
+                                        
                                 }
 
                                 GetCreatureListWithEntryInGrid(Champion2, me, NPC_CHAMPION_2_HORDE, 250.0f);
@@ -971,11 +972,11 @@ class at_ice_cicle_pos : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {    
             InstanceScript* instance = player->GetInstanceScript();
-            if(instance->GetData(DATA_AREA_TRIGGER_ICE_CICLE) == DONE || player->isGameMaster() || !instance)
+            if(instance->GetData(DATA_AREA_TRIGGER_ICE_CICLE) == IN_PROGRESS || instance->GetData(DATA_AREA_TRIGGER_ICE_CICLE) == DONE || player->isGameMaster() || !instance)
                       return false;
             if (instance->GetData(DATA_AREA_TRIGGER_FALLEN) == DONE && instance->GetData(DATA_AREA_TRIGGER_YMIRJAR) == DONE)  
             {
-                instance->SetData(DATA_AREA_TRIGGER_ICE_CICLE, DONE);
+                instance->SetData(DATA_AREA_TRIGGER_ICE_CICLE, IN_PROGRESS);
                 if (Creature* pTyrannus = player->FindNearestCreature(NPC_TYRANNUS_EVENTS, 150.0f, true))
                 {
                     DoScriptText(SAY_GAUNTLET_START, pTyrannus);
@@ -1019,15 +1020,28 @@ class at_slave_outro_garfrost : public AreaTriggerScript
                      DoScriptText(SAY_RESCUED_HORDE_ALLIANCE, rSlave);
                      rSlave->GetMotionMaster()->MovePoint(0, 831.654968f, 6.049870f, 509.910583f); // not correct 
                }
-               if(Creature *rSlave = player->FindNearestCreature(36889, 50.0f, true))
-               {
-                     rSlave->GetMotionMaster()->MovePoint(0, 835.122620f, 1.335451f, 509.846619f); //not correct 
-               }              
+               uint8 i = 0;
+               GetCreatureListWithEntryInGrid(Rescued1, player, 36889, 50.0f);
+                for(std::list<Creature*>::iterator itr = Rescued1.begin(); itr != Rescued1.end(); ++itr)
+                {
+                   Creature *rescued = *itr;
+                    if(!rescued)
+                     continue;
+
+                   if (rescued->isAlive())
+                   {
+                      rescued->GetMotionMaster()->MovePoint(0, 840.661987f, 5.974489f, 510.107910f);
+                    }
+                      ++i;
+               }            
                return false;
             }
             
           return false;
         }
+        
+        private:
+        std::list<Creature*> Rescued1;
 };
 
 class at_geist_ambusher : public AreaTriggerScript
@@ -1039,12 +1053,11 @@ class at_geist_ambusher : public AreaTriggerScript
         {
           InstanceScript* instance = player->GetInstanceScript();
          
-          if(instance->GetData(DATA_GEIST_AMBUSHER) == DONE || player->isGameMaster() || !instance)
+          if(player->isGameMaster() || !instance)
                return false;
                
            if(instance->GetData(DATA_SLAVE_OUTRO_GARFROST) == DONE)
            {
-               instance->SetData(DATA_GEIST_AMBUSHER, DONE);
                uint8 i = 0;
                GetCreatureListWithEntryInGrid(Geist, player, 36886, 300.0f);
                 for(std::list<Creature*>::iterator itr = Geist.begin(); itr != Geist.end(); ++itr)
@@ -1057,7 +1070,7 @@ class at_geist_ambusher : public AreaTriggerScript
                       geist->GetMotionMaster()->MoveJump(835.122620f, 1.335451f, 509.846619f, 30.0f, 20.0f);
                       ++i;
                } 
-               return false;
+               return true;
             }
             
           return false;

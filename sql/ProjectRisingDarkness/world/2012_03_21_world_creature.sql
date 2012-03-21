@@ -1,0 +1,13 @@
+SET @GUID1=202141;
+SET @GUID2=201909;
+SET @GUID3=201840;
+SET @GUID4=202222;
+SET @GUID5=124338;
+SET @GUID6=202018;
+SET @GUID7=202022;
+SET @GUID8=202050;
+SET @GUID9=202097;
+DELETE FROM creature WHERE guid IN (@GUID1, @GUID2, @GUID3, @GUID4, @GUID5, @GUID6, @GUID7, @GUID8, @GUID9);
+DELETE FROM creature_addon where guid IN(@GUID5);
+
+update creature_template set unit_flags = 32832, faction_A = 21, faction_H = 21 where entryIN(36830, 36892);

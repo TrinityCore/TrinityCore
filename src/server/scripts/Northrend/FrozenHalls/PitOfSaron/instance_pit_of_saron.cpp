@@ -39,11 +39,14 @@ static const Position SlaveLeaderPos2[3] =
     {847.959351f, -11.114618f, 509.794922f, 2.366650f},
 };
 // Slaves Alliance and Horde If Gargrost Dead For Events  from sniff
-static const Position spawnPoints1[2] =
+const Position spawnPoints1[3] =
 {
-    {785.253967f, -19.504539f, 508.234070f, 4.000795f},
-    {789.847778f, -24.215509f, 508.415253f, 3.914401f},
+    {768.920044f, -38.462135f, 508.355469f, 3.903403f},
+    {766.413635f, -36.130611f, 508.346466f, 4.056557f},
+    {770.746033f, -40.480698f, 508.355469f, 3.915185f},
 };
+Position const spawnPoints2 = {773.266174f, -43.121738f, 508.355469f, 3.954455f};
+
 class instance_pit_of_saron : public InstanceMapScript
 {
     public:
@@ -235,10 +238,10 @@ class instance_pit_of_saron : public InstanceMapScript
                                 else
                                     summoner->SummonCreature(NpcSlaveHorde[i], SlaveLeaderPos[i], TEMPSUMMON_MANUAL_DESPAWN);
                                }
-                            
-                               for (uint8 i = 0; i < 2; i++)
+                               summoner->SummonCreature(36888, spawnPoints2, TEMPSUMMON_MANUAL_DESPAWN);
+                               for (uint8 i = 0; i < 3; i++)
                                {
-                               summoner->SummonCreature(NpcSlaveIfDeadGarfrost[i], spawnPoints1[i], TEMPSUMMON_MANUAL_DESPAWN);
+                               summoner->SummonCreature(36889, spawnPoints1[i], TEMPSUMMON_MANUAL_DESPAWN);
                                }
                             }
                             if(GetBossState(DATA_ICK) == DONE)
