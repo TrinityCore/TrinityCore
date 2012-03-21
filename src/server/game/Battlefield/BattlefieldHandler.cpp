@@ -60,7 +60,7 @@ void WorldSession::SendBfInvitePlayerToQueue(uint32 BattleId)
 //Param2:(ZoneId) the zone where the battle is (4197 for wg)
 //Param3:(CanQueue) if able to queue
 //Param4:(Full) on log in is full
-void WorldSession::SendBfQueueInviteResponce(uint32 BattleId,uint32 ZoneId, bool CanQueue, bool Full)
+void WorldSession::SendBfQueueInviteResponse(uint32 BattleId,uint32 ZoneId, bool CanQueue, bool Full)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 11);
     data << uint32(BattleId);
@@ -132,7 +132,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recv_data)
     else
     {
         if (_player->GetZoneId() == Bf->GetZoneId())
-            Bf->KickPlayerFromBf(_player->GetGUID());
+            Bf->KickPlayerFromBattlefield(_player->GetGUID());
     }
 }
 
