@@ -1029,9 +1029,7 @@ class at_slave_rescued : public AreaTriggerScript
                      continue;
 
                    if (rescued->isAlive())
-                   {
                       rescued->GetMotionMaster()->MovePoint(0, 840.661987f, 5.974489f, 510.107910f);
-                    }
                       ++i;
                }            
                return false;
