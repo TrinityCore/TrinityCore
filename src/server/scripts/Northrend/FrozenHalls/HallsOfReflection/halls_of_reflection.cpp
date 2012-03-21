@@ -161,13 +161,13 @@ const Position HallsofReflectionLocs[]=
     {5401.866699f, 2110.837402f, 707.695251f, 0.800610f}, // 10 Loralen follows
 };
 
-const Position SpawnPos = {5262.540527f, 1949.693726f, 707.695007f, 0.808736f}; // Jaina/Sylvanas Beginning Position
+const Position SpawnPos = {5262.540527f, 1949.693726f, 707.695007f, 0.808736f};                 // Jaina/Sylvanas Beginning Position
 const Position MoveDoorPos = {5268.254395f, 1955.522705f, 707.699585f, 1.277278f};
-const Position MoveThronePos = {5306.952148f, 1998.499023f, 709.341431f, 1.277278f}; // Jaina/Sylvanas walks to throne
+const Position MoveThronePos = {5306.952148f, 1998.499023f, 709.341431f, 1.277278f};            // Jaina/Sylvanas walks to throne
 const Position UtherSpawnPos = {5308.310059f, 2003.857178f, 709.341431f, 4.650315f};
 const Position LichKingSpawnPos = {5362.917480f, 2062.307129f, 707.695374f, 3.945812f};
-const Position LichKingMoveThronePos = {5312.080566f, 2009.172119f, 709.341431f, 3.973301f}; // Lich King walks to throne
-const Position LichKingMoveAwayPos = {5400.069824f, 2102.7131689f, 707.69525f, 0.843803f}; // Lich King walks away
+const Position LichKingMoveThronePos = {5312.080566f, 2009.172119f, 709.341431f, 3.973301f};    // Lich King walks to throne
+const Position LichKingMoveAwayPos = {5400.069824f, 2102.7131689f, 707.69525f, 0.843803f};      // Lich King walks away
 
 class npc_jaina_or_sylvanas_hor : public CreatureScript
 {
@@ -1128,21 +1128,21 @@ public:
 
 enum GENERAL_EVENT
 {
-    SAY_AGGRO = -1594519,
-    SAY_DEATH = -1594520,
+    SAY_AGGRO                   = -1594519,
+    SAY_DEATH                   = -1594520,
 
-    SPELL_SHIELD_THROWN = 69222,
-    H_SPELL_SHIELD_THROWN = 73076,
-    SPELL_SPIKE = 69184,
-    H_SPELL_SPIKE = 70399,
-    SPELL_CLONE_NAME = 57507,
-    SPELL_CLONE_MODEL = 45204,
+    SPELL_SHIELD_THROWN         = 69222,
+    H_SPELL_SHIELD_THROWN       = 73076,
+    SPELL_SPIKE                 = 69184,
+    H_SPELL_SPIKE               = 70399,
+    SPELL_CLONE_NAME            = 57507,
+    SPELL_CLONE_MODEL           = 45204,
 
     // Reflection'Spells
-    SPELL_BALEFUL_STRIKE = 69933,
-    SPELL_SPIRIT_BURST = 69900,
-    H_SPELL_BALEFUL_STRIKE = 70400,
-    H_SPELL_SPIRIT_BURST = 73046,
+    SPELL_BALEFUL_STRIKE        = 69933,
+    SPELL_SPIRIT_BURST          = 69900,
+    H_SPELL_BALEFUL_STRIKE      = 70400,
+    H_SPELL_SPIRIT_BURST        = 73046,
 };
 
 class npc_frostworn_general : public CreatureScript
@@ -1321,54 +1321,54 @@ public:
 enum Defs
 {
     /*INTRO - Pre Escape*/
-    SAY_LICH_KING_AGGRO_A = -1594477,
-    SAY_LICH_KING_AGGRO_H = -1594478,
-    SAY_JAINA_AGGRO = -1594479,
-    SAY_SYLVANA_AGGRO = -1594480,
+    SAY_LICH_KING_AGGRO_A       = -1594477,
+    SAY_LICH_KING_AGGRO_H       = -1594478,
+    SAY_JAINA_AGGRO             = -1594479,
+    SAY_SYLVANA_AGGRO           = -1594480,
 
     /*ESCAPE*/
-    SAY_JAINA_WALL_01 = -1594487,
-    SAY_SYLVANA_WALL_01 = -1594488,
-    SAY_JAINA_WALL_02 = -1594489,
-    SAY_SYLVANA_WALL_02 = -1594490,
-    SAY_LICH_KING_WALL_02 = -1594491,
-    SAY_LICH_KING_WALL_03 = -1594492,
-    SAY_LICH_KING_WALL_04 = -1594493,
-    SAY_JAINA_WALL_03 = -1594494,
-    SAY_JAINA_WALL_04 = -1594495,
-    SAY_SYLVANA_WALL_03 = -1594496,
-    SAY_SYLVANA_WALL_04 = -1594497,
-    SAY_JAINA_ESCAPE_01 = -1594498,
-    SAY_JAINA_ESCAPE_02 = -1594499,
-    SAY_SYLVANA_ESCAPE_01 = -1594500,
-    SAY_SYLVANA_ESCAPE_02 = -1594501,
-    SAY_JAINA_TRAP = -1594502,
-    SAY_SYLVANA_TRAP = -1594503,
-    SAY_MATHEAS_JAINA = -1594505,
-    SAY_JAINA_FIRE = -1594526,
-    SAY_SYLVANA_FIRE = -1594522,
-    SAY_SYLVANA_FINAL_1 = -1594523,
-    SAY_SYLVANA_FINAL_2 = -1594521,
-    SAY_JAINA_FINAL_1 = -1594527,
-    SAY_JAINA_FINAL_2 = -1594524,
-    SAY_JAINA_FINAL_3 = -1594525,
-    SAY_LICH_KING_END_01 = -1594506,
-    SAY_LICH_KING_END_02 = -1594507,
-    SAY_LICH_KING_END_03 = -1594508,
+    SAY_JAINA_WALL_01           = -1594487,
+    SAY_SYLVANA_WALL_01         = -1594488,
+    SAY_JAINA_WALL_02           = -1594489,
+    SAY_SYLVANA_WALL_02         = -1594490,
+    SAY_LICH_KING_WALL_02       = -1594491,
+    SAY_LICH_KING_WALL_03       = -1594492,
+    SAY_LICH_KING_WALL_04       = -1594493,
+    SAY_JAINA_WALL_03           = -1594494,
+    SAY_JAINA_WALL_04           = -1594495,
+    SAY_SYLVANA_WALL_03         = -1594496,
+    SAY_SYLVANA_WALL_04         = -1594497,
+    SAY_JAINA_ESCAPE_01         = -1594498,
+    SAY_JAINA_ESCAPE_02         = -1594499,
+    SAY_SYLVANA_ESCAPE_01       = -1594500,
+    SAY_SYLVANA_ESCAPE_02       = -1594501,
+    SAY_JAINA_TRAP              = -1594502,
+    SAY_SYLVANA_TRAP            = -1594503,
+    SAY_MATHEAS_JAINA           = -1594505,
+    SAY_JAINA_FIRE              = -1594526,
+    SAY_SYLVANA_FIRE            = -1594522,
+    SAY_SYLVANA_FINAL_1         = -1594523,
+    SAY_SYLVANA_FINAL_2         = -1594521,
+    SAY_JAINA_FINAL_1           = -1594527,
+    SAY_JAINA_FINAL_2           = -1594524,
+    SAY_JAINA_FINAL_3           = -1594525,
+    SAY_LICH_KING_END_01        = -1594506,
+    SAY_LICH_KING_END_02        = -1594507,
+    SAY_LICH_KING_END_03        = -1594508,
 
     /*SPELLS AND VISUAL EFFECTS*/
-    SPELL_WINTER = 69780,
-    SPELL_FURY_OF_FROSTMOURNE = 70063,
-    SPELL_ICE_PRISON_VISUAL = 69708,
-    SPELL_DARK_ARROW = 70194,
-    SPELL_ICE_BARRIER = 69787,
-    SPELL_DESTROY_ICE_WALL_01 = 69784, //Jaina
-    SPELL_DESTROY_ICE_WALL_03 = 70225, //Sylvana
-    SPELL_SYLVANA_JUMP = 68339,
-    SPELL_SYLVANA_STEP = 69087,
-    SPELL_FIRE_CANNON = 67461,
+    SPELL_WINTER                = 69780,
+    SPELL_FURY_OF_FROSTMOURNE   = 70063,
+    SPELL_ICE_PRISON_VISUAL     = 69708,
+    SPELL_DARK_ARROW            = 70194,
+    SPELL_ICE_BARRIER           = 69787,
+    SPELL_DESTROY_ICE_WALL_01   = 69784, //Jaina
+    SPELL_DESTROY_ICE_WALL_03   = 70225, //Sylvana
+    SPELL_SYLVANA_JUMP          = 68339,
+    SPELL_SYLVANA_STEP          = 69087,
+    SPELL_FIRE_CANNON           = 67461,
 
-    FACTION = 2076,
+    FACTION                     = 2076,
 };
 
 const Position CannonSpawns[4] =
