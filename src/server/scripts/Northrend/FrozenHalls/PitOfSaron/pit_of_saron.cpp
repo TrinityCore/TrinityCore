@@ -389,19 +389,19 @@ struct startPosition
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
 };
 
-class pitofsaron_start : public CreatureScript
+class pos_intro : public CreatureScript
 {
 public:
-    pitofsaron_start() : CreatureScript("pitofsaron_start") { }
+    pos_intro() : CreatureScript("pos_intro") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new pitofsaron_startAI(pCreature);
+        return new pos_introAI(pCreature);
     }
 
-    struct pitofsaron_startAI : public ScriptedAI
+    struct pos_introAI : public ScriptedAI
     {
-        pitofsaron_startAI(Creature *c) : ScriptedAI(c)
+        pos_introAI(Creature *c) : ScriptedAI(c)
         {
             instance = c->GetInstanceScript();
             Reset();
@@ -869,10 +869,10 @@ public:
         bool event;
     };
 };
-class at_pit_of_saron_start : public AreaTriggerScript
+class at_pos_intro : public AreaTriggerScript
 {
     public:
-        at_pit_of_saron_start() : AreaTriggerScript("at_pit_of_saron_start") { }
+        at_pos_intro() : AreaTriggerScript("at_pos_intro") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {
@@ -1000,10 +1000,10 @@ class at_ice_cicle_pos : public AreaTriggerScript
         }    
 };
 
-class at_slave_rescued : public AreaTriggerScript
+class at_slave_rescued_pos : public AreaTriggerScript
 {
     public:
-        at_slave_rescued() : AreaTriggerScript("at_slave_rescued") { }
+        at_slave_rescued_pos() : AreaTriggerScript("at_slave_rescued_pos") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {
@@ -1042,10 +1042,10 @@ class at_slave_rescued : public AreaTriggerScript
         std::list<Creature*> Rescued1;
 };
 
-class at_geist_ambusher : public AreaTriggerScript
+class at_geist_ambusher_pos : public AreaTriggerScript
 {
     public:
-        at_geist_ambusher() : AreaTriggerScript("at_geist_ambusher") { }
+        at_geist_ambusher_pos() : AreaTriggerScript("at_geist_ambusher_pos") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {
@@ -1083,11 +1083,11 @@ void AddSC_pit_of_saron()
     new mob_wrathbone_laborer();
     new mob_iceborn_protodrake();
     new spell_trash_mob_glacial_strike();
-    new pitofsaron_start();
-    new at_pit_of_saron_start();
+    new pos_intro();
+    new at_pos_intro();
     new at_ymirjar_flamebearer_pos();
     new at_fallen_warrior_pos();
     new at_ice_cicle_pos();
-    new at_slave_rescued();
-    new at_geist_ambusher();
+    new at_slave_rescued_pos();
+    new at_geist_ambusher_pos();
 }
