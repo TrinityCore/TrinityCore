@@ -619,8 +619,7 @@ public:
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (Unit* target = me->SelectNearestTarget(2.0f))
-                    if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+                if (Player* target = me->SelectNearestPlayer(2.0f))
                     {
                         DoCastAOE(SPELL_UNLEASHED_DARK);
                         me->GetMotionMaster()->MoveIdle();
@@ -661,8 +660,7 @@ public:
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (Unit* target = me->SelectNearestTarget(2.0f))
-                    if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+                if (Player* target = me->SelectNearestPlayer(2.0f))
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT);
                         me->GetMotionMaster()->MoveIdle();
