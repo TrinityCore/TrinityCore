@@ -154,6 +154,33 @@ bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
+bool BattlegroundRV::IsPlayerUnderMap(Player* player, float x, float y, float z)
+{			
+    if (z < 28.27)			
+    {		
+        if (player->HasAura(32727)) // starting
+        {
+                return false;
+        }			
+        else if (x > 755 && x < 771 && y < -265 && y > -282 && z > 2.78) // Going up with the elevator in the western cage
+        {
+                return false;
+        }					
+        else if (x > 755 && x < 771 && y < -286 && y > -302 && z > 2.78) // Going up with the elevator in the eastern cage
+        {
+                return false;
+        }
+        else
+        {
+                return true;	
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
+
 void BattlegroundRV::HandleAreaTrigger(Player* Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)

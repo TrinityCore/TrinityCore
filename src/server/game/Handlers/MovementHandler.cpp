@@ -361,6 +361,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     {
         plMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
+        // old port up system
         if (movementInfo.pos.GetPositionZ() < -500.0f)
         {
             if (!(plMover->InBattleground()
@@ -379,6 +380,15 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                     if (!plMover->isAlive())
                         plMover->KillPlayer();
                 }
+            }
+        }
+
+        // new port up system
+        if (plMover->InBattleground())
+        {
+            if (plMover->GetBattleground()->IsPlayerUnderMap(_player, movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()))
+            {
+                plMover->GetBattleground()->HandlePlayerUnderMap(_player);
             }
         }
     }
