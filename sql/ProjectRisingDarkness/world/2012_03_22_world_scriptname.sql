@@ -11,3 +11,5 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 DELETE FROM `areatrigger_scripts` where `entry`= 5599;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5599,'at_geist_ambusher_pos');
+
+UPDATE creature_template SET Scriptname = 'pos_outro' WHERE entry IN (38189, 38188);

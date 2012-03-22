@@ -42,6 +42,7 @@ enum DataTypes
     DATA_VICTUS_OR_GORKUN_FREED = 13,
     DATA_SLAVE_OUTRO_GARFROST   = 14,
     DATA_GEIST_AMBUSHER         = 15,
+    DATA_SINDRAGOSA             = 16,
 };
 
 enum CreatureIds
@@ -95,6 +96,7 @@ enum CreatureIds
     NPC_WRATHBONE_REAVER                        = 37729,
     NPC_WRATHBONE_SORCERER                      = 37728,
     NPC_WRATHBONE_SKELETON                      = 36877,
+    NPC_SINDRAGOSA                              = 37755,
 
     NPC_FORGEMASTER_STALKER                     = 36495,
     NPC_EXPLODING_ORB                           = 36610,
@@ -105,6 +107,7 @@ enum GameObjectIds
 {
     GO_SARONITE_ROCK                            = 196485,
     GO_ICE_WALL                                 = 201885,
+    GO_HALLS_OF_REFLECT_PORT                    = 201848, // unlocked by jaina/sylvanas at last outro
 };
 
 #endif

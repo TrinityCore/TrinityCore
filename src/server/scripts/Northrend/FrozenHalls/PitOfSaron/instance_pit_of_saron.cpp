@@ -64,7 +64,9 @@ class instance_pit_of_saron : public InstanceMapScript
                 _rimefangGUID = 0;
                 _jainaOrSylvanas1GUID = 0;
                 _jainaOrSylvanas2GUID = 0;
+                _sindragosaGUID = 0;
                 _teamInInstance = 0;
+                _uiHorp =0;
                 _victusOrGorkunFreedGUID = 0;
                 _tyrannusEventStart = NOT_STARTED;
                 _areaTriggerYmirjar = NOT_STARTED;
@@ -184,6 +186,9 @@ class instance_pit_of_saron : public InstanceMapScript
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_MARTIN_VICTUS_2, ALLIANCE);
                           _victusOrGorkunFreedGUID = creature->GetGUID();
+                    case NPC_SINDRAGOSA:
+                         _sindragosaGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -197,7 +202,10 @@ class instance_pit_of_saron : public InstanceMapScript
                         uiIceWall = go->GetGUID();
                         if (GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
                             HandleGameObject(NULL,true,go);
-                    break;
+                         break;
+                    case GO_HALLS_OF_REFLECT_PORT:
+                         _uiHorp = go->GetGUID();
+                         break;
                 }
             }
 
@@ -313,7 +321,11 @@ class instance_pit_of_saron : public InstanceMapScript
                     case DATA_JAINA_SYLVANAS_2:
                         return _jainaOrSylvanas2GUID;
                     case DATA_VICTUS_OR_GORKUN_FREED:
-                    return _victusOrGorkunFreedGUID;
+                        return _victusOrGorkunFreedGUID;
+                    case DATA_SINDRAGOSA:
+                         return _sindragosaGUID;
+                    case GO_HALLS_OF_REFLECT_PORT:
+                         return _uiHorp;
                     default:
                         break;
                 }
@@ -392,6 +404,8 @@ class instance_pit_of_saron : public InstanceMapScript
             uint64 _jainaOrSylvanas2GUID;
             uint64 uiIceWall;
             uint64 _victusOrGorkunFreedGUID;
+            uint64 _sindragosaGUID;
+            uint64 _uiHorp;
 
             uint32 _teamInInstance;
             uint8  _tyrannusEventStart;
