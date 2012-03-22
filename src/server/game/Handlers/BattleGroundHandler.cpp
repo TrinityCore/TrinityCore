@@ -216,7 +216,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* member = itr->getSource();
-            if (!member) continue;   // this should never happen
+            if (!member)
+                continue;   // this should never happen
 
             WorldPacket data;
 

@@ -2589,7 +2589,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK23            = 0x00800000,         // ? First seen in 3.2.2. Related to banner/backpack of creature/companion?
     CREATURE_TYPEFLAGS_UNK24            = 0x01000000,
     CREATURE_TYPEFLAGS_UNK25            = 0x02000000,
-    CREATURE_TYPEFLAGS_UNK26            = 0x04000000,
+    CREATURE_TYPEFLAGS_PARTY_MEMBER     = 0x04000000,         //! Creature can be targeted by spells that require target to be in caster's party/raid
     CREATURE_TYPEFLAGS_UNK27            = 0x08000000,
     CREATURE_TYPEFLAGS_UNK28            = 0x10000000,
     CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
