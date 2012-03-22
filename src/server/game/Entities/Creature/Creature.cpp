@@ -433,8 +433,8 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
         in relation to DisableGravity also.
 
     else if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE_1_FLAG_HOVER)
-        SetHover(true); 
-        
+        SetHover(true);
+
     */
 
     // TODO: Shouldn't we check whether or not the creature is in water first?
@@ -758,15 +758,13 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
         return false;
     }
 
+    //! Relocate before CreateFromProto, to initialize coords and allow
+    //! returning correct zone id for selecting OutdoorPvP/Battlefield script
+    Relocate(x, y, z, ang);
+
     //oX = x;     oY = y;    dX = x;    dY = y;    m_moveTime = 0;    m_startMove = 0;
     if (!CreateFromProto(guidlow, Entry, vehId, team, data))
         return false;
-
-    //! Need to be called after CreateFromProto
-    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-
-    Relocate(x, y, z, ang);
 
     if (!IsPositionValid())
     {
@@ -794,6 +792,14 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
     }
 
     LoadCreaturesAddon();
+
+    //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
+    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+        z += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+
+    //! Relocate again with updated Z coord
+    Relocate(x, y, z, ang);
+
     uint32 displayID = GetNativeDisplayId();
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (minfo && !isTotem())                               // Cancel load if no model defined or if totem
