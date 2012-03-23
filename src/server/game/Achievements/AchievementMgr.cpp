@@ -1957,6 +1957,9 @@ void AchievementMgr::SendAllAchievementData() const
 {
     WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA, m_completedAchievements.size()*8+4+m_criteriaProgress.size()*38+4);
     BuildAllDataPacket(&data);
+    if (data.size() > 0x1000)
+        data.Compress(SMSG_COMPRESSED_ACHIEVEMENT_DATA);
+
     GetPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -1973,6 +1976,17 @@ void AchievementMgr::SendRespondInspectAchievements(Player* player) const
  */
 void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
 {
+    size_t numCriterias = m_criteriaProgress.size();
+    uint32 achievementCount = 0;
+    ByteBuffer bitBuffer(numCriterias * 2 / 8 + 1);     // 2 bits per criteria/8 bits per byte
+    ByteBuffer counterBuffer(numCriterias * 8);         // uint64 values
+    ByteBuffer guidBuffer(numCriterias * 8);
+    ByteBuffer criteriaDateBuffer(numCriterias * 4);
+    ByteBuffer zeros(numCriterias * 4, true);           // fill with zeros
+    ByteBuffer criteriaIdBuffer(numCriterias * 4);
+    ByteBuffer achievementDateBuffer(m_completedAchievements.size() * 4);
+    ByteBuffer achievementIdBuffer(m_completedAchievements.size() * 4);
+
     AchievementEntry const* achievement = NULL;
     for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
     {
@@ -1981,23 +1995,32 @@ void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
         if (achievement->flags & ACHIEVEMENT_FLAG_HIDDEN)
             continue;
 
-        *data << uint32(iter->first);
-        *data << uint32(secsToTimeBitFields(iter->second.date));
+        achievementDateBuffer << uint32(secsToTimeBitFields(iter->second.date));
+        achievementIdBuffer << uint32(achievement->ID);
+        ++achievementCount;
     }
-    *data << int32(-1);
 
-    for (CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter != m_criteriaProgress.end(); ++iter)
+    for (CriteriaProgressMap::const_iterator itr = m_criteriaProgress.begin(); itr != m_criteriaProgress.end(); ++itr)
     {
-        *data << uint32(iter->first);
-        data->appendPackGUID(iter->second.counter);
-        data->append(GetPlayer()->GetPackGUID());
-        *data << uint32(0);
-        *data << uint32(secsToTimeBitFields(iter->second.date));
-        *data << uint32(0);
-        *data << uint32(0);
+        bitBuffer.WriteBits(0, 2);
+        counterBuffer << uint64(itr->second.counter);
+        guidBuffer << uint64(GetPlayer()->GetGUID());
+        criteriaDateBuffer << uint32(secsToTimeBitFields(itr->second.date));
+        criteriaIdBuffer << uint32(itr->first);
     }
 
-    *data << int32(-1);
+    bitBuffer.FlushBits();
+    *data << uint32(numCriterias);
+    data->append(bitBuffer);
+    data->append(counterBuffer);
+    *data << uint32(achievementCount);
+    data->append(achievementDateBuffer);
+    data->append(guidBuffer);
+    data->append(criteriaDateBuffer);
+    data->append(zeros);
+    data->append(achievementIdBuffer);
+    data->append(criteriaIdBuffer);
+    data->append(zeros);
 }
 
 bool AchievementMgr::HasAchieved(uint32 achievementId) const
@@ -2040,7 +2063,7 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
                 break;
         }
     }
-    
+
     // additional conditions
     for (int8 i = 0; i < MAX_ADDITIONAL_CRITERIA_CONDITIONS; ++i)
     {
