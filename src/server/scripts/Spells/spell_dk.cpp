@@ -642,9 +642,7 @@ public:
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* target = GetTarget();
-            if (target->HasAura(DK_SPELL_UNHOLY_PRESENCE))
-                target->RemoveAura(DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED);
+            GetTarget()->RemoveAura(DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED);
         }
 
         void Register()
