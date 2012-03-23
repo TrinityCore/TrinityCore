@@ -1039,7 +1039,7 @@ enum Opcodes
     SMSG_TIME_SYNC_REQ                               = 0xE46E,
     SMSG_TITLE_EARNED                                = 0x1AFA,
     SMSG_TOGGLE_XP_GAIN                              = 0x8A5B,
-    SMSG_TOTEM_CREATED                               = 0x00,
+    SMSG_TOTEM_CREATED                               = 0xCEF6,
     SMSG_TRADE_STATUS                                = 0xA0DC,
     SMSG_TRADE_STATUS_EXTENDED                       = 0xF0EC,
     SMSG_TRAINER_BUY_RESULT                          = 0x00,
