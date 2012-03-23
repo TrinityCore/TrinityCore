@@ -113,7 +113,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
             if (creature->isQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
-            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(1);
+            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
 
             if (canBuild(creature))
             {
