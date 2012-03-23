@@ -201,7 +201,8 @@ public:
 
                         if (uiFlamesphereTimer <= diff)
                         {
-                            DoCast(me, SPELL_CONJURE_FLAME_SPHERE);
+                            // because TARGET_UNIT_TARGET_ENEMY we need a target selected to cast
+                            DoCast(me->getVictim(), SPELL_CONJURE_FLAME_SPHERE);
                             Phase = CASTING_FLAME_SPHERES;
                             uiPhaseTimer = 3*IN_MILLISECONDS + diff;
                             uiFlamesphereTimer = 15*IN_MILLISECONDS;
