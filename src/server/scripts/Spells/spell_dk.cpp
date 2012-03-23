@@ -713,6 +713,7 @@ enum DeathCoil
 {
     SPELL_DEATH_COIL_DAMAGE     = 47632,
     SPELL_DEATH_COIL_HEAL       = 47633,
+    SPELL_SIGIL_VENGEFUL_HEART  = 64962,
 };
 
 class spell_dk_death_coil : public SpellScriptLoader
@@ -743,7 +744,11 @@ class spell_dk_death_coil : public SpellScriptLoader
                         caster->CastCustomSpell(target, SPELL_DEATH_COIL_HEAL, &bp, NULL, NULL, true);
                     }
                     else
+                    {
+                        if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_SIGIL_VENGEFUL_HEART,EFFECT_1))
+                            damage += auraEffect->GetBaseAmount();
                         caster->CastCustomSpell(target, SPELL_DEATH_COIL_DAMAGE, &damage, NULL, NULL, true);
+                    }
                 }
             }
 

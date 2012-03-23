@@ -1625,6 +1625,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Autobroadcasts...");
     LoadAutobroadcasts();
 
+    sLog->outString("Loading Ip2nation...");
+    LoadIp2nation();
+
     ///- Load and initialize scripts
     sObjectMgr->LoadQuestStartScripts();                         // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
     sObjectMgr->LoadQuestEndScripts();                           // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
@@ -1878,6 +1881,23 @@ void World::LoadAutobroadcasts()
     } while (result->NextRow());
 
     sLog->outString(">> Loaded %u autobroadcasts definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
+void World::LoadIp2nation()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT count(c.code) FROM ip2nationCountries c, ip2nation i WHERE c.code = i.country");
+    uint32 count = 0;
+
+    if (result)
+    {
+        Field* fields = result->Fetch();
+        count = fields[0].GetUInt32();
+    }
+
+    sLog->outString(">> Loaded %u ip2nation definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
