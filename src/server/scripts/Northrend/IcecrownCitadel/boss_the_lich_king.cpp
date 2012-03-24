@@ -1241,7 +1241,6 @@ class npc_tirion_fordring_tft : public CreatureScript
                if(!player->getAttackers().empty())
                {
                 player->CLOSE_GOSSIP_MENU();
-                creature->MonsterSay("You are in combat!", LANG_UNIVERSAL, NULL);
                 return true;
                }
                 if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
