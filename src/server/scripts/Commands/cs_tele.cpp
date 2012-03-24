@@ -131,7 +131,10 @@ public:
                 target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation());
             else
             {
-                QueryResult resultDB = CharacterDatabase.PQuery("SELECT mapId, zoneId, posX, posY, posZ FROM character_homebind WHERE guid = %u", target_guid);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_HOMEBIND);
+                stmt->setUInt32(0, target_guid);
+                PreparedQueryResult resultDB = CharacterDatabase.Query(stmt);
+
                 if (resultDB)
                 {
                     Field* fieldsDB = resultDB->Fetch();
