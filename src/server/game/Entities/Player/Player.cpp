@@ -1678,6 +1678,10 @@ if (m_jail_amnestie == true && sObjectMgr->m_jailconf_amnestie > 0)
     }
 
     GetAchievementMgr().UpdateTimedAchievements(p_time);
+    
+    //Remove Mount When Used Dispersion (ShadowForm + Dispersion Mount Exploit)
+    if (HasAura(47585) && HasAuraType(SPELL_AURA_MOUNTED))
+        ToPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     if (HasUnitState(UNIT_STATE_MELEE_ATTACKING) && !HasUnitState(UNIT_STATE_CASTING))
     {
