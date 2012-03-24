@@ -174,7 +174,7 @@ uint32 GetSecurity(uint32 accountId)
     stmt->setUInt32(0, accountId);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    return (result) ? (*result)[0].GetUInt32() : uint32(SEC_PLAYER);
+    return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
 }
 
 uint32 GetSecurity(uint32 accountId, int32 realmId)
@@ -184,7 +184,7 @@ uint32 GetSecurity(uint32 accountId, int32 realmId)
     stmt->setInt32(1, realmId);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    return (result) ? (*result)[0].GetUInt32() : uint32(SEC_PLAYER);
+    return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
 }
 
 bool GetName(uint32 accountId, std::string& name)
