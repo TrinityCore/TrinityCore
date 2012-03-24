@@ -444,18 +444,22 @@ public:
 
       void Reset()
       {
+          Say_Timer = 5000;
           ReleasedFromCage = false;
       }
 
       void UpdateAI(uint32 const diff)
       {
-          if (Say_Timer <= diff && ReleasedFromCage)
+          if (ReleasedFromCage)
           {
-              me->ForcedDespawn();
-              ReleasedFromCage = false;
+              if (Say_Timer <= diff)
+              {
+                  me->ForcedDespawn();
+                  ReleasedFromCage = false;
+              }
+              else
+                  Say_Timer -= diff;
           }
-          else
-              Say_Timer -= diff;
       }
 
       void MovementInform(uint32 type, uint32 id)
