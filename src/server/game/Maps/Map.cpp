@@ -1527,7 +1527,8 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
                     uint32 overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
                     if (!overrideLiquid && area->zone)
                     {
-                        if (area = GetAreaEntryByAreaID(area->zone))
+                        area = GetAreaEntryByAreaID(area->zone)
+                        if (area)
                             overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
                     }
 
@@ -1802,7 +1803,8 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
                         uint32 overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
                         if (!overrideLiquid && area->zone)
                         {
-                            if (area = GetAreaEntryByAreaID(area->zone))
+                            area = GetAreaEntryByAreaID(area->zone)
+                            if (area)
                                 overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
                         }
 
