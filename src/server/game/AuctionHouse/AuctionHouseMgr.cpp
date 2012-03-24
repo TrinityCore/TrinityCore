@@ -482,7 +482,9 @@ void AuctionHouseObject::Update()
     if (AuctionsMap.empty())
         return;
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime+60);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BY_TIME);
+    stmt->setUInt32(0, (uint32)curTime+60);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
         return;
