@@ -334,6 +334,7 @@ class boss_kaelthas : public CreatureScript
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetDisableGravity(false);
 
                 if (instance)
                     instance->SetData(DATA_KAELTHASEVENT, 0);
@@ -454,7 +455,7 @@ class boss_kaelthas : public CreatureScript
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
+                me->SetDisableGravity(false);
                 DoScriptText(SAY_DEATH, me);
 
                 summons.DespawnAll();
@@ -819,6 +820,7 @@ class boss_kaelthas : public CreatureScript
 
                                 DoScriptText(SAY_PHASE5_NUTS, me);
 
+                                me->SetDisableGravity(true);
                                 me->StopMoving();
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveIdle();
