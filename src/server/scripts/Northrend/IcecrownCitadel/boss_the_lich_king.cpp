@@ -1236,8 +1236,14 @@ class npc_tirion_fordring_tft : public CreatureScript
                     SetEquipmentSlots(true);    // remove glow on ashbringer
             }
 
-            void sGossipSelect(Player* /*player*/, uint32 sender, uint32 action)
+            void sGossipSelect(Player* player, uint32 sender, uint32 action)
             {
+               if(!player->getAttackers().empty())
+               {
+                player->CLOSE_GOSSIP_MENU();
+                creature->MonsterSay("You are in combat!", LANG_UNIVERSAL, NULL);
+                return true;
+               }
                 if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
                 {
                     _events.SetPhase(PHASE_INTRO);
