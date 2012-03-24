@@ -2334,7 +2334,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
     do
     {
         Field* fieldsAccount = resultAccounts->Fetch();
-        uint32 account = fieldsAccount->GetUInt32();
+        uint32 account = fieldsAccount[0].GetUInt32();
 
         if (mode != BAN_IP)
         {
@@ -2770,7 +2770,10 @@ void World::ResetDailyQuests()
 
 void World::LoadDBAllowedSecurityLevel()
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT allowedSecurityLevel from realmlist WHERE id = '%d'", realmID);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
+    stmt->setInt32(0, int32(realmID));
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
     if (result)
         SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt16()));
 }
