@@ -128,12 +128,26 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
     else
     {
         rc_team = sObjectMgr->GetPlayerTeamByGUID(rc);
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*) FROM mail WHERE receiver = '%u'", GUID_LOPART(rc)))
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
+
+        stmt->setUInt32(0, GUID_LOPART(rc));
+
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (result)
         {
             Field* fields = result->Fetch();
             mails_count = fields[0].GetUInt32();
         }
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT level FROM characters WHERE guid = '%u'", GUID_LOPART(rc)))
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
+
+        stmt->setUInt32(0, GUID_LOPART(rc));
+
+        result = CharacterDatabase.Query(stmt);
+
+        if (result)
         {
             Field* fields = result->Fetch();
             receiveLevel = fields[0].GetUInt8();

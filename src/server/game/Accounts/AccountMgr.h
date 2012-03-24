@@ -44,7 +44,7 @@ namespace AccountMgr
 
     uint32 GetId(std::string username);
     uint32 GetSecurity(uint32 accountId);
-    uint32 GetSecurity(uint64 accountId, int32 realmId);
+    uint32 GetSecurity(uint32 accountId, int32 realmId);
     bool GetName(uint32 accountId, std::string& name);
     uint32 GetCharactersCount(uint32 accountId);
     std::string CalculateShaPassHash(std::string& name, std::string& password);
