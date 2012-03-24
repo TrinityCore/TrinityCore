@@ -36,7 +36,8 @@ enum Spells
     SPELL_VANISH                                  = 55964,
     CREATURE_FLAME_SPHERE                         = 30106,
     H_CREATURE_FLAME_SPHERE_1                     = 31686,
-    H_CREATURE_FLAME_SPHERE_2                     = 31687
+    H_CREATURE_FLAME_SPHERE_2                     = 31687,
+    SPELL_HOVER_FALL                              = 60425
 };
 enum Misc
 {
@@ -45,15 +46,17 @@ enum Misc
     DATA_SPHERE_DISTANCE                          =    15
 };
 #define DATA_SPHERE_ANGLE_OFFSET            0.7f
-#define DATA_GROUND_POSITION_Z             11.4f
+#define DATA_GROUND_POSITION_Z             11.30809f
 
 enum Yells
 {
-    SAY_AGGRO                                     = 0,
-    SAY_VANISH                                    = 1,
-    SAY_FEED                                      = 2,
+    SAY_1                                         = 0,
+    SAY_WARNING                                   = 1,
+    SAY_AGGRO                                     = 2,
     SAY_SLAY                                      = 3,
     SAY_DEATH                                     = 4,
+    SAY_FEED                                      = 5,
+    SAY_VANISH                                    = 6,
 };
 enum CombatPhase
 {
@@ -79,8 +82,7 @@ public:
         boss_taldaramAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetDisableGravity(true);
         }
 
         uint32 uiBloodthirstTimer;
@@ -176,9 +178,9 @@ public:
                         uiPhaseTimer = 1300;
                         break;
                     case VANISHED:
-                        Talk(SAY_FEED);
                         if (Unit* pEmbraceTarget = GetEmbraceTarget())
-                            DoCast(pEmbraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
+                            DoCast(pEmbraceTarget, DUNGEON_MODE(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
+                        Talk(SAY_FEED);
                         me->GetMotionMaster()->Clear();
                         me->SetSpeed(MOVE_WALK, 1.0f, true);
                         me->GetMotionMaster()->MoveChase(me->getVictim());
@@ -200,7 +202,7 @@ public:
                         if (uiFlamesphereTimer <= diff)
                         {
                             // because TARGET_UNIT_TARGET_ENEMY we need a target selected to cast
-                            DoCast(me->getVictim(), SPELL_CONJURE_FLAME_SPHERE);
+                            DoCastVictim(SPELL_CONJURE_FLAME_SPHERE);
                             Phase = CASTING_FLAME_SPHERES;
                             uiPhaseTimer = 3*IN_MILLISECONDS + diff;
                             uiFlamesphereTimer = 15*IN_MILLISECONDS;
@@ -313,12 +315,13 @@ public:
         {
             if (!instance)
                 return;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
-            me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
             me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
+            DoCast(SPELL_HOVER_FALL);
+            me->SetDisableGravity(false);
+            me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
+            Talk(SAY_WARNING);
             uint64 prison_GUID = instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
             instance->HandleGameObject(prison_GUID, true);
         }
@@ -403,10 +406,12 @@ public:
             {
                 case GO_SPHERE1:
                     instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS);
+                    pPrinceTaldaram->AI()->Talk(SAY_1);
                     break;
 
                 case GO_SPHERE2:
                     instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS);
+                    pPrinceTaldaram->AI()->Talk(SAY_1);
                     break;
             }
 

@@ -1333,6 +1333,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
+    sLog->outString("Loading SkillLineAbilityMultiMap Data...");
+    sSpellMgr->LoadSkillLineAbilityMap();
+
     sLog->outString("Loading spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
@@ -1344,9 +1347,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading Instance Template...");
     sObjectMgr->LoadInstanceTemplate();
-
-    sLog->outString("Loading SkillLineAbilityMultiMap Data...");
-    sSpellMgr->LoadSkillLineAbilityMap();
 
     // Must be called before `creature_respawn`/`gameobject_respawn` tables
     sLog->outString("Loading instances...");
