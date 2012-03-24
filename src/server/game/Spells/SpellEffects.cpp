@@ -4886,6 +4886,12 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
         // Overkill
         if (m_caster->ToPlayer()->HasSpell(58426))
            m_caster->CastSpell(m_caster, 58427, true);
+        unitTarget->CombatStop();
+    }
+    else
+    {
+        EffectForceDeselect(SpellEffIndex(0));
+        unitTarget->ClearInCombat();
     }
 }
 
