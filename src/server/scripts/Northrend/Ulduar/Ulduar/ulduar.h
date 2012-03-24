@@ -81,12 +81,16 @@ enum UlduarNPCs
     NPC_SARA                     = 33134,
     NPC_ALGALON                  = 32871,
     NPC_BRANN_ALGALON            = 34064,
-    NPC_BRANN_BRONZBEARD         = 33579,
-    NPC_DELORAH                  = 33701,
     NPC_ULDUAR_WARMAGE           = 33662,
     NPC_RHYDIAN                  = 33696,
     NPC_KEEPER_UNIT              = 33721,
     NPC_NORGANNON                = 33686,
+    NPC_BRONZEBEARD_RADIO        = 34054,    
+    NPC_LOREKEEPER               = 33686, // Hard mode starter
+    NPC_BRANN_BRONZBEARD         = 33579,
+    NPC_BRANZ_BRONZBEARD         = 33579,
+    NPC_DELORAH                  = 33701,
+    NPC_ULDUAR_GAUNTLET_GENERATOR= 33571, // Trigger tied to towers
 	
     // Mimiron
     NPC_LEVIATHAN_MKII           = 33432,
@@ -133,6 +137,13 @@ enum UlduarNPCs
 
 enum UlduarGameObjects
 {
+    GO_TOWER_OF_STORMS                    = 194377,
+    GO_TOWER_OF_FLAMES                    = 194371,
+    GO_TOWER_OF_FROST                     = 194370,
+    GO_TOWER_OF_LIFE                      = 194375,
+    GO_REPAIR_STATION                     = 194261,
+    GO_TELEPORTER                         = 194569,
+    GO_CUPOLE                             = 194484,
     GO_KOLOGARN_CHEST_HERO                = 195047,
     GO_KOLOGARN_CHEST                     = 195046,
     GO_KOLOGARN_BRIDGE                    = 194232,

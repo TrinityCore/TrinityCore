@@ -97,18 +97,6 @@ enum Creatures
     NPC_MIMIRON_TARGET_BEACON      = 33369,
     NPC_HODIR_TARGET_BEACON        = 33108,
     NPC_FREYA_TARGET_BEACON        = 33366,
-    NPC_LOREKEEPER                 = 33686, // Hard mode starter
-    NPC_BRANZ_BRONZBEARD           = 33579,
-//    NPC_DELORAH                    = 33701,
-    NPC_ULDUAR_GAUNTLET_GENERATOR  = 33571, // Trigger tied to towers
-};
-
-enum Towers
-{
-    GO_TOWER_OF_STORMS    = 194377,
-    GO_TOWER_OF_FLAMES    = 194371,
-    GO_TOWER_OF_FROST     = 194370,
-    GO_TOWER_OF_LIFE      = 194375,
 };
 
 enum Events
