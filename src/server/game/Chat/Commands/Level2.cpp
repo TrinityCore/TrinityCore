@@ -388,9 +388,9 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     PreparedQueryResult result2 = LoginDatabase.Query(stmt);
     if (!result2)
     {
-        stmt = LoginDatabase.GetPreparedStatement(CHAR_SEL_PINFO_BANS);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_BANS);
         stmt->setUInt32(0, GUID_LOPART(target_guid));
-        result2 = LoginDatabase.Query(stmt);
+        result2 = CharacterDatabase.Query(stmt);
     }
 
     if (result2)
