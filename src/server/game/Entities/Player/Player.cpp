@@ -23046,6 +23046,13 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
             continue;
         }
 
+        // Bladestorm item swap
+        if (aura->GetId() == 46924)
+        {
+            ++itr;
+            continue;
+        }
+
         // no alt item, remove aura, restart check
         RemoveOwnedAura(itr);
     }
