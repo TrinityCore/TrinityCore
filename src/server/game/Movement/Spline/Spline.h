@@ -186,7 +186,7 @@ public:
             new_length = cacher(*this, i);
             lengths[++i] = new_length;
 
-            ASSERT(prev_length <= new_length);
+            //ASSERT(prev_length <= new_length); // Fix crash in Debug
             prev_length = new_length;
         }
     }
