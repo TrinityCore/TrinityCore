@@ -1221,7 +1221,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
     uint32 talent_points = 41;
     uint32 guid_size = player->GetPackGUID().wpos();
     WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
-    data.append(player->GetPackGUID());
+    data << player->GetGUID();
 
     if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->isGameMaster())
     {
@@ -1235,6 +1235,13 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
     }
 
     player->BuildEnchantmentsInfoData(&data);
+    if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+    {
+        data << uint64(MAKE_NEW_GUID(guild->GetId(), 0, HIGHGUID_GUILD));
+        data << uint32(0 /*guild->GetLevel()*/); // guild level
+        data << uint64(player->GetGUID()); // not sure
+        data << uint32(0/*guild->GetMembersCount()*/); // number of members
+    }
     SendPacket(&data);
 }
 
