@@ -193,9 +193,9 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
             break;
         }
     default:
-        return "Undefined";
         break;
     }
+    return "Undefined";
 }
 
 void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)

@@ -98,7 +98,13 @@ class SmartScript
                 return;
 
             if (mTargetStorage->find(id) != mTargetStorage->end())
+            {
+                // check if already stored
+                if ((*mTargetStorage)[id] == targets)
+                    return;
+
                 delete (*mTargetStorage)[id];
+            }
 
             (*mTargetStorage)[id] = targets;
         }
