@@ -201,6 +201,11 @@ m_bind(NULL)
 MySQLPreparedStatement::~MySQLPreparedStatement()
 {
     ClearParameters();
+    if(m_Mstmt->bind_result_done)
+    {
+        delete[] m_Mstmt->bind->length;
+        delete[] m_Mstmt->bind->is_null;
+    }
     mysql_stmt_close(m_Mstmt);
     delete[] m_bind;
 }

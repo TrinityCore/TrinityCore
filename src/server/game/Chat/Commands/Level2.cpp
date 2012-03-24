@@ -314,7 +314,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 
         Field* fields     = result->Fetch();
         total_player_time = fields[0].GetUInt32();
-        level             = fields[1].GetUInt32();
+        level             = fields[1].GetUInt8();
         money             = fields[2].GetUInt32();
         accId             = fields[3].GetUInt32();
         race              = fields[4].GetUInt8();
@@ -338,7 +338,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     {
         Field* fields = result->Fetch();
         username      = fields[0].GetString();
-        security      = fields[1].GetUInt32();
+        security      = fields[1].GetUInt8();
         email         = fields[2].GetString();
         muteTime      = fields[5].GetUInt64();
 
@@ -388,9 +388,9 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     PreparedQueryResult result2 = LoginDatabase.Query(stmt);
     if (!result2)
     {
-        stmt = LoginDatabase.GetPreparedStatement(CHAR_SEL_PINFO_BANS);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_BANS);
         stmt->setUInt32(0, GUID_LOPART(target_guid));
-        result2 = LoginDatabase.Query(stmt);
+        result2 = CharacterDatabase.Query(stmt);
     }
 
     if (result2)
