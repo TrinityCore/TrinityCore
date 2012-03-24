@@ -576,6 +576,10 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_timer = 0;                                            // will set to castime in prepare
 
     m_channelTargetEffectMask = 0;
+    
+    // Death Grip
+    if (m_spellInfo->Id == 49575 || m_spellInfo->Id == 49560)
+        m_canReflect = true;
 
     // Determine if spell can be reflected back to the caster
     // Patch 1.2 notes: Spell Reflection no longer reflects abilities
