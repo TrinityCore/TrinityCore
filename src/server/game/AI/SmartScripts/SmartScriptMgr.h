@@ -1230,9 +1230,9 @@ typedef UNORDERED_MAP<uint32, ObjectList*> ObjectListMap;
 class SmartWaypointMgr
 {
     friend class ACE_Singleton<SmartWaypointMgr, ACE_Null_Mutex>;
-    SmartWaypointMgr(){};
+    SmartWaypointMgr() {}
     public:
-        ~SmartWaypointMgr(){};
+        ~SmartWaypointMgr();
 
         void LoadFromDB();
 
