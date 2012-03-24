@@ -314,7 +314,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 
         Field* fields     = result->Fetch();
         total_player_time = fields[0].GetUInt32();
-        level             = fields[1].GetUInt32();
+        level             = fields[1].GetUInt8();
         money             = fields[2].GetUInt32();
         accId             = fields[3].GetUInt32();
         race              = fields[4].GetUInt8();
@@ -338,7 +338,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     {
         Field* fields = result->Fetch();
         username      = fields[0].GetString();
-        security      = fields[1].GetUInt32();
+        security      = fields[1].GetUInt8();
         email         = fields[2].GetString();
         muteTime      = fields[5].GetUInt64();
 
