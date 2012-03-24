@@ -826,7 +826,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
     if (pInfo)                                      // exist in DB
     {
-        SetCreateHealth(pInfo->health);
+        if (petType == HUNTER_PET)
+            SetCreateHealth(pInfo->health + float((m_owner->GetStat(STAT_STAMINA)) * 0.45 ) * 10.5);
+        else
+            SetCreateHealth(pInfo->health);
         if (petType != HUNTER_PET) //hunter pet use focus
             SetCreateMana(pInfo->mana);
 
