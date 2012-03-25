@@ -38,7 +38,8 @@ m_NumWaitTimeAvg(0), m_NumWaitTimeTank(0), m_NumWaitTimeHealer(0), m_NumWaitTime
     m_update = sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE);
     if (m_update)
     {
-        new LFGScripts();
+        new LFGPlayerScript();
+        new LFGGroupScript();
 
         // Initialize dungeon cache
         for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)

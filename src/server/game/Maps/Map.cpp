@@ -1526,8 +1526,11 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
                 {
                     uint32 overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
                     if (!overrideLiquid && area->zone)
-                        if (area = GetAreaEntryByAreaID(area->zone))
+                    {
+                        area = GetAreaEntryByAreaID(area->zone);
+                        if (area)
                             overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
+                    }
 
                     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
                     {
@@ -1799,8 +1802,11 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
                     {
                         uint32 overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
                         if (!overrideLiquid && area->zone)
-                            if (area = GetAreaEntryByAreaID(area->zone))
+                        {
+                            area = GetAreaEntryByAreaID(area->zone);
+                            if (area)
                                 overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
+                        }
 
                         if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
                         {
@@ -2527,7 +2533,11 @@ void InstanceMap::CreateInstanceData(bool load)
     if (load)
     {
         // TODO: make a global storage for this
-        QueryResult result = CharacterDatabase.PQuery("SELECT data, completedEncounters FROM instance WHERE map = '%u' AND id = '%u'", GetId(), i_InstanceId);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_INSTANCE);
+        stmt->setUInt16(0, uint16(GetId()));
+        stmt->setUInt32(1, i_InstanceId);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
         if (result)
         {
             Field* fields = result->Fetch();

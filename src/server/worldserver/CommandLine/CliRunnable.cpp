@@ -125,29 +125,44 @@ void commandFinished(void*, bool /*success*/)
  */
 bool ChatHandler::GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::string searchString)
 {
-    QueryResult resultChar;
+    PreparedQueryResult result;
+    PreparedStatement* stmt;
     if (!searchString.empty())
     {
         // search by GUID
         if (isNumeric(searchString.c_str()))
-            resultChar = CharacterDatabase.PQuery("SELECT guid, deleteInfos_Name, deleteInfos_Account, deleteDate FROM characters WHERE deleteDate IS NOT NULL AND guid = %u", uint64(atoi(searchString.c_str())));
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_GUID);
+
+            stmt->setUInt32(0, uint32(atoi(searchString.c_str())));
+
+            result = CharacterDatabase.Query(stmt);
+        }
         // search by name
         else
         {
             if (!normalizePlayerName(searchString))
                 return false;
 
-            resultChar = CharacterDatabase.PQuery("SELECT guid, deleteInfos_Name, deleteInfos_Account, deleteDate FROM characters WHERE deleteDate IS NOT NULL AND deleteInfos_Name " _LIKE_ " " _CONCAT3_("'%%'", "'%s'", "'%%'"), searchString.c_str());
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_NAME);
+
+            stmt->setString(0, searchString);
+
+            result = CharacterDatabase.Query(stmt);
         }
     }
     else
-        resultChar = CharacterDatabase.Query("SELECT guid, deleteInfos_Name, deleteInfos_Account, deleteDate FROM characters WHERE deleteDate IS NOT NULL");
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO);
 
-    if (resultChar)
+        result = CharacterDatabase.Query(stmt);
+    }
+
+    if (result)
     {
         do
         {
-            Field* fields = resultChar->Fetch();
+            Field* fields = result->Fetch();
 
             DeletedInfo info;
 
@@ -161,7 +176,7 @@ bool ChatHandler::GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::s
             info.deleteDate = time_t(fields[3].GetUInt32());
 
             foundList.push_back(info);
-        } while (resultChar->NextRow());
+        } while (result->NextRow());
     }
 
     return true;

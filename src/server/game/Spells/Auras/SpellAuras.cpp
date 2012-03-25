@@ -719,7 +719,8 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
     if (IsPassive() && !m_spellInfo->DurationEntry)
         maxDuration = -1;
 
-    if (!IsPermanent() && modOwner)
+    // IsPermanent() checks max duration (which we are supposed to calculate here)
+    if (maxDuration != -1 && modOwner)
         modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, maxDuration);
     return maxDuration;
 }
@@ -2357,13 +2358,14 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster)
                 switch (GetSpellInfo()->Effects[effIndex].Effect)
                 {
                     case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
-                        targetList.push_back(GetUnitOwner());
-                        GetUnitOwner()->GetPartyMemberInDist(targetList, radius);
-                        break;
                     case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+                    {
                         targetList.push_back(GetUnitOwner());
-                        GetUnitOwner()->GetRaidMember(targetList, radius);
+                        Trinity::AnyGroupedUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius, GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID);
+                        Trinity::UnitListSearcher<Trinity::AnyGroupedUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
+                        GetUnitOwner()->VisitNearbyObject(radius, searcher);
                         break;
+                    }
                     case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
                     {
                         targetList.push_back(GetUnitOwner());
