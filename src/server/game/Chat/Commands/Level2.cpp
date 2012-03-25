@@ -395,8 +395,8 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 
     if (result2)
     {
-        Field* fields = result->Fetch();
-        banTime       = fields[1].GetBool() ? 0 : fields[0].GetUInt64();
+        Field* fields = result2->Fetch();
+        banTime       = int64(fields[1].GetBool() ? 0 : fields[0].GetUInt32());
         bannedby      = fields[2].GetString();
         banreason     = fields[3].GetString();
     }
