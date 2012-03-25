@@ -97,9 +97,17 @@ AccountOpResult DeleteAccount(uint32 accountId)
 
     SQLTransaction trans = LoginDatabase.BeginTransaction();
 
-    trans->PAppend("DELETE FROM account WHERE id='%d'", accountId);
-    trans->PAppend("DELETE FROM account_access WHERE id ='%d'", accountId);
-    trans->PAppend("DELETE FROM realmcharacters WHERE acctid='%d'", accountId);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT);
+    stmt->setUInt32(0, accountId);
+    trans->Append(stmt);
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+    stmt->setUInt32(0, accountId);
+    trans->Append(stmt);
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS);
+    stmt->setUInt32(0, accountId);
+    trans->Append(stmt);
 
     LoginDatabase.CommitTransaction(trans);
 
