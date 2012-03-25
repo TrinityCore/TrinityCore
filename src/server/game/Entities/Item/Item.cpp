@@ -1082,16 +1082,30 @@ void Item::BuildUpdate(UpdateDataMapType& data_map)
 void Item::SaveRefundDataToDB()
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    trans->PAppend("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
-    trans->PAppend("INSERT INTO item_refund_instance (`item_guid`, `player_guid`, `paidMoney`, `paidExtendedCost`)"
-    " VALUES('%u', '%u', '%u', '%u')", GetGUIDLow(), GetRefundRecipient(), GetPaidMoney(), GetPaidExtendedCost());
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
+    stmt->setUInt32(0, GetGUIDLow());
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
+    stmt->setUInt32(0, GetGUIDLow());
+    stmt->setUInt32(0, GetRefundRecipient());
+    stmt->setUInt32(0, GetPaidMoney());
+    stmt->setUInt16(0, uint16(GetPaidExtendedCost()));
+    trans->Append(stmt);
+
     CharacterDatabase.CommitTransaction(trans);
 }
 
 void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
 {
     if (trans && !trans->null())
-        (*trans)->PAppend("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
+        stmt->setUInt32(0, GetGUIDLow());
+        (*trans)->Append(stmt);
+
+    }
 }
 
 void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransaction* trans /*=NULL*/)
