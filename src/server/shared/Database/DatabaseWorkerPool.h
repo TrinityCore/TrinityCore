@@ -53,7 +53,7 @@ class DatabaseWorkerPool
     public:
         /* Activity state */
         DatabaseWorkerPool() :
-        m_queue(new ACE_Activation_Queue(new ACE_Message_Queue<ACE_MT_SYNCH>))
+        m_queue(new ACE_Activation_Queue())
         {
             memset(m_connectionCount, 0, sizeof(m_connectionCount));
             m_connections.resize(IDX_SIZE);
@@ -77,7 +77,6 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < async_threads; ++i)
             {
                 T* t = new T(m_queue, m_connectionInfo);
-                res &= t->Open();
                 m_connections[IDX_ASYNC][i] = t;
                 ++m_connectionCount[IDX_ASYNC];
             }
@@ -111,7 +110,6 @@ class DatabaseWorkerPool
                 DatabaseWorker* worker = t->m_worker;
                 worker->wait();
                 delete worker;
-                t->Close();
             }
 
             sLog->outSQLDriver("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", m_connectionInfo.database.c_str());
@@ -125,6 +123,7 @@ class DatabaseWorkerPool
                 t->Close();
             }
 
+            delete m_queue;
             sLog->outSQLDriver("All connections on databasepool %s closed.", m_connectionInfo.database.c_str());
         }
 
