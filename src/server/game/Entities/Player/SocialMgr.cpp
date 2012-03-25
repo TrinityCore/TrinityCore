@@ -321,7 +321,7 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
     }
 }
 
-PlayerSocial *SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
+PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
 {
     PlayerSocial *social = &m_socialMap[guid];
     social->SetPlayerGUID(guid);
@@ -338,7 +338,7 @@ PlayerSocial *SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
         Field* fields = result->Fetch();
 
         friend_guid = fields[0].GetUInt32();
-        flags = fields[1].GetUInt32();
+        flags = fields[1].GetUInt8();
         note = fields[2].GetString();
 
         social->m_playerSocialMap[friend_guid] = FriendInfo(flags, note);
