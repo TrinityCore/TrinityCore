@@ -14312,7 +14312,6 @@ void Player::SendPreparedGossip(WorldObject* source)
 void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 menuId)
 {
     GossipMenu& gossipMenu = PlayerTalkClass->GetGossipMenu();
-    Player* player = this;
     
     // if not same, then something funky is going on
     if (menuId != gossipMenu.GetMenuId())
@@ -25273,7 +25272,6 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 void Player::HandleRates()
 {
     Player* player = this;
-    uint32 text = 110100; // texts are stored in npc_text
     
     bool hasXPIncreased = player->HasAtLoginFlag(CUSTOMFLAG_DOUBLE_RATE);
      
