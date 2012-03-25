@@ -2821,6 +2821,30 @@ class Player : public Unit, public GridObject<Player>
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
+		
+		/*/////////Anticheat System By jacob///////*/
+		// movement anticheat	
+        time_t m_anti_LastClientTime;           	
+        time_t m_anti_LastServerTime;           	
+        time_t m_anti_DeltaClientTime;          	
+        time_t m_anti_DeltaServerTime;          	
+        uint32 m_anti_MistimingCount;           
+	
+        time_t m_anti_LastSpeedChangeTime;      
+	
+        float m_anti_Last_HSpeed;               
+        float m_anti_Last_VSpeed;               	
+	
+        uint32 m_anti_TeleToPlane_Count;        
+	
+        uint64 m_anti_AlarmCount;               
+	
+        uint16 m_anti_JumpCount;                
+        float m_anti_JumpBaseZ;                 
+        
+        // end movement anticheat
+		/*/////////Anticheat System By jacob///////*/
+		
         uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;

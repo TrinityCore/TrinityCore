@@ -407,7 +407,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     int32 randomPoints = int32(DieSides);
 
     // base amount modification based on spell lvl vs caster lvl
-    if (caster)
+    if (caster && _spellInfo)
     {
         int32 level = int32(caster->getLevel());
         if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)

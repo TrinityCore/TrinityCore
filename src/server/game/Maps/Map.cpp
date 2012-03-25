@@ -728,6 +728,13 @@ void Map::RemoveFromMap(T *obj, bool remove)
 void Map::PlayerRelocation(Player* player, float x, float y, float z, float orientation)
 {
     ASSERT(player);
+	
+	bool isOutdoor;	
+    uint16 areaFlag = player->GetBaseMap()->GetAreaFlag(x, y, z, &isOutdoor);	
+    AreaTableEntry const* p = GetAreaEntryByAreaFlagAndMap(areaFlag, player->GetMapId());	
+	
+    if(!p)	
+        return;
 
     Cell old_cell(player->GetPositionX(), player->GetPositionY());
     Cell new_cell(x, y);

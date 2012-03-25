@@ -785,6 +785,29 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_rest_bonus=0;
     rest_type=REST_TYPE_NO;
     ////////////////////Rest System/////////////////////
+	
+	
+	/*/////////Anticheat System By jacob///////*/
+	// movement anticheat	
+    m_anti_LastClientTime  = 0;          	
+    m_anti_LastServerTime  = 0;          	
+    m_anti_DeltaClientTime = 0;          
+    m_anti_DeltaServerTime = 0;          	
+    m_anti_MistimingCount  = 0;          
+	
+    m_anti_LastSpeedChangeTime = 0;      
+	
+    m_anti_Last_HSpeed =  7.0f;          	
+    m_anti_Last_VSpeed = -2.3f;          	
+	
+    m_anti_TeleToPlane_Count = 0;        	
+	
+    m_anti_AlarmCount = 0;               	
+	
+    m_anti_JumpCount = 0;                	
+    m_anti_JumpBaseZ = 0;                
+    // end movement anticheat
+    /*/////////Anticheat System By jacob///////*/
 
     m_mailsLoaded = false;
     m_mailsUpdated = false;
@@ -2236,6 +2259,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if (GetMapId() == mapid)
     {
+        m_anti_JumpBaseZ = 0;         //Антиджамп
         //lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
         //setup delayed teleport flag
@@ -2385,6 +2409,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
             SetFallInformation(0, final_z);
+			m_anti_JumpBaseZ = 0;
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
@@ -5660,7 +5685,7 @@ bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, Area
     if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
         return false;
 
-    if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)))
+    if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)) && sWorld->getBoolConfig(CONFIG_CHANNEL_ON_CITY_ONLY_FLAG))
         return false;
 
     if ((channel->flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())

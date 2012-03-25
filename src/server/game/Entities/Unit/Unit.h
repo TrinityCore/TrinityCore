@@ -2251,6 +2251,7 @@ class Unit : public WorldObject
     protected:
         explicit Unit (bool isWorldObject);
 
+        GameObject * m_temp_transport; //Получаем проверку на транспорт (с) Ja{c}ob
         UnitAI* i_AI, *i_disabledAI;
 
         void _UpdateSpells(uint32 time);
