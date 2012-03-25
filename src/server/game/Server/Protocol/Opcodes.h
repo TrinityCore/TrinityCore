@@ -695,10 +695,10 @@ enum Opcodes
     SMSG_GAMETIME_SET                                = 0x9C4A,
     SMSG_GAMETIME_UPDATE                             = 0x18E3,
     SMSG_GM_MESSAGECHAT                              = 0x8E5E,
-    SMSG_GMRESPONSE_RECEIVED                         = 0x00,
+    SMSG_GMRESPONSE_RECEIVED                         = 0xCCEA,
     SMSG_GMRESPONSE_STATUS_UPDATE                    = 0x00,
-    SMSG_GMTICKET_CREATE                             = 0x00,
-    SMSG_GMTICKET_DELETETICKET                       = 0x00,
+    SMSG_GMTICKET_CREATE                             = 0xC84A,
+    SMSG_GMTICKET_DELETETICKET                       = 0x1A6E,
     SMSG_GMTICKET_GETTICKET                          = 0x00,
     SMSG_GMTICKET_SYSTEMSTATUS                       = 0x9C7E,
     SMSG_GMTICKET_UPDATETEXT                         = 0x00,
@@ -1077,6 +1077,7 @@ enum Opcodes
     SMSG_WHOIS                                       = 0x9CFF,
     SMSG_WORLD_STATE_UI_TIMER_UPDATE                 = 0xDE5E,
     SMSG_ZONE_UNDER_ATTACK                           = 0x08CF,
+    SMSG_GMRESPONSE_DB_ERROR                         = 0x5843,
 };
 
 /// Player state

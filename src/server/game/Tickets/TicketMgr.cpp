@@ -129,10 +129,6 @@ void GmTicket::SendResponse(WorldSession* session) const
     data << uint32(0); // can-edit - always 1 or 0, not flags
     data << _message.c_str();
     data << _response.c_str();
-    // 3 null strings
-    data << uint8(0);
-    data << uint8(0);
-    data << uint8(0);
     session->SendPacket(&data);
 }
 
