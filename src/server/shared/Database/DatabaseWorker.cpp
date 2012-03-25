@@ -34,6 +34,11 @@ int DatabaseWorker::svc()
     if (!m_queue)
         return -1;
 
+    //! Since this is called from the worker thread itself, we can ensure
+    //! that thread-specific variables remain in this thread.
+    if (!m_conn->Open())
+        return -1;
+
     SQLOperation *request = NULL;
     while (1)
     {
@@ -47,5 +52,7 @@ int DatabaseWorker::svc()
         delete request;
     }
 
+    //! Clean up thread-specific variables
+    m_conn->Close();
     return 0;
 }
