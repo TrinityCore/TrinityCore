@@ -201,4 +201,3 @@ if( USE_COREPCH )
     add_native_precompiled_header(worldserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/worldPCH)
   endif()
 endif()
-
