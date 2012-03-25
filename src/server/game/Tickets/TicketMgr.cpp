@@ -198,6 +198,12 @@ void GmTicket::TeleportTo(Player* player) const
 // Ticket manager
 TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0), _lastChange(time(NULL)) { }
 
+TicketMgr::~TicketMgr()
+{
+    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
+        delete itr->second;
+}
+
 void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
 
 void TicketMgr::ResetTickets()
@@ -217,10 +223,8 @@ void TicketMgr::LoadTickets()
 {
     uint32 oldMSTime = getMSTime();
 
-    if (!_ticketList.empty())
-        for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
-            if (itr->second)
-                delete itr->second;
+    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
+        delete itr->second;
     _ticketList.clear();
 
     _lastTicketId = 0;
