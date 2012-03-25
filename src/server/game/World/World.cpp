@@ -1589,7 +1589,7 @@ void World::SetInitialWorldSettings()
     sSmartWaypointMgr->LoadFromDB();
 
     sLog->outString("Loading Creature Formations...");
-    FormationMgr::LoadCreatureFormations();
+    sFormationMgr->LoadCreatureFormations();
 
     sLog->outString("Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
     LoadWorldStates();

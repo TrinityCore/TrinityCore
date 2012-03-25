@@ -34,16 +34,19 @@ struct FormationInfo
     uint8 groupAI;
 };
 
-namespace FormationMgr
-{
-    void AddCreatureToGroup(uint32 group_id, Creature* creature);
-    void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
-    void LoadCreatureFormations();
-};
-
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
-extern CreatureGroupInfoType CreatureGroupMap;
+class FormationMgr
+{
+    friend class ACE_Singleton<FormationMgr, ACE_Null_Mutex>;
+    public:
+        FormationMgr() { }
+        ~FormationMgr();
+        void AddCreatureToGroup(uint32 group_id, Creature* creature);
+        void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
+        void LoadCreatureFormations();
+        CreatureGroupInfoType CreatureGroupMap;
+};
 
 class CreatureGroup
 {
@@ -72,5 +75,7 @@ class CreatureGroup
         void LeaderMoveTo(float x, float y, float z);
         void MemberAttackStart(Creature* member, Unit* target);
 };
+
+#define sFormationMgr ACE_Singleton<FormationMgr, ACE_Null_Mutex>::instance()
 
 #endif
