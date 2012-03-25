@@ -19,7 +19,7 @@
 #ifndef QUERYRESULT_H
 #define QUERYRESULT_H
 
-#include <ace/Refcounted_Auto_Ptr.h>
+#include "AutoPtr.h"
 #include <ace/Thread_Mutex.h>
 
 #include "Field.h"
@@ -58,7 +58,7 @@ class ResultSet
         MYSQL_FIELD* _fields;
 };
 
-typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Null_Mutex> QueryResult;
+typedef Trinity::AutoPtr<ResultSet, ACE_Null_Mutex> QueryResult;
 
 class PreparedResultSet
 {
@@ -103,7 +103,7 @@ class PreparedResultSet
 
 };
 
-typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet, ACE_Null_Mutex> PreparedQueryResult;
+typedef Trinity::AutoPtr<PreparedResultSet, ACE_Null_Mutex> PreparedQueryResult;
 
 #endif
 
