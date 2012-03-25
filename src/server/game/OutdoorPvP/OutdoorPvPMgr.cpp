@@ -27,7 +27,7 @@ OutdoorPvPMgr::OutdoorPvPMgr()
     //sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Instantiating OutdoorPvPMgr");
 }
 
-OutdoorPvPMgr::~OutdoorPvPMgr()
+void OutdoorPvPMgr::Die()
 {
     //sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Deleting OutdoorPvPMgr");
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
