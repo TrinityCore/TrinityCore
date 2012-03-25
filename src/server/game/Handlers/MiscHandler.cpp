@@ -1219,14 +1219,11 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
         return;
 
     uint32 talent_points = 41;
-    uint32 guid_size = player->GetPackGUID().wpos();
-    WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
+    WorldPacket data(SMSG_INSPECT_TALENT, 8 + 4 + 1 + 1 + talent_points + 8 + 4 + 8 + 4);
     data << player->GetGUID();
 
     if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->isGameMaster())
-    {
         player->BuildPlayerTalentsInfoData(&data);
-    }
     else
     {
         data << uint32(0);                                  // unspentTalentPoints
