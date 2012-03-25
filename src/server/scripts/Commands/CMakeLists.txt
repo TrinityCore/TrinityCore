@@ -24,6 +24,7 @@ set(scripts_STAT_SRCS
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
   Commands/cs_quest.cpp
+  Commands/cs_rates.cpp
   Commands/cs_reload.cpp
   Commands/cs_tele.cpp
   Commands/cs_titles.cpp

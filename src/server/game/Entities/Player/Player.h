@@ -501,7 +501,8 @@ enum AtLoginFlags
     AT_LOGIN_RESET_PET_TALENTS = 0x10,
     AT_LOGIN_FIRST             = 0x20,
     AT_LOGIN_CHANGE_FACTION    = 0x40,
-    AT_LOGIN_CHANGE_RACE       = 0x80
+    AT_LOGIN_CHANGE_RACE       = 0x80,
+    CUSTOMFLAG_DOUBLE_RATE     = 0x200
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -1370,7 +1371,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetGossipTextId(uint32 menuId, WorldObject* source);
         uint32 GetGossipTextId(WorldObject* source);
         static uint32 GetDefaultGossipMenuForSource(WorldObject* source);
-
+        
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
@@ -2489,6 +2490,9 @@ class Player : public Unit, public GridObject<Player>
         */
         void SendMovementSetCanFly(bool apply);
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
+        
+        // rates command
+        void HandleRates();
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
