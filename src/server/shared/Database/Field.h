@@ -203,7 +203,7 @@ class Field
                 return 0.0f;
 
             #ifdef TRINITY_DEBUG
-            if (!IsType(MYSQL_TYPE_FLOAT))
+            if (!IsType(MYSQL_TYPE_DOUBLE))
             {
                 sLog->outSQLDriver("Warning: GetDouble() on non-double field.");
                 return 0.0f;
