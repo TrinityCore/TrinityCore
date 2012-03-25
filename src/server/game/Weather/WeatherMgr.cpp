@@ -24,14 +24,14 @@
 #include "Weather.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include <ace/Refcounted_Auto_Ptr.h>
+#include "AutoPtr.h"
 
 namespace WeatherMgr
 {
 
 namespace
 {
-    typedef UNORDERED_MAP<uint32, ACE_Refcounted_Auto_Ptr<Weather, ACE_Null_Mutex> > WeatherMap;
+    typedef UNORDERED_MAP<uint32, Trinity::AutoPtr<Weather, ACE_Null_Mutex> > WeatherMap;
     typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
 
     WeatherMap m_weathers;
