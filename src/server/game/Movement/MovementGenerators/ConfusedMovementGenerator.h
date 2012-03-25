@@ -33,10 +33,13 @@ class ConfusedMovementGenerator
 
         void Initialize(T &);
         void Finalize(T &);
+        void Interrupt(T &u);
         void Reset(T &);
         bool Update(T &, const uint32 &);
 
-        MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return CONFUSED_MOTION_TYPE; }
+        const char* Name() const { return "<Confused>"; }
+
     private:
         void _InitSpecific(T &, bool &, bool &);
         TimeTracker i_nextMoveTime;

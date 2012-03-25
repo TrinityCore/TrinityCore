@@ -30,10 +30,12 @@ class FleeingMovementGenerator
 
         void Initialize(T &);
         void Finalize(T &);
+        void Interrupt(T &);
         void Reset(T &);
         bool Update(T &, const uint32 &);
 
-        MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return FLEEING_MOTION_TYPE; }
+        const char* Name() const { return "<Fleeing>"; }
 
     private:
         void _setTargetLocation(T &owner);
@@ -63,7 +65,7 @@ class TimedFleeingMovementGenerator
             FleeingMovementGenerator<Creature>(fright),
             i_totalFleeTime(time) {}
 
-        MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return TIMED_FLEEING_MOTION_TYPE; }
         bool Update(Unit &, const uint32&);
         void Finalize(Unit &);
 

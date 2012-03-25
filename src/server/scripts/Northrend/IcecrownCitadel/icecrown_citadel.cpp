@@ -1237,7 +1237,7 @@ struct npc_argent_captainAI : public ScriptedAI
                     me->SetReactState(REACT_DEFENSIVE);
                     FollowAngle = me->GetAngle(crok) + me->GetOrientation();
                     FollowDist = me->GetDistance2d(crok);
-                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_IDLE);
+                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, UNIT_ACTION_IDLE);
                 }
 
                 me->setActive(true);
@@ -1264,7 +1264,7 @@ struct npc_argent_captainAI : public ScriptedAI
         void EnterEvadeMode()
         {
             // not yet following
-            if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE || IsUndead)
+            if (me->GetMotionMaster()->GetMotionSlotType(UNIT_ACTION_PRIORITY_IDLE) != CHASE_MOTION_TYPE || IsUndead)
             {
                 ScriptedAI::EnterEvadeMode();
                 return;
@@ -1277,7 +1277,7 @@ struct npc_argent_captainAI : public ScriptedAI
             {
                 me->GetMotionMaster()->Clear(false);
                 if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CROK_SCOURGEBANE)))
-                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, MOTION_SLOT_IDLE);
+                    me->GetMotionMaster()->MoveFollow(crok, FollowDist, FollowAngle, UNIT_ACTION_IDLE);
             }
 
             Reset();

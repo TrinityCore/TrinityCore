@@ -31,8 +31,7 @@ void IdleMovementGenerator::Initialize(Unit &owner)
 
 void IdleMovementGenerator::Reset(Unit& owner)
 {
-    if (!owner.IsStopped())
-        owner.StopMoving();
+    owner.StopMoving();
 }
 
 void RotateMovementGenerator::Initialize(Unit& owner)
@@ -72,6 +71,11 @@ bool RotateMovementGenerator::Update(Unit& owner, const uint32& diff)
     return true;
 }
 
+void RotateMovementGenerator::Interrupt(Unit &unit)
+{
+    unit.ClearUnitState(UNIT_STATE_ROTATING);
+}
+
 void RotateMovementGenerator::Finalize(Unit &unit)
 {
     unit.ClearUnitState(UNIT_STATE_ROTATING);
@@ -82,6 +86,11 @@ void RotateMovementGenerator::Finalize(Unit &unit)
 void DistractMovementGenerator::Initialize(Unit& owner)
 {
     owner.AddUnitState(UNIT_STATE_DISTRACTED);
+}
+
+void DistractMovementGenerator::Interrupt(Unit& owner)
+{
+    owner.ClearUnitState(UNIT_STATE_DISTRACTED);
 }
 
 void DistractMovementGenerator::Finalize(Unit& owner)

@@ -60,6 +60,12 @@ void WaypointMovementGenerator<Creature>::Finalize(Creature &creature)
     creature.SetWalk(false);
 }
 
+void WaypointMovementGenerator<Creature>::Interrupt(Creature &creature)
+{
+    creature.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+    creature.SetWalk(false);
+}
+
 void WaypointMovementGenerator<Creature>::Reset(Creature &creature)
 {
     creature.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
@@ -217,6 +223,14 @@ void FlightPathMovementGenerator::Finalize(Player& player)
         // when client side flight end early in comparison server side
         player.StopMoving();
     }
+}
+
+void FlightPathMovementGenerator::Interrupt(Player& player)
+{
+    player.ClearUnitState(UNIT_STATE_IN_FLIGHT);
+
+    player.Dismount();
+    player.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
 }
 
 #define PLAYER_FLIGHT_SPEED 32.0f
