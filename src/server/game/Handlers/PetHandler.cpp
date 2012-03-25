@@ -647,15 +647,26 @@ void WorldSession::HandlePetRename(WorldPacket & recv_data)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     if (isdeclined)
     {
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            CharacterDatabase.EscapeString(declinedname.name[i]);
-        trans->PAppend("DELETE FROM character_pet_declinedname WHERE owner = '%u' AND id = '%u'", _player->GetGUIDLow(), pet->GetCharmInfo()->GetPetNumber());
-        trans->PAppend("INSERT INTO character_pet_declinedname (id, owner, genitive, dative, accusative, instrumental, prepositional) VALUES ('%u', '%u', '%s', '%s', '%s', '%s', '%s')",
-            pet->GetCharmInfo()->GetPetNumber(), _player->GetGUIDLow(), declinedname.name[0].c_str(), declinedname.name[1].c_str(), declinedname.name[2].c_str(), declinedname.name[3].c_str(), declinedname.name[4].c_str());
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
+        stmt->setUInt32(0, _player->GetGUIDLow());
+        stmt->setUInt32(0, pet->GetCharmInfo()->GetPetNumber());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHAR_PET_DECLINEDNAME);
+        stmt->setUInt32(0, _player->GetGUIDLow());
+
+        for (uint8 i = 0; i < 5; i++)
+            stmt->setString(i+1, declinedname.name[i]);
+
+        trans->Append(stmt);
     }
 
-    CharacterDatabase.EscapeString(name);
-    trans->PAppend("UPDATE character_pet SET name = '%s', renamed = '1' WHERE owner = '%u' AND id = '%u'", name.c_str(), _player->GetGUIDLow(), pet->GetCharmInfo()->GetPetNumber());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
+    stmt->setString(0, name);
+    stmt->setUInt32(1, _player->GetGUIDLow());
+    stmt->setUInt32(2, pet->GetCharmInfo()->GetPetNumber());
+    trans->Append(stmt);
+
     CharacterDatabase.CommitTransaction(trans);
 
     pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
