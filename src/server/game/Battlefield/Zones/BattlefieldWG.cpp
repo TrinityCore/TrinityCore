@@ -563,6 +563,8 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                         return;
                     }
                 }
+                if (creature->GetOwner())
+                    creature->CastSpell(creature->GetOwner(),SPELL_GRAB_PASSENGER,true);
                 break;
             }
         }

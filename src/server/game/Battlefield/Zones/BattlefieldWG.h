@@ -29,7 +29,7 @@
 const uint32 VehNumWorldState[2] = { 3680, 3490 };
 const uint32 MaxVehNumWorldState[2] = { 3681, 3491 };
 const uint32 ClockWorldState[2] = { 3781, 4354 };
-const uint32 WintergraspFaction[3] = { 1, 116, 35 };
+const uint32 WintergraspFaction[3] = { 1, 2, 35 };
 const float WintergraspStalkerPos[4] = { 0, 0, 0, 0 };
 
 class BattlefieldWG;
@@ -59,6 +59,7 @@ enum WintergraspSpells
     SPELL_GREATEST_HONOR                        = 58557,
     SPELL_ALLIANCE_FLAG                         = 14268,
     SPELL_HORDE_FLAG                            = 14267,
+    SPELL_GRAB_PASSENGER                        = 61178,
 
     // Reward spells
     SPELL_VICTORY_REWARD                        = 56902,
