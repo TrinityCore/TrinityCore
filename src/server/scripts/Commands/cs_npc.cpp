@@ -1249,7 +1249,7 @@ public:
         group_member->leaderGUID     = leaderGUID;
         group_member->groupAI        = 0;
 
-        CreatureGroupMap[lowguid] = group_member;
+        sFormationMgr->CreatureGroupMap[lowguid] = group_member;
         creature->SearchFormation();
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
