@@ -3080,7 +3080,8 @@ void Spell::cancel()
         *m_selfContainer = NULL;
 
     m_caster->RemoveDynObject(m_spellInfo->Id);
-    m_caster->RemoveGameObject(m_spellInfo->Id, true);
+    if (IsChanneledSpell(m_spellInfo)) // if not channeled then the object for the current cast wasn't summoned yet
+        m_caster->RemoveGameObject(m_spellInfo->Id, true);
 
     //set state back so finish will be processed
     m_spellState = oldState;
