@@ -326,7 +326,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     std::string username   = GetTrinityString(LANG_ERROR);
     std::string email      = GetTrinityString(LANG_ERROR);
     std::string last_ip    = GetTrinityString(LANG_ERROR);
-    uint32 security        = 0;
+    uint8 security        = 0;
     std::string last_login = GetTrinityString(LANG_ERROR);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
