@@ -116,7 +116,7 @@ uint32 LootStore::LoadLootTable()
         uint16 lootmode            = fields[3].GetUInt16();
         uint8  group               = fields[4].GetUInt8();
         int32  mincountOrRef       = fields[5].GetInt32();
-        int32  maxcount            = fields[6].GetInt32();
+        int32  maxcount            = fields[6].GetUInt8();
 
         if (maxcount > std::numeric_limits<uint8>::max())
         {
