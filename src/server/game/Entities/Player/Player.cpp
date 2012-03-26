@@ -2965,6 +2965,15 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
         bonus_xp = 2 * xp; // xp + bonus_xp must add up to 3 * xp for RaF; calculation for quests done client-side
     else
         bonus_xp = victim ? GetXPRestBonus(xp) : 0; // XP resting bonus
+    
+    // check if double rates is enabled
+    if(HasAtLoginFlag(CUSTOMFLAG_DOUBLE_RATE))
+    {
+        if(level < 60)
+            xp *= 2;
+        else
+            RemoveAtLoginFlag(CUSTOMFLAG_DOUBLE_RATE);
+    }
 
     SendLogXPGain(xp, victim, bonus_xp, recruitAFriend, group_rate);
 
@@ -14302,7 +14311,7 @@ void Player::SendPreparedGossip(WorldObject* source)
 void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 menuId)
 {
     GossipMenu& gossipMenu = PlayerTalkClass->GetGossipMenu();
-
+    
     // if not same, then something funky is going on
     if (menuId != gossipMenu.GetMenuId())
         return;
@@ -25256,4 +25265,28 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
+}
+
+
+void Player::HandleRates()
+{
+    Player* player = this;
+    
+    bool hasXPIncreased = player->HasAtLoginFlag(CUSTOMFLAG_DOUBLE_RATE);
+     
+    if (player->getLevel() < 60) // check required level
+    {
+        if (hasXPIncreased)
+        {
+            player->RemoveAtLoginFlag(CUSTOMFLAG_DOUBLE_RATE);
+            GetSession()->SendAreaTriggerMessage("Experience rates are now set to 1x","");
+        }
+        else
+        {
+            player->SetAtLoginFlag(CUSTOMFLAG_DOUBLE_RATE);
+            GetSession()->SendAreaTriggerMessage("Experience rates are now set to 2x","");
+        }
+    }
+    else
+        GetSession()->SendAreaTriggerMessage("Experience rates change is available only below level 60.","");
 }
