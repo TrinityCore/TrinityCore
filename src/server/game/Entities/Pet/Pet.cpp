@@ -105,19 +105,19 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         // Known petnumber entry
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
         stmt->setUInt32(0, ownerid);
-        stmt->setUInt8(1, uint8(petnumber));
+        stmt->setUInt8(1, petnumber);
     }
     else if (current)
     {
         // Current pet (slot 0)
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
         stmt->setUInt32(0, ownerid);
         stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
     }
     else if (petentry)
     {
         // known petentry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2);
         stmt->setUInt32(0, ownerid);
         stmt->setUInt32(1, petentry);
         stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
@@ -419,8 +419,9 @@ void Pet::SavePetToDB(PetSaveMode mode)
         if (mode <= PET_SAVE_LAST_STABLE_SLOT)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT);
-            stmt->setUInt32(0, ownerLowGUID);
-            stmt->setUInt8(1, uint8(mode));
+            stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
+            stmt->setUInt32(1, ownerLowGUID);
+            stmt->setUInt8(2, uint8(mode));
             trans->Append(stmt);
         }
 
