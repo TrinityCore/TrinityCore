@@ -56,10 +56,10 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
         StringTextData temp;
 
         int32 i             = fields[0].GetInt32();
-        temp.SoundId        = fields[1].GetInt32();
-        temp.Type           = fields[2].GetInt32();
-        temp.Language       = fields[3].GetInt32();
-        temp.Emote          = fields[4].GetInt32();
+        temp.SoundId        = fields[1].GetUInt32();
+        temp.Type           = fields[2].GetUInt8();
+        temp.Language       = fields[3].GetUInt8();
+        temp.Emote          = fields[4].GetUInt16();
 
         // range negative
         if (i > MIN_CREATURE_AI_TEXT_STRING_ID || i <= MAX_CREATURE_AI_TEXT_STRING_ID)
@@ -187,7 +187,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         temp.creature_id = fields[1].GetUInt32();
         uint32 creature_id = temp.creature_id;
 
-        uint32 e_type = fields[2].GetUInt32();
+        uint32 e_type = fields[2].GetUInt8();
         //Report any errors in event
         if (e_type >= EVENT_T_END)
         {
@@ -196,13 +196,13 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         }
         temp.event_type = EventAI_Type(e_type);
 
-        temp.event_inverse_phase_mask = fields[3].GetUInt32();
-        temp.event_chance = fields[4].GetUInt8();
-        temp.event_flags  = fields[5].GetUInt8();
-        temp.raw.param1 = fields[6].GetUInt32();
-        temp.raw.param2 = fields[7].GetUInt32();
-        temp.raw.param3 = fields[8].GetUInt32();
-        temp.raw.param4 = fields[9].GetUInt32();
+        temp.event_inverse_phase_mask = fields[3].GetInt32();
+        temp.event_chance = fields[4].GetUInt32();
+        temp.event_flags  = fields[5].GetUInt32();
+        temp.raw.param1 = fields[6].GetInt32();
+        temp.raw.param2 = fields[7].GetInt32();
+        temp.raw.param3 = fields[8].GetInt32();
+        temp.raw.param4 = fields[9].GetInt32();
 
         //Creature does not exist in database
         if (!sObjectMgr->GetCreatureTemplate(temp.creature_id))
@@ -399,7 +399,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
 
         for (uint32 j = 0; j < MAX_ACTIONS; j++)
         {
-            uint16 action_type = fields[10+(j*4)].GetUInt16();
+            uint16 action_type = fields[10+(j*4)].GetUInt8();
             if (action_type >= ACTION_T_END)
             {
                 sLog->outErrorDb("CreatureEventAI:  Event %u Action %u has incorrect action type (%u), replace by ACTION_T_NONE.", i, j+1, action_type);
@@ -410,9 +410,9 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             CreatureEventAI_Action& action = temp.action[j];
 
             action.type = EventAI_ActionType(action_type);
-            action.raw.param1 = fields[11+(j*4)].GetUInt32();
-            action.raw.param2 = fields[12+(j*4)].GetUInt32();
-            action.raw.param3 = fields[13+(j*4)].GetUInt32();
+            action.raw.param1 = fields[11+(j*4)].GetInt32();
+            action.raw.param2 = fields[12+(j*4)].GetInt32();
+            action.raw.param3 = fields[13+(j*4)].GetInt32();
 
             //Report any errors in actions
             switch (action.type)
