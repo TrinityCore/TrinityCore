@@ -501,10 +501,10 @@ class spell_wintergrasp_grab_passenger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_wintergrasp_grab_passenger_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Player* target = GetHitPlayer())
-                    GetCaster()->GetVehicleKit()->AddPassenger(target);
+                    target->EnterVehicle(GetCaster());
             }
 
             void Register()
