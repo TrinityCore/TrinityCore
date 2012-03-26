@@ -492,6 +492,33 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
         }
 };
 
+class spell_wintergrasp_grab_passenger : public SpellScriptLoader
+{
+    public:
+        spell_wintergrasp_grab_passenger() : SpellScriptLoader("spell_wintergrasp_grab_passenger") { }
+
+        class spell_wintergrasp_grab_passenger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_wintergrasp_grab_passenger_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                if (Player* target = GetHitPlayer())
+                    GetCaster()->GetVehicleKit()->AddPassenger(target);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_grab_passenger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_wintergrasp_grab_passenger_SpellScript();
+        }
+};
+
 class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
 {
 public:
@@ -516,6 +543,8 @@ public:
     }
 };
 
+
+
 void AddSC_wintergrasp()
 {
     new npc_wg_queue();
@@ -524,6 +553,7 @@ void AddSC_wintergrasp()
     new npc_wg_quest_giver();
     new achievement_wg_didnt_stand_a_chance();
     new spell_wintergrasp_force_building();
+    new spell_wintergrasp_grab_passenger();
 
     new go_wg_vehicle_teleporter();
 }
