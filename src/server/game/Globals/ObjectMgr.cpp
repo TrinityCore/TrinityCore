@@ -5403,7 +5403,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             }
         }
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
         stmt->setUInt32(0, m->messageID);
         CharacterDatabase.Execute(stmt);
         delete m;
