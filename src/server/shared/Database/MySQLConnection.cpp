@@ -68,13 +68,9 @@ MySQLConnection::~MySQLConnection()
     }
 
     mysql_close(m_Mysql);
-    MySQL::Thread_End();
     Unlock();   /// Unlock while we die, how ironic
 }
 
-//! Can be called synchronously in DatabaseWorkerPool, in which thread-specific variables initialized in the main thread
-//! are deallocated.
-//! Can also be called by worker threads, in which their respective thread-specific variables are deallocated.
 void MySQLConnection::Close()
 {
     /// Only close us if we're not operating

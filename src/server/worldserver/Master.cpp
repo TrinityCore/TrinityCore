@@ -362,6 +362,8 @@ int Master::Run()
 /// Initialize connection to the databases
 bool Master::_StartDB()
 {
+    MySQL::Library_Init();
+
     sLog->SetLogDB(false);
     std::string dbstring;
     uint8 async_threads, synch_threads;

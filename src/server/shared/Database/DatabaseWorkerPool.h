@@ -77,6 +77,7 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < async_threads; ++i)
             {
                 T* t = new T(m_queue, m_connectionInfo);
+                res &= t->Open();
                 m_connections[IDX_ASYNC][i] = t;
                 ++m_connectionCount[IDX_ASYNC];
             }
@@ -110,6 +111,7 @@ class DatabaseWorkerPool
                 DatabaseWorker* worker = t->m_worker;
                 worker->wait();
                 delete worker;
+                t->Close();
             }
 
             sLog->outSQLDriver("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", m_connectionInfo.database.c_str());
@@ -124,6 +126,7 @@ class DatabaseWorkerPool
             }
 
             delete m_queue;
+
             sLog->outSQLDriver("All connections on databasepool %s closed.", m_connectionInfo.database.c_str());
         }
 
