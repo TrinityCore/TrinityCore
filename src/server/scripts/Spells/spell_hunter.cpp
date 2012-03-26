@@ -630,4 +630,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_sniper_training();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_pet_carrion_feeder();
+    new spell_hun_misdirection();
+    new spell_hun_misdirection_proc();
 }
