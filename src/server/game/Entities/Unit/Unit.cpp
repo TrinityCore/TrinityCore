@@ -5524,6 +5524,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     break;
                 }
+                case 71875: // Item - Black Bruise: Necrotic Touch Proc
+                case 71877:
+                {
+                    basepoints0 = CalculatePctN(int32(damage), triggerAmount);
+                    triggered_spell_id = 71879;
+                    break;
+                }
                 // Item - Shadowmourne Legendary
                 case 71903:
                 {
