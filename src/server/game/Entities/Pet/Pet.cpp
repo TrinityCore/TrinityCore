@@ -105,7 +105,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         // Known petnumber entry
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
         stmt->setUInt32(0, ownerid);
-        stmt->setUInt8(1, petnumber);
+        stmt->setUInt32(1, petnumber);
     }
     else if (current)
     {
