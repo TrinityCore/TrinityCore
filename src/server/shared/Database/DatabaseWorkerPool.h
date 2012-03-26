@@ -268,6 +268,9 @@ class DatabaseWorkerPool
             PreparedResultSet* ret = t->Query(stmt);
             t->Unlock();
 
+            //! Delete proxy-class. Not needed anymore
+            delete stmt;
+
             if (!ret || !ret->GetRowCount())
                 return PreparedQueryResult(NULL);
 
