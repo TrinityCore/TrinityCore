@@ -941,6 +941,12 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isTotem())
                     return false;
 
+                // Special case for dynamic objects, need to pass spellinfo
+                if (i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT)
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(((DynamicObject*)i_obj)->GetSpellId()))
+                        if (i_funit->IsValidAttackTarget(u, spellInfo) && i_obj->IsWithinDistInMap(u, i_range))
+                            return true;
+
                 if (i_funit->IsValidAttackTarget(u) && i_obj->IsWithinDistInMap(u, i_range))
                     return true;
 
