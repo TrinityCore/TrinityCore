@@ -246,6 +246,8 @@ extern int main(int argc, char **argv)
 // Initialize connection to the database
 bool StartDB()
 {
+    MySQL::Library_Init();
+
     std::string dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
