@@ -560,6 +560,64 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
         }
 };
 
+// 34477 Misdirection
+class spell_hun_misdirection : public SpellScriptLoader
+{
+    public:
+        spell_hun_misdirection() : SpellScriptLoader("spell_hun_misdirection") { }
+
+        class spell_hun_misdirection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_misdirection_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (GetDuration())
+                        caster->SetReducedThreatPercent(0, 0);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_misdirection_AuraScript();
+        }
+};
+
+// 35079 Misdirection proc
+class spell_hun_misdirection_proc : public SpellScriptLoader
+{
+    public:
+        spell_hun_misdirection_proc() : SpellScriptLoader("spell_hun_misdirection_proc") { }
+
+        class spell_hun_misdirection_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_misdirection_proc_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster())
+                    GetCaster()->SetReducedThreatPercent(0, 0);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_misdirection_proc_AuraScript();
+        }
+};
+
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
