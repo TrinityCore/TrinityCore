@@ -194,7 +194,7 @@ CREATE TABLE `realmlist` (
   `address` varchar(32) NOT NULL DEFAULT '127.0.0.1',
   `port` int(11) NOT NULL DEFAULT '8085',
   `icon` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `color` tinyint(3) unsigned NOT NULL DEFAULT '2',
+  `flag` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
@@ -250,4 +250,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-03-25 21:05:26
+-- Dump completed on 2012-03-26 18:21:51
