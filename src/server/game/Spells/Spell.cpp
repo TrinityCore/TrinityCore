@@ -3080,7 +3080,7 @@ void Spell::cancel()
         *m_selfContainer = NULL;
 
     m_caster->RemoveDynObject(m_spellInfo->Id);
-    if (IsChanneledSpell(m_spellInfo)) // if not channeled then the object for the current cast wasn't summoned yet
+    if (m_spellInfo->IsChanneled()) // if not channeled then the object for the current cast wasn't summoned yet
         m_caster->RemoveGameObject(m_spellInfo->Id, true);
 
     //set state back so finish will be processed
@@ -6666,7 +6666,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                 // no, we aren't, do the typical update
                 // check, if we have channeled spell on our hands
                 /*
-                if (IsChanneledSpell(m_Spell->m_spellInfo))
+                if (m_Spell->m_spellInfo->IsChanneled())
                 {
                     // evented channeled spell is processed separately, casted once after delay, and not destroyed till finish
                     // check, if we have casting anything else except this channeled spell and autorepeat
