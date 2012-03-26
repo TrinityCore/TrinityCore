@@ -1193,7 +1193,7 @@ void SpellMgr::LoadSpellRanks()
             if (lastSpell == -1)
                 lastSpell = currentSpell;
             uint32 spell_id = fields[1].GetUInt32();
-            uint32 rank = fields[2].GetUInt32();
+            uint32 rank = fields[2].GetUInt8();
 
             // don't drop the row if we're moving to the next rank
             if (currentSpell == lastSpell)

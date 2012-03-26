@@ -5524,6 +5524,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     break;
                 }
+                case 71875: // Item - Black Bruise: Necrotic Touch Proc
+                case 71877:
+                {
+                    basepoints0 = CalculatePctN(int32(damage), triggerAmount);
+                    triggered_spell_id = 71879;
+                    break;
+                }
                 // Item - Shadowmourne Legendary
                 case 71903:
                 {
@@ -6608,9 +6615,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             {
                 case 34477: // Misdirection
                 {
+                    if (!GetMisdirectionTarget())
+                        return false;
                     triggered_spell_id = 35079; // 4 sec buff on self
                     target = this;
-                    return true;
+                    break;
                 }
                 case 57870: // Glyph of Mend Pet
                 {
