@@ -573,7 +573,7 @@ class spell_hun_misdirection : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-                    if (GetDuration())
+                    if (!GetDuration())
                         caster->SetReducedThreatPercent(0, 0);
             }
 
