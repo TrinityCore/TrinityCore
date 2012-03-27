@@ -1767,7 +1767,7 @@ void ObjectMgr::LoadGameobjects()
         GameObjectData& data = _gameObjectDataStore[guid];
 
         data.id             = entry;
-        data.mapid          = fields[2].GetUInt32();
+        data.mapid          = fields[2].GetUInt16();
         data.posX           = fields[3].GetFloat();
         data.posY           = fields[4].GetFloat();
         data.posZ           = fields[5].GetFloat();
@@ -1790,10 +1790,10 @@ void ObjectMgr::LoadGameobjects()
             sLog->outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.", guid, data.id);
         }
 
-        data.animprogress   = fields[12].GetUInt32();
+        data.animprogress   = fields[12].GetUInt8();
         data.artKit         = 0;
 
-        uint32 go_state     = fields[13].GetUInt32();
+        uint32 go_state     = fields[13].GetUInt8();
         if (go_state >= MAX_GO_STATE)
         {
             sLog->outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip", guid, data.id, go_state);
@@ -1807,7 +1807,7 @@ void ObjectMgr::LoadGameobjects()
             sLog->outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
         data.phaseMask      = fields[15].GetUInt16();
-        int16 gameEvent     = fields[16].GetInt16();
+        int16 gameEvent     = fields[16].GetInt8();
         uint32 PoolId        = fields[17].GetUInt32();
 
         if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
@@ -5661,6 +5661,7 @@ void ObjectMgr::LoadGraveyardZones()
 
     GraveYardStore.clear();                                  // need for reload case
 
+    //                                                0       1         2
     QueryResult result = WorldDatabase.Query("SELECT id, ghost_zone, faction FROM game_graveyard_zone");
 
     if (!result)
@@ -5680,7 +5681,7 @@ void ObjectMgr::LoadGraveyardZones()
 
         uint32 safeLocId = fields[0].GetUInt32();
         uint32 zoneId = fields[1].GetUInt32();
-        uint32 team   = fields[2].GetUInt32();
+        uint32 team   = fields[2].GetUInt16();
 
         WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(safeLocId);
         if (!entry)
@@ -6449,7 +6450,7 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.questItems[i] = fields[10 + i].GetUInt32();
 
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
-            got.raw.data[i] = fields[16 + i].GetUInt32();
+            got.raw.data[i] = fields[16 + i].GetInt32(); // data1 and data6 can be -1
 
         got.AIName = fields[40].GetString();
         got.ScriptId = GetScriptId(fields[41].GetCString());
@@ -6612,7 +6613,7 @@ void ObjectMgr::LoadExplorationBaseXP()
     {
         Field* fields = result->Fetch();
         uint8 level  = fields[0].GetUInt8();
-        uint32 basexp = fields[1].GetUInt32();
+        uint32 basexp = fields[1].GetInt32();
         _baseXPTable[level] = basexp;
         ++count;
     }
@@ -7897,6 +7898,7 @@ void ObjectMgr::LoadGameTele()
 
     _gameTeleStore.clear();                                  // for reload case
 
+    //                                                0       1           2           3           4        5     6
     QueryResult result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
 
     if (!result)
@@ -7920,7 +7922,7 @@ void ObjectMgr::LoadGameTele()
         gt.position_y     = fields[2].GetFloat();
         gt.position_z     = fields[3].GetFloat();
         gt.orientation    = fields[4].GetFloat();
-        gt.mapId          = fields[5].GetUInt32();
+        gt.mapId          = fields[5].GetUInt16();
         gt.name           = fields[6].GetString();
 
         if (!MapManager::IsValidMapCoord(gt.mapId, gt.position_x, gt.position_y, gt.position_z, gt.orientation))
@@ -8326,7 +8328,7 @@ void ObjectMgr::LoadGossipMenu()
 
         GossipMenus gMenu;
 
-        gMenu.entry             = fields[0].GetUInt32();
+        gMenu.entry             = fields[0].GetUInt16();
         gMenu.text_id           = fields[1].GetUInt32();
 
         if (!GetGossipText(gMenu.text_id))
@@ -8352,7 +8354,9 @@ void ObjectMgr::LoadGossipMenuItems()
     _gossipMenuItemsStore.clear();
 
     QueryResult result = WorldDatabase.Query(
+        //          0              1            2           3              4
         "SELECT menu_id, id, option_icon, option_text, option_id, npc_option_npcflag, "
+        //       5              6           7          8         9
         "action_menu_id, action_poi_id, box_coded, box_money, box_text "
         "FROM gossip_menu_option ORDER BY menu_id, id");
 
@@ -8371,11 +8375,11 @@ void ObjectMgr::LoadGossipMenuItems()
 
         GossipMenuItems gMenuItem;
 
-        gMenuItem.MenuId                = fields[0].GetUInt32();
-        gMenuItem.OptionIndex           = fields[1].GetUInt32();
-        gMenuItem.OptionIcon            = fields[2].GetUInt8();
+        gMenuItem.MenuId                = fields[0].GetUInt16();
+        gMenuItem.OptionIndex           = fields[1].GetUInt16();
+        gMenuItem.OptionIcon            = fields[2].GetUInt32();
         gMenuItem.OptionText            = fields[3].GetString();
-        gMenuItem.OptionType            = fields[4].GetUInt32();
+        gMenuItem.OptionType            = fields[4].GetUInt8();
         gMenuItem.OptionNpcflag         = fields[5].GetUInt32();
         gMenuItem.ActionMenuId          = fields[6].GetUInt32();
         gMenuItem.ActionPoiId           = fields[7].GetUInt32();
