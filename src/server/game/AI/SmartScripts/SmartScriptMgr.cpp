@@ -198,7 +198,6 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.event.raw.param4 = fields[11].GetUInt32();
 
         temp.action.type = (SMART_ACTION)fields[12].GetUInt8();
-
         temp.action.raw.param1 = fields[13].GetUInt32();
         temp.action.raw.param2 = fields[14].GetUInt32();
         temp.action.raw.param3 = fields[15].GetUInt32();
