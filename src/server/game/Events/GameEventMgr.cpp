@@ -283,7 +283,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint16 event_id = fields[0].GetUInt16();
+                uint16 event_id = fields[0].GetUInt8();
 
                 if (event_id >= mGameEvent.size())
                 {
@@ -469,7 +469,7 @@ void GameEventMgr::LoadFromDB()
                 Field* fields = result->Fetch();
 
                 uint32 guid     = fields[0].GetUInt32();
-                uint16 event_id = fields[1].GetUInt16();
+                uint16 event_id = fields[1].GetUInt8();
 
                 if (event_id >= mGameEventModelEquip.size())
                 {
@@ -982,7 +982,7 @@ void GameEventMgr::Initialize()
     {
         Field* fields = result->Fetch();
 
-        uint32 maxEventId = fields[0].GetUInt16();
+        uint32 maxEventId = fields[0].GetUInt8();
 
         // Id starts with 1 and vector with 0, thus increment
         maxEventId++;

@@ -358,7 +358,7 @@ void InstanceSaveManager::LoadResetTimes()
         {
             Field* fields = result->Fetch();
             uint32 mapid = fields[0].GetUInt16();
-            Difficulty difficulty = Difficulty(fields[1].GetUInt32());
+            Difficulty difficulty = Difficulty(fields[1].GetUInt8());
             uint64 oldresettime = fields[2].GetUInt32();
 
             MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);

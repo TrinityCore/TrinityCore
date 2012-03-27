@@ -2820,7 +2820,7 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
 
         uint32 uiEntry      = fields[0].GetUInt32();
         uint32 uiAccessory  = fields[1].GetUInt32();
-        int8   uiSeat       = int8(fields[2].GetInt16());
+        int8   uiSeat       = int8(fields[2].GetInt8());
         bool   bMinion      = fields[3].GetBool();
         uint8  uiSummonType = fields[4].GetUInt8();
         uint32 uiSummonTimer= fields[5].GetUInt32();
@@ -7154,11 +7154,11 @@ void ObjectMgr::LoadNPCSpellClickSpells()
             continue;
         }
 
-        uint8 userType = fields[3].GetUInt8();
+        uint8 userType = fields[3].GetUInt16();
         if (userType >= SPELL_CLICK_USER_MAX)
             sLog->outErrorDb("Table npc_spellclick_spells references unknown user type %u. Skipping entry.", uint32(userType));
 
-        uint8 castFlags = fields[2].GetUInt16();
+        uint8 castFlags = fields[2].GetUInt8();
         SpellClickInfo info;
         info.spellId = spellid;
         info.castFlags = castFlags;
@@ -8240,7 +8240,7 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *s
             count += LoadReferenceVendor(vendor, -item_id, skip_vendors);
         else
         {
-            int32  maxcount     = fields[1].GetUInt8(); // tinyint(3) unsigned
+            int32  maxcount     = fields[1].GetUInt8();
             uint32 incrtime     = fields[2].GetUInt32();
             uint32 ExtendedCost = fields[3].GetUInt32();
 
@@ -8290,7 +8290,7 @@ void ObjectMgr::LoadVendors()
             count += LoadReferenceVendor(entry, -item_id, &skip_vendors);
         else
         {
-            int32  maxcount     = fields[2].GetInt32();
+            uint32 maxcount     = fields[2].GetUInt8();
             uint32 incrtime     = fields[3].GetUInt32();
             uint32 ExtendedCost = fields[4].GetUInt32();
 
