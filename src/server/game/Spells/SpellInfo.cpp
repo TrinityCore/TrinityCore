@@ -1665,6 +1665,11 @@ bool SpellInfo::HasAnyEffectMechanic() const
     return false;
 }
 
+bool SpellInfo::HasPowerCost() const
+{
+    return (PowerType < MAX_POWERS && (ManaCost != 0 || ManaCostPercentage != 0 || ManaCostPerlevel != 0));
+}
+
 uint32 SpellInfo::GetDispelMask() const
 {
     return GetDispelMask(DispelType(Dispel));
