@@ -491,6 +491,58 @@ class npc_tournament_training_dummy : public CreatureScript
 
 };
 
+enum GoreBladder
+{
+    NPC_RAVENOUS_JAWS           = 29392,    // Ravenous Jaws
+    NPC_BLOOD_CREDIT_BUNNY      = 29391,    // Ravenous Jaws Blood Kill Credit Bunny
+    AURA_UNDERWATER_BLOOD       = 47172,    // Cosmetic - Underwater Blood (no sound)
+    SPELL_CANCEL_BLOOD          = 26568,    // Ravenous Jaws: Cancel Blood Cosmetic Aura
+};
+
+class spell_item_gore_bladder : public SpellScriptLoader
+{
+    public:
+        spell_item_gore_bladder() : SpellScriptLoader("spell_item_gore_bladder") { }
+
+        class spell_item_gore_bladder_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_gore_bladder_SpellScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sObjectMgr->GetCreatureTemplate(NPC_RAVENOUS_JAWS))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                if (Creature* target = GetHitCreature())
+                    if (target->GetEntry() == NPC_RAVENOUS_JAWS && target->isDead() && target->HasAura(AURA_UNDERWATER_BLOOD))
+                    {
+                        target->CastSpell(target, SPELL_CANCEL_BLOOD, true);
+                        caster->KilledMonsterCredit(NPC_BLOOD_CREDIT_BUNNY, 0);
+                    }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_gore_bladder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_gore_bladder_SpellScript();
+        }
+};
+
 void AddSC_icecrown()
 {
     new npc_arete;
@@ -499,4 +551,5 @@ void AddSC_icecrown()
     new npc_guardian_pavilion;
     new npc_vereth_the_cunning;
     new npc_tournament_training_dummy;
+    new spell_item_gore_bladder;
 }
