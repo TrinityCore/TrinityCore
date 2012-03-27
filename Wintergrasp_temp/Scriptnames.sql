@@ -19,5 +19,5 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (56659, 'spell_wintergrasp_force_building'),
 (56662, 'spell_wintergrasp_force_building'),
 (56664, 'spell_wintergrasp_force_building'),
-(49899, 'spell_wintergrasp_force_building');
+(49899, 'spell_wintergrasp_force_building'),
 (61178, 'spell_wintergrasp_grab_passenger');
