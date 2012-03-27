@@ -24951,22 +24951,21 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
-    uint8 index = 0;
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
-    stmt->setUInt32(index++, GetGUIDLow());
-
 
     for (uint8 spec = 0; spec < m_specsCount; ++spec)
     {
+        uint8 index = 0;
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
+        stmt->setUInt32(index++, GetGUIDLow());
+
         stmt->setUInt8(index++, spec);
 
         for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             stmt->setUInt16(index++, uint16(m_Glyphs[spec][i]));
 
+        trans->Append(stmt);
     }
-
-    trans->Append(stmt);
 }
 
 void Player::_LoadTalents(PreparedQueryResult result)
