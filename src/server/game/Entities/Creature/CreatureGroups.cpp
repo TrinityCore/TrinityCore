@@ -101,7 +101,7 @@ void FormationMgr::LoadCreatureFormations()
         group_member                        = new FormationInfo();
         group_member->leaderGUID            = fields[0].GetUInt32();
         uint32 memberGUID                   = fields[1].GetUInt32();
-        group_member->groupAI               = fields[4].GetUInt8();
+        group_member->groupAI               = fields[4].GetUInt32();
         //If creature is group leader we may skip loading of dist/angle
         if (group_member->leaderGUID != memberGUID)
         {
