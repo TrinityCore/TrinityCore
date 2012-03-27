@@ -79,7 +79,7 @@ Quest::Quest(Field* questRecord)
         RewardChoiceItemCount[i] = questRecord[57+i].GetUInt16();
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        RewardFactionId[i] = questRecord[63+i].GetUInt168();
+        RewardFactionId[i] = questRecord[63+i].GetUInt16();
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         RewardFactionValueId[i] = questRecord[68+i].GetInt32();
