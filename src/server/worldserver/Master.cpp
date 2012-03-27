@@ -137,13 +137,6 @@ int Master::Run()
     sLog->outString("                                 C O R E  /\\___/");
     sLog->outString("http://TrinityCore.org                    \\/__/\n");
 
-#ifdef USE_SFMT_FOR_RNG
-    sLog->outString("\n");
-    sLog->outString("SFMT has been enabled as the random number generator, if worldserver");
-    sLog->outString("freezes or crashes randomly, first, try disabling SFMT in CMAKE configuration");
-    sLog->outString("\n");
-#endif //USE_SFMT_FOR_RNG
-
     /// worldserver PID file creation
     std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
     if (!pidfile.empty())
