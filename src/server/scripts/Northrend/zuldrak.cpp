@@ -1071,7 +1071,7 @@ public:
 
             SummonList.clear();
 
-            for (uint8 uiI = 0; uiI < 16 ; uiI++)
+            for (uint8 uiI = 0; uiI < 16; uiI++)
             {
                 if (Creature* summon = me->SummonCreature(Boss[uiBossRandom].uiAdd, AddSpawnPosition[uiI]))
                 {

@@ -161,12 +161,12 @@ public:
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HWDM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             player->SEND_GOSSIP_MENU(3377, creature->GetGUID());
-        }else
+        }
+        else
             player->SEND_GOSSIP_MENU(3375, creature->GetGUID());
 
         return true;
     }
-
 };
 
 void AddSC_winterspring()
