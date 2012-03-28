@@ -1308,7 +1308,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
     trans->Append(stmt);
 
-    for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end() ; ++itr)
+    for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end(); ++itr)
     {
         // check if the aura has to be saved
         if (!itr->second->CanBeSaved() || IsPetAura(itr->second))

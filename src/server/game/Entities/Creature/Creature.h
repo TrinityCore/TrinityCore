@@ -373,7 +373,7 @@ struct TrainerSpell
 {
     TrainerSpell() : spell(0), spellCost(0), reqSkill(0), reqSkillValue(0), reqLevel(0)
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS ; ++i)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             learnedSpell[i] = 0;
     }
 
