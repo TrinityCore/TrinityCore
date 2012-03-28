@@ -28,7 +28,7 @@ OutdoorPvPMgr::OutdoorPvPMgr()
     //sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Instantiating OutdoorPvPMgr");
 }
 
-OutdoorPvPMgr::~OutdoorPvPMgr()
+void OutdoorPvPMgr::Die()
 {
     //sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Deleting OutdoorPvPMgr");
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
@@ -42,7 +42,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                       0       1
+    //                                                 0       1
     QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
 
     if (!result)
@@ -59,7 +59,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     {
         Field* fields = result->Fetch();
 
-        typeId = fields[0].GetUInt32();
+        typeId = fields[0].GetUInt8();
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, NULL))
             continue;

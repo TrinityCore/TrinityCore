@@ -71,7 +71,7 @@ void LoadSkillDiscoveryTable()
 
         uint32 spellId         = fields[0].GetUInt32();
         int32  reqSkillOrSpell = fields[1].GetInt32();
-        uint32 reqSkillValue   = fields[2].GetUInt32();
+        uint32 reqSkillValue   = fields[2].GetUInt16();
         float  chance          = fields[3].GetFloat();
 
         if (chance <= 0)                                    // chance

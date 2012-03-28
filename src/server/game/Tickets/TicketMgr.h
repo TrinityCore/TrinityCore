@@ -40,8 +40,11 @@ enum GMTicketStatus
 
 enum GMTicketResponse
 {
-    GMTICKET_RESPONSE_FAILURE                     = 1,
-    GMTICKET_RESPONSE_SUCCESS                     = 2,
+    GMTICKET_RESPONSE_ALREADY_EXIST               = 1,
+    GMTICKET_RESPONSE_CREATE_SUCCESS              = 2,
+    GMTICKET_RESPONSE_CREATE_ERROR                = 3,
+    GMTICKET_RESPONSE_UPDATE_SUCCESS              = 4,
+    GMTICKET_RESPONSE_UPDATE_ERROR                = 5,
     GMTICKET_RESPONSE_TICKET_DELETED              = 9,
 };
 
@@ -156,6 +159,7 @@ private:
     bool _completed;
     GMTicketEscalationStatus _escalatedStatus;
     bool _viewed;
+    bool _needResponse; // TODO: find out the use of this, and then store it in DB
     std::string _response;
 };
 typedef std::map<uint32, GmTicket*> GmTicketList;
@@ -166,6 +170,7 @@ class TicketMgr
 
 private:
     TicketMgr();
+    ~TicketMgr();
 
 public:
     void LoadTickets();

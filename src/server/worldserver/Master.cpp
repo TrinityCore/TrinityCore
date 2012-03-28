@@ -41,6 +41,7 @@
 #include "Timer.h"
 #include "Util.h"
 #include "AuthSocket.h"
+#include "RealmList.h"
 
 #include "BigNumber.h"
 
@@ -136,13 +137,6 @@ int Master::Run()
     sLog->outString("                                 C O R E  /\\___/");
     sLog->outString("http://TrinityCore.org                    \\/__/\n");
 
-#ifdef USE_SFMT_FOR_RNG
-    sLog->outString("\n");
-    sLog->outString("SFMT has been enabled as the random number generator, if worldserver");
-    sLog->outString("freezes or crashes randomly, first, try disabling SFMT in CMAKE configuration");
-    sLog->outString("\n");
-#endif //USE_SFMT_FOR_RNG
-
     /// worldserver PID file creation
     std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
     if (!pidfile.empty())
@@ -162,7 +156,7 @@ int Master::Run()
         return 1;
 
     // set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET color = (color & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
 
     ///- Initialize the World
     sWorld->SetInitialWorldSettings();
@@ -273,7 +267,7 @@ int Master::Run()
     }
 
     // set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET color = color & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
     sLog->outString("%s (worldserver-daemon) ready...", _FULLVERSION);
     sWorldSocketMgr->Wait();
@@ -286,7 +280,7 @@ int Master::Run()
     }
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET color = color | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master

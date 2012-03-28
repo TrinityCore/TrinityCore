@@ -430,7 +430,8 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleLootRoll(WorldPacket &recv_data)
 {
-    if (!GetPlayer()->GetGroup())
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
     {
         recv_data.rfinish();
         return;
@@ -442,12 +443,6 @@ void WorldSession::HandleLootRoll(WorldPacket &recv_data)
     recv_data >> Guid;                                      //guid of the item rolled
     recv_data >> NumberOfPlayers;
     recv_data >> rollType;                                    //0: pass, 1: need, 2: greed
-
-    //sLog->outDebug("WORLD RECIEVE CMSG_LOOT_ROLL, From:%u, Numberofplayers:%u, Choise:%u", (uint32)Guid, NumberOfPlayers, Choise);
-
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
-        return;
 
     // everything's fine, do it
     group->CountRollVote(GetPlayer()->GetGUID(), Guid, NumberOfPlayers, rollType);

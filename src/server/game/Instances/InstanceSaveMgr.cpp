@@ -124,11 +124,21 @@ InstanceSave* InstanceSaveManager::GetInstanceSave(uint32 InstanceId)
 void InstanceSaveManager::DeleteInstanceFromDB(uint32 instanceid)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    trans->PAppend("DELETE FROM instance WHERE id = '%u'", instanceid);
-    trans->PAppend("DELETE FROM character_instance WHERE instance = '%u'", instanceid);
-    trans->PAppend("DELETE FROM group_instance WHERE instance = '%u'", instanceid);
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INSTANCE_BY_INSTANCE);
+    stmt->setUInt32(0, instanceid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE);
+    stmt->setUInt32(0, instanceid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_INSTANCE);
+    stmt->setUInt32(0, instanceid);
+    trans->Append(stmt);
+
     CharacterDatabase.CommitTransaction(trans);
-    // respawn times should be deleted only when the map gets unloaded
+    // Respawn times should be deleted only when the map gets unloaded
 }
 
 void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
@@ -348,7 +358,7 @@ void InstanceSaveManager::LoadResetTimes()
         {
             Field* fields = result->Fetch();
             uint32 mapid = fields[0].GetUInt16();
-            Difficulty difficulty = Difficulty(fields[1].GetUInt32());
+            Difficulty difficulty = Difficulty(fields[1].GetUInt8());
             uint64 oldresettime = fields[2].GetUInt32();
 
             MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
@@ -568,9 +578,22 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
 
         // delete them from the DB, even if not loaded
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        trans->PAppend("DELETE FROM character_instance USING character_instance LEFT JOIN instance ON character_instance.instance = id WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
-        trans->PAppend("DELETE FROM group_instance USING group_instance LEFT JOIN instance ON group_instance.instance = id WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
-        trans->PAppend("DELETE FROM instance WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_MAP_DIFF);
+        stmt->setUInt16(0, uint16(mapid));
+        stmt->setUInt8(0, uint8(difficulty));
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_MAP_DIFF);
+        stmt->setUInt16(0, uint16(mapid));
+        stmt->setUInt8(0, uint8(difficulty));
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INSTANCE_BY_MAP_DIFF);
+        stmt->setUInt16(0, uint16(mapid));
+        stmt->setUInt8(0, uint8(difficulty));
+        trans->Append(stmt);
+
         CharacterDatabase.CommitTransaction(trans);
 
         // calculate the next reset time
@@ -580,13 +603,13 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         if (period < DAY)
             period = DAY;
 
-        uint32 next_reset = ((resetTime + MINUTE) / DAY * DAY) + period + diff;
+        uint32 next_reset = uint32(((resetTime + MINUTE) / DAY * DAY) + period + diff);
 
         SetResetTimeFor(mapid, difficulty, next_reset);
         ScheduleReset(true, time_t(next_reset-3600), InstResetEvent(1, mapid, difficulty, 0));
 
         // Update it in the DB
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
 
         stmt->setUInt32(0, next_reset);
         stmt->setUInt16(1, uint16(mapid));

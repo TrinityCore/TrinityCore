@@ -129,8 +129,8 @@ void MapManager::LoadTransportNPCs()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                         0    1          2                3             4             5             6             7
-    QueryResult result = WorldDatabase.PQuery("SELECT guid, npc_entry, transport_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote FROM creature_transport");
+    //                                                 0       1            2                3             4             5             6        7
+    QueryResult result = WorldDatabase.Query("SELECT guid, npc_entry, transport_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote FROM creature_transport");
 
     if (!result)
     {
@@ -144,14 +144,14 @@ void MapManager::LoadTransportNPCs()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guid = fields[0].GetUInt32();
-        uint32 entry = fields[1].GetUInt32();
-        uint32 transportEntry = fields[2].GetUInt32();
+        uint32 guid = fields[0].GetInt32();
+        uint32 entry = fields[1].GetInt32();
+        uint32 transportEntry = fields[2].GetInt32();
         float tX = fields[3].GetFloat();
         float tY = fields[4].GetFloat();
         float tZ = fields[5].GetFloat();
         float tO = fields[6].GetFloat();
-        uint32 anim = fields[7].GetUInt32();
+        uint32 anim = fields[7].GetInt32();
 
         for (MapManager::TransportSet::iterator itr = m_Transports.begin(); itr != m_Transports.end(); ++itr)
         {

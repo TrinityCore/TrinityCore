@@ -3085,7 +3085,8 @@ void Spell::cancel()
         *m_selfContainer = NULL;
 
     m_caster->RemoveDynObject(m_spellInfo->Id);
-    m_caster->RemoveGameObject(m_spellInfo->Id, true);
+    if (m_spellInfo->IsChanneled()) // if not channeled then the object for the current cast wasn't summoned yet
+        m_caster->RemoveGameObject(m_spellInfo->Id, true);
 
     //set state back so finish will be processed
     m_spellState = oldState;
@@ -4990,7 +4991,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             break;
         }
 
-    if (!hasNonDispelEffect && !hasDispellableAura && m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
+    if (!hasNonDispelEffect && !hasDispellableAura && m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL) && !IsTriggered())
         return SPELL_FAILED_NOTHING_TO_DISPEL;
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
@@ -6688,7 +6689,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                 // no, we aren't, do the typical update
                 // check, if we have channeled spell on our hands
                 /*
-                if (IsChanneledSpell(m_Spell->m_spellInfo))
+                if (m_Spell->m_spellInfo->IsChanneled())
                 {
                     // evented channeled spell is processed separately, casted once after delay, and not destroyed till finish
                     // check, if we have casting anything else except this channeled spell and autorepeat
