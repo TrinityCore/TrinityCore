@@ -858,6 +858,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     isDebugAreaTriggers = false;
 
+    m_WeeklyQuestChanged = false;
+
     SetPendingBind(0, 0);
 }
 
