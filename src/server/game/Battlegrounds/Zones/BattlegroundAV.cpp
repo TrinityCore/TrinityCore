@@ -1481,7 +1481,7 @@ void BattlegroundAV::ResetBGSubclass()
     {
         for (uint8 j=0; j<9; j++)
             m_Team_QuestStatus[i][j]=0;
-    m_Team_Scores[i]=BG_AV_SCORE_INITIAL_POINTS;
+        m_Team_Scores[i]=BG_AV_SCORE_INITIAL_POINTS;
         m_IsInformedNearVictory[i]=false;
         m_CaptainAlive[i] = true;
         m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
@@ -1502,7 +1502,6 @@ void BattlegroundAV::ResetBGSubclass()
     for (uint16 i = 0; i < AV_CPLACE_MAX+AV_STATICCPLACE_MAX; i++)
         if (BgCreatures[i])
             DelCreature(i);
-
 }
 
 bool BattlegroundAV::IsBothMinesControlledByTeam(uint32 team) const
