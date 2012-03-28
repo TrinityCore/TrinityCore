@@ -371,7 +371,7 @@ class boss_ysondre : public CreatureScript
                 {
                     Talk(SAY_YSONDRE_SUMMON_DRUIDS);
 
-                    for (uint8 i = 0 ; i < 10 ; ++i)
+                    for (uint8 i = 0; i < 10; ++i)
                         DoCast(me, SPELL_SUMMON_DRUID_SPIRITS, true);
                     ++_stage;
                 }

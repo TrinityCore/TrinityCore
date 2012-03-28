@@ -105,7 +105,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
             bool IsEncounterInProgress() const
             {
-                for (uint8 i = 0; i < MAX_ENCOUNTERS ; ++i)
+                for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
                     if (EncounterStatus[i] == IN_PROGRESS)
                         return true;
                 return false;
