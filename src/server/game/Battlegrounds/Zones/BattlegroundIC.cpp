@@ -359,7 +359,7 @@ void BattlegroundIC::FillInitialWorldStates(WorldPacket& data)
         data << uint32(uws) << uint32(1);
     }
 
-    for (uint8 i = 0 ; i < MAX_NODE_TYPES ; i++)
+    for (uint8 i = 0; i < MAX_NODE_TYPES; i++)
         data << uint32(nodePoint[i].worldStates[nodePoint[i].nodeState]) << uint32(1);
 }
 
