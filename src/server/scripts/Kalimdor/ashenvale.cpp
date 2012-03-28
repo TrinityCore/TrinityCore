@@ -100,8 +100,7 @@ class npc_torek : public CreatureScript
                 case 20:
                     DoScriptText(SAY_WIN, me, player);
                     Completed = true;
-                    if (player)
-                        player->GroupEventHappens(QUEST_TOREK_ASSULT, me);
+                    player->GroupEventHappens(QUEST_TOREK_ASSULT, me);
                     break;
                 case 21:
                     Talk(SAY_END, player->GetGUID());
@@ -177,47 +176,41 @@ class npc_torek : public CreatureScript
 class npc_ruul_snowhoof : public CreatureScript
 {
     public:
-
-        npc_ruul_snowhoof()
-            : CreatureScript("npc_ruul_snowhoof")
-        {
-        }
+        npc_ruul_snowhoof() : CreatureScript("npc_ruul_snowhoof") { }
 
         struct npc_ruul_snowhoofAI : public npc_escortAI
         {
-            npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) {}
+            npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) { }
 
             void WaypointReached(uint32 i)
             {
                 Player* player = GetPlayerForEscort();
-
                 if (!player)
                     return;
 
                 switch (i)
                 {
-                case 0:    {
+                    case 0:
                         me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                        GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
-                        if (Cage)
+                        if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                             Cage->SetGoState(GO_STATE_ACTIVE);
-                        break;}
-                case 13:
+                        break;
+
+                    case 13:
                         me->SummonCreature(3922, 3449.218018f, -587.825073f, 174.978867f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3921, 3446.384521f, -587.830872f, 175.186279f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3926, 3444.218994f, -587.835327f, 175.380600f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         break;
-                case 19:
+
+                    case 19:
                         me->SummonCreature(3922, 3508.344482f, -492.024261f, 186.929031f, 4.145029f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3921, 3506.265625f, -490.531006f, 186.740128f, 4.239277f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3926, 3503.682373f, -489.393799f, 186.629684f, 4.349232f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         break;
 
-                case 21:{
-                        if (player)
-                            player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
-
-                        break;  }
+                    case 21:
+                        player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
+                        break;
                 }
             }
 
@@ -330,12 +323,10 @@ class npc_muglash : public CreatureScript
                 switch (i)
                 {
                     case 0:
-                        if (player)
-                            DoScriptText(SAY_MUG_START2, me, player);
+                        DoScriptText(SAY_MUG_START2, me, player);
                         break;
                     case 24:
-                        if (player)
-                            DoScriptText(SAY_MUG_BRAZIER, me, player);
+                        DoScriptText(SAY_MUG_BRAZIER, me, player);
 
                         if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
                         {
@@ -345,9 +336,7 @@ class npc_muglash : public CreatureScript
                         break;
                     case 25:
                         DoScriptText(SAY_MUG_GRATITUDE, me);
-
-                        if (player)
-                            player->GroupEventHappens(QUEST_VORSHA, me);
+                        player->GroupEventHappens(QUEST_VORSHA, me);
                         break;
                     case 26:
                         DoScriptText(SAY_MUG_PATROL, me);
@@ -378,14 +367,9 @@ class npc_muglash : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                Player* player = GetPlayerForEscort();
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
-                {
-                    if (player)
-                    {
+                    if (Player* player = GetPlayerForEscort())
                         player->FailQuest(QUEST_VORSHA);
-                    }
-                }
             }
 
             void DoWaveSummon()

@@ -154,9 +154,7 @@ public:
                     DoScriptText(SAY_OOX_END, me);
                     // Award quest credit
                     if (Player* player = GetPlayerForEscort())
-                    {
-                            player->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
-                    }
+                        player->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
                     break;
             }
         }
