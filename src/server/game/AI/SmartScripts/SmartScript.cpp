@@ -1954,7 +1954,8 @@ void SmartScript::InstallTemplate(SmartScriptHolder const& e)
             }
         case SMARTAI_TEMPLATE_CAGED_NPC_PART:
             {
-                if (!me) return;
+                if (!me)
+                    return;
                 //store cage as id1
                 AddEvent(SMART_EVENT_DATA_SET, 0, 0, 0, 0, 0, SMART_ACTION_STORE_TARGET_LIST, 1, 0, 0, 0, 0, 0, SMART_TARGET_CLOSEST_GAMEOBJECT, e.action.installTtemplate.param1, 10, 0, 0);
 
@@ -1976,7 +1977,8 @@ void SmartScript::InstallTemplate(SmartScriptHolder const& e)
             }
         case SMARTAI_TEMPLATE_CAGED_GO_PART:
             {
-                if (!go) return;
+                if (!go)
+                    return;
                 //store hostage as id1
                 AddEvent(SMART_EVENT_GOSSIP_HELLO, 0, 0, 0, 0, 0, SMART_ACTION_STORE_TARGET_LIST, 1, 0, 0, 0, 0, 0, SMART_TARGET_CLOSEST_CREATURE, e.action.installTtemplate.param1, 10, 0, 0);
                 //store invoker as id2
@@ -2839,8 +2841,12 @@ void SmartScript::InstallEvents()
 
 bool SmartScript::ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3)
 {
-    if (c == 0) return true;
-    if (!u || !u->ToPlayer()) return false;
+    if (c == 0)
+        return true;
+
+    if (!u || !u->ToPlayer())
+        return false;
+
     Condition cond;
     cond.ConditionType = ConditionTypes(uint32(c));
     cond.ConditionValue1 = uint32(v1);
@@ -3007,7 +3013,9 @@ void SmartScript::OnMoveInLineOfSight(Unit* who)
 {
     ProcessEventsFor(SMART_EVENT_OOC_LOS, who);
 
-    if (!me) return;
+    if (!me)
+        return;
+
     if (me->getVictim())
         return;
 

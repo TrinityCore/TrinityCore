@@ -8598,10 +8598,13 @@ uint32 ObjectMgr::GetScriptId(const char *name)
 {
     // use binary search to find the script name in the sorted vector
     // assume "" is the first element
-    if (!name) return 0;
-    ScriptNameContainer::const_iterator itr =
-        std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
-    if (itr == _scriptNamesStore.end() || *itr != name) return 0;
+    if (!name)
+        return 0;
+
+    ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
+    if (itr == _scriptNamesStore.end() || *itr != name)
+        return 0;
+
     return uint32(itr - _scriptNamesStore.begin());
 }
 
@@ -8610,6 +8613,7 @@ void ObjectMgr::CheckScripts(ScriptsType type, std::set<int32>& ids)
     ScriptMapMap* scripts = GetScriptsMapByType(type);
     if (!scripts)
         return;
+
     for (ScriptMapMap::const_iterator itrMM = scripts->begin(); itrMM != scripts->end(); ++itrMM)
     {
         for (ScriptMap::const_iterator itrM = itrMM->second.begin(); itrM != itrMM->second.end(); ++itrM)

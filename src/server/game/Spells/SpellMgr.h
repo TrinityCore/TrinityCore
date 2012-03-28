@@ -693,7 +693,6 @@ class SpellMgr
     public:
 
         // Loading data at server startup
-        void LoadSpellInfos();
         void LoadSpellRanks();
         void LoadSpellRequired();
         void LoadSpellLearnSkills();
