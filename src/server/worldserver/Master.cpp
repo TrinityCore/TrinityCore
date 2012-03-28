@@ -270,7 +270,11 @@ int Master::Run()
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
     sLog->outString("%s (worldserver-daemon) ready...", _FULLVERSION);
-    sWorldSocketMgr->Wait();
+
+    // when the main thread closes the singletons get unloaded
+    // since worldrunnable uses them, it will crash if unloaded after master
+    world_thread.wait();
+    rar_thread.wait();
 
     if (soap_thread)
     {
@@ -281,11 +285,6 @@ int Master::Run()
 
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
-
-    // when the main thread closes the singletons get unloaded
-    // since worldrunnable uses them, it will crash if unloaded after master
-    world_thread.wait();
-    rar_thread.wait();
 
     ///- Clean database before leaving
     ClearOnlineAccounts();
