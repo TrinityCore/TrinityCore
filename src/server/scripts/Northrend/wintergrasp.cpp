@@ -99,8 +99,8 @@ uint8 const MAX_WINTERGRASP_VEHICLES = 4;
 uint32 const vehiclesList[MAX_WINTERGRASP_VEHICLES] = {
     NPC_WINTERGRASP_CATAPULT,
     NPC_WINTERGRASP_DEMOLISHER,
-    NPC_WINTERGRASP_SIEGE_ENGINE_1,
-    NPC_WINTERGRASP_SIEGE_ENGINE_2
+    NPC_WINTERGRASP_SIEGE_ENGINE_ALLIANCE,
+    NPC_WINTERGRASP_SIEGE_ENGINE_HORDE
 };
 
 class npc_wg_demolisher_engineer : public CreatureScript
@@ -468,8 +468,8 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_BUILD_CATAPULT_FORCE)
                     || !sSpellMgr->GetSpellInfo(SPELL_BUILD_DEMOLISHER_FORCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_SIEGE_VEHICLE_FORCE_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_SIEGE_VEHICLE_FORCE_2))
+                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE))
                     return false;
                 return true;
             }
