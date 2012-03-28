@@ -860,6 +860,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_WeeklyQuestChanged = false;
 
+    m_SeasonalQuestChanged = false;
+
     SetPendingBind(0, 0);
 }
 
