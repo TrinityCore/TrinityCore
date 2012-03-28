@@ -1119,8 +1119,10 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
     uint8 res = ObjectMgr::CheckPlayerName(newName, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
+        WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newName.size()+1));
         data << uint8(res);
+        data << uint64(guid);
+        data << newName;
         SendPacket(&data);
         return;
     }
@@ -1451,6 +1453,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
         std::string oldname = result->Fetch()[0].GetString();
         sLog->outChar("Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldname.c_str(), GUID_LOPART(guid), newName.c_str());
     }
+
     Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN);
