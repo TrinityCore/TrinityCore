@@ -382,7 +382,7 @@ void Log::outDB(LogTypes type, const char * str)
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
 
     stmt->setInt32(0, realm);
-    stmt->setInt32(1, type);
+    stmt->setUInt8(1, uint8(type));
     stmt->setString(2, logStr);
 
     LoginDatabase.Execute(stmt);
