@@ -212,8 +212,8 @@ enum WintergraspNpcs
     NPC_DWARVEN_SPIRIT_GUIDE                        = 31842,    // Alliance spirit guide for Wintergrasp
     NPC_TOWER_CANNON                                = 28366,
 
-    NPC_WINTERGRASP_SIEGE_ENGINE_1                  = 28312,
-    NPC_WINTERGRASP_SIEGE_ENGINE_2                  = 32627,
+    NPC_WINTERGRASP_SIEGE_ENGINE_ALLIANCE           = 28312,
+    NPC_WINTERGRASP_SIEGE_ENGINE_HORDE              = 32627,
     NPC_WINTERGRASP_CATAPULT                        = 27881,
     NPC_WINTERGRASP_DEMOLISHER                      = 28094,
     NPC_WINTERGRASP_TOWER_CANNON                    = 28366,
@@ -400,10 +400,13 @@ class BattlefieldWG : public Battlefield
         void SendInitWorldStatesToAll();
 
         void HandleKill(Player* killer, Unit* victim);
+        void OnUnitDeath(Unit* unit);
         void PromotePlayer(Player* killer);
 
         void UpdateTenacity();
         void ProcessEvent(WorldObject *obj, uint32 eventId);
+
+        bool FindAndRemoveVehicleFromList(Unit* vehicle);
 
         // returns the graveyardId in the specified area.
         uint8 GetSpiritGraveyardId(uint32 areaId);

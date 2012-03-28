@@ -518,8 +518,8 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
     {
         switch (creature->GetEntry())
         {
-            case NPC_WINTERGRASP_SIEGE_ENGINE_1:
-            case NPC_WINTERGRASP_SIEGE_ENGINE_2:
+            case NPC_WINTERGRASP_SIEGE_ENGINE_ALLIANCE:
+            case NPC_WINTERGRASP_SIEGE_ENGINE_HORDE:
             case NPC_WINTERGRASP_CATAPULT:
             case NPC_WINTERGRASP_DEMOLISHER:
             {
@@ -573,12 +573,13 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
 
 void BattlefieldWG::OnCreatureRemove(Creature* creature)
 {
+/* possibly can be used later
     if (IsWarTime())
     {
         switch (creature->GetEntry())
         {
-            case NPC_WINTERGRASP_SIEGE_ENGINE_1:
-            case NPC_WINTERGRASP_SIEGE_ENGINE_2:
+            case NPC_WINTERGRASP_SIEGE_ENGINE_ALLIANCE:
+            case NPC_WINTERGRASP_SIEGE_ENGINE_HORDE:
             case NPC_WINTERGRASP_CATAPULT:
             case NPC_WINTERGRASP_DEMOLISHER:
             {
@@ -600,7 +601,7 @@ void BattlefieldWG::OnCreatureRemove(Creature* creature)
                 break;
             }
         }
-    }
+    }*/
 }
 
 void BattlefieldWG::OnGameObjectCreate(GameObject* go)
@@ -656,23 +657,19 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
         return;
 
     bool again = false;
+    TeamId killerTeam = killer->GetTeamId();
+
     if (victim->GetTypeId() == TYPEID_PLAYER)
     {
-        for (GuidSet::const_iterator itr = m_PlayersInWar[killer->GetTeamId()].begin(); itr != m_PlayersInWar[killer->GetTeamId()].end(); ++itr)
+        for (GuidSet::const_iterator itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 if (player->GetDistance2d(killer) < 40)
                     PromotePlayer(player);
         return;
-    }
+    }    
 
-    for (GuidSet::const_iterator itr = m_vehicles[GetOtherTeam(killer->GetTeamId())].begin(); itr != m_vehicles[GetOtherTeam(killer->GetTeamId())].end(); ++itr)
-        if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-            if (Creature* creature = unit->ToCreature())
-                if (victim->GetEntry() == creature->GetEntry() && !again)
-                    again = true;
-
-    for (GuidSet::const_iterator itr = KeepCreature[GetOtherTeam(killer->GetTeamId())].begin();
-         itr != KeepCreature[GetOtherTeam(killer->GetTeamId())].end(); ++itr)
+    for (GuidSet::const_iterator itr = KeepCreature[GetOtherTeam(killerTeam)].begin();
+         itr != KeepCreature[GetOtherTeam(killerTeam)].end(); ++itr)
     {
         if (Unit* unit = sObjectAccessor->FindUnit(*itr))
         {
@@ -681,7 +678,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
                 if (victim->GetEntry() == creature->GetEntry() && !again)
                 {
                     again = true;
-                    for (GuidSet::const_iterator iter = m_PlayersInWar[killer->GetTeamId()].begin(); iter != m_PlayersInWar[killer->GetTeamId()].end(); ++iter)
+                    for (GuidSet::const_iterator iter = m_PlayersInWar[killerTeam].begin(); iter != m_PlayersInWar[killerTeam].end(); ++iter)
                         if (Player* player = sObjectAccessor->FindPlayer(*iter))
                             if (player->GetDistance2d(killer) < 40.0f)
                                 PromotePlayer(player);
@@ -690,6 +687,31 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
         }
     }
     // TODO:Recent PvP activity worldstate
+}
+
+bool BattlefieldWG::FindAndRemoveVehicleFromList(Unit* vehicle)
+{
+    for (uint32 itr = 0; itr < 2; ++itr)
+    {
+        if (m_vehicles[itr].find(vehicle->GetGUID()) != m_vehicles[itr].end())
+        {
+            m_vehicles[itr].erase(vehicle->GetGUID());
+            if (itr == WintergraspFaction[TEAM_HORDE])
+                UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H,-1);
+            else 
+                UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A,-1);
+            return true;
+        }
+    }
+    return false;
+}
+
+void BattlefieldWG::OnUnitDeath(Unit* unit)
+{
+    if (IsWarTime())
+        if (unit->IsVehicle())
+            if (FindAndRemoveVehicleFromList(unit))
+                UpdateVehicleCountWG();
 }
 
 // Update rank for player
