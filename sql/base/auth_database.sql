@@ -63,11 +63,11 @@ DROP TABLE IF EXISTS `account_access`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_access` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL,
   `gmlevel` tinyint(3) unsigned NOT NULL,
   `RealmID` int(11) NOT NULL DEFAULT '-1',
   PRIMARY KEY (`id`,`RealmID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -87,14 +87,14 @@ DROP TABLE IF EXISTS `account_banned`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_banned` (
-  `id` int(11) NOT NULL DEFAULT '0' COMMENT 'Account id',
+  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Account id',
   `bandate` int(10) unsigned NOT NULL DEFAULT '0',
   `unbandate` int(10) unsigned NOT NULL DEFAULT '0',
   `bannedby` varchar(50) NOT NULL,
   `banreason` varchar(255) NOT NULL,
-  `active` tinyint(4) NOT NULL DEFAULT '1',
+  `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`,`bandate`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Ban List';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Ban List';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -120,7 +120,7 @@ CREATE TABLE `ip_banned` (
   `bannedby` varchar(50) NOT NULL DEFAULT '[Console]',
   `banreason` varchar(255) NOT NULL DEFAULT 'no reason',
   PRIMARY KEY (`ip`,`bandate`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Banned IPs';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Banned IPs';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -250,4 +250,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-03-27 14:28:21
+-- Dump completed on 2012-03-28 16:44:39
