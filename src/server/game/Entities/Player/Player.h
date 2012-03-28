@@ -1511,7 +1511,7 @@ class Player : public Unit, public GridObject<Player>
         static uint32 GetLevelFromDB(uint64 guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid);
 
-        static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE ; }
+        static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/

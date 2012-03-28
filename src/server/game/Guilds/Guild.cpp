@@ -1230,7 +1230,7 @@ void Guild::HandleQuery(WorldSession* session)
     data << uint32(m_id);
     data << m_name;
 
-    for (uint8 i = 0 ; i < GUILD_RANKS_MAX_COUNT; ++i)              // Alwayse show 10 ranks
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)              // Alwayse show 10 ranks
     {
         if (i < _GetRanksSize())
             data << m_ranks[i].GetName();
