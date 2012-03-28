@@ -820,28 +820,28 @@ void Group::SendLootRollWon(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumb
     }
 }
 
-void Group::SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r)
+void Group::SendLootAllPassed(uint32 numberOfPlayers, Roll const& roll)
 {
     WorldPacket data(SMSG_LOOT_ALL_PASSED, (8+4+4+4+4));
-    data << uint64(r.itemGUID);                             // Guid of the item rolled
-    data << uint32(NumberOfPlayers);                        // The number of players rolling for it???
-    data << uint32(r.itemid);                               // The itemEntryId for the item that shall be rolled for
-    data << uint32(r.itemRandomPropId);                     // Item random property ID
-    data << uint32(r.itemRandomSuffix);                     // Item random suffix ID
+    data << uint64(roll.itemGUID);                             // Guid of the item rolled
+    data << uint32(numberOfPlayers);                           // The number of players rolling for it
+    data << uint32(roll.itemid);                               // The itemEntryId for the item that shall be rolled for
+    data << uint32(roll.itemRandomPropId);                     // Item random property ID
+    data << uint32(roll.itemRandomSuffix);                     // Item random suffix ID
 
-    for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
+    for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
-        Player* p = ObjectAccessor::FindPlayer(itr->first);
-        if (!p || !p->GetSession())
+        Player* player = ObjectAccessor::FindPlayer(itr->first);
+        if (!player || !player->GetSession())
             continue;
 
         if (itr->second != NOT_VALID)
-            p->GetSession()->SendPacket(&data);
+            player->GetSession()->SendPacket(&data);
     }
 }
 
 // notify group members which player is the allowed looter for the given creature
-void Group::SendLooter(Creature* creature, Player* pLooter)
+void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
@@ -849,8 +849,8 @@ void Group::SendLooter(Creature* creature, Player* pLooter)
     data << uint64(creature->GetGUID());
     data << uint8(0); // unk1
 
-    if (pLooter)
-        data.append(pLooter->GetPackGUID());
+    if (groupLooter)
+        data.append(groupLooter->GetPackGUID());
     else
         data << uint8(0);
 
