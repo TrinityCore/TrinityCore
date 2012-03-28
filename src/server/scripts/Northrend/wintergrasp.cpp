@@ -41,8 +41,8 @@ enum eWGqueuenpctext
 enum Spells
 {
     // Demolisher engineers spells
-    SPELL_BUILD_SIEGE_VEHICLE_FORCE_1         = 61409, //
-    SPELL_BUILD_SIEGE_VEHICLE_FORCE_2         = 56662, // Which faction uses which ?
+    SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE     = 61409,
+    SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE  = 56662,
     SPELL_BUILD_CATAPULT_FORCE                = 56664,
     SPELL_BUILD_DEMOLISHER_FORCE              = 56659,
     SPELL_ACTIVATE_CONTROL_ARMS               = 49899,
@@ -150,7 +150,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
                         creature->CastSpell(player, SPELL_BUILD_DEMOLISHER_FORCE, true);
                         break;
                     case 2:
-                        creature->CastSpell(player, player->GetTeamId() == TEAM_ALLIANCE ? SPELL_BUILD_SIEGE_VEHICLE_FORCE_1 : SPELL_BUILD_SIEGE_VEHICLE_FORCE_2, true);
+                        creature->CastSpell(player, player->GetTeamId() == TEAM_ALLIANCE ? SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE : SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE, true);
                         break;
                 }
                 if (Creature* controlArms = creature->FindNearestCreature(NPC_WINTERGRASP_CONTROL_ARMS, 30.0f, true))
@@ -477,7 +477,7 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+                GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), false);
             }
 
             void Register()
