@@ -238,7 +238,7 @@ public:
                     break;
                 case 15:
                     if (player)
-                    player->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
+                        player->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
                     break;
             }
         }
@@ -249,8 +249,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            Player* player = GetPlayerForEscort();
-            if (player)
+            if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_RETURN_TO_VAHLARRIEL);
             return;
         }
