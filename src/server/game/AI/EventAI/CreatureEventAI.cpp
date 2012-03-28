@@ -95,7 +95,7 @@ CreatureEventAI::CreatureEventAI(Creature* c) : CreatureAI(c)
     m_AttackDistance = 0.0f;
     m_AttackAngle = 0.0f;
 
-    m_InvinceabilityHpLevel = 0;
+    m_InvincibilityHpLevel = 0;
 
     //Handle Spawned Events
     if (!m_bEmptyList)
@@ -816,9 +816,9 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:
         {
             if (action.invincibility_hp_level.is_percent)
-                m_InvinceabilityHpLevel = me->CountPctFromMaxHealth(action.invincibility_hp_level.hp_level);
+                m_InvincibilityHpLevel = me->CountPctFromMaxHealth(action.invincibility_hp_level.hp_level);
             else
-                m_InvinceabilityHpLevel = action.invincibility_hp_level.hp_level;
+                m_InvincibilityHpLevel = action.invincibility_hp_level.hp_level;
             break;
         }
         case ACTION_T_MOUNT_TO_ENTRY_OR_MODEL:
@@ -1350,12 +1350,12 @@ void CreatureEventAI::ReceiveEmote(Player* player, uint32 textEmote)
 
 void CreatureEventAI::DamageTaken(Unit* /*done_by*/, uint32& damage)
 {
-    if (m_InvinceabilityHpLevel > 0 && me->GetHealth() < m_InvinceabilityHpLevel+damage)
+    if (m_InvincibilityHpLevel > 0 && me->GetHealth() < m_InvincibilityHpLevel+damage)
     {
-        if (me->GetHealth() <= m_InvinceabilityHpLevel)
+        if (me->GetHealth() <= m_InvincibilityHpLevel)
             damage = 0;
         else
-            damage = me->GetHealth() - m_InvinceabilityHpLevel;
+            damage = me->GetHealth() - m_InvincibilityHpLevel;
     }
 }
 
