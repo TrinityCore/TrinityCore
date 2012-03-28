@@ -1,4 +1,4 @@
--- -----------------------------------
+/*-- -----------------------------------
 -- --  Loot for The Siege of Ulduar -- 
 -- -----------------------------------
 
@@ -288,3 +288,4 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 (@XT002_25,45444,0,2,1,1,1), -- Gloves of the Steady Hand
 (@XT002_25,45445,0,2,1,1,1), -- Breastplate of the Devoted
 (@XT002_25,45446,0,2,1,1,1); -- Grasps of Reason
+*/
