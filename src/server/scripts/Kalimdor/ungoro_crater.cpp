@@ -104,8 +104,7 @@ public:
                     break;
                 case 55:
                     DoScriptText(SAY_FINISH, me, player);
-                    if (player)
-                        player->GroupEventHappens(QUEST_CHASING_AME, me);
+                    player->GroupEventHappens(QUEST_CHASING_AME, me);
                     break;
             }
         }
