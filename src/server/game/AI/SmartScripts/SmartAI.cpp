@@ -639,7 +639,7 @@ void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
     if ((me->GetHealth() - damage) <= mInvinceabilityHpLevel)
-        damage -= mInvinceabilityHpLevel;
+        damage = me->GetHealth() - mInvinceabilityHpLevel;
 }
 
 void SmartAI::HealReceived(Unit* doneBy, uint32& addhealth)
