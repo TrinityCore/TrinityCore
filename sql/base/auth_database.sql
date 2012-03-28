@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.21, for Win64 (x86)
+-- MySQL dump 10.13  Distrib 5.5.22, for Win64 (x86)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	5.5.21
+-- Server version	5.5.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -23,27 +23,27 @@ DROP TABLE IF EXISTS `account`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
   `username` varchar(32) NOT NULL DEFAULT '',
   `sha_pass_hash` varchar(40) NOT NULL DEFAULT '',
-  `sessionkey` longtext,
-  `v` longtext,
-  `s` longtext,
-  `email` text,
+  `sessionkey` varchar(80) NOT NULL DEFAULT '',
+  `v` varchar(64) NOT NULL DEFAULT '',
+  `s` varchar(64) NOT NULL DEFAULT '',
+  `email` varchar(254) NOT NULL DEFAULT '',
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_ip` varchar(30) NOT NULL DEFAULT '127.0.0.1',
-  `failed_logins` int(11) unsigned NOT NULL DEFAULT '0',
+  `last_ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
+  `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
   `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `online` tinyint(4) NOT NULL DEFAULT '0',
+  `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `expansion` tinyint(3) unsigned NOT NULL DEFAULT '2',
-  `mutetime` bigint(40) NOT NULL DEFAULT '0',
+  `mutetime` bigint(20) NOT NULL DEFAULT '0',
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `os` varchar(4) NOT NULL DEFAULT '',
-  `recruiter` int(11) NOT NULL DEFAULT '0',
+  `os` varchar(3) NOT NULL DEFAULT '',
+  `recruiter` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_username` (`username`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Account System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Account System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -250,4 +250,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-03-26 18:21:51
+-- Dump completed on 2012-03-27 14:28:21
