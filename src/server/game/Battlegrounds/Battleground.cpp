@@ -759,7 +759,7 @@ void Battleground::EndBattleground(uint32 winner)
                     else
                     {
                         maxChartID = (*result)[0].GetUInt32();
-                        result.release();
+                        //result.release();
                     }
                     uint32 gameID = maxChartID+1;
                     for(BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)

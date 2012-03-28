@@ -20,11 +20,8 @@ else()
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
   message(STATUS "MSVC: Enabled large address awareness")
 
-  # Test if we need SSE2-support
-  if(USE_SFMT)
-    add_definitions(/arch:SSE2)
-    message(STATUS "MSVC: Enabled SSE2 support")
-  endif()
+  add_definitions(/arch:SSE2)
+  message(STATUS "MSVC: Enabled SSE2 support")
 endif()
 
 # Set build-directive (used in core to tell which buildtype we used)

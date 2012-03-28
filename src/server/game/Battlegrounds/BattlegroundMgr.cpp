@@ -708,10 +708,10 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         CreateBattlegroundData data;
         data.bgTypeId = BattlegroundTypeId(bgTypeID_);
         data.IsArena = (bl->type == TYPE_ARENA);
-        data.MinPlayersPerTeam = fields[1].GetUInt32();
-        data.MaxPlayersPerTeam = fields[2].GetUInt32();
-        data.LevelMin = fields[3].GetUInt32();
-        data.LevelMax = fields[4].GetUInt32();
+        data.MinPlayersPerTeam = fields[1].GetUInt16();
+        data.MaxPlayersPerTeam = fields[2].GetUInt16();
+        data.LevelMin = fields[3].GetUInt8();
+        data.LevelMax = fields[4].GetUInt8();
         //check values from DB
         if (data.MaxPlayersPerTeam == 0 || data.MinPlayersPerTeam == 0 || data.MinPlayersPerTeam > data.MaxPlayersPerTeam)
         {

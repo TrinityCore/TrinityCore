@@ -38,7 +38,8 @@ m_NumWaitTimeAvg(0), m_NumWaitTimeTank(0), m_NumWaitTimeHealer(0), m_NumWaitTime
     m_update = sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE);
     if (m_update)
     {
-        new LFGScripts();
+        new LFGPlayerScript();
+        new LFGGroupScript();
 
         // Initialize dungeon cache
         for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
@@ -1166,7 +1167,7 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
         }
 
         m_QueueInfoMap[gguid] = pqInfo;
-        if(GetState(gguid) != LFG_STATE_NONE)
+        if (GetState(gguid) != LFG_STATE_NONE)
         {
             LfgGuidList& currentQueue = m_currentQueue[team];
             currentQueue.push_front(gguid);

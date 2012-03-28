@@ -4957,18 +4957,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         }
                     }
                     break;
-                case SPELLFAMILY_HUNTER:
-                    switch (GetId())
-                    {
-                        case 34477: // Misdirection
-                            if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-                                target->SetReducedThreatPercent(0, 0);
-                            break;
-                        case 35079: // Misdirection proc
-                            target->SetReducedThreatPercent(0, 0);
-                            break;
-                    }
-                    break;
                 case SPELLFAMILY_DEATHKNIGHT:
                     // Summon Gargoyle (Dismiss Gargoyle at remove)
                     if (GetId() == 61777)
@@ -6469,7 +6457,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     caster->CalcHealAbsorb(target, GetSpellInfo(), heal, absorb);
     int32 gain = caster->DealHeal(target, heal);
 
-    SpellPeriodicAuraLogInfo pInfo(this, damage, damage - gain, absorb, 0, 0.0f, crit);
+    SpellPeriodicAuraLogInfo pInfo(this, heal, heal - gain, absorb, 0, 0.0f, crit);
     target->SendPeriodicAuraLog(&pInfo);
 
     target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellInfo());

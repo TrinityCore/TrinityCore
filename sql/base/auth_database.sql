@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.19, for Win64 (x86)
+-- MySQL dump 10.13  Distrib 5.5.21, for Win64 (x86)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	5.5.19
+-- Server version	5.5.21
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -88,8 +88,8 @@ DROP TABLE IF EXISTS `account_banned`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_banned` (
   `id` int(11) NOT NULL DEFAULT '0' COMMENT 'Account id',
-  `bandate` bigint(40) NOT NULL DEFAULT '0',
-  `unbandate` bigint(40) NOT NULL DEFAULT '0',
+  `bandate` int(10) unsigned NOT NULL DEFAULT '0',
+  `unbandate` int(10) unsigned NOT NULL DEFAULT '0',
   `bannedby` varchar(50) NOT NULL,
   `banreason` varchar(255) NOT NULL,
   `active` tinyint(4) NOT NULL DEFAULT '1',
@@ -114,9 +114,9 @@ DROP TABLE IF EXISTS `ip_banned`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ip_banned` (
-  `ip` varchar(32) NOT NULL DEFAULT '127.0.0.1',
-  `bandate` bigint(40) NOT NULL,
-  `unbandate` bigint(40) NOT NULL,
+  `ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
+  `bandate` int(10) unsigned NOT NULL,
+  `unbandate` int(10) unsigned NOT NULL,
   `bannedby` varchar(50) NOT NULL DEFAULT '[Console]',
   `banreason` varchar(255) NOT NULL DEFAULT 'no reason',
   PRIMARY KEY (`ip`,`bandate`)
@@ -194,7 +194,7 @@ CREATE TABLE `realmlist` (
   `address` varchar(32) NOT NULL DEFAULT '127.0.0.1',
   `port` int(11) NOT NULL DEFAULT '8085',
   `icon` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `color` tinyint(3) unsigned NOT NULL DEFAULT '2',
+  `flag` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
@@ -250,4 +250,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-02-19 13:18:35
+-- Dump completed on 2012-03-26 18:21:51

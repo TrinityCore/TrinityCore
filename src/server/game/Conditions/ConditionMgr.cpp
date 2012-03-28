@@ -719,8 +719,8 @@ void ConditionMgr::LoadConditions(bool isReload)
         Condition* cond = new Condition();
         int32 iSourceTypeOrReferenceId   = fields[0].GetInt32();
         cond->SourceGroup               = fields[1].GetUInt32();
-        cond->SourceEntry               = fields[2].GetInt32();
-        cond->SourceId                  = fields[3].GetUInt32();
+        cond->SourceEntry               = fields[2].GetUInt32();
+        cond->SourceId                  = fields[3].GetInt32();
         cond->ElseGroup                 = fields[4].GetUInt32();
         int32 iConditionTypeOrReference  = fields[5].GetInt32();
         cond->ConditionTarget           = fields[6].GetUInt8();

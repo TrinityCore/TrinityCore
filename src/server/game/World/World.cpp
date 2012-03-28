@@ -80,7 +80,7 @@
 #include "CalendarMgr.h"
 #include "OutdoorPvPWG.h"
 
-volatile bool World::m_stopEvent = false;
+ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 volatile uint32 World::m_worldLoopCounter = 0;
 
@@ -1330,6 +1330,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
+    sLog->outString("Loading SkillLineAbilityMultiMap Data...");
+    sSpellMgr->LoadSkillLineAbilityMap();
+
     sLog->outString("Loading spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
@@ -1341,9 +1344,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading Instance Template...");
     sObjectMgr->LoadInstanceTemplate();
-
-    sLog->outString("Loading SkillLineAbilityMultiMap Data...");
-    sSpellMgr->LoadSkillLineAbilityMap();
 
     // Must be called before `creature_respawn`/`gameobject_respawn` tables
     sLog->outString("Loading instances...");
@@ -1636,7 +1636,7 @@ void World::SetInitialWorldSettings()
     sSmartWaypointMgr->LoadFromDB();
 
     sLog->outString("Loading Creature Formations...");
-    FormationMgr::LoadCreatureFormations();
+    sFormationMgr->LoadCreatureFormations();
 
     sLog->outString("Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
     LoadWorldStates();
@@ -1671,9 +1671,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading Autobroadcasts...");
     LoadAutobroadcasts();
-
-    sLog->outString("Loading Ip2nation...");
-    LoadIp2nation();
 
     ///- Load and initialize scripts
     sObjectMgr->LoadQuestStartScripts();                         // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
@@ -1928,23 +1925,6 @@ void World::LoadAutobroadcasts()
     } while (result->NextRow());
 
     sLog->outString(">> Loaded %u autobroadcasts definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
-void World::LoadIp2nation()
-{
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT count(c.code) FROM ip2nationCountries c, ip2nation i WHERE c.code = i.country");
-    uint32 count = 0;
-
-    if (result)
-    {
-        Field* fields = result->Fetch();
-        count = fields[0].GetUInt32();
-    }
-
-    sLog->outString(">> Loaded %u ip2nation definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
@@ -2381,7 +2361,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
     do
     {
         Field* fieldsAccount = resultAccounts->Fetch();
-        uint32 account = fieldsAccount->GetUInt32();
+        uint32 account = fieldsAccount[0].GetUInt32();
 
         if (mode != BAN_IP)
         {
@@ -2517,7 +2497,7 @@ void World::_UpdateGameTime()
     m_gameTime = thisTime;
 
     ///- if there is a shutdown timer
-    if (!m_stopEvent && m_ShutdownTimer > 0 && elapsed > 0)
+    if (!IsStopped() && m_ShutdownTimer > 0 && elapsed > 0)
     {
         ///- ... and it is overdue, stop the world (set m_stopEvent)
         if (m_ShutdownTimer <= elapsed)
@@ -2541,7 +2521,7 @@ void World::_UpdateGameTime()
 void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
 {
     // ignore if server shutdown at next tick
-    if (m_stopEvent)
+    if (IsStopped())
         return;
 
     m_ShutdownMask = options;
@@ -2593,7 +2573,7 @@ void World::ShutdownMsg(bool show, Player* player)
 void World::ShutdownCancel()
 {
     // nothing cancel or too later
-    if (!m_ShutdownTimer || m_stopEvent)
+    if (!m_ShutdownTimer || m_stopEvent.value())
         return;
 
     ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
@@ -2719,7 +2699,7 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
         uint32 accountId = fields[0].GetUInt32();
         uint32 charCount = fields[1].GetUInt32();
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
         stmt->setUInt32(0, accountId);
         stmt->setUInt32(1, realmID);
         LoginDatabase.Execute(stmt);
@@ -2819,9 +2799,12 @@ void World::ResetDailyQuests()
 
 void World::LoadDBAllowedSecurityLevel()
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT allowedSecurityLevel from realmlist WHERE id = '%d'", realmID);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
+    stmt->setInt32(0, int32(realmID));
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
     if (result)
-        SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt16()));
+        SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt8()));
 }
 
 void World::SetPlayerSecurityLimit(AccountTypes _sec)

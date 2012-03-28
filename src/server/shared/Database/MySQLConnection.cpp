@@ -58,17 +58,13 @@ MySQLConnection::~MySQLConnection()
 {
     ASSERT (m_Mysql); /// MySQL context must be present at this point
 
-    sLog->outSQLDriver("MySQLConnection::~MySQLConnection()");
     for (size_t i = 0; i < m_stmts.size(); ++i)
         delete m_stmts[i];
 
     for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
-    {
         free((void *)m_queries[itr->first].first);
-    }
 
     mysql_close(m_Mysql);
-    Unlock();   /// Unlock while we die, how ironic
 }
 
 void MySQLConnection::Close()
