@@ -111,22 +111,12 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
         }
         case SPELLFAMILY_WARLOCK:
         {
-            // Death Coil
-            if (spellproto->SpellFamilyFlags[0] & 0x80000)
-                return DIMINISHING_HORROR;
             // Curses/etc
-            else if ((spellproto->SpellFamilyFlags[0] & 0x80000000) || (spellproto->SpellFamilyFlags[1] & 0x200))
+            if ((spellproto->SpellFamilyFlags[0] & 0x80000000) || (spellproto->SpellFamilyFlags[1] & 0x200))
                 return DIMINISHING_LIMITONLY;
             // Seduction
             else if (spellproto->SpellFamilyFlags[1] & 0x10000000)
                 return DIMINISHING_FEAR;
-            break;
-        }
-        case SPELLFAMILY_PRIEST:
-        {
-            // Psychic Horror
-            if (spellproto->SpellFamilyFlags[2] & 0x2000)
-                return DIMINISHING_HORROR;
             break;
         }
         case SPELLFAMILY_DRUID:
@@ -228,6 +218,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
         return DIMINISHING_BANISH;
     if (mechanic & (1 << MECHANIC_ROOT))
         return triggered ? DIMINISHING_ROOT : DIMINISHING_CONTROLLED_ROOT;
+    if (mechanic & (1 << MECHANIC_HORROR))
+        return DIMINISHING_HORROR;
 
     return DIMINISHING_NONE;
 }

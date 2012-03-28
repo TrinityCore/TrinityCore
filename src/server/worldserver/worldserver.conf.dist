@@ -1408,10 +1408,10 @@ AllowTickets = 1
 #
 #     DungeonFinder.Enable
 #        Description: Dungeon and raid finder system.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled, Experimental as of still being in development)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
 
-DungeonFinder.Enable = 0
+DungeonFinder.Enable = 1
 
 #
 #   DBC.EnforceItemAttributes

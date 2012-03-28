@@ -37,6 +37,11 @@ BattlegroundSA::BattlegroundSA()
     SignaledRoundTwo = false;
     SignaledRoundTwoHalfMin = false;
     InitSecondRound = false;
+
+    //! This is here to prevent an uninitialised variable warning
+    //! The warning only occurs when SetUpBattleGround fails though.
+    //! In the future this function should be called BEFORE sending initial worldstates.
+    memset(&GraveyardStatus, 0, sizeof(GraveyardStatus));
 }
 
 BattlegroundSA::~BattlegroundSA()

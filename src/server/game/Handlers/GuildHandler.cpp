@@ -352,8 +352,8 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket & recv_data)
     uint64 GoGuid;
     recv_data >> GoGuid;
 
-    uint8 unk;
-    recv_data >> unk;
+    uint8 fullSlotList;
+    recv_data >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
@@ -375,8 +375,8 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket & recv_data)
     uint8 tabId;
     recv_data >> tabId;
 
-    uint8 unk1;
-    recv_data >> unk1;
+    uint8 fullSlotList;
+    recv_data >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))

@@ -1167,7 +1167,7 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
         }
 
         m_QueueInfoMap[gguid] = pqInfo;
-        if(GetState(gguid) != LFG_STATE_NONE)
+        if (GetState(gguid) != LFG_STATE_NONE)
         {
             LfgGuidList& currentQueue = m_currentQueue[team];
             currentQueue.push_front(gguid);

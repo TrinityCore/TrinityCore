@@ -858,6 +858,10 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     isDebugAreaTriggers = false;
 
+    m_WeeklyQuestChanged = false;
+
+    m_SeasonalQuestChanged = false;
+
     SetPendingBind(0, 0);
 }
 
@@ -17967,14 +17971,8 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 QuestStatusData& questStatusData = m_QuestStatus[quest_id];
 
                 uint8 qstatus = fields[1].GetUInt8();
-                if (qstatus < MAX_QUEST_STATUS && qstatus > QUEST_STATUS_NONE)
+                if (qstatus < MAX_QUEST_STATUS)
                     questStatusData.Status = QuestStatus(qstatus);
-                else if (qstatus == QUEST_STATUS_NONE)
-                {
-                    sLog->outError("Player %s (GUID: %u) has QUEST_STATUS_NONE for quest %u and should be removed from character_queststatus.",
-                        GetName(), GetGUIDLow(), quest_id);
-                    continue;
-                }
                 else
                 {
                     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
@@ -19540,7 +19538,6 @@ void Player::_SaveStats(SQLTransaction& trans)
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER));
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());
     stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_CRIT_TAKEN_SPELL));
-    stmt->setUInt32(index++, GetMaxHealth());
 
     trans->Append(stmt);
 }
