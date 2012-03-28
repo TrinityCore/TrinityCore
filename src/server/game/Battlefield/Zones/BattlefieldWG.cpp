@@ -85,7 +85,7 @@ bool BattlefieldWG::SetupBattlefield()
 
     m_isActive = bool(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE));
     m_DefenderTeam = TeamId(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER));
-    
+
     m_Timer = sWorld->getWorldState(ClockWorldState[0]);
     if (m_isActive)
     {
@@ -142,18 +142,18 @@ bool BattlefieldWG::SetupBattlefield()
     for (uint8 i = 0; i < WG_OUTSIDE_ALLIANCE_NPC; i++)
         if (Creature* creature = SpawnCreature(WGOutsideNPC[i].entryHorde, WGOutsideNPC[i].x, WGOutsideNPC[i].y, WGOutsideNPC[i].z, WGOutsideNPC[i].o, TEAM_HORDE))
             OutsideCreature[TEAM_HORDE].insert(creature->GetGUID());
-    
+
     // Spawn Alliance NPCs outside the keep
     for (uint8 i = WG_OUTSIDE_ALLIANCE_NPC; i < WG_MAX_OUTSIDE_NPC; i++)
         if (Creature* creature = SpawnCreature(WGOutsideNPC[i].entryAlliance, WGOutsideNPC[i].x, WGOutsideNPC[i].y, WGOutsideNPC[i].z, WGOutsideNPC[i].o, TEAM_ALLIANCE))
             OutsideCreature[TEAM_ALLIANCE].insert(creature->GetGUID());
-    
+
     // Hide units outside the keep that are defenders
     for (GuidSet::const_iterator itr = OutsideCreature[GetDefenderTeam()].begin(); itr != OutsideCreature[GetDefenderTeam()].end(); ++itr)
         if (Unit* unit = sObjectAccessor->FindUnit(*itr))
             if (Creature* creature = unit->ToCreature())
                 HideNpc(creature);
-    
+
     // Spawn turrets and hide them per default
     for (uint8 i = 0; i < WG_MAX_TURRET; i++)
     {
@@ -523,17 +523,14 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
             case NPC_WINTERGRASP_CATAPULT:
             case NPC_WINTERGRASP_DEMOLISHER:
             {
-                uint8 team;
-                if (creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
-                    team = TEAM_ALLIANCE;
-                else if (creature->getFaction() == WintergraspFaction[TEAM_HORDE])
-                    team = TEAM_HORDE;
-                else
+                if (!creature->GetCreatorGUID() || !sObjectAccessor->FindPlayer(creature->GetCreatorGUID()))
                     return;
+                Player* creator = sObjectAccessor->FindPlayer(creature->GetCreatorGUID());
+                TeamId team = creator->GetTeamId();
 
                 if (team == TEAM_HORDE)
                 {
-                    if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) <= GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H))
+                    if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H))
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H, 1);
                         creature->CastSpell(creature, SPELL_HORDE_FLAG, true);
@@ -543,28 +540,29 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     else
                     {
                         creature->setDeathState(DEAD);
-                        creature->SetRespawnTime(RESPAWN_ONE_DAY);
+                        creature->RemoveFromWorld();
                         return;
                     }
                 }
                 else
                 {
-                    if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) <= GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
+                    if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, 1);
-                        creature->CastSpell(creature, SPELL_HORDE_FLAG, true);
+                        creature->CastSpell(creature, SPELL_ALLIANCE_FLAG, true);
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }
                     else
                     {
                         creature->setDeathState(DEAD);
-                        creature->SetRespawnTime(RESPAWN_ONE_DAY);
+                        creature->RemoveFromWorld();
                         return;
                     }
                 }
-                if (creature->GetOwner())
-                    creature->CastSpell(creature->GetOwner(), SPELL_GRAB_PASSENGER, true);
+
+                if (creature->GetCreatorGUID() && sObjectAccessor->FindUnit(creature->GetCreatorGUID()))
+                    creature->CastSpell(sObjectAccessor->FindUnit(creature->GetCreatorGUID()), SPELL_GRAB_PASSENGER, true);
                 break;
             }
         }
@@ -666,7 +664,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
                 if (player->GetDistance2d(killer) < 40)
                     PromotePlayer(player);
         return;
-    }    
+    }
 
     for (GuidSet::const_iterator itr = KeepCreature[GetOtherTeam(killerTeam)].begin();
          itr != KeepCreature[GetOtherTeam(killerTeam)].end(); ++itr)
@@ -698,7 +696,7 @@ bool BattlefieldWG::FindAndRemoveVehicleFromList(Unit* vehicle)
             m_vehicles[itr].erase(vehicle->GetGUID());
             if (itr == WintergraspFaction[TEAM_HORDE])
                 UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H,-1);
-            else 
+            else
                 UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A,-1);
             return true;
         }
@@ -810,7 +808,7 @@ void BattlefieldWG::OnPlayerLeaveZone(Player* player)
 {
     if (!m_isActive)
         RemoveAurasFromPlayer(player);
-       
+
     player->RemoveAurasDueToSpell(SPELL_HORDE_CONTROLS_FACTORY_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_HORDE_CONTROL_PHASE_SHIFT);
