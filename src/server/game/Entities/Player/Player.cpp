@@ -5051,16 +5051,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
-<<<<<<< HEAD
-            trans->PAppend("DELETE FROM character_glyphs WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM character_queststatus_daily WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM character_talent WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM character_skills WHERE guid = '%u'",guid);
-            /* World of Warcraft Armory */
-            trans->PAppend("DELETE FROM armory_character_stats WHERE guid = '%u'",guid);
-            trans->PAppend("DELETE FROM character_feed_log WHERE guid = '%u'",guid);
-            /* World of Warcraft Armory */
-=======
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
             stmt->setUInt32(0, guid);
@@ -5077,7 +5067,11 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILLS);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
->>>>>>> 63c4d2b96eda0f7f3e7fba2a6a009b52be01cbbd
+
+            /* World of Warcraft Armory */
+            trans->PAppend("DELETE FROM armory_character_stats WHERE guid = '%u'",guid);
+            trans->PAppend("DELETE FROM character_feed_log WHERE guid = '%u'",guid);
+            /* World of Warcraft Armory */
 
             CharacterDatabase.CommitTransaction(trans);
             break;
@@ -19622,9 +19616,6 @@ void Player::_SaveSpells(SQLTransaction& trans)
 
         // add only changed/new not dependent spells
         if (!itr->second->dependent && (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED))
-<<<<<<< HEAD
-            trans->PAppend("INSERT  IGNORE INTO character_spell (guid, spell, active, disabled) VALUES ('%u', '%u', '%u', '%u')", GetGUIDLow(), itr->first, itr->second->active ? 1 : 0, itr->second->disabled ? 1 : 0);
-=======
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
             stmt->setUInt32(0, GetGUIDLow());
@@ -19633,7 +19624,6 @@ void Player::_SaveSpells(SQLTransaction& trans)
             stmt->setBool(3, itr->second->disabled);
             trans->Append(stmt);
         }
->>>>>>> 63c4d2b96eda0f7f3e7fba2a6a009b52be01cbbd
 
         if (itr->second->state == PLAYERSPELL_REMOVED)
         {

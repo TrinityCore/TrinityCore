@@ -3381,7 +3381,6 @@ bool ChatHandler::HandleBanListAccountCommand(const char *args)
     return HandleBanListHelper(result);
 }
 
-<<<<<<< HEAD
 bool ChatHandler::HandleBanListPlayerAccountCommand(const char *args)
 {
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
@@ -3399,13 +3398,10 @@ bool ChatHandler::HandleBanListPlayerAccountCommand(const char *args)
         return true;
     }
 
-    return HandleBanListHelper(result);
+    return true;
 }
 
-bool ChatHandler::HandleBanListHelper(QueryResult result)
-=======
 bool ChatHandler::HandleBanListHelper(PreparedQueryResult result)
->>>>>>> 63c4d2b96eda0f7f3e7fba2a6a009b52be01cbbd
 {
     PSendSysMessage(LANG_BANLIST_MATCHINGACCOUNT);
 
