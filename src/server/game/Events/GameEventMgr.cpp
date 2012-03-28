@@ -823,7 +823,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                int8 event_id  = fields[0].GetInt8();
+                uint8 event_id  = fields[0].GetUInt8();
 
                 if (event_id >= mGameEventVendors.size())
                 {
