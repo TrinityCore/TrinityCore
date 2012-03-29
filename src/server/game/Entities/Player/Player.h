@@ -1064,7 +1064,7 @@ class Player : public Unit, public GridObject<Player>
     friend void Item::RemoveFromUpdateQueueOf(Player* player);
     public:
         explicit Player (WorldSession* session);
-        ~Player ();
+        ~Player();
 
         void CleanupsBeforeDelete(bool finalCleanup = true);
 

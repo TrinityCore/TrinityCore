@@ -147,7 +147,7 @@ bool Weather::ReGenerate()
     }
 
     // At this point, only weather that isn't doing anything remains but that have weather data
-    uint32 chance1 =          m_weatherChances->data[season].rainChance;
+    uint32 chance1 = m_weatherChances->data[season].rainChance;
     uint32 chance2 = chance1+ m_weatherChances->data[season].snowChance;
     uint32 chance3 = chance2+ m_weatherChances->data[season].stormChance;
 

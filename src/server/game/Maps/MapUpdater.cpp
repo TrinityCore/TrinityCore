@@ -52,7 +52,7 @@ class MapUpdateRequest : public ACE_Method_Request
         virtual int call()
         {
             m_map.Update (m_diff);
-            m_updater.update_finished ();
+            m_updater.update_finished();
             return 0;
         }
 };

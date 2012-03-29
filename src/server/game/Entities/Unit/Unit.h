@@ -1236,7 +1236,7 @@ class Unit : public WorldObject
 
         typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
 
-        virtual ~Unit ();
+        virtual ~Unit();
 
         UnitAI* GetAI() { return i_AI; }
         void SetAI(UnitAI* newAI) { i_AI = newAI; }

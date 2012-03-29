@@ -1510,7 +1510,7 @@ bool Position::HasInArc(float arc, const Position* obj) const
     if (angle > M_PI)
         angle -= 2.0f*M_PI;
 
-    float lborder =  -1 * (arc/2.0f);                       // in range -pi..0
+    float lborder = -1 * (arc/2.0f);                        // in range -pi..0
     float rborder = (arc/2.0f);                             // in range 0..pi
     return ((angle >= lborder) && (angle <= rborder));
 }
