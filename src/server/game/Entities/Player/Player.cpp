@@ -6830,11 +6830,6 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     if (GetGroup())
         SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
 
-    // code block for underwater state update
-    // Unit::UpdatePosition() checks for validity and updates our coordinates
-    // so we re-fetch them instead of using "raw" coordinates from function params
-    UpdateUnderwaterState(GetMap(), GetPositionX(), GetPositionY(), GetPositionZ());
-
     if (GetTrader() && !IsWithinDistInMap(GetTrader(), INTERACTION_DISTANCE))
         GetSession()->SendCancelTrade();
 
