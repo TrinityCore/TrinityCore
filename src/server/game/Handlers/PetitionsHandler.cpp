@@ -912,7 +912,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
     trans->Append(stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE_BY_GUID);
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
     trans->Append(stmt);
 
