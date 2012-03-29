@@ -449,7 +449,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             ASSERT(_charCreateCallback.GetParam() == createInfo);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
-            stmt->setUInt32(0, GetAccountId());
+            stmt->setUInt64(0, GetAccountId());
 
             _charCreateCallback.FreeResult();
             _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
