@@ -267,7 +267,7 @@ public:
                         }
                     } else DatterTimer -= diff;
 
-                    if(me->HasAura(SPELL_LEECHING_SWARM))
+                    if (me->HasAura(SPELL_LEECHING_SWARM))
                         me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
                 }
 

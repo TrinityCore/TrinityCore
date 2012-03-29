@@ -1277,7 +1277,7 @@ void SpellMgr::LoadSpellRequired()
     {
         Field* fields = result->Fetch();
 
-        uint32 spell_id =  fields[0].GetUInt32();
+        uint32 spell_id = fields[0].GetUInt32();
         uint32 spell_req = fields[1].GetUInt32();
 
         // check if chain is made with valid first spell
@@ -2181,8 +2181,8 @@ void SpellMgr::LoadSpellLinked()
         Field* fields = result->Fetch();
 
         int32 trigger = fields[0].GetInt32();
-        int32 effect =  fields[1].GetInt32();
-        int32 type =    fields[2].GetUInt8();
+        int32 effect = fields[1].GetInt32();
+        int32 type = fields[2].GetUInt8();
 
         SpellInfo const* spellInfo = GetSpellInfo(abs(trigger));
         if (!spellInfo)

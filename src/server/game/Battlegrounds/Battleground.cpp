@@ -65,7 +65,7 @@ namespace Trinity
         private:
             void do_helper(WorldPacket& data, char const* text)
             {
-                uint64 target_guid = _source  ? _source ->GetGUID() : 0;
+                uint64 target_guid = _source ? _source->GetGUID() : 0;
 
                 data << uint8 (_msgtype);
                 data << uint32(LANG_UNIVERSAL);

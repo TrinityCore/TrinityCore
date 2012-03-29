@@ -66,7 +66,7 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
         }
 
         unit.UpdateAllowedPositionZ(i_waypoints[idx][0], i_waypoints[idx][1], z);
-        i_waypoints[idx][2] =  z;
+        i_waypoints[idx][2] = z;
     }
 
     unit.StopMoving();
