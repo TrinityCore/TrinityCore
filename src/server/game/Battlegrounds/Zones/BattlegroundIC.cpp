@@ -47,7 +47,7 @@ BattlegroundIC::BattlegroundIC()
     resourceTimer = IC_RESOURCE_TIME;
 
     for (uint8 i = NODE_TYPE_REFINERY; i < MAX_NODE_TYPES; i++)
-        nodePoint[i] =  nodePointInitial[i];
+        nodePoint[i] = nodePointInitial[i];
 
     siegeEngineWorkshopTimer = WORKSHOP_UPDATE_TIME;
 
@@ -926,7 +926,7 @@ Transport* BattlegroundIC::CreateTransport(uint32 goEntry, uint32 period)
 
     float x = t->m_WayPoints[0].x;
     float y = t->m_WayPoints[0].y;
-    float z =  t->m_WayPoints[0].z;
+    float z = t->m_WayPoints[0].z;
     float o = 1;
 
     // creates the Gameobject

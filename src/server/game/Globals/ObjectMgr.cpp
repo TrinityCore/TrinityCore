@@ -1131,7 +1131,7 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         uint32 modelId = fields[0].GetUInt32();
 
-        CreatureModelInfo& modelInfo =  _creatureModelStore[modelId];
+        CreatureModelInfo& modelInfo = _creatureModelStore[modelId];
 
         modelInfo.bounding_radius      = fields[1].GetFloat();
         modelInfo.combat_reach         = fields[2].GetFloat();
@@ -2946,7 +2946,7 @@ void ObjectMgr::LoadPetLevelInfo()
         PetLevelInfo*& pInfoMapEntry = _petInfoStore[creature_id];
 
         if (pInfoMapEntry == NULL)
-            pInfoMapEntry =  new PetLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+            pInfoMapEntry = new PetLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
 
         // data for level 1 stored in [0] array element, ...
         PetLevelInfo* pLevelInfo = &pInfoMapEntry[current_level-1];
@@ -4991,7 +4991,7 @@ void ObjectMgr::LoadPageTexts()
     {
         Field* fields = result->Fetch();
 
-        PageText& pageText =  _pageTextStore[fields[0].GetUInt32()];
+        PageText& pageText = _pageTextStore[fields[0].GetUInt32()];
 
         pageText.Text     = fields[1].GetString();
         pageText.NextPage = fields[2].GetUInt32();
