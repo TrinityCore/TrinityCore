@@ -34,6 +34,7 @@ WorldLog::~WorldLog()
 {
     if (i_file != NULL)
         fclose(i_file);
+
     i_file = NULL;
 }
 
