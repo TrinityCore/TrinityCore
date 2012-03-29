@@ -1617,8 +1617,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     }
 
     Field* fields = result->Fetch();
-    uint32 playerClass = fields[0].GetUInt32();
-    uint32 level = fields[1].GetUInt32();
+    uint32 playerClass = uint32(fields[0].GetUInt8());
+    uint32 level = uint32(fields[1].GetUInt8());
     uint32 at_loginFlags = fields[2].GetUInt16();
     uint32 used_loginFlag = ((recv_data.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
 
