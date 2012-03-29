@@ -2934,7 +2934,7 @@ void World::LoadCharacterNameData()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
             fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/);
         ++count;
