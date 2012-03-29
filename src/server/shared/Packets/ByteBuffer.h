@@ -363,7 +363,7 @@ class ByteBuffer
 
         void resize(size_t newsize)
         {
-            _storage.resize(newsize);
+            _storage.resize(newsize, 0);
             _rpos = 0;
             _wpos = size();
         }
