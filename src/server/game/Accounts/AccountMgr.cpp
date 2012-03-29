@@ -232,10 +232,10 @@ uint32 GetCharactersCount(uint32 accountId)
 {
     // check character count
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
-    stmt->setUInt32(0, accountId);
+    stmt->setUInt64(0, accountId);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
-    return (result) ? (*result)[0].GetUInt32() : 0;
+    return (result) ? (*result)[0].GetUInt64() : 0;
 }
 
 bool normalizeString(std::string& utf8String)
