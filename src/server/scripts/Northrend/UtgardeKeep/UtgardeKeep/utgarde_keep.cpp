@@ -48,65 +48,77 @@ public:
 
         void Reset()
         {
-            if (fm_Type == 0) fm_Type = GetForgeMasterType();
+            if (fm_Type == 0)
+                fm_Type = GetForgeMasterType();
+
             CheckForge();
         }
 
         void CheckForge()
         {
-           if (instance)
+            if (instance)
             {
                 switch (fm_Type)
                 {
-                case 1:
-                    instance->SetData(EVENT_FORGE_1, me->isAlive() ? NOT_STARTED : DONE);
-                    break;
-                case 2:
-                    instance->SetData(EVENT_FORGE_2, me->isAlive() ? NOT_STARTED : DONE);
-                    break;
-                case 3:
-                    instance->SetData(EVENT_FORGE_3, me->isAlive() ? NOT_STARTED : DONE);
-                    break;
+                    case 1:
+                        instance->SetData(EVENT_FORGE_1, me->isAlive() ? NOT_STARTED : DONE);
+                        break;
+
+                    case 2:
+                        instance->SetData(EVENT_FORGE_2, me->isAlive() ? NOT_STARTED : DONE);
+                        break;
+
+                    case 3:
+                        instance->SetData(EVENT_FORGE_3, me->isAlive() ? NOT_STARTED : DONE);
+                        break;
                 }
             }
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (fm_Type == 0) fm_Type = GetForgeMasterType();
+            if (fm_Type == 0)
+                fm_Type = GetForgeMasterType();
+
             if (instance)
             {
                 switch (fm_Type)
                 {
-                case 1:
-                    instance->SetData(EVENT_FORGE_1, DONE);
-                    break;
-                case 2:
-                    instance->SetData(EVENT_FORGE_2, DONE);
-                    break;
-                case 3:
-                    instance->SetData(EVENT_FORGE_3, DONE);
-                    break;
+                    case 1:
+                        instance->SetData(EVENT_FORGE_1, DONE);
+                        break;
+
+                    case 2:
+                        instance->SetData(EVENT_FORGE_2, DONE);
+                        break;
+
+                    case 3:
+                        instance->SetData(EVENT_FORGE_3, DONE);
+                        break;
                 }
             }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (fm_Type == 0) fm_Type = GetForgeMasterType();
+            if (fm_Type == 0)
+                fm_Type = GetForgeMasterType();
+
             if (instance)
             {
                 switch (fm_Type)
                 {
-                case 1:
-                    instance->SetData(EVENT_FORGE_1, IN_PROGRESS);
-                    break;
-                case 2:
-                    instance->SetData(EVENT_FORGE_2, IN_PROGRESS);
-                    break;
-                case 3:
-                    instance->SetData(EVENT_FORGE_3, IN_PROGRESS);
-                    break;
+                    case 1:
+                        instance->SetData(EVENT_FORGE_1, IN_PROGRESS);
+                        break;
+
+                    case 2:
+                        instance->SetData(EVENT_FORGE_2, IN_PROGRESS);
+                        break;
+
+                    case 3:
+                        instance->SetData(EVENT_FORGE_3, IN_PROGRESS);
+                        break;
                 }
             }
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
@@ -115,29 +127,26 @@ public:
         uint8 GetForgeMasterType()
         {
             float diff = 30.0f;
-            int near_f = 0;
+            uint8 near_f = 0;
 
-            for (uint8 i = 0; i < 3 ; ++i)
+            for (uint8 i = 0; i < 3; ++i)
             {
-                GameObject* temp;
-                temp = me->FindNearestGameObject(entry_search[i], 30);
-                if (temp)
+                if (GameObject* go = me->FindNearestGameObject(entry_search[i], 30))
                 {
-                    if (me->IsWithinDist(temp, diff, false))
+                    if (me->IsWithinDist(go, diff, false))
                     {
                         near_f = i + 1;
-                        diff = me->GetDistance2d(temp);
-
+                        diff = me->GetDistance2d(go);
                     }
                 }
             }
 
             switch (near_f)
             {
-            case 1:  return 1;
-            case 2:  return 2;
-            case 3:  return 3;
-            default: return 0;
+                case 1:  return 1;
+                case 2:  return 2;
+                case 3:  return 3;
+                default: return 0;
             }
         }
 
@@ -152,7 +161,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_utgarde_keep()

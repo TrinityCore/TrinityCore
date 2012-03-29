@@ -134,7 +134,7 @@ void FormationMgr::LoadCreatureFormations()
         CreatureGroupMap[memberGUID] = group_member;
         ++count;
     }
-    while (result->NextRow()) ;
+    while (result->NextRow());
 
     sLog->outString(">> Loaded %u creatures in formations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();

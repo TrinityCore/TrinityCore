@@ -75,25 +75,44 @@ public:
 
             switch (i)
             {
-            case 1: DoScriptText(SAY_START, me, player);break;
-            case 13:
-                DoScriptText(SAY_LAST, me, player);
-                player->GroupEventHappens(QUEST_ESCORTING, me); break;
-            case 14: DoScriptText(SAY_THANKS, me, player); break;
-            case 15: {
-                    Unit* Rane = me->FindNearestCreature(NPC_RANE, 20);
-                    if (Rane)
+                case 1:
+                    DoScriptText(SAY_START, me, player);
+                    break;
+
+                case 13:
+                    DoScriptText(SAY_LAST, me, player);
+                    player->GroupEventHappens(QUEST_ESCORTING, me);
+                    break;
+
+                case 14:
+                    DoScriptText(SAY_THANKS, me, player);
+                    break;
+
+                case 15:
+                    if (Unit* Rane = me->FindNearestCreature(NPC_RANE, 20))
                         DoScriptText(SAY_RANE, Rane);
-                    break;}
-            case 16: DoScriptText(SAY_ANSWER, me); break;
-            case 17: DoScriptText(SAY_MOVE_QUINN, me); break;
-            case 24: DoScriptText(SAY_GREETINGS, me); break;
-            case 25: {
-                    Unit* Quinn = me->FindNearestCreature(NPC_QUINN, 20);
-                    if (Quinn)
+                    break;
+
+                case 16:
+                    DoScriptText(SAY_ANSWER, me);
+                    break;
+
+                case 17:
+                    DoScriptText(SAY_MOVE_QUINN, me);
+                    break;
+
+                case 24:
+                    DoScriptText(SAY_GREETINGS, me);
+                    break;
+
+                case 25:
+                    if (Unit* Quinn = me->FindNearestCreature(NPC_QUINN, 20))
                         DoScriptText(SAY_QUINN, Quinn);
-                    break;}
-            case 26: DoScriptText(SAY_ON_BYE, me, NULL); break;
+                    break;
+
+                case 26:
+                    DoScriptText(SAY_ON_BYE, me, NULL);
+                    break;
             }
         }
 

@@ -73,7 +73,9 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
 
 void SmartAI::UpdateDespawn(const uint32 diff)
 {
-    if (mDespawnState <= 1 || mDespawnState > 3) return;
+    if (mDespawnState <= 1 || mDespawnState > 3)
+        return;
+
     if (mDespawnTime < diff)
     {
         if (mDespawnState == 2)

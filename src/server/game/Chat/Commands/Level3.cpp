@@ -4764,9 +4764,11 @@ bool ChatHandler::HandleBindSightCommand(const char * /*args*/)
 
 bool ChatHandler::HandleUnbindSightCommand(const char * /*args*/)
 {
-    if (m_session->GetPlayer()->isPossessing())
+    Player* player = m_session->GetPlayer();
+
+    if (player->isPossessing())
         return false;
 
-    m_session->GetPlayer()->StopCastingBindSight();
+    player->StopCastingBindSight();
     return true;
 }

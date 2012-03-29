@@ -123,9 +123,7 @@ class example_escort : public CreatureScript
                     {
                         // not a likely case, code here for the sake of example
                         if (killer == me)
-                        {
                             DoScriptText(SAY_DEATH_1, me, player);
-                        }
                         else
                             DoScriptText(SAY_DEATH_2, me, player);
                     }

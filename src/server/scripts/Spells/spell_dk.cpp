@@ -337,7 +337,7 @@ class spell_dk_death_pact : public SpellScriptLoader
             void FilterTargets(std::list<Unit*>& unitList)
             {
                 Unit* unit_to_add = NULL;
-                for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end(); ++itr)
+                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                 {
                     if ((*itr)->GetTypeId() == TYPEID_UNIT
                         && (*itr)->GetOwnerGUID() == GetCaster()->GetGUID()
