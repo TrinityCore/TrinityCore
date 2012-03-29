@@ -1929,8 +1929,7 @@ public:
                 me->SetPhaseMask(1, true);
                 DoScriptText(SAY_5, me);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                if (player)
-                    player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
+                player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
                 SetRun(true);
                 break;
             }

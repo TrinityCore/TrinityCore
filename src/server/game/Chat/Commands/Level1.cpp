@@ -488,7 +488,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
                         continue;
 
                     name = areaEntry->area_name[loc];
-                    if (name.empty ())
+                    if (name.empty())
                         continue;
 
                     if (Utf8FitTo (name, wnamepart))
@@ -511,7 +511,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
                 else
                     ss << areaEntry->ID << " - " << name << ' ' << localeNames[loc];
 
-                SendSysMessage (ss.str ().c_str());
+                SendSysMessage(ss.str().c_str());
 
                 if (!found)
                     found = true;
@@ -520,7 +520,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
     }
 
     if (!found)
-        SendSysMessage (LANG_COMMAND_NOAREAFOUND);
+        SendSysMessage(LANG_COMMAND_NOAREAFOUND);
 
     return true;
 }
@@ -693,7 +693,7 @@ bool ChatHandler::HandleGroupSummonCommand(const char* args)
     }
 
     Map* gmMap = m_session->GetPlayer()->GetMap();
-    bool to_instance =  gmMap->Instanceable();
+    bool to_instance = gmMap->Instanceable();
 
     // we are in instance, and can summon only player in our group with us as lead
     if (to_instance && (

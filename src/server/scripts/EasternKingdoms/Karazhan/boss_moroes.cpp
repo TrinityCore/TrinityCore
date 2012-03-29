@@ -201,7 +201,7 @@ public:
 
         void DeSpawnAdds()
         {
-            for (uint8 i = 0; i < 4 ; ++i)
+            for (uint8 i = 0; i < 4; ++i)
             {
                 Creature* Temp = NULL;
                 if (AddGUID[i])

@@ -377,15 +377,18 @@ public:
         void WaypointReached(uint32 i)
         {
             Player* player = GetPlayerForEscort();
+            if (!player)
+                return;
+
             switch (i)
             {
-            case 26:
-                DoScriptText(SAY_END_WP_REACHED, me, player);
-                break;
-            case 27:
-                if (player)
+                case 26:
+                    DoScriptText(SAY_END_WP_REACHED, me, player);
+                    break;
+
+                case 27:
                     player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
-                break;
+                    break;
             }
         }
 

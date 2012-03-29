@@ -278,9 +278,7 @@ public:
         void JustSummoned(Creature* summoned)
         {
             if (Player* player = GetPlayerForEscort())
-            {
                 summoned->AI()->AttackStart(player);
-            }
 
             if (summoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
                 m_uiValrothGUID = summoned->GetGUID();

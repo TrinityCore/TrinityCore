@@ -602,7 +602,7 @@ public:
                 ravager->AI()->AttackStart(player);
             }
         }
-        return true ;
+        return true;
     }
 };
 

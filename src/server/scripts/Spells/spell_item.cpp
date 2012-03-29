@@ -1589,15 +1589,15 @@ class spell_item_brewfest_mount_transformation : public SpellScriptLoader
                     {
                         case SPELL_BREWFEST_MOUNT_TRANSFORM:
                             if (caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
-                                spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100 ;
+                                spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100;
                             else
-                                spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60 ;
+                                spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60;
                             break;
                         case SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE:
                             if (caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
-                                spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100 ;
+                                spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100;
                             else
-                                spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60 ;
+                                spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60;
                             break;
                         default:
                             return;

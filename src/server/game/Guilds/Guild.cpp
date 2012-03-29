@@ -588,11 +588,11 @@ bool Guild::Member::LoadFromDB(Field* fields)
     }
 
     SetStats(fields[19].GetString(),
-             fields[20].GetUInt8(),
-             fields[21].GetUInt8(),
-             fields[22].GetUInt32(),
-             fields[23].GetUInt32());
-    m_logoutTime    = fields[24].GetUInt32();
+             fields[20].GetUInt8(),                         // characters.level
+             fields[21].GetUInt8(),                         // characters.class
+             fields[22].GetUInt16(),                        // characters.zone
+             fields[23].GetUInt32());                       // characters.account
+    m_logoutTime    = fields[24].GetUInt32();               // characters.logout_time
 
     if (!CheckStats())
         return false;
@@ -1230,7 +1230,7 @@ void Guild::HandleQuery(WorldSession* session)
     data << uint32(m_id);
     data << m_name;
 
-    for (uint8 i = 0 ; i < GUILD_RANKS_MAX_COUNT; ++i)              // Alwayse show 10 ranks
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)              // Alwayse show 10 ranks
     {
         if (i < _GetRanksSize())
             data << m_ranks[i].GetName();
@@ -1940,7 +1940,7 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
 
 bool Guild::LoadBankTabFromDB(Field* fields)
 {
-    uint32 tabId = fields[1].GetUInt8();
+    uint8 tabId = fields[1].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         sLog->outError("Invalid tab (tabId: %u) in guild bank, skipped.", tabId);
