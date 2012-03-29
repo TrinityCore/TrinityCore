@@ -588,11 +588,11 @@ bool Guild::Member::LoadFromDB(Field* fields)
     }
 
     SetStats(fields[19].GetString(),
-             fields[20].GetUInt8(),
-             fields[21].GetUInt8(),
-             fields[22].GetUInt32(),
-             fields[23].GetUInt32());
-    m_logoutTime    = fields[24].GetUInt32();
+             fields[20].GetUInt8(),                         // characters.level
+             fields[21].GetUInt8(),                         // characters.class
+             fields[22].GetUInt16(),                        // characters.zone
+             fields[23].GetUInt32());                       // characters.account
+    m_logoutTime    = fields[24].GetUInt32();               // characters.logout_time
 
     if (!CheckStats())
         return false;
