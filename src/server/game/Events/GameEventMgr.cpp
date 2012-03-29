@@ -220,7 +220,7 @@ void GameEventMgr::LoadFromDB()
         {
             Field* fields = result->Fetch();
 
-            uint16 event_id = fields[0].GetUInt8();
+            uint8 event_id = fields[0].GetUInt8();
             if (event_id == 0)
             {
                 sLog->outErrorDb("`game_event` game event entry 0 is reserved and can't be used.");
@@ -283,7 +283,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint16 event_id = fields[0].GetUInt8();
+                uint8 event_id = fields[0].GetUInt8();
 
                 if (event_id >= mGameEvent.size())
                 {

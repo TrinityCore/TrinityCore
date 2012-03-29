@@ -1940,7 +1940,7 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
 
 bool Guild::LoadBankTabFromDB(Field* fields)
 {
-    uint32 tabId = fields[1].GetUInt8();
+    uint8 tabId = fields[1].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         sLog->outError("Invalid tab (tabId: %u) in guild bank, skipped.", tabId);
