@@ -399,9 +399,9 @@ public:
 
 enum
 {
-    ZOMBIE = 7286,
-    DEAD_HERO = 7276,
-    ZOMBIE_CHANCE = 65,
+    ZOMBIE           = 7286,
+    DEAD_HERO        = 7276,
+    ZOMBIE_CHANCE    = 65,
     DEAD_HERO_CHANCE = 10
 };
 
@@ -419,13 +419,12 @@ public:
             if (randomchance < ZOMBIE_CHANCE)
                 go->SummonCreature(ZOMBIE, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
             else
-                if ((randomchance-ZOMBIE_CHANCE) < DEAD_HERO_CHANCE)
+                if ((randomchance - ZOMBIE_CHANCE) < DEAD_HERO_CHANCE)
                     go->SummonCreature(DEAD_HERO, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
         }
         go->AddUse();
         return false;
     }
-
 };
 
 /*######

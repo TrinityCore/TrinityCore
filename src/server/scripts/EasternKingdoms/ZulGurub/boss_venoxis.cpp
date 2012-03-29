@@ -198,7 +198,7 @@ class boss_venoxis : public CreatureScript
                         case EVENT_HOLY_NOVA:
                             _inMeleeRange = 0;
 
-                            for (uint8 i = 0; i < 10 ; ++i)
+                            for (uint8 i = 0; i < 10; ++i)
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, i))
                                     // check if target is within melee-distance

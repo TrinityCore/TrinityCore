@@ -1108,7 +1108,6 @@ public:
                     break;
                 case 50:
                     DoScriptText(SAY_WIL_END, me, player);
-
                     player->GroupEventHappens(QUEST_ESCAPE_COILSCAR, me);
                     break;
             }
