@@ -215,8 +215,7 @@ namespace Trinity
 
     inline bool IsValidMapCoord(float c)
     {
-        //! Since we visit grids in circles, we cannot allow players to relocate to grids on the edge of a map - thus the use of CENTER_GRID_OFFSET
-        return finite(c) && (std::fabs(c) <= MAP_HALFSIZE - CENTER_GRID_OFFSET - 0.5f);
+        return finite(c) && (std::fabs(c) <= MAP_HALFSIZE - 0.5f);
     }
 
     inline bool IsValidMapCoord(float x, float y)
