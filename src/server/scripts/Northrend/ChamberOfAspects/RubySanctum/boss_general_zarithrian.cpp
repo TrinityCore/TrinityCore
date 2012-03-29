@@ -227,9 +227,9 @@ class npc_onyx_flamecaller : public CreatureScript
                     zarithrian->AI()->JustSummoned(me);
             }
 
-            void WaypointReached(uint32 pointId)
+            void WaypointReached(uint32 waypointId)
             {
-                if (pointId == MAX_PATH_FLAMECALLER_WAYPOINTS || pointId == MAX_PATH_FLAMECALLER_WAYPOINTS*2)
+                if (waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS || waypointId == MAX_PATH_FLAMECALLER_WAYPOINTS*2)
                 {
                     DoZoneInCombat();
                     SetEscortPaused(true);

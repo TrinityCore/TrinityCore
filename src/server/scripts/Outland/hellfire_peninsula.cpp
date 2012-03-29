@@ -180,9 +180,9 @@ public:
             npc_escortAI::MoveInLineOfSight(who);
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 0:
                     DoScriptText(EMOTE_WOLF_LIFT_HEAD, me);
@@ -402,38 +402,37 @@ public:
     {
         npc_wounded_blood_elfAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 0:
-                DoScriptText(SAY_ELF_START, me, player);
-                break;
-            case 9:
-                DoScriptText(SAY_ELF_SUMMON1, me, player);
-                // Spawn two Haal'eshi Talonguard
-                DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                break;
-            case 13:
-                DoScriptText(SAY_ELF_RESTING, me, player);
-                break;
-            case 14:
-                DoScriptText(SAY_ELF_SUMMON2, me, player);
-                // Spawn two Haal'eshi Windwalker
-                DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                break;
-            case 27:
-                DoScriptText(SAY_ELF_COMPLETE, me, player);
-                // Award quest credit
-                player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH, me);
-                break;
+                case 0:
+                    DoScriptText(SAY_ELF_START, me, player);
+                    break;
+                case 9:
+                    DoScriptText(SAY_ELF_SUMMON1, me, player);
+                    // Spawn two Haal'eshi Talonguard
+                    DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    break;
+                case 13:
+                    DoScriptText(SAY_ELF_RESTING, me, player);
+                    break;
+                case 14:
+                    DoScriptText(SAY_ELF_SUMMON2, me, player);
+                    // Spawn two Haal'eshi Windwalker
+                    DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    break;
+                case 27:
+                    DoScriptText(SAY_ELF_COMPLETE, me, player);
+                    // Award quest credit
+                    player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH, me);
+                    break;
             }
         }
 

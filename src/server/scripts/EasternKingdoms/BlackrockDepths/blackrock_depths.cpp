@@ -177,39 +177,39 @@ public:
             MobDeath_Timer = 2500;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (i)
+            switch (waypointId)
             {
-            case 0:
-                DoScriptText(SCRIPT_TEXT1, me);//2
-                CanWalk = false;
-                Event_Timer = 5000;
-                break;
-            case 1:
-                DoScriptText(SCRIPT_TEXT2, me);//4
-                CanWalk = false;
-                Event_Timer = 5000;
-                break;
-            case 2:
-                CanWalk = false;
-                break;
-            case 3:
-                DoScriptText(SCRIPT_TEXT3, me);//5
-                break;
-            case 4:
-                DoScriptText(SCRIPT_TEXT4, me);//6
-                CanWalk = false;
-                Event_Timer = 5000;
-                break;
-            case 5:
-                if (instance)
-                {
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
-                    instance->SetData(TYPE_RING_OF_LAW, DONE);
-                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_grimstone: event reached end and set complete.");
-                }
-                break;
+                case 0:
+                    DoScriptText(SCRIPT_TEXT1, me);//2
+                    CanWalk = false;
+                    Event_Timer = 5000;
+                    break;
+                case 1:
+                    DoScriptText(SCRIPT_TEXT2, me);//4
+                    CanWalk = false;
+                    Event_Timer = 5000;
+                    break;
+                case 2:
+                    CanWalk = false;
+                    break;
+                case 3:
+                    DoScriptText(SCRIPT_TEXT3, me);//5
+                    break;
+                case 4:
+                    DoScriptText(SCRIPT_TEXT4, me);//6
+                    CanWalk = false;
+                    Event_Timer = 5000;
+                    break;
+                case 5:
+                    if (instance)
+                    {
+                        instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
+                        instance->SetData(TYPE_RING_OF_LAW, DONE);
+                        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_grimstone: event reached end and set complete.");
+                    }
+                    break;
             }
         }
 
@@ -611,7 +611,7 @@ public:
     {
         npc_dughal_stormwingAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
         switch (i)
             {
@@ -730,7 +730,7 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
         switch (i)
             {
@@ -900,7 +900,7 @@ public:
         {
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
         wp=i;
         switch (i)
@@ -1105,7 +1105,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
         switch (i)
             {
@@ -1226,29 +1226,29 @@ public:
                 go->SetGoState((GOState)state);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             if (!instance)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 1:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
-                break;
-            case 2:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
-                break;
-            case 3:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
-                break;
-            case 4:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
-                break;
-            case 5:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
-                BreakKeg_Timer = 2000;
-                break;
+                case 1:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+                    break;
+                case 2:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
+                    break;
+                case 3:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
+                    break;
+                case 4:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+                    break;
+                case 5:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+                    BreakKeg_Timer = 2000;
+                    break;
             }
         }
 

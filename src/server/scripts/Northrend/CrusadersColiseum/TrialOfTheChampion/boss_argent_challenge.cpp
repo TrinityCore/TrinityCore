@@ -447,9 +447,9 @@ public:
 
         uint8 uiWaypoint;
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 waypointId)
         {
-            if (uiPoint == 0)
+            if (waypointId == 0)
             {
                 switch (uiWaypoint)
                 {

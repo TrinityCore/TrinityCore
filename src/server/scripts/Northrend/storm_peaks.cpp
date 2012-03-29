@@ -374,18 +374,17 @@ public:
     {
         npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 26:
                     DoScriptText(SAY_END_WP_REACHED, me, player);
                     break;
-
                 case 27:
                     player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
                     break;
@@ -672,7 +671,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*wp*/)
+        void WaypointReached(uint32 /*waypointId*/)
         {
         }
 
