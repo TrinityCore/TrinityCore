@@ -171,7 +171,7 @@ void Group::LoadGroupFromDB(Field* fields)
 
     m_lootMethod = LootMethod(fields[1].GetUInt8());
     m_looterGuid = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
-    m_lootThreshold = ItemQualities(fields[3].GetUInt16());
+    m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = fields[4+i].GetUInt32();
