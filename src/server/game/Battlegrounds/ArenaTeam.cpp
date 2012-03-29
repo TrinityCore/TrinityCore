@@ -721,7 +721,7 @@ int32 ArenaTeam::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int3
 void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // Called for each participant of a match after losing
-    for (MemberList::iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
+    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         if (itr->Guid == player->GetGUID())
         {
@@ -747,7 +747,7 @@ void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32
 void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // Called for offline player after ending rated arena match!
-    for (MemberList::iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
+    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         if (itr->Guid == guid)
         {
@@ -769,7 +769,7 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, i
 void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // called for each participant after winning a match
-    for (MemberList::iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
+    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         if (itr->Guid == player->GetGUID())
         {
@@ -804,7 +804,7 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& playerPoints)
     // To get points, a player has to participate in at least 30% of the matches
     uint32 requiredGames = (uint32)ceil(Stats.WeekGames * 0.3f);
 
-    for (MemberList::const_iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
+    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         // The player participated in enough games, update his points
         uint32 pointsToAdd = 0;
@@ -840,7 +840,7 @@ void ArenaTeam::SaveToDB()
     stmt->setUInt32(6, GetId());
     trans->Append(stmt);
 
-    for (MemberList::const_iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
+    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_MEMBER);
         stmt->setUInt16(0, itr->PersonalRating);
@@ -869,7 +869,7 @@ void ArenaTeam::FinishWeek()
     Stats.WeekWins = 0;
 
     // Reset member stats
-    for (MemberList::iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
+    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         itr->WeekGames = 0;
         itr->WeekWins = 0;

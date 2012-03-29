@@ -1685,7 +1685,7 @@ class spell_pursue : public SpellScriptLoader
             void FilterTargetsSubsequently(std::list<Unit*>& targets)
             {
                 targets.clear();
-                if(_target)
+                if (_target)
                     targets.push_back(_target);
             }
 
