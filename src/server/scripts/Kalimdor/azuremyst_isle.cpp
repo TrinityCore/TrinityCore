@@ -374,29 +374,28 @@ public:
     {
         npc_magwinAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 0:
-                DoScriptText(SAY_START, me, player);
-                break;
-            case 17:
-                DoScriptText(SAY_PROGRESS, me, player);
-                break;
-            case 28:
-                DoScriptText(SAY_END1, me, player);
-                break;
-            case 29:
-                DoScriptText(EMOTE_HUG, me, player);
-                DoScriptText(SAY_END2, me, player);
-                player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
-                break;
+                case 0:
+                    DoScriptText(SAY_START, me, player);
+                    break;
+                case 17:
+                    DoScriptText(SAY_PROGRESS, me, player);
+                    break;
+                case 28:
+                    DoScriptText(SAY_END1, me, player);
+                    break;
+                case 29:
+                    DoScriptText(EMOTE_HUG, me, player);
+                    DoScriptText(SAY_END2, me, player);
+                    player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
+                    break;
             }
         }
 

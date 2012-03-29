@@ -102,7 +102,7 @@ public:
             npc_escortAI::MoveInLineOfSight(who);
         }
 
-        void WaypointReached(uint32 /*i*/)
+        void WaypointReached(uint32 /*waypointId*/)
         {
         }
 

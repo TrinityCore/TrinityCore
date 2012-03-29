@@ -266,14 +266,14 @@ public:
             }
         }
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 waypointId)
         {
             //just in case
             if (GetPlayerForEscort())
                 if (me->getFaction() != GetPlayerForEscort()->getFaction())
                     me->setFaction(GetPlayerForEscort()->getFaction());
 
-            switch (uiPoint)
+            switch (waypointId)
             {
                 case 3:
                     SetEscortPaused(true);
