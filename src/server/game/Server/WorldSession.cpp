@@ -121,8 +121,8 @@ WorldSession::~WorldSession()
     /// - If have unclosed socket, close it
     if (m_Socket)
     {
-        m_Socket->CloseSocket ();
-        m_Socket->RemoveReference ();
+        m_Socket->CloseSocket();
+        m_Socket->RemoveReference();
         m_Socket = NULL;
     }
 
@@ -196,7 +196,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 #endif                                                      // !TRINITY_DEBUG
 
     if (m_Socket->SendPacket (*packet) == -1)
-        m_Socket->CloseSocket ();
+        m_Socket->CloseSocket();
 }
 
 /// Add an incoming packet to the queue
@@ -527,7 +527,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- Broadcast a logout message to the player's friends
         sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
-        sSocialMgr->RemovePlayerSocial (_player->GetGUIDLow ());
+        sSocialMgr->RemovePlayerSocial(_player->GetGUIDLow());
 
         // Call script hook before deletion
         sScriptMgr->OnPlayerLogout(GetPlayer());

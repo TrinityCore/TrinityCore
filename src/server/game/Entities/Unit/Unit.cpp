@@ -71,7 +71,9 @@ float baseMoveSpeed[MAX_MOVE_TYPE] =
     4.5f,                  // MOVE_FLIGHT_BACK
     3.14f                  // MOVE_PITCH_RATE
 };
-float playerBaseMoveSpeed[MAX_MOVE_TYPE] = {
+
+float playerBaseMoveSpeed[MAX_MOVE_TYPE] =
+{
     2.5f,                  // MOVE_WALK
     7.0f,                  // MOVE_RUN
     4.5f,                  // MOVE_RUN_BACK
@@ -667,7 +669,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         duel_hasEnded = true;
     }
-    else if (victim->IsVehicle() && damage >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() ==  TYPEID_PLAYER)
+    else if (victim->IsVehicle() && damage >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() == TYPEID_PLAYER)
     {
         Player* victimRider = victim->GetCharmer()->ToPlayer();
 
