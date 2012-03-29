@@ -1838,7 +1838,7 @@ bool Guild::LoadFromDB(Field* fields)
     m_createdDate   = time_t(fields[10].GetUInt32());
     m_bankMoney     = fields[11].GetUInt64();
 
-    uint8 purchasedTabs = uint8(fields[12].GetUInt32());
+    uint8 purchasedTabs = uint8(fields[12].GetUInt64());
     if (purchasedTabs > GUILD_BANK_MAX_TABS)
         purchasedTabs = GUILD_BANK_MAX_TABS;
 
