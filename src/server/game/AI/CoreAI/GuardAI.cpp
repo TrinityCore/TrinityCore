@@ -92,15 +92,15 @@ void GuardAI::EnterEvadeMode()
     {
         sLog->outStaticDebug("Creature stopped attacking because victim does not exist [guid=%u]", me->GetGUIDLow());
     }
-    else if (!victim ->isAlive())
+    else if (!victim->isAlive())
     {
         sLog->outStaticDebug("Creature stopped attacking because victim is dead [guid=%u]", me->GetGUIDLow());
     }
-    else if (victim ->HasStealthAura())
+    else if (victim->HasStealthAura())
     {
         sLog->outStaticDebug("Creature stopped attacking because victim is using stealth [guid=%u]", me->GetGUIDLow());
     }
-    else if (victim ->isInFlight())
+    else if (victim->isInFlight())
     {
         sLog->outStaticDebug("Creature stopped attacking because victim is flying away [guid=%u]", me->GetGUIDLow());
     }

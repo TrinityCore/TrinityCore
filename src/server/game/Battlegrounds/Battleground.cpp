@@ -21,7 +21,6 @@
 #include "ArenaTeamMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-
 #include "ArenaTeam.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
@@ -66,7 +65,7 @@ namespace Trinity
         private:
             void do_helper(WorldPacket& data, char const* text)
             {
-                uint64 target_guid = _source  ? _source ->GetGUID() : 0;
+                uint64 target_guid = _source ? _source->GetGUID() : 0;
 
                 data << uint8 (_msgtype);
                 data << uint32(LANG_UNIVERSAL);
@@ -259,9 +258,7 @@ void Battleground::Update(uint32 diff)
     {
         case STATUS_WAIT_JOIN:
             if (GetPlayersSize())
-            {
                 _ProcessJoin(diff);
-            }
             break;
         case STATUS_IN_PROGRESS:
             _ProcessOfflineQueue();

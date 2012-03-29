@@ -301,7 +301,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_YELL_DEATH);
 
-                for (uint8 i = 0; i < 4 ; ++i)
+                for (uint8 i = 0; i < 4; ++i)
                 {
                     Unit* Temp = Unit::GetUnit((*me), AddGUID[i]);
                     if (Temp && Temp->isAlive())

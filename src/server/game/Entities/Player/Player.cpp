@@ -865,7 +865,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     SetPendingBind(0, 0);
 }
 
-Player::~Player ()
+Player::~Player()
 {
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
@@ -885,7 +885,7 @@ Player::~Player ()
     }
 
     //all mailed items should be deleted, also all mail should be deallocated
-    for (PlayerMails::iterator itr =  m_mail.begin(); itr != m_mail.end(); ++itr)
+    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
         delete *itr;
 
     for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
@@ -3154,7 +3154,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     // reset before any aura state sources (health set/aura apply)
     SetUInt32Value(UNIT_FIELD_AURASTATE, 0);
 
-    UpdateSkillsForLevel ();
+    UpdateSkillsForLevel();
 
     // set default cast time multiplier
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
@@ -3433,7 +3433,7 @@ void Player::AddNewMailDeliverTime(time_t deliver_time)
     else                                                    // not ready and no have ready mails
     {
         if (!m_nextMailDelivereTime || m_nextMailDelivereTime > deliver_time)
-            m_nextMailDelivereTime =  deliver_time;
+            m_nextMailDelivereTime = deliver_time;
     }
 }
 
@@ -3808,7 +3808,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? maxskill : spellLearnSkill->maxvalue;
 
         if (skill_max_value < new_skill_max_value)
-            skill_max_value =  new_skill_max_value;
+            skill_max_value = new_skill_max_value;
 
         SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
     }
@@ -4700,7 +4700,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         return TRAINER_SPELL_RED;
 
     bool hasSpell = true;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS ; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -4723,7 +4723,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     if (getLevel() < trainer_spell->reqLevel)
         return TRAINER_SPELL_RED;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS ; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -4750,7 +4750,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
 
     // check primary prof. limit
     // first rank of primary profession spell when there are no proffesions avalible is disabled
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS ; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -5372,7 +5372,7 @@ void Player::CreateCorpse()
             iDisplayID = m_items[i]->GetTemplate()->DisplayInfoID;
             iIventoryType = m_items[i]->GetTemplate()->InventoryType;
 
-            _cfi =  iDisplayID | (iIventoryType << 24);
+            _cfi = iDisplayID | (iIventoryType << 24);
             corpse->SetUInt32Value(CORPSE_FIELD_ITEM + i, _cfi);
         }
     }
@@ -5428,7 +5428,7 @@ void Player::DurabilityLoss(Item* item, double percent)
     if (!item)
         return;
 
-    uint32 pMaxDurability =  item ->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
+    uint32 pMaxDurability = item ->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
 
     if (!pMaxDurability)
         return;
@@ -6672,7 +6672,7 @@ uint16 Player::GetBaseSkillValue(uint32 skill) const
         return 0;
 
     int32 result = int32(SKILL_VALUE(GetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos))));
-    result +=  SKILL_PERM_BONUS(GetUInt32Value(PLAYER_SKILL_BONUS_INDEX(itr->second.pos)));
+    result += SKILL_PERM_BONUS(GetUInt32Value(PLAYER_SKILL_BONUS_INDEX(itr->second.pos)));
     return result < 0 ? 0 : result;
 }
 
@@ -8463,7 +8463,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                 continue;
 
-            SpellEnchantProcEntry const* entry =  sSpellMgr->GetSpellEnchantProcEvent(enchant_id);
+            SpellEnchantProcEntry const* entry = sSpellMgr->GetSpellEnchantProcEvent(enchant_id);
 
             if (entry && entry->procEx)
             {
@@ -8838,7 +8838,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
         if (go->getLootState() == GO_READY)
         {
-            uint32 lootid =  go->GetGOInfo()->GetLootId();
+            uint32 lootid = go->GetGOInfo()->GetLootId();
 
             //TODO: fix this big hack
             if ((go->GetEntry() == BG_AV_OBJECTID_MINE_N || go->GetEntry() == BG_AV_OBJECTID_MINE_S))
@@ -11661,8 +11661,8 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                     Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
                     ItemPosCountVec off_dest;
                     if (offItem && (!not_loading ||
-                        CanUnequipItem(uint16(INVENTORY_SLOT_BAG_0) << 8 | EQUIPMENT_SLOT_OFFHAND, false) !=  EQUIP_ERR_OK ||
-                        CanStoreItem(NULL_BAG, NULL_SLOT, off_dest, offItem, false) !=  EQUIP_ERR_OK))
+                        CanUnequipItem(uint16(INVENTORY_SLOT_BAG_0) << 8 | EQUIPMENT_SLOT_OFFHAND, false) != EQUIP_ERR_OK ||
+                        CanStoreItem(NULL_BAG, NULL_SLOT, off_dest, offItem, false) != EQUIP_ERR_OK))
                         return swap ? EQUIP_ERR_ITEMS_CANT_BE_SWAPPED : EQUIP_ERR_INVENTORY_FULL;
                 }
             }
@@ -18997,7 +18997,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
-    for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end() ; ++itr)
+    for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end(); ++itr)
     {
         if (!itr->second->CanBeSaved())
             continue;
@@ -23266,7 +23266,8 @@ void Player::SendCorpseReclaimDelay(bool load)
     else
         delay = GetCorpseReclaimDelay(pvp);
 
-    if (!delay) return;
+    if (!delay)
+        return;
 
     //! corpse reclaim delay 30 * 1000ms or longer at often deaths
     WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4);
@@ -23807,7 +23808,8 @@ void Player::AddRunePower(uint8 index)
     GetSession()->SendPacket(&data);
 }
 
-static RuneType runeSlotTypes[MAX_RUNES] = {
+static RuneType runeSlotTypes[MAX_RUNES] =
+{
     /*0*/ RUNE_BLOOD,
     /*1*/ RUNE_BLOOD,
     /*2*/ RUNE_UNHOLY,

@@ -248,8 +248,9 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_DECLINE");
 
-    Group  *group  = GetPlayer()->GetGroupInvite();
-    if (!group) return;
+    Group* group = GetPlayer()->GetGroupInvite();
+    if (!group)
+        return;
 
     // Remember leader if online (group pointer will be invalid if group gets disbanded)
     Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());

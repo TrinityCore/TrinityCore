@@ -59,7 +59,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
     Field* fields = result->Fetch();
 
-    uint32 maxCheckId = fields[0].GetUInt32();
+    uint16 maxCheckId = fields[0].GetUInt16();
 
     CheckStore.resize(maxCheckId + 1);
 

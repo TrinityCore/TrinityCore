@@ -245,8 +245,12 @@ class Map : public GridRefManager<NGridType>
         // currently unused for normal maps
         bool CanUnload(uint32 diff)
         {
-            if (!m_unloadTimer) return false;
-            if (m_unloadTimer <= diff) return true;
+            if (!m_unloadTimer)
+                return false;
+
+            if (m_unloadTimer <= diff)
+                return true;
+
             m_unloadTimer -= diff;
             return false;
         }
