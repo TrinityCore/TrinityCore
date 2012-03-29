@@ -115,7 +115,7 @@ void WorldSession::HandleSwapItem(WorldPacket & recv_data)
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SWAP_ITEM");
     uint8 dstbag, dstslot, srcbag, srcslot;
 
-    recv_data >> dstbag >> dstslot >> srcbag >> srcslot ;
+    recv_data >> dstbag >> dstslot >> srcbag >> srcslot;
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u", srcbag, srcslot, dstbag, dstslot);
 
     uint16 src = ((srcbag << 8) | srcslot);

@@ -595,11 +595,6 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            Player* player = GetPlayerForEscort();
-
-            if (!player)
-                return;
-
             switch (uiPointId)
             {
             case 0:

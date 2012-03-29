@@ -314,7 +314,7 @@ public:
                     {
                         m_uiPostEventTimer = 3000;
 
-                        if (Unit* player = GetPlayerForEscort())
+                        if (Player* player = GetPlayerForEscort())
                         {
                             switch (m_uiPostEventCount)
                             {

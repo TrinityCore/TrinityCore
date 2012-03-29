@@ -470,29 +470,40 @@ public:
 
             switch (i)
             {
-            case 0:
-                {
-                GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 10);
-                if (Cage)
-                    Cage->SetGoState(GO_STATE_ACTIVE);
-                }
-                break;
-            case 2: DoScriptText(SAY_PROGRESS_1, me, player); break;
-            case 5: DoScriptText(SAY_PROGRESS_2, me, player); break;
-            case 6: DoScriptText(SAY_PROGRESS_3, me, player); break;
-            case 29:DoScriptText(SAY_PROGRESS_4, me, player);
-                if (player)
-                {
+                case 0:
+                    if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 10))
+                        Cage->SetGoState(GO_STATE_ACTIVE);
+                    break;
+
+                case 2:
+                    DoScriptText(SAY_PROGRESS_1, me, player);
+                    break;
+
+                case 5:
+                    DoScriptText(SAY_PROGRESS_2, me, player);
+                    break;
+
+                case 6:
+                    DoScriptText(SAY_PROGRESS_3, me, player);
+                    break;
+
+                case 29:
+                    DoScriptText(SAY_PROGRESS_4, me, player);
                     if (player->GetTeam() == ALLIANCE)
                         player->GroupEventHappens(QUEST_EFTW_A, me);
                     else if (player->GetTeam() == HORDE)
                         player->GroupEventHappens(QUEST_EFTW_H, me);
-                }
-                me->SetInFront(player); break;
-            case 30: me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
-            case 31: DoCast(me, SPELL_CAT);
-                me->SetWalk(false);
-                break;
+                    me->SetInFront(player);
+                    break;
+
+                case 30:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                    break;
+
+                case 31:
+                    DoCast(me, SPELL_CAT);
+                    me->SetWalk(false);
+                    break;
             }
         }
 
@@ -676,7 +687,7 @@ public:
                     me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 11:
-                    if (player && player->GetTypeId() == TYPEID_PLAYER)
+                    if (player->GetTypeId() == TYPEID_PLAYER)
                         player->GroupEventHappens(QUEST_ESCAPING_THE_TOMB, me);
                     break;
             }
