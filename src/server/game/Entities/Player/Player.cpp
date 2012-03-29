@@ -17875,7 +17875,7 @@ void Player::_LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult
     // store nearest delivery time (it > 0 and if it < current then at next player update SendNewMaill will be called)
     //resultMails = CharacterDatabase.PQuery("SELECT MIN(deliver_time) FROM mail WHERE receiver = '%u' AND (checked & 1)=0", GUID_LOPART(playerGuid));
     if (resultDelivery)
-        m_nextMailDelivereTime = (time_t)(*resultDelivery)[0].GetUInt64();
+        m_nextMailDelivereTime = time_t((*resultDelivery)[0].GetUInt32());
 }
 
 void Player::_LoadMail()
@@ -18098,7 +18098,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             uint32 quest_id = fields[0].GetUInt32();
 
             // save _any_ from daily quest times (it must be after last reset anyway)
-            m_lastDailyQuestTime = (time_t)fields[1].GetUInt64();
+            m_lastDailyQuestTime = time_t(fields[1].GetUInt32());
 
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
