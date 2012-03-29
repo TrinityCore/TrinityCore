@@ -114,6 +114,9 @@ void MotionMaster::UpdateMotion(uint32 diff)
 
         _cleanFlag &= ~MMCF_RESET;
     }
+
+    // probably not the best place to pu this but im not really sure where else to put it.
+    _owner->UpdateUnderwaterState(_owner->GetMap(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
 }
 
 void MotionMaster::DirectClean(bool reset)
