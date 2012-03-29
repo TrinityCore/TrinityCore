@@ -980,9 +980,9 @@ void hyjalAI::RespawnNearPos(float x, float y)
     cell.Visit(p, obj_worker, *me->GetMap(), *me, me->GetGridActivationRange());
 }
 
-void hyjalAI::WaypointReached(uint32 i)
+void hyjalAI::WaypointReached(uint32 waypointId)
 {
-    if (i == 1 || (i == 0 && me->GetEntry() == THRALL))
+    if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {
         me->MonsterYell(YELL_HURRY, 0, 0);
         WaitForTeleport = true;

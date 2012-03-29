@@ -425,9 +425,9 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 0 && instance && !IsOverrun)
+            if (waypointId == 0 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
@@ -550,22 +550,24 @@ public:
             KnockDownTimer = 10000;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
                 }
             }
-            if (i == LastOverronPos && IsOverrun)
+            if (waypointId == LastOverronPos && IsOverrun)
             {
                 if ((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
                 {
@@ -652,22 +654,24 @@ public:
             RandomMove = false;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
                 }
             }
-            if (i == LastOverronPos && IsOverrun)
+            if (waypointId == LastOverronPos && IsOverrun)
             {
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK_UNARMED);
                 if ((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
@@ -675,7 +679,6 @@ public:
                     me->setDeathState(DEAD);
                     me->RemoveCorpse();
                 }
-
             }
         }
 
@@ -770,16 +773,18 @@ public:
             summons.Despawn(summon);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
@@ -888,16 +893,18 @@ public:
             ShellTimer = 50000+rand()%10000;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
@@ -987,16 +994,18 @@ public:
             WebTimer = 20000+rand()%5000;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
@@ -1077,16 +1086,18 @@ public:
             ManaBurnTimer = 9000+rand()%5000;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 7 && instance && !IsOverrun)
+            if (waypointId == 7 && instance && !IsOverrun)
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
@@ -1170,9 +1181,9 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 2 && instance && !IsOverrun)
+            if (waypointId == 2 && instance && !IsOverrun)
             {
                 Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                 if (target && target->isAlive())
@@ -1289,9 +1300,9 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            if (i == 2 && instance && !IsOverrun)
+            if (waypointId == 2 && instance && !IsOverrun)
             {
                 Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                 if (target && target->isAlive())
