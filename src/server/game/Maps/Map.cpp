@@ -2355,7 +2355,7 @@ bool InstanceMap::CanEnter(Player* player)
                     return false;
                 }
                 // player inside instance has no group or his groups is different to entering player's one, deny entry
-                if (!iPlayer->GetGroup() || iPlayer->GetGroup() != player->GetGroup() )
+                if (!iPlayer->GetGroup() || iPlayer->GetGroup() != player->GetGroup())
                 {
                     player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
                     return false;
