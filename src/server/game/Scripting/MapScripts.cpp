@@ -566,7 +566,7 @@ void Map::ScriptsProcess()
                                 step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
                             break;
                         }
-                        worldObject =  dynamic_cast<WorldObject*>(target);
+                        worldObject = dynamic_cast<WorldObject*>(target);
                     }
                     else
                     {

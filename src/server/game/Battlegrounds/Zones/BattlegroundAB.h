@@ -184,7 +184,8 @@ enum BG_AB_Objectives
 #define AB_EVENT_START_BATTLE               9158 // Achievement: Let's Get This Done
 
 // x, y, z, o
-const float BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT][4] = {
+const float BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
+{
     {1166.785f, 1200.132f, -56.70859f, 0.9075713f},         // stables
     {977.0156f, 1046.616f, -44.80923f, -2.600541f},         // blacksmith
     {806.1821f, 874.2723f, -55.99371f, -2.303835f},         // farm
@@ -193,7 +194,8 @@ const float BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT][4] = {
 };
 
 // x, y, z, o, rot0, rot1, rot2, rot3
-const float BG_AB_DoorPositions[2][8] = {
+const float BG_AB_DoorPositions[2][8] =
+{
     {1284.597f, 1281.167f, -15.97792f, 0.7068594f, 0.012957f, -0.060288f, 0.344959f, 0.93659f},
     {708.0903f, 708.4479f, -17.8342f, -2.391099f, 0.050291f, 0.015127f, 0.929217f, -0.365784f}
 };
@@ -206,7 +208,8 @@ const uint32 BG_AB_TickPoints[6] = {0, 10, 10, 10, 10, 30};
 const uint32 BG_AB_GraveyardIds[BG_AB_ALL_NODES_COUNT] = {895, 894, 893, 897, 896, 898, 899};
 
 // x, y, z, o
-const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] = {
+const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
+{
     {1185.71f, 1185.24f, -56.36f, 2.56f},                   // stables
     {990.75f, 1008.18f, -42.60f, 2.43f},                    // blacksmith
     {817.66f, 843.34f, -56.54f, 3.01f},                     // farm
@@ -215,7 +218,8 @@ const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] = {
 };
 
 // x, y, z, o
-const float BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT][4] = {
+const float BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT][4] =
+{
     {1200.03f, 1171.09f, -56.47f, 5.15f},                   // stables
     {1017.43f, 960.61f, -42.95f, 4.88f},                    // blacksmith
     {833.00f, 793.00f, -57.25f, 5.27f},                     // farm

@@ -133,7 +133,7 @@ bool ObjectPosSelector::NextPosibleAngle(float& angle)
         if (m_smallStepOk[USED_POS_MINUS])
             ok = NextSmallStepAngle(-1.0f, USED_POS_MINUS, angle);
         else
-            ok =  NextAngleFor(*m_nextUsedPos[USED_POS_MINUS], -1.0f, USED_POS_MINUS, angle);
+            ok = NextAngleFor(*m_nextUsedPos[USED_POS_MINUS], -1.0f, USED_POS_MINUS, angle);
 
         if (!ok)
             ++m_nextUsedPos[USED_POS_MINUS];
