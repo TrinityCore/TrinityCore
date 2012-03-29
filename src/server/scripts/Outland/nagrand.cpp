@@ -90,7 +90,6 @@ public:
                 player->AreaExploredOrEventHappens(10044);
                 player->CLOSE_GOSSIP_MENU();
                 break;
-
             case GOSSIP_ACTION_INFO_DEF + 10:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SGG7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
                 player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
@@ -135,12 +134,10 @@ public:
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         }
         else
-
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
-
 };
 
 /*#####
@@ -235,7 +232,6 @@ public:
                         DoScriptText(SAY_MAG_MORE_REPLY, temp);
 
                     me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0]-2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-
                     me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]+2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
@@ -311,7 +307,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -356,7 +351,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -401,6 +395,7 @@ public:
                   player->KilledMonsterCredit(NPC_CORKI_CREDIT_1, 0);
           }
       }
+
       if (go->GetEntry() == GO_CORKIS_PRISON_2)
       {
           if (Creature* corki = go->FindNearestCreature(NPC_CORKI_2, 25, true))
@@ -411,6 +406,7 @@ public:
                   player->KilledMonsterCredit(NPC_CORKI_2, 0);
           }
       }
+
       if (go->GetEntry() == GO_CORKIS_PRISON_3)
       {
           if (Creature* corki = go->FindNearestCreature(NPC_CORKI_3, 25, true))
@@ -689,15 +685,11 @@ class go_warmaul_prison : public GameObjectScript
 
             if (Creature* prisoner = go->FindNearestCreature(NPC_MAGHAR_PRISONER, 5.0f))
             {
-                if (prisoner)
-                {
-                    go->UseDoorOrButton();
-                    if (player)
-                        player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, 0);
+                go->UseDoorOrButton();
+                player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, 0);
 
-                    prisoner->AI()->Talk(SAY_FREE, player->GetGUID());
-                    prisoner->ForcedDespawn(6000);
-                }
+                prisoner->AI()->Talk(SAY_FREE, player->GetGUID());
+                prisoner->ForcedDespawn(6000);
             }
             return true;
         }

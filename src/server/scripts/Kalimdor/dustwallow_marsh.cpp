@@ -641,9 +641,9 @@ public:
                 DoScriptText(SAY_QUEST_COMPLETE, me, player);
                 me->SetSpeed(MOVE_RUN, 1.2f, true);
                 me->SetWalk(false);
-                if (player && player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
+                if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
                     player->GroupEventHappens(QUEST_STINKYS_ESCAPE_H, me);
-                if (player && player->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
+                if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
                     player->GroupEventHappens(QUEST_STINKYS_ESCAPE_A, me);
                 break;
             case 39:
@@ -663,10 +663,11 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             Player* player = GetPlayerForEscort();
-            if (HasEscortState(STATE_ESCORT_ESCORTING) && player)
+            if (player && HasEscortState(STATE_ESCORT_ESCORTING))
             {
                 if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
                     player->FailQuest(QUEST_STINKYS_ESCAPE_H);
+
                 if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
                     player->FailQuest(QUEST_STINKYS_ESCAPE_A);
             }

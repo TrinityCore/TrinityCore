@@ -730,7 +730,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool IsInSkillupList(uint32 PlayerGuidLow) const
         {
             for (std::list<uint32>::const_iterator i = m_SkillupList.begin(); i != m_SkillupList.end(); ++i)
-                if (*i == PlayerGuidLow) return true;
+                if (*i == PlayerGuidLow)
+                    return true;
+
             return false;
         }
         void ClearSkillupList() { m_SkillupList.clear(); }

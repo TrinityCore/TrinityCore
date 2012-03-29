@@ -349,9 +349,9 @@ public:
                 case 53: DoScriptText(WHISP18, me, player); break;
                 case 54: DoScriptText(WHISP19, me, player); break;
                 case 55: DoScriptText(WHISP20, me, player); break;
-                case 56: DoScriptText(WHISP21, me, player);
-                    if (player)
-                        player->GroupEventHappens(10211, me);
+                case 56:
+                    DoScriptText(WHISP21, me, player);
+                    player->GroupEventHappens(10211, me);
                     break;
             }
         }

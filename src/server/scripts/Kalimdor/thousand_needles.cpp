@@ -277,7 +277,6 @@ public:
                 TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         }
     };
-
 };
 
 /*#####
@@ -316,6 +315,7 @@ public:
     {
         if (player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
         player->SEND_GOSSIP_MENU(738, creature->GetGUID());
 
         return true;
@@ -410,7 +410,6 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
-
         if (player->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
         {
             if (Creature* panther = go->FindNearestCreature(ENRAGED_PANTHER, 5, true))
@@ -421,7 +420,7 @@ public:
             }
         }
 
-        return true ;
+        return true;
     }
 };
 

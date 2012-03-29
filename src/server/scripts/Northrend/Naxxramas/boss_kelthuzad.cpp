@@ -457,7 +457,7 @@ public:
                 {
                     if (HealthBelowPct(45))
                     {
-                        Phase = 3 ;
+                        Phase = 3;
                         DoScriptText(SAY_REQUEST_AID, me);
                         //here Lich King should respond to KelThuzad but I don't know which Creature to make talk
                         //so for now just make Kelthuzad says it.

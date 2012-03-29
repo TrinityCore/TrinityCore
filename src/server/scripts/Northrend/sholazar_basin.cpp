@@ -113,8 +113,8 @@ public:
 
             if (Player* player = GetPlayerForEscort())
             {
-              if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
-                player->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
+                if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
+                    player->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
             }
         }
     };
@@ -401,12 +401,12 @@ public:
         {
             m_uiChatTimer = 4000;
         }
+
         void JustDied(Unit* /*killer*/)
         {
-            Player* player = GetPlayerForEscort();
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                if (player)
+                if (Player* player = GetPlayerForEscort())
                     player->FailQuest(QUEST_DISASTER);
             }
         }
