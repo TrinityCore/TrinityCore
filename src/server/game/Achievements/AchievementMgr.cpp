@@ -2415,7 +2415,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     {
         Field* fields = result->Fetch();
 
-        uint32 achievementId = fields[0].GetUInt32();
+        uint16 achievementId = fields[0].GetUInt16();
         const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
         {
