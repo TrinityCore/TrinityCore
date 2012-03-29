@@ -102,6 +102,7 @@ public:
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
+
             switch (i)
             {
                 case 1:
@@ -109,8 +110,7 @@ public:
                     SetRun(true);
                     break;
                 case 23:
-                    if (player)
-                        player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
                     me->DespawnOrUnsummon();
                     break;
                 case 5:

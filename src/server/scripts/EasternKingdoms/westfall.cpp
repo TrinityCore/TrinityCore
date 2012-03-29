@@ -243,13 +243,11 @@ public:
                     break;
                 case 44:
                     DoScriptText(SAY_END, me, player);
-                    {
-                        if (player)
-                            player->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD, me);
-                    }
+                    player->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD, me);
                     break;
             }
         }
+
         void EnterCombat(Unit* who)
         {
             DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me, who);

@@ -245,7 +245,7 @@ public:
     SmartScript* GetScript() { return &mScript; }
     static int Permissible(const GameObject* g);
 
-    bool GossipHello(Player* player) ;
+    bool GossipHello(Player* player);
     bool GossipSelect(Player* player, uint32 sender, uint32 action);
     bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/);
     bool QuestAccept(Player* player, Quest const* quest);

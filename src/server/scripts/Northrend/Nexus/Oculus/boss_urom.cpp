@@ -203,7 +203,7 @@ public:
             if (!instance || instance->GetData(DATA_UROM_PLATAFORM) > 2)
                 return;
 
-            for (uint8 i = 0; i < 4 ; i++)
+            for (uint8 i = 0; i < 4; i++)
             {
                 SetPosition(i);
                 me->SummonCreature(Group[group[instance->GetData(DATA_UROM_PLATAFORM)]].entry[i], x, y, me->GetPositionZ(), me->GetOrientation());

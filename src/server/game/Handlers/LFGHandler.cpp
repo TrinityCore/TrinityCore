@@ -70,7 +70,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recv_data)
     }
 
     LfgDungeonSet newDungeons;
-    for (int8 i = 0 ; i < numDungeons; ++i)
+    for (int8 i = 0; i < numDungeons; ++i)
     {
         recv_data >> dungeon;
         newDungeons.insert((dungeon & 0x00FFFFFF));       // remove the type from the dungeon entry

@@ -910,8 +910,7 @@ public:
                     break;
 
                 case 12:
-                    if (player)
-                        player->GroupEventHappens(Q_ALMABTRIEB, me);
+                    player->GroupEventHappens(Q_ALMABTRIEB, me);
                     if (me->FindNearestCreature(N_THADELL, 30))
                         DoScriptText(SAY_THADELL_1, me); break;
                 case 13:
@@ -986,16 +985,14 @@ public:
                     }
                     break;
                 case 36: //return and quest_complete
-                    if (player)
-                        player->CompleteQuest(QUEST_MARK_V_IS_ALIVE);
+                    player->CompleteQuest(QUEST_MARK_V_IS_ALIVE);
                     break;
             }
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            Player* player = GetPlayerForEscort();
-            if (player)
+            if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_MARK_V_IS_ALIVE);
         }
 

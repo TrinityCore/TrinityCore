@@ -435,7 +435,8 @@ public:
             if (!player)
                 return;
 
-            switch (i) {
+            switch (i)
+            {
                 case 23:
                     me->SummonCreature(SPAWN_FIRST, -8350.96f, -4445.79f, 10.10f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(SPAWN_FIRST, -8355.96f, -4447.79f, 10.10f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -453,11 +454,8 @@ public:
                     break;
 
                 case 86:
-                    if (player)
-                    {
-                        DoScriptText(SAY_OOX_END, me);
-                        player->GroupEventHappens(Q_OOX17, me);
-                    }
+                    DoScriptText(SAY_OOX_END, me);
+                    player->GroupEventHappens(Q_OOX17, me);
                     break;
             }
         }
@@ -474,7 +472,6 @@ public:
             summoned->AI()->AttackStart(me);
         }
     };
-
 };
 
 /*####
