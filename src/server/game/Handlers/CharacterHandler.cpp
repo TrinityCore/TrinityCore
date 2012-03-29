@@ -1724,7 +1724,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
 
     // Switch Languages
     // delete all languages first
-
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILL_LANGUAGES);
     stmt->setUInt32(0, lowGuid);
     trans->Append(stmt);
@@ -1733,52 +1732,50 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
     stmt->setUInt32(0, lowGuid);
 
-
     // Faction specific languages
-    if (team == BG_TEAM_ALLIANCE)
-    {
-        stmt->setUInt16(1, 98);
-    }
-    else if (team == BG_TEAM_HORDE)
-    {
+    if (team == BG_TEAM_HORDE)
         stmt->setUInt16(1, 109);
-    }
+    else
+        stmt->setUInt16(1, 98);
 
     trans->Append(stmt);
 
     // Race specific languages
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
-    stmt->setUInt32(0, lowGuid);
-
-    switch (race)
+    if (race != RACE_ORC && race != RACE_HUMAN)
     {
-    case RACE_DWARF:
-        stmt->setUInt16(1, 111);
-        break;
-    case RACE_DRAENEI:
-        stmt->setUInt16(1, 759);
-        break;
-    case RACE_GNOME:
-        stmt->setUInt16(1, 313);
-        break;
-    case RACE_NIGHTELF:
-        stmt->setUInt16(1, 113);
-        break;
-    case RACE_UNDEAD_PLAYER:
-        stmt->setUInt16(1, 673);
-        break;
-    case RACE_TAUREN:
-        stmt->setUInt16(1, 115);
-        break;
-    case RACE_TROLL:
-        stmt->setUInt16(1, 315);
-        break;
-    case RACE_BLOODELF:
-        stmt->setUInt16(1, 137);
-        break;
-    }
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
+        stmt->setUInt32(0, lowGuid);
 
-    trans->Append(stmt);
+        switch (race)
+        {
+            case RACE_DWARF:
+                stmt->setUInt16(1, 111);
+                break;
+            case RACE_DRAENEI:
+                stmt->setUInt16(1, 759);
+                break;
+            case RACE_GNOME:
+                stmt->setUInt16(1, 313);
+                break;
+            case RACE_NIGHTELF:
+                stmt->setUInt16(1, 113);
+                break;
+            case RACE_UNDEAD_PLAYER:
+                stmt->setUInt16(1, 673);
+                break;
+            case RACE_TAUREN:
+                stmt->setUInt16(1, 115);
+                break;
+            case RACE_TROLL:
+                stmt->setUInt16(1, 315);
+                break;
+            case RACE_BLOODELF:
+                stmt->setUInt16(1, 137);
+                break;
+        }
+
+        trans->Append(stmt);
+    }
 
     if (recv_data.GetOpcode() == CMSG_CHAR_FACTION_CHANGE)
     {
