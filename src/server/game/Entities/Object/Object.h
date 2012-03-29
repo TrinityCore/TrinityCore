@@ -122,7 +122,7 @@ typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 class Object
 {
     public:
-        virtual ~Object ();
+        virtual ~Object();
 
         bool IsInWorld() const { return m_inWorld; }
 
@@ -315,7 +315,7 @@ class Object
         Corpse const* ToCorpse() const { if (GetTypeId() == TYPEID_CORPSE) return (const Corpse*)((Corpse*)this); else return NULL; }
     protected:
 
-        Object ();
+        Object();
 
         void _InitValues();
         void _Create (uint32 guidlow, uint32 entry, HighGuid guidhigh);

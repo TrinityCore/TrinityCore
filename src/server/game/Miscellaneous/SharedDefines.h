@@ -248,7 +248,8 @@ enum SpellCategory
     SPELL_CATEGORY_DRINK            = 59,
 };
 
-const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
+const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
+{
     0xff9d9d9d,        //GREY
     0xffffffff,        //WHITE
     0xff1eff00,        //GREEN
