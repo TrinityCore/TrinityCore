@@ -215,10 +215,10 @@ void GroupMgr::LoadGroups()
             Group* group = GetGroupByDbStoreId(fields[0].GetUInt32());
             // group will never be NULL (we have run consistency sql's before loading)
 
-            MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt32());
+            MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt16());
             if (!mapEntry || !mapEntry->IsDungeon())
             {
-                sLog->outErrorDb("Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt32());
+                sLog->outErrorDb("Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt16());
                 continue;
             }
 
@@ -229,7 +229,7 @@ void GroupMgr::LoadGroups()
                 diff = 0;                                   // default for both difficaly types
             }
 
-            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt64()), fields[6].GetBool(), true);
+            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt64()), (bool)fields[6].GetUInt64(), true);
             group->BindToInstance(save, fields[3].GetBool(), true);
             ++count;
         }

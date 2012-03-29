@@ -5120,7 +5120,7 @@ void Player::DeleteOldCharacters(uint32 keepDays)
          do
          {
             Field* fields = result->Fetch();
-            Player::DeleteFromDB(fields[0].GetUInt64(), fields[1].GetUInt32(), true, true);
+            Player::DeleteFromDB(fields[0].GetUInt32(), fields[1].GetUInt32(), true, true);
          }
          while (result->NextRow());
     }
@@ -17904,7 +17904,7 @@ void Player::_LoadMail()
             m->deliver_time   = time_t(fields[8].GetUInt32());
             m->money          = fields[9].GetUInt32();
             m->COD            = fields[10].GetUInt32();
-            m->checked        = fields[11].GetUInt32();
+            m->checked        = fields[11].GetUInt8();
             m->stationery     = fields[12].GetUInt8();
             m->mailTemplateId = fields[13].GetInt16();
 
