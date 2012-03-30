@@ -76,17 +76,16 @@ public:
             uiShieldBashTimer  = 8000;
         }
 
-        void WaypointReached(uint32 uiI)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            if (uiI >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALKING)
+            if (waypointId >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALKING)
                 me->SetWalk(false);
 
-            switch (uiI)
+            switch (waypointId)
             {
                 case 39:
                     SetEscortPaused(true);

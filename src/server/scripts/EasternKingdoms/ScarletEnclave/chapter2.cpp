@@ -239,9 +239,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 0:
                     DoScriptText(SAY_BREAKOUT1, me);

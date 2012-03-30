@@ -195,7 +195,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     }
 #endif                                                      // !TRINITY_DEBUG
 
-    if (m_Socket->SendPacket (*packet) == -1)
+    if (m_Socket->SendPacket(*packet) == -1)
         m_Socket->CloseSocket();
 }
 
@@ -922,6 +922,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 {
     if (data.rpos() + 4 > data.size())
         return;
+
     uint32 size;
     data >> size;
 

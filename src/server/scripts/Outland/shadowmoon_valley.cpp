@@ -1054,14 +1054,13 @@ public:
             m_uiHealingTimer = 0;
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 13:
                     DoScriptText(SAY_WIL_PROGRESS1, me, player);

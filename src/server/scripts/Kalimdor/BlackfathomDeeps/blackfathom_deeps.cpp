@@ -236,9 +236,9 @@ public:
             Start(false, false, 0);
         }
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPoint)
+            switch (waypointId)
             {
                 case 4:
                     SetEscortPaused(true);
