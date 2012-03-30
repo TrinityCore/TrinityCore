@@ -3858,7 +3858,7 @@ void Spell::SendSpellStart()
         data << uint32(0);
     }
 
-    if (castFlags & CAST_FLAG_UNKNOWN_31)
+    if (castFlags & CAST_FLAG_HEAL_PREDICTION)
     {
         data << uint32(0);
         data << uint8(0); // unkByte
@@ -4175,7 +4175,25 @@ void Spell::SendChannelStart(uint32 duration)
     data.append(m_caster->GetPackGUID());
     data << uint32(m_spellInfo->Id);
     data << uint32(duration);
-
+    data << uint8(0);                           // immunity (castflag & 0x04000000)
+    /*
+    if (immunity)
+    {
+        data << uint32();                       // CastSchoolImmunities
+        data << uint32();                       // CastImmunities
+    }
+    */
+    data << uint8(0);                           // healPrediction (castflag & 0x40000000)
+    /*
+    if (healPrediction)
+    {
+        data.appendPackGUID(channelTarget);     // target packguid
+        data << uint32();                       // spellid
+        data << uint8(0);                       // unk3
+        if (unk3 == 2)
+            data.append();                      // unk packed guid (unused ?)
+    }
+    */
     m_caster->SendMessageToSet(&data, true);
 
     m_timer = duration;
