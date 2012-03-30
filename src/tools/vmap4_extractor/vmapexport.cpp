@@ -94,7 +94,7 @@ void strToLower(char* str)
 {
     while(*str)
     {
-        *str=tolower(*str);
+        *str = tolower(*str);
         ++str;
     }
 }
@@ -192,7 +192,7 @@ bool ExtractSingleWmo(std::string& fname)
     froot.ConvertToVMAPRootWmo(output);
     int Wmo_nVertices = 0;
     //printf("root has %d groups\n", froot->nGroups);
-    if (froot.nGroups !=0)
+    if (froot.nGroups != 0)
     {
         for (uint32 i = 0; i < froot.nGroups; ++i)
         {
