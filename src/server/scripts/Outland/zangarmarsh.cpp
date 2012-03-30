@@ -322,14 +322,13 @@ public:
 
         void Reset() { }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 4:
                     DoScriptText(SAY_AMBUSH1, me, player);

@@ -182,7 +182,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
         }
     }
     i_to_distance_from_caster = 0.0f;
-    i_nextCheckTime.Reset( urand(500,1000) );
+    i_nextCheckTime.Reset(urand(500,1000));
     return false;
 }
 
@@ -201,12 +201,12 @@ FleeingMovementGenerator<T>::_setMoveData(T &owner)
            (i_last_distance_from_caster < i_to_distance_from_caster && cur_dist_xyz > i_to_distance_from_caster)   ||
                                                             // if we reach bigger distance
            (cur_dist_xyz > MAX_QUIET_DISTANCE) ||           // if we are too far
-           (i_last_distance_from_caster > MIN_QUIET_DISTANCE && cur_dist_xyz < MIN_QUIET_DISTANCE) )
+           (i_last_distance_from_caster > MIN_QUIET_DISTANCE && cur_dist_xyz < MIN_QUIET_DISTANCE))
                                                             // if we leave 'quiet zone'
         {
             // we are very far or too close, stopping
             i_to_distance_from_caster = 0.0f;
-            i_nextCheckTime.Reset( urand(500,1000) );
+            i_nextCheckTime.Reset(urand(500,1000));
             return false;
         }
         else

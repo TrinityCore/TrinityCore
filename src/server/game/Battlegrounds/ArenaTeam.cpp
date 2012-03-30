@@ -306,11 +306,13 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
 {
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    {
         if (itr->Guid == guid)
         {
             Members.erase(itr);
             break;
         }
+    }
 
     // Inform player and remove arena team info from player data
     if (Player* player = ObjectAccessor::FindPlayer(guid))

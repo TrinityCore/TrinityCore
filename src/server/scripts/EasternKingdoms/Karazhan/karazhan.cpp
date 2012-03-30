@@ -158,12 +158,12 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             if (!instance)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 0:
                     DoCast(me, SPELL_TUXEDO, false);

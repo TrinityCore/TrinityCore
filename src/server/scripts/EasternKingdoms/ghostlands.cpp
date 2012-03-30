@@ -130,14 +130,13 @@ public:
     {
         npc_ranger_lilathaAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 0:
                     me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
@@ -145,16 +144,13 @@ public:
                         Cage->SetGoState(GO_STATE_ACTIVE);
                     DoScriptText(SAY_START, me, player);
                     break;
-
                 case 5:
                     DoScriptText(SAY_PROGRESS1, me, player);
                     break;
-
                 case 11:
                     DoScriptText(SAY_PROGRESS2, me, player);
                     me->SetOrientation(4.762841f);
                     break;
-
                 case 18:
                     {
                         DoScriptText(SAY_PROGRESS3, me, player);
@@ -168,25 +164,20 @@ public:
                         me->AI()->AttackStart(Summ1);
                     }
                     break;
-
                 case 19:
                     me->SetWalk(false);
                     break;
-
                 case 25:
                     me->SetWalk(true);
                     break;
-
                 case 30:
                     if (player->GetTypeId() == TYPEID_PLAYER)
                         CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
                     break;
-
                 case 32:
                     me->SetOrientation(2.978281f);
                     DoScriptText(SAY_END1, me, player);
                     break;
-
                 case 33:
                     me->SetOrientation(5.858011f);
                     DoScriptText(SAY_END2, me, player);

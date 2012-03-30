@@ -151,35 +151,35 @@ public:
         uint32 eventProgress;
         InstanceScript* instance;
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             if (!instance)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 4:
                     eventProgress = 1;
                     currentEvent = TYPE_NARALEX_PART1;
                     instance->SetData(TYPE_NARALEX_PART1, IN_PROGRESS);
-                break;
+                    break;
                 case 5:
                     DoScriptText(SAY_MUST_CONTINUE, me);
                     instance->SetData(TYPE_NARALEX_PART1, DONE);
-                break;
+                    break;
                 case 11:
                     eventProgress = 1;
                     currentEvent = TYPE_NARALEX_PART2;
                     instance->SetData(TYPE_NARALEX_PART2, IN_PROGRESS);
-                break;
+                    break;
                 case 19:
                     DoScriptText(SAY_BEYOND_THIS_CORRIDOR, me);
-                break;
+                    break;
                 case 24:
                     eventProgress = 1;
                     currentEvent = TYPE_NARALEX_PART3;
                     instance->SetData(TYPE_NARALEX_PART3, IN_PROGRESS);
-                break;
+                    break;
             }
         }
 
