@@ -5317,7 +5317,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
     std::map<uint32 /*messageId*/, MailItemInfoVec> itemsCache;
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL_ITEMS);
-    stmt->setUInt64(0, basetime);
+    stmt->setUInt32(0, (uint32)basetime);
     if (PreparedQueryResult items = CharacterDatabase.Query(stmt))
     {
         MailItemInfo item;
