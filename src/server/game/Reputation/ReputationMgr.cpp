@@ -521,7 +521,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
                 FactionState* faction = &_factions[factionEntry->reputationListID];
 
                 // update standing to current
-                faction->Standing = int32(fields[1].GetUInt32());
+                faction->Standing = fields[1].GetInt32();
 
                 // update counters
                 int32 BaseRep = GetBaseReputation(factionEntry);

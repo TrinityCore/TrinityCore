@@ -38,7 +38,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
     // Load EventAI Text
     sObjectMgr->LoadTrinityStrings("creature_ai_texts", MIN_CREATURE_AI_TEXT_STRING_ID, MAX_CREATURE_AI_TEXT_STRING_ID);
 
-    // Gather Additional data from EventAI Texts
+    // Gather Additional data from EventAI Texts       0      1      2       3       4
     QueryResult result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM creature_ai_texts");
 
     if (!result)
