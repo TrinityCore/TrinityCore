@@ -31,10 +31,13 @@ class RandomMovementGenerator
         void _setRandomLocation(T &);
         void Initialize(T &);
         void Finalize(T &);
+        void Interrupt(T &);
         void Reset(T &);
         bool Update(T &, const uint32);
         bool GetResetPosition(T&, float& x, float& y, float& z);
-        MovementGeneratorType GetMovementGeneratorType() { return RANDOM_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return RANDOM_MOTION_TYPE; }
+        const char* Name() const { return "<Random>"; }
+
     private:
         TimeTrackerSmall i_nextMoveTime;
 

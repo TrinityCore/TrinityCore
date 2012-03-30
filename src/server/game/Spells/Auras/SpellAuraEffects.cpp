@@ -3055,7 +3055,11 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
 
     Unit* target = aurApp->GetTarget();
 
-    target->SetControlled(apply, UNIT_STATE_STUNNED);
+    //target->SetControlled(apply, UNIT_STATE_STUNNED);
+    if (apply)
+        target->GetUnitStateMgr().PushAction(UNIT_ACTION_STUN);
+    else
+        target->GetUnitStateMgr().DropAction(UNIT_ACTION_STUN);
 }
 
 void AuraEffect::HandleAuraModRoot(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3065,7 +3069,11 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* aurApp, uint8 mode, bo
 
     Unit* target = aurApp->GetTarget();
 
-    target->SetControlled(apply, UNIT_STATE_ROOT);
+    //target->SetControlled(apply, UNIT_STATE_ROOT);
+    if (apply)
+        target->GetUnitStateMgr().PushAction(UNIT_ACTION_ROOT);
+    else
+        target->GetUnitStateMgr().DropAction(UNIT_ACTION_ROOT);
 }
 
 void AuraEffect::HandlePreventFleeing(AuraApplication const* aurApp, uint8 mode, bool apply) const

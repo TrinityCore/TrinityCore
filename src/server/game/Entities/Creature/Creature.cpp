@@ -1619,7 +1619,7 @@ void Creature::Respawn(bool force)
             SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
         }
 
-        GetMotionMaster()->InitDefault();
+        GetMotionMaster()->Initialize();
 
         //Call AI respawn virtual function
         if (IsAIEnabled)

@@ -50,9 +50,6 @@ class TargetedMovementGeneratorMedium
         bool Update(T &, const uint32 &);
         Unit* GetTarget() const { return i_target.getTarget(); }
 
-        void unitSpeedChanged() { i_recalculateTravel=true; }
-        void UpdateFinalDistance(float fDistance);
-
     protected:
         void _setTargetLocation(T &);
 
@@ -73,10 +70,11 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
             : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) {}
         ~ChaseMovementGenerator() {}
 
-        MovementGeneratorType GetMovementGeneratorType() { return CHASE_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return CHASE_MOTION_TYPE; }
 
         void Initialize(T &);
         void Finalize(T &);
+        void Interrupt(T &);
         void Reset(T &);
         void MovementInform(T &);
 
@@ -85,6 +83,8 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
         bool EnableWalking() const { return false;}
         bool _lostTarget(T &u) const { return u.getVictim() != this->GetTarget(); }
         void _reachTarget(T &);
+        const char* Name() const { return "<Chase>"; }
+
 };
 
 template<class T>
@@ -97,10 +97,11 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
             : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) {}
         ~FollowMovementGenerator() {}
 
-        MovementGeneratorType GetMovementGeneratorType() { return FOLLOW_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return FOLLOW_MOTION_TYPE; }
 
         void Initialize(T &);
         void Finalize(T &);
+        void Interrupt(T &);
         void Reset(T &);
         void MovementInform(T &);
 
@@ -109,6 +110,8 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
         bool EnableWalking() const;
         bool _lostTarget(T &) const { return false; }
         void _reachTarget(T &) {}
+        const char* Name() const { return "<Follow>"; }
+
     private:
         void _updateSpeed(T &u);
 };

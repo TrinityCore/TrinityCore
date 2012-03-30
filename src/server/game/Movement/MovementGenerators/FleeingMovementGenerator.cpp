@@ -343,8 +343,13 @@ void FleeingMovementGenerator<Creature>::Finalize(Creature &owner)
 {
     owner.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner.ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
-    if (owner.getVictim())
-        owner.SetTarget(owner.getVictim()->GetGUID());
+}
+
+template<class T>
+void FleeingMovementGenerator<T>::Interrupt(T &owner)
+{
+    owner.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+    owner.ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
 }
 
 template<class T>
@@ -384,6 +389,8 @@ template void FleeingMovementGenerator<Player>::Reset(Player &);
 template void FleeingMovementGenerator<Creature>::Reset(Creature &);
 template bool FleeingMovementGenerator<Player>::Update(Player &, const uint32 &);
 template bool FleeingMovementGenerator<Creature>::Update(Creature &, const uint32 &);
+template void FleeingMovementGenerator<Player>::Interrupt(Player &);
+template void FleeingMovementGenerator<Creature>::Interrupt(Creature &);
 
 void TimedFleeingMovementGenerator::Finalize(Unit &owner)
 {

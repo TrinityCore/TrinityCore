@@ -36,6 +36,7 @@
 #include "Path.h"
 #include "WorldPacket.h"
 #include "Timer.h"
+#include "StateMgr.h"
 #include <list>
 
 #define WORLD_TRIGGER   12999
@@ -2088,6 +2089,7 @@ class Unit : public WorldObject
 
         MotionMaster* GetMotionMaster() { return &i_motionMaster; }
         const MotionMaster* GetMotionMaster() const { return &i_motionMaster; }
+        UnitStateMgr& GetUnitStateMgr() { return m_stateMgr; }
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
         void StopMoving();
@@ -2125,8 +2127,6 @@ class Unit : public WorldObject
         void SendPetTalk (uint32 pettalk);
         void SendPetAIReaction(uint64 guid);
         ///----------End of Pet responses methods----------
-
-        void propagateSpeedChange() { GetMotionMaster()->propagateSpeedChange(); }
 
         // reactive attacks
         void ClearAllReactives();
@@ -2306,6 +2306,7 @@ class Unit : public WorldObject
         virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
 
         MotionMaster i_motionMaster;
+        UnitStateMgr m_stateMgr;
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
         uint32 m_regenTimer;

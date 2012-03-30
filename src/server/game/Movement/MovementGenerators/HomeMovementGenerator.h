@@ -37,9 +37,11 @@ class HomeMovementGenerator<Creature>
 
         void Initialize(Creature &);
         void Finalize(Creature &);
+        void Interrupt(Creature &);
         void Reset(Creature &);
-        bool Update(Creature &, const uint32);
-        MovementGeneratorType GetMovementGeneratorType() { return HOME_MOTION_TYPE; }
+        bool Update(Creature &, const uint32&);
+        MovementGeneratorType GetMovementGeneratorType() const { return HOME_MOTION_TYPE; }
+        const char* Name() const { return "<Home>"; }
 
     private:
         void _setTargetLocation(Creature &);

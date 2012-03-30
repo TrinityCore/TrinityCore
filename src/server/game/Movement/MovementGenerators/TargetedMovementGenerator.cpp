@@ -93,32 +93,6 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     init.Launch();
 }
 
-template<>
-void TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::UpdateFinalDistance(float /*fDistance*/)
-{
-    // nothing to do for Player
-}
-
-template<>
-void TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::UpdateFinalDistance(float /*fDistance*/)
-{
-    // nothing to do for Player
-}
-
-template<>
-void TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::UpdateFinalDistance(float fDistance)
-{
-    i_offset = fDistance;
-    i_recalculateTravel = true;
-}
-
-template<>
-void TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::UpdateFinalDistance(float fDistance)
-{
-    i_offset = fDistance;
-    i_recalculateTravel = true;
-}
-
 template<class T, typename D>
 bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_diff)
 {
@@ -210,6 +184,12 @@ void ChaseMovementGenerator<T>::Finalize(T &owner)
 }
 
 template<class T>
+void ChaseMovementGenerator<T>::Interrupt(T &owner)
+{
+    owner.ClearUnitState(UNIT_STATE_CHASE|UNIT_STATE_CHASE_MOVE);
+}
+
+template<class T>
 void ChaseMovementGenerator<T>::Reset(T &owner)
 {
     Initialize(owner);
@@ -283,6 +263,12 @@ void FollowMovementGenerator<T>::Finalize(T &owner)
 }
 
 template<class T>
+void FollowMovementGenerator<T>::Interrupt(T &owner)
+{
+    owner.ClearUnitState(UNIT_STATE_FOLLOW|UNIT_STATE_FOLLOW_MOVE);
+}
+
+template<class T>
 void FollowMovementGenerator<T>::Reset(T &owner)
 {
     Initialize(owner);
@@ -318,9 +304,13 @@ template void ChaseMovementGenerator<Creature>::Finalize(Creature &);
 template void ChaseMovementGenerator<Player>::Reset(Player &);
 template void ChaseMovementGenerator<Creature>::Reset(Creature &);
 template void ChaseMovementGenerator<Player>::MovementInform(Player &unit);
+template void ChaseMovementGenerator<Player>::Interrupt(Player &);
+template void ChaseMovementGenerator<Creature>::Interrupt(Creature &);
 
 template void FollowMovementGenerator<Player>::Finalize(Player &);
 template void FollowMovementGenerator<Creature>::Finalize(Creature &);
 template void FollowMovementGenerator<Player>::Reset(Player &);
 template void FollowMovementGenerator<Creature>::Reset(Creature &);
 template void FollowMovementGenerator<Player>::MovementInform(Player &unit);
+template void FollowMovementGenerator<Player>::Interrupt(Player &);
+template void FollowMovementGenerator<Creature>::Interrupt(Creature &);

@@ -141,6 +141,13 @@ void RandomMovementGenerator<Creature>::Finalize(Creature &creature)
 }
 
 template<>
+void RandomMovementGenerator<Creature>::Interrupt(Creature &creature)
+{
+    creature.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+    creature.SetWalk(false);
+}
+
+template<>
 bool
 RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 diff)
 {

@@ -25,11 +25,13 @@ class IdleMovementGenerator : public MovementGenerator
 {
     public:
 
-        void Initialize(Unit &);
-        void Finalize(Unit &) {  }
-        void Reset(Unit &);
-        bool Update(Unit &, const uint32&) { return true; }
-        MovementGeneratorType GetMovementGeneratorType() { return IDLE_MOTION_TYPE; }
+        void Initialize(Unit& );
+        void Finalize(Unit& ) {}
+        void Interrupt(Unit& ) {}
+        void Reset(Unit& );
+        bool Update(Unit& , const uint32& ) { return true; }
+        MovementGeneratorType GetMovementGeneratorType() const { return IDLE_MOTION_TYPE; }
+        const char* Name() const { return "<Idle>"; }
 };
 
 extern IdleMovementGenerator si_idleMovement;
@@ -39,11 +41,13 @@ class RotateMovementGenerator : public MovementGenerator
     public:
         explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : m_duration(time), m_maxDuration(time), m_direction(direction) {}
 
-        void Initialize(Unit& owner);
-        void Finalize(Unit& owner);
+        void Initialize(Unit& );
+        void Finalize(Unit& );
+        void Interrupt(Unit& );
         void Reset(Unit& owner) { Initialize(owner); }
-        bool Update(Unit& owner, const uint32& time_diff);
-        MovementGeneratorType GetMovementGeneratorType() { return ROTATE_MOTION_TYPE; }
+        bool Update(Unit& , const uint32& );
+        MovementGeneratorType GetMovementGeneratorType() const { return ROTATE_MOTION_TYPE; }
+        const char* Name() const { return "<Rotate>"; }
 
     private:
         uint32 m_duration, m_maxDuration;
@@ -57,9 +61,11 @@ class DistractMovementGenerator : public MovementGenerator
 
         void Initialize(Unit& owner);
         void Finalize(Unit& owner);
+        void Interrupt(Unit& );
         void Reset(Unit& owner) { Initialize(owner); }
         bool Update(Unit& owner, const uint32& time_diff);
-        MovementGeneratorType GetMovementGeneratorType() { return DISTRACT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return DISTRACT_MOTION_TYPE; }
+        const char* Name() const { return "<Distract>"; }
 
     private:
         uint32 m_timer;
@@ -71,7 +77,8 @@ class AssistanceDistractMovementGenerator : public DistractMovementGenerator
         AssistanceDistractMovementGenerator(uint32 timer) :
             DistractMovementGenerator(timer) {}
 
-        MovementGeneratorType GetMovementGeneratorType() { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
+        const char* Name() const { return "<Assistance Distract>"; }
         void Finalize(Unit& unit);
 };
 

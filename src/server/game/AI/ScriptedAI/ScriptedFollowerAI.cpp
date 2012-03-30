@@ -294,7 +294,6 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
 
     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
-        me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI start with WAYPOINT_MOTION_TYPE, set to MoveIdle.");
     }
@@ -344,8 +343,6 @@ void FollowerAI::SetFollowComplete(bool bWithEndEvent)
     {
         me->ClearUnitState(UNIT_STATE_FOLLOW);
 
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
     }
 
@@ -373,8 +370,6 @@ void FollowerAI::SetFollowPaused(bool paused)
         {
             me->ClearUnitState(UNIT_STATE_FOLLOW);
 
-            me->StopMoving();
-            me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveIdle();
         }
     }

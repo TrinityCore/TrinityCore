@@ -66,6 +66,12 @@ void PointMovementGenerator<T>::Finalize(T &unit)
 }
 
 template<class T>
+void PointMovementGenerator<T>:: Interrupt(T &unit)
+{
+    unit.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+}
+
+template<class T>
 void PointMovementGenerator<T>::Reset(T &unit)
 {
     if (!unit.IsStopped())
@@ -98,6 +104,8 @@ template void PointMovementGenerator<Player>::Reset(Player&);
 template void PointMovementGenerator<Creature>::Reset(Creature&);
 template bool PointMovementGenerator<Player>::Update(Player &, const uint32 &);
 template bool PointMovementGenerator<Creature>::Update(Creature&, const uint32 &);
+template void PointMovementGenerator<Player>::Interrupt(Player&);
+template void PointMovementGenerator<Creature>::Interrupt(Creature&);
 
 void AssistanceMovementGenerator::Finalize(Unit &unit)
 {
@@ -119,12 +127,4 @@ void EffectMovementGenerator::Finalize(Unit &unit)
 
     if (((Creature&)unit).AI())
         ((Creature&)unit).AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
-    // Need restore previous movement since we have no proper states system
-    //if (unit.isAlive() && !unit.HasUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_FLEEING))
-    //{
-    //    if (Unit * victim = unit.getVictim())
-    //        unit.GetMotionMaster()->MoveChase(victim);
-    //    else
-    //        unit.GetMotionMaster()->Initialize();
-    //}
 }

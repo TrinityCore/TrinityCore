@@ -25,22 +25,21 @@
 #include "FactoryHolder.h"
 #include "Common.h"
 #include "MotionMaster.h"
+#include "StateMgr.h"
 
-class Unit;
-
-class MovementGenerator
+class MovementGenerator : public UnitAction
 {
     public:
         virtual ~MovementGenerator();
 
         virtual void Initialize(Unit &) = 0;
         virtual void Finalize(Unit &) = 0;
-
+        virtual void Interrupt(Unit &) = 0;
         virtual void Reset(Unit &) = 0;
 
         virtual bool Update(Unit &, const uint32& time_diff) = 0;
 
-        virtual MovementGeneratorType GetMovementGeneratorType() = 0;
+        virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
         virtual void unitSpeedChanged() { }
 };
@@ -59,6 +58,11 @@ class MovementGeneratorMedium : public MovementGenerator
             //u->AssertIsType<T>();
             (static_cast<D*>(this))->Finalize(*((T*)&u));
         }
+        void Interrupt(Unit &u)
+        {
+            //u->AssertIsType<T>();
+            (static_cast<D*>(this))->Interrupt(*((T*)&u));
+        }
         void Reset(Unit &u)
         {
             //u->AssertIsType<T>();
@@ -73,6 +77,7 @@ class MovementGeneratorMedium : public MovementGenerator
         // will not link if not overridden in the generators
         void Initialize(T &u);
         void Finalize(T &u);
+        void Interrupt(T &u);
         void Reset(T &u);
         bool Update(T &u, const uint32& time_diff);
 };

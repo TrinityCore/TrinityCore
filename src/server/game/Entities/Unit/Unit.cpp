@@ -156,7 +156,7 @@ m_movedPlayer(NULL), m_lastSanctuaryTime(0), IsAIEnabled(false), NeedChangeAI(fa
 m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()), i_AI(NULL),
 i_disabledAI(NULL), m_procDeep(0), m_removedAurasCount(0), i_motionMaster(this),
 m_ThreatManager(this), m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
-m_HostileRefManager(this)
+m_HostileRefManager(this), m_stateMgr(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -355,7 +355,7 @@ void Unit::Update(uint32 p_time)
     }
 
     UpdateSplineMovement(p_time);
-    i_motionMaster.UpdateMotion(p_time);
+    GetUnitStateMgr().Update(p_time);
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -12628,8 +12628,6 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
     m_speed_rate[mtype] = rate;
 
-    propagateSpeedChange();
-
     WorldPacket data;
     if (!forced)
     {
@@ -12754,10 +12752,7 @@ void Unit::setDeathState(DeathState s)
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
-        GetMotionMaster()->Clear(false);
-        GetMotionMaster()->MoveIdle();
-        StopMoving();
-        DisableSpline();
+        GetUnitStateMgr().DropAllStates();
         // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         // do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
@@ -13784,7 +13779,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     ClearComboPointHolders();
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
-    GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
+    GetUnitStateMgr().DropAllStates();
 }
 
 void Unit::CleanupsBeforeDelete(bool finalCleanup)
@@ -16031,7 +16026,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     Map* map = GetMap();
     if (!IsVehicle() || (IsVehicle() && map && !map->IsBattleground()))
         RestoreFaction();
-    GetMotionMaster()->InitDefault();
+    GetMotionMaster()->Initialize();
 
     if (type == CHARM_TYPE_POSSESS)
     {

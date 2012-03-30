@@ -33,6 +33,10 @@ void HomeMovementGenerator<Creature>::Reset(Creature &)
 {
 }
 
+void HomeMovementGenerator<Creature>::Interrupt(Creature &)
+{
+}
+
 void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
 {
     if (owner.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
@@ -54,7 +58,7 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
     owner.ClearUnitState(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE);
 }
 
-bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32 /*time_diff*/)
+bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& /*time_diff*/)
 {
     arrived = owner.movespline->Finalized();
     return !arrived;
