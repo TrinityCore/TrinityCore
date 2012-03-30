@@ -740,9 +740,9 @@ public:
             bEnrage = false;
         }
 
-        void WaypointReached(uint32 uiI)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiI)
+            switch (waypointId)
             {
                 case 6:
                     me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
@@ -934,9 +934,9 @@ public:
             bThunderClap = false;
         }
 
-        void WaypointReached(uint32 uiI)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiI)
+            switch (waypointId)
             {
                 case 7:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

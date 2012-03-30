@@ -328,10 +328,11 @@ public:
                 summoned->AI()->AttackStart(me);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-            switch (i)
+
+            switch (waypointId)
             {
                 case 8:
                     DoScriptText(SAY_WP_0, me);

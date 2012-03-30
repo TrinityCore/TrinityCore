@@ -172,31 +172,65 @@ public:
     {
         npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-                case 0: DoScriptText(WHISPER_CUSTODIAN_1, me, player); break;
-                case 1: DoScriptText(WHISPER_CUSTODIAN_2, me, player); break;
-                case 2: DoScriptText(WHISPER_CUSTODIAN_3, me, player); break;
-                case 3: DoScriptText(WHISPER_CUSTODIAN_4, me, player); break;
-                case 5: DoScriptText(WHISPER_CUSTODIAN_5, me, player); break;
-                case 6: DoScriptText(WHISPER_CUSTODIAN_6, me, player); break;
-                case 7: DoScriptText(WHISPER_CUSTODIAN_7, me, player); break;
-                case 8: DoScriptText(WHISPER_CUSTODIAN_8, me, player); break;
-                case 9: DoScriptText(WHISPER_CUSTODIAN_9, me, player); break;
-                case 10: DoScriptText(WHISPER_CUSTODIAN_4, me, player); break;
-                case 13: DoScriptText(WHISPER_CUSTODIAN_10, me, player); break;
-                case 14: DoScriptText(WHISPER_CUSTODIAN_4, me, player); break;
-                case 16: DoScriptText(WHISPER_CUSTODIAN_11, me, player); break;
-                case 17: DoScriptText(WHISPER_CUSTODIAN_12, me, player); break;
-                case 18: DoScriptText(WHISPER_CUSTODIAN_4, me, player); break;
-                case 22: DoScriptText(WHISPER_CUSTODIAN_13, me, player); break;
-                case 23: DoScriptText(WHISPER_CUSTODIAN_4, me, player); break;
+                case 0:
+                    DoScriptText(WHISPER_CUSTODIAN_1, me, player);
+                    break;
+                case 1:
+                    DoScriptText(WHISPER_CUSTODIAN_2, me, player);
+                    break;
+                case 2:
+                    DoScriptText(WHISPER_CUSTODIAN_3, me, player);
+                    break;
+                case 3:
+                    DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                    break;
+                case 5:
+                    DoScriptText(WHISPER_CUSTODIAN_5, me, player);
+                    break;
+                case 6:
+                    DoScriptText(WHISPER_CUSTODIAN_6, me, player);
+                    break;
+                case 7:
+                    DoScriptText(WHISPER_CUSTODIAN_7, me, player);
+                    break;
+                case 8:
+                    DoScriptText(WHISPER_CUSTODIAN_8, me, player);
+                    break;
+                case 9:
+                    DoScriptText(WHISPER_CUSTODIAN_9, me, player);
+                    break;
+                case 10:
+                    DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                    break;
+                case 13:
+                    DoScriptText(WHISPER_CUSTODIAN_10, me, player);
+                    break;
+                case 14:
+                    DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                    break;
+                case 16:
+                    DoScriptText(WHISPER_CUSTODIAN_11, me, player);
+                    break;
+                case 17:
+                    DoScriptText(WHISPER_CUSTODIAN_12, me, player);
+                    break;
+                case 18:
+                    DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                    break;
+                case 22:
+                    DoScriptText(WHISPER_CUSTODIAN_13, me, player);
+                    break;
+                case 23:
+                    DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                    break;
                 case 24:
                     DoScriptText(WHISPER_CUSTODIAN_14, me, player);
                     DoCast(player, 34883);
@@ -428,14 +462,13 @@ public:
     {
         npc_OOX17AI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 23:
                     me->SummonCreature(SPAWN_FIRST, -8350.96f, -4445.79f, 10.10f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -443,7 +476,6 @@ public:
                     me->SummonCreature(SPAWN_FIRST, -8353.96f, -4442.79f, 10.10f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     DoScriptText(SAY_OOX_AMBUSH, me);
                     break;
-
                 case 56:
                     me->SummonCreature(SPAWN_SECOND_1, -7510.07f, -4795.50f, 9.35f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(SPAWN_SECOND_2, -7515.07f, -4797.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -452,7 +484,6 @@ public:
                     if (Unit* scoff = me->FindNearestCreature(SPAWN_SECOND_2, 30))
                         DoScriptText(SAY_OOX17_AMBUSH_REPLY, scoff);
                     break;
-
                 case 86:
                     DoScriptText(SAY_OOX_END, me);
                     player->GroupEventHappens(Q_OOX17, me);

@@ -127,14 +127,13 @@ public:
 
         void Reset() { }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 16:
                     DoScriptText(SAY_GIL_AT_LAST, me, player);
@@ -593,26 +592,26 @@ public:
             }
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
-            case 0:
-                DoScriptText(SAY_STARTUP1, me);
-                break;
-            case 9:
-                SetRun(false);
-                break;
-            case 17:
-                if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
-                {
-                    DoScriptText(SAY_MERCENARY, temp);
-                    me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                }
-                break;
-            case 24:
-                m_bIsPostEvent = true;
-                break;
+                case 0:
+                    DoScriptText(SAY_STARTUP1, me);
+                    break;
+                case 9:
+                    SetRun(false);
+                    break;
+                case 17:
+                    if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+                    {
+                        DoScriptText(SAY_MERCENARY, temp);
+                        me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    }
+                    break;
+                case 24:
+                    m_bIsPostEvent = true;
+                    break;
             }
         }
 
