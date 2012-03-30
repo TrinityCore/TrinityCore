@@ -497,9 +497,9 @@ public:
             SetEscortPaused(bOnHold);
         }
 
-        void WaypointReached(uint32 wpId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (wpId)
+            switch (waypointId)
             {
                 case 0:
                     me->SetWalk(false);
@@ -507,7 +507,6 @@ public:
                     break;
                 case 1:
                     SetHoldState(true);
-
                     SpawnNPC();
                     if (Creature* temp = Unit::GetCreature(*me, uiKorfaxGUID))
                         DoScriptText(SAY_LIGHT_OF_DAWN07, temp);

@@ -356,7 +356,7 @@ public:
             Start(false, true, 0, NULL);
         }
 
-        void WaypointReached(uint32 /*i*/)
+        void WaypointReached(uint32 /*waypointId*/)
         {
 
         }

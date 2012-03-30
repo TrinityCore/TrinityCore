@@ -994,9 +994,9 @@ public:
             SetDespawnAtFar(false);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (i)
+            switch (waypointId)
             {
                 case 1:
                     if (Unit* car = Unit::GetCreature(*me, carGUID))

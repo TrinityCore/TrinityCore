@@ -231,13 +231,13 @@ public:
     {
         npc_prospector_remtravelAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 0:
                     DoScriptText(SAY_REM_START, me, player);

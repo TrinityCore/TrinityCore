@@ -72,55 +72,54 @@ public:
     {
         npc_willixAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 3:
-                me->HandleEmoteCommand(EMOTE_STATE_POINT);
-                DoScriptText(SAY_POINT, me, player);
-                break;
-            case 4:
-                me->SummonCreature(ENTRY_BOAR, 2137.66f, 1843.98f, 48.08f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                break;
-            case 8:
-                DoScriptText(SAY_BLUELEAF, me, player);
-                break;
-            case 9:
-                DoScriptText(SAY_DANGER, me, player);
-                break;
-            case 13:
-                DoScriptText(SAY_BAD, me, player);
-                break;
-            case 14:
-                me->SummonCreature(ENTRY_BOAR, 2078.91f, 1704.54f, 56.77f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                break;
-            case 25:
-                DoScriptText(SAY_THINK, me, player);
-                break;
-            case 31:
-                DoScriptText(SAY_SOON, me, player);
-                break;
-            case 42:
-                DoScriptText(SAY_FINALY, me, player);
-                break;
-            case 43:
-                me->SummonCreature(ENTRY_BOAR, 1956.43f, 1596.97f, 81.75f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                break;
-            case 45:
-                DoScriptText(SAY_WIN, me, player);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                if (player->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(player)->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER, me);
-                break;
-            case 46:
-                DoScriptText(SAY_END, me, player);
-                break;
+                case 3:
+                    me->HandleEmoteCommand(EMOTE_STATE_POINT);
+                    DoScriptText(SAY_POINT, me, player);
+                    break;
+                case 4:
+                    me->SummonCreature(ENTRY_BOAR, 2137.66f, 1843.98f, 48.08f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    break;
+                case 8:
+                    DoScriptText(SAY_BLUELEAF, me, player);
+                    break;
+                case 9:
+                    DoScriptText(SAY_DANGER, me, player);
+                    break;
+                case 13:
+                    DoScriptText(SAY_BAD, me, player);
+                    break;
+                case 14:
+                    me->SummonCreature(ENTRY_BOAR, 2078.91f, 1704.54f, 56.77f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    break;
+                case 25:
+                    DoScriptText(SAY_THINK, me, player);
+                    break;
+                case 31:
+                    DoScriptText(SAY_SOON, me, player);
+                    break;
+                case 42:
+                    DoScriptText(SAY_FINALY, me, player);
+                    break;
+                case 43:
+                    me->SummonCreature(ENTRY_BOAR, 1956.43f, 1596.97f, 81.75f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    break;
+                case 45:
+                    DoScriptText(SAY_WIN, me, player);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    if (player->GetTypeId() == TYPEID_PLAYER)
+                        CAST_PLR(player)->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER, me);
+                    break;
+                case 46:
+                    DoScriptText(SAY_END, me, player);
+                    break;
             }
         }
 

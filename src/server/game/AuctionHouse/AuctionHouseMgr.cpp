@@ -795,7 +795,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
 
         AuctionEntry* auction = new AuctionEntry();
 
-         // Can't use LoadFromDB() because it assumes the auction map is loaded
+        // Can't use LoadFromDB() because it assumes the auction map is loaded
         if (!auction->LoadFromFieldList(fields))
         {
             // For some reason the record in the DB is broken (possibly corrupt

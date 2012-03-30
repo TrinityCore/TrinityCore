@@ -75,9 +75,9 @@ class example_escort : public CreatureScript
             }
 
             // Pure Virtual Functions (Have to be implemented)
-            void WaypointReached(uint32 uiWP)
+            void WaypointReached(uint32 waypointId)
             {
-                switch (uiWP)
+                switch (waypointId)
                 {
                     case 1:
                         DoScriptText(SAY_WP_1, me);
