@@ -1,5 +1,6 @@
-# Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2011 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2005-2011 MaNGOS <http://www.getmangos.com/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -14,32 +15,29 @@ file(GLOB_RECURSE sources *.cpp *.h)
 # uncomment next line to disable debug mode
 add_definitions("-DIOMAP_DEBUG")
 
-# build setup currently only supports libmpq 0.4.x
+# build setup currently only requires libmpq 0.4.x
+add_definitions("-DUSE_LIBMPQ04")
 add_definitions("-Wall")
 add_definitions("-ggdb")
 add_definitions("-O3")
 
-if ( UNIX )
+if( UNIX )
   include_directories(
     ${CMAKE_SOURCE_DIR}/dep/libmpq
   )
-elseif ( WIN32 )
+elseif( WIN32 )
   include_directories(
     ${CMAKE_SOURCE_DIR}/dep/libmpq
     ${CMAKE_SOURCE_DIR}/dep/libmpq/win
   )
-endif ()
-
-include_directories(
-  ${CMAKE_SOURCE_DIR}/dep/StormLib/src
-)
+endif()
 
 add_executable(vmap4extractor ${sources})
 
 target_link_libraries(vmap4extractor
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
-  storm
+  mpq
 )
 
 add_dependencies(vmap4extractor mpq)

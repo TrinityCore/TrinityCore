@@ -1,109 +1,96 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _CRT_SECURE_NO_DEPRECATE
-
 #include "dbcfile.h"
+#include "mpq_libmpq04.h"
+#undef min
+#undef max
 
-DBCFile::DBCFile(HANDLE file) :
-    _file(file), _data(NULL), _stringTable(NULL)
+#include <cstdio>
+
+DBCFile::DBCFile(const std::string &filename) : filename(filename)
 {
+    data = NULL;
 }
 
 bool DBCFile::open()
 {
-    char header[4];
+    MPQFile f(filename.c_str());
+
+    // Need some error checking, otherwise an unhandled exception error occurs
+    // if people screw with the data path.
+    if (f.isEof() == true)
+        return false;
+
+    unsigned char header[4];
     unsigned int na, nb, es, ss;
 
-    DWORD readBytes = 0;
-    SFileReadFile(_file, header, 4, &readBytes, NULL);
-    if (readBytes != 4)                                         // Number of records
+    f.read(header, 4); // File Header
+
+    if (header[0]!='W' || header[1]!='D' || header[2]!='B' || header[3] != 'C')
+    {
+        f.close();
+        data = NULL;
+        printf("Critical Error: An error occurred while trying to read the DBCFile %s.", filename.c_str());
         return false;
+    }
 
-    if (header[0] != 'W' || header[1] != 'D' || header[2] != 'B' || header[3] != 'C')
-        return false;
+    //assert(header[0]=='W' && header[1]=='D' && header[2]=='B' && header[3] == 'C');
 
-    SFileReadFile(_file, &na, 4, &readBytes, NULL);
-    if (readBytes != 4)                                         // Number of records
-        return false;
+    f.read(&na, 4); // Number of records
+    f.read(&nb, 4); // Number of fields
+    f.read(&es, 4); // Size of a record
+    f.read(&ss, 4); // String size
 
-    SFileReadFile(_file, &nb, 4, &readBytes, NULL);
-    if (readBytes != 4)                                         // Number of fields
-        return false;
+    recordSize = es;
+    recordCount = na;
+    fieldCount = nb;
+    stringSize = ss;
+    //assert(fieldCount*4 == recordSize);
+    assert(fieldCount*4 >= recordSize);
 
-    SFileReadFile(_file, &es, 4, &readBytes, NULL);
-    if (readBytes != 4)                                         // Size of a record
-        return false;
-
-    SFileReadFile(_file, &ss, 4, &readBytes, NULL);
-    if (readBytes != 4)                                         // String size
-        return false;
-
-    _recordSize = es;
-    _recordCount = na;
-    _fieldCount = nb;
-    _stringSize = ss;
-    if (_fieldCount * 4 != _recordSize)
-        return false;
-
-    _data = new unsigned char[_recordSize * _recordCount + _stringSize];
-    _stringTable = _data + _recordSize*_recordCount;
-
-    size_t data_size = _recordSize * _recordCount + _stringSize;
-    SFileReadFile(_file, _data, data_size, &readBytes, NULL);
-    if (readBytes != data_size)
-        return false;
-
+    data = new unsigned char[recordSize*recordCount+stringSize];
+    stringTable = data + recordSize*recordCount;
+    f.read(data, recordSize*recordCount+stringSize);
+    f.close();
     return true;
 }
 
 DBCFile::~DBCFile()
 {
-    delete [] _data;
+    delete [] data;
 }
 
 DBCFile::Record DBCFile::getRecord(size_t id)
 {
-    assert(_data);
-    return Record(*this, _data + id*_recordSize);
-}
-
-size_t DBCFile::getMaxId()
-{
-    assert(_data);
-
-    size_t maxId = 0;
-    for(size_t i = 0; i < getRecordCount(); ++i)
-        if (maxId < getRecord(i).getUInt(0))
-            maxId = getRecord(i).getUInt(0);
-
-    return maxId;
+    assert(data);
+    return Record(*this, data + id*recordSize);
 }
 
 DBCFile::Iterator DBCFile::begin()
 {
-    assert(_data);
-    return Iterator(*this, _data);
+    assert(data);
+    return Iterator(*this, data);
 }
 
 DBCFile::Iterator DBCFile::end()
 {
-    assert(_data);
-    return Iterator(*this, _stringTable);
+    assert(data);
+    return Iterator(*this, stringTable);
 }
-
