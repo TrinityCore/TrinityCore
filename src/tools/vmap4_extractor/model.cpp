@@ -1,4 +1,23 @@
 /*
+ * Copyright (C) 2008-2012 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2011-2012 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2005-2011 MaNGOS <http://www.getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -45,12 +64,12 @@ bool Model::open()
     _unload();
 
     memcpy(&header, f.getBuffer(), sizeof(ModelHeader));
-    if(header.nBoundingTriangles > 0)
+    if (header.nBoundingTriangles > 0)
     {
         f.seek(0);
         f.seekRelative(header.ofsBoundingVertices);
         vertices = new Vec3D[header.nBoundingVertices];
-        f.read(vertices,header.nBoundingVertices*12);
+        f.read(vertices, header.nBoundingVertices*12);
         for (uint32 i=0; i<header.nBoundingVertices; i++)
         {
             vertices[i] = fixCoordSystem(vertices[i]);
@@ -58,7 +77,7 @@ bool Model::open()
         f.seek(0);
         f.seekRelative(header.ofsBoundingTriangles);
         indices = new uint16[header.nBoundingTriangles];
-        f.read(indices,header.nBoundingTriangles*2);
+        f.read(indices, header.nBoundingTriangles*2);
         f.close();
     }
     else
@@ -72,23 +91,23 @@ bool Model::open()
 
 bool Model::ConvertToVMAPModel(const char * outfilename)
 {
-    int N[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
-    FILE * output=fopen(outfilename,"wb");
-    if(!output)
+    int N[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    FILE * output=fopen(outfilename, "wb");
+    if (!output)
     {
-        printf("Can't create the output file '%s'\n",outfilename);
+        printf("Can't create the output file '%s'\n", outfilename);
         return false;
     }
-    fwrite(szRawVMAPMagic,8,1,output);
+    fwrite(szRawVMAPMagic, 8, 1, output);
     uint32 nVertices = 0;
     nVertices = header.nBoundingVertices;
     fwrite(&nVertices, sizeof(int), 1, output);
     uint32 nofgroups = 1;
-    fwrite(&nofgroups,sizeof(uint32), 1, output);
-    fwrite(N,4*3,1,output);// rootwmoid, flags, groupid
-    fwrite(N,sizeof(float),3*2,output);//bbox, only needed for WMO currently
-    fwrite(N,4,1,output);// liquidflags
-    fwrite("GRP ",4,1,output);
+    fwrite(&nofgroups, sizeof(uint32), 1, output);
+    fwrite(N, 4*3, 1, output);             // rootwmoid, flags, groupid
+    fwrite(N, sizeof(float), 3*2, output); // bbox, only needed for WMO currently
+    fwrite(N, 4, 1, output);               // liquidflags
+    fwrite("GRP ", 4, 1, output);
     uint32 branches = 1;
     int wsize;
     wsize = sizeof(branches) + sizeof(uint32) * branches;
@@ -97,21 +116,21 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     uint32 nIndexes = 0;
     nIndexes = header.nBoundingTriangles;
     fwrite(&nIndexes,sizeof(uint32), 1, output);
-    fwrite("INDX",4, 1, output);
+    fwrite("INDX", 4, 1, output);
     wsize = sizeof(uint32) + sizeof(unsigned short) * nIndexes;
     fwrite(&wsize, sizeof(int), 1, output);
     fwrite(&nIndexes, sizeof(uint32), 1, output);
-    if(nIndexes >0)
+    if (nIndexes >0)
     {
         fwrite(indices, sizeof(unsigned short), nIndexes, output);
     }
-    fwrite("VERT",4, 1, output);
+    fwrite("VERT", 4, 1, output);
     wsize = sizeof(int) + sizeof(float) * 3 * nVertices;
     fwrite(&wsize, sizeof(int), 1, output);
     fwrite(&nVertices, sizeof(int), 1, output);
-    if(nVertices >0)
+    if (nVertices >0)
     {
-        for(uint32 vpos=0; vpos <nVertices; ++vpos)
+        for (uint32 vpos=0; vpos <nVertices; ++vpos)
         {
             std::swap(vertices[vpos].y, vertices[vpos].z);
         }
@@ -122,7 +141,6 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
 
     return true;
 }
-
 
 Vec3D fixCoordSystem(Vec3D v)
 {
@@ -138,11 +156,11 @@ ModelInstance::ModelInstance(MPQFile &f,const char* ModelInstName, uint32 mapID,
 {
     float ff[3];
     f.read(&id, 4);
-    f.read(ff,12);
-    pos = fixCoords(Vec3D(ff[0],ff[1],ff[2]));
-    f.read(ff,12);
-    rot = Vec3D(ff[0],ff[1],ff[2]);
-    f.read(&scale,4);
+    f.read(ff, 12);
+    pos = fixCoords(Vec3D(ff[0], ff[1], ff[2]));
+    f.read(ff, 12);
+    rot = Vec3D(ff[0], ff[1], ff[2]);
+    f.read(&scale, 4);
     // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
     sc = scale / 1024.0f;
 
@@ -167,7 +185,7 @@ ModelInstance::ModelInstance(MPQFile &f,const char* ModelInstName, uint32 mapID,
 
     uint16 adtId = 0;// not used for models
     uint32 flags = MOD_M2;
-	if(tileX == 65 && tileY == 65) flags |= MOD_WORLDSPAWN;
+    if(tileX == 65 && tileY == 65) flags |= MOD_WORLDSPAWN;
     //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
