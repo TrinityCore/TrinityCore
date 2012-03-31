@@ -643,7 +643,7 @@ public:
             DoCast(me, AURA_OF_ANGER, true);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(ANGER_SAY_DEATH, me);
         }

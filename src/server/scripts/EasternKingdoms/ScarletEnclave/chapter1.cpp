@@ -829,13 +829,9 @@ public:
                     if (owner->GetTypeId() == TYPEID_PLAYER && CAST_PLR(owner)->isInCombat())
                     {
                         if (CAST_PLR(owner)->getAttackerForHelper() && CAST_PLR(owner)->getAttackerForHelper()->GetEntry() == GHOSTS)
-                        {
                             AttackStart(CAST_PLR(owner)->getAttackerForHelper());
-                        }
                         else
-                        {
                             FindMinions(owner);
-                        }
                     }
                 }
             }

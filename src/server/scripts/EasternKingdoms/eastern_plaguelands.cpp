@@ -54,9 +54,9 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer)
         {
-            if (Killer->GetTypeId() == TYPEID_PLAYER)
+            if (Player* player = killer->ToPlayer())
                 me->SummonCreature(11064, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
         }
     };

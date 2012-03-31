@@ -151,7 +151,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 DoScriptText(RAND(SAY_KILL1, SAY_KILL2, SAY_KILL3), me);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);

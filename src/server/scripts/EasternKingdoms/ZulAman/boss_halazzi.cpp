@@ -324,7 +324,7 @@ class boss_halazzi : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                     instance->SetData(DATA_HALAZZIEVENT, DONE);

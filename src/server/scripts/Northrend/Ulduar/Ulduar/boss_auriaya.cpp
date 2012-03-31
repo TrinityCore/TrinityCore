@@ -204,7 +204,7 @@ class boss_auriaya : public CreatureScript
                }
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 _JustDied();
@@ -376,7 +376,7 @@ class npc_sanctum_sentry : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
@@ -451,7 +451,7 @@ class npc_feral_defender : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
                 if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))

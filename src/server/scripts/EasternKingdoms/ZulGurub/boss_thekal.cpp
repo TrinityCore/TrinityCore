@@ -108,7 +108,7 @@ class boss_thekal : public CreatureScript
                 DoScriptText(SAY_AGGRO, me);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 if (instance)
