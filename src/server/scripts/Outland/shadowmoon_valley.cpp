@@ -1398,27 +1398,25 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* slayer)
+        void JustDied(Unit* killer)
         {
-            if (slayer)
-                switch (slayer->GetTypeId())
-                {
-                    case TYPEID_UNIT:
-                        if (Unit* owner = slayer->GetOwner())
-                            if (owner->GetTypeId() == TYPEID_PLAYER)
-                                CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
-                        break;
-
-                    case TYPEID_PLAYER:
-                        CAST_PLR(slayer)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
-                        break;
-                    default:
-                        break;
-                }
+            switch (killer->GetTypeId())
+            {
+                case TYPEID_UNIT:
+                    if (Unit* owner = killer->GetOwner())
+                        if (owner->GetTypeId() == TYPEID_PLAYER)
+                            CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
+                    break;
+                case TYPEID_PLAYER:
+                    CAST_PLR(killer)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
+                    break;
+                default:
+                    break;
+            }
 
             if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))
             {
-                DoScriptText(END_TEXT, LordIllidan, slayer);
+                DoScriptText(END_TEXT, LordIllidan, killer);
                 LordIllidan->AI()->EnterEvadeMode();
             }
         }
@@ -1599,7 +1597,8 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) {}
-        void JustDied(Unit* /*slayer*/)
+
+        void JustDied(Unit* /*killer*/)
         {
             me->RemoveCorpse();
             if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))

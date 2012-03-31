@@ -79,7 +79,7 @@ public:
                 instance->SetData(TYPE_HYDROMANCER_THESPIA, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEAD, me);
 

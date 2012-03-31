@@ -159,7 +159,7 @@ class boss_janalai : public CreatureScript
                 HatchAllEggs(1);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
 
