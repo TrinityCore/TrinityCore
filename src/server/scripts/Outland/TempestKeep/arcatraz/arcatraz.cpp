@@ -128,7 +128,7 @@ class npc_millhouse_manastorm : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
 

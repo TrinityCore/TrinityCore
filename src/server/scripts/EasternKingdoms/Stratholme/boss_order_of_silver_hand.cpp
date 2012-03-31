@@ -96,30 +96,34 @@ public:
         {
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer)
         {
-            if (instance)
+            if (!instance)
+                return;
+
+            switch (me->GetEntry())
             {
-                switch (me->GetEntry())
-                {
-                    case SH_AELMAR:
-                        instance->SetData(TYPE_SH_AELMAR, 2);
-                        break;
-                    case SH_CATHELA:
-                        instance->SetData(TYPE_SH_CATHELA, 2);
-                        break;
-                    case SH_GREGOR:
-                        instance->SetData(TYPE_SH_GREGOR, 2);
-                        break;
-                    case SH_NEMAS:
-                        instance->SetData(TYPE_SH_NEMAS, 2);
-                        break;
-                    case SH_VICAR:
-                        instance->SetData(TYPE_SH_VICAR, 2);
-                        break;
-                }
-                if (instance->GetData(TYPE_SH_QUEST) && Killer->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(Killer)->KilledMonsterCredit(SH_QUEST_CREDIT, 0);
+                case SH_AELMAR:
+                    instance->SetData(TYPE_SH_AELMAR, 2);
+                    break;
+                case SH_CATHELA:
+                    instance->SetData(TYPE_SH_CATHELA, 2);
+                    break;
+                case SH_GREGOR:
+                    instance->SetData(TYPE_SH_GREGOR, 2);
+                    break;
+                case SH_NEMAS:
+                    instance->SetData(TYPE_SH_NEMAS, 2);
+                    break;
+                case SH_VICAR:
+                    instance->SetData(TYPE_SH_VICAR, 2);
+                    break;
+            }
+
+            if (instance->GetData(TYPE_SH_QUEST))
+            {
+                if (Player* player = killer->ToPlayer())
+                    player->KilledMonsterCredit(SH_QUEST_CREDIT, 0);
             }
         }
 

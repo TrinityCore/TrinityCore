@@ -98,7 +98,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
                     case 20:
                         Talk(EMOTE_PROGRESS_8);
                         Talk(SAY_PROGRESS_9, player->GetGUID());
-                        CAST_PLR(player)->GroupEventHappens(QUEST_SUNKEN_TREASURE, me);
+                        player->GroupEventHappens(QUEST_SUNKEN_TREASURE, me);
                         break;
                 }
             }
