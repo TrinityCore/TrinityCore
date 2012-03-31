@@ -322,7 +322,7 @@ class boss_magtheridon : public CreatureScript
                 DoScriptText(SAY_PLAYER_KILLED, me);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                     instance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
@@ -533,7 +533,7 @@ class mob_hellfire_channeler : public CreatureScript
                     DoCast(me, SPELL_SOUL_TRANSFER, true);
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                     instance->SetData(DATA_CHANNELER_EVENT, DONE);

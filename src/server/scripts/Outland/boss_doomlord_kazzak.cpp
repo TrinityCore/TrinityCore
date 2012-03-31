@@ -97,7 +97,7 @@ class boss_doomlord_kazzak : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
             }
