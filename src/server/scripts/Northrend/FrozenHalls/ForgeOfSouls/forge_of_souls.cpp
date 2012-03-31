@@ -112,9 +112,9 @@ enum Events
     EVENT_SOUL_STRIKE,
 };
 
-/****************************************SYLVANAS************************************/
-#define GOSSIP_SYLVANAS_ITEM    "What would you have of me, Banshee Queen?"
-#define GOSSIP_JAINA_ITEM       "What would you have of me, my lady?"
+/****************************************SYLVANAS Y JAINA************************************/
+#define GOSSIP_SYLVANAS_ITEM    "¿Que quieres de mi Reina Alma en pena?"
+#define GOSSIP_JAINA_ITEM       "¿Que quieres de mi Lady?"
 
 enum Yells
 {
