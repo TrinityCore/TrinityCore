@@ -321,7 +321,7 @@ class mob_son_of_flame : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                     instance->SetData(DATA_RAGNAROS_ADDS, 1);
