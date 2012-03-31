@@ -23,25 +23,25 @@
 #include "ulduar.h"
 
 // npc lore keeper
-#define GOSSIP_ITEM_1  "Activate secondary defensive systems."
-#define GOSSIP_ITEM_2  "Confirmed."
+#define GOSSIP_ITEM_1  "Activar sistemas de defensa secundarios."
+#define GOSSIP_ITEM_2  "Confirmado."
 
 
-#define GOSSIP_ITEM_BRANN_1         "We are ready"
-#define SAY_BRANN_1                 "Pentarus, you heard the man. Have your mages release the shield and let these brave souls through!"
-#define SAY_PENTARUS_1              "Of course, Brann: We will have the shield down momentarily."
-#define SAY_BRANN_2                 "Okay! Let's move out. Get into your machines; I'll speak to you from here via the radio."
-#define SAY_PENTARUS_2              "Mages of the Kirin Tor, on Brann's Command, release the shield! Defend this platform and our allies with your lives! For Dalaran!"
-#define SAY_BRANN_3                 "Our allies are ready. Bring down the shield and make way!"
-#define SAY_BRANN_4                 "The iron dwarves have been seen emerging from the bunkers at the base of the pillars straight ahead of you. Destroy the bunkers and they will be forced to fall back."
-#define SAY_BRANN_5                 "Watch out! Our air scouts report that the generators from the missile silos are coming online!"
-#define SAY_BRANN_6                 "There are four generators powering the defense structures. If you sabotage the generators, the missile attacks will stop."
+#define GOSSIP_ITEM_BRANN_1         "¡Estamos listos!"
+#define SAY_BRANN_1                 "¡Pentarus, ya lo has oido, dile a tus magos que bajen el escudo y dejen pasar a estos valientes!"
+#define SAY_PENTARUS_1              "Por suppuesto Brann: Bajaremos los escudos momentaneamente."
+#define SAY_BRANN_2                 "De acuerdo! Vamos a movernos. Subid a las maquinas; Os ire informando via radio."
+#define SAY_PENTARUS_2              "¡Magos de Kirin tor, bajo las ordenes de Brann, liberad el escudo!¡Defended esta plataforma y a sus aliados con sus vidas!¡Por Dalaran!"
+#define SAY_BRANN_3                 "Nuestros aliados estan listos. Bajad el escudo y formad el camino!"
+#define SAY_BRANN_4                 "Los Enanos de Hierro han salido de los pilares al oiros. Destruid los pilares y obligadlos a retroceder."
+#define SAY_BRANN_5                 "Vigilad! Nuestra escolta de aire nos ha informado de que los generadores han empezado a lanzar misiles!"
+#define SAY_BRANN_6                 "Hay quatro generadores dando energia a los sistemas de defensa. Si los saboteais, los misiles cesaran."
 
 // Kirin Tor Battle-Mage and Hired Engineer mini event
-#define KIRIN_TOR_BATTLE_MAGE_SAY_1 "Any luck?"
-#define HIRED_ENGINEER_SAY_1        "Not a bit. For the life of me, I can't figure out how this thing works."
-#define KIRIN_TOR_BATTLE_MAGE_SAY_2 "Keep at it. If our suspicions are right and this is a transporter, it could prove extremely useful in our assault."
-#define HIRED_ENGINEER_SAY_2        "I know, I know... I haven't given up yet. Don't get your hopes up though, this technology is way beyond me."
+#define KIRIN_TOR_BATTLE_MAGE_SAY_1 "Ha habido suerte?"
+#define HIRED_ENGINEER_SAY_1        "No mucha. No me imagino que pasara si esto no funciona."
+#define KIRIN_TOR_BATTLE_MAGE_SAY_2 "Tranquilizate. Si tus sospechas son ciertas y esto es un transporte, podra ser muy util en nuestro proximo asalto."
+#define HIRED_ENGINEER_SAY_2        "Lo se, lo se... Aun no lo he levantado. Aun no tengas esperanzas, esta tecnologia me supera."
 
 enum Actions
 {
