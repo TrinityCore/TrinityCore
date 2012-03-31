@@ -56,8 +56,6 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_SUM_REALM_CHARACTERS, "SELECT SUM(numchars) FROM realmcharacters WHERE acctid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_INS_ACCOUNT, "INSERT INTO account(username, sha_pass_hash, joindate) VALUES(?, ?, NOW())", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_INS_REALM_CHARACTERS_INIT, "INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist, account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_DEL_OLD_BANS, "DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_DEL_OLD_IP_BANS, "DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_EXPANSION, "UPDATE account SET expansion = ? WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_ACCOUNT_LOCK, "UPDATE account SET locked = ? WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_INS_LOG, "INSERT INTO logs (time, realm, type, string) VALUES (UNIX_TIMESTAMP(), ? , ?, ?)", CONNECTION_ASYNC);
