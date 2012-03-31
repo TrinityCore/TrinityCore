@@ -427,7 +427,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     result = CharacterDatabase.Query(stmt);
 
     if (result)
-        inv_count = (*result)[0].GetUInt32();
+        inv_count = (*result)[0].GetUInt64();
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_ITEM_BY_ENTRY);
     stmt->setUInt32(0, item_id);
@@ -476,7 +476,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     result = CharacterDatabase.Query(stmt);
 
     if (result)
-        mail_count = (*result)[0].GetUInt32();
+        mail_count = (*result)[0].GetUInt64();
 
     if (count > 0)
     {
@@ -523,7 +523,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     result = CharacterDatabase.Query(stmt);
 
     if (result)
-        auc_count = (*result)[0].GetUInt32();
+        auc_count = (*result)[0].GetUInt64();
 
     if (count > 0)
     {
@@ -560,7 +560,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     result = CharacterDatabase.Query(stmt);
 
     if (result)
-        guild_count = (*result)[0].GetUInt32();
+        guild_count = (*result)[0].GetUInt64();
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEM_BY_ENTRY);
     stmt->setUInt32(0, item_id);
