@@ -99,7 +99,7 @@ public:
             me->ModifyHealth(int32(me->CountPctFromMaxHealth(10)));
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(DATA_HADRONOX_EVENT, DONE);

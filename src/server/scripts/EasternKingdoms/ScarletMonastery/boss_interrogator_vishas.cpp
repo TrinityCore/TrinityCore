@@ -78,7 +78,7 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (!instance)
                 return;

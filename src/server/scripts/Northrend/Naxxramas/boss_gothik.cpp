@@ -234,7 +234,7 @@ class boss_gothik : public CreatureScript
                     DoScriptText(SAY_KILL, me);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 LiveTriggerGUID.clear();
                 DeadTriggerGUID.clear();

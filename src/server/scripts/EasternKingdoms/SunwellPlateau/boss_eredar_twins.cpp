@@ -167,7 +167,7 @@ public:
                 DoScriptText(RAND(YELL_SAC_KILL_1, YELL_SAC_KILL_2), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             // only if ALY death
             if (SisterDeath)
@@ -462,7 +462,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (SisterDeath)
             {

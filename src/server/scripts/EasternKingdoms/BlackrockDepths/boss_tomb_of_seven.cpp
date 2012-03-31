@@ -193,7 +193,7 @@ public:
                 instance->SetData64(DATA_EVENSTARTER, 0);
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(DATA_GHOSTKILL, 1);

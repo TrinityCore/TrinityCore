@@ -498,7 +498,7 @@ public:
             DoScriptText(SAY_GATH_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_GATH_DEATH, me);
         }
@@ -632,7 +632,7 @@ public:
             DoScriptText(SAY_ZERE_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_ZERE_DEATH, me);
         }
@@ -732,7 +732,7 @@ public:
             DoScriptText(SAY_MALA_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_MALA_DEATH, me);
         }
@@ -818,7 +818,7 @@ public:
             DoScriptText(SAY_VERA_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_VERA_DEATH, me);
         }
