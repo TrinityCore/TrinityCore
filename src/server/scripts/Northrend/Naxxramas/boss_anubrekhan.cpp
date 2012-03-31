@@ -99,7 +99,7 @@ public:
             DoScriptText(SAY_SLAY, me);
         }
 
-        void JustDied(Unit*)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
 

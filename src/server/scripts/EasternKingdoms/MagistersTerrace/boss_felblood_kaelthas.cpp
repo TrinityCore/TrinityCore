@@ -548,7 +548,7 @@ public:
 
         }
 
-        void JustDied(Unit* /*slayer*/)
+        void JustDied(Unit* /*killer*/)
         {
             me->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
         }

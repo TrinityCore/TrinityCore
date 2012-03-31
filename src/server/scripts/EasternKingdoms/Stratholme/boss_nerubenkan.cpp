@@ -67,7 +67,7 @@ public:
         {
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(TYPE_NERUB, IN_PROGRESS);

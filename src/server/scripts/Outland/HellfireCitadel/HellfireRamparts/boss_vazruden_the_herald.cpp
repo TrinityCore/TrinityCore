@@ -236,9 +236,9 @@ class boss_vazruden : public CreatureScript
                     DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* killer)
             {
-                if (who && who != me)
+                if (killer && killer != me)
                     DoScriptText(SAY_DIE, me);
             }
 
@@ -480,10 +480,10 @@ class mob_hellfire_sentry : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {}
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* killer)
             {
                 if (Creature* herald = me->FindNearestCreature(ENTRY_VAZRUDEN_HERALD, 150))
-                    CAST_AI(boss_vazruden_the_herald::boss_vazruden_the_heraldAI, herald->AI())->SentryDownBy(who);
+                    CAST_AI(boss_vazruden_the_herald::boss_vazruden_the_heraldAI, herald->AI())->SentryDownBy(killer);
             }
 
             void UpdateAI(const uint32 diff)

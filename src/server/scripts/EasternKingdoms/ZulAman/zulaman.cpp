@@ -136,7 +136,7 @@ class npc_zulaman_hostage : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {}
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
                 if (player)

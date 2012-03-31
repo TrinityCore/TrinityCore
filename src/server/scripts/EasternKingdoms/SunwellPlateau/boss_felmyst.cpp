@@ -184,7 +184,7 @@ public:
             DoScriptText(YELL_BIRTH, me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(YELL_DEATH, me);
 

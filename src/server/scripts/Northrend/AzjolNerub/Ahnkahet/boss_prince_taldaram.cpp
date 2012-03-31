@@ -364,7 +364,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
         }

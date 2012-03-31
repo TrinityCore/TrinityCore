@@ -295,7 +295,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 Unit* pLeftHead  = Unit::GetUnit(*me, LeftHeadGUID);
                 Unit* pRightHead = Unit::GetUnit(*me, RightHeadGUID);
