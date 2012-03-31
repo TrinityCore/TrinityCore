@@ -31,7 +31,7 @@ enum DebugLogFilters
     LOG_FILTER_PETS                     = 0x00000002,
     LOG_FILTER_VEHICLES                 = 0x00000004,
     LOG_FILTER_TSCR                     = 0x00000008,   // C++ AI, instance scripts, etc.
-    LOG_FILTER_DATABASE_AI              = 0x08000010,   // SmartAI, EventAI, CreatureAI
+    LOG_FILTER_DATABASE_AI              = 0x00000010,   // SmartAI, EventAI, CreatureAI
     LOG_FILTER_MAPSCRIPTS               = 0x00000020,
     LOG_FILTER_NETWORKIO                = 0x00000040,   // Anything packet/netcode related
     LOG_FILTER_SPELLS_AURAS             = 0x00000080,
