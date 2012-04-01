@@ -414,8 +414,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (me->isSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+            if (TempSummon* summ = me->ToTempSummon())
+                if (Unit* summoner = summ->GetSummoner())
                     if (summoner->isAlive())
                         summoner->GetAI()->SetData(1, 0);
         }

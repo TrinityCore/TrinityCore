@@ -250,7 +250,7 @@ public:
                         Unit* unit = NULL;
                         if (TargetGUID[i])
                         {
-                            unit = Unit::GetUnit((*me), TargetGUID[i]);
+                            unit = Unit::GetUnit(*me, TargetGUID[i]);
                             if (unit)
                                 unit->CastSpell(unit, SPELL_ATTRACTION, true);
                             TargetGUID[i] = 0;

@@ -667,7 +667,7 @@ public:
         if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, instance->GetData64(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = Unit::GetCreature(*player, instance->GetData64(DATA_KELTHUZAD));
         if (!pKelthuzad)
             return false;
 
@@ -714,7 +714,6 @@ public:
 
         return true;
     }
-
 };
 
 class npc_kelthuzad_abomination : public CreatureScript
@@ -726,16 +725,13 @@ class npc_kelthuzad_abomination : public CreatureScript
         {
             npc_kelthuzad_abominationAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = me->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
-
-            InstanceScript* instance;
-            EventMap events;
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
                 DoCast(me, SPELL_FRENZY, true);
             }
 
@@ -744,15 +740,15 @@ class npc_kelthuzad_abomination : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND, true);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 15000));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 15000));
                             break;
                         default:
                             break;
@@ -762,9 +758,13 @@ class npc_kelthuzad_abomination : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (instance)
-                    instance->SetData(DATA_ABOMINATION_KILLED, instance->GetData(DATA_ABOMINATION_KILLED) + 1);
+                if (_instance)
+                    _instance->SetData(DATA_ABOMINATION_KILLED, _instance->GetData(DATA_ABOMINATION_KILLED) + 1);
             }
+
+        private:
+            InstanceScript* _instance;
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -776,9 +776,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 class achievement_just_cant_get_enough : public AchievementCriteriaScript
 {
    public:
-       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough")
-       {
-       }
+       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {
