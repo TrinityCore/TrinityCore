@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_POOLHANDLER_H
-#define TRINITY_POOLHANDLER_H
+#ifndef _POOLMGR_H
+#define _POOLMGR_H
 
 #include "Define.h"
 #include <ace/Singleton.h>

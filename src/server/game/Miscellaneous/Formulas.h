@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_FORMULAS_H
-#define TRINITY_FORMULAS_H
+#ifndef _FORMULAS_H
+#define _FORMULAS_H
 
 #include "World.h"
 #include "SharedDefines.h"

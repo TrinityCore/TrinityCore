@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _FOLLOWERREFMANAGER
-#define _FOLLOWERREFMANAGER
+#ifndef _FOLLOWERREFMANAGER_H
+#define _FOLLOWERREFMANAGER_H
 
 #include "RefManager.h"
 

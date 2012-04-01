@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TRINITY_SPELLAURADEFINES_H
-#define TRINITY_SPELLAURADEFINES_H
+
+#ifndef _SPELLAURADEFINES_H
+#define _SPELLAURADEFINES_H
 
 #define MAX_AURAS 64                                        // client support up to 255, but it will cause problems with group auras updating
 

@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BATTLEGROUNDMGR_H
-#define __BATTLEGROUNDMGR_H
+#ifndef _BATTLEGROUNDMGR_H
+#define _BATTLEGROUNDMGR_H
 
 #include "Common.h"
 #include "DBCEnums.h"

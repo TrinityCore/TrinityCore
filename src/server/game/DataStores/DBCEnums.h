@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBCENUMS_H
-#define DBCENUMS_H
+#ifndef _DBCENUMS_H
+#define _DBCENUMS_H
 
 // Client expected level limitation, like as used in DBC item max levels for "until max player level"
 // use as default max player level, must be fit max level for used client

@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_GRIDNOTIFIERS_H
-#define TRINITY_GRIDNOTIFIERS_H
+#ifndef _GRIDNOTIFIERS_H
+#define _GRIDNOTIFIERS_H
 
 #include "ObjectGridLoader.h"
 #include "UpdateData.h"

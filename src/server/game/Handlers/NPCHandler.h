@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __NPCHANDLER_H
-#define __NPCHANDLER_H
+#ifndef _NPCHANDLER_H
+#define _NPCHANDLER_H
 
 struct QEmote
 {

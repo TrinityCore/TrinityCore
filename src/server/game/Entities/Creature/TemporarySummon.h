@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_TEMPSUMMON_H
-#define TRINITYCORE_TEMPSUMMON_H
+#ifndef _TEMPORARYSUMMON_H
+#define _TEMPORARYSUMMON_H
 
 #include "Creature.h"
 

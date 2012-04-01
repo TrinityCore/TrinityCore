@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SCRIPTEDCREATURE_H_
-#define SCRIPTEDCREATURE_H_
+#ifndef _SCRIPTEDCREATURE_H
+#define _SCRIPTEDCREATURE_H
 
 #include "Creature.h"
 #include "CreatureAI.h"

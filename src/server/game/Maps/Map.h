@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_MAP_H
-#define TRINITY_MAP_H
+#ifndef _MAP_H
+#define _MAP_H
 
 #include "Define.h"
 #include <ace/RW_Thread_Mutex.h>

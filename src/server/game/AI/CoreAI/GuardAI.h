@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_GUARDAI_H
-#define TRINITY_GUARDAI_H
+#ifndef _GUARDAI_H
+#define _GUARDAI_H
 
 #include "ScriptedCreature.h"
 #include "Timer.h"

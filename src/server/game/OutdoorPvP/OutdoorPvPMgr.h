@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OUTDOOR_PVP_MGR_H_
-#define OUTDOOR_PVP_MGR_H_
+#ifndef _OUTDOORPVPMGR_H
+#define _OUTDOORPVPMGR_H
 
 #define OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL 1000
 

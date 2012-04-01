@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ADDONHANDLER_H
-#define __ADDONHANDLER_H
+#ifndef _ADDONHANDLER_H
+#define _ADDONHANDLER_H
 
 #include "Common.h"
 #include "Config.h"

@@ -20,8 +20,8 @@
 /// @{
 /// \file
 
-#ifndef __WORLDSESSION_H
-#define __WORLDSESSION_H
+#ifndef _WORLDSESSION_H
+#define _WORLDSESSION_H
 
 #include "Common.h"
 #include "SharedDefines.h"

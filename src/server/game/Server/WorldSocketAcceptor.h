@@ -20,8 +20,8 @@
  *  \file WorldSocketMgr.h
  */
 
-#ifndef __WORLDSOCKETACCEPTOR_H_
-#define __WORLDSOCKETACCEPTOR_H_
+#ifndef _WORLDSOCKETACCEPTOR_H
+#define _WORLDSOCKETACCEPTOR_H
 
 #include "Common.h"
 

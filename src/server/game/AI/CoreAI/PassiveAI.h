@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_PASSIVEAI_H
-#define TRINITY_PASSIVEAI_H
+#ifndef _PASSIVEAI_H
+#define _PASSIVEAI_H
 
 #include "CreatureAI.h"
 //#include "CreatureAIImpl.h"

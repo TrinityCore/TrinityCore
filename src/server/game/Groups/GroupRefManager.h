@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _GROUPREFMANAGER
-#define _GROUPREFMANAGER
+#ifndef _GROUPREFMANAGER_H
+#define _GROUPREFMANAGER_H
 
 #include "RefManager.h"
 

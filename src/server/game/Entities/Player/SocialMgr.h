@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TRINITY_SOCIALMGR_H
-#define __TRINITY_SOCIALMGR_H
+#ifndef _SOCIALMGR_H
+#define _SOCIALMGR_H
 
 #include <ace/Singleton.h>
 #include "DatabaseEnv.h"

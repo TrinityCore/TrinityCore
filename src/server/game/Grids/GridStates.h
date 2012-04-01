@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_GRIDSTATES_H
-#define TRINITY_GRIDSTATES_H
+#ifndef _GRIDSTATES_H
+#define _GRIDSTATES_H
 
 #include "Map.h"
 #include "Object.h"

@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SPELL_H
-#define __SPELL_H
+#ifndef _SPELL_H
+#define _SPELL_H
 
 #include "GridDefines.h"
 #include "SharedDefines.h"

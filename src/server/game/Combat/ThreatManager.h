@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _THREATMANAGER
-#define _THREATMANAGER
+#ifndef _THREATMANAGER_H
+#define _THREATMANAGER_H
 
 #include "Common.h"
 #include "SharedDefines.h"

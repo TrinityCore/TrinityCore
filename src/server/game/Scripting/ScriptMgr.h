@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SC_SCRIPTMGR_H
-#define SC_SCRIPTMGR_H
+#ifndef _SCRIPTMGR_H
+#define _SCRIPTMGR_H
 
 #include "Common.h"
 #include <ace/Singleton.h>

@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __TRINITY_ACHIEVEMENTMGR_H
-#define __TRINITY_ACHIEVEMENTMGR_H
+#ifndef _ACHIEVEMENTMGR_H
+#define _ACHIEVEMENTMGR_H
 
 #include <map>
 #include <string>

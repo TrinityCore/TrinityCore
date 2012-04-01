@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_NGRID_H
-#define TRINITY_NGRID_H
+#ifndef _NGRID_H
+#define _NGRID_H
 
 /** NGrid is nothing more than a wrapper of the Grid with an NxN cells
  */

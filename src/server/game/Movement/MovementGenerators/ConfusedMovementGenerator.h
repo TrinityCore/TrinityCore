@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CONFUSEDGENERATOR_H
-#define TRINITY_CONFUSEDGENERATOR_H
+#ifndef _CONFUSEDMOVEMENTGENERATOR_H
+#define _CONFUSEDMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
 #include "Timer.h"

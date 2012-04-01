@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TRINITY_VEHICLE_H
-#define __TRINITY_VEHICLE_H
+#ifndef _VEHICLE_H
+#define _VEHICLE_H
 
 #include "ObjectDefines.h"
 #include "VehicleDefines.h"

@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_BAG_H
-#define TRINITY_BAG_H
+#ifndef _BAG_H
+#define _BAG_H
 
 // Maximum 36 Slots ((CONTAINER_END - CONTAINER_FIELD_SLOT_1)/2
 #define MAX_BAG_SIZE 36                                     // 2.0.12

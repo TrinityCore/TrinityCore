@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_GAMEOBJECTAI_H
-#define TRINITY_GAMEOBJECTAI_H
+#ifndef _GAMEOBJECTAI_H
+#define _GAMEOBJECTAI_H
 
 #include "Define.h"
 #include <list>

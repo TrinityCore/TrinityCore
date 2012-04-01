@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CHARACTERDATABASECLEANER_H
-#define CHARACTERDATABASECLEANER_H
+#ifndef _CHARACTERDATABASECLEANER_H
+#define _CHARACTERDATABASECLEANER_H
 
 namespace CharacterDatabaseCleaner
 {

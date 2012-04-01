@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _HOSTILEREFMANAGER
-#define _HOSTILEREFMANAGER
+#ifndef _HOSTILEREFMANAGER_H
+#define _HOSTILEREFMANAGER_H
 
 #include "Common.h"
 #include "RefManager.h"

@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ACCMGR_H
-#define _ACCMGR_H
+#ifndef _ACCOUNTMGR_H
+#define _ACCOUNTMGR_H
 
 #include "Define.h"
 #include <string>

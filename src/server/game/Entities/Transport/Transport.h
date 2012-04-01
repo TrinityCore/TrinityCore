@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRANSPORTS_H
-#define TRANSPORTS_H
+#ifndef _TRANSPORT_H
+#define _TRANSPORT_H
 
 #include "GameObject.h"
 

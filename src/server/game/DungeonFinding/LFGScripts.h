@@ -19,6 +19,9 @@
  * Interaction between core and LFGScripts
  */
 
+#ifndef _LFGSCRIPTS_H
+#define _LFGSCRIPTS_H
+
 #include "Common.h"
 #include "SharedDefines.h"
 #include "ScriptPCH.h"
@@ -50,3 +53,5 @@ class LFGGroupScript : public GroupScript
         void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnInviteMember(Group* group, uint64 guid);
 };
+
+#endif

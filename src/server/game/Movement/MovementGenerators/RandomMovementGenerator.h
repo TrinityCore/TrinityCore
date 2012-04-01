@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_RANDOMMOTIONGENERATOR_H
-#define TRINITY_RANDOMMOTIONGENERATOR_H
+#ifndef _RANDOMMOVEMENTGENERATOR_H
+#define _RANDOMMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
 

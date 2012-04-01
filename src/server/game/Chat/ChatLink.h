@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_CHATLINK_H
-#define TRINITYCORE_CHATLINK_H
+#ifndef _CHATLINK_H
+#define _CHATLINK_H
 
 #include "SharedDefines.h"
 #include <sstream>

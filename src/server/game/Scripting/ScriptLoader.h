@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SC_SCRIPTLOADER_H
-#define SC_SCRIPTLOADER_H
+#ifndef _SCRIPTLOADER_H
+#define _SCRIPTLOADER_H
 
 void AddScripts();
 void AddExampleScripts();

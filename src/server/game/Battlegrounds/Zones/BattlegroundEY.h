@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BATTLEGROUNDEY_H
-#define __BATTLEGROUNDEY_H
+#ifndef _BATTLEGROUNDEY_H
+#define _BATTLEGROUNDEY_H
 
 #include "Language.h"
 

@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_GRIDNOTIFIERSIMPL_H
-#define TRINITY_GRIDNOTIFIERSIMPL_H
+#ifndef _GRIDNOTIFIERSIMPL_H
+#define _GRIDNOTIFIERSIMPL_H
 
 #include "GridNotifiers.h"
 #include "WorldPacket.h"
