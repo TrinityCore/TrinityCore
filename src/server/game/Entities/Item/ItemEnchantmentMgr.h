@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ITEM_ENCHANTMENT_MGR_H
-#define _ITEM_ENCHANTMENT_MGR_H
+#ifndef _ITEMENCHANTMENTMGR_H
+#define _ITEMENCHANTMENTMGR_H
 
 #include "Common.h"
 

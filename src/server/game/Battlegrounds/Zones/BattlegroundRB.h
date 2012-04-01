@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BATTLEGROUNDRB_H
-#define __BATTLEGROUNDRB_H
+#ifndef _BATTLEGROUNDRB_H
+#define _BATTLEGROUNDRB_H
 
 class Battleground;
 

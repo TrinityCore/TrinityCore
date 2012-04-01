@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_PET_H
-#define TRINITYCORE_PET_H
+#ifndef _PET_H
+#define _PET_H
 
 #include "ObjectDefines.h"
 #include "Unit.h"

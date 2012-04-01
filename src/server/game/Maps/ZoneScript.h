@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ZONE_SCRIPT_H_
-#define ZONE_SCRIPT_H_
+#ifndef _ZONESCRIPT_H
+#define _ZONESCRIPT_H
 
 #include "Common.h"
 #include "Creature.h"

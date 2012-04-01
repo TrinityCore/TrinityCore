@@ -20,8 +20,8 @@
 /// @{
 /// \file
 
-#ifndef __WORLD_H
-#define __WORLD_H
+#ifndef _WORLD_H
+#define _WORLD_H
 
 #include "Common.h"
 #include "Timer.h"

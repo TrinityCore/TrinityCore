@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_CREATURE_H
-#define TRINITYCORE_CREATURE_H
+#ifndef _CREATURE_H
+#define _CREATURE_H
 
 #include "Common.h"
 #include "Unit.h"

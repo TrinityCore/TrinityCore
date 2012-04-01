@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_SMARTAI_H
-#define TRINITY_SMARTAI_H
+#ifndef _SMARTAI_H
+#define _SMARTAI_H
 
 #include "Common.h"
 #include "Creature.h"

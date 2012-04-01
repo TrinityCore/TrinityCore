@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BATTLEGROUNDQUEUE_H
-#define __BATTLEGROUNDQUEUE_H
+#ifndef _BATTLEGROUNDQUEUE_H
+#define _BATTLEGROUNDQUEUE_H
 
 #include "Common.h"
 #include "DBCEnums.h"

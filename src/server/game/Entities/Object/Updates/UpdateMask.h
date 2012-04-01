@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UPDATEMASK_H
-#define __UPDATEMASK_H
+#ifndef _UPDATEMASK_H
+#define _UPDATEMASK_H
 
 #include "UpdateFields.h"
 #include "Errors.h"

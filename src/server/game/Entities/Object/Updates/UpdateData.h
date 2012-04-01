@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UPDATEDATA_H
-#define __UPDATEDATA_H
+#ifndef _UPDATEDATA_H
+#define _UPDATEDATA_H
 
 #include "ByteBuffer.h"
 class WorldPacket;

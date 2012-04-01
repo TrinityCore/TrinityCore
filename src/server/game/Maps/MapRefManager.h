@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MAPREFMANAGER
-#define _MAPREFMANAGER
+#ifndef _MAPREFMANAGER_H
+#define _MAPREFMANAGER_H
 
 #include "RefManager.h"
 

@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_DBCSTORES_H
-#define TRINITY_DBCSTORES_H
+#ifndef _DBCSTORES_H
+#define _DBCSTORES_H
 
 #include "Common.h"
 #include "DBCStore.h"

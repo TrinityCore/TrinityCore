@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __UNIT_H
-#define __UNIT_H
+#ifndef _UNIT_H
+#define _UNIT_H
 
 #include "Common.h"
 #include "Object.h"

@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TRINITYSERVER_SPLINE_H
-#define TRINITYSERVER_SPLINE_H
+#ifndef _SPLINE_H
+#define _SPLINE_H
 
 #include "MovementTypedefs.h"
 #include <G3D/Vector3.h>

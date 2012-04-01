@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _AUCTION_HOUSE_MGR_H
-#define _AUCTION_HOUSE_MGR_H
+#ifndef _AUCTIONHOUSEMGR_H
+#define _AUCTIONHOUSEMGR_H
 
 #include <ace/Singleton.h>
 

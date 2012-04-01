@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BATTLEGROUND_H
-#define __BATTLEGROUND_H
+#ifndef _BATTLEGROUND_H
+#define _BATTLEGROUND_H
 
 #include "Common.h"
 #include "SharedDefines.h"

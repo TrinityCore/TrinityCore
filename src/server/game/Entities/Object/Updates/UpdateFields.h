@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _UPDATEFIELDS_AUTO_H
-#define _UPDATEFIELDS_AUTO_H
+#ifndef _UPDATEFIELDS_H
+#define _UPDATEFIELDS_H
 
 // Auto generated for version 3, 3, 5, 12340
 

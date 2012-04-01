@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PLAYER_DUMP_H
-#define _PLAYER_DUMP_H
+#ifndef _PLAYERDUMP_H
+#define _PLAYERDUMP_H
 
 #include <string>
 #include <map>

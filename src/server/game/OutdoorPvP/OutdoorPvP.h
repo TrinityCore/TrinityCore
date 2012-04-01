@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OUTDOOR_PVP_H_
-#define OUTDOOR_PVP_H_
+#ifndef _OUTDOORPVP_H
+#define _OUTDOORPVP_H
 
 #include "Utilities/Util.h"
 #include "SharedDefines.h"

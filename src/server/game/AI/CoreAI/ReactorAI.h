@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_REACTORAI_H
-#define TRINITY_REACTORAI_H
+#ifndef _REACTORAI_H
+#define _REACTORAI_H
 
 #include "CreatureAI.h"
 
@@ -34,5 +34,5 @@ class ReactorAI : public CreatureAI
         void UpdateAI(const uint32);
         static int Permissible(const Creature*);
 };
-#endif
 
+#endif

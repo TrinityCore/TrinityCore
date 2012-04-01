@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_MOVEMENTGENERATOR_H
-#define TRINITY_MOVEMENTGENERATOR_H
+#ifndef _MOVEMENTGENERATOR_H
+#define _MOVEMENTGENERATOR_H
 
 #include "Define.h"
 #include <ace/Singleton.h>

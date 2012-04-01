@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _GRIDREFMANAGER
-#define _GRIDREFMANAGER
+#ifndef _GRIDREFMANAGER_H
+#define _GRIDREFMANAGER_H
 
 #include "RefManager.h"
 

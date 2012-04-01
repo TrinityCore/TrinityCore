@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __BATTLEGROUNDRL_H
-#define __BATTLEGROUNDRL_H
+#ifndef _BATTLEGROUNDRL_H
+#define _BATTLEGROUNDRL_H
 
 class Battleground;
 

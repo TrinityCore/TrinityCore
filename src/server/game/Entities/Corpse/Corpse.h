@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_CORPSE_H
-#define TRINITYCORE_CORPSE_H
+#ifndef _CORPSE_H
+#define _CORPSE_H
 
 #include "Object.h"
 #include "DatabaseEnv.h"

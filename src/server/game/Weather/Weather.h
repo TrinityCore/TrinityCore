@@ -20,8 +20,8 @@
 /// @{
 /// \file
 
-#ifndef __WEATHER_H
-#define __WEATHER_H
+#ifndef _WEATHER_H
+#define _WEATHER_H
 
 #include "Common.h"
 #include "SharedDefines.h"
