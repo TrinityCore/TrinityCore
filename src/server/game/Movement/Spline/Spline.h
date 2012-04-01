@@ -203,6 +203,4 @@ public:
 
 }
 
-#include "SplineImpl.h"
-
 #endif // TRINITYSERVER_SPLINE_H
