@@ -245,7 +245,7 @@ public:
                     Unit* unit;
                     if ((*i) && (*i)->getSource())
                     {
-                        unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                        unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                         if (unit)
                         {
                             //Cast affliction

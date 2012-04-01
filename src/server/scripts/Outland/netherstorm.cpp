@@ -115,7 +115,7 @@ public:
 
             if (someplayer)
             {
-                Unit* p = Unit::GetUnit((*me), someplayer);
+                Unit* p = Unit::GetUnit(*me, someplayer);
                 if (p && p->GetTypeId() == TYPEID_PLAYER)
                 {
                     switch (me->GetEntry())
@@ -142,7 +142,7 @@ public:
 
             if (goConsole)
             {
-                if (GameObject* go = GameObject::GetGameObject((*me), goConsole))
+                if (GameObject* go = GameObject::GetGameObject(*me, goConsole))
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             }
         }
@@ -243,7 +243,7 @@ public:
                     case 1:
                         if (someplayer)
                         {
-                            Unit* u = Unit::GetUnit((*me), someplayer);
+                            Unit* u = Unit::GetUnit(*me, someplayer);
                             if (u && u->GetTypeId() == TYPEID_PLAYER) DoScriptText(EMOTE_START, me, u);
                         }
                         Event_Timer = 60000;
@@ -271,14 +271,14 @@ public:
                         DoScriptText(EMOTE_COMPLETE, me);
                         if (someplayer)
                         {
-                            Unit* u = Unit::GetUnit((*me), someplayer);
+                            Unit* u = Unit::GetUnit(*me, someplayer);
                             if (u && u->GetTypeId() == TYPEID_PLAYER)
                                 CAST_PLR(u)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                             DoCast(me, SPELL_DISABLE_VISUAL);
                         }
                         if (goConsole)
                         {
-                            if (GameObject* go = GameObject::GetGameObject((*me), goConsole))
+                            if (GameObject* go = GameObject::GetGameObject(*me, goConsole))
                                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                         }
                         ++Phase;

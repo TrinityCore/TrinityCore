@@ -783,7 +783,7 @@ public:
                 if (instance)
                 {
                     // check if vashj is death
-                    Unit* Vashj = Unit::GetUnit((*me), instance->GetData64(DATA_LADYVASHJ));
+                    Unit* Vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
                     if (!Vashj || (Vashj && !Vashj->isAlive()) || (Vashj && CAST_AI(boss_lady_vashj::boss_lady_vashjAI, CAST_CRE(Vashj)->AI())->Phase != 3))
                     {
                         // remove
@@ -839,7 +839,7 @@ public:
 
             if (CheckTimer <= diff)
             {
-                Unit* vashj = Unit::GetUnit((*me), instance->GetData64(DATA_LADYVASHJ));
+                Unit* vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
 
                 if (vashj && vashj->isAlive())
                 {

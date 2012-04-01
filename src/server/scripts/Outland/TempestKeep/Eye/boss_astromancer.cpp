@@ -454,7 +454,7 @@ class mob_solarium_priest : public CreatureScript
                     {
                         case 0:
                             if (instance)
-                                target = Unit::GetUnit((*me), instance->GetData64(DATA_ASTROMANCER));
+                                target = Unit::GetUnit(*me, instance->GetData64(DATA_ASTROMANCER));
                             break;
                         case 1:
                             target = me;

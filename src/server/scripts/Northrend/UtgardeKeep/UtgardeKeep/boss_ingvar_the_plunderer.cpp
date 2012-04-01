@@ -344,7 +344,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE)
                 return;
-            Unit* ingvar = Unit::GetUnit((*me), instance ? instance->GetData64(DATA_INGVAR) : 0);
+            Unit* ingvar = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_INGVAR) : 0);
             if (ingvar)
             {
                 switch (id)
