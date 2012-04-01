@@ -567,9 +567,9 @@ public:
                 enter_timer -= diff;
         }
 
-        void MoveInLineOfSight(Unit* unit)
+        void MoveInLineOfSight(Unit* who)
         {
-            if (!unit || !drakeGUID)
+            if (!who || !drakeGUID)
                 return;
 
             Creature* drake = Unit::GetCreature(*me, drakeGUID);
@@ -581,21 +581,21 @@ public:
 
             if (!me->IsOnVehicle(drake) && !me->HasAura(SPELL_ICE_PRISON))
             {
-                if (unit->IsVehicle() && me->IsWithinDist(unit, 25.0f, true) && unit->ToCreature() && unit->ToCreature()->GetEntry() == 29709)
+                if (who->IsVehicle() && me->IsWithinDist(who, 25.0f, true) && who->ToCreature() && who->ToCreature()->GetEntry() == 29709)
                 {
-                    uint8 seat = unit->GetVehicleKit()->GetNextEmptySeat(0, true);
+                    uint8 seat = who->GetVehicleKit()->GetNextEmptySeat(0, true);
                     if (seat <= 0)
                         return;
 
-                    me->EnterVehicle(unit, seat);
+                    me->EnterVehicle(who, seat);
                     me->SendMovementFlagUpdate();
                     hasEmptySeats = false;
                 }
             }
 
-            if (unit->ToCreature() && me->IsOnVehicle(drake))
+            if (who->ToCreature() && me->IsOnVehicle(drake))
             {
-                if (unit->ToCreature()->GetEntry() == NPC_QUEST_GIVER && me->IsWithinDist(unit, 15.0f, false))
+                if (who->ToCreature()->GetEntry() == NPC_QUEST_GIVER && me->IsWithinDist(who, 15.0f, false))
                 {
                     Unit* rider = drake->GetVehicleKit()->GetPassenger(0);
                     if (!rider)
@@ -616,7 +616,7 @@ public:
                         if (rider->ToPlayer())
                             rider->ToPlayer()->KilledMonsterCredit(29709, 0);
 
-                        drake->ToCreature()->ForcedDespawn(0);
+                        drake->ForcedDespawn(0);
                     }
                 }
             }
@@ -748,14 +748,14 @@ class npc_hyldsmeet_protodrake : public CreatureScript
 
 void AddSC_storm_peaks()
 {
-    new npc_agnetta_tyrsdottar;
-    new npc_frostborn_scout;
-    new npc_thorim;
-    new npc_victorious_challenger;
-    new npc_loklira_crone;
-    new npc_injured_goblin;
-    new npc_roxi_ramrocket;
-    new npc_brunnhildar_prisoner;
-    new npc_icefang;
-    new npc_hyldsmeet_protodrake;
+    new npc_agnetta_tyrsdottar();
+    new npc_frostborn_scout();
+    new npc_thorim();
+    new npc_victorious_challenger();
+    new npc_loklira_crone();
+    new npc_injured_goblin();
+    new npc_roxi_ramrocket();
+    new npc_brunnhildar_prisoner();
+    new npc_icefang();
+    new npc_hyldsmeet_protodrake();
 }

@@ -120,7 +120,7 @@ public:
 
             if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
                 if (Temp)
                 {
                     if (Temp->isDead())
@@ -152,7 +152,7 @@ public:
 
             if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
@@ -231,7 +231,7 @@ public:
                 if (instance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
+                    Temp = Unit::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_ALYTHESS_DEAD, me);
@@ -382,7 +382,7 @@ public:
 
             if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
                 if (Temp)
                 {
                     if (Temp->isDead())
@@ -415,7 +415,7 @@ public:
 
             if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
@@ -567,7 +567,7 @@ public:
                 if (instance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
+                    Temp = Unit::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_SACROLASH_DEAD, me);

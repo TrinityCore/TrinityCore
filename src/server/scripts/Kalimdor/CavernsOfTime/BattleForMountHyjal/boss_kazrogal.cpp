@@ -107,7 +107,7 @@ public:
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }

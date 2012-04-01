@@ -201,7 +201,7 @@ public:
             {
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    Unit* Portal = Unit::GetUnit((*me), PortalsGuid[i]);
+                    Unit* Portal = Unit::GetUnit(*me, PortalsGuid[i]);
                     if (Portal && Portal->isAlive())
                         Portal->DealDamage(Portal, Portal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     PortalsGuid[i] = 0;

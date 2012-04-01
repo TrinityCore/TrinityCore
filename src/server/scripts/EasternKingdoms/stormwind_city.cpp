@@ -403,7 +403,7 @@ public:
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive() && !summoner->isInCombat())
+                    if (summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive() && !summoner->isInCombat())
                         summoner->ToCreature()->AI()->AttackStart(who);
                 }
             }
@@ -417,7 +417,7 @@ public:
             {
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive())
+                    if (summoner->GetTypeId() == TYPEID_UNIT && summoner->isAlive())
                         summoner->ToCreature()->DisappearAndDie();
                 }
             }

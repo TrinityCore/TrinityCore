@@ -129,7 +129,7 @@ public:
                 PlayerGUID = caster->GetGUID();
                 if (PlayerGUID)
                 {
-                    Unit* player = Unit::GetUnit((*me), PlayerGUID);
+                    Unit* player = Unit::GetUnit(*me, PlayerGUID);
                     if (player && CAST_PLR(player)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
                         DoCast(player, 45110, true);
                 }

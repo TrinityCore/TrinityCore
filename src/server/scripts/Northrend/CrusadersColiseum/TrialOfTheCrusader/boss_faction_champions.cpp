@@ -292,7 +292,7 @@ struct boss_faction_championsAI : public ScriptedAI
         std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
         for (std::list<HostileReference*>::const_iterator itr = tList.begin(); itr != tList.end(); ++itr)
         {
-            Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+            Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
             if (unit && me->getThreatManager().getThreat(unit))
             {
                 if (unit->GetTypeId()==TYPEID_PLAYER)
@@ -384,7 +384,7 @@ struct boss_faction_championsAI : public ScriptedAI
         Unit* target;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            target = Unit::GetUnit((*me), (*iter)->getUnitGuid());
+            target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
             if (target && target->getPowerType() == POWER_MANA)
                 return target;
         }
@@ -399,7 +399,7 @@ struct boss_faction_championsAI : public ScriptedAI
         Unit* target;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            target = Unit::GetUnit((*me), (*iter)->getUnitGuid());
+            target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
                 if (target && me->GetDistance2d(target) < distance)
                     ++count;
         }
