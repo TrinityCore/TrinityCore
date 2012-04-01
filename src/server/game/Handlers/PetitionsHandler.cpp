@@ -300,9 +300,9 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recv_data)
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field* fields2 = result->Fetch();
-        uint64 plguid = fields2[0].GetUInt64();
+        uint32 lowGuid = fields2[0].GetUInt32();
 
-        data << uint64(plguid);                             // Player GUID
+        data << uint64(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER)); // Player GUID
         data << uint32(0);                                  // there 0 ...
 
         result->NextRow();
@@ -485,7 +485,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 
     fields = result->Fetch();
     uint64 ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-    uint8 signs = fields[1].GetUInt8();
+    uint64 signs = fields[1].GetUInt64();
     uint8 type = fields[2].GetUInt8();
 
     uint32 playerGuid = _player->GetGUIDLow();
