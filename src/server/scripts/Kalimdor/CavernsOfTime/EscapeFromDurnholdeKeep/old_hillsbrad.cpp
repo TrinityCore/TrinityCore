@@ -413,7 +413,7 @@ public:
                 case 94:
                     if (uint64 TarethaGUID = instance->GetData64(DATA_TARETHA))
                     {
-                        if (Unit* Taretha = Unit::GetUnit((*me), TarethaGUID))
+                        if (Unit* Taretha = Unit::GetUnit(*me, TarethaGUID))
                             DoScriptText(SAY_TA_ESCAPED, Taretha, me);
                     }
                     break;

@@ -197,7 +197,7 @@ public:
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && unit->isAlive())
                 {
                     float threat = me->getThreatManager().getThreat(unit);
@@ -215,7 +215,7 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     unit->CastSpell(unit, SPELL_TELEPORT_CENTER, true);
             }
@@ -227,7 +227,7 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     // Knockback into the air
                     unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, me->GetGUID());
@@ -239,7 +239,7 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
                     // Also needs an exception in spell system.
@@ -259,7 +259,7 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);

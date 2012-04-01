@@ -441,11 +441,7 @@ class npc_muglash : public CreatureScript
 class go_naga_brazier : public GameObjectScript
 {
     public:
-
-        go_naga_brazier()
-            : GameObjectScript("go_naga_brazier")
-        {
-        }
+        go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
