@@ -225,7 +225,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -381,7 +381,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -522,7 +522,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -648,7 +648,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -730,13 +730,13 @@ public:
                 switch (rand()%4)
                 {
                 case 0:
-                    unit = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESS));
+                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
                     break;
                 case 1:
-                    unit = Unit::GetUnit((*me), instance->GetData64(DATA_SHARKKIS));
+                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
                     break;
                 case 2:
-                    unit = Unit::GetUnit((*me), instance->GetData64(DATA_TIDALVESS));
+                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
                     break;
                 case 3:
                     unit = me;

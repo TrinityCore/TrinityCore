@@ -132,7 +132,7 @@ public:
                 return;
 
             //On first death, fake death and open door, as well as initiate whitemane if exist
-            if (Unit* Whitemane = Unit::GetUnit((*me), instance->GetData64(DATA_WHITEMANE)))
+            if (Unit* Whitemane = Unit::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
             {
                 instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
 
@@ -181,7 +181,7 @@ public:
             if (_bHasDied && !_bHeal && instance && instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
             {
                 //On ressurection, stop fake death and heal whitemane and resume fight
-                if (Unit* Whitemane = Unit::GetUnit((*me), instance->GetData64(DATA_WHITEMANE)))
+                if (Unit* Whitemane = Unit::GetUnit(*me, instance->GetData64(DATA_WHITEMANE)))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -292,7 +292,7 @@ public:
                 //When casting resuruction make sure to delay so on rez when reinstate battle deepsleep runs out
                 if (instance && Wait_Timer <= diff)
                 {
-                    if (Unit* Mograine = Unit::GetUnit((*me), instance->GetData64(DATA_MOGRAINE)))
+                    if (Unit* Mograine = Unit::GetUnit(*me, instance->GetData64(DATA_MOGRAINE)))
                     {
                         DoCast(Mograine, SPELL_SCARLETRESURRECTION);
                         DoScriptText(SAY_WH_RESSURECT, me);

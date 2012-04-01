@@ -855,7 +855,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
         {
             if (BossGUID[i])
             {
-                Unit* unit = Unit::GetUnit((*me), BossGUID[i]);
+                Unit* unit = Unit::GetUnit(*me, BossGUID[i]);
                 if (unit && (!unit->isAlive()))
                 {
                     if (BossGUID[i] == BossGUID[0])
@@ -991,7 +991,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
             DoCast(me, SPELL_MASS_TELEPORT, false);
         if (me->GetEntry() == THRALL && DummyGuid)
         {
-            Unit* Dummy = Unit::GetUnit((*me), DummyGuid);
+            Unit* Dummy = Unit::GetUnit(*me, DummyGuid);
             if (Dummy)
             {
                 CAST_AI(hyjalAI, CAST_CRE(Dummy)->AI())->DoMassTeleport = true;

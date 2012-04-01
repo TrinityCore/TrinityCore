@@ -267,7 +267,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Unit* Temp = Unit::GetUnit((*me), AddGUID[i]);
+                    Unit* Temp = Unit::GetUnit(*me, AddGUID[i]);
                     if (Temp && Temp->isAlive())
                         CAST_CRE(Temp)->AI()->AttackStart(me->getVictim());
                     else
@@ -303,7 +303,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Unit* Temp = Unit::GetUnit((*me), AddGUID[i]);
+                    Unit* Temp = Unit::GetUnit(*me, AddGUID[i]);
                     if (Temp && Temp->isAlive())
                         Temp->DealDamage(Temp, Temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }

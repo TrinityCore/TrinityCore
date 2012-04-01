@@ -184,7 +184,7 @@ public:
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && me->IsWithinMeleeRange(unit))
                 {
                     if (unit->GetHealth() > health)

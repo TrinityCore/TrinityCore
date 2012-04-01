@@ -303,8 +303,8 @@ public:
             {
                 if (instance)
                 {
-                    Unit* pKri = Unit::GetUnit((*me), instance->GetData64(DATA_KRI));
-                    Unit* pVem = Unit::GetUnit((*me), instance->GetData64(DATA_VEM));
+                    Unit* pKri = Unit::GetUnit(*me, instance->GetData64(DATA_KRI));
+                    Unit* pVem = Unit::GetUnit(*me, instance->GetData64(DATA_VEM));
 
                     switch (urand(0, 2))
                     {
