@@ -5337,15 +5337,15 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     {
         Field* fields = result->Fetch();
         Mail* m = new Mail;
-        m->messageID = fields[0].GetUInt32();
-        m->messageType = fields[1].GetUInt8();
-        m->sender = fields[2].GetUInt32();
-        m->receiver = fields[3].GetUInt32();
-        bool has_items = fields[4].GetBool();
-        m->expire_time = time_t(fields[5].GetUInt32());
-        m->deliver_time = 0;
-        m->COD = fields[6].GetUInt32();
-        m->checked = fields[7].GetUInt32();
+        m->messageID      = fields[0].GetUInt32();
+        m->messageType    = fields[1].GetUInt8();
+        m->sender         = fields[2].GetUInt32();
+        m->receiver       = fields[3].GetUInt32();
+        bool has_items    = fields[4].GetBool();
+        m->expire_time    = time_t(fields[5].GetUInt32());
+        m->deliver_time   = 0;
+        m->COD            = fields[6].GetUInt32();
+        m->checked        = fields[7].GetUInt32();
         m->mailTemplateId = fields[8].GetInt16();
 
         Player* player = NULL;
