@@ -500,7 +500,7 @@ class mob_ember_of_alar : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     if (instance && instance->GetData(DATA_ALAREVENT) == 2)
                     {
-                        if (Unit* Alar = Unit::GetUnit((*me), instance->GetData64(DATA_ALAR)))
+                        if (Unit* Alar = Unit::GetUnit(*me, instance->GetData64(DATA_ALAR)))
                         {
                             int32 AlarHealth = int32(Alar->GetHealth()) - int32(Alar->CountPctFromMaxHealth(3));
                             if (AlarHealth > 0)

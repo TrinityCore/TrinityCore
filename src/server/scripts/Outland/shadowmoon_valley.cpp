@@ -262,7 +262,7 @@ public:
             {
                 if (PlayerGUID)
                 {
-                    Unit* player = Unit::GetUnit((*me), PlayerGUID);
+                    Unit* player = Unit::GetUnit(*me, PlayerGUID);
                     if (player)
                         DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
 
@@ -758,8 +758,8 @@ public:
 
         uint32 NextStep(uint32 Step)
         {
-            Unit* player = Unit::GetUnit((*me), PlayerGUID);
-            Unit* Illi = Unit::GetUnit((*me), IllidanGUID);
+            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Unit* Illi = Unit::GetUnit(*me, IllidanGUID);
 
             if (!player || !Illi)
             {
@@ -769,213 +769,178 @@ public:
 
             switch (Step)
             {
-            case 0:
-                return 0;
-                break;
-
-            case 1:
-                me->GetMotionMaster()->MovePoint(0, -5104.41f, 595.297f, 85.6838f);
-                return 9000;
-                break;
-
-            case 2:
-                DoScriptText(OVERLORD_YELL_1, me, player);
-                return 4500;
-                break;
-
-            case 3:
-                me->SetInFront(player);
-                return 3200;
-                break;
-
-            case 4:
-                DoScriptText(OVERLORD_SAY_2, me, player);
-                return 2000;
-                break;
-
-            case 5:
-                Illi->SetVisible(true);
-                Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                return 350;
-                break;
-
-            case 6:
-                Illi->CastSpell(Illi, SPELL_ONE, true);
-                Illi->SetTarget(me->GetGUID());
-                me->SetTarget(IllidanGUID);
-                return 2000;
-                break;
-
-            case 7:
-                DoScriptText(OVERLORD_YELL_2, me);
-                return 4500;
-                break;
-
-            case 8:
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
-                return 2500;
-                break;
-
-            case 9:
-                DoScriptText(OVERLORD_SAY_3, me);
-                return 6500;
-                break;
-
-            case 10:
-                DoScriptText(LORD_ILLIDAN_SAY_1, Illi);
-                return 5000;
-                break;
-
-            case 11:
-                DoScriptText(OVERLORD_SAY_4, me, player);
-                return 6000;
-                break;
-
-            case 12:
-                DoScriptText(LORD_ILLIDAN_SAY_2, Illi);
-                return 5500;
-                break;
-
-            case 13:
-                DoScriptText(LORD_ILLIDAN_SAY_3, Illi);
-                return 4000;
-                break;
-
-            case 14:
-                Illi->SetTarget(PlayerGUID);
-                return 1500;
-                break;
-
-            case 15:
-                DoScriptText(LORD_ILLIDAN_SAY_4, Illi);
-                return 1500;
-                break;
-
-            case 16:
-                if (player)
-                {
-                    Illi->CastSpell(player, SPELL_TWO, true);
-                    player->RemoveAurasDueToSpell(SPELL_THREE);
-                    player->RemoveAurasDueToSpell(SPELL_FOUR);
+                case 0:
+                    return 0;
+                    break;
+                case 1:
+                    me->GetMotionMaster()->MovePoint(0, -5104.41f, 595.297f, 85.6838f);
+                    return 9000;
+                    break;
+                case 2:
+                    DoScriptText(OVERLORD_YELL_1, me, player);
+                    return 4500;
+                    break;
+                case 3:
+                    me->SetInFront(player);
+                    return 3200;
+                    break;
+                case 4:
+                    DoScriptText(OVERLORD_SAY_2, me, player);
+                    return 2000;
+                    break;
+                case 5:
+                    Illi->SetVisible(true);
+                    Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    return 350;
+                    break;
+                case 6:
+                    Illi->CastSpell(Illi, SPELL_ONE, true);
+                    Illi->SetTarget(me->GetGUID());
+                    me->SetTarget(IllidanGUID);
+                    return 2000;
+                    break;
+                case 7:
+                    DoScriptText(OVERLORD_YELL_2, me);
+                    return 4500;
+                    break;
+                case 8:
+                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
+                    return 2500;
+                    break;
+                case 9:
+                    DoScriptText(OVERLORD_SAY_3, me);
+                    return 6500;
+                    break;
+                case 10:
+                    DoScriptText(LORD_ILLIDAN_SAY_1, Illi);
                     return 5000;
-                }
-                else
-                {
-                    CAST_PLR(player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-                    Step = 30;
-                    return 100;
-                }
-                break;
-
-            case 17:
-                DoScriptText(LORD_ILLIDAN_SAY_5, Illi);
-                return 5000;
-                break;
-
-            case 18:
-                DoScriptText(LORD_ILLIDAN_SAY_6, Illi);
-                return 5000;
-                break;
-
-            case 19:
-                DoScriptText(LORD_ILLIDAN_SAY_7, Illi);
-                return 5000;
-                break;
-
-            case 20:
-                Illi->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                Illi->SetDisableGravity(true);
-                return 500;
-                break;
-
-            case 21:
-                DoScriptText(OVERLORD_SAY_5, me);
-                return 500;
-                break;
-
-            case 22:
-                Illi->SetVisible(false);
-                Illi->setDeathState(JUST_DIED);
-                return 1000;
-                break;
-
-            case 23:
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                return 2000;
-                break;
-
-            case 24:
-                me->SetTarget(PlayerGUID);
-                return 5000;
-                break;
-
-            case 25:
-                DoScriptText(OVERLORD_SAY_6, me);
-                return 2000;
-                break;
-
-            case 26:
-                if (player)
-                    CAST_PLR(player)->GroupEventHappens(QUEST_LORD_ILLIDAN_STORMRAGE, me);
-                return 6000;
-                break;
-
-            case 27:
-                {
-                    Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                    if (Yarzill)
-                        Yarzill->SetTarget(PlayerGUID);
+                    break;
+                case 11:
+                    DoScriptText(OVERLORD_SAY_4, me, player);
+                    return 6000;
+                    break;
+                case 12:
+                    DoScriptText(LORD_ILLIDAN_SAY_2, Illi);
+                    return 5500;
+                    break;
+                case 13:
+                    DoScriptText(LORD_ILLIDAN_SAY_3, Illi);
+                    return 4000;
+                    break;
+                case 14:
+                    Illi->SetTarget(PlayerGUID);
+                    return 1500;
+                    break;
+                case 15:
+                    DoScriptText(LORD_ILLIDAN_SAY_4, Illi);
+                    return 1500;
+                    break;
+                case 16:
+                    if (player)
+                    {
+                        Illi->CastSpell(player, SPELL_TWO, true);
+                        player->RemoveAurasDueToSpell(SPELL_THREE);
+                        player->RemoveAurasDueToSpell(SPELL_FOUR);
+                        return 5000;
+                    }
+                    else
+                    {
+                        player->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
+                        Step = 30;
+                        return 100;
+                    }
+                    break;
+                case 17:
+                    DoScriptText(LORD_ILLIDAN_SAY_5, Illi);
+                    return 5000;
+                    break;
+                case 18:
+                    DoScriptText(LORD_ILLIDAN_SAY_6, Illi);
+                    return 5000;
+                    break;
+                case 19:
+                    DoScriptText(LORD_ILLIDAN_SAY_7, Illi);
+                    return 5000;
+                    break;
+                case 20:
+                    Illi->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+                    Illi->SetDisableGravity(true);
                     return 500;
-                }
-                break;
-
-            case 28:
-                player->RemoveAurasDueToSpell(SPELL_TWO);
-                player->RemoveAurasDueToSpell(41519);
-                player->CastSpell(player, SPELL_THREE, true);
-                player->CastSpell(player, SPELL_FOUR, true);
-                return 1000;
-                break;
-
-            case 29:
-                {
-                    Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                    if (Yarzill)
-                        DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, player);
-                    return 5000;
-                }
-                break;
-
-            case 30:
-                {
-                    Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                    if (Yarzill)
-                        Yarzill->SetTarget(0);
-                    return 5000;
-                }
-                break;
-
-            case 31:
-                {
-                    Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                    if (Yarzill)
-                        Yarzill->CastSpell(player, 41540, true);
+                    break;
+                case 21:
+                    DoScriptText(OVERLORD_SAY_5, me);
+                    return 500;
+                    break;
+                case 22:
+                    Illi->SetVisible(false);
+                    Illi->setDeathState(JUST_DIED);
                     return 1000;
-                }
-                break;
-
-            case 32:
-                me->GetMotionMaster()->MovePoint(0, -5085.77f, 577.231f, 86.6719f); return 5000;
-                break;
-
-            case 33:
-                Reset();
-                return 100;
-                break;
-
-            default :
-                return 0;
-                break;
+                    break;
+                case 23:
+                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    return 2000;
+                    break;
+                case 24:
+                    me->SetTarget(PlayerGUID);
+                    return 5000;
+                    break;
+                case 25:
+                    DoScriptText(OVERLORD_SAY_6, me);
+                    return 2000;
+                    break;
+                case 26:
+                    player->GroupEventHappens(QUEST_LORD_ILLIDAN_STORMRAGE, me);
+                    return 6000;
+                    break;
+                case 27:
+                    {
+                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                        if (Yarzill)
+                            Yarzill->SetTarget(PlayerGUID);
+                        return 500;
+                    }
+                    break;
+                case 28:
+                    player->RemoveAurasDueToSpell(SPELL_TWO);
+                    player->RemoveAurasDueToSpell(41519);
+                    player->CastSpell(player, SPELL_THREE, true);
+                    player->CastSpell(player, SPELL_FOUR, true);
+                    return 1000;
+                    break;
+                case 29:
+                    {
+                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                        if (Yarzill)
+                            DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, player);
+                        return 5000;
+                    }
+                    break;
+                case 30:
+                    {
+                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                        if (Yarzill)
+                            Yarzill->SetTarget(0);
+                        return 5000;
+                    }
+                    break;
+                case 31:
+                    {
+                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                        if (Yarzill)
+                            Yarzill->CastSpell(player, 41540, true);
+                        return 1000;
+                    }
+                    break;
+                case 32:
+                    me->GetMotionMaster()->MovePoint(0, -5085.77f, 577.231f, 86.6719f); return 5000;
+                    break;
+                case 33:
+                    Reset();
+                    return 100;
+                    break;
+                default :
+                    return 0;
+                    break;
             }
         }
 

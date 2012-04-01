@@ -358,7 +358,7 @@ struct boss_moroes_guestAI : public ScriptedAI
         uint64 TempGUID = GuestGUID[rand()%4];
         if (TempGUID)
         {
-            Unit* unit = Unit::GetUnit((*me), TempGUID);
+            Unit* unit = Unit::GetUnit(*me, TempGUID);
             if (unit && unit->isAlive())
                 return unit;
         }
