@@ -253,7 +253,7 @@ struct advisorbase_ai : public ScriptedAI
                 DelayRes_Timer = 0;
                 FakeDeath = false;
 
-                Unit* Target = Unit::GetUnit((*me), DelayRes_Target);
+                Unit* Target = Unit::GetUnit(*me, DelayRes_Target);
                 if (!Target)
                     Target = me->getVictim();
 
@@ -464,7 +464,7 @@ class boss_kaelthas : public CreatureScript
 
                 for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                 {
-                    if (Unit* pAdvisor = Unit::GetUnit((*me), m_auiAdvisorGuid[i]))
+                    if (Unit* pAdvisor = Unit::GetUnit(*me, m_auiAdvisorGuid[i]))
                         pAdvisor->Kill(pAdvisor);
                 }
             }
@@ -895,7 +895,7 @@ class boss_kaelthas : public CreatureScript
                                         // 1) Kael'thas will portal the whole raid right into his body
                                         for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
                                         {
-                                            Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                                            Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                                             if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                                             {
                                                 //Use work around packet to prevent player from being dropped from combat
@@ -916,7 +916,7 @@ class boss_kaelthas : public CreatureScript
                                         // 2) At that point he will put a Gravity Lapse debuff on everyone
                                         for (i = me->getThreatManager().getThreatList().begin(); i != me->getThreatManager().getThreatList().end(); ++i)
                                         {
-                                            if (Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid()))
+                                            if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                                             {
                                                 DoCast(unit, SPELL_KNOCKBACK, true);
                                                 //Gravity lapse - needs an exception in Spell system to work
@@ -949,7 +949,7 @@ class boss_kaelthas : public CreatureScript
                                         //Remove flight
                                         for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
                                         {
-                                            if (Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid()))
+                                            if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                                             {
                                                 //Using packet workaround
                                                 WorldPacket data(12);
@@ -1289,7 +1289,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
                     {
-                        Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                        Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                                                                     //if in melee range
                         if (unit && unit->IsWithinDistInMap(me, 5))
                         {

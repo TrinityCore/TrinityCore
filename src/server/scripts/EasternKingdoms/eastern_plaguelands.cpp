@@ -32,23 +32,14 @@ EndContentData */
 
 #include "ScriptPCH.h"
 
-//id8530 - cannibal ghoul
-//id8531 - gibbering ghoul
-//id8532 - diseased flayer
-
 class mobs_ghoul_flayer : public CreatureScript
 {
 public:
     mobs_ghoul_flayer() : CreatureScript("mobs_ghoul_flayer") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mobs_ghoul_flayerAI (creature);
-    }
-
     struct mobs_ghoul_flayerAI : public ScriptedAI
     {
-        mobs_ghoul_flayerAI(Creature* creature) : ScriptedAI(creature) {}
+        mobs_ghoul_flayerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() {}
 
@@ -56,10 +47,15 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (Player* player = killer->ToPlayer())
+            if (killer->GetTypeId() == TYPEID_PLAYER)
                 me->SummonCreature(11064, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mobs_ghoul_flayerAI (creature);
+    }
 };
 
 /*######

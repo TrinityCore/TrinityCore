@@ -93,7 +93,7 @@ public:
             ghost = (me->GetEntry() == MOB_SKARVALD_GHOST);
             if (!ghost && instance)
             {
-                Unit* dalronn = Unit::GetUnit((*me), instance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
                 if (dalronn && dalronn->isDead())
                     CAST_CRE(dalronn)->Respawn();
 
@@ -107,7 +107,7 @@ public:
             {
                 DoScriptText(YELL_SKARVALD_AGGRO, me);
 
-                Unit* dalronn = Unit::GetUnit((*me), instance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
                 if (dalronn && dalronn->isAlive() && !dalronn->getVictim())
                     dalronn->getThreatManager().addThreat(who, 0.0f);
 
@@ -119,7 +119,7 @@ public:
         {
             if (!ghost && instance)
             {
-                Unit* dalronn = Unit::GetUnit((*me), instance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
                 if (dalronn)
                 {
                     if (dalronn->isDead())
@@ -250,7 +250,7 @@ public:
             ghost = me->GetEntry() == MOB_DALRONN_GHOST;
             if (!ghost && instance)
             {
-                Unit* skarvald = Unit::GetUnit((*me), instance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit(*me, instance->GetData64(DATA_SKARVALD));
                 if (skarvald && skarvald->isDead())
                     CAST_CRE(skarvald)->Respawn();
 
@@ -262,7 +262,7 @@ public:
         {
             if (!ghost && instance)
             {
-                Unit* skarvald = Unit::GetUnit((*me), instance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit(*me, instance->GetData64(DATA_SKARVALD));
                 if (skarvald && skarvald->isAlive() && !skarvald->getVictim())
                     skarvald->getThreatManager().addThreat(who, 0.0f);
 
@@ -277,7 +277,7 @@ public:
         {
             if (!ghost && instance)
             {
-                Unit* skarvald = Unit::GetUnit((*me), instance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit(*me, instance->GetData64(DATA_SKARVALD));
                 if (skarvald)
                 {
                     if (skarvald->isDead())

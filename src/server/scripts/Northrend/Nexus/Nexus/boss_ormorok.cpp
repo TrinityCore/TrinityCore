@@ -195,7 +195,7 @@ public:
                         std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         {
-                            Unit* temp = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                            Unit* temp = Unit::GetUnit(*me, (*i)->getUnitGuid());
                             if (temp && temp->GetTypeId() == TYPEID_PLAYER && temp->getClass() == Healer)
                             {
                                 target = temp;

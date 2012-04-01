@@ -865,7 +865,7 @@ public:
                 {
                     if (GlaiveGUID[i])
                     {
-                        Unit* Glaive = Unit::GetUnit((*me), GlaiveGUID[i]);
+                        Unit* Glaive = Unit::GetUnit(*me, GlaiveGUID[i]);
                         if (Glaive)
                         {
                             Glaive->CastSpell(me, SPELL_GLAIVE_RETURNS, false); // Make it look like the Glaive flies back up to us
@@ -1492,7 +1492,7 @@ public:
             std::vector<Unit*> eliteList;
             for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
             {
-                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->GetEntry() == ILLIDARI_ELITE)
                     eliteList.push_back(unit);
             }
@@ -1649,9 +1649,9 @@ public:
             Unit* Channel = NULL, *Spirit[2] = { NULL, NULL };
             if (ChannelCount <= 5)
             {
-                Channel = Unit::GetUnit((*me), ChannelGUID);
-                Spirit[0] = Unit::GetUnit((*me), SpiritGUID[0]);
-                Spirit[1] = Unit::GetUnit((*me), SpiritGUID[1]);
+                Channel = Unit::GetUnit(*me, ChannelGUID);
+                Spirit[0] = Unit::GetUnit(*me, SpiritGUID[0]);
+                Spirit[1] = Unit::GetUnit(*me, SpiritGUID[1]);
                 if (!Channel || !Spirit[0] || !Spirit[1])
                     return;
             }
@@ -2145,7 +2145,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Unit* target = Unit::GetUnit((*me), TargetGUID))
+            if (Unit* target = Unit::GetUnit(*me, TargetGUID))
                 target->RemoveAurasDueToSpell(SPELL_PARALYZE);
         }
 

@@ -536,7 +536,7 @@ public:
 
         uint32 NextStep(uint32 Step)
         {
-            Unit* arca = Unit::GetUnit((*me), ArcanagosGUID);
+            Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
             Map* map = me->GetMap();
             switch (Step)
             {
@@ -625,7 +625,7 @@ public:
 
             if (Step >= 7 && Step <= 12)
             {
-                Unit* arca = Unit::GetUnit((*me), ArcanagosGUID);
+                Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
 
                 if (FireArcanagosTimer <= diff)
                 {
