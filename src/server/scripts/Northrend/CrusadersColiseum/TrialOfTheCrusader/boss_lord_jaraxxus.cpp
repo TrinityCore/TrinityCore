@@ -515,6 +515,36 @@ public:
 
 };
 
+class spell_spinning_pain_spike : public SpellScriptLoader
+{
+    public:
+        spell_spinning_pain_spike() : SpellScriptLoader("spell_spinning_pain_spike") {}
+
+        class spell_spinning_pain_spike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_spinning_pain_spike_SpellScript);
+
+            void HandleBeforeHit()
+            {
+                Unit* target = GetHitUnit();
+                if (!target)
+                    return;
+
+                if (target->isAlive())
+                    SetHitDamage(target->GetMaxHealth()*0.5f);
+            }
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_spinning_pain_spike_SpellScript::HandleBeforeHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_spinning_pain_spike_SpellScript();
+        }
+};
+
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -523,4 +553,5 @@ void AddSC_boss_jaraxxus()
     new mob_fel_infernal();
     new mob_nether_portal();
     new mob_mistress_of_pain();
+    new spell_spinning_pain_spike();
 }
