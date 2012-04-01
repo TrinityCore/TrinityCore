@@ -89,7 +89,7 @@ public:
             DoScriptText(RAND(SAY_KILL1, SAY_KILL2), me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
             if (Unit* pMidnight = Unit::GetUnit(*me, Midnight))

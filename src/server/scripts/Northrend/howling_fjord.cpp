@@ -97,13 +97,13 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 1:
                     me->SetReactState(REACT_AGGRESSIVE);

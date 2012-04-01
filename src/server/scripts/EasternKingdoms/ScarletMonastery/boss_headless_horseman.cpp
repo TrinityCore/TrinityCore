@@ -348,7 +348,7 @@ public:
                     if (wait <= diff)
                     {
                         die = false;
-                        if (Unit* body = Unit::GetUnit((*me), bodyGUID))
+                        if (Unit* body = Unit::GetUnit(*me, bodyGUID))
                             body->Kill(body);
                         me->Kill(me);
                     }
@@ -475,7 +475,7 @@ public:
                     wp_reached = false;
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     SaySound(SAY_ENTRANCE);
-                    if (Unit* player = Unit::GetUnit((*me), PlayerGUID))
+                    if (Unit* player = Unit::GetUnit(*me, PlayerGUID))
                         DoStartMovement(player);
                     break;
                 }
@@ -586,7 +586,7 @@ public:
                 std::list<HostileReference*>::const_iterator itr;
                 for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
                 {
-                    Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (unit && unit->isAlive() && unit != caster)
                         me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
                 }
@@ -606,7 +606,7 @@ public:
                 if (!headGUID)
                     headGUID = DoSpawnCreature(HEAD, float(rand()%6), float(rand()%6), 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0)->GetGUID();
 
-                Unit* Head = Unit::GetUnit((*me), headGUID);
+                Unit* Head = Unit::GetUnit(*me, headGUID);
                 if (Head && Head->isAlive())
                 {
                     Head->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -817,7 +817,7 @@ public:
             if (!debuffGUID)
                 return;
 
-            Unit* debuff = Unit::GetUnit((*me), debuffGUID);
+            Unit* debuff = Unit::GetUnit(*me, debuffGUID);
             if (debuff)
             {
                 debuff->SetVisible(false);

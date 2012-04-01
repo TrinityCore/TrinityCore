@@ -149,7 +149,7 @@ public:
             DoScriptText(RAND(TEXT_SLAY_1, TEXT_SLAY_2, TEXT_SLAY_3), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(TEXT_DEATH, me);
             if (instance)
@@ -390,9 +390,9 @@ public:
             }
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer)
         {
-            if (!Killer || !instance)
+            if (!killer || !instance)
                 return;
 
             if (bWalking)
@@ -402,7 +402,7 @@ public:
                     if (!CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
                         CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
 
-                    if (Killer->GetTypeId() == TYPEID_PLAYER)
+                    if (killer->GetTypeId() == TYPEID_PLAYER)
                         boss->AI()->DoAction(ACTION_INITIAND_KILLED);
                 }
 
@@ -410,8 +410,8 @@ public:
 
                 bWalking = false;
             }
-            if (Killer->GetTypeId() == TYPEID_PLAYER)
-                instance->SetData64(DATA_PL_JEDOGA_TARGET, Killer->GetGUID());
+            if (killer->GetTypeId() == TYPEID_PLAYER)
+                instance->SetData64(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
         }
 
         void EnterCombat(Unit* who)

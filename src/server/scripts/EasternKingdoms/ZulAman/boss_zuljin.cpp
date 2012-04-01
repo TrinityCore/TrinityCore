@@ -252,7 +252,7 @@ class boss_zuljin : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                     instance->SetData(DATA_ZULJINEVENT, DONE);

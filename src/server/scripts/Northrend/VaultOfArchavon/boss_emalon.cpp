@@ -189,7 +189,7 @@ class mob_tempest_minion : public CreatureScript
                 OverchargedTimer = 0;
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (Creature* emalon = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EMALON) : 0))
                 {

@@ -713,9 +713,22 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
 
 bool ChatHandler::HandleCombatStopCommand(const char* args)
 {
-    Player* target;
-    if (!extractPlayerTarget((char*)args, &target))
-        return false;
+    Player* target = NULL;
+    
+    if (args && strlen(args) > 0)
+    {
+        target = sObjectAccessor->FindPlayerByName(args);
+        if (!target)
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+    }
+    
+    if (!target)
+        if (!extractPlayerTarget((char*)args, &target))
+            return false;
 
     // check online security
     if (HasLowerSecurity(target, 0))

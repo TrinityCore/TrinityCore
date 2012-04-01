@@ -855,7 +855,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
         {
             if (BossGUID[i])
             {
-                Unit* unit = Unit::GetUnit((*me), BossGUID[i]);
+                Unit* unit = Unit::GetUnit(*me, BossGUID[i]);
                 if (unit && (!unit->isAlive()))
                 {
                     if (BossGUID[i] == BossGUID[0])
@@ -980,9 +980,9 @@ void hyjalAI::RespawnNearPos(float x, float y)
     cell.Visit(p, obj_worker, *me->GetMap(), *me, me->GetGridActivationRange());
 }
 
-void hyjalAI::WaypointReached(uint32 i)
+void hyjalAI::WaypointReached(uint32 waypointId)
 {
-    if (i == 1 || (i == 0 && me->GetEntry() == THRALL))
+    if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {
         me->MonsterYell(YELL_HURRY, 0, 0);
         WaitForTeleport = true;
@@ -991,7 +991,7 @@ void hyjalAI::WaypointReached(uint32 i)
             DoCast(me, SPELL_MASS_TELEPORT, false);
         if (me->GetEntry() == THRALL && DummyGuid)
         {
-            Unit* Dummy = Unit::GetUnit((*me), DummyGuid);
+            Unit* Dummy = Unit::GetUnit(*me, DummyGuid);
             if (Dummy)
             {
                 CAST_AI(hyjalAI, CAST_CRE(Dummy)->AI())->DoMassTeleport = true;

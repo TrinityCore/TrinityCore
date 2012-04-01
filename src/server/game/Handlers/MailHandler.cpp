@@ -138,7 +138,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
         if (result)
         {
             Field* fields = result->Fetch();
-            mails_count = fields[0].GetUInt32();
+            mails_count = fields[0].GetUInt64();
         }
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);

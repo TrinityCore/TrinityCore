@@ -355,21 +355,22 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer)
         {
-            if (Killer->GetTypeId() == TYPEID_PLAYER)
+            Player* player = killer->ToPlayer();
+            if (!player)
+                return;
+
+            if (player->GetQuestStatus(11611) == QUEST_STATUS_INCOMPLETE)
             {
-                if (CAST_PLR(Killer)->GetQuestStatus(11611) == QUEST_STATUS_INCOMPLETE)
+                uint8 uiRand = urand(0, 99);
+                if (uiRand < 25)
                 {
-                    uint8 uiRand = urand(0, 99);
-                    if (uiRand < 25)
-                    {
-                        Killer->CastSpell(me, 45532, true);
-                        CAST_PLR(Killer)->KilledMonsterCredit(WARSONG_PEON, 0);
-                    }
-                    else if (uiRand < 75)
-                        Killer->CastSpell(me, nerubarVictims[urand(0, 2)], true);
+                    player->CastSpell(me, 45532, true);
+                    player->KilledMonsterCredit(WARSONG_PEON, 0);
                 }
+                else if (uiRand < 75)
+                    player->CastSpell(me, nerubarVictims[urand(0, 2)], true);
             }
         }
     };
@@ -591,7 +592,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetLootState(GO_JUST_DEACTIVATED);
@@ -716,9 +717,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (i)
+            switch (waypointId)
             {
                 case 0:
                     IntroPhase = 1;
@@ -1012,13 +1013,13 @@ public:
             uiPhaseTimer = 0;
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
 
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 3:
                     SetEscortPaused(true);
@@ -1038,7 +1039,6 @@ public:
                     }
                     me->SetWalk(false);
                     break;
-
                 case 4:
                     SetEscortPaused(true);
                     uiPhase = 7;
@@ -1446,8 +1446,8 @@ public:
             pLeryssa->SetWalk(false);
             pLeryssa->GetMotionMaster()->MovePoint(0, 3722.114502f, 3564.201660f, 477.441437f);
 
-            if (killer->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(killer)->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
+            if (Player* player = killer->ToPlayer())
+                player->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
         }
     };
 
@@ -1628,7 +1628,10 @@ public:
                 StartFollow(pCaster->ToPlayer(), 0, NULL);
                 me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER, TEAM_NEUTRAL);
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
-                CAST_PLR(pCaster)->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
+
+                if (Player* player = pCaster->ToPlayer())
+                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
+
                 bEnslaved = true;
             }
         }
@@ -1851,34 +1854,33 @@ public:
                 player->FailQuest(QUEST_ESCAPING_THE_MIST);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 10:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                DoScriptText(SAY_2, me);
-                break;
-            case 12:
-                DoScriptText(SAY_3, me);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
-                break;
-            case 16:
-                DoScriptText(SAY_4, me);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                break;
-            case 20:
-                me->SetPhaseMask(1, true);
-                DoScriptText(SAY_5, me);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
-                SetRun(true);
-                break;
+                case 10:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    DoScriptText(SAY_2, me);
+                    break;
+                case 12:
+                    DoScriptText(SAY_3, me);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
+                    break;
+                case 16:
+                    DoScriptText(SAY_4, me);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    break;
+                case 20:
+                    me->SetPhaseMask(1, true);
+                    DoScriptText(SAY_5, me);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
+                    SetRun(true);
+                    break;
             }
         }
     };
@@ -1951,14 +1953,13 @@ public:
             else Bonker_agro=0;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 29:
                     player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
@@ -2114,14 +2115,17 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (killer->GetTypeId() == TYPEID_PLAYER &&
-                CAST_PLR(killer)->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
+            Player* player = killer->ToPlayer();
+            if (!player)
+                return;
+
+            if (player->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
                 (me->HasAura(SPELL_AURA_NOTSOBIG_1) || me->HasAura(SPELL_AURA_NOTSOBIG_2) ||
                 me->HasAura(SPELL_AURA_NOTSOBIG_3) || me->HasAura(SPELL_AURA_NOTSOBIG_4)))
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
-                    CAST_PLR(killer)->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
+                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
             }
         }
     };

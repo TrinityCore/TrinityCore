@@ -239,9 +239,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 0:
                     DoScriptText(SAY_BREAKOUT1, me);
@@ -627,48 +627,48 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
-        bool MeetQuestCondition(Unit* player)
+        bool MeetQuestCondition(Player* player)
         {
             switch (me->GetEntry())
             {
                 case 29061:                                     // Ellen Stanbridge
-                    if (CAST_PLR(player)->GetQuestStatus(12742) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12742) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29072:                                     // Kug Ironjaw
-                    if (CAST_PLR(player)->GetQuestStatus(12748) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12748) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29067:                                     // Donovan Pulfrost
-                    if (CAST_PLR(player)->GetQuestStatus(12744) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12744) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29065:                                     // Yazmina Oakenthorn
-                    if (CAST_PLR(player)->GetQuestStatus(12743) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12743) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29071:                                     // Antoine Brack
-                    if (CAST_PLR(player)->GetQuestStatus(12750) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12750) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29032:                                     // Malar Bravehorn
-                    if (CAST_PLR(player)->GetQuestStatus(12739) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12739) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29068:                                     // Goby Blastenheimer
-                    if (CAST_PLR(player)->GetQuestStatus(12745) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12745) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29073:                                     // Iggy Darktusk
-                    if (CAST_PLR(player)->GetQuestStatus(12749) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12749) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29074:                                     // Lady Eonys
-                    if (CAST_PLR(player)->GetQuestStatus(12747) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12747) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
                 case 29070:                                     // Valok the Righteous
-                    if (CAST_PLR(player)->GetQuestStatus(12746) == QUEST_STATUS_INCOMPLETE)
+                    if (player->GetQuestStatus(12746) == QUEST_STATUS_INCOMPLETE)
                         return true;
                     break;
             }
@@ -681,7 +681,7 @@ public:
             if (PlayerGUID || who->GetTypeId() != TYPEID_PLAYER || !who->IsWithinDist(me, INTERACTION_DISTANCE))
                 return;
 
-            if (MeetQuestCondition(who))
+            if (MeetQuestCondition(who->ToPlayer()))
                 PlayerGUID = who->GetGUID();
         }
 

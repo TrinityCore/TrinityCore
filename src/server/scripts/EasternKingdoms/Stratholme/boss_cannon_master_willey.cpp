@@ -103,7 +103,7 @@ public:
             SummonRifleman_Timer = 15000;
         }
 
-        void JustDied(Unit* /*Victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             me->SummonCreature(11054, ADD_1X, ADD_1Y, ADD_1Z, ADD_1O, TEMPSUMMON_TIMED_DESPAWN, 240000);
             me->SummonCreature(11054, ADD_2X, ADD_2Y, ADD_2Z, ADD_2O, TEMPSUMMON_TIMED_DESPAWN, 240000);

@@ -106,24 +106,24 @@ public:
             }
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
-            case 0:
-                if (GameObject* pCage = me->GetMap()->GetGameObject(m_uiGalensCageGUID))
-                    pCage->ResetDoorOrButton();
-                break;
-            case 20:
-                if (Player* player = GetPlayerForEscort())
-                {
-                    me->SetFacingToObject(player);
-                    DoScriptText(SAY_QUEST_COMPLETE, me, player);
-                    DoScriptText(EMOTE_WHISPER, me, player);
-                    player->GroupEventHappens(QUEST_GALENS_ESCAPE, me);
-                }
-                SetRun(true);
-                break;
+                case 0:
+                    if (GameObject* pCage = me->GetMap()->GetGameObject(m_uiGalensCageGUID))
+                        pCage->ResetDoorOrButton();
+                    break;
+                case 20:
+                    if (Player* player = GetPlayerForEscort())
+                    {
+                        me->SetFacingToObject(player);
+                        DoScriptText(SAY_QUEST_COMPLETE, me, player);
+                        DoScriptText(EMOTE_WHISPER, me, player);
+                        player->GroupEventHappens(QUEST_GALENS_ESCAPE, me);
+                    }
+                    SetRun(true);
+                    break;
             }
         }
 

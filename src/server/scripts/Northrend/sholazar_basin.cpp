@@ -70,39 +70,40 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 1: SetRun(); break;
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-            case 17:
-            case 18:
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
-                me->SetSpeed(MOVE_SWIM, 0.85f, true);
-                me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_DISABLE_GRAVITY);
-                break;
-            case 19:
-                me->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
-                break;
-            case 28:
-                player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
-              //  me->RestoreFaction();
-                DoScriptText(SAY_END_IRO, me);
-                SetRun(false);
-                break;
+                case 1:
+                    SetRun();
+                    break;
+                case 10:
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                case 17:
+                case 18:
+                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+                    me->SetSpeed(MOVE_SWIM, 0.85f, true);
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_DISABLE_GRAVITY);
+                    break;
+                case 19:
+                    me->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
+                    break;
+                case 28:
+                    player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
+                    // me->RestoreFaction();
+                    DoScriptText(SAY_END_IRO, me);
+                    SetRun(false);
+                    break;
             }
         }
 
@@ -305,10 +306,9 @@ public:
             if (me->isDead())
                 return;
 
-            if (me->isSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    if (summoner)
-                        me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
+            if (TempSummon* summ = me->ToTempSummon())
+                if (Unit* summoner = summ->GetSummoner())
+                    me->GetMotionMaster()->MovePoint(0, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
 
             Reset();
         }
@@ -359,10 +359,11 @@ public:
 
         uint32 m_uiChatTimer;
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-            switch (i)
+
+            switch (waypointId)
             {
                 case 0:
                     DoScriptText(SAY_WP_2, me);

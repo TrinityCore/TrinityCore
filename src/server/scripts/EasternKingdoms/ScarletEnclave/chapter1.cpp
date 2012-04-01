@@ -829,13 +829,9 @@ public:
                     if (owner->GetTypeId() == TYPEID_PLAYER && CAST_PLR(owner)->isInCombat())
                     {
                         if (CAST_PLR(owner)->getAttackerForHelper() && CAST_PLR(owner)->getAttackerForHelper()->GetEntry() == GHOSTS)
-                        {
                             AttackStart(CAST_PLR(owner)->getAttackerForHelper());
-                        }
                         else
-                        {
                             FindMinions(owner);
-                        }
                     }
                 }
             }
@@ -994,9 +990,9 @@ public:
             SetDespawnAtFar(false);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (i)
+            switch (waypointId)
             {
                 case 1:
                     if (Unit* car = Unit::GetCreature(*me, carGUID))
