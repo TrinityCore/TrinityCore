@@ -145,7 +145,7 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
 
     uint32 matchMakerRating;
     if (result)
-        matchMakerRating = (*result)[0].GetUInt32();
+        matchMakerRating = (*result)[0].GetUInt16();
     else
         matchMakerRating = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
 

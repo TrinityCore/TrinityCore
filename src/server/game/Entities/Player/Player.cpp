@@ -18984,7 +18984,7 @@ void Player::_SaveActions(SQLTransaction& trans)
 
 void Player::_SaveAuras(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AURA);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
@@ -19147,7 +19147,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
                 trans->Append(stmt);
                 break;
             case ITEM_REMOVED:
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
                 stmt->setUInt32(0, item->GetGUIDLow());
                 trans->Append(stmt);
             case ITEM_UNCHANGED:

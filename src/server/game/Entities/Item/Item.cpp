@@ -343,8 +343,8 @@ void Item::SaveToDB(SQLTransaction& trans)
             }
             stmt->setString(++index, ssEnchants.str());
 
-            stmt->setInt32 (++index, GetItemRandomPropertyId());
-            stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
+            stmt->setInt16 (++index, GetItemRandomPropertyId());
+            stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
             stmt->setUInt32(++index, guid);
@@ -486,7 +486,7 @@ void Item::DeleteFromDB(SQLTransaction& trans)
 /*static*/
 void Item::DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
     stmt->setUInt32(0, itemGuid);
     trans->Append(stmt);
 }

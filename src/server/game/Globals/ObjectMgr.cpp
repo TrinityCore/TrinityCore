@@ -7203,7 +7203,7 @@ void ObjectMgr::SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
     stmt->setUInt32(0, loguid);
-    stmt->setUInt64(1, uint64(t));
+    stmt->setUInt32(1, uint32(t));
     stmt->setUInt32(2, instance);
     CharacterDatabase.Execute(stmt);
 }
@@ -7217,7 +7217,7 @@ void ObjectMgr::RemoveCreatureRespawnTime(uint32 loguid, uint32 instance)
         _creatureRespawnTimesMutex.release();
     }
 
-    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
     stmt->setUInt32(0, loguid);
     stmt->setUInt32(1, instance);
     CharacterDatabase.Execute(stmt);
