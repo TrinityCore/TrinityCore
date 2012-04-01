@@ -138,9 +138,9 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
-            if (pSpell->Id == SPELL_KODO_KOMBO_GOSSIP)
+            if (spell->Id == SPELL_KODO_KOMBO_GOSSIP)
             {
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 m_uiDespawnTimer = 60000;

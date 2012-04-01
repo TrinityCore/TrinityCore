@@ -85,12 +85,12 @@ public:
             }
         }
 
-        void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if ((Spellkind->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
-                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))
+            if ((spell->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
+                (caster->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(caster)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))
             {
-                CAST_PLR(Hitter)->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
+                CAST_PLR(caster)->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
                 DoCast(me, SPELL_REVIVE_SELF);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);

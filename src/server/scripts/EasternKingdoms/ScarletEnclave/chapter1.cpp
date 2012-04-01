@@ -438,11 +438,11 @@ public:
             m_bIsDuelInProgress = false;
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
+            if (!m_bIsDuelInProgress && spell->Id == SPELL_DUEL)
             {
-                m_uiDuelerGUID = pCaster->GetGUID();
+                m_uiDuelerGUID = caster->GetGUID();
                 m_bIsDuelInProgress = true;
             }
         }
@@ -627,7 +627,7 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
             if (spell->Id == DELIVER_STOLEN_HORSE)
             {

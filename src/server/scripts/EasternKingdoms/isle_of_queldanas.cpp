@@ -119,7 +119,7 @@ public:
         PlayerGUID = 0;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
             if (!caster)
                 return;

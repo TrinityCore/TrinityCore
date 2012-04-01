@@ -413,13 +413,13 @@ public:
             Summons.Summon(summoned);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
             float x, y, z, o;
             me->GetHomePosition(x, y, z, o);
             DoTeleportTo(x, y, z);
             InAction = true;
-            switch (Spell->Id)
+            switch (spell->Id)
             {
                 case SPELL_OPEN_ALL_PORTALS:
                     DoCastAOE(SPELL_OPEN_PORTAL, false);
@@ -475,10 +475,10 @@ public:
             me->AddUnitState(UNIT_STATE_STUNNED);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
             for (uint8 i = 0; i < 3; ++i)
-                if (Spell->Effects[i].Effect == 38)
+                if (spell->Effects[i].Effect == 38)
                     me->DisappearAndDie();
         }
 

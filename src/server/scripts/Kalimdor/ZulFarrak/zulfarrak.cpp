@@ -247,7 +247,7 @@ enum weegliSpells
 
 enum weegliSays
 {
-    SAY_WEEGLI_OHNO = -1209000,
+    SAY_WEEGLI_OHNO    = -1209000,
     SAY_WEEGLI_OK_I_GO = -1209001
 };
 
@@ -433,7 +433,7 @@ public:
 
 enum zumrahConsts
 {
-    ZUMRAH_ID = 7271,
+    ZUMRAH_ID              = 7271,
     ZUMRAH_HOSTILE_FACTION = 37
 };
 
@@ -444,15 +444,13 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
-        Creature* pZumrah = player->FindNearestCreature(ZUMRAH_ID, 30.0f);
-
-        if (!pZumrah)
+        Creature* creature = player->FindNearestCreature(ZUMRAH_ID, 30.0f);
+        if (!creature)
             return false;
 
-        pZumrah->setFaction(ZUMRAH_HOSTILE_FACTION);
+        creature->setFaction(ZUMRAH_HOSTILE_FACTION);
         return true;
     }
-
 };
 
 void AddSC_zulfarrak()

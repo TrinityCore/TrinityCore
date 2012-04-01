@@ -340,9 +340,9 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
-            if ((Spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand()%10)))
+            if ((spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand()%10)))
             {
                 /*
                     if (not direct damage(aoe, dot))
@@ -1080,9 +1080,9 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
-            if (Spell->Id == SPELL_DRINK_POISON)
+            if (spell->Id == SPELL_DRINK_POISON)
             {
                 DoScriptText(SAY_JULIANNE_DEATH01, me);
                 DrinkPoisonTimer = 2500;

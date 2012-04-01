@@ -622,23 +622,20 @@ public:
             }
         }
 
-        void SpellHit(Unit* hitter, const SpellInfo* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (!hitter || !spell)
-                return;
-
             if (spell->Id != SPELL_ICE_LANCE)
                 return;
 
             me->RemoveAura(SPELL_ICE_PRISON);
             enter_timer = 500;
 
-            if (hitter->IsVehicle())
-                drakeGUID = hitter->GetGUID();
+            if (caster->IsVehicle())
+                drakeGUID = caster->GetGUID();
             else
                 return;
 
-            if (hitter->GetVehicleKit()->GetNextEmptySeat(0, true))
+            if (caster->GetVehicleKit()->GetNextEmptySeat(0, true))
                 hasEmptySeats = true;
         }
     };

@@ -225,14 +225,14 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
-            if (pSpell->Id == SPELL_BREATH_EAST_TO_WEST ||
-                pSpell->Id == SPELL_BREATH_WEST_TO_EAST ||
-                pSpell->Id == SPELL_BREATH_SE_TO_NW ||
-                pSpell->Id == SPELL_BREATH_NW_TO_SE ||
-                pSpell->Id == SPELL_BREATH_SW_TO_NE ||
-                pSpell->Id == SPELL_BREATH_NE_TO_SW)
+            if (spell->Id == SPELL_BREATH_EAST_TO_WEST ||
+                spell->Id == SPELL_BREATH_WEST_TO_EAST ||
+                spell->Id == SPELL_BREATH_SE_TO_NW ||
+                spell->Id == SPELL_BREATH_NW_TO_SE ||
+                spell->Id == SPELL_BREATH_SW_TO_NE ||
+                spell->Id == SPELL_BREATH_NE_TO_SW)
             {
                 m_pPointData = GetMoveData();
                 m_uiMovePoint = m_pPointData->uiLocIdEnd;

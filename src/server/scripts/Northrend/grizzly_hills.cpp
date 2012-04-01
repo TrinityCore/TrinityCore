@@ -312,13 +312,13 @@ public:
                 m_gender = uiData;
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-             if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
+             if (spell->Id == SPELL_OUTHOUSE_GROANS)
              {
                 ++m_counter;
                 if (m_counter < 5)
-                    DoCast(pCaster, SPELL_CAMERA_SHAKE, true);
+                    DoCast(caster, SPELL_CAMERA_SHAKE, true);
                 else
                     m_counter = 0;
                 DoCast(me, SPELL_DUST_FIELD, true);
@@ -491,7 +491,7 @@ public:
                 me->DespawnOrUnsummon(DespawnTimer);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
@@ -681,14 +681,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (pCaster && pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_SMOKE_BOMB)
+            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SMOKE_BOMB)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_PASSIVE);
                 me->CombatStop(false);
-                uiPlayerGUID = pCaster->GetGUID();
+                uiPlayerGUID = caster->GetGUID();
                 uiRunAwayTimer = 3500;
             }
         }

@@ -160,7 +160,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
             //When hit with ressurection say text
             if (spell->Id == SPELL_SCARLETRESURRECTION)

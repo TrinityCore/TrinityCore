@@ -82,20 +82,23 @@ public:
             me->setDeathState(DEAD);
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (pSpell->Id == SPELL_UNLOCK_SHACKLE)
+            if (spell->Id == SPELL_UNLOCK_SHACKLE)
             {
-                if (pCaster->ToPlayer()->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
+                if (Player* player = caster->ToPlayer())
                 {
-                    if (Creature* pRageclaw = Unit::GetCreature(*me, RageclawGUID))
+                    if (player->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
                     {
-                        UnlockRageclaw(pCaster);
-                        pCaster->ToPlayer()->KilledMonster(pRageclaw->GetCreatureTemplate(), RageclawGUID);
-                        me->DisappearAndDie();
+                        if (Creature* creature = Unit::GetCreature(*me, RageclawGUID))
+                        {
+                            UnlockRageclaw(caster);
+                            player->KilledMonster(creature->GetCreatureTemplate(), RageclawGUID);
+                            me->DisappearAndDie();
+                        }
+                        else
+                            me->setDeathState(JUST_DIED);
                     }
-                    else
-                        me->setDeathState(JUST_DIED);
                 }
             }
         }
@@ -145,14 +148,12 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/){}
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
-            if (pSpell->Id == SPELL_FREE_RAGECLAW)
+            if (spell->Id == SPELL_FREE_RAGECLAW)
             {
                 me->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
-
                 me->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
-
                 me->RemoveAurasDueToSpell(SPELL_KNEEL);
 
                 me->setFaction(me->GetCreatureTemplate()->faction_H);
