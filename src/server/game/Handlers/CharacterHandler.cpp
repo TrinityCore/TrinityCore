@@ -461,7 +461,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             if (result)
             {
                 Field* fields = result->Fetch();
-                createInfo->CharCount = fields[0].GetUInt8();
+                createInfo->CharCount = fields[0].GetUInt64();
 
                 if (createInfo->CharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
                 {
