@@ -524,18 +524,18 @@ class spell_spinning_pain_spike : public SpellScriptLoader
         {
             PrepareSpellScript(spell_spinning_pain_spike_SpellScript);
 
-            void HandleBeforeHit()
+            void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* target = GetHitUnit();
                 if (!target)
                     return;
 
                 if (target->isAlive())
-                    SetHitDamage(target->GetMaxHealth()*0.5f);
+                    SetHitDamage(target->CountPctFromMaxHealth(50));
             }
             void Register()
             {
-                BeforeHit += SpellHitFn(spell_spinning_pain_spike_SpellScript::HandleBeforeHit);
+                OnEffectHitTarget += SpellEffectFn(spell_spinning_pain_spike_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
