@@ -555,6 +555,7 @@ class Battleground
         const char* GetTrinityString(int32 entry);
 
         virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
+        virtual bool IsPlayerUnderMap(Player* player, float x, float y, float z) {return false; }
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
         uint32 GetPlayerTeam(uint64 guid) const;
