@@ -129,6 +129,8 @@ class boss_kologarn : public CreatureScript
             {
                 DoScriptText(SAY_AGGRO, me);
 
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
                 events.ScheduleEvent(EVENT_SMASH, 5000);
                 events.ScheduleEvent(EVENT_SWEEP, 19000);
@@ -147,6 +149,9 @@ class boss_kologarn : public CreatureScript
             {
                 _Reset();
                 eyebeamTarget = 0;
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
+
             }
 
             void JustDied(Unit* /*victim*/)
