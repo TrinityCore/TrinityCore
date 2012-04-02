@@ -98,7 +98,7 @@ public:
             events.DelayEvents(5000, GCD_YELL);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);

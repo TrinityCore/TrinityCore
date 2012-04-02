@@ -109,7 +109,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DIE, me);
             }

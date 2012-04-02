@@ -124,9 +124,9 @@ public:
     {
         npc_oox22feAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (i)
+            switch (waypointId)
             {
                 // First Ambush(3 Yetis)
                 case 11:

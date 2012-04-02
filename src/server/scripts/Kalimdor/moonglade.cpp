@@ -537,9 +537,9 @@ public:
             } else if (Event_onWait) Event_Timer -= diff;
         }
 
-        void WaypointReached(uint32 id)
+        void WaypointReached(uint32 waypointId)
         {
-            CurrWP = id;
+            CurrWP = waypointId;
             Event_Timer = 0;
             Step = 0;
             Event_onWait = true;

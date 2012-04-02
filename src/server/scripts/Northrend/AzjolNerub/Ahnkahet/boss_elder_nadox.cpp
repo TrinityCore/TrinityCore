@@ -105,7 +105,7 @@ class boss_elder_nadox : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_SLAY_3, me); //SAY_SLAY_3 on death?
 
@@ -229,7 +229,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
                 uiSprintTimer = 10000;
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
                     if (Creature* Nadox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ELDER_NADOX)))

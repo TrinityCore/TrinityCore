@@ -111,6 +111,14 @@ DebugLogMask = 64
 SQLDriverLogFile = ""
 
 #
+#    SQLDriverQueryLogging
+#        Description: Log SQL queries to the SQLDriverLogFile and console.
+#        Default:     0 - (Disabled, Query errors only)
+#                     1 - (Enabled, Full query logging - may have performance impact)
+
+SQLDriverQueryLogging = 0
+
+#
 #    LogTimestamp
 #        Description: Append timestamp to the server log file name.
 #                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext

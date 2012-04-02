@@ -120,7 +120,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* /*Killer*/)
+    void JustDied(Unit* /*killer*/)
     {
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)

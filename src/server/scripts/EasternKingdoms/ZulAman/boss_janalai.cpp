@@ -159,7 +159,7 @@ class boss_janalai : public CreatureScript
                 HatchAllEggs(1);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
 
@@ -289,7 +289,7 @@ class boss_janalai : public CreatureScript
             {
                 if (BombCount < 40)
                 {
-                    if (Unit* FireBomb = Unit::GetUnit((*me), FireBombGUIDs[BombCount]))
+                    if (Unit* FireBomb = Unit::GetUnit(*me, FireBombGUIDs[BombCount]))
                     {
                         FireBomb->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoCast(FireBomb, SPELL_FIRE_BOMB_THROW, true);

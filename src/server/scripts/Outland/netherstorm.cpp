@@ -115,7 +115,7 @@ public:
 
             if (someplayer)
             {
-                Unit* p = Unit::GetUnit((*me), someplayer);
+                Unit* p = Unit::GetUnit(*me, someplayer);
                 if (p && p->GetTypeId() == TYPEID_PLAYER)
                 {
                     switch (me->GetEntry())
@@ -142,7 +142,7 @@ public:
 
             if (goConsole)
             {
-                if (GameObject* go = GameObject::GetGameObject((*me), goConsole))
+                if (GameObject* go = GameObject::GetGameObject(*me, goConsole))
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             }
         }
@@ -243,7 +243,7 @@ public:
                     case 1:
                         if (someplayer)
                         {
-                            Unit* u = Unit::GetUnit((*me), someplayer);
+                            Unit* u = Unit::GetUnit(*me, someplayer);
                             if (u && u->GetTypeId() == TYPEID_PLAYER) DoScriptText(EMOTE_START, me, u);
                         }
                         Event_Timer = 60000;
@@ -271,14 +271,14 @@ public:
                         DoScriptText(EMOTE_COMPLETE, me);
                         if (someplayer)
                         {
-                            Unit* u = Unit::GetUnit((*me), someplayer);
+                            Unit* u = Unit::GetUnit(*me, someplayer);
                             if (u && u->GetTypeId() == TYPEID_PLAYER)
                                 CAST_PLR(u)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                             DoCast(me, SPELL_DISABLE_VISUAL);
                         }
                         if (goConsole)
                         {
-                            if (GameObject* go = GameObject::GetGameObject((*me), goConsole))
+                            if (GameObject* go = GameObject::GetGameObject(*me, goConsole))
                                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                         }
                         ++Phase;
@@ -889,33 +889,32 @@ public:
                 player->FailQuest(Q_ALMABTRIEB);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 3: //first spawn
                     me->SummonCreature(SPAWN_FIRST, 2449.67f, 2183.11f, 96.85f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(SPAWN_FIRST, 2449.53f, 2184.43f, 96.36f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(SPAWN_FIRST, 2449.85f, 2186.34f, 97.57f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
-
                 case 7:
                     me->SummonCreature(SPAWN_SECOND, 2309.64f, 2186.24f, 92.25f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(SPAWN_SECOND, 2309.25f, 2183.46f, 91.75f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
-
                 case 12:
                     player->GroupEventHappens(Q_ALMABTRIEB, me);
                     if (me->FindNearestCreature(N_THADELL, 30))
-                        DoScriptText(SAY_THADELL_1, me); break;
+                        DoScriptText(SAY_THADELL_1, me);
+                    break;
                 case 13:
                     if (me->FindNearestCreature(N_THADELL, 30))
-                        DoScriptText(SAY_THADELL_2, me, player); break;
+                        DoScriptText(SAY_THADELL_2, me, player);
+                    break;
             }
         }
 
@@ -964,13 +963,13 @@ public:
             uiTakeTimer=3000;
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 7:
                 case 17:

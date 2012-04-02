@@ -76,35 +76,34 @@ class npc_torek : public CreatureScript
             uint32 Thunderclap_Timer;
             bool Completed;
 
-            void WaypointReached(uint32 i)
+            void WaypointReached(uint32 waypointId)
             {
                 Player* player = GetPlayerForEscort();
-
                 if (!player)
                     return;
 
-                switch (i)
+                switch (waypointId)
                 {
-                case 1:
-                    Talk(SAY_MOVE, player->GetGUID());
-                    break;
-                case 8:
-                    Talk(SAY_PREPARE, player->GetGUID());
-                    break;
-                case 19:
-                    //TODO: verify location and creatures amount.
-                    me->SummonCreature(ENTRY_DURIEL, 1776.73f, -2049.06f, 109.83f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(ENTRY_SILVERWING_SENTINEL, 1774.64f, -2049.41f, 109.83f, 1.40f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    break;
-                case 20:
-                    DoScriptText(SAY_WIN, me, player);
-                    Completed = true;
-                    player->GroupEventHappens(QUEST_TOREK_ASSULT, me);
-                    break;
-                case 21:
-                    Talk(SAY_END, player->GetGUID());
-                    break;
+                    case 1:
+                        Talk(SAY_MOVE, player->GetGUID());
+                        break;
+                    case 8:
+                        Talk(SAY_PREPARE, player->GetGUID());
+                        break;
+                    case 19:
+                        //TODO: verify location and creatures amount.
+                        me->SummonCreature(ENTRY_DURIEL, 1776.73f, -2049.06f, 109.83f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        me->SummonCreature(ENTRY_SILVERWING_SENTINEL, 1774.64f, -2049.41f, 109.83f, 1.40f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        break;
+                    case 20:
+                        DoScriptText(SAY_WIN, me, player);
+                        Completed = true;
+                        player->GroupEventHappens(QUEST_TOREK_ASSULT, me);
+                        break;
+                    case 21:
+                        Talk(SAY_END, player->GetGUID());
+                        break;
                 }
             }
 
@@ -182,32 +181,29 @@ class npc_ruul_snowhoof : public CreatureScript
         {
             npc_ruul_snowhoofAI(Creature* creature) : npc_escortAI(creature) { }
 
-            void WaypointReached(uint32 i)
+            void WaypointReached(uint32 waypointId)
             {
                 Player* player = GetPlayerForEscort();
                 if (!player)
                     return;
 
-                switch (i)
+                switch (waypointId)
                 {
                     case 0:
                         me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                             Cage->SetGoState(GO_STATE_ACTIVE);
                         break;
-
                     case 13:
                         me->SummonCreature(3922, 3449.218018f, -587.825073f, 174.978867f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3921, 3446.384521f, -587.830872f, 175.186279f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3926, 3444.218994f, -587.835327f, 175.380600f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         break;
-
                     case 19:
                         me->SummonCreature(3922, 3508.344482f, -492.024261f, 186.929031f, 4.145029f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3921, 3506.265625f, -490.531006f, 186.740128f, 4.239277f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3926, 3503.682373f, -489.393799f, 186.629684f, 4.349232f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         break;
-
                     case 21:
                         player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
                         break;
@@ -316,17 +312,19 @@ class npc_muglash : public CreatureScript
                 summoned->AI()->AttackStart(me);
             }
 
-            void WaypointReached(uint32 i)
+            void WaypointReached(uint32 waypointId)
             {
                 Player* player = GetPlayerForEscort();
 
-                switch (i)
+                switch (waypointId)
                 {
                     case 0:
-                        DoScriptText(SAY_MUG_START2, me, player);
+                        if (player)
+                            DoScriptText(SAY_MUG_START2, me, player);
                         break;
                     case 24:
-                        DoScriptText(SAY_MUG_BRAZIER, me, player);
+                        if (player)
+                            DoScriptText(SAY_MUG_BRAZIER, me, player);
 
                         if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
                         {
@@ -443,11 +441,7 @@ class npc_muglash : public CreatureScript
 class go_naga_brazier : public GameObjectScript
 {
     public:
-
-        go_naga_brazier()
-            : GameObjectScript("go_naga_brazier")
-        {
-        }
+        go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {

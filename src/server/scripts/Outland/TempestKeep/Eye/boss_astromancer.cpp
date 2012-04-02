@@ -151,7 +151,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 DoScriptText(RAND(SAY_KILL1, SAY_KILL2, SAY_KILL3), me);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
@@ -454,7 +454,7 @@ class mob_solarium_priest : public CreatureScript
                     {
                         case 0:
                             if (instance)
-                                target = Unit::GetUnit((*me), instance->GetData64(DATA_ASTROMANCER));
+                                target = Unit::GetUnit(*me, instance->GetData64(DATA_ASTROMANCER));
                             break;
                         case 1:
                             target = me;

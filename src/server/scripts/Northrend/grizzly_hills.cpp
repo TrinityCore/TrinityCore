@@ -74,13 +74,13 @@ public:
                 summoned->AI()->AttackStart(me->getVictim());
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 9:
                     if (Creature* Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 100.0f))

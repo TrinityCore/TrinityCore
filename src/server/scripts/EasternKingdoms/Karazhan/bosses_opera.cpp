@@ -886,7 +886,7 @@ public:
                 {
                     IsChasing = false;
 
-                    if (Unit* target = Unit::GetUnit((*me), HoodGUID))
+                    if (Unit* target = Unit::GetUnit(*me, HoodGUID))
                     {
                         HoodGUID = 0;
                         if (DoGetThreat(target))

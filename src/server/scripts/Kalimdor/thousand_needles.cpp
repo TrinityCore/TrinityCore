@@ -75,9 +75,9 @@ public:
 
         void Reset() { }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 0:
                     DoScriptText(SAY_KAN_START, me);
@@ -166,9 +166,9 @@ public:
 
         void Reset() { }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 8:
                     DoScriptText(SAY_LAKO_LOOK_OUT, me);
@@ -251,9 +251,9 @@ public:
 
         void Reset() { }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 15:
                     DoScriptText(SAY_WYVERN, me);

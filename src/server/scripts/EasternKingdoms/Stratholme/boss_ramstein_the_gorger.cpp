@@ -63,7 +63,7 @@ public:
         {
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             for (uint8 i = 0; i < 30; ++i)
             {

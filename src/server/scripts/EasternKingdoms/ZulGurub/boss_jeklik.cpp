@@ -94,7 +94,7 @@ class boss_jeklik : public CreatureScript
                 DoCast(me, SPELL_BAT_FORM);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
 

@@ -296,12 +296,12 @@ public:
         bool LowHp;
         bool HadMount;
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             if (!instance)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 8:
                     SetRun(false);
@@ -413,7 +413,7 @@ public:
                 case 94:
                     if (uint64 TarethaGUID = instance->GetData64(DATA_TARETHA))
                     {
-                        if (Unit* Taretha = Unit::GetUnit((*me), TarethaGUID))
+                        if (Unit* Taretha = Unit::GetUnit(*me, TarethaGUID))
                             DoScriptText(SAY_TA_ESCAPED, Taretha, me);
                     }
                     break;
@@ -433,7 +433,6 @@ public:
                     //trigger epoch Yell("Thrall! Come outside and face your fate! ....")
                     //from here, thrall should not never be allowed to move to point 106 which he currently does.
                     break;
-
                 case 106:
                     {
                         //trigger taretha to run down outside
@@ -631,9 +630,9 @@ public:
 
         InstanceScript* instance;
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (i)
+            switch (waypointId)
             {
                 case 6:
                     DoScriptText(SAY_TA_FREE, me);
@@ -643,6 +642,7 @@ public:
                     break;
             }
         }
+
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
 

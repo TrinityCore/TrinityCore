@@ -70,7 +70,7 @@ void RealmList::UpdateRealms(bool init)
 {
     sLog->outDetail("Updating Realm List...");
 
-    PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     // Circle through results and add them to the realm map
@@ -79,16 +79,16 @@ void RealmList::UpdateRealms(bool init)
         do
         {
             Field* fields = result->Fetch();
-            uint32 realmId = fields[0].GetUInt32();
-            const std::string& name = fields[1].GetString();
+            uint32 realmId             = fields[0].GetUInt32();
+            const std::string& name    = fields[1].GetString();
             const std::string& address = fields[2].GetString();
-            uint16 port = fields[3].GetUInt16();
-            uint8 icon = fields[4].GetUInt8();
-            RealmFlags flag = RealmFlags(fields[5].GetUInt8());
-            uint8 timezone = fields[6].GetUInt8();
+            uint16 port                = fields[3].GetUInt16();
+            uint8 icon                 = fields[4].GetUInt8();
+            RealmFlags flag            = RealmFlags(fields[5].GetUInt8());
+            uint8 timezone             = fields[6].GetUInt8();
             uint8 allowedSecurityLevel = fields[7].GetUInt8();
-            float pop = fields[8].GetFloat();
-            uint32 build = fields[9].GetUInt32();
+            float pop                  = fields[8].GetFloat();
+            uint32 build               = fields[9].GetUInt32();
 
             UpdateRealm(realmId, name, address, port, icon, flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 

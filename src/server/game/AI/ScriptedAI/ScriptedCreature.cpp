@@ -274,7 +274,7 @@ void ScriptedAI::DoResetThreat()
 
     for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
     {
-        Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+        Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
 
         if (unit && DoGetThreat(unit))
             DoModifyThreatPercent(unit, -100);

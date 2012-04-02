@@ -231,7 +231,7 @@ void FlightPathMovementGenerator::Reset(Player & player)
     uint32 end = GetPathAtMapEnd();
     for (uint32 i = GetCurrentNode(); i != end; ++i)
     {
-        G3D::Vector3 vertice((*i_path)[i].x,(*i_path)[i].y,(*i_path)[i].z);
+        G3D::Vector3 vertice((*i_path)[i].x, (*i_path)[i].y, (*i_path)[i].z);
         init.Path().push_back(vertice);
     }
     init.SetFirstPointId(GetCurrentNode());

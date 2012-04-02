@@ -121,7 +121,7 @@ class boss_broggok : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                 {

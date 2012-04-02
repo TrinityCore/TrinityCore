@@ -99,9 +99,9 @@ public:
         InstanceScript* instance;
         uint32 uiNpcEntry;
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPoint)
+            switch (waypointId)
             {
                 case 0:
                     if (uiNpcEntry == NPC_ASH)
