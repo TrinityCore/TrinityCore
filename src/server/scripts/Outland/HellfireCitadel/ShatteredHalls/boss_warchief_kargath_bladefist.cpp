@@ -137,7 +137,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 removeAdds();
@@ -166,7 +166,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit((*me), *itr);
+                    Unit* temp = Unit::GetUnit(*me, *itr);
                     if (temp && temp->isAlive())
                     {
                         (*temp).GetMotionMaster()->Clear(true);
@@ -178,7 +178,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
                 for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit((*me), *itr);
+                    Unit* temp = Unit::GetUnit(*me, *itr);
                     if (temp && temp->isAlive())
                     {
                         (*temp).GetMotionMaster()->Clear(true);

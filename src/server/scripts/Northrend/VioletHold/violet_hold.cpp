@@ -447,32 +447,32 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void WaypointReached(uint32 uiWPointId)
+        void WaypointReached(uint32 waypointId)
         {
             switch (uiBoss)
             {
                 case 1:
-                    if (uiWPointId == 2)
+                    if (waypointId == 2)
                         FinishPointReached();
                     break;
                 case 2:
-                    if (uiWPointId == 2)
+                    if (waypointId == 2)
                         FinishPointReached();
                     break;
                 case 3:
-                    if (uiWPointId == 1)
+                    if (waypointId == 1)
                         FinishPointReached();
                     break;
                 case 4:
-                    if (uiWPointId == 0)
+                    if (waypointId == 0)
                         FinishPointReached();
                     break;
                 case 5:
-                    if (uiWPointId == 0)
+                    if (waypointId == 0)
                         FinishPointReached();
                     break;
                 case 6:
-                    if (uiWPointId == 4)
+                    if (waypointId == 4)
                         FinishPointReached();
                     break;
             }
@@ -690,32 +690,32 @@ struct violet_hold_trashAI : public npc_escortAI
         uint32 portalLocationID;
         uint32 secondPortalRouteID;
 
-    void WaypointReached(uint32 uiPointId)
+    void WaypointReached(uint32 waypointId)
     {
         switch (portalLocationID)
         {
             case 0:
-                if (uiPointId == 5)
+                if (waypointId == 5)
                    CreatureStartAttackDoor();
                 break;
             case 1:
-                if ((uiPointId == 8 && secondPortalRouteID == 0) || (uiPointId == 7 && secondPortalRouteID == 1))
+                if ((waypointId == 8 && secondPortalRouteID == 0) || (waypointId == 7 && secondPortalRouteID == 1))
                     CreatureStartAttackDoor();
                 break;
             case 2:
-                if (uiPointId == 7)
+                if (waypointId == 7)
                    CreatureStartAttackDoor();
                 break;
             case 3:
-                if (uiPointId == 8)
+                if (waypointId == 8)
                     CreatureStartAttackDoor();
                 break;
             case 4:
-                if (uiPointId == 5)
+                if (waypointId == 5)
                     CreatureStartAttackDoor();
                 break;
             case 5:
-                if (uiPointId == 3)
+                if (waypointId == 3)
                     CreatureStartAttackDoor();
                 break;
         }
@@ -778,7 +778,7 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void JustDied(Unit* /*unit*/)
+    void JustDied(Unit* /*killer*/)
     {
         if (Creature* portal = Unit::GetCreature((*me), instance->GetData64(DATA_TELEPORTATION_PORTAL)))
             CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedMobDied(me);

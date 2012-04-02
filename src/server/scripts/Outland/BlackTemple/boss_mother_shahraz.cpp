@@ -149,7 +149,7 @@ public:
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(DATA_MOTHERSHAHRAZEVENT, DONE);
@@ -250,7 +250,7 @@ public:
                         Unit* unit = NULL;
                         if (TargetGUID[i])
                         {
-                            unit = Unit::GetUnit((*me), TargetGUID[i]);
+                            unit = Unit::GetUnit(*me, TargetGUID[i]);
                             if (unit)
                                 unit->CastSpell(unit, SPELL_ATTRACTION, true);
                             TargetGUID[i] = 0;

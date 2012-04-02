@@ -88,7 +88,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*killer*/)
         {
             for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
                 if (Creature* strider = Unit::GetCreature(*me, *i))

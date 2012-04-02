@@ -148,7 +148,7 @@ class boss_ignis : public CreatureScript
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 DoScriptText(SAY_DEATH, me);
@@ -371,15 +371,15 @@ class npc_scorch_ground : public CreatureScript
                 creature->SetDisplayId(16925); //model 2 in db cannot overwrite wdb fields
             }
 
-            void MoveInLineOfSight(Unit* unit)
+            void MoveInLineOfSight(Unit* who)
             {
                 if (!_heat)
                 {
-                    if (unit->GetEntry() == NPC_IRON_CONSTRUCT)
+                    if (who->GetEntry() == NPC_IRON_CONSTRUCT)
                     {
-                        if (!unit->HasAura(SPELL_HEAT) || !unit->HasAura(SPELL_MOLTEN))
+                        if (!who->HasAura(SPELL_HEAT) || !who->HasAura(SPELL_MOLTEN))
                         {
-                            _constructGUID = unit->GetGUID();
+                            _constructGUID = who->GetGUID();
                             _heat = true;
                         }
                     }

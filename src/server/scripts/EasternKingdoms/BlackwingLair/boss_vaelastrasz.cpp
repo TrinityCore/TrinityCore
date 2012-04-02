@@ -176,9 +176,9 @@ public:
                             break;
                         case 2:
                             me->setFaction(103);
-                            if (PlayerGUID && Unit::GetUnit((*me), PlayerGUID))
+                            if (PlayerGUID && Unit::GetUnit(*me, PlayerGUID))
                             {
-                                AttackStart(Unit::GetUnit((*me), PlayerGUID));
+                                AttackStart(Unit::GetUnit(*me, PlayerGUID));
                                 DoCast(me, SPELL_ESSENCEOFTHERED);
                             }
                             SpeechTimer = 0;

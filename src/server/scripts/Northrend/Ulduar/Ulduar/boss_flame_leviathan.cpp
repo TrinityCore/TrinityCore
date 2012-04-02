@@ -328,7 +328,7 @@ class boss_flame_leviathan : public CreatureScript
                     DoScriptText(SAY_AGGRO, me);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 // Set Field Flags 67108928 = 64 | 67108864 = UNIT_FLAG_UNK_6 | UNIT_FLAG_SKINNABLE
@@ -887,7 +887,7 @@ class npc_colossus : public CreatureScript
 
             InstanceScript* instance;
 
-            void JustDied(Unit* /*Who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (me->GetHomePosition().IsInDist(Center, 50.f))
                     instance->SetData(DATA_COLOSSUS, instance->GetData(DATA_COLOSSUS)+1);
@@ -964,8 +964,9 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void WaypointReached(uint32 /*i*/)
+        void WaypointReached(uint32 /*waypointId*/)
         {
+
         }
 
         void Reset()

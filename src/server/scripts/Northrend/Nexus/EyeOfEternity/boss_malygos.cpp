@@ -963,8 +963,9 @@ public:
             // we dont do melee damage!
         }
 
-        void WaypointReached(uint32 /*i*/)
+        void WaypointReached(uint32 /*waypointId*/)
         {
+
         }
 
     private:

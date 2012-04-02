@@ -463,7 +463,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             if (result)
             {
                 Field* fields = result->Fetch();
-                createInfo->CharCount = fields[0].GetUInt8();
+                createInfo->CharCount = uint8(fields[0].GetUInt64()); // SQL's COUNT() returns uint64 but it will always be less than uint8.Max
 
                 if (createInfo->CharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
                 {
@@ -1692,7 +1692,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
         data << uint8(CHAR_NAME_RESERVED);
-        SendPacket (&data);
+        SendPacket(&data);
         return;
     }
 

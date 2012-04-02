@@ -79,12 +79,12 @@ enum BattlegroundRVObjects
 enum BattlegroundRVData
 {
     BG_RV_STATE_OPEN_FENCES,
-    BG_RV_STATE_OPEN_PILARS,
-    BG_RV_STATE_CLOSE_PILARS,
-    BG_RV_STATE_OPEN_FIRE,
+    BG_RV_STATE_SWITCH_PILLARS,
     BG_RV_STATE_CLOSE_FIRE,
-    BG_RV_FIRE_TO_PILAR_TIMER                    = 20000,
-    BG_RV_PILAR_TO_FIRE_TIMER                    =  5000,
+
+    BG_RV_PILLAR_SWITCH_TIMER                    = 25000,
+    BG_RV_FIRE_TO_PILLAR_TIMER                   = 20000,
+    BG_RV_CLOSE_FIRE_TIMER                       =  5000,
     BG_RV_FIRST_TIMER                            = 20133,
     BG_RV_WORLD_STATE_A                          = 0xe10,
     BG_RV_WORLD_STATE_H                          = 0xe11,
@@ -120,6 +120,7 @@ class BattlegroundRV : public Battleground
     private:
         uint32 Timer;
         uint32 State;
+        bool   PillarCollision;
 
         virtual void PostUpdateImpl(uint32 diff);
 
@@ -129,6 +130,8 @@ class BattlegroundRV : public Battleground
 
         uint32 getState() { return State; };
         void setState(uint32 state) { State = state; };
-        void TogglePillarCollision(bool apply);
+        void TogglePillarCollision();
+        bool GetPillarCollision() { return PillarCollision; }
+        void SetPillarCollision(bool apply) { PillarCollision = apply; }
 };
 #endif

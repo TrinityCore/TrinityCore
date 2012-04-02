@@ -221,9 +221,9 @@ public:
             DoCast(me, SPELL_EARTHBIND_TOTEM, false);
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 7:
                     DoScriptText(SAY_MAG_MORE, me);
@@ -565,9 +565,9 @@ public:
             }
         }
 
-        void WaypointReached(uint32 PointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch(PointId)
+            switch (waypointId)
             {
                 case 3:
                 {

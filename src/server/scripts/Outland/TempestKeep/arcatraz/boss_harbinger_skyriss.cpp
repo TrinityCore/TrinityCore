@@ -112,7 +112,7 @@ class boss_harbinger_skyriss : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {}
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 if (instance)

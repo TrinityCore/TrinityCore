@@ -299,7 +299,7 @@ public:
                     Unit* Member = NULL;
                     if (Council[i])
                     {
-                        Member = Unit::GetUnit((*me), Council[i]);
+                        Member = Unit::GetUnit(*me, Council[i]);
                         if (Member && Member->isAlive())
                             CAST_CRE(Member)->AI()->AttackStart(target);
                     }
@@ -498,7 +498,7 @@ public:
             DoScriptText(SAY_GATH_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_GATH_DEATH, me);
         }
@@ -512,7 +512,7 @@ public:
                 member = urand(1, 3);
 
             if (member != 2)                                     // No need to create another pointer to us using Unit::GetUnit
-                unit = Unit::GetUnit((*me), Council[member]);
+                unit = Unit::GetUnit(*me, Council[member]);
             return unit;
         }
 
@@ -526,7 +526,7 @@ public:
             }
             for (uint8 i = 0; i < 4; ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), Council[i]);
+                Unit* unit = Unit::GetUnit(*me, Council[i]);
                 if (unit)
                     unit->CastSpell(unit, spellid, true, 0, 0, me->GetGUID());
             }
@@ -632,7 +632,7 @@ public:
             DoScriptText(SAY_ZERE_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_ZERE_DEATH, me);
         }
@@ -732,7 +732,7 @@ public:
             DoScriptText(SAY_MALA_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_MALA_DEATH, me);
         }
@@ -818,7 +818,7 @@ public:
             DoScriptText(SAY_VERA_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_VERA_DEATH, me);
         }

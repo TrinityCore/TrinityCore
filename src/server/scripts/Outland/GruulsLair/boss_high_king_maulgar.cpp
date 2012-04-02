@@ -173,7 +173,7 @@ public:
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -223,7 +223,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {
@@ -363,7 +363,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -383,7 +383,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {
@@ -478,7 +478,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -498,7 +498,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {
@@ -598,7 +598,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -618,7 +618,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {
@@ -708,7 +708,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -728,7 +728,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {

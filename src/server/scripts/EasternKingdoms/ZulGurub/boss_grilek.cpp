@@ -32,15 +32,11 @@ EndScriptData */
 class boss_grilek : public CreatureScript
 {
     public:
-
-        boss_grilek()
-            : CreatureScript("boss_grilek")
-        {
-        }
+        boss_grilek() : CreatureScript("boss_grilek") { }
 
         struct boss_grilekAI : public ScriptedAI
         {
-            boss_grilekAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_grilekAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Avartar_Timer;
             uint32 GroundTremor_Timer;

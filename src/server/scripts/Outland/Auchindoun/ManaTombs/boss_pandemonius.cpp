@@ -68,7 +68,7 @@ public:
             VoidBlast_Counter = 0;
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
         }
