@@ -5345,7 +5345,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         m->expire_time    = time_t(fields[5].GetUInt32());
         m->deliver_time   = 0;
         m->COD            = fields[6].GetUInt32();
-        m->checked        = fields[7].GetUInt32();
+        m->checked        = fields[7].GetUInt8();
         m->mailTemplateId = fields[8].GetInt16();
 
         Player* player = NULL;
@@ -5382,8 +5382,8 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_RETURNED);
                 stmt->setUInt32(0, m->receiver);
                 stmt->setUInt32(1, m->sender);
-                stmt->setUInt64(2, basetime + 30 * DAY);
-                stmt->setUInt64(3, basetime);
+                stmt->setUInt32(2, basetime + 30 * DAY);
+                stmt->setUInt32(3, basetime);
                 stmt->setUInt8 (4, uint8(MAIL_CHECK_MASK_RETURNED));
                 stmt->setUInt32(5, m->messageID);
                 CharacterDatabase.Execute(stmt);
@@ -7203,7 +7203,7 @@ void ObjectMgr::SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
     stmt->setUInt32(0, loguid);
-    stmt->setUInt64(1, uint64(t));
+    stmt->setUInt32(1, uint32(t));
     stmt->setUInt32(2, instance);
     CharacterDatabase.Execute(stmt);
 }
@@ -7217,7 +7217,7 @@ void ObjectMgr::RemoveCreatureRespawnTime(uint32 loguid, uint32 instance)
         _creatureRespawnTimesMutex.release();
     }
 
-    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
     stmt->setUInt32(0, loguid);
     stmt->setUInt32(1, instance);
     CharacterDatabase.Execute(stmt);
