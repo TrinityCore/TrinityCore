@@ -38,15 +38,9 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
     data.appendPackGUID(guid);
-    if (!player)
-    {
-        data << uint8(1);                           // player unknown
-        SendPacket(&data);
-        return;
-    }
     if (!nameData)
     {
-        data << uint8(2);                           // name unknown
+        data << uint8(1);                           // name unknown
         SendPacket(&data);
         return;
     }
@@ -58,7 +52,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
     data << uint8(nameData->m_gender);
     data << uint8(nameData->m_class);
 
-    if (DeclinedName const* names = player->GetDeclinedNames())
+    if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
     {
         data << uint8(1);                           // Name is declined
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
