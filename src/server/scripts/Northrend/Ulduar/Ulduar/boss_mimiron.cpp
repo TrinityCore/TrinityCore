@@ -1586,6 +1586,7 @@ public:
             me->SetVisible(false);
             me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
             me->SetCanFly(true);
+            me->SetDisableGravity(true);
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
             summons.DespawnAll();
@@ -1616,6 +1617,8 @@ public:
 
             events.ScheduleEvent(EVENT_PLASMA_BALL, 1000);
             events.ScheduleEvent(EVENT_SUMMON_BOTS, 10000, 0, PHASE_AERIAL_SOLO);
+            me->SetCanFly(true);
+            me->SetDisableGravity(true);
         }
 
         void DoAction(int32 const action)
