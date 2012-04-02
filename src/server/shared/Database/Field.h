@@ -43,11 +43,11 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_TINY))
             {
-                sLog->outSQLDriver("Warning: GetUInt8() on non-tinyint field.");
+                sLog->outSQLDriver("Warning: GetUInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
-
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<uint8*>(data.value);
             return static_cast<uint8>(atol((char*)data.value));
@@ -61,7 +61,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_TINY))
             {
-                sLog->outSQLDriver("Warning: GetInt8() on non-tinyint field.");
+                sLog->outSQLDriver("Warning: GetInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
@@ -79,7 +79,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_SHORT) && !IsType(MYSQL_TYPE_YEAR))
             {
-                sLog->outSQLDriver("Warning: GetUInt16() on non-smallint field.");
+                sLog->outSQLDriver("Warning: GetUInt16() on non-smallint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
@@ -97,7 +97,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_SHORT) && !IsType(MYSQL_TYPE_YEAR))
             {
-                sLog->outSQLDriver("Warning: GetInt16() on non-smallint field.");
+                sLog->outSQLDriver("Warning: GetInt16() on non-smallint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
@@ -115,7 +115,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_INT24) && !IsType(MYSQL_TYPE_LONG))
             {
-                sLog->outSQLDriver("Warning: GetUInt32() on non-(medium)int field.");
+                sLog->outSQLDriver("Warning: GetUInt32() on non-(medium)int field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
@@ -133,7 +133,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_INT24) && !IsType(MYSQL_TYPE_LONG))
             {
-                sLog->outSQLDriver("Warning: GetInt32() on non-(medium)int field.");
+                sLog->outSQLDriver("Warning: GetInt32() on non-(medium)int field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
@@ -151,7 +151,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_LONGLONG) && !IsType(MYSQL_TYPE_BIT))
             {
-                sLog->outSQLDriver("Warning: GetUInt64() on non-bigint field.");
+                sLog->outSQLDriver("Warning: GetUInt64() on non-bigint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
@@ -169,7 +169,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_LONGLONG) && !IsType(MYSQL_TYPE_BIT))
             {
-                sLog->outSQLDriver("Warning: GetInt64() on non-bigint field.");
+                sLog->outSQLDriver("Warning: GetInt64() on non-bigint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
@@ -187,7 +187,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_FLOAT))
             {
-                sLog->outSQLDriver("Warning: GetFloat() on non-float field.");
+                sLog->outSQLDriver("Warning: GetFloat() on non-float field. Using type: %s.", FieldTypeToString(data.type));
                 return 0.0f;
             }
             #endif
@@ -205,7 +205,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_DOUBLE))
             {
-                sLog->outSQLDriver("Warning: GetDouble() on non-double field.");
+                sLog->outSQLDriver("Warning: GetDouble() on non-double field. Using type: %s.", FieldTypeToString(data.type));
                 return 0.0f;
             }
             #endif
@@ -215,7 +215,7 @@ class Field
             return static_cast<double>(atof((char*)data.value));
         }
 
-        const char* GetCString() const
+        char const* GetCString() const
         {
             if (!data.value)
                 return NULL;
@@ -223,11 +223,12 @@ class Field
             #ifdef TRINITY_DEBUG
             if (IsNumeric())
             {
-                sLog->outSQLDriver("Error: GetCString() on numeric field.");
+                sLog->outSQLDriver("Error: GetCString() on numeric field. Using type: %s.", FieldTypeToString(data.type));
                 return NULL;
             }
             #endif
-            return static_cast<const char*>(data.value);
+            return static_cast<char const*>(data.value);
+
         }
 
         std::string GetString() const
@@ -237,7 +238,7 @@ class Field
 
             if (data.raw)
             {
-                const char* string = GetCString();
+                char const* string = GetCString();
                 if (!string)
                     string = "";
                 return std::string(string, data.length);
@@ -267,7 +268,7 @@ class Field
         #pragma pack(pop)
         #endif
 
-        void SetByteValue(const void* newValue, const size_t newSize, enum_field_types newType, uint32 length);
+        void SetByteValue(void const* newValue, size_t const newSize, enum_field_types newType, uint32 length);
         void SetStructuredValue(char* newValue, enum_field_types newType);
 
         void CleanUp()
@@ -341,6 +342,43 @@ class Field
                     data.type == MYSQL_TYPE_DOUBLE ||
                     data.type == MYSQL_TYPE_LONGLONG );
         }
+
+    private:
+        #ifdef TRINITY_DEBUG
+        static char const* FieldTypeToString(enum_field_types type)
+        {
+            switch (type)
+            {
+                case MYSQL_TYPE_BIT:         return "BIT";
+                case MYSQL_TYPE_BLOB:        return "BLOB";
+                case MYSQL_TYPE_DATE:        return "DATE";
+                case MYSQL_TYPE_DATETIME:    return "DATETIME";
+                case MYSQL_TYPE_NEWDECIMAL:  return "NEWDECIMAL";
+                case MYSQL_TYPE_DECIMAL:     return "DECIMAL";
+                case MYSQL_TYPE_DOUBLE:      return "DOUBLE";
+                case MYSQL_TYPE_ENUM:        return "ENUM";
+                case MYSQL_TYPE_FLOAT:       return "FLOAT";
+                case MYSQL_TYPE_GEOMETRY:    return "GEOMETRY";
+                case MYSQL_TYPE_INT24:       return "INT24";
+                case MYSQL_TYPE_LONG:        return "LONG";
+                case MYSQL_TYPE_LONGLONG:    return "LONGLONG";
+                case MYSQL_TYPE_LONG_BLOB:   return "LONG_BLOB";
+                case MYSQL_TYPE_MEDIUM_BLOB: return "MEDIUM_BLOB";
+                case MYSQL_TYPE_NEWDATE:     return "NEWDATE";
+                case MYSQL_TYPE_NULL:        return "NULL";
+                case MYSQL_TYPE_SET:         return "SET";
+                case MYSQL_TYPE_SHORT:       return "SHORT";
+                case MYSQL_TYPE_STRING:      return "STRING";
+                case MYSQL_TYPE_TIME:        return "TIME";
+                case MYSQL_TYPE_TIMESTAMP:   return "TIMESTAMP";
+                case MYSQL_TYPE_TINY:        return "TINY";
+                case MYSQL_TYPE_TINY_BLOB:   return "TINY_BLOB";
+                case MYSQL_TYPE_VAR_STRING:  return "VAR_STRING";
+                case MYSQL_TYPE_YEAR:        return "YEAR";
+                default:                     return "-Unknown-";
+            }
+        }
+        #endif
 };
 
 #endif
