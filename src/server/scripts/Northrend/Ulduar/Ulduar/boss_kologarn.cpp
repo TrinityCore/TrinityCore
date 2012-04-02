@@ -151,7 +151,6 @@ class boss_kologarn : public CreatureScript
                 eyebeamTarget = 0;
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
-
             }
 
             void JustDied(Unit* /*victim*/)
