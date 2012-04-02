@@ -727,9 +727,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field* fields2 = result->Fetch();
-        plguid = fields2[0].GetUInt64();
-
-        data << uint64(plguid);                             // Player GUID
+        data << uint64(MAKE_NEW_GUID(fields2[0].GetUInt32(), 0, HIGHGUID_PLAYER)); // Player GUID
         data << uint32(0);                                  // there 0 ...
 
         result->NextRow();
