@@ -2601,7 +2601,7 @@ class spell_gen_wg_water : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (!GetSpellInfo()->CheckTargetCreatureType(GetTargetUnit()))
+                if (!GetSpellInfo()->CheckTargetCreatureType(GetCaster()))
                     return SPELL_FAILED_DONT_REPORT;
                 return SPELL_CAST_OK;
             }
