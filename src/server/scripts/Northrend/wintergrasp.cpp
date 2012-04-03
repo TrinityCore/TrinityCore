@@ -46,6 +46,7 @@ enum Spells
     SPELL_BUILD_CATAPULT_FORCE                = 56664,
     SPELL_BUILD_DEMOLISHER_FORCE              = 56659,
     SPELL_ACTIVATE_CONTROL_ARMS               = 49899,
+    SPELL_RIDE_WG_VEHICLE                     = 60968,
 
     SPELL_VEHICLE_TELEPORT                    = 49759,
 
@@ -504,7 +505,7 @@ class spell_wintergrasp_grab_passenger : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Player* target = GetHitPlayer())
-                    target->EnterVehicle(GetCaster());
+                    target->CastSpell(GetCaster(), SPELL_RIDE_WG_VEHICLE, true);
             }
 
             void Register()
