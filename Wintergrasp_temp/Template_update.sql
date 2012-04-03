@@ -20,13 +20,13 @@ UPDATE `creature_template` SET `dynamicflags`=`dynamicflags`|4 WHERE `entry`=311
 UPDATE `creature_template` SET `baseattacktime`=2000,`unit_flags`=`unit_flags`|768 WHERE `entry`=39173; -- Champion Ros'slai
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|16 WHERE `entry`=30740; -- Valiance Expedition Champion (?)
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=27852; -- Wintergrasp Control Arms
-UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35,`npcflag`=16777216 WHERE `entry`=28366; -- Wintergrasp Tower Cannon
-UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=1.2 WHERE `entry`=32629; -- Wintergrasp Siege Turret
-UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=1.2 WHERE `entry`=28319; -- Wintergrasp Siege Turret
-UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=1.2,`speed_run`=1 WHERE `entry`=32627; -- Wintergrasp Siege Engine
-UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=1.2,`speed_run`=1 WHERE `entry`=28312; -- Wintergrasp Siege Engine
-UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35,`npcflag`=16777216,`unit_flags`=16384,`speed_walk`=1.2,`speed_run`=1 WHERE `entry`=28094; -- Wintergrasp Demolisher
-UPDATE `creature_template` SET `faction_A`=35,`faction_H`=35,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=2.8,`speed_run`=1.71429 WHERE `entry`=27881; -- Wintergrasp Catapult
+UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735,`npcflag`=16777216 WHERE `entry`=28366; -- Wintergrasp Tower Cannon
+UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=1.2 WHERE `entry`=32629; -- Wintergrasp Siege Turret
+UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=1.2 WHERE `entry`=28319; -- Wintergrasp Siege Turret
+UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=1.2,`speed_run`=1 WHERE `entry`=32627; -- Wintergrasp Siege Engine
+UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=1.2,`speed_run`=1 WHERE `entry`=28312; -- Wintergrasp Siege Engine
+UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735,`npcflag`=16777216,`unit_flags`=16384,`speed_walk`=1.2,`speed_run`=1 WHERE `entry`=28094; -- Wintergrasp Demolisher
+UPDATE `creature_template` SET `faction_A`=1732,`faction_H`=1735,`npcflag`=16777216,`unit_flags`=16384,`unit_class`=4,`speed_walk`=2.8,`speed_run`=1.71429 WHERE `entry`=27881; -- Wintergrasp Catapult
 
 UPDATE `creature_model_info` SET `bounding_radius`=0.3366,`combat_reach`=1.65,`gender`=0 WHERE `modelid`=27894; -- Knight Dameron
 UPDATE `creature_model_info` SET `bounding_radius`=0.3366,`combat_reach`=1.65,`gender`=0 WHERE `modelid`=31346; -- Marshal Magruder
@@ -61,8 +61,8 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`
 (32296,27245,0,1,0, NULL), -- Stone Guard Mukar
 (39173,29261,0,1,0, NULL), -- Champion Ros'slai
 (30740,0,0,257,375, NULL), -- Valiance Expedition Champion
-(32629,0,0,257,0, NULL), -- Wintergrasp Siege Turret
-(28319,0,0,257,0, NULL), -- Wintergrasp Siege Turret
+(32629,0,0,257,0,46598), -- Wintergrasp Siege Turret
+(28319,0,0,257,0,46598), -- Wintergrasp Siege Turret
 (28366,0,0,257,0, NULL), -- Wintergrasp Tower Cannon
 (32627,0,0,257,0, NULL), -- Wintergrasp Siege Engine
 (28312,0,0,257,0, NULL), -- Wintergrasp Siege Engine

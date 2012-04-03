@@ -524,7 +524,11 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
             case NPC_WINTERGRASP_DEMOLISHER:
             {
                 if (!creature->GetCreatorGUID() || !sObjectAccessor->FindPlayer(creature->GetCreatorGUID()))
+                {
+                    creature->setDeathState(DEAD);
+                    creature->RemoveFromWorld();
                     return;
+                }
                 Player* creator = sObjectAccessor->FindPlayer(creature->GetCreatorGUID());
                 TeamId team = creator->GetTeamId();
 
@@ -533,7 +537,8 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H))
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H, 1);
-                        creature->CastSpell(creature, SPELL_HORDE_FLAG, true);
+                        creature->AddAura(SPELL_HORDE_FLAG, creature);
+                        creature->setFaction(creator->getFaction());
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }
@@ -549,7 +554,8 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, 1);
-                        creature->CastSpell(creature, SPELL_ALLIANCE_FLAG, true);
+                        creature->AddAura(SPELL_ALLIANCE_FLAG,creature);
+                        creature->setFaction(creator->getFaction());
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }
@@ -561,8 +567,7 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     }
                 }
 
-                if (creature->GetCreatorGUID() && sObjectAccessor->FindUnit(creature->GetCreatorGUID()))
-                    creature->CastSpell(sObjectAccessor->FindUnit(creature->GetCreatorGUID()), SPELL_GRAB_PASSENGER, true);
+                creature->CastSpell(creator, SPELL_GRAB_PASSENGER, true);
                 break;
             }
         }
