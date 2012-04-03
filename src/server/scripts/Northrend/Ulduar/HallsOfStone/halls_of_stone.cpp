@@ -120,8 +120,8 @@ enum Quests
     QUEST_HALLS_OF_STONE                = 13207
 };
 
-#define GOSSIP_ITEM_START               "Brann, it would be our honor!"
-#define GOSSIP_ITEM_PROGRESS            "Let's move Brann, enough of the history lessons!"
+#define GOSSIP_ITEM_START               "¡Brann, esto será por tu honor!"
+#define GOSSIP_ITEM_PROGRESS            "¡Vamos Brann, ya ha habido suficientes lecciones de historia!"
 #define DATA_BRANN_SPARKLIN_NEWS        1
 
 static Position SpawnLocations[]=
