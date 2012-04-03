@@ -33,7 +33,7 @@ EndScriptData */
 #define SAY_BROKEN_FREE_01          -1564016
 #define SAY_BROKEN_FREE_02          -1564017
 
-#define GOSSIP_ITEM                 "We are ready to fight alongside you, Akama"
+#define GOSSIP_ITEM                 "Estamos listos para luchar a tu lado, Akama"
 
 struct Location
 {
