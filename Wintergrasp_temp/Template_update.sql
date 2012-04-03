@@ -61,8 +61,8 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`
 (32296,27245,0,1,0, NULL), -- Stone Guard Mukar
 (39173,29261,0,1,0, NULL), -- Champion Ros'slai
 (30740,0,0,257,375, NULL), -- Valiance Expedition Champion
-(32629,0,0,257,0,46598), -- Wintergrasp Siege Turret
-(28319,0,0,257,0,46598), -- Wintergrasp Siege Turret
+(32629,0,0,257,0, NULL), -- Wintergrasp Siege Turret
+(28319,0,0,257,0, NULL), -- Wintergrasp Siege Turret
 (28366,0,0,257,0, NULL), -- Wintergrasp Tower Cannon
 (32627,0,0,257,0, NULL), -- Wintergrasp Siege Engine
 (28312,0,0,257,0, NULL), -- Wintergrasp Siege Engine
