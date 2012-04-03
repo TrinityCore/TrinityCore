@@ -88,9 +88,6 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
         }
         else if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_WARNING) // Active collision and perform knockback
         {
-            if (Creature* waterSpout = GetBgMap()->GetCreature(BgCreatures[BG_DS_NPC_WATERFALL_KNOCKBACK]))
-                waterSpout->CastSpell(waterSpout, BG_DS_SPELL_WATER_SPOUT, true);
-
             if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
                 gob->SetGoState(GO_STATE_READY);
 
