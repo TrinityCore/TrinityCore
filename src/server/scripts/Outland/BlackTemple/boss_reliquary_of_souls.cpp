@@ -468,7 +468,6 @@ public:
             DoScriptText(RAND(SUFF_SAY_RECAP, SUFF_SAY_RECAP, me);
             me->SummonCreature(NPC_DESIRE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             
-
         void UpdateAI(const uint32 diff)
         {
             if (me->isInCombat())
