@@ -2040,6 +2040,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->setFaction(14);
             me->SetCanFly(true);
+            me->SetDisableGravity(true);
         }
 
         void DamageTaken(Unit* /*dealer*/, uint32 &damage)
