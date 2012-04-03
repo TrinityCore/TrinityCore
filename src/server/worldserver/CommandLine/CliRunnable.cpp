@@ -314,6 +314,11 @@ void ChatHandler::HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo
     stmt->setUInt32(2, delInfo.lowguid);
 
     CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
+    stmt->setUInt32(0, delInfo.lowguid);
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        sWorld->AddCharacterNameData(delInfo.lowguid, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8());
 }
 
 /**

@@ -655,8 +655,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             LoginDatabase.CommitTransaction(trans);
 
-            newChar.CleanupsBeforeDelete();
-
             WorldPacket data(SMSG_CHAR_CREATE, 1);
             data << uint8(CHAR_CREATE_SUCCESS);
             SendPacket(&data);
@@ -667,6 +665,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             sScriptMgr->OnPlayerCreate(&newChar);
             sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass());
 
+            newChar.CleanupsBeforeDelete();
             delete createInfo;
             _charCreateCallback.Reset();
         }
