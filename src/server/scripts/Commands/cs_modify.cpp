@@ -70,7 +70,6 @@ public:
         static ChatCommand commandTable[] =
         {
 			{ "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,          "", NULL },
-			{ "demorph",        SEC_GAMEMASTER,     false, &HandleDeMorphCommand,              "", NULL },
             { "modify",         SEC_MODERATOR,      false, NULL,                 "", modifyCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
@@ -1384,7 +1383,7 @@ public:
         return true;
     }
 //demorph player or unit
-	static bool HandleDeMorphCommand(ChatHandler* handler, const char* /*args*/)
+	bool HandleDeMorphCommand(ChatHandler* handler, const char* /*args*/)
 	{
         Unit* target = handler->getSelectedUnit();
         if (!target)
