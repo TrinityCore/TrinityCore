@@ -231,11 +231,11 @@ class boss_flame_leviathan : public CreatureScript
 
                 ActiveTowersCount = 4;
                 Shutdown = 0;
-                ActiveTowers = false;
-                towerOfStorms = false;
-                towerOfLife = false;
-                towerOfFlames = false;
-                towerOfFrost = false;
+                ActiveTowers = true;
+                towerOfStorms = true;
+                towerOfLife = true;
+                towerOfFlames = true;
+                towerOfFrost = true;
                 Shutout = true;
                 Unbroken = true;
 
