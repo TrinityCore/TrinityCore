@@ -66,7 +66,7 @@ enum BattlegroundDSData
 { // These values are NOT blizzlike... need the correct data!
     BG_DS_WATERFALL_TIMER_MIN                    = 30000,
     BG_DS_WATERFALL_TIMER_MAX                    = 60000,
-    BG_DS_WATERFALL_WARNING_DURATION             = 2000,
+    BG_DS_WATERFALL_WARNING_DURATION             = 5000,
     BG_DS_WATERFALL_DURATION                     = 30000,
     BG_DS_WATERFALL_KNOCKBACK_TIMER              = 1500,
 
