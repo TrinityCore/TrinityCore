@@ -1089,9 +1089,9 @@ void Item::SaveRefundDataToDB()
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
     stmt->setUInt32(0, GetGUIDLow());
-    stmt->setUInt32(0, GetRefundRecipient());
-    stmt->setUInt32(0, GetPaidMoney());
-    stmt->setUInt16(0, uint16(GetPaidExtendedCost()));
+    stmt->setUInt32(1, GetRefundRecipient());
+    stmt->setUInt32(2, GetPaidMoney());
+    stmt->setUInt16(3, uint16(GetPaidExtendedCost()));
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
