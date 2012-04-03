@@ -2136,7 +2136,7 @@ void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_FLAG);
 
     stmt->setUInt8(0, slot->flags);
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(1, GUID_LOPART(guid));
 
     CharacterDatabase.Execute(stmt);
 
