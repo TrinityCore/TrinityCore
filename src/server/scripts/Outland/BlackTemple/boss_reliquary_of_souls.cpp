@@ -461,8 +461,7 @@ public:
                 target->CastSpell(me, SPELL_FIXATE_TAUNT, true);
             DoResetThreat();
             me->AddThreat(target, 1000000);
-        }
-        
+        }    
         void JustDied(Unit* /*victim*/)
         {
             DoScriptText(RAND(SUFF_SAY_RECAP, SUFF_SAY_RECAP, me);
