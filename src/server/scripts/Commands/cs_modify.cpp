@@ -38,7 +38,7 @@ public:
             { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
             { "all",            SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
             { "walk",           SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
-			{ "backwalk",       SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
+            { "backwalk",       SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
             { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
             { "",               SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
@@ -69,8 +69,8 @@ public:
         };
         static ChatCommand commandTable[] =
         {
-			{ "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,          "", NULL },
-			{ "demorph",        SEC_GAMEMASTER,     false, &HandleDeMorphCommand,              "", NULL },
+            { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,          "", NULL },
+            { "demorph",        SEC_GAMEMASTER,     false, &HandleDeMorphCommand,              "", NULL },
             { "modify",         SEC_MODERATOR,      false, NULL,                 "", modifyCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
