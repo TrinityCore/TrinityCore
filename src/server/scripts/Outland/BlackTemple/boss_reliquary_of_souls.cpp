@@ -85,9 +85,6 @@ EndScriptData */
 
 #define CREATURE_ENSLAVED_SOUL          23469
 #define NUMBER_ENSLAVED_SOUL            8
-#define NPC_SUFFERING                   23418
-#define NPC_DESIRE                      23419
-#define NPC_ANGER                       23420
 
 struct Position2d
 {
@@ -463,12 +460,6 @@ public:
             me->AddThreat(target, 1000000);
         }
         
-        void JustDied(Unit* /*victim*/)
-        {
-            DoScriptText(RAND(SUFF_SAY_RECAP, SUFF_SAY_RECAP, me);
-            me->SummonCreature(NPC_DESIRE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-        }
-        
         void UpdateAI(const uint32 diff)
         {
             if (me->isInCombat())
@@ -574,12 +565,6 @@ public:
             DoScriptText(RAND(DESI_SAY_SLAY1, DESI_SAY_SLAY2, DESI_SAY_SLAY3), me);
         }
 
-        void JustDied(Unit* /*victim*/)
-        {
-            DoScriptText(RAND(DESI_SAY_RECAP, DESI_SAY_RECAP, me);
-            me->SummonCreature(NPC_ANGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());            
-        }
-        
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
