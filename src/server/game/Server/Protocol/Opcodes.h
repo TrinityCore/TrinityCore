@@ -345,7 +345,7 @@ enum Opcodes
     CMSG_PUSHQUESTTOPARTY                            = 0xA47,
     CMSG_QUERY_GUILD_MAX_XP                          = 0x00,
     CMSG_QUERY_GUILD_REWARDS                         = 0x00,
-    CMSG_QUERY_GUILD_XP                              = 0x00,
+    CMSG_QUERY_GUILD_XP                              = 0x0952,
     CMSG_QUERY_QUESTS_COMPLETED                      = 0x98DF,
     CMSG_QUERY_TIME                                  = 0x18FE,
     CMSG_QUEST_CONFIRM_ACCEPT                        = 0x8CD3,
