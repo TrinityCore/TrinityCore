@@ -1384,8 +1384,8 @@ public:
         return true;
     }
 //demorph player or unit
-	static bool HandleDeMorphCommand(ChatHandler* handler, const char* /*args*/)
-	{
+    static bool HandleDeMorphCommand(ChatHandler* handler, const char* /*args*/)
+    {
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
