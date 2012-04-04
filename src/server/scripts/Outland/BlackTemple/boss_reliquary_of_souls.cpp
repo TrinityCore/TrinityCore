@@ -461,12 +461,14 @@ public:
                 target->CastSpell(me, SPELL_FIXATE_TAUNT, true);
             DoResetThreat();
             me->AddThreat(target, 1000000);
-        }    
+        }
+        
         void JustDied(Unit* /*victim*/)
         {
             DoScriptText(RAND(SUFF_SAY_RECAP, SUFF_SAY_RECAP, me);
             me->SummonCreature(NPC_DESIRE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-            
+        }
+        
         void UpdateAI(const uint32 diff)
         {
             if (me->isInCombat())
@@ -575,8 +577,9 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             DoScriptText(RAND(DESI_SAY_RECAP, DESI_SAY_RECAP, me);
-            me->SummonCreature(NPC_ANGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-
+            me->SummonCreature(NPC_ANGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());            
+        }
+        
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
