@@ -191,10 +191,6 @@ public:
             Counter = 0;
             Timer = 0;
         }
-
-        void Aggro(Unit* pWho)
-        {
-            me->SummonCreature(NPC_SUFFERING, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                  
         bool SummonSoul()
         {
