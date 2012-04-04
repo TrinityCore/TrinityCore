@@ -1392,12 +1392,12 @@ public:
 
 		// check online security
         else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
-			return false;
+            return false;
 
-		target->DeMorph();
+        target->DeMorph();
 
-		return true;
-	}
+        return true;
+    }
 };
 
 void AddSC_modify_commandscript()
