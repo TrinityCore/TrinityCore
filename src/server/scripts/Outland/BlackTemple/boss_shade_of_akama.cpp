@@ -130,14 +130,7 @@ public:
 
         void Reset() {}
         void JustDied(Unit* /*killer*/);
-        void EnterCombat(Unit* /*who*/)
-        {
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SELECTABLE);
-            }
-        }
-        
+        void EnterCombat(Unit* /*who*/) {}
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void UpdateAI(const uint32 /*diff*/) {}
@@ -173,14 +166,7 @@ public:
         }
 
         void JustDied(Unit* /*killer*/);
-        void EnterCombat(Unit* /*who*/)
-        {
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SELECTABLE);
-            }
-        }
-        
+        void EnterCombat(Unit* /*who*/) {}
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void UpdateAI(const uint32 diff)
