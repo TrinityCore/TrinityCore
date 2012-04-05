@@ -108,8 +108,11 @@ void SmartScript::OnReset()
     ResetBaseObject();
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
-        InitTimer((*i));
-        (*i).runOnce = false;
+        if (!((*i).event.event_flags & SMART_EVENT_FLAG_DONT_RESET))
+        {
+            InitTimer((*i));
+            (*i).runOnce = false;
+        }
     }
     ProcessEventsFor(SMART_EVENT_RESET);
     mLastInvoker = 0;
