@@ -691,7 +691,7 @@ class npc_risen_archmage : public CreatureScript
             {
             }
 
-            bool CanAIAttack(Unit const* target) const
+            bool CanAIAttack(Unit const* target) //const
             {
                 if(_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED || _instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == FAIL)
                     return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
