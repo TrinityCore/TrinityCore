@@ -8827,7 +8827,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     }
 
     // Blade Barrier
-    if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85)
+    if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85 && procSpell)
     {
         Player* player = ToPlayer();
         if (!player || player->getClass() != CLASS_DEATH_KNIGHT)

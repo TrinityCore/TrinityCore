@@ -1127,9 +1127,9 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
     stmt->setUInt32(0, GUID_LOPART(item->GetOwnerGUID()));
-    stmt->setUInt32(0, item->GetGUIDLow());
-    stmt->setUInt32(0, item->GetEntry());
-    stmt->setUInt32(0, item->GetUInt32Value(ITEM_FIELD_FLAGS));
+    stmt->setUInt32(1, item->GetGUIDLow());
+    stmt->setUInt32(2, item->GetEntry());
+    stmt->setUInt32(3, item->GetUInt32Value(ITEM_FIELD_FLAGS));
     trans->Append(stmt);
 
     item->SetEntry(gift->GetEntry());

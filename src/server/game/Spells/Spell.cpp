@@ -1008,7 +1008,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     {
         case TARGET_OBJECT_TYPE_UNIT:
             if (Unit* unitTarget = target->ToUnit())
-                AddUnitTarget(unitTarget, effMask, false);
+                AddUnitTarget(unitTarget, effMask, true, false);
             break;
         case TARGET_OBJECT_TYPE_GOBJ:
             if (GameObject* gobjTarget = target->ToGameObject())
@@ -1544,7 +1544,7 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
 {
     ASSERT((m_targets.GetObjectTarget() || m_targets.GetItemTarget()) && "Spell::SelectImplicitTargetObjectTargets - no explicit object or item target available!");
     if (Unit* unit = m_targets.GetUnitTarget())
-        AddUnitTarget(unit, 1 << effIndex);
+        AddUnitTarget(unit, 1 << effIndex, true, false);
     else if (GameObject* gobj = m_targets.GetGOTarget())
         AddGOTarget(gobj, 1 << effIndex);
     else
@@ -2077,7 +2077,7 @@ void Spell::CleanupTargetList()
     m_delayMoment = 0;
 }
 
-void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*= true*/)
+void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*= true*/, bool implicit /*= true*/)
 {
     for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         if (!m_spellInfo->Effects[effIndex].IsEffect() || !CheckEffectTarget(target, effIndex))
@@ -2088,7 +2088,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         return;
 
     if (checkIfValid)
-        if (m_spellInfo->CheckTarget(m_caster, target, true) != SPELL_CAST_OK)
+        if (m_spellInfo->CheckTarget(m_caster, target, implicit) != SPELL_CAST_OK)
             return;
 
     // Check for effect immune skip if immuned
@@ -2745,18 +2745,18 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
     if (!m_hitTriggerSpells.empty())
     {
         int _duration = 0;
-        for (HitTriggerSpells::const_iterator i = m_hitTriggerSpells.begin(); i != m_hitTriggerSpells.end(); ++i)
+        for (HitTriggerSpellList::const_iterator i = m_hitTriggerSpells.begin(); i != m_hitTriggerSpells.end(); ++i)
         {
-            if (CanExecuteTriggersOnHit(effMask, i->first) && roll_chance_i(i->second))
+            if (CanExecuteTriggersOnHit(effMask, i->triggeredByAura) && roll_chance_i(i->chance))
             {
-                m_caster->CastSpell(unit, i->first, true);
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell %d triggered spell %d by SPELL_AURA_ADD_TARGET_TRIGGER aura", m_spellInfo->Id, i->first->Id);
+                m_caster->CastSpell(unit, i->triggeredSpell, true);
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell %d triggered spell %d by SPELL_AURA_ADD_TARGET_TRIGGER aura", m_spellInfo->Id, i->triggeredSpell->Id);
 
                 // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
                 // set duration of current aura to the triggered spell
-                if (i->first->GetDuration() == -1)
+                if (i->triggeredSpell->GetDuration() == -1)
                 {
-                    if (Aura* triggeredAur = unit->GetAura(i->first->Id, m_caster->GetGUID()))
+                    if (Aura* triggeredAur = unit->GetAura(i->triggeredSpell->Id, m_caster->GetGUID()))
                     {
                         // get duration from aura-only once
                         if (!_duration)
@@ -7171,14 +7171,13 @@ void Spell::CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTarget
     }
 }
 
-bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* spellInfo) const
+bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura) const
 {
-    bool only_on_dummy = (spellInfo && (spellInfo->AttributesEx4 & SPELL_ATTR4_PROC_ONLY_ON_DUMMY));
-    // If triggered spell has SPELL_ATTR4_PROC_ONLY_ON_DUMMY then it can only proc on a casted spell with SPELL_EFFECT_DUMMY
-    // If triggered spell doesn't have SPELL_ATTR4_PROC_ONLY_ON_DUMMY then it can NOT proc on SPELL_EFFECT_DUMMY (needs confirmation)
+    bool only_on_caster = (triggeredByAura && (triggeredByAura->AttributesEx4 & SPELL_ATTR4_PROC_ONLY_ON_CASTER));
+    // If triggeredByAura has SPELL_ATTR4_PROC_ONLY_ON_CASTER then it can only proc on a casted spell with TARGET_UNIT_CASTER
     for (uint8 i = 0;i < MAX_SPELL_EFFECTS; ++i)
     {
-        if ((effMask & (1 << i)) && (only_on_dummy == (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DUMMY)))
+        if ((effMask & (1 << i)) && (!only_on_caster || (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)))
             return true;
     }
     return false;
@@ -7230,9 +7229,14 @@ void Spell::PrepareTriggersExecutedOnHit()
             // calculate the chance using spell base amount, because aura amount is not updated on combo-points change
             // this possibly needs fixing
             int32 auraBaseAmount = (*i)->GetBaseAmount();
-            int32 chance = m_caster->CalculateSpellDamage(NULL, auraSpellInfo, auraSpellIdx, &auraBaseAmount);
             // proc chance is stored in effect amount
-            m_hitTriggerSpells.push_back(std::make_pair(spellInfo, chance * (*i)->GetBase()->GetStackAmount()));
+            int32 chance = m_caster->CalculateSpellDamage(NULL, auraSpellInfo, auraSpellIdx, &auraBaseAmount);
+            // build trigger and add to the list
+            HitTriggerSpell spellTriggerInfo;
+            spellTriggerInfo.triggeredSpell = spellInfo;
+            spellTriggerInfo.triggeredByAura = auraSpellInfo;
+            spellTriggerInfo.chance = chance * (*i)->GetBase()->GetStackAmount();
+            m_hitTriggerSpells.push_back(spellTriggerInfo);
         }
     }
 }

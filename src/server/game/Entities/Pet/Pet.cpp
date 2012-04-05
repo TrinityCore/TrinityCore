@@ -1745,7 +1745,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL_LIST);
     stmt->setUInt32(0, owner->GetGUIDLow());
-    stmt->setUInt32(0, except_petnumber);
+    stmt->setUInt32(1, except_petnumber);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)

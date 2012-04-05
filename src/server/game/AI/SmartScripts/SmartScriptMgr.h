@@ -1165,14 +1165,15 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
 
 enum SmartEventFlags
 {
-    SMART_EVENT_FLAG_NOT_REPEATABLE        = 0x01,                     //Event can not repeat
-    SMART_EVENT_FLAG_DIFFICULTY_0          = 0x02,                     //Event only occurs in instance difficulty 0
-    SMART_EVENT_FLAG_DIFFICULTY_1          = 0x04,                     //Event only occurs in instance difficulty 1
-    SMART_EVENT_FLAG_DIFFICULTY_2          = 0x08,                     //Event only occurs in instance difficulty 2
-    SMART_EVENT_FLAG_DIFFICULTY_3          = 0x10,                     //Event only occurs in instance difficulty 3
-    SMART_EVENT_FLAG_RESERVED_5            = 0x20,
-    SMART_EVENT_FLAG_RESERVED_6            = 0x40,
-    SMART_EVENT_FLAG_DEBUG_ONLY            = 0x80,                     //Event only occurs in debug build
+    SMART_EVENT_FLAG_NOT_REPEATABLE        = 0x001,                     //Event can not repeat
+    SMART_EVENT_FLAG_DIFFICULTY_0          = 0x002,                     //Event only occurs in instance difficulty 0
+    SMART_EVENT_FLAG_DIFFICULTY_1          = 0x004,                     //Event only occurs in instance difficulty 1
+    SMART_EVENT_FLAG_DIFFICULTY_2          = 0x008,                     //Event only occurs in instance difficulty 2
+    SMART_EVENT_FLAG_DIFFICULTY_3          = 0x010,                     //Event only occurs in instance difficulty 3
+    SMART_EVENT_FLAG_RESERVED_5            = 0x020,
+    SMART_EVENT_FLAG_RESERVED_6            = 0x040,
+    SMART_EVENT_FLAG_DEBUG_ONLY            = 0x080,                     //Event only occurs in debug build
+    SMART_EVENT_FLAG_DONT_RESET            = 0x100,                     //Event will not reset in SmartScript::OnReset()
 
     SMART_EVENT_FLAG_DIFFICULTY_ALL        = (SMART_EVENT_FLAG_DIFFICULTY_0|SMART_EVENT_FLAG_DIFFICULTY_1|SMART_EVENT_FLAG_DIFFICULTY_2|SMART_EVENT_FLAG_DIFFICULTY_3)
 };
