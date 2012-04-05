@@ -7,7 +7,7 @@ UPDATE `gameobject_template` SET `questItem1`=30527, `questItem2`=30524, `questI
 -- UPDATE `gameobject_template` SET `type`=5, `data3`=0, `data5`=0 WHERE `entry`=188187; -- Snow Pile
 UPDATE `gameobject_template` SET `size`=0.45 WHERE `entry`=190169; -- Tiger Lily
 UPDATE `gameobject_template` SET `unk1`='' WHERE `entry`=190549; -- The Zephyr
-UPDATE `gameobject_template` SET `data0`=2061 WHERE `entry`=191300; -- Fire
+-- UPDATE `gameobject_template` SET `data0`=2061 WHERE `entry`=191300; -- Fire
 UPDATE `gameobject_template` SET `displayId`=7836 WHERE `entry`=196485; -- Saronite Rock
 --  UPDATE `gameobject_template` SET `data0`=2061 WHERE `entry`=126337; -- 126337
 --  UPDATE `gameobject_template` SET `data0`=2061 WHERE `entry`=126338; -- 126338
