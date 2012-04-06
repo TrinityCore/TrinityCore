@@ -148,6 +148,14 @@ bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
+bool BattlegroundRV::IsPlayerUnderMap(float z)
+{			
+    if (z < ARENA_RV_GROUND && GetStatus() != STATUS_WAIT_JOIN && getState())  // ignore while we wait for the arena to start and while the elevators are going up (state = 0)
+        return true;
+
+    return false;
+}
+
 void BattlegroundRV::HandleAreaTrigger(Player* Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)

@@ -63,5 +63,6 @@ class BattlegroundRL : public Battleground
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
+        bool IsPlayerUnderMap(float z);
 };
 #endif

@@ -278,6 +278,12 @@ enum GroupJoinBattlegroundResult
     ERR_IN_NON_RANDOM_BG                    = -15,          // Can't queue for Random Battleground while in another Battleground queue.
 };
 
+#define ARENA_BE_GROUND 0.5
+#define ARENA_DS_GROUND 3
+#define ARENA_NA_GROUND 11
+#define ARENA_RL_GROUND 31
+#define ARENA_RV_GROUND 28.27
+
 class BattlegroundScore
 {
     public:
@@ -555,6 +561,7 @@ class Battleground
         const char* GetTrinityString(int32 entry);
 
         virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
+        virtual bool IsPlayerUnderMap(float z) { return false; }
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
         uint32 GetPlayerTeam(uint64 guid) const;

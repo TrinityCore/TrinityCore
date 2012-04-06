@@ -67,5 +67,6 @@ class BattlegroundNA : public Battleground
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
+        bool IsPlayerUnderMap(float z);
 };
 #endif

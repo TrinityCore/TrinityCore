@@ -89,6 +89,8 @@
 #define SKILL_PERM_BONUS(x)    int16(PAIR32_HIPART(x))
 #define MAKE_SKILL_BONUS(t, p) MAKE_PAIR32(t, p)
 
+#define VMAP_INVALID_HEIGHT_VALUE -200000.0f
+
 enum CharacterFlags
 {
     CHARACTER_FLAG_NONE                 = 0x00000000,
@@ -1809,6 +1811,20 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && isAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
+    // Blizzlike port up system
+    if (!InArena())
+    {
+        float mapheight = GetMap()->GetHeight(GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZ() + 4.0f);	
+        if (GetPositionZ() < mapheight - 0.5 && mapheight != VMAP_INVALID_HEIGHT_VALUE)
+            TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), mapheight + 1.0f, GetOrientation(), false);
+				
+    }
+    else
+    {
+        if (GetBattleground()->IsPlayerUnderMap(GetPositionZ()))
+            GetBattleground()->HandlePlayerUnderMap(this);
+    }
 }
 
 void Player::setDeathState(DeathState s)

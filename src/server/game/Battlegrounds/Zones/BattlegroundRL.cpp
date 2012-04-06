@@ -102,6 +102,14 @@ bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
+bool BattlegroundRL::IsPlayerUnderMap(float z)
+{
+    if (z < ARENA_RL_GROUND)
+        return true;
+
+    return false;
+}
+
 void BattlegroundRL::HandleAreaTrigger(Player* Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
