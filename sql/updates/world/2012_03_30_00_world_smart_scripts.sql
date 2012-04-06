@@ -92,4 +92,3 @@ INSERT INTO `quest_start_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`
 (@COOP,38,10,@ENTRY,@LIFE,0, 5227.28,4407.01,-95.3888,4.29414),
 (@COOP,39,10,@ENTRY,@LIFE,0, 5251.09,4413.76,-96.086,3.90536),
 (@COOP,40,10,@ENTRY,@LIFE,0, 5251.09,4413.76,-96.086,4.36089);
-

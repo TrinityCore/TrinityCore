@@ -266,7 +266,6 @@ struct CreatureData
 // `creature_addon` table
 struct CreatureAddon
 {
-    uint32 guidOrEntry;
     uint32 path_id;
     uint32 mount;
     uint32 bytes1;
