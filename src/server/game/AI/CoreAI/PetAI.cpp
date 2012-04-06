@@ -109,17 +109,25 @@ void PetAI::UpdateAI(const uint32 diff)
     }
     else if (owner && me->GetCharmInfo()) //no victim
     {
-        Unit* nextTarget = SelectNextTarget();
+        // Only aggressive pets do target search every update.
+        // Defensive pets do target search only in these cases:
+        //  * Owner attacks something - handled by OwnerAttacked()
+        //  * Owner receives damage - handled by OwnerDamagedBy()
+        //  * Pet is in combat and current target dies - handled by KilledUnit()
+        if (me->HasReactState(REACT_AGGRESSIVE))
+        {
+            Unit* nextTarget = SelectNextTarget();
 
-        if (me->HasReactState(REACT_PASSIVE))
-            _stopAttack();
-        else if (nextTarget)
-            AttackStart(nextTarget);
+            if (nextTarget)
+                AttackStart(nextTarget);
+            else
+                HandleReturnMovement();
+        }
         else
             HandleReturnMovement();
     }
     else if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW)) // no charm info and no victim
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        HandleReturnMovement();
 
     if (!me->GetCharmInfo())
         return;
@@ -300,6 +308,47 @@ void PetAI::AttackStart(Unit* target)
         owner->SetInCombatWith(target);
 
     DoAttack(target, true);
+}
+
+void PetAI::OwnerDamagedBy(Unit* attacker)
+{
+    // Called when owner takes damage. Allows defensive pets to know
+    //  that their owner might need help
+
+    if (!attacker)
+        return;
+
+    // Passive pets don't do anything
+    if (me->HasReactState(REACT_PASSIVE))
+        return;
+
+    // Prevent pet from disengaging from current target
+    if (me->getVictim() && me->getVictim()->isAlive())
+        return;
+
+    // Continue to evaluate and attack if necessary
+    AttackStart(attacker);
+}
+
+void PetAI::OwnerAttacked(Unit* target)
+{
+    // Called when owner attacks something. Allows defensive pets to know
+    //  that they need to assist
+
+    // Target might be NULL if called from spell with invalid cast targets
+    if (!target)
+        return;
+
+    // Passive pets don't do anything
+    if (me->HasReactState(REACT_PASSIVE))
+        return;
+
+    // Prevent pet from disengaging from current target
+    if (me->getVictim() && me->getVictim()->isAlive())
+        return;
+
+    // Continue to evaluate and attack if necessary
+    AttackStart(target);
 }
 
 Unit* PetAI::SelectNextTarget()
