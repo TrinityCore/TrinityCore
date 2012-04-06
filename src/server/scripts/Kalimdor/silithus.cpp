@@ -373,8 +373,13 @@ static QuestCinematic EventAnim[]=
     {0, 0, 0}
 };
 
+struct Location
+{
+   float x, y, z, o;
+};
+
 //Cordinates for Spawns
-static const Position SpawnLocation[]=
+static Location SpawnLocation[]=
 {
     {-8085.0f, 1528.0f, 2.61f, 3.141592f}, //Kaldorei Infantry
     {-8080.0f, 1526.0f, 2.61f, 3.141592f}, //Kaldorei Infantry
@@ -485,9 +490,9 @@ class npc_anachronos_the_ancient : public CreatureScript
 public:
     npc_anachronos_the_ancient() : CreatureScript("npc_anachronos_the_ancient") { }
 
-    CreatureAI* GetAI(Creature* c) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_anachronos_the_ancientAI(c);
+        return new npc_anachronos_the_ancientAI(creature);
     }
 
     struct npc_anachronos_the_ancientAI : public ScriptedAI
@@ -813,9 +818,9 @@ class mob_qiraj_war_spawn : public CreatureScript
 public:
     mob_qiraj_war_spawn() : CreatureScript("mob_qiraj_war_spawn") { }
 
-    CreatureAI* GetAI(Creature* c) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_qiraj_war_spawnAI(c);
+        return new mob_qiraj_war_spawnAI(creature);
     }
 
     struct mob_qiraj_war_spawnAI : public ScriptedAI
@@ -928,9 +933,9 @@ class npc_anachronos_quest_trigger : public CreatureScript
 public:
     npc_anachronos_quest_trigger() : CreatureScript("npc_anachronos_quest_trigger") { }
 
-    CreatureAI* GetAI(Creature* c) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_anachronos_quest_triggerAI(c);
+        return new npc_anachronos_quest_triggerAI(creature);
     }
 
     struct npc_anachronos_quest_triggerAI : public ScriptedAI
@@ -974,7 +979,14 @@ public:
             //uint8 QirajiWaspCount = 0;
             for (uint8 i = 0; i < 67; ++i)
             {
-                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[locIndex + i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, WavesInfo[WaveCount].DespTimer))
+                float X = SpawnLocation[locIndex + i].x;
+                float Y = SpawnLocation[locIndex + i].y;
+                float Z = SpawnLocation[locIndex + i].z;
+                float O = SpawnLocation[locIndex + i].o;
+                uint32 desptimer = WavesInfo[WaveCount].DespTimer;
+                Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer);
+
+                if (spawn)
                 {
                     spawn->LoadCreaturesAddon();
                     if (spawn->GetEntry() == 15423)
