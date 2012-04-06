@@ -61,6 +61,7 @@ enum Spells
     SPELL_ASPHYXIATION          = 71665,
     SPELL_FROST_BOMB_TRIGGER    = 69846,
     SPELL_FROST_BOMB_VISUAL     = 70022,
+    SPELL_BIRTH_NO_VISUAL       = 40031,
     SPELL_FROST_BOMB            = 69845,
     SPELL_MYSTIC_BUFFET         = 70128,
 
@@ -167,6 +168,23 @@ class FrostwyrmLandEvent : public BasicEvent
     private:
         Creature& _owner;
         Position const& _dest;
+};
+
+class FrostBombExplosion : public BasicEvent
+{
+    public:
+        FrostBombExplosion(Creature* owner, uint64 sindragosaGUID) : _owner(owner), _sindragosaGUID(sindragosaGUID) { }
+
+        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
+        {
+            _owner->CastSpell((Unit*)NULL, SPELL_FROST_BOMB, true, NULL, NULL, _sindragosaGUID);
+            _owner->RemoveAurasDueToSpell(SPELL_FROST_BOMB_VISUAL);
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+        uint64 _sindragosaGUID;
 };
 
 class boss_sindragosa : public CreatureScript
@@ -325,6 +343,12 @@ class boss_sindragosa : public CreatureScript
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
+                if (summon->GetEntry() == NPC_FROST_BOMB)
+                {
+                    summon->CastSpell(summon, SPELL_FROST_BOMB_VISUAL, true);
+                    summon->CastSpell(summon, SPELL_BIRTH_NO_VISUAL, true);
+                    summon->m_Events.AddEvent(new FrostBombExplosion(summon, me->GetGUID()), summon->m_Events.CalculateTime(5500));
+                }
             }
 
             void SummonedCreatureDespawn(Creature* summon)
@@ -337,18 +361,25 @@ class boss_sindragosa : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
+                {
                     if (spellId == spell->Id)
+                    {
                         if (Aura const* mysticBuffet = target->GetAura(spell->Id))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
+
+                        return;
+                    }
+                }
 
                 // Frost Infusion
                 if (Player* player = target->ToPlayer())
                 {
                     if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
                     {
-                        if (player->GetQuestStatus(QUEST_FROST_INFUSION) == QUEST_STATUS_INCOMPLETE && spellId == spell->Id)
+                        if (spellId == spell->Id)
                         {
-                            if (Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true))
+                            Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true);
+                            if (player->GetQuestStatus(QUEST_FROST_INFUSION) == QUEST_STATUS_INCOMPLETE && shadowsEdge)
                             {
                                 if (!player->HasAura(SPELL_FROST_IMBUED_BLADE) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE)
                                 {
@@ -366,14 +397,10 @@ class boss_sindragosa : public CreatureScript
                                         player->CastSpell(player, SPELL_FROST_INFUSION, true);
                                 }
                             }
+
+                            return;
                         }
                     }
-                }
-
-                if (spell->Id == SPELL_FROST_BOMB_TRIGGER)
-                {
-                    target->CastSpell(target, SPELL_FROST_BOMB, true);
-                    target->RemoveAurasDueToSpell(SPELL_FROST_BOMB_VISUAL);
                 }
             }
 
@@ -458,21 +485,11 @@ class boss_sindragosa : public CreatureScript
                         case EVENT_FROST_BOMB:
                         {
                             float destX, destY, destZ;
-                            destX = float(rand_norm()) * 117.25f + 4339.25f;
-                            if (destX > 4371.5f && destX < 4432.0f)
-                                destY = float(rand_norm()) * 111.0f + 2429.0f;
-                            else
-                                destY = float(rand_norm()) * 31.23f + 2454.64f;
+                            destX = float(rand_norm()) * 75.0f + 4350.0f;
+                            destY = float(rand_norm()) * 75.0f + 2450.0f;
                             destZ = 205.0f; // random number close to ground, get exact in next call
                             me->UpdateGroundPositionZ(destX, destY, destZ);
-                            Position pos;
-                            pos.Relocate(destX, destY, destZ, 0.0f);
-                            if (TempSummon* summ = me->SummonCreature(NPC_FROST_BOMB, pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
-                            {
-                                summ->CastSpell(summ, SPELL_FROST_BOMB_VISUAL, true);
-                                DoCast(summ, SPELL_FROST_BOMB_TRIGGER);
-                                //me->CastSpell(destX, destY, destZ, SPELL_FROST_BOMB_TRIGGER, false);
-                            }
+                            me->CastSpell(destX, destY, destZ, SPELL_FROST_BOMB_TRIGGER, false);
                             events.ScheduleEvent(EVENT_FROST_BOMB, urand(5000, 10000));
                             break;
                         }
