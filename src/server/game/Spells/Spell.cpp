@@ -3112,9 +3112,7 @@ void Spell::cast(bool skipCheck)
         if (Pet* playerPet = playerCaster->GetPet())
         {
             if (playerPet->isAlive() && playerPet->isControlled() && (m_targets.GetTargetMask() & TARGET_FLAG_UNIT))
-            {
                 playerPet->AI()->OwnerAttacked(m_targets.GetObjectTarget()->ToUnit());
-            }
         }
     }
     SetExecutedCurrently(true);
