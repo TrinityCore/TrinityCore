@@ -84,7 +84,7 @@ namespace nsNpcTel
         std::string m_name;
         Flag        m_flag;
         uint64      m_data0;
-        uint64      m_data1;
+        uint32      m_data1;
         VDest       m_TabDest;
     };
 
