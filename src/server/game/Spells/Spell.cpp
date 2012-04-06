@@ -3101,11 +3101,22 @@ void Spell::cast(bool skipCheck)
         return;
     }
 
-    // now that we've done the basic check, now run the scripts
-    // should be done before the spell is actually executed
     if (Player* playerCaster = m_caster->ToPlayer())
+    {
+        // now that we've done the basic check, now run the scripts
+        // should be done before the spell is actually executed
         sScriptMgr->OnPlayerSpellCast(playerCaster, this, skipCheck);
 
+        // Let any pets know we've attacked something. As of 3.0.2 pets begin
+        //  attacking their owner's target immediately
+        if (Pet* playerPet = playerCaster->GetPet())
+        {
+            if (playerPet->isAlive() && playerPet->isControlled() && (m_targets.GetTargetMask() & TARGET_FLAG_UNIT))
+            {
+                playerPet->AI()->OwnerAttacked(m_targets.GetObjectTarget()->ToUnit());
+            }
+        }
+    }
     SetExecutedCurrently(true);
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER && m_targets.GetUnitTarget() && m_targets.GetUnitTarget() != m_caster)

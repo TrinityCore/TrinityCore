@@ -138,6 +138,12 @@ class CreatureAI : public UnitAI
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) {}
 
+        // Called when owner takes damage
+        virtual void OwnerDamagedBy(Unit* /*attacker*/) {}
+
+        // Called when owner attacks something
+        virtual void OwnerAttacked(Unit* /*target*/) {}
+
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
