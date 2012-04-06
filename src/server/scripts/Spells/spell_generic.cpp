@@ -2618,6 +2618,33 @@ class spell_gen_wg_water : public SpellScriptLoader
         }
 };
 
+class spell_gen_pct_damage_from_basepoint : public SpellScriptLoader
+{
+    public:
+        spell_gen_pct_damage_from_basepoint() : SpellScriptLoader("spell_gen_pct_damage_from_basepoint") { }
+
+        class spell_gen_pct_damage_from_basepoint_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_pct_damage_from_basepoint_SpellScript);
+
+            void RecalculateDamage()
+            {
+                if (Unit* target = GetHitUnit())
+                    SetHitDamage(target->CountPctFromMaxHealth(GetEffectValue()));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_pct_damage_from_basepoint_SpellScript::RecalculateDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_pct_damage_from_basepoint_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2669,4 +2696,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_chaos_blast();
     new spell_gen_ds_flush_knockback();
     new spell_gen_wg_water();
+    new spell_gen_pct_damage_from_basepoint();
 }
