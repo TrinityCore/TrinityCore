@@ -3410,10 +3410,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_CASTER;
                 break;
             case 69846: // Frost Bomb
-                spellInfo->speed = 10;
-                spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_TARGET_ANY;
-                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effect[1] = 0;
+                spellInfo->speed = 0.0f;    // This spell's summon happens instantly
                 break;
             case 71614: // Ice Lock
                 spellInfo->Mechanic = MECHANIC_STUN;
