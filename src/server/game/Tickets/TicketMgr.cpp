@@ -38,7 +38,7 @@ GmTicket::GmTicket(Player* player, WorldPacket& recv_data) : _createTime(time(NU
     _playerGuid = player->GetGUID();
 
     uint32 mapId;
-    recv_data >> mapId; // Map is sent as UInt32!	
+    recv_data >> mapId; // Map is sent as UInt32!
     _mapId = mapId;
 
     recv_data >> _posX;
