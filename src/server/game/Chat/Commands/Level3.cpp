@@ -441,7 +441,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
             Field* fields = result->Fetch();
             uint32 item_guid = fields[0].GetUInt32();
             uint32 item_bag = fields[1].GetUInt32();
-            uint32 item_slot = fields[2].GetUInt32();
+            uint8 item_slot = fields[2].GetUInt8();
             uint32 owner_guid = fields[3].GetUInt32();
             uint32 owner_acc = fields[4].GetUInt32();
             std::string owner_name = fields[5].GetString();
@@ -638,7 +638,7 @@ bool ChatHandler::HandleListObjectCommand(const char *args)
     uint32 obj_count = 0;
     result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='%u'", go_id);
     if (result)
-        obj_count = (*result)[0].GetUInt32();
+        obj_count = (*result)[0].GetUInt64();
 
     if (m_session)
     {
@@ -710,7 +710,7 @@ bool ChatHandler::HandleListCreatureCommand(const char *args)
     uint32 cr_count = 0;
     result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='%u'", cr_id);
     if (result)
-        cr_count = (*result)[0].GetUInt32();
+        cr_count = (*result)[0].GetUInt64();
 
     if (m_session)
     {
