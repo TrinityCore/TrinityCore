@@ -138,8 +138,8 @@ public:
                 if (resultDB)
                 {
                     Field* fieldsDB = resultDB->Fetch();
-                    uint32 mapId = fieldsDB[0].GetUInt32();
-                    uint32 zoneId = fieldsDB[1].GetUInt32();
+                    uint32 mapId = fieldsDB[0].GetUInt16();
+                    uint32 zoneId = fieldsDB[1].GetUInt16();
                     float posX = fieldsDB[2].GetFloat();
                     float posY = fieldsDB[3].GetFloat();
                     float posZ = fieldsDB[4].GetFloat();
