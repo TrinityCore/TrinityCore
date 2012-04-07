@@ -8672,6 +8672,26 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 }
                 break;
             }
+            case SPELLFAMILY_ROGUE:
+            {
+                switch (auraSpellInfo->Id)
+                {
+                    // Rogue T10 2P bonus, should only proc on caster
+                    case 70805:
+                    {
+                        if (victim != this)
+                            return false;
+                        break;
+                    }
+                    // Rogue T10 4P bonus, should proc on victim
+                    case 70803:
+                    {
+                        target = victim;
+                        break;
+                    }
+                }
+                break;
+            }
             default:
                  break;
         }
