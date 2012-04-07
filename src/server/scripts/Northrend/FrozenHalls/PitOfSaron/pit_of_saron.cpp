@@ -240,12 +240,13 @@ class mob_geist_ambusher : public CreatureScript
                 _leapingFaceMaulCooldown = 9000;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void EnterCombat(Unit* who)
             {
                 if (who->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (me->IsWithinDistInMap(who, 30.0f))
+                // the max range is determined by aggro range
+                if (me->GetDistance(who) > 5.0f)
                     DoCast(who, SPELL_LEAPING_FACE_MAUL);
             }
 
