@@ -2618,6 +2618,60 @@ class spell_gen_wg_water : public SpellScriptLoader
         }
 };
 
+class spell_gen_bp_damage_pct_from_max_hp : public SpellScriptLoader
+{
+    public:
+        spell_gen_bp_damage_pct_from_max_hp() : SpellScriptLoader("spell_gen_bp_damage_pct_from_max_hp") { }
+
+        class spell_gen_bp_damage_pct_from_max_hp_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_bp_damage_pct_from_max_hp_SpellScript);
+
+            void RecalculateDamage()
+            {
+                if (Unit* target = GetHitUnit())
+                    SetHitDamage(target->CountPctFromMaxHealth(GetEffectValue()));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_bp_damage_pct_from_max_hp_SpellScript::RecalculateDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_bp_damage_pct_from_max_hp_SpellScript();
+        }
+};
+
+class spell_gen_50pct_pct_from_max_hp : public SpellScriptLoader
+{
+    public:
+        spell_gen_50pct_pct_from_max_hp() : SpellScriptLoader("spell_gen_50pct_pct_from_max_hp") { }
+
+        class spell_gen_50pct_pct_from_max_hp_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_50pct_pct_from_max_hp_SpellScript);
+
+            void RecalculateDamage()
+            {
+                if (Unit* target = GetHitUnit())
+                    SetHitDamage(target->CountPctFromMaxHealth(50));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_50pct_pct_from_max_hp_SpellScript::RecalculateDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_50pct_pct_from_max_hp_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2669,4 +2723,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_chaos_blast();
     new spell_gen_ds_flush_knockback();
     new spell_gen_wg_water();
+    new spell_gen_bp_damage_pct_from_max_hp();
+    new spell_gen_50pct_pct_from_max_hp();
 }
