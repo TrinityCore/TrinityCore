@@ -572,6 +572,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
 
+    // Signal to pets that their owner was attacked
+    if (victim->GetTypeId() == TYPEID_PLAYER)
+    {
+        Pet* pet = victim->ToPlayer()->GetPet();
+
+        if (pet && pet->isAlive())
+            pet->AI()->OwnerDamagedBy(this);
+    }
+
     if (damagetype != NODAMAGE)
     {
         // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
@@ -9514,6 +9523,16 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
     if (meleeAttack)
         SendMeleeAttackStart(victim);
+
+    // Let the pet know we've started attacking someting. Handles melee attacks only
+    // Spells such as auto-shot and others handled in WorldSession::HandleCastSpellOpcode
+    if (this->GetTypeId() == TYPEID_PLAYER)
+    {
+        Pet* playerPet = this->ToPlayer()->GetPet();
+        
+        if (playerPet && playerPet->isAlive())
+            playerPet->AI()->OwnerAttacked(victim);
+    }
 
     return true;
 }
