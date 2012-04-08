@@ -422,6 +422,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
         case CONDITION_PHASEMASK:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
+        case CONDITION_TITLE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
             break;
@@ -1826,9 +1829,16 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Phasemask condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
-        case CONDITION_UNUSED_18:
-            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_18 in `conditions` table - ignoring");
-            return false;
+        case CONDITION_TITLE:
+        {
+            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
+            if (!titleEntry)
+            {
+                sLog->outErrorDb("Title condition has non existing title in value1 (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
         case CONDITION_UNUSED_19:
             sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
             return false;

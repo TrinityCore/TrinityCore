@@ -2936,7 +2936,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     if (xp < 1)
         return;
 
-    if (!isAlive())
+    if (!isAlive() && !GetBattlegroundId())
         return;
 
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN))
@@ -4828,16 +4828,16 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             {
                 do
                 {
-                    Field* fields = resultMail->Fetch();
+                    Field* mailFields = resultMail->Fetch();
 
-                    uint32 mail_id       = fields[0].GetUInt32();
-                    uint8 mailType       = fields[1].GetUInt8();
-                    uint16 mailTemplateId= fields[2].GetUInt16();
-                    uint32 sender        = fields[3].GetUInt32();
-                    std::string subject  = fields[4].GetString();
-                    std::string body     = fields[5].GetString();
-                    uint32 money         = fields[6].GetUInt32();
-                    bool has_items       = fields[7].GetBool();
+                    uint32 mail_id       = mailFields[0].GetUInt32();
+                    uint8 mailType       = mailFields[1].GetUInt8();
+                    uint16 mailTemplateId= mailFields[2].GetUInt16();
+                    uint32 sender        = mailFields[3].GetUInt32();
+                    std::string subject  = mailFields[4].GetString();
+                    std::string body     = mailFields[5].GetString();
+                    uint32 money         = mailFields[6].GetUInt32();
+                    bool has_items       = mailFields[7].GetBool();
 
                     // We can return mail now
                     // So firstly delete the old one
@@ -4871,9 +4871,9 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                         {
                             do
                             {
-                                Field* fields2 = resultItems->Fetch();
-                                uint32 item_guidlow = fields2[11].GetUInt32();
-                                uint32 item_template = fields2[12].GetUInt32();
+                                Field* itemFields = resultItems->Fetch();
+                                uint32 item_guidlow = itemFields[11].GetUInt32();
+                                uint32 item_template = itemFields[12].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
@@ -4885,7 +4885,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                                 }
 
                                 Item* pItem = NewItemOrBag(itemProto);
-                                if (!pItem->LoadFromDB(item_guidlow, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER), fields2, item_template))
+                                if (!pItem->LoadFromDB(item_guidlow, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER), itemFields, item_template))
                                 {
                                     pItem->FSetState(ITEM_REMOVED);
                                     pItem->SaveToDB(trans);              // it also deletes item object!
@@ -8205,6 +8205,10 @@ void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackTy
 
 void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
 {
+    // don't apply mod if item is broken or cannot be used
+    if (item->IsBroken() || !CanUseAttackType(attackType))
+        return;
+
     // generic not weapon specific case processes in aura code
     if (aura->GetSpellInfo()->EquippedItemClass == -1)
         return;
@@ -8218,13 +8222,13 @@ void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attac
         default: return;
     }
 
-    if (!item->IsBroken()&&item->IsFitToSpellRequirements(aura->GetSpellInfo()))
+    if (item->IsFitToSpellRequirements(aura->GetSpellInfo()))
         HandleBaseModValue(mod, FLAT_MOD, float (aura->GetAmount()), apply);
 }
 
 void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
 {
-    //don't apply mod if item is broken
+    // don't apply mod if item is broken or cannot be used
     if (item->IsBroken() || !CanUseAttackType(attackType))
         return;
 
