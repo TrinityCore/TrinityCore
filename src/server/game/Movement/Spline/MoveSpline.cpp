@@ -288,7 +288,7 @@ std::string MoveSpline::ToString() const
         str << "facing  angle: " << facing.angle;
     else if (splineflags.final_target)
         str << "facing target: " << facing.target;
-    else if(splineflags.final_point)
+    else if (splineflags.final_point)
         str << "facing  point: " << facing.f.x << " " << facing.f.y << " " << facing.f.z;
     str << std::endl;
     str << "time passed: " << time_passed << std::endl;

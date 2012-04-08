@@ -127,8 +127,7 @@ void RandomMovementGenerator<Creature>::Initialize(Creature &creature)
 }
 
 template<>
-void
-RandomMovementGenerator<Creature>::Reset(Creature &creature)
+void RandomMovementGenerator<Creature>::Reset(Creature &creature)
 {
     Initialize(creature);
 }
@@ -141,8 +140,7 @@ void RandomMovementGenerator<Creature>::Finalize(Creature &creature)
 }
 
 template<>
-bool
-RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 diff)
+bool RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 diff)
 {
     if (creature.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
     {
