@@ -49,16 +49,13 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
         float const wanderX = x + (wander_distance * (float)rand_norm() - wander_distance/2);
         float const wanderY = y + (wander_distance * (float)rand_norm() - wander_distance/2);
 
-        i_waypoints[idx][0] = wanderX;
-        i_waypoints[idx][1] = wanderY;
-
         // prevent invalid coordinates generation
-        Trinity::NormalizeMapCoord(i_waypoints[idx][0]);
-        Trinity::NormalizeMapCoord(i_waypoints[idx][1]);
+        Trinity::NormalizeMapCoord(wanderX);
+        Trinity::NormalizeMapCoord(wanderY);
 
         if (unit.IsWithinLOS(wanderX, wanderY, z))
         {
-            bool is_water = map->IsInWater(i_waypoints[idx][0], i_waypoints[idx][1], z);
+            bool is_water = map->IsInWater(wanderX, wanderY, z);
 
             if ((is_water && !is_water_ok) || (!is_water && !is_land_ok))
             {
@@ -67,7 +64,11 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
                 i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
             }
 
-            unit.UpdateAllowedPositionZ(i_waypoints[idx][0], i_waypoints[idx][1], z);
+            unit.UpdateAllowedPositionZ(wanderX, wanderY, z);
+
+            //! Positions are now fine - apply them to this waypoint
+            i_waypoints[idx][0] = wanderX;
+            i_waypoints[idx][1] = wanderY;
             i_waypoints[idx][2] = z;
         }
         else
