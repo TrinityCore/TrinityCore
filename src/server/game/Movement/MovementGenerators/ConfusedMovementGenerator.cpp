@@ -32,11 +32,10 @@
 template<class T>
 void ConfusedMovementGenerator<T>::Initialize(T &unit)
 {
-    const float wander_distance=4;
-    float x,y,z;
-    x = unit.GetPositionX();
-    y = unit.GetPositionY();
-    z = unit.GetPositionZ();
+    float const wander_distance = 4;
+    float x = unit.GetPositionX();
+    float y = unit.GetPositionY();
+    float z = unit.GetPositionZ();
 
     Map const* map = unit.GetBaseMap();
 
@@ -47,31 +46,41 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     for (uint8 idx = 0; idx < MAX_CONF_WAYPOINTS + 1; ++idx)
     {
-        const float wanderX=wander_distance*(float)rand_norm() - wander_distance/2;
-        const float wanderY=wander_distance*(float)rand_norm() - wander_distance/2;
+        float const wanderX = x + (wander_distance * (float)rand_norm() - wander_distance/2);
+        float const wanderY = y + (wander_distance * (float)rand_norm() - wander_distance/2);
 
-        i_waypoints[idx][0] = x + wanderX;
-        i_waypoints[idx][1] = y + wanderY;
+        i_waypoints[idx][0] = wanderX;
+        i_waypoints[idx][1] = wanderY;
 
         // prevent invalid coordinates generation
         Trinity::NormalizeMapCoord(i_waypoints[idx][0]);
         Trinity::NormalizeMapCoord(i_waypoints[idx][1]);
 
-        bool is_water = map->IsInWater(i_waypoints[idx][0],i_waypoints[idx][1],z);
-        // if generated wrong path just ignore
-        if ((is_water && !is_water_ok) || (!is_water && !is_land_ok))
+        if (unit.IsWithinLOS(wanderX, wanderY, z))
         {
+            bool is_water = map->IsInWater(i_waypoints[idx][0], i_waypoints[idx][1], z);
+
+            if ((is_water && !is_water_ok) || (!is_water && !is_land_ok))
+            {
+                //! Ignore bad generated path. Use the current or previous position.
+                i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x;
+                i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
+            }
+
+            unit.UpdateAllowedPositionZ(i_waypoints[idx][0], i_waypoints[idx][1], z);
+            i_waypoints[idx][2] = z;
+        }
+        else
+        {
+            //! Ignore bad generated path. Use the current or previous position.
             i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x;
             i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
         }
-
-        unit.UpdateAllowedPositionZ(i_waypoints[idx][0], i_waypoints[idx][1], z);
-        i_waypoints[idx][2] = z;
     }
 
     unit.StopMoving();
     unit.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.AddUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
+    unit.AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<>
@@ -94,7 +103,7 @@ void ConfusedMovementGenerator<T>::Reset(T &unit)
     i_nextMove = 1;
     i_nextMoveTime.Reset(0);
     unit.StopMoving();
-    unit.AddUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
+    unit.AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<class T>
@@ -110,8 +119,8 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 
         if (unit.movespline->Finalized())
         {
-            i_nextMove = urand(1,MAX_CONF_WAYPOINTS);
-            i_nextMoveTime.Reset(urand(0, 1500-1));     // TODO: check the minimum reset time, should be probably higher
+            i_nextMove = urand(1, MAX_CONF_WAYPOINTS);
+            i_nextMoveTime.Reset(urand(500, 1200)); // Guessed
         }
     }
     else
@@ -123,7 +132,7 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
             // start moving
             unit.AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
-            ASSERT( i_nextMove <= MAX_CONF_WAYPOINTS );
+            ASSERT(i_nextMove <= MAX_CONF_WAYPOINTS);
             float x = i_waypoints[i_nextMove][0];
             float y = i_waypoints[i_nextMove][1];
             float z = i_waypoints[i_nextMove][2];
@@ -141,14 +150,14 @@ template<>
 void ConfusedMovementGenerator<Player>::Finalize(Player &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
+    unit.ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<>
 void ConfusedMovementGenerator<Creature>::Finalize(Creature &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
+    unit.ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
     if (unit.getVictim())
         unit.SetTarget(unit.getVictim()->GetGUID());
 }

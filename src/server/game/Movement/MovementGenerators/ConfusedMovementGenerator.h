@@ -22,11 +22,10 @@
 #include "MovementGenerator.h"
 #include "Timer.h"
 
-#define MAX_CONF_WAYPOINTS 24
+#define MAX_CONF_WAYPOINTS 24 //! Allows a twelve second confusion if i_nextMove always is the absolute minimum timer.
 
 template<class T>
-class ConfusedMovementGenerator
-: public MovementGeneratorMedium< T, ConfusedMovementGenerator<T> >
+class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMovementGenerator<T> >
 {
     public:
         explicit ConfusedMovementGenerator() : i_nextMoveTime(0) {}
