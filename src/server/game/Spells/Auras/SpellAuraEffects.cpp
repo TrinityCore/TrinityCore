@@ -5702,7 +5702,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     if (targets.empty())
                         return;
 
-                    Unit* spellTarget = SelectRandomContainerElement(targets);
+                    Unit* spellTarget = Trinity::Containers::SelectRandomContainerElement(targets);
 
                     target->CastSpell(spellTarget, 57840, true);
                     target->CastSpell(spellTarget, 57841, true);
