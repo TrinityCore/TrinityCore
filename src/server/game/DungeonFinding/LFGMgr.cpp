@@ -1023,7 +1023,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
     // Select a random dungeon from the compatible list
     // TODO - Select the dungeon based on group item Level, not just random
     // Create a new proposal
-    pProposal = new LfgProposal(SelectRandomContainerElement(compatibleDungeons));
+    pProposal = new LfgProposal(Trinity::Containers::SelectRandomContainerElement(compatibleDungeons));
     pProposal->cancelTime = time_t(time(NULL)) + LFG_TIME_PROPOSAL;
     pProposal->state = LFG_PROPOSAL_INITIATING;
     pProposal->queues = check;

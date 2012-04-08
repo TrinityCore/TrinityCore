@@ -2487,9 +2487,13 @@ class Player : public Unit, public GridObject<Player>
         */
         void SendMovementSetCanFly(bool apply);
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
-        
+
         // rates command
         void HandleRates();
+
+        void SendMovementSetHover(bool apply);
+        void SendMovementSetWaterWalking(bool apply);
+        void SendMovementSetFeatherFall(bool apply);
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 

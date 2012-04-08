@@ -27,8 +27,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-int
-TotemAI::Permissible(const Creature* creature)
+int TotemAI::Permissible(Creature const* creature)
 {
     if (creature->isTotem())
         return PERMIT_BASE_PROACTIVE;
@@ -41,8 +40,7 @@ TotemAI::TotemAI(Creature* c) : CreatureAI(c), i_victimGuid(0)
     ASSERT(c->isTotem());
 }
 
-void
-TotemAI::MoveInLineOfSight(Unit*)
+void TotemAI::MoveInLineOfSight(Unit* /*who*/)
 {
 }
 
@@ -51,10 +49,9 @@ void TotemAI::EnterEvadeMode()
     me->CombatStop(true);
 }
 
-void
-TotemAI::UpdateAI(const uint32 /*diff*/)
+void TotemAI::UpdateAI(uint32 const /*diff*/)
 {
-  if (me->ToTotem()->GetTotemType() != TOTEM_ACTIVE)
+    if (me->ToTotem()->GetTotemType() != TOTEM_ACTIVE)
         return;
 
     if (!me->isAlive() || me->IsNonMeleeSpellCasted(false))
@@ -98,8 +95,7 @@ TotemAI::UpdateAI(const uint32 /*diff*/)
         i_victimGuid = 0;
 }
 
-void
-TotemAI::AttackStart(Unit*)
+void TotemAI::AttackStart(Unit* /*victim*/)
 {
     // Sentry totem sends ping on attack
     if (me->GetEntry() == SENTRY_TOTEM_ENTRY && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)

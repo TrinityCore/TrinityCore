@@ -250,7 +250,7 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
                         return;
                     }
 
-                    Unit* target = SelectRandomContainerElement(tempTargets);
+                    Unit* target = Trinity::Containers::SelectRandomContainerElement(tempTargets);
                     unitList.clear();
                     unitList.push_back(target);
                 }
