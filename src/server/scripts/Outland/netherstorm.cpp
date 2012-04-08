@@ -812,7 +812,7 @@ public:
                 }
                 if (!UnitsWithMana.empty())
                 {
-                    DoCast(SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);
+                    DoCast(Trinity::Containers::SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);
                     ManaBurnTimer = 8000 + (rand() % 10 * 1000); // 8-18 sec cd
                 }
                 else

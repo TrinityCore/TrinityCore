@@ -2602,7 +2602,7 @@ void World::SendAutoBroadcast()
 
     std::string msg;
 
-    msg = SelectRandomContainerElement(m_Autobroadcasts);
+    msg = Trinity::Containers::SelectRandomContainerElement(m_Autobroadcasts);
 
     uint32 abcenter = sWorld->getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
 
