@@ -274,6 +274,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             condMeets = object->GetPhaseMask() & ConditionValue1;
             break;
         }
+        case CONDITION_TITLE:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->HasTitle(ConditionValue1);
+            break;
+        }
         default:
             condMeets = false;
             break;
