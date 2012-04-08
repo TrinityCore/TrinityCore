@@ -5618,21 +5618,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     caster->CastCustomSpell(66153, SPELLVALUE_MAX_TARGETS, urand(1, 6), target, true);
                     break;
                 }
-                case 54798: // FLAMING Arrow Triggered Effect
-                {
-                    if (!caster || !target || !target->ToCreature() || !caster->GetVehicle() || target->HasAura(54683))
-                        break;
-
-                    target->CastSpell(target, 54683, true);
-
-                    // Credit Frostworgs
-                    if (target->GetEntry() == 29358)
-                        caster->CastSpell(caster, 54896, true);
-                    // Credit Frost Giants
-                    else if (target->GetEntry() == 29351)
-                        caster->CastSpell(caster, 54893, true);
-                    break;
-                }
                 case 62292: // Blaze (Pool of Tar)
                     // should we use custom damage?
                     target->CastSpell((Unit*)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
