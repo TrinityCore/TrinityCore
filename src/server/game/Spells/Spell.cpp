@@ -5397,6 +5397,12 @@ SpellCastResult Spell::CheckCast(bool strict)
                 //custom check
                 switch (m_spellInfo->Id)
                 {
+                    case 52610: //Savage Roar
+                    {
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->ToPlayer()->GetShapeshiftForm()!=FORM_CAT)
+                                return SPELL_FAILED_ONLY_SHAPESHIFT;
+                        break;
+                    }
                     // Tag Murloc
                     case 30877:
                     {
