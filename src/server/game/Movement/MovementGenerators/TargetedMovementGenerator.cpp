@@ -26,8 +26,6 @@
 #include "MoveSpline.h"
 #include "Player.h"
 
-#include <cmath>
-
 template<class T, typename D>
 void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
 {
@@ -65,30 +63,27 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
         i_target->GetClosePoint(x, y, z, owner.GetObjectSize(), i_offset, i_angle);
     }
 
-    /*
-        We MUST not check the distance difference and avoid setting the new location for smaller distances.
-        By that we risk having far too many GetContactPoint() calls freezing the whole system.
-        In TargetedMovementGenerator<T>::Update() we check the distance to the target and at
-        some range we calculate a new position. The calculation takes some processor cycles due to vmaps.
-        If the distance to the target it too large to ignore,
-        but the distance to the new contact point is short enough to be ignored,
-        we will calculate a new contact point each update loop, but will never move to it.
-        The system will freeze.
-        ralf
+    if (!i_path)
+        i_path = new PathFinderMovementGenerator(&owner);
 
-        //We don't update Mob Movement, if the difference between New destination and last destination is < BothObjectSize
-        float  bothObjectSize = i_target->GetObjectBoundingRadius() + owner.GetObjectBoundingRadius() + CONTACT_DISTANCE;
-        if ( i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x,y,z) < bothObjectSize )
-            return;
-    */
-
+    // allow pets following their master to cheat while generating paths
+    bool forceDest = (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->isPet()
+                        && owner.HasUnitState(UNIT_STAT_FOLLOW));
+    i_path->calculate(x, y, z, forceDest);
+    if (i_path->getPathType() & PATHFIND_NOPATH)
+        return;
 
     D::_addUnitStateMove(owner);
     i_targetReached = false;
     i_recalculateTravel = false;
+    owner.AddUnitState(UNIT_STATE_CHASE);
 
     Movement::MoveSplineInit init(owner);
-    init.MoveTo(x,y,z);
+    if (!i_target->IsInWater())
+        init.MovebyPath(i_path->getPath());
+    else
+        init.MoveTo(i_target->GetPositionX(), i_target->GetPositionY(), i_target->GetPositionZ(), false, false);
+
     init.SetWalk(((D*)this)->EnableWalking());
     init.Launch();
 }
@@ -125,7 +120,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
 
-    if (!owner.isAlive())
+    if (!&owner || !owner.isAlive())
         return true;
 
     if (owner.HasUnitState(UNIT_STATE_NOT_MOVE))
@@ -152,11 +147,18 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
     i_recheckDistance.Update(time_diff);
     if (i_recheckDistance.Passed())
     {
-        i_recheckDistance.Reset(50);
+        i_recheckDistance.Reset(100);
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
-        float allowed_dist = i_target->GetObjectSize() + owner.GetObjectSize() + MELEE_RANGE - 0.5f;
-        float dist = (owner.movespline->FinalDestination() - G3D::Vector3(i_target->GetPositionX(),i_target->GetPositionY(),i_target->GetPositionZ())).squaredLength();
-        if (dist >= allowed_dist * allowed_dist)
+        float allowed_dist = owner.GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        G3D::Vector3 dest = owner.movespline->FinalDestination();
+
+        bool targetMoved = false;
+        if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->canFly())
+            targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
+        else
+            targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
+
+        if (targetMoved)
             _setTargetLocation(owner);
     }
 
