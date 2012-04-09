@@ -36,7 +36,7 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
         MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
     private:
         TimeTracker i_nextMoveTime;
-        float i_waypoints[24+1][3];
+        float i_x, i_y, i_z;
 };
 #endif
 
