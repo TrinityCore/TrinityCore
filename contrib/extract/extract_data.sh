@@ -22,7 +22,7 @@ NUM_CPU="2"
 
 ## ! Use below only for finetuning or if you know what you are doing !
 
-USE_AD="0"
+USE_MAPS="0"
 USE_VMAPS="0"
 USE_MMAPS="0"
 USE_MMAPS_OFFMESH="0"
@@ -30,7 +30,7 @@ USE_MMAPS_OFFMESH="0"
 if [ "$1" = "a" ]
 then
   ## extract all
-  USE_AD="1"
+  USE_MAPS="1"
   USE_VMAPS="1"
   USE_MMAPS="1"
 else
@@ -42,14 +42,14 @@ else
   if [ "$line" = "y" ]
   then
     ## extract all
-    USE_AD="1"
+    USE_MAPS="1"
     USE_VMAPS="1"
     USE_MMAPS="1"
   else
     echo
     echo "Should dbc and maps be extracted? (y/n)"
     read line
-    if [ "$line" = "y" ]; then USE_AD="1"; fi
+    if [ "$line" = "y" ]; then USE_MAPS="1"; fi
 
     echo
     echo "Should vmaps be extracted? (y/n)"
