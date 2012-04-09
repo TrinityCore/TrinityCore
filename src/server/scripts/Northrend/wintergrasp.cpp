@@ -56,12 +56,12 @@ enum Spells
 
 enum CreatureIds
 {
-    NPC_GOBLIN_MECHANIC                 = 30400,
-    NPC_GNOMISH_ENGINEER                = 30499,
+    NPC_GOBLIN_MECHANIC                             = 30400,
+    NPC_GNOMISH_ENGINEER                            = 30499,
 
-    NPC_WINTERGRASP_CONTROL_ARMS        = 27852,
+    NPC_WINTERGRASP_CONTROL_ARMS                    = 27852,
 
-    NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC = 23742,
+    NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC   = 23472,
 };
 
 enum QuestIds
