@@ -21,6 +21,7 @@
 */
 
 #include "Common.h"
+#include "Memory.h"
 #include "DatabaseEnv.h"
 #include "Config.h"
 #include "SystemConfig.h"
@@ -54,6 +55,7 @@
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
+#include "MMapFactory.h"
 #include "GameEventMgr.h"
 #include "PoolMgr.h"
 #include "GridNotifiersImpl.h"
@@ -1121,6 +1123,7 @@ void World::LoadConfigSettings(bool reload)
     }
 
     m_bool_configs[CONFIG_VMAP_INDOOR_CHECK] = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", 0);
+    m_bool_configs[CONFIG_ENABLE_MMAPS] = ConfigMgr::GetBoolDefault("mmap.enablePathFinding", true);
     bool enableIndoor = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", true);
     bool enableLOS = ConfigMgr::GetBoolDefault("vmap.enableLOS", true);
     bool enableHeight = ConfigMgr::GetBoolDefault("vmap.enableHeight", true);
@@ -1215,6 +1218,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize the random number generator
     srand((unsigned int)time(NULL));
+
+    ///- Initialize detour memory management
+    dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
     ///- Initialize config settings
     LoadConfigSettings();
