@@ -306,22 +306,28 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
             switch (type)
             {
                 case DTT_INVENTORY:
-                    StoreGUID(result, 3, items); break;       // item guid collection (character_inventory.item)
+                    StoreGUID(result, 3, items);                // item guid collection (character_inventory.item)
+                    break;
                 case DTT_PET:
-                    StoreGUID(result, 0, pets);  break;       // pet petnumber collection (character_pet.id)
+                    StoreGUID(result, 0, pets);                 // pet petnumber collection (character_pet.id)
+                    break;
                 case DTT_MAIL:
-                    StoreGUID(result, 0, mails);              // mail id collection (mail.id)
+                    StoreGUID(result, 0, mails);                // mail id collection (mail.id)
+                    break;
                 case DTT_MAIL_ITEM:
-                    StoreGUID(result, 1, items); break;       // item guid collection (mail_items.item_guid)
+                    StoreGUID(result, 1, items);                // item guid collection (mail_items.item_guid)
+                    break;
                 case DTT_CHARACTER:
                 {
-                    if (result->GetFieldCount() <= 67)      // avoid crashes on next check
-                        return true;
-                    if (result->Fetch()[67].GetUInt32())    // characters.deleteInfos_Account - if filled error
+                    if (result->GetFieldCount() <= 68)          // avoid crashes on next check
+                        sLog->outCrash("PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
+
+                    if (result->Fetch()[68].GetUInt32())        // characters.deleteInfos_Account - if filled error
                         return false;
                     break;
                 }
-                default:                       break;
+                default:
+                    break;
             }
 
             dump += CreateDumpString(tableTo, result);
