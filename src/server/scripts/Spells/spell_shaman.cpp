@@ -552,6 +552,13 @@ class spell_sha_chain_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_chain_heal_SpellScript);
 
+            bool Load()
+            {
+                firstHeal = true;
+                riptide = false;
+                return true;
+            }
+
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (firstHeal)
@@ -573,13 +580,10 @@ class spell_sha_chain_heal : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_sha_chain_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-                firstHeal = true;
-                riptide = false;
             }
-            
+
             bool firstHeal;
             bool riptide;
-            
         };
 
         SpellScript* GetSpellScript() const
