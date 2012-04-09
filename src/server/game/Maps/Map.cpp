@@ -124,7 +124,7 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 void Map::LoadMMap(int gx, int gy)
 {
     // DONT CHANGE "gy" and "gx" - Its necessary !
-    int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(GetId(), gy, gx);
+    int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gy, gx);
     switch (mmapLoadResult)
     {
         case MMAP::MMAP_LOAD_RESULT_OK:
