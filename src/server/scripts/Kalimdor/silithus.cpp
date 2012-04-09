@@ -979,16 +979,14 @@ public:
             //uint8 QirajiWaspCount = 0;
             for (uint8 i = 0; i < 67; ++i)
             {
-                float X = SpawnLocation[locIndex + i].x;
-                float Y = SpawnLocation[locIndex + i].y;
-                float Z = SpawnLocation[locIndex + i].z;
-                float O = SpawnLocation[locIndex + i].o;
+                float x = SpawnLocation[locIndex + i].x;
+                float y = SpawnLocation[locIndex + i].y;
+                float z = SpawnLocation[locIndex + i].z;
+                float o = SpawnLocation[locIndex + i].o;
                 uint32 desptimer = WavesInfo[WaveCount].DespTimer;
-                Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer);
 
-                if (spawn)
+                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
                 {
-                    spawn->LoadCreaturesAddon();
                     if (spawn->GetEntry() == 15423)
                         spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15427+rand()%4);
                     if (i >= 30) WaveCount = 1;
@@ -998,9 +996,11 @@ public:
 
                     if (WaveCount < 5) //1-4 Wave
                     {
-                        mob_qiraj_war_spawn::mob_qiraj_war_spawnAI* spawnAI = CAST_AI(mob_qiraj_war_spawn::mob_qiraj_war_spawnAI, spawn->AI());
-                        spawnAI->MobGUID = me->GetGUID();
-                        spawnAI->PlayerGUID = PlayerGUID;
+                        if (mob_qiraj_war_spawn::mob_qiraj_war_spawnAI* spawnAI = CAST_AI(mob_qiraj_war_spawn::mob_qiraj_war_spawnAI, spawn->AI()))
+                        {
+                            spawnAI->MobGUID = me->GetGUID();
+                            spawnAI->PlayerGUID = PlayerGUID;
+                        }
                     }
                 }
             }
@@ -1017,27 +1017,27 @@ public:
 
             if (Group* EventGroup = player->GetGroup())
             {
-                Player* GroupMember;
+                Player* groupMember;
 
                 uint8 GroupMemberCount = 0;
                 uint8 DeadMemberCount = 0;
                 uint8 FailedMemberCount = 0;
 
-                const Group::MemberSlotList members = EventGroup->GetMemberSlots();
+                Group::MemberSlotList const members = EventGroup->GetMemberSlots();
 
                 for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                 {
-                    GroupMember = (Unit::GetPlayer(*me, itr->guid));
-                    if (!GroupMember)
+                    groupMember = (Unit::GetPlayer(*me, itr->guid));
+                    if (!groupMember)
                         continue;
-                    if (!GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
+                    if (!groupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && groupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
                     {
-                         GroupMember->FailQuest(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD);
+                         groupMember->FailQuest(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD);
                         ++FailedMemberCount;
                     }
                     ++GroupMemberCount;
 
-                    if (GroupMember->isDead())
+                    if (groupMember->isDead())
                         ++DeadMemberCount;
                 }
 
@@ -1081,8 +1081,13 @@ public:
 void mob_qiraj_war_spawn::mob_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
 {
     me->RemoveCorpse();
-    if (Creature* Mob = (Unit::GetCreature(*me, MobGUID)))
-        CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, Mob->AI())->LiveCounter();
+
+    if (!MobGUID)
+        return;
+
+    if (Creature* mob = Unit::GetCreature(*me, MobGUID))
+        if (npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI* triggerAI = CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, mob->AI()))
+            triggerAI->LiveCounter();
 
 };
 
@@ -1099,15 +1104,13 @@ public:
     {
         if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
         {
-
-            if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, player))
+            if (Creature* trigger = go->FindNearestCreature(15454, 100, player))
             {
-
-                Unit* Merithra = Anachronos_Quest_Trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Arygos = Anachronos_Quest_Trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                /* Unit* Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Creature* Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Merithra = trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Caelestrasz = trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Arygos = trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                /* Unit* Fandral = */ trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Creature* Anachronos = trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
 
                 if (Merithra)
                 {
@@ -1135,11 +1138,16 @@ public:
 
                 if (Anachronos)
                 {
-                    CAST_AI(npc_anachronos_the_ancient::npc_anachronos_the_ancientAI, Anachronos->AI())->PlayerGUID = player->GetGUID();
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Failed=false;
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = player->GetGUID();
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->EventStarted=true;
-                    CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Announced=true;
+                    if (npc_anachronos_the_ancient::npc_anachronos_the_ancientAI* anachronosAI = CAST_AI(npc_anachronos_the_ancient::npc_anachronos_the_ancientAI, Anachronos->AI()))
+                        anachronosAI->PlayerGUID = player->GetGUID();
+
+                    if (npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI* triggerAI = CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, trigger->AI()))
+                    {
+                        triggerAI->Failed = false;
+                        triggerAI->PlayerGUID = player->GetGUID();
+                        triggerAI->EventStarted = true;
+                        triggerAI->Announced = true;
+                    }
                 }
             }
         }
