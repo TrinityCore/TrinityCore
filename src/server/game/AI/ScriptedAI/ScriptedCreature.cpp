@@ -297,14 +297,13 @@ void ScriptedAI::DoTeleportTo(const float position[4])
 
 void ScriptedAI::DoTeleportPlayer(Unit* unit, float x, float y, float z, float o)
 {
-    if (!unit || unit->GetTypeId() != TYPEID_PLAYER)
-    {
-        if (unit)
-            sLog->outError("TSCR: Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.", me->GetGUID(), me->GetEntry(), unit->GetTypeId(), unit->GetGUID(), x, y, z, o);
+    if (!unit)
         return;
-    }
 
-    CAST_PLR(unit)->TeleportTo(unit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
+    if (Player* player = unit->ToPlayer())
+        player->TeleportTo(unit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
+    else
+        sLog->outError("TSCR: Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.", me->GetGUID(), me->GetEntry(), unit->GetTypeId(), unit->GetGUID(), x, y, z, o);
 }
 
 void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
