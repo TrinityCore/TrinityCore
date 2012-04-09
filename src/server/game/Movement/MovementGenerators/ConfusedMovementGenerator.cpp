@@ -79,29 +79,15 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
         i_waypoints[idx][2] = z;
     }
 
+    unit.GetPosition(i_x, i_y, i_z);
     unit.StopMoving();
     unit.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit.AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
 }
 
-template<>
-void ConfusedMovementGenerator<Creature>::_InitSpecific(Creature &creature, bool &is_water_ok, bool &is_land_ok)
-{
-    is_water_ok = creature.canSwim();
-    is_land_ok  = creature.canWalk();
-}
-
-template<>
-void ConfusedMovementGenerator<Player>::_InitSpecific(Player &, bool &is_water_ok, bool &is_land_ok)
-{
-    is_water_ok = true;
-    is_land_ok  = true;
-}
-
 template<class T>
 void ConfusedMovementGenerator<T>::Reset(T &unit)
 {
-    i_nextMove = 1;
     i_nextMoveTime.Reset(0);
     unit.StopMoving();
     unit.AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
@@ -119,10 +105,7 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
         unit.AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
         if (unit.movespline->Finalized())
-        {
-            i_nextMove = urand(1, MAX_CONF_WAYPOINTS);
-            i_nextMoveTime.Reset(urand(500, 1200)); // Guessed
-        }
+            i_nextMoveTime.Reset(urand(800, 1500));
     }
     else
     {
@@ -137,8 +120,20 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
             float x = i_waypoints[i_nextMove][0];
             float y = i_waypoints[i_nextMove][1];
             float z = i_waypoints[i_nextMove][2];
+
+            unit.UpdateAllowedPositionZ(x, y, z);
+
+            PathFinderMovementGenerator path(&unit);
+            path.setPathLengthLimit(30.0f);
+            path.calculate(x, y, z);
+            if (path.getPathType() & PATHFIND_NOPATH)
+            {
+                i_nextMoveTime.Reset(urand(800, 1000));
+                return true;
+            }
+
             Movement::MoveSplineInit init(unit);
-            init.MoveTo(x, y, z);
+            init.MovebyPath(path.getPath());
             init.SetWalk(true);
             init.Launch();
         }
@@ -152,6 +147,7 @@ void ConfusedMovementGenerator<Player>::Finalize(Player &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit.ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
+    unit.StopMoving();
 }
 
 template<>
