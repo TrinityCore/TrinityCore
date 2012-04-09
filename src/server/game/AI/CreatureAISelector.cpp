@@ -82,7 +82,7 @@ namespace FactorySelector
             {
                 const CreatureAICreator* factory = iter->second;
                 const SelectableAI* p = dynamic_cast<const SelectableAI*>(factory);
-                ASSERT(p != NULL);
+                ASSERT(p);
                 int val = p->Permit(creature);
                 if (val > best_val)
                 {
@@ -102,7 +102,7 @@ namespace FactorySelector
     MovementGenerator* selectMovementGenerator(Creature* creature)
     {
         MovementGeneratorRegistry& mv_registry(*MovementGeneratorRepository::instance());
-        ASSERT(creature->GetCreatureTemplate() != NULL);
+        ASSERT(creature->GetCreatureTemplate());
         const MovementGeneratorCreator* mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
 
         /* if (mv_factory == NULL)

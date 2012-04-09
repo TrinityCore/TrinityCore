@@ -1060,7 +1060,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
                     if ((*j)->IsAffectedOnSpell(m_spellInfo))
                         maxTargets += (*j)->GetAmount();
 
-                Trinity::RandomResizeList(targets, maxTargets);
+                Trinity::Containers::RandomResizeList(targets, maxTargets);
             }
 
             // for compability with older code - add only unit and go targets
@@ -1355,7 +1355,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
             if (m_spellInfo->Id == 5246) //Intimidating Shout
                 unitTargets.remove(m_targets.GetUnitTarget());
-            Trinity::RandomResizeList(unitTargets, maxTargets);
+            Trinity::Containers::RandomResizeList(unitTargets, maxTargets);
         }
 
         CallScriptAfterUnitTargetSelectHandlers(unitTargets, effIndex);
@@ -1373,7 +1373,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 if ((*j)->IsAffectedOnSpell(m_spellInfo))
                     maxTargets += (*j)->GetAmount();
 
-            Trinity::RandomResizeList(gObjTargets, maxTargets);
+            Trinity::Containers::RandomResizeList(gObjTargets, maxTargets);
         }
         for (std::list<GameObject*>::iterator itr = gObjTargets.begin(); itr != gObjTargets.end(); ++itr)
             AddGOTarget(*itr, effMask);
@@ -3106,11 +3106,20 @@ void Spell::cast(bool skipCheck)
         return;
     }
 
-    // now that we've done the basic check, now run the scripts
-    // should be done before the spell is actually executed
     if (Player* playerCaster = m_caster->ToPlayer())
+    {
+        // now that we've done the basic check, now run the scripts
+        // should be done before the spell is actually executed
         sScriptMgr->OnPlayerSpellCast(playerCaster, this, skipCheck);
 
+        // Let any pets know we've attacked something. As of 3.0.2 pets begin
+        //  attacking their owner's target immediately
+        if (Pet* playerPet = playerCaster->GetPet())
+        {
+            if (playerPet->isAlive() && playerPet->isControlled() && (m_targets.GetTargetMask() & TARGET_FLAG_UNIT))
+                playerPet->AI()->OwnerAttacked(m_targets.GetObjectTarget()->ToUnit());
+        }
+    }
     SetExecutedCurrently(true);
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER && m_targets.GetUnitTarget() && m_targets.GetUnitTarget() != m_caster)
@@ -4336,10 +4345,9 @@ void Spell::TakePower()
                 for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                     if (ihit->targetGUID == targetGUID)
                     {
-                        if (ihit->missCondition != SPELL_MISS_NONE && ihit->missCondition != SPELL_MISS_MISS/* && ihit->targetGUID != m_caster->GetGUID()*/)
-                            hit = false;
                         if (ihit->missCondition != SPELL_MISS_NONE)
                         {
+                            hit = false;
                             //lower spell cost on fail (by talent aura)
                             if (Player* modOwner = m_caster->ToPlayer()->GetSpellModOwner())
                                 modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, m_powerCost);
@@ -5237,10 +5245,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_SUMMON_DEAD_PET:
             {
                 Creature* pet = m_caster->GetGuardianPet();
-                if (!pet)
-                    return SPELL_FAILED_NO_PET;
 
-                if (pet->isAlive())
+                if (pet && pet->isAlive())
                     return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
                 break;
@@ -5290,7 +5296,6 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if (m_caster->GetCharmGUID())
                     return SPELL_FAILED_ALREADY_HAVE_CHARM;
-
                 break;
             }
             case SPELL_EFFECT_TRANS_DOOR:

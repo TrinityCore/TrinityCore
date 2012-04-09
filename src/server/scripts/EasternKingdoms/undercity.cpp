@@ -47,7 +47,15 @@ enum Sylvanas
 
     SPELL_HIGHBORNE_AURA        = 37090,
     SPELL_SYLVANAS_CAST         = 36568,
-    SPELL_RIBBON_OF_SOULS       = 34432,                   //the real one to use might be 37099
+    SPELL_RIBBON_OF_SOULS       = 34432, // the real one to use might be 37099
+
+    // Combat spells
+    SPELL_BLACK_ARROW           = 59712,
+    SPELL_FADE                  = 20672,
+    SPELL_FADE_BLINK            = 29211,
+    SPELL_MULTI_SHOT            = 59713,
+    SPELL_SHOT                  = 59710,
+    SPELL_SUMMON_SKELETON       = 59711
 };
 
 float HighborneLoc[4][3]=
@@ -90,15 +98,27 @@ public:
     {
         npc_lady_sylvanas_windrunnerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 LamentEvent_Timer;
+        uint32 LamentEventTimer;
         bool LamentEvent;
         uint64 targetGUID;
 
+        uint32 FadeTimer;
+        uint32 SummonSkeletonTimer;
+        uint32 BlackArrowTimer;
+        uint32 ShotTimer;
+        uint32 MultiShotTimer;
+
         void Reset()
         {
-            LamentEvent_Timer = 5000;
+            LamentEventTimer = 5000;
             LamentEvent = false;
             targetGUID = 0;
+
+            FadeTimer = 30000;
+            SummonSkeletonTimer = 20000;
+            BlackArrowTimer = 15000;
+            ShotTimer = 8000;
+            MultiShotTimer = 10000;
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -123,22 +143,69 @@ public:
         {
             if (LamentEvent)
             {
-                if (LamentEvent_Timer <= diff)
+                if (LamentEventTimer <= diff)
                 {
                     DoSummon(ENTRY_HIGHBORNE_BUNNY, me, 10.0f, 3000, TEMPSUMMON_TIMED_DESPAWN);
 
-                    LamentEvent_Timer = 2000;
+                    LamentEventTimer = 2000;
                     if (!me->HasAura(SPELL_SYLVANAS_CAST))
                     {
                         DoScriptText(SAY_LAMENT_END, me);
                         DoScriptText(EMOTE_LAMENT_END, me);
                         LamentEvent = false;
                     }
-                } else LamentEvent_Timer -= diff;
+                } else LamentEventTimer -= diff;
             }
 
             if (!UpdateVictim())
                 return;
+
+            // Combat spells
+
+            if (FadeTimer <= diff)
+            {
+                DoCast(me, SPELL_FADE);
+                // add a blink to simulate a stealthed movement and reappearing elsewhere
+                DoCast(me, SPELL_FADE_BLINK);
+                FadeTimer = 30000 + rand()%5000;
+                // if the victim is out of melee range she cast multi shot
+                if (Unit* victim = me->getVictim())
+                    if (me->GetDistance(victim) > 10.0f)
+                        DoCast(victim, SPELL_MULTI_SHOT);
+            } else FadeTimer -= diff;
+            
+            if (SummonSkeletonTimer <= diff)
+            {
+                DoCast(me, SPELL_SUMMON_SKELETON);
+                SummonSkeletonTimer = 20000 + rand()%10000;
+            } else SummonSkeletonTimer -= diff;
+            
+            if (BlackArrowTimer <= diff)
+            {
+                if (Unit* victim = me->getVictim())
+                {
+                    DoCast(me->getVictim(), SPELL_BLACK_ARROW);
+                    BlackArrowTimer = 15000 + rand()%5000;
+                }
+            } else BlackArrowTimer -= diff;
+            
+            if (ShotTimer <= diff)
+            {
+                if (Unit* victim = me->getVictim())
+                {
+                    DoCast(me->getVictim(), SPELL_SHOT);
+                    ShotTimer = 8000 + rand()%2000;
+                }
+            } else ShotTimer -= diff;
+                   
+            if (MultiShotTimer <= diff)
+            {
+                if (Unit* victim = me->getVictim())
+                {
+                    DoCast(me->getVictim(), SPELL_MULTI_SHOT);
+                    MultiShotTimer = 10000 + rand()%3000;
+                }
+            } else MultiShotTimer -= diff;   
 
             DoMeleeAttackIfReady();
         }
@@ -163,15 +230,15 @@ public:
     {
         npc_highborne_lamenterAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 EventMove_Timer;
-        uint32 EventCast_Timer;
+        uint32 EventMoveTimer;
+        uint32 EventCastTimer;
         bool EventMove;
         bool EventCast;
 
         void Reset()
         {
-            EventMove_Timer = 10000;
-            EventCast_Timer = 17500;
+            EventMoveTimer = 10000;
+            EventCastTimer = 17500;
             EventMove = true;
             EventCast = true;
         }
@@ -182,21 +249,21 @@ public:
         {
             if (EventMove)
             {
-                if (EventMove_Timer <= diff)
+                if (EventMoveTimer <= diff)
                 {
                     me->SetDisableGravity(true);
                     me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetDistance(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW) / (5000 * 0.001f));
                     me->SetPosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
                     EventMove = false;
-                } else EventMove_Timer -= diff;
+                } else EventMoveTimer -= diff;
             }
             if (EventCast)
             {
-                if (EventCast_Timer <= diff)
+                if (EventCastTimer <= diff)
                 {
                     DoCast(me, SPELL_HIGHBORNE_AURA);
                     EventCast = false;
-                } else EventCast_Timer -= diff;
+                } else EventCastTimer -= diff;
             }
         }
     };

@@ -30,18 +30,6 @@ void SummonList::DoZoneInCombat(uint32 entry)
     }
 }
 
-void SummonList::DoAction(uint32 entry, int32 info)
-{
-    for (iterator i = begin(); i != end();)
-    {
-        Creature* summon = Unit::GetCreature(*me, *i);
-        ++i;
-        if (summon && summon->IsAIEnabled
-            && (!entry || summon->GetEntry() == entry))
-            summon->AI()->DoAction(info);
-    }
-}
-
 void SummonList::DespawnEntry(uint32 entry)
 {
     for (iterator i = begin(); i != end();)

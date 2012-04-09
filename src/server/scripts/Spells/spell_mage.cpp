@@ -250,9 +250,11 @@ class spell_mage_frost_warding_trigger : public SpellScriptLoader
 
                     if (roll_chance_i(chance))
                     {
-                        absorbAmount = dmgInfo.GetDamage();
-                        int32 bp = absorbAmount;
+                        int32 bp = dmgInfo.GetDamage();
+                        dmgInfo.AbsorbDamage(bp);
                         target->CastCustomSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                        absorbAmount = 0;
+                        PreventDefaultAction();
                     }
                 }
             }

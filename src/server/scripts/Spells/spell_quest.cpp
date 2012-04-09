@@ -636,6 +636,10 @@ class spell_q12851_going_bearback : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     Unit* target = GetTarget();
+                    // Already in fire
+                    if (target->HasAura(SPELL_ABLAZE))
+                        return;
+                        
                     if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
                     {
                         switch (target->GetEntry())

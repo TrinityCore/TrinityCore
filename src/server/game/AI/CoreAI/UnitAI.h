@@ -223,7 +223,7 @@ class UnitAI
                 targetList.reverse();
 
             if (targetType == SELECT_TARGET_RANDOM)
-                Trinity::RandomResizeList(targetList, maxTargets);
+                Trinity::Containers::RandomResizeList(targetList, maxTargets);
             else
                 targetList.resize(maxTargets);
         }

@@ -147,7 +147,7 @@ class boss_moam : public CreatureScript
                                         targetList.push_back((*itr)->getTarget());
                             }
 
-                            Trinity::RandomResizeList(targetList, 5);
+                            Trinity::Containers::RandomResizeList(targetList, 5);
 
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);
