@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "MapManager.h"
 #include "ConfusedMovementGenerator.h"
+#include "PathFinderMovementGenerator.h"
 #include "VMapFactory.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
@@ -42,8 +43,6 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
     i_nextMove = 1;
 
     bool is_water_ok, is_land_ok;
-    _InitSpecific(unit, is_water_ok, is_land_ok);
-
     for (uint8 idx = 0; idx < MAX_CONF_WAYPOINTS + 1; ++idx)
     {
         float wanderX = x + (wander_distance * (float)rand_norm() - wander_distance/2);
