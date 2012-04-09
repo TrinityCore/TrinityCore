@@ -2864,9 +2864,8 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
     target->SetCanFly(apply);
     if (!apply)
     {
-        target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        target->m_movementInfo.SetFallTime(0);
+        target->RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING_FLY);
+        target->GetMotionMaster()->MoveFall();
     }
 
     Player* player = target->ToPlayer();
@@ -2897,10 +2896,7 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
     if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
     else
-    {
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-        target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-    }
 
     target->SendMovementWaterWalking();
 }
@@ -5627,21 +5623,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     caster->CastCustomSpell(66153, SPELLVALUE_MAX_TARGETS, urand(1, 6), target, true);
                     break;
                 }
-                case 54798: // FLAMING Arrow Triggered Effect
-                {
-                    if (!caster || !target || !target->ToCreature() || !caster->GetVehicle() || target->HasAura(54683))
-                        break;
-
-                    target->CastSpell(target, 54683, true);
-
-                    // Credit Frostworgs
-                    if (target->GetEntry() == 29358)
-                        caster->CastSpell(caster, 54896, true);
-                    // Credit Frost Giants
-                    else if (target->GetEntry() == 29351)
-                        caster->CastSpell(caster, 54893, true);
-                    break;
-                }
                 case 62292: // Blaze (Pool of Tar)
                     // should we use custom damage?
                     target->CastSpell((Unit*)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
@@ -5730,7 +5711,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     if (targets.empty())
                         return;
 
-                    Unit* spellTarget = SelectRandomContainerElement(targets);
+                    Unit* spellTarget = Trinity::Containers::SelectRandomContainerElement(targets);
 
                     target->CastSpell(spellTarget, 57840, true);
                     target->CastSpell(spellTarget, 57841, true);
@@ -6276,7 +6257,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
 void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const
 {
-    if (!caster || !caster->isAlive() || !target->isAlive())
+    if (!caster || !target->isAlive())
         return;
 
     if (target->HasUnitState(UNIT_STATE_ISOLATED) || target->IsImmunedToDamage(GetSpellInfo()))
@@ -6329,15 +6310,19 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
     if (damage)
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
-    caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
+    if (caster->isAlive())
+        caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
     int32 new_damage = caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), false);
 
-    float gainMultiplier = GetSpellInfo()->Effects[GetEffIndex()].CalcValueMultiplier(caster);
+    if (caster->isAlive())
+    {
+        float gainMultiplier = GetSpellInfo()->Effects[GetEffIndex()].CalcValueMultiplier(caster);
 
-    uint32 heal = uint32(caster->SpellHealingBonus(caster, GetSpellInfo(), uint32(new_damage * gainMultiplier), DOT, GetBase()->GetStackAmount()));
+        uint32 heal = uint32(caster->SpellHealingBonus(caster, GetSpellInfo(), uint32(new_damage * gainMultiplier), DOT, GetBase()->GetStackAmount()));
 
-    int32 gain = caster->HealBySpell(caster, GetSpellInfo(), heal);
-    caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellInfo());
+        int32 gain = caster->HealBySpell(caster, GetSpellInfo(), heal);
+        caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellInfo());
+    }
 }
 
 void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const

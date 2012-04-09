@@ -34,8 +34,7 @@ class TargetedMovementGeneratorBase
 };
 
 template<class T, typename D>
-class TargetedMovementGeneratorMedium
-: public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
+class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
     protected:
         TargetedMovementGeneratorMedium(Unit &target, float offset, float angle) :
