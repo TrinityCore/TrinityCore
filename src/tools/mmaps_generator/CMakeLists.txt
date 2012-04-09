@@ -47,9 +47,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
 )
 
-add_executable(movements_extractor ${sources})
+add_executable(mmaps_generator ${sources})
 
-target_link_libraries(movements_extractor
+target_link_libraries(mmaps_generator
   ${MYSQL_LIBRARY}
   ${ACE_LIBRARY}
   ${BZIP2_LIBRARIES}
@@ -62,7 +62,7 @@ target_link_libraries(movements_extractor
 )
 
 if( UNIX )
-  install(TARGETS movements_extractor DESTINATION bin)
+  install(TARGETS mmaps_generator DESTINATION bin)
 elseif( WIN32 )
-  install(TARGETS movements_extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(TARGETS mmaps_generator DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
