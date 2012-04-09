@@ -61,7 +61,7 @@ namespace MMAP
             MMapManager() : loadedTiles(0) {}
             ~MMapManager();
 
-            bool loadMap(uint32 mapId, int32 x, int32 y);
+            bool loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId);
             bool unloadMapInstance(uint32 mapId, uint32 instanceId);
