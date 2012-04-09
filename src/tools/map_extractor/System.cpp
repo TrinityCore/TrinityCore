@@ -292,6 +292,8 @@ struct map_fileheader
     uint32 heightMapSize;
     uint32 liquidMapOffset;
     uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
 #define MAP_AREA_NO_AREA      0x0001
@@ -826,6 +828,28 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
             map.liquidMapSize += sizeof(float)*liquidHeader.width*liquidHeader.height;
     }
 
+    // map hole info
+    uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+
+    if (map.liquidMapOffset)
+        map.holesOffset = map.liquidMapOffset + map.liquidMapSize;
+    else
+        map.holesOffset = map.heightMapOffset + map.heightMapSize;
+
+    map.holesSize = sizeof(holes);
+    memset(holes, 0, map.holesSize);
+
+    for (int i = 0; i < ADT_CELLS_PER_GRID; ++i)
+    {
+        for (int j = 0; j < ADT_CELLS_PER_GRID; ++j)
+        {
+            adt_MCNK * cell = cells->getMCNK(i,j);
+            if (!cell)
+                continue;
+            holes[i][j] = cell->holes;
+        }
+    }
+
     // Ok all data prepared - store it
     FILE *output=fopen(filename2, "wb");
     if(!output)
@@ -875,6 +899,9 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
                 fwrite(&liquid_height[y+liquidHeader.offsetY][liquidHeader.offsetX], sizeof(float), liquidHeader.width, output);
         }
     }
+    // store hole data
+    fwrite(holes, map.holesSize, 1, output);
+
     fclose(output);
 
     return true;
