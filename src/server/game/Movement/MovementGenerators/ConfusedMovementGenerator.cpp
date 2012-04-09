@@ -59,24 +59,24 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
 
             if ((is_water && !is_water_ok) || (!is_water && !is_land_ok))
             {
-                //! Ignore bad generated path. Use the current or previous position.
-                i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x;
-                i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
+                //! Cannot use coordinates outside our InhabitType. Use the current or previous position.
+                wanderX = idx > 0 ? i_waypoints[idx-1][0] : x;
+                wanderY = idx > 0 ? i_waypoints[idx-1][1] : y;
             }
-
-            unit.UpdateAllowedPositionZ(wanderX, wanderY, z);
-
-            //! Positions are now fine - apply them to this waypoint
-            i_waypoints[idx][0] = wanderX;
-            i_waypoints[idx][1] = wanderY;
-            i_waypoints[idx][2] = z;
         }
         else
         {
-            //! Ignore bad generated path. Use the current or previous position.
-            i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x;
-            i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
+            //! Trying to access path outside line of sight. Skip this by using the current or previous position.
+            wanderX = idx > 0 ? i_waypoints[idx-1][0] : x;
+            wanderY = idx > 0 ? i_waypoints[idx-1][1] : y;
         }
+
+        unit.UpdateAllowedPositionZ(wanderX, wanderY, z);
+
+        //! Positions are fine - apply them to this waypoint
+        i_waypoints[idx][0] = wanderX;
+        i_waypoints[idx][1] = wanderY;
+        i_waypoints[idx][2] = z;
     }
 
     unit.StopMoving();
