@@ -20,6 +20,7 @@
 #include "GridStates.h"
 #include "ScriptMgr.h"
 #include "VMapFactory.h"
+#include "MMapFactory.h"
 #include "MapInstanced.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
@@ -69,6 +70,9 @@ Map::~Map()
 
     if (!m_scriptSchedule.empty())
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
+
+    MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId());
+    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
 }
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
@@ -115,6 +119,24 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
     }
 
     return true;
+}
+
+void Map::LoadMMap(int gx, int gy)
+{
+    // DONT CHANGE "gy" and "gx" - Its necessary !
+    int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(GetId(), gy, gx);
+    switch (mmapLoadResult)
+    {
+        case MMAP::MMAP_LOAD_RESULT_OK:
+            sLog->outDetail("MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+    	    break;
+        case MMAP::MMAP_LOAD_RESULT_ERROR:
+            sLog->outDetail("Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            break;
+        case MMAP::MMAP_LOAD_RESULT_IGNORED:
+            sLog->outStaticDebug("Ignored MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            break;
+    }
 }
 
 void Map::LoadVMap(int gx, int gy)
@@ -184,6 +206,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
 void Map::LoadMapAndVMap(int gx, int gy)
 {
     LoadMap(gx, gy);
+    LoadMMap(gx, gy);
     if (i_InstanceId == 0)
         LoadVMap(gx, gy);                                   // Only load the data for the base map
 }
@@ -996,6 +1019,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
             }
             // x and y are swapped
             VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gx, gy);
+            MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId(), gx, gy);
         }
         else
             ((MapInstanced*)m_parentMap)->RemoveGridMapReference(GridCoord(gx, gy));
