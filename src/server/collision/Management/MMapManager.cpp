@@ -82,10 +82,10 @@ namespace MMAP
         return uint32(x << 16 | y);
     }
 
-    bool MMapManager::loadMap(uint32 mapId, int32 x, int32 y)
+    bool MMapManager::loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
-        if(!loadMapData(mapId))
+        if (!loadMapData(mapId))
             return false;
 
         // get this mmap data
@@ -95,10 +95,7 @@ namespace MMAP
         // check if we already have this tile loaded
         uint32 packedGridPos = packTileID(x, y);
         if (mmap->mmapLoadedTiles.find(packedGridPos) != mmap->mmapLoadedTiles.end())
-        {
-            //sLog->outError("MMAP:loadMap: Asked to load already loaded navmesh tile. %03u%02i%02i.mmtile", mapId, y, x);
             return false;
-        }
 
         // load this tile :: mmaps/MMMXXYY.mmtile
         uint32 pathLen = sWorld->GetDataPath().length() + strlen("mmaps/%03i%02i%02i.mmtile")+1;
@@ -136,7 +133,7 @@ namespace MMAP
         ASSERT(data);
 
         size_t result = fread(data, fileHeader.size, 1, file);
-        if(!result)
+        if (!result)
         {
             sLog->outError("MMAP:loadMap: Bad header or data in mmap %03u%02i%02i.mmtile", mapId, y, x);
             fclose(file);
