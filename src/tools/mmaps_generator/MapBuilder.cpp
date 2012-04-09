@@ -28,6 +28,11 @@
 
 // These make the linker happy.
 LoginDatabaseWorkerPool LoginDatabase;
+uint32 GetLiquidFlags(uint32 liquidType)
+{
+    return 0;
+}
+
 #include "DisableMgr.h"
 namespace DisableMgr
 {
