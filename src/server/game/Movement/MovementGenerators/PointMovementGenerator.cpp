@@ -59,8 +59,8 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 & /*diff*/)
 template<class T>
 void PointMovementGenerator<T>::Finalize(T &unit)
 {
-    if (unit.HasUnitState(UNIT_STAT_CHARGING))
-        unit.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+    if (unit.HasUnitState(UNIT_STATE_CHARGING))
+        unit.ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
 
     if (unit.movespline->Finalized())
         MovementInform(unit);

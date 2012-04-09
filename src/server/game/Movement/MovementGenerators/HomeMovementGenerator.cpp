@@ -34,7 +34,7 @@ void HomeMovementGenerator<Creature>::Finalize(Creature& owner)
 {
     if (arrived)
     {
-        owner.ClearUnitState(UNIT_STAT_EVADE);
+        owner.ClearUnitState(UNIT_STATE_EVADE);
         owner.SetWalk(true);
         owner.LoadCreaturesAddon(true);
         owner.AI()->JustReachedHome();
@@ -70,15 +70,4 @@ bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32 /*tim
 {
     arrived = owner.movespline->Finalized();
     return !arrived;
-}
-
-void HomeMovementGenerator<Creature>::Finalize(Creature& owner)
-{
-    if (arrived)
-    {
-        owner.ClearUnitState(UNIT_STATE_EVADE);
-        owner.SetWalk(true);
-        owner.LoadCreaturesAddon(true);
-        owner.AI()->JustReachedHome();
-    }
 }

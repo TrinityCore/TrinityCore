@@ -72,29 +72,29 @@ bool FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float 
         if (dist_from_caster > 0.2f)
             angle_to_caster = fright->GetAngle(&owner);
         else
-            angle_to_caster = frand(0, 2*M_PI_F);
+            angle_to_caster = frand(0, 2 * static_cast<float>(M_PI));
     }
     else
     {
         dist_from_caster = 0.0f;
-        angle_to_caster = frand(0, 2*M_PI_F);
+        angle_to_caster = frand(0, 2 * static_cast<float>(M_PI));
     }
 
     float dist, angle;
     if (dist_from_caster < MIN_QUIET_DISTANCE)
     {
         dist = frand(0.4f, 1.3f)*(MIN_QUIET_DISTANCE - dist_from_caster);
-        angle = angle_to_caster + frand(-M_PI_F/8, M_PI_F/8);
+        angle = angle_to_caster + frand(-static_cast<float>(M_PI)/8, static_cast<float>(M_PI)/8);
     }
     else if(dist_from_caster > MAX_QUIET_DISTANCE)
     {
         dist = frand(0.4f, 1.0f)*(MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
-        angle = -angle_to_caster + frand(-M_PI_F/4, M_PI_F/4);
+        angle = -angle_to_caster + frand(-static_cast<float>(M_PI)/4, static_cast<float>(M_PI)/4);
     }
     else    // we are inside quiet range
     {
         dist = frand(0.6f, 1.2f)*(MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE);
-        angle = frand(0, 2*M_PI_F);
+        angle = frand(0, 2*static_cast<float>(M_PI));
     }
 
     float curr_x, curr_y, curr_z;
