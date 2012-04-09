@@ -26,9 +26,9 @@ EXCLUDE_MAPS=""
 OFFMESH_FILE="offmesh.txt"
 
 ## Normal log file (if not overwritten by second param
-LOG_FILE="MoveMapGen.log"
+LOG_FILE="movemap.log"
 ## Detailed log file
-DETAIL_LOG_FILE="MoveMapGen_detailed.log"
+DETAIL_LOG_FILE="movemap_detailed.log"
 
 ## ! Use below only for finetuning or if you know what you are doing !
 
@@ -89,20 +89,20 @@ createMMaps()
         continue 2
       fi
     done
-    ./MoveMapGen $PARAMS $OFFMESH $i | tee -a $DETAIL_LOG_FILE
+    ./mmaps_generator $PARAMS $OFFMESH $i | tee -a $DETAIL_LOG_FILE
     echo "`date`: (Re)created map $i" | tee -a $LOG_FILE
   done
 }
 
 createHeader()
 {
-  echo "`date`: Start creating MoveMaps" | tee -a $LOG_FILE
+  echo "`date`: Start creating mmaps_generator" | tee -a $LOG_FILE
   echo "Used params: $PARAMS $OFFMESH" | tee -a $LOG_FILE
   echo "Detailed log can be found in $DETAIL_LOG_FILE" | tee -a $LOG_FILE
-  echo "Start creating MoveMaps" | tee -a $DETAIL_LOG_FILE
+  echo "Start creating mmaps_generator" | tee -a $DETAIL_LOG_FILE
   echo
   echo "Be PATIENT - This will take a long time and might also have gaps between visible changes on the console."
-  echo "WAIT until you are informed that 'creating MoveMaps' is 'finished'!"
+  echo "WAIT until you are informed that 'creating mmaps_generator' is 'finished'!"
 }
 
 # Create mmaps directory if not exist
@@ -140,7 +140,7 @@ case "$1" in
     echo "Recreate offmeshs from file $OFFMESH_FILE" | tee -a $DETAIL_LOG_FILE
     while read map tile line
     do
-      ./movement_extractor $PARAMS $OFFMESH $map --tile $tile | tee -a $DETAIL_LOG_FILE
+      ./mmaps_generator $PARAMS $OFFMESH $map --tile $tile | tee -a $DETAIL_LOG_FILE
       echo "`date`: Recreated $map $tile from $OFFMESH_FILE" | tee -a $LOG_FILE
     done < $OFFMESH_FILE &
     ;;
