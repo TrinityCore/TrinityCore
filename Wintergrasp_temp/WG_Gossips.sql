@@ -1,7 +1,3 @@
--- Template gossip updates
-UPDATE `creature_template` SET `gossip_menu_id`=9904 WHERE `entry`=30400;
-UPDATE `creature_template` SET `gossip_menu_id`=10229 WHERE `entry`=31091;
-
 -- Gossip Menu
 DELETE FROM `gossip_menu` WHERE `entry`=9904 AND `text_id`=13759;
 DELETE FROM `gossip_menu` WHERE `entry`=9904 AND `text_id`=13761;
@@ -22,33 +18,6 @@ INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`op
 (9904,2,0, 'I would like to build a siege engine.',1,1,0,0,0,0, ''),
 (10129,2,0, 'Guide me to the Broken Temple Graveyard.',1,1,0,0,0,0, ''),
 (10129,4,0, 'Guide me to the Eastspark Graveyard.',1,1,0,0,0,0, '');
-
--- Conditions
--- Add gossip_menu condition for 9904 Horde
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=9904;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=9923;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9904;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9923;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`) VALUES
-(14,9904,13759,0,1,33280), -- Must have Rank 1: Corporal
-(14,9904,13759,1,1,55629), -- Or must have Rank 2: First Lieutenant
-(14,9904,13761,0,11,33280), -- Must not have Rank 1: Corporal
-(14,9904,13761,0,11,55629), -- Must not have Rank 2: First Lieutenant
--- Add gossip_menu condition for 9923 Alliance
-(14,9923,13798,0,1,33280), -- Must have Rank 1: Corporal
-(14,9923,13798,1,1,55629), -- Or must have Rank 2: First Lieutenant
-(14,9923,14172,0,11,33280), -- Must not have Rank 1: Corporal
-(14,9923,14172,0,11,55629), -- Must not have Rank 2: First Lieutenant
--- Add conditions to gossip options horde
-(15,9904,0,0,1,33280), -- Must have reached Rank 1: Corporal
-(15,9904,0,1,1,55629), -- Or must have reached Rank 2: First Lieutenant
-(15,9904,1,0,1,55629), -- Must have reached Rank 2: First Lieutenant
-(15,9904,2,0,1,55629), -- Must have reached Rank 2: First Lieutenant
--- Add conditions to gossip options alliance
-(15,9923,0,0,1,33280), -- Must have reached Rank 1: Corporal
-(15,9923,0,1,1,55629), -- Or must have reached Rank 2: First Lieutenant
-(15,9923,1,0,1,55629), -- Must have reached Rank 2: First Lieutenant
-(15,9923,2,0,1,55629); -- Must have reached Rank 2: First Lieutenant
 
 /* -- Add scripts to Wintergrasp spirit guide gossip
 -- !!!should be scripted by SAI or cpp script!!!

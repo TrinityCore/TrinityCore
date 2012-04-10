@@ -1,24 +1,3 @@
-SET @SPELL_HORDE := 56618;
-SET @SPELL_ALLIANCE := 56617;
-
-SET @AREA_SUNKEN_RING := 4538;
-SET @AREA_BROKEN_TEMPLE := 4539;
-SET @AREA_W_WORKSHOP := 4611;
-SET @AREA_E_WORKSHOP := 4612;
-
-DELETE FROM `spell_area` WHERE `spell` IN (@SPELL_HORDE, @SPELL_ALLIANCE);
-INSERT INTO `spell_area` (`spell`,`area`,`autocast`) VALUES
-(@SPELL_HORDE, @AREA_SUNKEN_RING, 1),
-(@SPELL_ALLIANCE, @AREA_SUNKEN_RING, 1),
-(@SPELL_HORDE, @AREA_BROKEN_TEMPLE, 1),
-(@SPELL_ALLIANCE, @AREA_BROKEN_TEMPLE, 1),
-(@SPELL_HORDE, @AREA_W_WORKSHOP, 1),
-(@SPELL_ALLIANCE, @AREA_W_WORKSHOP, 1),
-(@SPELL_HORDE, @AREA_E_WORKSHOP, 1),
-(@SPELL_ALLIANCE, @AREA_E_WORKSHOP, 1);
-
-/* 
-
 Spell 56617 "Alliance Controls Factory Phase Shift" Adds Phase 32
 Spell 56618 "Horde Controls Factory Phase Shift" Adds Phase 16
 
@@ -48,5 +27,3 @@ Spells cast on vehicle as auras... or something (PET_SPELLS cooldowns):
 56866 (-Unknown-) (Catapult, Siege Engine.... NOT tower cannons)
 14268 (Alliance Flag) (Catapult, Siege Engine... NOT tower cannons)
 14267 (Horde Flag)
-
-*/
