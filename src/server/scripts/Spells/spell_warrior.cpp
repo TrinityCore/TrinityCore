@@ -443,7 +443,7 @@ public:
 
             Unit* target = GetHitUnit();
             if (target->HasUnitState(UNIT_STATE_CASTING))
-                GetCaster()->CastSpell(target, spellId, true);
+                target->CastSpell(target, spellId, true);
         }
 
         void Register()
