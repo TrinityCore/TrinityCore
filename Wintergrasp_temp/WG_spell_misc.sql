@@ -44,10 +44,21 @@ INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`que
 (57940,4494,0,0,0,0,0,2,1),
 (57940,4603,0,0,0,0,0,2,1);
 
--- Spell scripts
+DELETE FROM `spell_area` WHERE `spell` IN (56618, 56617);
+INSERT INTO `spell_area` (`spell`,`area`,`autocast`) VALUES
+(56618, 4538, 1),
+(56617, 4538, 1),
+(56618, 4539, 1),
+(56617, 4539, 1),
+(56618, 4611, 1),
+(56617, 4611, 1),
+(56618, 4612, 1),
+(56617, 4612, 1);
+
+-- Spell scripts. replace with SAI
 DELETE FROM `spell_scripts` WHERE `id`=49899;
 INSERT INTO `spell_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
-(49899,0,1,406,0,0,0,0,0,0); -- Activate Robotic Arms
+(49899,0,1,406,0,0,0,0,0,0); -- Activate Robotic Arms 
 
 -- Spell Target position for Wintergrasp Graveyard spells
 DELETE FROM `spell_target_position` WHERE `id` IN (59760,59762,59763,59765,59766,59767,59769);
@@ -59,3 +70,13 @@ INSERT INTO `spell_target_position` (`id`,`target_map`,`target_position_x`,`targ
 (59766,571,4331.716,3235.695,390.251,0.008500), -- Teleport: Westspark Factory Graveyard "area 4611"
 (59767,571,4314.648,2408.522,392.642,6.268125), -- Teleport: Eastspark Factory Graveyard "area 4612"
 (59769,571,5140.790,2179.120,390.950,1.972220); -- Teleport: Alliance Landing Zone
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (61409, 56662, 56664, 56659, 49899, 61178);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(61409, 'spell_wintergrasp_force_building'),
+(56659, 'spell_wintergrasp_force_building'),
+(56662, 'spell_wintergrasp_force_building'),
+(56664, 'spell_wintergrasp_force_building'),
+(49899, 'spell_wintergrasp_force_building'),
+(61178, 'spell_wintergrasp_grab_passenger');
+
