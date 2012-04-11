@@ -1095,9 +1095,9 @@ StartHonorPoints = 0
 #
 #    MaxArenaPoints
 #        Description: Maximum arena points a character can have.
-#        Default:     10000
+#        Default:     5000
 
-MaxArenaPoints = 10000
+MaxArenaPoints = 5000
 
 #
 #    StartArenaPoints
