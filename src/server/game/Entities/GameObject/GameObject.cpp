@@ -138,7 +138,7 @@ void GameObject::AddToWorld()
         bool toggledState = GetGoState() == GO_STATE_READY;
         if (m_model)
             GetMap()->Insert(*m_model);
-        if ((startOpen && !toggledState) || (!startOpen && toggledState))
+        if (startOpen ^ toggledState)
             EnableCollision(false);
 
         WorldObject::AddToWorld();
