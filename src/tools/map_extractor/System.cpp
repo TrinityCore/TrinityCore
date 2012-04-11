@@ -71,7 +71,7 @@ float CONF_flat_height_delta_limit = 0.005f; // If max - min less this value - s
 float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - liquid surface is flat
 
 // List MPQ for extract from
-char *CONF_mpq_list[]={
+const char *CONF_mpq_list[]={
     "common.MPQ",
     "common-2.MPQ",
     "lichking.MPQ",
@@ -83,7 +83,7 @@ char *CONF_mpq_list[]={
     "patch-5.MPQ",
 };
 
-static char* const langs[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
+static const char* const langs[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 #define LANG_COUNT 12
 
 void CreateDir( const std::string& Path )
