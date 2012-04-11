@@ -244,8 +244,8 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
             Midnight = 0;
             me->SetVisible(false);
             me->Kill(me);
-        }
-    } else ResetTimer -= diff;
+        } else ResetTimer -= diff;
+    }
 
     //Return since we have no target
     if (!UpdateVictim())
