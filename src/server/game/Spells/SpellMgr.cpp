@@ -3255,6 +3255,12 @@ void SpellMgr::LoadDbcDataCorrections()
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
+            case 61874: // Noblegarden Chocolate
+                spellInfo->Effect[1] = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->EffectApplyAuraName[1] = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->EffectAmplitude[1] = 10000;
+                spellInfo->EffectTriggerSpell[1] = 24870;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
