@@ -707,7 +707,7 @@ enum MovementFlags
     MOVEMENTFLAG_MASK_TURNING =
         MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,
 
-    MOVEMENTFLAG_MASK_MOVING_FLY = 
+    MOVEMENTFLAG_MASK_MOVING_FLY =
         MOVEMENTFLAG_FLYING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
 
     //! TODO if needed: add more flags to this masks that are exclusive to players
@@ -1647,7 +1647,7 @@ class Unit : public WorldObject
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
         virtual bool SetWalk(bool enable);
-        virtual bool SetDisableGravity(bool disable);
+        virtual bool SetDisableGravity(bool disable, bool packetOnly = false);
         bool SetHover(bool enable);
 
         void SetInFront(Unit const* target);
