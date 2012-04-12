@@ -3608,8 +3608,9 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId
                         {
                             // final heal
                             int32 healAmount = aurEff->GetAmount();
-                            int32 stack = dispelInfo.GetRemovedCharges();
-                            CastCustomSpell(this, 33778, &healAmount, &stack, NULL, true, NULL, NULL, aura->GetCasterGUID());
+                            if (Unit* caster = aura->GetCaster())
+                                healAmount = caster->SpellHealingBonus(this, aura->GetSpellInfo(), healAmount, HEAL, dispelInfo.GetRemovedCharges());
+                            CastCustomSpell(this, 33778, &healAmount, NULL, NULL, true, NULL, NULL, aura->GetCasterGUID());
 
                             // mana
                             if (Unit* caster = aura->GetCaster())
@@ -17565,7 +17566,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable)
+bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
 {
     if (disable == IsLevitating())
         return false;

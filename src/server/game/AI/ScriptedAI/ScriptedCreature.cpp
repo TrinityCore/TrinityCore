@@ -114,15 +114,7 @@ void ScriptedAI::UpdateAI(uint32 const /*diff*/)
     if (!UpdateVictim())
         return;
 
-    if (me->isAttackReady())
-    {
-        //If we are within range melee the target
-        if (me->IsWithinMeleeRange(me->getVictim()))
-        {
-            me->AttackerStateUpdate(me->getVictim());
-            me->resetAttackTimer();
-        }
-    }
+    DoMeleeAttackIfReady();
 }
 
 void ScriptedAI::DoStartMovement(Unit* victim, float distance, float angle)
@@ -177,11 +169,11 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 {
     //No target so we can't cast
     if (!target)
-        return false;
+        return NULL;
 
     //Silenced so we can't cast
     if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
-        return false;
+        return NULL;
 
     //Using the extended script system we first create a list of viable spells
     SpellInfo const* apSpell[CREATURE_MAX_SPELLS];

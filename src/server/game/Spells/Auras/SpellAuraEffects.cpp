@@ -1231,12 +1231,11 @@ bool AuraEffect::IsPeriodicTickCrit(Unit* target, Unit const* caster) const
         if ((*itr)->IsAffectedOnSpell(m_spellInfo) && caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask()))
             return true;
     }
+
     // Rupture - since 3.3.3 can crit
-    if (target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x100000, 0x0, 0x0, caster->GetGUID()))
-    {
-        if (caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask()))
-            return true;
-    }
+    if (m_spellInfo->SpellIconID == 500 && m_spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
+        return caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
+
     return false;
 }
 

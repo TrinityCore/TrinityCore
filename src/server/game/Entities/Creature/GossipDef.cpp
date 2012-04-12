@@ -47,10 +47,7 @@ void GossipMenu::AddMenuItem(int32 menuItemId, uint8 icon, std::string const& me
             for (GossipMenuItemContainer::const_iterator itr = _menuItems.begin(); itr != _menuItems.end(); ++itr)
             {
                 if (int32(itr->first) > menuItemId)
-                {
-                    menuItemId = menuItemId;
                     break;
-                }
 
                 menuItemId = itr->first + 1;
             }
