@@ -49,7 +49,6 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
     }
     else                                                    // it's custom channel
     {
-        channel_id = 0;
         m_flags |= CHANNEL_FLAG_CUSTOM;
 
         // If storing custom channels in the db is enabled either load or save the channel

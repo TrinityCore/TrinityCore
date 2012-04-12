@@ -844,7 +844,7 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
         case GO_HORDE_GATE_1:
             ActivateBoss(TEAM_ALLIANCE);
             lang_entry = LANG_BG_IC_NORTH_GATE_DESTROYED;
-           break;
+            break;
         case GO_HORDE_GATE_2:
             ActivateBoss(TEAM_ALLIANCE);
             lang_entry = LANG_BG_IC_WEST_GATE_DESTROYED;
