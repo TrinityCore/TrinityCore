@@ -441,9 +441,9 @@ public:
             if (!spellId)
                 return;
 
-            Unit* target = GetHitUnit();
-            if (target->HasUnitState(UNIT_STATE_CASTING))
-                target->CastSpell(target, spellId, true);
+            if (Player* target = GetHitPlayer())
+                if (target->HasUnitState(UNIT_STATE_CASTING))
+                    target->CastSpell(target, spellId, true);
         }
 
         void Register()
