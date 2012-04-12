@@ -522,8 +522,10 @@ enum TrinityStrings
     LANG_YOURS_EXPLORE_SET_ALL          = 553,
     LANG_YOURS_EXPLORE_SET_NOTHING      = 554,
 
-    LANG_HOVER_ENABLED                  = 555,
-    LANG_HOVER_DISABLED                 = 556,
+    //! Old ones now free:
+    // LANG_HOVER_ENABLED               = 555,
+    // LANG_HOVER_DISABLED              = 556,
+
     LANG_YOURS_LEVEL_UP                 = 557,
     LANG_YOURS_LEVEL_DOWN               = 558,
     LANG_YOURS_LEVEL_PROGRESS_RESET     = 559,

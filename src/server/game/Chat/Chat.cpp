@@ -395,7 +395,6 @@ ChatCommand* ChatHandler::getCommandTable()
         { "linkgrave",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleLinkGraveCommand>,           "", NULL },
         { "neargrave",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleNearGraveCommand>,           "", NULL },
         { "explorecheat",   SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleExploreCheatCommand>,        "", NULL },
-        { "hover",          SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleHoverCommand>,               "", NULL },
         { "levelup",        SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleLevelUpCommand>,             "", NULL },
         { "showarea",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleShowAreaCommand>,            "", NULL },
         { "hidearea",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleHideAreaCommand>,            "", NULL },
@@ -1349,7 +1348,7 @@ GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
     // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
     char* cId = extractKeyFromLink(text, "Htele");
     if (!cId)
-        return false;
+        return NULL;
 
     // id case (explicit or from shift link)
     if (cId[0] >= '0' || cId[0] >= '9')
@@ -1521,7 +1520,7 @@ char* ChatHandler::extractQuotedArg(char* args)
     {
         char* space = strtok(args, "\"");
         if (!space)
-            return false;
+            return NULL;
         return strtok(NULL, "\"");
     }
 }

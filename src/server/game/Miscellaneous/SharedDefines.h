@@ -269,7 +269,7 @@ enum SpellAttr0
     SPELL_ATTR0_UNK0                             = 0x00000001, //  0
     SPELL_ATTR0_REQ_AMMO                         = 0x00000002, //  1 on next ranged
     SPELL_ATTR0_ON_NEXT_SWING                    = 0x00000004, //  2
-    SPELL_ATTR0_UNK3                             = 0x00000008, //  3 not set in 3.0.3
+    SPELL_ATTR0_IS_REPLENISHMENT                 = 0x00000008, //  3 not set in 3.0.3
     SPELL_ATTR0_ABILITY                          = 0x00000010, //  4 client puts 'ability' instead of 'spell' in game strings for these spells
     SPELL_ATTR0_TRADESPELL                       = 0x00000020, //  5 trade spells (recipes), will be added by client to a sublist of profession spell
     SPELL_ATTR0_PASSIVE                          = 0x00000040, //  6 Passive spell
@@ -314,7 +314,7 @@ enum SpellAttr1
     SPELL_ATTR1_MELEE_COMBAT_START               = 0x00000200, //  9 player starts melee combat after this spell is cast
     SPELL_ATTR1_NO_THREAT                        = 0x00000400, // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
     SPELL_ATTR1_UNK11                            = 0x00000800, // 11 aura
-    SPELL_ATTR1_UNK12                            = 0x00001000, // 12 pickpoket
+    SPELL_ATTR1_IS_PICKPOCKET                    = 0x00001000, // 12 Pickpocket
     SPELL_ATTR1_FARSIGHT                         = 0x00002000, // 13 Client removes farsight on aura loss
     SPELL_ATTR1_CHANNEL_TRACK_TARGET             = 0x00004000, // 14 Client automatically forces player to face target when channeling
     SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY         = 0x00008000, // 15 remove auras on immunity
@@ -326,7 +326,7 @@ enum SpellAttr1
     SPELL_ATTR1_UNK21                            = 0x00200000, // 21
     SPELL_ATTR1_REQ_COMBO_POINTS2                = 0x00400000, // 22 Req combo points on target
     SPELL_ATTR1_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR1_UNK24                            = 0x01000000, // 24 only fishing spells
+    SPELL_ATTR1_IS_FISHING                       = 0x01000000, // 24 only fishing spells
     SPELL_ATTR1_UNK25                            = 0x02000000, // 25
     SPELL_ATTR1_UNK26                            = 0x04000000, // 26 works correctly with [target=focus] and [target=mouseover] macros?
     SPELL_ATTR1_UNK27                            = 0x08000000, // 27 melee spell?
@@ -351,17 +351,17 @@ enum SpellAttr2
     SPELL_ATTR2_UNK10                            = 0x00000400, // 10 related to tame
     SPELL_ATTR2_HEALTH_FUNNEL                    = 0x00000800, // 11
     SPELL_ATTR2_UNK12                            = 0x00001000, // 12 Cleave, Heart Strike, Maul, Sunder Armor, Swipe
-    SPELL_ATTR2_UNK13                            = 0x00002000, // 13 Items enchanted by spells with this flag preserve the enchant to arenas
+    SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA        = 0x00002000, // 13 Items enchanted by spells with this flag preserve the enchant to arenas
     SPELL_ATTR2_UNK14                            = 0x00004000, // 14
     SPELL_ATTR2_UNK15                            = 0x00008000, // 15 not set in 3.0.3
     SPELL_ATTR2_TAME_BEAST                       = 0x00010000, // 16
     SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS           = 0x00020000, // 17 don't reset timers for melee autoattacks (swings) or ranged autoattacks (autoshoots)
-    SPELL_ATTR2_UNK18                            = 0x00040000, // 18 Only Revive pet - possible req dead pet
+    SPELL_ATTR2_REQ_DEAD_PET                     = 0x00040000, // 18 Only Revive pet and Heart of the Pheonix
     SPELL_ATTR2_NOT_NEED_SHAPESHIFT              = 0x00080000, // 19 does not necessarly need shapeshift
     SPELL_ATTR2_UNK20                            = 0x00100000, // 20
     SPELL_ATTR2_DAMAGE_REDUCED_SHIELD            = 0x00200000, // 21 for ice blocks, pala immunity buffs, priest absorb shields, but used also for other spells -> not sure!
     SPELL_ATTR2_UNK22                            = 0x00400000, // 22 Ambush, Backstab, Cheap Shot, Death Grip, Garrote, Judgements, Mutilate, Pounce, Ravage, Shiv, Shred
-    SPELL_ATTR2_UNK23                            = 0x00800000, // 23 Only mage Arcane Concentration have this flag
+    SPELL_ATTR2_IS_ARCANE_CONCENTRATION          = 0x00800000, // 23 Only mage Arcane Concentration have this flag
     SPELL_ATTR2_UNK24                            = 0x01000000, // 24
     SPELL_ATTR2_UNK25                            = 0x02000000, // 25
     SPELL_ATTR2_UNK26                            = 0x04000000, // 26 unaffected by school immunity
@@ -388,7 +388,7 @@ enum SpellAttr3
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
     SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
     SPELL_ATTR3_UNK13                            = 0x00002000, // 13
-    SPELL_ATTR3_UNK14                            = 0x00004000, // 14 "Honorless Target" only this spells have this flag
+    SPELL_ATTR3_IS_HONORLESS_TARGET              = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
     SPELL_ATTR3_CANT_TRIGGER_PROC                = 0x00010000, // 16 confirmed with many patchnotes
     SPELL_ATTR3_NO_INITIAL_AGGRO                 = 0x00020000, // 17 Soothe Animal, 39758, Mind Soothe
@@ -432,16 +432,16 @@ enum SpellAttr4
     SPELL_ATTR4_UNK19                            = 0x00080000, // 19 proc dalayed, after damage or don't proc on absorb?
     SPELL_ATTR4_NOT_CHECK_SELFCAST_POWER         = 0x00100000, // 20 supersedes message "More powerful spell applied" for self casts.
     SPELL_ATTR4_UNK21                            = 0x00200000, // 21 Pally aura, dk presence, dudu form, warrior stance, shadowform, hunter track
-    SPELL_ATTR4_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR4_UNK22                            = 0x00400000, // 22 Seal of Command (42058,57770) and Gymer's Smash 55426
     SPELL_ATTR4_UNK23                            = 0x00800000, // 23
     SPELL_ATTR4_UNK24                            = 0x01000000, // 24 some shoot spell
-    SPELL_ATTR4_UNK25                            = 0x02000000, // 25 pet scaling auras
+    SPELL_ATTR4_IS_PET_SCALING                   = 0x02000000, // 25 pet scaling auras
     SPELL_ATTR4_CAST_ONLY_IN_OUTLAND             = 0x04000000, // 26 Can only be used in Outland.
     SPELL_ATTR4_UNK27                            = 0x08000000, // 27
     SPELL_ATTR4_UNK28                            = 0x10000000, // 28 Aimed Shot
     SPELL_ATTR4_UNK29                            = 0x20000000, // 29
     SPELL_ATTR4_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR4_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR4_UNK31                            = 0x80000000  // 31 Polymorph (chicken) 228 and Sonic Boom (38052,38488)
 };
 
 enum SpellAttr5
@@ -461,7 +461,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK12                            = 0x00001000, // 12 Cleave related?
     SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // 13 haste effects decrease duration of this
     SPELL_ATTR5_UNK14                            = 0x00004000, // 14
-    SPELL_ATTR5_UNK15                            = 0x00008000, // 15
+    SPELL_ATTR5_UNK15                            = 0x00008000, // 15 Inflits on multiple targets?
     SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK         = 0x00010000, // 16 this allows spells with EquippedItemClass to affect spells from other items if the required item is equipped
     SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // 17 usable while feared
     SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // 18 usable while confused

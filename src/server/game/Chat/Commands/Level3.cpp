@@ -2158,25 +2158,6 @@ bool ChatHandler::HandleExploreCheatCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleHoverCommand(const char *args)
-{
-    char* px = strtok((char*)args, " ");
-    uint32 flag;
-    if (!px)
-        flag = 1;
-    else
-        flag = atoi(px);
-
-    m_session->GetPlayer()->SetHover(flag);
-
-    if (flag)
-        SendSysMessage(LANG_HOVER_ENABLED);
-    else
-        SendSysMessage(LANG_HOVER_DISABLED);
-
-    return true;
-}
-
 void ChatHandler::HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel)
 {
     if (player)
