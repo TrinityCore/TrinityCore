@@ -1,7 +1,7 @@
 -- Druid
 UPDATE `spell_bonus_data` SET `direct_bonus`=0,`dot_bonus`=0 WHERE `entry` IN (779,1822,60089);
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (1079,9007,22568);
-INSERT INTO `spell_bonus_data` VALUES
+INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`ap_dot_bonus`,`comments`) VALUES
 (1079,0,0,-1,-1, 'Druid - Rip'),
 (9007,0,0,-1,-1, 'Druid - Pounce Bleed'),
 (22568,0,0,-1,-1, 'Druid - Ferocious Bite');
