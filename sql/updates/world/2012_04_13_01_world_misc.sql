@@ -1,12 +1,12 @@
 -- Gnomish Playback Device (item 52709) Targeting condition -- by norfik closes #2169
-DELETE FROM `conditions` WHERE `SourceEntry`=74222 AND `ConditionValue1` IN (1268, 7955, 6119);
+DELETE FROM `conditions` WHERE `SourceEntry`=74222 AND `ConditionValue2` IN (1268, 7955, 6119);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(17, 0, 74222, 1, 19, 1268, 0, 0, 63, '', 'Gnomish Playback Device on Ozzie Togglevolt'),
-(17, 0, 74222, 2, 19, 7955, 0, 0, 63, '', 'Gnomish Playback Device on Milli Featherwhistle'),
-(17, 0, 74222, 3, 19, 6119, 0, 0, 63, '', 'Gnomish Playback Device on Tog Rustsprocket');
+(17, 0, 74222, 1, 31, 3, 1268, 0, 63, '', 'Gnomish Playback Device on Ozzie Togglevolt'),
+(17, 0, 74222, 2, 31, 3, 7955, 0, 63, '', 'Gnomish Playback Device on Milli Featherwhistle'),
+(17, 0, 74222, 3, 31, 3, 6119, 0, 63, '', 'Gnomish Playback Device on Tog Rustsprocket');
 
 -- fix revenge ap coeff -- by ric101 closes #3344
-UPDATE spell_bonus_data SET ap_bonus = 0.310 WHERE entry = 6572; 
+UPDATE `spell_bonus_data` SET `ap_bonus` = 0.310 WHERE `entry` = 6572; 
 
 -- fix life seed sp coeff -- by warpten closes #4162
 DELETE FROM `spell_bonus_data` WHERE `entry`=48503;
@@ -17,8 +17,8 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 UPDATE `spell_proc_event` SET `procEx` = procEx|262144 WHERE`entry` = 63310; -- Glyph of shadowflame fix
 
 -- Disable deprecated quests /in 2.4/ from Midsummer Festival - The Festival of Fire {A/H} by trista closes #5982
-DELETE FROM `Disables` WHERE `sourceType` = 1 AND `entry` in (9367,9368);
-INSERT INTO `Disables` (`sourceType`,`entry`,`flags`,`params_0`,`params_1`,`comment`) VALUES
+DELETE FROM `disables` WHERE `sourceType` = 1 AND `entry` in (9367,9368);
+INSERT INTO `disables` (`sourceType`,`entry`,`flags`,`params_0`,`params_1`,`comment`) VALUES
 (1,9367,0,0,0,'Disable quest The Festival of Fire {A}/Deprecated after 2.4 Midsummer Festival revamp/'),
 (1,9368,0,0,0,'Disable quest The Festival of Fire {H}/Deprecated after 2.4 Midsummer Festival revamp/');
 
