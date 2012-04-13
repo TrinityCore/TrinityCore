@@ -8200,6 +8200,16 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     CastCustomSpell(this, 70845, &basepoints0, NULL, NULL, true);
                     break;
                 }
+                // Recklessness
+                case 1719:
+                {
+                    //! Possible hack alert
+                    //! Don't drop charges on proc, they will be dropped on SpellMod removal
+                    //! Before this change, it was dropping two charges per attack, one in ProcDamageAndSpellFor, and one in RemoveSpellMods.
+                    //! The reason of this behaviour is Recklessness having three auras, 2 of them can not proc (isTriggeredAura array) but the other one can, making the whole spell proc.
+                    *handled = true;
+                    break;
+                }
                 default:
                     break;
             }
