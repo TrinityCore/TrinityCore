@@ -6000,6 +6000,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Siphon Life
                 case 63108:
                 {
+                    if (!damage)
+                        break;
                     // Glyph of Siphon Life
                     if (HasAura(56216))
                         triggerAmount += triggerAmount / 4;
