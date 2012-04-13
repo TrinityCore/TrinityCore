@@ -20,10 +20,31 @@
 #endif
 
 /*
+ * JEMALLOC_PRIVATE_NAMESPACE is used as a prefix for all library-private APIs.
+ * For shared libraries, symbol visibility mechanisms prevent these symbols
+ * from being exported, but for static libraries, naming collisions are a real
+ * possibility.
+ */
+#define JEMALLOC_PRIVATE_NAMESPACE ""
+#define JEMALLOC_N(string_that_no_one_should_want_to_use_as_a_jemalloc_private_namespace_prefix) string_that_no_one_should_want_to_use_as_a_jemalloc_private_namespace_prefix
+
+/*
  * Hyper-threaded CPUs may need a special instruction inside spin loops in
  * order to yield to another virtual CPU.
  */
 #define CPU_SPINWAIT __asm__ volatile("pause")
+
+/*
+ * Defined if OSAtomic*() functions are available, as provided by Darwin, and
+ * documented in the atomic(3) manual page.
+ */
+/* #undef JEMALLOC_OSATOMIC */
+
+/*
+ * Defined if OSSpin*() functions are available, as provided by Darwin, and
+ * documented in the spinlock(3) manual page.
+ */
+/* #undef JEMALLOC_OSSPIN */
 
 /* Defined if __attribute__((...)) syntax is supported. */
 #define JEMALLOC_HAVE_ATTR 
@@ -54,18 +75,21 @@
 /* Use libgcc for profile backtracing if defined. */
 /* #undef JEMALLOC_PROF_LIBGCC */
 
+/* Use gcc intrinsics for profile backtracing if defined. */
+/* #undef JEMALLOC_PROF_GCC */
+
 /*
  * JEMALLOC_TINY enables support for tiny objects, which are smaller than one
  * quantum.
  */
-/* #undef JEMALLOC_TINY */
+#define JEMALLOC_TINY 
 
 /*
  * JEMALLOC_TCACHE enables a thread-specific caching layer for small objects.
  * This makes it possible to allocate/deallocate objects without any locking
  * when the cache is in the steady state.
  */
-/* #undef JEMALLOC_TCACHE */
+#define JEMALLOC_TCACHE 
 
 /*
  * JEMALLOC_DSS enables use of sbrk(2) to allocate chunks from the data storage
@@ -86,7 +110,7 @@
 /* #undef JEMALLOC_SYSV */
 
 /* Support lazy locking (avoid locking unless a second thread is launched). */
-/* #undef JEMALLOC_LAZY_LOCK */
+#define JEMALLOC_LAZY_LOCK 
 
 /* Determine page size at run time if defined. */
 /* #undef DYNAMIC_PAGE_SHIFT */
@@ -133,9 +157,12 @@
 /* #undef JEMALLOC_PURGE_MADVISE_FREE */
 
 /* sizeof(void *) == 2^LG_SIZEOF_PTR. */
-#define LG_SIZEOF_PTR 2
+#define LG_SIZEOF_PTR 3
 
 /* sizeof(int) == 2^LG_SIZEOF_INT. */
 #define LG_SIZEOF_INT 2
+
+/* sizeof(long) == 2^LG_SIZEOF_LONG. */
+#define LG_SIZEOF_LONG 3
 
 #endif /* JEMALLOC_DEFS_H_ */
