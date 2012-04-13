@@ -102,7 +102,7 @@ class DatabaseWorkerPool
 
             //! Shuts down delaythreads for this connection pool by underlying deactivate().
             //! The next dequeue attempt in the worker thread tasks will result in an error,
-            //! ultimately ending the worker thread task.  
+            //! ultimately ending the worker thread task.
             _queue->queue()->close();
 
             for (uint8 i = 0; i < _connectionCount[IDX_ASYNC]; ++i)
@@ -114,7 +114,7 @@ class DatabaseWorkerPool
                 t->Close();         //! Closes the actualy MySQL connection.
             }
 
-            sLog->outSQLDriver("Asynchronous connections on DatabasePool '%s' terminated. Proceeding with synchronous connections.", 
+            sLog->outSQLDriver("Asynchronous connections on DatabasePool '%s' terminated. Proceeding with synchronous connections.",
                 GetDatabaseName());
 
             //! Shut down the synchronous connections
