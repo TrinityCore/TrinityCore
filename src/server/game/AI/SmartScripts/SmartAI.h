@@ -239,7 +239,7 @@ public:
     SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) {}
     ~SmartGameObjectAI() {}
 
-    void UpdateAI(const uint32 diff);
+    void UpdateAI(uint32 diff);
     void InitializeAI();
     void Reset();
     SmartScript* GetScript() { return &mScript; }
