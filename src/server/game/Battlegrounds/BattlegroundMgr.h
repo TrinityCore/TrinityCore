@@ -50,6 +50,7 @@ struct CreateBattlegroundData
     float Team2StartLocY;
     float Team2StartLocZ;
     float Team2StartLocO;
+    float StartMaxDist;
     uint32 scriptId;
 };
 
