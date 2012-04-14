@@ -959,7 +959,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* go)
     ASSERT(go);
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, NULL);
-    tmpscript->GetAI(go);
+    return tmpscript->GetAI(go);
 }
 
 bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
