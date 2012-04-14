@@ -234,7 +234,6 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_ALGALON:
                         AlgalonGUID = creature->GetGUID();
                         break;
-
                     // Hodir's Helper NPCs
                     case NPC_EIVI_NIGHTFEATHER:
                         if (TeamInInstance == HORDE)
