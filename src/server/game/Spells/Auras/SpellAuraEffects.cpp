@@ -1600,10 +1600,25 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             }
         }
 
+        const Unit::AuraEffectList& shapeshifts = target->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
+        AuraEffect* newAura = NULL;
+        // Iterate through all the shapeshift auras that the target has, if there is another aura with SPELL_AURA_MOD_SHAPESHIFT, then this aura is being removed due to that one being applied
+        for (Unit::AuraEffectList::const_iterator itr = shapeshifts.begin(); itr != shapeshifts.end(); ++itr)
+        {
+            if ((*itr) != this)
+            {
+                newAura = *itr;
+                break;
+            }
+        }
         Unit::AuraApplicationMap& tAuras = target->GetAppliedAuras();
         for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
         {
-            if (itr->second->GetBase()->IsRemovedOnShapeLost(target))
+            // Use the new aura to see on what stance the target will be
+            uint32 newStance = (1<<((newAura ? newAura->GetMiscValue() : 0)-1));
+            
+            // If the stances are not compatible with the spell, remove it
+            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
                 target->RemoveAura(itr);
             else
                 ++itr;
