@@ -55,7 +55,7 @@ struct ObjectPosSelector
 
     bool NextPosibleAngle(float& angle);
 
-    bool CheckAngle(UsedPosList::value_type const& nextUsedPos, float sign, float angle ) const
+    bool CheckAngle(UsedPosList::value_type const& nextUsedPos, float sign, float angle) const
     {
         float angle_step2  = GetAngle(nextUsedPos.second);
 
