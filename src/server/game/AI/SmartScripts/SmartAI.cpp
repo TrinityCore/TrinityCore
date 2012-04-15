@@ -854,7 +854,7 @@ int SmartGameObjectAI::Permissible(const GameObject* g)
     return PERMIT_BASE_NO;
 }
 
-void SmartGameObjectAI::UpdateAI(const uint32 diff)
+void SmartGameObjectAI::UpdateAI(uint32 diff)
 {
     GetScript()->OnUpdate(diff);
 }
