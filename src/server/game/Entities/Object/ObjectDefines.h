@@ -47,8 +47,6 @@ enum HighGuid
     HIGHGUID_GROUP          = 0x1F50,
 };
 
-#define IS_EMPTY_GUID(Guid)          (Guid == 0)
-
 #define IS_CREATURE_GUID(Guid)       (GUID_HIPART(Guid) == HIGHGUID_UNIT)
 #define IS_PET_GUID(Guid)            (GUID_HIPART(Guid) == HIGHGUID_PET)
 #define IS_VEHICLE_GUID(Guid)        (GUID_HIPART(Guid) == HIGHGUID_VEHICLE)

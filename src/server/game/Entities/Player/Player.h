@@ -1159,7 +1159,7 @@ class Player : public Unit, public GridObject<Player>
 
         void setDeathState(DeathState s);                   // overwrite Unit::setDeathState
 
-        void InnEnter (time_t time, uint32 mapid, float x, float y, float z)
+        void InnEnter(time_t time, uint32 mapid, float x, float y, float z)
         {
             inn_pos_mapid = mapid;
             inn_pos_x = x;
