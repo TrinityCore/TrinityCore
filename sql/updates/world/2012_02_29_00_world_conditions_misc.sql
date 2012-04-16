@@ -124,3 +124,4 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 
 -- If this query fails, fix your custom content
 ALTER TABLE `npc_spellclick_spells` ADD PRIMARY KEY(`npc_entry`,`spell_id`);
+ 
