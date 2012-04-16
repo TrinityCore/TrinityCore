@@ -995,7 +995,7 @@ public:
     public:
         spell_gen_mounting_check_AuraScript() { }
 
-        void HandleEffectPeriodic(AuraEffect const * aurEff)
+        void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
         {
             if (Unit* caster = GetCaster())
             {
