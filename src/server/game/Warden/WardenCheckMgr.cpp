@@ -63,8 +63,8 @@ void WardenCheckMgr::LoadWardenChecks()
 
     CheckStore.resize(maxCheckId + 1);
 
-    //                                    0    1     2     3        4       5      6
-    result = WorldDatabase.Query("SELECT id, type, data, result, address, length, str FROM warden_checks ORDER BY id ASC");
+    //                                    0    1     2     3        4       5      6      7
+    result = WorldDatabase.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
 
     uint32 count = 0;
     do
@@ -78,9 +78,11 @@ void WardenCheckMgr::LoadWardenChecks()
         uint32 address          = fields[4].GetUInt32();
         uint8 length            = fields[5].GetUInt8();
         std::string str         = fields[6].GetString();
+        std::string comment     = fields[7].GetString();
 
         WardenCheck* wardenCheck = new WardenCheck();
         wardenCheck->Type = checkType;
+        wardenCheck->CheckId = id;
 
         // Initialize action with default action from config
         wardenCheck->Action = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));
@@ -133,6 +135,11 @@ void WardenCheckMgr::LoadWardenChecks()
             }
             CheckResultStore[id] = wr;
         }
+
+        if (comment.empty())
+            wardenCheck->Comment = "Undocumented Check";
+        else
+            wardenCheck->Comment = comment;
 
         ++count;
     }
