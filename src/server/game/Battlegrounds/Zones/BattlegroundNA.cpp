@@ -102,6 +102,14 @@ bool BattlegroundNA::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
+bool BattlegroundNA::IsPlayerUnderMap(float z)
+{
+    if (z < ARENA_NA_GROUND)
+        return true;
+
+    return false;
+}
+
 void BattlegroundNA::HandleAreaTrigger(Player* Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)

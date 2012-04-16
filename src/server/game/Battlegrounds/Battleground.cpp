@@ -236,7 +236,7 @@ Battleground::~Battleground()
 }
 
 void Battleground::Update(uint32 diff)
-{
+{	
     if (!PreUpdateImpl(diff))
         return;
 

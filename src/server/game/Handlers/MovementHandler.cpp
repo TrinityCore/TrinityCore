@@ -361,6 +361,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     {
         plMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
+        // old port up system
         if (movementInfo.pos.GetPositionZ() < -500.0f)
         {
             if (!(plMover->InBattleground()
