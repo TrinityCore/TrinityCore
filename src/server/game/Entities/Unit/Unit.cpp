@@ -12842,7 +12842,6 @@ void Unit::setDeathState(DeathState s)
 {
     // death state needs to be updated before RemoveAllAurasOnDeath() calls HandleChannelDeathItem(..) so that
     // it can be used to check creation of death items (such as soul shards).
-    m_deathState = s;
 
     if (s != ALIVE && s != JUST_ALIVED)
     {
@@ -12888,7 +12887,11 @@ void Unit::setDeathState(DeathState s)
             zoneScript->OnUnitDeath(this);
     }
     else if (s == JUST_ALIVED)
+    {
         RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
+    }
+
+    m_deathState = s;
 }
 
 /*########################################
