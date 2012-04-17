@@ -972,14 +972,6 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
 }
 
-GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* go)
-{
-    ASSERT(go);
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, NULL);
-    return tmpscript->GetAI(go);
-}
-
 bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
 {
     ASSERT(player);
