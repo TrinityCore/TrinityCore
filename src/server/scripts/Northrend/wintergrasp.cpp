@@ -301,7 +301,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                 _checkTimer(1000)
             { }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_checkTimer <= diff)
                 {

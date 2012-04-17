@@ -372,7 +372,7 @@ class BattlefieldWG : public Battlefield
         void UpdatedDestroyedTowerCount(TeamId team);
 
         void DoCompleteOrIncrementAchievement(uint32 achievement, Player* player, uint8 incrementNumber = 1);
-        
+
         void RemoveAurasFromPlayer(Player* player);
 
         /**
@@ -1458,48 +1458,27 @@ struct BfWGGameObjectBuilding
                     if (m_Build)
                     {
                         if (disable)
-                        {
-                            switch (m_Build->GetEntry())
-                            {
-                                case 190221:
-                                case 190373:
-                                case 190377:
-                                case 190378:
-                                    {
-                                        creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
-                                        break;
-                                    }
-                                case 190356:
-                                case 190357:
-                                case 190358:
-                                    {
-                                        creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
-                                        break;
-                                    }
-                            }
                             m_WG->HideNpc(creature);
-                        }
                         else
-                        {
-                            switch (m_Build->GetEntry())
-                            {
-                                case 190221:
-                                case 190373:
-                                case 190377:
-                                case 190378:
-                                    {
-                                        creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
-                                        break;
-                                    }
-                                case 190356:
-                                case 190357:
-                                case 190358:
-                                    {
-                                        creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
-                                        break;
-                                    }
-                            }
                             m_WG->ShowNpc(creature, true);
+
+                        switch (m_Build->GetEntry())
+                        {
+                        case 190221:
+                        case 190373:
+                        case 190377:
+                        case 190378:
+                            {
+                                creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
+                                break;
+                            }
+                        case 190356:
+                        case 190357:
+                        case 190358:
+                            {
+                                creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
+                                break;
+                            }
                         }
                     }
                 }
@@ -1515,48 +1494,27 @@ struct BfWGGameObjectBuilding
                     if (m_Build)
                     {
                         if (disable)
-                        {
-                            switch (m_Build->GetEntry())
-                            {
-                                case 190221:
-                                case 190373:
-                                case 190377:
-                                case 190378:
-                                    {
-                                        creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
-                                        break;
-                                    }
-                                case 190356:
-                                case 190357:
-                                case 190358:
-                                    {
-                                        creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
-                                        break;
-                                    }
-                            }
-                                m_WG->HideNpc(creature);
-                        }
+                            m_WG->HideNpc(creature);
                         else
-                        {
-                            switch (m_Build->GetEntry())
-                            {
-                                case 190221:
-                                case 190373:
-                                case 190377:
-                                case 190378:
-                                    {
-                                        creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
-                                        break;
-                                    }
-                                case 190356:
-                                case 190357:
-                                case 190358:
-                                    {
-                                        creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
-                                        break;
-                                    }
-                            }
                             m_WG->ShowNpc(creature, true);
+
+                        switch (m_Build->GetEntry())
+                        {
+                        case 190221:
+                        case 190373:
+                        case 190377:
+                        case 190378:
+                            {
+                                creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
+                                break;
+                            }
+                        case 190356:
+                        case 190357:
+                        case 190358:
+                            {
+                                creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
+                                break;
+                            }
                         }
                     }
                 }
