@@ -2321,6 +2321,7 @@ class Unit : public WorldObject
         Vehicle* m_vehicleKit;
 
         uint32 m_unitTypeMask;
+        LiquidTypeEntry const* _lastLiquid;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;
@@ -2355,7 +2356,6 @@ class Unit : public WorldObject
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;
         uint32 m_lastManaUse;                               // msecs
-        LiquidTypeEntry const* _lastLiquid;
         TimeTrackerSmall m_movesplineTimer;
 
         Diminishing m_Diminishing;
