@@ -252,6 +252,7 @@ m_HostileRefManager(this)
 
     _focusSpell = NULL;
     _targetLocked = false;
+    _lastLiquid = NULL;
 }
 
 ////////////////////////////////////////////////////////////
