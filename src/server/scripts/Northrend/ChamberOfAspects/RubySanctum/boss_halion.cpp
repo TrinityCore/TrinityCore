@@ -950,6 +950,7 @@ public:
                 if (pInstance->GetData(TYPE_HALION_EVENT) != SPECIAL) return;
 				pHalionReal = me->GetMap()->GetCreature(pInstance->GetData64(NPC_HALION_REAL));
 				pHalionTwilight = me->GetMap()->GetCreature(pInstance->GetData64(NPC_HALION_TWILIGHT));
+				if (pHalionTwilight)
 				pHalionTwilight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				float p_MaxHP = pHalionReal->GetMaxHealth();
 				float p_RealHP = (pHalionReal && pHalionReal->isAlive()) ? Rdmg/p_MaxHP*100 : 0.0f;
