@@ -251,9 +251,8 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(PlayerMapType &m)
         return;
 
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-        if (itr->getSource()->InSamePhase(i_phaseMask))
-            if (i_check(itr->getSource()))
-                i_objects.push_back(itr->getSource());
+        if (i_check(itr->getSource()))
+            i_objects.push_back(itr->getSource());
 }
 
 template<class Check>
@@ -263,9 +262,8 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(CreatureMapType &m)
         return;
 
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-        if (itr->getSource()->InSamePhase(i_phaseMask))
-            if (i_check(itr->getSource()))
-                i_objects.push_back(itr->getSource());
+        if (i_check(itr->getSource()))
+            i_objects.push_back(itr->getSource());
 }
 
 template<class Check>
@@ -275,9 +273,8 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(CorpseMapType &m)
         return;
 
     for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-        if (itr->getSource()->InSamePhase(i_phaseMask))
-            if (i_check(itr->getSource()))
-                i_objects.push_back(itr->getSource());
+        if (i_check(itr->getSource()))
+            i_objects.push_back(itr->getSource());
 }
 
 template<class Check>
@@ -287,9 +284,8 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(GameObjectMapType &m)
         return;
 
     for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-        if (itr->getSource()->InSamePhase(i_phaseMask))
-            if (i_check(itr->getSource()))
-                i_objects.push_back(itr->getSource());
+        if (i_check(itr->getSource()))
+            i_objects.push_back(itr->getSource());
 }
 
 template<class Check>
@@ -299,9 +295,8 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(DynamicObjectMapType &m)
         return;
 
     for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-        if (itr->getSource()->InSamePhase(i_phaseMask))
-            if (i_check(itr->getSource()))
-                i_objects.push_back(itr->getSource());
+        if (i_check(itr->getSource()))
+            i_objects.push_back(itr->getSource());
 }
 
 // Gameobject searchers
