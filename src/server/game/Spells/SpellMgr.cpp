@@ -3298,6 +3298,19 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_NEARBY_ENTRY;
                 spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_NEARBY_ENTRY;
                 break;
+            case 62301: // Cosmic Smash (Algalon the Observer)
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 64598: // Cosmic Smash (Algalon the Observer)
+                spellInfo->MaxAffectedTargets = 3;
+                break;
+            case 62293: // Cosmic Smash (Algalon the Observer)
+                spellInfo->EffectImplicitTargetB[0] = TARGET_DEST_CASTER;
+                break;
+            case 62311: // Cosmic Smash (Algalon the Observer)
+            case 64596: // Cosmic Smash (Algalon the Observer)
+                spellInfo->rangeIndex = 6;  // 100yd
+                break;
             // ENDOF ULDUAR SPELLS
             //
             // TRIAL OF THE CRUSADER SPELLS
