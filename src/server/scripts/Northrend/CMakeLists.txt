@@ -22,7 +22,7 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/Ulduar/ulduar_teleporter.cpp
   Northrend/Ulduar/Ulduar/boss_thorim.cpp
   Northrend/Ulduar/Ulduar/boss_ignis.cpp
-  Northrend/Ulduar/Ulduar/boss_algalon.cpp
+  Northrend/Ulduar/Ulduar/boss_algalon_the_observer.cpp
   Northrend/Ulduar/Ulduar/instance_ulduar.cpp
   Northrend/Ulduar/Ulduar/boss_auriaya.cpp
   Northrend/Ulduar/Ulduar/boss_yoggsaron.cpp
