@@ -507,7 +507,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
             if (isPet())
                 return false;
 
-            return GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS;
+            return GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_BOSS;
         }
 
         bool IsDungeonBoss() const;
