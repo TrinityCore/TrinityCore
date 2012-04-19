@@ -360,7 +360,8 @@ class boss_algalon_the_observer : public CreatureScript
                     case EVENT_DESPAWN_ALGALON:
                         events.Reset();
                         events.SetPhase(PHASE_ROLE_PLAY);
-                        events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1);
+                        if (me->isInCombat())
+                            events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1);
                         events.ScheduleEvent(EVENT_DESPAWN_ALGALON_1, 5000);
                         events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17000);
                         events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26000);
@@ -731,9 +732,6 @@ class npc_living_constellation : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                if (action != ACTION_ACTIVATE_STAR)
-                    return;
-
                 switch (action)
                 {
                     case ACTION_ACTIVATE_STAR:
