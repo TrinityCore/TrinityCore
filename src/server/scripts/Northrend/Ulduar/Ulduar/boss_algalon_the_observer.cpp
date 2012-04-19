@@ -18,6 +18,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "PassiveAI.h"
 #include "GameObjectAI.h"
 #include "MapManager.h"
 #include "MoveSplineInit.h"
