@@ -3212,6 +3212,31 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 spellInfo->EffectImplicitTargetB[1] = 0;
                 break;
+            case 8076: // Strength of Earth rank 1 (Aura)
+            case 8162: // Strength of Earth rank 2 (Aura)
+            case 8163: // Strength of Earth rank 3 (Aura)
+            case 10441: // Strength of Earth rank 4 (Aura)
+            case 25362: // Strength of Earth rank 5 (Aura)
+            case 25527: // Strength of Earth rank 6 (Aura)
+            case 57621: // Strength of Earth rank 7 (Aura)
+            case 58646: // Strength of Earth rank 8 (Aura)
+                spellInfo->Effect[2] = 0;
+                break;
+            case 19506: // Trueshot Aura
+                spellInfo->EffectRadiusIndex[1] = 12;
+                break;
+            case 58583: // Stoneclaw Totem Effect rank 8
+                spellInfo->EffectTriggerSpell[0] = 58586;
+                break;
+            case 58584: // Stoneclaw Totem Effect rank 9
+                spellInfo->EffectTriggerSpell[0] = 58587;
+                break;
+            case 58585: // Stoneclaw Totem Effect rank 10
+                spellInfo->EffectTriggerSpell[0] = 58588;
+                break;
+            case 60766: // Essence of the Storm (Totem of Dueling)
+                spellInfo->Effect[1] = 0;
+                break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
             case 53244: // Marked for Death (Rank 3)
