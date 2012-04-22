@@ -2566,7 +2566,7 @@ enum CreatureTypeFlags
 {
     CREATURE_TYPEFLAGS_TAMEABLE         = 0x00000001,         // Tameable by any hunter
     CREATURE_TYPEFLAGS_GHOST            = 0x00000002,         // Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
-    CREATURE_TYPEFLAGS_UNK2             = 0x00000004,
+    CREATURE_TYPEFLAGS_BOSS             = 0x00000004,
     CREATURE_TYPEFLAGS_UNK3             = 0x00000008,
     CREATURE_TYPEFLAGS_UNK4             = 0x00000010,
     CREATURE_TYPEFLAGS_UNK5             = 0x00000020,
