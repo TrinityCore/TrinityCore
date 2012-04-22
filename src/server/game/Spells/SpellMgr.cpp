@@ -3234,6 +3234,10 @@ void SpellMgr::LoadDbcDataCorrections()
                         // this needs research on modifier applying rules, does not seem to be in Attributes fields
                 spellInfo->EffectSpellClassMask[0] = flag96(0x00000040, 0x00000000, 0x00000000);
                 break;
+            case 34231: // Increased Holy Light Healing (Item - Libram of the Lightbringer)
+            case 60792: // Libram of Tolerance
+                spellInfo->EffectSpellClassMask[0] = flag96(0x80000000, 0x00000000, 0x00000000);
+                break;
             case 63163: // Apply Enchanted Bridle (Argent Tournament)
                 spellInfo->EffectDieSides[0] = 0; // was 1, that should probably mean seat 0, but instead it's treated as spell 1
                 spellInfo->EffectBasePoints[0] = 52391; // Ride Vehicle (forces seat 0)
