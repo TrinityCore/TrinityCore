@@ -195,7 +195,23 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
         case VER_PLATFORM_WIN32_NT:
             // Test for the specific product family.
             if (osvi.dwMajorVersion == 6)
-                _tcsncat(szVersion, _T("Windows Vista or Windows Server 2008 "), cntMax);
+            {
+            #if WINVER < 0x0500
+                if (osvi.wReserved[1] == VER_NT_WORKSTATION)
+            #else
+                if (osvi.wProductType == VER_NT_WORKSTATION)
+            #endif                                          // WINVER < 0x0500
+                {
+                    if (osvi.dwMinorVersion == 1)
+                        _tcsncat(szVersion, _T("Windows 7 "), cntMax);
+                    else
+                        _tcsncat(szVersion, _T("Windows Vista "), cntMax);
+                }
+                else if (osvi.dwMinorVersion == 1)
+                    _tcsncat(szVersion, _T("Windows Server 2008 R2 "), cntMax);
+                else
+                    _tcsncat(szVersion, _T("Windows Server 2008 "), cntMax);
+            }
             if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
                 _tcsncat(szVersion, _T("Microsoft Windows Server 2003 "), cntMax);
             if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1)

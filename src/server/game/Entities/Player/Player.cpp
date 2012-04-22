@@ -9217,6 +9217,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 4100:  // The Culling of Stratholme
             NumberOfFields = 13;
             break;
+        case 4273:  // Ulduar
+            NumberOfFields = 10;
+            break;
          default:
             NumberOfFields = 12;
             break;
@@ -9759,6 +9762,16 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(3504) << uint32(0);              // 11 WORLDSTATE_WAVE_COUNT
                 data << uint32(3931) << uint32(25);             // 12 WORLDSTATE_TIME_GUARDIAN
                 data << uint32(3932) << uint32(0);              // 13 WORLDSTATE_TIME_GUARDIAN_SHOW
+            }
+            break;
+        // Ulduar
+        case 4273:
+            if (instance && mapid == 603)
+                instance->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(4132) << uint32(0);              // 9  WORLDSTATE_SHOW_CRATES
+                data << uint32(4131) << uint32(0);              // 10 WORLDSTATE_CRATES_REVEALED
             }
             break;
         default:
