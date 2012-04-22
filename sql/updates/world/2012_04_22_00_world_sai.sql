@@ -19,26 +19,17 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ROSS AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ROSS, 0, 0, 0, 62, 0, 100, 0, @GOSSIP, 1, 0, 0, 11, 54974, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Blood Knight Tabard'),
-(@ROSS, 0, 1, 0, 62, 0, 100, 0, @GOSSIP, 1, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 2, 0, 62, 0, 100, 0, @GOSSIP, 2, 0, 0, 11, 54976, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of the Hand'),
-(@ROSS, 0, 3, 0, 62, 0, 100, 0, @GOSSIP, 2, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 4, 0, 62, 0, 100, 0, @GOSSIP, 3, 0, 0, 11, 55008, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of the Protector'),
-(@ROSS, 0, 5, 0, 62, 0, 100, 0, @GOSSIP, 3, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 6, 0, 62, 0, 100, 0, @GOSSIP, 4, 0, 0, 11, 54977, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Green Trophy Tabard of the Illidari'),
-(@ROSS, 0, 7, 0, 62, 0, 100, 0, @GOSSIP, 4, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 8, 0, 62, 0, 100, 0, @GOSSIP, 5, 0, 0, 11, 54982, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Purple Trophy Tabard of the Illidari'),
-(@ROSS, 0, 9, 0, 62, 0, 100, 0, @GOSSIP, 5, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 10, 0, 62, 0, 100, 0, @GOSSIP, 6, 0, 0, 11, 62768, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of Summer Skies'),
-(@ROSS, 0, 11, 0, 62, 0, 100, 0, @GOSSIP, 6, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 12, 0, 62, 0, 100, 0, @GOSSIP, 7, 0, 0, 11, 62769, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of Summer Flames'),
-(@ROSS, 0, 13, 0, 62, 0, 100, 0, @GOSSIP, 7, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 14, 0, 62, 0, 100, 0, @GOSSIP, 8, 0, 0, 11, 58194, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Loremaster''s Colors'),
-(@ROSS, 0, 15, 0, 62, 0, 100, 0, @GOSSIP, 8, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 16, 0, 62, 0, 100, 0, @GOSSIP, 9, 0, 0, 11, 58224, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of the Explorer'),
-(@ROSS, 0, 17, 0, 62, 0, 100, 0, @GOSSIP, 9, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip'),
-(@ROSS, 0, 18, 0, 62, 0, 100, 0, @GOSSIP, 10, 0, 0, 11, 55006, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of the Achiever'),
-(@ROSS, 0, 19, 0, 62, 0, 100, 0, @GOSSIP, 10, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip');
+(@ROSS, 0, 0, 10, 62, 0, 100, 0, @GOSSIP, 1, 0, 0, 11, 54974, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Blood Knight Tabard'),
+(@ROSS, 0, 1, 10, 62, 0, 100, 0, @GOSSIP, 2, 0, 0, 11, 54976, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of the Hand'),
+(@ROSS, 0, 2, 10, 62, 0, 100, 0, @GOSSIP, 3, 0, 0, 11, 55008, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of the Protector'),
+(@ROSS, 0, 3, 10, 62, 0, 100, 0, @GOSSIP, 4, 0, 0, 11, 54977, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Green Trophy Tabard of the Illidari'),
+(@ROSS, 0, 4, 10, 62, 0, 100, 0, @GOSSIP, 5, 0, 0, 11, 54982, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Purple Trophy Tabard of the Illidari'),
+(@ROSS, 0, 5, 10, 62, 0, 100, 0, @GOSSIP, 6, 0, 0, 11, 62768, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of Summer Skies'),
+(@ROSS, 0, 6, 10, 62, 0, 100, 0, @GOSSIP, 7, 0, 0, 11, 62769, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of Summer Flames'),
+(@ROSS, 0, 7, 10, 62, 0, 100, 0, @GOSSIP, 8, 0, 0, 11, 58194, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Loremaster''s Colors'),
+(@ROSS, 0, 8, 10, 62, 0, 100, 0, @GOSSIP, 9, 0, 0, 11, 58224, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of the Explorer'),
+(@ROSS, 0, 9, 10, 62, 0, 100, 0, @GOSSIP, 10, 0, 0, 11, 55006, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Cast Spell Create Tabard of the Achiever'),
+(@ROSS, 0, 10, 0, 61, 0, 100, 0, 0, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elizabeth Ross - On Gossip Select - Close Gossip');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=@GOSSIP;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
