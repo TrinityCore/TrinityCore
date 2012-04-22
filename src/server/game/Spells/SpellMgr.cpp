@@ -3236,7 +3236,13 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 34231: // Increased Holy Light Healing (Item - Libram of the Lightbringer)
             case 60792: // Libram of Tolerance
+            case 64956: // Libram of the Resolute
                 spellInfo->EffectSpellClassMask[0] = flag96(0x80000000, 0x00000000, 0x00000000);
+                break;
+            case 28851: // Libram of Light
+            case 28853: // Libram of Divinity
+            case 32403: // Blessed Book of Nagrand
+                spellInfo->EffectSpellClassMask[0] = flag96(0x40000000, 0x00000000, 0x00000000);
                 break;
             case 63163: // Apply Enchanted Bridle (Argent Tournament)
                 spellInfo->EffectDieSides[0] = 0; // was 1, that should probably mean seat 0, but instead it's treated as spell 1
