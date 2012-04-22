@@ -1107,7 +1107,7 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
                         break;
                     case EVENT_T_RANGE:
                         if (me->getVictim())
-                            if (me->IsInMap(me->getVictim()))
+                            if (me->IsInMap(me->getVictim()) && me->InSamePhase(me->getVictim()))
                                 if (me->IsInRange(me->getVictim(), (float)(*i).Event.range.minDist, (float)(*i).Event.range.maxDist))
                                     ProcessEvent(*i);
                         break;

@@ -796,10 +796,12 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
 
     //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
     if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+    {
         z += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
 
-    //! Relocate again with updated Z coord
-    Relocate(x, y, z, ang);
+        //! Relocate again with updated Z coord
+        Relocate(x, y, z, ang);
+    }
 
     uint32 displayID = GetNativeDisplayId();
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
