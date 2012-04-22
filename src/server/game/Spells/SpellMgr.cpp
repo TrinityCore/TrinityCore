@@ -3234,6 +3234,9 @@ void SpellMgr::LoadDbcDataCorrections()
                         // this needs research on modifier applying rules, does not seem to be in Attributes fields
                 spellInfo->EffectSpellClassMask[0] = flag96(0x00000040, 0x00000000, 0x00000000);
                 break;
+            case 60774: // Idol of Worship
+                spellInfo->EffectSpellClassMask[0] = flag96(0x00800000, 0x00000000, 0x00000000);
+                break;
             case 34231: // Increased Holy Light Healing (Item - Libram of the Lightbringer)
             case 60792: // Libram of Tolerance
             case 64956: // Libram of the Resolute
