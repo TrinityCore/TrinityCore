@@ -3237,6 +3237,12 @@ void SpellMgr::LoadDbcDataCorrections()
             case 60774: // Idol of Worship
                 spellInfo->EffectSpellClassMask[0] = flag96(0x00800000, 0x00000000, 0x00000000);
                 break;
+            case 64949: // Idol of the Flourishing Life
+                spellInfo->EffectSpellClassMask[0] = flag96(0x00000000, 0x02000000, 0x00000000);
+                break;
+            case 64950: // Idol of the Crying Wind
+                spellInfo->EffectSpellClassMask[0] = flag96(0x00200000, 0x00000000, 0x00000000);
+                break;
             case 34231: // Increased Holy Light Healing (Item - Libram of the Lightbringer)
             case 60792: // Libram of Tolerance
             case 64956: // Libram of the Resolute
