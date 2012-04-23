@@ -33,12 +33,6 @@
 #define	JEMALLOC_MANGLE
 #include "../jemalloc.h"
 
-#include "jemalloc/internal/private_namespace.h"
-
-#if (defined(JEMALLOC_OSATOMIC) || defined(JEMALLOC_OSSPIN))
-#include <libkern/OSAtomic.h>
-#endif
-
 #ifdef JEMALLOC_ZONE
 #include <mach/mach_error.h>
 #include <mach/mach_init.h>
@@ -61,9 +55,8 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
  * Define a custom assert() in order to reduce the chances of deadlock during
  * assertion failure.
  */
-#ifndef assert
-#  ifdef JEMALLOC_DEBUG
-#    define assert(e) do {						\
+#ifdef JEMALLOC_DEBUG
+#  define assert(e) do {						\
 	if (!(e)) {							\
 		char line_buf[UMAX2S_BUFSIZE];				\
 		malloc_write("<jemalloc>: ");				\
@@ -77,15 +70,8 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
 		abort();						\
 	}								\
 } while (0)
-#  else
-#    define assert(e)
-#  endif
-#endif
-
-#ifdef JEMALLOC_DEBUG
-#  define dassert(e) assert(e)
 #else
-#  define dassert(e)
+#define assert(e)
 #endif
 
 /*
@@ -160,19 +146,12 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
 #define	QUANTUM_CEILING(a)						\
 	(((a) + QUANTUM_MASK) & ~QUANTUM_MASK)
 
-#define	LONG			((size_t)(1U << LG_SIZEOF_LONG))
-#define	LONG_MASK		(LONG - 1)
-
-/* Return the smallest long multiple that is >= a. */
-#define	LONG_CEILING(a)						\
-	(((a) + LONG_MASK) & ~LONG_MASK)
-
 #define	SIZEOF_PTR		(1U << LG_SIZEOF_PTR)
-#define	PTR_MASK		(SIZEOF_PTR - 1)
 
-/* Return the smallest (void *) multiple that is >= a. */
-#define	PTR_CEILING(a)						\
-	(((a) + PTR_MASK) & ~PTR_MASK)
+/* We can't use TLS in non-PIC programs, since TLS relies on loader magic. */
+#if (!defined(PIC) && !defined(NO_TLS))
+#  define NO_TLS
+#endif
 
 /*
  * Maximum size of L1 cache line.  This is used to avoid cache line aliasing.
@@ -219,7 +198,6 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
 #define	PAGE_CEILING(s)							\
 	(((s) + PAGE_MASK) & ~PAGE_MASK)
 
-#include "jemalloc/internal/atomic.h"
 #include "jemalloc/internal/jemprn.h"
 #include "jemalloc/internal/ckh.h"
 #include "jemalloc/internal/stats.h"
@@ -228,7 +206,6 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
 #include "jemalloc/internal/mb.h"
 #include "jemalloc/internal/extent.h"
 #include "jemalloc/internal/arena.h"
-#include "jemalloc/internal/bitmap.h"
 #include "jemalloc/internal/base.h"
 #include "jemalloc/internal/chunk.h"
 #include "jemalloc/internal/huge.h"
@@ -244,14 +221,12 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
 /******************************************************************************/
 #define JEMALLOC_H_STRUCTS
 
-#include "jemalloc/internal/atomic.h"
 #include "jemalloc/internal/jemprn.h"
 #include "jemalloc/internal/ckh.h"
 #include "jemalloc/internal/stats.h"
 #include "jemalloc/internal/ctl.h"
 #include "jemalloc/internal/mutex.h"
 #include "jemalloc/internal/mb.h"
-#include "jemalloc/internal/bitmap.h"
 #include "jemalloc/internal/extent.h"
 #include "jemalloc/internal/arena.h"
 #include "jemalloc/internal/base.h"
@@ -264,13 +239,6 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
 #include "jemalloc/internal/zone.h"
 #endif
 #include "jemalloc/internal/prof.h"
-
-#ifdef JEMALLOC_STATS
-typedef struct {
-	uint64_t	allocated;
-	uint64_t	deallocated;
-} thread_allocated_t;
-#endif
 
 #undef JEMALLOC_H_STRUCTS
 /******************************************************************************/
@@ -301,7 +269,6 @@ extern size_t		lg_pagesize;
 extern unsigned		ncpus;
 
 extern malloc_mutex_t	arenas_lock; /* Protects arenas initialization. */
-extern pthread_key_t	arenas_tsd;
 #ifndef NO_TLS
 /*
  * Map of pthread_self() --> arenas[???], used for selecting an arena to use
@@ -311,9 +278,9 @@ extern __thread arena_t	*arenas_tls JEMALLOC_ATTR(tls_model("initial-exec"));
 #  define ARENA_GET()	arenas_tls
 #  define ARENA_SET(v)	do {						\
 	arenas_tls = (v);						\
-	pthread_setspecific(arenas_tsd, (void *)(v));			\
 } while (0)
 #else
+extern pthread_key_t	arenas_tsd;
 #  define ARENA_GET()	((arena_t *)pthread_getspecific(arenas_tsd))
 #  define ARENA_SET(v)	do {						\
 	pthread_setspecific(arenas_tsd, (void *)(v));			\
@@ -328,28 +295,45 @@ extern arena_t		**arenas;
 extern unsigned		narenas;
 
 #ifdef JEMALLOC_STATS
+typedef struct {
+	uint64_t	allocated;
+	uint64_t	deallocated;
+} thread_allocated_t;
 #  ifndef NO_TLS
 extern __thread thread_allocated_t	thread_allocated_tls;
-#    define ALLOCATED_GET() (thread_allocated_tls.allocated)
-#    define ALLOCATEDP_GET() (&thread_allocated_tls.allocated)
-#    define DEALLOCATED_GET() (thread_allocated_tls.deallocated)
-#    define DEALLOCATEDP_GET() (&thread_allocated_tls.deallocated)
+#    define ALLOCATED_GET() thread_allocated_tls.allocated
+#    define DEALLOCATED_GET() thread_allocated_tls.deallocated
 #    define ALLOCATED_ADD(a, d) do {					\
 	thread_allocated_tls.allocated += a;				\
 	thread_allocated_tls.deallocated += d;				\
 } while (0)
 #  else
 extern pthread_key_t	thread_allocated_tsd;
-thread_allocated_t	*thread_allocated_get_hard(void);
-
-#    define ALLOCATED_GET() (thread_allocated_get()->allocated)
-#    define ALLOCATEDP_GET() (&thread_allocated_get()->allocated)
-#    define DEALLOCATED_GET() (thread_allocated_get()->deallocated)
-#    define DEALLOCATEDP_GET() (&thread_allocated_get()->deallocated)
+#    define ALLOCATED_GET()						\
+	(uint64_t)((pthread_getspecific(thread_allocated_tsd) != NULL)	\
+	    ? ((thread_allocated_t *)					\
+	    pthread_getspecific(thread_allocated_tsd))->allocated : 0)
+#    define DEALLOCATED_GET()						\
+	(uint64_t)((pthread_getspecific(thread_allocated_tsd) != NULL)	\
+	    ? ((thread_allocated_t					\
+	    *)pthread_getspecific(thread_allocated_tsd))->deallocated :	\
+	    0)
 #    define ALLOCATED_ADD(a, d) do {					\
-	thread_allocated_t *thread_allocated = thread_allocated_get();	\
-	thread_allocated->allocated += (a);				\
-	thread_allocated->deallocated += (d);				\
+	thread_allocated_t *thread_allocated = (thread_allocated_t *)	\
+	    pthread_getspecific(thread_allocated_tsd);			\
+	if (thread_allocated != NULL) {					\
+		thread_allocated->allocated += (a);			\
+		thread_allocated->deallocated += (d);			\
+	} else {							\
+		thread_allocated = (thread_allocated_t *)		\
+		    imalloc(sizeof(thread_allocated_t));		\
+		if (thread_allocated != NULL) {				\
+			pthread_setspecific(thread_allocated_tsd,	\
+			    thread_allocated);				\
+			thread_allocated->allocated = (a);		\
+			thread_allocated->deallocated = (d);		\
+		}							\
+	}								\
 } while (0)
 #  endif
 #endif
@@ -360,14 +344,12 @@ int	buferror(int errnum, char *buf, size_t buflen);
 void	jemalloc_prefork(void);
 void	jemalloc_postfork(void);
 
-#include "jemalloc/internal/atomic.h"
 #include "jemalloc/internal/jemprn.h"
 #include "jemalloc/internal/ckh.h"
 #include "jemalloc/internal/stats.h"
 #include "jemalloc/internal/ctl.h"
 #include "jemalloc/internal/mutex.h"
 #include "jemalloc/internal/mb.h"
-#include "jemalloc/internal/bitmap.h"
 #include "jemalloc/internal/extent.h"
 #include "jemalloc/internal/arena.h"
 #include "jemalloc/internal/base.h"
@@ -385,7 +367,6 @@ void	jemalloc_postfork(void);
 /******************************************************************************/
 #define JEMALLOC_H_INLINES
 
-#include "jemalloc/internal/atomic.h"
 #include "jemalloc/internal/jemprn.h"
 #include "jemalloc/internal/ckh.h"
 #include "jemalloc/internal/stats.h"
@@ -403,9 +384,6 @@ size_t	s2u(size_t size);
 size_t	sa2u(size_t size, size_t alignment, size_t *run_size_p);
 void	malloc_write(const char *s);
 arena_t	*choose_arena(void);
-#  if (defined(JEMALLOC_STATS) && defined(NO_TLS))
-thread_allocated_t	*thread_allocated_get(void);
-#  endif
 #endif
 
 #if (defined(JEMALLOC_ENABLE_INLINE) || defined(JEMALLOC_C_))
@@ -436,10 +414,10 @@ s2u(size_t size)
 {
 
 	if (size <= small_maxclass)
-		return (arena_bin_info[SMALL_SIZE2BIN(size)].reg_size);
+		return arenas[0]->bins[small_size2bin[size]].reg_size;
 	if (size <= arena_maxclass)
-		return (PAGE_CEILING(size));
-	return (CHUNK_CEILING(size));
+		return PAGE_CEILING(size);
+	return CHUNK_CEILING(size);
 }
 
 /*
@@ -480,8 +458,10 @@ sa2u(size_t size, size_t alignment, size_t *run_size_p)
 	}
 
 	if (usize <= arena_maxclass && alignment <= PAGE_SIZE) {
-		if (usize <= small_maxclass)
-			return (arena_bin_info[SMALL_SIZE2BIN(usize)].reg_size);
+		if (usize <= small_maxclass) {
+			return
+			    (arenas[0]->bins[small_size2bin[usize]].reg_size);
+		}
 		return (PAGE_CEILING(usize));
 	} else {
 		size_t run_size;
@@ -564,22 +544,8 @@ choose_arena(void)
 
 	return (ret);
 }
-
-#if (defined(JEMALLOC_STATS) && defined(NO_TLS))
-JEMALLOC_INLINE thread_allocated_t *
-thread_allocated_get(void)
-{
-	thread_allocated_t *thread_allocated = (thread_allocated_t *)
-	    pthread_getspecific(thread_allocated_tsd);
-
-	if (thread_allocated == NULL)
-		return (thread_allocated_get_hard());
-	return (thread_allocated);
-}
-#endif
 #endif
 
-#include "jemalloc/internal/bitmap.h"
 #include "jemalloc/internal/rtree.h"
 #include "jemalloc/internal/tcache.h"
 #include "jemalloc/internal/arena.h"
@@ -591,7 +557,7 @@ thread_allocated_get(void)
 #ifndef JEMALLOC_ENABLE_INLINE
 void	*imalloc(size_t size);
 void	*icalloc(size_t size);
-void	*ipalloc(size_t usize, size_t alignment, bool zero);
+void	*ipalloc(size_t size, size_t alignment, bool zero);
 size_t	isalloc(const void *ptr);
 #  ifdef JEMALLOC_IVSALLOC
 size_t	ivsalloc(const void *ptr);
@@ -625,39 +591,28 @@ icalloc(size_t size)
 }
 
 JEMALLOC_INLINE void *
-ipalloc(size_t usize, size_t alignment, bool zero)
+ipalloc(size_t size, size_t alignment, bool zero)
 {
 	void *ret;
+	size_t usize;
+	size_t run_size
+#  ifdef JEMALLOC_CC_SILENCE
+	    = 0
+#  endif
+	    ;
 
-	assert(usize != 0);
-	assert(usize == sa2u(usize, alignment, NULL));
-
+	usize = sa2u(size, alignment, &run_size);
+	if (usize == 0)
+		return (NULL);
 	if (usize <= arena_maxclass && alignment <= PAGE_SIZE)
 		ret = arena_malloc(usize, zero);
-	else {
-		size_t run_size
-#ifdef JEMALLOC_CC_SILENCE
-		    = 0
-#endif
-		    ;
-
-		/*
-		 * Ideally we would only ever call sa2u() once per aligned
-		 * allocation request, and the caller of this function has
-		 * already done so once.  However, it's rather burdensome to
-		 * require every caller to pass in run_size, especially given
-		 * that it's only relevant to large allocations.  Therefore,
-		 * just call it again here in order to get run_size.
-		 */
-		sa2u(usize, alignment, &run_size);
-		if (run_size <= arena_maxclass) {
-			ret = arena_palloc(choose_arena(), usize, run_size,
-			    alignment, zero);
-		} else if (alignment <= chunksize)
-			ret = huge_malloc(usize, zero);
-		else
-			ret = huge_palloc(usize, alignment, zero);
-	}
+	else if (run_size <= arena_maxclass) {
+		ret = arena_palloc(choose_arena(), usize, run_size, alignment,
+		    zero);
+	} else if (alignment <= chunksize)
+		ret = huge_malloc(usize, zero);
+	else
+		ret = huge_palloc(usize, alignment, zero);
 
 	assert(((uintptr_t)ret & (alignment - 1)) == 0);
 	return (ret);
@@ -674,7 +629,7 @@ isalloc(const void *ptr)
 	chunk = (arena_chunk_t *)CHUNK_ADDR2BASE(ptr);
 	if (chunk != ptr) {
 		/* Region. */
-		dassert(chunk->arena->magic == ARENA_MAGIC);
+		assert(chunk->arena->magic == ARENA_MAGIC);
 
 #ifdef JEMALLOC_PROF
 		ret = arena_salloc_demote(ptr);
@@ -728,7 +683,7 @@ iralloc(void *ptr, size_t size, size_t extra, size_t alignment, bool zero,
 
 	if (alignment != 0 && ((uintptr_t)ptr & ((uintptr_t)alignment-1))
 	    != 0) {
-		size_t usize, copysize;
+		size_t copysize;
 
 		/*
 		 * Existing object alignment is inadquate; allocate new space
@@ -736,18 +691,12 @@ iralloc(void *ptr, size_t size, size_t extra, size_t alignment, bool zero,
 		 */
 		if (no_move)
 			return (NULL);
-		usize = sa2u(size + extra, alignment, NULL);
-		if (usize == 0)
-			return (NULL);
-		ret = ipalloc(usize, alignment, zero);
+		ret = ipalloc(size + extra, alignment, zero);
 		if (ret == NULL) {
 			if (extra == 0)
 				return (NULL);
 			/* Try again, without extra this time. */
-			usize = sa2u(size, alignment, NULL);
-			if (usize == 0)
-				return (NULL);
-			ret = ipalloc(usize, alignment, zero);
+			ret = ipalloc(size, alignment, zero);
 			if (ret == NULL)
 				return (NULL);
 		}

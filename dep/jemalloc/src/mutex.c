@@ -55,9 +55,6 @@ pthread_create(pthread_t *__restrict thread,
 bool
 malloc_mutex_init(malloc_mutex_t *mutex)
 {
-#ifdef JEMALLOC_OSSPIN
-	*mutex = 0;
-#else
 	pthread_mutexattr_t attr;
 
 	if (pthread_mutexattr_init(&attr) != 0)
@@ -73,7 +70,6 @@ malloc_mutex_init(malloc_mutex_t *mutex)
 	}
 	pthread_mutexattr_destroy(&attr);
 
-#endif
 	return (false);
 }
 
@@ -81,10 +77,8 @@ void
 malloc_mutex_destroy(malloc_mutex_t *mutex)
 {
 
-#ifndef JEMALLOC_OSSPIN
 	if (pthread_mutex_destroy(mutex) != 0) {
 		malloc_write("<jemalloc>: Error in pthread_mutex_destroy()\n");
 		abort();
 	}
-#endif
 }

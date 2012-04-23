@@ -34,7 +34,7 @@
  * respectively.
  *
  ******************************************************************************/
-#define	JEMALLOC_CKH_C_
+#define	CKH_C_
 #include "jemalloc/internal/jemalloc_internal.h"
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ ckh_isearch(ckh_t *ckh, const void *key)
 	size_t hash1, hash2, bucket, cell;
 
 	assert(ckh != NULL);
-	dassert(ckh->magic == CKH_MAGIC);
+	assert(ckh->magic = CKH_MAGIG);
 
 	ckh->hash(key, ckh->lg_curbuckets, &hash1, &hash2);
 
@@ -262,15 +262,9 @@ ckh_grow(ckh_t *ckh)
 	lg_prevbuckets = ckh->lg_curbuckets;
 	lg_curcells = ckh->lg_curbuckets + LG_CKH_BUCKET_CELLS;
 	while (true) {
-		size_t usize;
-
 		lg_curcells++;
-		usize = sa2u(sizeof(ckhc_t) << lg_curcells, CACHELINE, NULL);
-		if (usize == 0) {
-			ret = true;
-			goto RETURN;
-		}
-		tab = (ckhc_t *)ipalloc(usize, CACHELINE, true);
+		tab = (ckhc_t *)ipalloc(sizeof(ckhc_t) << lg_curcells,
+		    ZU(1) << LG_CACHELINE, true);
 		if (tab == NULL) {
 			ret = true;
 			goto RETURN;
@@ -301,7 +295,7 @@ static void
 ckh_shrink(ckh_t *ckh)
 {
 	ckhc_t *tab, *ttab;
-	size_t lg_curcells, usize;
+	size_t lg_curcells;
 	unsigned lg_prevbuckets;
 
 	/*
@@ -310,10 +304,8 @@ ckh_shrink(ckh_t *ckh)
 	 */
 	lg_prevbuckets = ckh->lg_curbuckets;
 	lg_curcells = ckh->lg_curbuckets + LG_CKH_BUCKET_CELLS - 1;
-	usize = sa2u(sizeof(ckhc_t) << lg_curcells, CACHELINE, NULL);
-	if (usize == 0)
-		return;
-	tab = (ckhc_t *)ipalloc(usize, CACHELINE, true);
+	tab = (ckhc_t *)ipalloc(sizeof(ckhc_t) << lg_curcells,
+	    ZU(1) << LG_CACHELINE, true);
 	if (tab == NULL) {
 		/*
 		 * An OOM error isn't worth propagating, since it doesn't
@@ -348,7 +340,7 @@ bool
 ckh_new(ckh_t *ckh, size_t minitems, ckh_hash_t *hash, ckh_keycomp_t *keycomp)
 {
 	bool ret;
-	size_t mincells, usize;
+	size_t mincells;
 	unsigned lg_mincells;
 
 	assert(minitems > 0);
@@ -383,19 +375,15 @@ ckh_new(ckh_t *ckh, size_t minitems, ckh_hash_t *hash, ckh_keycomp_t *keycomp)
 	ckh->hash = hash;
 	ckh->keycomp = keycomp;
 
-	usize = sa2u(sizeof(ckhc_t) << lg_mincells, CACHELINE, NULL);
-	if (usize == 0) {
-		ret = true;
-		goto RETURN;
-	}
-	ckh->tab = (ckhc_t *)ipalloc(usize, CACHELINE, true);
+	ckh->tab = (ckhc_t *)ipalloc(sizeof(ckhc_t) << lg_mincells,
+	    (ZU(1) << LG_CACHELINE), true);
 	if (ckh->tab == NULL) {
 		ret = true;
 		goto RETURN;
 	}
 
 #ifdef JEMALLOC_DEBUG
-	ckh->magic = CKH_MAGIC;
+	ckh->magic = CKH_MAGIG;
 #endif
 
 	ret = false;
@@ -408,7 +396,7 @@ ckh_delete(ckh_t *ckh)
 {
 
 	assert(ckh != NULL);
-	dassert(ckh->magic == CKH_MAGIC);
+	assert(ckh->magic = CKH_MAGIG);
 
 #ifdef CKH_VERBOSE
 	malloc_printf(
@@ -433,7 +421,7 @@ ckh_count(ckh_t *ckh)
 {
 
 	assert(ckh != NULL);
-	dassert(ckh->magic == CKH_MAGIC);
+	assert(ckh->magic = CKH_MAGIG);
 
 	return (ckh->count);
 }
@@ -464,7 +452,7 @@ ckh_insert(ckh_t *ckh, const void *key, const void *data)
 	bool ret;
 
 	assert(ckh != NULL);
-	dassert(ckh->magic == CKH_MAGIC);
+	assert(ckh->magic = CKH_MAGIG);
 	assert(ckh_search(ckh, key, NULL, NULL));
 
 #ifdef CKH_COUNT
@@ -489,7 +477,7 @@ ckh_remove(ckh_t *ckh, const void *searchkey, void **key, void **data)
 	size_t cell;
 
 	assert(ckh != NULL);
-	dassert(ckh->magic == CKH_MAGIC);
+	assert(ckh->magic = CKH_MAGIG);
 
 	cell = ckh_isearch(ckh, searchkey);
 	if (cell != SIZE_T_MAX) {
@@ -521,7 +509,7 @@ ckh_search(ckh_t *ckh, const void *searchkey, void **key, void **data)
 	size_t cell;
 
 	assert(ckh != NULL);
-	dassert(ckh->magic == CKH_MAGIC);
+	assert(ckh->magic = CKH_MAGIG);
 
 	cell = ckh_isearch(ckh, searchkey);
 	if (cell != SIZE_T_MAX) {
@@ -556,7 +544,7 @@ ckh_string_hash(const void *key, unsigned minbits, size_t *hash1, size_t *hash2)
 	} else {
 		ret1 = h;
 		ret2 = hash(key, strlen((const char *)key),
-		    0x8432a476666bbc13LLU);
+		    0x8432a476666bbc13U);
 	}
 
 	*hash1 = ret1;

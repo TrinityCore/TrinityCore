@@ -3,13 +3,13 @@
 #ifdef JEMALLOC_PROF
 /******************************************************************************/
 
+#ifdef JEMALLOC_PROF_LIBGCC
+#include <unwind.h>
+#endif
+
 #ifdef JEMALLOC_PROF_LIBUNWIND
 #define	UNW_LOCAL_ONLY
 #include <libunwind.h>
-#endif
-
-#ifdef JEMALLOC_PROF_LIBGCC
-#include <unwind.h>
 #endif
 
 /******************************************************************************/
@@ -169,7 +169,39 @@ prof_leave(void)
 		prof_gdump();
 }
 
-#ifdef JEMALLOC_PROF_LIBUNWIND
+#ifdef JEMALLOC_PROF_LIBGCC
+static _Unwind_Reason_Code
+prof_unwind_init_callback(struct _Unwind_Context *context, void *arg)
+{
+
+	return (_URC_NO_REASON);
+}
+
+static _Unwind_Reason_Code
+prof_unwind_callback(struct _Unwind_Context *context, void *arg)
+{
+	prof_unwind_data_t *data = (prof_unwind_data_t *)arg;
+
+	if (data->nignore > 0)
+		data->nignore--;
+	else {
+		data->bt->vec[data->bt->len] = (void *)_Unwind_GetIP(context);
+		data->bt->len++;
+		if (data->bt->len == data->max)
+			return (_URC_END_OF_STACK);
+	}
+
+	return (_URC_NO_REASON);
+}
+
+void
+prof_backtrace(prof_bt_t *bt, unsigned nignore, unsigned max)
+{
+	prof_unwind_data_t data = {bt, nignore, max};
+
+	_Unwind_Backtrace(prof_unwind_callback, &data);
+}
+#elif defined(JEMALLOC_PROF_LIBUNWIND)
 void
 prof_backtrace(prof_bt_t *bt, unsigned nignore, unsigned max)
 {
@@ -204,41 +236,7 @@ prof_backtrace(prof_bt_t *bt, unsigned nignore, unsigned max)
 			break;
 	}
 }
-#endif
-#ifdef JEMALLOC_PROF_LIBGCC
-static _Unwind_Reason_Code
-prof_unwind_init_callback(struct _Unwind_Context *context, void *arg)
-{
-
-	return (_URC_NO_REASON);
-}
-
-static _Unwind_Reason_Code
-prof_unwind_callback(struct _Unwind_Context *context, void *arg)
-{
-	prof_unwind_data_t *data = (prof_unwind_data_t *)arg;
-
-	if (data->nignore > 0)
-		data->nignore--;
-	else {
-		data->bt->vec[data->bt->len] = (void *)_Unwind_GetIP(context);
-		data->bt->len++;
-		if (data->bt->len == data->max)
-			return (_URC_END_OF_STACK);
-	}
-
-	return (_URC_NO_REASON);
-}
-
-void
-prof_backtrace(prof_bt_t *bt, unsigned nignore, unsigned max)
-{
-	prof_unwind_data_t data = {bt, nignore, max};
-
-	_Unwind_Backtrace(prof_unwind_callback, &data);
-}
-#endif
-#ifdef JEMALLOC_PROF_GCC
+#else
 void
 prof_backtrace(prof_bt_t *bt, unsigned nignore, unsigned max)
 {
@@ -434,7 +432,6 @@ prof_lookup(prof_bt_t *bt)
 			prof_ctx_t	*p;
 			void		*v;
 		} ctx;
-		bool new_ctx;
 
 		/*
 		 * This thread's cache lacks bt.  Look for it in the global
@@ -471,26 +468,12 @@ prof_lookup(prof_bt_t *bt)
 				idalloc(ctx.v);
 				return (NULL);
 			}
-			/*
-			 * Artificially raise curobjs, in order to avoid a race
-			 * condition with prof_ctx_merge()/prof_ctx_destroy().
-			 *
-			 * No locking is necessary for ctx here because no other
-			 * threads have had the opportunity to fetch it from
-			 * bt2ctx yet.
-			 */
-			ctx.p->cnt_merged.curobjs++;
-			new_ctx = true;
-		} else {
-			/*
-			 * Artificially raise curobjs, in order to avoid a race
-			 * condition with prof_ctx_merge()/prof_ctx_destroy().
-			 */
-			malloc_mutex_lock(&ctx.p->lock);
-			ctx.p->cnt_merged.curobjs++;
-			malloc_mutex_unlock(&ctx.p->lock);
-			new_ctx = false;
 		}
+		/*
+		 * Acquire ctx's lock before releasing bt2ctx_mtx, in order to
+		 * avoid a race condition with prof_ctx_destroy().
+		 */
+		malloc_mutex_lock(&ctx.p->lock);
 		prof_leave();
 
 		/* Link a prof_thd_cnt_t into ctx for this thread. */
@@ -503,9 +486,8 @@ prof_lookup(prof_bt_t *bt)
 			 */
 			ret.p = ql_last(&prof_tdata->lru_ql, lru_link);
 			assert(ret.v != NULL);
-			if (ckh_remove(&prof_tdata->bt2cnt, ret.p->ctx->bt,
-			    NULL, NULL))
-				assert(false);
+			ckh_remove(&prof_tdata->bt2cnt, ret.p->ctx->bt, NULL,
+			    NULL);
 			ql_remove(&prof_tdata->lru_ql, ret.p, lru_link);
 			prof_ctx_merge(ret.p->ctx, ret.p);
 			/* ret can now be re-used. */
@@ -516,8 +498,7 @@ prof_lookup(prof_bt_t *bt)
 			/* Allocate and partially initialize a new cnt. */
 			ret.v = imalloc(sizeof(prof_thr_cnt_t));
 			if (ret.p == NULL) {
-				if (new_ctx)
-					prof_ctx_destroy(ctx.p);
+				malloc_mutex_unlock(&ctx.p->lock);
 				return (NULL);
 			}
 			ql_elm_new(ret.p, cnts_link);
@@ -528,15 +509,12 @@ prof_lookup(prof_bt_t *bt)
 		ret.p->epoch = 0;
 		memset(&ret.p->cnts, 0, sizeof(prof_cnt_t));
 		if (ckh_insert(&prof_tdata->bt2cnt, btkey.v, ret.v)) {
-			if (new_ctx)
-				prof_ctx_destroy(ctx.p);
+			malloc_mutex_unlock(&ctx.p->lock);
 			idalloc(ret.v);
 			return (NULL);
 		}
 		ql_head_insert(&prof_tdata->lru_ql, ret.p, lru_link);
-		malloc_mutex_lock(&ctx.p->lock);
 		ql_tail_insert(&ctx.p->cnts_ql, ret.p, cnts_link);
-		ctx.p->cnt_merged.curobjs--;
 		malloc_mutex_unlock(&ctx.p->lock);
 	} else {
 		/* Move ret to the front of the LRU. */
@@ -650,10 +628,11 @@ prof_ctx_destroy(prof_ctx_t *ctx)
 
 	/*
 	 * Check that ctx is still unused by any thread cache before destroying
-	 * it.  prof_lookup() artificially raises ctx->cnt_merge.curobjs in
-	 * order to avoid a race condition with this function, as does
-	 * prof_ctx_merge() in order to avoid a race between the main body of
-	 * prof_ctx_merge() and entry into this function.
+	 * it.  prof_lookup() interlocks bt2ctx_mtx and ctx->lock in order to
+	 * avoid a race condition with this function, and prof_ctx_merge()
+	 * artificially raises ctx->cnt_merged.curobjs in order to avoid a race
+	 * between the main body of prof_ctx_merge() and entry into this
+	 * function.
 	 */
 	prof_enter();
 	malloc_mutex_lock(&ctx->lock);
@@ -662,8 +641,7 @@ prof_ctx_destroy(prof_ctx_t *ctx)
 		assert(ctx->cnt_merged.accumobjs == 0);
 		assert(ctx->cnt_merged.accumbytes == 0);
 		/* Remove ctx from bt2ctx. */
-		if (ckh_remove(&bt2ctx, ctx->bt, NULL, NULL))
-			assert(false);
+		ckh_remove(&bt2ctx, ctx->bt, NULL, NULL);
 		prof_leave();
 		/* Destroy ctx. */
 		malloc_mutex_unlock(&ctx->lock);
@@ -671,10 +649,7 @@ prof_ctx_destroy(prof_ctx_t *ctx)
 		malloc_mutex_destroy(&ctx->lock);
 		idalloc(ctx);
 	} else {
-		/*
-		 * Compensate for increment in prof_ctx_merge() or
-		 * prof_lookup().
-		 */
+		/* Compensate for increment in prof_ctx_merge(). */
 		ctx->cnt_merged.curobjs--;
 		malloc_mutex_unlock(&ctx->lock);
 		prof_leave();
@@ -1081,7 +1056,7 @@ prof_bt_hash(const void *key, unsigned minbits, size_t *hash1, size_t *hash2)
 	} else {
 		ret1 = h;
 		ret2 = hash(bt->vec, bt->len * sizeof(void *),
-		    0x8432a476666bbc13LLU);
+		    0x8432a476666bbc13U);
 	}
 
 	*hash1 = ret1;
@@ -1118,6 +1093,7 @@ prof_tdata_init(void)
 
 	prof_tdata->vec = imalloc(sizeof(void *) * prof_bt_max);
 	if (prof_tdata->vec == NULL) {
+
 		ckh_delete(&prof_tdata->bt2cnt);
 		idalloc(prof_tdata);
 		return (NULL);
@@ -1135,26 +1111,33 @@ prof_tdata_init(void)
 static void
 prof_tdata_cleanup(void *arg)
 {
-	prof_thr_cnt_t *cnt;
-	prof_tdata_t *prof_tdata = (prof_tdata_t *)arg;
+	prof_tdata_t *prof_tdata;
 
-	/*
-	 * Delete the hash table.  All of its contents can still be iterated
-	 * over via the LRU.
-	 */
-	ckh_delete(&prof_tdata->bt2cnt);
+	prof_tdata = PROF_TCACHE_GET();
+	if (prof_tdata != NULL) {
+		prof_thr_cnt_t *cnt;
 
-	/* Iteratively merge cnt's into the global stats and delete them. */
-	while ((cnt = ql_last(&prof_tdata->lru_ql, lru_link)) != NULL) {
-		ql_remove(&prof_tdata->lru_ql, cnt, lru_link);
-		prof_ctx_merge(cnt->ctx, cnt);
-		idalloc(cnt);
+		/*
+		 * Delete the hash table.  All of its contents can still be
+		 * iterated over via the LRU.
+		 */
+		ckh_delete(&prof_tdata->bt2cnt);
+
+		/*
+		 * Iteratively merge cnt's into the global stats and delete
+		 * them.
+		 */
+		while ((cnt = ql_last(&prof_tdata->lru_ql, lru_link)) != NULL) {
+			prof_ctx_merge(cnt->ctx, cnt);
+			ql_remove(&prof_tdata->lru_ql, cnt, lru_link);
+			idalloc(cnt);
+		}
+
+		idalloc(prof_tdata->vec);
+
+		idalloc(prof_tdata);
+		PROF_TCACHE_SET(NULL);
 	}
-
-	idalloc(prof_tdata->vec);
-
-	idalloc(prof_tdata);
-	PROF_TCACHE_SET(NULL);
 }
 
 void
