@@ -543,9 +543,9 @@ public:
                 sayTimer -= uiDiff;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* proto)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (!proto || proto->Id != SPELL_OFFER)
+            if (spell->Id != SPELL_OFFER)
                 return;
 
             if (!caster->ToPlayer())
@@ -555,25 +555,25 @@ public:
             if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
                 return;
 
-            for (uint8 i=0; i<3; i++)
+            for (uint8 i = 0; i < 3; i++)
             {
                 switch (i)
                 {
-                   case 0:
-                       if (NPC_HEMET != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                   case 1:
-                       if (NPC_HADRIUS != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                   case 2:
-                       if (NPC_TAMARA != me->GetEntry())
-                           continue;
-                       else
-                           break;
+                    case 0:
+                        if (NPC_HEMET != me->GetEntry())
+                            continue;
+                        else
+                            break;
+                    case 1:
+                        if (NPC_HADRIUS != me->GetEntry())
+                            continue;
+                        else
+                            break;
+                    case 2:
+                        if (NPC_TAMARA != me->GetEntry())
+                            continue;
+                        else
+                            break;
                 }
 
                 if (itr->second.CreatureOrGOCount[i] != 0)

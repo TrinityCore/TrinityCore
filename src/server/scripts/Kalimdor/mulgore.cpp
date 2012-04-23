@@ -116,12 +116,12 @@ public:
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (!me->getVictim() && !bEvent && pSpell->Id == SPELL_LUNCH)
+            if (!me->getVictim() && !bEvent && spell->Id == SPELL_LUNCH)
             {
-                if (pCaster->GetTypeId() == TYPEID_PLAYER)
-                    uiPlayerGUID = pCaster->GetGUID();
+                if (caster->GetTypeId() == TYPEID_PLAYER)
+                    uiPlayerGUID = caster->GetGUID();
 
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
                 {

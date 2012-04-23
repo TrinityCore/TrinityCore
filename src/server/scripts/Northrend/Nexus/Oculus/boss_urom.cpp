@@ -299,9 +299,9 @@ public:
             me->DeleteThreatList();
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
-            switch (pSpell->Id)
+            switch (spell->Id)
             {
                 case SPELL_SUMMON_MENAGERIE:
                     me->SetHomePosition(968.66f, 1042.53f, 527.32f, 0.077f);

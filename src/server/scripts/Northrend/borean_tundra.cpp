@@ -73,7 +73,7 @@ public:
             casterGuid = 0;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
             if (Phase)
                 return;
@@ -865,7 +865,7 @@ public:
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
             if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -1619,17 +1619,17 @@ public:
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !HealthAbovePct(50) && !bEnslaved)
+            if (spell->Id == SPELL_ARCANE_CHAINS && caster->GetTypeId() == TYPEID_PLAYER && !HealthAbovePct(50) && !bEnslaved)
             {
                 EnterEvadeMode(); //We make sure that the npc is not attacking the player!
                 me->SetReactState(REACT_PASSIVE);
-                StartFollow(pCaster->ToPlayer(), 0, NULL);
+                StartFollow(caster->ToPlayer(), 0, NULL);
                 me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER, TEAM_NEUTRAL);
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
 
-                if (Player* player = pCaster->ToPlayer())
+                if (Player* player = caster->ToPlayer())
                     player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
 
                 bEnslaved = true;
@@ -1706,12 +1706,12 @@ public:
         {
         }
 
-        void SpellHit(Unit* unit, const SpellInfo* pSpell)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (pSpell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
+            if (spell->Id == SPELL_NEURAL_NEEDLE && caster->GetTypeId() == TYPEID_PLAYER)
             {
                 ++uiPhase;
-                CasterGUID = unit->GetGUID();
+                CasterGUID = caster->GetGUID();
             }
         }
 

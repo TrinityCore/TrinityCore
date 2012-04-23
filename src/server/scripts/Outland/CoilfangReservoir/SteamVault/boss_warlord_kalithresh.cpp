@@ -148,7 +148,7 @@ public:
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
             //hack :(
             if (spell->Id == SPELL_WARLORDS_RAGE_PROC)

@@ -423,10 +423,10 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
             // This is the dummy effect of the spells
-            if (pSpell->Id == SPELL_SHATTER_N || pSpell->Id == SPELL_SHATTER_H)
+            if (spell->Id == SPELL_SHATTER_N || spell->Id == SPELL_SHATTER_H)
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
                     me->DespawnOrUnsummon();
         }

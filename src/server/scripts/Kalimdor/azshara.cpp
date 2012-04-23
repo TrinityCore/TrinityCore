@@ -63,15 +63,19 @@ public:
 
         void EnterCombat(Unit* /*who*/) { }
 
-        void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
+        void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (!spellhit &&
-                Hitter->GetTypeId() == TYPEID_PLAYER &&
-                CAST_PLR(Hitter)->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE &&
-                (Spellkind->Id == 118 || Spellkind->Id == 12824 || Spellkind->Id == 12825 || Spellkind->Id == 12826))
+            if (spellhit)
+                return;
+
+            if (Player* player = caster->ToPlayer())
             {
-                spellhit=true;
-                DoCast(me, 29124);                       //become a sheep
+                if (player->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE &&
+                    (spell->Id == 118 || spell->Id == 12824 || spell->Id == 12825 || spell->Id == 12826))
+                {
+                    spellhit = true;
+                    DoCast(me, 29124);                       //become a sheep
+                }
             }
         }
 
