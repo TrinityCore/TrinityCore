@@ -796,7 +796,8 @@ class boss_sister_svalna : public CreatureScript
             {
                 _JustReachedHome();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetCanFly(false);
+                me->SetDisableGravity(false);
+                me->SetHover(false);
             }
 
             void DoAction(int32 const action)
@@ -838,13 +839,14 @@ class boss_sister_svalna : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (type != POINT_MOTION_TYPE || id != POINT_LAND)
+                if (type != EFFECT_MOTION_TYPE || id != POINT_LAND)
                     return;
 
                 _isEventInProgress = false;
                 me->setActive(false);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                me->SetCanFly(false);
+                me->SetDisableGravity(false);
+                me->SetHover(false);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
@@ -1921,10 +1923,10 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                 Position pos;
                 caster->GetPosition(&pos);
                 caster->GetNearPosition(pos, 5.0f, 0.0f);
-                pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 20.0f);
-                pos.m_positionZ += 0.05f;
+                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
+                //pos.m_positionZ += 0.05f;
                 caster->SetHomePosition(pos);
-                caster->GetMotionMaster()->MovePoint(POINT_LAND, pos);
+                caster->GetMotionMaster()->MoveLand(POINT_LAND, pos, caster->GetSpeed(MOVE_FLIGHT));
             }
 
             void Register()
