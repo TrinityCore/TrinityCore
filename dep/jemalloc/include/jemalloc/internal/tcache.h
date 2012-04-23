@@ -2,7 +2,6 @@
 /******************************************************************************/
 #ifdef JEMALLOC_H_TYPES
 
-typedef struct tcache_bin_info_s tcache_bin_info_t;
 typedef struct tcache_bin_s tcache_bin_t;
 typedef struct tcache_s tcache_t;
 
@@ -33,22 +32,15 @@ typedef struct tcache_s tcache_t;
 /******************************************************************************/
 #ifdef JEMALLOC_H_STRUCTS
 
-/*
- * Read-only information associated with each element of tcache_t's tbins array
- * is stored separately, mainly to reduce memory usage.
- */
-struct tcache_bin_info_s {
-	unsigned	ncached_max;	/* Upper limit on ncached. */
-};
-
 struct tcache_bin_s {
 #  ifdef JEMALLOC_STATS
 	tcache_bin_stats_t tstats;
 #  endif
-	int		low_water;	/* Min # cached since last GC. */
-	unsigned	lg_fill_div;	/* Fill (ncached_max >> lg_fill_div). */
+	unsigned	low_water;	/* Min # cached since last GC. */
+	unsigned	high_water;	/* Max # cached since last GC. */
 	unsigned	ncached;	/* # of cached objects. */
-	void		**avail;	/* Stack of available objects. */
+	unsigned	ncached_max;	/* Upper limit on ncached. */
+	void		*avail;		/* Chain of available objects. */
 };
 
 struct tcache_s {
@@ -62,12 +54,6 @@ struct tcache_s {
 	unsigned	ev_cnt;		/* Event count since incremental GC. */
 	unsigned	next_gc_bin;	/* Next bin to GC. */
 	tcache_bin_t	tbins[1];	/* Dynamically sized. */
-	/*
-	 * The pointer stacks associated with tbins follow as a contiguous
-	 * array.  During tcache initialization, the avail pointer in each
-	 * element of tbins is initialized to point to the proper offset within
-	 * this array.
-	 */
 };
 
 #endif /* JEMALLOC_H_STRUCTS */
@@ -77,8 +63,6 @@ struct tcache_s {
 extern bool	opt_tcache;
 extern ssize_t	opt_lg_tcache_max;
 extern ssize_t	opt_lg_tcache_gc_sweep;
-
-extern tcache_bin_info_t	*tcache_bin_info;
 
 /* Map of thread-specific caches. */
 #ifndef NO_TLS
@@ -126,7 +110,7 @@ void	tcache_destroy(tcache_t *tcache);
 #ifdef JEMALLOC_STATS
 void	tcache_stats_merge(tcache_t *tcache, arena_t *arena);
 #endif
-bool	tcache_boot(void);
+void	tcache_boot(void);
 
 #endif /* JEMALLOC_H_EXTERNS */
 /******************************************************************************/
@@ -185,7 +169,6 @@ tcache_event(tcache_t *tcache)
 	if (tcache->ev_cnt == tcache_gc_incr) {
 		size_t binind = tcache->next_gc_bin;
 		tcache_bin_t *tbin = &tcache->tbins[binind];
-		tcache_bin_info_t *tbin_info = &tcache_bin_info[binind];
 
 		if (tbin->low_water > 0) {
 			/*
@@ -209,22 +192,9 @@ tcache_event(tcache_t *tcache)
 #endif
 				    );
 			}
-			/*
-			 * Reduce fill count by 2X.  Limit lg_fill_div such that
-			 * the fill count is always at least 1.
-			 */
-			if ((tbin_info->ncached_max >> (tbin->lg_fill_div+1))
-			    >= 1)
-				tbin->lg_fill_div++;
-		} else if (tbin->low_water < 0) {
-			/*
-			 * Increase fill count by 2X.  Make sure lg_fill_div
-			 * stays greater than 0.
-			 */
-			if (tbin->lg_fill_div > 1)
-				tbin->lg_fill_div--;
 		}
 		tbin->low_water = tbin->ncached;
+		tbin->high_water = tbin->ncached;
 
 		tcache->next_gc_bin++;
 		if (tcache->next_gc_bin == nhbins)
@@ -238,14 +208,13 @@ tcache_alloc_easy(tcache_bin_t *tbin)
 {
 	void *ret;
 
-	if (tbin->ncached == 0) {
-		tbin->low_water = -1;
+	if (tbin->ncached == 0)
 		return (NULL);
-	}
 	tbin->ncached--;
-	if ((int)tbin->ncached < tbin->low_water)
+	if (tbin->ncached < tbin->low_water)
 		tbin->low_water = tbin->ncached;
-	ret = tbin->avail[tbin->ncached];
+	ret = tbin->avail;
+	tbin->avail = *(void **)ret;
 	return (ret);
 }
 
@@ -256,7 +225,7 @@ tcache_alloc_small(tcache_t *tcache, size_t size, bool zero)
 	size_t binind;
 	tcache_bin_t *tbin;
 
-	binind = SMALL_SIZE2BIN(size);
+	binind = small_size2bin[size];
 	assert(binind < nbins);
 	tbin = &tcache->tbins[binind];
 	ret = tcache_alloc_easy(tbin);
@@ -265,7 +234,7 @@ tcache_alloc_small(tcache_t *tcache, size_t size, bool zero)
 		if (ret == NULL)
 			return (NULL);
 	}
-	assert(arena_salloc(ret) == arena_bin_info[binind].reg_size);
+	assert(arena_salloc(ret) == tcache->arena->bins[binind].reg_size);
 
 	if (zero == false) {
 #ifdef JEMALLOC_FILL
@@ -281,7 +250,7 @@ tcache_alloc_small(tcache_t *tcache, size_t size, bool zero)
 	tbin->tstats.nrequests++;
 #endif
 #ifdef JEMALLOC_PROF
-	tcache->prof_accumbytes += arena_bin_info[binind].reg_size;
+	tcache->prof_accumbytes += tcache->arena->bins[binind].reg_size;
 #endif
 	tcache_event(tcache);
 	return (ret);
@@ -345,7 +314,6 @@ tcache_dalloc_small(tcache_t *tcache, void *ptr)
 	arena_run_t *run;
 	arena_bin_t *bin;
 	tcache_bin_t *tbin;
-	tcache_bin_info_t *tbin_info;
 	size_t pageind, binind;
 	arena_chunk_map_t *mapelm;
 
@@ -357,7 +325,7 @@ tcache_dalloc_small(tcache_t *tcache, void *ptr)
 	mapelm = &chunk->map[pageind-map_bias];
 	run = (arena_run_t *)((uintptr_t)chunk + (uintptr_t)((pageind -
 	    (mapelm->bits >> PAGE_SHIFT)) << PAGE_SHIFT));
-	dassert(run->magic == ARENA_RUN_MAGIC);
+	assert(run->magic == ARENA_RUN_MAGIC);
 	bin = run->bin;
 	binind = ((uintptr_t)bin - (uintptr_t)&arena->bins) /
 	    sizeof(arena_bin_t);
@@ -365,22 +333,23 @@ tcache_dalloc_small(tcache_t *tcache, void *ptr)
 
 #ifdef JEMALLOC_FILL
 	if (opt_junk)
-		memset(ptr, 0x5a, arena_bin_info[binind].reg_size);
+		memset(ptr, 0x5a, bin->reg_size);
 #endif
 
 	tbin = &tcache->tbins[binind];
-	tbin_info = &tcache_bin_info[binind];
-	if (tbin->ncached == tbin_info->ncached_max) {
-		tcache_bin_flush_small(tbin, binind, (tbin_info->ncached_max >>
-		    1)
+	if (tbin->ncached == tbin->ncached_max) {
+		tcache_bin_flush_small(tbin, binind, (tbin->ncached_max >> 1)
 #if (defined(JEMALLOC_STATS) || defined(JEMALLOC_PROF))
 		    , tcache
 #endif
 		    );
 	}
-	assert(tbin->ncached < tbin_info->ncached_max);
-	tbin->avail[tbin->ncached] = ptr;
+	assert(tbin->ncached < tbin->ncached_max);
+	*(void **)ptr = tbin->avail;
+	tbin->avail = ptr;
 	tbin->ncached++;
+	if (tbin->ncached > tbin->high_water)
+		tbin->high_water = tbin->ncached;
 
 	tcache_event(tcache);
 }
@@ -392,7 +361,6 @@ tcache_dalloc_large(tcache_t *tcache, void *ptr, size_t size)
 	arena_chunk_t *chunk;
 	size_t pageind, binind;
 	tcache_bin_t *tbin;
-	tcache_bin_info_t *tbin_info;
 
 	assert((size & PAGE_MASK) == 0);
 	assert(arena_salloc(ptr) > small_maxclass);
@@ -409,18 +377,19 @@ tcache_dalloc_large(tcache_t *tcache, void *ptr, size_t size)
 #endif
 
 	tbin = &tcache->tbins[binind];
-	tbin_info = &tcache_bin_info[binind];
-	if (tbin->ncached == tbin_info->ncached_max) {
-		tcache_bin_flush_large(tbin, binind, (tbin_info->ncached_max >>
-		    1)
+	if (tbin->ncached == tbin->ncached_max) {
+		tcache_bin_flush_large(tbin, binind, (tbin->ncached_max >> 1)
 #if (defined(JEMALLOC_STATS) || defined(JEMALLOC_PROF))
 		    , tcache
 #endif
 		    );
 	}
-	assert(tbin->ncached < tbin_info->ncached_max);
-	tbin->avail[tbin->ncached] = ptr;
+	assert(tbin->ncached < tbin->ncached_max);
+	*(void **)ptr = tbin->avail;
+	tbin->avail = ptr;
 	tbin->ncached++;
+	if (tbin->ncached > tbin->high_water)
+		tbin->high_water = tbin->ncached;
 
 	tcache_event(tcache);
 }

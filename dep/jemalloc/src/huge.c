@@ -50,7 +50,6 @@ huge_malloc(size_t size, bool zero)
 	malloc_mutex_lock(&huge_mtx);
 	extent_tree_ad_insert(&huge, node);
 #ifdef JEMALLOC_STATS
-	stats_cactive_add(csize);
 	huge_nmalloc++;
 	huge_allocated += csize;
 #endif
@@ -84,7 +83,7 @@ huge_palloc(size_t size, size_t alignment, bool zero)
 	 * alignment, in order to assure the alignment can be achieved, then
 	 * unmap leading and trailing chunks.
 	 */
-	assert(alignment > chunksize);
+	assert(alignment >= chunksize);
 
 	chunk_size = CHUNK_CEILING(size);
 
@@ -110,12 +109,12 @@ huge_palloc(size_t size, size_t alignment, bool zero)
 	if (offset == 0) {
 		/* Trim trailing space. */
 		chunk_dealloc((void *)((uintptr_t)ret + chunk_size), alloc_size
-		    - chunk_size, true);
+		    - chunk_size);
 	} else {
 		size_t trailsize;
 
 		/* Trim leading space. */
-		chunk_dealloc(ret, alignment - offset, true);
+		chunk_dealloc(ret, alignment - offset);
 
 		ret = (void *)((uintptr_t)ret + (alignment - offset));
 
@@ -124,7 +123,7 @@ huge_palloc(size_t size, size_t alignment, bool zero)
 		    /* Trim trailing space. */
 		    assert(trailsize < alloc_size);
 		    chunk_dealloc((void *)((uintptr_t)ret + chunk_size),
-			trailsize, true);
+			trailsize);
 		}
 	}
 
@@ -135,7 +134,6 @@ huge_palloc(size_t size, size_t alignment, bool zero)
 	malloc_mutex_lock(&huge_mtx);
 	extent_tree_ad_insert(&huge, node);
 #ifdef JEMALLOC_STATS
-	stats_cactive_add(chunk_size);
 	huge_nmalloc++;
 	huge_allocated += chunk_size;
 #endif
@@ -194,7 +192,7 @@ huge_ralloc(void *ptr, size_t oldsize, size_t size, size_t extra,
 	 * different size class.  In that case, fall back to allocating new
 	 * space and copying.
 	 */
-	if (alignment > chunksize)
+	if (alignment != 0)
 		ret = huge_palloc(size + extra, alignment, zero);
 	else
 		ret = huge_malloc(size + extra, zero);
@@ -203,7 +201,7 @@ huge_ralloc(void *ptr, size_t oldsize, size_t size, size_t extra,
 		if (extra == 0)
 			return (NULL);
 		/* Try again, this time without extra. */
-		if (alignment > chunksize)
+		if (alignment != 0)
 			ret = huge_palloc(size, alignment, zero);
 		else
 			ret = huge_malloc(size, zero);
@@ -234,13 +232,6 @@ huge_ralloc(void *ptr, size_t oldsize, size_t size, size_t extra,
 	    ) {
 		size_t newsize = huge_salloc(ret);
 
-		/*
-		 * Remove ptr from the tree of huge allocations before
-		 * performing the remap operation, in order to avoid the
-		 * possibility of another thread acquiring that mapping before
-		 * this one removes it from the tree.
-		 */
-		huge_dalloc(ptr, false);
 		if (mremap(ptr, oldsize, newsize, MREMAP_MAYMOVE|MREMAP_FIXED,
 		    ret) == MAP_FAILED) {
 			/*
@@ -260,8 +251,9 @@ huge_ralloc(void *ptr, size_t oldsize, size_t size, size_t extra,
 			if (opt_abort)
 				abort();
 			memcpy(ret, ptr, copysize);
-			chunk_dealloc_mmap(ptr, oldsize);
-		}
+			idalloc(ptr);
+		} else
+			huge_dalloc(ptr, false);
 	} else
 #endif
 	{
@@ -286,7 +278,6 @@ huge_dalloc(void *ptr, bool unmap)
 	extent_tree_ad_remove(&huge, node);
 
 #ifdef JEMALLOC_STATS
-	stats_cactive_sub(node->size);
 	huge_ndalloc++;
 	huge_allocated -= node->size;
 #endif
@@ -301,9 +292,8 @@ huge_dalloc(void *ptr, bool unmap)
 			memset(node->addr, 0x5a, node->size);
 #endif
 #endif
+		chunk_dealloc(node->addr, node->size);
 	}
-
-	chunk_dealloc(node->addr, node->size, unmap);
 
 	base_node_dealloc(node);
 }
