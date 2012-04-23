@@ -70,7 +70,7 @@ RETURN:
 #ifdef JEMALLOC_IVSALLOC
 	if (base == false && ret != NULL) {
 		if (rtree_set(chunks_rtree, (uintptr_t)ret, ret)) {
-			chunk_dealloc(ret, size, true);
+			chunk_dealloc(ret, size);
 			return (NULL);
 		}
 	}
@@ -108,7 +108,7 @@ RETURN:
 }
 
 void
-chunk_dealloc(void *chunk, size_t size, bool unmap)
+chunk_dealloc(void *chunk, size_t size)
 {
 
 	assert(chunk != NULL);
@@ -125,17 +125,15 @@ chunk_dealloc(void *chunk, size_t size, bool unmap)
 	malloc_mutex_unlock(&chunks_mtx);
 #endif
 
-	if (unmap) {
 #ifdef JEMALLOC_SWAP
-		if (swap_enabled && chunk_dealloc_swap(chunk, size) == false)
-			return;
+	if (swap_enabled && chunk_dealloc_swap(chunk, size) == false)
+		return;
 #endif
 #ifdef JEMALLOC_DSS
-		if (chunk_dealloc_dss(chunk, size) == false)
-			return;
+	if (chunk_dealloc_dss(chunk, size) == false)
+		return;
 #endif
-		chunk_dealloc_mmap(chunk, size);
-	}
+	chunk_dealloc_mmap(chunk, size);
 }
 
 bool
