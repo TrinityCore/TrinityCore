@@ -17,7 +17,6 @@ set(scripts_STAT_SRCS
   Commands/cs_gm.cpp
   Commands/cs_go.cpp
   Commands/cs_gobject.cpp
-  Commands/cs_gps.cpp
   Commands/cs_honor.cpp
   Commands/cs_learn.cpp
   Commands/cs_misc.cpp
