@@ -847,7 +847,7 @@ public:
                 player->KilledMonsterCredit(NPC_THERAMORE_PRISONER, 0);
 
             prisoner->AI()->Talk(SAY_FREE); // We also emote cry here (handled in creature_text.emote)
-            prisoner->ForcedDespawn(6000);
+            prisoner->DespawnOrUnsummon(6000);
         }
         return true;
     }

@@ -1057,7 +1057,7 @@ class go_captain_tyralius_prison : public GameObjectScript
                 player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
 
                 tyralius->AI()->Talk(SAY_FREE);
-                tyralius->ForcedDespawn(8000);
+                tyralius->DespawnOrUnsummon(8000);
             }
             return true;
         }
