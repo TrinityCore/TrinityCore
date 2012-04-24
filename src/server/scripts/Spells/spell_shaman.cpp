@@ -215,13 +215,12 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
-                if (Unit* target = GetTarget())
-                    if (Unit* caster = aurEff->GetBase()->GetCaster())
-                        if (TempSummon* summon = caster->ToTempSummon())
-                            if (Unit* owner = summon->GetOwner())
-                                if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
-                                    if (roll_chance_i(aur->GetBaseAmount()) && target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
-                                        caster->CastSpell(caster, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true, NULL, aurEff);
+                if (!GetCaster())
+                    return;
+                if (Player* owner = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
+                        if (roll_chance_i(aur->GetBaseAmount()))
+                            GetTarget()->CastSpell((Unit*)NULL, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true);
             }
 
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -252,6 +251,46 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
         }
 };
 
+class EarthenPowerTargetSelector
+{
+    public:
+        EarthenPowerTargetSelector() { }
+ 
+        bool operator() (Unit* target)
+        {
+            if (!target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
+                return true;
+
+            return false;
+        }
+};
+
+class spell_sha_earthen_power : public SpellScriptLoader
+{
+    public:
+        spell_sha_earthen_power() : SpellScriptLoader("spell_sha_earthen_power") { }
+
+        class spell_sha_earthen_power_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_earthen_power_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(EarthenPowerTargetSelector());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_sha_earthen_power_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_earthen_power_SpellScript();
+        }
+};
+
 class spell_sha_bloodlust : public SpellScriptLoader
 {
     public:
@@ -270,7 +309,7 @@ class spell_sha_bloodlust : public SpellScriptLoader
 
             void RemoveInvalidTargets(std::list<Unit*>& targets)
             {
-                targets.remove_if (Trinity::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
             }
 
             void ApplyDebuff()
@@ -617,6 +656,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_fire_nova();
     new spell_sha_mana_tide_totem();
     new spell_sha_earthbind_totem();
+    new spell_sha_earthen_power();
     new spell_sha_bloodlust();
     new spell_sha_heroism();
     new spell_sha_ancestral_awakening_proc();
