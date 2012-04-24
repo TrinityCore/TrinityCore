@@ -2104,4 +2104,5 @@ void AddSC_item_spell_scripts()
     new spell_item_uded();
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
+    new spell_item_greatmothers_soulcatcher();
 }
