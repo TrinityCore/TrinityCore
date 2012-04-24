@@ -397,8 +397,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 int32 damage = GetEffectValue();
-                if (GetHitUnit())
-                    GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
+                GetCaster()->CastCustomSpell(GetCaster(), SPELL_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
             }
 
             void Register()
