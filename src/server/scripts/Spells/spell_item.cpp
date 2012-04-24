@@ -2006,7 +2006,7 @@ class spell_item_muisek_vessel : public SpellScriptLoader
             {
                 if (Creature* target = GetHitCreature())
                     if (target->isDead())
-                        target->ForcedDespawn();
+                        target->DespawnOrUnsummon();
             }
 
             void Register()
