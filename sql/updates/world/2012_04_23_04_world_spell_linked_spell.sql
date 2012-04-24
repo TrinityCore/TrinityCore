@@ -1,1 +1,0 @@
-DELETE FROM `spell_linked_spell` WHERE `comment`='Mangle - Remover'; --  This stacking rule became useless when written in the `spell_group` table.
