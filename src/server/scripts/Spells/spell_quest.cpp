@@ -837,7 +837,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
                 {
-                    target->ForcedDespawn();
+                    target->DespawnOrUnsummon();
                     caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY, 0);
                 }
             }

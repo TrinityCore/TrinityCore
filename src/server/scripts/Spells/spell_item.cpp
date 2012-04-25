@@ -2006,7 +2006,7 @@ class spell_item_muisek_vessel : public SpellScriptLoader
             {
                 if (Creature* target = GetHitCreature())
                     if (target->isDead())
-                        target->ForcedDespawn();
+                        target->DespawnOrUnsummon();
             }
 
             void Register()
@@ -2102,4 +2102,5 @@ void AddSC_item_spell_scripts()
     new spell_item_uded();
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
+    new spell_item_greatmothers_soulcatcher();
 }

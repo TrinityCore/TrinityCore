@@ -1174,7 +1174,7 @@ class go_gjalerbron_cage : public GameObjectScript
                         player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, 0);
 
                     prisoner->AI()->Talk(SAY_FREE);
-                    prisoner->ForcedDespawn(6000);
+                    prisoner->DespawnOrUnsummon(6000);
                 }
             }
             return true;
@@ -1201,7 +1201,7 @@ class go_large_gjalerbron_cage : public GameObjectScript
                 {
                     go->UseDoorOrButton();
                     player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, (*itr)->GetGUID());
-                    (*itr)->ForcedDespawn(6000);
+                    (*itr)->DespawnOrUnsummon(6000);
                     (*itr)->AI()->Talk(SAY_FREE);
                 }
             }
@@ -1235,7 +1235,7 @@ class go_veil_skith_cage : public GameObjectScript
                {
                    go->UseDoorOrButton();
                    player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
-                   (*itr)->ForcedDespawn(5000);
+                   (*itr)->DespawnOrUnsummon(5000);
                    (*itr)->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
                    (*itr)->AI()->Talk(SAY_FREE_0);
                    (*itr)->GetMotionMaster()->Clear();
