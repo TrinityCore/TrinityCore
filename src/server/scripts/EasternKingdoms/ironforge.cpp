@@ -491,7 +491,7 @@ class npc_mekkatorque : public CreatureScript
                     _listener = tog;
                 else
                 {
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     return;
                 }
                 _variation = urand (1,3);
@@ -523,7 +523,7 @@ class npc_mekkatorque : public CreatureScript
                         me->CastSpell(owner, SPELL_CREDIT_TOG, true);
                         break;
                 }
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
 
             void UpdateAI(const uint32 diff)
@@ -549,7 +549,7 @@ class npc_mekkatorque : public CreatureScript
                                     break;
                                 case 3:
                                     if (Creature* Pad = me->FindNearestCreature(NPC_SUMMONING_PAD, 1.0f, true))
-                                        Pad->ForcedDespawn();
+                                        Pad->DespawnOrUnsummon();
                                     CastCredit();
                                     break;
                             }
@@ -575,7 +575,7 @@ class npc_mekkatorque : public CreatureScript
                                     break;
                                 case 4:
                                     if (Creature* Pad = me->FindNearestCreature(NPC_SUMMONING_PAD, 1.0f, true))
-                                        Pad->ForcedDespawn();
+                                        Pad->DespawnOrUnsummon();
                                     CastCredit();
                                     break;
                             }
@@ -601,7 +601,7 @@ class npc_mekkatorque : public CreatureScript
                                     break;
                                 case 4:
                                     if (Creature* Pad = me->FindNearestCreature(NPC_SUMMONING_PAD, 1.0f, true))
-                                        Pad->ForcedDespawn();
+                                        Pad->DespawnOrUnsummon();
                                     CastCredit();
                                     break;
                             }

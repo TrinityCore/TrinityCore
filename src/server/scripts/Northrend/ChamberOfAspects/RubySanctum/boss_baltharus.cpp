@@ -138,7 +138,7 @@ public:
             if (!pInstance) return;
 
           // if (pDummyTarget && pDummyTarget->isSummon())
-          // pDummyTarget->ForcedDespawn();
+          // pDummyTarget->DespawnOrUnsummon();
 
             DoScriptText(-1666303,me);
             pInstance->SetData(TYPE_BALTHARUS, DONE);
@@ -180,7 +180,7 @@ public:
             if (!pInstance) return;
             if (pWho->GetTypeId() != TYPEID_PLAYER) return;
 
-            if (pDummyTarget) pDummyTarget->ForcedDespawn();
+            if (pDummyTarget) pDummyTarget->DespawnOrUnsummon();
 
             SetEquipmentSlots(false, EQUIP_MAIN, EQUIP_OFFHAND, EQUIP_RANGED);
 
@@ -369,7 +369,7 @@ public:
             if (!pInstance) return;
 
             if (pInstance->GetData(TYPE_BALTHARUS) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (!UpdateVictim())
                 return;

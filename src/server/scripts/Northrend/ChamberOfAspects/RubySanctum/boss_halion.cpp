@@ -662,7 +662,7 @@ public:
                 pReal->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                 pInstance->SetData(TYPE_COUNTER, COUNTER_OFF);
             }
-			me->ForcedDespawn();
+			me->DespawnOrUnsummon();
         }
 
         void KilledUnit(Unit* victim)
@@ -709,7 +709,7 @@ public:
 
             if (!pInstance)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             }
 
@@ -720,7 +720,7 @@ public:
 					if (Creature* pReal = me->GetMap()->GetCreature(pInstance->GetData64(NPC_HALION_REAL)))
 						if (!pReal->isAlive())
 							pReal->Respawn();
-					me->ForcedDespawn();
+					me->DespawnOrUnsummon();
 				}
 			}
 
@@ -916,13 +916,13 @@ public:
         {
             if (!pInstance)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             }
 
             if (pInstance->GetData(TYPE_HALION) != IN_PROGRESS)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             }
 
@@ -935,7 +935,7 @@ public:
                     {
                         pInstance->SetData(TYPE_HALION_EVENT, FAIL);
                         pInstance->SetData(TYPE_HALION, FAIL);
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                     } 
                 else 
                 {
@@ -1105,9 +1105,9 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (!pInstance)
-                  me->ForcedDespawn();
+                  me->DespawnOrUnsummon();
             if (pInstance->GetData(TYPE_HALION) != IN_PROGRESS)
-                  me->ForcedDespawn();
+                  me->DespawnOrUnsummon();
 
             if (pInstance->GetData(DATA_ORB_S) == DONE && pInstance->GetData(DATA_ORB_N) == DONE)
             {
@@ -1270,7 +1270,7 @@ public:
             if (m_direction > 2.0f*M_PI) m_direction = m_direction - 2.0f*M_PI;
             if (focus = me->GetMap()->GetCreature(pInstance->GetData64(NPC_ORB_ROTATION_FOCUS)))
                 focus->GetNearPoint2D(x, y, FR_RADIUS, m_direction);
-                else me->ForcedDespawn();
+                else me->DespawnOrUnsummon();
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MovePoint(id, x, y, me->GetPositionZ());
         }
@@ -1278,9 +1278,9 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (!pInstance)
-                  me->ForcedDespawn();
+                  me->DespawnOrUnsummon();
             if (pInstance->GetData(TYPE_HALION) != IN_PROGRESS)
-                  me->ForcedDespawn();
+                  me->DespawnOrUnsummon();
 
             if (!MovementStarted && pInstance->GetData(m_flag) == SPECIAL)
             {
@@ -1344,14 +1344,14 @@ public:
 			{
                 me->GetMotionMaster()->MovementExpired();
                 MovementStarted = false;
-				me->ForcedDespawn();
+				me->DespawnOrUnsummon();
             }
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!pInstance || pInstance->GetData(TYPE_HALION) != IN_PROGRESS)
-                  me->ForcedDespawn();
+                  me->DespawnOrUnsummon();
 
             if (!MovementStarted)
 			{
@@ -1360,7 +1360,7 @@ public:
 				if (m_direction > 2.0f*M_PI) m_direction = m_direction - 2.0f*M_PI;
 				if (Creature* focus = me->GetMap()->GetCreature(pInstance->GetData64(NPC_ORB_ROTATION_FOCUS)))
 					focus->GetNearPoint2D(x, y, FR_RADIUS, m_direction);
-				else me->ForcedDespawn();
+				else me->DespawnOrUnsummon();
 				me->GetMotionMaster()->Clear();
 				me->GetMotionMaster()->MovePoint(1, x, y, me->GetPositionZ());
 				MovementStarted = true;
@@ -1420,11 +1420,11 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if(m_pInstance && m_pInstance->GetData(TYPE_HALION) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (m_uiConsumptTimer <= diff)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             } 
 			else m_uiConsumptTimer -= diff;
 
@@ -1501,11 +1501,11 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if(m_pInstance && m_pInstance->GetData(TYPE_HALION) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (m_uiConbustTimer <= diff)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             } else m_uiConbustTimer -= diff;
 
 			Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
@@ -1638,7 +1638,7 @@ public:
                     if (m_uiMeteorImpactTimer <= uiDiff)
                     {
                         DoCast(SPELL_METEOR_IMPACT);
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                         m_uiMeteorImpactTimer = 0.5*IN_MILLISECONDS;
                     } else m_uiMeteorImpactTimer -= uiDiff;
                     break;
