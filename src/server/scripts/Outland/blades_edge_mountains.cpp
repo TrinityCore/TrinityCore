@@ -855,7 +855,7 @@ class npc_simon_bunny : public CreatureScript
                 if (GameObject* relic = me->FindNearestGameObject(large ? GO_APEXIS_MONUMENT : GO_APEXIS_RELIC, searchDistance))
                     relic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
-                me->ForcedDespawn(1000);
+                me->DespawnOrUnsummon(1000);
             }
 
             /*

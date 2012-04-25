@@ -196,7 +196,7 @@ public:
                             me->CastSpell(me, TRANSFORM_MAIDEN, true);
                             me->MonsterSay(MAIDEN_SAY, LANG_UNIVERSAL, 0);
                             me->UpdateEntry(NPC_MAIDEN); //For gossip
-                            me->ForcedDespawn(30000);
+                            me->DespawnOrUnsummon(30000);
                         }
                         else
                             me->CastSpell(me, FROG_LOVE, true);

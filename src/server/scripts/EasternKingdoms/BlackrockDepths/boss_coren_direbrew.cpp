@@ -600,7 +600,7 @@ public:
                 me->StopMoving();
  
                 // Time based on information from videos
-                me->ForcedDespawn(7000);
+                me->DespawnOrUnsummon(7000);
             }
  
             // Retreat - run back
@@ -742,7 +742,7 @@ public:
  
             // Arrived at the retreat spot, we should despawn
             if (PointId == 1 || PointId == 2)
-                me->ForcedDespawn(1000);
+                me->DespawnOrUnsummon(1000);
  
             // Arrived at the new keg - the spell has conditions in database
             if (PointId == 4 || PointId == 5 || PointId == 6 || PointId == 7 || PointId == 8 || PointId == 9)
@@ -769,7 +769,7 @@ public:
  
                 // Despawn all summon bunnies so they will stop summoning guzzlers
                 if (Creature* spawnbunny = me->FindNearestCreature(NPC_DARK_IRON_SPAWN_BUNNY, 100.0f))
-                    spawnbunny->ForcedDespawn();
+                    spawnbunny->DespawnOrUnsummon();
             }
  
             if (TalkTimer <= diff)

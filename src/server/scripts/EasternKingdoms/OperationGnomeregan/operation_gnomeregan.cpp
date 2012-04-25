@@ -1273,7 +1273,7 @@ class npc_og_mekkatorque : public CreatureScript
                             JumpToNextStep(7000);
                             break;
                         case 75:
-                            ExplosionBunny->ForcedDespawn();
+                            ExplosionBunny->DespawnOrUnsummon();
                             bBuffs = false;
                             me->RemoveAurasDueToSpell(SPELL_HEALTH_REGEN);
                             me->RemoveAurasDueToSpell(SPELL_BRILLIANT_TACTICS);
@@ -1572,7 +1572,7 @@ class npc_og_mekkatorque : public CreatureScript
                             if (summon->isAlive())
                                 summon->DisappearAndDie();
                             else
-                                summon->ForcedDespawn();
+                                summon->DespawnOrUnsummon();
                     SummonsGUID.clear();
                 }
                 if (!BannerList.empty())
@@ -1984,7 +1984,7 @@ class npc_og_camera_vehicle : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_BINDSIGHT);
                     }
                 }
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
         };
 

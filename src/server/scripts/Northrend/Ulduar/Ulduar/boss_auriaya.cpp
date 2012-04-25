@@ -298,14 +298,14 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
         void Reset()
         {
-            me->ForcedDespawn(600000);
+            me->DespawnOrUnsummon(600000);
             DoCast(me, SPELL_SEEPING_ESSENCE);
         }
 
         void UpdateAI(uint32 const /*diff*/)
         {
             if (instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
         }
 
         private:
