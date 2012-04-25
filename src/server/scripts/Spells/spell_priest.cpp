@@ -312,7 +312,7 @@ public:
                 if (Aura* aur = caster->GetAura(SPELL_T9_HEALING_2_PIECE))
                 {
                     int32 heal = GetHitHeal();
-                    AddPctN(heal, aur->GetSpellInfo()->Effects[0]->CalcValue());
+                    AddPctN(heal, aur->GetSpellInfo()->Effects[0].CalcValue();
                     SetHitHeal(heal);
                 }
             }
