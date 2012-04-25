@@ -1,4 +1,3 @@
-select id from spell_scripts where command = 18 order by id asc;
 DELETE FROM `spell_scripts` WHERE `id` IN (15998,25952,29435,45980,51592,51910,52267,54420);
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (15998,25952,29435,45980,51592,51910,52267,54420);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
