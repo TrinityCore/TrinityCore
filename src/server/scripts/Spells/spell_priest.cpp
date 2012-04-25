@@ -291,12 +291,53 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
         }
 };
 
+enum PrayerOfMending
+{
+    SPELL_T9_HEALING_2_PIECE = 67201,
+};
+// Prayer of Mending Heal
+class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
+{
+public:
+    spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
+
+    class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetOriginalCaster())
+            {
+                if (Aura* aur = caster->GetAura(SPELL_T9_HEALING_2_PIECE))
+                {
+                    int32 heal = GetHitHeal();
+                    AddPctN(heal, aur->GetSpellInfo()->Effects[0]->CalcValue());
+                    SetHitHeal(heal);
+                }
+            }
+
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_prayer_of_mending_heal_SpellScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
-    new spell_pri_mana_burn;
-    new spell_pri_pain_and_suffering_proc;
-    new spell_pri_penance;
+    new spell_pri_mana_burn();
+    new spell_pri_pain_and_suffering_proc();
+    new spell_pri_penance();
     new spell_pri_reflective_shield_trigger();
     new spell_pri_mind_sear();
+    new spell_pri_prayer_of_mending_heal();
 }
