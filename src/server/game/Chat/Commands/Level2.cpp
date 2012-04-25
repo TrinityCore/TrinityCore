@@ -205,22 +205,6 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
     return true;
 }
 
-//demorph player or unit
-bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
-{
-    Unit* target = getSelectedUnit();
-    if (!target)
-        target = m_session->GetPlayer();
-
-    // check online security
-    else if (target->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity((Player*)target, 0))
-        return false;
-
-    target->DeMorph();
-
-    return true;
-}
-
 //kick player
 bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {

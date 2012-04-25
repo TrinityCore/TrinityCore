@@ -45,9 +45,30 @@ enum BG_SA_Status
 
 enum BG_SA_GateState
 {
-    BG_SA_GATE_OK = 1,
-    BG_SA_GATE_DAMAGED = 2,
-    BG_SA_GATE_DESTROYED = 3
+    BG_SA_GATE_OK           = 1,
+    BG_SA_GATE_DAMAGED      = 2,
+    BG_SA_GATE_DESTROYED    = 3
+};
+
+enum BG_SA_EventIdGate
+{
+    BG_SA_EVENT_GREEN_GATE_DAMAGED          = 19041,
+    BG_SA_EVENT_GREEN_GATE_DESTROYED        = 19046,
+
+    BG_SA_EVENT_BLUE_GATE_DAMAGED           = 19040,
+    BG_SA_EVENT_BLUE_GATE_DESTROYED         = 19045,
+
+    BG_SA_EVENT_RED_GATE_DAMAGED            = 19042,
+    BG_SA_EVENT_RED_GATE_DESTROYED          = 19047,
+
+    BG_SA_EVENT_PURPLE_GATE_DAMAGED         = 19048,
+    BG_SA_EVENT_PURPLE_GATE_DESTROYED       = 19043,
+
+    BG_SA_EVENT_YELLOW_GATE_DAMAGED         = 19049,
+    BG_SA_EVENT_YELLOW_GATE_DESTROYED       = 19044,
+
+    BG_SA_EVENT_ANCIENT_GATE_DAMAGED        = 19836,
+    BG_SA_EVENT_ANCIENT_GATE_DESTROYED      = 19837
 };
 
 enum BG_SA_Timers
@@ -443,34 +464,60 @@ class BattlegroundSA : public Battleground
         /// Called when a player use a gamobject (relic)
         virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
         /// Return gate id, relative to bg data, according to gameobject id
-        uint32 GetGateIDFromDestroyEventID(uint32 id)
+        uint32 getGateIdFromDamagedOrDestroyEventId(uint32 id)
         {
-            uint32 i = 0;
             switch (id)
             {
-                case 19046: i = BG_SA_GREEN_GATE;   break; //Green gate destroyed
-                case 19045: i = BG_SA_BLUE_GATE;    break; //blue gate
-                case 19047: i = BG_SA_RED_GATE;     break; //red gate
-                case 19048: i = BG_SA_PURPLE_GATE;  break; //purple gate
-                case 19049: i = BG_SA_YELLOW_GATE;  break; //yellow gate
-                case 19837: i = BG_SA_ANCIENT_GATE; break; //ancient gate
+                // Green gate
+                case BG_SA_EVENT_GREEN_GATE_DAMAGED:
+                case BG_SA_EVENT_GREEN_GATE_DESTROYED:
+                    return BG_SA_GREEN_GATE;
+                 // Blue gate
+                case BG_SA_EVENT_BLUE_GATE_DAMAGED:
+                case BG_SA_EVENT_BLUE_GATE_DESTROYED:
+                    return BG_SA_BLUE_GATE;
+                // Red gate
+                case BG_SA_EVENT_RED_GATE_DAMAGED:
+                case BG_SA_EVENT_RED_GATE_DESTROYED:
+                    return BG_SA_RED_GATE;
+                // Purple gate
+                case BG_SA_EVENT_PURPLE_GATE_DAMAGED:
+                case BG_SA_EVENT_PURPLE_GATE_DESTROYED:
+                    return BG_SA_PURPLE_GATE;
+                // Yellow gate
+                case BG_SA_EVENT_YELLOW_GATE_DAMAGED:
+                case BG_SA_EVENT_YELLOW_GATE_DESTROYED:
+                    return BG_SA_YELLOW_GATE;
+                // Ancient gate
+                case BG_SA_EVENT_ANCIENT_GATE_DAMAGED:
+                case BG_SA_EVENT_ANCIENT_GATE_DESTROYED:
+                    return BG_SA_ANCIENT_GATE;
+                default:
+                    break;
             }
-            return i;
+            return 0;
         }
         /// Return worldstate id, according to door id
-        uint32 GetWorldStateFromGateID(uint32 id)
+        uint32 getWorldStateFromGateId(uint32 id)
         {
-            uint32 uws = 0;
             switch (id)
             {
-                case BG_SA_GREEN_GATE:   uws = BG_SA_GREEN_GATEWS;   break;
-                case BG_SA_YELLOW_GATE:  uws = BG_SA_YELLOW_GATEWS;  break;
-                case BG_SA_BLUE_GATE:    uws = BG_SA_BLUE_GATEWS;    break;
-                case BG_SA_RED_GATE:     uws = BG_SA_RED_GATEWS;     break;
-                case BG_SA_PURPLE_GATE:  uws = BG_SA_PURPLE_GATEWS;  break;
-                case BG_SA_ANCIENT_GATE: uws = BG_SA_ANCIENT_GATEWS; break;
+                case BG_SA_GREEN_GATE:
+                    return BG_SA_GREEN_GATEWS;
+                case BG_SA_YELLOW_GATE:
+                    return BG_SA_YELLOW_GATEWS;
+                case BG_SA_BLUE_GATE:
+                    return BG_SA_BLUE_GATEWS;
+                case BG_SA_RED_GATE:
+                    return BG_SA_RED_GATEWS;
+                case BG_SA_PURPLE_GATE:
+                    return BG_SA_PURPLE_GATEWS;
+                case BG_SA_ANCIENT_GATE:
+                    return BG_SA_ANCIENT_GATEWS;
+                default:
+                    break;
             }
-            return uws;
+            return 0;
         }
 
         /// Called on battleground ending

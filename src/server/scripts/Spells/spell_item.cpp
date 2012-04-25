@@ -1744,6 +1744,7 @@ class spell_item_rocket_boots : public SpellScriptLoader
                 if (Battleground* bg = caster->GetBattleground())
                     bg->EventPlayerDroppedFlag(caster);
 
+                caster->RemoveSpellCooldown(SPELL_ROCKET_BOOTS_PROC);
                 caster->CastSpell(caster, SPELL_ROCKET_BOOTS_PROC, true, NULL);
             }
 
@@ -2005,7 +2006,7 @@ class spell_item_muisek_vessel : public SpellScriptLoader
             {
                 if (Creature* target = GetHitCreature())
                     if (target->isDead())
-                        target->ForcedDespawn();
+                        target->DespawnOrUnsummon();
             }
 
             void Register()
@@ -2018,6 +2019,37 @@ class spell_item_muisek_vessel : public SpellScriptLoader
         {
             return new spell_item_muisek_vessel_SpellScript();
         }
+};
+
+enum GreatmothersSoulcather
+{
+    SPELL_FORCE_CAST_SUMMON_GNOME_SOUL = 46486,
+};
+class spell_item_greatmothers_soulcatcher : public SpellScriptLoader
+{
+public:
+    spell_item_greatmothers_soulcatcher() : SpellScriptLoader("spell_item_greatmothers_soulcatcher") { }
+
+    class spell_item_greatmothers_soulcatcher_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_greatmothers_soulcatcher_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* target = GetHitUnit())
+                GetCaster()->CastSpell(GetCaster(),SPELL_FORCE_CAST_SUMMON_GNOME_SOUL);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_item_greatmothers_soulcatcher_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_greatmothers_soulcatcher_SpellScript();
+    }
 };
 
 void AddSC_item_spell_scripts()
@@ -2072,4 +2104,5 @@ void AddSC_item_spell_scripts()
     new spell_item_uded();
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
+    new spell_item_greatmothers_soulcatcher();
 }

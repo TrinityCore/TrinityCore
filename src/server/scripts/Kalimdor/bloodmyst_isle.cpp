@@ -193,7 +193,7 @@ public:
             if (type == POINT_MOTION_TYPE && id == 1)
             {
                 DoScriptText(SAY_DIRECTION, me);
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
         }
     };
