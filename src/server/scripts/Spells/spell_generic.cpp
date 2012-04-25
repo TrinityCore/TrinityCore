@@ -169,7 +169,7 @@ class spell_gen_burn_brutallus : public SpellScriptLoader
         }
 };
 
-enum eCannibalizeSpells
+enum CannibalizeSpells
 {
     SPELL_CANNIBALIZE_TRIGGERED = 20578,
 };
@@ -224,7 +224,7 @@ class spell_gen_cannibalize : public SpellScriptLoader
 };
 
 // 45472 Parachute
-enum eParachuteSpells
+enum ParachuteSpells
 {
     SPELL_PARACHUTE         = 45472,
     SPELL_PARACHUTE_BUFF    = 44795,
@@ -365,7 +365,7 @@ class spell_gen_remove_flight_auras : public SpellScriptLoader
 };
 
 // 66118 Leeching Swarm
-enum eLeechingSwarmSpells
+enum LeechingSwarmSpells
 {
     SPELL_LEECHING_SWARM_DMG    = 66240,
     SPELL_LEECHING_SWARM_HEAL   = 66125,
@@ -481,7 +481,7 @@ class spell_gen_elune_candle : public SpellScriptLoader
 };
 
 // 24750 Trick
-enum eTrickSpells
+enum TrickSpells
 {
     SPELL_PIRATE_COSTUME_MALE           = 24708,
     SPELL_PIRATE_COSTUME_FEMALE         = 24709,
@@ -557,7 +557,7 @@ class spell_gen_trick : public SpellScriptLoader
 };
 
 // 24751 Trick or Treat
-enum eTrickOrTreatSpells
+enum TrickOrTreatSpells
 {
     SPELL_TRICK                 = 24714,
     SPELL_TREAT                 = 24715,
@@ -2656,6 +2656,38 @@ class spell_gen_count_pct_from_max_hp : public SpellScriptLoader
         int32 _damagePct;
 };
 
+class spell_gen_despawn_self : public SpellScriptLoader
+{
+public:
+    spell_gen_despawn_self() : SpellScriptLoader("spell_gen_despawn_self") { }
+
+    class spell_gen_despawn_self_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_despawn_self_SpellScript);
+
+        bool Load()
+        {
+            return GetCaster()->GetTypeId() == TYPEID_UNIT;
+        }
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            GetCaster()->ToCreature()->DespawnOrUnsummon();
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_self_SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_self_SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_despawn_self_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2709,4 +2741,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_wg_water();
     new spell_gen_count_pct_from_max_hp("spell_gen_default_count_pct_from_max_hp");
     new spell_gen_count_pct_from_max_hp("spell_gen_50pct_count_pct_from_max_hp", 50);
+    new spell_gen_despawn_self();
 }
