@@ -676,7 +676,9 @@ class spell_sha_totem_of_wrath : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (caster->HasAura(SPELL_GLYPH_OF_TOTEM_OF_WRATH))
+                {
                     if (Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]))   // Fire totem summon slot
+                    {
                         if (SpellInfo const* totemSpell = sSpellMgr->GetSpellInfo(totem->m_spells[0]))    
                         {
                             int32 bp0 = totemSpell->Effects[EFFECT_0].CalcValue();
@@ -685,6 +687,8 @@ class spell_sha_totem_of_wrath : public SpellScriptLoader
                             bp1 = CalculatePctN(bp1, sSpellMgr->GetSpellInfo(SPELL_GLYPH_OF_TOTEM_OF_WRATH_TRIGGERED)->Effects[EFFECT_1].CalcValue());
                             caster->CastCustomSpell(caster, SPELL_GLYPH_OF_TOTEM_OF_WRATH_TRIGGERED, &bp0, &bp1, NULL, true);
                         }
+                    }
+                }
             }
 
             void Register()
