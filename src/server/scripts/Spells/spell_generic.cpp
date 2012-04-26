@@ -2672,7 +2672,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_DUMMY || GetSpellInfo()->Effects[effIndex].Effect = SPELL_EFFECT_SCRIPT_EFFECT)
+            if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_DUMMY || GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_SCRIPT_EFFECT)
                 GetCaster()->ToCreature()->DespawnOrUnsummon();
         }
 
