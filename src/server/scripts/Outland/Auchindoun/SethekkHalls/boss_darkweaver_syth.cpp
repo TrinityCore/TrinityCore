@@ -21,10 +21,10 @@
 
 enum Texts
 {
-    SAY_SUMMON  = 1,
-    SAY_AGGRO   = 2,
-    SAY_SLAY    = 3,
-    SAY_DEATH   = 4
+    SAY_SUMMON  = 0,
+    SAY_AGGRO   = 1,
+    SAY_SLAY    = 2,
+    SAY_DEATH   = 3
 };
 
 enum Spells
