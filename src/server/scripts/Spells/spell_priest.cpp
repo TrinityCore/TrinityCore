@@ -228,8 +228,8 @@ class spell_pri_penance : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (GetTargetUnit())
-                    if (Player* target = GetTargetUnit()->ToPlayer())
-                        if (caster->GetTeam() != target->GetTeam() && !caster->IsValidAttackTarget(target))
+                    if (Unit* target = GetTargetUnit())
+                        if (!caster->IsFriendlyTo(target) && !caster->IsValidAttackTarget(target))
                             return SPELL_FAILED_BAD_TARGETS;
                 return SPELL_CAST_OK;
             }
