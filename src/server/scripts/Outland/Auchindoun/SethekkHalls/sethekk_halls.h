@@ -24,5 +24,21 @@ enum eTypes
     DATA_IKISSDOOREVENT = 1,
     TYPE_ANZU_ENCOUNTER = 2,
 };
+
+enum Creatures
+{
+    NPC_FIRE_ELEMENTAL      = 19203,
+    NPC_FROST_ELEMENTAL     = 19204,
+    NPC_ARCANE_ELEMENTAL    = 19205,
+    NPC_SHADOW_ELEMENTAL    = 19206
+};
+
+enum Bosses
+{
+    BOSS_DARKWEAVER_SYTH    = 0,
+    BOSS_TALON_KING_IKISS   = 1,
+    BOSS_ANZU               = 2
+};
+
 #endif
 
