@@ -6,8 +6,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`id`,`event_type`,`event_flags`,`even
 (19205, 1, 0, 6, 2500, 2500, 5000, 5000, 11, 33534, 5, 'Syth Arcane Elemental - Cast Arcane Shock'),
 (19204, 0, 0, 6, 5000, 5000, 5000, 5000, 11, 33528, 5, 'Syth Frost Elemental - Cast Frost Buffet'),
 (19204, 1, 0, 6, 2500, 2500, 5000, 5000, 11, 12548, 5, 'Syth Frost Elemental - Cast Frost Shock'),
-(19206, 0, 0, 6, 5000, 5000, 5000, 5000, 11, 33529, 5, 'Syth Frost Elemental - Cast Shadow Buffet'),
-(19206, 1, 0, 6, 2500, 2500, 5000, 5000, 11, 33620, 5, 'Syth Frost Elemental - Cast Shadow Shock');
+(19206, 0, 0, 6, 5000, 5000, 5000, 5000, 11, 33529, 5, 'Syth Shadow Elemental - Cast Shadow Buffet'),
+(19206, 1, 0, 6, 2500, 2500, 5000, 5000, 11, 33620, 5, 'Syth Shadow Elemental - Cast Shadow Shock');
 
 UPDATE `creature_template` SET `AIName`='SmartAI', `ScriptName`='' WHERE `entry` IN (19203,19204,19205,19206);
 
