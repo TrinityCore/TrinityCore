@@ -2672,14 +2672,13 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            GetCaster()->ToCreature()->DespawnOrUnsummon();
+            if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_DUMMY || GetSpellInfo()->Effects[effIndex].Effect = SPELL_EFFECT_SCRIPT_EFFECT)
+                GetCaster()->ToCreature()->DespawnOrUnsummon();
         }
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_self_SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_DUMMY);
-            OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_self_SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
-
+            OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_self_SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
         }
     };
 
