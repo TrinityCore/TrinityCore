@@ -176,6 +176,8 @@ enum EventTypes
     EVENT_OUTRO_HORDE_6         = 49,
     EVENT_OUTRO_HORDE_7         = 50,
     EVENT_OUTRO_HORDE_8         = 51,
+
+    EVENT_SCENT_OF_BLOOD        = 52,
 };
 
 enum Phases
@@ -374,11 +376,6 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                     summon->AI()->AttackStart(target);
 
-                if (IsHeroic())
-                    DoCast(summon, SPELL_SCENT_OF_BLOOD);
-
-                summon->AI()->DoCast(summon, SPELL_BLOOD_LINK_BEAST, true);
-                summon->AI()->DoCast(summon, SPELL_RESISTANT_SKIN, true);
                 summons.Summon(summon);
                 DoZoneInCombat(summon);
             }
@@ -787,6 +784,59 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_high_overlord_saurfangAI>(creature);
+        }
+};
+
+class npc_blood_beast : public CreatureScript
+{
+    public:
+        npc_blood_beast() : CreatureScript("npc_blood_beast") { }
+
+        struct npc_blood_beastAI : public ScriptedAI
+        {
+            npc_blood_beastAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = me->GetInstanceScript();
+            }
+
+            void Reset()
+            {
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, 5000);
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                _events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, 5000);
+
+                DoCast(me, SPELL_BLOOD_LINK_BEAST, true);
+                DoCast(me, SPELL_RESISTANT_SKIN, true);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                _events.Update(diff);
+
+                if (IsHeroic())
+                {
+                    if (_events.ExecuteEvent() == EVENT_SCENT_OF_BLOOD)
+                    {
+                        DoCast(me, SPELL_SCENT_OF_BLOOD);
+                        DoAddAuraToAllHostilePlayers(SPELL_SCENT_OF_BLOOD);
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            EventMap _events;
+            InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_blood_beastAI(creature);
         }
 };
 
@@ -1336,6 +1386,7 @@ void AddSC_boss_deathbringer_saurfang()
 {
     new boss_deathbringer_saurfang();
     new npc_high_overlord_saurfang_icc();
+    new npc_blood_beast();
     new npc_muradin_bronzebeard_icc();
     new npc_saurfang_event();
     new spell_deathbringer_blood_link();
