@@ -1085,10 +1085,6 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             case 52349: // Overtake
                 unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
-            case 72378: // Blood Nova
-            case 73058: // Blood Nova
-                m_caster->CastSpell(unitTarget, damage, true);   // additional spell cast
-                break;
         }
     }
 
@@ -5710,9 +5706,9 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
     }
     if (!pet)
         return;
-    
+
     player->GetMap()->CreatureRelocation(pet, x, y, z, player->GetOrientation());
-    
+
     pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
     pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     pet->setDeathState(ALIVE);

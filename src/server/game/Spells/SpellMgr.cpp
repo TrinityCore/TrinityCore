@@ -3346,12 +3346,21 @@ void SpellMgr::LoadDbcDataCorrections()
             case 70835: // Bone Storm (Lord Marrowgar)
             case 70836: // Bone Storm (Lord Marrowgar)
             case 72864: // Death Plague (Rotting Frost Giant)
-            case 72378: // Blood Nova (Deathbringer Saurfang)
-            case 73058: // Blood Nova (Deathbringer Saurfang)
             case 71160: // Plague Stench (Stinky)
             case 71161: // Plague Stench (Stinky)
             case 71123: // Decimate (Stinky & Precious)
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_100_YARDS;   // 100yd
+                break;
+            case 72378: // Blood Nova (Deathbringer Saurfang)
+            case 73058: // Blood Nova (Deathbringer Saurfang)
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_200_YARDS;
+                spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_200_YARDS;
+                break;
+            case 72769: // Scent of Blood (Deathbringer Saurfang)
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_200_YARDS;
+                // no break
+            case 72771: // Scent of Blood (Deathbringer Saurfang)
+                spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_200_YARDS;
                 break;
             case 72723: // Resistant Skin (Deathbringer Saurfang adds)
                 // this spell initially granted Shadow damage immunity, however it was removed but the data was left in client
