@@ -228,8 +228,8 @@ class spell_pri_penance : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (GetTargetUnit())
-                    if (Player* target = GetTargetUnit()->ToPlayer())
-                        if (caster->GetTeam() != target->GetTeam() && !caster->IsValidAttackTarget(target))
+                    if (Unit* target = GetTargetUnit())
+                        if (!caster->IsFriendlyTo(target) && !caster->IsValidAttackTarget(target))
                             return SPELL_FAILED_BAD_TARGETS;
                 return SPELL_CAST_OK;
             }
@@ -291,12 +291,53 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
         }
 };
 
+enum PrayerOfMending
+{
+    SPELL_T9_HEALING_2_PIECE = 67201,
+};
+// Prayer of Mending Heal
+class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
+{
+public:
+    spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
+
+    class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetOriginalCaster())
+            {
+                if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_T9_HEALING_2_PIECE,EFFECT_0))
+                {
+                    int32 heal = GetHitHeal();
+                    AddPctN(heal, aurEff->GetAmount());
+                    SetHitHeal(heal);
+                }
+            }
+
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_prayer_of_mending_heal_SpellScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
-    new spell_pri_mana_burn;
-    new spell_pri_pain_and_suffering_proc;
-    new spell_pri_penance;
+    new spell_pri_mana_burn();
+    new spell_pri_pain_and_suffering_proc();
+    new spell_pri_penance();
     new spell_pri_reflective_shield_trigger();
     new spell_pri_mind_sear();
+    new spell_pri_prayer_of_mending_heal();
 }

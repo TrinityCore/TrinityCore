@@ -297,7 +297,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30000, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_BERSERK, 480000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 360000 : 480000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BOILING_BLOOD, 15500, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BLOOD_NOVA, 17000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20000, 0, PHASE_COMBAT);
