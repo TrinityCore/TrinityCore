@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,77 +15,91 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance - Sethekk Halls
-SD%Complete: 50
-SDComment: Instance Data for Sethekk Halls instance
-SDCategory: Auchindoun, Sethekk Halls
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "sethekk_halls.h"
 
-enum eEnums
+DoorData const doorData[] =
 {
-    NPC_ANZU   = 23035,
-    IKISS_DOOR = 177203,
+    {GO_IKISS_DOOR, DATA_TALON_KING_IKISS,  DOOR_TYPE_PASSAGE,  BOUNDARY_S     },
+    {0,             0,                      DOOR_TYPE_ROOM,     BOUNDARY_NONE  },
 };
 
 class instance_sethekk_halls : public InstanceMapScript
 {
-public:
-    instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls", 556) { }
+    public:
+        instance_sethekk_halls() : InstanceMapScript(SHScriptName, 556) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
-    {
-        return new instance_sethekk_halls_InstanceMapScript(map);
-    }
-
-    struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
-    {
-        instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint32 AnzuEncounter;
-        uint64 m_uiIkissDoorGUID;
-
-        void Initialize()
+        struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
         {
-            AnzuEncounter = NOT_STARTED;
-            m_uiIkissDoorGUID = 0;
-        }
-
-        void OnCreatureCreate(Creature* creature)
-        {
-            if (creature->GetEntry() == NPC_ANZU)
+            instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) 
             {
-                if (AnzuEncounter >= IN_PROGRESS)
-                    creature->DisappearAndDie();
-                else
-                    AnzuEncounter = IN_PROGRESS;
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+                AnzuEncounterState = NOT_STARTED;
+                TallonKingsCofferGUID = 0;
             }
-        }
 
-        void OnGameObjectCreate(GameObject* go)
-        {
-             if (go->GetEntry() == IKISS_DOOR)
-                m_uiIkissDoorGUID = go->GetGUID();
-        }
-
-        void SetData(uint32 type, uint32 data)
-        {
-            switch (type)
+            void OnCreatureCreate(Creature* creature)
             {
-                case DATA_IKISSDOOREVENT:
-                    if (data == DONE)
-                        DoUseDoorOrButton(m_uiIkissDoorGUID, DAY*IN_MILLISECONDS);
-                    break;
-                case TYPE_ANZU_ENCOUNTER:
-                    AnzuEncounter = data;
-                    break;
+                if (creature->GetEntry() == NPC_ANZU)
+                {
+                    if (AnzuEncounterState >= IN_PROGRESS)
+                        creature->DisappearAndDie();
+                    else
+                        AnzuEncounterState = IN_PROGRESS;
+                }
             }
-        }
-    };
 
+            void OnGameObjectCreate(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_IKISS_DOOR:
+                        AddDoor(go, true);
+                        break;
+                    case GO_TALON_KINGS_COFFER:
+                        TallonKingsCofferGUID = go->GetGUID();
+                        break;
+                    default:
+                        break;   
+                }
+            }
+            
+            void OnGameObjectRemove(GameObject* go)
+            {
+                if (go->GetEntry() == GO_IKISS_DOOR)
+                    AddDoor(go, false);
+            }
+
+            bool SetBossState(uint32 type, EncounterState state)
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                if (type == DATA_TALON_KING_IKISS)
+                    if (state == DONE)
+                        if (GameObject* go = instance->GetGameObject(TallonKingsCofferGUID))
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+
+                
+                return true;
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                if (type == DATA_ANZU)
+                    AnzuEncounterState = data;
+            }
+
+        protected:
+            uint32 AnzuEncounterState;
+            uint64 TallonKingsCofferGUID;
+        };
+        
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        {
+            return new instance_sethekk_halls_InstanceMapScript(map);
+        }
 };
 
 void AddSC_instance_sethekk_halls()

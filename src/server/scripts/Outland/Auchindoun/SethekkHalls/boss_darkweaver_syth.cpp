@@ -54,20 +54,18 @@ class boss_darkweaver_syth : public CreatureScript
 
         struct boss_darkweaver_sythAI : public BossAI
         {
-            boss_darkweaver_sythAI(Creature* creature) : BossAI(creature, BOSS_DARKWEAVER_SYTH), _summons(me)
+            boss_darkweaver_sythAI(Creature* creature) : BossAI(creature, DATA_DARKWEAVER_SYTH)
             {
             }
 
             void Reset()
             {
                 _Reset();
-                _summons.DespawnAll();
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_FLAME_SHOCK, 2000);
-                _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4000);
-                _events.ScheduleEvent(EVENT_FROST_SHOCK, 6000);
-                _events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8000);
-                _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 15000);
+                events.ScheduleEvent(EVENT_FLAME_SHOCK, 2000);
+                events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4000);
+                events.ScheduleEvent(EVENT_FROST_SHOCK, 6000);
+                events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8000);
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 15000);
 
                 _healthCheck = 90.0f;
             }
@@ -80,7 +78,6 @@ class boss_darkweaver_syth : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                _summons.DespawnAll();
                 Talk(SAY_DEATH);
 
                 _JustDied();
@@ -89,14 +86,12 @@ class boss_darkweaver_syth : public CreatureScript
             void KilledUnit(Unit* /*victim*/)
             {
                 if (urand(0, 1))
-                    return;
-
-                Talk(SAY_SLAY);
+                    Talk(SAY_SLAY);
             }
 
             void JustSummoned(Creature* summon)
             {
-                _summons.Summon(summon);
+                summons.Summon(summon);
                 switch (summon->GetEntry())
                 {
                     case NPC_FIRE_ELEMENTAL:
@@ -115,11 +110,6 @@ class boss_darkweaver_syth : public CreatureScript
                 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     summon->AI()->AttackStart(target);
-            }
-
-            void SummonedCreatureDespawn(Creature* summon)
-            {
-                _summons.Despawn(summon);
             }
 
             void SythSummoning()
@@ -144,39 +134,39 @@ class boss_darkweaver_syth : public CreatureScript
                     _healthCheck -= 40.0f;
                 }
                 
-                _events.Update(diff);
+                events.Update(diff);
                 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_FLAME_SHOCK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_FLAME_SHOCK);
-                            _events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
                             break;
                         case EVENT_ARCANE_SHOCK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_ARCANE_SHOCK);
-                            _events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(10000, 15000));
                             break;
                         case EVENT_FROST_SHOCK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_FROST_SHOCK);
-                            _events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10000, 15000));
                             break;
                         case EVENT_SHADOW_SHOCK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_SHADOW_SHOCK);
-                            _events.ScheduleEvent(EVENT_SHADOW_SHOCK, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_SHADOW_SHOCK, urand(10000, 15000));
                             break;
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
                             break;
                         default:
                             break;
@@ -186,8 +176,6 @@ class boss_darkweaver_syth : public CreatureScript
             }
             
             private:
-                EventMap _events;
-                SummonList _summons;
                 float _healthCheck;
         };
         
