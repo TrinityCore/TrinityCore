@@ -295,25 +295,35 @@ class SpellScript : public _SpellScript
         SpellInfo const* GetSpellInfo();
         SpellValue const* GetSpellValue();
 
-        // methods useable after spell targets are set
-        // accessors to the "focus" targets of the spell
-        // note: do not confuse these with spell hit targets
+        // methods useable after spell is prepared
+        // accessors to the explicit targets of the spell
+        // explicit target - target selected by caster (player, game client, or script - DoCast(explicitTarget, ...), required for spell to be cast
+        // examples:
+        // -shadowstep - explicit target is the unit you want to go behind of
+        // -chain heal - explicit target is the unit to be healed first
+        // -holy nova/arcane explosion - explicit target = NULL because target you are selecting doesn't affect how spell targets are selected
+        // you can determine if spell requires explicit targets by dbc columns: 
+        // - Targets - mask of explicit target types
+        // - ImplicitTargetXX set to TARGET_XXX_TARGET_YYY, _TARGET_ here means that explicit target is used by the effect, so spell needs one too
+
         // returns: WorldLocation which was selected as a spell destination or NULL
-        WorldLocation const* GetTargetDest();
+        WorldLocation const* GetExplTargetDest();
 
-        void SetTargetDest(WorldLocation& loc);
+        void SetExplTargetDest(WorldLocation& loc);
 
-        // returns: Unit which was selected as a spell target or NULL
-        Unit* GetTargetUnit();
+        // returns: WorldObject which was selected as an explicit spell target or NULL if there's no target
+        WorldObject* GetExplTargetWorldObject();
 
-        // returns: GameObject which was selected as a spell target or NULL
-        GameObject* GetTargetGObj();
+        // returns: Unit which was selected as an explicit spell target or NULL if there's no target
+        Unit* GetExplTargetUnit();
 
-        // returns: Item which was selected as a spell target or NULL
-        Item* GetTargetItem();
+        // returns: GameObject which was selected as an explicit spell target or NULL if there's no target
+        GameObject* GetExplTargetGObj();
+
+        // returns: Item which was selected as an explicit spell target or NULL if there's no target
+        Item* GetExplTargetItem();
 
         // methods useable only during spell hit on target, or during spell launch on target:
-
         // returns: target of current effect if it was Unit otherwise NULL
         Unit* GetHitUnit();
         // returns: target of current effect if it was Creature otherwise NULL
