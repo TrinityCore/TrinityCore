@@ -332,7 +332,7 @@ void SpellScript::SetExplTargetDest(WorldLocation& loc)
     m_spell->m_targets.SetDst(loc);
 }
 
-Unit* SpellScript::GetExplTargetWorldObject()
+WorldObject* SpellScript::GetExplTargetWorldObject()
 {
     return m_spell->m_targets.GetObjectTarget();
 }
