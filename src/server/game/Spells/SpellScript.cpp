@@ -320,29 +320,34 @@ SpellInfo const* SpellScript::GetSpellInfo()
     return m_spell->GetSpellInfo();
 }
 
-WorldLocation const* SpellScript::GetTargetDest()
+WorldLocation const* SpellScript::GetExplTargetDest()
 {
     if (m_spell->m_targets.HasDst())
         return m_spell->m_targets.GetDstPos();
     return NULL;
 }
 
-void SpellScript::SetTargetDest(WorldLocation& loc)
+void SpellScript::SetExplTargetDest(WorldLocation& loc)
 {
     m_spell->m_targets.SetDst(loc);
 }
 
-Unit* SpellScript::GetTargetUnit()
+Unit* SpellScript::GetExplTargetWorldObject()
+{
+    return m_spell->m_targets.GetObjectTarget();
+}
+
+Unit* SpellScript::GetExplTargetUnit()
 {
     return m_spell->m_targets.GetUnitTarget();
 }
 
-GameObject* SpellScript::GetTargetGObj()
+GameObject* SpellScript::GetExplTargetGObj()
 {
     return m_spell->m_targets.GetGOTarget();
 }
 
-Item* SpellScript::GetTargetItem()
+Item* SpellScript::GetExplTargetItem()
 {
     return m_spell->m_targets.GetItemTarget();
 }

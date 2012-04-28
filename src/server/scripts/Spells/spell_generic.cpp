@@ -1282,7 +1282,7 @@ class spell_gen_launch : public SpellScriptLoader
 
             void Launch()
             {
-                WorldLocation const* const position = GetTargetDest();
+                WorldLocation const* const position = GetExplTargetDest();
 
                 if (Player* player = GetHitPlayer())
                 {

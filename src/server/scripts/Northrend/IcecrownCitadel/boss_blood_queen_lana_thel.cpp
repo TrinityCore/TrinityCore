@@ -522,7 +522,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
 
             SpellCastResult CheckTarget()
             {
-                if (IsVampire(GetTargetUnit()))
+                if (IsVampire(GetExplTargetUnit()))
                 {
                     SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_TARGET_VAMPIRES);
                     return SPELL_FAILED_CUSTOM_ERROR;
