@@ -634,9 +634,27 @@ class spell_sha_chain_heal : public SpellScriptLoader
                 if (riptide)
                     SetHitHeal(GetHitHeal() * 1.25f);
             }
+            
+            SpellCastResult CheckCast()
+            {
+                Player* caster = GetCaster()->ToPlayer();
+    
+                if (Unit* target = GetTargetUnit() != NULL)
+                {
+                    if (!caster->IsFriendlyTo(target) && !caster->IsValidAttackTarget(target))
+                    {
+                        return SPELL_FAILED_BAD_TARGETS;
+                    }
+                    else
+                    {
+                        return SPELL_CAST_OK;
+                    }
+                }
+            }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_sha_chain_heal_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_chain_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
 
