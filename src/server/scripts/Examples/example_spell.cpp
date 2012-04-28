@@ -102,7 +102,7 @@ class spell_ex_5581 : public SpellScriptLoader
             {
                 // in this hook you can add additional requirements for spell caster (and throw a client error if reqs're not passed)
                 // in this case we're disallowing to select non-player as a target of the spell
-                //if (!GetTargetUnit() || GetTargetUnit()->ToPlayer())
+                //if (!GetExplTargetUnit() || GetExplTargetUnit()->ToPlayer())
                     //return SPELL_FAILED_BAD_TARGETS;
                 return SPELL_CAST_OK;
             }

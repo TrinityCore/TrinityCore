@@ -288,10 +288,9 @@ class spell_pal_holy_shock : public SpellScriptLoader
             SpellCastResult CheckCast()
             {
                 Player* caster = GetCaster()->ToPlayer();
-                if (GetTargetUnit())
-                    if (Unit* target = GetTargetUnit())
-                        if (!caster->IsFriendlyTo(target) && !caster->IsValidAttackTarget(target))
-                            return SPELL_FAILED_BAD_TARGETS;
+                if (Unit* target = GetExplTargetUnit())
+                    if (!caster->IsFriendlyTo(target) && !caster->IsValidAttackTarget(target))
+                        return SPELL_FAILED_BAD_TARGETS;
                 return SPELL_CAST_OK;
             }
 
