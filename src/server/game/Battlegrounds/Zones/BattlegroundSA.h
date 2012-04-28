@@ -30,8 +30,8 @@ class BattlegroundSAScore : public BattlegroundScore
     uint8 gates_destroyed;
 };
 
-#define BG_SA_FLAG_AMOUNT 3
-#define BG_SA_DEMOLISHER_AMOUNT 4
+#define BG_SA_FLAG_AMOUNT           3
+#define BG_SA_DEMOLISHER_AMOUNT     4
 
 enum BG_SA_Status
 {
@@ -52,20 +52,20 @@ enum BG_SA_GateState
 
 enum BG_SA_EventIdGate
 {
-    BG_SA_EVENT_GREEN_GATE_DAMAGED          = 19041,
-    BG_SA_EVENT_GREEN_GATE_DESTROYED        = 19046,
-
     BG_SA_EVENT_BLUE_GATE_DAMAGED           = 19040,
     BG_SA_EVENT_BLUE_GATE_DESTROYED         = 19045,
+
+    BG_SA_EVENT_GREEN_GATE_DAMAGED          = 19041,
+    BG_SA_EVENT_GREEN_GATE_DESTROYED        = 19046,
 
     BG_SA_EVENT_RED_GATE_DAMAGED            = 19042,
     BG_SA_EVENT_RED_GATE_DESTROYED          = 19047,
 
-    BG_SA_EVENT_PURPLE_GATE_DAMAGED         = 19048,
-    BG_SA_EVENT_PURPLE_GATE_DESTROYED       = 19043,
+    BG_SA_EVENT_PURPLE_GATE_DAMAGED         = 19043,
+    BG_SA_EVENT_PURPLE_GATE_DESTROYED       = 19048,
 
-    BG_SA_EVENT_YELLOW_GATE_DAMAGED         = 19049,
-    BG_SA_EVENT_YELLOW_GATE_DESTROYED       = 19044,
+    BG_SA_EVENT_YELLOW_GATE_DAMAGED         = 19044,
+    BG_SA_EVENT_YELLOW_GATE_DESTROYED       = 19049,
 
     BG_SA_EVENT_ANCIENT_GATE_DAMAGED        = 19836,
     BG_SA_EVENT_ANCIENT_GATE_DESTROYED      = 19837
@@ -73,38 +73,38 @@ enum BG_SA_EventIdGate
 
 enum BG_SA_Timers
 {
-    BG_SA_BOAT_START  =  60*IN_MILLISECONDS,
-    BG_SA_WARMUPLENGTH = 120*IN_MILLISECONDS,
-    BG_SA_ROUNDLENGTH = 600*IN_MILLISECONDS
+    BG_SA_BOAT_START    =  60 * IN_MILLISECONDS,
+    BG_SA_WARMUPLENGTH  = 120 * IN_MILLISECONDS,
+    BG_SA_ROUNDLENGTH   = 600 * IN_MILLISECONDS
 };
 
 enum BG_SA_WorldStates
 {
-    BG_SA_TIMER_MINS = 3559,
-    BG_SA_TIMER_SEC_TENS = 3560,
-    BG_SA_TIMER_SEC_DECS = 3561,
-    BG_SA_ALLY_ATTACKS  = 4352,
-    BG_SA_HORDE_ATTACKS = 4353,
-    BG_SA_PURPLE_GATEWS = 3614,
-    BG_SA_RED_GATEWS = 3617,
-    BG_SA_BLUE_GATEWS = 3620,
-    BG_SA_GREEN_GATEWS = 3623,
-    BG_SA_YELLOW_GATEWS = 3638,
-    BG_SA_ANCIENT_GATEWS = 3849,
-    BG_SA_LEFT_GY_ALLIANCE = 3635,
-    BG_SA_RIGHT_GY_ALLIANCE = 3636,
-    BG_SA_CENTER_GY_ALLIANCE = 3637,
-    BG_SA_RIGHT_ATT_TOKEN_ALL = 3627,
-    BG_SA_LEFT_ATT_TOKEN_ALL = 3626,
-    BG_SA_LEFT_ATT_TOKEN_HRD = 3629,
-    BG_SA_RIGHT_ATT_TOKEN_HRD = 3628,
-    BG_SA_HORDE_DEFENCE_TOKEN = 3631,
-    BG_SA_ALLIANCE_DEFENCE_TOKEN = 3630,
-    BG_SA_RIGHT_GY_HORDE = 3632,
-    BG_SA_LEFT_GY_HORDE = 3633,
-    BG_SA_CENTER_GY_HORDE = 3634,
-    BG_SA_BONUS_TIMER = 0xdf3,
-    BG_SA_ENABLE_TIMER = 3564,
+    BG_SA_TIMER_MINS                = 3559,
+    BG_SA_TIMER_SEC_TENS            = 3560,
+    BG_SA_TIMER_SEC_DECS            = 3561,
+    BG_SA_ALLY_ATTACKS              = 4352,
+    BG_SA_HORDE_ATTACKS             = 4353,
+    BG_SA_PURPLE_GATEWS             = 3614,
+    BG_SA_RED_GATEWS                = 3617,
+    BG_SA_BLUE_GATEWS               = 3620,
+    BG_SA_GREEN_GATEWS              = 3623,
+    BG_SA_YELLOW_GATEWS             = 3638,
+    BG_SA_ANCIENT_GATEWS            = 3849,
+    BG_SA_LEFT_GY_ALLIANCE          = 3635,
+    BG_SA_RIGHT_GY_ALLIANCE         = 3636,
+    BG_SA_CENTER_GY_ALLIANCE        = 3637,
+    BG_SA_RIGHT_ATT_TOKEN_ALL       = 3627,
+    BG_SA_LEFT_ATT_TOKEN_ALL        = 3626,
+    BG_SA_LEFT_ATT_TOKEN_HRD        = 3629,
+    BG_SA_RIGHT_ATT_TOKEN_HRD       = 3628,
+    BG_SA_HORDE_DEFENCE_TOKEN       = 3631,
+    BG_SA_ALLIANCE_DEFENCE_TOKEN    = 3630,
+    BG_SA_RIGHT_GY_HORDE            = 3632,
+    BG_SA_LEFT_GY_HORDE             = 3633,
+    BG_SA_CENTER_GY_HORDE           = 3634,
+    BG_SA_BONUS_TIMER               = 0xdf3,
+    BG_SA_ENABLE_TIMER              = 3564,
 };
 
 enum npc
@@ -143,14 +143,14 @@ enum BG_SA_NPCs
 
 enum BG_SA_Boat
 {
-    BG_SA_BOAT_ONE_A =193182,
-    BG_SA_BOAT_TWO_H =193183,
-    BG_SA_BOAT_ONE_H =193184,
-    BG_SA_BOAT_TWO_A =193185,
+    BG_SA_BOAT_ONE_A    = 193182,
+    BG_SA_BOAT_TWO_H    = 193183,
+    BG_SA_BOAT_ONE_H    = 193184,
+    BG_SA_BOAT_TWO_A    = 193185,
 };
 
-const uint32 BG_SA_NpcEntries[BG_SA_MAXNPC] =
-  {
+uint32 const BG_SA_NpcEntries[BG_SA_MAXNPC] =
+{
     NPC_ANTI_PERSONNAL_CANNON,
     NPC_ANTI_PERSONNAL_CANNON,
     NPC_ANTI_PERSONNAL_CANNON,
@@ -161,25 +161,25 @@ const uint32 BG_SA_NpcEntries[BG_SA_MAXNPC] =
     NPC_ANTI_PERSONNAL_CANNON,
     NPC_ANTI_PERSONNAL_CANNON,
     NPC_ANTI_PERSONNAL_CANNON,
-    //4 beach demolishers
+    // 4 beach demolishers
     NPC_DEMOLISHER_SA,
     NPC_DEMOLISHER_SA,
     NPC_DEMOLISHER_SA,
     NPC_DEMOLISHER_SA,
-    //Triggers
+    // Triggers
     23472,
     23472,
     23472,
     23472,
     23472,
-    //Used Demolisher Salesman
+    // Used Demolisher Salesman
     NPC_RIGGER_SPARKLIGHT,
     NPC_GORGRIL_RIGSPARK
-  };
+};
 
-const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
+float const BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
 {
-    //Cannons
+    // Cannons
     { 1436.429f, 110.05f, 41.407f, 5.4f },
     { 1404.9023f, 84.758f, 41.183f, 5.46f },
     { 1068.693f, -86.951f, 93.81f, 0.02f },
@@ -190,21 +190,21 @@ const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
     { 1249.634f, -224.189f, 66.72f, 0.635f },
     { 1236.213f, 92.287f, 64.965f, 5.751f },
     { 1215.11f, 57.772f, 64.739f, 5.78f },
-    //Demolishers
+    // Demolishers
     { 1611.597656f, -117.270073f, 8.719355f, 2.513274f},
     { 1575.562500f, -158.421875f, 5.024450f, 2.129302f},
     { 1618.047729f, 61.424641f, 7.248210f, 3.979351f},
     { 1575.103149f, 98.873344f, 2.830360f, 3.752458f},
-    //trigger
+    // Triggers
     { 1453.49f, -250.453f, 30.896f, 4.2883f},
     { 1377.05f, 97.036f, 30.8605f, 2.46539f},
     { 1186.05f, 58.8048f, 56.5491f, 2.75992f},
     { 1042.83f, -72.839f, 84.8145f, 3.58615f},
     { 1233.62f, -250.49f, 55.4036f, 3.7016f},
-    //Npcs
+    // Npcs
     { 1348.644165f, -298.786469f, 31.080130f, 1.710423f},
     { 1358.191040f, 195.527786f, 31.018187f, 4.171337f},
-    //Demolishers2
+    // Demolishers 2
     { 1371.055786f, -317.071136f, 35.007359f, 1.947460f},
     { 1424.034912f, -260.195190f, 31.084425f, 2.820013f},
     { 1353.139893f, 223.745438f, 35.265411f, 4.343684f},
@@ -242,7 +242,7 @@ enum BG_SA_Objects
     BG_SA_MAXOBJ = BG_SA_BOMB+68
 };
 
-const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
+float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
 {
     { 1411.57f, 108.163f, 28.692f, 5.441f },
     { 1055.452f, -108.1f, 82.134f, 0.034f },
@@ -251,30 +251,30 @@ const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     { 1214.681f, 81.21f, 53.413f, 5.745f },
     { 878.555f, -108.2f, 117.845f, 0.0f },
     { 836.5f, -108.8f, 120.219f, 0.0f },
-    //Ships
+    // Ships
     { 2679.696777f, -826.891235f, 3.712860f, 5.78367f}, //rot2 1 rot3 0.0002f
     { 2574.003662f, 981.261475f, 2.603424f, 0.807696f},
-    //Sigils
+    // Sigils
     { 1414.054f, 106.72f, 41.442f, 5.441f },
     { 1060.63f, -107.8f, 94.7f, 0.034f },
     { 1433.383f, -216.4f, 43.642f, 0.9736f },
     { 1230.75f, -210.724f, 67.611f, 0.5023f },
     { 1217.8f, 79.532f, 66.58f, 5.745f },
-    //Flagpoles
+    // Flagpoles
     { 1215.114258f, -65.711861f, 70.084267f, -3.124123f},
     {1338.863892f, -153.336533f, 30.895121f, -2.530723f},
     {1309.124268f, 9.410645f, 30.893402f, -1.623156f},
-    //Flags
+    // Flags
     { 1215.108032f, -65.715767f, 70.084267f, -3.124123f},
     { 1338.859253f, -153.327316f, 30.895077f, -2.530723f},
     { 1309.192017f, 9.416233f, 30.893402f, 1.518436f},
-    //Portal
+    // Portal
     {1468.380005f, -225.798996f, 30.896200f, 0.0f}, //blue
     {1394.270020f, 72.551399f, 31.054300f, 0.0f}, //green
     {1065.260010f, -89.79501f, 81.073402f, 0.0f}, //yellow
     {1216.069946f, 47.904301f, 54.278198f, 0.0f}, //purple
     {1255.569946f, -233.548996f, 56.43699f, 0.0f}, //red
-    //Bombs
+    // Bombs
     {1333.45f, 211.354f, 31.0538f, 5.03666f},
     {1334.29f, 209.582f, 31.0532f, 1.28088f},
     {1332.72f, 210.049f, 31.0532f, 1.28088f},
@@ -358,7 +358,7 @@ const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
  * to get horde ones.
  */
 
-const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
+uint32 const BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
 {
     190722,
     190727,
@@ -388,7 +388,7 @@ const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     190753
 };
 
-const uint32 BG_SA_Factions[2] =
+uint32 const BG_SA_Factions[2] =
 {
     1732,
     1735,
@@ -413,13 +413,13 @@ const uint32 BG_SA_GYEntries[BG_SA_MAX_GY] =
     1348,
 };
 
-const float BG_SA_GYOrientation[BG_SA_MAX_GY] =
+float const BG_SA_GYOrientation[BG_SA_MAX_GY] =
 {
     6.202f,
-    1.926f, //right capturable GY
-    3.917f, //left capturable GY
-    3.104f, //center, capturable
-    6.148f, //defender last GY
+    1.926f, // right capturable GY
+    3.917f, // left capturable GY
+    3.104f, // center, capturable
+    6.148f, // defender last GY
 };
 
 struct BG_SA_RoundScore
