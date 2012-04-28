@@ -627,6 +627,11 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                             dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
                     }
 
+                    // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
+                    if (Unit const* unit = ToUnit())
+                        if (dynamicFlags & UNIT_DYNFLAG_TRACK_UNIT)
+                            if (!unit->HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, target->GetGUID()))
+                                dynamicFlags &= ~UNIT_DYNFLAG_TRACK_UNIT;
                     *data << dynamicFlags;
                 }
                 // FG: pretend that OTHER players in own group are friendly ("blue")

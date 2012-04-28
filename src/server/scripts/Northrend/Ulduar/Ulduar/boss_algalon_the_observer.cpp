@@ -1267,7 +1267,7 @@ class spell_algalon_cosmic_smash : public SpellScriptLoader
             void ModDestHeight(SpellEffIndex /*effIndex*/)
             {
                 Position offset = {0.0f, 0.0f, 65.0f, 0.0f};
-                const_cast<WorldLocation*>(GetTargetDest())->RelocateOffset(offset);
+                const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
                 GetHitDest()->RelocateOffset(offset);
             }
 
@@ -1294,10 +1294,10 @@ class spell_algalon_cosmic_smash_damage : public SpellScriptLoader
 
             void RecalculateDamage()
             {
-                if (!GetTargetDest() || !GetHitUnit())
+                if (!GetExplTargetDest() || !GetHitUnit())
                     return;
 
-                float distance = GetHitUnit()->GetDistance2d(GetTargetDest()->GetPositionX(), GetTargetDest()->GetPositionY());
+                float distance = GetHitUnit()->GetDistance2d(GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY());
                 if (distance > 6.0f)
                     SetHitDamage(int32(float(GetHitDamage()) / distance) * 2);
             }
