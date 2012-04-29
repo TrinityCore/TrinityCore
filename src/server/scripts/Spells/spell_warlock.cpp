@@ -301,8 +301,8 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                if (GetTargetUnit())
-                    unitList.remove(GetTargetUnit());
+                if (GetExplTargetUnit())
+                    unitList.remove(GetExplTargetUnit());
             }
 
             void Register()
