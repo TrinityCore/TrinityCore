@@ -28,8 +28,6 @@ mob_webbed_creature
 npc_captured_sunhawk_agent
 EndContentData */
 
-#include "ScriptPCH.h"
-
 /*######
 ## mob_webbed_creature
 ######*/

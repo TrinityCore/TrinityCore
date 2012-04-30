@@ -31,7 +31,6 @@ npc_clintar_spirit
 npc_clintar_dreamwalker
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -264,24 +263,22 @@ float Clintar_spirit_WP[41][5] =
 {7517.51f, -3056.3f,  444.568f, 2.49f, 4500}
 };
 
-#define ASPECT_RAVEN 22915
+Position const AspectRavenSummon    = {7472.96f, -3074.18f, 427.566f, 0.0f};
+Position const ClintarSpiritSummon  = {7459.2275f, -3122.5632f, 438.9842f, 0.8594f};
 
-#define ASPECT_RAVEN_SUMMON_X 7472.96f
-#define ASPECT_RAVEN_SUMMON_Y -3074.18f
-#define ASPECT_RAVEN_SUMMON_Z 427.566f
-#define CLINTAR_SPIRIT_SUMMON_X 7459.2275f
-#define CLINTAR_SPIRIT_SUMMON_Y -3122.5632f
-#define CLINTAR_SPIRIT_SUMMON_Z 438.9842f
-#define CLINTAR_SPIRIT_SUMMON_O 0.8594f
+enum eClintarSpirit
+{
+    ASPECT_RAVEN                        = 22915,
 
-//from -1000292 to -1000287 are signed for 7806. but all this texts ids wrong.
-#define CLINTAR_SPIRIT_SAY_START -1000286
-#define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1 -1000287
-#define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2 -1000288
-#define CLINTAR_SPIRIT_SAY_GET_ONE -1000289
-#define CLINTAR_SPIRIT_SAY_GET_TWO -1000290
-#define CLINTAR_SPIRIT_SAY_GET_THREE -1000291
-#define CLINTAR_SPIRIT_SAY_GET_FINAL -1000292
+    //from -1000292 to -1000287 are signed for 7806. but all this texts ids wrong.
+    CLINTAR_SPIRIT_SAY_START            = -1000286,
+    CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1   = -1000287,
+    CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2   = -1000288,
+    CLINTAR_SPIRIT_SAY_GET_ONE          = -1000289,
+    CLINTAR_SPIRIT_SAY_GET_TWO          = -1000290,
+    CLINTAR_SPIRIT_SAY_GET_THREE        = -1000291,
+    CLINTAR_SPIRIT_SAY_GET_FINAL        = -1000292
+};
 
 class npc_clintar_spirit : public CreatureScript
 {
@@ -464,7 +461,7 @@ public:
                         {
                             case 0:
                                 {
-                                Creature* mob = me->SummonCreature(ASPECT_RAVEN, ASPECT_RAVEN_SUMMON_X, ASPECT_RAVEN_SUMMON_Y, ASPECT_RAVEN_SUMMON_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                                Creature* mob = me->SummonCreature(ASPECT_RAVEN, AspectRavenSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                                 if (mob)
                                 {
                                     mob->AddThreat(me, 10000.0f);
@@ -552,7 +549,10 @@ public:
 # npc_clintar_dreamwalker
 ####*/
 
-#define CLINTAR_SPIRIT 22916
+enum eClintarDreamwalker
+{
+    CLINTAR_SPIRIT      = 22916
+};
 
 class npc_clintar_dreamwalker : public CreatureScript
 {
@@ -563,7 +563,7 @@ public:
     {
         if (quest->GetQuestId() == 10965)
         {
-            Creature* clintar_spirit = creature->SummonCreature(CLINTAR_SPIRIT, CLINTAR_SPIRIT_SUMMON_X, CLINTAR_SPIRIT_SUMMON_Y, CLINTAR_SPIRIT_SUMMON_Z, CLINTAR_SPIRIT_SUMMON_O, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
+            Creature* clintar_spirit = creature->SummonCreature(CLINTAR_SPIRIT, ClintarSpiritSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
             if (clintar_spirit)
                 CAST_AI(npc_clintar_spirit::npc_clintar_spiritAI, clintar_spirit->AI())->StartEvent(player);
         }

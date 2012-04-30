@@ -23,17 +23,18 @@ SDComment: Quest support: 925
 SDCategory: Thunder Bluff
 EndScriptData */
 
-#include "ScriptPCH.h"
-
 /*#####
 # npc_cairne_bloodhoof
 ######*/
 
-#define SPELL_BERSERKER_CHARGE  16636
-#define SPELL_CLEAVE            16044
-#define SPELL_MORTAL_STRIKE     16856
-#define SPELL_THUNDERCLAP       23931
-#define SPELL_UPPERCUT          22916
+enum CairneBloodhoof
+{
+    SPELL_BERSERKER_CHARGE  = 16636,
+    SPELL_CLEAVE            = 16044,
+    SPELL_MORTAL_STRIKE     = 16856,
+    SPELL_THUNDERCLAP       = 23931,
+    SPELL_UPPERCUT          = 22916
+};
 
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
 //TODO: verify abilities/timers

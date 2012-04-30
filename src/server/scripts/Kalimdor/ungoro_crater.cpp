@@ -28,7 +28,6 @@ npc_a-me
 npc_ringo
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 

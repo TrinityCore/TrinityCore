@@ -32,7 +32,6 @@ npc_twiggy_flathead
 npc_wizzlecrank_shredder
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -327,7 +326,7 @@ enum eTwiggyFlathead
     SAY_TWIGGY_FLATHEAD_OVER    = -1000127,
 };
 
-float AffrayChallengerLoc[6][4]=
+Position const AffrayChallengerLoc[6] =
 {
     {-1683.0f, -4326.0f, 2.79f, 0.0f},
     {-1682.0f, -4329.0f, 2.79f, 0.0f},
@@ -457,7 +456,7 @@ public:
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                             if (!creature)
                                 continue;
                             creature->setFaction(35);
