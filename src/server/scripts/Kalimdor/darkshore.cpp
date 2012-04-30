@@ -29,7 +29,6 @@ npc_prospector_remtravel
 npc_threshwackonator
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 

@@ -28,7 +28,6 @@ npc_torek
 npc_ruul_snowhoof
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*####
@@ -169,8 +168,11 @@ class npc_torek : public CreatureScript
 # npc_ruul_snowhoof
 ####*/
 
-#define QUEST_FREEDOM_TO_RUUL    6482
-#define GO_CAGE                  178147
+enum eRuulSnowhoof
+{
+    QUEST_FREEDOM_TO_RUUL   = 6482,
+    GO_CAGE                 = 178147
+};
 
 class npc_ruul_snowhoof : public CreatureScript
 {
@@ -249,7 +251,7 @@ class npc_ruul_snowhoof : public CreatureScript
         }
 };
 
-enum eEnums
+enum eMuglash
 {
     SAY_MUG_START1          = -1800054,
     SAY_MUG_START2          = -1800055,

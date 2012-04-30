@@ -23,7 +23,6 @@ SDComment: Quest support: 3520, 2767, Special vendor Gregan Brewspewer
 SDCategory: Feralas
 EndScriptData */
 
-#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

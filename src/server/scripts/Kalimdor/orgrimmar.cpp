@@ -28,8 +28,6 @@ npc_shenthul
 npc_thrall_warchief
 EndContentData */
 
-#include "ScriptPCH.h"
-
 /*######
 ## npc_shenthul
 ######*/
@@ -130,10 +128,13 @@ public:
 ## npc_thrall_warchief
 ######*/
 
-#define QUEST_6566              6566
+enum eThrallWarchief
+{
+    QUEST_6566              = 6566,
 
-#define SPELL_CHAIN_LIGHTNING   16033
-#define SPELL_SHOCK             16034
+    SPELL_CHAIN_LIGHTNING   = 16033,
+    SPELL_SHOCK             = 16034
+};
 
 #define GOSSIP_HTW "Please share your wisdom with me, Warchief."
 #define GOSSIP_STW1 "What discoveries?"

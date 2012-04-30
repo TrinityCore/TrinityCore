@@ -30,7 +30,6 @@ npc_dalinda_malem
 go_demon_portal
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 enum eDyingKodo
@@ -175,7 +174,7 @@ public:
 ## Hand of Iruxos
 ######*/
 
-enum
+enum eIruxos
 {
     QUEST_HAND_IRUXOS   = 5381,
     NPC_DEMON_SPIRIT    = 11876,
@@ -199,7 +198,10 @@ class go_iruxos : public GameObjectScript
 ## npc_dalinda_malem. Quest 1440
 ######*/
 
-#define QUEST_RETURN_TO_VAHLARRIEL     1440
+enum eDalinda
+{
+    QUEST_RETURN_TO_VAHLARRIEL      = 1440
+};
 
 class npc_dalinda : public CreatureScript
 {

@@ -29,7 +29,6 @@ npcs_rutgar_and_frankal
 quest_a_pawn_on_the_eternal_pawn
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "Group.h"
 
 /*###
@@ -125,9 +124,11 @@ public:
 #define GOSSIP_ITEM14 "I should ask the monkey about this"
 #define GOSSIP_ITEM15 "Then what..."
 
-//trigger creatures to kill
-#define TRIGGER_RUTGAR 15222
-#define TRIGGER_FRANKAL 15221
+enum eRugtarAndFrankal //trigger creatures to kill
+{
+    TRIGGER_RUTGAR      = 15222,
+    TRIGGER_FRANKAL     = 15221
+};
 
 class npcs_rutgar_and_frankal : public CreatureScript
 {
@@ -290,7 +291,6 @@ TO DO: get correct spell IDs and timings for spells cast upon dragon transformat
 TO DO: Dragons should use the HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF) after transformation, but for some unknown reason it doesnt work.
 EndContentData */
 
-#define QUEST_A_PAWN_ON_THE_ETERNAL_BOARD 8519
 #define EVENT_AREA_RADIUS 65 //65yds
 #define EVENT_COOLDOWN 500000 //in ms. appear after event completed or failed (should be = Adds despawn time)
 
@@ -373,13 +373,8 @@ static QuestCinematic EventAnim[]=
     {0, 0, 0}
 };
 
-struct Location
-{
-   float x, y, z, o;
-};
-
 //Cordinates for Spawns
-static Location SpawnLocation[]=
+Position const SpawnLocation[]=
 {
     {-8085.0f, 1528.0f, 2.61f, 3.141592f}, //Kaldorei Infantry
     {-8080.0f, 1526.0f, 2.61f, 3.141592f}, //Kaldorei Infantry
@@ -475,7 +470,7 @@ struct SpawnSpells
     uint32 Timer1, Timer2, SpellId;
 };
 
-static SpawnSpells SpawnCast[]=//
+static SpawnSpells SpawnCast[]=
 {
     {100000, 2000, 33652},   // Stop Time
     {38500, 300000, 28528},  // Poison Cloud
@@ -977,13 +972,9 @@ public:
 
             for (uint8 i = locIndex; i <= count; ++i)
             {
-                float x = SpawnLocation[i].x;
-                float y = SpawnLocation[i].y;
-                float z = SpawnLocation[i].z;
-                float o = SpawnLocation[i].o;
                 uint32 desptimer = WavesInfo[WaveCount].DespTimer;
 
-                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
+                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
                 {
                     if (spawn->GetEntry() == 15423)
                         spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15427+rand()%4);

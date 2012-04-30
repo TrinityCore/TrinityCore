@@ -33,7 +33,6 @@ npc_OOX17
 npc_tooga
 EndContentData */
 
-#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
@@ -41,10 +40,13 @@ EndContentData */
 ## mob_aquementas
 ######*/
 
-#define AGGRO_YELL_AQUE     -1000350
+enum eAquementas
+{
+    AGGRO_YELL_AQUE     = -1000350,
 
-#define SPELL_AQUA_JET      13586
-#define SPELL_FROST_SHOCK   15089
+    SPELL_AQUA_JET      = 13586,
+    SPELL_FROST_SHOCK   = 15089
+};
 
 class mob_aquementas : public CreatureScript
 {
@@ -143,20 +145,23 @@ public:
 ## npc_custodian_of_time
 ######*/
 
-#define WHISPER_CUSTODIAN_1     -1000217
-#define WHISPER_CUSTODIAN_2     -1000218
-#define WHISPER_CUSTODIAN_3     -1000219
-#define WHISPER_CUSTODIAN_4     -1000220
-#define WHISPER_CUSTODIAN_5     -1000221
-#define WHISPER_CUSTODIAN_6     -1000222
-#define WHISPER_CUSTODIAN_7     -1000223
-#define WHISPER_CUSTODIAN_8     -1000224
-#define WHISPER_CUSTODIAN_9     -1000225
-#define WHISPER_CUSTODIAN_10    -1000226
-#define WHISPER_CUSTODIAN_11    -1000227
-#define WHISPER_CUSTODIAN_12    -1000228
-#define WHISPER_CUSTODIAN_13    -1000229
-#define WHISPER_CUSTODIAN_14    -1000230
+enum CustodianOfTime
+{
+    WHISPER_CUSTODIAN_1     = -1000217,
+    WHISPER_CUSTODIAN_2     = -1000218,
+    WHISPER_CUSTODIAN_3     = -1000219,
+    WHISPER_CUSTODIAN_4     = -1000220,
+    WHISPER_CUSTODIAN_5     = -1000221,
+    WHISPER_CUSTODIAN_6     = -1000222,
+    WHISPER_CUSTODIAN_7     = -1000223,
+    WHISPER_CUSTODIAN_8     = -1000224,
+    WHISPER_CUSTODIAN_9     = -1000225,
+    WHISPER_CUSTODIAN_10    = -1000226,
+    WHISPER_CUSTODIAN_11    = -1000227,
+    WHISPER_CUSTODIAN_12    = -1000228,
+    WHISPER_CUSTODIAN_13    = -1000229,
+    WHISPER_CUSTODIAN_14    = -1000230
+};
 
 class npc_custodian_of_time : public CreatureScript
 {
