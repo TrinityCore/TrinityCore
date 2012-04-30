@@ -37,6 +37,7 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CIRCLE_SUMMON           = 48018,
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
     WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
+    WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
 };
 
 class spell_warl_banish : public SpellScriptLoader
@@ -523,6 +524,48 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
         }
 };
 
+class spell_warl_unstable_affliction : public SpellScriptLoader
+{
+    public:
+        spell_warl_unstable_affliction() : SpellScriptLoader("spell_warl_unstable_affliction") { }
+
+        class spell_warl_unstable_affliction_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_unstable_affliction_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARLOCK_UNSTABLE_AFFLICTION_DISPEL))
+                    return false;
+                return true;
+            }
+
+            void OnDispel(DispelInfo* dispelInfo)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
+                {
+                    int32 damage = aurEff->GetAmount() * 9;
+                    // backfire damage and silence
+                    caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
+                }
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_warl_unstable_affliction_AuraScript::OnDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_unstable_affliction_AuraScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_banish();
@@ -535,4 +578,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_life_tap();
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
+    new spell_warl_unstable_affliction();
 }

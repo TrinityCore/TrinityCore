@@ -4925,53 +4925,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             break;
                     }
                     break;
-                case SPELLFAMILY_MAGE:
-                    // Living Bomb
-                    if (m_spellInfo->SpellFamilyFlags[1] & 0x20000)
-                    {
-                        AuraRemoveMode removeMode = aurApp->GetRemoveMode();
-                        if (caster && (removeMode == AURA_REMOVE_BY_ENEMY_SPELL || removeMode == AURA_REMOVE_BY_EXPIRE))
-                            caster->CastSpell(target, GetAmount(), true);
-                    }
-                    break;
-                case SPELLFAMILY_PRIEST:
-                    // Vampiric Touch
-                    if (m_spellInfo->SpellFamilyFlags[1] & 0x0400 && aurApp->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && GetEffIndex() == 0)
-                        if (AuraEffect const* aurEff = GetBase()->GetEffect(1))
-                        {
-                            int32 damage = aurEff->GetAmount() * 8;
-                            // backfire damage
-                            target->CastCustomSpell(target, 64085, &damage, NULL, NULL, true, NULL, NULL, GetCasterGUID());
-                        }
-                    break;
                 case SPELLFAMILY_WARLOCK:
                     // Haunt
                     if (m_spellInfo->SpellFamilyFlags[1] & 0x40000)
                         if (caster)
                             target->CastCustomSpell(caster, 48210, &m_amount, 0, 0, true, NULL, this, GetCasterGUID());
-                    break;
-                case SPELLFAMILY_DRUID:
-                    // Lifebloom
-                    if (GetSpellInfo()->SpellFamilyFlags[1] & 0x10)
-                    {
-                        // Final heal only on duration end
-                        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-                            return;
-
-                        // final heal
-                        int32 stack = GetBase()->GetStackAmount();
-                        int32 heal = m_amount;
-                        if (caster)
-                            heal = caster->SpellHealingBonus(target, GetSpellInfo(), heal, HEAL, stack);
-                        target->CastCustomSpell(target, 33778, &heal, &stack, NULL, true, NULL, this, GetCasterGUID());
-
-                        // restore mana
-                        if (caster)
-                        {
-                            int32 returnmana = CalculatePctU(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * stack / 2;
-                            caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
-                        }
-                    }
                     break;
                 case SPELLFAMILY_DEATHKNIGHT:
                     // Summon Gargoyle (Dismiss Gargoyle at remove)
