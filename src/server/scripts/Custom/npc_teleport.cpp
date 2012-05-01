@@ -1,14 +1,14 @@
 /**
- *
- * @File : npc_teleport.cpp
- *
- * @Authors : Wilibald09
- *
- * @Date : 19/08/2008
- *
- * @Version : 1.2
- *
- **/
+*
+* @File : npc_teleport.cpp
+*
+* @Authors : Wilibald09
+*
+* @Date : 19/08/2008
+*
+* @Version : 1.2
+*
+**/
 
 
 
@@ -31,9 +31,9 @@
 #define MSG_CAT                 100000
 #define MSG_DEST                100001
 
-#define NEXT_PAGE               "-> [Next Page]"
-#define PREV_PAGE               "<- [Previous Page]"
-#define MAIN_MENU               "<= [Main Menu]"
+#define NEXT_PAGE               "-> [Следующая страница]"
+#define PREV_PAGE               "<- [Предыдущая страница]"
+#define MAIN_MENU               "<= [Главное меню]"
 
 
 using namespace nsNpcTel;
@@ -68,15 +68,15 @@ namespace
     }
 
     // Teleport Player
-    void Teleport(Player * const player, const uint16 &map,
-                  const float &X, const float &Y, const float &Z, const float &orient)
+    void Teleport(Player*  const player, const uint16 &map,
+        const float &X, const float &Y, const float &Z, const float &orient)
     {
         player->CastSpell(player, SPELL_VISUAL_TELEPORT, true);
         player->TeleportTo(map, X, Y, Z, orient);
     }
 
     // Display categories
-    void AffichCat(Player * const player, Creature * const creature)
+    void AffichCat(Player*  const player, Creature*  const creature)
     {
         if (PageC[player] > 0)
             player->ADD_GOSSIP_ITEM(7, PREV_PAGE, GOSSIP_PREV_PAGEC, 0);
@@ -95,7 +95,7 @@ namespace
     }
 
     // Display destination categories
-    void AffichDest(Player * const player, Creature * const creature)
+    void AffichDest(Player*  const player, Creature*  const creature)
     {
         if (PageD[player] > 0)
             player->ADD_GOSSIP_ITEM(7, PREV_PAGE, GOSSIP_PREV_PAGED, 0);
@@ -116,20 +116,20 @@ namespace
     }
 
     // Verification before teleportation
-    void ActionTeleport(Player * const player, Creature * const creature, const uint32 &id)
+    void ActionTeleport(Player*  const player, Creature*  const creature, const uint32 &id)
     {
         Dest dest (TabCatDest[Cat[player]].GetDest(id));
 
         if (player->getLevel() < dest.m_level && !player->isGameMaster())
         {
-            std::string msg ("You do not have the required level. This destination requires level " + ConvertStr(dest.m_level) + ".");
+            std::string msg ("У вас нет необходимого уровня. Это пункт телепортации требует " + ConvertStr(dest.m_level) + " уровень.");
             creature->MonsterWhisper(msg.c_str(), player->GetGUID());
             return;
         }
 
         if (player->GetMoney() < dest.m_cost && !player->isGameMaster())
         {
-            std::string msg ("You do not have enough money. The price for teleportation is " + ConvertMoney(dest.m_cost) + ".");
+            std::string msg ("У вас нет достаточно денег. Стоимость телепортации " + ConvertMoney(dest.m_cost) + ".");
             creature->MonsterWhisper(msg.c_str(), player->GetGUID());
             return;
         }
@@ -146,73 +146,73 @@ class npc_teleport : public CreatureScript
 public:
     npc_teleport() : CreatureScript("npc_teleport") {}
 
-bool OnGossipHello(Player *player, Creature *creature)
-{
-    PageC(player) = PageD(player) = Cat(player) = 0;
-
-    if(player->isInCombat())
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        player->CLOSE_GOSSIP_MENU();
-        creature->MonsterWhisper("You are in combat. Come back later", player->GetGUID());
+        PageC(player) = PageD(player) = Cat(player) = 0;
+
+        if(player->isInCombat())
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->MonsterWhisper("Вы находитесь в бою. Приходите позже", player->GetGUID());
+            return true;
+        }
+        AffichCat(player, creature);
         return true;
     }
-    AffichCat(player, creature);
-    return true;
-}
 
-bool OnGossipSelect(Player *player, Creature *creature, uint32 sender, uint32 param)
-{
-    player->PlayerTalkClass->ClearMenus();
-    switch(sender)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 param)
     {
-      // Display destinations
-      case GOSSIP_SHOW_DEST:
-        Cat(player) = param;
-        AffichDest(player, creature);
-        break;
+        player->PlayerTalkClass->ClearMenus();
+        switch(sender)
+        {
+            // Display destinations
+        case GOSSIP_SHOW_DEST:
+            Cat(player) = param;
+            AffichDest(player, creature);
+            break;
 
-      // Previous categories page
-      case GOSSIP_PREV_PAGEC:
-        --PageC(player);
-        AffichCat(player, creature);
-        break;
+            // Previous categories page
+        case GOSSIP_PREV_PAGEC:
+            --PageC(player);
+            AffichCat(player, creature);
+            break;
 
-      // Next page categories
-      case GOSSIP_NEXT_PAGEC:
-        ++PageC(player);
-        AffichCat(player, creature);
-        break;
+            // Next page categories
+        case GOSSIP_NEXT_PAGEC:
+            ++PageC(player);
+            AffichCat(player, creature);
+            break;
 
-      // Previous destinations page
-      case GOSSIP_PREV_PAGED:
-        --PageD(player);
-        AffichDest(player, creature);
-        break;
+            // Previous destinations page
+        case GOSSIP_PREV_PAGED:
+            --PageD(player);
+            AffichDest(player, creature);
+            break;
 
-      // Next destination page
-      case GOSSIP_NEXT_PAGED:
-        ++PageD(player);
-        AffichDest(player, creature);
-        break;
+            // Next destination page
+        case GOSSIP_NEXT_PAGED:
+            ++PageD(player);
+            AffichDest(player, creature);
+            break;
 
-      // Display main menu
-      case GOSSIP_MAIN_MENU:
-        OnGossipHello(player, creature);
-        break;
+            // Display main menu
+        case GOSSIP_MAIN_MENU:
+            OnGossipHello(player, creature);
+            break;
 
-      // Teleportation
-      case GOSSIP_TELEPORT:
-        player->CLOSE_GOSSIP_MENU();
-        if(player->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,0)) {
-            creature->CastSpell(player,38588,false); // Healing effect
-            player->RemoveAurasDueToSpell(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS);
+            // Teleportation
+        case GOSSIP_TELEPORT:
+            player->CLOSE_GOSSIP_MENU();
+            if(player->HasAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS, 0)) {
+                creature->CastSpell(player, 38588, false); // Healing effect
+                player->RemoveAurasDueToSpell(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS);
+            }
+
+            ActionTeleport(player, creature, param);
+            break;
         }
-
-        ActionTeleport(player, creature, param);
-        break;
+        return true;
     }
-    return true;
-}
 };
 
 void AddSC_npc_teleport()

@@ -25,19 +25,6 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
-//TeleNPC2
-void AddSC_npc_teleport();
-//Hunter Pet Vendor
-void AddSC_npc_hunterpetvendor();
-// Custom
-void AddSC_DuelReset();
-//NPC Transport Service
-void AddSC_npc_mount();	
-// Argent Tournament quest scripts
-void AddSC_ArgentTournament();
-//Revenge od Dalaran squidrrel
-void AddSC_dalaran_squirrel();
-
 // spells
 void AddSC_deathknight_spell_scripts();
 void AddSC_druid_spell_scripts();
@@ -76,6 +63,7 @@ void AddSC_reload_commandscript();
 void AddSC_tele_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
+void AddSC_spectate_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -686,6 +674,7 @@ void AddCommandScripts()
     AddSC_tele_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
+    AddSC_spectate_commandscript();
 }
 
 void AddWorldScripts()
@@ -1256,6 +1245,31 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
+void AddSC_DuelReset();
+// Custom
+void AddSC_ArgentTournament();
+void AddSC_custom_goldperlevel();
+void AddSC_custom_pvpevent();
+void AddSC_custom_quest();
+void AddSC_custom_spell();
+void AddSC_custom_totalizator();	
+void AddSC_dalaran_squirrel();
+void AddSC_guildmaster();
+//Hunter Pet Vendor
+void AddSC_npc_hunterpetvendor();
+void AddSC_npc_arena_honor();
+void AddSC_npc_arena_setup();
+void AddSC_npc_customize();
+void AddSC_npc_gurubashi_theme();
+void AddSC_npc_lottery();
+void AddSC_npc_mount();
+//TeleNPC2
+void AddSC_npc_teleport();
+void AddSC_System_OnPVPKill();
+// TEST
+void AddSC_summon_setup();
+//void AddSC_npc_vip();
+//void AddSC_PvPTitles();
 
 #endif
 
@@ -1263,14 +1277,31 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
+	AddSC_DuelReset();
+    // Custom
+    AddSC_ArgentTournament();
+    AddSC_custom_goldperlevel();
+    AddSC_custom_pvpevent();
+    AddSC_custom_quest();
+    AddSC_custom_spell();
+    AddSC_custom_totalizator();	
+    AddSC_dalaran_squirrel();
+	AddSC_guildmaster();
+    //Hunter Pet Vendor
+    AddSC_npc_hunterpetvendor();
+    AddSC_npc_arena_honor();
+	AddSC_npc_arena_setup();
+    AddSC_npc_customize();
+    AddSC_npc_gurubashi_theme();
+    AddSC_npc_lottery();
+    AddSC_npc_mount();
     //TeleNPC2
     AddSC_npc_teleport();
-    //Hunter Pet Vendor
-    AddSC_npc_hunterpetvendor();	
-    // Custom
-    AddSC_DuelReset();
-    AddSC_npc_mount();		
-    AddSC_ArgentTournament();
-    AddSC_dalaran_squirrel();
+	AddSC_System_OnPVPKill();
+	// TEST
+    AddSC_summon_setup();
+	//AddSC_npc_vip();
+	//AddSC_PvPTitles();
+
 #endif
 }

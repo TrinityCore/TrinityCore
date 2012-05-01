@@ -91,11 +91,12 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     std::string uptime = secsToTimeString(sWorld->GetUptime());
     uint32 updateTime = sWorld->GetUpdateTime();
 
-    SendSysMessage(_FULLVERSION);
+    //SendSysMessage(_FULLVERSION);
     PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
     PSendSysMessage(LANG_UPDATE_DIFF, updateTime);
+    SendSysMessage("Alive-Legends. Home server WoW: http://wow.garant-tv.by/");
     //! Can't use sWorld->ShutdownMsg here in case of console command
     if (sWorld->IsShuttingDown())
         PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());

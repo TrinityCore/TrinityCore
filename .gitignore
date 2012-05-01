@@ -1,5 +1,6 @@
 
 build*/
+win*/
 .directory
 .mailmap
 *.orig
