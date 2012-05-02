@@ -207,7 +207,7 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
                     if (!target)
                         continue;
 
-                    if (!target->IsWithinDist(GetTargetUnit(), 10.0f))
+                    if (!target->IsWithinDist(GetExplTargetUnit(), 10.0f))
                     {
                         unitList.remove(target);
                         continue;
