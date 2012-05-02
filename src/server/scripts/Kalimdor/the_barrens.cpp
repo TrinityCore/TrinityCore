@@ -32,7 +32,9 @@ npc_twiggy_flathead
 npc_wizzlecrank_shredder
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -41,7 +43,7 @@ EndContentData */
 
 #define GOSSIP_CORPSE "Examine corpse in detail..."
 
-enum eQuests
+enum BeatenCorpse
 {
     QUEST_LOST_IN_BATTLE    = 4921
 };
@@ -77,7 +79,7 @@ public:
 # npc_gilthares
 ######*/
 
-enum eGilthares
+enum Gilthares
 {
     SAY_GIL_START               = -1000370,
     SAY_GIL_AT_LAST             = -1000371,
@@ -214,7 +216,7 @@ public:
 ## npc_taskmaster_fizzule
 ######*/
 
-enum eEnums
+enum TaskmasterFizzule
 {
     FACTION_FRIENDLY_F  = 35,
     SPELL_FLARE         = 10113,
@@ -315,7 +317,7 @@ public:
 ## npc_twiggy_flathead
 #####*/
 
-enum eTwiggyFlathead
+enum TwiggyFlathead
 {
     NPC_BIG_WILL                = 6238,
     NPC_AFFRAY_CHALLENGER       = 6240,
@@ -327,7 +329,7 @@ enum eTwiggyFlathead
     SAY_TWIGGY_FLATHEAD_OVER    = -1000127,
 };
 
-float AffrayChallengerLoc[6][4]=
+Position const AffrayChallengerLoc[6] =
 {
     {-1683.0f, -4326.0f, 2.79f, 0.0f},
     {-1682.0f, -4329.0f, 2.79f, 0.0f},
@@ -457,7 +459,7 @@ public:
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                             if (!creature)
                                 continue;
                             creature->setFaction(35);
@@ -544,7 +546,7 @@ public:
 ## npc_wizzlecrank_shredder
 #####*/
 
-enum eEnums_Wizzlecrank
+enum Wizzlecrank
 {
     SAY_START           = -1000298,
     SAY_STARTUP1        = -1000299,

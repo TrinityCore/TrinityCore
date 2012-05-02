@@ -28,7 +28,8 @@ npc_torek
 npc_ruul_snowhoof
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 
 /*####
@@ -169,8 +170,26 @@ class npc_torek : public CreatureScript
 # npc_ruul_snowhoof
 ####*/
 
-#define QUEST_FREEDOM_TO_RUUL    6482
-#define GO_CAGE                  178147
+enum RuulSnowhoof	
+{	
+    NPC_THISTLEFUR_URSA         = 3921,
+    NPC_THISTLEFUR_TOTEMIC      = 3922,
+    NPC_THISTLEFUR_PATHFINDER   = 3926,
+    
+    QUEST_FREEDOM_TO_RUUL       = 6482,
+
+    GO_CAGE                     = 178147	
+};
+
+Position const RuulSnowhoofSummonsCoord[6] =
+{
+    {3449.218018f, -587.825073f, 174.978867f, 4.714445f},
+    {3446.384521f, -587.830872f, 175.186279f, 4.714445f},
+    {3444.218994f, -587.835327f, 175.380600f, 4.714445f},
+    {3508.344482f, -492.024261f, 186.929031f, 4.145029f},
+    {3506.265625f, -490.531006f, 186.740128f, 4.239277f},
+    {3503.682373f, -489.393799f, 186.629684f, 4.349232f}
+};
 
 class npc_ruul_snowhoof : public CreatureScript
 {
@@ -195,14 +214,14 @@ class npc_ruul_snowhoof : public CreatureScript
                             Cage->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case 13:
-                        me->SummonCreature(3922, 3449.218018f, -587.825073f, 174.978867f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                        me->SummonCreature(3921, 3446.384521f, -587.830872f, 175.186279f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                        me->SummonCreature(3926, 3444.218994f, -587.835327f, 175.380600f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                        me->SummonCreature(NPC_THISTLEFUR_TOTEMIC, RuulSnowhoofSummonsCoord[0], TEMPSUMMON_DEAD_DESPAWN, 60000);
+                        me->SummonCreature(NPC_THISTLEFUR_URSA, RuulSnowhoofSummonsCoord[1], TEMPSUMMON_DEAD_DESPAWN, 60000);
+                        me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[2], TEMPSUMMON_DEAD_DESPAWN, 60000);
                         break;
                     case 19:
-                        me->SummonCreature(3922, 3508.344482f, -492.024261f, 186.929031f, 4.145029f, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                        me->SummonCreature(3921, 3506.265625f, -490.531006f, 186.740128f, 4.239277f, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                        me->SummonCreature(3926, 3503.682373f, -489.393799f, 186.629684f, 4.349232f, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                        me->SummonCreature(NPC_THISTLEFUR_TOTEMIC, RuulSnowhoofSummonsCoord[3], TEMPSUMMON_DEAD_DESPAWN, 60000);
+                        me->SummonCreature(NPC_THISTLEFUR_URSA, RuulSnowhoofSummonsCoord[4], TEMPSUMMON_DEAD_DESPAWN, 60000);
+                        me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[5], TEMPSUMMON_DEAD_DESPAWN, 60000);
                         break;
                     case 21:
                         player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
@@ -249,7 +268,7 @@ class npc_ruul_snowhoof : public CreatureScript
         }
 };
 
-enum eEnums
+enum Muglash
 {
     SAY_MUG_START1          = -1800054,
     SAY_MUG_START2          = -1800055,
@@ -278,21 +297,21 @@ enum eEnums
     NPC_MUGLASH             = 12717
 };
 
-static float m_afFirstNagaCoord[3][3]=
+Position const m_afFirstNagaCoord[3] =
 {
-    {3603.504150f, 1122.631104f, 1.635f},                      // rider
-    {3589.293945f, 1148.664063f, 5.565f},                      // sorceress
-    {3609.925537f, 1168.759521f, -1.168f}                      // razortail
+    {3603.504150f, 1122.631104f, 1.635f, 0.0f},         // rider
+    {3589.293945f, 1148.664063f, 5.565f, 0.0f},         // sorceress
+    {3609.925537f, 1168.759521f, -1.168f, 0.0f}         // razortail
 };
 
-static float m_afSecondNagaCoord[3][3]=
+Position const m_afSecondNagaCoord[3] =
 {
-    {3609.925537f, 1168.759521f, -1.168f},                     // witch
-    {3645.652100f, 1139.425415f, 1.322f},                      // priest
-    {3583.602051f, 1128.405762f, 2.347f}                       // myrmidon
+    {3609.925537f, 1168.759521f, -1.168f, 0.0f},        // witch
+    {3645.652100f, 1139.425415f, 1.322f, 0.0f},         // priest
+    {3583.602051f, 1128.405762f, 2.347f, 0.0f}          // myrmidon
 };
 
-static float m_fVorshaCoord[]={3633.056885f, 1172.924072f, -5.388f};
+Position const m_fVorshaCoord = {3633.056885f, 1172.924072f, -5.388f, 0.0f};
 
 class npc_muglash : public CreatureScript
 {
@@ -375,17 +394,17 @@ class npc_muglash : public CreatureScript
                 switch (m_uiWaveId)
                 {
                     case 1:
-                        me->SummonCreature(NPC_WRATH_RIDER,     m_afFirstNagaCoord[0][0], m_afFirstNagaCoord[0][1], m_afFirstNagaCoord[0][2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_SORCERESS, m_afFirstNagaCoord[1][0], m_afFirstNagaCoord[1][1], m_afFirstNagaCoord[1][2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_RAZORTAIL, m_afFirstNagaCoord[2][0], m_afFirstNagaCoord[2][1], m_afFirstNagaCoord[2][2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_RIDER,     m_afFirstNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_SORCERESS, m_afFirstNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_RAZORTAIL, m_afFirstNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                         break;
                     case 2:
-                        me->SummonCreature(NPC_WRATH_PRIESTESS, m_afSecondNagaCoord[0][0], m_afSecondNagaCoord[0][1], m_afSecondNagaCoord[0][2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_MYRMIDON,  m_afSecondNagaCoord[1][0], m_afSecondNagaCoord[1][1], m_afSecondNagaCoord[1][2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_SEAWITCH,  m_afSecondNagaCoord[2][0], m_afSecondNagaCoord[2][1], m_afSecondNagaCoord[2][2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_PRIESTESS, m_afSecondNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_MYRMIDON,  m_afSecondNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_SEAWITCH,  m_afSecondNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                         break;
                     case 3:
-                        me->SummonCreature(NPC_VORSHA, m_fVorshaCoord[0], m_fVorshaCoord[1], m_fVorshaCoord[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_VORSHA, m_fVorshaCoord, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                         break;
                     case 4:
                         SetEscortPaused(false);

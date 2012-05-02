@@ -27,14 +27,15 @@ EndScriptData */
 npc_mist
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedFollowerAI.h"
 
 /*####
 # npc_mist
 ####*/
 
-enum eMist
+enum Mist
 {
     SAY_AT_HOME             = -1000323,
     EMOTE_AT_HOME           = -1000324,

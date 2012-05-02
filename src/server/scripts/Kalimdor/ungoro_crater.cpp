@@ -28,11 +28,12 @@ npc_a-me
 npc_ringo
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
-enum eAMeData
+enum AmeData
 {
     SAY_READY               = -1000517,
     SAY_AGGRO1              = -1000518,
@@ -143,7 +144,7 @@ public:
 # npc_ringo
 ####*/
 
-enum eRingo
+enum Ringo
 {
     SAY_RIN_START_1             = -1000416,
     SAY_RIN_START_2             = -1000417,

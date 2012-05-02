@@ -30,9 +30,9 @@ mob_rizzle_sprysprocket
 mob_depth_charge
 EndContentData */
 
-#include "ScriptPCH.h"
-#include "World.h"
-#include "WorldPacket.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## mobs_spitelashes
@@ -179,9 +179,12 @@ public:
 # mob_rizzle_sprysprocket
 ####*/
 
-enum eRizzleSprysprocketData
+enum RizzleSprysprocketData
 {
+    QUEST_CHASING_THE_MOONSTONE     = 10994,
+    
     MOB_DEPTH_CHARGE                = 23025,
+    
     SPELL_RIZZLE_BLACKJACK          = 39865,
     SPELL_RIZZLE_ESCAPE             = 39871,
     SPELL_RIZZLE_FROST_GRENADE      = 40525,
@@ -199,67 +202,66 @@ enum eRizzleSprysprocketData
 
 #define GOSSIP_GET_MOONSTONE "Hand over the Southfury moonstone and I'll let you go."
 
-float WPs[58][4] =
+Position const WPs[58] =
 {
-//pos_x   pos_y     pos_z    orien
-{3691.97f, -3962.41f, 35.9118f, 3.67f},
-{3675.02f, -3960.49f, 35.9118f, 3.67f},
-{3653.19f, -3958.33f, 33.9118f, 3.59f},
-{3621.12f, -3958.51f, 29.9118f, 3.48f},
-{3604.86f, -3963,    29.9118f, 3.48f},
-{3569.94f, -3970.25f, 29.9118f, 3.44f},
-{3541.03f, -3975.64f, 29.9118f, 3.41f},
-{3510.84f, -3978.71f, 29.9118f, 3.41f},
-{3472.7f,  -3997.07f, 29.9118f, 3.35f},
-{3439.15f, -4014.55f, 29.9118f, 3.29f},
-{3412.8f,  -4025.87f, 29.9118f, 3.25f},
-{3384.95f, -4038.04f, 29.9118f, 3.24f},
-{3346.77f, -4052.93f, 29.9118f, 3.22f},
-{3299.56f, -4071.59f, 29.9118f, 3.20f},
-{3261.22f, -4080.38f, 30.9118f, 3.19f},
-{3220.68f, -4083.09f, 31.9118f, 3.18f},
-{3187.11f, -4070.45f, 33.9118f, 3.16f},
-{3162.78f, -4062.75f, 33.9118f, 3.15f},
-{3136.09f, -4050.32f, 33.9118f, 3.07f},
-{3119.47f, -4044.51f, 36.0363f, 3.07f},
-{3098.95f, -4019.8f,  33.9118f, 3.07f},
-{3073.07f, -4011.42f, 33.9118f, 3.07f},
-{3051.71f, -3993.37f, 33.9118f, 3.02f},
-{3027.52f, -3978.6f,  33.9118f, 3.00f},
-{3003.78f, -3960.14f, 33.9118f, 2.98f},
-{2977.99f, -3941.98f, 31.9118f, 2.96f},
-{2964.57f, -3932.07f, 30.9118f, 2.96f},
-{2947.9f,  -3921.31f, 29.9118f, 2.96f},
-{2924.91f, -3910.8f,  29.9118f, 2.94f},
-{2903.04f, -3896.42f, 29.9118f, 2.93f},
-{2884.75f, -3874.03f, 29.9118f, 2.90f},
-{2868.19f, -3851.48f, 29.9118f, 2.82f},
-{2854.62f, -3819.72f, 29.9118f, 2.80f},
-{2825.53f, -3790.4f,  29.9118f, 2.744f},
-{2804.31f, -3773.05f, 29.9118f, 2.71f},
-{2769.78f, -3763.57f, 29.9118f, 2.70f},
-{2727.23f, -3745.92f, 30.9118f, 2.69f},
-{2680.12f, -3737.49f, 30.9118f, 2.67f},
-{2647.62f, -3739.94f, 30.9118f, 2.66f},
-{2616.6f,  -3745.75f, 30.9118f, 2.64f},
-{2589.38f, -3731.97f, 30.9118f, 2.61f},
-{2562.94f, -3722.35f, 31.9118f, 2.56f},
-{2521.05f, -3716.6f,  31.9118f, 2.55f},
-{2485.26f, -3706.67f, 31.9118f, 2.51f},
-{2458.93f, -3696.67f, 31.9118f, 2.51f},
-{2432,    -3692.03f, 31.9118f, 2.46f},
-{2399.59f, -3681.97f, 31.9118f, 2.45f},
-{2357.75f, -3666.6f,  31.9118f, 2.44f},
-{2311.99f, -3656.88f, 31.9118f, 2.94f},
-{2263.41f, -3649.55f, 31.9118f, 3.02f},
-{2209.05f, -3641.76f, 31.9118f, 2.99f},
-{2164.83f, -3637.64f, 31.9118f, 3.15f},
-{2122.42f, -3639,    31.9118f, 3.21f},
-{2075.73f, -3643.59f, 31.9118f, 3.22f},
-{2033.59f, -3649.52f, 31.9118f, 3.42f},
-{1985.22f, -3662.99f, 31.9118f, 3.42f},
-{1927.09f, -3679.56f, 33.9118f, 3.42f},
-{1873.57f, -3695.32f, 33.9118f, 3.44f}
+    {3691.97f, -3962.41f, 35.9118f, 3.67f},
+    {3675.02f, -3960.49f, 35.9118f, 3.67f},
+    {3653.19f, -3958.33f, 33.9118f, 3.59f},
+    {3621.12f, -3958.51f, 29.9118f, 3.48f},
+    {3604.86f, -3963,    29.9118f, 3.48f},
+    {3569.94f, -3970.25f, 29.9118f, 3.44f},
+    {3541.03f, -3975.64f, 29.9118f, 3.41f},
+    {3510.84f, -3978.71f, 29.9118f, 3.41f},
+    {3472.7f,  -3997.07f, 29.9118f, 3.35f},
+    {3439.15f, -4014.55f, 29.9118f, 3.29f},
+    {3412.8f,  -4025.87f, 29.9118f, 3.25f},
+    {3384.95f, -4038.04f, 29.9118f, 3.24f},
+    {3346.77f, -4052.93f, 29.9118f, 3.22f},
+    {3299.56f, -4071.59f, 29.9118f, 3.20f},
+    {3261.22f, -4080.38f, 30.9118f, 3.19f},
+    {3220.68f, -4083.09f, 31.9118f, 3.18f},
+    {3187.11f, -4070.45f, 33.9118f, 3.16f},
+    {3162.78f, -4062.75f, 33.9118f, 3.15f},
+    {3136.09f, -4050.32f, 33.9118f, 3.07f},
+    {3119.47f, -4044.51f, 36.0363f, 3.07f},
+    {3098.95f, -4019.8f,  33.9118f, 3.07f},
+    {3073.07f, -4011.42f, 33.9118f, 3.07f},
+    {3051.71f, -3993.37f, 33.9118f, 3.02f},
+    {3027.52f, -3978.6f,  33.9118f, 3.00f},
+    {3003.78f, -3960.14f, 33.9118f, 2.98f},
+    {2977.99f, -3941.98f, 31.9118f, 2.96f},
+    {2964.57f, -3932.07f, 30.9118f, 2.96f},
+    {2947.9f,  -3921.31f, 29.9118f, 2.96f},
+    {2924.91f, -3910.8f,  29.9118f, 2.94f},
+    {2903.04f, -3896.42f, 29.9118f, 2.93f},
+    {2884.75f, -3874.03f, 29.9118f, 2.90f},
+    {2868.19f, -3851.48f, 29.9118f, 2.82f},
+    {2854.62f, -3819.72f, 29.9118f, 2.80f},
+    {2825.53f, -3790.4f,  29.9118f, 2.744f},
+    {2804.31f, -3773.05f, 29.9118f, 2.71f},
+    {2769.78f, -3763.57f, 29.9118f, 2.70f},
+    {2727.23f, -3745.92f, 30.9118f, 2.69f},
+    {2680.12f, -3737.49f, 30.9118f, 2.67f},
+    {2647.62f, -3739.94f, 30.9118f, 2.66f},
+    {2616.6f,  -3745.75f, 30.9118f, 2.64f},
+    {2589.38f, -3731.97f, 30.9118f, 2.61f},
+    {2562.94f, -3722.35f, 31.9118f, 2.56f},
+    {2521.05f, -3716.6f,  31.9118f, 2.55f},
+    {2485.26f, -3706.67f, 31.9118f, 2.51f},
+    {2458.93f, -3696.67f, 31.9118f, 2.51f},
+    {2432,    -3692.03f, 31.9118f, 2.46f},
+    {2399.59f, -3681.97f, 31.9118f, 2.45f},
+    {2357.75f, -3666.6f,  31.9118f, 2.44f},
+    {2311.99f, -3656.88f, 31.9118f, 2.94f},
+    {2263.41f, -3649.55f, 31.9118f, 3.02f},
+    {2209.05f, -3641.76f, 31.9118f, 2.99f},
+    {2164.83f, -3637.64f, 31.9118f, 3.15f},
+    {2122.42f, -3639,    31.9118f, 3.21f},
+    {2075.73f, -3643.59f, 31.9118f, 3.22f},
+    {2033.59f, -3649.52f, 31.9118f, 3.42f},
+    {1985.22f, -3662.99f, 31.9118f, 3.42f},
+    {1927.09f, -3679.56f, 33.9118f, 3.42f},
+    {1873.57f, -3695.32f, 33.9118f, 3.44f}
 };
 
 class mob_rizzle_sprysprocket : public CreatureScript
@@ -270,7 +272,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1 && player->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1 && player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
         {
             player->CLOSE_GOSSIP_MENU();
             creature->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
@@ -282,7 +284,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (player->GetQuestStatus(10994) != QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
             return true;
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         player->SEND_GOSSIP_MENU(10811, creature->GetGUID());
@@ -367,7 +369,7 @@ public:
                     me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
                     me->SetSpeed(MOVE_RUN, 0.85f, true);
                     me->GetMotionMaster()->MovementExpired();
-                    me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP][0], WPs[CurrWP][1], WPs[CurrWP][2]);
+                    me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
                     Escape = true;
                 } else Teleport_Timer -= diff;
 
@@ -376,7 +378,7 @@ public:
 
             if (ContinueWP)
             {
-                me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP][0], WPs[CurrWP][1], WPs[CurrWP][2]);
+                me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
                 ContinueWP = false;
             }
 
@@ -427,7 +429,7 @@ public:
             if (!who || PlayerGUID)
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER && CAST_PLR(who)->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
+            if (who->GetTypeId() == TYPEID_PLAYER && CAST_PLR(who)->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
             {
                 PlayerGUID = who->GetGUID();
                 DoScriptText(SAY_RIZZLE_START, me);

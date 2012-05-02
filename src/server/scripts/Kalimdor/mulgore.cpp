@@ -29,8 +29,9 @@ npc_kyle_frenzied
 npc_plains_vision
 EndContentData */
 
-#include "ScriptPCH.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 /*######
 # npc_skorn_whitecloud
@@ -71,7 +72,7 @@ public:
 # npc_kyle_frenzied
 ######*/
 
-enum eKyleFrenzied
+enum KyleFrenzied
 {
     //emote signed for 7780 but propably thats wrong id.
     EMOTE_SEE_LUNCH         = -1000340,
@@ -203,7 +204,7 @@ public:
 # npc_plains_vision
 ######*/
 
-float wp_plain_vision[50][3] =
+Position const wpPlainVision[50] =
 {
     {-2226.32f,  -408.095f,   -9.36235f},
     {-2203.04f,  -437.212f,   -5.72498f},
@@ -305,7 +306,7 @@ public:
         {
             if (newWaypoint)
             {
-                me->GetMotionMaster()->MovePoint(WayPointId, wp_plain_vision[WayPointId][0], wp_plain_vision[WayPointId][1], wp_plain_vision[WayPointId][2]);
+                me->GetMotionMaster()->MovePoint(WayPointId, wpPlainVision[WayPointId]);
                 newWaypoint = false;
             }
         }

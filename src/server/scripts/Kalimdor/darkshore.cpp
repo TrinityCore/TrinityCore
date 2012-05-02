@@ -29,7 +29,9 @@ npc_prospector_remtravel
 npc_threshwackonator
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
@@ -37,7 +39,7 @@ EndContentData */
 # npc_kerlonian
 ####*/
 
-enum eKerlonian
+enum Kerlonian
 {
     SAY_KER_START               = -1000434,
 
@@ -181,7 +183,7 @@ public:
 # npc_prospector_remtravel
 ####*/
 
-enum eRemtravel
+enum Remtravel
 {
     SAY_REM_START               = -1000327,
     SAY_REM_AGGRO               = -1000328,
@@ -314,7 +316,7 @@ public:
 # npc_threshwackonator
 ####*/
 
-enum eThreshwackonator
+enum Threshwackonator
 {
     EMOTE_START             = -1000325, //signed for 4966
     SAY_AT_CLOSE            = -1000326, //signed for 4966

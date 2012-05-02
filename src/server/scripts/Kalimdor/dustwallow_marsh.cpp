@@ -32,8 +32,11 @@ npc_private_hendel
 npc_cassa_crimsonwing - handled by npc_taxi
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
 ## mobs_risen_husk_spirit
@@ -132,7 +135,7 @@ class mobs_risen_husk_spirit : public CreatureScript
 ## npc_deserter_agitator
 ######*/
 
-enum eDeserter
+enum Deserter
 {
     QUEST_TRAITORS_AMONG_US                      = 11126,
     NPC_THERAMORE_DESERTER                       = 23602,
@@ -218,7 +221,7 @@ public:
 ## npc_deserter_agitator
 ######*/
 
-enum eTheramoreGuard
+enum TheramoreGuard
 {
     SAY_QUEST1                                   = -1000641,
     SAY_QUEST2                                   = -1000642,
@@ -324,7 +327,7 @@ public:
 ## npc_lady_jaina_proudmoore
 ######*/
 
-enum eLadyJaina
+enum LadyJaina
 {
     QUEST_JAINAS_AUTOGRAPH = 558,
     SPELL_JAINAS_AUTOGRAPH = 23122
@@ -367,7 +370,7 @@ public:
 ## npc_nat_pagle
 ######*/
 
-enum eNatPagle
+enum NatPagle
 {
     QUEST_NATS_MEASURING_TAPE = 8227
 };
@@ -408,7 +411,7 @@ public:
 ## npc_private_hendel
 ######*/
 
-enum eHendel
+enum Hendel
 {
     // looks like all this text ids are wrong.
     SAY_PROGRESS_1_TER          = -1000411, // signed for 3568
@@ -485,9 +488,9 @@ public:
 ## npc_zelfrax
 ######*/
 
-const Position MovePosition = {-2967.030f, -3872.1799f, 35.620f, 0.0f};
+Position const MovePosition = {-2967.030f, -3872.1799f, 35.620f, 0.0f};
 
-enum eZelfrax
+enum Zelfrax
 {
     SAY_ZELFRAX     = -1000472,
     SAY_ZELFRAX_2   = -1000473
@@ -562,7 +565,7 @@ public:
 ## npc_stinky
 ######*/
 
-enum eStinky
+enum Stinky
 {
     QUEST_STINKYS_ESCAPE_H                       = 1270,
     QUEST_STINKYS_ESCAPE_A                       = 1222,

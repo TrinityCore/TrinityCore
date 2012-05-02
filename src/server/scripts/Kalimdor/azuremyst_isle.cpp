@@ -33,15 +33,19 @@ go_ravager_cage
 npc_death_ravager
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include <cmath>
+#include "ScriptedGossip.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
 
 /*######
 ## npc_draenei_survivor
 ######*/
 
-enum eEnums
+enum draeneiSurvivor
 {
     SAY_HEAL1           = -1000176,
     SAY_HEAL2           = -1000177,
@@ -175,7 +179,7 @@ public:
 ## npc_engineer_spark_overgrind
 ######*/
 
-enum eOvergrind
+enum Overgrind
 {
     SAY_TEXT        = -1000184,
     SAY_EMOTE       = -1000185,
@@ -337,7 +341,7 @@ public:
 ## npc_magwin
 ######*/
 
-enum eMagwin
+enum Magwin
 {
     SAY_START                   = -1000111,
     SAY_AGGRO                   = -1000112,
@@ -413,7 +417,7 @@ public:
 ## npc_geezle
 ######*/
 
-enum eGeezle
+enum Geezle
 {
     QUEST_TREES_COMPANY = 9531,
 
@@ -433,7 +437,7 @@ enum eGeezle
     GO_NAGA_FLAG    = 181694
 };
 
-static float SparkPos[3] = {-5029.91f, -11291.79f, 8.096f};
+Position const SparkPos = {-5029.91f, -11291.79f, 8.096f, 0.0f};
 
 class npc_geezle : public CreatureScript
 {
@@ -469,7 +473,7 @@ public:
         {
             Step = 0;
             EventStarted = true;
-            Creature* Spark = me->SummonCreature(MOB_SPARK, SparkPos[0], SparkPos[1], SparkPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
+            Creature* Spark = me->SummonCreature(MOB_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
             if (Spark)
             {
                 SparkGUID = Spark->GetGUID();
@@ -511,7 +515,7 @@ public:
             case 9:
                 me->GetMotionMaster()->MoveTargetedHome();
                 if (Spark)
-                    Spark->GetMotionMaster()->MovePoint(0, SparkPos[0], SparkPos[1], SparkPos[2]);
+                    Spark->GetMotionMaster()->MovePoint(0, SparkPos);
                 CompleteQuest();
                 return 9000;
             case 10:
@@ -575,7 +579,7 @@ public:
 
 };
 
-enum eRavegerCage
+enum RavegerCage
 {
     NPC_DEATH_RAVAGER       = 17556,
 

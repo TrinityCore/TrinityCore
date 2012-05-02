@@ -30,10 +30,12 @@ npc_dalinda_malem
 go_demon_portal
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
-enum eDyingKodo
+enum DyingKodo
 {
     // signed for 9999
     SAY_SMEED_HOME_1                = -1000348,
@@ -175,7 +177,7 @@ public:
 ## Hand of Iruxos
 ######*/
 
-enum
+enum Iruxos
 {
     QUEST_HAND_IRUXOS   = 5381,
     NPC_DEMON_SPIRIT    = 11876,
@@ -199,7 +201,10 @@ class go_iruxos : public GameObjectScript
 ## npc_dalinda_malem. Quest 1440
 ######*/
 
-#define QUEST_RETURN_TO_VAHLARRIEL     1440
+enum Dalinda
+{
+    QUEST_RETURN_TO_VAHLARRIEL      = 1440
+};
 
 class npc_dalinda : public CreatureScript
 {
