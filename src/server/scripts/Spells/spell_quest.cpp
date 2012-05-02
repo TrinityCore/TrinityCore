@@ -275,7 +275,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetTargetUnit())
+                if (Unit* target = GetExplTargetUnit())
                     if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                         // Make sure nobody else is channeling the same target
                         if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
