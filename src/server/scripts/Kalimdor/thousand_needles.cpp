@@ -59,10 +59,9 @@ public:
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
         if (quest->GetQuestId() == QUEST_PROTECT_KANATI)
-        {
             if (npc_kanatiAI* pEscortAI = CAST_AI(npc_kanati::npc_kanatiAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest, true);
-        }
+
         return true;
     }
 
@@ -75,7 +74,7 @@ public:
     {
         npc_kanatiAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() { }
+        void Reset() {}
 
         void WaypointReached(uint32 waypointId)
         {
@@ -164,7 +163,7 @@ public:
     {
         npc_lakota_windsongAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() { }
+        void Reset() {}
 
         void WaypointReached(uint32 waypointId)
         {
@@ -189,10 +188,10 @@ public:
             }
         }
 
-        void DoSpawnBandits(int uiAmbushId)
+        void DoSpawnBandits(int AmbushId)
         {
             for (int i = 0; i < 2; ++i)
-                me->SummonCreature(NPC_GRIM_BANDIT, BanditLoc[i+uiAmbushId], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+                me->SummonCreature(NPC_GRIM_BANDIT, BanditLoc[i+AmbushId], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         }
     };
 
@@ -215,9 +214,9 @@ enum Packa
 
 Position const WyvernLoc[3] =
 {
-    {-4990.606f, -906.057f, -5.343f},
-    {-4970.241f, -927.378f, -4.951f},
-    {-4985.364f, -952.528f, -5.199f}
+    {-4990.606f, -906.057f, -5.343f, 0.0f},
+    {-4970.241f, -927.378f, -4.951f, 0.0f},
+    {-4985.364f, -952.528f, -5.199f, 0.0f}
 };
 
 class npc_paoka_swiftmountain : public CreatureScript
@@ -247,7 +246,7 @@ public:
     {
         npc_paoka_swiftmountainAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() { }
+        void Reset() {}
 
         void WaypointReached(uint32 waypointId)
         {
@@ -324,17 +323,17 @@ public:
 
     struct npc_pluckyAI : public ScriptedAI
     {
-        npc_pluckyAI(Creature* creature) : ScriptedAI(creature) { m_uiNormFaction = creature->getFaction(); }
+        npc_pluckyAI(Creature* creature) : ScriptedAI(creature) { NormFaction = creature->getFaction(); }
 
-        uint32 m_uiNormFaction;
-        uint32 m_uiResetTimer;
+        uint32 NormFaction;
+        uint32 ResetTimer;
 
         void Reset()
         {
-            m_uiResetTimer = 120000;
+            ResetTimer = 120000;
 
-            if (me->getFaction() != m_uiNormFaction)
-                me->setFaction(m_uiNormFaction);
+            if (me->getFaction() != NormFaction)
+                me->setFaction(NormFaction);
 
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -342,11 +341,11 @@ public:
             DoCast(me, SPELL_PLUCKY_CHICKEN, false);
         }
 
-        void ReceiveEmote(Player* player, uint32 uiTextEmote)
+        void ReceiveEmote(Player* player, uint32 TextEmote)
         {
             if (player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
             {
-                if (uiTextEmote == TEXT_EMOTE_BECKON)
+                if (TextEmote == TEXT_EMOTE_BECKON)
                 {
                     me->setFaction(FACTION_FRIENDLY);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -354,7 +353,7 @@ public:
                 }
             }
 
-            if (uiTextEmote == TEXT_EMOTE_CHICKEN)
+            if (TextEmote == TEXT_EMOTE_CHICKEN)
             {
                 if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                     return;
@@ -368,11 +367,11 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 Diff)
         {
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
             {
-                if (m_uiResetTimer <= uiDiff)
+                if (ResetTimer <= Diff)
                 {
                     if (!me->getVictim())
                         EnterEvadeMode();
@@ -382,7 +381,7 @@ public:
                     return;
                 }
                 else
-                    m_uiResetTimer -= uiDiff;
+                    ResetTimer -= Diff;
             }
 
             if (!UpdateVictim())

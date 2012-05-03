@@ -1044,7 +1044,7 @@ class spell_algalon_phase_punch : public SpellScriptLoader
         {
             PrepareAuraScript(spell_algalon_phase_punch_AuraScript);
 
-            void HandlePeriodic(AuraEffect const* aurEff)
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (GetStackAmount() != 1)

@@ -79,32 +79,31 @@ class npc_torek : public CreatureScript
 
             void WaypointReached(uint32 waypointId)
             {
-                Player* player = GetPlayerForEscort();
-                if (!player)
-                    return;
-
-                switch (waypointId)
+                if (Player* player = GetPlayerForEscort())
                 {
-                    case 1:
-                        Talk(SAY_MOVE, player->GetGUID());
-                        break;
-                    case 8:
-                        Talk(SAY_PREPARE, player->GetGUID());
-                        break;
-                    case 19:
-                        //TODO: verify location and creatures amount.
-                        me->SummonCreature(ENTRY_DURIEL, 1776.73f, -2049.06f, 109.83f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        me->SummonCreature(ENTRY_SILVERWING_SENTINEL, 1774.64f, -2049.41f, 109.83f, 1.40f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        break;
-                    case 20:
-                        DoScriptText(SAY_WIN, me, player);
-                        Completed = true;
-                        player->GroupEventHappens(QUEST_TOREK_ASSULT, me);
-                        break;
-                    case 21:
-                        Talk(SAY_END, player->GetGUID());
-                        break;
+                    switch (waypointId)
+                    {
+                        case 1:
+                            Talk(SAY_MOVE, player->GetGUID());
+                            break;
+                        case 8:
+                            Talk(SAY_PREPARE, player->GetGUID());
+                            break;
+                        case 19:
+                            //TODO: verify location and creatures amount.
+                            me->SummonCreature(ENTRY_DURIEL, 1776.73f, -2049.06f, 109.83f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                            me->SummonCreature(ENTRY_SILVERWING_SENTINEL, 1774.64f, -2049.41f, 109.83f, 1.40f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                            me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                            break;
+                        case 20:
+                            DoScriptText(SAY_WIN, me, player);
+                            Completed = true;
+                            player->GroupEventHappens(QUEST_TOREK_ASSULT, me);
+                            break;
+                        case 21:
+                            Talk(SAY_END, player->GetGUID());
+                            break;
+                    }
                 }
             }
 
@@ -233,8 +232,7 @@ class npc_ruul_snowhoof : public CreatureScript
 
             void Reset()
             {
-                GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
-                if (Cage)
+                if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                     Cage->SetGoState(GO_STATE_READY);
             }
 
@@ -297,21 +295,21 @@ enum Muglash
     NPC_MUGLASH             = 12717
 };
 
-Position const m_afFirstNagaCoord[3] =
+Position const FirstNagaCoord[3] =
 {
     {3603.504150f, 1122.631104f, 1.635f, 0.0f},         // rider
     {3589.293945f, 1148.664063f, 5.565f, 0.0f},         // sorceress
     {3609.925537f, 1168.759521f, -1.168f, 0.0f}         // razortail
 };
 
-Position const m_afSecondNagaCoord[3] =
+Position const SecondNagaCoord[3] =
 {
     {3609.925537f, 1168.759521f, -1.168f, 0.0f},        // witch
     {3645.652100f, 1139.425415f, 1.322f, 0.0f},         // priest
     {3583.602051f, 1128.405762f, 2.347f, 0.0f}          // myrmidon
 };
 
-Position const m_fVorshaCoord = {3633.056885f, 1172.924072f, -5.388f, 0.0f};
+Position const VorshaCoord = {3633.056885f, 1172.924072f, -5.388f, 0.0f};
 
 class npc_muglash : public CreatureScript
 {
@@ -322,9 +320,9 @@ class npc_muglash : public CreatureScript
         {
             npc_muglashAI(Creature* creature) : npc_escortAI(creature) { }
 
-            uint32 m_uiWaveId;
-            uint32 m_uiEventTimer;
-            bool m_bIsBrazierExtinguished;
+            uint8 WaveId;
+            uint32 EventTimer;
+            bool IsBrazierExtinguished;
 
             void JustSummoned(Creature* summoned)
             {
@@ -333,34 +331,33 @@ class npc_muglash : public CreatureScript
 
             void WaypointReached(uint32 waypointId)
             {
-                Player* player = GetPlayerForEscort();
-
-                switch (waypointId)
+                if (Player* player = GetPlayerForEscort())
                 {
-                    case 0:
-                        if (player)
+                    switch (waypointId)
+                    {
+                        case 0:
                             DoScriptText(SAY_MUG_START2, me, player);
-                        break;
-                    case 24:
-                        if (player)
+                            break;
+                        case 24:
                             DoScriptText(SAY_MUG_BRAZIER, me, player);
 
-                        if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
-                        {
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            SetEscortPaused(true);
-                        }
-                        break;
-                    case 25:
-                        DoScriptText(SAY_MUG_GRATITUDE, me);
-                        player->GroupEventHappens(QUEST_VORSHA, me);
-                        break;
-                    case 26:
-                        DoScriptText(SAY_MUG_PATROL, me);
-                        break;
-                    case 27:
-                        DoScriptText(SAY_MUG_RETURN, me);
-                        break;
+                            if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
+                            {
+                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                SetEscortPaused(true);
+                            }
+                            break;
+                        case 25:
+                            DoScriptText(SAY_MUG_GRATITUDE, me);
+                            player->GroupEventHappens(QUEST_VORSHA, me);
+                            break;
+                        case 26:
+                            DoScriptText(SAY_MUG_PATROL, me);
+                            break;
+                        case 27:
+                            DoScriptText(SAY_MUG_RETURN, me);
+                            break;
+                    }
                 }
             }
 
@@ -377,9 +374,9 @@ class npc_muglash : public CreatureScript
 
             void Reset()
             {
-                m_uiEventTimer = 10000;
-                m_uiWaveId = 0;
-                m_bIsBrazierExtinguished = false;
+                EventTimer = 10000;
+                WaveId = 0;
+                IsBrazierExtinguished = false;
             }
 
             void JustDied(Unit* /*killer*/)
@@ -391,20 +388,20 @@ class npc_muglash : public CreatureScript
 
             void DoWaveSummon()
             {
-                switch (m_uiWaveId)
+                switch (WaveId)
                 {
                     case 1:
-                        me->SummonCreature(NPC_WRATH_RIDER,     m_afFirstNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_SORCERESS, m_afFirstNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_RAZORTAIL, m_afFirstNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_RIDER,     FirstNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_SORCERESS, FirstNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_RAZORTAIL, FirstNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                         break;
                     case 2:
-                        me->SummonCreature(NPC_WRATH_PRIESTESS, m_afSecondNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_MYRMIDON,  m_afSecondNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                        me->SummonCreature(NPC_WRATH_SEAWITCH,  m_afSecondNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_PRIESTESS, SecondNagaCoord[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_MYRMIDON,  SecondNagaCoord[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_WRATH_SEAWITCH,  SecondNagaCoord[2], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                         break;
                     case 3:
-                        me->SummonCreature(NPC_VORSHA, m_fVorshaCoord, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        me->SummonCreature(NPC_VORSHA, VorshaCoord, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                         break;
                     case 4:
                         SetEscortPaused(false);
@@ -419,16 +416,16 @@ class npc_muglash : public CreatureScript
 
                 if (!me->getVictim())
                 {
-                    if (HasEscortState(STATE_ESCORT_PAUSED) && m_bIsBrazierExtinguished)
+                    if (HasEscortState(STATE_ESCORT_PAUSED) && IsBrazierExtinguished)
                     {
-                        if (m_uiEventTimer < uiDiff)
+                        if (EventTimer < uiDiff)
                         {
-                            ++m_uiWaveId;
+                            ++WaveId;
                             DoWaveSummon();
-                            m_uiEventTimer = 10000;
+                            EventTimer = 10000;
                         }
                         else
-                            m_uiEventTimer -= uiDiff;
+                            EventTimer -= uiDiff;
                     }
                     return;
                 }
@@ -470,7 +467,7 @@ class go_naga_brazier : public GameObjectScript
                 {
                     DoScriptText(SAY_MUG_BRAZIER_WAIT, creature);
 
-                    pEscortAI->m_bIsBrazierExtinguished = true;
+                    pEscortAI->IsBrazierExtinguished = true;
                     return false;
                 }
             }

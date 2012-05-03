@@ -52,10 +52,8 @@ public:
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_MIST)
-        {
             if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, creature->AI()))
                 pMistAI->StartFollow(player, FACTION_DARNASSUS, quest);
-        }
 
         return true;
     }
@@ -89,18 +87,16 @@ public:
         {
             DoScriptText(EMOTE_AT_HOME, me);
 
-            if (Player* player = GetLeaderForFollower())
-            {
-                if (player->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
-                    player->GroupEventHappens(QUEST_MIST, me);
-            }
+            Player* player = GetLeaderForFollower();
+            if (player && player->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
+                player->GroupEventHappens(QUEST_MIST, me);
 
             //The follow is over (and for later development, run off to the woods before really end)
             SetFollowComplete();
         }
 
         //call not needed here, no known abilities
-        /*void UpdateFollowerAI(const uint32 uiDiff)
+        /*void UpdateFollowerAI(const uint32 Diff)
         {
             if (!UpdateVictim())
                 return;

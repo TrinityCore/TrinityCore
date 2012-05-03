@@ -298,14 +298,14 @@ public:
     public:
         npc_clintar_spiritAI(Creature* creature) : npc_escortAI(creature) {}
 
-        uint32 Step;
+        uint8 Step;
         uint32 CurrWP;
-        uint32 Event_Timer;
-        uint32 checkPlayer_Timer;
+        uint32 EventTimer;
+        uint32 checkPlayerTimer;
 
         uint64 PlayerGUID;
 
-        bool Event_onWait;
+        bool EventOnWait;
 
         void Reset()
         {
@@ -313,10 +313,10 @@ public:
             {
                 Step = 0;
                 CurrWP = 0;
-                Event_Timer = 0;
+                EventTimer = 0;
                 PlayerGUID = 0;
-                checkPlayer_Timer = 1000;
-                Event_onWait = false;
+                checkPlayerTimer = 1000;
+                EventOnWait = false;
             }
         }
 
@@ -347,8 +347,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            uint32 rnd = rand()%2;
-            switch (rnd)
+            switch (urand(0, 1))
             {
                 case 0: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1, me, who); break;
                 case 1: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2, me, who); break;
@@ -357,9 +356,7 @@ public:
 
         void StartEvent(Player* player)
         {
-            if (!player)
-                return;
-            if (player->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
+            if (player && player->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
             {
                 for (uint8 i = 0; i < 41; ++i)
                 {
@@ -381,18 +378,18 @@ public:
                 return;
             }
 
-            if (!me->isInCombat() && !Event_onWait)
+            if (!me->isInCombat() && !EventOnWait)
             {
-                if (checkPlayer_Timer <= diff)
+                if (checkPlayerTimer <= diff)
                 {
                     Player* player = Unit::GetPlayer(*me, PlayerGUID);
                     if (player && player->isInCombat() && player->getAttackerForHelper())
                         AttackStart(player->getAttackerForHelper());
-                    checkPlayer_Timer = 1000;
-                } else checkPlayer_Timer -= diff;
+                    checkPlayerTimer = 1000;
+                } else checkPlayerTimer -= diff;
             }
 
-            if (Event_onWait && Event_Timer <= diff)
+            if (EventOnWait && EventTimer <= diff)
             {
 
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
@@ -409,11 +406,11 @@ public:
                         {
                             case 0:
                                 me->Say(CLINTAR_SPIRIT_SAY_START, 0, PlayerGUID);
-                                Event_Timer = 8000;
+                                EventTimer = 8000;
                                 Step = 1;
                                 break;
                             case 1:
-                                Event_onWait = false;
+                                EventOnWait = false;
                                 break;
                         }
                         break;
@@ -422,13 +419,13 @@ public:
                         {
                             case 0:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
-                                Event_Timer = 5000;
+                                EventTimer = 5000;
                                 Step = 1;
                                 break;
                             case 1:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                                 DoScriptText(CLINTAR_SPIRIT_SAY_GET_ONE, me, player);
-                                Event_onWait = false;
+                                EventOnWait = false;
                                 break;
                         }
                         break;
@@ -437,12 +434,12 @@ public:
                         {
                             case 0:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
-                                Event_Timer = 5000;
+                                EventTimer = 5000;
                                 Step = 1;
                                 break;
                             case 1:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                                Event_onWait = false;
+                                EventOnWait = false;
                                 break;
                         }
                         break;
@@ -451,11 +448,11 @@ public:
                         {
                             case 0:
                                 DoScriptText(CLINTAR_SPIRIT_SAY_GET_TWO, me, player);
-                                Event_Timer = 15000;
+                                EventTimer = 15000;
                                 Step = 1;
                                 break;
                             case 1:
-                                Event_onWait = false;
+                                EventOnWait = false;
                                 break;
                         }
                         break;
@@ -463,19 +460,16 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                {
-                                Creature* mob = me->SummonCreature(ASPECT_RAVEN, AspectRavenSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
-                                if (mob)
+                                if (Creature* mob = me->SummonCreature(ASPECT_RAVEN, AspectRavenSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
                                 {
                                     mob->AddThreat(me, 10000.0f);
                                     mob->AI()->AttackStart(me);
                                 }
-                                Event_Timer = 2000;
+                                EventTimer = 2000;
                                 Step = 1;
                                 break;
-                                }
                             case 1:
-                                Event_onWait = false;
+                                EventOnWait = false;
                                 break;
                         }
                         break;
@@ -484,12 +478,12 @@ public:
                         {
                             case 0:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
-                                Event_Timer = 5000;
+                                EventTimer = 5000;
                                 Step = 1;
                                 break;
                             case 1:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                                Event_onWait = false;
+                                EventOnWait = false;
                                 break;
                         }
                         break;
@@ -498,11 +492,11 @@ public:
                         {
                             case 0:
                                 DoScriptText(CLINTAR_SPIRIT_SAY_GET_THREE, me, player);
-                                Event_Timer = 4000;
+                                EventTimer = 4000;
                                 Step = 1;
                                 break;
                             case 1:
-                                Event_onWait = false;
+                                EventOnWait = false;
                                 break;
                         }
                         break;
@@ -513,12 +507,12 @@ public:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 2);
                                 DoScriptText(CLINTAR_SPIRIT_SAY_GET_FINAL, me, player);
                                 player->CompleteQuest(10965);
-                                Event_Timer = 1500;
+                                EventTimer = 1500;
                                 Step = 1;
                                 break;
                             case 1:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                                Event_Timer = 3000;
+                                EventTimer = 3000;
                                 Step = 2;
                                 break;
                             case 2:
@@ -530,19 +524,19 @@ public:
                         }
                         break;
                     default:
-                        Event_onWait = false;
+                        EventOnWait = false;
                         break;
                 }
 
-            } else if (Event_onWait) Event_Timer -= diff;
+            } else if (EventOnWait) EventTimer -= diff;
         }
 
         void WaypointReached(uint32 waypointId)
         {
             CurrWP = waypointId;
-            Event_Timer = 0;
+            EventTimer = 0;
             Step = 0;
-            Event_onWait = true;
+            EventOnWait = true;
         }
     };
 
@@ -565,11 +559,8 @@ public:
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == 10965)
-        {
-            Creature* clintar_spirit = creature->SummonCreature(CLINTAR_SPIRIT, ClintarSpiritSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
-            if (clintar_spirit)
+            if (Creature* clintar_spirit = creature->SummonCreature(CLINTAR_SPIRIT, ClintarSpiritSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000))
                 CAST_AI(npc_clintar_spirit::npc_clintar_spiritAI, clintar_spirit->AI())->StartEvent(player);
-        }
         return true;
     }
 

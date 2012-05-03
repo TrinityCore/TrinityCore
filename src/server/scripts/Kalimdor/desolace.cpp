@@ -116,11 +116,11 @@ public:
     {
         npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
 
-        uint32 m_uiDespawnTimer;
+        uint32 DespawnTimer;
 
         void Reset()
         {
-            m_uiDespawnTimer = 0;
+            DespawnTimer = 0;
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -145,14 +145,14 @@ public:
             if (pSpell->Id == SPELL_KODO_KOMBO_GOSSIP)
             {
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                m_uiDespawnTimer = 60000;
+                DespawnTimer = 60000;
             }
         }
 
         void UpdateAI(const uint32 diff)
         {
             //timer should always be == 0 unless we already updated entry of creature. Then not expect this updated to ever be in combat.
-            if (m_uiDespawnTimer && m_uiDespawnTimer <= diff)
+            if (DespawnTimer && DespawnTimer <= diff)
             {
                 if (!me->getVictim() && me->isAlive())
                 {
@@ -161,7 +161,7 @@ public:
                     me->Respawn();
                     return;
                 }
-            } else m_uiDespawnTimer -= diff;
+            } else DespawnTimer -= diff;
 
             if (!UpdateVictim())
                 return;
@@ -260,9 +260,9 @@ public:
             return;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 Diff)
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            npc_escortAI::UpdateAI(Diff);
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();

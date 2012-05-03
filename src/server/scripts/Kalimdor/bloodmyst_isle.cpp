@@ -53,13 +53,9 @@ public:
     {
         mob_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
-        {
-        }
+        void Reset() {}
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void JustDied(Unit* killer)
         {

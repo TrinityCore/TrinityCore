@@ -206,12 +206,12 @@ public:
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiId)
+        void MovementInform(uint32 Type, uint32 Id)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
-            if (uiId == 1)
+            if (Id == 1)
                 me->DisappearAndDie();
         }
     };
@@ -269,7 +269,7 @@ public:
             DoScriptText(SAY_QUEST1, creature);
             creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
             creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->uiYellTimer = 4000;
+            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->YellTimer = 4000;
             CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->bYellTimer = true;
         }
 
@@ -285,40 +285,40 @@ public:
     {
         npc_theramore_guardAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 uiYellTimer;
-        uint32 uiStep;
+        uint32 YellTimer;
+        uint32 Step;
         bool bYellTimer;
 
         void Reset()
         {
             bYellTimer = false;
-            uiStep = 0;
+            Step = 0;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 Diff)
         {
             if (!me->HasAura(SPELL_PROPAGANDIZED))
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            if (bYellTimer && uiYellTimer <= uiDiff)
+            if (bYellTimer && YellTimer <= Diff)
             {
-                switch (uiStep)
+                switch (Step)
                 {
                     case 0:
                         DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);
-                        uiYellTimer = 3000;
-                        ++uiStep;
+                        YellTimer = 3000;
+                        ++Step;
                         break;
                     case 1:
                         DoScriptText(RAND(SAY_QUEST7, SAY_QUEST8, SAY_QUEST9), me);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        uiStep = 0;
+                        Step = 0;
                         bYellTimer = false;
                         break;
                 }
             }
             else
-                uiYellTimer -= uiDiff;
+                YellTimer -= Diff;
         }
     };
 };
@@ -467,11 +467,11 @@ public:
             AttackStart(pAttacker);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32 &Damage)
         {
-            if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(20, uiDamage))
+            if (Damage > me->GetHealth() || me->HealthBelowPctDamaged(20, Damage))
             {
-                uiDamage = 0;
+                Damage = 0;
 
                 if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
                     player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
@@ -528,9 +528,9 @@ public:
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 Type, uint32 /*Id*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
             me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -550,7 +550,7 @@ public:
             DoScriptText(SAY_ZELFRAX_2, me);
         }
 
-        void UpdateAI(uint32 const /*uiDiff*/)
+        void UpdateAI(uint32 const /*Diff*/)
         {
             if (!UpdateVictim())
                 return;

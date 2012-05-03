@@ -67,16 +67,16 @@ public:
 
         bool CanTalk;
         bool CanEmote;
-        uint32 Salute_Timer;
-        uint32 Reset_Timer;
+        uint32 SaluteTimer;
+        uint32 ResetTimer;
         uint64 PlayerGUID;
 
         void Reset()
         {
             CanTalk = false;
             CanEmote = false;
-            Salute_Timer = 6000;
-            Reset_Timer = 0;
+            SaluteTimer = 6000;
+            ResetTimer = 0;
             PlayerGUID = 0;
         }
 
@@ -86,7 +86,7 @@ public:
         {
             if (CanEmote)
             {
-                if (Reset_Timer <= diff)
+                if (ResetTimer <= diff)
                 {
                     if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
                     {
@@ -94,17 +94,17 @@ public:
                             player->FailQuest(QUEST_SHATTERED_SALUTE);
                     }
                     Reset();
-                } else Reset_Timer -= diff;
+                } else ResetTimer -= diff;
             }
 
             if (CanTalk && !CanEmote)
             {
-                if (Salute_Timer <= diff)
+                if (SaluteTimer <= diff)
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     CanEmote = true;
-                    Reset_Timer = 60000;
-                } else Salute_Timer -= diff;
+                    ResetTimer = 60000;
+                } else SaluteTimer -= diff;
             }
 
             if (!UpdateVictim())
@@ -212,13 +212,13 @@ public:
     {
         npc_thrall_warchiefAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 ChainLightning_Timer;
-        uint32 Shock_Timer;
+        uint32 ChainLightningTimer;
+        uint32 ShockTimer;
 
         void Reset()
         {
-            ChainLightning_Timer = 2000;
-            Shock_Timer = 8000;
+            ChainLightningTimer = 2000;
+            ShockTimer = 8000;
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -228,17 +228,17 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (ChainLightning_Timer <= diff)
+            if (ChainLightningTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
-                ChainLightning_Timer = 9000;
-            } else ChainLightning_Timer -= diff;
+                ChainLightningTimer = 9000;
+            } else ChainLightningTimer -= diff;
 
-            if (Shock_Timer <= diff)
+            if (ShockTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SHOCK);
-                Shock_Timer = 15000;
-            } else Shock_Timer -= diff;
+                ShockTimer = 15000;
+            } else ShockTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

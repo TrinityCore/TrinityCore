@@ -276,8 +276,8 @@ public:
         {
             player->CLOSE_GOSSIP_MENU();
             creature->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
-            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, creature->AI())->Must_Die_Timer = 3000;
-            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, creature->AI())->Must_Die = true;
+            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, creature->AI())->MustDieTimer = 3000;
+            CAST_AI(mob_rizzle_sprysprocket::mob_rizzle_sprysprocketAI, creature->AI())->MustDie = true;
         }
         return true;
     }
@@ -300,32 +300,32 @@ public:
     {
         mob_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 spellEscape_Timer;
-        uint32 Teleport_Timer;
-        uint32 Check_Timer;
-        uint32 Grenade_Timer;
-        uint32 Must_Die_Timer;
+        uint32 SpellEscapeTimer;
+        uint32 TeleportTimer;
+        uint32 CheckTimer;
+        uint32 GrenadeTimer;
+        uint32 MustDieTimer;
         uint32 CurrWP;
 
         uint64 PlayerGUID;
 
-        bool Must_Die;
+        bool MustDie;
         bool Escape;
         bool ContinueWP;
         bool Reached;
 
         void Reset()
         {
-            spellEscape_Timer = 1300;
-            Teleport_Timer = 3500;
-            Check_Timer = 10000;
-            Grenade_Timer = 30000;
-            Must_Die_Timer = 3000;
+            SpellEscapeTimer = 1300;
+            TeleportTimer = 3500;
+            CheckTimer = 10000;
+            GrenadeTimer = 30000;
+            MustDieTimer = 3000;
             CurrWP = 0;
 
             PlayerGUID = 0;
 
-            Must_Die = false;
+            MustDie = false;
             Escape = false;
             ContinueWP = false;
             Reached = false;
@@ -333,13 +333,13 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (Must_Die)
+            if (MustDie)
             {
-                if (Must_Die_Timer <= diff)
+                if (MustDieTimer <= diff)
                 {
                     me->DespawnOrUnsummon();
                     return;
-                } else Must_Die_Timer -= diff;
+                } else MustDieTimer -= diff;
             }
 
             if (!Escape)
@@ -347,17 +347,16 @@ public:
                 if (!PlayerGUID)
                     return;
 
-                if (spellEscape_Timer <= diff)
+                if (SpellEscapeTimer <= diff)
                 {
                     DoCast(me, SPELL_RIZZLE_ESCAPE, false);
-                    spellEscape_Timer = 10000;
-                } else spellEscape_Timer -= diff;
+                    SpellEscapeTimer = 10000;
+                } else SpellEscapeTimer -= diff;
 
-                if (Teleport_Timer <= diff)
+                if (TeleportTimer <= diff)
                 {
                     //temp solution - unit can't be teleported by core using spelleffect 5, only players
-                    Map* map = me->GetMap();
-                    if (map)
+                    if (me->GetMap())
                     {
                         me->SetPosition(3706.39f, -3969.15f, 35.9118f, 0);
                         me->AI_SendMoveToPacket(3706.39f, -3969.15f, 35.9118f, 0, 0, 0);
@@ -371,7 +370,7 @@ public:
                     me->GetMotionMaster()->MovementExpired();
                     me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
                     Escape = true;
-                } else Teleport_Timer -= diff;
+                } else TeleportTimer -= diff;
 
                 return;
             }
@@ -382,7 +381,7 @@ public:
                 ContinueWP = false;
             }
 
-            if (Grenade_Timer <= diff)
+            if (GrenadeTimer <= diff)
             {
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
                 if (player)
@@ -390,10 +389,10 @@ public:
                    DoScriptText(SAY_RIZZLE_GRENADE, me, player);
                    DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
-                Grenade_Timer = 30000;
-            } else Grenade_Timer -= diff;
+                GrenadeTimer = 30000;
+            } else GrenadeTimer -= diff;
 
-            if (Check_Timer <= diff)
+            if (CheckTimer <= diff)
             {
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
                 if (!player)
@@ -412,8 +411,8 @@ public:
                     Reached = true;
                 }
 
-                Check_Timer = 1000;
-            } else Check_Timer -= diff;
+                CheckTimer = 1000;
+            } else CheckTimer -= diff;
 
         }
 
@@ -474,25 +473,25 @@ public:
     {
         mob_depth_chargeAI(Creature* creature) : ScriptedAI(creature) {}
 
-        bool we_must_die;
-        uint32 must_die_timer;
+        bool WeMustDie;
+        uint32 WeMustDieTimer;
 
         void Reset()
         {
             me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            we_must_die = false;
-            must_die_timer = 1000;
+            WeMustDie = false;
+            WeMustDieTimer = 1000;
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (we_must_die)
+            if (WeMustDie)
             {
-                if (must_die_timer <= diff)
-                {
+                if (WeMustDieTimer <= diff)
                     me->DespawnOrUnsummon();
-                } else must_die_timer -= diff;
+                else 
+                    WeMustDieTimer -= diff;
             }
             return;
         }
@@ -505,18 +504,14 @@ public:
             if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 5))
             {
                 DoCast(who, SPELL_DEPTH_CHARGE_TRAP);
-                we_must_die = true;
+                WeMustDie = true;
                 return;
             }
         }
 
-        void AttackStart(Unit* /*who*/)
-        {
-        }
+        void AttackStart(Unit* /*who*/) {}
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
     };
 };
 
