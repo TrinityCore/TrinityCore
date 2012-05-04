@@ -1128,7 +1128,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     stmt->setUInt8(index++, uint8(GetDefaultMovementType()));
     stmt->setUInt32(index++, npcflag);
     stmt->setUInt32(index++, unit_flags);
-    stmt->setUInt32(index, dynamicflags);
+    stmt->setUInt32(index++, dynamicflags);
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
