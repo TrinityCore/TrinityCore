@@ -598,7 +598,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             }
             break;
         case SPELL_AURA_PERIODIC_DAMAGE:
-            m_canBeRecalculated = true;
             if (!caster)
                 break;
             // Rupture
@@ -660,9 +659,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 amount = int32((float)amount / GetTotalTicks());
             }
             break;
-        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-            m_canBeRecalculated = true;
-            break;
         case SPELL_AURA_PERIODIC_ENERGIZE:
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
             {
@@ -679,7 +675,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 ApplyPctU(amount, GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA));
             break;
         case SPELL_AURA_PERIODIC_HEAL:
-            m_canBeRecalculated = true;
             if (!caster)
                 break;
             // Lightwell Renew
@@ -6202,10 +6197,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster)
 
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {
-        if (m_canBeRecalculated)
-            SetAmount(caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount()));
-
-        damage = target->SpellDamageBonusTaken(GetSpellInfo(), GetAmount(), DOT, GetBase()->GetStackAmount());
+        damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
+        damage = target->SpellDamageBonusTaken(GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
         // Calculate armor mitigation
         if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
@@ -6316,10 +6309,8 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster)
 
     uint32 damage = std::max(GetAmount(), 0);
 
-    if (m_canBeRecalculated)
-        SetAmount(caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount()));
-
-    damage = target->SpellDamageBonusTaken(GetSpellInfo(), GetAmount(), DOT, GetBase()->GetStackAmount());
+    damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
+    damage = target->SpellDamageBonusTaken(GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
     bool crit = IsPeriodicTickCrit(target, caster);
     if (crit)
@@ -6466,10 +6457,8 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster)
             damage += addition;
         }
 
-        if (m_canBeRecalculated)
-            SetAmount(caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount()));
-
-        damage = target->SpellHealingBonusTaken(GetSpellInfo(), GetAmount(), DOT, GetBase()->GetStackAmount());
+        damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
+        damage = target->SpellHealingBonusTaken(GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
     }
 
     bool crit = IsPeriodicTickCrit(target, caster);
