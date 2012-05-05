@@ -18892,7 +18892,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setUInt8(index++, IsInWorld() ? 1 : 0);
         // Index
-        stmt->setUInt32(index++, GetGUIDLow());
+        stmt->setUInt32(index, GetGUIDLow());
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
