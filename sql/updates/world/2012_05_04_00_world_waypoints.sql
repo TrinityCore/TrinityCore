@@ -1,4 +1,4 @@
--- Thrallamar Grunt pathing
+-- Thrallmar Grunt pathing
 SET @NPC := 57505;
 SET @PATH := @NPC*10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=168.3949,`position_y`=2641.357,`position_z`=86.32077 WHERE `guid`=@NPC;
@@ -34,7 +34,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,27,130.0859,2666.262,84.1262,0,0,0,100,0),
 (@PATH,28,153.1291,2650.22,86.15128,0,0,0,100,0);
 
--- Remove dup Thrallamar Grunt spawn
+-- Remove dup Thrallmar Grunt spawn
 DELETE FROM `creature` WHERE `guid`=57532;
 DELETE FROM `creature_addon` WHERE `guid`=57532;
 
