@@ -91,7 +91,12 @@ AccountOpResult DeleteAccount(uint32 accountId)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_TUTORIALS);
     stmt->setUInt32(0, accountId);
     CharacterDatabase.Execute(stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_DATA);
+    stmt->setUInt32(0, accountId);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_BAN);
     stmt->setUInt32(0, accountId);
     CharacterDatabase.Execute(stmt);
 
@@ -106,6 +111,10 @@ AccountOpResult DeleteAccount(uint32 accountId)
     trans->Append(stmt);
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS);
+    stmt->setUInt32(0, accountId);
+    trans->Append(stmt);
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_BANNED);
     stmt->setUInt32(0, accountId);
     trans->Append(stmt);
 
