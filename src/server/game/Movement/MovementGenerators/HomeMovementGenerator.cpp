@@ -25,7 +25,6 @@
 
 void HomeMovementGenerator<Creature>::Initialize(Creature & owner)
 {
-    owner.AddUnitState(UNIT_STATE_EVADE);
     _setTargetLocation(owner);
 }
 
