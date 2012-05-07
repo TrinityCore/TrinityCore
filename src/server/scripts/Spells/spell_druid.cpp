@@ -28,7 +28,9 @@
 enum DruidSpells
 {
     DRUID_INCREASED_MOONFIRE_DURATION   = 38414,
-    DRUID_NATURES_SPLENDOR              = 57865
+    DRUID_NATURES_SPLENDOR              = 57865,
+    DRUID_LIFEBLOOM_FINAL_HEAL          = 33778,
+    DRUID_LIFEBLOOM_ENERGIZE            = 64372
 };
 
 // 54846 Glyph of Starfire
@@ -367,6 +369,83 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
         }
 };
 
+class spell_dru_lifebloom : public SpellScriptLoader
+{
+    public:
+        spell_dru_lifebloom() : SpellScriptLoader("spell_dru_lifebloom") { }
+
+        class spell_dru_lifebloom_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_lifebloom_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(DRUID_LIFEBLOOM_FINAL_HEAL))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(DRUID_LIFEBLOOM_ENERGIZE))
+                    return false;
+                return true;
+            }
+
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                // Final heal only on duration end
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                // final heal
+                int32 stack = GetStackAmount();
+                int32 healAmount = aurEff->GetAmount();
+                Unit* caster = GetCaster();
+                if (caster)
+                    healAmount = caster->SpellHealingBonus(GetTarget(), GetSpellInfo(), healAmount, HEAL, stack);
+                GetTarget()->CastCustomSpell(GetTarget(), DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+
+                // restore mana
+                if (caster)
+                {
+                    int32 returnMana = CalculatePctU(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * stack / 2;
+                    caster->CastCustomSpell(caster, DRUID_LIFEBLOOM_ENERGIZE, &returnMana, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+                }
+            }
+
+            void OnDispel(DispelInfo* dispelInfo)
+            {
+                Unit* target = GetUnitOwner();
+                if (!target)
+                    return;
+
+                if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
+                {
+                    // final heal
+                    int32 healAmount = aurEff->GetAmount();
+                    Unit* caster = GetCaster();
+                    if (caster)
+                        healAmount = caster->SpellHealingBonus(target, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
+                    target->CastCustomSpell(target, DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULL, GetCasterGUID());
+
+                    // restore mana
+                    if (caster)
+                    {
+                        int32 returnMana = CalculatePctU(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * dispelInfo->GetRemovedCharges() / 2;
+                        caster->CastCustomSpell(caster, DRUID_LIFEBLOOM_ENERGIZE, &returnMana, NULL, NULL, true, NULL, NULL, GetCasterGUID());
+                    }
+                 }
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::OnDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_lifebloom_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_glyph_of_starfire();
@@ -377,4 +456,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_starfall_aoe();
     new spell_dru_swift_flight_passive();
     new spell_dru_starfall_dummy();
+    new spell_dru_lifebloom();
 }

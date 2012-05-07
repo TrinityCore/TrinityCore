@@ -1,0 +1,24 @@
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (-30108,34438,34439,35183,43522,65812,68154,68155,68156,-33763,43421,52551,53608,57762,59990,66093,67957,67958,67959,-34914,-44457,-8050);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(-30108,'spell_warl_unstable_affliction'),
+(34438, 'spell_warl_unstable_affliction'), -- using class spell script for generic spell because it uses class spell effect
+(34439, 'spell_warl_unstable_affliction'),
+(35183, 'spell_warl_unstable_affliction'),
+(43522, 'spell_hexlord_unstable_affliction'),
+(65812, 'spell_faction_champion_warl_unstable_affliction'),
+(68154, 'spell_faction_champion_warl_unstable_affliction'),
+(68155, 'spell_faction_champion_warl_unstable_affliction'),
+(68156, 'spell_faction_champion_warl_unstable_affliction'),
+(-33763,'spell_dru_lifebloom'),
+(43421, 'spell_hexlord_lifebloom'),
+(52551, 'spell_tur_ragepaw_lifebloom'),
+(53608, 'spell_cenarion_scout_lifebloom'),
+(57762, 'spell_twisted_visage_lifebloom'),
+(59990, 'spell_twisted_visage_lifebloom'),
+(66093, 'spell_faction_champion_dru_lifebloom'),
+(67957, 'spell_faction_champion_dru_lifebloom'),
+(67958, 'spell_faction_champion_dru_lifebloom'),
+(67959, 'spell_faction_champion_dru_lifebloom'),
+(-34914,'spell_pri_vampiric_touch'),
+(-44457,'spell_mage_living_bomb'),
+(-8050, 'spell_sha_flame_shock');

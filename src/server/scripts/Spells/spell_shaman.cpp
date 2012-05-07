@@ -42,6 +42,10 @@ enum ShamanSpells
     // For Earthen Power
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM     = 6474,
     SHAMAN_TOTEM_SPELL_EARTHEN_POWER       = 59566,
+
+    SHAMAN_LAVA_FLOW_ICONID                = 3087,
+    SHAMAN_LAVA_FLOWS_R1                   = 51480,
+    SHAMAN_LAVA_FLOWS_TRIGGERED_R1         = 64694,
 };
 
 // 51474 - Astral shift
@@ -650,6 +654,53 @@ class spell_sha_chain_heal : public SpellScriptLoader
         }
 };
 
+class spell_sha_flame_shock : public SpellScriptLoader
+{
+    public:
+        spell_sha_flame_shock() : SpellScriptLoader("spell_sha_flame_shock") { }
+
+        class spell_sha_flame_shock_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_flame_shock_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SHAMAN_LAVA_FLOWS_R1))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SHAMAN_LAVA_FLOWS_TRIGGERED_R1))
+                    return false;
+                return true;
+            }
+
+            void OnDispel(DispelInfo* /*dispelInfo*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                // Lava Flows
+                if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_LAVA_FLOW_ICONID, 0))
+                {
+                    if (sSpellMgr->GetFirstSpellInChain(SHAMAN_LAVA_FLOWS_R1) != sSpellMgr->GetFirstSpellInChain(aurEff->GetId()))
+                        return;
+
+                    uint8 rank = sSpellMgr->GetSpellRank(aurEff->GetId());
+                    caster->CastSpell(caster, sSpellMgr->GetSpellWithRank(SHAMAN_LAVA_FLOWS_TRIGGERED_R1, rank), true);
+                }
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_sha_flame_shock_AuraScript::OnDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_flame_shock_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_astral_shift();
@@ -665,4 +716,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_mana_spring_totem();
     new spell_sha_lava_lash();
     new spell_sha_chain_heal();
+    new spell_sha_flame_shock();
 }
