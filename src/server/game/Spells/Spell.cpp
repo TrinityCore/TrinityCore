@@ -1431,10 +1431,19 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         dist = objSize + (dist - objSize) * (float)rand_norm();
 
     Position pos;
-    if (targetType.GetTarget() == TARGET_DEST_CASTER_FRONT_LEAP)
-        m_caster->GetFirstCollisionPosition(pos, dist, angle);
-    else
-        m_caster->GetNearPosition(pos, dist, angle);
+            switch (targetType.GetTarget())
+            {
+                case TARGET_DEST_CASTER_FRONT_LEAP:
+                case TARGET_DEST_CASTER_FRONT_LEFT:
+                case TARGET_DEST_CASTER_BACK_LEFT:
+                case TARGET_DEST_CASTER_BACK_RIGHT:
+                case TARGET_DEST_CASTER_FRONT_RIGHT:
+                    m_caster->GetFirstCollisionPosition(pos, dist, angle);
+                    break;
+                default:
+                    m_caster->GetNearPosition(pos, dist, angle);
+                    break;
+            }
     m_targets.SetDst(*m_caster);
     m_targets.ModDst(pos);
 }
