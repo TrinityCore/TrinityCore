@@ -17606,6 +17606,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
         uint32 zoneId = GetZoneId();
 
         std::map<uint64, Bag*> bagMap;                                  // fast guid lookup for bags
+        std::map<uint64, Bag*> invalidBagMap;                                  // fast guid lookup for bags
         std::list<Item*> problematicItems;
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -17650,9 +17651,15 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 
                     // Remember bags that may contain items in them
                     if (err == EQUIP_ERR_OK)
+                    {
                         if (IsBagPos(item->GetPos()))
                             if (Bag* pBag = item->ToBag())
                                 bagMap[item->GetGUIDLow()] = pBag;
+                    }
+                    else
+                        if (IsBagPos(item->GetPos()))
+                            if (Bag* pBag = item->ToBag())
+                                invalidBagMap[item->GetGUIDLow()] = pBag;
                 }
                 else
                 {
@@ -17666,6 +17673,17 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                         if (err == EQUIP_ERR_OK)
                             item = StoreItem(dest, item, true);
                     }
+                    else if (invalidBagMap.find(bagGuid) != invalidBagMap.end() && std::find(problematicItems.begin(),problematicItems.end(),(*invalidBagMap.find(bagGuid))))
+                            err = EQUIP_ERR_INT_BAG_ERROR;
+                    else
+                    {
+                        sLog->outError("Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) which doesnt have a valid bag (Bag GUID: %u, slot: %u). Possible cheat?",
+                            GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry(), bagGuid, slot);
+                        item->DeleteFromInventoryDB(trans);
+                        delete item;
+                        continue;
+                    }
+
                 }
 
                 // Item's state may have changed after storing
