@@ -1435,6 +1435,10 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         m_caster->GetFirstCollisionPosition(pos, dist, angle);
     else
         m_caster->GetNearPosition(pos, dist, angle);
+
+    if (!(&pos)->IsPositionValid())
+        m_caster->GetPosition(&pos);
+
     m_targets.SetDst(*m_caster);
     m_targets.ModDst(pos);
 }
