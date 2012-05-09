@@ -2320,7 +2320,7 @@ class npc_wormhole : public CreatureScript
             return true;
         }
     private:
-        bool underGround;
+        bool showUnderground;
 };
 
 /*######
