@@ -522,8 +522,9 @@ enum TrinityStrings
     LANG_YOURS_EXPLORE_SET_ALL          = 553,
     LANG_YOURS_EXPLORE_SET_NOTHING      = 554,
 
+    LANG_NPC_SETDATA                    = 555,
+
     //! Old ones now free:
-    // LANG_HOVER_ENABLED               = 555,
     // LANG_HOVER_DISABLED              = 556,
 
     LANG_YOURS_LEVEL_UP                 = 557,
