@@ -222,9 +222,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
-
-    SetGoArtKit(0);                                         // unknown what this is
-    SetByteValue(GAMEOBJECT_BYTES_1, 2, artKit);
+    SetGoArtKit(artKit);
 
     switch (goinfo->type)
     {
