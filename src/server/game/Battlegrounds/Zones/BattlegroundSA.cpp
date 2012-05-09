@@ -56,6 +56,8 @@ void BattlegroundSA::Reset()
         GateStatus[i] = BG_SA_GATE_OK;
     ShipsStarted = false;
     gateDestroyed = false;
+    _notEvenAScratch[BG_TEAM_ALLIANCE] = true;
+    _notEvenAScratch[BG_TEAM_HORDE] = true;
     Status = BG_SA_WARMUP;
 }
 
@@ -553,13 +555,13 @@ void BattlegroundSA::EventPlayerDamagedGO(Player* /*player*/, GameObject* go, ui
         SendWarningToAll(LANG_BG_SA_IS_UNDER_ATTACK, go->GetGOInfo()->name.c_str());
 }
 
-void BattlegroundSA::HandleKillUnit(Creature* unit, Player* killer)
+void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
 {
-    if (!unit)
-        return;
-
-    if (unit->GetEntry() == NPC_DEMOLISHER_SA)
+    if (creature->GetEntry() == NPC_DEMOLISHER_SA)
+    {
         UpdatePlayerScore(killer, SCORE_DESTROYED_DEMOLISHER, 1);
+        _notEvenAScratch[Attackers] = false;
+    }
 }
 
 /*
