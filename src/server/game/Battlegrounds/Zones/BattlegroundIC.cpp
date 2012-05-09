@@ -931,7 +931,7 @@ Transport* BattlegroundIC::CreateTransport(uint32 goEntry, uint32 period)
     float o = 1;
 
     // creates the Gameobject
-    if (!t->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT), goEntry, mapid, x, y, z, o, 100, 0))
+    if (!t->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT), goEntry, mapid, x, y, z, o, 255, 0))
     {
         delete t;
         return NULL;
