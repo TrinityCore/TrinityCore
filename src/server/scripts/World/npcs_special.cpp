@@ -2254,16 +2254,33 @@ enum WormholeSpells
     SPELL_HOWLING_FJORD         = 67838,
     SPELL_UNDERGROUND           = 68081,
 
-    TEXT_WORMHOLE               = 907
+    TEXT_WORMHOLE               = 907,
+
+    DATA_SHOW_UNDERGROUND       = 1,
 };
 
 class npc_wormhole : public CreatureScript
 {
     public:
-        npc_wormhole() : CreatureScript("npc_wormhole")
+        npc_wormhole() : CreatureScript("npc_wormhole") {}
+
+        struct npc_wormholeAI : public PassiveAI
         {
-            showUnderground = urand(0, 100) == 0; // Guessed value, it is really rare though
-        }
+            npc_wormholeAI(Creature* creature) : PassiveAI(creature) {}
+
+            void InitializeAI()
+            {
+                _showUnderground = urand(0, 100) == 0; // Guessed value, it is really rare though
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                return (type == DATA_SHOW_UNDERGROUND && _showUnderground) ? 1 : 0;
+            }
+
+        private:
+            bool _showUnderground;
+        };
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -2277,12 +2294,13 @@ class npc_wormhole : public CreatureScript
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
 
-                    if (showUnderground)
+                    if (creature->AI()->GetData(DATA_SHOW_UNDERGROUND))
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
 
                     player->PlayerTalkClass->SendGossipMenu(TEXT_WORMHOLE, creature->GetGUID());
                 }
             }
+
             return true;
         }
 
@@ -2317,10 +2335,14 @@ class npc_wormhole : public CreatureScript
                     creature->CastSpell(player, SPELL_UNDERGROUND, false);
                     break;
             }
+
             return true;
         }
-    private:
-        bool showUnderground;
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_wormholeAI(creature);
+        }
 };
 
 /*######
