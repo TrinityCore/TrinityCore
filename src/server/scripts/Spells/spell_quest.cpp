@@ -1105,6 +1105,63 @@ public:
     }
 };
 
+enum LeaveNothingToChance
+{
+    NPC_UPPER_MINE_SHAFT            = 27436,
+    NPC_LOWER_MINE_SHAFT            = 27437,
+
+    SPELL_UPPER_MINE_SHAFT_CREDIT   = 48744,
+    SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745,
+};
+
+class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
+{
+    public:
+        spell_q12277_wintergarde_mine_explosion() : SpellScriptLoader("spell_q12277_wintergarde_mine_explosion") { }
+ 
+        class spell_q12277_wintergarde_mine_explosion_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12277_wintergarde_mine_explosion_SpellScript)
+ 
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* unitTarget = GetHitCreature())
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        if (caster->GetTypeId() == TYPEID_UNIT)
+                        {
+                            if (Unit* owner = caster->GetOwner())
+                            {
+                                switch (unitTarget->GetEntry())
+                                {
+                                    case NPC_UPPER_MINE_SHAFT:
+                                        caster->CastSpell(owner, SPELL_UPPER_MINE_SHAFT_CREDIT, true);
+                                        break;
+                                    case NPC_LOWER_MINE_SHAFT:
+                                        caster->CastSpell(owner, SPELL_LOWER_MINE_SHAFT_CREDIT, true);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+ 
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12277_wintergarde_mine_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+ 
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12277_wintergarde_mine_explosion_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1131,4 +1188,5 @@ void AddSC_quest_spell_scripts()
     new spell_q14112_14145_chum_the_water();
     new spell_q9452_cast_net();
     new spell_q12987_read_pronouncement();
+    new spell_q12277_wintergarde_mine_explosion();
 }
