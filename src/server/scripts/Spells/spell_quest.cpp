@@ -1118,11 +1118,11 @@ class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
 {
     public:
         spell_q12277_wintergarde_mine_explosion() : SpellScriptLoader("spell_q12277_wintergarde_mine_explosion") { }
- 
+
         class spell_q12277_wintergarde_mine_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12277_wintergarde_mine_explosion_SpellScript)
- 
+            PrepareSpellScript(spell_q12277_wintergarde_mine_explosion_SpellScript);
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* unitTarget = GetHitCreature())
@@ -1149,13 +1149,13 @@ class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
                     }
                 }
             }
- 
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12277_wintergarde_mine_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
- 
+
         SpellScript* GetSpellScript() const
         {
             return new spell_q12277_wintergarde_mine_explosion_SpellScript();
