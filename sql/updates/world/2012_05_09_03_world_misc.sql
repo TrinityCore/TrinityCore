@@ -52,5 +52,5 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (202231,201960,7,72,2);
 
 -- Remove a dupe spawn
-DELETE * FROM `creature` WHERE `guid`=201998;
-DELETE * FROM `creature_addon` WHERE `guid`=201998;
+DELETE FROM `creature` WHERE `guid`=201998;
+DELETE FROM `creature_addon` WHERE `guid`=201998;
