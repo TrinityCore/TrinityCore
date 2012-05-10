@@ -83,7 +83,7 @@ class AuraEffect
         bool HasSpellClassMask() const { return m_spellInfo->Effects[m_effIndex].SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
-        void PeriodicTick(AuraApplication * aurApp, Unit* caster);
+        void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
 
         void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
@@ -285,10 +285,10 @@ class AuraEffect
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster);
-        void HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster);
+        void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicHealAurasTick(Unit* target, Unit* caster);
+        void HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const;
         void HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const;
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
