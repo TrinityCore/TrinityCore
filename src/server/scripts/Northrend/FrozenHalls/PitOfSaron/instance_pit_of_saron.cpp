@@ -23,6 +23,12 @@ Position const SlaveLeaderPos  = {689.7158f, -104.8736f, 513.7360f, 0.0f};
 // position for Jaina and Sylvanas
 Position const EventLeaderPos2 = {1054.368f, 107.14620f, 628.4467f, 0.0f};
 
+DoorData const Doors[] =
+{
+    {GO_ICE_WALL,   DATA_GARFROST,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+    {GO_ICE_WALL,   DATA_ICK,       DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+};
+
 class instance_pit_of_saron : public InstanceMapScript
 {
     public:
@@ -33,6 +39,7 @@ class instance_pit_of_saron : public InstanceMapScript
             instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadDoorData(Doors);
                 _garfrostGUID = 0;
                 _krickGUID = 0;
                 _ickGUID = 0;
@@ -150,6 +157,26 @@ class instance_pit_of_saron : public InstanceMapScript
                             creature->UpdateEntry(NPC_MARTIN_VICTUS_2, ALLIANCE);
                         break;
                     default:
+                        break;
+                }
+            }
+
+            void OnGameObjectCreate(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_ICE_WALL:
+                        AddDoor(go, true);
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_ICE_WALL:
+                        AddDoor(go, false);
                         break;
                 }
             }
