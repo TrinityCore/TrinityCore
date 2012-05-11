@@ -383,7 +383,7 @@ void npc_escortAI::FillPointMovementListForCreature()
     if (movePoints.empty())
         return;
 
-    ScriptPointVector::const_iterator itrEnd = movePoints.end();;
+    ScriptPointVector::const_iterator itrEnd = movePoints.end();
     for (ScriptPointVector::const_iterator itr = movePoints.begin(); itr != itrEnd; ++itr)
     {
         Escort_Waypoint point(itr->uiPointId, itr->fX, itr->fY, itr->fZ, itr->uiWaitTime);
