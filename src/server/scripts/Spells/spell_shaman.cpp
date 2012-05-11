@@ -498,7 +498,7 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
                             if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
                                 AddPctN(damage, aurEff->GetAmount());
 
-                            damage = int32(target->SpellHealingBonusTaken(triggeringSpell, damage, HEAL));
+                            damage = int32(target->SpellHealingBonusTaken(owner, triggeringSpell, damage, HEAL));
                         }
                         caster->CastCustomSpell(target, SPELL_HEALING_STREAM_TOTEM_HEAL, &damage, 0, 0, true, 0, 0, GetOriginalCaster()->GetGUID());
                     }
