@@ -167,8 +167,6 @@ class instance_pit_of_saron : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_ICE_WALL:
-                        AddDoor(go, true);
-                        break;
                     case GO_HALLS_OF_REFLECTION_PORTCULLIS:
                         AddDoor(go, true);
                         break;
@@ -180,8 +178,6 @@ class instance_pit_of_saron : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_ICE_WALL:
-                        AddDoor(go, false);
-                        break;
                     case GO_HALLS_OF_REFLECTION_PORTCULLIS:
                         AddDoor(go, false);
                         break;
