@@ -1560,10 +1560,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
 
             int32 tickheal = targetAura->GetAmount();
             if (Unit* auraCaster = targetAura->GetCaster())
-            {
                 tickheal = auraCaster->SpellHealingBonusDone(unitTarget, targetAura->GetSpellInfo(), tickheal, DOT);
-                tickheal = unitTarget->SpellHealingBonusTaken(auraCaster, targetAura->GetSpellInfo(), tickheal, DOT);
-            }
             //int32 tickheal = targetAura->GetSpellInfo()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
 
