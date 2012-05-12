@@ -194,7 +194,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
                         damage = damage / ticks;
 
-                        damage = target->SpellDamageBonusTaken(GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
+                        damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
                         caster->CastCustomSpell(target, SPELL_DEEP_WOUNDS_RANK_PERIODIC, &damage, NULL, NULL, true);
                     }
