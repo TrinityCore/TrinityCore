@@ -1687,7 +1687,7 @@ void Spell::EffectHealMechanical(SpellEffIndex /*effIndex*/)
 
     uint32 heal = m_originalCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, uint32(damage), HEAL);
 
-    m_healing += unitTarget->SpellHealingBonusTaken(m_spellInfo, heal, HEAL);;
+    m_healing += unitTarget->SpellHealingBonusTaken(m_spellInfo, heal, HEAL);
 }
 
 void Spell::EffectHealthLeech(SpellEffIndex effIndex)
