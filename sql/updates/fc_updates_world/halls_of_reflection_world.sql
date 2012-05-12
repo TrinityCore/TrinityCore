@@ -4,17 +4,17 @@ delete from `gameobject` where `map` = 668;
 delete from `creature` where `map` = 668;
 
 REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`) VALUES 
-('13', '70464', '18', '1', '36881'),
-('13', '69708', '18', '1', '37226'),
-('13', '70194', '18', '1', '37226'),
-('13', '69784', '18', '1', '37014'),
-('13', '70224', '18', '1', '37014'),
-('13', '70225', '18', '1', '37014'),
-('13', '69431', '18', '1', '37497'),
-('13', '69431', '18', '1', '37496'),
-('13', '69431', '18', '1', '37588'),
-('13', '69431', '18', '1', '37584'),
-('13', '69431', '18', '1', '37587');
+('13', '70464', '31', '1', '36881'),
+('13', '69708', '31', '1', '37226'),
+('13', '70194', '31', '1', '37226'),
+('13', '69784', '31', '1', '37014'),
+('13', '70224', '31', '1', '37014'),
+('13', '70225', '31', '1', '37014'),
+('13', '69431', '31', '1', '37497'),
+('13', '69431', '31', '1', '37496'),
+('13', '69431', '31', '1', '37588'),
+('13', '69431', '31', '1', '37584'),
+('13', '69431', '31', '1', '37587');
 
 insert into `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) values('37906','668','3','1','11686','0','5314.98','2013.36','717.077','0.909173','86400','0','0','42','0','0','0','0','0');
 insert into `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) values('37906','668','3','1','11686','0','5311.79','1997.99','717.652','4.97445','86400','0','0','42','0','0','0','0','0');
