@@ -23,6 +23,12 @@ Position const SlaveLeaderPos  = {689.7158f, -104.8736f, 513.7360f, 0.0f};
 // position for Jaina and Sylvanas
 Position const EventLeaderPos2 = {1054.368f, 107.14620f, 628.4467f, 0.0f};
 
+DoorData const Doors[] =
+{
+    {GO_ICE_WALL,   DATA_GARFROST,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+    {GO_ICE_WALL,   DATA_ICK,       DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+};
+
 class instance_pit_of_saron : public InstanceMapScript
 {
     public:
@@ -33,6 +39,7 @@ class instance_pit_of_saron : public InstanceMapScript
             instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadDoorData(Doors);
                 _garfrostGUID = 0;
                 _krickGUID = 0;
                 _ickGUID = 0;
@@ -158,11 +165,19 @@ class instance_pit_of_saron : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
-                case GO_ICE_WALL:
-                    uiIceWall = go->GetGUID();
-                    if(GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
-                        HandleGameObject(NULL,true,go);
-                    break;
+                    case GO_ICE_WALL:
+                        AddDoor(go, true);
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_ICE_WALL:
+                        AddDoor(go, false);
+                        break;
                 }
             }
 
@@ -173,13 +188,6 @@ class instance_pit_of_saron : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_ICK:
-                        if (state == DONE)
-                        {
-                            if(GetBossState(DATA_GARFROST)==DONE)
-                            HandleGameObject(uiIceWall,true,NULL);
-                        }
-                        break;
                     case DATA_GARFROST:
                         if (state == DONE)
                         {
@@ -190,8 +198,6 @@ class instance_pit_of_saron : public InstanceMapScript
                                 else
                                     summoner->SummonCreature(NPC_GORKUN_IRONSKULL_2, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
                             }
-                            if(GetBossState(DATA_ICK)==DONE)
-                                HandleGameObject(uiIceWall,true,NULL);
                         }
                         break;
                     case DATA_TYRANNUS:
@@ -307,7 +313,6 @@ class instance_pit_of_saron : public InstanceMapScript
             uint64 _tyrannusEventGUID;
             uint64 _jainaOrSylvanas1GUID;
             uint64 _jainaOrSylvanas2GUID;
-            uint64 uiIceWall;
 
             uint32 _teamInInstance;
         };
