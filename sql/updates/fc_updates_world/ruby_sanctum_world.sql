@@ -38,7 +38,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_flamecaller_ruby', `AIName` =''
 UPDATE `creature_template` SET `ScriptName`='boss_ragefire', `AIName` ='' WHERE `entry`=39747;
 DELETE FROM `conditions` WHERE `SourceEntry`=74455;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
-(13,0,74455,0,18,1,39747,0,0, '', 'Ragefire - Conflagration');
+(13,0,74455,0,31,3,39747,0,0, '', 'Ragefire - Conflagration');
 
 -- Xerestrasza
 UPDATE `creature_template` SET `ScriptName`='mob_xerestrasza', `AIName` ='' WHERE `entry`=40429;

@@ -105,13 +105,9 @@ DELETE FROM gameobject WHERE id IN ('194323', '194162');
 DELETE FROM `conditions` WHERE ConditionValue2=27852;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 0, 49899, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56575, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56661, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56663, 0, 18, 1, 27852, 0, 0, '', NULL),
 (13, 0, 56665, 0, 18, 1, 27852, 0, 0, '', NULL),
 (13, 0, 56667, 0, 18, 1, 27852, 0, 0, '', NULL),
 (13, 0, 56669, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 61408, 0, 18, 1, 27852, 0, 0, '', NULL);
 
 /*WG Spell area Data For wg antifly */
 DELETE FROM `spell_area` WHERE spell IN (58730, 57940, 58045);

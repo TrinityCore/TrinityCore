@@ -697,8 +697,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 -- Scripts/UtgardePinnacle: Fixed harpoon
 DELETE FROM `conditions` WHERE `SourceEntry` = 56578 AND `ConditionValue2` = 26693;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`) VALUES 
-(13, 56578, 18, 1, 26693);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 3, 56578, 0, 0, 31, 0, 3, 26693, 0, 0, 0, '', NULL);
 
 -- Fixed spells 71871 & 71873
 DELETE FROM `spell_proc_event` WHERE `entry` IN (71871); 
