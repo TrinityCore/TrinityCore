@@ -954,7 +954,7 @@ uint32 Unit::SpellNonMeleeDamageLog(Unit* victim, uint32 spellID, uint32 damage)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID);
     SpellNonMeleeDamage damageInfo(this, victim, spellInfo->Id, spellInfo->SchoolMask);
     damage = SpellDamageBonusDone(victim, spellInfo, damage, SPELL_DIRECT_DAMAGE);
-    damage = victim->SpellDamageBonusTaken(spellInfo, damage, SPELL_DIRECT_DAMAGE);
+    damage = victim->SpellDamageBonusTaken(this, spellInfo, damage, SPELL_DIRECT_DAMAGE);
 
     CalculateSpellDamageTaken(&damageInfo, damage, spellInfo);
     DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
@@ -1151,7 +1151,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     damage += CalculateDamage(damageInfo->attackType, false, true);
     // Add melee damage bonus
     damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);
-    damage = damageInfo->target->MeleeDamageBonusTaken(damage, damageInfo->attackType);
+    damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -1405,7 +1405,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             if (Unit* caster = (*dmgShieldItr)->GetCaster())
             {
                 damage = caster->SpellDamageBonusDone(this, i_spellProto, damage, SPELL_DIRECT_DAMAGE);
-                damage = this->SpellDamageBonusTaken(i_spellProto, damage, SPELL_DIRECT_DAMAGE);
+                damage = this->SpellDamageBonusTaken(caster, i_spellProto, damage, SPELL_DIRECT_DAMAGE);
             }
 
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
@@ -3660,7 +3660,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId
                             if (Unit* caster = aura->GetCaster())
                             {
                                 healAmount = caster->SpellHealingBonusDone(this, aura->GetSpellInfo(), healAmount, HEAL, dispelInfo.GetRemovedCharges());
-                                healAmount = this->SpellHealingBonusTaken(aura->GetSpellInfo(), healAmount, HEAL, dispelInfo.GetRemovedCharges());
+                                healAmount = this->SpellHealingBonusTaken(caster, aura->GetSpellInfo(), healAmount, HEAL, dispelInfo.GetRemovedCharges());
                             }
                             CastCustomSpell(this, 33778, &healAmount, NULL, NULL, true, NULL, NULL, aura->GetCasterGUID());
 
@@ -10806,7 +10806,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
-uint32 Unit::SpellDamageBonusTaken(SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
+uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
     if (!spellProto || damagetype == DIRECT_DAMAGE)
         return pdamage;
@@ -10840,7 +10840,7 @@ uint32 Unit::SpellDamageBonusTaken(SpellInfo const* spellProto, uint32 pdamage, 
     // From caster spells
     AuraEffectList const& mOwnerTaken = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
     for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
-        if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectedOnSpell(spellProto))
+        if ((*i)->GetCasterGUID() == caster->GetGUID() && (*i)->IsAffectedOnSpell(spellProto))
             AddPctN(TakenTotalMod, (*i)->GetAmount());
 
     // Mod damage from spell mechanic
@@ -11351,7 +11351,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     return uint32(std::max(heal, 0.0f));
 }
 
-uint32 Unit::SpellHealingBonusTaken(SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack)
+uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack)
 {
     float  TakenTotalMod = 1.0f;
 
@@ -11425,7 +11425,7 @@ uint32 Unit::SpellHealingBonusTaken(SpellInfo const *spellProto, uint32 healamou
 
     AuraEffectList const& mHealingGet= GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_RECEIVED);
     for (AuraEffectList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
-        if (GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectedOnSpell(spellProto))
+        if (caster->GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectedOnSpell(spellProto))
             AddPctN(TakenTotalMod, (*i)->GetAmount());
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -11808,7 +11808,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
-uint32 Unit::MeleeDamageBonusTaken(uint32 pdamage, WeaponAttackType attType, SpellInfo const *spellProto)
+uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, SpellInfo const *spellProto)
 {
     if (pdamage == 0)
         return 0;
@@ -11832,15 +11832,15 @@ uint32 Unit::MeleeDamageBonusTaken(uint32 pdamage, WeaponAttackType attType, Spe
     // ..taken
     TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, GetMeleeDamageSchoolMask());
 
-    // From caster spells
-    AuraEffectList const& mOwnerTaken = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
-    for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
-        if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectedOnSpell(spellProto))
-            AddPctN(TakenTotalMod, (*i)->GetAmount());
-
     // .. taken pct (special attacks)
     if (spellProto)
     {
+        // From caster spells
+        AuraEffectList const& mOwnerTaken = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
+        for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
+            if ((*i)->GetCasterGUID() == attacker->GetGUID() && (*i)->IsAffectedOnSpell(spellProto))
+                AddPctN(TakenTotalMod, (*i)->GetAmount());
+
         // Mod damage from spell mechanic
         uint32 mechanicMask = spellProto->GetAllEffectsMechanicMask();
 
@@ -14483,7 +14483,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: doing %u damage from spell id %u (triggered by %s aura of spell %u)", triggeredByAura->GetAmount(), spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                         SpellNonMeleeDamage damageInfo(this, target, spellInfo->Id, spellInfo->SchoolMask);
                         uint32 newDamage = SpellDamageBonusDone(target, spellInfo, triggeredByAura->GetAmount(), SPELL_DIRECT_DAMAGE);
-                        newDamage = target->SpellDamageBonusTaken(spellInfo, newDamage, SPELL_DIRECT_DAMAGE);
+                        newDamage = target->SpellDamageBonusTaken(this, spellInfo, newDamage, SPELL_DIRECT_DAMAGE);
                         CalculateSpellDamageTaken(&damageInfo, newDamage, spellInfo);
                         DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
                         SendSpellNonMeleeDamageLog(&damageInfo);
