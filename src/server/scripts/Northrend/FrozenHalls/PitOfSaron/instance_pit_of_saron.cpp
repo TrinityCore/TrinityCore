@@ -183,7 +183,7 @@ class instance_pit_of_saron : public InstanceMapScript
                         AddDoor(go, false);
                         break;
                     case GO_HALLS_OF_REFLECTION_PORTCULLIS:
-                        AddDoor(go, true);
+                        AddDoor(go, false);
                         break;
                 }
             }
