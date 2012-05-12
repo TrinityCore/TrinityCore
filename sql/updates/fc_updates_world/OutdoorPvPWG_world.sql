@@ -107,7 +107,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 0, 49899, 0, 18, 1, 27852, 0, 0, '', NULL),
 (13, 0, 56665, 0, 18, 1, 27852, 0, 0, '', NULL),
 (13, 0, 56667, 0, 18, 1, 27852, 0, 0, '', NULL),
-(13, 0, 56669, 0, 18, 1, 27852, 0, 0, '', NULL),
+(13, 0, 56669, 0, 18, 1, 27852, 0, 0, '', NULL);
 
 /*WG Spell area Data For wg antifly */
 DELETE FROM `spell_area` WHERE spell IN (58730, 57940, 58045);
