@@ -535,10 +535,7 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent* threatRefStat
                     setCurrentVictim(NULL);
                     setDirty(true);
                 }
-                if (getOwner() && getOwner()->IsInWorld())
-                    if (Unit* target = ObjectAccessor::GetUnit(*getOwner(), hostilRef->getUnitGuid()))
-                        if (getOwner()->IsInMap(target))
-                            getOwner()->SendRemoveFromThreatListOpcode(hostilRef);
+                iOwner->SendRemoveFromThreatListOpcode(hostilRef);
                 iThreatContainer.remove(hostilRef);
                 iThreatOfflineContainer.addReference(hostilRef);
             }
