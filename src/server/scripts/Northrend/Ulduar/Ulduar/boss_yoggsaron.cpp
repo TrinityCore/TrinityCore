@@ -20,16 +20,10 @@
 
 enum Sara_Yells
 {
-    SAY_SARA_PREFIGHT_1                         = -1603310,
-    SAY_SARA_PREFIGHT_2                         = -1603311,
-    SAY_SARA_AGGRO_1                            = -1603312,
-    SAY_SARA_AGGRO_2                            = -1603313,
-    SAY_SARA_AGGRO_3                            = -1603314,
-    SAY_SARA_SLAY_1                             = -1603315,
-    SAY_SARA_SLAY_2                             = -1603316,
-    WHISP_SARA_INSANITY                         = -1603317,
-    SAY_SARA_PHASE2_1                           = -1603318,
-    SAY_SARA_PHASE2_2                           = -1603319,
+    YELL_SARA_PREFIGHT                          = 0,
+    YELL_COMBAT_PHASE_1                         = 1,
+    YELL_COMBAT_PHASE_2                         = 2,
+    YELL_SLAY                                   = 3,
 };
 
 enum YoggSaron_Yells
