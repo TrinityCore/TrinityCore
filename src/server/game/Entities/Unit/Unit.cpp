@@ -11528,7 +11528,7 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo)
         return false;
 
     uint32 shoolMask = spellInfo->GetSchoolMask();
-    if (spellInfo->Id != 42292 && spellInfo->Id !=59752)
+    if (spellInfo->Id != 42292 && spellInfo->Id != 59752)
     {
         // If m_immuneToSchool type contain this school type, IMMUNE damage.
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
@@ -11588,10 +11588,11 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
             break;
         }
     }
+
     if (immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
         return true;
 
-    if (spellInfo->Id != 42292 && spellInfo->Id !=59752)
+    if (spellInfo->Id != 42292 && spellInfo->Id != 59752)
     {
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
@@ -11609,8 +11610,9 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
 
 bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
-    if (!spellInfo || !spellInfo->Effects[index])
+    if (!spellInfo || !spellInfo->Effects[index].IsEffect())
         return false;
+
     // If m_immuneToEffect type contain this effect type, IMMUNE effect.
     uint32 effect = spellInfo->Effects[index].Effect;
     SpellImmuneList const& effectList = m_spellImmune[IMMUNITY_EFFECT];
