@@ -26,7 +26,7 @@ enum Sara
     YELL_COMBAT_PHASE_2                         = 2,
     YELL_SLAY                                   = 3,
 
-    // Phase 1 spells
+/*    // Phase 1 spells
     SPELL_SARAS_BLESSING                        = 63745, // Target Self
     SPELL_SARAS_ANGER                           = 63147, // Target Entry 33136
     SPELL_SARAS_ANGER                           = 63744, // Target Entry 33136
@@ -38,7 +38,7 @@ enum Sara
     SPELL_PHYCHOSIS                             = 63795, // Target Self
     SPELL_MALADY_OF_THE_MIND                    = 63830, // Target Self
     SPELL_DEATH_RAY                             = 63891, // Target Self
-    SPELL_BRAIN_LINK                            = 63802, // Target Self
+    SPELL_BRAIN_LINK                            = 63802, // Target Self*/
 };
 
 enum YoggSaron_Yells
