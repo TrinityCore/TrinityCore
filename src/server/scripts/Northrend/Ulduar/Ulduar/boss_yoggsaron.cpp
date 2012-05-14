@@ -18,12 +18,27 @@
 #include "ScriptMgr.h"
 #include "ulduar.h"
 
-enum Sara_Yells
+enum Sara
 {
+    // text
     YELL_SARA_PREFIGHT                          = 0,
     YELL_COMBAT_PHASE_1                         = 1,
     YELL_COMBAT_PHASE_2                         = 2,
     YELL_SLAY                                   = 3,
+
+    // Phase 1 spells
+    SPELL_SARAS_BLESSING                        = 63745, // Target Self
+    SPELL_SARAS_ANGER                           = 63147, // Target Entry 33136
+    SPELL_SARAS_ANGER                           = 63744, // Target Entry 33136
+    SPELL_SARAS_FEVOR                           = 63138, // Target Player
+    SPELL_SARAS_FEVOR                           = 63747, // Target Player
+    SPELL_SARAS_BLESSING                        = 63134, // Target Player
+
+    // Phase 2 spells
+    SPELL_PHYCHOSIS                             = 63795, // Target Self
+    SPELL_MALADY_OF_THE_MIND                    = 63830, // Target Self
+    SPELL_DEATH_RAY                             = 63891, // Target Self
+    SPELL_BRAIN_LINK                            = 63802, // Target Self
 };
 
 enum YoggSaron_Yells
