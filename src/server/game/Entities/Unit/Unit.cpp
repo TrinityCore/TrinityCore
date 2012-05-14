@@ -10407,20 +10407,24 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (GetTypeId() == TYPEID_UNIT && !ToCreature()->isPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
 
-    AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+    // Some spells don't benefit from pct done mods
+    if (!spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS)
     {
-        if (spellProto->EquippedItemClass == -1 && (*i)->GetSpellInfo()->EquippedItemClass != -1)    //prevent apply mods from weapon specific case to non weapon specific spells (Example: thunder clap and two-handed weapon specialization)
-            continue;
-
-        if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
+        AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
         {
-            if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
-                AddPctN(DoneTotalMod, (*i)->GetAmount());
-            else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
-                AddPctN(DoneTotalMod, (*i)->GetAmount());
-            else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
-                AddPctN(DoneTotalMod, (*i)->GetAmount());
+            if (spellProto->EquippedItemClass == -1 && (*i)->GetSpellInfo()->EquippedItemClass != -1)    //prevent apply mods from weapon specific case to non weapon specific spells (Example: thunder clap and two-handed weapon specialization)
+                continue;
+
+            if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
+            {
+                if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
+                    AddPctN(DoneTotalMod, (*i)->GetAmount());
+                else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                    AddPctN(DoneTotalMod, (*i)->GetAmount());
+                else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
+                    AddPctN(DoneTotalMod, (*i)->GetAmount());
+            }
         }
     }
 
@@ -10792,12 +10796,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         DoneTotalMod = 1.0f;
     }
 
-    // Some spells don't benefit from pct done mods
-    // maybe should be implemented like SPELL_ATTR3_NO_DONE_BONUS,
-    // but then it may break spell power coeffs work on spell 31117
-    if (spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS)
-        DoneTotalMod = 1.0f;
-
     float tmpDamage = (int32(pdamage) + DoneTotal) * DoneTotalMod;
     // apply spellmod to Done damage (flat and pct)
     if (Player* modOwner = GetSpellModOwner())
@@ -10918,7 +10916,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
                 DoneAdvertisedBenefit += int32(CalculatePctN(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
 
     }
-    return DoneAdvertisedBenefit > 0 ? DoneAdvertisedBenefit : 0;
+    return DoneAdvertisedBenefit;
 }
 
 int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask)
@@ -10930,7 +10928,7 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask)
         if (((*i)->GetMiscValue() & schoolMask) != 0)
             TakenAdvertisedBenefit += (*i)->GetAmount();
 
-    return TakenAdvertisedBenefit > 0 ? TakenAdvertisedBenefit : 0;
+    return TakenAdvertisedBenefit;
 }
 
 bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
@@ -11197,7 +11195,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* spellProto, uint32 damag
 uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack)
 {
     // For totems get healing bonus from owner (statue isn't totem in fact)
-    if (GetTypeId() == TYPEID_UNIT && ToCreature()->isTotem())
+    if (GetTypeId() == TYPEID_UNIT && isTotem())
         if (Unit* owner = GetOwner())
             return owner->SpellHealingBonusDone(victim, spellProto, healamount, damagetype, stack);
 
@@ -11297,7 +11295,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     {
         // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
         if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
-            return healamount < 0 ? 0 : healamount;
+            return healamount;
     }
 
     // Default calculation
@@ -11413,7 +11411,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
         {
             healamount = int32(healamount * TakenTotalMod);
-            return healamount < 0 ? 0 : healamount;
+            return healamount;
         }
     }
 
@@ -11648,10 +11646,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
 
 uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto)
 {
-    if (!victim)
-        return 0;
-
-    if (pdamage == 0)
+    if (!victim || pdamage == 0)
         return 0;
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
@@ -11708,20 +11703,23 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     // Done total percent damage auras
     float DoneTotalMod = 1.0f;
 
-    // ..done
-    AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+    // Some spells don't benefit from pct done mods
+    if (!spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS)
     {
-        if (spellProto)
+        AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
         {
-            if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
+            if (spellProto)
             {
-                if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
-                else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
-                else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
+                if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
+                {
+                    if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
+                        AddPctN(DoneTotalMod, (*i)->GetAmount());
+                    else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                        AddPctN(DoneTotalMod, (*i)->GetAmount());
+                    else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
+                        AddPctN(DoneTotalMod, (*i)->GetAmount());
+                }
             }
         }
     }
