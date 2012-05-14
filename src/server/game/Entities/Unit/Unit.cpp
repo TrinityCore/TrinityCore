@@ -10714,7 +10714,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                             break;
                         }
                 }
-        break;
+            break;
         case SPELLFAMILY_PRIEST:
             // Mind Flay
             if (spellProto->SpellFamilyFlags[0] & 0x800000)
@@ -10747,7 +10747,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                     if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
                         AddPctN(DoneTotalMod, aurEff->GetAmount());
             }
-        break;
+            break;
         case SPELLFAMILY_PALADIN:
             // Judgement of Vengeance/Judgement of Corruption
             if ((spellProto->SpellFamilyFlags[1] & 0x400000) && spellProto->SpellIconID == 2292)
@@ -10765,7 +10765,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 if (stacks)
                     AddPctU(DoneTotalMod, 10 * stacks);
             }
-        break;
+            break;
         case SPELLFAMILY_DRUID:
             // Thorns
             if (spellProto->SpellFamilyFlags[0] & 0x100)
@@ -10774,7 +10774,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 if (AuraEffect* aurEff = GetAuraEffectOfRankedSpell(16836, 0))
                     AddPctN(DoneTotalMod, aurEff->GetAmount());
             }
-        break;
+            break;
         case SPELLFAMILY_WARLOCK:
             // Fire and Brimstone
             if (spellProto->SpellFamilyFlags[1] & 0x00020040)
@@ -10796,14 +10796,14 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             if (spellProto->SpellFamilyFlags[1] & 0x00400000 && isPet())
                 if (uint8 count = victim->GetDoTsByCaster(GetOwnerGUID()))
                     AddPctN(DoneTotalMod, 15 * count);
-        break;
+            break;
         case SPELLFAMILY_HUNTER:
             // Steady Shot
             if (spellProto->SpellFamilyFlags[1] & 0x1)
                 if (AuraEffect* aurEff = GetAuraEffect(56826, 0))  // Glyph of Steady Shot
                     if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 0x00004000, 0, 0, GetGUID()))
                         AddPctN(DoneTotalMod, aurEff->GetAmount());
-        break;
+            break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Improved Icy Touch
             if (spellProto->SpellFamilyFlags[0] & 0x2)
@@ -10844,7 +10844,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                     }
                 }
             }
-        break;
+            break;
     }
 
     // Done fixed damage bonus auras
@@ -10865,7 +10865,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             if (bonus->ap_dot_bonus > 0)
             {
                 WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
-                float APbonus = (float) victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
+                float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
                 APbonus += GetTotalAttackPowerValue(attType);
                 DoneTotal += int32(bonus->ap_dot_bonus * stack * ApCoeffMod * APbonus);
             }
@@ -10876,7 +10876,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             if (bonus->ap_bonus > 0)
             {
                 WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
-                float APbonus = (float) victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
+                float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
                 APbonus += GetTotalAttackPowerValue(attType);
                 DoneTotal += int32(bonus->ap_bonus * stack * ApCoeffMod * APbonus);
             }
@@ -11325,12 +11325,12 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         if (Unit* owner = GetOwner())
             return owner->SpellHealingBonusDone(victim, spellProto, healamount, damagetype, stack);
 
-    // no bonus for heal potions/bandages
+    // No bonus healing for potion spells
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return healamount;
 
-    float  DoneTotalMod = 1.0f;
-    int32  DoneTotal = 0;
+    float DoneTotalMod = 1.0f;
+    int32 DoneTotal = 0;
 
     // Healing done percent
     AuraEffectList const& mHealingDonePct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
@@ -11394,7 +11394,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     }
 
     // Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit  = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
+    int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
 
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
@@ -11407,15 +11407,21 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             coeff = bonus->dot_damage;
             if (bonus->ap_dot_bonus > 0)
                 DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE)? RANGED_ATTACK : BASE_ATTACK));
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
         }
         else
         {
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
                 DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE)? RANGED_ATTACK : BASE_ATTACK));
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
         }
+    }
+    else
+    {
+        // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
+        if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+            return healamount < 0 ? 0 : healamount;
     }
 
     // Default calculation
@@ -11444,11 +11450,11 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         }
         else
         {
-         // Earthliving - 0.45% of normal hot coeff
-         if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)
-            factorMod *= 0.45f;
+             // Earthliving - 0.45% of normal hot coeff
+             if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)
+                factorMod *= 0.45f;
 
-         DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
+             DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
         }
     }
 
@@ -11463,7 +11469,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
                 break;
         }
         if (spellProto->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
-            DoneTotal =  0;
+            DoneTotal = 0;
     }
 
     // use float as more appropriate for negative values and percent applying
@@ -11475,16 +11481,16 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     return uint32(std::max(heal, 0.0f));
 }
 
-uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack)
+uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack)
 {
-    float  TakenTotalMod = 1.0f;
+    float TakenTotalMod = 1.0f;
 
     // Healing taken percent
-    float minval = (float)GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
+    float minval = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
     if (minval)
         AddPctF(TakenTotalMod, minval);
 
-    float maxval = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
+    float maxval = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
     if (maxval)
         AddPctF(TakenTotalMod, maxval);
 
@@ -11493,7 +11499,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, u
         AddPctN(TakenTotalMod, Tenacity->GetAmount());
 
     // Healing Done
-    int32  TakenTotal = 0;
+    int32 TakenTotal = 0;
 
     // Taken fixed damage bonus auras
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusTaken(spellProto->GetSchoolMask());
@@ -11510,11 +11516,11 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, u
     if (damagetype == DOT)
     {
         // Healing over time taken percent
-        float minval_hot = (float)GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT);
+        float minval_hot = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT));
         if (minval_hot)
             AddPctF(TakenTotalMod, minval_hot);
 
-        float maxval_hot = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT);
+        float maxval_hot = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT));
         if (maxval_hot)
             AddPctF(TakenTotalMod, maxval_hot);
     }
@@ -11525,6 +11531,12 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, u
     float factorMod = 1.0f;
     if (bonus)
         coeff = (damagetype == DOT) ? bonus->dot_damage : bonus->direct_damage;
+    else
+    {
+        // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
+        if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+            return healamount < 0 ? 0 : healamount;
+    }
 
     // Default calculation
     if (TakenAdvertisedBenefit)
@@ -11563,7 +11575,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, u
                 break;
         }
         if (spellProto->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
-            TakenTotal =  0;
+            TakenTotal = 0;
     }
 
     float heal = (int32(healamount) + TakenTotal) * TakenTotalMod;
@@ -12945,11 +12957,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
 void Unit::setDeathState(DeathState s)
 {
-    // death state needs to be updated before RemoveAllAurasOnDeath() calls HandleChannelDeathItem(..) so that
-    // it can be used to check creation of death items (such as soul shards).
-    m_deathState = s;
-
-    if (s != ALIVE && s != JUST_ALIVED)
+    if (s != ALIVE && s != JUST_RESPAWNED)
     {
         CombatStop();
         DeleteThreatList();
@@ -12992,8 +13000,10 @@ void Unit::setDeathState(DeathState s)
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : (ZoneScript*)GetInstanceScript())
             zoneScript->OnUnitDeath(this);
     }
-    else if (s == JUST_ALIVED)
-        RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
+    else if (s == JUST_RESPAWNED)
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
+
+    m_deathState = s;
 }
 
 /*########################################
