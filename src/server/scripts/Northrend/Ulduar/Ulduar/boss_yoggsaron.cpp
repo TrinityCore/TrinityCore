@@ -27,12 +27,12 @@ enum Sara
     YELL_SLAY                                   = 3,
 
     // Phase 1 spells
-    SPELL_SARAS_BLESSING                        = 63745, // Target Self
-    SPELL_SARAS_ANGER                           = 63147, // Target Entry 33136
-    SPELL_SARAS_ANGER                           = 63744, // Target Entry 33136
-    SPELL_SARAS_FEVOR                           = 63138, // Target Player
-    SPELL_SARAS_FEVOR                           = 63747, // Target Player
-    SPELL_SARAS_BLESSING                        = 63134, // Target Player
+    SPELL_SARAS_ANGER_1                         = 63147, // Target Entry 33136
+    SPELL_SARAS_ANGER_2                         = 63744, // Target Entry 33136
+    SPELL_SARAS_FEVOR_1                         = 63138, // Target Player
+    SPELL_SARAS_FEVOR_2                         = 63747, // Target Player
+    SPELL_SARAS_BLESSING_1                      = 63134, // Target Player
+    SPELL_SARAS_BLESSING_2                      = 63745, // Target Self
 
     // Phase 2 spells
     SPELL_PHYCHOSIS                             = 63795, // Target Self
