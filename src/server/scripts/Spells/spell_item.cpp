@@ -2036,7 +2036,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* target = GetHitUnit())
+            if (GetHitUnit())
                 GetCaster()->CastSpell(GetCaster(),SPELL_FORCE_CAST_SUMMON_GNOME_SOUL);
         }
 
