@@ -597,7 +597,10 @@ void KillRewarder::_RewardGroup()
             for (GroupReference* itr = _group->GetFirstMember(); itr != NULL; itr = itr->next())
                 if (Player* member = itr->getSource())
                     if (member->IsAtGroupRewardDistance(_victim))
+                    {
                         _RewardPlayer(member, isDungeon);
+                        member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, _victim);
+                    }
         }
     }
 }
