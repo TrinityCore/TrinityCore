@@ -247,7 +247,30 @@ public:
 
 };
 
+uint8 ActivatedRunes = 0;
+
+class go_dragonspire_hall_rune : public GameObjectScript
+{
+public:
+    go_dragonspire_hall_rune() : GameObjectScript("go_dragonspire_hall_rune") { }
+
+    void OnGameObjectStateChanged(GameObject* go, uint32 state)
+    {
+        if (state == GO_STATE_READY)
+        {
+            if (++ActivatedRunes == MAX_DRAGONSPIRE_HALL_RUNES)
+            {
+                if (GameObject* door1 = GetClosestGameObjectWithEntry(go, GO_EMBERSEER_IN, 150.0f))
+                    door1->SetGoState(GO_STATE_ACTIVE);
+                if (GameObject* door2 = GetClosestGameObjectWithEntry(go, GO_DOORS, 150.0f))
+                    door2->SetGoState(GO_STATE_ACTIVE);
+            }
+        }
+    }
+};
+
 void AddSC_instance_blackrock_spire()
 {
     new instance_blackrock_spire();
+    new go_dragonspire_hall_rune;
 }
