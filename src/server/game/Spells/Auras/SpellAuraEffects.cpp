@@ -5264,6 +5264,19 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
             //    break;
             break;
         }
+        case SPELLFAMILY_HUNTER:
+        {
+            switch (GetId())
+            {
+                // Animal Handler rank 1, 2
+                case 34453:
+                case 34454:
+                    if (Guardian* pet = target->ToPlayer()->GetGuardianPet())
+                        pet->UpdateAttackPowerAndDamage();
+                    break;
+            }
+            break;
+        }
     }
 }
 
