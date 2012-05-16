@@ -61,7 +61,34 @@ enum AdditionalData
 
 enum GameObjects
 {
-    GO_WHELP_SPAWNER                = 175622, //trap spawned by go id 175124
+    GO_WHELP_SPAWNER                = 175622, // trap spawned by go id 175124
+
+    // Doors
+    GO_EMBERSEER_IN                 = 175244, // First door to Pyroguard Emberseer
+    GO_DOORS                        = 175705, // Second door to Pyroguard Emberseer
+    GO_EMBERSEER_OUT                = 175153, // Door after Pyroguard Emberseer event
+    GO_GYTH_ENTRY_DOOR              = 164726,
+    GO_GYTH_COMBAT_DOOR             = 175185,
+    GO_GYTH_EXIT_DOOR               = 175186,
+    GO_DRAKKISATH_DOOR_1            = 175946,
+    GO_DRAKKISATH_DOOR_2            = 175947,
+
+    // Runes
+    GO_ROOM_1_RUNE                  = 175197,
+    GO_ROOM_2_RUNE                  = 175199,
+    GO_ROOM_3_RUNE                  = 175195,
+    GO_ROOM_4_RUNE                  = 175200,
+    GO_ROOM_5_RUNE                  = 175198,
+    GO_ROOM_6_RUNE                  = 175196,
+    GO_ROOM_7_RUNE                  = 175194,
+
+    GO_EMBERSEER_RUNE_1             = 175266,
+    GO_EMBERSEER_RUNE_2             = 175267,
+    GO_EMBERSEER_RUNE_3             = 175268,
+    GO_EMBERSEER_RUNE_4             = 175269,
+    GO_EMBERSEER_RUNE_5             = 175270,
+    GO_EMBERSEER_RUNE_6             = 175271,
+    GO_EMBERSEER_RUNE_7             = 175272,
 };
 
 #endif

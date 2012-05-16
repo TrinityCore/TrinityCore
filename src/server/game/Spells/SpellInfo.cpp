@@ -1972,6 +1972,33 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
     return (castTime > 0) ? uint32(castTime) : 0;
 }
 
+uint32 SpellInfo::GetMaxTicks() const
+{
+    int32 DotDuration = GetDuration();
+    if (DotDuration == 0)
+        return 1;
+
+    // 200% limit
+    if (DotDuration > 30000)
+        DotDuration = 30000;
+
+    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
+    {
+        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+            switch (Effects[x].ApplyAuraName)
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_LEECH:
+                    if (Effects[x].Amplitude != 0)
+                        return DotDuration / Effects[x].Amplitude;
+                    break;
+            }
+    }
+
+    return 6;
+}
+
 uint32 SpellInfo::GetRecoveryTime() const
 {
     return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
