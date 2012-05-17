@@ -4114,7 +4114,8 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         return;
 
                     // Remove Taunt cooldown
-                    unitTarget->ToPlayer()->RemoveSpellCooldown(355, true);
+                    if (m_originalCaster)
+                        m_originalCaster->ToPlayer()->RemoveSpellCooldown(355, true);
 
                     return;
                 }
