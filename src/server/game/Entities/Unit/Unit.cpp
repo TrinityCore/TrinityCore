@@ -10990,7 +10990,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         TakenTotal+= int32(TakenAdvertisedBenefit * coeff * factorMod);
     }
 
-    float tmpDamage = (pdamage + TakenTotal) * TakenTotalMod;
+    float tmpDamage = (float(pdamage) + TakenTotal) * TakenTotalMod;
 
     return uint32(std::max(tmpDamage, 0.0f));
 }

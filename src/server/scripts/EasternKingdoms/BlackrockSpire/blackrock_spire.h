@@ -57,6 +57,7 @@ enum AdditionalData
 {
     SPELL_SUMMON_ROOKERY_WHELP      = 15745,
     MAX_ENCOUNTER                   = 14,
+    MAX_DRAGONSPIRE_HALL_RUNES      = 7,
 };
 
 enum GameObjects
