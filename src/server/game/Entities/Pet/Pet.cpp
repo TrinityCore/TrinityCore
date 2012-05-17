@@ -951,16 +951,19 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     float minDmg = float(petlevel * 2.5f - (petlevel / 2) + bonusDmg);
                     float maxDmg = float(petlevel * 2.5f + (petlevel / 2) + bonusDmg);
 
+                    // Brambles rank 1
                     if (m_owner->HasAura(16836))
                     {
                         minDmg *= 1.05f;
                         maxDmg *= 1.05f;
                     }
+                    // Brambles rank 2
                     else if (m_owner->HasAura(16839))
                     {
                         minDmg *= 1.10f;
                         maxDmg *= 1.10f;
                     }
+                    // Brambles rank 3
                     else if (m_owner->HasAura(16840))
                     {
                         minDmg *= 1.15f;

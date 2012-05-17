@@ -1385,6 +1385,21 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             CastSpell(victim, 1604, true);
     }
 
+    // Druid Treants should have a chance to daze their target with Brambles talent
+    if (GetEntry() == 1964)
+    {
+        uint32 dazeChance = 0;
+        if (ToCreature()->GetOwner()->HasAura(16836))
+            dazeChance = 5;
+        else if (ToCreature()->GetOwner()->HasAura(16839))
+            dazeChance = 10;
+        else if (ToCreature()->GetOwner()->HasAura(16840))
+            dazeChance = 15;
+
+        if (roll_chance_f(dazeChance))
+            CastSpell(victim, 50411, true);
+    }
+
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->CastItemCombatSpell(victim, damageInfo->attackType, damageInfo->procVictim, damageInfo->procEx);
 
