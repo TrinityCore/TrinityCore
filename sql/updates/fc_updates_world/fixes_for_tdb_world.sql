@@ -123,3 +123,7 @@ INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, 
 (195672, 47553, 0, 1, 3, 1, 1),
 (195672, 47554, 0, 1, 4, 1, 1),
 (195672, 47557, 100, 1, 0, -47557, 4);
+
+-- Right spellid0 for Steelbreaker ability. Fix bug with Elegant Dress item.
+-- The TC and TDB developers are so confident in his infallibility, that not even fix his mistake.
+UPDATE `spelldifficulty_dbc` SET `spellid0`= 61890 WHERE `id`= 3251 AND `spellid1`= 63498;
