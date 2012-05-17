@@ -340,6 +340,14 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
     if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
 
+    switch (m_spellInfo->Id)
+    {
+        // some auras should have max stacks at applying
+        case 53257:                                         // Cobra Strikes
+            m_stackAmount = spellproto->StackAmount;
+            break;
+    }
+
     m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
     m_procCharges = CalcMaxCharges(caster);
