@@ -184,7 +184,9 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                     damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
                     ApplyPctN(damage, 16 * sSpellMgr->GetSpellRank(GetSpellInfo()->Id));
-
+                    
+                    damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
+                    
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_DEEP_WOUNDS_RANK_PERIODIC);
                     uint32 ticks = spellInfo->GetDuration() / spellInfo->Effects[EFFECT_0].Amplitude;
 
@@ -193,8 +195,6 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                         damage += aurEff->GetAmount() * (ticks - aurEff->GetTickNumber());
 
                     damage = damage / ticks;
-
-                    damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
                     caster->CastCustomSpell(target, SPELL_DEEP_WOUNDS_RANK_PERIODIC, &damage, NULL, NULL, true);
                 }
