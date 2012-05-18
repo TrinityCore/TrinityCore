@@ -4986,12 +4986,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             case SPELL_EFFECT_DUMMY:
             {
-                if (m_spellInfo->Id == 51582)          // Rocket Boots Engaged
-                {
-                    if (m_caster->IsInWater())
-                        return SPELL_FAILED_ONLY_ABOVEWATER;
-                }
-                else if (m_spellInfo->Id == 19938)          // Awaken Peon
+                if (m_spellInfo->Id == 19938)          // Awaken Peon
                 {
                     Unit* unit = m_targets.GetUnitTarget();
                     if (!unit || !unit->HasAura(17743))
