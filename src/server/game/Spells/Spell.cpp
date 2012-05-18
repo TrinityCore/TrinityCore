@@ -2475,15 +2475,16 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
         }
 
-        caster->DealSpellDamage(&damageInfo, true);
-
         // Haunt
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[1] & 0x40000 && m_spellAura && m_spellAura->GetEffect(1))
         {
             AuraEffect* aurEff = m_spellAura->GetEffect(1);
             aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
         }
+
         m_damage = damageInfo.damage;
+
+        caster->DealSpellDamage(&damageInfo, true);
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
