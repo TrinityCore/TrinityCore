@@ -3153,6 +3153,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 64904: // Hymn of Hope
                 spellInfo->EffectApplyAuraName[EFFECT_1] = SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT;
                 break;
+            case 47502: // Thunder Clap
+                spellInfo->EquippedItemClass = ITEM_CLASS_WEAPON;
+                break;
             case 19465: // Improved Stings (Rank 2)
                 spellInfo->EffectImplicitTargetA[EFFECT_2] = TARGET_UNIT_CASTER;
                 break;

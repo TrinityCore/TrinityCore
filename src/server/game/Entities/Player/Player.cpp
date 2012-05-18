@@ -22889,9 +22889,14 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
         case ITEM_CLASS_WEAPON:
         {
             for (uint8 i= EQUIPMENT_SLOT_MAINHAND; i < EQUIPMENT_SLOT_TABARD; ++i)
+            {
+                // Make Thunder clap not require a weapon equiped
+                else if (spellInfo->SpellFamilyFlags[0] & 0x00000080)
+                    return true;
                 if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
                     if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
                         return true;
+            }
             break;
         }
         case ITEM_CLASS_ARMOR:
