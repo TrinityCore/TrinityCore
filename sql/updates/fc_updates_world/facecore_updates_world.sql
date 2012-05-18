@@ -2,9 +2,6 @@
 -- General fixes for YTDB and TDB
 --
 
--- Fix Summon Infernal spell. Thanks inordon fod idea
-UPDATE `creature_template` SET flags_extra = 0 WHERE `entry` = 89; 
-
 -- Leeeeeeeeroy! achievement fix
 UPDATE `instance_template` SET `script`='instance_blackrock_spire' WHERE `map`=229;
 UPDATE `creature_template` SET `ScriptName`='npc_rookey_whelp' WHERE entry=10161;
@@ -58,15 +55,8 @@ INSERT INTO `spell_proc_event` VALUES (70727, 0, 9, 0, 0, 0, 64, 0, 0, 5, 0);
 DELETE FROM `spell_proc_event` WHERE `entry` = 70730;
 INSERT INTO `spell_proc_event` VALUES (70730, 0, 9, 16384, 4096, 0, 262144, 0, 0, 5, 0);  
 
--- fix Magister Hathorel and Arcanist Tybalin scriptname
-UPDATE `creature_template` SET `ScriptName` = 'npc_magister_hathorel' WHERE `entry` = 36670;
-UPDATE `creature_template` SET `ScriptName` = 'npc_arcanist_tybalin' WHERE `entry` = 36669;
-
 -- set visible intendants of The Sons of Hodir and Knights of the Ebon Blade
 UPDATE `creature` SET phaseMask=65535 WHERE `id` in (32538,32540);
-
--- Open access to heroic ICC without achievement
-UPDATE `access_requirement` SET `completed_achievement`=0 WHERE `mapId`=631 and `difficulty` in (2,3);
 
 -- [Dungeon Finder] Fix Drak'Tharon Keep reward for DF
 UPDATE `instance_encounters` SET `creditType` = '0', `creditEntry` = '26632' WHERE `entry` IN ('376', '375');
@@ -143,13 +133,12 @@ INSERT INTO spell_script_names VALUES
 (66765, "spell_koralon_meteor_fists");
 
 DELETE FROM `creature_model_info` WHERE (`modelid`=29524);
-INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`) VALUES (29524, 0.45, 8, 2, 0);
-
--- Fix Battleground Demolisher (http://www.wowhead.com/npc=28781) HP
-UPDATE `creature_template` SET `exp` = 0 WHERE `entry` = 32796;
+INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`) VALUES 
+(29524, 0.45, 8, 2, 0);
 
 -- Bloodworm AI
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 28017;
+UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE `entry` =28017;
 INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`) VALUES
 (2801700, 28017, 4, 0, 100, 0, 0, 0, 0, 0, 11, 50453, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodworm - Health Leech');
 
@@ -273,15 +262,14 @@ INSERT INTO `spell_linked_spell` VALUES
 -- Fixed shaman's talent Elemental Focus
 UPDATE `spell_proc_event` SET `SpellFamilyMask0` = `SpellFamilyMask0` &~ 192 WHERE `entry` = 16164;
 
--- Fix bug with cannons movement in Strange of Ancients
-UPDATE `creature_template` SET `speed_run` = 0  WHERE `entry` in (27894, 32795);
-
 -- Fixed spell Anti-Magic Zone
 UPDATE `creature_template` SET `modelid1` = 11686, `unit_flags` = 33554432 WHERE `modelid1` = 4590 AND `entry` = 28306;
 
 -- Fix Druid Enrage spell
 DELETE FROM `spell_ranks` WHERE `first_spell_id` = 1178;
-INSERT INTO `spell_ranks` VALUES (1178,1178,1),(1178,9635,2);
+INSERT INTO `spell_ranks` VALUES 
+(1178,1178,1),
+(1178,9635,2);
 
 -- Fixed warlock's talent Empowered Imp
 UPDATE `spell_proc_event` set `procFlags` = 0x00010004 WHERE `entry` = 54278;
@@ -660,8 +648,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 (12004, 'The Alliance lost the Venture Bay Lighthouse!', NULL, '', NULL, NULL, NULL, NULL, NULL, NULL);   
 
 -- Dalaran Severs arena
-UPDATE `gameobject_template` SET `flags` = '36' WHERE `gameobject_template`.`entry` =192642 LIMIT 1 ;
-UPDATE `gameobject_template` SET `flags` = '36' WHERE `gameobject_template`.`entry` =192643 LIMIT 1 ;
+UPDATE `gameobject_template` SET `flags` = '36' WHERE `entry` IN (192642,192643);
 UPDATE `battleground_template` SET `MinPlayersPerTeam` = '0', `MaxPlayersPerTeam` = '2' WHERE `battleground_template`.`id` =10 LIMIT 1 ;
 -- DELETE FROM `disables` WHERE `entry` = 10 ;
 
@@ -689,11 +676,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id` = 58597;
 INSERT INTO `spell_script_names` VALUES
 (58597, 'spell_pal_sacred_shield');
-
--- Typo fix sor scriptname
-DELETE FROM `spell_script_names` WHERE `spell_id`= 47496;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(47496, 'spell_dk_ghoul_explode');
 
 -- Scripts/UtgardePinnacle: Fixed harpoon
 DELETE FROM `conditions` WHERE `SourceEntry` = 56578 AND `ConditionValue2` = 26693;

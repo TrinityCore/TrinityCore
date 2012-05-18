@@ -68,7 +68,8 @@ DELETE FROM `creature_template_addon` WHERE (`entry` = '39420');
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES ('39420', '0', '0', '65536', '1', '0', '75779');
 UPDATE `creature_template` SET `scale` = '2' WHERE `entry` = '39420';
 DELETE FROM `conditions` WHERE `SourceEntry`=73082;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`) VALUES ('13', '73082', '31', '3', '39420');
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`) VALUES 
+('13', '1', '73082', '31', '3', '39420');
 
 /*######
 ## Prepping the Speech
@@ -123,7 +124,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 ('39910', '0', '6569', '0', '0', '0', '');
 
 UPDATE `creature_template` SET `modelid2` = '0' WHERE `entry` = '39903';
-UPDATE `creature_template` SET `equipment_id` = '39368' WHERE `entry` = '39271';
+-- UPDATE `creature_template` SET `equipment_id` = '39368' WHERE `entry` = '39271';
 UPDATE `creature_template` SET `speed_run` = '1.25', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39273';
 UPDATE `creature_template` SET `speed_run` = '1.29', `faction_A` = '1770', `faction_H` = '1770' WHERE `entry` = '39910';
 

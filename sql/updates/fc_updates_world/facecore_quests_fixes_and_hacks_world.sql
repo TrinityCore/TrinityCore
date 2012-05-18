@@ -2,10 +2,6 @@
 -- Quests fixes for YTDB and TDB
 --
 
--- fix Junkboxes Needed quest available for all classes
-UPDATE `quest_template` SET `ZoneOrSort` = '-162' WHERE `Id` = '8249';
-UPDATE `quest_template` SET `RequiredClasses`=0 WHERE `Id`=8249; -- Junkboxes Needed
-
 -- fix mobs aggro for keldelar quest npc
 UPDATE `quest_template` SET `SourceSpellId` = '70974' WHERE `Id` =20439;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 31885;
@@ -31,12 +27,10 @@ UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 33964;
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=29708;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`)
 VALUES (29708,55028,1,0);
-
 -- freed proto-drake
 DELETE FROM `creature_template_addon` WHERE `entry`=29709;
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (29709,0,50331648,257,0, NULL);
-
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|16777216, `ScriptName`='' WHERE `entry`=29708;
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=29709;
 
@@ -44,14 +38,11 @@ UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=29709;
 UPDATE `quest_template` SET Method = 0 WHERE `Id` = 12779;
 
 -- Argent Tournament quests fixes start
-UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33229;
-UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33272;
-UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33243;
-
 -- npc_lake_frog
 UPDATE `creature_template` SET `ScriptName` = 'npc_lake_frog' WHERE `entry` IN (33211,33224);
 SET @GOSSIP := 33220;
 SET @MENUID := 0;
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 33220;
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 33220;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (33220,0,0,1,62,0,100,0,@GOSSIP,@MENUID,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Maiden of Ashwood Lake - On gossip option 0 select - Close gossip'),

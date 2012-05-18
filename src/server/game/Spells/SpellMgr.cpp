@@ -3053,10 +3053,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER_AREA_PARTY;
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS_2;
                 break;
-            case 63944:                             // Renewed Hope hack
-                spellInfo->EffectApplyAuraName[0] = 87;
-                spellInfo->EffectMiscValue[0] = 127;
-                break;
             case 71189: // Dreamwalker's Rage
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
