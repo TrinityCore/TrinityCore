@@ -11313,23 +11313,21 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             coeff /= 100.0f;
         }
 
-        // Gift of the Naaru
-        if (spellProto->SpellFamilyFlags[2] & 0x80000000 && spellProto->SpellIconID == 329)
-        {
-            int32 apBonus = int32(std::max(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAttackPowerValue(RANGED_ATTACK)));
-            if (apBonus > DoneAdvertisedBenefit)
-                DoneTotal += int32(apBonus * 0.22f); // 22% of AP per tick
-            else
-                DoneTotal += int32(DoneAdvertisedBenefit * 0.377f); // 37.7% of BH per tick
-        }
-        else
-        {
-             // Earthliving - 0.45% of normal hot coeff
-             if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)
-                factorMod *= 0.45f;
+        // Earthliving - 0.45% of normal hot coeff
+        if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)
+            factorMod *= 0.45f;
 
-             DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
-        }
+        DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
+    }
+
+    // Gift of the Naaru
+    if (spellProto->SpellFamilyFlags[2] & 0x80000000 && spellProto->SpellIconID == 329)
+    {
+        int32 apBonus = int32(std::max(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAttackPowerValue(RANGED_ATTACK)));
+        if (apBonus > DoneAdvertisedBenefit)
+            DoneTotal += int32(apBonus * 0.22f); // 22% of AP per tick
+        else
+            DoneTotal += int32(DoneAdvertisedBenefit * 0.377f); // 37.7% of BH per tick
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
