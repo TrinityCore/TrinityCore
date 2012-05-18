@@ -395,6 +395,19 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     int32 bp = CalculatePctN(GetHitDamage(), GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()));
+
+                    // Black Ice talent dmg bonus
+                    if (caster->HasAura(49140))
+                        bp *= 1.02f;
+                    if (caster->HasAura(49661))
+                        bp *= 1.04f;
+                    if (caster->HasAura(49662))
+                        bp *= 1.06f;
+                    if (caster->HasAura(49663))
+                        bp *= 1.08f;
+                    if (caster->HasAura(49664))
+                        bp *= 1.1f;
+
                     caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
                 }
             }
