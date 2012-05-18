@@ -2,23 +2,14 @@
 -- Fixes only for YTDB
 --
 
--- fix spam in log
-UPDATE `waypoint_scripts` SET `datalong2`='1' WHERE datalong IN (39550,76221,54324,50036,48310,46906,61615,45940,70153,46400,55838,35782,54324,46960,49119,46400,70602);
-
 -- fix crash with use .gob near command and russian locale
 UPDATE `trinity_string` SET `content_loc8` = '%d (Entry: %d) - |cffffffff|Hgameobject:%d|h[%s X:%f Y:%f Z:%f MapId:%d]|h|r' WHERE `entry` = '517';
 
 -- Anub'arak, fix of incorrect YTDB flag
-UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34564;
-UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34566;
-UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35615;
-UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35616;
+UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`IN (34564,34566,35615,35616);
 
 -- fix crash with NPC 38068 cast spel (recursion)
 UPDATE `creature_template` SET `ScriptName`="", `spell1`="" WHERE `entry` = 38068;
-
--- fix aggro for Rimefang and Spinestalker
-UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry` IN (37533, 37534);
 
 -- Fix start Valithria encounter while enconter is DONE
 UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (38752, 16980);
@@ -160,9 +151,6 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (26917,0,0,1,38,0,100,0,0,1,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,1.6049, 'On dataset 0 1 turn'),
 (26917,0,1,1,38,0,100,0,0,2,0,0,66,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'On dataset 0 2 turn');
 
--- Fix can not take a loot at the ICC blood princes
-UPDATE creature_template set dynamicflags = 8 where entry in (37970, 38401, 38784, 38785);
-
 -- Increased drop chance for some cook recipes
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 15 WHERE `item` IN (33873, 33870); 
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 10 WHERE `item` IN (33875, 33869);
@@ -186,9 +174,8 @@ REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid
 -- Fix Sindragosa non aggro
 UPDATE creature_template SET unit_flags = '0' WHERE entry IN (36853,38267,38266,38265);
 
--- Fix On Metzen! Achievement (20.12.2011)
-UPDATE `smart_scripts` SET `event_param1`=6763 WHERE  `entryorguid` =15664;
-
 -- Fix repetable of event for object 185861 (23.12.2011)
 UPDATE `creature_ai_scripts` SET `event_flags`=1 WHERE `creature_id`=23119;
 
+-- fix wrong conditions conversion
+DELETE FROM `conditions` WHERE `SourceEntry` = 66665 AND `ConditionValue2` = 35015;

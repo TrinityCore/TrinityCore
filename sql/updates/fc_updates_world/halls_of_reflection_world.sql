@@ -3,18 +3,23 @@ set names utf8;
 delete from `gameobject` where `map` = 668;
 delete from `creature` where `map` = 668;
 
-REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`) VALUES 
-('13', '70464', '31', '1', '36881'),
-('13', '69708', '31', '1', '37226'),
-('13', '70194', '31', '1', '37226'),
-('13', '69784', '31', '1', '37014'),
-('13', '70224', '31', '1', '37014'),
-('13', '70225', '31', '1', '37014'),
-('13', '69431', '31', '1', '37497'),
-('13', '69431', '31', '1', '37496'),
-('13', '69431', '31', '1', '37588'),
-('13', '69431', '31', '1', '37584'),
-('13', '69431', '31', '1', '37587');
+DELETE FROM `conditions` WHERE `SourceEntry` IN (69431,69708,69784,70194,70224,70225,70464);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 69784, 0, 0, 31, 0, 3, 37014, 0, 0, 0, '', NULL),
+(13, 3, 69708, 0, 0, 31, 0, 3, 36954, 0, 0, 0, '', NULL),
+(13, 1, 70464, 0, 1, 31, 0, 3, 37496, 0, 0, 0, '', NULL),
+(13, 1, 70464, 0, 2, 31, 0, 3, 37497, 0, 0, 0, '', NULL),
+(13, 1, 70464, 0, 3, 31, 0, 3, 37498, 0, 0, 0, '', NULL),
+(13, 1, 70464, 0, 0, 31, 0, 3, 36881, 0, 0, 0, '', NULL),
+(13, 3, 69708, 0, 1, 31, 0, 3, 37226, 0, 0, 0, '', NULL),
+(13, 3, 70194, 0, 0, 31, 0, 3, 37226, 0, 0, 0, '', NULL),
+(13, 1, 70224, 0, 0, 31, 0, 3, 37014, 0, 0, 0, '', NULL),
+(13, 1, 70225, 0, 0, 31, 0, 3, 37014, 0, 0, 0, '', NULL),
+(13, 1, 69431, 0, 1, 31, 0, 3, 37497, 0, 0, 0, '', NULL),
+(13, 1, 69431, 0, 0, 31, 0, 3, 37496, 0, 0, 0, '', NULL),
+(13, 1, 69431, 0, 4, 31, 0, 3, 37588, 0, 0, 0, '', NULL),
+(13, 1, 69431, 0, 2, 31, 0, 3, 37584, 0, 0, 0, '', NULL),
+(13, 1, 69431, 0, 3, 31, 0, 3, 37587, 0, 0, 0, '', NULL);
 
 insert into `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) values('37906','668','3','1','11686','0','5314.98','2013.36','717.077','0.909173','86400','0','0','42','0','0','0','0','0');
 insert into `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) values('37906','668','3','1','11686','0','5311.79','1997.99','717.652','4.97445','86400','0','0','42','0','0','0','0','0');
