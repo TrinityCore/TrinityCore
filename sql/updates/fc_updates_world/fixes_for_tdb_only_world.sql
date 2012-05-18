@@ -156,4 +156,5 @@ UPDATE `item_template` SET `ScriptName` = 'item_brewfest_ram_reins' WHERE `entry
 -- startup errors fixes
 UPDATE `quest_template` SET `ZoneOrSort` = 1 WHERE  `Id` =384;
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 35491;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (35491, 47020, 1, 0);
