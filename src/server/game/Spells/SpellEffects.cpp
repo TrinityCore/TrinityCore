@@ -2610,6 +2610,9 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
 
+    if (m_caster->IsValidAttackTarget(unitTarget) && !m_caster->isInCombat())
+        m_caster->CombatStart(unitTarget);
+
     // On success dispel
     // Devour Magic
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
@@ -3539,7 +3542,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     // Add melee damage bonuses (also check for negative)
     uint32 damage = m_caster->MeleeDamageBonusDone(unitTarget, eff_damage, m_attackType, m_spellInfo);
-    
+
     m_damage += unitTarget->MeleeDamageBonusTaken(m_caster, damage, m_attackType, m_spellInfo);
 }
 
