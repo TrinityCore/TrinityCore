@@ -128,5 +128,32 @@ INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, 
 -- The TC and TDB developers are so confident in his infallibility, that not even fix his mistake.
 UPDATE `spelldifficulty_dbc` SET `spellid0`= 61890 WHERE `id`= 3251 AND `spellid1`= 63498;
 
+-- Scriptnames
+UPDATE `creature_template` SET `ScriptName` = 'npc_coren_direbrew' WHERE `entry` = 23872;
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (42992, 42993, 42994, 43310, 43332);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(42992, 'spell_brewfest_speed'),
+(42993, 'spell_brewfest_speed'),
+(42994, 'spell_brewfest_speed'),
+(43310, 'spell_brewfest_speed'),
+(43332, 'spell_brewfest_speed');
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewfest_apple_trigger' WHERE `entry` = 24337;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewfest_keg_thrower' WHERE `entry` = 24364;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewfest_keg_thrower' WHERE `entry` = 24527;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewfest_keg_receiver' WHERE `entry` = 24468;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewfest_keg_receiver' WHERE `entry` = 24510;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewfest_ram_master' WHERE `entry` = 23558;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewfest_ram_master' WHERE `entry` = 24497;
+UPDATE `creature_template` SET `ScriptName` = 'npc_dark_iron_guzzler' WHERE `entry` = 23709;
+UPDATE `creature_template` SET `ScriptName` = 'npc_coren_direbrew' WHERE `entry` = 23872;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewmaiden' WHERE `entry` = 26764;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brewmaiden' WHERE `entry` = 26822;
+UPDATE `gameobject_template` SET `ScriptName` = 'go_mole_machine_console' WHERE `entry` = 188498;
+UPDATE `item_template` SET `ScriptName` = 'item_brewfest_ChugAndChuck' WHERE `entry` = 33096;
+UPDATE `item_template` SET `ScriptName` = 'item_brewfest_ram_reins' WHERE `entry` = 33306;
 
 
+-- startup errors fixes
+UPDATE `quest_template` SET `ZoneOrSort` = 1 WHERE  `Id` =384;
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 35491;
+(35491, 47020, 1, 0);
