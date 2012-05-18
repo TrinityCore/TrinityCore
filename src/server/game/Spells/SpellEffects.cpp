@@ -1993,6 +1993,15 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
             m_caster->CastSpell(unitTarget, Trinity::Containers::SelectRandomContainerElement(avalibleElixirs), true, m_CastItem);
         }
     }
+
+    // Enrage talent armor decreasing
+    if (m_spellInfo->Id == 5229)
+    {
+        if (m_caster->GetShapeshiftForm() == FORM_BEAR)
+            unitTarget->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 27, false);
+        else if (m_caster->GetShapeshiftForm() == FORM_DIREBEAR)
+            unitTarget->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 16, false);
+    }
 }
 
 void Spell::EffectEnergizePct(SpellEffIndex effIndex)

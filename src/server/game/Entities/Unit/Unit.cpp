@@ -3362,6 +3362,15 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
 
     Unit* caster = aura->GetCaster();
 
+    // adding back armor decreased by Enrage talent of druids
+    if (aura->GetId() == 5229)
+    {
+        if (caster->GetShapeshiftForm() == FORM_BEAR)
+            caster->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 27, true);
+        else if (caster->GetShapeshiftForm() == FORM_DIREBEAR)
+            caster->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 16, true);
+    }
+
     // Remove all pointers from lists here to prevent possible pointer invalidation on spellcast/auraapply/auraremove
     m_appliedAuras.erase(i);
 
