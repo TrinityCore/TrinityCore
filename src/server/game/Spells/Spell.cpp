@@ -4992,11 +4992,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (!unit || !unit->HasAura(17743))
                         return SPELL_FAILED_BAD_TARGETS;
                 }
-                else if (m_spellInfo->Id == 52264)          // Deliver Stolen Horse
-                {
-                    if (!m_caster->FindNearestCreature(28653, 5))
-                        return SPELL_FAILED_OUT_OF_RANGE;
-                }
                 else if (m_spellInfo->Id == 31789)          // Righteous Defense
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
