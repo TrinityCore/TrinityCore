@@ -1,6 +1,6 @@
 DELETE FROM `reference_loot_template` WHERE `entry`=34172;
 DELETE FROM `creature_loot_template` WHERE `entry`=38013;
-DELETE FROM `gameobject_loot_template` WHERE `entry=28683
+DELETE FROM `gameobject_loot_template` WHERE `entry`=28683;
 INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 (28683,35498,3,1,0,1,1), -- Formula: Enchant Weapon - Deathfrost
 (28683,35557,28,1,0,1,2), -- Huge Snowball
