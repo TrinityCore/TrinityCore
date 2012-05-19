@@ -1141,35 +1141,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     // TODO: remove those
     switch (m_spellInfo->Id)
     {
-        case 46584: // Raise Dead
-        {
-            if (Player* playerCaster = m_caster->ToPlayer())
-            {
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                {
-                    switch ((*itr)->GetTypeId())
-                    {
-                        case TYPEID_UNIT:
-                        case TYPEID_PLAYER:
-                        {
-                            Unit* unitTarget = (*itr)->ToUnit();
-                            if (unitTarget->isAlive() || !playerCaster->isHonorOrXPTarget(unitTarget)
-                                || ((unitTarget->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1))) == 0)
-                                || (unitTarget->GetDisplayId() != unitTarget->GetNativeDisplayId()))
-                                break;
-                            AddUnitTarget(unitTarget, effMask, false);
-                            // no break;
-                        }
-                        case TYPEID_CORPSE: // wont work until corpses are allowed in target lists, but at least will send dest in packet
-                            m_targets.SetDst(*(*itr));
-                            return; // nothing more to do here
-                        default:
-                            break;
-                    }
-                }
-            }
-            return; // don't add targets to target map
-        }
         // Corpse Explosion
         case 49158:
         case 51325:

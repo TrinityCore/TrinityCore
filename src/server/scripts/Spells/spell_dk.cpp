@@ -40,6 +40,9 @@ enum DeathKnightSpells
     DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     DK_SPELL_UNHOLY_PRESENCE                    = 48265,
     DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
+    DK_SPELL_RAISE_DEAD_NORMAL                  = 46585,
+    DK_SPELL_RAISE_DEAD_IMPROVED                = 52150,    // improved with Master of Ghouls talent
+    DK_SPELL_GLYPH_OF_RAISE_DEAD                = 60200,
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -827,6 +830,76 @@ class spell_dk_death_grip : public SpellScriptLoader
         }
 };
 
+class spell_dk_raise_dead : public SpellScriptLoader
+{
+    public:
+        spell_dk_raise_dead() : SpellScriptLoader("spell_dk_raise_dead") { }
+
+        class spell_dk_raise_dead_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_raise_dead_SpellScript);
+
+            SpellCastResult CheckIfCorpseNear()
+            {
+                Unit* caster = GetCaster();
+                float max_range = 30;
+                WorldObject* unitTarget = NULL;
+                uint32 triggered_spell_id = 0;
+
+                // search for nearby corpse in range
+                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_DEFAULT);
+                Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, unitTarget, check);
+                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+
+                // check for Master of Ghouls talent
+                if (caster->HasAura(52143))
+                    // summon as pet
+                    triggered_spell_id = DK_SPELL_RAISE_DEAD_IMPROVED;
+                else
+                    // or guardian
+                    triggered_spell_id = DK_SPELL_RAISE_DEAD_NORMAL;
+
+                if (!unitTarget)
+                {
+                    // check for Glyph of Raise Dead
+                    if (caster->HasAura(DK_SPELL_GLYPH_OF_RAISE_DEAD))
+                    {
+                        caster->CastSpell(caster->GetPositionX(),caster->GetPositionY(),caster->GetPositionZ(),triggered_spell_id, true);
+                        return SPELL_CAST_OK;
+                    }
+                    // check for Corpse Dust
+                    else if (((Player*)caster)->HasItemCount(37201, 1))
+                    {
+                        caster->CastSpell(caster,48289);    // spell handling Corpse Dust removal
+                        caster->CastSpell(caster->GetPositionX(),caster->GetPositionY(),caster->GetPositionZ(),triggered_spell_id, true);
+                        return SPELL_CAST_OK;
+                    }
+                    else
+                        // should it be some other error ? /tibbi
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+                else if (unitTarget && unitTarget != caster)
+                {
+                    caster->CastSpell(unitTarget->GetPositionX(),unitTarget->GetPositionY(),unitTarget->GetPositionZ(),triggered_spell_id, true);
+                    return SPELL_CAST_OK;
+                }
+
+                return SPELL_FAILED_DONT_REPORT;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dk_raise_dead_SpellScript::CheckIfCorpseNear);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_raise_dead_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -845,4 +918,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_strike();
     new spell_dk_death_coil();
     new spell_dk_death_grip();
+    new spell_dk_raise_dead();
 }
