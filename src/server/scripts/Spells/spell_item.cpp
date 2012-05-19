@@ -1748,8 +1748,16 @@ class spell_item_rocket_boots : public SpellScriptLoader
                 caster->CastSpell(caster, SPELL_ROCKET_BOOTS_PROC, true, NULL);
             }
 
+            SpellCastResult CheckCast()
+            {
+                if (GetCaster()->IsInWater())
+                    return SPELL_FAILED_ONLY_ABOVEWATER;
+                return SPELL_CAST_OK;
+            }
+
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_item_rocket_boots_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_item_rocket_boots_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
