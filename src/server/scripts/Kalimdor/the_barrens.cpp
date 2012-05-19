@@ -408,42 +408,26 @@ public:
                     return;
 
                 if (!pWarrior->isAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
-                    EventInProgress = false;
                     DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, me);
                     pWarrior->FailQuest(1719);
 
-                    for (uint8 i = 0; i < 6; ++i)
+                    for (uint8 i = 0; i < 6; ++i) // unsummon challengers
                     {
                         if (AffrayChallenger[i])
                         {
                             Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
-                            if (creature) {
-                                if (creature->isAlive())
-                                {
-                                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    creature->setDeathState(JUST_DIED);
-                                }
-                            }
+                            if (creature && creature->isAlive())
+                                creature->DisappearAndDie();
                         }
-                        AffrayChallenger[i] = 0;
-                        Challenger_down[i] = false;
                     }
 
-                    if (BigWill)
+                    if (BigWill) // unsummon bigWill
                     {
                         Creature* creature = Unit::GetCreature((*me), BigWill);
-                        if (creature)
-                        {
-                            if (creature->isAlive())
-                            {
-                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                creature->setDeathState(JUST_DIED);
-                            }
-                        }
+                        if (creature && creature->isAlive())
+                            creature->DisappearAndDie();
                     }
-                    BigWill = 0;
+                    Reset();
                 }
 
                 if (!EventGrate && EventInProgress)
@@ -453,7 +437,7 @@ public:
 
                     if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {
                         pWarrior->AreaExploredOrEventHappens(1719);
-                        DoScriptText(SAY_TWIGGY_FLATHEAD_BEGIN, me);
+                        DoScriptText(SAY_TWIGGY_FLATHEAD_BEGIN, me, pWarrior);
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
@@ -525,11 +509,7 @@ public:
                             if (!creature || !creature->isAlive())
                             {
                                 DoScriptText(SAY_TWIGGY_FLATHEAD_OVER, me);
-                                EventInProgress = false;
-                                EventBigWill = false;
-                                EventGrate = false;
-                                PlayerGUID = 0;
-                                Wave = 0;
+                                Reset();
                             }
                         }
                     } else Wave_Timer -= diff;
