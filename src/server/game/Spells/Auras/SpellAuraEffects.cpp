@@ -4813,6 +4813,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
                             target->CastSpell(spellTarget, 51699, true);
                    break;
+                case 53601: // Sacred Shield
+                    // reset both swing timers just to be sure
+                    caster->resetAttackTimer(BASE_ATTACK);
+                    caster->resetAttackTimer(OFF_ATTACK);
+                    break;
                 case 28832: // Mark of Korth'azz
                 case 28833: // Mark of Blaumeux
                 case 28834: // Mark of Rivendare
