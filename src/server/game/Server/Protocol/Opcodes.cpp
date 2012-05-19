@@ -491,7 +491,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x1CE*/ { "CMSG_QUERY_TIME",                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode           },
     /*0x1CF*/ { "SMSG_QUERY_TIME_RESPONSE",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x1D0*/ { "SMSG_LOG_XPGAIN",                              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x1D1*/ { "SMSG_AURACASTLOG",                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
+    /*0x1D1*/ { "SMSG_AURACASTLOG",                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x1D2*/ { "CMSG_RECLAIM_CORPSE",                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReclaimCorpseOpcode       },
     /*0x1D3*/ { "CMSG_WRAP_ITEM",                               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleWrapItemOpcode            },
     /*0x1D4*/ { "SMSG_LEVELUP_INFO",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
