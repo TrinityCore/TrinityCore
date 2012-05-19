@@ -4,8 +4,8 @@ CREATE TABLE `temp_convert_spells`
 	PRIMARY KEY (`id`)
 );
 
-# spells with EffectImplicitTarget In (6,21, 25) + spells having Targets & 1115534
-# those spells are the ones which require explicit unit target to cast
+-- spells with EffectImplicitTarget In (6,21, 25) + spells having Targets & 1115534
+-- those spells are the ones which require explicit unit target to cast
 INSERT INTO `temp_convert_spells` VALUES
 (5),
 (11),
@@ -12783,13 +12783,13 @@ INSERT IGNORE INTO `temp_item_spell` SELECT `entry`, `spellid_5` FROM `item_temp
 INSERT INTO `temp_cond_vals` (`spellId`, `entry`, `dead`, `errorTextId`, `comment`) SELECT DISTINCT (SELECT `spellId` FROM `temp_item_spell` WHERE `itemId` = `SourceEntry`), `ConditionValue2`, (`ConditionValue1` - 1), `ErrorTextId`, `Comment` FROM `conditions`
 WHERE `SourceTypeOrReferenceId` = 18;
 
-#use CONDITION_OBJECT_ENTRY instead of CONDITION_ITEM_TARGET
+-- use CONDITION_OBJECT_ENTRY instead of CONDITION_ITEM_TARGET
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `Comment`)
 SELECT DISTINCT 17, 0, `spellId`, 0, `elseGroup` - 1, 31, 1, 3, `entry`, 0, 0, `errorTextId`, `comment` FROM `temp_cond_vals`;
-#for CONDITION_ITEM_TARGET with ConditionValue1 = DEAD we're adding !CONDITION_ALIVE as a second requirement
+-- for CONDITION_ITEM_TARGET with ConditionValue1 = DEAD we're adding !CONDITION_ALIVE as a second requirement
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `Comment`)
 SELECT DISTINCT 17, 0, `spellId`, 0, `elseGroup` - 1, 36, 1, 0, 0, 0, 1, `errorTextId`, `comment` FROM `temp_cond_vals` WHERE `dead`;
-#remove entries which could be converted by this sql
+-- remove entries which could be converted by this sql
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 18 AND `SourceEntry` IN (SELECT `itemId` FROM `temp_item_spell`);
 DROP TABLE `temp_convert_spells`;
 DROP TABLE `temp_cond_vals`;
