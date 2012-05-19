@@ -804,12 +804,12 @@ void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, ui
         return;
     SetRun(mRun);
     mFollowGuid = target->GetGUID();
-    mFollowDist = dist ? dist : PET_FOLLOW_DIST;
-    mFollowAngle = angle ? angle : me->GetFollowAngle();
+    mFollowDist = dist >= 0.0f ? dist : PET_FOLLOW_DIST;
+    mFollowAngle = angle >= 0.0f ? angle : me->GetFollowAngle();
     mFollowArrivedTimer = 1000;
     mFollowCredit = credit;
     mFollowArrivedEntry = end;
-    me->GetMotionMaster()->MoveFollow(target, dist, angle);
+    me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
     mFollowCreditType = creditType;
 }
 
