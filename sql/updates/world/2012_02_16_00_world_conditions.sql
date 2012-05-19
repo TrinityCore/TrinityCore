@@ -12786,7 +12786,7 @@ WHERE `SourceTypeOrReferenceId` = 18;
 #use CONDITION_OBJECT_ENTRY instead of CONDITION_ITEM_TARGET
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `Comment`)
 SELECT DISTINCT 17, 0, `spellId`, 0, `elseGroup` - 1, 31, 1, 3, `entry`, 0, 0, `errorTextId`, `comment` FROM `temp_cond_vals`;
-#for CONDITION_ITEM_TARGET with ConditionValue1 = DEAD we're adding !CONDITION_ALIVE as a second requirement
+#for CONDITION_ITEM_TARGET with ConditionValue1 = DEAD we are adding !CONDITION_ALIVE as a second requirement
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `Comment`)
 SELECT DISTINCT 17, 0, `spellId`, 0, `elseGroup` - 1, 36, 1, 0, 0, 0, 1, `errorTextId`, `comment` FROM `temp_cond_vals` WHERE `dead`;
 #remove entries which could be converted by this sql
