@@ -351,7 +351,7 @@ bool SpellEffectInfo::IsEffect() const
 
 bool SpellEffectInfo::IsEffect(SpellEffects effectName) const
 {
-    return Effect == effectName;
+    return Effect == uint32(effectName);
 }
 
 bool SpellEffectInfo::IsAura() const
