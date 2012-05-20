@@ -12019,7 +12019,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     Map const* map = lootedObject->GetMap();
     if (uint32 dungeonId = sLFGMgr->GetDungeon(GetGroup()->GetGUID(), true))
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-            if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
+            if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
                 lootedObjectInDungeon = true;
 
     if (!lootedObjectInDungeon)
@@ -17658,7 +17658,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     }
                     else
                         if (IsBagPos(item->GetPos()))
-                            if (Bag* pBag = item->ToBag())
+                            if (item->IsBag())
                                 invalidBagMap[item->GetGUIDLow()] = item;
                 }
                 else
@@ -17811,7 +17811,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 GameEventMgr::ActiveEvents const& activeEventsList = sGameEventMgr->GetActiveEventList();
                 for (GameEventMgr::ActiveEvents::const_iterator itr = activeEventsList.begin(); itr != activeEventsList.end(); ++itr)
                 {
-                    if (events[*itr].holiday_id == proto->HolidayId)
+                    if (uint32(events[*itr].holiday_id) == proto->HolidayId)
                     {
                         remove = false;
                         break;
