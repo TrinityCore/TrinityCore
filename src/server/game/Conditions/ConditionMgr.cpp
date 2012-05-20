@@ -190,7 +190,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         }
         case CONDITION_OBJECT_ENTRY:
         {
-            if (object->GetTypeId() == ConditionValue1)
+            if (uint32(object->GetTypeId()) == ConditionValue1)
                 condMeets = (!ConditionValue2) || (object->GetEntry() == ConditionValue2);
             break;
         }
