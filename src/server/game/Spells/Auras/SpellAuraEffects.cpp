@@ -3155,10 +3155,6 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
     if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    //seems it may happen that when removing it is no longer owner's pet
-    //if (caster->ToPlayer()->GetPet() != target)
-    //    return;
-
     Unit* target = aurApp->GetTarget();
     if (target->GetTypeId() != TYPEID_UNIT || !target->ToCreature()->isPet())
         return;
@@ -3170,12 +3166,23 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         if (caster->ToPlayer()->GetPet() != pet)
             return;
 
+        pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
         pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
+
+        pet->StopMoving();
+        pet->GetMotionMaster()->Clear(false);
+        pet->GetMotionMaster()->MoveIdle();
+
+        ((Player*)caster)->SetClientControl(pet, 1);
     }
     else
     {
+        ((Player*)caster)->SetClientControl(pet, 0);
         pet->RemoveCharmedBy(caster);
 
+        pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+
+        // if the pet is already outside the view distance, unsummon him
         if (!pet->IsWithinDistInMap(caster, pet->GetMap()->GetVisibilityRange()))
             pet->Remove(PET_SAVE_NOT_IN_SLOT, true);
         else
@@ -3185,8 +3192,8 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
             if (!pet->getVictim())
             {
                 pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, pet->GetFollowAngle());
-                //if (target->GetCharmInfo())
-                //    target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+                if (target->GetCharmInfo())
+                    target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
             }
         }
     }
