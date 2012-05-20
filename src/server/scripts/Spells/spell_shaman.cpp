@@ -213,7 +213,7 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;

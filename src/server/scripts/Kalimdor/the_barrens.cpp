@@ -32,7 +32,9 @@ npc_twiggy_flathead
 npc_wizzlecrank_shredder
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -41,7 +43,7 @@ EndContentData */
 
 #define GOSSIP_CORPSE "Examine corpse in detail..."
 
-enum eQuests
+enum BeatenCorpse
 {
     QUEST_LOST_IN_BATTLE    = 4921
 };
@@ -77,7 +79,7 @@ public:
 # npc_gilthares
 ######*/
 
-enum eGilthares
+enum Gilthares
 {
     SAY_GIL_START               = -1000370,
     SAY_GIL_AT_LAST             = -1000371,
@@ -214,7 +216,7 @@ public:
 ## npc_taskmaster_fizzule
 ######*/
 
-enum eEnums
+enum TaskmasterFizzule
 {
     FACTION_FRIENDLY_F  = 35,
     SPELL_FLARE         = 10113,
@@ -240,13 +242,13 @@ public:
 
         uint32 factionNorm;
         bool IsFriend;
-        uint32 Reset_Timer;
+        uint32 ResetTimer;
         uint8 FlareCount;
 
         void Reset()
         {
             IsFriend = false;
-            Reset_Timer = 120000;
+            ResetTimer = 120000;
             FlareCount = 0;
             me->setFaction(factionNorm);
         }
@@ -281,11 +283,11 @@ public:
         {
             if (IsFriend)
             {
-                if (Reset_Timer <= diff)
+                if (ResetTimer <= diff)
                 {
                     EnterEvadeMode();
                     return;
-                } else Reset_Timer -= diff;
+                } else ResetTimer -= diff;
             }
 
             if (!UpdateVictim())
@@ -315,7 +317,7 @@ public:
 ## npc_twiggy_flathead
 #####*/
 
-enum eTwiggyFlathead
+enum TwiggyFlathead
 {
     NPC_BIG_WILL                = 6238,
     NPC_AFFRAY_CHALLENGER       = 6240,
@@ -327,7 +329,7 @@ enum eTwiggyFlathead
     SAY_TWIGGY_FLATHEAD_OVER    = -1000127,
 };
 
-float AffrayChallengerLoc[6][4]=
+Position const AffrayChallengerLoc[6] =
 {
     {-1683.0f, -4326.0f, 2.79f, 0.0f},
     {-1682.0f, -4329.0f, 2.79f, 0.0f},
@@ -354,10 +356,10 @@ public:
         bool EventInProgress;
         bool EventGrate;
         bool EventBigWill;
-        bool Challenger_down[6];
-        uint32 Wave;
-        uint32 Wave_Timer;
-        uint32 Challenger_checker;
+        bool ChallengerDown[6];
+        uint8 Wave;
+        uint32 WaveTimer;
+        uint32 ChallengerChecker;
         uint64 PlayerGUID;
         uint64 AffrayChallenger[6];
         uint64 BigWill;
@@ -367,15 +369,15 @@ public:
             EventInProgress = false;
             EventGrate = false;
             EventBigWill = false;
-            Wave_Timer = 600000;
-            Challenger_checker = 0;
+            WaveTimer = 600000;
+            ChallengerChecker = 0;
             Wave = 0;
             PlayerGUID = 0;
 
             for (uint8 i = 0; i < 6; ++i)
             {
                 AffrayChallenger[i] = 0;
-                Challenger_down[i] = false;
+                ChallengerDown[i] = false;
             }
             BigWill = 0;
         }
@@ -408,42 +410,26 @@ public:
                     return;
 
                 if (!pWarrior->isAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
-                    EventInProgress = false;
                     DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, me);
                     pWarrior->FailQuest(1719);
 
-                    for (uint8 i = 0; i < 6; ++i)
+                    for (uint8 i = 0; i < 6; ++i) // unsummon challengers
                     {
                         if (AffrayChallenger[i])
                         {
                             Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
-                            if (creature) {
-                                if (creature->isAlive())
-                                {
-                                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    creature->setDeathState(JUST_DIED);
-                                }
-                            }
+                            if (creature && creature->isAlive())
+                                creature->DisappearAndDie();
                         }
-                        AffrayChallenger[i] = 0;
-                        Challenger_down[i] = false;
                     }
 
-                    if (BigWill)
+                    if (BigWill) // unsummon bigWill
                     {
                         Creature* creature = Unit::GetCreature((*me), BigWill);
-                        if (creature)
-                        {
-                            if (creature->isAlive())
-                            {
-                                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                creature->setDeathState(JUST_DIED);
-                            }
-                        }
+                        if (creature && creature->isAlive())
+                            creature->DisappearAndDie();
                     }
-                    BigWill = 0;
+                    Reset();
                 }
 
                 if (!EventGrate && EventInProgress)
@@ -453,11 +439,11 @@ public:
 
                     if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {
                         pWarrior->AreaExploredOrEventHappens(1719);
-                        DoScriptText(SAY_TWIGGY_FLATHEAD_BEGIN, me);
+                        DoScriptText(SAY_TWIGGY_FLATHEAD_BEGIN, me, pWarrior);
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                             if (!creature)
                                 continue;
                             creature->setFaction(35);
@@ -466,31 +452,31 @@ public:
                             creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             AffrayChallenger[i] = creature->GetGUID();
                         }
-                        Wave_Timer = 5000;
-                        Challenger_checker = 1000;
+                        WaveTimer = 5000;
+                        ChallengerChecker = 1000;
                         EventGrate = true;
                     }
                 }
                 else if (EventInProgress)
                 {
-                    if (Challenger_checker <= diff)
+                    if (ChallengerChecker <= diff)
                     {
                         for (uint8 i = 0; i < 6; ++i)
                         {
                             if (AffrayChallenger[i])
                             {
                                 Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
-                                if ((!creature || (!creature->isAlive())) && !Challenger_down[i])
+                                if ((!creature || (!creature->isAlive())) && !ChallengerDown[i])
                                 {
                                     DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, me);
-                                    Challenger_down[i] = true;
+                                    ChallengerDown[i] = true;
                                 }
                             }
                         }
-                        Challenger_checker = 1000;
-                    } else Challenger_checker -= diff;
+                        ChallengerChecker = 1000;
+                    } else ChallengerChecker -= diff;
 
-                    if (Wave_Timer <= diff)
+                    if (WaveTimer <= diff)
                     {
                         if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
                         {
@@ -504,7 +490,7 @@ public:
                                 creature->setFaction(14);
                                 creature->AI()->AttackStart(pWarrior);
                                 ++Wave;
-                                Wave_Timer = 20000;
+                                WaveTimer = 20000;
                             }
                         }
                         else if (Wave >= 6 && !EventBigWill) {
@@ -516,7 +502,7 @@ public:
                                 creature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79f);
                                 creature->HandleEmoteCommand(EMOTE_STATE_READY_UNARMED);
                                 EventBigWill = true;
-                                Wave_Timer = 1000;
+                                WaveTimer = 1000;
                             }
                         }
                         else if (Wave >= 6 && EventBigWill && BigWill)
@@ -525,14 +511,10 @@ public:
                             if (!creature || !creature->isAlive())
                             {
                                 DoScriptText(SAY_TWIGGY_FLATHEAD_OVER, me);
-                                EventInProgress = false;
-                                EventBigWill = false;
-                                EventGrate = false;
-                                PlayerGUID = 0;
-                                Wave = 0;
+                                Reset();
                             }
                         }
-                    } else Wave_Timer -= diff;
+                    } else WaveTimer -= diff;
                 }
             }
         }
@@ -544,7 +526,7 @@ public:
 ## npc_wizzlecrank_shredder
 #####*/
 
-enum eEnums_Wizzlecrank
+enum Wizzlecrank
 {
     SAY_START           = -1000298,
     SAY_STARTUP1        = -1000299,
@@ -570,14 +552,14 @@ public:
     {
         npc_wizzlecrank_shredderAI(Creature* creature) : npc_escortAI(creature)
         {
-            m_bIsPostEvent = false;
-            m_uiPostEventTimer = 1000;
-            m_uiPostEventCount = 0;
+            IsPostEvent = false;
+            PostEventTimer = 1000;
+            PostEventCount = 0;
         }
 
-        bool m_bIsPostEvent;
-        uint32 m_uiPostEventTimer;
-        uint32 m_uiPostEventCount;
+        bool IsPostEvent;
+        uint32 PostEventTimer;
+        uint32 PostEventCount;
 
         void Reset()
         {
@@ -586,9 +568,9 @@ public:
                 if (me->getStandState() == UNIT_STAND_STATE_DEAD)
                      me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                m_bIsPostEvent = false;
-                m_uiPostEventTimer = 1000;
-                m_uiPostEventCount = 0;
+                IsPostEvent = false;
+                PostEventTimer = 1000;
+                PostEventCount = 0;
             }
         }
 
@@ -610,19 +592,19 @@ public:
                     }
                     break;
                 case 24:
-                    m_bIsPostEvent = true;
+                    IsPostEvent = true;
                     break;
             }
         }
 
-        void WaypointStart(uint32 uiPointId)
+        void WaypointStart(uint32 PointId)
         {
             Player* player = GetPlayerForEscort();
 
             if (!player)
                 return;
 
-            switch (uiPointId)
+            switch (PointId)
             {
                 case 9:
                     DoScriptText(SAY_STARTUP2, me, player);
@@ -643,15 +625,15 @@ public:
                 summoned->AI()->AttackStart(me);
         }
 
-        void UpdateEscortAI(const uint32 uiDiff)
+        void UpdateEscortAI(const uint32 Diff)
         {
             if (!UpdateVictim())
             {
-                if (m_bIsPostEvent)
+                if (IsPostEvent)
                 {
-                    if (m_uiPostEventTimer <= uiDiff)
+                    if (PostEventTimer <= Diff)
                     {
-                        switch (m_uiPostEventCount)
+                        switch (PostEventCount)
                         {
                             case 0:
                                 DoScriptText(SAY_PROGRESS_2, me);
@@ -671,11 +653,11 @@ public:
                                 break;
                         }
 
-                        ++m_uiPostEventCount;
-                        m_uiPostEventTimer = 5000;
+                        ++PostEventCount;
+                        PostEventTimer = 5000;
                     }
                     else
-                        m_uiPostEventTimer -= uiDiff;
+                        PostEventTimer -= Diff;
                 }
 
                 return;
