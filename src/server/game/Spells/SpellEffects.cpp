@@ -772,6 +772,15 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
             }
             break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            switch (m_spellInfo->Id)
+            {
+                case 46584: // Raise Dead
+                    // rest of the spell handled in spell_dk.cpp
+                    m_caster->ToPlayer()->RemoveSpellCooldown(46584, true);
+                    break;
+            }
+            break;
     }
 
     //spells triggered by dummy effect should not miss
