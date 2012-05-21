@@ -550,7 +550,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
                     if (dist >= maxDist)
                     {
-                        sLog->outError("BATTLEGROUND: Sending %s back to start location (possible exploit)", plr->GetName());
+                        sLog->outError("BATTLEGROUND: Sending %s back to start location (map: %u) (possible exploit)", plr->GetName(), GetMapId());
                         plr->TeleportTo(GetMapId(), x, y, z, o);
                     }
                 }

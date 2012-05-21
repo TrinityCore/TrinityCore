@@ -267,7 +267,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
     if (Empty() || !captainPresentInTeam)
     {
         // Arena team is empty or captain is not in team, delete from db
-        sLog->outErrorDb("ArenaTeam %u does not have any members or its captain is not in team, disbanding it...", TeamId);
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "ArenaTeam %u does not have any members or its captain is not in team, disbanding it...", TeamId);
         return false;
     }
 
