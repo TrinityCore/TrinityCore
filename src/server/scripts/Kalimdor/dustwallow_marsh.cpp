@@ -32,8 +32,11 @@ npc_private_hendel
 npc_cassa_crimsonwing - handled by npc_taxi
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
 ## mobs_risen_husk_spirit
@@ -132,7 +135,7 @@ class mobs_risen_husk_spirit : public CreatureScript
 ## npc_deserter_agitator
 ######*/
 
-enum eDeserter
+enum Deserter
 {
     QUEST_TRAITORS_AMONG_US                      = 11126,
     NPC_THERAMORE_DESERTER                       = 23602,
@@ -203,12 +206,12 @@ public:
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiId)
+        void MovementInform(uint32 Type, uint32 Id)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
-            if (uiId == 1)
+            if (Id == 1)
                 me->DisappearAndDie();
         }
     };
@@ -218,7 +221,7 @@ public:
 ## npc_deserter_agitator
 ######*/
 
-enum eTheramoreGuard
+enum TheramoreGuard
 {
     SAY_QUEST1                                   = -1000641,
     SAY_QUEST2                                   = -1000642,
@@ -266,7 +269,7 @@ public:
             DoScriptText(SAY_QUEST1, creature);
             creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
             creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->uiYellTimer = 4000;
+            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->YellTimer = 4000;
             CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->bYellTimer = true;
         }
 
@@ -282,40 +285,40 @@ public:
     {
         npc_theramore_guardAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 uiYellTimer;
-        uint32 uiStep;
+        uint32 YellTimer;
+        uint32 Step;
         bool bYellTimer;
 
         void Reset()
         {
             bYellTimer = false;
-            uiStep = 0;
+            Step = 0;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 Diff)
         {
             if (!me->HasAura(SPELL_PROPAGANDIZED))
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            if (bYellTimer && uiYellTimer <= uiDiff)
+            if (bYellTimer && YellTimer <= Diff)
             {
-                switch (uiStep)
+                switch (Step)
                 {
                     case 0:
                         DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);
-                        uiYellTimer = 3000;
-                        ++uiStep;
+                        YellTimer = 3000;
+                        ++Step;
                         break;
                     case 1:
                         DoScriptText(RAND(SAY_QUEST7, SAY_QUEST8, SAY_QUEST9), me);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        uiStep = 0;
+                        Step = 0;
                         bYellTimer = false;
                         break;
                 }
             }
             else
-                uiYellTimer -= uiDiff;
+                YellTimer -= Diff;
         }
     };
 };
@@ -324,7 +327,7 @@ public:
 ## npc_lady_jaina_proudmoore
 ######*/
 
-enum eLadyJaina
+enum LadyJaina
 {
     QUEST_JAINAS_AUTOGRAPH = 558,
     SPELL_JAINAS_AUTOGRAPH = 23122
@@ -367,7 +370,7 @@ public:
 ## npc_nat_pagle
 ######*/
 
-enum eNatPagle
+enum NatPagle
 {
     QUEST_NATS_MEASURING_TAPE = 8227
 };
@@ -408,7 +411,7 @@ public:
 ## npc_private_hendel
 ######*/
 
-enum eHendel
+enum Hendel
 {
     // looks like all this text ids are wrong.
     SAY_PROGRESS_1_TER          = -1000411, // signed for 3568
@@ -464,11 +467,11 @@ public:
             AttackStart(pAttacker);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32 &Damage)
         {
-            if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(20, uiDamage))
+            if (Damage > me->GetHealth() || me->HealthBelowPctDamaged(20, Damage))
             {
-                uiDamage = 0;
+                Damage = 0;
 
                 if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
                     player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
@@ -485,9 +488,9 @@ public:
 ## npc_zelfrax
 ######*/
 
-const Position MovePosition = {-2967.030f, -3872.1799f, 35.620f, 0.0f};
+Position const MovePosition = {-2967.030f, -3872.1799f, 35.620f, 0.0f};
 
-enum eZelfrax
+enum Zelfrax
 {
     SAY_ZELFRAX     = -1000472,
     SAY_ZELFRAX_2   = -1000473
@@ -525,9 +528,9 @@ public:
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 Type, uint32 /*Id*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (Type != POINT_MOTION_TYPE)
                 return;
 
             me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -547,7 +550,7 @@ public:
             DoScriptText(SAY_ZELFRAX_2, me);
         }
 
-        void UpdateAI(uint32 const /*uiDiff*/)
+        void UpdateAI(uint32 const /*Diff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -562,7 +565,7 @@ public:
 ## npc_stinky
 ######*/
 
-enum eStinky
+enum Stinky
 {
     QUEST_STINKYS_ESCAPE_H                       = 1270,
     QUEST_STINKYS_ESCAPE_A                       = 1222,

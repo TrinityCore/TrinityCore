@@ -32,14 +32,16 @@ npc_enraged_panther
 go_panther_cage
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 /*#####
 # npc_kanati
 ######*/
 
-enum eKanati
+enum Kanati
 {
     SAY_KAN_START              = -1000410,
 
@@ -47,7 +49,7 @@ enum eKanati
     NPC_GALAK_ASS               = 10720
 };
 
-const float m_afGalakLoc[]= {-4867.387695f, -1357.353760f, -48.226f };
+Position const GalakLoc = {-4867.387695f, -1357.353760f, -48.226f, 0.0f};
 
 class npc_kanati : public CreatureScript
 {
@@ -57,10 +59,9 @@ public:
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
         if (quest->GetQuestId() == QUEST_PROTECT_KANATI)
-        {
             if (npc_kanatiAI* pEscortAI = CAST_AI(npc_kanati::npc_kanatiAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest, true);
-        }
+
         return true;
     }
 
@@ -73,7 +74,7 @@ public:
     {
         npc_kanatiAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() { }
+        void Reset() {}
 
         void WaypointReached(uint32 waypointId)
         {
@@ -93,9 +94,7 @@ public:
         void DoSpawnGalak()
         {
             for (int i = 0; i < 3; ++i)
-                me->SummonCreature(NPC_GALAK_ASS,
-                m_afGalakLoc[0], m_afGalakLoc[1], m_afGalakLoc[2], 0.0f,
-                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_GALAK_ASS, GalakLoc, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
         }
 
         void JustSummoned(Creature* summoned)
@@ -110,7 +109,7 @@ public:
 # npc_lakota_windsong
 ######*/
 
-enum eLakota
+enum Lakota
 {
     SAY_LAKO_START              = -1000365,
     SAY_LAKO_LOOK_OUT           = -1000366,
@@ -127,14 +126,14 @@ enum eLakota
     ID_AMBUSH_3                 = 4
 };
 
-float m_afBanditLoc[6][6]=
+Position const BanditLoc[6] =
 {
-    {-4905.479492f, -2062.732666f, 84.352f},
-    {-4915.201172f, -2073.528320f, 84.733f},
-    {-4878.883301f, -1986.947876f, 91.966f},
-    {-4877.503906f, -1966.113403f, 91.859f},
-    {-4767.985352f, -1873.169189f, 90.192f},
-    {-4788.861328f, -1888.007813f, 89.888f}
+    {-4905.479492f, -2062.732666f, 84.352f, 0.0f},
+    {-4915.201172f, -2073.528320f, 84.733f, 0.0f},
+    {-4878.883301f, -1986.947876f, 91.966f, 0.0f},
+    {-4877.503906f, -1966.113403f, 91.859f, 0.0f},
+    {-4767.985352f, -1873.169189f, 90.192f, 0.0f},
+    {-4788.861328f, -1888.007813f, 89.888f, 0.0f}
 };
 
 class npc_lakota_windsong : public CreatureScript
@@ -164,7 +163,7 @@ public:
     {
         npc_lakota_windsongAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() { }
+        void Reset() {}
 
         void WaypointReached(uint32 waypointId)
         {
@@ -189,12 +188,10 @@ public:
             }
         }
 
-        void DoSpawnBandits(int uiAmbushId)
+        void DoSpawnBandits(int AmbushId)
         {
             for (int i = 0; i < 2; ++i)
-                me->SummonCreature(NPC_GRIM_BANDIT,
-                m_afBanditLoc[i+uiAmbushId][0], m_afBanditLoc[i+uiAmbushId][1], m_afBanditLoc[i+uiAmbushId][2], 0.0f,
-                TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+                me->SummonCreature(NPC_GRIM_BANDIT, BanditLoc[i+AmbushId], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         }
     };
 
@@ -204,7 +201,7 @@ public:
 # npc_paoka_swiftmountain
 ######*/
 
-enum ePacka
+enum Packa
 {
     SAY_START           = -1000362,
     SAY_WYVERN          = -1000363,
@@ -215,11 +212,11 @@ enum ePacka
     FACTION_ESCORTEE    = 232                               //guessed
 };
 
-float m_afWyvernLoc[3][3]=
+Position const WyvernLoc[3] =
 {
-    {-4990.606f, -906.057f, -5.343f},
-    {-4970.241f, -927.378f, -4.951f},
-    {-4985.364f, -952.528f, -5.199f}
+    {-4990.606f, -906.057f, -5.343f, 0.0f},
+    {-4970.241f, -927.378f, -4.951f, 0.0f},
+    {-4985.364f, -952.528f, -5.199f, 0.0f}
 };
 
 class npc_paoka_swiftmountain : public CreatureScript
@@ -249,7 +246,7 @@ public:
     {
         npc_paoka_swiftmountainAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() { }
+        void Reset() {}
 
         void WaypointReached(uint32 waypointId)
         {
@@ -272,9 +269,7 @@ public:
         void DoSpawnWyvern()
         {
             for (int i = 0; i < 3; ++i)
-                me->SummonCreature(NPC_WYVERN,
-                m_afWyvernLoc[i][0], m_afWyvernLoc[i][1], m_afWyvernLoc[i][2], 0.0f,
-                TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+                me->SummonCreature(NPC_WYVERN, WyvernLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         }
     };
 };
@@ -285,7 +280,7 @@ public:
 
 #define GOSSIP_P    "Please tell me the Phrase.."
 
-enum ePlucky
+enum Plucky
 {
     FACTION_FRIENDLY        = 35,
     QUEST_SCOOP             = 1950,
@@ -328,17 +323,17 @@ public:
 
     struct npc_pluckyAI : public ScriptedAI
     {
-        npc_pluckyAI(Creature* creature) : ScriptedAI(creature) { m_uiNormFaction = creature->getFaction(); }
+        npc_pluckyAI(Creature* creature) : ScriptedAI(creature) { NormFaction = creature->getFaction(); }
 
-        uint32 m_uiNormFaction;
-        uint32 m_uiResetTimer;
+        uint32 NormFaction;
+        uint32 ResetTimer;
 
         void Reset()
         {
-            m_uiResetTimer = 120000;
+            ResetTimer = 120000;
 
-            if (me->getFaction() != m_uiNormFaction)
-                me->setFaction(m_uiNormFaction);
+            if (me->getFaction() != NormFaction)
+                me->setFaction(NormFaction);
 
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -346,11 +341,11 @@ public:
             DoCast(me, SPELL_PLUCKY_CHICKEN, false);
         }
 
-        void ReceiveEmote(Player* player, uint32 uiTextEmote)
+        void ReceiveEmote(Player* player, uint32 TextEmote)
         {
             if (player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
             {
-                if (uiTextEmote == TEXT_EMOTE_BECKON)
+                if (TextEmote == TEXT_EMOTE_BECKON)
                 {
                     me->setFaction(FACTION_FRIENDLY);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -358,7 +353,7 @@ public:
                 }
             }
 
-            if (uiTextEmote == TEXT_EMOTE_CHICKEN)
+            if (TextEmote == TEXT_EMOTE_CHICKEN)
             {
                 if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                     return;
@@ -372,11 +367,11 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 Diff)
         {
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
             {
-                if (m_uiResetTimer <= uiDiff)
+                if (ResetTimer <= Diff)
                 {
                     if (!me->getVictim())
                         EnterEvadeMode();
@@ -386,7 +381,7 @@ public:
                     return;
                 }
                 else
-                    m_uiResetTimer -= uiDiff;
+                    ResetTimer -= Diff;
             }
 
             if (!UpdateVictim())
@@ -398,7 +393,7 @@ public:
 
 };
 
-enum ePantherCage
+enum PantherCage
 {
     ENRAGED_PANTHER = 10992
 };
