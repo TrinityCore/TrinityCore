@@ -207,35 +207,60 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_corpse_explosion_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            int32 bp;
+            Unit* unitTarget;
+            Unit* caster;
+
+            bool Load()
             {
-                if (!sSpellMgr->GetSpellInfo(DK_SPELL_CORPSE_EXPLOSION_TRIGGERED) || !sSpellMgr->GetSpellInfo(DK_SPELL_GHOUL_EXPLODE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(DK_SPELL_CORPSE_EXPLOSION_VISUAL))
-                    return false;
+                unitTarget = GetExplTargetUnit();
+                caster = GetCaster();
                 return true;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* unitTarget = GetHitUnit())
+                // check if the target exploded already
+                if (unitTarget && !unitTarget->HasAura(51270))
                 {
-                    int32 bp = 0;
-                    if (unitTarget->isAlive())  // Living ghoul as a target
+                    // if we have ghoul selected
+                    if (unitTarget->GetEntry() == 26125)
                     {
                         bp = int32(unitTarget->CountPctFromMaxHealth(25));
                         unitTarget->CastCustomSpell(unitTarget, DK_SPELL_GHOUL_EXPLODE, &bp, NULL, NULL, false);
+                        caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                        return;
                     }
-                    else                        // Some corpse
+                    else if (unitTarget->isDead())
                     {
                         bp = GetEffectValue();
-                        GetCaster()->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
-                        // Corpse Explosion (Suicide)
+                        caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
                         unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
+                        caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                        return;
                     }
-                    // Set corpse look
-                    GetCaster()->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
                 }
+
+                float max_range = 20;
+                unitTarget = NULL;
+
+                // search for nearby corpse in range
+                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_DEFAULT);
+                Trinity::UnitSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, unitTarget, check);
+                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+
+                // TODO: check if the target exploded already (if it has aura 51270)
+                if (unitTarget)
+                {
+                    bp = GetEffectValue();
+                    caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
+                    unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
+                    caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                }
+
+                // TODO: give back the runic power at fail too ? /tibbi
+                ((Player*)caster)->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                return;
             }
 
             void Register()
