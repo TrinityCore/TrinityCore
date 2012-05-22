@@ -8039,7 +8039,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     *handled = true;
                     if (victim && victim->HasAura(53601))
                     {
-                        int32 bp0 = CalculatePctN(int32(damage / 12), dummySpell->Effects[EFFECT_2]. CalcValue());
+                        int32 bp0 = CalculatePctN(int32(damage / 12), dummySpell->Effects[EFFECT_2].CalcValue());
                         // Item - Paladin T9 Holy 4P Bonus
                         if (AuraEffect const* aurEff = GetAuraEffect(67191, 0))
                             AddPctN(bp0, aurEff->GetAmount());
