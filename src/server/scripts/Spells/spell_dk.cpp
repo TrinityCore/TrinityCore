@@ -872,9 +872,21 @@ class spell_dk_raise_dead : public SpellScriptLoader
                 uint32 triggered_spell_id = 0;
 
                 // search for nearby corpse in range
+                std::list<WorldObject*> targetList;
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_DEFAULT);
-                Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, unitTarget, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                Trinity::WorldObjectListSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, targetList, check);
+                caster->GetMap()->VisitAll(caster->m_positionX, caster->m_positionY, max_range, searcher);
+
+                // only humanoid and undead corpses are useable for Raise Dead
+                for (std::list<WorldObject*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+                {
+                    if (((Unit*)*itr)->GetCreatureType() == CREATURE_TYPE_HUMANOID || ((Unit*)*itr)->GetCreatureType() == CREATURE_TYPE_UNDEAD)
+                    {
+                        unitTarget = ((Unit*)*itr);
+                        break;
+                    }
+                }
+
 
                 // check for Master of Ghouls talent
                 if (caster->HasAura(52143))
@@ -900,8 +912,10 @@ class spell_dk_raise_dead : public SpellScriptLoader
                         return SPELL_CAST_OK;
                     }
                     else
-                        // should it be some other error ? /tibbi
-                        return SPELL_FAILED_BAD_TARGETS;
+                    {
+                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_REQUIRES_CORPSE_DUST);
+                        return SPELL_FAILED_CUSTOM_ERROR;
+                    }
                 }
                 else if (unitTarget && unitTarget != caster)
                 {
@@ -909,7 +923,8 @@ class spell_dk_raise_dead : public SpellScriptLoader
                     return SPELL_CAST_OK;
                 }
 
-                return SPELL_FAILED_DONT_REPORT;
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_REQUIRES_CORPSE_DUST);
+                return SPELL_FAILED_CUSTOM_ERROR;
             }
 
             void Register()
