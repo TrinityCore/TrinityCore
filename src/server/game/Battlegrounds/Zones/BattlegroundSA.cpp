@@ -720,8 +720,13 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
 
     DelCreature(BG_SA_MAXNPC + i);
     GraveyardStatus[i] = Source->GetTeamId();
-    WorldSafeLocsEntry const* sg = NULL;
-    sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
+    WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
+    if (!sg)
+    {
+        sLog->outError("BattlegroundSA::CaptureGraveyard: non-existant GY entry: %u", BG_SA_GYEntries[i]);
+        return;
+    }
+
     AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], (GraveyardStatus[i] == TEAM_ALLIANCE?  ALLIANCE : HORDE));
     uint32 npc = 0;
     uint32 flag = 0;
@@ -781,7 +786,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
                 SendWarningToAll(LANG_BG_SA_H_GY_SOUTH);
             break;
         default:
-            ASSERT(0);
+            ASSERT(false);
             break;
     };
 }
