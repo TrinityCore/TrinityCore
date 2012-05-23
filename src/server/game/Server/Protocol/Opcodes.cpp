@@ -1148,7 +1148,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x45F*/ { "CMSG_CALENDAR_EVENT_INVITE_NOTES",             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x460*/ { "SMSG_CALENDAR_EVENT_INVITE_NOTES",             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x461*/ { "SMSG_CALENDAR_EVENT_INVITE_NOTES_ALERT",       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x462*/ { "CMSG_UPDATE_MISSILE_TRAJECTORY",               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
+    /*0x462*/ { "CMSG_UPDATE_MISSILE_TRAJECTORY",               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory   },
     /*0x463*/ { "SMSG_UPDATE_ACCOUNT_DATA_COMPLETE",            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x464*/ { "SMSG_TRIGGER_MOVIE",                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x465*/ { "CMSG_COMPLETE_MOVIE",                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
