@@ -114,8 +114,7 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                // Set absorbtion amount to unlimited
-                amount = -1;
+                amount = GetCaster()->CountPctFromMaxHealth(50);
             }
 
             void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
