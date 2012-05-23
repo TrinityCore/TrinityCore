@@ -218,7 +218,7 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            SpellCastResult CheckIfCorpseNear()
             {
                 // check if the target exploded already
                 if (unitTarget && !unitTarget->HasAura(51270))
@@ -229,15 +229,15 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                         bp = int32(unitTarget->CountPctFromMaxHealth(25));
                         unitTarget->CastCustomSpell(unitTarget, DK_SPELL_GHOUL_EXPLODE, &bp, NULL, NULL, false);
                         caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
-                        return;
+                        return SPELL_CAST_OK;
                     }
                     else if (unitTarget->isDead())
                     {
-                        bp = GetEffectValue();
+                        bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                         caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
                         unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
                         caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
-                        return;
+                        return SPELL_CAST_OK;
                     }
                 }
 
@@ -245,28 +245,40 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                 unitTarget = NULL;
 
                 // search for nearby corpse in range
+                std::list<Unit*> targetList;
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_DEFAULT);
-                Trinity::UnitSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, unitTarget, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                Trinity::UnitListSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, targetList, check);
+                caster->GetMap()->VisitAll(caster->m_positionX, caster->m_positionY, max_range, searcher);
 
-                // TODO: check if the target exploded already (if it has aura 51270)
+                // check if the target exploded already (if it has aura 51270)
+                for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+                {
+                    if (!((Unit*)*itr)->HasAura(51270))
+                    {
+                        unitTarget = ((Unit*)*itr);
+                        break;
+                    }
+                }
+
                 if (unitTarget)
                 {
-                    bp = GetEffectValue();
+                    bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                     caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
                     unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
                     caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
-                    return;
+                    return SPELL_CAST_OK;
                 }
 
-                // TODO: give back the runic power at fail too ? /tibbi
+                // proper handling of these should be done in Spell.cpp, its too late for calling "finish(false)" here
                 ((Player*)caster)->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                return;
+                ((Player*)caster)->ModifyPower(POWER_RUNIC_POWER, 400);
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NO_NEARBY_CORPSES);
+                return SPELL_FAILED_CUSTOM_ERROR;
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_corpse_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_dk_corpse_explosion_SpellScript::CheckIfCorpseNear);
             }
         };
 
@@ -873,21 +885,20 @@ class spell_dk_raise_dead : public SpellScriptLoader
                 uint32 triggered_spell_id = 0;
 
                 // search for nearby corpse in range
-                std::list<WorldObject*> targetList;
+                std::list<Unit*> targetList;
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_DEFAULT);
-                Trinity::WorldObjectListSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, targetList, check);
+                Trinity::UnitListSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, targetList, check);
                 caster->GetMap()->VisitAll(caster->m_positionX, caster->m_positionY, max_range, searcher);
 
                 // only humanoid and undead corpses are useable for Raise Dead
-                for (std::list<WorldObject*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+                for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                 {
-                    if (((Unit*)*itr)->GetCreatureType() == CREATURE_TYPE_HUMANOID || ((Unit*)*itr)->GetCreatureType() == CREATURE_TYPE_UNDEAD)
+                    if ((*itr)->GetCreatureType() == CREATURE_TYPE_HUMANOID || ((Unit*)*itr)->GetCreatureType() == CREATURE_TYPE_UNDEAD)
                     {
-                        unitTarget = ((Unit*)*itr);
+                        unitTarget = (*itr);
                         break;
                     }
                 }
-
 
                 // check for Master of Ghouls talent
                 if (caster->HasAura(52143))
