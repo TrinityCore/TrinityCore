@@ -256,6 +256,7 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                     caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
                     unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
                     caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                    return;
                 }
 
                 // TODO: give back the runic power at fail too ? /tibbi
