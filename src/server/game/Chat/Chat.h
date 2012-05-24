@@ -183,6 +183,8 @@ class ChatHandler
         bool HandleInstanceListBindsCommand(const char* args);
         bool HandleInstanceUnbindCommand(const char* args);
         bool HandleInstanceStatsCommand(const char* args);
+        bool HandleInstanceSetDataCommand(const char * args);
+        bool HandleInstanceGetDataCommand(const char * args);
         bool HandleInstanceSaveDataCommand(const char * args);
 
         bool HandleListAurasCommand(const char * args);
