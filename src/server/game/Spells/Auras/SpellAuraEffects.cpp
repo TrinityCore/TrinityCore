@@ -665,7 +665,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 // Replenishment (0.2% from max)
                 // Infinite Replenishment
                 if (m_spellInfo->SpellIconID == 3184 && m_spellInfo->SpellVisual[0] == 12495)
-                    amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.2f;
+                    amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.002f;
             }
             // Innervate
             else if (m_spellInfo->Id == 29166)
