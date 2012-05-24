@@ -245,7 +245,7 @@ enum AreaFlags
     AREA_FLAG_CITY             = 0x00000200,                // only for one zone named "City" (where it located?)
     AREA_FLAG_OUTLAND          = 0x00000400,                // expansion zones? (only Eye of the Storm not have this flag, but have 0x00004000 flag)
     AREA_FLAG_SANCTUARY        = 0x00000800,                // sanctuary area (PvP disabled)
-    AREA_FLAG_NEED_FLY         = 0x00001000,                // Unknown
+    AREA_FLAG_NEED_FLY         = 0x00001000,                // Respawn alive at the graveyard without corpse
     AREA_FLAG_UNUSED1          = 0x00002000,                // Unused in 3.3.5a
     AREA_FLAG_OUTLAND2         = 0x00004000,                // expansion zones? (only Circle of Blood Arena not have this flag, but have 0x00000400 flag)
     AREA_FLAG_OUTDOOR_PVP      = 0x00008000,                // pvp objective area? (Death's Door also has this flag although it's no pvp object area)
@@ -260,7 +260,7 @@ enum AreaFlags
     AREA_FLAG_WINTERGRASP      = 0x01000000,                // Wintergrasp and it's subzones
     AREA_FLAG_INSIDE           = 0x02000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
     AREA_FLAG_OUTSIDE          = 0x04000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
-    AREA_FLAG_WINTERGRASP_2    = 0x08000000,                // Same as AREA_FLAG_WINTERGRASP except for The Sunken Ring and Western Bridge.
+    AREA_FLAG_WINTERGRASP_2    = 0x08000000,                // Can Hearth And Resurrect From Area
     AREA_FLAG_NO_FLY_ZONE      = 0x20000000                 // Marks zones where you cannot fly
 };
 
