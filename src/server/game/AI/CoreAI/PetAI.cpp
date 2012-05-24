@@ -153,40 +153,60 @@ void PetAI::UpdateAI(const uint32 diff)
 
             if (spellInfo->IsPositive())
             {
-                // non combat spells allowed
-                // only pet spells have IsNonCombatSpell and not fit this reqs:
-                // Consume Shadows, Lesser Invisibility, so ignore checks for its
                 if (spellInfo->CanBeUsedInCombat())
                 {
-                    // allow only spell without spell cost or with spell cost but not duration limit
-                    int32 duration = spellInfo->GetDuration();
-                    if ((spellInfo->ManaCost || spellInfo->ManaCostPercentage || spellInfo->ManaPerSecond) && duration > 0)
+                    // check spell cooldown
+                    if (me->HasSpellCooldown(spellInfo->Id))
                         continue;
 
-                    // allow only spell without cooldown > duration
-                    int32 cooldown = spellInfo->GetRecoveryTime();
-                    if (cooldown >= 0 && duration >= 0 && cooldown > duration)
+                    // Check if we're in combat or commanded to attack
+                    if (!me->isInCombat() && !me->GetCharmInfo()->IsCommandAttack())
                         continue;
                 }
 
                 Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, 0);
-
                 bool spellUsed = false;
-                for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+
+                // Some spells can target enemy or friendly (DK Ghoul's Leap)
+                // Check for enemy first (pet then owner)
+                if (Unit* target = me->getAttackerForHelper())
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, *tar);
-
-                    //only buff targets that are in combat, unless the spell can only be cast while out of combat
-                    if (!target)
-                        continue;
-
-                    if (spell->CanAutoCast(target))
+                    if (CanAttack(target) && spell->CanAutoCast(target))
                     {
                         targetSpellStore.push_back(std::make_pair(target, spell));
                         spellUsed = true;
-                        break;
                     }
                 }
+                else if (Unit* target = me->GetCharmerOrOwner()->getAttackerForHelper())
+                {
+                    if (CanAttack(target) && spell->CanAutoCast(target))
+                    {
+                        targetSpellStore.push_back(std::make_pair(target, spell));
+                        spellUsed = true;
+                    }
+                }
+
+                // No enemy, check friendly
+                if (!spellUsed)
+                {
+                    for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+                    {
+                        Unit* target = ObjectAccessor::GetUnit(*me, *tar);
+
+                        //only buff targets that are in combat, unless the spell can only be cast while out of combat
+                        if (!target)
+                            continue;
+
+                        if (spell->CanAutoCast(target))
+                        {
+                            targetSpellStore.push_back(std::make_pair(target, spell));
+                            spellUsed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // No valid targets at all
                 if (!spellUsed)
                     delete spell;
             }
