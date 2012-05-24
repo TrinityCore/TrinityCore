@@ -95,9 +95,9 @@ CalendarEventIdList const& CalendarMgr::GetPlayerEvents(uint64 guid)
 
 CalendarInvite* CalendarMgr::GetInvite(uint64 inviteId)
 {
-    CalendarInviteMap::iterator it = _invites.find(inviteId);
-    if (it != _invites.end())
-        return &(it->second);
+    CalendarInviteMap::iterator itr = _invites.find(inviteId);
+    if (itr != _invites.end())
+        return &(itr->second);
 
     sLog->outError("CalendarMgr::GetInvite: [" UI64FMTD "] not found!", inviteId);
     return NULL;
@@ -105,9 +105,9 @@ CalendarInvite* CalendarMgr::GetInvite(uint64 inviteId)
 
 CalendarEvent* CalendarMgr::GetEvent(uint64 eventId)
 {
-    CalendarEventMap::iterator it = _events.find(eventId);
-    if (it != _events.end())
-        return &(it->second);
+    CalendarEventMap::iterator itr = _events.find(eventId);
+    if (itr != _events.end())
+        return &(itr->second);
 
     sLog->outError("CalendarMgr::GetEvent: [" UI64FMTD "] not found!", eventId);
     return NULL;
@@ -316,11 +316,6 @@ void CalendarMgr::AddAction(CalendarAction const& action)
             if (!calendarEvent)
                 return;
 
-            CalendarInviteIdList const& inviteIds = calendarEvent->GetInviteIdList();
-            for (CalendarInviteIdList::const_iterator it = inviteIds.begin(); it != inviteIds.end(); ++it)
-                if (uint64 invitee = RemoveInvite(*it))
-                    SendCalendarEventRemovedAlert(invitee, *calendarEvent);
-
             RemoveEvent(eventId);
             break;
         }
@@ -464,8 +459,6 @@ bool CalendarMgr::RemoveEvent(uint64 eventId)
         return false;
     }
 
-    _events.erase(itr);
-
     bool val = true;
 
     CalendarInviteIdList const& invites = itr->second.GetInviteIdList();
@@ -474,7 +467,12 @@ bool CalendarMgr::RemoveEvent(uint64 eventId)
         CalendarInvite* invite = GetInvite(*itrInvites);
         if (!invite || !RemovePlayerEvent(invite->GetInvitee(), eventId))
             val = false;
+
+        if (uint64 invitee = RemoveInvite(*itrInvites))
+            SendCalendarEventRemovedAlert(invitee, itr->second);
     }
+
+    _events.erase(itr);
 
     return val;
 }

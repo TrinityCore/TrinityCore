@@ -6247,74 +6247,54 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
     switch (guidhigh)
     {
         case HIGHGUID_ITEM:
-            if (_hiItemGuid >= 0xFFFFFFFE)
-            {
-                sLog->outError("Item guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiItemGuid < 0xFFFFFFFE && "Item guid overflow!");
             return _hiItemGuid++;
+        }
         case HIGHGUID_UNIT:
-            if (_hiCreatureGuid >= 0x00FFFFFE)
-            {
-                sLog->outError("Creature guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiCreatureGuid < 0x00FFFFFE && "Creature guid overflow!");
             return _hiCreatureGuid++;
+        }
         case HIGHGUID_PET:
-            if (_hiPetGuid >= 0x00FFFFFE)
-            {
-                sLog->outError("Pet guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
             return _hiPetGuid++;
+        }
         case HIGHGUID_VEHICLE:
-            if (_hiVehicleGuid >= 0x00FFFFFF)
-            {
-                sLog->outError("Vehicle guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiVehicleGuid < 0x00FFFFFF && "Vehicle guid overflow!");
             return _hiVehicleGuid++;
+        }
         case HIGHGUID_PLAYER:
-            if (_hiCharGuid >= 0xFFFFFFFE)
-            {
-                sLog->outError("Players guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiCharGuid < 0xFFFFFFFE && "Player guid overflow!");
             return _hiCharGuid++;
+        }
         case HIGHGUID_GAMEOBJECT:
-            if (_hiGoGuid >= 0x00FFFFFE)
-            {
-                sLog->outError("Gameobject guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiGoGuid < 0x00FFFFFE && "Gameobject guid overflow!");
             return _hiGoGuid++;
+        }
         case HIGHGUID_CORPSE:
-            if (_hiCorpseGuid >= 0xFFFFFFFE)
-            {
-                sLog->outError("Corpse guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiCorpseGuid < 0xFFFFFFFE && "Corpse guid overflow!");
             return _hiCorpseGuid++;
+        }
         case HIGHGUID_DYNAMICOBJECT:
-            if (_hiDoGuid >= 0xFFFFFFFE)
-            {
-                sLog->outError("DynamicObject guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiDoGuid < 0xFFFFFFFE && "DynamicObject guid overflow!");
             return _hiDoGuid++;
+        }
         case HIGHGUID_MO_TRANSPORT:
-            if (_hiMoTransGuid >= 0xFFFFFFFE)
-            {
-                sLog->outError("MO Transport guid overflow!! Can't continue, shutting down server. ");
-                World::StopNow(ERROR_EXIT_CODE);
-            }
+        {
+            ASSERT(_hiMoTransGuid < 0xFFFFFFFE && "MO Transport guid overflow!");
             return _hiMoTransGuid++;
+        }
         default:
-            ASSERT(0);
+            ASSERT(false && "ObjectMgr::GenerateLowGuid - Unknown HIGHGUID type");
+            return 0;
     }
-
-    ASSERT(0);
-    return 0;
 }
 
 void ObjectMgr::LoadGameObjectLocales()
