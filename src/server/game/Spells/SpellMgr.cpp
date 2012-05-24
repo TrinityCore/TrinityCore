@@ -3582,9 +3582,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.66; // reduce cast time of seduction by 66%
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 break;
-            case 57669: // Replenishment
-                spellInfo->EffectAmplitude[0] = 5000;
-                break;
             default:
                 break;
         }
