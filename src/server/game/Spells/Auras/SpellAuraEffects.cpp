@@ -662,7 +662,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_PERIODIC_ENERGIZE:
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
             {
-                // Infinite Replenishment (25% from max every 1 second)
+                // Infinite Replenishment (0.25% from max every 1 second)
                 if (m_spellInfo->Id == 61782)
                     amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
                 // Replenishment (1% from max every 5 secs)
