@@ -663,12 +663,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             switch (m_spellInfo->Id)
             {
             case 57669: // Replenishment (0.2% from max)
-                if (m_spellInfo->SpellIconID == 3184 && m_spellInfo->SpellVisual[0] == 12495)
-                    amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.002f;
+                amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.002f;
                 break;
             case 61782: // Infinite Replenishment
-                if (m_spellInfo->SpellIconID == 3184 && m_spellInfo->SpellVisual[0] == 12495)
-                    amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
+                amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
                 break;
             case 29166: // Innervate
                 ApplyPctF(amount, float(GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA)) / GetTotalTicks());
