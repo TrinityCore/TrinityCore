@@ -169,15 +169,11 @@ void PetAI::UpdateAI(const uint32 diff)
 
                 // Some spells can target enemy or friendly (DK Ghoul's Leap)
                 // Check for enemy first (pet then owner)
-                if (Unit* target = me->getAttackerForHelper())
-                {
-                    if (CanAttack(target) && spell->CanAutoCast(target))
-                    {
-                        targetSpellStore.push_back(std::make_pair(target, spell));
-                        spellUsed = true;
-                    }
-                }
-                else if (Unit* target = me->GetCharmerOrOwner()->getAttackerForHelper())
+                Unit* target = me->getAttackerForHelper();
+                if (!target && owner)
+                    target = owner->getAttackerForHelper();
+
+                if (target)
                 {
                     if (CanAttack(target) && spell->CanAutoCast(target))
                     {
@@ -191,15 +187,15 @@ void PetAI::UpdateAI(const uint32 diff)
                 {
                     for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
                     {
-                        Unit* target = ObjectAccessor::GetUnit(*me, *tar);
+                        Unit* ally = ObjectAccessor::GetUnit(*me, *tar);
 
                         //only buff targets that are in combat, unless the spell can only be cast while out of combat
-                        if (!target)
+                        if (!ally)
                             continue;
 
-                        if (spell->CanAutoCast(target))
+                        if (spell->CanAutoCast(ally))
                         {
-                            targetSpellStore.push_back(std::make_pair(target, spell));
+                            targetSpellStore.push_back(std::make_pair(ally, spell));
                             spellUsed = true;
                             break;
                         }
