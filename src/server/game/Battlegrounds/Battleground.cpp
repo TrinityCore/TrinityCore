@@ -850,9 +850,12 @@ void Battleground::EndBattleground(uint32 winner)
             if (team == winner)
             {
                 // update achievement BEFORE personal rating update
-                ArenaTeamMember* member = winner_arena_team->GetMember(player->GetGUID());
-                if (member)
-                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, 1);
+                if (ArenaTeamMember* member = winner_arena_team->GetMember(player->GetGUID()))
+                {
+                    uint32 rating = player->GetArenaPersonalRating(winner_arena_team->GetSlot());
+                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA,
+                        rating ? rating : 1);
+                }
 
                 winner_arena_team->MemberWon(player, loser_matchmaker_rating, winner_matchmaker_change);
             }
