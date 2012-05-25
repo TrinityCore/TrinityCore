@@ -1248,8 +1248,8 @@ enum Opcodes
     SMSG_CALENDAR_CLEAR_PENDING_ACTION              = 0x4BB,
     SMSG_EQUIPMENT_SET_LIST                         = 0x4BC, // equipment manager list?
     CMSG_EQUIPMENT_SET_SAVE                         = 0x4BD,
-    CMSG_UPDATE_PROJECTILE_POSITION                 = 0x4BE, // uint64 caster, uint32 spellId, uint8 castId, vector3 position
-    SMSG_SET_PROJECTILE_POSITION                    = 0x4BF, // uint64 caster, uint8 castId, vector3 position
+    CMSG_UPDATE_PROJECTILE_POSITION                 = 0x4BE,
+    SMSG_SET_PROJECTILE_POSITION                    = 0x4BF,
     SMSG_TALENTS_INFO                               = 0x4C0,
     CMSG_LEARN_PREVIEW_TALENTS                      = 0x4C1,
     CMSG_LEARN_PREVIEW_TALENTS_PET                  = 0x4C2,
