@@ -890,15 +890,15 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
 void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET
-        && effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET
+        && effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
     uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;
 
     // todo: move those to spell scripts
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL
-        && effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        && effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
         // special cases
         switch (triggered_spell_id)
@@ -1005,13 +1005,13 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     }
 
     SpellCastTargets targets;
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+    if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
         if (!spellInfo->NeedsToBeTriggeredByCaster())
             return;
         targets.SetUnitTarget(unitTarget);
     }
-    else //if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH)
+    else //if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
         if (spellInfo->NeedsToBeTriggeredByCaster() && (m_spellInfo->Effects[effIndex].GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
             return;
