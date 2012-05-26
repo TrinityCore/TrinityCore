@@ -1340,7 +1340,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     if (owner->HasAura(34453) || owner->HasAura(34454))
     {
         SpellInfo const* sProto = sSpellMgr->GetSpellInfo((owner->HasAura(34453)) ? 34453 : 34454);
-        attPowerMultiplier += ((float)sProto->Effects[EFFECT_1].BasePoints / 100);
+        attPowerMultiplier += ((float)sProto->Effects[EFFECT_1].CalcValue() / 100);
     }
 
     //UNIT_FIELD_(RANGED)_ATTACK_POWER field
