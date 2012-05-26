@@ -76,7 +76,6 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            // activate all runes in room
             events.ScheduleEvent(EVENT_FIRENOVA,    6 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_FLAMEBUFFET, 3 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_PYROBLAST,  14 * IN_MILLISECONDS);
@@ -85,7 +84,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             instance->SetBossState(DATA_PYROGAURD_EMBERSEER,DONE);
-            OpenDoors(TRUE);
+            OpenDoors(true);
             _JustDied();
         }
 
