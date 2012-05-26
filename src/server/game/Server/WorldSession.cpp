@@ -290,7 +290,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                         break;
                     case STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT:
-                        if (!_player && !m_playerRecentlyLogout)
+                        if (!_player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
                             LogUnexpectedOpcode(packet, "STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT",
                                 "the player has not logged in yet and not recently logout");
                         else
@@ -404,7 +404,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
-        if (uint64 lguid = GetPlayer()->GetLootGUID())
+        if (uint64 lguid = _player->GetLootGUID())
             DoLootRelease(lguid);
 
         ///- If the player just died before logging out, make him appear as a ghost
@@ -518,21 +518,21 @@ void WorldSession::LogoutPlayer(bool Save)
         if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
             _player->RemoveFromGroup();
 
-        ///- Send update to group and reset stored max enchanting level
+        //! Send update to group and reset stored max enchanting level
         if (_player->GetGroup())
         {
             _player->GetGroup()->SendUpdate();
             _player->GetGroup()->ResetMaxEnchantingLevel();
         }
 
-        ///- Broadcast a logout message to the player's friends
+        //! Broadcast a logout message to the player's friends
         sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
         sSocialMgr->RemovePlayerSocial(_player->GetGUIDLow());
 
-        // Call script hook before deletion
-        sScriptMgr->OnPlayerLogout(GetPlayer());
+        //! Call script hook before deletion
+        sScriptMgr->OnPlayerLogout(_player);
 
-        ///- Remove the player from the world
+        //! Remove the player from the world
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
@@ -540,22 +540,19 @@ void WorldSession::LogoutPlayer(bool Save)
         sLog->outChar("Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUIDLow(), _player->getLevel());
         if (Map* _map = _player->FindMap())
             _map->RemovePlayerFromMap(_player, true);
-        SetPlayer(NULL);                                    // deleted in Remove call
 
-        ///- Send the 'logout complete' packet to the client
+        SetPlayer(NULL); //! Pointer already deleted during RemovePlayerFromMap
+
+        //! Send the 'logout complete' packet to the client
+        //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
         WorldPacket data(SMSG_LOGOUT_COMPLETE, 0);
         SendPacket(&data);
-
-        ///- Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
-        //No SQL injection as AccountId is uint32
-
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
-
-        stmt->setUInt32(0, GetAccountId());
-
-        CharacterDatabase.Execute(stmt);
-
         sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
+
+        //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
+        stmt->setUInt32(0, GetAccountId());
+        CharacterDatabase.Execute(stmt);
     }
 
     m_playerLogout = false;
