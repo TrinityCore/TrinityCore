@@ -140,7 +140,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 me->SetArmor(defaultarmor);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetVisible(true);
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
+                me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
 
                 Summons.DespawnAll();
@@ -153,7 +153,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
+                me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
                 DoScriptText(SAY_DEATH, me);
                 if (instance)
@@ -397,7 +397,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 DoScriptText(SAY_VOIDB, me);
                                 me->SetArmor(WV_ARMOR);
                                 me->SetDisplayId(MODEL_VOIDWALKER);
-                                me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize*2.5f);
+                                me->SetObjectScale(defaultsize*2.5f);
                             }
                 DoMeleeAttackIfReady();
             }

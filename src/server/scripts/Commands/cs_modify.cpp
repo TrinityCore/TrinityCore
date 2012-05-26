@@ -718,7 +718,7 @@ public:
                 (ChatHandler(player)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
         }
 
-        target->SetFloatValue(OBJECT_FIELD_SCALE_X, Scale);
+        target->SetObjectScale(Scale);
 
         return true;
     }
