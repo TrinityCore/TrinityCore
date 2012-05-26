@@ -33,7 +33,8 @@ enum Data
     DATA_WARCHIEF_REND_BLACKHAND,
     DATA_GYTH,
     DATA_THE_BEAST,
-    DATA_GENERAL_DRAKKISATH
+    DATA_GENERAL_DRAKKISATH,
+    DATA_DRAGONSPIRE_ROOM,
 };
 enum Npc
 {
@@ -51,6 +52,9 @@ enum Npc
     NPC_GYTH                        = 10339,
     NPC_THE_BEAST                   = 10430,
     NPC_GENERAL_DRAKKISATH          = 10363,
+    NPC_BLACKHAND_DREADWEAVER       = 9817,
+    NPC_BLACKHAND_SUMMONER          = 9818,
+    NPC_BLACKHAND_VETERAN           = 9819,
 };
 
 enum AdditionalData
@@ -58,6 +62,9 @@ enum AdditionalData
     SPELL_SUMMON_ROOKERY_WHELP      = 15745,
     MAX_ENCOUNTER                   = 14,
     MAX_DRAGONSPIRE_HALL_RUNES      = 7,
+    EVENT_PYROGUARD_EMBERSEER       = 4884,
+    AREATRIGGER_ENTER_UBRS          = 2046,
+    AREATRIGGER_STADIUM             = 2026,
 };
 
 enum GameObjects
