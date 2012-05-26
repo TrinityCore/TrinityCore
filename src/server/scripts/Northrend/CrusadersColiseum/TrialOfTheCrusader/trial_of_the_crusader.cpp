@@ -439,7 +439,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             if (Unit* pTrigger =  me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 4.69494f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 m_uiTriggerGUID = pTrigger->GetGUID();
-                                pTrigger->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                                pTrigger->SetObjectScale(2.0f);
                                 pTrigger->SetDisplayId(22862);
                                 pTrigger->CastSpell(pTrigger, SPELL_WILFRED_PORTAL, false);
                             }
@@ -456,7 +456,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             if (Creature* pPortal = me->SummonCreature(NPC_WILFRED_PORTAL, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 4.71239f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 pPortal->SetReactState(REACT_PASSIVE);
-                                pPortal->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                                pPortal->SetObjectScale(2.0f);
                                 pPortal->CastSpell(pPortal, SPELL_WILFRED_PORTAL, false);
                                 m_uiPortalGUID = pPortal->GetGUID();
                             }

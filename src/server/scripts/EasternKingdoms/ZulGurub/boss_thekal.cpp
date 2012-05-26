@@ -197,7 +197,7 @@ class boss_thekal : public CreatureScript
                         if (Resurrect_Timer <= diff)
                         {
                             DoCast(me, SPELL_TIGER_FORM);
-                            me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
+                            me->SetObjectScale(2.00f);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetFullHealth();

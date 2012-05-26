@@ -774,7 +774,7 @@ class npc_simon_bunny : public CreatureScript
                 colorSequence.clear();
                 playableSequence.clear();
                 playerSequence.clear();
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, large ? 2.0f : 1.0f);
+                me->SetObjectScale(large ? 2.0f : 1.0f);
 
                 std::list<WorldObject*> ClusterList;
                 Trinity::AllWorldObjectsInRange objects(me, searchDistance);
