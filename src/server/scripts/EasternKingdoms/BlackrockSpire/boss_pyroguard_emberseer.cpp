@@ -65,7 +65,7 @@ public:
         void Reset()
         {
             if(instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
-                OpenDoors(FALSE);
+                OpenDoors(false);
             instance->SetBossState(DATA_PYROGAURD_EMBERSEER,NOT_STARTED);
             // respawn any dead Blackhand Incarcerators
             DoCast(me, SPELL_ENCAGED_EMBERSEER);
