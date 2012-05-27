@@ -430,6 +430,10 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LOGOUT_CANCEL Message");
 
+    // Player have already logged out serverside, too late to cancel
+    if (!GetPlayer())
+        return;
+
     LogoutRequest(0);
 
     WorldPacket data(SMSG_LOGOUT_CANCEL_ACK, 0);
