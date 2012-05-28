@@ -184,7 +184,7 @@ public:
             {
                 if (Unit* victim = me->getVictim())
                 {
-                    DoCast(me->getVictim(), SPELL_BLACK_ARROW);
+                    DoCast(victim, SPELL_BLACK_ARROW);
                     BlackArrowTimer = 15000 + rand()%5000;
                 }
             } else BlackArrowTimer -= diff;
@@ -193,7 +193,7 @@ public:
             {
                 if (Unit* victim = me->getVictim())
                 {
-                    DoCast(me->getVictim(), SPELL_SHOT);
+                    DoCast(victim, SPELL_SHOT);
                     ShotTimer = 8000 + rand()%2000;
                 }
             } else ShotTimer -= diff;
@@ -202,7 +202,7 @@ public:
             {
                 if (Unit* victim = me->getVictim())
                 {
-                    DoCast(me->getVictim(), SPELL_MULTI_SHOT);
+                    DoCast(victim, SPELL_MULTI_SHOT);
                     MultiShotTimer = 10000 + rand()%3000;
                 }
             } else MultiShotTimer -= diff;   

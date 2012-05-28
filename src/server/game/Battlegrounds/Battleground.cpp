@@ -550,7 +550,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
                     if (dist >= maxDist)
                     {
-                        sLog->outError("BATTLEGROUND: Sending %s back to start location (possible exploit)", plr->GetName());
+                        sLog->outError("BATTLEGROUND: Sending %s back to start location (map: %u) (possible exploit)", plr->GetName(), GetMapId());
                         plr->TeleportTo(GetMapId(), x, y, z, o);
                     }
                 }
@@ -850,9 +850,12 @@ void Battleground::EndBattleground(uint32 winner)
             if (team == winner)
             {
                 // update achievement BEFORE personal rating update
-                ArenaTeamMember* member = winner_arena_team->GetMember(player->GetGUID());
-                if (member)
-                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, 1);
+                if (ArenaTeamMember* member = winner_arena_team->GetMember(player->GetGUID()))
+                {
+                    uint32 rating = player->GetArenaPersonalRating(winner_arena_team->GetSlot());
+                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA,
+                        rating ? rating : 1);
+                }
 
                 winner_arena_team->MemberWon(player, loser_matchmaker_rating, winner_matchmaker_change);
             }

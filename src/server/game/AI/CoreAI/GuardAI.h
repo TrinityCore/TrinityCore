@@ -20,34 +20,19 @@
 #define TRINITY_GUARDAI_H
 
 #include "ScriptedCreature.h"
-#include "Timer.h"
 
 class Creature;
 
 class GuardAI : public ScriptedAI
 {
-    enum GuardState
-    {
-        STATE_NORMAL = 1,
-        STATE_LOOK_AT_VICTIM = 2
-    };
-
     public:
+        explicit GuardAI(Creature* creature);
 
-        explicit GuardAI(Creature* c);
-
-        void MoveInLineOfSight(Unit*);
-        void EnterEvadeMode();
-        void JustDied(Unit*);
+        static int Permissible(Creature const* creature);
         bool CanSeeAlways(WorldObject const* obj);
 
-        void UpdateAI(const uint32);
-        static int Permissible(const Creature*);
-
-    private:
-        uint64 i_victimGuid;
-        GuardState i_state;
-        TimeTracker i_tracker;
+        void EnterEvadeMode();
+        void JustDied(Unit* killer);
 };
 #endif
 
