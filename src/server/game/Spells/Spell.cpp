@@ -1288,18 +1288,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                     maxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
                     power = POWER_HEALTH;
                 }
-                else if (m_spellInfo->SpellFamilyFlags[2] == 0x0100) // Starfall
-                {
-                    // Remove targets not in LoS or in stealth
-                    for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end();)
-                    {
-                        if ((*itr)->HasStealthAura() || (*itr)->HasInvisibilityAura() || !(*itr)->IsWithinLOSInMap(m_caster))
-                            itr = unitTargets.erase(itr);
-                        else
-                            ++itr;
-                    }
-                    break;
-                }
                 else
                     break;
 
@@ -1340,6 +1328,11 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             }
         }
 
+        // todo: move to scripts, but we must call it before resize list by MaxAffectedTargets
+        // Intimidating Shout
+        if (m_spellInfo->Id == 5246 && effIndex != EFFECT_0)
+            unitTargets.remove(m_targets.GetUnitTarget());
+
         // Other special target selection goes here
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
         {
@@ -1348,8 +1341,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 if ((*j)->IsAffectedOnSpell(m_spellInfo))
                     maxTargets += (*j)->GetAmount();
 
-            if (m_spellInfo->Id == 5246) //Intimidating Shout
-                unitTargets.remove(m_targets.GetUnitTarget());
             Trinity::Containers::RandomResizeList(unitTargets, maxTargets);
         }
 
@@ -2477,12 +2468,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         caster->DealSpellDamage(&damageInfo, true);
 
-        // Haunt
-        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[1] & 0x40000 && m_spellAura && m_spellAura->GetEffect(1))
-        {
-            AuraEffect* aurEff = m_spellAura->GetEffect(1);
-            aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
-        }
         m_damage = damageInfo.damage;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
@@ -4825,19 +4810,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
                 return SPELL_FAILED_LINE_OF_SIGHT;
         }
-        else
-        {
-            if (m_caster->GetTypeId() == TYPEID_PLAYER) // Target - is player caster
-            {
-                // Lay on Hands - cannot be self-cast on paladin with Forbearance or after using Avenging Wrath
-                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags[0] & 0x0008000)
-                    if (target->HasAura(61988)) // Immunity shield marker
-                        return SPELL_FAILED_TARGET_AURASTATE;
-            }
-        }
     }
 
-    //Check for line of sight for spells with dest
+    // Check for line of sight for spells with dest
     if (m_targets.HasDst())
     {
         float x, y, z;
@@ -4936,7 +4911,8 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     bool hasDispellableAura = false;
     bool hasNonDispelEffect = false;
-    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+    uint32 dispelMask = 0;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DISPEL)
         {
             if (m_spellInfo->Effects[i].IsTargetingArea() || m_spellInfo->AttributesEx & SPELL_ATTR1_MELEE_COMBAT_START)
@@ -4944,17 +4920,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 hasDispellableAura = true;
                 break;
             }
-            if (Unit* target = m_targets.GetUnitTarget())
-            {
-                DispelChargesList dispelList;
-                uint32 dispelMask = SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[i].MiscValue));
-                target->GetDispellableAuraList(m_caster, dispelMask, dispelList);
-                if (!dispelList.empty())
-                {
-                    hasDispellableAura = true;
-                    break;
-                }
-            }
+
+            dispelMask |= SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[i].MiscValue));
         }
         else if (m_spellInfo->Effects[i].IsEffect())
         {
@@ -4962,10 +4929,18 @@ SpellCastResult Spell::CheckCast(bool strict)
             break;
         }
 
-    if (!hasNonDispelEffect && !hasDispellableAura && m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL) && !IsTriggered())
-        return SPELL_FAILED_NOTHING_TO_DISPEL;
+    if (!hasNonDispelEffect && !hasDispellableAura && dispelMask && !IsTriggered())
+    {
+        if (Unit* target = m_targets.GetUnitTarget())
+        {
+            DispelChargesList dispelList;
+            target->GetDispellableAuraList(m_caster, dispelMask, dispelList);
+            if (dispelList.empty())
+                return SPELL_FAILED_NOTHING_TO_DISPEL;
+        }
+    }
 
-    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         // for effects of spells that have only one target
         switch (m_spellInfo->Effects[i].Effect)
@@ -4976,25 +4951,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     if (m_caster->IsInWater())
                         return SPELL_FAILED_ONLY_ABOVEWATER;
-                }
-                else if (m_spellInfo->SpellIconID == 156)    // Holy Shock
-                {
-                    // spell different for friends and enemies
-                    // hurt version required facing
-                    if (m_targets.GetUnitTarget() && !m_caster->IsFriendlyTo(m_targets.GetUnitTarget()) && !m_caster->HasInArc(static_cast<float>(M_PI), m_targets.GetUnitTarget()))
-                        return SPELL_FAILED_UNIT_NOT_INFRONT;
-                }
-                else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] == 0x2000) // Death Coil (DeathKnight)
-                {
-                    Unit* target = m_targets.GetUnitTarget();
-                    if (!target || (target->IsFriendlyTo(m_caster) && target->GetCreatureType() != CREATURE_TYPE_UNDEAD))
-                        return SPELL_FAILED_BAD_TARGETS;
-                }
-                else if (m_spellInfo->Id == 19938)          // Awaken Peon
-                {
-                    Unit* unit = m_targets.GetUnitTarget();
-                    if (!unit || !unit->HasAura(17743))
-                        return SPELL_FAILED_BAD_TARGETS;
                 }
                 else if (m_spellInfo->Id == 52264)          // Deliver Stolen Horse
                 {
@@ -5329,10 +5285,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_LEAP_BACK:
             {
-                // Spell 781 (Disengage) requires player to be in combat
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 781 && !m_caster->isInCombat())
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
                 {
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -5363,14 +5315,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 //custom check
                 switch (m_spellInfo->Id)
                 {
-                    // Tag Murloc
-                    case 30877:
-                    {
-                        Unit* target = m_targets.GetUnitTarget();
-                        if (!target || target->GetEntry() != 17326)
-                            return SPELL_FAILED_BAD_TARGETS;
-                        break;
-                    }
                     case 61336:
                         if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_caster->ToPlayer()->IsInFeralForm())
                             return SPELL_FAILED_ONLY_SHAPESHIFT;
@@ -7173,12 +7117,6 @@ void Spell::PrepareTriggersExecutedOnHit()
     // todo: move this to scripts
     switch (m_spellInfo->SpellFamilyName)
     {
-        case SPELLFAMILY_GENERIC:
-        {
-            if (m_spellInfo->Mechanic == MECHANIC_BANDAGE) // Bandages
-                m_preCastSpell = 11196;  // Recently Bandaged
-            break;
-        }
         case SPELLFAMILY_MAGE:
         {
              // Permafrost

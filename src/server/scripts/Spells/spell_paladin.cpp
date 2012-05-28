@@ -43,6 +43,10 @@ enum PaladinSpells
     SPELL_DIVINE_STORM                           = 53385,
     SPELL_DIVINE_STORM_DUMMY                     = 54171,
     SPELL_DIVINE_STORM_HEAL                      = 54172,
+
+    SPELL_FORBEARANCE                            = 25771,
+    SPELL_AVENGING_WRATH_MARKER                  = 61987,
+    SPELL_IMMUNE_SHIELD_MARKER                   = 61988,
 };
 
 // 31850 - Ardent Defender
@@ -255,17 +259,18 @@ class spell_pal_holy_shock : public SpellScriptLoader
 
         class spell_pal_holy_shock_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_holy_shock_SpellScript)
-            bool Validate(SpellInfo const* spellEntry)
+            PrepareSpellScript(spell_pal_holy_shock_SpellScript);
+
+            bool Validate(SpellInfo const* spell)
             {
                 if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_HOLY_SHOCK_R1))
                     return false;
 
                 // can't use other spell than holy shock due to spell_ranks dependency
-                if (sSpellMgr->GetFirstSpellInChain(PALADIN_SPELL_HOLY_SHOCK_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
+                if (sSpellMgr->GetFirstSpellInChain(PALADIN_SPELL_HOLY_SHOCK_R1) != sSpellMgr->GetFirstSpellInChain(spell->Id))
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
+                uint8 rank = sSpellMgr->GetSpellRank(spell->Id);
                 if (!sSpellMgr->GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank, true) || !sSpellMgr->GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank, true))
                     return false;
 
@@ -287,10 +292,18 @@ class spell_pal_holy_shock : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                Player* caster = GetCaster()->ToPlayer();
+                Unit* caster = GetCaster();
                 if (Unit* target = GetExplTargetUnit())
-                    if (!caster->IsFriendlyTo(target) && !caster->IsValidAttackTarget(target))
-                        return SPELL_FAILED_BAD_TARGETS;
+                {
+                    if (!caster->IsFriendlyTo(target))
+                    {
+                        if (!caster->HasInArc(static_cast<float>(M_PI), target))
+                            return SPELL_FAILED_UNIT_NOT_INFRONT;
+
+                        if (!caster->IsValidAttackTarget(target))
+                            return SPELL_FAILED_BAD_TARGETS;
+                    }
+                }
                 return SPELL_CAST_OK;
             }
 
@@ -423,6 +436,70 @@ class spell_pal_divine_storm_dummy : public SpellScriptLoader
         }
 };
 
+class spell_pal_lay_on_hands : public SpellScriptLoader
+{
+    public:
+        spell_pal_lay_on_hands() : SpellScriptLoader("spell_pal_lay_on_hands") { }
+
+        class spell_pal_lay_on_hands_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_lay_on_hands_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FORBEARANCE))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_AVENGING_WRATH_MARKER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_IMMUNE_SHIELD_MARKER))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (caster == target)
+                    {
+                        if (target->HasAura(SPELL_FORBEARANCE))
+                            return SPELL_FAILED_TARGET_AURASTATE;
+
+                        if (target->HasAura(SPELL_AVENGING_WRATH_MARKER))
+                            return SPELL_FAILED_TARGET_AURASTATE;
+
+                        if (target->HasAura(SPELL_IMMUNE_SHIELD_MARKER))
+                            return SPELL_FAILED_TARGET_AURASTATE;
+                    }
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void HandleScript()
+            {
+                Unit* caster = GetCaster();
+                if (caster == GetHitUnit())
+                {
+                    caster->CastSpell(caster, SPELL_FORBEARANCE, true);
+                    caster->CastSpell(caster, SPELL_AVENGING_WRATH_MARKER, true);
+                    caster->CastSpell(caster, SPELL_IMMUNE_SHIELD_MARKER, true);
+                }
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_lay_on_hands_SpellScript::CheckCast);
+                AfterHit += SpellHitFn(spell_pal_lay_on_hands_SpellScript::HandleScript);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_lay_on_hands_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -433,4 +510,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_judgement_of_command();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
+    new spell_pal_lay_on_hands();
 }
