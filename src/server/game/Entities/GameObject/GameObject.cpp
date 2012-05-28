@@ -1910,6 +1910,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 {
     m_lootState = state;
     AI()->OnStateChanged(state, unit);
+    sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
     if (m_model)
     {
         // startOpen determines whether we are going to add or remove the LoS on activation
@@ -1929,6 +1930,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+    sScriptMgr->OnGameObjectStateChanged(this, state);
     if (m_model)
     {
         if (!IsInWorld())

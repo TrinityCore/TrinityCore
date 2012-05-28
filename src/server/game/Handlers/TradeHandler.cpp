@@ -531,7 +531,7 @@ void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::SendCancelTrade()
 {
-    if (m_playerRecentlyLogout)
+    if (PlayerRecentlyLoggedOut() || PlayerLogout())
         return;
 
     SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);

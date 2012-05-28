@@ -650,12 +650,21 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
     uint8 castCount;
     float x, y, z;    // Position of missile hit
 
-    recvPacket.readPackGUID(casterGuid);
+    recvPacket >> casterGuid;
     recvPacket >> spellId;
     recvPacket >> castCount;
     recvPacket >> x;
     recvPacket >> y;
     recvPacket >> z;
+
+    Unit* caster = ObjectAccessor::GetUnit(*_player, casterGuid);
+    Spell* spell = caster ? caster->FindCurrentSpellBySpellId(spellId) : NULL;
+    if (spell && spell->m_targets.HasDst())
+    {
+        Position pos = *spell->m_targets.GetDstPos();
+        pos.Relocate(x, y, z);
+        spell->m_targets.ModDst(pos);
+    }
 
     WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
     data << uint64(casterGuid);

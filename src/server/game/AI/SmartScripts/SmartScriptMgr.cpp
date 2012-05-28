@@ -324,7 +324,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d, event type %u can not be used for Script type %u", e.entryOrGuid, e.GetEventType(), e.GetScriptType());
         return false;
     }
-    if (e.action.type >= SMART_ACTION_END)
+    if (e.action.type <= 0 || e.action.type >= SMART_ACTION_END)
     {
         sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has invalid action type (%u), skipped.", e.entryOrGuid, e.event_id, e.GetActionType());
         return false;
@@ -332,6 +332,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     if (e.event.event_phase_mask > SMART_EVENT_PHASE_ALL)
     {
         sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has invalid phase mask (%u), skipped.", e.entryOrGuid, e.event_id, e.event.event_phase_mask);
+        return false;
+    }
+    if (e.event.event_flags > SMART_EVENT_FLAGS_ALL)
+    {
+        sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has invalid event flags (%u), skipped.", e.entryOrGuid, e.event_id, e.event.event_flags);
         return false;
     }
     if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
