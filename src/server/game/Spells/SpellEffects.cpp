@@ -368,28 +368,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         damage = (distance > radius) ? 0 : int32(m_spellInfo->Effects[EFFECT_0].CalcValue(m_caster) * ((radius - distance)/radius));
                         break;
                     }
-                    // Loken Pulsing Shockwave
-                    case 59837:
-                    case 52942:
-                    {
-                        // don't damage self and only players
-                        if (unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                            return;
-
-                        float radius = m_spellInfo->Effects[EFFECT_0].CalcRadius(m_caster);
-                        if (!radius)
-                            return;
-                        float distance = m_caster->GetDistance2d(unitTarget);
-                        damage = (distance > radius) ? 0 : int32(m_spellInfo->Effects[EFFECT_0].CalcValue(m_caster) * distance);
-                        break;
-                    }
-                    // TODO: add spell specific target requirement hook for spells
-                    // Shadowbolts only affects targets with Shadow Mark (Gothik)
-                    case 27831:
-                    case 55638:
-                        if (!unitTarget->HasAura(27825))
-                            return;
-                        break;
                     // Gargoyle Strike
                     case 51963:
                     {
@@ -3569,15 +3547,6 @@ void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
         return;
 
     int32 addhealth;
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN) // Lay on Hands
-    {
-        if (m_caster->GetGUID() == unitTarget->GetGUID())
-        {
-            m_caster->CastSpell(m_caster, 25771, true); // Forbearance
-            m_caster->CastSpell(m_caster, 61988, true); // Immune shield marker (serverside)
-            m_caster->CastSpell(m_caster, 61987, true); // Avenging Wrath marker
-        }
-    }
 
     // damage == 0 - heal for caster max health
     if (damage == 0)

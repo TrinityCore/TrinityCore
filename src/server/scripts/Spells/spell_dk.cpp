@@ -723,14 +723,25 @@ class spell_dk_death_coil : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_coil_SpellScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_COIL_DAMAGE) || !sSpellMgr->GetSpellInfo(SPELL_DEATH_COIL_HEAL))
                     return false;
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex /* effIndex */)
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (target->IsFriendlyTo(caster) && target->GetCreatureType() != CREATURE_TYPE_UNDEAD)
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
                 Unit* caster = GetCaster();
@@ -752,6 +763,7 @@ class spell_dk_death_coil : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_dk_death_coil_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_death_coil_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 

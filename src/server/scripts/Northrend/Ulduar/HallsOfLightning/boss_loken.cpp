@@ -19,11 +19,13 @@
 /* ScriptData
 SDName: Boss Loken
 SD%Complete: 60%
-SDComment: Missing intro. Remove hack of Pulsing Shockwave when core supports. Aura is not working (59414)
+SDComment: Missing intro. Aura is not working (59414)
 SDCategory: Halls of Lightning
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "halls_of_lightning.h"
 
 enum eEnums
@@ -73,22 +75,16 @@ public:
 
         InstanceScript* instance;
 
-        bool m_bIsAura;
-
         uint32 m_uiArcLightning_Timer;
         uint32 m_uiLightningNova_Timer;
-        uint32 m_uiPulsingShockwave_Timer;
         uint32 m_uiResumePulsingShockwave_Timer;
 
         uint32 m_uiHealthAmountModifier;
 
         void Reset()
         {
-            m_bIsAura = false;
-
             m_uiArcLightning_Timer = 15000;
             m_uiLightningNova_Timer = 20000;
-            m_uiPulsingShockwave_Timer = 2000;
             m_uiResumePulsingShockwave_Timer = 15000;
 
             m_uiHealthAmountModifier = 1;
@@ -130,44 +126,14 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (m_bIsAura)
-            {
-                // workaround for PULSING_SHOCKWAVE
-                if (m_uiPulsingShockwave_Timer <= uiDiff)
-                {
-                    Map* map = me->GetMap();
-                    if (map->IsDungeon())
-                    {
-                        Map::PlayerList const &PlayerList = map->GetPlayers();
-
-                        if (PlayerList.isEmpty())
-                            return;
-
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (i->getSource() && i->getSource()->isAlive() && i->getSource()->isTargetableForAttack())
-                            {
-                                int32 dmg;
-                                float m_fDist = me->GetExactDist(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ());
-
-                                dmg = DUNGEON_MODE(100, 150); // need to correct damage
-                                if (m_fDist > 1.0f) // Further from 1 yard
-                                    dmg = int32(dmg*m_fDist);
-
-                                me->CastCustomSpell(i->getSource(), DUNGEON_MODE(52942, 59837), &dmg, 0, 0, false);
-                            }
-                    }
-                    m_uiPulsingShockwave_Timer = 2000;
-                } else m_uiPulsingShockwave_Timer -= uiDiff;
-            }
-            else
+            if (m_uiResumePulsingShockwave_Timer)
             {
                 if (m_uiResumePulsingShockwave_Timer <= uiDiff)
                 {
                     //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
                     DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
 
-                    DoCast(me, SPELL_PULSING_SHOCKWAVE_N); // need core support
-                    m_bIsAura = true;
+                    DoCast(me, SPELL_PULSING_SHOCKWAVE_N, true);
                     m_uiResumePulsingShockwave_Timer = 0;
                 }
                 else
@@ -190,7 +156,7 @@ public:
                 Talk(EMOTE_NOVA);
                 DoCast(me, SPELL_LIGHTNING_NOVA_N);
 
-                m_bIsAura = false;
+                me->RemoveAurasDueToSpell(DUNGEON_MODE<uint32>(SPELL_PULSING_SHOCKWAVE_N, SPELL_PULSING_SHOCKWAVE_H));
                 m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura
                 m_uiLightningNova_Timer = urand(20000, 21000);
             }
@@ -216,7 +182,39 @@ public:
 
 };
 
+class spell_loken_pulsing_shockwave : public SpellScriptLoader
+{
+    public:
+        spell_loken_pulsing_shockwave() : SpellScriptLoader("spell_loken_pulsing_shockwave") { }
+
+        class spell_loken_pulsing_shockwave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_loken_pulsing_shockwave_SpellScript);
+
+            void CalculateDamage()
+            {
+                if (!GetHitUnit())
+                    return;
+
+                float distance = GetCaster()->GetDistance2d(GetHitUnit());
+                if (distance > 1.0f)
+                    SetHitDamage(int32(GetHitDamage() * distance));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_loken_pulsing_shockwave_SpellScript::CalculateDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_loken_pulsing_shockwave_SpellScript();
+        }
+};
+
 void AddSC_boss_loken()
 {
     new boss_loken();
+    new spell_loken_pulsing_shockwave();
 }
