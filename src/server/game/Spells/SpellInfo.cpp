@@ -351,7 +351,7 @@ bool SpellEffectInfo::IsEffect() const
 
 bool SpellEffectInfo::IsEffect(SpellEffects effectName) const
 {
-    return Effect == effectName;
+    return Effect == uint32(effectName);
 }
 
 bool SpellEffectInfo::IsAura() const
@@ -1982,21 +1982,19 @@ uint32 SpellInfo::GetMaxTicks() const
     if (DotDuration > 30000)
         DotDuration = 30000;
 
-    uint8 x = 0;
-    for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
     {
-        if (Effects[j].Effect == SPELL_EFFECT_APPLY_AURA && (
-            Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
-            Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_HEAL   ||
-            Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_LEECH))
-        {
-            x = j;
-            break;
-        }
+        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+            switch (Effects[x].ApplyAuraName)
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_LEECH:
+                    if (Effects[x].Amplitude != 0)
+                        return DotDuration / Effects[x].Amplitude;
+                    break;
+            }
     }
-
-    if (Effects[x].Amplitude != 0)
-        return DotDuration / Effects[x].Amplitude;
 
     return 6;
 }

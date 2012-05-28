@@ -20,11 +20,24 @@
 #include "ScriptedCreature.h"
 #include "blackrock_spire.h"
 
+enum Text
+{
+    EMOTE_ONE_STACK                 = 0,
+    EMOTE_TEN_STACK                 = 1,
+    EMOTE_FREE_OF_BONDS             = 2,
+    YELL_FREE_OF_BONDS              = 3,
+};
+
 enum Spells
 {
-    SPELL_FIRENOVA                  = 23462,
-    SPELL_FLAMEBUFFET               = 23341,
-    SPELL_PYROBLAST                 = 17274,
+    SPELL_ENCAGED_EMBERSEER         = 15282, // Self on spawn
+    SPELL_FIRE_SHIELD_TRIGGER       = 13377, // Self on spawn missing from 335 dbc
+    SPELL_FREEZE_ANIM               = 16245, // Self on event start
+    SPELL_EMBERSEER_GROWING         = 16048, // Self on event start
+    SPELL_EMBERSEER_FULL_STRENGTH   = 16047, // Emberseer Full Strength
+    SPELL_FIRENOVA                  = 23462, // Combat
+    SPELL_FLAMEBUFFET               = 23341, // Combat
+    SPELL_PYROBLAST                 = 17274, // Combat
 };
 
 enum Events
@@ -51,6 +64,12 @@ public:
 
         void Reset()
         {
+            if(instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
+                OpenDoors(false);
+            instance->SetBossState(DATA_PYROGAURD_EMBERSEER,NOT_STARTED);
+            // respawn any dead Blackhand Incarcerators
+            DoCast(me, SPELL_ENCAGED_EMBERSEER);
+            //DoCast(me, SPELL_FIRE_SHIELD_TRIGGER);
             _Reset();
         }
 
@@ -64,12 +83,26 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
+            instance->SetBossState(DATA_PYROGAURD_EMBERSEER,DONE);
+            OpenDoors(true);
             _JustDied();
         }
+
+       void OpenDoors(bool Boss_Killed)
+       {
+           if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_IN)))
+               door1->SetGoState(GO_STATE_ACTIVE);
+           if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetData64(GO_DOORS)))
+               door2->SetGoState(GO_STATE_ACTIVE);
+           if (Boss_Killed)
+               if (GameObject* door3 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_OUT)))
+                    door3->SetGoState(GO_STATE_ACTIVE);
+       }
 
         void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())
+
                 return;
 
             events.Update(diff);

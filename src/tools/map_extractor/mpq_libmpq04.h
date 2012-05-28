@@ -60,8 +60,8 @@ class MPQFile
     libmpq__off_t pointer,size;
 
     // disable copying
-    MPQFile(const MPQFile &f) {}
-    void operator=(const MPQFile &f) {}
+    MPQFile(const MPQFile& /*f*/) {}
+    void operator=(const MPQFile& /*f*/) {}
 
 public:
     MPQFile(const char* filename);    // filenames are not case sensitive

@@ -690,7 +690,8 @@ public:
                 {
                     AddWave();
                     bActive = false;
-                    uiActivationTimer = 5000;
+                    // 1 minute waiting time after each boss fight
+                    uiActivationTimer = (uiWaveCount == 6 || uiWaveCount == 12) ? 60000 : 5000;
                 } else uiActivationTimer -= diff;
             }
 

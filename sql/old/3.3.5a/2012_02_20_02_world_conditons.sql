@@ -1,9 +1,10 @@
-# Update a typo in original data entry
+-- Update a typo in original data entry
 UPDATE `npc_spellclick_spells` SET `quest_end`=11999 WHERE `npc_entry`=26477 AND `spell_id`=61832 AND `quest_start`=11999;
-# Delete redundant data with invalid condition type
+
+-- Delete redundant data with invalid condition type
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=18;
 
-# Static Data
+-- Static Data
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 `ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`Comment`) VALUES
 (18,24752,44363,0,8,0,11460,0,0,1,'Forbidden rewarded quest for spellclick'),
@@ -167,9 +168,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (18,40176,74905,0,8,0,25444,0,0,1,'Forbidden rewarded quest for spellclick'),
 (18,40176,74905,0,9,0,25444,0,0,0,'Required quest active for spellclick');
 
-# Below is a procedure to dynamically convert custom content to conditions table.
-# However this procedure only works for MySQL server versions >= 5.6 due to 
-# a bug / missing feature in older MySQL versions.
+-- Below is a procedure to dynamically convert custom content to conditions table.
+-- However this procedure only works for MySQL server versions >= 5.6 due to 
+-- a bug / missing feature in older MySQL versions.
+
 /*
 
 DROP PROCEDURE IF EXISTS ConvertSpellClickConditions;
@@ -185,7 +187,7 @@ BEGIN
     DECLARE quest INT DEFAULT 0;
     DECLARE quest2 INT DEFAULT 0;
     DECLARE questStartCanActive INT DEFAULT 0;
-    DECLARE maxElseGroupId INT DEFAULT 14; # Change this for custom content
+    DECLARE maxElseGroupId INT DEFAULT 14; -- Change this for custom content
     SELECT COUNT(*) INTO recordCount FROM `npc_spellclick_spells` WHERE `aura_required` !=0;
     WHILE counter < recordCount DO
         SELECT `npc_entry`, `spell_id`, `aura_required`
@@ -228,12 +230,12 @@ BEGIN
         `ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`NegativeCondition`,`Comment`)
         VALUES (18,npcEntry,spellId,maxElseGroupId+1,8,0,quest,0,0,'Required quest rewarded for spellclick');
         SET maxElseGroupId = maxElseGroupId+1;
-        # ELSE IF quest2 != 0 is handled in next loop (forbidden rewarded quest)
+        -- ELSE IF quest2 != 0 is handled in next loop (forbidden rewarded quest)
         ELSEIF questStartCanActive = 1 && quest2 = quest THEN
         INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ConditionTypeOrReference`,
         `ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`NegativeCondition`,`Comment`)
         VALUES (18,npcEntry,spellId,9,0,quest,0,0,'Required quest active for spellclick');
-        # ^Adds the required active quest condition. Prohibit quest reward is done in next loop
+        -- ^Adds the required active quest condition. Prohibit quest reward is done in next loop
         ELSEIF questStartCanActive = 0 THEN
         INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ConditionTypeOrReference`,
         `ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`NegativeCondition`,`Comment`)
