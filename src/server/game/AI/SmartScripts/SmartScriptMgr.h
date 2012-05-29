@@ -451,7 +451,7 @@ enum SMART_ACTION
     SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT        = 76,     // WARNING: CAN CRASH CORE, do not use if you dont know what you are doing
     SMART_ACTION_RESET_SCRIPT_BASE_OBJECT           = 77,     // none
     SMART_ACTION_CALL_SCRIPT_RESET                  = 78,     // none
-    // Unused                                       = 79,
+    SMART_ACTION_SET_RANGED_MOVEMENT                = 79,     // Distance, angle
     SMART_ACTION_CALL_TIMED_ACTIONLIST              = 80,     // ID (overwrites already running actionlist), stop after combat?(0/1), timer update type(0-OOC, 1-IC, 2-ALWAYS)
     SMART_ACTION_SET_NPC_FLAG                       = 81,     // Flags
     SMART_ACTION_ADD_NPC_FLAG                       = 82,     // Flags
@@ -473,8 +473,9 @@ enum SMART_ACTION
     SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
     SMART_ACTION_GO_SET_LOOT_STATE                  = 99,     // state
     SMART_ACTION_SEND_TARGET_TO_TARGET              = 100,    // id
+    SMART_ACTION_SET_STAND_STATE                    = 101,    // standState
 
-    SMART_ACTION_END                                = 101,
+    SMART_ACTION_END                                = 102,
 };
 
 struct SmartAction
@@ -892,6 +893,17 @@ struct SmartAction
         {
             uint32 id;
         } sendTargetToTarget;
+
+        struct
+        {
+            uint32 standState;
+        } setStandState;
+
+        struct
+        {
+            float distance;
+            float angle;
+        } setRangedMovement;
 
         struct
         {
