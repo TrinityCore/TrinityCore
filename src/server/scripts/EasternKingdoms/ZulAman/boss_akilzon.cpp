@@ -332,7 +332,7 @@ class boss_akilzon : public CreatureScript
                         CloudGUID = Cloud->GetGUID();
                         Cloud->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
                         Cloud->StopMoving();
-                        Cloud->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                        Cloud->SetObjectScale(1.0f);
                         Cloud->setFaction(35);
                         Cloud->SetMaxHealth(9999999);
                         Cloud->SetHealth(9999999);
