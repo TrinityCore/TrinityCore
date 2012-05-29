@@ -354,7 +354,7 @@ public:
             //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->setFaction(16);
-            me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+            me->SetObjectScale(1.0f);
             DoCast(me, SPELL_FLAME_SPHERE_VISUAL);
             DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
             DoCast(me, SPELL_FLAME_SPHERE_PERIODIC);
