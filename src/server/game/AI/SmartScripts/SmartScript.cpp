@@ -1534,6 +1534,27 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_CALL_SCRIPT_RESET:
             OnReset();
             break;
+        case SMART_ACTION_SET_RANGED_MOVEMENT:
+        {
+            if (!IsSmart())
+                break;
+
+            float attackDistance = (float)e.action.setRangedMovement.distance;
+            float attackAngle = e.action.setRangedMovement.angle / 180.0f * M_PI;
+
+            ObjectList* targets = GetTargets(e, unit);
+            if (targets)
+            {
+                for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (Creature* target = (*itr)->ToCreature())
+                        if (IsSmart(target) && target->getVictim())
+                            if (CAST_AI(SmartAI, target->AI())->CanCombatMove())
+                                target->GetMotionMaster()->MoveChase(target->getVictim(), attackDistance, attackAngle);
+
+                delete targets;
+            }
+            break;
+        }
         case SMART_ACTION_CALL_TIMED_ACTIONLIST:
         {
             if (e.GetTargetType() == SMART_TARGET_NONE)
@@ -1920,6 +1941,24 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                     player->SEND_GOSSIP_MENU(e.action.sendGossipMenu.gossipNpcTextId, GetBaseObject()->GetGUID());
                 }
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_SET_STAND_STATE:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsUnit(*itr))
+                {
+                    (*itr)->ToUnit()->SetStandState(e.action.setStandState.standState);
+                    sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SET_EMOTE_STATE. Unit %u set standstate to %u", (*itr)->GetGUIDLow(), e.action.emote.emote);
+                }
+            }
 
             delete targets;
             break;
