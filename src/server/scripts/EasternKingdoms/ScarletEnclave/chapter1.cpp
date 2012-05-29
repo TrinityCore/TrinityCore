@@ -324,7 +324,118 @@ public:
 
         return false;
     }
+};
 
+/*######
+## npc_eye_of_acherus
+######*/
+
+enum EyeOfAcherus
+{
+    DISPLAYID_EYE_HUGE          = 26320,
+    DISPLAYID_EYE_SMALL         = 25499,
+
+    SPELL_EYE_PHASEMASK         = 70889,
+    SPELL_EYE_VISUAL            = 51892,
+    SPELL_EYE_FL_BOOST_RUN      = 51923,
+    SPELL_EYE_FL_BOOST_FLY      = 51890,
+    SPELL_EYE_CONTROL           = 51852,
+};
+
+enum Texts
+{
+    SAY_EYE_LAUNCHED            = 1,
+    SAY_EYE_UNDER_CONTROL       = 2,
+};
+
+static Position Center[]=
+{
+    {2346.550049f, -5694.430176f, 426.029999f, 0.0f},
+};
+
+class npc_eye_of_acherus : public CreatureScript
+{
+public:
+    npc_eye_of_acherus() : CreatureScript("npc_eye_of_acherus") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_eye_of_acherusAI(creature);
+    }
+
+    struct npc_eye_of_acherusAI : public ScriptedAI
+    {
+        npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Reset();
+        }
+
+        uint32 startTimer;
+        bool IsActive;
+
+        void Reset()
+        {
+            if (Unit* controller = me->GetCharmer())
+            me->SetLevel(controller->getLevel());
+
+            me->CastSpell(me, 51890, true);
+            me->SetDisplayId(26320);
+            Talk(SAY_EYE_LAUNCHED);
+            me->SetHomePosition(2363.970589f, -5659.861328f, 504.316833f, 0);
+            me->GetMotionMaster()->MoveCharge(1752.858276f, -5878.270996f, 145.136444f, 0); //position center
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+
+            IsActive = false;
+            startTimer = 2000;
+        }
+
+        void AttackStart(Unit *) {}
+        void MoveInLineOfSight(Unit *) {}
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Unit* charmer = me->GetCharmer())
+               charmer->RemoveAurasDueToSpell(51852);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (me->isCharmed())
+            {
+                if (startTimer <=  diff && !IsActive)    // fly to start point
+                {
+                    me->CastSpell(me, 70889, true);
+                    me->CastSpell(me, 51892, true);
+                    me->CastSpell(me, 51890, true);
+
+                    me->CastSpell(me, 51923, true);
+                    me->SetSpeed(MOVE_FLIGHT, 3.4f, true);
+                    me->GetMotionMaster()->MovePoint(0, 1711.0f, -5820.0f, 147.0f);
+                    return;
+                }
+                else
+                startTimer -= diff;
+            }
+            else
+            me->DespawnOrUnsummon();
+        }
+
+        void MovementInform(uint32 type, uint32 pointId)
+        {
+            if (type != POINT_MOTION_TYPE || pointId != 0)
+               return;
+
+            // The little green morph is not blizz-like for this npc...
+            me->SetDisplayId(25499);
+
+            // for some reason it does not work when this spell is casted before the waypoint movement
+            me->CastSpell(me, 51892, true);
+            me->CastSpell(me, 51890, true);
+            Talk(SAY_EYE_UNDER_CONTROL);
+            ((Player*)(me->GetCharmer()))->SetClientControl(me, 1);
+        }
+    };
 };
 
 /*######
@@ -511,7 +622,6 @@ public:
             CombatAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 /*######
@@ -580,7 +690,6 @@ public:
                         break;
                 }
             } else PhaseTimer -= diff;
-
         }
 
         void InitDespawnHorse(Unit* who)
@@ -595,9 +704,7 @@ public:
             me->SetTarget(TargetGUID);
             Intro = true;
         }
-
     };
-
 };
 
 /*######
@@ -675,7 +782,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -728,7 +834,6 @@ public:
             }
         }
     };
-
 };
 
 // correct way: 52312 52314 52555 ...
@@ -776,7 +881,6 @@ public:
             }
         }
     };
-
 };
 
 class npc_scarlet_ghoul : public CreatureScript
@@ -856,7 +960,6 @@ public:
             }
         }
     };
-
 };
 
 /*####
@@ -912,7 +1015,6 @@ public:
                     miner->DisappearAndDie();
         }
     };
-
 };
 
 /*####
@@ -1046,7 +1148,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######
@@ -1080,7 +1181,6 @@ public:
         }
         return true;
     }
-
 };
 
 // npc 28912 quest 17217 boss 29001 mob 29007 go 191092
@@ -1090,6 +1190,7 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_unworthy_initiate();
     new npc_unworthy_initiate_anchor();
     new go_acherus_soul_prison();
+    new npc_eye_of_acherus();
     new npc_death_knight_initiate();
     new npc_salanar_the_horseman();
     new npc_dark_rider_of_acherus();
