@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -17,7 +17,6 @@ set(scripts_STAT_SRCS
   Commands/cs_gm.cpp
   Commands/cs_go.cpp
   Commands/cs_gobject.cpp
-  Commands/cs_gps.cpp
   Commands/cs_honor.cpp
   Commands/cs_learn.cpp
   Commands/cs_misc.cpp

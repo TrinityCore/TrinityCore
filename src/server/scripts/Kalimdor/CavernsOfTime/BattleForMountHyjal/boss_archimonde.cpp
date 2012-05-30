@@ -86,9 +86,9 @@ public:
 
     struct mob_ancient_wispAI : public ScriptedAI
     {
-        mob_ancient_wispAI(Creature* c) : ScriptedAI(c)
+        mob_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             ArchimondeGUID = 0;
         }
 
@@ -108,13 +108,16 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        {
+            damage = 0;
+        }
 
         void UpdateAI(const uint32 diff)
         {
             if (CheckTimer <= diff)
             {
-                if (Unit* Archimonde = Unit::GetUnit((*me), ArchimondeGUID))
+                if (Unit* Archimonde = Unit::GetUnit(*me, ArchimondeGUID))
                 {
                     if (Archimonde->HealthBelowPct(2) || !Archimonde->isAlive())
                         DoCast(me, SPELL_DENOUEMENT_WISP);
@@ -142,15 +145,18 @@ public:
 
     struct mob_doomfireAI : public ScriptedAI
     {
-        mob_doomfireAI(Creature* c) : ScriptedAI(c) {}
+        mob_doomfireAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() { }
 
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
-    };
 
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        {
+            damage = 0;
+        }
+    };
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
@@ -167,7 +173,7 @@ public:
 
     struct mob_doomfire_targettingAI : public ScriptedAI
     {
-        mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) {}
+        mob_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 TargetGUID;
         uint32 ChangeTargetTimer;
@@ -188,7 +194,10 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        {
+            damage = 0;
+        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -233,9 +242,9 @@ public:
 
     struct boss_archimondeAI : public hyjal_trashAI
     {
-        boss_archimondeAI(Creature* c) : hyjal_trashAI(c)
+        boss_archimondeAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -334,9 +343,9 @@ public:
             ++SoulChargeCount;
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* killer)
         {
-            hyjal_trashAI::JustDied(victim);
+            hyjal_trashAI::JustDied(killer);
             DoScriptText(SAY_DEATH, me);
 
             if (instance)
@@ -358,7 +367,7 @@ public:
             std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->isAlive())
                     targets.push_back(unit);
             }
@@ -635,7 +644,11 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        void WaypointReached(uint32 /*i*/){}
+
+        void WaypointReached(uint32 /*waypointId*/)
+        {
+
+        }
     };
 
 };

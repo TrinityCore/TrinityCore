@@ -403,7 +403,6 @@ struct GameObjectTemplate
         } raw;
     };
 
-
     std::string AIName;
     uint32 ScriptId;
 
@@ -732,7 +731,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool IsInSkillupList(uint32 PlayerGuidLow) const
         {
             for (std::list<uint32>::const_iterator i = m_SkillupList.begin(); i != m_SkillupList.end(); ++i)
-                if (*i == PlayerGuidLow) return true;
+                if (*i == PlayerGuidLow)
+                    return true;
+
             return false;
         }
         void ClearSkillupList() { m_SkillupList.clear(); }
@@ -747,6 +748,11 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         Loot        loot;
 
+        Player* GetLootRecipient() const;
+        Group* GetLootRecipientGroup() const;
+        void SetLootRecipient(Unit* unit);
+        bool IsLootAllowedFor(Player const* player) const;
+        bool HasLootRecipient() const { return m_lootRecipient || m_lootRecipientGroup; }
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
         uint32 lootingGroupLowGUID;                         // used to find group which is looting
 
@@ -823,6 +829,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         uint64 m_rotation;
 
+        uint64 m_lootRecipient;
+        uint32 m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
     private:
         void RemoveFromOwner();

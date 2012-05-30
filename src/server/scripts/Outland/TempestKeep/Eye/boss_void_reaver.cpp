@@ -76,8 +76,8 @@ class boss_void_reaver : public CreatureScript
 
                 Enraged = false;
 
-                        if (instance && me->isAlive())
-                            instance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
+                if (instance && me->isAlive())
+                    instance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
             }
 
             void KilledUnit(Unit* /*victim*/)
@@ -85,7 +85,7 @@ class boss_void_reaver : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 DoZoneInCombat();

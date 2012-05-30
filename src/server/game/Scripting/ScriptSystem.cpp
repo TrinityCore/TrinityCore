@@ -30,7 +30,8 @@ void SystemMgr::LoadScriptTexts()
 
     sLog->outString("TSCR: Loading Script Texts additional data...");
     uint32 oldMSTime = getMSTime();
-
+    
+    //                                                 0      1      2      3
     QueryResult result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM script_texts");
 
     if (!result)
@@ -49,9 +50,9 @@ void SystemMgr::LoadScriptTexts()
 
         int32 iId           = pFields[0].GetInt32();
         temp.uiSoundId     = pFields[1].GetUInt32();
-        temp.uiType        = pFields[2].GetUInt32();
-        temp.uiLanguage    = pFields[3].GetUInt32();
-        temp.uiEmote       = pFields[4].GetUInt32();
+        temp.uiType        = pFields[2].GetUInt8();
+        temp.uiLanguage    = pFields[3].GetUInt8();
+        temp.uiEmote       = pFields[4].GetUInt16();
 
         if (iId >= 0)
         {
@@ -67,7 +68,7 @@ void SystemMgr::LoadScriptTexts()
 
         if (temp.uiSoundId)
         {
-            if (!GetSoundEntriesStore()->LookupEntry(temp.uiSoundId))
+            if (!sSoundEntriesStore.LookupEntry(temp.uiSoundId))
                 sLog->outErrorDb("TSCR: Entry %i in table `script_texts` has soundId %u but sound does not exist.", iId, temp.uiSoundId);
         }
 
@@ -79,7 +80,8 @@ void SystemMgr::LoadScriptTexts()
 
         m_mTextDataMap[iId] = temp;
         ++uiCount;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outString(">> Loaded %u additional Script Texts data in %u ms", uiCount, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
@@ -108,11 +110,11 @@ void SystemMgr::LoadScriptTextsCustom()
         Field* pFields = result->Fetch();
         StringTextData temp;
 
-        int32 iId              = pFields[0].GetInt32();
+        int32 iId             = pFields[0].GetInt32();
         temp.uiSoundId        = pFields[1].GetUInt32();
-        temp.uiType           = pFields[2].GetUInt32();
-        temp.uiLanguage       = pFields[3].GetUInt32();
-        temp.uiEmote          = pFields[4].GetUInt32();
+        temp.uiType           = pFields[2].GetUInt8();
+        temp.uiLanguage       = pFields[3].GetUInt8();
+        temp.uiEmote          = pFields[4].GetUInt16();
 
         if (iId >= 0)
         {
@@ -128,7 +130,7 @@ void SystemMgr::LoadScriptTextsCustom()
 
         if (temp.uiSoundId)
         {
-            if (!GetSoundEntriesStore()->LookupEntry(temp.uiSoundId))
+            if (!sSoundEntriesStore.LookupEntry(temp.uiSoundId))
                 sLog->outErrorDb("TSCR: Entry %i in table `custom_texts` has soundId %u but sound does not exist.", iId, temp.uiSoundId);
         }
 
@@ -140,7 +142,8 @@ void SystemMgr::LoadScriptTextsCustom()
 
         m_mTextDataMap[iId] = temp;
         ++uiCount;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outString(">> Loaded %u additional Custom Texts data.", uiCount);
     sLog->outString();
@@ -162,6 +165,7 @@ void SystemMgr::LoadScriptWaypoints()
 
     sLog->outString("TSCR: Loading Script Waypoints for " UI64FMTD " creature(s)...", uiCreatureCount);
 
+    //                                     0       1         2           3           4           5
     result = WorldDatabase.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
 
     if (!result)
@@ -199,7 +203,8 @@ void SystemMgr::LoadScriptWaypoints()
 
         m_mPointMoveMap[uiEntry].push_back(temp);
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outString(">> Loaded %u Script Waypoint nodes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();

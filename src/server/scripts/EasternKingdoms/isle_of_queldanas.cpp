@@ -51,7 +51,7 @@ public:
 
     struct npc_converted_sentryAI : public ScriptedAI
     {
-        npc_converted_sentryAI(Creature* c) : ScriptedAI(c) {}
+        npc_converted_sentryAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool Credit;
         uint32 Timer;
@@ -85,7 +85,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -109,7 +108,7 @@ public:
 
     struct npc_greengill_slaveAI : public ScriptedAI
     {
-        npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) {}
+        npc_greengill_slaveAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 PlayerGUID;
 
@@ -130,8 +129,8 @@ public:
                 PlayerGUID = caster->GetGUID();
                 if (PlayerGUID)
                 {
-                    Unit* player = Unit::GetUnit((*me), PlayerGUID);
-                    if (player && CAST_PLR(player)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
+                    Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                    if (player && player->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
                         DoCast(player, 45110, true);
                 }
                 DoCast(me, ENRAGE);
@@ -149,7 +148,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_isle_of_queldanas()

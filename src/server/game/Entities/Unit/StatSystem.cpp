@@ -142,13 +142,13 @@ void Player::ApplySpellPowerBonus(int32 amount, bool apply)
 
 void Player::UpdateSpellDamageAndHealingBonus()
 {
-    // Magic damage modifiers implemented in Unit::SpellDamageBonus
+    // Magic damage modifiers implemented in Unit::SpellDamageBonusDone
     // This information for client side use only
     // Get healing bonus for all schools
-    SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonus(SPELL_SCHOOL_MASK_ALL));
+    SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
     // Get damage bonus for all schools
     for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, SpellBaseDamageBonus(SpellSchoolMask(1 << i)));
+        SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)));
 }
 
 bool Player::UpdateAllStats()
@@ -352,7 +352,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 break;
             }
             case CLASS_MAGE:
-                val2 =  GetStat(STAT_STRENGTH) - 10.0f;
+                val2 = GetStat(STAT_STRENGTH) - 10.0f;
                 break;
             case CLASS_PRIEST:
                 val2 = GetStat(STAT_STRENGTH) - 10.0f;
@@ -967,12 +967,12 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
     /* difference in AP between current attack power and base value from DB */
-    float att_pwr_change = GetTotalAttackPowerValue(attType) - GetCreatureInfo()->attackpower;
+    float att_pwr_change = GetTotalAttackPowerValue(attType) - GetCreatureTemplate()->attackpower;
     float base_value  = GetModifierValue(unitMod, BASE_VALUE) + (att_pwr_change * GetAPMultiplier(attType, false) / 14.0f);
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
-    float dmg_multiplier = GetCreatureInfo()->dmg_multiplier;
+    float dmg_multiplier = GetCreatureTemplate()->dmg_multiplier;
 
     if (!CanUseAttackType(attType))
     {
@@ -1016,6 +1016,7 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 #define ENTRY_TREANT            1964
 #define ENTRY_FIRE_ELEMENTAL    15438
 #define ENTRY_GHOUL             26125
+#define ENTRY_BLOODWORM         28017
 
 bool Guardian::UpdateStats(Stats stat)
 {
@@ -1165,6 +1166,7 @@ void Guardian::UpdateMaxHealth()
         case ENTRY_SUCCUBUS:    multiplicator = 9.1f;   break;
         case ENTRY_FELHUNTER:   multiplicator = 9.5f;   break;
         case ENTRY_FELGUARD:    multiplicator = 11.0f;  break;
+        case ENTRY_BLOODWORM:   multiplicator = 1.0f;   break;
         default:                multiplicator = 10.0f;  break;
     }
 

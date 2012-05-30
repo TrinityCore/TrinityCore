@@ -244,7 +244,7 @@ class boss_xt002 : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 _JustDied();
@@ -947,13 +947,19 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if (PlayerOrPetCheck());
+                unitList.remove_if(PlayerOrPetCheck());
+            }
+
+            void RecalculateDamage()
+            {
+                SetHitDamage(GetHitUnit()->CountPctFromMaxHealth(GetHitDamage()));
             }
 
             void Register()
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnHit += SpellHitFn(spell_xt002_tympanic_tantrum_SpellScript::RecalculateDamage);
             }
         };
 

@@ -60,9 +60,9 @@ public:
 
     struct boss_mekgineer_steamriggerAI : public ScriptedAI
     {
-        boss_mekgineer_steamriggerAI(Creature* c) : ScriptedAI(c)
+        boss_mekgineer_steamriggerAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -88,7 +88,7 @@ public:
                 instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -204,9 +204,9 @@ public:
 
     struct mob_steamrigger_mechanicAI : public ScriptedAI
     {
-        mob_steamrigger_mechanicAI(Creature* c) : ScriptedAI(c)
+        mob_steamrigger_mechanicAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -231,7 +231,7 @@ public:
             {
                 if (instance && instance->GetData64(DATA_MEKGINEERSTEAMRIGGER) && instance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Unit* pMekgineer = Unit::GetUnit((*me), instance->GetData64(DATA_MEKGINEERSTEAMRIGGER)))
+                    if (Unit* pMekgineer = Unit::GetUnit(*me, instance->GetData64(DATA_MEKGINEERSTEAMRIGGER)))
                     {
                         if (me->IsWithinDistInMap(pMekgineer, MAX_REPAIR_RANGE))
                         {

@@ -266,7 +266,7 @@ public:
 
     struct boss_kelthuzadAI : public BossAI
     {
-        boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD), spawns(c)
+        boss_kelthuzadAI(Creature* creature) : BossAI(creature, BOSS_KELTHUZAD), spawns(creature)
         {
             uiFaction = me->getFaction();
         }
@@ -299,7 +299,7 @@ public:
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
-                    charmed->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                    charmed->SetObjectScale((*itr).second);
             }
 
             chained.clear();
@@ -338,7 +338,7 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
@@ -347,7 +347,7 @@ public:
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* player = Unit::GetPlayer(*me, (*itr).first))
-                    player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                    player->SetObjectScale((*itr).second);
             }
             chained.clear();
         }
@@ -457,7 +457,7 @@ public:
                 {
                     if (HealthBelowPct(45))
                     {
-                        Phase = 3 ;
+                        Phase = 3;
                         DoScriptText(SAY_REQUEST_AID, me);
                         //here Lich King should respond to KelThuzad but I don't know which Creature to make talk
                         //so for now just make Kelthuzad says it.
@@ -512,7 +512,7 @@ public:
                                     DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
                                     float scale = target->GetFloatValue(OBJECT_FIELD_SCALE_X);
                                     chained.insert(std::make_pair(target->GetGUID(), scale));
-                                    target->SetFloatValue(OBJECT_FIELD_SCALE_X, scale * 2);
+                                    target->SetObjectScale(scale * 2);
                                     events.ScheduleEvent(EVENT_CHAINED_SPELL, 2000); //core has 2000ms to set unit flag charm
                                 }
                             }
@@ -530,7 +530,7 @@ public:
                                 {
                                     if (!player->isCharmed())
                                     {
-                                        player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                                        player->SetObjectScale((*itr).second);
                                         std::map<uint64, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);
@@ -667,7 +667,7 @@ public:
         if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, instance->GetData64(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = Unit::GetCreature(*player, instance->GetData64(DATA_KELTHUZAD));
         if (!pKelthuzad)
             return false;
 
@@ -714,7 +714,6 @@ public:
 
         return true;
     }
-
 };
 
 class npc_kelthuzad_abomination : public CreatureScript
@@ -726,16 +725,13 @@ class npc_kelthuzad_abomination : public CreatureScript
         {
             npc_kelthuzad_abominationAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = me->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
-
-            InstanceScript* instance;
-            EventMap events;
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
                 DoCast(me, SPELL_FRENZY, true);
             }
 
@@ -744,15 +740,15 @@ class npc_kelthuzad_abomination : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND, true);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 15000));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 15000));
                             break;
                         default:
                             break;
@@ -760,11 +756,15 @@ class npc_kelthuzad_abomination : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
-                if (instance)
-                    instance->SetData(DATA_ABOMINATION_KILLED, instance->GetData(DATA_ABOMINATION_KILLED) + 1);
+                if (_instance)
+                    _instance->SetData(DATA_ABOMINATION_KILLED, _instance->GetData(DATA_ABOMINATION_KILLED) + 1);
             }
+
+        private:
+            InstanceScript* _instance;
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -776,9 +776,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 class achievement_just_cant_get_enough : public AchievementCriteriaScript
 {
    public:
-       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough")
-       {
-       }
+       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {

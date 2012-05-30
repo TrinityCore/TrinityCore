@@ -136,7 +136,8 @@ enum ZLiquidStatus
 
 struct LiquidData
 {
-    uint32 type;
+    uint32 type_flags;
+    uint32 entry;
     float  level;
     float  depth_level;
 };
@@ -163,7 +164,8 @@ class GridMap
 
     // Liquid data
     float _liquidLevel;
-    uint8* _liquidData;
+    uint16* _liquidEntry;
+    uint8* _liquidFlags;
     float* _liquidMap;
     uint16 _gridArea;
     uint16 _liquidType;
@@ -226,7 +228,7 @@ enum LevelRequirementVsMode
 #define MAX_HEIGHT            100000.0f                     // can be use for find ground height at surface
 #define INVALID_HEIGHT       -100000.0f                     // for check, must be equal to VMAP_INVALID_HEIGHT, real value for unknown height is VMAP_INVALID_HEIGHT_VALUE
 #define MAX_FALL_DISTANCE     250000.0f                     // "unlimited fall" to find VMap ground if it is available, just larger than MAX_HEIGHT - INVALID_HEIGHT
-#define DEFAULT_HEIGHT_SEARCH     10.0f                     // default search distance to find height at nearby locations
+#define DEFAULT_HEIGHT_SEARCH     50.0f                     // default search distance to find height at nearby locations
 #define MIN_UNLOAD_DELAY      1                             // immediate unload
 
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
@@ -243,8 +245,12 @@ class Map : public GridRefManager<NGridType>
         // currently unused for normal maps
         bool CanUnload(uint32 diff)
         {
-            if (!m_unloadTimer) return false;
-            if (m_unloadTimer <= diff) return true;
+            if (!m_unloadTimer)
+                return false;
+
+            if (m_unloadTimer <= diff)
+                return true;
+
             m_unloadTimer -= diff;
             return false;
         }

@@ -57,7 +57,7 @@ bool npc_escortAI::AssistPlayerInCombat(Unit* who)
         return false;
 
     //experimental (unknown) flag not present
-    if (!(me->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
+    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
         return false;
 
     //not a player
@@ -95,7 +95,7 @@ void npc_escortAI::MoveInLineOfSight(Unit* who)
         if (HasEscortState(STATE_ESCORT_ESCORTING) && AssistPlayerInCombat(who))
             return;
 
-        if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+        if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
             return;
 
         if (me->IsHostileTo(who))
@@ -150,7 +150,7 @@ void npc_escortAI::JustRespawned()
     //add a small delay before going to first waypoint, normal in near all cases
     m_uiWPWaitTimer = 2500;
 
-    if (me->getFaction() != me->GetCreatureInfo()->faction_A)
+    if (me->getFaction() != me->GetCreatureTemplate()->faction_A)
         me->RestoreFaction();
 
     Reset();
@@ -307,11 +307,7 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
     {
         sLog->outDebug(LOG_FILTER_TSCR, "TSCR: EscortAI has returned to original position before combat");
 
-        if (m_bIsRunning && me->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-        else if (!m_bIsRunning && !me->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
-            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-
+        me->SetWalk(!m_bIsRunning);
         RemoveEscortState(STATE_ESCORT_RETURNING);
 
         if (!m_uiWPWaitTimer)
@@ -387,7 +383,7 @@ void npc_escortAI::FillPointMovementListForCreature()
     if (movePoints.empty())
         return;
 
-    ScriptPointVector::const_iterator itrEnd = movePoints.end();;
+    ScriptPointVector::const_iterator itrEnd = movePoints.end();
     for (ScriptPointVector::const_iterator itr = movePoints.begin(); itr != itrEnd; ++itr)
     {
         Escort_Waypoint point(itr->uiPointId, itr->fX, itr->fY, itr->fZ, itr->uiWaitTime);
@@ -400,14 +396,14 @@ void npc_escortAI::SetRun(bool on)
     if (on)
     {
         if (!m_bIsRunning)
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            me->SetWalk(false);
         else
             sLog->outDebug(LOG_FILTER_TSCR, "TSCR: EscortAI attempt to set run mode, but is already running.");
     }
     else
     {
         if (m_bIsRunning)
-            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            me->SetWalk(true);
         else
             sLog->outDebug(LOG_FILTER_TSCR, "TSCR: EscortAI attempt to set walk mode, but is already walking.");
     }
@@ -473,9 +469,9 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
 
     //Set initial speed
     if (m_bIsRunning)
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        me->SetWalk(false);
     else
-        me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        me->SetWalk(true);
 
     AddEscortState(STATE_ESCORT_ESCORTING);
 }

@@ -121,7 +121,7 @@ class boss_broggok : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                 {
@@ -133,9 +133,9 @@ class boss_broggok : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_broggokAI (Creature);
+            return new boss_broggokAI(creature);
         }
 };
 

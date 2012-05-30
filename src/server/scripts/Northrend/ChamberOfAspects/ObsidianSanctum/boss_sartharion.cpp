@@ -480,7 +480,7 @@ public:
                     if (temp->isAlive() && !temp->getVictim())
                     {
                         if (temp->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
-                            temp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            temp->SetWalk(false);
 
                         if (temp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                             temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -926,9 +926,7 @@ struct dummy_dragonAI : public ScriptedAI
                 if (instance && instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
                     instance->SetData(TYPE_SHADRON_PREKILLED, 1);
                 if (Creature* pAcolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_SHADRON, 100.0f))
-                {
                     pAcolyte->Kill(pAcolyte);
-                }
                 break;
             case NPC_VESPERON:
                 iTextId = SAY_VESPERON_DEATH;
@@ -936,9 +934,7 @@ struct dummy_dragonAI : public ScriptedAI
                 if (instance && instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
                     instance->SetData(TYPE_VESPERON_PREKILLED, 1);
                 if (Creature* pAcolyte = me->FindNearestCreature(NPC_ACOLYTE_OF_VESPERON, 100.0f))
-                {
                     pAcolyte->Kill(pAcolyte);
-                }
                 break;
         }
 
@@ -955,7 +951,7 @@ struct dummy_dragonAI : public ScriptedAI
                 return;
 
             // Twilight Revenge to main boss
-            if (Unit* pSartharion = Unit::GetUnit((*me), instance->GetData64(DATA_SARTHARION)))
+            if (Unit* pSartharion = Unit::GetUnit(*me, instance->GetData64(DATA_SARTHARION)))
                 if (pSartharion->isAlive())
                 {
                     pSartharion->RemoveAurasDueToSpell(uiSpellId);

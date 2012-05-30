@@ -63,10 +63,10 @@ public:
         return new npc_shadowfang_prisonerAI(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
 
@@ -90,18 +90,18 @@ public:
 
     struct npc_shadowfang_prisonerAI : public npc_escortAI
     {
-        npc_shadowfang_prisonerAI(Creature* c) : npc_escortAI(c)
+        npc_shadowfang_prisonerAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
-            uiNpcEntry = c->GetEntry();
+            instance = creature->GetInstanceScript();
+            uiNpcEntry = creature->GetEntry();
         }
 
         InstanceScript* instance;
         uint32 uiNpcEntry;
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPoint)
+            switch (waypointId)
             {
                 case 0:
                     if (uiNpcEntry == NPC_ASH)
@@ -175,10 +175,7 @@ public:
             if (uiDarkOffering <= uiDiff)
             {
                 if (Creature* pFriend = me->FindNearestCreature(me->GetEntry(), 25.0f, true))
-                {
-                    if (pFriend)
-                        DoCast(pFriend, SPELL_DARK_OFFERING);
-                }
+                    DoCast(pFriend, SPELL_DARK_OFFERING);
                 else
                     DoCast(me, SPELL_DARK_OFFERING);
                 uiDarkOffering = urand(4400, 12500);

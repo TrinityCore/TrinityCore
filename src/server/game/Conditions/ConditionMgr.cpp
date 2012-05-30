@@ -114,7 +114,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_QUESTREWARDED:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = (player->GetQuestRewardStatus(ConditionValue1) == !ConditionValue2);
+                condMeets = player->GetQuestRewardStatus(ConditionValue1);
             break;
         }
         case CONDITION_QUESTTAKEN:
@@ -122,7 +122,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             if (Player* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
-                condMeets = ((status == QUEST_STATUS_INCOMPLETE) == !ConditionValue2);
+                condMeets = (status == QUEST_STATUS_INCOMPLETE);
             }
             break;
         }
@@ -131,7 +131,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             if (Player* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
-                condMeets = ((status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(ConditionValue1)) == !ConditionValue2);
+                condMeets = (status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(ConditionValue1));
             }
             break;
         }
@@ -140,7 +140,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             if (Player* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
-                condMeets = ((status == QUEST_STATUS_NONE) == !ConditionValue2);
+                condMeets = (status == QUEST_STATUS_NONE);
             }
             break;
         }
@@ -190,7 +190,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         }
         case CONDITION_OBJECT_ENTRY:
         {
-            if (object->GetTypeId() == ConditionValue1)
+            if (uint32(object->GetTypeId()) == ConditionValue1)
                 condMeets = (!ConditionValue2) || (object->GetEntry() == ConditionValue2);
             break;
         }
@@ -272,6 +272,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_PHASEMASK:
         {
             condMeets = object->GetPhaseMask() & ConditionValue1;
+            break;
+        }
+        case CONDITION_TITLE:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->HasTitle(ConditionValue1);
             break;
         }
         default:
@@ -422,6 +428,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
         case CONDITION_PHASEMASK:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
+        case CONDITION_TITLE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
             break;
@@ -515,7 +524,9 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
         sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u", (*i)->ConditionType, (*i)->ConditionValue1);
         if ((*i)->isLoaded())
         {
+            //! Find ElseGroup in ElseGroupStore
             std::map<uint32, bool>::const_iterator itr = ElseGroupStore.find((*i)->ElseGroup);
+            //! If not found, add an entry in the store and set to true (placeholder)
             if (itr == ElseGroupStore.end())
                 ElseGroupStore[(*i)->ElseGroup] = true;
             else if (!(*itr).second)
@@ -717,8 +728,8 @@ void ConditionMgr::LoadConditions(bool isReload)
         Condition* cond = new Condition();
         int32 iSourceTypeOrReferenceId   = fields[0].GetInt32();
         cond->SourceGroup               = fields[1].GetUInt32();
-        cond->SourceEntry               = fields[2].GetInt32();
-        cond->SourceId                  = fields[3].GetUInt32();
+        cond->SourceEntry               = fields[2].GetUInt32();
+        cond->SourceId                  = fields[3].GetInt32();
         cond->ElseGroup                 = fields[4].GetUInt32();
         int32 iConditionTypeOrReference  = fields[5].GetInt32();
         cond->ConditionTarget           = fields[6].GetUInt8();
@@ -854,18 +865,6 @@ void ConditionMgr::LoadConditions(bool isReload)
                     break;
                 case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
                 {
-                    //if no list for npc create one
-                    if (SpellClickEventConditionStore.find(cond->SourceGroup) == SpellClickEventConditionStore.end())
-                    {
-                        ConditionTypeContainer cmap;
-                        SpellClickEventConditionStore[cond->SourceGroup] = cmap;
-                    }
-                    //if no list for spellclick spell create one
-                    if (SpellClickEventConditionStore[cond->SourceGroup].find(cond->SourceEntry) == SpellClickEventConditionStore[cond->SourceGroup].end())
-                    {
-                        ConditionList clist;
-                        SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry] = clist;
-                    }
                     SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
@@ -877,18 +876,6 @@ void ConditionMgr::LoadConditions(bool isReload)
                     break;
                 case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
                 {
-                    //if no list for vehicle create one
-                    if (VehicleSpellConditionStore.find(cond->SourceGroup) == VehicleSpellConditionStore.end())
-                    {
-                        ConditionTypeContainer cmap;
-                        VehicleSpellConditionStore[cond->SourceGroup] = cmap;
-                    }
-                    //if no list for vehicle's spell create one
-                    if (VehicleSpellConditionStore[cond->SourceGroup].find(cond->SourceEntry) == VehicleSpellConditionStore[cond->SourceGroup].end())
-                    {
-                        ConditionList clist;
-                        VehicleSpellConditionStore[cond->SourceGroup][cond->SourceEntry] = clist;
-                    }
                     VehicleSpellConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
@@ -896,18 +883,8 @@ void ConditionMgr::LoadConditions(bool isReload)
                 }
                 case CONDITION_SOURCE_TYPE_SMART_EVENT:
                 {
-                    // If the entry does not exist, create a new list
+                    //! TODO: PAIR_32 ?
                     std::pair<int32, uint32> key = std::make_pair(cond->SourceEntry, cond->SourceId);
-                    if (SmartEventConditionStore.find(key) == SmartEventConditionStore.end())
-                    {
-                        ConditionTypeContainer cmap;
-                        SmartEventConditionStore[key] = cmap;
-                    }
-                    if (SmartEventConditionStore[key].find(cond->SourceGroup) == SmartEventConditionStore[key].end())
-                    {
-                        ConditionList clist;
-                        SmartEventConditionStore[key][cond->SourceGroup] = clist;
-                    }
                     SmartEventConditionStore[key][cond->SourceGroup].push_back(cond);
                     valid = true;
                     ++count;
@@ -1326,7 +1303,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                     default:
                         break;
                 }
-                
+
                 switch (spellInfo->Effects[i].TargetB.GetSelectionCategory())
                 {
                     case TARGET_SELECT_CATEGORY_NEARBY:
@@ -1577,7 +1554,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ACHIEVEMENT:
         {
-            AchievementEntry const* achievement = GetAchievementStore()->LookupEntry(cond->ConditionValue1);
+            AchievementEntry const* achievement = sAchievementStore.LookupEntry(cond->ConditionValue1);
             if (!achievement)
             {
                 sLog->outErrorDb("Achivement condition has non existing achivement id (%u), skipped", cond->ConditionValue1);
@@ -1858,9 +1835,16 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Phasemask condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
-        case CONDITION_UNUSED_18:
-            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_18 in `conditions` table - ignoring");
-            return false;
+        case CONDITION_TITLE:
+        {
+            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
+            if (!titleEntry)
+            {
+                sLog->outErrorDb("Title condition has non existing title in value1 (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
         case CONDITION_UNUSED_19:
             sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
             return false;
@@ -1928,6 +1912,19 @@ void ConditionMgr::Clean()
     }
 
     SmartEventConditionStore.clear();
+
+    for (CreatureSpellConditionContainer::iterator itr = SpellClickEventConditionStore.begin(); itr != SpellClickEventConditionStore.end(); ++itr)
+    {
+        for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        {
+            for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+                delete *i;
+            it->second.clear();
+        }
+        itr->second.clear();
+    }
+
+    SpellClickEventConditionStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::list<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)

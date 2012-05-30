@@ -64,11 +64,10 @@ public:
 
     struct boss_anetheronAI : public hyjal_trashAI
     {
-        boss_anetheronAI(Creature* c) : hyjal_trashAI(c)
+        boss_anetheronAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
         }
 
         uint32 SwarmTimer;
@@ -76,7 +75,6 @@ public:
         uint32 AuraTimer;
         uint32 InfernoTimer;
         bool go;
-        uint32 pos;
 
         void Reset()
         {
@@ -117,20 +115,19 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            pos = i;
-            if (i == 7 && instance)
+            if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* killer)
         {
-            hyjal_trashAI::JustDied(victim);
+            hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);
@@ -248,9 +245,9 @@ public:
 
     struct mob_towering_infernalAI : public ScriptedAI
     {
-        mob_towering_infernalAI(Creature* c) : ScriptedAI(c)
+        mob_towering_infernalAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             if (instance)
                 AnetheronGUID = instance->GetData64(DATA_ANETHERON);
         }
@@ -275,7 +272,7 @@ public:
         {
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
         }
 

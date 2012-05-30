@@ -48,7 +48,7 @@ enum ConditionTypes
     CONDITION_CLASS                 = 15,                   // class            0              0                  true if player's class is equal to class
     CONDITION_RACE                  = 16,                   // race             0              0                  true if player's race is equal to race
     CONDITION_ACHIEVEMENT           = 17,                   // achievement_id   0              0                  true if achievement is complete
-    CONDITION_UNUSED_18             = 18,                   //
+    CONDITION_TITLE                 = 18,                   // title id         0              0                  true if player has title
     CONDITION_UNUSED_19             = 19,                   //
     CONDITION_UNUSED_20             = 20,                   //
     CONDITION_UNUSED_21             = 21,                   //
@@ -72,6 +72,33 @@ enum ConditionTypes
     CONDITION_MAX                   = 39                    // MAX
 };
 
+/*! Documentation on implementing a new ConditionSourceType:
+    Step 1: Check for the lowest free ID. Look for CONDITION_SOURCE_TYPE_UNUSED_XX in the enum.
+            Then define the new source type.
+
+    Step 2: Determine and map the parameters for the new condition type.
+
+    Step 3: Add a case block to ConditionMgr::isSourceTypeValid with the new condition type
+            and validate the parameters.
+
+    Step 4: If your condition can be grouped (determined in step 2), add a rule for it in
+            ConditionMgr::CanHaveSourceGroupSet, following the example of the existing types.
+
+    Step 5: Define the maximum available condition targets in ConditionMgr::GetMaxAvailableConditionTargets.
+
+    The following steps only apply if your condition can be grouped:
+
+    Step 6: Determine how you are going to store your conditions. You need to add a new storage container
+            for it in ConditionMgr class, along with a function like:
+            ConditionList GetConditionsForXXXYourNewSourceTypeXXX(parameters...)
+
+            The above function should be placed in upper level (practical) code that actually
+            checks the conditions.
+
+    Step 7: Implement loading for your source type in ConditionMgr::LoadConditions.
+
+    Step 8: Implement memory cleaning for your source type in ConditionMgr::Clean.
+*/
 enum ConditionSourceType
 {
     CONDITION_SOURCE_TYPE_NONE                           = 0,

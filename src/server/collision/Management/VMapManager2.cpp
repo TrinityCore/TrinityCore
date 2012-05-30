@@ -30,6 +30,7 @@
 #include <ace/Null_Mutex.h>
 #include <ace/Singleton.h>
 #include "DisableMgr.h"
+#include "DBCStores.h"
 
 using G3D::Vector3;
 
@@ -233,8 +234,8 @@ namespace VMAP
                 {
                     floor = info.ground_Z;
                     ASSERT(floor < std::numeric_limits<float>::max());
-                    type = info.hitModel->GetLiquidType();
-                    if (reqLiquidType && !(type & reqLiquidType))
+                    type = info.hitModel->GetLiquidType();  // entry from LiquidType.dbc
+                    if (reqLiquidType && !(GetLiquidFlags(type) & reqLiquidType))
                         return false;
                     if (info.hitInstance->GetLiquidLevel(pos, info, level))
                         return true;
@@ -245,7 +246,7 @@ namespace VMAP
         return false;
     }
 
-    WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags/* Only used when creating the model */)
+    WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
         TRINITY_GUARD(ACE_Thread_Mutex, LoadedModelFilesLock);
@@ -261,7 +262,6 @@ namespace VMAP
                 return NULL;
             }
             sLog->outDebug(LOG_FILTER_MAPS, "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
-            worldmodel->Flags = flags;
             model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel>(filename, ManagedModel())).first;
             model->second.setModel(worldmodel);
         }

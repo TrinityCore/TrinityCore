@@ -28,17 +28,13 @@ EndScriptData */
 
 enum eEnums
 {
-    SAY_AGGRO                               = -1602032,
-    SAY_SLAY_1                              = -1602033,
-    SAY_SLAY_2                              = -1602034,
-    SAY_SLAY_3                              = -1602035,
-    SAY_DEATH                               = -1602036,
-    SAY_STOMP_1                             = -1602037,
-    SAY_STOMP_2                             = -1602038,
-    SAY_FORGE_1                             = -1602039,
-    SAY_FORGE_2                             = -1602040,
-    EMOTE_TO_ANVIL                          = -1602041,
-    EMOTE_SHATTER                           = -1602042,
+    SAY_AGGRO                               = 0,
+    SAY_FORGE                               = 1,
+    SAY_STOMP                               = 2,
+    SAY_SLAY                                = 3,
+    SAY_DEATH                               = 4,
+    EMOTE_TO_ANVIL                          = 5,
+    EMOTE_SHATTER                           = 6,
 
     SPELL_HEAT_N                            = 52387,
     SPELL_HEAT_H                            = 59528,
@@ -83,10 +79,10 @@ public:
     {
         boss_volkhanAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_instance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         std::list<uint64> m_lGolemGUIDList;
 
@@ -121,16 +117,16 @@ public:
             DespawnGolem();
             m_lGolemGUIDList.clear();
 
-            if (m_instance)
-                m_instance->SetData(TYPE_VOLKHAN, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_VOLKHAN, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
-            if (m_instance)
-                m_instance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who)
@@ -148,15 +144,15 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             DespawnGolem();
 
-            if (m_instance)
-                m_instance->SetData(TYPE_VOLKHAN, DONE);
+            if (instance)
+                instance->SetData(TYPE_VOLKHAN, DONE);
 
             if (IsHeroic() && GolemsShattered < 5)
             {
-                AchievementEntry const* AchievShatterResistant = GetAchievementStore()->LookupEntry(ACHIEVEMENT_SHATTER_RESISTANT);
+                AchievementEntry const* AchievShatterResistant = sAchievementStore.LookupEntry(ACHIEVEMENT_SHATTER_RESISTANT);
                 if (AchievShatterResistant)
                 {
                     Map* map = me->GetMap();
@@ -172,7 +168,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
 
         void DespawnGolem()
@@ -263,11 +259,11 @@ public:
                 if (m_uiShatteringStomp_Timer <= uiDiff)
                 {
                     // Should he stomp even if he has no brittle golem to shatter?
-                    DoScriptText(RAND(SAY_STOMP_1, SAY_STOMP_2), me);
+                    Talk(SAY_STOMP);
 
                     DoCast(me, SPELL_SHATTERING_STOMP_N);
 
-                    DoScriptText(EMOTE_SHATTER, me);
+                    Talk(EMOTE_SHATTER);
 
                     m_uiShatteringStomp_Timer = 30000;
                     m_bCanShatterGolem = true;
@@ -297,7 +293,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
 
-                DoScriptText(RAND(SAY_FORGE_1, SAY_FORGE_2), me);
+                Talk(SAY_FORGE);
 
                 m_bHasTemper = true;
 
@@ -308,7 +304,7 @@ public:
             {
                 case 1:
                     // 1 - Start run to Anvil
-                    DoScriptText(EMOTE_TO_ANVIL, me);
+                    Talk(EMOTE_TO_ANVIL);
                     me->GetMotionMaster()->MoveTargetedHome();
                     m_uiSummonPhase = 2;        // Set Next Phase
                     break;

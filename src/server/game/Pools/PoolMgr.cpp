@@ -440,7 +440,12 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
     // load state from db
     if (!triggerFrom)
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT quest_id FROM pool_quest_save WHERE pool_id = %u", poolId);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_POOL_QUEST_SAVE);
+
+        stmt->setUInt32(0, poolId);
+
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
         if (result)
         {
             do
@@ -474,7 +479,7 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
     {
         do
         {
-            uint32 questId = SelectRandomContainerElement(currentQuests);
+            uint32 questId = Trinity::Containers::SelectRandomContainerElement(currentQuests);
             newQuests.insert(questId);
             currentQuests.erase(questId);
         } while (newQuests.size() < limit && !currentQuests.empty()); // failsafe
@@ -486,7 +491,7 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
     // activate <limit> random quests
     do
     {
-        uint32 questId = SelectRandomContainerElement(newQuests);
+        uint32 questId = Trinity::Containers::SelectRandomContainerElement(newQuests);
         spawns.ActivateObject<Quest>(questId, poolId);
         PoolObject tempObj(questId, 0.0f);
         Spawn1Object(&tempObj);
@@ -595,7 +600,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 1     2           3
+        //                                                 1       2         3
         QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_creature");
 
         if (!result)

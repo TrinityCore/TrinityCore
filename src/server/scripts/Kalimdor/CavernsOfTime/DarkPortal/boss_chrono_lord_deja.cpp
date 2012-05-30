@@ -55,9 +55,9 @@ public:
 
     struct boss_chrono_lord_dejaAI : public ScriptedAI
     {
-        boss_chrono_lord_dejaAI(Creature* c) : ScriptedAI(c)
+        boss_chrono_lord_dejaAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -100,7 +100,7 @@ public:
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 

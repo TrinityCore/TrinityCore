@@ -241,6 +241,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
         else
             AH->auctioneer = GUID_LOPART(auctioneer);
 
+        // Required stack size of auction matches to current item stack size, just move item to auctionhouse
         if (itemsCount == 1 && item->GetCount() == count[i])
         {
             if (GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
@@ -278,7 +279,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
             GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION, 1);
             return;
         }
-        else
+        else // Required stack size of auction does not match to current item stack size, clone item and set correct stack size
         {
             Item* newItem = item->CloneItem(finalCount, _player);
             if (!newItem)
@@ -309,33 +310,35 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
             sAuctionMgr->AddAItem(newItem);
             auctionHouse->AddAuction(AH);
 
-            for (uint32 i = 0; i < itemsCount; ++i)
+            for (uint32 j = 0; j < itemsCount; ++j)
             {
-                Item* item = items[i];
+                Item* item2 = items[j];
 
-                if (item->GetCount() == count[i])
+                // Item stack count equals required count, ready to delete item - cloned item will be used for auction
+                if (item2->GetCount() == count[j])
                 {
-                    _player->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
+                    _player->MoveItemFromInventory(item2->GetBagSlot(), item2->GetSlot(), true);
 
                     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                    item->DeleteFromInventoryDB(trans);
-                    item->SaveToDB(trans);
+                    item2->DeleteFromInventoryDB(trans);
+                    item2->DeleteFromDB(trans);
                     CharacterDatabase.CommitTransaction(trans);
                 }
-                else
+                else // Item stack count is bigger than required count, update item stack count and save to database - cloned item will be used for auction
                 {
-                    item->SetCount(item->GetCount() - count[i]);
-                    item->SetState(ITEM_CHANGED, _player);
-                    _player->ItemRemovedQuestCheck(item->GetEntry(), count[i]);
-                    item->SendUpdateToPlayer(_player);
+                    item2->SetCount(item2->GetCount() - count[j]);
+                    item2->SetState(ITEM_CHANGED, _player);
+                    _player->ItemRemovedQuestCheck(item2->GetEntry(), count[j]);
+                    item2->SendUpdateToPlayer(_player);
 
                     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                    item->SaveToDB(trans);
+                    item2->SaveToDB(trans);
                     CharacterDatabase.CommitTransaction(trans);
                 }
             }
 
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            newItem->SaveToDB(trans);
             AH->SaveToDB(trans);
             _player->SaveInventoryAndGoldToDB(trans);
             CharacterDatabase.CommitTransaction(trans);
@@ -436,7 +439,11 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recv_data)
         auction->bid = price;
         GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, price);
 
-        trans->PAppend("UPDATE auctionhouse SET buyguid = '%u', lastbid = '%u' WHERE id = '%u'", auction->bidder, auction->bid, auction->Id);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
+        stmt->setUInt32(0, auction->bidder);
+        stmt->setUInt32(1, auction->bid);
+        stmt->setUInt32(2, auction->Id);
+        trans->Append(stmt);
 
         SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, AUCTION_OK, 0);
     }

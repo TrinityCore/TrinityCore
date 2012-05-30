@@ -36,6 +36,8 @@ struct WardenCheck
     uint32 Address;                                         // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     uint8 Length;                                           // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     std::string Str;                                        // LUA, MPQ, DRIVER
+    std::string Comment;
+    uint16 CheckId;
     enum WardenActions Action;
 };
 
@@ -58,11 +60,13 @@ class WardenCheckMgr
         WardenCheck* GetWardenDataById(uint16 Id);
         WardenCheckResult* GetWardenResultById(uint16 Id);
 
-        uint32 InternalDataID;
         std::vector<uint16> MemChecksIdPool;
         std::vector<uint16> OtherChecksIdPool;
 
         void LoadWardenChecks();
+        void LoadWardenOverrides();
+
+        ACE_RW_Mutex _checkStoreLock;
 
     private:
         CheckContainer CheckStore;

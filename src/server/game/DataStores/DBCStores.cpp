@@ -129,7 +129,7 @@ DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
 DBCStorage <ItemSetEntry> sItemSetStore(ItemSetEntryfmt);
 
 DBCStorage <LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
-//DBCStorage <LiquidTypeEntry> sLiquidTypeStore(LiquidTypeEntryfmt);
+DBCStorage <LiquidTypeEntry> sLiquidTypeStore(LiquidTypefmt);
 DBCStorage <LockEntry> sLockStore(LockEntryfmt);
 
 DBCStorage <MailTemplateEntry> sMailTemplateStore(MailTemplateEntryfmt);
@@ -411,6 +411,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemDisenchantLootStore,     dbcPath, "ItemDisenchantLoot.dbc");
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sLFGDungeonStore,             dbcPath, "LFGDungeons.dbc");//14545
+    LoadDBC(availableDbcLocales, bad_dbc_files, sLiquidTypeStore,             dbcPath, "LiquidType.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sLockStore,                   dbcPath, "Lock.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseStores,                 dbcPath, "Phase.dbc");//14545
 
@@ -567,7 +568,9 @@ void LoadDBCStores(const std::string& dataPath)
     for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-        if (!talentInfo) continue;
+        if (!talentInfo)
+            continue;
+
         for (int j = 0; j < MAX_TALENT_RANK; j++)
             if (talentInfo->RankID[j])
                 sTalentSpellPosMap[talentInfo->RankID[j]] = TalentSpellPos(i, j);
@@ -632,7 +635,7 @@ void LoadDBCStores(const std::string& dataPath)
     // include existed nodes that have at least single not spell base (scripted) path
     {
         std::set<uint32> spellPaths;
-        for (uint32 i = 1; i < sSpellStore.GetNumRows (); ++i)
+        for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
             if (SpellEffectEntry const* sInfo = sSpellEffectStore.LookupEntry (i))
                 if (sInfo->Effect == SPELL_EFFECT_SEND_TAXI)
                     spellPaths.insert(sInfo->EffectMiscValue);
@@ -1156,10 +1159,10 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
 }
 
 // script support functions
- DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
- DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
- DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
- DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
- DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
- DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }
- DBCStorage <AchievementEntry>   const* GetAchievementStore()    { return &sAchievementStore;    }
+DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
+DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
+DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
+DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
+DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
+DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }
+DBCStorage <AchievementEntry>   const* GetAchievementStore()    { return &sAchievementStore;    }

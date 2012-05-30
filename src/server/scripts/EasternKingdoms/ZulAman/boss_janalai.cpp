@@ -113,9 +113,9 @@ class boss_janalai : public CreatureScript
 
         struct boss_janalaiAI : public ScriptedAI
         {
-            boss_janalaiAI(Creature* c) : ScriptedAI(c)
+            boss_janalaiAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             InstanceScript* instance;
@@ -159,7 +159,7 @@ class boss_janalai : public CreatureScript
                 HatchAllEggs(1);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
 
@@ -221,12 +221,13 @@ class boss_janalai : public CreatureScript
                     dy = float(irand(-area_dy/2, area_dy/2));
 
                     Creature* bomb = DoSpawnCreature(MOB_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
-                    if (bomb) FireBombGUIDs[i] = bomb->GetGUID();
+                    if (bomb)
+                        FireBombGUIDs[i] = bomb->GetGUID();
                 }
                 BombCount = 0;
             }
 
-            bool HatchAllEggs(uint32 uiAction) //1: reset, 2: isHatching all
+            bool HatchAllEggs(uint32 action) //1: reset, 2: isHatching all
             {
                 std::list<Creature*> templist;
                 float x, y, z;
@@ -251,9 +252,9 @@ class boss_janalai : public CreatureScript
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
                 {
-                    if (uiAction == 1)
+                    if (action == 1)
                        (*i)->SetDisplayId(10056);
-                    else if (uiAction == 2 &&(*i)->GetDisplayId() != 11686)
+                    else if (action == 2 &&(*i)->GetDisplayId() != 11686)
                        (*i)->CastSpell(*i, SPELL_HATCH_EGG, false);
                 }
                 return true;
@@ -288,7 +289,7 @@ class boss_janalai : public CreatureScript
             {
                 if (BombCount < 40)
                 {
-                    if (Unit* FireBomb = Unit::GetUnit((*me), FireBombGUIDs[BombCount]))
+                    if (Unit* FireBomb = Unit::GetUnit(*me, FireBombGUIDs[BombCount]))
                     {
                         FireBomb->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoCast(FireBomb, SPELL_FIRE_BOMB_THROW, true);
@@ -374,7 +375,9 @@ class boss_janalai : public CreatureScript
 
                     //Teleport every Player into the middle
                     Map* map = me->GetMap();
-                    if (!map->IsDungeon()) return;
+                    if (!map->IsDungeon())
+                        return;
+
                     Map::PlayerList const &PlayerList = map->GetPlayers();
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         if (Player* i_pl = i->getSource())
@@ -448,7 +451,7 @@ class mob_janalai_firebomb : public CreatureScript
 
         struct mob_janalai_firebombAI : public ScriptedAI
         {
-            mob_janalai_firebombAI(Creature* c) : ScriptedAI(c){}
+            mob_janalai_firebombAI(Creature* creature) : ScriptedAI(creature){}
 
             void Reset() {}
 
@@ -484,9 +487,9 @@ class mob_janalai_hatcher : public CreatureScript
 
         struct mob_janalai_hatcherAI : public ScriptedAI
         {
-            mob_janalai_hatcherAI(Creature* c) : ScriptedAI(c)
+            mob_janalai_hatcherAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance =c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             InstanceScript* instance;
@@ -501,7 +504,7 @@ class mob_janalai_hatcher : public CreatureScript
 
             void Reset()
             {
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(true);
                 side =(me->GetPositionY() < 1150);
                 waypoint = 0;
                 isHatching = false;
@@ -616,9 +619,9 @@ class mob_janalai_hatchling : public CreatureScript
 
         struct mob_janalai_hatchlingAI : public ScriptedAI
         {
-            mob_janalai_hatchlingAI(Creature* c) : ScriptedAI(c)
+            mob_janalai_hatchlingAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance =c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             InstanceScript* instance;
@@ -632,7 +635,7 @@ class mob_janalai_hatchling : public CreatureScript
                 else
                     me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[1][3][2]);
 
-                me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
             }
 
             void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}

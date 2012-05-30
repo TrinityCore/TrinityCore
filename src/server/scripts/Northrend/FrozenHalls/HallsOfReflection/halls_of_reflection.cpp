@@ -157,10 +157,10 @@ private:
 public:
     npc_jaina_or_sylvanas_hor(bool isSylvana, const char* name) : CreatureScript(name), m_isSylvana(isSylvana) { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
@@ -248,7 +248,7 @@ public:
             {
                 case EVENT_START_INTRO:
                     me->GetMotionMaster()->MovePoint(0, MoveThronePos);
-                    // Begining of intro is differents between factions as the speech sequence and timers are differents.
+                    // Begining of intro is differents between fActions as the speech sequence and timers are differents.
                     if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         events.ScheduleEvent(EVENT_INTRO_A2_1, 0);
                     else
@@ -633,7 +633,7 @@ public:
 
     struct npc_ghostly_priestAI: public ScriptedAI
     {
-        npc_ghostly_priestAI(Creature* c) : ScriptedAI(c)
+        npc_ghostly_priestAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -715,7 +715,7 @@ public:
 
     struct npc_phantom_mageAI: public ScriptedAI
     {
-        npc_phantom_mageAI(Creature* c) : ScriptedAI(c)
+        npc_phantom_mageAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -792,11 +792,11 @@ public:
 
     struct npc_phantom_hallucinationAI : public npc_phantom_mage::npc_phantom_mageAI
     {
-        npc_phantom_hallucinationAI(Creature* c) : npc_phantom_mage::npc_phantom_mageAI(c)
+        npc_phantom_hallucinationAI(Creature* creature) : npc_phantom_mage::npc_phantom_mageAI(creature)
         {
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoCast(SPELL_HALLUCINATION_2);
         }
@@ -816,7 +816,7 @@ public:
 
     struct npc_shadowy_mercenaryAI: public ScriptedAI
     {
-        npc_shadowy_mercenaryAI(Creature* c) : ScriptedAI(c)
+        npc_shadowy_mercenaryAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -887,7 +887,7 @@ public:
 
     struct npc_spectral_footmanAI: public ScriptedAI
     {
-        npc_spectral_footmanAI(Creature* c) : ScriptedAI(c)
+        npc_spectral_footmanAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -952,7 +952,7 @@ public:
 
     struct npc_tortured_riflemanAI  : public ScriptedAI
     {
-        npc_tortured_riflemanAI(Creature* c) : ScriptedAI(c)
+        npc_tortured_riflemanAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 

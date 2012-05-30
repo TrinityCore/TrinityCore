@@ -641,6 +641,6 @@ class CreatureEventAI : public CreatureAI
         bool m_MeleeEnabled;                                  // If we allow melee auto attack
         float m_AttackDistance;                               // Distance to attack from
         float m_AttackAngle;                                  // Angle of attack
-        uint32 m_InvinceabilityHpLevel;                       // Minimal health level allowed at damage apply
+        uint32 m_InvincibilityHpLevel;                       // Minimal health level allowed at damage apply
 };
 #endif

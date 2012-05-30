@@ -135,7 +135,7 @@ class boss_kologarn : public CreatureScript
                 eyebeamTarget = 0;
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 DoCast(SPELL_KOLOGARN_PACIFY);
@@ -184,11 +184,8 @@ class boss_kologarn : public CreatureScript
 
                     if (Creature* rubbleStalker = who->FindNearestCreature(NPC_RUBBLE_STALKER, 70.0f))
                     {
-                        if (rubbleStalker)
-                        {
-                            rubbleStalker->CastSpell(rubbleStalker, SPELL_FALLING_RUBBLE, true);
-                            rubbleStalker->CastSpell(rubbleStalker, SPELL_SUMMON_RUBBLE, true);
-                        }
+                        rubbleStalker->CastSpell(rubbleStalker, SPELL_FALLING_RUBBLE, true);
+                        rubbleStalker->CastSpell(rubbleStalker, SPELL_SUMMON_RUBBLE, true);
                     }
 
                     if (!right && !left)

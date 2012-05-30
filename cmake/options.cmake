@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2008-2012 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -13,6 +13,5 @@ option(SCRIPTS          "Build core with scripts included"                      
 option(TOOLS            "Build map/vmap extraction/assembler tools"                   0)
 option(USE_SCRIPTPCH    "Use precompiled headers when compiling scripts"              1)
 option(USE_COREPCH      "Use precompiled headers when compiling servers"              1)
-option(USE_SFMT         "Use SFMT as random numbergenerator"                          0)
 option(WITH_WARNINGS    "Show all warnings during compile"                            0)
 option(WITH_COREDEBUG   "Include additional debug-code in core"                       0)

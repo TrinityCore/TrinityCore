@@ -38,11 +38,11 @@ Log::Log() :
 
 Log::~Log()
 {
-    if ( logfile != NULL )
+    if (logfile != NULL)
         fclose(logfile);
     logfile = NULL;
 
-    if ( gmLogfile != NULL )
+    if (gmLogfile != NULL)
         fclose(gmLogfile);
     gmLogfile = NULL;
 
@@ -50,7 +50,7 @@ Log::~Log()
         fclose(charLogfile);
     charLogfile = NULL;
 
-    if ( dberLogfile != NULL )
+    if (dberLogfile != NULL)
         fclose(dberLogfile);
     dberLogfile = NULL;
 
@@ -81,32 +81,32 @@ Log::~Log()
 
 void Log::SetLogLevel(char *Level)
 {
-    int32 NewLevel =atoi((char*)Level);
-    if ( NewLevel <0 )
+    int32 NewLevel = atoi((char*)Level);
+    if (NewLevel < 0)
         NewLevel = 0;
     m_logLevel = NewLevel;
 
-    outString( "LogLevel is %u", m_logLevel );
+    outString("LogLevel is %u", m_logLevel);
 }
 
 void Log::SetLogFileLevel(char *Level)
 {
-    int32 NewLevel =atoi((char*)Level);
-    if ( NewLevel <0 )
+    int32 NewLevel = atoi((char*)Level);
+    if (NewLevel < 0)
         NewLevel = 0;
     m_logFileLevel = NewLevel;
 
-    outString( "LogFileLevel is %u", m_logFileLevel );
+    outString("LogFileLevel is %u", m_logFileLevel);
 }
 
 void Log::SetDBLogLevel(char *Level)
 {
     int32 NewLevel = atoi((char*)Level);
-    if ( NewLevel < 0 )
+    if (NewLevel < 0)
         NewLevel = 0;
     m_dbLogLevel = NewLevel;
 
-    outString( "DBLogLevel is %u", m_dbLogLevel );
+    outString("DBLogLevel is %u", m_dbLogLevel);
 }
 
 void Log::Initialize()
@@ -382,7 +382,7 @@ void Log::outDB(LogTypes type, const char * str)
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
 
     stmt->setInt32(0, realm);
-    stmt->setInt32(1, type);
+    stmt->setUInt8(1, uint8(type));
     stmt->setString(2, logStr);
 
     LoginDatabase.Execute(stmt);

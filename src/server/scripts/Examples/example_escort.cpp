@@ -75,9 +75,9 @@ class example_escort : public CreatureScript
             }
 
             // Pure Virtual Functions (Have to be implemented)
-            void WaypointReached(uint32 uiWP)
+            void WaypointReached(uint32 waypointId)
             {
-                switch (uiWP)
+                switch (waypointId)
                 {
                     case 1:
                         DoScriptText(SAY_WP_1, me);
@@ -123,9 +123,7 @@ class example_escort : public CreatureScript
                     {
                         // not a likely case, code here for the sake of example
                         if (killer == me)
-                        {
                             DoScriptText(SAY_DEATH_1, me, player);
-                        }
                         else
                             DoScriptText(SAY_DEATH_2, me, player);
                     }
@@ -197,12 +195,12 @@ class example_escort : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
             npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
 
-            switch (uiAction)
+            switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF+1:
                     player->CLOSE_GOSSIP_MENU();

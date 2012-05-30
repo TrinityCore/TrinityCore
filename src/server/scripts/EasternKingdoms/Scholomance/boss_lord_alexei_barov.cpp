@@ -41,7 +41,7 @@ public:
 
     struct boss_lordalexeibarovAI : public ScriptedAI
     {
-        boss_lordalexeibarovAI(Creature* c) : ScriptedAI(c) {}
+        boss_lordalexeibarovAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Immolate_Timer;
         uint32 VeilofShadow_Timer;

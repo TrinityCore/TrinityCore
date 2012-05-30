@@ -194,8 +194,11 @@ public:
     static bool HandleAccountOnlineListCommand(ChatHandler* handler, char const* /*args*/)
     {
         ///- Get the list of accounts ID logged to the realm
-        QueryResult resultDB = CharacterDatabase.Query("SELECT name, account, map, zone FROM characters WHERE online > 0");
-        if (!resultDB)
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE);
+
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
         {
             handler->SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
             return true;
@@ -209,31 +212,28 @@ public:
         ///- Cycle through accounts
         do
         {
-            Field* fieldsDB = resultDB->Fetch();
+            Field* fieldsDB = result->Fetch();
             std::string name = fieldsDB[0].GetString();
             uint32 account = fieldsDB[1].GetUInt32();
 
             ///- Get the username, last IP and GM level of each account
             // No SQL injection. account is uint32.
-            QueryResult resultLogin =
-                LoginDatabase.PQuery("SELECT a.username, a.last_ip, aa.gmlevel, a.expansion "
-                "FROM account a "
-                "LEFT JOIN account_access aa "
-                "ON (a.id = aa.id) "
-                "WHERE a.id = '%u'", account);
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
+            stmt->setUInt32(0, account);
+            PreparedQueryResult resultLogin = LoginDatabase.Query(stmt);
 
             if (resultLogin)
             {
                 Field* fieldsLogin = resultLogin->Fetch();
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
                     fieldsLogin[0].GetCString(), name.c_str(), fieldsLogin[1].GetCString(),
-                    fieldsDB[2].GetUInt16(), fieldsDB[3].GetUInt16(), fieldsLogin[3].GetUInt32(),
-                    fieldsLogin[2].GetUInt32());
+                    fieldsDB[2].GetUInt16(), fieldsDB[3].GetUInt16(), fieldsLogin[3].GetUInt8(),
+                    fieldsLogin[2].GetUInt8());
             }
             else
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_ERROR, name.c_str());
 
-        } while (resultDB->NextRow());
+        } while (result->NextRow());
 
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
         return true;
@@ -382,7 +382,7 @@ public:
 
         // Let set addon state only for lesser (strong) security level
         // or to self account
-        if (handler->GetSession() && handler->GetSession()->GetAccountId () != accountId &&
+        if (handler->GetSession() && handler->GetSession()->GetAccountId() != accountId &&
             handler->HasLowerSecurityAccount(NULL, accountId, true))
             return false;
 
@@ -469,7 +469,13 @@ public:
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
         if (gmRealmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
         {
-            QueryResult result = LoginDatabase.PQuery("SELECT * FROM account_access WHERE id = '%u' AND gmlevel > '%d'", targetAccountId, gm);
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt8(1, uint8(gm));
+
+            PreparedQueryResult result = LoginDatabase.Query(stmt);
+
             if (result)
             {
                 handler->SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
@@ -502,11 +508,12 @@ public:
             stmt->setUInt32(0, targetAccountId);
             stmt->setUInt32(1, realmID);
         }
+
         LoginDatabase.Execute(stmt);
 
         if (gm != 0)
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
 
             stmt->setUInt32(0, targetAccountId);
             stmt->setUInt8(1, uint8(gm));

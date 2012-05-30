@@ -166,15 +166,16 @@ void ReputationMgr::SendState(FactionState const* faction)
 {
     uint32 count = 1;
 
-    WorldPacket data(SMSG_SET_FACTION_STANDING, (16));  // last check 2.4.0
-    data << (float) 0;                                  // unk 2.4.0
-    data << (uint8) 0;                                  // wotlk 8634
+    WorldPacket data(SMSG_SET_FACTION_STANDING, 17);
+    data << float(0);
+    data << uint8(_sendFactionIncreased);
+    _sendFactionIncreased = false; // Reset
 
     size_t p_count = data.wpos();
-    data << (uint32) count;                             // placeholder
+    data << uint32(count);
 
-    data << (uint32) faction->ReputationListID;
-    data << (uint32) faction->Standing;
+    data << uint32(faction->ReputationListID);
+    data << uint32(faction->Standing);
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
@@ -183,8 +184,8 @@ void ReputationMgr::SendState(FactionState const* faction)
             itr->second.needSend = false;
             if (itr->second.ReputationListID != faction->ReputationListID)
             {
-                data << (uint32) itr->second.ReputationListID;
-                data << (uint32) itr->second.Standing;
+                data << uint32(itr->second.ReputationListID);
+                data << uint32(itr->second.Standing);
                 ++count;
             }
         }
@@ -253,6 +254,7 @@ void ReputationMgr::Initialize()
     _honoredFactionCount = 0;
     _reveredFactionCount = 0;
     _exaltedFactionCount = 0;
+    _sendFactionIncreased = false;
 
     for (unsigned int i = 1; i < sFactionStore.GetNumRows(); i++)
     {
@@ -337,6 +339,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             }
         }
     }
+
     // spillover done, update faction itself
     FactionStateList::iterator faction = _factions.find(factionEntry->reputationListID);
     if (faction != _factions.end())
@@ -379,11 +382,14 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         if (new_rank <= REP_HOSTILE)
             SetAtWar(&itr->second, true);
 
+        if (new_rank > old_rank)
+            _sendFactionIncreased = true;
+
         UpdateRankCounters(old_rank, new_rank);
 
         _player->ReputationChanged(factionEntry);
-        _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS,         factionEntry->ID);
-        _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION,        factionEntry->ID);
+        _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS,          factionEntry->ID);
+        _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION,         factionEntry->ID);
         _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION, factionEntry->ID);
         _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION, factionEntry->ID);
         _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION, factionEntry->ID);
@@ -515,7 +521,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
                 FactionState* faction = &_factions[factionEntry->reputationListID];
 
                 // update standing to current
-                faction->Standing = int32(fields[1].GetUInt32());
+                faction->Standing = fields[1].GetInt32();
 
                 // update counters
                 int32 BaseRep = GetBaseReputation(factionEntry);
@@ -562,8 +568,18 @@ void ReputationMgr::SaveToDB(SQLTransaction& trans)
     {
         if (itr->second.needSave)
         {
-            trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u' AND faction='%u'", _player->GetGUIDLow(), itr->second.ID);
-            trans->PAppend("INSERT INTO character_reputation (guid, faction, standing, flags) VALUES ('%u', '%u', '%i', '%u')", _player->GetGUIDLow(), itr->second.ID, itr->second.Standing, itr->second.Flags);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REPUTATION_BY_FACTION);
+            stmt->setUInt32(0, _player->GetGUIDLow());
+            stmt->setUInt16(1, uint16(itr->second.ID));
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_REPUTATION_BY_FACTION);
+            stmt->setUInt32(0, _player->GetGUIDLow());
+            stmt->setUInt16(1, uint16(itr->second.ID));
+            stmt->setInt32(2, itr->second.Standing);
+            stmt->setUInt16(3, uint16(itr->second.Flags));
+            trans->Append(stmt);
+
             itr->second.needSave = false;
         }
     }

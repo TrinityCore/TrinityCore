@@ -414,8 +414,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (me->isSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+            if (TempSummon* summ = me->ToTempSummon())
+                if (Unit* summoner = summ->GetSummoner())
                     if (summoner->isAlive())
                         summoner->GetAI()->SetData(1, 0);
         }
@@ -447,9 +447,9 @@ public:
 
         uint8 uiWaypoint;
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 waypointId)
         {
-            if (uiPoint == 0)
+            if (waypointId == 0)
             {
                 switch (uiWaypoint)
                 {

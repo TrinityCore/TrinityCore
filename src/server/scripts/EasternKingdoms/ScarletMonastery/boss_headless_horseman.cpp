@@ -296,8 +296,11 @@ public:
 
             if (spell->Id == SPELL_FLYING_HEAD)
             {
-                if (Phase < 3) ++Phase;
-                else Phase = 3;
+                if (Phase < 3)
+                    ++Phase;
+                else
+                    Phase = 3;
+
                 withbody = false;
                 if (!bodyGUID)
                     bodyGUID = caster->GetGUID();
@@ -319,7 +322,8 @@ public:
                 if (wait <= diff)
                 {
                     wait = 1000;
-                    if (!me->getVictim()) return;
+                    if (!me->getVictim())
+                        return;
                     me->GetMotionMaster()->Clear(false);
                     me->GetMotionMaster()->MoveFleeing(me->getVictim());
                 }
@@ -344,7 +348,7 @@ public:
                     if (wait <= diff)
                     {
                         die = false;
-                        if (Unit* body = Unit::GetUnit((*me), bodyGUID))
+                        if (Unit* body = Unit::GetUnit(*me, bodyGUID))
                             body->Kill(body);
                         me->Kill(me);
                     }
@@ -429,7 +433,7 @@ public:
         {
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_DISABLE_GRAVITY);
             me->SetSpeed(MOVE_WALK, 5.0f, true);
             wp_reached = false;
             count = 0;
@@ -462,7 +466,7 @@ public:
                         instance->SetData(GAMEOBJECT_PUMPKIN_SHRINE, 0);   //hide gameobject
                     break;
                 case 19:
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
+                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_DISABLE_GRAVITY);
                     break;
                 case 20:
                 {
@@ -471,7 +475,7 @@ public:
                     wp_reached = false;
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     SaySound(SAY_ENTRANCE);
-                    if (Unit* player = Unit::GetUnit((*me), PlayerGUID))
+                    if (Unit* player = Unit::GetUnit(*me, PlayerGUID))
                         DoStartMovement(player);
                     break;
                 }
@@ -485,12 +489,18 @@ public:
                 instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
             DoZoneInCombat();
         }
-        void AttackStart(Unit* who) {ScriptedAI::AttackStart(who);}
+
+        void AttackStart(Unit* who)
+        {
+            ScriptedAI::AttackStart(who);
+        }
+
         void MoveInLineOfSight(Unit* who)
         {
             if (withhead && Phase != 0)
                 ScriptedAI::MoveInLineOfSight(who);
         }
+
         void KilledUnit(Unit* player)
         {
             if (player->GetTypeId() == TYPEID_PLAYER)
@@ -576,7 +586,7 @@ public:
                 std::list<HostileReference*>::const_iterator itr;
                 for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
                 {
-                    Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                    Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (unit && unit->isAlive() && unit != caster)
                         me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
                 }
@@ -595,7 +605,8 @@ public:
 
                 if (!headGUID)
                     headGUID = DoSpawnCreature(HEAD, float(rand()%6), float(rand()%6), 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0)->GetGUID();
-                Unit* Head = Unit::GetUnit((*me), headGUID);
+
+                Unit* Head = Unit::GetUnit(*me, headGUID);
                 if (Head && Head->isAlive())
                 {
                     Head->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -803,14 +814,22 @@ public:
 
         void Despawn()
         {
-            if (!debuffGUID) return;
-            Unit* debuff = Unit::GetUnit((*me), debuffGUID);
+            if (!debuffGUID)
+                return;
+
+            Unit* debuff = Unit::GetUnit(*me, debuffGUID);
             if (debuff)
+            {
                 debuff->SetVisible(false);
                 debuffGUID = 0;
+            }
         }
 
-        void JustDied(Unit* /*killer*/) { if (!sprouted) Despawn(); }
+        void JustDied(Unit* /*killer*/)
+        {
+            if (!sprouted)
+                Despawn();
+        }
 
         void MoveInLineOfSight(Unit* who)
         {

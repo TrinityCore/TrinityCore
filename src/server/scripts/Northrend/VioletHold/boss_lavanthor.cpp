@@ -41,9 +41,9 @@ public:
 
     struct boss_lavanthorAI : public ScriptedAI
     {
-        boss_lavanthorAI(Creature* c) : ScriptedAI(c)
+        boss_lavanthorAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         uint32 uiFireboltTimer;

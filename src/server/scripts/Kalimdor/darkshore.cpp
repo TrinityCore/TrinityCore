@@ -29,7 +29,9 @@ npc_prospector_remtravel
 npc_threshwackonator
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
@@ -37,7 +39,7 @@ EndContentData */
 # npc_kerlonian
 ####*/
 
-enum eKerlonian
+enum Kerlonian
 {
     SAY_KER_START               = -1000434,
 
@@ -94,11 +96,11 @@ public:
     {
         npc_kerlonianAI(Creature* creature) : FollowerAI(creature) { }
 
-        uint32 m_uiFallAsleepTimer;
+        uint32 FallAsleepTimer;
 
         void Reset()
         {
-            m_uiFallAsleepTimer = urand(10000, 45000);
+            FallAsleepTimer = urand(10000, 45000);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -150,7 +152,7 @@ public:
             SetFollowPaused(false);
         }
 
-        void UpdateFollowerAI(const uint32 uiDiff)
+        void UpdateFollowerAI(const uint32 Diff)
         {
             if (!UpdateVictim())
             {
@@ -159,13 +161,13 @@ public:
 
                 if (!HasFollowState(STATE_FOLLOW_PAUSED))
                 {
-                    if (m_uiFallAsleepTimer <= uiDiff)
+                    if (FallAsleepTimer <= Diff)
                     {
                         SetSleeping();
-                        m_uiFallAsleepTimer = urand(25000, 90000);
+                        FallAsleepTimer = urand(25000, 90000);
                     }
                     else
-                        m_uiFallAsleepTimer -= uiDiff;
+                        FallAsleepTimer -= Diff;
                 }
 
                 return;
@@ -181,7 +183,7 @@ public:
 # npc_prospector_remtravel
 ####*/
 
-enum eRemtravel
+enum Remtravel
 {
     SAY_REM_START               = -1000327,
     SAY_REM_AGGRO               = -1000328,
@@ -231,66 +233,64 @@ public:
     {
         npc_prospector_remtravelAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            Player* player = GetPlayerForEscort();
-
-            if (!player)
-                return;
-
-            switch (i)
+            if (Player* player = GetPlayerForEscort())
             {
-                case 0:
-                    DoScriptText(SAY_REM_START, me, player);
-                    break;
-                case 5:
-                    DoScriptText(SAY_REM_RAMP1_1, me, player);
-                    break;
-                case 6:
-                    DoSpawnCreature(NPC_GRAVEL_SCOUT, -10.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    DoSpawnCreature(NPC_GRAVEL_BONE, -10.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    break;
-                case 9:
-                    DoScriptText(SAY_REM_RAMP1_2, me, player);
-                    break;
-                case 14:
-                    //depend quest rewarded?
-                    DoScriptText(SAY_REM_BOOK, me, player);
-                    break;
-                case 15:
-                    DoScriptText(SAY_REM_TENT1_1, me, player);
-                    break;
-                case 16:
-                    DoSpawnCreature(NPC_GRAVEL_SCOUT, -10.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    DoSpawnCreature(NPC_GRAVEL_BONE, -10.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    break;
-                case 17:
-                    DoScriptText(SAY_REM_TENT1_2, me, player);
-                    break;
-                case 26:
-                    DoScriptText(SAY_REM_MOSS, me, player);
-                    break;
-                case 27:
-                    DoScriptText(EMOTE_REM_MOSS, me, player);
-                    break;
-                case 28:
-                    DoScriptText(SAY_REM_MOSS_PROGRESS, me, player);
-                    break;
-                case 29:
-                    DoSpawnCreature(NPC_GRAVEL_SCOUT, -15.0f, 3.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    DoSpawnCreature(NPC_GRAVEL_BONE, -15.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    DoSpawnCreature(NPC_GRAVEL_GEO, -15.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    break;
-                case 31:
-                    DoScriptText(SAY_REM_PROGRESS, me, player);
-                    break;
-                case 41:
-                    DoScriptText(SAY_REM_REMEMBER, me, player);
-                    break;
-                case 42:
-                    DoScriptText(EMOTE_REM_END, me, player);
-                    player->GroupEventHappens(QUEST_ABSENT_MINDED_PT2, me);
-                    break;
+                switch (waypointId)
+                {
+                    case 0:
+                        DoScriptText(SAY_REM_START, me, player);
+                        break;
+                    case 5:
+                        DoScriptText(SAY_REM_RAMP1_1, me, player);
+                        break;
+                    case 6:
+                        DoSpawnCreature(NPC_GRAVEL_SCOUT, -10.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        DoSpawnCreature(NPC_GRAVEL_BONE, -10.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        break;
+                    case 9:
+                        DoScriptText(SAY_REM_RAMP1_2, me, player);
+                        break;
+                    case 14:
+                        //depend quest rewarded?
+                        DoScriptText(SAY_REM_BOOK, me, player);
+                        break;
+                    case 15:
+                        DoScriptText(SAY_REM_TENT1_1, me, player);
+                        break;
+                    case 16:
+                        DoSpawnCreature(NPC_GRAVEL_SCOUT, -10.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        DoSpawnCreature(NPC_GRAVEL_BONE, -10.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        break;
+                    case 17:
+                        DoScriptText(SAY_REM_TENT1_2, me, player);
+                        break;
+                    case 26:
+                        DoScriptText(SAY_REM_MOSS, me, player);
+                        break;
+                    case 27:
+                        DoScriptText(EMOTE_REM_MOSS, me, player);
+                        break;
+                    case 28:
+                        DoScriptText(SAY_REM_MOSS_PROGRESS, me, player);
+                        break;
+                    case 29:
+                        DoSpawnCreature(NPC_GRAVEL_SCOUT, -15.0f, 3.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        DoSpawnCreature(NPC_GRAVEL_BONE, -15.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        DoSpawnCreature(NPC_GRAVEL_GEO, -15.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                        break;
+                    case 31:
+                        DoScriptText(SAY_REM_PROGRESS, me, player);
+                        break;
+                    case 41:
+                        DoScriptText(SAY_REM_REMEMBER, me, player);
+                        break;
+                    case 42:
+                        DoScriptText(EMOTE_REM_END, me, player);
+                        player->GroupEventHappens(QUEST_ABSENT_MINDED_PT2, me);
+                        break;
+                }
             }
         }
 
@@ -298,7 +298,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (rand()%2)
+            if (urand(0, 1))
                 DoScriptText(SAY_REM_AGGRO, me, who);
         }
 
@@ -315,7 +315,7 @@ public:
 # npc_threshwackonator
 ####*/
 
-enum eThreshwackonator
+enum Threshwackonator
 {
     EMOTE_START             = -1000325, //signed for 4966
     SAY_AT_CLOSE            = -1000326, //signed for 4966
@@ -331,10 +331,10 @@ class npc_threshwackonator : public CreatureScript
 public:
     npc_threshwackonator() : CreatureScript("npc_threshwackonator") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
 

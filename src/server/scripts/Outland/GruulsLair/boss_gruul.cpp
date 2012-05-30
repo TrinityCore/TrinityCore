@@ -66,9 +66,9 @@ public:
 
     struct boss_gruulAI : public ScriptedAI
     {
-        boss_gruulAI(Creature* c) : ScriptedAI(c)
+        boss_gruulAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -109,7 +109,7 @@ public:
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -130,8 +130,13 @@ public:
                 {
                     switch (urand(0, 1))
                     {
-                        case 0: target->CastSpell(target, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID()); break;
-                        case 1: target->CastSpell(target, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID()); break;
+                        case 0:
+                            target->CastSpell(target, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID());
+                            break;
+
+                        case 1:
+                            target->CastSpell(target, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID());
+                            break;
                     }
                 }
             }

@@ -101,11 +101,11 @@ class boss_nalorakk : public CreatureScript
 
         struct boss_nalorakkAI : public ScriptedAI
         {
-            boss_nalorakkAI(Creature* c) : ScriptedAI(c)
+            boss_nalorakkAI(Creature* creature) : ScriptedAI(creature)
             {
                 MoveEvent = true;
                 MovePhase = 0;
-                instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             InstanceScript* instance;
@@ -136,7 +136,7 @@ class boss_nalorakk : public CreatureScript
                     inMove = false;
                     waitTimer = 0;
                     me->SetSpeed(MOVE_RUN, 2);
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(false);
                 }else
                 {
                     (*me).GetMotionMaster()->MovePoint(0, NalorakkWay[7][0], NalorakkWay[7][1], NalorakkWay[7][2]);
@@ -276,7 +276,7 @@ class boss_nalorakk : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                     instance->SetData(DATA_NALORAKKEVENT, DONE);

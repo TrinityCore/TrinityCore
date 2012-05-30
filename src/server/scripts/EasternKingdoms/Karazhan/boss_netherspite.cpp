@@ -70,9 +70,9 @@ public:
 
     struct boss_netherspiteAI : public ScriptedAI
     {
-        boss_netherspiteAI(Creature* c) : ScriptedAI(c)
+        boss_netherspiteAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             for (int i=0; i<3; ++i)
             {

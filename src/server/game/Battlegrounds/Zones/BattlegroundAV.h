@@ -356,7 +356,9 @@ enum BG_AV_OBJECTS
 
     AV_OPLACE_MAX                         = 149
 };
-const float BG_AV_ObjectPos[AV_OPLACE_MAX][4] = {
+
+const float BG_AV_ObjectPos[AV_OPLACE_MAX][4] =
+{
     {638.592f, -32.422f, 46.0608f, -1.62316f }, //firstaid station
     {669.007f, -294.078f, 30.2909f, 2.77507f }, //stormpike
     {77.8013f, -404.7f, 46.7549f, -0.872665f }, //stone grave
@@ -527,7 +529,8 @@ const float BG_AV_ObjectPos[AV_OPLACE_MAX][4] = {
     {-951.394f, -193.695f, 67.634f, 0.802851f}
 };
 
-const float BG_AV_DoorPositons[2][4] = {
+const float BG_AV_DoorPositons[2][4] =
+{
     {780.487f, -493.024f, 99.9553f, 3.0976f},   //alliance
     {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
 };
@@ -623,7 +626,8 @@ enum BG_AV_CreaturePlace
 };
 
 //x, y, z, o
-const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] = {
+const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] =
+{
     //spiritguides
     {643.000000f, 44.000000f, 69.740196f, -0.001854f},
     {676.000000f, -374.000000f, 30.000000f, -0.001854f},
@@ -1039,7 +1043,8 @@ enum BG_AV_CreatureIds
 
 //entry, team, minlevel, maxlevel
 //TODO this array should be removed, the only needed things are the entrys (for spawning(?) and handlekillunit)
-const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] = {
+const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] =
+{
     { 12050, 1216, 58, 58 }, //Stormpike Defender
     { 13326, 1216, 59, 59 }, //Seasoned Defender
     { 13331, 1216, 60, 60 }, //Veteran Defender
@@ -1099,7 +1104,9 @@ const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] = {
 };
 
 //x, y, z, o, static_creature_info-id
-const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = { //static creatures
+const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] =
+{
+    //static creatures
     {-1235.31f, -340.777f, 60.5088f, 3.31613f, 0 }, //2225 - Zora Guthrek
     {-1244.02f, -323.795f, 61.0485f, 5.21853f, 1 }, //3343 - Grelkor
     {-1235.16f, -332.302f, 60.2985f, 2.96706f, 2 }, //3625 - Rarck
@@ -1226,7 +1233,8 @@ const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = { //static creatur
 
 };
 
-const uint32 BG_AV_StaticCreatureInfo[51][4] = {
+const uint32 BG_AV_StaticCreatureInfo[51][4] =
+{
     { 2225, 1215, 55, 55 }, //Zora Guthrek
     { 3343, 1215, 55, 55 }, //Grelkor
     { 3625, 1215, 55, 55 }, //Rarck
@@ -1293,16 +1301,17 @@ enum BG_AV_Graveyards
     AV_GRAVE_MAIN_HORDE        = 610
 };
 
-const uint32 BG_AV_GraveyardIds[9]= {
-  AV_GRAVE_STORM_AID,
-  AV_GRAVE_STORM_GRAVE,
-  AV_GRAVE_STONE_GRAVE,
-  AV_GRAVE_SNOWFALL,
-  AV_GRAVE_ICE_GRAVE,
-  AV_GRAVE_FROSTWOLF,
-  AV_GRAVE_FROST_HUT,
-  AV_GRAVE_MAIN_ALLIANCE,
-  AV_GRAVE_MAIN_HORDE
+const uint32 BG_AV_GraveyardIds[9]=
+{
+    AV_GRAVE_STORM_AID,
+    AV_GRAVE_STORM_GRAVE,
+    AV_GRAVE_STONE_GRAVE,
+    AV_GRAVE_SNOWFALL,
+    AV_GRAVE_ICE_GRAVE,
+    AV_GRAVE_FROSTWOLF,
+    AV_GRAVE_FROST_HUT,
+    AV_GRAVE_MAIN_ALLIANCE,
+    AV_GRAVE_MAIN_HORDE
 };
 
 enum BG_AV_BUFF
@@ -1434,13 +1443,15 @@ enum BG_AV_WorldStates
 };
 
 //alliance_control neutral_control horde_control
-const uint32 BG_AV_MineWorldStates[2][3] = {
+const uint32 BG_AV_MineWorldStates[2][3] =
+{
     {1358, 1360, 1359},
     {1355, 1357, 1356}
 };
 
 //alliance_control alliance_assault h_control h_assault
-const uint32 BG_AV_NodeWorldStates[16][4] = {
+const uint32 BG_AV_NodeWorldStates[16][4] =
+{
     //Stormpike first aid station
     {1325, 1326, 1327, 1328},
     //Stormpike Graveyard

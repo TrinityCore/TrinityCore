@@ -16,6 +16,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "CreatureTextMgr.h"
 #include "culling_of_stratholme.h"
 
 #define MAX_ENCOUNTER 5

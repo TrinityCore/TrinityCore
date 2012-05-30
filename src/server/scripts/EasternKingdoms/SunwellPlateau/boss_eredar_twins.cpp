@@ -97,9 +97,9 @@ public:
 
     struct boss_sacrolashAI : public ScriptedAI
     {
-        boss_sacrolashAI(Creature* c) : ScriptedAI(c)
+        boss_sacrolashAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -120,7 +120,7 @@ public:
 
             if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
                 if (Temp)
                 {
                     if (Temp->isDead())
@@ -152,7 +152,7 @@ public:
 
             if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
@@ -167,7 +167,7 @@ public:
                 DoScriptText(RAND(YELL_SAC_KILL_1, YELL_SAC_KILL_2), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             // only if ALY death
             if (SisterDeath)
@@ -231,7 +231,7 @@ public:
                 if (instance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
+                    Temp = Unit::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_ALYTHESS_DEAD, me);
@@ -355,9 +355,9 @@ public:
 
     struct boss_alythessAI : public Scripted_NoMovementAI
     {
-        boss_alythessAI(Creature* c) : Scripted_NoMovementAI(c)
+        boss_alythessAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             IntroStepCounter = 10;
         }
 
@@ -382,7 +382,7 @@ public:
 
             if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
                 if (Temp)
                 {
                     if (Temp->isDead())
@@ -415,7 +415,7 @@ public:
 
             if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
@@ -462,7 +462,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (SisterDeath)
             {
@@ -567,7 +567,7 @@ public:
                 if (instance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
+                    Temp = Unit::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_SACROLASH_DEAD, me);
@@ -684,7 +684,7 @@ public:
 
     struct mob_shadow_imageAI : public ScriptedAI
     {
-        mob_shadow_imageAI(Creature* c) : ScriptedAI(c) {}
+        mob_shadow_imageAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;

@@ -135,7 +135,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
     if (!unit->isCanTrainingOf(_player, true))
         return;
 
-    CreatureTemplate const* ci = unit->GetCreatureInfo();
+    CreatureTemplate const* ci = unit->GetCreatureTemplate();
 
     if (!ci)
     {
@@ -170,7 +170,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
 
         bool valid = true;
         bool primary_prof_first_rank = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS ; ++i)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (!tSpell->learnedSpell[i])
                 continue;
@@ -197,7 +197,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
         data << uint32(tSpell->reqSkillValue);
         //prev + req or req + 0
         uint8 maxReq = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS ; ++i)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (!tSpell->learnedSpell[i])
                 continue;
@@ -341,7 +341,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recv_data)
     if (!sScriptMgr->OnGossipHello(_player, unit))
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
-        _player->PrepareGossipMenu(unit, unit->GetCreatureInfo()->GossipMenuId, true);
+        _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
         _player->SendPreparedGossip(unit);
     }
     unit->AI()->sGossipHello(_player);

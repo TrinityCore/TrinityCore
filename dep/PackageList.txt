@@ -14,12 +14,8 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-  Version: 2.1.0
+  Version: 2.2.5
   
-MersenneTwister (a very fast random number generator)
-  http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
-  Version: 0.4.2
-
 MySQL (the world's most popular open source database software)
   http://www.mysql.com/
   Version: 5.5.9 (GA)
@@ -38,7 +34,7 @@ zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/
-  Version: 2.8.0
+  Version: 2.8.2
 
 StormLib (a pack of modules, written in C++, which are able to read and also to write files from/to the MPQ archives)
   http://www.zezula.net/en/mpq/stormlib.html

@@ -251,9 +251,9 @@ public:
 
     struct boss_kalecgos_kjAI : public ScriptedAI
     {
-        boss_kalecgos_kjAI(Creature* c) : ScriptedAI(c)
+        boss_kalecgos_kjAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -264,7 +264,7 @@ public:
         {
             OrbsEmpowered = 0;
             EmpowerCount = 0;
-            me->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_DISABLE_GRAVITY);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setActive(true);
 
@@ -406,9 +406,9 @@ public:
 
     struct mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
     {
-        mob_kiljaeden_controllerAI(Creature* c) : Scripted_NoMovementAI(c), summons(me)
+        mob_kiljaeden_controllerAI(Creature* creature) : Scripted_NoMovementAI(creature), summons(me)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -434,8 +434,9 @@ public:
         {
             phase = PHASE_DECEIVERS;
 
-            if (Creature* pKalecKJ = Unit::GetCreature((*me), instance->GetData64(DATA_KALECGOS_KJ)))
-                CAST_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalecKJ->AI())->ResetOrbs();
+            if (instance)
+                if (Creature* pKalecKJ = Unit::GetCreature((*me), instance->GetData64(DATA_KALECGOS_KJ)))
+                    CAST_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalecKJ->AI())->ResetOrbs();
             deceiverDeathCount = 0;
             bSummonedDeceivers = false;
             bKiljaedenDeath = false;
@@ -451,7 +452,7 @@ public:
                     summoned->CastSpell(summoned, SPELL_SHADOW_CHANNELING, false);
                     break;
                 case CREATURE_ANVEENA:
-                    summoned->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
+                    summoned->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_DISABLE_GRAVITY);
                     summoned->CastSpell(summoned, SPELL_ANVEENA_PRISON, true);
                     summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     break;
@@ -506,9 +507,9 @@ public:
 
     struct boss_kiljaedenAI : public Scripted_NoMovementAI
     {
-        boss_kiljaedenAI(Creature* c) : Scripted_NoMovementAI(c), summons(me)
+        boss_kiljaedenAI(Creature* creature) : Scripted_NoMovementAI(creature), summons(me)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -660,17 +661,9 @@ public:
             DoScriptText(RAND(SAY_KJ_REFLECTION1, SAY_KJ_REFLECTION2), me);
             for (uint8 i = 0; i < 4; ++i)
             {
-                float x, y, z;
-                Unit* target = NULL;
-                for (uint8 i = 0; i < 6; ++i)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true, -SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT))
                 {
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0))
-                        break;
-                }
-
-                if (target)
-                {
+                    float x, y, z;
                     target->GetPosition(x, y, z);
                     if (Creature* pSinisterReflection = me->SummonCreature(CREATURE_SINISTER_REFLECTION, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
@@ -922,9 +915,9 @@ public:
 
     struct mob_hand_of_the_deceiverAI : public ScriptedAI
     {
-        mob_hand_of_the_deceiverAI(Creature* c) : ScriptedAI(c)
+        mob_hand_of_the_deceiverAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -1023,7 +1016,7 @@ public:
 
     struct mob_felfire_portalAI : public Scripted_NoMovementAI
     {
-        mob_felfire_portalAI(Creature* c) : Scripted_NoMovementAI(c) {}
+        mob_felfire_portalAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
         uint32 uiSpawnFiendTimer;
 
@@ -1068,7 +1061,7 @@ public:
 
     struct mob_volatile_felfire_fiendAI : public ScriptedAI
     {
-        mob_volatile_felfire_fiendAI(Creature* c) : ScriptedAI(c) {}
+        mob_volatile_felfire_fiendAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiExplodeTimer;
 
@@ -1126,7 +1119,7 @@ public:
 
     struct mob_armageddonAI : public Scripted_NoMovementAI
     {
-        mob_armageddonAI(Creature* c) : Scripted_NoMovementAI(c) {}
+        mob_armageddonAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
         uint8 spell;
         uint32 uiTimer;
@@ -1181,9 +1174,9 @@ public:
 
     struct mob_shield_orbAI : public ScriptedAI
     {
-        mob_shield_orbAI(Creature* c) : ScriptedAI(c)
+        mob_shield_orbAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -1196,7 +1189,7 @@ public:
 
         void Reset()
         {
-            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetDisableGravity(true);
             bPointReached = true;
             uiTimer = urand(500, 1000);
             uiCheckTimer = 1000;
@@ -1269,7 +1262,7 @@ public:
 
     struct mob_sinster_reflectionAI : public ScriptedAI
     {
-        mob_sinster_reflectionAI(Creature* c) : ScriptedAI(c) {}
+        mob_sinster_reflectionAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8 victimClass;
         uint32 uiTimer[3];

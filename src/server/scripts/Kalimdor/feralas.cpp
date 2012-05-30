@@ -23,8 +23,10 @@ SDComment: Quest support: 3520, 2767, Special vendor Gregan Brewspewer
 SDCategory: Feralas
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_gregan_brewspewer
@@ -37,15 +39,15 @@ class npc_gregan_brewspewer : public CreatureScript
 public:
     npc_gregan_brewspewer() : CreatureScript("npc_gregan_brewspewer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
             player->SEND_GOSSIP_MENU(2434, creature->GetGUID());
         }
-        if (uiAction == GOSSIP_ACTION_TRADE)
+        if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
         return true;
     }
@@ -68,7 +70,7 @@ public:
 ## npc_oox22fe
 ######*/
 
-enum eOOX
+enum OOX
 {
     //signed for 7806
     SAY_OOX_START           = -1000287,
@@ -124,9 +126,9 @@ public:
     {
         npc_oox22feAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (i)
+            switch (waypointId)
             {
                 // First Ambush(3 Yetis)
                 case 11:
@@ -154,9 +156,7 @@ public:
                     DoScriptText(SAY_OOX_END, me);
                     // Award quest credit
                     if (Player* player = GetPlayerForEscort())
-                    {
-                            player->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
-                    }
+                        player->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
                     break;
             }
         }

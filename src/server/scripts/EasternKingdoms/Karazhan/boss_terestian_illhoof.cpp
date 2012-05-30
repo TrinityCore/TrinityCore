@@ -68,9 +68,9 @@ public:
 
     struct mob_kilrekAI : public ScriptedAI
     {
-        mob_kilrekAI(Creature* c) : ScriptedAI(c)
+        mob_kilrekAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -94,14 +94,14 @@ public:
             }
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
                 uint64 TerestianGUID = instance->GetData64(DATA_TERESTIAN);
                 if (TerestianGUID)
                 {
-                    Unit* Terestian = Unit::GetUnit((*me), TerestianGUID);
+                    Unit* Terestian = Unit::GetUnit(*me, TerestianGUID);
                     if (Terestian && Terestian->isAlive())
                         DoCast(Terestian, SPELL_BROKEN_PACT, true);
                 }
@@ -140,7 +140,7 @@ public:
 
     struct mob_demon_chainAI : public ScriptedAI
     {
-        mob_demon_chainAI(Creature* c) : ScriptedAI(c) {}
+        mob_demon_chainAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 SacrificeGUID;
 
@@ -157,7 +157,7 @@ public:
         {
             if (SacrificeGUID)
             {
-                Unit* Sacrifice = Unit::GetUnit((*me), SacrificeGUID);
+                Unit* Sacrifice = Unit::GetUnit(*me, SacrificeGUID);
                 if (Sacrifice)
                     Sacrifice->RemoveAurasDueToSpell(SPELL_SACRIFICE);
             }
@@ -178,7 +178,7 @@ public:
 
     struct mob_fiendish_portalAI : public PassiveAI
     {
-        mob_fiendish_portalAI(Creature* c) : PassiveAI(c), summons(me){}
+        mob_fiendish_portalAI(Creature* creature) : PassiveAI(creature), summons(me){}
 
         SummonList summons;
 
@@ -215,7 +215,7 @@ public:
 
     struct mob_fiendish_impAI : public ScriptedAI
     {
-        mob_fiendish_impAI(Creature* c) : ScriptedAI(c) {}
+        mob_fiendish_impAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 FireboltTimer;
 
@@ -258,11 +258,11 @@ public:
 
     struct boss_terestianAI : public ScriptedAI
     {
-        boss_terestianAI(Creature* c) : ScriptedAI(c)
+        boss_terestianAI(Creature* creature) : ScriptedAI(creature)
         {
             for (uint8 i = 0; i < 2; ++i)
                 PortalGUID[i] = 0;
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;

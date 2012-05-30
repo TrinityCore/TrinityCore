@@ -85,9 +85,15 @@ public:
             {
                 switch (uiWPHolder)
                 {
-                    case 7: DoScriptText(SAY_DS_DOWN_1, me); break;
-                    case 8: DoScriptText(SAY_DS_DOWN_2, me); break;
-                    case 9: DoScriptText(SAY_DS_DOWN_3, me); break;
+                    case 7:
+                        DoScriptText(SAY_DS_DOWN_1, me);
+                        break;
+                    case 8:
+                        DoScriptText(SAY_DS_DOWN_2, me);
+                        break;
+                    case 9:
+                        DoScriptText(SAY_DS_DOWN_3, me);
+                        break;
                 }
             }
             else
@@ -96,16 +102,15 @@ public:
             uiShootTimer = 0;
         }
 
-        void WaypointReached(uint32 uiPoint)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            uiWPHolder = uiPoint;
+            uiWPHolder = waypointId;
 
-            switch (uiPoint)
+            switch (waypointId)
             {
                 case 4:
                     SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE, EQUIP_ID_RIFLE);
@@ -185,7 +190,6 @@ public:
             } else uiShootTimer -= diff;
         }
     };
-
 };
 
 /*######
@@ -225,16 +229,15 @@ public:
 
     struct npc_defias_traitorAI : public npc_escortAI
     {
-        npc_defias_traitorAI(Creature* c) : npc_escortAI(c) { Reset(); }
+        npc_defias_traitorAI(Creature* creature) : npc_escortAI(creature) { Reset(); }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 35:
                     SetRun(false);
@@ -244,13 +247,11 @@ public:
                     break;
                 case 44:
                     DoScriptText(SAY_END, me, player);
-                    {
-                        if (player)
-                            player->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD, me);
-                    }
+                    player->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD, me);
                     break;
             }
         }
+
         void EnterCombat(Unit* who)
         {
             DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me, who);
@@ -258,7 +259,6 @@ public:
 
         void Reset() {}
     };
-
 };
 
 void AddSC_westfall()

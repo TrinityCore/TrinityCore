@@ -127,7 +127,7 @@ public:
                 DoCastAOE(SPELL_SMITE_STOMP, false);
                 SetCombatMovement(false);
                 if (instance)
-                    if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_SMITE_CHEST)))
+                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_SMITE_CHEST)))
                     {
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(1, go->GetPositionX() - 3.0f, go->GetPositionY(), go->GetPositionZ());
@@ -158,7 +158,6 @@ public:
                             me->GetMotionMaster()->MoveChase(me->getVictim(), me->m_CombatDistance);
                             uiPhase = 0;
                             break;
-
                     }
                 } else uiTimer -= uiDiff;
             }
@@ -174,9 +173,7 @@ public:
             uiTimer = 1500;
             uiPhase = 1;
         }
-
     };
-
 };
 
 void AddSC_boss_mr_smite()

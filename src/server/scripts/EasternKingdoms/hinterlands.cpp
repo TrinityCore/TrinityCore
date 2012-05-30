@@ -87,9 +87,9 @@ public:
 
         void Reset() { }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 26:
                     DoScriptText(SAY_OOX_AMBUSH, me);
@@ -146,7 +146,6 @@ public:
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
     };
-
 };
 
 /*######
@@ -273,18 +272,17 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            summoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            summoned->SetWalk(false);
             summoned->GetMotionMaster()->MovePoint(0, m_afAmbushMoveTo[m_iSpawnId].m_fX, m_afAmbushMoveTo[m_iSpawnId].m_fY, m_afAmbushMoveTo[m_iSpawnId].m_fZ);
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 1:
                     DoScriptText(SAY_RIN_FREE, me, player);
@@ -315,7 +313,7 @@ public:
                     {
                         m_uiPostEventTimer = 3000;
 
-                        if (Unit* player = GetPlayerForEscort())
+                        if (Player* player = GetPlayerForEscort())
                         {
                             switch (m_uiPostEventCount)
                             {
@@ -345,7 +343,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_hinterlands()

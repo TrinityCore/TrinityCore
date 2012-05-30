@@ -1032,17 +1032,18 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
             if (!ghost_list.empty())
             {
-                Player* player;
-                WorldSafeLocsEntry const* ClosestGrave = NULL;
+                Player* waitingPlayer;  // player waiting at graveyard for resurrection
+                WorldSafeLocsEntry const* closestGrave = NULL;
                 for (std::vector<uint64>::iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
                 {
-                    player = ObjectAccessor::FindPlayer(*ghost_list.begin());
-                    if (!player)
+                    waitingPlayer = ObjectAccessor::FindPlayer(*ghost_list.begin());
+                    if (!waitingPlayer)
                         continue;
-                    if (!ClosestGrave)
-                        ClosestGrave = GetClosestGraveYard(player);
+
+                    if (!closestGrave)
+                        closestGrave = GetClosestGraveYard(waitingPlayer);
                     else
-                        player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
+                        waitingPlayer->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
                 }
                 m_ReviveQueue[BgCreatures[node]].clear();
             }
@@ -1207,7 +1208,7 @@ bool BattlegroundAV::SetupBattleground()
     }
 
     //spawn node-objects
-    for (uint8 i = BG_AV_NODES_FIRSTAID_STATION ; i < BG_AV_NODES_MAX; ++i)
+    for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
     {
         if (i <= BG_AV_NODES_FROSTWOLF_HUT)
         {
@@ -1292,7 +1293,7 @@ bool BattlegroundAV::SetupBattleground()
             return false;
         }
     }
-    for (uint16 i= 0 ; i <= (BG_AV_OBJECT_MINE_SUPPLY_S_MAX-BG_AV_OBJECT_MINE_SUPPLY_S_MIN); i++)
+    for (uint16 i= 0; i <= (BG_AV_OBJECT_MINE_SUPPLY_S_MAX-BG_AV_OBJECT_MINE_SUPPLY_S_MIN); i++)
     {
         if (!AddObject(BG_AV_OBJECT_MINE_SUPPLY_S_MIN+i, BG_AV_OBJECTID_MINE_S, BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][0], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][1], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][2], BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3], 0, 0, sin(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3]/2), cos(BG_AV_ObjectPos[AV_OPLACE_MINE_SUPPLY_S_MIN+i][3]/2), RESPAWN_ONE_DAY))
         {
@@ -1323,30 +1324,39 @@ bool BattlegroundAV::SetupBattleground()
     // Initial Nodes
     for (i = 0; i < BG_AV_OBJECT_MAX; i++)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
-    for (i = BG_AV_OBJECT_FLAG_A_FIRSTAID_STATION; i <= BG_AV_OBJECT_FLAG_A_STONEHEART_GRAVE ; i++){
+
+    for (i = BG_AV_OBJECT_FLAG_A_FIRSTAID_STATION; i <= BG_AV_OBJECT_FLAG_A_STONEHEART_GRAVE; i++)
+    {
         SpawnBGObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+3*i, RESPAWN_IMMEDIATELY);
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
     }
-    for (i = BG_AV_OBJECT_FLAG_A_DUNBALDAR_SOUTH; i <= BG_AV_OBJECT_FLAG_A_STONEHEART_BUNKER ; i++)
+
+    for (i = BG_AV_OBJECT_FLAG_A_DUNBALDAR_SOUTH; i <= BG_AV_OBJECT_FLAG_A_STONEHEART_BUNKER; i++)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-    for (i = BG_AV_OBJECT_FLAG_H_ICEBLOOD_GRAVE; i <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_WTOWER ; i++){
+
+    for (i = BG_AV_OBJECT_FLAG_H_ICEBLOOD_GRAVE; i <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_WTOWER; i++)
+    {
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
         if (i <= BG_AV_OBJECT_FLAG_H_FROSTWOLF_HUT)
             SpawnBGObject(BG_AV_OBJECT_AURA_H_FIRSTAID_STATION+3*GetNodeThroughObject(i), RESPAWN_IMMEDIATELY);
     }
+
     for (i = BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH; i <= BG_AV_OBJECT_TFLAG_A_STONEHEART_BUNKER; i+=2)
     {
         SpawnBGObject(i, RESPAWN_IMMEDIATELY); //flag
         SpawnBGObject(i+16, RESPAWN_IMMEDIATELY); //aura
     }
+
     for (i = BG_AV_OBJECT_TFLAG_H_ICEBLOOD_TOWER; i <= BG_AV_OBJECT_TFLAG_H_FROSTWOLF_WTOWER; i+=2)
     {
         SpawnBGObject(i, RESPAWN_IMMEDIATELY); //flag
         SpawnBGObject(i+16, RESPAWN_IMMEDIATELY); //aura
     }
+
     //snowfall and the doors
     for (i = BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE; i <= BG_AV_OBJECT_DOOR_A; i++)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+
     SpawnBGObject(BG_AV_OBJECT_AURA_N_SNOWFALL_GRAVE, RESPAWN_IMMEDIATELY);
 
     //creatures
@@ -1471,7 +1481,7 @@ void BattlegroundAV::ResetBGSubclass()
     {
         for (uint8 j=0; j<9; j++)
             m_Team_QuestStatus[i][j]=0;
-    m_Team_Scores[i]=BG_AV_SCORE_INITIAL_POINTS;
+        m_Team_Scores[i]=BG_AV_SCORE_INITIAL_POINTS;
         m_IsInformedNearVictory[i]=false;
         m_CaptainAlive[i] = true;
         m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
@@ -1492,7 +1502,6 @@ void BattlegroundAV::ResetBGSubclass()
     for (uint16 i = 0; i < AV_CPLACE_MAX+AV_STATICCPLACE_MAX; i++)
         if (BgCreatures[i])
             DelCreature(i);
-
 }
 
 bool BattlegroundAV::IsBothMinesControlledByTeam(uint32 team) const

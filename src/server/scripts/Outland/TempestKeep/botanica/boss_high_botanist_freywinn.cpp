@@ -107,7 +107,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                 DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
             }
@@ -195,9 +195,9 @@ class boss_high_botanist_freywinn : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_high_botanist_freywinnAI (Creature);
+            return new boss_high_botanist_freywinnAI(creature);
         }
 };
 

@@ -535,11 +535,17 @@ public:
         uint32 count = 0;
 
         Player* player = handler->GetSession()->GetPlayer();
-        QueryResult result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, map, "
-            "(POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ "
-            "FROM gameobject WHERE map='%u' AND (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) <= '%f' ORDER BY order_",
-            player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(),
-            player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), distance * distance);
+
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_NEAREST);
+        stmt->setFloat(0, player->GetPositionX());
+        stmt->setFloat(1, player->GetPositionY());
+        stmt->setFloat(2, player->GetPositionZ());
+        stmt->setUInt32(3, player->GetMapId());
+        stmt->setFloat(4, player->GetPositionX());
+        stmt->setFloat(5, player->GetPositionY());
+        stmt->setFloat(6, player->GetPositionZ());
+        stmt->setFloat(7, distance * distance);
+        PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (result)
         {

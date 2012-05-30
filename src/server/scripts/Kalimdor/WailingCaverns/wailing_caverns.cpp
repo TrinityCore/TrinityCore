@@ -85,11 +85,11 @@ public:
         return new npc_disciple_of_naralexAI(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         InstanceScript* instance = creature->GetInstanceScript();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CLOSE_GOSSIP_MENU();
             if (instance)
@@ -136,9 +136,9 @@ public:
 
     struct npc_disciple_of_naralexAI : public npc_escortAI
     {
-        npc_disciple_of_naralexAI(Creature* c) : npc_escortAI(c)
+        npc_disciple_of_naralexAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             eventTimer = 0;
             currentEvent = 0;
             eventProgress = 0;
@@ -151,35 +151,35 @@ public:
         uint32 eventProgress;
         InstanceScript* instance;
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             if (!instance)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 4:
                     eventProgress = 1;
                     currentEvent = TYPE_NARALEX_PART1;
                     instance->SetData(TYPE_NARALEX_PART1, IN_PROGRESS);
-                break;
+                    break;
                 case 5:
                     DoScriptText(SAY_MUST_CONTINUE, me);
                     instance->SetData(TYPE_NARALEX_PART1, DONE);
-                break;
+                    break;
                 case 11:
                     eventProgress = 1;
                     currentEvent = TYPE_NARALEX_PART2;
                     instance->SetData(TYPE_NARALEX_PART2, IN_PROGRESS);
-                break;
+                    break;
                 case 19:
                     DoScriptText(SAY_BEYOND_THIS_CORRIDOR, me);
-                break;
+                    break;
                 case 24:
                     eventProgress = 1;
                     currentEvent = TYPE_NARALEX_PART3;
                     instance->SetData(TYPE_NARALEX_PART3, IN_PROGRESS);
-                break;
+                    break;
             }
         }
 
@@ -315,7 +315,7 @@ public:
                                 eventTimer = 3000;
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
                                 {
-                                    AchievementEntry const* AchievWC = GetAchievementStore()->LookupEntry(ACHIEVEMENT_WAILING_CAVERNS);
+                                    AchievementEntry const* AchievWC = sAchievementStore.LookupEntry(ACHIEVEMENT_WAILING_CAVERNS);
                                     if (AchievWC)
                                     {
                                         Map* map = me->GetMap();

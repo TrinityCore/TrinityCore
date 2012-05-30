@@ -133,22 +133,6 @@ enum SpellTargetDirectionTypes
     TARGET_DIR_ENTRY,
 };
 
-enum SpellSelectTargetTypes
-{
-    TARGET_TYPE_DEFAULT,
-    TARGET_TYPE_UNIT_CASTER,
-    TARGET_TYPE_UNIT_TARGET,
-    TARGET_TYPE_UNIT_NEARBY,
-    TARGET_TYPE_AREA_SRC,
-    TARGET_TYPE_AREA_DST,
-    TARGET_TYPE_AREA_CONE,
-    TARGET_TYPE_DEST_CASTER,
-    TARGET_TYPE_DEST_TARGET,
-    TARGET_TYPE_DEST_DEST,
-    TARGET_TYPE_DEST_SPECIAL,
-    TARGET_TYPE_CHANNEL,
-};
-
 enum SpellEffectImplicitTargetTypes
 {
     EFFECT_IMPLICIT_TARGET_NONE = 0,
@@ -182,7 +166,6 @@ enum SpellSpecificType
     SPELL_SPECIFIC_WARRIOR_ENRAGE                = 26,
     SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT          = 27,
     SPELL_SPECIFIC_HAND                          = 28,
-    SPELL_SPECIFIC_PHASE                         = 29,
 };
 
 enum SpellCustomAttributes
@@ -218,7 +201,6 @@ public:
     SpellImplicitTargetInfo(uint32 target);
 
     bool IsArea() const;
-    SpellSelectTargetTypes GetType() const;
     SpellTargetSelectionCategories GetSelectionCategory() const;
     SpellTargetReferenceTypes GetReferenceType() const;
     SpellTargetObjectTypes GetObjectType() const;
@@ -229,14 +211,7 @@ public:
     Targets GetTarget() const;
     uint32 GetExplicitTargetMask(bool& srcSet, bool& dstSet) const;
 
-    // temporarily avalible to public
-    static SpellSelectTargetTypes Type[TOTAL_SPELL_TARGETS];
 private:
-    static bool InitStaticData();
-    static void InitTypeData();
-
-    static bool Init;
-
     struct StaticData
     {
         SpellTargetObjectTypes ObjectType;    // type of object returned by target type
@@ -507,6 +482,8 @@ public:
 
     int32 GetDuration() const;
     int32 GetMaxDuration() const;
+
+    uint32 GetMaxTicks() const;
 
     uint32 CalcCastTime(Unit* caster = NULL, Spell* spell = NULL) const;
     uint32 GetRecoveryTime() const;

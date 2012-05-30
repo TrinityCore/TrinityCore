@@ -137,8 +137,8 @@ extern int main(int argc, char **argv)
     }
     sLog->outString("Using configuration file %s.", cfg_file);
 
-    sLog->outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    sLog->outDetail("Using ACE: %s", ACE_VERSION);
+    sLog->outString("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    sLog->outString("Using ACE version: %s", ACE_VERSION);
 
     ///- and run the 'Master'
     /// \todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?

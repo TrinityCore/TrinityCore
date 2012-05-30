@@ -236,7 +236,12 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
     if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))// wrapped?
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT entry, flags FROM character_gifts WHERE item_guid = '%u'", item->GetGUIDLow());
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
+
+        stmt->setUInt32(0, item->GetGUIDLow());
+
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
         if (result)
         {
             Field* fields = result->Fetch();
@@ -255,7 +260,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
             return;
         }
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
 
         stmt->setUInt32(0, item->GetGUIDLow());
 
@@ -656,12 +661,21 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
     uint8 castCount;
     float x, y, z;    // Position of missile hit
 
-    recvPacket.readPackGUID(casterGuid);
+    recvPacket >> casterGuid;
     recvPacket >> spellId;
     recvPacket >> castCount;
     recvPacket >> x;
     recvPacket >> y;
     recvPacket >> z;
+
+    Unit* caster = ObjectAccessor::GetUnit(*_player, casterGuid);
+    Spell* spell = caster ? caster->FindCurrentSpellBySpellId(spellId) : NULL;
+    if (spell && spell->m_targets.HasDst())
+    {
+        Position pos = *spell->m_targets.GetDstPos();
+        pos.Relocate(x, y, z);
+        spell->m_targets.ModDst(pos);
+    }
 
     WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
     data << uint64(casterGuid);

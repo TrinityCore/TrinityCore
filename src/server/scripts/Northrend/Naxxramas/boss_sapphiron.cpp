@@ -81,7 +81,7 @@ public:
 
     struct boss_sapphironAI : public BossAI
     {
-        boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON)
+        boss_sapphironAI(Creature* creature) : BossAI(creature, BOSS_SAPPHIRON)
             , phase(PHASE_NULL)
         {
             map = me->GetMap();
@@ -145,7 +145,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             me->CastSpell(me, SPELL_DIES, true);
@@ -153,7 +153,7 @@ public:
             CheckPlayersFrostResist();
             if (CanTheHundredClub)
             {
-                AchievementEntry const* AchievTheHundredClub = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_HUNDRED_CLUB);
+                AchievementEntry const* AchievTheHundredClub = sAchievementStore.LookupEntry(ACHIEVEMENT_THE_HUNDRED_CLUB);
                 if (AchievTheHundredClub)
                 {
                     if (map && map->IsDungeon())
@@ -296,7 +296,7 @@ public:
                     {
                         case EVENT_LIFTOFF:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->SetDisableGravity(true);
                             me->SendMovementFlagUpdate();
                             events.ScheduleEvent(EVENT_ICEBOLT, 1500);
                             iceboltCount = RAID_MODE(2, 3);
@@ -340,7 +340,7 @@ public:
                             return;
                         case EVENT_LAND:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->SetDisableGravity(false);
                             me->SendMovementFlagUpdate();
                             events.ScheduleEvent(EVENT_GROUND, 1500);
                             return;

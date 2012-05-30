@@ -32,35 +32,30 @@ EndContentData */
 
 #include "ScriptPCH.h"
 
-//id8530 - cannibal ghoul
-//id8531 - gibbering ghoul
-//id8532 - diseased flayer
-
 class mobs_ghoul_flayer : public CreatureScript
 {
 public:
     mobs_ghoul_flayer() : CreatureScript("mobs_ghoul_flayer") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mobs_ghoul_flayerAI (creature);
-    }
-
     struct mobs_ghoul_flayerAI : public ScriptedAI
     {
-        mobs_ghoul_flayerAI(Creature* c) : ScriptedAI(c) {}
+        mobs_ghoul_flayerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() {}
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer)
         {
-            if (Killer->GetTypeId() == TYPEID_PLAYER)
+            if (killer->GetTypeId() == TYPEID_PLAYER)
                 me->SummonCreature(11064, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mobs_ghoul_flayerAI (creature);
+    }
 };
 
 /*######
@@ -72,10 +67,10 @@ class npc_augustus_the_touched : public CreatureScript
 public:
     npc_augustus_the_touched() : CreatureScript("npc_augustus_the_touched") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_TRADE)
+        if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
         return true;
     }
@@ -91,7 +86,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -120,7 +114,7 @@ public:
 
     struct npc_darrowshire_spiritAI : public ScriptedAI
     {
-        npc_darrowshire_spiritAI(Creature* c) : ScriptedAI(c) {}
+        npc_darrowshire_spiritAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset()
         {
@@ -129,9 +123,7 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) {}
-
     };
-
 };
 
 /*######
@@ -148,10 +140,10 @@ class npc_tirion_fordring : public CreatureScript
 public:
     npc_tirion_fordring() : CreatureScript("npc_tirion_fordring") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -185,7 +177,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_eastern_plaguelands()

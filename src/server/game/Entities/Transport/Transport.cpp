@@ -52,7 +52,7 @@ void MapManager::LoadTransports()
         uint32 period = fields[3].GetUInt32();
         uint32 scriptId = sObjectMgr->GetScriptId(fields[4].GetCString());
 
-        const GameObjectTemplate* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
+        GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
 
         if (!goinfo)
         {
@@ -86,7 +86,7 @@ void MapManager::LoadTransports()
         float o = 1.0f;
 
          // creates the Gameobject
-        if (!t->Create(lowguid, entry, mapid, x, y, z, o, 100, 0))
+        if (!t->Create(lowguid, entry, mapid, x, y, z, o, 255, 0))
         {
             delete t;
             continue;
@@ -129,8 +129,8 @@ void MapManager::LoadTransportNPCs()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                         0    1          2                3             4             5             6             7
-    QueryResult result = WorldDatabase.PQuery("SELECT guid, npc_entry, transport_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote FROM creature_transport");
+    //                                                 0       1            2                3             4             5             6        7
+    QueryResult result = WorldDatabase.Query("SELECT guid, npc_entry, transport_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote FROM creature_transport");
 
     if (!result)
     {
@@ -144,14 +144,14 @@ void MapManager::LoadTransportNPCs()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guid = fields[0].GetUInt32();
-        uint32 entry = fields[1].GetUInt32();
-        uint32 transportEntry = fields[2].GetUInt32();
+        uint32 guid = fields[0].GetInt32();
+        uint32 entry = fields[1].GetInt32();
+        uint32 transportEntry = fields[2].GetInt32();
         float tX = fields[3].GetFloat();
         float tY = fields[4].GetFloat();
         float tZ = fields[5].GetFloat();
         float tO = fields[6].GetFloat();
-        uint32 anim = fields[7].GetUInt32();
+        uint32 anim = fields[7].GetInt32();
 
         for (MapManager::TransportSet::iterator itr = m_Transports.begin(); itr != m_Transports.end(); ++itr)
         {
@@ -173,7 +173,7 @@ void MapManager::LoadTransportNPCs()
 Transport::Transport(uint32 period, uint32 script) : GameObject(), m_pathTime(0), m_timer(0),
 currenttguid(0), m_period(period), ScriptId(script), m_nextNodeTime(0)
 {
-    m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_ROTATION);
+    m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION);
 }
 
 Transport::~Transport()
@@ -214,11 +214,10 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
 
     m_goInfo = goinfo;
 
-    SetFloatValue(OBJECT_FIELD_SCALE_X, goinfo->size);
+    SetObjectScale(goinfo->size);
 
     SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
-    //SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
-    SetUInt32Value(GAMEOBJECT_FLAGS, MAKE_PAIR32(0x28, 0x64));
+    SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
     SetUInt32Value(GAMEOBJECT_LEVEL, m_period);
     SetEntry(goinfo->entry);
 

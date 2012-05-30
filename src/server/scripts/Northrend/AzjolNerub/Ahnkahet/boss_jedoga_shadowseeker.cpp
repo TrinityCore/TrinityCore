@@ -73,9 +73,9 @@ public:
 
     struct boss_jedoga_shadowseekerAI : public ScriptedAI
     {
-        boss_jedoga_shadowseekerAI(Creature* c) : ScriptedAI(c)
+        boss_jedoga_shadowseekerAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             bFirstTime = true;
             bPreDone = false;
         }
@@ -149,7 +149,7 @@ public:
             DoScriptText(RAND(TEXT_SLAY_1, TEXT_SLAY_2, TEXT_SLAY_3), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(TEXT_DEATH, me);
             if (instance)
@@ -355,9 +355,9 @@ public:
 
     struct mob_jedoga_initiandAI : public ScriptedAI
     {
-        mob_jedoga_initiandAI(Creature* c) : ScriptedAI(c)
+        mob_jedoga_initiandAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -390,9 +390,9 @@ public:
             }
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer)
         {
-            if (!Killer || !instance)
+            if (!killer || !instance)
                 return;
 
             if (bWalking)
@@ -402,7 +402,7 @@ public:
                     if (!CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
                         CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
 
-                    if (Killer->GetTypeId() == TYPEID_PLAYER)
+                    if (killer->GetTypeId() == TYPEID_PLAYER)
                         boss->AI()->DoAction(ACTION_INITIAND_KILLED);
                 }
 
@@ -410,8 +410,8 @@ public:
 
                 bWalking = false;
             }
-            if (Killer->GetTypeId() == TYPEID_PLAYER)
-                instance->SetData64(DATA_PL_JEDOGA_TARGET, Killer->GetGUID());
+            if (killer->GetTypeId() == TYPEID_PLAYER)
+                instance->SetData64(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
         }
 
         void EnterCombat(Unit* who)
@@ -531,9 +531,9 @@ public:
 
     struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
     {
-        npc_jedogas_aufseher_triggerAI(Creature* c) : Scripted_NoMovementAI(c)
+        npc_jedogas_aufseher_triggerAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             bRemoved = false;
             bRemoved2 = false;
             bCasted = false;

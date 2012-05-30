@@ -95,7 +95,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 removeAdds();
 
                 me->SetSpeed(MOVE_RUN, 2);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(false);
 
                 summoned = 2;
                 InBlade = false;
@@ -137,7 +137,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
                 removeAdds();
@@ -166,7 +166,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit((*me), *itr);
+                    Unit* temp = Unit::GetUnit(*me, *itr);
                     if (temp && temp->isAlive())
                     {
                         (*temp).GetMotionMaster()->Clear(true);
@@ -178,7 +178,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
                 for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit((*me), *itr);
+                    Unit* temp = Unit::GetUnit(*me, *itr);
                     if (temp && temp->isAlive())
                     {
                         (*temp).GetMotionMaster()->Clear(true);
@@ -236,8 +236,8 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                                 float x, y, randx, randy;
                                 randx = 0.0f + rand()%40;
                                 randy = 0.0f + rand()%40;
-                                x = 210+ randx ;
-                                y = -60- randy ;
+                                x = 210+ randx;
+                                y = -60- randy;
                                 me->GetMotionMaster()->MovePoint(1, x, y, me->GetPositionZ());
                                 Wait_Timer = 0;
                             }
@@ -316,9 +316,9 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_warchief_kargath_bladefistAI (Creature);
+            return new boss_warchief_kargath_bladefistAI(creature);
         }
 };
 

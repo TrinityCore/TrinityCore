@@ -295,7 +295,7 @@ class boss_rimefang : public CreatureScript
                 _events.SetPhase(PHASE_NONE);
                 _currentWaypoint = 0;
                 _hoarfrostTargetGUID = 0;
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -387,8 +387,7 @@ class player_overlord_brandAI : public PlayerAI
         void SetGUID(uint64 guid, int32 /*type*/)
         {
             tyrannus = ObjectAccessor::GetCreature(*me, guid);
-            if (!tyrannus)
-                me->IsAIEnabled = false;
+            me->IsAIEnabled = tyrannus != NULL;
         }
 
         void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/)
@@ -423,10 +422,9 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                     return;
 
                 oldAI = GetTarget()->GetAI();
+                oldAIState = GetTarget()->IsAIEnabled;
                 GetTarget()->SetAI(new player_overlord_brandAI(GetTarget()->ToPlayer()));
                 GetTarget()->GetAI()->SetGUID(GetCasterGUID());
-                oldAIState = GetTarget()->IsAIEnabled;
-                GetTarget()->IsAIEnabled = true;
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

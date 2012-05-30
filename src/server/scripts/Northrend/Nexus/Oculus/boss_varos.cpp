@@ -169,7 +169,9 @@ class npc_azure_ring_captain : public CreatureScript
             {
                 targetGUID = 0;
 
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING | MOVEMENTFLAG_FLYING);
+                me->SetWalk(true);
+                //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
+                me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
@@ -214,7 +216,7 @@ class npc_azure_ring_captain : public CreatureScript
                                 if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
                                     me->SetReactState(REACT_PASSIVE);
-                                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                    me->SetWalk(false);
                                     me->GetMotionMaster()->MovePoint(ACTION_CALL_DRAGON_EVENT, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 20.0f);
                                     targetGUID = victim->GetGUID();
                                 }
@@ -306,7 +308,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 
                 float orientation = CAST_AI(boss_varos::boss_varosAI, varos->AI())->GetCoreEnergizeOrientation();
 
-                for (std::list<Unit*>::iterator itr = targetList.begin() ; itr != targetList.end();)
+                for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end();)
                 {
                     Position pos;
                     (*itr)->GetPosition(&pos);
@@ -353,7 +355,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
 
                 float orientation = CAST_AI(boss_varos::boss_varosAI, varos->AI())->GetCoreEnergizeOrientation();
 
-                for (std::list<Unit*>::iterator itr = targetList.begin() ; itr != targetList.end();)
+                for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end();)
                 {
                     Position pos;
                     (*itr)->GetPosition(&pos);

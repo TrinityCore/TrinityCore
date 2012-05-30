@@ -71,9 +71,9 @@ public:
 
     struct boss_vexallusAI : public ScriptedAI
     {
-        boss_vexallusAI(Creature* c) : ScriptedAI(c)
+        boss_vexallusAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -101,7 +101,7 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(DATA_VEXALLUS_EVENT, DONE);
@@ -206,7 +206,7 @@ public:
 
     struct mob_pure_energyAI : public ScriptedAI
     {
-        mob_pure_energyAI(Creature* c) : ScriptedAI(c) {}
+        mob_pure_energyAI(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() {}
 

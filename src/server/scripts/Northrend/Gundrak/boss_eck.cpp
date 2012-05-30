@@ -41,9 +41,9 @@ public:
 
     struct boss_eckAI : public ScriptedAI
     {
-        boss_eckAI(Creature* c) : ScriptedAI(c)
+        boss_eckAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         uint32 uiBerserkTimer;
@@ -145,14 +145,14 @@ public:
 
     struct npc_ruins_dwellerAI : public ScriptedAI
     {
-        npc_ruins_dwellerAI(Creature* c) : ScriptedAI(c)
+        npc_ruins_dwellerAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {

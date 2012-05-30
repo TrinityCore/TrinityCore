@@ -306,22 +306,28 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
             switch (type)
             {
                 case DTT_INVENTORY:
-                    StoreGUID(result, 3, items); break;       // item guid collection (character_inventory.item)
+                    StoreGUID(result, 3, items);                // item guid collection (character_inventory.item)
+                    break;
                 case DTT_PET:
-                    StoreGUID(result, 0, pets);  break;       // pet petnumber collection (character_pet.id)
+                    StoreGUID(result, 0, pets);                 // pet petnumber collection (character_pet.id)
+                    break;
                 case DTT_MAIL:
-                    StoreGUID(result, 0, mails);              // mail id collection (mail.id)
+                    StoreGUID(result, 0, mails);                // mail id collection (mail.id)
+                    break;
                 case DTT_MAIL_ITEM:
-                    StoreGUID(result, 1, items); break;       // item guid collection (mail_items.item_guid)
+                    StoreGUID(result, 1, items);                // item guid collection (mail_items.item_guid)
+                    break;
                 case DTT_CHARACTER:
                 {
-                    if (result->GetFieldCount() <= 67)      // avoid crashes on next check
-                        return true;
-                    if (result->Fetch()[67].GetUInt32())    // characters.deleteInfos_Account - if filled error
+                    if (result->GetFieldCount() <= 68)          // avoid crashes on next check
+                        sLog->outCrash("PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
+
+                    if (result->Fetch()[68].GetUInt32())        // characters.deleteInfos_Account - if filled error
                         return false;
                     break;
                 }
-                default:                       break;
+                default:
+                    break;
             }
 
             dump += CreateDumpString(tableTo, result);
@@ -406,7 +412,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     bool incHighest = true;
     if (guid != 0 && guid < sObjectMgr->_hiCharGuid)
     {
-        result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE guid = '%d'", guid);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
+        stmt->setUInt32(0, guid);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
         if (result)
             guid = sObjectMgr->_hiCharGuid;                     // use first free if exists
         else incHighest = false;
@@ -420,8 +429,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     if (ObjectMgr::CheckPlayerName(name, true) == CHAR_NAME_SUCCESS)
     {
-        CharacterDatabase.EscapeString(name);              // for safe, we use name only for sql quearies anyway
-        result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE name = '%s'", name.c_str());
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
+        stmt->setString(0, name);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
         if (result)
             name = "";                                      // use the one from the dump
     }
@@ -452,7 +463,8 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     {
         if (!fgets(buf, 32000, fin))
         {
-            if (feof(fin)) break;
+            if (feof(fin))
+                break;
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -523,9 +535,11 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 {
                     // check if the original name already exists
                     name = getnth(line, 3);
-                    CharacterDatabase.EscapeString(name);
 
-                    result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE name = '%s'", name.c_str());
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
+                    stmt->setString(0, name);
+                    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
                     if (result)
                         if (!changenth(line, 37, "1"))       // characters.at_login set to "rename on login"
                             ROLLBACK(DUMP_FILE_BROKEN);

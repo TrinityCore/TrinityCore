@@ -55,9 +55,9 @@ public:
 
     struct boss_aeonusAI : public ScriptedAI
     {
-        boss_aeonusAI(Creature* c) : ScriptedAI(c)
+        boss_aeonusAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -93,7 +93,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 

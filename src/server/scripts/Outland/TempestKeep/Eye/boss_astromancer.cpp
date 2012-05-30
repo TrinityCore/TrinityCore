@@ -140,7 +140,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 me->SetArmor(defaultarmor);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetVisible(true);
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
+                me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
 
                 Summons.DespawnAll();
@@ -151,9 +151,9 @@ class boss_high_astromancer_solarian : public CreatureScript
                 DoScriptText(RAND(SAY_KILL1, SAY_KILL2, SAY_KILL3), me);
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
+                me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
                 DoScriptText(SAY_DEATH, me);
                 if (instance)
@@ -397,7 +397,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 DoScriptText(SAY_VOIDB, me);
                                 me->SetArmor(WV_ARMOR);
                                 me->SetDisplayId(MODEL_VOIDWALKER);
-                                me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize*2.5f);
+                                me->SetObjectScale(defaultsize*2.5f);
                             }
                 DoMeleeAttackIfReady();
             }
@@ -454,7 +454,7 @@ class mob_solarium_priest : public CreatureScript
                     {
                         case 0:
                             if (instance)
-                                target = Unit::GetUnit((*me), instance->GetData64(DATA_ASTROMANCER));
+                                target = Unit::GetUnit(*me, instance->GetData64(DATA_ASTROMANCER));
                             break;
                         case 1:
                             target = me;
@@ -490,9 +490,9 @@ class mob_solarium_priest : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_solarium_priestAI (Creature);
+            return new mob_solarium_priestAI(creature);
         }
 };
 

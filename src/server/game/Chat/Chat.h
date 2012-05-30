@@ -286,7 +286,6 @@ class ChatHandler
         bool HandleActivateObjectCommand(const char* args);
         bool HandleSpawnTransportCommand(const char* args);
         bool HandleExploreCheatCommand(const char* args);
-        bool HandleHoverCommand(const char* args);
         bool HandleWaterwalkCommand(const char* args);
         bool HandleLevelUpCommand(const char* args);
         bool HandleShowAreaCommand(const char* args);
@@ -350,8 +349,8 @@ class ChatHandler
         bool HandleSaveAllCommand(const char* args);
 
         // Utility methods for commands
-        bool LookupPlayerSearchCommand(QueryResult result, int32 limit);
-        bool HandleBanListHelper(QueryResult result);
+        bool LookupPlayerSearchCommand(PreparedQueryResult result, int32 limit);
+        bool HandleBanListHelper(PreparedQueryResult result);
         bool HandleBanHelper(BanMode mode, char const* args);
         bool HandleBanInfoHelper(uint32 accountid, char const* accountname);
         bool HandleUnBanHelper(BanMode mode, char const* args);

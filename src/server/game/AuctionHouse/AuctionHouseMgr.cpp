@@ -482,7 +482,9 @@ void AuctionHouseObject::Update()
     if (AuctionsMap.empty())
         return;
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime+60);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BY_TIME);
+    stmt->setUInt32(0, (uint32)curTime+60);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
         return;
@@ -793,7 +795,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
 
         AuctionEntry* auction = new AuctionEntry();
 
-         // Can't use LoadFromDB() because it assumes the auction map is loaded
+        // Can't use LoadFromDB() because it assumes the auction map is loaded
         if (!auction->LoadFromFieldList(fields))
         {
             // For some reason the record in the DB is broken (possibly corrupt

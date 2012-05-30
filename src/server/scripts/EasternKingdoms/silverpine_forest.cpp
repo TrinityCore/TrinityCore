@@ -64,37 +64,46 @@ public:
 
     struct npc_deathstalker_erlandAI : public npc_escortAI
     {
-        npc_deathstalker_erlandAI(Creature* c) : npc_escortAI(c) {}
+        npc_deathstalker_erlandAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 1: DoScriptText(SAY_START, me, player);break;
-            case 13:
-                DoScriptText(SAY_LAST, me, player);
-                player->GroupEventHappens(QUEST_ESCORTING, me); break;
-            case 14: DoScriptText(SAY_THANKS, me, player); break;
-            case 15: {
-                    Unit* Rane = me->FindNearestCreature(NPC_RANE, 20);
-                    if (Rane)
+                case 1:
+                    DoScriptText(SAY_START, me, player);
+                    break;
+                case 13:
+                    DoScriptText(SAY_LAST, me, player);
+                    player->GroupEventHappens(QUEST_ESCORTING, me);
+                    break;
+                case 14:
+                    DoScriptText(SAY_THANKS, me, player);
+                    break;
+                case 15:
+                    if (Unit* Rane = me->FindNearestCreature(NPC_RANE, 20))
                         DoScriptText(SAY_RANE, Rane);
-                    break;}
-            case 16: DoScriptText(SAY_ANSWER, me); break;
-            case 17: DoScriptText(SAY_MOVE_QUINN, me); break;
-            case 24: DoScriptText(SAY_GREETINGS, me); break;
-            case 25: {
-                    Unit* Quinn = me->FindNearestCreature(NPC_QUINN, 20);
-                    if (Quinn)
+                    break;
+                case 16:
+                    DoScriptText(SAY_ANSWER, me);
+                    break;
+                case 17:
+                    DoScriptText(SAY_MOVE_QUINN, me);
+                    break;
+                case 24:
+                    DoScriptText(SAY_GREETINGS, me);
+                    break;
+                case 25:
+                    if (Unit* Quinn = me->FindNearestCreature(NPC_QUINN, 20))
                         DoScriptText(SAY_QUINN, Quinn);
-                    break;}
-            case 26: DoScriptText(SAY_ON_BYE, me, NULL); break;
-
+                    break;
+                case 26:
+                    DoScriptText(SAY_ON_BYE, me, NULL);
+                    break;
             }
         }
 
@@ -123,7 +132,6 @@ public:
     {
         return new npc_deathstalker_erlandAI(creature);
     }
-
 };
 
 /*######
@@ -177,7 +185,7 @@ public:
 
     struct pyrewood_ambushAI : public ScriptedAI
     {
-        pyrewood_ambushAI(Creature* c) : ScriptedAI(c), Summons(me)
+        pyrewood_ambushAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
            QuestInProgress = false;
         }
@@ -309,7 +317,6 @@ public:
             ++Phase; //prepare next phase
         }
     };
-
 };
 
 /*######

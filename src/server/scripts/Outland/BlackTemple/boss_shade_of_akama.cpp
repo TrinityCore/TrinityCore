@@ -121,7 +121,10 @@ public:
 
     struct mob_ashtongue_channelerAI : public ScriptedAI
     {
-        mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
+        mob_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            ShadeGUID = 0;
+        }
 
         uint64 ShadeGUID;
 
@@ -147,7 +150,10 @@ public:
 
     struct mob_ashtongue_sorcererAI : public ScriptedAI
     {
-        mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
+        mob_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
+        {
+            ShadeGUID = 0;
+        }
 
         uint64 ShadeGUID;
         uint32 CheckTimer;
@@ -202,9 +208,9 @@ public:
 
     struct boss_shade_of_akamaAI : public ScriptedAI
     {
-        boss_shade_of_akamaAI(Creature* c) : ScriptedAI(c), summons(me)
+        boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             AkamaGUID = instance ? instance->GetData64(DATA_AKAMA_SHADE) : 0;
             me->setActive(true);//if view distance is too low
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -320,7 +326,8 @@ public:
 
         void AttackStart(Unit* who)
         {
-            if (!who || IsBanished) return;
+            if (!who || IsBanished)
+                return;
 
             if (who->isTargetableForAttack() && who != me)
                 DoStartMovement(who);
@@ -354,7 +361,7 @@ public:
                 if (Sorcerer)
                 {
                     CAST_AI(mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI, Sorcerer->AI())->ShadeGUID = me->GetGUID();
-                    Sorcerer->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    Sorcerer->SetWalk(false);
                     Sorcerer->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     Sorcerer->SetTarget(me->GetGUID());
                     Sorcerers.push_back(Sorcerer->GetGUID());
@@ -369,7 +376,7 @@ public:
                     Creature* Spawn = me->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
                     if (Spawn)
                     {
-                        Spawn->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                        Spawn->SetWalk(false);
                         Spawn->GetMotionMaster()->MovePoint(0, AGGRO_X, AGGRO_Y, AGGRO_Z);
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                         Spawn->AI()->AttackStart(target);
@@ -430,7 +437,7 @@ public:
                     Creature* Defender = me->SummonCreature(CREATURE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
                     if (Defender)
                     {
-                        Defender->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                        Defender->SetWalk(false);
                         bool move = true;
                         if (AkamaGUID)
                         {
@@ -541,10 +548,10 @@ class npc_akama_shade : public CreatureScript
 public:
     npc_akama_shade() : CreatureScript("npc_akama_shade") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
         {
             player->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_akama_shade::npc_akamaAI, creature->AI())->BeginEvent(player);
@@ -571,11 +578,11 @@ public:
 
     struct npc_akamaAI : public ScriptedAI
     {
-        npc_akamaAI(Creature* c) : ScriptedAI(c), summons(me)
+        npc_akamaAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             ShadeHasDied = false;
             StartCombat = false;
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             if (instance)
                 ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
             else
@@ -662,7 +669,8 @@ public:
                 me->CombatStart(Shade);
                 Shade->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                 Shade->SetTarget(me->GetGUID());
-                if (player) Shade->AddThreat(player, 1.0f);
+                if (player)
+                    Shade->AddThreat(player, 1.0f);
                 DoZoneInCombat(Shade);
                 EventBegun = true;
             }
@@ -675,17 +683,19 @@ public:
 
             switch (id)
             {
-            case 0: ++WayPointId; break;
+                case 0:
+                    ++WayPointId;
+                    break;
 
-            case 1:
-                if (Creature* Shade = Unit::GetCreature(*me, ShadeGUID))
-                {
-                    me->SetTarget(ShadeGUID);
-                    DoCast(Shade, SPELL_AKAMA_SOUL_RETRIEVE);
-                    EndingTalkCount = 0;
-                    SoulRetrieveTimer = 16000;
-                }
-                break;
+                case 1:
+                    if (Creature* Shade = Unit::GetCreature(*me, ShadeGUID))
+                    {
+                        me->SetTarget(ShadeGUID);
+                        DoCast(Shade, SPELL_AKAMA_SOUL_RETRIEVE);
+                        EndingTalkCount = 0;
+                        SoulRetrieveTimer = 16000;
+                    }
+                    break;
             }
         }
 
@@ -760,7 +770,7 @@ public:
                         {
                             ShadeHasDied = true;
                             WayPointId = 0;
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            me->SetWalk(true);
                             me->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z);
                         }
                         if (Shade && Shade->isAlive())
@@ -878,7 +888,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_shade_of_akama()

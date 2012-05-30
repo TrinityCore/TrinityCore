@@ -55,11 +55,10 @@ public:
 
     struct boss_azgalorAI : public hyjal_trashAI
     {
-        boss_azgalorAI(Creature* c) : hyjal_trashAI(c)
+        boss_azgalorAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
         }
 
         uint32 RainTimer;
@@ -70,7 +69,6 @@ public:
         bool enraged;
 
         bool go;
-        uint32 pos;
 
         void Reset()
         {
@@ -113,20 +111,19 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            pos = i;
-            if (i == 7 && instance)
+            if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* killer)
         {
-            hyjal_trashAI::JustDied(victim);
+            hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
                 instance->SetData(DATA_AZGALOREVENT, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);
@@ -215,9 +212,9 @@ public:
 
     struct mob_lesser_doomguardAI : public hyjal_trashAI
     {
-        mob_lesser_doomguardAI(Creature* c) : hyjal_trashAI(c)
+        mob_lesser_doomguardAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             if (instance)
                 AzgalorGUID = instance->GetData64(DATA_AZGALOR);
         }
@@ -244,7 +241,7 @@ public:
         {
         }
 
-        void WaypointReached(uint32 /*i*/)
+        void WaypointReached(uint32 /*waypointId*/)
         {
         }
 
@@ -254,7 +251,7 @@ public:
                 AttackStart(who);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
         }
 

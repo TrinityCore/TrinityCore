@@ -62,7 +62,7 @@ public:
 
     struct boss_patchwerkAI : public BossAI
     {
-        boss_patchwerkAI(Creature* c) : BossAI(c, BOSS_PATCHWERK) {}
+        boss_patchwerkAI(Creature* creature) : BossAI(creature, BOSS_PATCHWERK) {}
 
         bool Enraged;
 
@@ -80,7 +80,7 @@ public:
                 DoScriptText(SAY_SLAY, me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);

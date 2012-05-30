@@ -42,6 +42,7 @@
 #include "Transport.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
+#include "ace/INET_Addr.h"
 
 //mute player for some times
 bool ChatHandler::HandleMuteCommand(const char* args)
@@ -175,7 +176,6 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
 {
     if (!*args)
         return false;
-    uint8 srcslot, dstslot;
 
     char* pParam1 = strtok((char*)args, " ");
     if (!pParam1)
@@ -185,8 +185,8 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
     if (!pParam2)
         return false;
 
-    srcslot = (uint8)atoi(pParam1);
-    dstslot = (uint8)atoi(pParam2);
+    uint8 srcslot = (uint8)atoi(pParam1);
+    uint8 dstslot = (uint8)atoi(pParam2);
 
     if (srcslot == dstslot)
         return true;
@@ -201,22 +201,6 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
     uint16 dst = ((INVENTORY_SLOT_BAG_0 << 8) | dstslot);
 
     m_session->GetPlayer()->SwapItem(src, dst);
-
-    return true;
-}
-
-//demorph player or unit
-bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
-{
-    Unit* target = getSelectedUnit();
-    if (!target)
-        target = m_session->GetPlayer();
-
-    // check online security
-    else if (target->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity((Player*)target, 0))
-        return false;
-
-    target->DeMorph();
 
     return true;
 }
@@ -266,19 +250,18 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     else if (!extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
         return false;
 
-    uint32 accId = 0;
-    uint32 money = 0;
+    uint32 accId             = 0;
+    uint32 money             = 0;
     uint32 total_player_time = 0;
-    uint8 level = 0;
-    uint32 latency = 0;
+    uint8 level              = 0;
+    uint32 latency           = 0;
     uint8 race;
     uint8 Class;
-    int64 muteTime = 0;
-    int64 banTime = -1;
+    int64 muteTime           = 0;
+    int64 banTime            = -1;
     uint32 mapId;
     uint32 areaId;
-    uint32 phase = 0;
-
+    uint32 phase             = 0;
 
     // get additional information from Player object
     if (target)
@@ -287,17 +270,17 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         if (HasLowerSecurity(target, 0))
             return false;
 
-        accId = target->GetSession()->GetAccountId();
-        money = target->GetMoney();
+        accId             = target->GetSession()->GetAccountId();
+        money             = target->GetMoney();
         total_player_time = target->GetTotalPlayedTime();
-        level = target->getLevel();
-        latency = target->GetSession()->GetLatency();
-        race = target->getRace();
-        Class = target->getClass();
-        muteTime = target->GetSession()->m_muteTime;
-        mapId = target->GetMapId();
-        areaId = target->GetAreaId();
-        phase = target->GetPhaseMask();
+        level             = target->getLevel();
+        latency           = target->GetSession()->GetLatency();
+        race              = target->getRace();
+        Class             = target->getClass();
+        muteTime          = target->GetSession()->m_muteTime;
+        mapId             = target->GetMapId();
+        areaId            = target->GetAreaId();
+        phase             = target->GetPhaseMask();
     }
     // get additional information from DB
     else
@@ -306,41 +289,42 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         if (HasLowerSecurity(NULL, target_guid))
             return false;
 
-        //                                                     0          1      2      3        4     5      6    7
-        QueryResult result = CharacterDatabase.PQuery("SELECT totaltime, level, money, account, race, class, map, zone FROM characters "
-                                                      "WHERE guid = '%u'", GUID_LOPART(target_guid));
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PINFO);
+        stmt->setUInt32(0, GUID_LOPART(target_guid));
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
         if (!result)
             return false;
 
-        Field* fields = result->Fetch();
+        Field* fields     = result->Fetch();
         total_player_time = fields[0].GetUInt32();
-        level = fields[1].GetUInt32();
-        money = fields[2].GetUInt32();
-        accId = fields[3].GetUInt32();
-        race = fields[4].GetUInt8();
-        Class = fields[5].GetUInt8();
-        mapId = fields[6].GetUInt16();
-        areaId = fields[7].GetUInt16();
+        level             = fields[1].GetUInt8();
+        money             = fields[2].GetUInt32();
+        accId             = fields[3].GetUInt32();
+        race              = fields[4].GetUInt8();
+        Class             = fields[5].GetUInt8();
+        mapId             = fields[6].GetUInt16();
+        areaId            = fields[7].GetUInt16();
     }
 
-    std::string username = GetTrinityString(LANG_ERROR);
-    std::string email = GetTrinityString(LANG_ERROR);
-    std::string last_ip = GetTrinityString(LANG_ERROR);
-    uint32 security = 0;
+    std::string username   = GetTrinityString(LANG_ERROR);
+    std::string email      = GetTrinityString(LANG_ERROR);
+    std::string last_ip    = GetTrinityString(LANG_ERROR);
+    uint32 security        = 0;
     std::string last_login = GetTrinityString(LANG_ERROR);
 
-    QueryResult result = LoginDatabase.PQuery("SELECT a.username, aa.gmlevel, a.email, a.last_ip, a.last_login, a.mutetime "
-                                                "FROM account a "
-                                                "LEFT JOIN account_access aa "
-                                                "ON (a.id = aa.id AND (aa.RealmID = -1 OR aa.RealmID = %u)) "
-                                                "WHERE a.id = '%u'", realmID, accId);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
+    stmt->setInt32(0, int32(realmID));
+    stmt->setUInt32(1, accId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
     if (result)
     {
         Field* fields = result->Fetch();
-        username = fields[0].GetString();
-        security = fields[1].GetUInt32();
-        email = fields[2].GetString();
-        muteTime = fields[5].GetUInt64();
+        username      = fields[0].GetString();
+        security      = fields[1].GetUInt8();
+        email         = fields[2].GetString();
+        muteTime      = fields[5].GetUInt64();
 
         if (email.empty())
             email = "-";
@@ -349,6 +333,25 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         {
             last_ip = fields[3].GetString();
             last_login = fields[4].GetString();
+
+            uint32 ip = inet_addr(last_ip.c_str());
+#if TRINITY_ENDIAN == BIGENDIAN
+            EndianConvertReverse(ip);
+#endif
+
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_IP2NATION_COUNTRY);
+
+            stmt->setUInt32(0, ip);
+
+            PreparedQueryResult result2 = WorldDatabase.Query(stmt);
+
+            if (result2)
+            {
+                Field* fields2 = result2->Fetch();
+                last_ip.append(" (");
+                last_ip.append(fields2[0].GetString());
+                last_ip.append(")");
+            }
         }
         else
         {
@@ -363,21 +366,23 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 
     std::string bannedby = "unknown";
     std::string banreason = "";
-    if (QueryResult result2 = LoginDatabase.PQuery("SELECT unbandate, bandate = unbandate, bannedby, banreason FROM account_banned "
-                                                  "WHERE id = '%u' AND active ORDER BY bandate ASC LIMIT 1", accId))
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO_BANS);
+    stmt->setUInt32(0, accId);
+    PreparedQueryResult result2 = LoginDatabase.Query(stmt);
+    if (!result2)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_BANS);
+        stmt->setUInt32(0, GUID_LOPART(target_guid));
+        result2 = CharacterDatabase.Query(stmt);
+    }
+
+    if (result2)
     {
         Field* fields = result2->Fetch();
-        banTime = fields[1].GetBool() ? 0 : fields[0].GetUInt64();
-        bannedby = fields[2].GetString();
-        banreason = fields[3].GetString();
-    }
-    else if (QueryResult result3 = CharacterDatabase.PQuery("SELECT unbandate, bandate = unbandate, bannedby, banreason FROM character_banned "
-                                                           "WHERE guid = '%u' AND active ORDER BY bandate ASC LIMIT 1", GUID_LOPART(target_guid)))
-    {
-        Field* fields = result3->Fetch();
-        banTime = fields[1].GetBool() ? 0 : fields[0].GetUInt64();
-        bannedby = fields[2].GetString();
-        banreason = fields[3].GetString();
+        banTime       = int64(fields[1].GetBool() ? 0 : fields[0].GetUInt32());
+        bannedby      = fields[2].GetString();
+        banreason     = fields[3].GetString();
     }
 
     if (muteTime > 0)
@@ -694,9 +699,22 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
 
 bool ChatHandler::HandleCombatStopCommand(const char* args)
 {
-    Player* target;
-    if (!extractPlayerTarget((char*)args, &target))
-        return false;
+    Player* target = NULL;
+    
+    if (args && strlen(args) > 0)
+    {
+        target = sObjectAccessor->FindPlayerByName(args);
+        if (!target)
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+    }
+    
+    if (!target)
+        if (!extractPlayerTarget((char*)args, &target))
+            return false;
 
     // check online security
     if (HasLowerSecurity(target, 0))
@@ -730,9 +748,9 @@ bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
         limit = limit_str ? atoi (limit_str) : -1;
     }
 
-    LoginDatabase.EscapeString(ip);
-
-    QueryResult result = LoginDatabase.PQuery("SELECT id, username FROM account WHERE last_ip = '%s'", ip.c_str());
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
+    stmt->setString(0, ip);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     return LookupPlayerSearchCommand(result, limit);
 }
@@ -749,16 +767,15 @@ bool ChatHandler::HandleLookupPlayerAccountCommand(const char* args)
     if (!AccountMgr::normalizeString (account))
         return false;
 
-    LoginDatabase.EscapeString (account);
-
-    QueryResult result = LoginDatabase.PQuery ("SELECT id, username FROM account WHERE username = '%s'", account.c_str ());
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME);
+    stmt->setString(0, account);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     return LookupPlayerSearchCommand (result, limit);
 }
 
 bool ChatHandler::HandleLookupPlayerEmailCommand(const char* args)
 {
-
     if (!*args)
         return false;
 
@@ -766,14 +783,14 @@ bool ChatHandler::HandleLookupPlayerEmailCommand(const char* args)
     char* limit_str = strtok (NULL, " ");
     int32 limit = limit_str ? atoi (limit_str) : -1;
 
-    LoginDatabase.EscapeString (email);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL);
+    stmt->setString(0, email);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    QueryResult result = LoginDatabase.PQuery ("SELECT id, username FROM account WHERE email = '%s'", email.c_str ());
-
-    return LookupPlayerSearchCommand (result, limit);
+    return LookupPlayerSearchCommand(result, limit);
 }
 
-bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
+bool ChatHandler::LookupPlayerSearchCommand(PreparedQueryResult result, int32 limit)
 {
     if (!result)
     {
@@ -797,8 +814,11 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
         uint32 acc_id = fields[0].GetUInt32();
         std::string acc_name = fields[1].GetString();
 
-        QueryResult chars = CharacterDatabase.PQuery("SELECT guid, name FROM characters WHERE account = '%u'", acc_id);
-        if (chars)
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_GUID_NAME_BY_ACC);
+        stmt->setUInt32(0, acc_id);
+        PreparedQueryResult result2 = CharacterDatabase.Query(stmt);
+
+        if (result2)
         {
             PSendSysMessage(LANG_LOOKUP_PLAYER_ACCOUNT, acc_name.c_str(), acc_id);
 
@@ -807,14 +827,14 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
 
             do
             {
-                Field* charfields = chars->Fetch();
+                Field* charfields = result2->Fetch();
                 guid = charfields[0].GetUInt64();
                 name = charfields[1].GetString();
 
                 PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid);
                 ++i;
 
-            } while (chars->NextRow() && (limit == -1 || i < limit));
+            } while (result2->NextRow() && (limit == -1 || i < limit));
         }
     } while (result->NextRow());
 

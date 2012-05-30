@@ -55,9 +55,9 @@ public:
 
         void Reset()
         {
-            HandOfThaurissan_Timer   = 4000;
-            AvatarOfFlame_Timer      = 25000;
-            //Counter                = 0;
+            HandOfThaurissan_Timer = 4000;
+            AvatarOfFlame_Timer = 25000;
+            //Counter= 0;
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -71,7 +71,7 @@ public:
             DoScriptText(SAY_SLAY, me);
         }
 
-        void JustDied(Unit* /*who*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (Creature* Moira = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MOIRA) : 0))
             {
@@ -100,7 +100,7 @@ public:
                 //else
                 //{
                     HandOfThaurissan_Timer = 5000;
-                    //Counter              = 0;
+                    //Counter = 0;
                 //}
             } else HandOfThaurissan_Timer -= diff;
 

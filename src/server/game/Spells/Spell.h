@@ -57,7 +57,7 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_17         = 0x00010000,
     CAST_FLAG_ADJUST_MISSILE     = 0x00020000,
     CAST_FLAG_UNKNOWN_19         = 0x00040000,
-    CAST_FLAG_VISUAL_CHAIN         = 0x00080000,
+    CAST_FLAG_VISUAL_CHAIN       = 0x00080000,
     CAST_FLAG_UNKNOWN_21         = 0x00100000,
     CAST_FLAG_RUNE_LIST          = 0x00200000,
     CAST_FLAG_UNKNOWN_23         = 0x00400000,
@@ -77,6 +77,18 @@ enum SpellRangeFlag
     SPELL_RANGE_DEFAULT             = 0,
     SPELL_RANGE_MELEE               = 1,     //melee
     SPELL_RANGE_RANGED              = 2,     //hunter range and ranged weapon
+};
+
+struct SpellDestination
+{
+    SpellDestination();
+    SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
+    SpellDestination(Position const& pos);
+    SpellDestination(WorldObject const& wObj);
+
+    WorldLocation _position;
+    uint64 _transportGUID;
+    Position _transportOffset;
 };
 
 class SpellCastTargets
@@ -115,14 +127,16 @@ class SpellCastTargets
         void SetTradeItemTarget(Player* caster);
         void UpdateTradeSlotItem();
 
-        Position const* GetSrc() const;
+        SpellDestination const* GetSrc() const;
+        Position const* GetSrcPos() const;
         void SetSrc(float x, float y, float z);
         void SetSrc(Position const& pos);
         void SetSrc(WorldObject const& wObj);
         void ModSrc(Position const& pos);
         void RemoveSrc();
 
-        WorldLocation const* GetDst() const;
+        SpellDestination const* GetDst() const;
+        WorldLocation const* GetDstPos() const;
         void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
         void SetDst(Position const& pos);
         void SetDst(WorldObject const& wObj);
@@ -139,7 +153,7 @@ class SpellCastTargets
         float GetSpeed() const { return m_speed; }
         void SetSpeed(float speed) { m_speed = speed; }
 
-        float GetDist2d() const { return m_srcPos.GetExactDist2d(&m_dstPos); }
+        float GetDist2d() const { return m_src._position.GetExactDist2d(&m_dst._position); }
         float GetSpeedXY() const { return m_speed * cos(m_elevation); }
         float GetSpeedZ() const { return m_speed * sin(m_elevation); }
 
@@ -158,13 +172,8 @@ class SpellCastTargets
         uint64 m_itemTargetGUID;
         uint32 m_itemTargetEntry;
 
-        uint64 m_srcTransGUID;
-        Position m_srcTransOffset;
-        Position m_srcPos;
-
-        uint64 m_dstTransGUID;
-        Position m_dstTransOffset;
-        WorldLocation m_dstPos;
+        SpellDestination m_src;
+        SpellDestination m_dst;
 
         float m_elevation, m_speed;
         std::string m_strTarget;
@@ -196,11 +205,6 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_HIT,
     SPELL_EFFECT_HANDLE_HIT_TARGET,
 };
-
-namespace Trinity
-{
-    struct SpellNotifierCreatureAndPlayer;
-}
 
 class Spell
 {
@@ -450,7 +454,7 @@ class Spell
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
         bool IsNextMeleeSwingSpell() const;
-        bool IsTriggered() const {return _triggeredCastFlags & TRIGGERED_FULL_MASK;};
+        bool IsTriggered() const { return _triggeredCastFlags & TRIGGERED_FULL_MASK; };
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
 
@@ -528,6 +532,7 @@ class Spell
         Unit* unitTarget;
         Item* itemTarget;
         GameObject* gameObjTarget;
+        WorldLocation* destTarget;
         int32 damage;
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
@@ -588,10 +593,13 @@ class Spell
         };
         std::list<ItemTargetInfo> m_UniqueItemInfo;
 
-        void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true);
+        SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
+
+        void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true);
         void AddGOTarget(GameObject* target, uint32 effectMask);
-        void AddGOTarget(uint64 goGUID, uint32 effectMask);
         void AddItemTarget(Item* item, uint32 effectMask);
+        void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
+
         void DoAllEffectOnTarget(TargetInfo* target);
         SpellMissInfo DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleAura);
         void DoTriggersOnSpellHit(Unit* unit, uint8 effMask);
@@ -624,13 +632,20 @@ class Spell
         void CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTargets, SpellEffIndex effIndex);
         std::list<SpellScript*> m_loadedScripts;
 
-        bool CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* spellInfo = NULL) const;
+        struct HitTriggerSpell
+        {
+            SpellInfo const* triggeredSpell;
+            SpellInfo const* triggeredByAura;
+            // uint8 triggeredByEffIdx          This might be needed at a later stage - No need known for now
+            int32 chance;
+        };
+
+        bool CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura = NULL) const;
         void PrepareTriggersExecutedOnHit();
-        typedef std::list< std::pair<SpellInfo const*, int32> > HitTriggerSpells;
-        HitTriggerSpells m_hitTriggerSpells;
+        typedef std::list<HitTriggerSpell> HitTriggerSpellList;
+        HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers
-        void GetSummonPosition(uint32 i, Position &pos, float radius = 0.0f, uint32 count = 0);
         void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);
         void CalculateJumpSpeeds(uint8 i, float dist, float & speedxy, float & speedz);
 

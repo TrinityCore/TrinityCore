@@ -56,6 +56,7 @@ public:
         {
             if (creature->GetEntry() == 17900)
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
             if (creature->GetEntry() == 17901)
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         }
@@ -64,10 +65,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             creature->setPowerType(POWER_MANA);
             creature->SetMaxPower(POWER_MANA, 200);             //set a "fake" mana value, we can't depend on database doing it in this case
@@ -149,9 +150,9 @@ public:
 
     struct npc_cooshcooshAI : public ScriptedAI
     {
-        npc_cooshcooshAI(Creature* c) : ScriptedAI(c)
+        npc_cooshcooshAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_uiNormFaction = c->getFaction();
+            m_uiNormFaction = creature->getFaction();
         }
 
         uint32 m_uiNormFaction;
@@ -195,10 +196,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF)
+        if (action == GOSSIP_ACTION_INFO_DEF)
         {
             player->CLOSE_GOSSIP_MENU();
             creature->setFaction(FACTION_HOSTILE_CO);
@@ -231,10 +232,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -284,10 +285,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_TRADE)
+        if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
         return true;
     }
@@ -317,18 +318,17 @@ public:
 
     struct npc_kayra_longmaneAI : public npc_escortAI
     {
-        npc_kayra_longmaneAI(Creature* c) : npc_escortAI(c) {}
+        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) {}
 
         void Reset() { }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 4:
                     DoScriptText(SAY_AMBUSH1, me, player);
@@ -404,10 +404,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TIMOTHY_DANIELS1, creature->GetGUID());

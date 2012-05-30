@@ -211,7 +211,7 @@ class boss_general_vezax : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 DoScriptText(SAY_DEATH, me);
@@ -290,7 +290,7 @@ class boss_general_vezax : public CreatureScript
                     if (size < playersMin)
                         return NULL;
 
-                    return SelectRandomContainerElement(PlayerList);
+                    return Trinity::Containers::SelectRandomContainerElement(PlayerList);
                 }
 
                 return NULL;
@@ -323,7 +323,7 @@ class boss_saronite_animus : public CreatureScript
                 events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
                     Vezax->AI()->DoAction(ACTION_ANIMUS_DIE);

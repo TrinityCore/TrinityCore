@@ -58,9 +58,8 @@ template<class T>
 class WaypointMovementGenerator;
 
 template<>
-class WaypointMovementGenerator<Creature>
-: public MovementGeneratorMedium< Creature, WaypointMovementGenerator<Creature> >,
-public PathMovementBase<Creature, WaypointPath const*>
+class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Creature, WaypointMovementGenerator<Creature> >,
+    public PathMovementBase<Creature, WaypointPath const*>
 {
     public:
         WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true)
@@ -110,9 +109,8 @@ public PathMovementBase<Creature, WaypointPath const*>
 /** FlightPathMovementGenerator generates movement of the player for the paths
  * and hence generates ground and activities for the player.
  */
-class FlightPathMovementGenerator
-: public MovementGeneratorMedium< Player, FlightPathMovementGenerator >,
-public PathMovementBase<Player, TaxiPathNodeList const*>
+class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, FlightPathMovementGenerator >,
+    public PathMovementBase<Player, TaxiPathNodeList const*>
 {
     public:
         explicit FlightPathMovementGenerator(TaxiPathNodeList const& pathnodes, uint32 startNode = 0)
@@ -123,7 +121,7 @@ public PathMovementBase<Player, TaxiPathNodeList const*>
         void Initialize(Player &);
         void Reset(Player &);
         void Finalize(Player &);
-        bool Update(Player &, const uint32);
+        bool Update(Player &, const uint32&);
         MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }
 
         TaxiPathNodeList const& GetPath() { return *i_path; }

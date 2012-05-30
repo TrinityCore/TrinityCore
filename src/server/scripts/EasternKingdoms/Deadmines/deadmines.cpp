@@ -45,17 +45,16 @@ public:
             player->GetSession()->SendNotification("Instance script not initialized");
             return true;
         }
-        if (instance->GetData(EVENT_STATE)!= CANNON_NOT_USED)
+
+        if (instance->GetData(EVENT_STATE) != CANNON_NOT_USED)
             return false;
+
         if (targets.GetGOTarget() && targets.GetGOTarget()->GetEntry() == GO_DEFIAS_CANNON)
-        {
             instance->SetData(EVENT_STATE, CANNON_GUNPOWDER_USED);
-        }
 
         player->DestroyItemCount(item->GetEntry(), 1, true);
         return true;
     }
-
 };
 
 void AddSC_deadmines()

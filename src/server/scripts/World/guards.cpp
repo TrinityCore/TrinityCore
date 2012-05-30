@@ -177,7 +177,6 @@ public:
 
                         //Set our global cooldown
                         globalCooldown = GENERIC_CREATURE_COOLDOWN;
-
                     }                                               //If no spells available and we arn't moving run to target
                     else if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
                     {
@@ -196,12 +195,26 @@ public:
         {
             switch (emote)
             {
-                case TEXT_EMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);    break;
-                case TEXT_EMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);   break;
-                case TEXT_EMOTE_SALUTE:  me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE); break;
-                case TEXT_EMOTE_SHY:     me->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);   break;
+                case TEXT_EMOTE_KISS:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                    break;
+
+                case TEXT_EMOTE_WAVE:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                    break;
+
+                case TEXT_EMOTE_SALUTE:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                    break;
+
+                case TEXT_EMOTE_SHY:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
+                    break;
+
                 case TEXT_EMOTE_RUDE:
-                case TEXT_EMOTE_CHICKEN: me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);  break;
+                case TEXT_EMOTE_CHICKEN:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+                    break;
             }
         }
 

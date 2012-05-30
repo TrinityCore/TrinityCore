@@ -181,7 +181,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
 
     if (pData->uiSoundId)
     {
-        if (GetSoundEntriesStore()->LookupEntry(pData->uiSoundId))
+        if (sSoundEntriesStore.LookupEntry(pData->uiSoundId))
             pSource->SendPlaySound(pData->uiSoundId, false);
         else
             sLog->outError("TSCR: DoScriptText entry %i tried to process invalid sound id %u.", iTextEntry, pData->uiSoundId);
@@ -260,7 +260,7 @@ void ScriptMgr::Initialize()
 void ScriptMgr::Unload()
 {
     #define SCR_CLEAR(T) \
-        FOR_SCRIPTS(T, itr, end) \
+        for (SCR_REG_ITR(T) itr = SCR_REG_LST(T).begin(); itr != SCR_REG_LST(T).end(); ++itr) \
             delete itr->second; \
         SCR_REG_LST(T).clear();
 
@@ -582,7 +582,7 @@ void ScriptMgr::OnCreateMap(Map* map)
 {
     ASSERT(map);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
+    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnCreate(map);
     SCR_MAP_END;
 
@@ -599,7 +599,7 @@ void ScriptMgr::OnDestroyMap(Map* map)
 {
     ASSERT(map);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
+    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnDestroy(map);
     SCR_MAP_END;
 
@@ -617,7 +617,7 @@ void ScriptMgr::OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
     ASSERT(map);
     ASSERT(gmap);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
+    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnLoadGridMap(map, gmap, gx, gy);
     SCR_MAP_END;
 
@@ -635,7 +635,7 @@ void ScriptMgr::OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
     ASSERT(map);
     ASSERT(gmap);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
+    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnUnloadGridMap(map, gmap, gx, gy);
     SCR_MAP_END;
 
@@ -653,7 +653,7 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
     ASSERT(map);
     ASSERT(player);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
+    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnPlayerEnter(map, player);
     SCR_MAP_END;
 
@@ -671,7 +671,7 @@ void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
     ASSERT(map);
     ASSERT(player);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
+    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnPlayerLeave(map, player);
     SCR_MAP_END;
 
@@ -688,7 +688,7 @@ void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
 {
     ASSERT(map);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
+    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnUpdate(map, diff);
     SCR_MAP_END;
 
@@ -937,6 +937,22 @@ void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player)
     tmpscript->OnDamaged(go, player);
 }
 
+void ScriptMgr::OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* unit)
+{
+    ASSERT(go);
+
+    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
+    tmpscript->OnLootStateChanged(go, state, unit);
+}
+
+void ScriptMgr::OnGameObjectStateChanged(GameObject* go, uint32 state)
+{
+    ASSERT(go);
+
+    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
+    tmpscript->OnGameObjectStateChanged(go, state);
+}
+
 void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
 {
     ASSERT(go);
@@ -952,6 +968,14 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
 
     GET_SCRIPT_RET(GameObjectScript, target->GetScriptId(), tmpscript, false);
     return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
+}
+
+GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* go)
+{
+    ASSERT(go);
+
+    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, NULL);
+    return tmpscript->GetAI(go);
 }
 
 bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
@@ -1295,6 +1319,11 @@ void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, ui
     FOREACH_SCRIPT(PlayerScript)->OnBindToInstance(player, difficulty, mapid, permanent);
 }
 
+void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+}
+
 // Guild
 void ScriptMgr::OnGuildAddMember(Guild* guild, Player* player, uint8& plRank)
 {
@@ -1410,7 +1439,7 @@ FormulaScript::FormulaScript(const char* name)
 WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<Map>(mapId)
 {
-    if (GetEntry() && !GetEntry()->IsContinent())
+    if (GetEntry() && !GetEntry()->IsWorldMap())
         sLog->outError("WorldMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<WorldMapScript>::AddScript(this);

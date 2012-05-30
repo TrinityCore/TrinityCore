@@ -169,7 +169,7 @@ class spell_gen_burn_brutallus : public SpellScriptLoader
         }
 };
 
-enum eCannibalizeSpells
+enum CannibalizeSpells
 {
     SPELL_CANNIBALIZE_TRIGGERED = 20578,
 };
@@ -224,7 +224,7 @@ class spell_gen_cannibalize : public SpellScriptLoader
 };
 
 // 45472 Parachute
-enum eParachuteSpells
+enum ParachuteSpells
 {
     SPELL_PARACHUTE         = 45472,
     SPELL_PARACHUTE_BUFF    = 44795,
@@ -365,7 +365,7 @@ class spell_gen_remove_flight_auras : public SpellScriptLoader
 };
 
 // 66118 Leeching Swarm
-enum eLeechingSwarmSpells
+enum LeechingSwarmSpells
 {
     SPELL_LEECHING_SWARM_DMG    = 66240,
     SPELL_LEECHING_SWARM_HEAL   = 66125,
@@ -481,7 +481,7 @@ class spell_gen_elune_candle : public SpellScriptLoader
 };
 
 // 24750 Trick
-enum eTrickSpells
+enum TrickSpells
 {
     SPELL_PIRATE_COSTUME_MALE           = 24708,
     SPELL_PIRATE_COSTUME_FEMALE         = 24709,
@@ -557,7 +557,7 @@ class spell_gen_trick : public SpellScriptLoader
 };
 
 // 24751 Trick or Treat
-enum eTrickOrTreatSpells
+enum TrickOrTreatSpells
 {
     SPELL_TRICK                 = 24714,
     SPELL_TREAT                 = 24715,
@@ -1234,30 +1234,30 @@ class spell_gen_magic_rooster : public SpellScriptLoader
 
 class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
 {
-public:
-    spell_gen_allow_cast_from_item_only() : SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
+    public:
+        spell_gen_allow_cast_from_item_only() : SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
 
-    class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript);
-
-        SpellCastResult CheckRequirement()
+        class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
         {
-            if (!GetCastItem())
-                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-            return SPELL_CAST_OK;
-        }
+            PrepareSpellScript(spell_gen_allow_cast_from_item_only_SpellScript);
 
-        void Register()
+            SpellCastResult CheckRequirement()
+            {
+                if (!GetCastItem())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_allow_cast_from_item_only_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCheckCast += SpellCheckCastFn(spell_gen_allow_cast_from_item_only_SpellScript::CheckRequirement);
+            return new spell_gen_allow_cast_from_item_only_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_allow_cast_from_item_only_SpellScript();
-    }
 };
 
 enum Launch
@@ -1282,7 +1282,7 @@ class spell_gen_launch : public SpellScriptLoader
 
             void Launch()
             {
-                WorldLocation const* const position = GetTargetDest();
+                WorldLocation const* const position = GetExplTargetDest();
 
                 if (Player* player = GetHitPlayer())
                 {
@@ -1312,6 +1312,11 @@ class spell_gen_launch : public SpellScriptLoader
         }
 };
 
+enum VehicleScaling
+{
+    SPELL_GEAR_SCALING      = 66668,
+};
+
 class spell_gen_vehicle_scaling : public SpellScriptLoader
 {
     public:
@@ -1323,7 +1328,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
@@ -1335,7 +1340,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                 // TODO: Reserach coeffs for different vehicles
                 switch (GetId())
                 {
-                    case 66668:
+                    case SPELL_GEAR_SCALING:
                         factor = 1.0f;
                         baseItemLevel = 205;
                         break;
@@ -1508,7 +1513,7 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
                             if (group->isLFGGroup())
                                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
                                     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
+                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
                                             if (randomDungeon && randomDungeon->type == LFG_TYPE_RANDOM)
                                                 return; // in correct dungeon
 
@@ -1585,19 +1590,17 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
 
             bool Load()
             {
-                return GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetOriginalCaster() && GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                if (Player* originalCaster = GetOriginalCaster()->ToPlayer())
+                Player* originalCaster = GetOriginalCaster()->ToPlayer();
+                if (Unit* target = GetHitUnit())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
-                        data << uint64(target->GetGUID());
-                        originalCaster->GetSession()->SendPacket(&data);
-                    }
+                    WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
+                    data << uint64(target->GetGUID());
+                    originalCaster->GetSession()->SendPacket(&data);
                 }
             }
 
@@ -2550,6 +2553,141 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
 };
 
+class spell_gen_ds_flush_knockback : public SpellScriptLoader
+{
+    public:
+        spell_gen_ds_flush_knockback() : SpellScriptLoader("spell_gen_ds_flush_knockback") {}
+
+        class spell_gen_ds_flush_knockback_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_ds_flush_knockback_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                // Here the target is the water spout and determines the position where the player is knocked from
+                if (Unit* target = GetHitUnit())
+                {
+                    if (Player* player = GetCaster()->ToPlayer())
+                    {
+                        float horizontalSpeed = 20.0f + (40.0f - GetCaster()->GetDistance(target));
+                        float verticalSpeed = 8.0f;
+                        // This method relies on the Dalaran Sewer map disposition and Water Spout position
+                        // What we do is knock the player from a position exactly behind him and at the end of the pipe
+                        player->KnockbackFrom(target->GetPositionX(), player->GetPositionY(), horizontalSpeed, verticalSpeed);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_ds_flush_knockback_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_ds_flush_knockback_SpellScript();
+        }
+};
+
+class spell_gen_wg_water : public SpellScriptLoader
+{
+    public:
+        spell_gen_wg_water() : SpellScriptLoader("spell_gen_wg_water") {}
+
+        class spell_gen_wg_water_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_wg_water_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (!GetSpellInfo()->CheckTargetCreatureType(GetCaster()))
+                    return SPELL_FAILED_DONT_REPORT;
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_wg_water_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_wg_water_SpellScript();
+        }
+};
+
+class spell_gen_count_pct_from_max_hp : public SpellScriptLoader
+{
+    public:
+        spell_gen_count_pct_from_max_hp(char const* name, int32 damagePct = 0) : SpellScriptLoader(name), _damagePct(damagePct) { }
+
+        class spell_gen_count_pct_from_max_hp_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_count_pct_from_max_hp_SpellScript)
+
+        public:
+            spell_gen_count_pct_from_max_hp_SpellScript(int32 damagePct) : SpellScript(), _damagePct(damagePct) { }
+
+            void RecalculateDamage()
+            {
+                if (!_damagePct)
+                    _damagePct = GetHitDamage();
+
+                SetHitDamage(GetHitUnit()->CountPctFromMaxHealth(_damagePct));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_count_pct_from_max_hp_SpellScript::RecalculateDamage);
+            }
+
+        private:
+            int32 _damagePct;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_count_pct_from_max_hp_SpellScript(_damagePct);
+        }
+
+    private:
+        int32 _damagePct;
+};
+
+class spell_gen_despawn_self : public SpellScriptLoader
+{
+public:
+    spell_gen_despawn_self() : SpellScriptLoader("spell_gen_despawn_self") { }
+
+    class spell_gen_despawn_self_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_despawn_self_SpellScript);
+
+        bool Load()
+        {
+            return GetCaster()->GetTypeId() == TYPEID_UNIT;
+        }
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_DUMMY || GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_SCRIPT_EFFECT)
+                GetCaster()->ToCreature()->DespawnOrUnsummon();
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_self_SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_despawn_self_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2599,4 +2737,9 @@ void AddSC_generic_spell_scripts()
     new spell_gen_on_tournament_mount();
     new spell_gen_tournament_pennant();
     new spell_gen_chaos_blast();
+    new spell_gen_ds_flush_knockback();
+    new spell_gen_wg_water();
+    new spell_gen_count_pct_from_max_hp("spell_gen_default_count_pct_from_max_hp");
+    new spell_gen_count_pct_from_max_hp("spell_gen_50pct_count_pct_from_max_hp", 50);
+    new spell_gen_despawn_self();
 }

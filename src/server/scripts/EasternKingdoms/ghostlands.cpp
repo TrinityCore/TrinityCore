@@ -44,10 +44,10 @@ class npc_budd_nedreck : public CreatureScript
 public:
     npc_budd_nedreck() : CreatureScript("npc_budd_nedreck") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF)
+        if (action == GOSSIP_ACTION_INFO_DEF)
         {
             player->CLOSE_GOSSIP_MENU();
             creature->CastSpell(player, 42540, false);
@@ -66,7 +66,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -78,10 +77,10 @@ class npc_rathis_tomber : public CreatureScript
 public:
     npc_rathis_tomber() : CreatureScript("npc_rathis_tomber") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_TRADE)
+        if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
         return true;
     }
@@ -100,7 +99,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -130,61 +128,63 @@ public:
 
     struct npc_ranger_lilathaAI : public npc_escortAI
     {
-        npc_ranger_lilathaAI(Creature* c) : npc_escortAI(c) {}
+        npc_ranger_lilathaAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 0:
-                {
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
-                    Cage->SetGoState(GO_STATE_ACTIVE);
-                DoScriptText(SAY_START, me, player);
-                break;
-                }
-            case 5:
-                DoScriptText(SAY_PROGRESS1, me, player);
-            case 11:
-                DoScriptText(SAY_PROGRESS2, me, player);
-                me->SetOrientation(4.762841f);
-                break;
-            case 18:
-                {
-                DoScriptText(SAY_PROGRESS3, me, player);
-                Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                if (Summ1 && Summ2)
-                {
-                    Summ1->Attack(me, true);
-                    Summ2->Attack(player, true);
-                }
-                me->AI()->AttackStart(Summ1);
-                break;
-                }
-            case 19: me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
-            case 25: me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
-            case 30:
-                if (player && player->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
-                break;
-            case 32:
-                me->SetOrientation(2.978281f);
-                DoScriptText(SAY_END1, me, player);
-                break;
-            case 33:
-                me->SetOrientation(5.858011f);
-                DoScriptText(SAY_END2, me, player);
-                Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
-                if (CaptainHelios)
-                DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
-                break;
+                case 0:
+                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
+                        Cage->SetGoState(GO_STATE_ACTIVE);
+                    DoScriptText(SAY_START, me, player);
+                    break;
+                case 5:
+                    DoScriptText(SAY_PROGRESS1, me, player);
+                    break;
+                case 11:
+                    DoScriptText(SAY_PROGRESS2, me, player);
+                    me->SetOrientation(4.762841f);
+                    break;
+                case 18:
+                    {
+                        DoScriptText(SAY_PROGRESS3, me, player);
+                        Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        if (Summ1 && Summ2)
+                        {
+                            Summ1->Attack(me, true);
+                            Summ2->Attack(player, true);
+                        }
+                        me->AI()->AttackStart(Summ1);
+                    }
+                    break;
+                case 19:
+                    me->SetWalk(false);
+                    break;
+                case 25:
+                    me->SetWalk(true);
+                    break;
+                case 30:
+                    if (player->GetTypeId() == TYPEID_PLAYER)
+                        CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
+                    break;
+                case 32:
+                    me->SetOrientation(2.978281f);
+                    DoScriptText(SAY_END1, me, player);
+                    break;
+                case 33:
+                    me->SetOrientation(5.858011f);
+                    DoScriptText(SAY_END2, me, player);
+                    Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
+                    if (CaptainHelios)
+                        DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
+                    break;
             }
         }
 

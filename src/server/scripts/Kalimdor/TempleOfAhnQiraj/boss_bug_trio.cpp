@@ -49,9 +49,9 @@ public:
 
     struct boss_kriAI : public ScriptedAI
     {
-        boss_kriAI(Creature* c) : ScriptedAI(c)
+        boss_kriAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -146,9 +146,9 @@ public:
 
     struct boss_vemAI : public ScriptedAI
     {
-        boss_vemAI(Creature* c) : ScriptedAI(c)
+        boss_vemAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -168,7 +168,7 @@ public:
             Enraged = false;
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -239,9 +239,9 @@ public:
 
     struct boss_yaujAI : public ScriptedAI
     {
-        boss_yaujAI(Creature* c) : ScriptedAI(c)
+        boss_yaujAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -261,7 +261,7 @@ public:
             VemDead = false;
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -303,8 +303,8 @@ public:
             {
                 if (instance)
                 {
-                    Unit* pKri = Unit::GetUnit((*me), instance->GetData64(DATA_KRI));
-                    Unit* pVem = Unit::GetUnit((*me), instance->GetData64(DATA_VEM));
+                    Unit* pKri = Unit::GetUnit(*me, instance->GetData64(DATA_KRI));
+                    Unit* pVem = Unit::GetUnit(*me, instance->GetData64(DATA_VEM));
 
                     switch (urand(0, 2))
                     {

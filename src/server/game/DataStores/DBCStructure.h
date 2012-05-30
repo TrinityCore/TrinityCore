@@ -543,9 +543,7 @@ struct AreaTableEntry
     //uint32 unk8;                                          // 8,
     //uint32 unk9;                                          // 9,
     int32   area_level;                                     // 10
-    char*   area_name;                                        // 11
     uint32  team;                                           // 12
-    //uint32 unk13;                                         // 13,
     //uint32 unk14;                                         // 14, All zeros (4.2.2)
     //uint32 unk15;                                         // 15,
     //uint32 unk16;                                         // 16, Only Naxxramas has value (21)
@@ -1288,27 +1286,29 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (type << 24); }
 };
 
-/*
+
 struct LiquidTypeEntry
 {
-    uint32      ID;                                         // 0
-    char*       name;                                       // 1
-    uint32      flags;                                      // 2        Water: 1|2|4|8, Magma: 8|16|32|64, Slime: 2|64|256, WMO Ocean: 1|2|4|8|512
-    uint32      type;                                       // 3        0: Water, 1: Ocean, 2: Magma, 3: Slime
-    uint32      soundid;                                    // 4        Reference to SoundEntries.dbc
-    uint32      spellID;                                    // 5        Reference to Spell.dbc
-    float       unk0[4];                                    // 6-9
-    uint32      unk1;                                       // 10       Light?
-    float       particleScale                               // 11       0: Slime, 1: Water/Ocean, 4: Magma
-    uint32      particleMovement;                           // 12
-    uint32      unk2                                        // 13
-    uint32      LiquidMaterialID                            // 14       Reference to LiquidMaterial.dbc
-    char*       texture[6];                                 // 15-20
-    uint32      unk3[2]                                     // 21-22
-    float       unk4[18];                                   // 23-40
-    uint32      unk5[4]                                     // 41-44
+    uint32 Id;
+    //char*  Name;
+    //uint32 Flags;
+    uint32 Type;
+    //uint32 SoundId;
+    uint32 SpellId;
+    //float MaxDarkenDepth;
+    //float FogDarkenIntensity;
+    //float AmbDarkenIntensity;
+    //float DirDarkenIntensity;
+    //uint32 LightID;
+    //float ParticleScale;
+    //uint32 ParticleMovement;
+    //uint32 ParticleTexSlots;
+    //uint32 LiquidMaterialID;
+    //char* Texture[6];
+    //uint32 Color[2];
+    //float Unk1[18];
+    //uint32 Unk2[4];
 };
-*/
 
 #define MAX_LOCK_CASE 8
 
@@ -1368,6 +1368,7 @@ struct MapEntry
     bool IsBattleground() const { return map_type == MAP_BATTLEGROUND; }
     bool IsBattleArena() const { return map_type == MAP_ARENA; }
     bool IsBattlegroundOrArena() const { return map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA; }
+    bool IsWorldMap() const { return map_type == MAP_COMMON; }
 
     bool GetEntrancePos(int32 &mapid, float &x, float &y) const
     {
@@ -2212,7 +2213,7 @@ struct WorldMapAreaEntry
     float   x2;                                             // 7
     int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
     // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
-    // uint32  someMapID;                                   // 10
+    // uint32  parentMapID;                                 // 10
 };
 
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4

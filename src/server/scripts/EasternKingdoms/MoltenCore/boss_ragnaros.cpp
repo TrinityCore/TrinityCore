@@ -316,12 +316,12 @@ class mob_son_of_flame : public CreatureScript
 
         struct mob_son_of_flameAI : public ScriptedAI //didnt work correctly in EAI for me...
         {
-            mob_son_of_flameAI(Creature* c) : ScriptedAI(c)
+            mob_son_of_flameAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
             }
 
-            void JustDied(Unit* /*victim*/)
+            void JustDied(Unit* /*killer*/)
             {
                 if (instance)
                     instance->SetData(DATA_RAGNAROS_ADDS, 1);

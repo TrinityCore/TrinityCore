@@ -179,7 +179,7 @@ class npc_flash_freeze : public CreatureScript
             npc_flash_freezeAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
             }
 
@@ -246,7 +246,7 @@ class npc_ice_block : public CreatureScript
             npc_ice_blockAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 targetGUID = 0;
             }
@@ -512,7 +512,7 @@ class npc_icicle : public CreatureScript
         {
             npc_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid1);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -560,7 +560,7 @@ class npc_snowpacked_icicle : public CreatureScript
         {
             npc_snowpacked_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -651,7 +651,7 @@ class npc_hodir_priest : public CreatureScript
                 DoSpellAttackIfReady(SPELL_SMITE);
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
              {
                 if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
@@ -713,7 +713,7 @@ class npc_hodir_shaman : public CreatureScript
                 DoSpellAttackIfReady(SPELL_LAVA_BURST);
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
              {
                 if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
@@ -774,7 +774,7 @@ class npc_hodir_druid : public CreatureScript
                 DoSpellAttackIfReady(SPELL_WRATH);
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
              {
                 if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
@@ -854,7 +854,7 @@ class npc_hodir_mage : public CreatureScript
                 DoSpellAttackIfReady(SPELL_FIREBALL);
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*killer*/)
              {
                   if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
@@ -881,7 +881,7 @@ class npc_toasty_fire : public CreatureScript
         {
             npc_toasty_fireAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void Reset()
