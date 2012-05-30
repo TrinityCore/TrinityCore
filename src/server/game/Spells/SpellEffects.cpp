@@ -4392,27 +4392,30 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
                     {
-                    case 75: unitTarget->CastSpell(unitTarget, 75619, true); break;
-                    case 150: unitTarget->CastSpell(unitTarget, 75620, true); break;
-                    case 225:
+                        case 75: unitTarget->CastSpell(unitTarget, 75619, true); break;
+                        case 150: unitTarget->CastSpell(unitTarget, 75620, true); break;
+                        case 225:
                         {
                             if (canFly)
                                 unitTarget->CastSpell(unitTarget, 75617, true);
                             else
                                 unitTarget->CastSpell(unitTarget, 75620, true);
-                        }break;
-                    case 300:
+                        }
+                        break;
+                        case 300:
                         {
                             if (canFly)
-                            {
-                                if (unitTarget->ToPlayer()->Has310Flyer(false))
-                                    unitTarget->CastSpell(unitTarget, 76153, true);
-                                else
-                                    unitTarget->CastSpell(unitTarget, 75618, true);
-                            }
+                                unitTarget->CastSpell(unitTarget, 75618, true);
                             else
                                 unitTarget->CastSpell(unitTarget, 75620, true);
-                        }break;
+                        }
+                        break;
+                        case 375:
+                            if (canFly)
+                                unitTarget->CastSpell(unitTarget, 76153, true);
+                            else
+                                unitTarget->CastSpell(unitTarget, 75620, true);
+                            break;
                     }
                     return;
                 }
@@ -4427,13 +4430,10 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     // Triggered spell id dependent on riding skill
                     if (uint16 skillval = unitTarget->ToPlayer()->GetSkillValue(SKILL_RIDING))
                     {
-                        if (skillval >= 300)
-                        {
-                            if (unitTarget->ToPlayer()->Has310Flyer(false))
-                                unitTarget->CastSpell(unitTarget, 76154, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 75972, true);
-                        }
+                        if (skillval >= 375)
+                            unitTarget->CastSpell(unitTarget, 76154, true);
+                        else if (skillval >= 300)
+                            unitTarget->CastSpell(unitTarget, 75972, true);
                         else
                             unitTarget->CastSpell(unitTarget, 75957, true);
                     }

@@ -3895,12 +3895,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             if (!pSkill)
                 continue;
 
-            if (!Has310Flyer(false) && pSkill->id == SKILL_MOUNTS)
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                        spellInfo->Effects[i].CalcValue() == 310)
-                        SetHas310Flyer(true);
-
             if (HasSkill(pSkill->id))
                 continue;
 
@@ -4165,16 +4159,6 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
                 SetSkill(pSkill->id, GetSkillStep(pSkill->id), 0, 0);
             }
-
-            // most likely will never be used, haven't heard of cases where players unlearn a mount
-            if (Has310Flyer(false) && _spell_idx->second->skillId == SKILL_MOUNTS)
-            {
-                if (spellInfo)
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                            spellInfo->Effects[i].CalcValue() == 310)
-                            Has310Flyer(true, spell_id);    // with true as first argument its also used to set/remove the flag
-            }
         }
     }
 
@@ -4253,40 +4237,6 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
     }
-}
-
-bool Player::Has310Flyer(bool checkAllSpells, uint32 excludeSpellId)
-{
-    if (!checkAllSpells)
-        return m_ExtraFlags & PLAYER_EXTRA_HAS_310_FLYER;
-    else
-    {
-        SetHas310Flyer(false);
-        SpellInfo const* spellInfo;
-        for (PlayerSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
-        {
-            if (itr->first == excludeSpellId)
-                continue;
-
-            SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(itr->first);
-            for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-            {
-                if (_spell_idx->second->skillId != SKILL_MOUNTS)
-                    break;  // We can break because mount spells belong only to one skillline (at least 310 flyers do)
-
-                spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                        spellInfo->Effects[i].CalcValue() == 310)
-                    {
-                        SetHas310Flyer(true);
-                        return true;
-                    }
-            }
-        }
-    }
-
-    return false;
 }
 
 void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)

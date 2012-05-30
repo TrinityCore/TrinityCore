@@ -312,7 +312,7 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (Player* caster = GetCaster()->ToPlayer())
-                    if (caster->Has310Flyer(false))
+                    if (caster->GetSkillValue(SKILL_RIDING) >= 375)
                         amount = 310;
             }
 
