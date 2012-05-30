@@ -670,7 +670,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
     {
         for(int j = 0; j < ADT_CELLS_PER_GRID; j++)
         {
-            adt_MCNK *cell = cells->getMCNK(i, j);
+            adt_MCNK *cell = adt.cells[i][j];
             if (!cell)
                 continue;
 
