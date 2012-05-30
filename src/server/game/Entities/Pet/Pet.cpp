@@ -870,7 +870,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         else
             scale = 0.4f + float(getLevel() / 100.0f);
 
-        SetFloatValue(OBJECT_FIELD_SCALE_X, scale);
+        SetObjectScale(scale);
     }
 
     // Resistance
