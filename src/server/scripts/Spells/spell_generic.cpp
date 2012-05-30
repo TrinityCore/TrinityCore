@@ -2688,6 +2688,120 @@ public:
     }
 };
 
+enum GenericBandage
+{
+    SPELL_RECENTLY_BANDAGED = 11196,
+};
+
+class spell_gen_bandage : public SpellScriptLoader
+{
+    public:
+        spell_gen_bandage() : SpellScriptLoader("spell_gen_bandage") { }
+
+        class spell_gen_bandage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_bandage_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RECENTLY_BANDAGED))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (target->HasAura(SPELL_RECENTLY_BANDAGED))
+                        return SPELL_FAILED_TARGET_AURASTATE;
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void HandleScript()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_RECENTLY_BANDAGED, true);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_bandage_SpellScript::CheckCast);
+                AfterHit += SpellHitFn(spell_gen_bandage_SpellScript::HandleScript);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_bandage_SpellScript();
+        }
+};
+
+enum GenericLifebloom
+{
+    SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL        = 43422,
+    SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL              = 52552,
+    SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL           = 53692,
+    SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL           = 57763,
+    SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL    = 66094,
+};
+
+class spell_gen_lifebloom : public SpellScriptLoader
+{
+    public:
+        spell_gen_lifebloom(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+
+        class spell_gen_lifebloom_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_lifebloom_AuraScript);
+
+        public:
+            spell_gen_lifebloom_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(_spellId))
+                    return false;
+                return true;
+            }
+
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                // Final heal only on duration end
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                // final heal
+                GetTarget()->CastSpell(GetTarget(), _spellId, true, NULL, aurEff, GetCasterGUID());
+            }
+
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
+            {
+                // final heal
+                if (Unit* target = GetUnitOwner())
+                    target->CastSpell(target, _spellId, true, NULL, GetEffect(EFFECT_0), GetCasterGUID());
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                AfterDispel += AuraDispelFn(spell_gen_lifebloom_AuraScript::HandleDispel);
+            }
+
+        private:
+            uint32 _spellId;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_lifebloom_AuraScript(_spellId);
+        }
+
+    private:
+        uint32 _spellId;
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2742,4 +2856,10 @@ void AddSC_generic_spell_scripts()
     new spell_gen_count_pct_from_max_hp("spell_gen_default_count_pct_from_max_hp");
     new spell_gen_count_pct_from_max_hp("spell_gen_50pct_count_pct_from_max_hp", 50);
     new spell_gen_despawn_self();
+    new spell_gen_bandage();
+    new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_lifebloom("spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_lifebloom("spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_lifebloom("spell_twisted_visage_lifebloom", SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_lifebloom("spell_faction_champion_dru_lifebloom", SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL);
 }

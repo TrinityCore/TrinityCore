@@ -618,6 +618,34 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
         }
 };
 
+class spell_hun_disengage : public SpellScriptLoader
+{
+    public:
+        spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
+
+        class spell_hun_disengage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_disengage_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (GetCaster()->GetTypeId() == TYPEID_PLAYER && !GetCaster()->isInCombat())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_hun_disengage_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_disengage_SpellScript();
+        }
+};
 
 void AddSC_hunter_spell_scripts()
 {
@@ -633,4 +661,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_pet_carrion_feeder();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
+    new spell_hun_disengage();
 }
