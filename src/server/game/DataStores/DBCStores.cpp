@@ -1006,6 +1006,14 @@ std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
     return &itr->second;
 }
 
+uint32 GetLiquidFlags(uint32 liquidType)
+{
+    if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
+        return 1 << liq->Type;
+
+    return 0;
+}
+
 uint32 ScalingStatValuesEntry::GetStatMultiplier(uint32 inventoryType) const
 {
     if (inventoryType < MAX_INVTYPE)

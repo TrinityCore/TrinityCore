@@ -345,7 +345,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
     /*----------------------*/
 
     /* process position-change */
-    WorldPacket data(SMSG_PLAYER_MOVE, recv_data.size());
+    WorldPacket data(SMSG_PLAYER_MOVE, recvData.size());
     movementInfo.time = getMSTime();
     movementInfo.guid = mover->GetGUID();
     WriteMovementInfo(data, &movementInfo);
@@ -824,7 +824,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
        HavePitch = (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)))
        || (mi->flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING),
        HaveFallData = mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_TURNING),
-       HaveFallDirection = mi->HasMovementFlag(MOVEMENTFLAG_JUMPING),
+       HaveFallDirection = mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
        HaveSplineElevation = mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION),
        HaveSpline = false;
 

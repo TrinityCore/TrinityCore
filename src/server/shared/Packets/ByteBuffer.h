@@ -416,14 +416,14 @@ class ByteBuffer
         uint8& operator[](size_t const pos)
         {
             if (pos >= size())
-                throw ByteBufferException(false, pos, 1, size());
+                throw ByteBufferPositionException(false, pos, 1, size());
             return _storage[pos];
         }
 
         uint8 const& operator[](size_t const pos) const
         {
             if (pos >= size())
-                throw ByteBufferException(false, pos, 1, size());
+                throw ByteBufferPositionException(false, pos, 1, size());
             return _storage[pos];
         }
 
