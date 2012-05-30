@@ -3300,6 +3300,15 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(2, unitTarget);
                 }
             }
+            // Heroic Strike
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x64)
+            {
+                // only rank 10+ gives the bonus damage
+                if (m_spellInfo->BaseLevel >= 66)
+                    // check for daze
+                    if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
+                        spell_bonus += (m_spellInfo->Effects[EFFECT_0].CalcValue() * 0.35);
+            }
             break;
         }
         case SPELLFAMILY_ROGUE:
