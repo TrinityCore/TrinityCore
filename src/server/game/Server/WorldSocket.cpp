@@ -858,19 +858,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt->setString(0, account);
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
-        "sessionkey, "              //1
-        "last_ip, "                 //2
-        "locked, "                  //3
-        "v, "                       //4
-        "s, "                       //5
-        "expansion, "               //6
-        "mutetime, "                //7
-        "locale, "                  //8
-        "recruiter, "               //9
-        "os "
-        "FROM account "
-        "WHERE username = '%s'",
-        safe_account.c_str());
 
     // Stop if the account is not found
     if (!result)

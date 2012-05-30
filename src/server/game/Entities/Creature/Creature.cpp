@@ -2474,7 +2474,7 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
     if (!movespline->Initialized())
         return true;
 
-    WorldPacket data(disable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
+    WorldPacket data(disable ? SMSG_MOVE_SPLINE_DISABLE_GRAVITY : SMSG_MOVE_SPLINE_ENABLE_GRAVITY, 9);
     data.append(GetPackGUID());
     SendMessageToSet(&data, false);
     return true;
@@ -2495,7 +2495,7 @@ bool Creature::SetHover(bool enable)
         return true;
 
     //! Not always a packet is sent
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_HOVER : SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
+    WorldPacket data(enable ? SMSG_MOVE_SPLINE_SET_HOVER : SMSG_MOVE_SPLINE_UNSET_HOVER, 9);
     data.append(GetPackGUID());
     SendMessageToSet(&data, false);
     return true;

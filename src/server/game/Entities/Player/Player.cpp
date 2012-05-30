@@ -19081,7 +19081,7 @@ void Player::_SaveActions(SQLTransaction& trans)
             case ACTIONBUTTON_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
                 stmt->setUInt32(0, GetGUIDLow());
-                stmt->setUInt8(1, m_activeSpec);
+                stmt->setUInt8(1, GetActiveSpec());
                 stmt->setUInt8(2, itr->first);
                 stmt->setUInt32(3, itr->second.GetAction());
                 stmt->setUInt8(4, uint8(itr->second.GetType()));
@@ -19096,7 +19096,7 @@ void Player::_SaveActions(SQLTransaction& trans)
                 stmt->setUInt8(1, uint8(itr->second.GetType()));
                 stmt->setUInt32(2,  GetGUIDLow());
                 stmt->setUInt8(3, itr->first);
-                stmt->setUInt8(4, m_activeSpec);
+                stmt->setUInt8(4, GetActiveSpec());
                 trans->Append(stmt);
 
                 itr->second.uState = ACTIONBUTTON_UNCHANGED;
@@ -19106,7 +19106,7 @@ void Player::_SaveActions(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_BY_BUTTON_SPEC);
                 stmt->setUInt32(0, GetGUIDLow());
                 stmt->setUInt8(1, itr->first);
-                stmt->setUInt8(2, m_activeSpec);
+                stmt->setUInt8(2, GetActiveSpec());
                 trans->Append(stmt);
 
                 m_actionButtons.erase(itr++);
@@ -19646,6 +19646,7 @@ void Player::_SaveStats(SQLTransaction& trans)
     stmt->setUInt32(index++, GetGUIDLow());
     stmt->setUInt32(index++, GetMaxHealth());
 
+    for (uint8 i = 0; i < MAX_STORED_POWERS; ++i)
         stmt->setUInt32(index++, GetMaxPower(Powers(i)));
 
     for (uint8 i = 0; i < MAX_STATS; ++i)
@@ -25093,7 +25094,7 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
     trans->Append(stmt);
 
 
-    for (uint8 spec = 0; spec < m_specsCount; ++spec)
+    for (uint8 spec = 0; spec < GetSpecsCount(); ++spec)
     {
         uint8 index = 0;
 
@@ -25103,7 +25104,7 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
         stmt->setUInt8(index++, spec);
 
         for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            stmt->setUInt16(index++, uint16(m_Glyphs[spec][i]));
+            stmt->setUInt16(index++, uint16(GetGlyph(spec, i)));
 
         trans->Append(stmt);
     }
@@ -25193,7 +25194,7 @@ void Player::UpdateSpecCount(uint8 count)
         _SaveActions(trans);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_EXCEPT_SPEC);
-        stmt->setUInt8(0, m_activeSpec);
+        stmt->setUInt8(0, GetActiveSpec());
         stmt->setUInt32(1, GetGUIDLow());
         trans->Append(stmt);
 
@@ -25688,8 +25689,8 @@ void Player::SendMovementSetCanFly(bool apply)
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 {
     WorldPacket data(apply ?
-        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY :
-        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
+        SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY :
+        SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
@@ -25697,7 +25698,7 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 
 void Player::SendMovementSetHover(bool apply)
 {
-    WorldPacket data(apply ? SMSG_MOVE_SET_HOVER : SMSG_MOVE_UNSET_HOVER, 12);
+    WorldPacket data(apply ? SMSG_MOVE_SET_HOVERING : SMSG_MOVE_SPLINE_UNSET_HOVER, 12);
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
@@ -25705,7 +25706,7 @@ void Player::SendMovementSetHover(bool apply)
 
 void Player::SendMovementSetWaterWalking(bool apply)
 {
-    WorldPacket data(apply ? SMSG_MOVE_WATER_WALK : SMSG_MOVE_LAND_WALK, 12);
+    WorldPacket data(apply ? SMSG_MOVE_SET_WATER_WALK : SMSG_MOVE_SET_LAND_WALK, 12);
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
@@ -25713,7 +25714,7 @@ void Player::SendMovementSetWaterWalking(bool apply)
 
 void Player::SendMovementSetFeatherFall(bool apply)
 {
-    WorldPacket data(apply ? SMSG_MOVE_FEATHER_FALL : SMSG_MOVE_NORMAL_FALL, 12);
+    WorldPacket data(apply ? SMSG_MOVE_SET_FEATHER_FALL : SMSG_MOVE_SET_NORMAL_FALL, 12);
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);

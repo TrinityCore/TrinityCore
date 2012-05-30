@@ -153,10 +153,10 @@ void ArenaTeamMgr::DistributeArenaPoints()
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt;
-
     // Cycle that gives points to all players
 	/*
+	PreparedStatement* stmt;
+
     for (std::map<uint32, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
     {
         // Add points to player if online
