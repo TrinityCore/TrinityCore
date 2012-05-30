@@ -1,3 +1,4 @@
+/* Added to YTDB 622
 -- Correct Quest chaining and requirements up until the quest "Crusader's Pinnacle", when the Argent Base in the pinnacle phases in
 UPDATE `quest_template` SET `PrevQuestId`=13036, `NextQuestId`=13044, `ExclusiveGroup`=-13008 WHERE `id`=13008; -- Scourge Tactics
 UPDATE `quest_template` SET `PrevQuestId`=13036, `NextQuestId`=13044, `ExclusiveGroup`=-13008 WHERE `id`=13039; -- Defending The Vanguard
@@ -18,3 +19,4 @@ UPDATE `quest_template` SET `PrevQuestId`=13104, `NextQuestId`=13139, `Exclusive
 UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=13141, `ExclusiveGroup`=0, `NextQuestIdChain`=13141 WHERE `id`=13139; -- Into The Cold Heart Of Northrend
 UPDATE `quest_template` SET `PrevQuestId`=13139, `NextQuestId`=13157, `ExclusiveGroup`=0, `NextQuestIdChain`=13157 WHERE `id`=13141; -- The Battle For Crusader`s Pinnacle
 UPDATE `quest_template` SET `PrevQuestId`=13141, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13135; -- The Crusader's Pinnacle
+*/
