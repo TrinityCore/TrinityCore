@@ -1534,6 +1534,27 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_CALL_SCRIPT_RESET:
             OnReset();
             break;
+        case SMART_ACTION_SET_RANGED_MOVEMENT:
+        {
+            if (!IsSmart())
+                break;
+
+            float attackDistance = (float)e.action.setRangedMovement.distance;
+            float attackAngle = e.action.setRangedMovement.angle / 180.0f * M_PI;
+
+            ObjectList* targets = GetTargets(e, unit);
+            if (targets)
+            {
+                for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                    if (Creature* target = (*itr)->ToCreature())
+                        if (IsSmart(target) && target->getVictim())
+                            if (CAST_AI(SmartAI, target->AI())->CanCombatMove())
+                                target->GetMotionMaster()->MoveChase(target->getVictim(), attackDistance, attackAngle);
+
+                delete targets;
+            }
+            break;
+        }
         case SMART_ACTION_CALL_TIMED_ACTIONLIST:
         {
             if (e.GetTargetType() == SMART_TARGET_NONE)

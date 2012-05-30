@@ -89,7 +89,7 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
     WorldObject::_Create(guidlow, HIGHGUID_CORPSE, owner->GetPhaseMask());
 
-    SetFloatValue(OBJECT_FIELD_SCALE_X, 1);
+    SetObjectScale(1);
     SetUInt64Value(CORPSE_FIELD_OWNER, owner->GetGUID());
 
     _gridCoord = Trinity::ComputeGridCoord(GetPositionX(), GetPositionY());

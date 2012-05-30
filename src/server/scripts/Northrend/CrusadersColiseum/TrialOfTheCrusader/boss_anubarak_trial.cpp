@@ -615,7 +615,7 @@ class mob_frost_sphere : public CreatureScript
                         me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                         DoCast(SPELL_PERMAFROST_VISUAL);
                         DoCast(SPELL_PERMAFROST);
-                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                        me->SetObjectScale(2.0f);
                         break;
                 }
             }
