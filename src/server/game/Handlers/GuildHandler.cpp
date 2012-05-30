@@ -134,13 +134,13 @@ void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
     ByteBuffer bytes(8, true);
     
     recvPacket.ReadXorByte(mask[0], bytes[7]);
-    recvPacket.ReadXorByte(mask[5], bytes[4]);
-    recvPacket.ReadXorByte(mask[4], bytes[5]);
-    recvPacket.ReadXorByte(mask[7], bytes[0]);
-    recvPacket.ReadXorByte(mask[3], bytes[1]);
-    recvPacket.ReadXorByte(mask[2], bytes[2]);
-    recvPacket.ReadXorByte(mask[1], bytes[6]);
-    recvPacket.ReadXorByte(mask[6], bytes[3]);
+    recvPacket.ReadXorByte(mask[3], bytes[5]);
+    recvPacket.ReadXorByte(mask[4], bytes[4]);
+    recvPacket.ReadXorByte(mask[5], bytes[0]);
+    recvPacket.ReadXorByte(mask[6], bytes[1]);
+    recvPacket.ReadXorByte(mask[1], bytes[2]);
+    recvPacket.ReadXorByte(mask[2], bytes[6]);
+    recvPacket.ReadXorByte(mask[7], bytes[3]);
 
     uint64 guildGuid = BitConverter::ToUInt64(bytes);
 
@@ -576,7 +576,7 @@ void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recv_data)
         guild->SendBankTabText(this, tabId);
 }
 
-void WorldSession::HandleSetGuildBankTabText(WorldPacket &recv_data)
+void WorldSession::HandleSetGuildBankTabText(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_GUILD_BANK_TEXT");
 
@@ -588,4 +588,28 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket &recv_data)
 
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SetBankTabText(tabId, text);
+}
+
+void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recv_data)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_GUILD_XP");
+    /*
+    Bitstream is correct, it just needs a proper guild implementation
+    uint64 playerGuid = 0;
+
+    BitStream mask = recv_data.ReadBitStream(8);
+
+    ByteBuffer bytes(8, true);
+
+    recv_data.ReadXorByte(mask[5], bytes[6]);
+    recv_data.ReadXorByte(mask[1], bytes[2]);
+    recv_data.ReadXorByte(mask[7], bytes[1]);
+    recv_data.ReadXorByte(mask[4], bytes[4]);
+    recv_data.ReadXorByte(mask[0], bytes[0]);
+    recv_data.ReadXorByte(mask[6], bytes[3]);
+    recv_data.ReadXorByte(mask[3], bytes[5]);
+    recv_data.ReadXorByte(mask[2], bytes[7]);
+
+    playerGuid = BitConverter::ToUInt64(bytes);
+    */
 }
