@@ -63,7 +63,7 @@ public:
 
     struct mob_doom_blossomAI : public ScriptedAI
     {
-        mob_doom_blossomAI(Creature* c) : ScriptedAI(c) {}
+        mob_doom_blossomAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
@@ -112,9 +112,11 @@ public:
             return;
         }
 
-        void SetTeronGUID(uint64 guid){ TeronGUID = guid; }
+        void SetTeronGUID(uint64 guid)
+        {
+            TeronGUID = guid;
+        }
     };
-
 };
 
 class mob_shadowy_construct : public CreatureScript
@@ -129,7 +131,7 @@ public:
 
     struct mob_shadowy_constructAI : public ScriptedAI
     {
-        mob_shadowy_constructAI(Creature* c) : ScriptedAI(c) {}
+        mob_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 GhostGUID;
         uint64 TeronGUID;
@@ -173,7 +175,7 @@ public:
             std::list<Unit*> targets;
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->isAlive())
                     targets.push_back(unit);
             }
@@ -219,9 +221,9 @@ public:
 
     struct boss_teron_gorefiendAI : public ScriptedAI
     {
-        boss_teron_gorefiendAI(Creature* c) : ScriptedAI(c)
+        boss_teron_gorefiendAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -291,7 +293,7 @@ public:
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
@@ -316,13 +318,14 @@ public:
 
         void SetThreatList(Creature* Blossom)
         {
-            if (!Blossom) return;
+            if (!Blossom)
+                return;
 
             std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && unit->isAlive())
                 {
                     float threat = DoGetThreat(unit);
@@ -342,7 +345,7 @@ public:
 
             Unit* Ghost = NULL;
             if (GhostGUID)
-                Ghost = Unit::GetUnit((*me), GhostGUID);
+                Ghost = Unit::GetUnit(*me, GhostGUID);
             if (Ghost && Ghost->isAlive() && Ghost->HasAura(SPELL_SHADOW_OF_DEATH))
             {
                 /*float x, y, z;
@@ -389,7 +392,7 @@ public:
                     Done = true;
                     if (AggroTargetGUID)
                     {
-                        Unit* unit = Unit::GetUnit((*me), AggroTargetGUID);
+                        Unit* unit = Unit::GetUnit(*me, AggroTargetGUID);
                         if (unit)
                             AttackStart(unit);
 

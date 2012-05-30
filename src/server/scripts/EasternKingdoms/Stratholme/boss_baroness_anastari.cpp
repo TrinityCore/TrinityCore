@@ -43,7 +43,7 @@ public:
 
     struct boss_baroness_anastariAI : public ScriptedAI
     {
-        boss_baroness_anastariAI(Creature* c) : ScriptedAI(c)
+        boss_baroness_anastariAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
         }
@@ -67,7 +67,7 @@ public:
         {
         }
 
-         void JustDied(Unit* /*Killer*/)
+         void JustDied(Unit* /*killer*/)
          {
              if (instance)
                  instance->SetData(TYPE_BARONESS, IN_PROGRESS);

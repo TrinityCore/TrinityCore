@@ -53,7 +53,7 @@ public:
 
     struct boss_pandemoniusAI : public ScriptedAI
     {
-        boss_pandemoniusAI(Creature* c) : ScriptedAI(c)
+        boss_pandemoniusAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -68,7 +68,7 @@ public:
             VoidBlast_Counter = 0;
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
         }

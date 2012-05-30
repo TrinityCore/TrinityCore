@@ -28,11 +28,12 @@ npc_a-me
 npc_ringo
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
-enum eAMeData
+enum AmeData
 {
     SAY_READY               = -1000517,
     SAY_AGGRO1              = -1000518,
@@ -74,45 +75,42 @@ public:
 
     struct npc_ameAI : public npc_escortAI
     {
-        npc_ameAI(Creature* c) : npc_escortAI(c) {}
+        npc_ameAI(Creature* creature) : npc_escortAI(creature) {}
 
-        uint32 DEMORALIZINGSHOUT_Timer;
+        uint32 DemoralizingShoutTimer;
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            Player* player = GetPlayerForEscort();
-
-            if (!player)
-                return;
-
-            switch (i)
+            if (Player* player = GetPlayerForEscort())
             {
-                case 19:
-                    me->SummonCreature(ENTRY_STOMPER, -6391.69f, -1730.49f, -272.83f, 4.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    DoScriptText(SAY_AGGRO1, me, player);
-                    break;
-                case 28:
-                    DoScriptText(SAY_SEARCH, me, player);
-                    break;
-                case 38:
-                    me->SummonCreature(ENTRY_TARLORD, -6370.75f, -1382.84f, -270.51f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    DoScriptText(SAY_AGGRO2, me, player);
-                    break;
-                case 49:
-                    me->SummonCreature(ENTRY_TARLORD1, -6324.44f, -1181.05f, -270.17f, 4.34f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    DoScriptText(SAY_AGGRO3, me, player);
-                    break;
-                case 55:
-                    DoScriptText(SAY_FINISH, me, player);
-                    if (player)
+                switch (waypointId)
+                {
+                    case 19:
+                        me->SummonCreature(ENTRY_STOMPER, -6391.69f, -1730.49f, -272.83f, 4.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        DoScriptText(SAY_AGGRO1, me, player);
+                        break;
+                    case 28:
+                        DoScriptText(SAY_SEARCH, me, player);
+                        break;
+                    case 38:
+                        me->SummonCreature(ENTRY_TARLORD, -6370.75f, -1382.84f, -270.51f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        DoScriptText(SAY_AGGRO2, me, player);
+                        break;
+                    case 49:
+                        me->SummonCreature(ENTRY_TARLORD1, -6324.44f, -1181.05f, -270.17f, 4.34f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                        DoScriptText(SAY_AGGRO3, me, player);
+                        break;
+                    case 55:
+                        DoScriptText(SAY_FINISH, me, player);
                         player->GroupEventHappens(QUEST_CHASING_AME, me);
-                    break;
+                        break;
+                }
             }
         }
 
         void Reset()
         {
-            DEMORALIZINGSHOUT_Timer = 5000;
+            DemoralizingShoutTimer = 5000;
         }
 
         void JustSummoned(Creature* summoned)
@@ -132,11 +130,11 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (DEMORALIZINGSHOUT_Timer <= diff)
+            if (DemoralizingShoutTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_DEMORALIZINGSHOUT);
-                DEMORALIZINGSHOUT_Timer = 70000;
-            } else DEMORALIZINGSHOUT_Timer -= diff;
+                DemoralizingShoutTimer = 70000;
+            } else DemoralizingShoutTimer -= diff;
         }
     };
 };
@@ -145,7 +143,7 @@ public:
 # npc_ringo
 ####*/
 
-enum eRingo
+enum Ringo
 {
     SAY_RIN_START_1             = -1000416,
     SAY_RIN_START_2             = -1000417,
@@ -203,17 +201,17 @@ public:
     {
         npc_ringoAI(Creature* creature) : FollowerAI(creature) { }
 
-        uint32 m_uiFaintTimer;
-        uint32 m_uiEndEventProgress;
-        uint32 m_uiEndEventTimer;
+        uint32 FaintTimer;
+        uint32 EndEventProgress;
+        uint32 EndEventTimer;
 
         uint64 SpraggleGUID;
 
         void Reset()
         {
-            m_uiFaintTimer = urand(30000, 60000);
-            m_uiEndEventProgress = 0;
-            m_uiEndEventTimer = 1000;
+            FaintTimer = urand(30000, 60000);
+            EndEventProgress = 0;
+            EndEventTimer = 1000;
             SpraggleGUID = 0;
         }
 
@@ -268,13 +266,13 @@ public:
             SetFollowPaused(false);
         }
 
-        void UpdateFollowerAI(const uint32 uiDiff)
+        void UpdateFollowerAI(const uint32 Diff)
         {
             if (!UpdateVictim())
             {
                 if (HasFollowState(STATE_FOLLOW_POSTEVENT))
                 {
-                    if (m_uiEndEventTimer <= uiDiff)
+                    if (EndEventTimer <= Diff)
                     {
                         Unit* pSpraggle = Unit::GetUnit(*me, SpraggleGUID);
                         if (!pSpraggle || !pSpraggle->isAlive())
@@ -283,64 +281,61 @@ public:
                             return;
                         }
 
-                        switch (m_uiEndEventProgress)
+                        switch (EndEventProgress)
                         {
                             case 1:
                                 DoScriptText(SAY_RIN_END_1, me);
-                                m_uiEndEventTimer = 3000;
+                                EndEventTimer = 3000;
                                 break;
                             case 2:
                                 DoScriptText(SAY_SPR_END_2, pSpraggle);
-                                m_uiEndEventTimer = 5000;
+                                EndEventTimer = 5000;
                                 break;
                             case 3:
                                 DoScriptText(SAY_RIN_END_3, me);
-                                m_uiEndEventTimer = 1000;
+                                EndEventTimer = 1000;
                                 break;
                             case 4:
                                 DoScriptText(EMOTE_RIN_END_4, me);
                                 SetFaint();
-                                m_uiEndEventTimer = 9000;
+                                EndEventTimer = 9000;
                                 break;
                             case 5:
                                 DoScriptText(EMOTE_RIN_END_5, me);
                                 ClearFaint();
-                                m_uiEndEventTimer = 1000;
+                                EndEventTimer = 1000;
                                 break;
                             case 6:
                                 DoScriptText(SAY_RIN_END_6, me);
-                                m_uiEndEventTimer = 3000;
+                                EndEventTimer = 3000;
                                 break;
                             case 7:
                                 DoScriptText(SAY_SPR_END_7, pSpraggle);
-                                m_uiEndEventTimer = 10000;
+                                EndEventTimer = 10000;
                                 break;
                             case 8:
                                 DoScriptText(EMOTE_RIN_END_8, me);
-                                m_uiEndEventTimer = 5000;
+                                EndEventTimer = 5000;
                                 break;
                             case 9:
                                 SetFollowComplete();
                                 break;
                         }
 
-                        ++m_uiEndEventProgress;
+                        ++EndEventProgress;
                     }
                     else
-                        m_uiEndEventTimer -= uiDiff;
+                        EndEventTimer -= Diff;
                 }
-                else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
+                else if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !HasFollowState(STATE_FOLLOW_PAUSED))
                 {
-                    if (!HasFollowState(STATE_FOLLOW_PAUSED))
+                    if (FaintTimer <= Diff)
                     {
-                        if (m_uiFaintTimer <= uiDiff)
-                        {
-                            SetFaint();
-                            m_uiFaintTimer = urand(60000, 120000);
-                        }
-                        else
-                            m_uiFaintTimer -= uiDiff;
+                        SetFaint();
+                        FaintTimer = urand(60000, 120000);
                     }
+                    else
+                        FaintTimer -= Diff;
                 }
 
                 return;

@@ -605,7 +605,7 @@ class SpellMgr
 
     // Accessors (const or static functions)
     public:
-        // Spell correctess for client using
+        // Spell correctness for client using
         static bool IsSpellValid(SpellInfo const* spellInfo, Player* player = NULL, bool msg = true);
 
         // Spell difficulty
@@ -693,7 +693,6 @@ class SpellMgr
     public:
 
         // Loading data at server startup
-        void LoadSpellInfos();
         void LoadSpellRanks();
         void LoadSpellRequired();
         void LoadSpellLearnSkills();

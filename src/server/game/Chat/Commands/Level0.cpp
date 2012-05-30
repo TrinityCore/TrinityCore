@@ -17,10 +17,8 @@
  */
 
 #include "Common.h"
-#include "DatabaseEnv.h"
 #include "World.h"
 #include "Player.h"
-#include "Opcodes.h"
 #include "Chat.h"
 #include "ObjectAccessor.h"
 #include "Language.h"
@@ -54,31 +52,31 @@ bool ChatHandler::HandleCommandsCommand(const char* /*args*/)
 
 bool ChatHandler::HandleStartCommand(const char* /*args*/)
 {
-    Player* chr = m_session->GetPlayer();
+    Player* player = m_session->GetPlayer();
 
-    if (chr->isInFlight())
+    if (player->isInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if (chr->isInCombat())
+    if (player->isInCombat())
     {
         SendSysMessage(LANG_YOU_IN_COMBAT);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if ((chr->isDead()) || (chr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)))
+    if (player->isDead() || player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
     {
-    // if player is dead and stuck, send ghost to graveyard
-    chr->RepopAtGraveyard();
-    return true;
+        // if player is dead and stuck, send ghost to graveyard
+        player->RepopAtGraveyard();
+        return true;
     }
 
     // cast spell Stuck
-    chr->CastSpell(chr, 7355, false);
+    player->CastSpell(player, 7355, false);
     return true;
 }
 
@@ -107,23 +105,25 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
 
 bool ChatHandler::HandleDismountCommand(const char* /*args*/)
 {
+    Player* player = m_session->GetPlayer();
+
     //If player is not mounted, so go out :)
-    if (!m_session->GetPlayer()->IsMounted())
+    if (!player->IsMounted())
     {
         SendSysMessage(LANG_CHAR_NON_MOUNTED);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if (m_session->GetPlayer()->isInFlight())
+    if (player->isInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);
         return false;
     }
 
-    m_session->GetPlayer()->Dismount();
-    m_session->GetPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
+    player->Dismount();
+    player->RemoveAurasByType(SPELL_AURA_MOUNTED);
     return true;
 }
 
@@ -144,7 +144,7 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
 
     // save if the player has last been saved over 20 seconds ago
     uint32 save_interval = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
-    if (save_interval == 0 || (save_interval > 20*IN_MILLISECONDS && player->GetSaveTimer() <= save_interval - 20*IN_MILLISECONDS))
+    if (save_interval == 0 || (save_interval > 20 * IN_MILLISECONDS && player->GetSaveTimer() <= save_interval - 20 * IN_MILLISECONDS))
         player->SaveToDB();
 
     return true;

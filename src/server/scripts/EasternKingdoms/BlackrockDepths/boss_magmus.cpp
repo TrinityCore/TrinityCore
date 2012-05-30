@@ -48,8 +48,8 @@ public:
 
         void Reset()
         {
-            FieryBurst_Timer    = 5000;
-            WarStomp_Timer      = 0;
+            FieryBurst_Timer = 5000;
+            WarStomp_Timer =0;
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -80,9 +80,9 @@ public:
             DoMeleeAttackIfReady();
         }
         // When he die open door to last chamber
-        void JustDied(Unit* who)
+        void JustDied(Unit* killer)
         {
-            if (InstanceScript* instance = who->GetInstanceScript())
+            if (InstanceScript* instance = killer->GetInstanceScript())
                 instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
         }
     };

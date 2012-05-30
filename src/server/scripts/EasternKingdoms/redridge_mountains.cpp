@@ -76,17 +76,16 @@ public:
             uiShieldBashTimer  = 8000;
         }
 
-        void WaypointReached(uint32 uiI)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            if (uiI >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALKING)
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            if (waypointId >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALKING)
+                me->SetWalk(false);
 
-            switch (uiI)
+            switch (waypointId)
             {
                 case 39:
                     SetEscortPaused(true);
@@ -94,7 +93,7 @@ public:
                     uiPhase = 1;
                     break;
                 case 65:
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(false);
                     break;
                 case 115:
                     player->AreaExploredOrEventHappens(QUEST_MISSING_IN_ACTION);
@@ -164,7 +163,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_redridge_mountains()

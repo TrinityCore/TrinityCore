@@ -55,9 +55,9 @@ class boss_mandokir : public CreatureScript
 
         struct boss_mandokirAI : public ScriptedAI
         {
-            boss_mandokirAI(Creature* c) : ScriptedAI(c)
+            boss_mandokirAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             uint32 KillCount;
@@ -72,7 +72,7 @@ class boss_mandokir : public CreatureScript
             float targetY;
             float targetZ;
 
-            InstanceScript* m_instance;
+            InstanceScript* instance;
 
             bool endWatch;
             bool someWatched;
@@ -116,9 +116,9 @@ class boss_mandokir : public CreatureScript
                     {
                         DoScriptText(SAY_DING_KILL, me);
 
-                        if (m_instance)
+                        if (instance)
                         {
-                            uint64 JindoGUID = m_instance->GetData64(DATA_JINDO);
+                            uint64 JindoGUID = instance->GetData64(DATA_JINDO);
                             if (JindoGUID)
                             {
                                 if (Unit* jTemp = Unit::GetUnit(*me, JindoGUID))
@@ -256,9 +256,9 @@ class boss_mandokir : public CreatureScript
                     //Checking if Ohgan is dead. If yes Mandokir will enrage.
                     if (Check_Timer <= diff)
                     {
-                        if (m_instance)
+                        if (instance)
                         {
-                            if (m_instance->GetData(DATA_OHGAN) == DONE)
+                            if (instance->GetData(DATA_OHGAN) == DONE)
                             {
                                 if (!RaptorDead)
                                 {
@@ -294,13 +294,13 @@ class mob_ohgan : public CreatureScript
 
         struct mob_ohganAI : public ScriptedAI
         {
-            mob_ohganAI(Creature* c) : ScriptedAI(c)
+            mob_ohganAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             uint32 SunderArmor_Timer;
-            InstanceScript* m_instance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -309,10 +309,10 @@ class mob_ohgan : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {}
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
-                if (m_instance)
-                    m_instance->SetData(DATA_OHGAN, DONE);
+                if (instance)
+                    instance->SetData(DATA_OHGAN, DONE);
             }
 
             void UpdateAI (const uint32 diff)

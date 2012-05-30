@@ -232,7 +232,7 @@ class ValithriaDespawner : public BasicEvent
             {
                 case NPC_VALITHRIA_DREAMWALKER:
                     if (InstanceScript* instance = creature->GetInstanceScript())
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, creature);
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, creature);
                     break;
                 case NPC_BLAZING_SKELETON:
                 case NPC_SUPPRESSER:
@@ -262,7 +262,7 @@ class ValithriaDespawner : public BasicEvent
 
             if (CreatureData const* data = creature->GetCreatureData())
                 creature->SetPosition(data->posX, data->posY, data->posZ, data->orientation);
-            creature->ForcedDespawn();
+            creature->DespawnOrUnsummon();
 
             creature->SetCorpseDelay(corpseDelay);
             creature->SetRespawnDelay(respawnDelay);
@@ -304,7 +304,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
                 // Glyph of Dispel Magic - not a percent heal by effect, its cast with custom basepoints
                 me->ApplySpellImmune(0, IMMUNITY_ID, 56131, true);
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _missedPortals = 0;
                 _under25PercentTalkDone = false;
                 _over75PercentTalkDone = false;
@@ -322,21 +322,26 @@ class boss_valithria_dreamwalker : public CreatureScript
                     return;
 
                 DoCast(me, SPELL_COPY_DAMAGE);
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 _events.ScheduleEvent(EVENT_INTRO_TALK, 15000);
                 _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));
                 if (IsHeroic())
                     _events.ScheduleEvent(EVENT_BERSERK, 420000);
             }
 
-            void HealReceived(Unit* /*healer*/, uint32& heal)
+            void HealReceived(Unit* healer, uint32& heal)
             {
+                if (!me->hasLootRecipient())
+                    me->SetLootRecipient(healer);
+
+                me->LowerPlayerDamageReq(heal);
+
                 // encounter complete
                 if (me->HealthAbovePctHealed(100, heal) && !_done)
                 {
                     _done = true;
                     Talk(SAY_VALITHRIA_SUCCESS);
-                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
                     DoCastAOE(SPELL_DREAMWALKERS_RAGE);
@@ -371,7 +376,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                         {
                             _justDied = true;
                             Talk(SAY_VALITHRIA_DEATH);
-                            _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
+                            _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                             if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_TRIGGER)))
                                 trigger->AI()->DoAction(ACTION_DEATH);
                         }
@@ -1082,7 +1087,7 @@ class npc_dream_cloud : public CreatureScript
                             me->GetMotionMaster()->MoveIdle();
                             // must use originalCaster the same for all clouds to allow stacking
                             me->CastSpell(me, EMERALD_VIGOR, false, NULL, NULL, _instance->GetData64(DATA_VALITHRIA_DREAMWALKER));
-                            me->ForcedDespawn(100);
+                            me->DespawnOrUnsummon(100);
                             break;
                         default:
                             break;
@@ -1191,7 +1196,7 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                Unit* target = SelectRandomContainerElement(targets);
+                Unit* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -1237,7 +1242,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
                 std::list<Creature*> summoners;
                 GetCreatureListWithEntryInGrid(summoners, caster, NPC_WORLD_TRIGGER, 100.0f);
                 summoners.remove_if (Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
-                Trinity::RandomResizeList(summoners, 2);
+                Trinity::Containers::RandomResizeList(summoners, 2);
                 if (summoners.empty())
                     return;
 

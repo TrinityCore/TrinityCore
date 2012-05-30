@@ -49,11 +49,11 @@ public:
 
         void Reset()
         {
-            ShadowBolt_Timer           = 7000;
-            CurseOfTongues_Timer       = 24000;
-            CurseOfWeakness_Timer      = 12000;
-            DemonArmor_Timer           = 3000;
-            EnvelopingWeb_Timer        = 16000;
+            ShadowBolt_Timer = 7000;
+            CurseOfTongues_Timer = 24000;
+            CurseOfWeakness_Timer = 12000;
+            DemonArmor_Timer = 3000;
+            EnvelopingWeb_Timer = 16000;
         }
 
         void EnterCombat(Unit* /*who*/) {}

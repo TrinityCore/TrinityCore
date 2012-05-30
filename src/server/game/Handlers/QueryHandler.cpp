@@ -33,42 +33,33 @@
 
 void WorldSession::SendNameQueryOpcode(uint64 guid)
 {
-    Player* player = NULL;
-    const CharacterNameData* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
-    if (nameData)
-        player = ObjectAccessor::FindPlayer(guid);
+    Player* player = ObjectAccessor::FindPlayer(guid);
+    CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
 
-                                                            // guess size
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
     data.appendPackGUID(guid);
-    data << uint8(0);                                       // added in 3.1
-    if (nameData)
+    if (!nameData)
     {
-        data << nameData->m_name;                                   // played name
-        data << uint8(0);                                       // realm name for cross realm BG usage
-        data << uint8(nameData->m_race);
-        data << uint8(nameData->m_gender);
-        data << uint8(nameData->m_class);
-    }
-    else
-    {
-        data << std::string(GetTrinityString(LANG_NON_EXIST_CHARACTER));
-        data << uint32(0);
+        data << uint8(1);                           // name unknown
+        SendPacket(&data);
+        return;
     }
 
-    if (player)
+    data << uint8(0);                               // name known
+    data << nameData->m_name;                       // played name
+    data << uint8(0);                               // realm name - only set for cross realm interaction (such as Battlegrounds)
+    data << uint8(nameData->m_race);
+    data << uint8(nameData->m_gender);
+    data << uint8(nameData->m_class);
+
+    if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
     {
-        if (DeclinedName const* names = player->GetDeclinedNames())
-        {
-            data << uint8(1);                                   // is declined
-            for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                data << names->name[i];
-        }
-        else
-            data << uint8(0);                                   // is not declined
+        data << uint8(1);                           // Name is declined
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            data << names->name[i];
     }
-    else //TODO: decline names may also need to be stored in char name data
-        data << uint8(0);
+    else
+        data << uint8(0);                           // Name is not declined
 
     SendPacket(&data);
 }
@@ -76,7 +67,6 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
 void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
 {
     uint64 guid;
-
     recv_data >> guid;
 
     // This is disable by default to prevent lots of console spam

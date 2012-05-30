@@ -55,7 +55,7 @@ void LoadSkillExtraItemTable()
 
     SkillExtraItemStore.clear();                            // need for reload
 
-    //                                                 0        1                       2                       3
+    //                                                  0               1                       2                    3
     QueryResult result = WorldDatabase.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
 
     if (!result)
@@ -138,4 +138,3 @@ bool canCreateExtraItems(Player* player, uint32 spellId, float &additionalChance
     // enable extra item creation
     return true;
 }
-

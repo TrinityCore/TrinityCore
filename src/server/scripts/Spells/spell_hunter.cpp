@@ -137,8 +137,9 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             {
                                 int32 TickCount = aurEff->GetTotalTicks();
                                 spellId = HUNTER_SPELL_CHIMERA_SHOT_SERPENT;
-                                basePoint = caster->SpellDamageBonus(unitTarget, aura->GetSpellInfo(), aurEff->GetAmount(), DOT, aura->GetStackAmount());
+                                basePoint = caster->SpellDamageBonusDone(unitTarget, aura->GetSpellInfo(), aurEff->GetAmount(), DOT, aura->GetStackAmount());
                                 ApplyPctN(basePoint, TickCount * 40);
+                                basePoint = unitTarget->SpellDamageBonusTaken(caster, aura->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
                             }
                             // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
                             else if (familyFlag[1] & 0x00000080)
@@ -286,8 +287,8 @@ class spell_hun_masters_call : public SpellScriptLoader
                     target->CastSpell(target, HUNTER_SPELL_MASTERS_CALL_TRIGGERED, castMask);
                     // there is a possibility that this effect should access effect 0 (dummy) target, but i dubt that
                     // it's more likely that on on retail it's possible to call target selector based on dbc values
-                    // anyways, we're using GetTargetUnit() here and it's ok
-                    if (Unit* ally = GetTargetUnit())
+                    // anyways, we're using GetExplTargetUnit() here and it's ok
+                    if (Unit* ally = GetExplTargetUnit())
                     {
                         target->CastSpell(ally, GetEffectValue(), castMask);
                         target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
@@ -560,6 +561,64 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
         }
 };
 
+// 34477 Misdirection
+class spell_hun_misdirection : public SpellScriptLoader
+{
+    public:
+        spell_hun_misdirection() : SpellScriptLoader("spell_hun_misdirection") { }
+
+        class spell_hun_misdirection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_misdirection_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (!GetDuration())
+                        caster->SetReducedThreatPercent(0, 0);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_misdirection_AuraScript();
+        }
+};
+
+// 35079 Misdirection proc
+class spell_hun_misdirection_proc : public SpellScriptLoader
+{
+    public:
+        spell_hun_misdirection_proc() : SpellScriptLoader("spell_hun_misdirection_proc") { }
+
+        class spell_hun_misdirection_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_misdirection_proc_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster())
+                    GetCaster()->SetReducedThreatPercent(0, 0);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_misdirection_proc_AuraScript();
+        }
+};
+
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -572,4 +631,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_sniper_training();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_pet_carrion_feeder();
+    new spell_hun_misdirection();
+    new spell_hun_misdirection_proc();
 }

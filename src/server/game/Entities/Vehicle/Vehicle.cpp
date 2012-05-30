@@ -146,7 +146,7 @@ void Vehicle::ApplyAllImmunities()
     _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
 
     // Mechanical units & vehicles ( which are not Bosses, they have own immunities in DB ) should be also immune on healing ( exceptions in switch below )
-    if (_me->ToCreature() && _me->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_MECHANICAL && !_me->ToCreature()->isWorldBoss())
+    if (_me->ToCreature() && _me->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && !_me->ToCreature()->isWorldBoss())
     {
         // Heal & dispel ...
         _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
@@ -285,9 +285,6 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         //    return;         // Something went wrong in the spellsystem
         //}
 
-        // This is not good, we have to send update twice
-        accessory->SendMovementFlagUpdate();
-
         if (GetBase()->GetTypeId() == TYPEID_UNIT)
             sScriptMgr->OnInstallAccessory(this, accessory);
     }
@@ -352,6 +349,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     unit->m_movementInfo.t_pos.m_orientation = 0;
     unit->m_movementInfo.t_time = 0; // 1 for player
     unit->m_movementInfo.t_seat = seat->first;
+    unit->m_movementInfo.t_guid = _me->GetGUID();
 
     if (_me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
@@ -424,13 +422,14 @@ void Vehicle::RemovePassenger(Unit* unit)
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
     // only for flyable vehicles
-    if (unit->HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
+    if (unit->IsFlying())
         _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnRemovePassenger(this, unit);
 }
 
+//! Must be called after m_base::Relocate
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
     ASSERT(_me->GetMap());
@@ -440,8 +439,6 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
         if (Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.Passenger))
         {
             ASSERT(passenger->IsInWorld());
-            ASSERT(passenger->IsOnVehicle(GetBase()));
-            ASSERT(GetSeatForPassenger(passenger));
 
             float px = x + passenger->m_movementInfo.t_pos.m_positionX;
             float py = y + passenger->m_movementInfo.t_pos.m_positionY;
@@ -454,11 +451,12 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 
 void Vehicle::Dismiss()
 {
+    if (GetBase()->GetTypeId() != TYPEID_UNIT)
+        return;
+
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Dismiss Entry: %u, GuidLow %u", _creatureEntry, _me->GetGUIDLow());
     Uninstall();
-    _me->DestroyForNearbyPlayers();
-    _me->CombatStop();
-    _me->AddObjectToRemoveList();
+    GetBase()->ToCreature()->DespawnOrUnsummon();
 }
 
 void Vehicle::InitMovementInfoForBase()

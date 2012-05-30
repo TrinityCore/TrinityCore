@@ -128,12 +128,26 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
     else
     {
         rc_team = sObjectMgr->GetPlayerTeamByGUID(rc);
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*) FROM mail WHERE receiver = '%u'", GUID_LOPART(rc)))
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
+
+        stmt->setUInt32(0, GUID_LOPART(rc));
+
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (result)
         {
             Field* fields = result->Fetch();
-            mails_count = fields[0].GetUInt32();
+            mails_count = fields[0].GetUInt64();
         }
-        if (QueryResult result = CharacterDatabase.PQuery("SELECT level FROM characters WHERE guid = '%u'", GUID_LOPART(rc)))
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
+
+        stmt->setUInt32(0, GUID_LOPART(rc));
+
+        result = CharacterDatabase.Query(stmt);
+
+        if (result)
         {
             Field* fields = result->Fetch();
             receiveLevel = fields[0].GetUInt8();
@@ -360,8 +374,15 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
     //we can return mail now
     //so firstly delete the old one
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    trans->PAppend("DELETE FROM mail WHERE id = '%u'", mailId);             // needed?
-    trans->PAppend("DELETE FROM mail_items WHERE mail_id = '%u'", mailId);
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
+    stmt->setUInt32(0, mailId);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
+    stmt->setUInt32(0, mailId);
+    trans->Append(stmt);
+
     player->RemoveMail(mailId);
 
     // only return mail if the player exists (and delete if not existing)
@@ -541,7 +562,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
 
     //load players mails, and mailed items
     if (!player->m_mailsLoaded)
-        player ->_LoadMail();
+        player->_LoadMail();
 
     // client can't work with packets > max int16 value
     const uint32 maxPacketSize = 32767;

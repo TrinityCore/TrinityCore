@@ -28,8 +28,7 @@
 #define MAX_QUIET_DISTANCE 43.0f
 
 template<class T>
-void
-FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
+void FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
 {
     if (!&owner)
         return;
@@ -53,8 +52,7 @@ FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
 }
 
 template<class T>
-bool
-FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
+bool FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
 {
     if (!&owner)
         return false;
@@ -65,8 +63,8 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
 
     float temp_x, temp_y, angle;
     const Map* _map = owner.GetBaseMap();
-    //primitive path-finding
-    for(uint8 i = 0; i < 18; ++i)
+    // primitive path-finding
+    for (uint8 i = 0; i < 18; ++i)
     {
         if (i_only_forward && i > 2)
             break;
@@ -182,13 +180,12 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
         }
     }
     i_to_distance_from_caster = 0.0f;
-    i_nextCheckTime.Reset( urand(500,1000) );
+    i_nextCheckTime.Reset(urand(500,1000));
     return false;
 }
 
 template<class T>
-bool
-FleeingMovementGenerator<T>::_setMoveData(T &owner)
+bool FleeingMovementGenerator<T>::_setMoveData(T &owner)
 {
     float cur_dist_xyz = owner.GetDistance(i_caster_x, i_caster_y, i_caster_z);
 
@@ -201,12 +198,12 @@ FleeingMovementGenerator<T>::_setMoveData(T &owner)
            (i_last_distance_from_caster < i_to_distance_from_caster && cur_dist_xyz > i_to_distance_from_caster)   ||
                                                             // if we reach bigger distance
            (cur_dist_xyz > MAX_QUIET_DISTANCE) ||           // if we are too far
-           (i_last_distance_from_caster > MIN_QUIET_DISTANCE && cur_dist_xyz < MIN_QUIET_DISTANCE) )
+           (i_last_distance_from_caster > MIN_QUIET_DISTANCE && cur_dist_xyz < MIN_QUIET_DISTANCE))
                                                             // if we leave 'quiet zone'
         {
             // we are very far or too close, stopping
             i_to_distance_from_caster = 0.0f;
-            i_nextCheckTime.Reset( urand(500,1000) );
+            i_nextCheckTime.Reset(urand(500,1000));
             return false;
         }
         else
@@ -280,8 +277,7 @@ FleeingMovementGenerator<T>::_setMoveData(T &owner)
 }
 
 template<class T>
-void
-FleeingMovementGenerator<T>::Initialize(T &owner)
+void FleeingMovementGenerator<T>::Initialize(T &owner)
 {
     if (!&owner)
         return;
@@ -312,8 +308,7 @@ FleeingMovementGenerator<T>::Initialize(T &owner)
 }
 
 template<>
-void
-FleeingMovementGenerator<Creature>::_Init(Creature &owner)
+void FleeingMovementGenerator<Creature>::_Init(Creature &owner)
 {
     if (!&owner)
         return;
@@ -324,8 +319,7 @@ FleeingMovementGenerator<Creature>::_Init(Creature &owner)
 }
 
 template<>
-void
-FleeingMovementGenerator<Player>::_Init(Player &)
+void FleeingMovementGenerator<Player>::_Init(Player &)
 {
     is_water_ok = true;
     is_land_ok  = true;
@@ -354,8 +348,7 @@ void FleeingMovementGenerator<T>::Reset(T &owner)
 }
 
 template<class T>
-bool
-FleeingMovementGenerator<T>::Update(T &owner, const uint32 &time_diff)
+bool FleeingMovementGenerator<T>::Update(T &owner, const uint32 &time_diff)
 {
     if (!&owner || !owner.isAlive())
         return false;
@@ -399,7 +392,7 @@ void TimedFleeingMovementGenerator::Finalize(Unit &owner)
     }
 }
 
-bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32 time_diff)
+bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32& time_diff)
 {
     if (!owner.isAlive())
         return false;

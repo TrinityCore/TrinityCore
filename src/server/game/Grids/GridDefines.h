@@ -67,12 +67,12 @@ typedef GridRefManager<Player>          PlayerMapType;
 
 enum GridMapTypeMask
 {
-    GRID_MAP_TYPE_MASK_CORPSE = 0x01,
-    GRID_MAP_TYPE_MASK_CREATURE = 0x02,
-    GRID_MAP_TYPE_MASK_DYNAMICOBJECT = 0x04,
-    GRID_MAP_TYPE_MASK_GAMEOBJECT = 0x08,
-    GRID_MAP_TYPE_MASK_PLAYER = 0x10,
-    GRID_MAP_TYPE_MASK_ALL = 0x1F
+    GRID_MAP_TYPE_MASK_CORPSE           = 0x01,
+    GRID_MAP_TYPE_MASK_CREATURE         = 0x02,
+    GRID_MAP_TYPE_MASK_DYNAMICOBJECT    = 0x04,
+    GRID_MAP_TYPE_MASK_GAMEOBJECT       = 0x08,
+    GRID_MAP_TYPE_MASK_PLAYER           = 0x10,
+    GRID_MAP_TYPE_MASK_ALL              = 0x1F
 };
 
 typedef Grid<Player, AllWorldObjectTypes, AllGridObjectTypes> GridType;
@@ -172,14 +172,14 @@ typedef CoordPair<TOTAL_NUMBER_OF_CELLS_PER_MAP> CellCoord;
 namespace Trinity
 {
     template<class RET_TYPE, int CENTER_VAL>
-        inline RET_TYPE Compute(float x, float y, float center_offset, float size)
+    inline RET_TYPE Compute(float x, float y, float center_offset, float size)
     {
         // calculate and store temporary values in double format for having same result as same mySQL calculations
         double x_offset = (double(x) - center_offset)/size;
         double y_offset = (double(y) - center_offset)/size;
 
-        int x_val = int(x_offset+CENTER_VAL + 0.5f);
-        int y_val = int(y_offset+CENTER_VAL + 0.5f);
+        int x_val = int(x_offset + CENTER_VAL + 0.5f);
+        int y_val = int(y_offset + CENTER_VAL + 0.5f);
         return RET_TYPE(x_val, y_val);
     }
 

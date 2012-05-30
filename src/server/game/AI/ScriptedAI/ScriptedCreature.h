@@ -38,12 +38,39 @@ class SummonList : public std::list<uint64>
         void Despawn(Creature* summon) { remove(summon->GetGUID()); }
         void DespawnEntry(uint32 entry);
         void DespawnAll();
-        void DoAction(uint32 entry, int32 info);
+
+        template <class Predicate> void DoAction(int32 info, Predicate& predicate, uint16 max = 0)
+        {
+            Trinity::Containers::RandomResizeList<uint64, Predicate>(*this, predicate, max);
+            for (iterator i = begin(); i != end(); )
+            {
+                Creature* summon = Unit::GetCreature(*me, *i++);
+                if (summon && summon->IsAIEnabled)
+                    summon->AI()->DoAction(info);
+            }
+        }
+
         void DoZoneInCombat(uint32 entry = 0);
         void RemoveNotExisting();
         bool HasEntry(uint32 entry);
     private:
         Creature* me;
+};
+
+class EntryCheckPredicate
+{
+    public:
+        EntryCheckPredicate(uint32 entry) : _entry(entry) {}
+        bool operator()(uint64 guid) { return GUID_ENPART(guid) == _entry; }
+
+    private:
+        uint32 _entry;
+};
+
+class DummyEntryCheckPredicate
+{
+    public:
+        bool operator()(uint64) { return true; }
 };
 
 struct ScriptedAI : public CreatureAI

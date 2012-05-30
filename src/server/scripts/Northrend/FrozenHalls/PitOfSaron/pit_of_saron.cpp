@@ -25,9 +25,6 @@ enum eSpells
     SPELL_HELLFIRE              = 69586,
     SPELL_TACTICAL_BLINK        = 69584,
     SPELL_FROST_BREATH          = 69527, //Iceborn Proto-Drake
-    SPELL_BLINDING_DIRT         = 70302, //Wrathbone Laborer
-    SPELL_PUNCTURE_WOUND        = 70278,
-    SPELL_SHOVELLED             = 69572,
     SPELL_LEAPING_FACE_MAUL     = 69504, // Geist Ambusher
 };
 
@@ -36,11 +33,6 @@ enum eEvents
     // Ymirjar Flamebearer
     EVENT_FIREBALL              = 1,
     EVENT_TACTICAL_BLINK        = 2,
-
-    //Wrathbone Laborer
-    EVENT_BLINDING_DIRT         = 3,
-    EVENT_PUNCTURE_WOUND        = 4,
-    EVENT_SHOVELLED             = 5,
 };
 
 class mob_ymirjar_flamebearer : public CreatureScript
@@ -157,73 +149,6 @@ class mob_iceborn_protodrake : public CreatureScript
         }
 };
 
-class mob_wrathbone_laborer : public CreatureScript
-{
-    public:
-        mob_wrathbone_laborer() : CreatureScript("mob_wrathbone_laborer") { }
-
-        struct mob_wrathbone_laborerAI: public ScriptedAI
-        {
-            mob_wrathbone_laborerAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
-
-            void Reset()
-            {
-                _events.Reset();
-            }
-
-            void EnterCombat(Unit* /*who*/)
-            {
-                _events.ScheduleEvent(EVENT_BLINDING_DIRT, 8000);
-                _events.ScheduleEvent(EVENT_PUNCTURE_WOUND, 9000);
-                _events.ScheduleEvent(EVENT_SHOVELLED, 5000);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_BLINDING_DIRT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))
-                                DoCast(target, SPELL_BLINDING_DIRT);
-                            _events.RescheduleEvent(EVENT_BLINDING_DIRT, 10000);
-                            return;
-                        case EVENT_PUNCTURE_WOUND:
-                            DoCastVictim(SPELL_PUNCTURE_WOUND);
-                            _events.RescheduleEvent(EVENT_PUNCTURE_WOUND, 9000);
-                            return;
-                        case EVENT_SHOVELLED:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -5.0f))
-                                DoCast(target, SPELL_SHOVELLED);
-                            _events.RescheduleEvent(EVENT_SHOVELLED, 7000);
-                            return;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_wrathbone_laborerAI(creature);
-        }
-};
-
 class mob_geist_ambusher : public CreatureScript
 {
     public:
@@ -240,12 +165,13 @@ class mob_geist_ambusher : public CreatureScript
                 _leapingFaceMaulCooldown = 9000;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void EnterCombat(Unit* who)
             {
                 if (who->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (me->IsWithinDistInMap(who, 30.0f))
+                // the max range is determined by aggro range
+                if (me->GetDistance(who) > 5.0f)
                     DoCast(who, SPELL_LEAPING_FACE_MAUL);
             }
 
@@ -309,7 +235,6 @@ class spell_trash_mob_glacial_strike : public SpellScriptLoader
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
-    new mob_wrathbone_laborer();
     new mob_iceborn_protodrake();
     new mob_geist_ambusher();
     new spell_trash_mob_glacial_strike();

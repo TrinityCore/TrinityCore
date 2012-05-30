@@ -52,16 +52,16 @@ class npc_henry_stern : public CreatureScript
 public:
     npc_henry_stern() : CreatureScript("npc_henry_stern") { }
 
-    bool OnGossipSelect (Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CastSpell(player, SPELL_TEACHING_GOLDTHORN_TEA, true);
             player->SEND_GOSSIP_MENU(GOSSIP_TEXT_TEA_ANSWER, creature->GetGUID());
         }
 
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
+        if (action == GOSSIP_ACTION_INFO_DEF + 2)
         {
             player->CastSpell(player, SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION, true);
             player->SEND_GOSSIP_MENU(GOSSIP_TEXT_POTION_ANSWER, creature->GetGUID());
@@ -70,7 +70,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello (Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (player->GetBaseSkillValue(SKILL_COOKING) >= 175 && !player->HasSpell(SPELL_GOLDTHORN_TEA))
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -81,7 +81,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -93,10 +92,10 @@ class go_gong : public GameObjectScript
 public:
     go_gong() : GameObjectScript("go_gong") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGO)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         //basic support, not blizzlike data is missing...
-        InstanceScript* instance = pGO->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
         if (instance)
         {

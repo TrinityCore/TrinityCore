@@ -122,7 +122,7 @@ public:
 
     struct mob_blood_elf_council_voice_triggerAI : public ScriptedAI
     {
-        mob_blood_elf_council_voice_triggerAI(Creature* c) : ScriptedAI(c)
+        mob_blood_elf_council_voice_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
             for (uint8 i = 0; i < 4; ++i)
                 Council[i] = 0;
@@ -217,9 +217,9 @@ public:
 
     struct mob_illidari_councilAI : public ScriptedAI
     {
-        mob_illidari_councilAI(Creature* c) : ScriptedAI(c)
+        mob_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             for (uint8 i = 0; i < 4; ++i)
                 Council[i] = 0;
         }
@@ -299,7 +299,7 @@ public:
                     Unit* Member = NULL;
                     if (Council[i])
                     {
-                        Member = Unit::GetUnit((*me), Council[i]);
+                        Member = Unit::GetUnit(*me, Council[i]);
                         if (Member && Member->isAlive())
                             CAST_CRE(Member)->AI()->AttackStart(target);
                     }
@@ -313,7 +313,8 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!EventBegun) return;
+            if (!EventBegun)
+                return;
 
             if (EndEventTimer)
             {
@@ -378,9 +379,9 @@ public:
 
 struct boss_illidari_councilAI : public ScriptedAI
 {
-    boss_illidari_councilAI(Creature* c) : ScriptedAI(c)
+    boss_illidari_councilAI(Creature* creature) : ScriptedAI(creature)
     {
-        instance = c->GetInstanceScript();
+        instance = creature->GetInstanceScript();
         for (uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
         LoadedGUIDs = false;
@@ -475,7 +476,7 @@ public:
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
     {
-        boss_gathios_the_shattererAI(Creature* c) : boss_illidari_councilAI(c) {}
+        boss_gathios_the_shattererAI(Creature* creature) : boss_illidari_councilAI(creature) {}
 
         uint32 ConsecrationTimer;
         uint32 HammerOfJusticeTimer;
@@ -497,7 +498,7 @@ public:
             DoScriptText(SAY_GATH_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_GATH_DEATH, me);
         }
@@ -511,7 +512,7 @@ public:
                 member = urand(1, 3);
 
             if (member != 2)                                     // No need to create another pointer to us using Unit::GetUnit
-                unit = Unit::GetUnit((*me), Council[member]);
+                unit = Unit::GetUnit(*me, Council[member]);
             return unit;
         }
 
@@ -525,7 +526,7 @@ public:
             }
             for (uint8 i = 0; i < 4; ++i)
             {
-                Unit* unit = Unit::GetUnit((*me), Council[i]);
+                Unit* unit = Unit::GetUnit(*me, Council[i]);
                 if (unit)
                     unit->CastSpell(unit, spellid, true, 0, 0, me->GetGUID());
             }
@@ -542,8 +543,13 @@ public:
                 {
                     switch (urand(0, 1))
                     {
-                        case 0: DoCast(unit, SPELL_BLESS_SPELLWARD);  break;
-                        case 1: DoCast(unit, SPELL_BLESS_PROTECTION); break;
+                        case 0:
+                            DoCast(unit, SPELL_BLESS_SPELLWARD);
+                            break;
+
+                        case 1:
+                            DoCast(unit, SPELL_BLESS_PROTECTION);
+                            break;
                     }
                 }
                 BlessingTimer = 60000;
@@ -602,7 +608,7 @@ public:
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
     {
-        boss_high_nethermancer_zerevorAI(Creature* c) : boss_illidari_councilAI(c) {}
+        boss_high_nethermancer_zerevorAI(Creature* creature) : boss_illidari_councilAI(creature) {}
 
         uint32 BlizzardTimer;
         uint32 FlamestrikeTimer;
@@ -626,7 +632,7 @@ public:
             DoScriptText(SAY_ZERE_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_ZERE_DEATH, me);
         }
@@ -706,7 +712,7 @@ public:
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
     {
-        boss_lady_malandeAI(Creature* c) : boss_illidari_councilAI(c) {}
+        boss_lady_malandeAI(Creature* creature) : boss_illidari_councilAI(creature) {}
 
         uint32 EmpoweredSmiteTimer;
         uint32 CircleOfHealingTimer;
@@ -726,7 +732,7 @@ public:
             DoScriptText(SAY_MALA_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_MALA_DEATH, me);
         }
@@ -784,7 +790,7 @@ public:
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
     {
-        boss_veras_darkshadowAI(Creature* c) : boss_illidari_councilAI(c) {}
+        boss_veras_darkshadowAI(Creature* creature) : boss_illidari_councilAI(creature) {}
 
         uint64 EnvenomTargetGUID;
 
@@ -812,7 +818,7 @@ public:
             DoScriptText(SAY_VERA_SLAY, me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_VERA_DEATH, me);
         }

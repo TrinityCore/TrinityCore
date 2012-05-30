@@ -28,14 +28,16 @@ mob_webbed_creature
 npc_captured_sunhawk_agent
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## mob_webbed_creature
 ######*/
 
 //possible creatures to be spawned
-const uint32 possibleSpawns[32] = {17322, 17661, 17496, 17522, 17340, 17352, 17333, 17524, 17654, 17348, 17339, 17345, 17359, 17353, 17336, 17550, 17330, 17701, 17321, 17680, 17325, 17320, 17683, 17342, 17715, 17334, 17341, 17338, 17337, 17346, 17344, 17327};
+uint32 const possibleSpawns[32] = {17322, 17661, 17496, 17522, 17340, 17352, 17333, 17524, 17654, 17348, 17339, 17345, 17359, 17353, 17336, 17550, 17330, 17701, 17321, 17680, 17325, 17320, 17683, 17342, 17715, 17334, 17341, 17338, 17337, 17346, 17344, 17327};
 
 class mob_webbed_creature : public CreatureScript
 {
@@ -49,17 +51,13 @@ public:
 
     struct mob_webbed_creatureAI : public ScriptedAI
     {
-        mob_webbed_creatureAI(Creature* c) : ScriptedAI(c) {}
+        mob_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
-        {
-        }
+        void Reset() {}
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* killer)
         {
             uint32 spawnCreatureID = 0;
 
@@ -67,8 +65,8 @@ public:
             {
                 case 0:
                     spawnCreatureID = 17681;
-                    if (Killer->GetTypeId() == TYPEID_PLAYER)
-                        CAST_PLR(Killer)->KilledMonsterCredit(spawnCreatureID, 0);
+                    if (Player* player = killer->ToPlayer())
+                        player->KilledMonsterCredit(spawnCreatureID, 0);
                     break;
                 case 1:
                 case 2:
@@ -101,10 +99,10 @@ class npc_captured_sunhawk_agent : public CreatureScript
 public:
     npc_captured_sunhawk_agent() : CreatureScript("npc_captured_sunhawk_agent") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -153,7 +151,7 @@ public:
 ## Quest 9667: Saving Princess Stillpine
 ######*/
 
-enum eStillpine
+enum Stillpine
 {
     QUEST_SAVING_PRINCESS_STILLPINE               = 9667,
     NPC_PRINCESS_STILLPINE                        = 17682,
@@ -193,7 +191,7 @@ public:
             if (type == POINT_MOTION_TYPE && id == 1)
             {
                 DoScriptText(SAY_DIRECTION, me);
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
         }
     };

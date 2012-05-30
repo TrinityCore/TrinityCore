@@ -53,7 +53,7 @@ public:
 
     struct mob_stolen_soulAI : public ScriptedAI
     {
-        mob_stolen_soulAI(Creature* c) : ScriptedAI(c) {}
+        mob_stolen_soulAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8 myClass;
         uint32 Class_Timer;
@@ -162,7 +162,7 @@ public:
 
     struct boss_exarch_maladaarAI : public ScriptedAI
     {
-        boss_exarch_maladaarAI(Creature* c) : ScriptedAI(c)
+        boss_exarch_maladaarAI(Creature* creature) : ScriptedAI(creature)
         {
             HasTaunted = false;
         }
@@ -233,7 +233,7 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
             //When Exarch Maladar is defeated D'ore appear.
@@ -319,7 +319,7 @@ public:
 
     struct mob_avatar_of_martyredAI : public ScriptedAI
     {
-        mob_avatar_of_martyredAI(Creature* c) : ScriptedAI(c) {}
+        mob_avatar_of_martyredAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Mortal_Strike_timer;
 

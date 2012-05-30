@@ -33,6 +33,8 @@ using G3D::Vector3;
 using G3D::Ray;
 using G3D::AABox;
 
+#ifndef NO_CORE_FUNCS
+
 struct GameobjectModelData
 {
     GameobjectModelData(const std::string& name_, const AABox& box) :
@@ -47,23 +49,30 @@ ModelList model_list;
 
 void LoadGameObjectModelList()
 {
+    uint32 oldMSTime = getMSTime();
     FILE* model_list_file = fopen((sWorld->GetDataPath() + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb");
     if (!model_list_file)
+    {
+        sLog->outError("Unable to open '%s' file.", VMAP::GAMEOBJECT_MODELS);
         return;
+    }
 
     uint32 name_length, displayId;
     char buff[500];
-    while (!feof(model_list_file))
+    while (true)
     {
         Vector3 v1, v2;
-        if (fread(&displayId, sizeof(uint32), 1, model_list_file) != 1
-            || fread(&name_length, sizeof(uint32), 1, model_list_file) != 1
+        if (fread(&displayId, sizeof(uint32), 1, model_list_file) != 1)
+            if (feof(model_list_file))  // EOF flag is only set after failed reading attempt
+                break;
+
+        if (fread(&name_length, sizeof(uint32), 1, model_list_file) != 1
             || name_length >= sizeof(buff)
             || fread(&buff, sizeof(char), name_length, model_list_file) != name_length
             || fread(&v1, sizeof(Vector3), 1, model_list_file) != 1
             || fread(&v2, sizeof(Vector3), 1, model_list_file) != 1)
         {
-            printf("\nFile '%s' seems to be corrupted", VMAP::GAMEOBJECT_MODELS);
+            sLog->outError("File '%s' seems to be corrupted!", VMAP::GAMEOBJECT_MODELS);
             break;
         }
 
@@ -72,7 +81,10 @@ void LoadGameObjectModelList()
             ModelList::value_type( displayId, GameobjectModelData(std::string(buff,name_length),AABox(v1,v2)) )
         );
     }
+
     fclose(model_list_file);
+    sLog->outString(">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
 }
 
 GameObjectModel::~GameObjectModel()
@@ -91,7 +103,7 @@ bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayIn
     // ignore models with no bounds
     if (mdl_box == G3D::AABox::zero())
     {
-        std::cout << "Model " << it->second.name << " has zero bounds, loading skipped" << std::endl;
+        sLog->outError("GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
         return false;
     }
 
@@ -171,3 +183,5 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     }
     return hit;
 }
+
+#endif

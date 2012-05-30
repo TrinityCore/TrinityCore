@@ -186,7 +186,7 @@ class boss_venoxis : public CreatureScript
                             events.ScheduleEvent(EVENT_THRASH, urand(10000, 20000));
                             break;
 
-                        // troll form spells and actions (first part)
+                        // troll form spells and Actions (first part)
                         case EVENT_DISPEL_MAGIC:
                             DoCast(me, SPELL_DISPEL_MAGIC);
                             events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000, 20000), 0, PHASE_ONE);
@@ -198,7 +198,7 @@ class boss_venoxis : public CreatureScript
                         case EVENT_HOLY_NOVA:
                             _inMeleeRange = 0;
 
-                            for (uint8 i = 0; i < 10 ; ++i)
+                            for (uint8 i = 0; i < 10; ++i)
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, i))
                                     // check if target is within melee-distance
@@ -224,7 +224,7 @@ class boss_venoxis : public CreatureScript
                             break;
 
                         //
-                        // snake form spells and actions
+                        // snake form spells and Actions
                         //
 
                         case EVENT_VENOM_SPIT:

@@ -34,7 +34,7 @@ public:
 
     struct generic_creatureAI : public ScriptedAI
     {
-        generic_creatureAI(Creature* c) : ScriptedAI(c) {}
+        generic_creatureAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 GlobalCooldown;      //This variable acts like the global cooldown that players have (1.5 seconds)
         uint32 BuffTimer;           //This variable keeps track of buffs
@@ -105,7 +105,7 @@ public:
                     else info = SelectSpell(me->getVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, 0, SELECT_EFFECT_DONTCARE);
 
                     //50% chance if elite or higher, 20% chance if not, to replace our white hit with a spell
-                    if (info && (rand() % (me->GetCreatureInfo()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
+                    if (info && (rand() % (me->GetCreatureTemplate()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
                     {
                         //Cast the spell
                         if (Healing)DoCastSpell(me, info);
@@ -174,7 +174,7 @@ public:
 
     struct trigger_periodicAI : public NullCreatureAI
     {
-        trigger_periodicAI(Creature* c) : NullCreatureAI(c)
+        trigger_periodicAI(Creature* creature) : NullCreatureAI(creature)
         {
             spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0]) : NULL;
             interval = me->GetAttackTime(BASE_ATTACK);
@@ -210,7 +210,7 @@ public:
 
     struct trigger_deathAI : public NullCreatureAI
     {
-        trigger_deathAI(Creature* c) : NullCreatureAI(c) {}
+        trigger_deathAI(Creature* creature) : NullCreatureAI(creature) {}
         void JustDied(Unit* killer)
         {
             if (me->m_spells[0])

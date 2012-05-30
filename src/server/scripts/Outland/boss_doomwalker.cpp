@@ -18,7 +18,7 @@
 
 #include "ScriptPCH.h"
 
-enum Yells
+enum Texts
 {
     SAY_AGGRO       = 0,
     SAY_EARTHQUAKE  = 1,
@@ -79,7 +79,7 @@ class boss_doomwalker : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*Killer*/)
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
             }

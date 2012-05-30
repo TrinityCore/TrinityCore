@@ -32,6 +32,7 @@ at_sholazar_waygate             q12548
 at_nats_landing                 q11209
 at_bring_your_orphan_to         q910 q910 q1800 q1479 q1687 q1558 q10951 q10952
 at_brewfest
+at_area_52_entrance
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -251,8 +252,13 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
             {
                 switch (trigger->id)
                 {
-                    case AT_SHOLAZAR: player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, false); break;
-                    case AT_UNGORO:   player->CastSpell(player, SPELL_UNGORO_TO_SHOLAZAR_TELEPORT, false); break;
+                    case AT_SHOLAZAR:
+                        player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, false);
+                        break;
+
+                    case AT_UNGORO:
+                        player->CastSpell(player, SPELL_UNGORO_TO_SHOLAZAR_TELEPORT, false);
+                        break;
                 }
             }
 
@@ -420,6 +426,75 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
         std::map<uint32, time_t> _triggerTimes;
 };
 
+/*######
+## at_area_52_entrance
+######*/
+
+enum Area52Entrance
+{
+    SPELL_A52_NEURALYZER  = 34400,
+    NPC_SPOTLIGHT         = 19913,
+    SUMMON_COOLDOWN       = 5,
+
+    AT_AREA_52_SOUTH      = 4472,
+    AT_AREA_52_NORTH      = 4466,
+    AT_AREA_52_WEST       = 4471,
+    AT_AREA_52_EAST       = 4422,
+};
+
+class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_area_52_entrance() : AreaTriggerScript("at_area_52_entrance")
+        {
+            _triggerTimes[AT_AREA_52_SOUTH] = _triggerTimes[AT_AREA_52_NORTH] = _triggerTimes[AT_AREA_52_WEST] = _triggerTimes[AT_AREA_52_EAST] = 0;
+        }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            float x = 0.0f, y = 0.0f, z = 0.0f;
+
+            if (!player->isAlive())
+                return false;
+
+            uint32 triggerId = trigger->id;
+            if (sWorld->GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
+                return false;
+
+            switch (triggerId)
+            {
+                case AT_AREA_52_EAST:
+                    x = 3044.176f;
+                    y = 3610.692f;
+                    z = 143.61f;
+                    break;
+                case AT_AREA_52_NORTH:
+                    x = 3114.87f;
+                    y = 3687.619f;
+                    z = 143.62f;
+                    break;
+                case AT_AREA_52_WEST:
+                    x = 3017.79f;
+                    y = 3746.806f;
+                    z = 144.27f;
+                    break;
+                case AT_AREA_52_SOUTH:
+                    x = 2950.63f;
+                    y = 3719.905f;
+                    z = 143.33f;
+                    break;
+            }
+
+            player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+            player->AddAura(SPELL_A52_NEURALYZER, player);
+            _triggerTimes[trigger->id] = sWorld->GetGameTime();
+            return false;
+        }
+
+    private:
+        std::map<uint32, time_t> _triggerTimes;
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -431,4 +506,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_nats_landing();
     new AreaTrigger_at_bring_your_orphan_to();
     new AreaTrigger_at_brewfest();
+    new AreaTrigger_at_area_52_entrance();
 }

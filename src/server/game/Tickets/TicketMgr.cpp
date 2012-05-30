@@ -38,24 +38,38 @@ GmTicket::GmTicket(Player* player, WorldPacket& recv_data) : _createTime(time(NU
     _playerGuid = player->GetGUID();
 
     uint32 mapId;
-    recv_data >> mapId;
+    recv_data >> mapId; // Map is sent as UInt32!
     _mapId = mapId;
 
     recv_data >> _posX;
     recv_data >> _posY;
     recv_data >> _posZ;
     recv_data >> _message;
+    uint32 needResponse;
+    recv_data >> needResponse;
+    _needResponse = (needResponse == 17); // Requires GM response. 17 = true, 1 = false (17 is default)
+    uint8 unk1;
+    recv_data >> unk1; // Requests further GM interaction on a ticket to which a GM has already responded
 
-    uint32 unk1;
-    recv_data >> unk1;          // not sure what this is... replyTo?
-    uint8 needResponse;
-    recv_data >> needResponse;  // always 1/0 -- not sure what retail does with this
+    recv_data.rfinish();
+    /*
+    recv_data >> uint32(count); // text lines
+    for (int i = 0; i < count; i++)
+        recv_data >> uint32();
+
+    if (something)
+        recv_data >> uint32();
+    else
+        compressed uint32 + string;
+    */
 }
 
 GmTicket::~GmTicket() { }
 
 bool GmTicket::LoadFromDB(Field* fields)
 {
+    //     0       1     2      3          4        5      6     7     8           9            10         11         12        13        14        15
+    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, completed, escalated, viewed
     uint8 index = 0;
     _id                 = fields[  index].GetUInt32();
     _playerGuid         = MAKE_NEW_GUID(fields[++index].GetUInt32(), 0, HIGHGUID_PLAYER);
@@ -78,6 +92,8 @@ bool GmTicket::LoadFromDB(Field* fields)
 
 void GmTicket::SaveToDB(SQLTransaction& trans) const
 {
+    //     0       1     2      3          4        5      6     7     8           9            10         11         12        13        14        15
+    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, completed, escalated, viewed
     uint8 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
@@ -125,8 +141,8 @@ void GmTicket::WritePacket(WorldPacket& data) const
 void GmTicket::SendResponse(WorldSession* session) const
 {
     WorldPacket data(SMSG_GMRESPONSE_RECEIVED);
-    data << uint32(1); // unk? Zor says "hasActiveTicket"
-    data << uint32(0); // can-edit - always 1 or 0, not flags
+    data << uint32(1);          // responseID
+    data << uint32(_id);        // ticketID
     data << _message.c_str();
     data << _response.c_str();
     session->SendPacket(&data);
@@ -187,12 +203,18 @@ void GmTicket::SetUnassigned()
 
 void GmTicket::TeleportTo(Player* player) const
 {
-    player->TeleportTo(_mapId, _posX, _posY, _posZ, 1, 0);
+    player->TeleportTo(_mapId, _posX, _posY, _posZ, 0.0f, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Ticket manager
 TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0), _lastChange(time(NULL)) { }
+
+TicketMgr::~TicketMgr()
+{
+    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
+        delete itr->second;
+}
 
 void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
 
@@ -213,10 +235,8 @@ void TicketMgr::LoadTickets()
 {
     uint32 oldMSTime = getMSTime();
 
-    if (!_ticketList.empty())
-        for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
-            if (itr->second)
-                delete itr->second;
+    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
+        delete itr->second;
     _ticketList.clear();
 
     _lastTicketId = 0;
@@ -297,6 +317,7 @@ void TicketMgr::RemoveTicket(uint32 ticketId)
     {
         ticket->DeleteFromDB();
         _ticketList.erase(ticketId);
+        delete ticket;
     }
 }
 
@@ -336,13 +357,13 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
     }
 
     WorldPacket data(SMSG_GMTICKET_GETTICKET, (4 + 4 + (ticket ? message.length() + 1 + 4 + 4 + 4 + 1 + 1 : 0)));
-    data << uint32(status);         // standard 0x0A, 0x06 if text present
-    data << uint32(1);              // g_HasActiveGMTicket -- not a flag
+    data << uint32(status);                         // standard 0x0A, 0x06 if text present
+    data << uint32(ticket ? ticket->GetId() : 0);   // ticketID
 
     if (ticket)
     {
-        data << message.c_str();    // ticket text
-        data << uint8(0x7);         // ticket category; why is this hardcoded? does it make a diff re: client?
+        data << message.c_str();                    // ticket text
+        data << uint8(0x7);                         // ticket category; why is this hardcoded? does it make a diff re: client?
 
         // we've got the easy stuff done by now.
         // Now we need to go through the client logic for displaying various levels of ticket load

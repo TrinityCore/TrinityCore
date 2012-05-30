@@ -454,7 +454,8 @@ enum Opcodes
     CMSG_UNLEARN_SKILL                               = 0xAC3,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES               = 0x00,
     CMSG_UPDATE_ACCOUNT_DATA                         = 0x4AFE,
-    CMSG_UPDATE_PROJECTILE_POSITION                  = 0xEDB,
+    CMSG_UPDATE_MISSILE_TRAJECTORY                   = 0x9525,
+    CMSG_UPDATE_PROJECTILE_POSITION                  = 0x00, // sub_677360
     CMSG_USE_ITEM                                    = 0xD8EA,
     CMSG_VIOLENCE_LEVEL                              = 0x00,
     CMSG_VOICE_SESSION_ENABLE                        = 0x00,

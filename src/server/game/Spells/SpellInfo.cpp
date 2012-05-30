@@ -61,11 +61,6 @@ bool SpellImplicitTargetInfo::IsArea() const
     return GetSelectionCategory() == TARGET_SELECT_CATEGORY_AREA || GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE;
 }
 
-SpellSelectTargetTypes SpellImplicitTargetInfo::GetType() const
-{
-    return Type[_target];
-}
-
 SpellTargetSelectionCategories SpellImplicitTargetInfo::GetSelectionCategory() const
 {
     return _data[_target].SelectionCategory;
@@ -104,7 +99,7 @@ float SpellImplicitTargetInfo::CalcDirectionAngle() const
         case TARGET_DIR_LEFT:
             return static_cast<float>(M_PI/2);
         case TARGET_DIR_FRONT_RIGHT:
-            return static_cast<float>(M_PI/4);
+            return static_cast<float>(-M_PI/4);
         case TARGET_DIR_BACK_RIGHT:
             return static_cast<float>(-3*M_PI/4);
         case TARGET_DIR_BACK_LEFT:
@@ -206,144 +201,6 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
     }
     return targetMask;
 }
-
-bool SpellImplicitTargetInfo::InitStaticData()
-{
-    InitTypeData();
-    return true;
-}
-
-void SpellImplicitTargetInfo::InitTypeData()
-{
-    for (uint8 i = 0; i < TOTAL_SPELL_TARGETS; ++i)
-    {
-        switch (i)
-        {
-            case TARGET_UNIT_CASTER:
-            case TARGET_DEST_CASTER_FISHING:
-            case TARGET_UNIT_MASTER:
-            case TARGET_UNIT_PET:
-            case TARGET_UNIT_CASTER_AREA_PARTY:
-            case TARGET_UNIT_CASTER_AREA_RAID:
-            case TARGET_UNIT_VEHICLE:
-            case TARGET_UNIT_PASSENGER_0:
-            case TARGET_UNIT_PASSENGER_1:
-            case TARGET_UNIT_PASSENGER_2:
-            case TARGET_UNIT_PASSENGER_3:
-            case TARGET_UNIT_PASSENGER_4:
-            case TARGET_UNIT_PASSENGER_5:
-            case TARGET_UNIT_PASSENGER_6:
-            case TARGET_UNIT_PASSENGER_7:
-            case TARGET_UNIT_SUMMONER:
-                Type[i] = TARGET_TYPE_UNIT_CASTER;
-                break;
-            case TARGET_UNIT_TARGET_MINIPET:
-            case TARGET_UNIT_TARGET_ALLY:
-            case TARGET_UNIT_TARGET_RAID:
-            case TARGET_UNIT_TARGET_ANY:
-            case TARGET_UNIT_TARGET_ENEMY:
-            case TARGET_UNIT_TARGET_PARTY:
-            case TARGET_UNIT_TARGET_PASSENGER:
-            case TARGET_UNIT_LASTTARGET_AREA_PARTY:
-            case TARGET_UNIT_TARGET_AREA_RAID_CLASS:
-            case TARGET_UNIT_TARGET_CHAINHEAL_ALLY:
-                Type[i] = TARGET_TYPE_UNIT_TARGET;
-                break;
-            case TARGET_UNIT_NEARBY_ENEMY:
-            case TARGET_UNIT_NEARBY_ALLY:
-            case TARGET_UNIT_NEARBY_ENTRY:
-            case TARGET_UNIT_NEARBY_PARTY:
-            case TARGET_UNIT_NEARBY_RAID:
-            case TARGET_GAMEOBJECT_NEARBY_ENTRY:
-                Type[i] = TARGET_TYPE_UNIT_NEARBY;
-                break;
-            case TARGET_UNIT_SRC_AREA_ENEMY:
-            case TARGET_UNIT_SRC_AREA_ALLY:
-            case TARGET_UNIT_SRC_AREA_ENTRY:
-            case TARGET_UNIT_SRC_AREA_PARTY:
-            case TARGET_GAMEOBJECT_SRC_AREA:
-                Type[i] = TARGET_TYPE_AREA_SRC;
-                break;
-            case TARGET_UNIT_DEST_AREA_ENEMY:
-            case TARGET_UNIT_DEST_AREA_ALLY:
-            case TARGET_UNIT_DEST_AREA_ENTRY:
-            case TARGET_UNIT_DEST_AREA_PARTY:
-            case TARGET_GAMEOBJECT_DEST_AREA:
-                Type[i] = TARGET_TYPE_AREA_DST;
-                break;
-            case TARGET_UNIT_CONE_ENEMY_24:
-            case TARGET_UNIT_CONE_ALLY:
-            case TARGET_UNIT_CONE_ENTRY:
-            case TARGET_UNIT_CONE_ENEMY_54:
-            case TARGET_UNIT_CONE_ENEMY_104:
-            case TARGET_GAMEOBJECT_CONE:
-                Type[i] = TARGET_TYPE_AREA_CONE;
-                break;
-            case TARGET_DEST_CASTER:
-            case TARGET_SRC_CASTER:
-            case TARGET_DEST_CASTER_SUMMON:
-            case TARGET_DEST_CASTER_FRONT_LEAP:
-            case TARGET_DEST_CASTER_FRONT:
-            case TARGET_DEST_CASTER_BACK:
-            case TARGET_DEST_CASTER_RIGHT:
-            case TARGET_DEST_CASTER_LEFT:
-            case TARGET_DEST_CASTER_FRONT_LEFT:
-            case TARGET_DEST_CASTER_BACK_LEFT:
-            case TARGET_DEST_CASTER_BACK_RIGHT:
-            case TARGET_DEST_CASTER_FRONT_RIGHT:
-            case TARGET_DEST_CASTER_RANDOM:
-            case TARGET_DEST_CASTER_RADIUS:
-                Type[i] = TARGET_TYPE_DEST_CASTER;
-                break;
-            case TARGET_DEST_TARGET_ENEMY:
-            case TARGET_DEST_TARGET_ANY:
-            case TARGET_DEST_TARGET_FRONT:
-            case TARGET_DEST_TARGET_BACK:
-            case TARGET_DEST_TARGET_RIGHT:
-            case TARGET_DEST_TARGET_LEFT:
-            case TARGET_DEST_TARGET_FRONT_LEFT:
-            case TARGET_DEST_TARGET_BACK_LEFT:
-            case TARGET_DEST_TARGET_BACK_RIGHT:
-            case TARGET_DEST_TARGET_FRONT_RIGHT:
-            case TARGET_DEST_TARGET_RANDOM:
-            case TARGET_DEST_TARGET_RADIUS:
-                Type[i] = TARGET_TYPE_DEST_TARGET;
-                break;
-            case TARGET_DEST_DYNOBJ_ENEMY:
-            case TARGET_DEST_DYNOBJ_ALLY:
-            case TARGET_DEST_DYNOBJ_NONE:
-            case TARGET_DEST_DEST:
-            case TARGET_DEST_TRAJ:
-            case TARGET_DEST_DEST_FRONT_LEFT:
-            case TARGET_DEST_DEST_BACK_LEFT:
-            case TARGET_DEST_DEST_BACK_RIGHT:
-            case TARGET_DEST_DEST_FRONT_RIGHT:
-            case TARGET_DEST_DEST_FRONT:
-            case TARGET_DEST_DEST_BACK:
-            case TARGET_DEST_DEST_RIGHT:
-            case TARGET_DEST_DEST_LEFT:
-            case TARGET_DEST_DEST_RANDOM:
-            case TARGET_DEST_DEST_RADIUS:
-                Type[i] = TARGET_TYPE_DEST_DEST;
-                break;
-            case TARGET_DEST_DB:
-            case TARGET_DEST_HOME:
-            case TARGET_DEST_NEARBY_ENTRY:
-                Type[i] = TARGET_TYPE_DEST_SPECIAL;
-                break;
-            case TARGET_UNIT_CHANNEL_TARGET:
-            case TARGET_DEST_CHANNEL_TARGET:
-            case TARGET_DEST_CHANNEL_CASTER:
-                Type[i] = TARGET_TYPE_CHANNEL;
-                break;
-            default:
-                Type[i] = TARGET_TYPE_DEFAULT;
-        }
-    }
-}
-
-bool SpellImplicitTargetInfo::Init = SpellImplicitTargetInfo::InitStaticData();
-SpellSelectTargetTypes SpellImplicitTargetInfo::Type[TOTAL_SPELL_TARGETS];
 
 SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_TARGETS] =
 {
@@ -496,7 +353,7 @@ bool SpellEffectInfo::IsEffect() const
 
 bool SpellEffectInfo::IsEffect(SpellEffects effectName) const
 {
-    return Effect == effectName;
+    return Effect == uint32(effectName);
 }
 
 bool SpellEffectInfo::IsAura() const
@@ -759,7 +616,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 66 SPELL_EFFECT_CREATE_MANA_GEM
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 67 SPELL_EFFECT_HEAL_MAX_HEALTH
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 68 SPELL_EFFECT_INTERRUPT_CAST
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 69 SPELL_EFFECT_DISTRACT
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT_AND_DEST}, // 69 SPELL_EFFECT_DISTRACT
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 70 SPELL_EFFECT_PULL
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 71 SPELL_EFFECT_PICKPOCKET
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_DEST}, // 72 SPELL_EFFECT_ADD_FARSIGHT
@@ -1410,7 +1267,6 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
     SpellSpecificType spellSpec2 = spellInfo->GetSpellSpecific();
     switch (spellSpec1)
     {
-        case SPELL_SPECIFIC_PHASE:
         case SPELL_SPECIFIC_TRACKER:
         case SPELL_SPECIFIC_WARLOCK_ARMOR:
         case SPELL_SPECIFIC_MAGE_ARMOR:
@@ -2129,8 +1985,6 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case SPELL_AURA_TRACK_RESOURCES:
                 case SPELL_AURA_TRACK_STEALTHED:
                     return SPELL_SPECIFIC_TRACKER;
-                case SPELL_AURA_PHASE:
-                    return SPELL_SPECIFIC_PHASE;
             }
         }
     }
@@ -2191,6 +2045,33 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
         castTime += 500;
 
     return (castTime > 0) ? uint32(castTime) : 0;
+}
+
+uint32 SpellInfo::GetMaxTicks() const
+{
+    int32 DotDuration = GetDuration();
+    if (DotDuration == 0)
+        return 1;
+
+    // 200% limit
+    if (DotDuration > 30000)
+        DotDuration = 30000;
+
+    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
+    {
+        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+            switch (Effects[x].ApplyAuraName)
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_LEECH:
+                    if (Effects[x].Amplitude != 0)
+                        return DotDuration / Effects[x].Amplitude;
+                    break;
+            }
+    }
+
+    return 6;
 }
 
 uint32 SpellInfo::GetRecoveryTime() const
@@ -2397,12 +2278,12 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             switch (Id)
             {
                 case 34700: // Allergic Reaction
-                case 61716: // Rabbit Costume
-                case 61734: // Noblegarden Bunny
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
                 case 62532: // Conservator's Grip
                     return false;
+                case 61716: // Rabbit Costume
+                case 61734: // Noblegarden Bunny
                 case 30877: // Tag Murloc
                 case 62344: // Fists of Stone
                     return true;

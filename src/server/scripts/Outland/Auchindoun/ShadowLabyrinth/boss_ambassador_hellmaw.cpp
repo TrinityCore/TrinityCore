@@ -58,10 +58,10 @@ public:
     {
         boss_ambassador_hellmawAI(Creature* creature) : npc_escortAI(creature)
         {
-            m_instance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_instance;
+        InstanceScript* instance;
 
         uint32 EventCheck_Timer;
         uint32 CorrosiveAcid_Timer;
@@ -81,17 +81,17 @@ public:
             IsBanished = true;
             Enraged = false;
 
-            if (m_instance && me->isAlive())
+            if (instance && me->isAlive())
             {
-                if (m_instance->GetData(TYPE_OVERSEER) != DONE)
+                if (instance->GetData(TYPE_OVERSEER) != DONE)
                     DoCast(me, SPELL_BANISH, true);
             }
         }
 
         void JustReachedHome()
         {
-            if (m_instance)
-                m_instance->SetData(TYPE_HELLMAW, FAIL);
+            if (instance)
+                instance->SetData(TYPE_HELLMAW, FAIL);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -102,7 +102,7 @@ public:
             npc_escortAI::MoveInLineOfSight(who);
         }
 
-        void WaypointReached(uint32 /*i*/)
+        void WaypointReached(uint32 /*waypointId*/)
         {
         }
 
@@ -114,15 +114,15 @@ public:
             IsBanished = false;
             Intro = true;
 
-            if (m_instance)
+            if (instance)
             {
-                if (m_instance->GetData(TYPE_HELLMAW) != FAIL)
+                if (instance->GetData(TYPE_HELLMAW) != FAIL)
                 {
                     DoScriptText(SAY_INTRO, me);
                     Start(true, false, 0, NULL, false, true);
                 }
 
-                m_instance->SetData(TYPE_HELLMAW, IN_PROGRESS);
+                instance->SetData(TYPE_HELLMAW, IN_PROGRESS);
             }
         }
 
@@ -136,12 +136,12 @@ public:
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (m_instance)
-                m_instance->SetData(TYPE_HELLMAW, DONE);
+            if (instance)
+                instance->SetData(TYPE_HELLMAW, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -150,9 +150,9 @@ public:
             {
                 if (EventCheck_Timer <= diff)
                 {
-                    if (m_instance)
+                    if (instance)
                     {
-                        if (m_instance->GetData(TYPE_OVERSEER) == DONE)
+                        if (instance->GetData(TYPE_OVERSEER) == DONE)
                         {
                             DoIntro();
                             return;

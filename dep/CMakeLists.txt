@@ -15,8 +15,8 @@ elseif( MSVC )
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  if(SERVERS)
-    add_subdirectory(jemalloc)
+  if(SERVERS AND NOT NOJEM)
+    add_subdirectory(jemalloc)  
   endif()
 endif()
 

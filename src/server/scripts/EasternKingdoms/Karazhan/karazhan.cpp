@@ -109,11 +109,11 @@ public:
 
     struct npc_barnesAI : public npc_escortAI
     {
-        npc_barnesAI(Creature* c) : npc_escortAI(c)
+        npc_barnesAI(Creature* creature) : npc_escortAI(creature)
         {
             RaidWiped = false;
             m_uiEventId = 0;
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -158,12 +158,12 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             if (!instance)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
                 case 0:
                     DoCast(me, SPELL_TUXEDO, false);
@@ -324,12 +324,12 @@ public:
         }
     };
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         npc_barnesAI* pBarnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI());
 
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -414,10 +414,10 @@ class npc_berthold : public CreatureScript
 public:
     npc_berthold() : CreatureScript("npc_berthold") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
             player->CastSpell(player, SPELL_TELEPORT, true);
 
         player->CLOSE_GOSSIP_MENU();
@@ -474,9 +474,9 @@ public:
 
     struct npc_image_of_medivhAI : public ScriptedAI
     {
-        npc_image_of_medivhAI(Creature* c) : ScriptedAI(c)
+        npc_image_of_medivhAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -527,7 +527,7 @@ public:
             if (!Arcanagos)
                 return;
             ArcanagosGUID = Arcanagos->GetGUID();
-            Arcanagos->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            Arcanagos->SetDisableGravity(true);
             (*Arcanagos).GetMotionMaster()->MovePoint(0, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2]);
             Arcanagos->SetOrientation(ArcanagosPos[3]);
             me->SetOrientation(MedivPos[3]);
@@ -536,7 +536,7 @@ public:
 
         uint32 NextStep(uint32 Step)
         {
-            Unit* arca = Unit::GetUnit((*me), ArcanagosGUID);
+            Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
             Map* map = me->GetMap();
             switch (Step)
             {
@@ -625,7 +625,7 @@ public:
 
             if (Step >= 7 && Step <= 12)
             {
-                Unit* arca = Unit::GetUnit((*me), ArcanagosGUID);
+                Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
 
                 if (FireArcanagosTimer <= diff)
                 {

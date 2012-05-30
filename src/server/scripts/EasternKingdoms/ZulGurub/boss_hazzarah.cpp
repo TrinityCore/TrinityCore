@@ -40,7 +40,7 @@ class boss_hazzarah : public CreatureScript
 
         struct boss_hazzarahAI : public ScriptedAI
         {
-            boss_hazzarahAI(Creature* c) : ScriptedAI(c) {}
+            boss_hazzarahAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 ManaBurn_Timer;
             uint32 Sleep_Timer;

@@ -19,9 +19,9 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
+#include "Creature.h"
 #include "UnitAI.h"
 #include "Common.h"
-#include "CreatureTextMgr.h"
 
 class WorldObject;
 class Unit;
@@ -137,6 +137,12 @@ class CreatureAI : public UnitAI
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) {}
+
+        // Called when owner takes damage
+        virtual void OwnerDamagedBy(Unit* /*attacker*/) {}
+
+        // Called when owner attacks something
+        virtual void OwnerAttacked(Unit* /*target*/) {}
 
         /// == Triggered Actions Requested ==================
 

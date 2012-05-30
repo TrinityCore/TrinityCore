@@ -70,9 +70,9 @@ public:
 
     struct boss_nightbaneAI : public ScriptedAI
     {
-        boss_nightbaneAI(Creature* c) : ScriptedAI(c)
+        boss_nightbaneAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             Intro = true;
         }
 
@@ -121,8 +121,8 @@ public:
             MovePhase = 0;
 
             me->SetSpeed(MOVE_RUN, 2.0f);
-            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            me->SetDisableGravity(true);
+            me->SetWalk(false);
             me->setActive(true);
 
             if (instance)
@@ -240,7 +240,7 @@ public:
 
             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetDisableGravity(true);
             (*me).GetMotionMaster()->Clear(false);
             (*me).GetMotionMaster()->MovePoint(0, IntroWay[2][0], IntroWay[2][1], IntroWay[2][2]);
 
@@ -263,7 +263,7 @@ public:
                 {
                     if (MovePhase >= 7)
                     {
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SetLevitate(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                         me->GetMotionMaster()->MovePoint(8, IntroWay[7][0], IntroWay[7][1], IntroWay[7][2]);
                     }
@@ -277,7 +277,7 @@ public:
                 {
                     if (MovePhase >= 7)
                     {
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SetLevitate(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                         me->GetMotionMaster()->MovePoint(8, IntroWay[7][0], IntroWay[7][1], IntroWay[7][2]);
                     }

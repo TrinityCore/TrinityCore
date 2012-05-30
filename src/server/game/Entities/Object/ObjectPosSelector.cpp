@@ -75,9 +75,9 @@ void ObjectPosSelector::InitializeAngle()
 
 bool ObjectPosSelector::FirstAngle(float& angle)
 {
-    if (m_UsedPosLists[USED_POS_PLUS].empty() && !m_UsedPosLists[USED_POS_MINUS].empty() )
+    if (m_UsedPosLists[USED_POS_PLUS].empty() && !m_UsedPosLists[USED_POS_MINUS].empty())
         return NextAngleFor(*m_UsedPosLists[USED_POS_MINUS].begin(), 1.0f, USED_POS_PLUS, angle);
-    else if (m_UsedPosLists[USED_POS_MINUS].empty() && !m_UsedPosLists[USED_POS_PLUS].empty() )
+    else if (m_UsedPosLists[USED_POS_MINUS].empty() && !m_UsedPosLists[USED_POS_PLUS].empty())
         return NextAngleFor(*m_UsedPosLists[USED_POS_PLUS].begin(), -1.0f, USED_POS_MINUS, angle);
 
     return false;
@@ -100,7 +100,7 @@ bool ObjectPosSelector::NextAngle(float& angle)
 bool ObjectPosSelector::NextUsedAngle(float& angle)
 {
     while (m_nextUsedPos[USED_POS_PLUS]!=m_UsedPosLists[USED_POS_PLUS].end() ||
-        m_nextUsedPos[USED_POS_MINUS]!=m_UsedPosLists[USED_POS_MINUS].end() )
+        m_nextUsedPos[USED_POS_MINUS]!=m_UsedPosLists[USED_POS_MINUS].end())
     {
         // calculate next possible angle
         if (!NextPosibleAngle(angle))
@@ -114,7 +114,7 @@ bool ObjectPosSelector::NextPosibleAngle(float& angle)
 {
     // ++ direction less updated
     if (m_nextUsedPos[USED_POS_PLUS]!=m_UsedPosLists[USED_POS_PLUS].end() &&
-        (m_nextUsedPos[USED_POS_MINUS]==m_UsedPosLists[USED_POS_MINUS].end() || m_nextUsedPos[USED_POS_PLUS]->first <= m_nextUsedPos[USED_POS_MINUS]->first) )
+        (m_nextUsedPos[USED_POS_MINUS]==m_UsedPosLists[USED_POS_MINUS].end() || m_nextUsedPos[USED_POS_PLUS]->first <= m_nextUsedPos[USED_POS_MINUS]->first))
     {
         bool ok;
         if (m_smallStepOk[USED_POS_PLUS])
@@ -133,7 +133,7 @@ bool ObjectPosSelector::NextPosibleAngle(float& angle)
         if (m_smallStepOk[USED_POS_MINUS])
             ok = NextSmallStepAngle(-1.0f, USED_POS_MINUS, angle);
         else
-            ok =  NextAngleFor(*m_nextUsedPos[USED_POS_MINUS], -1.0f, USED_POS_MINUS, angle);
+            ok = NextAngleFor(*m_nextUsedPos[USED_POS_MINUS], -1.0f, USED_POS_MINUS, angle);
 
         if (!ok)
             ++m_nextUsedPos[USED_POS_MINUS];

@@ -441,6 +441,10 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
 
                 std::list<Creature*> triggers;
                 GetHitUnit()->GetCreatureListWithEntryInGrid(triggers, GetHitUnit()->GetEntry(), 12.5f);
+
+                if (triggers.empty())
+                    return;
+
                 triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
                 GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
             }
@@ -494,7 +498,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                Unit* target = SelectRandomContainerElement(targets);
+                Unit* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
                 _target = target;
@@ -712,13 +716,13 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
             void CheckTarget(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(EFFECT_0);
-                if (!GetTargetDest())
+                if (!GetExplTargetDest())
                     return;
 
                 uint32 triggered_spell_id = GetSpellInfo()->Effects[effIndex].TriggerSpell;
 
                 float x, y, z;
-                GetTargetDest()->GetPosition(x, y, z);
+                GetExplTargetDest()->GetPosition(x, y, z);
                 // let Rotface handle the cast - caster dies before this executes
                 if (InstanceScript* script = GetCaster()->GetInstanceScript())
                     if (Creature* rotface = script->instance->GetCreature(script->GetData64(DATA_ROTFACE)))

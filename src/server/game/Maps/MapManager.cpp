@@ -96,32 +96,32 @@ void MapManager::checkAndCorrectGridStatesArray()
 
 Map* MapManager::CreateBaseMap(uint32 id)
 {
-    Map* m = FindBaseMap(id);
+    Map* map = FindBaseMap(id);
 
-    if (m == NULL)
+    if (map == NULL)
     {
         TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
         const MapEntry* entry = sMapStore.LookupEntry(id);
         if (entry && entry->Instanceable())
         {
-            m = new MapInstanced(id, i_gridCleanUpDelay);
+            map = new MapInstanced(id, i_gridCleanUpDelay);
         }
         else
         {
-            m = new Map(id, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
+            map = new Map(id, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
         }
-        i_maps[id] = m;
+        i_maps[id] = map;
     }
 
-    ASSERT(m != NULL);
-    return m;
+    ASSERT(map);
+    return map;
 }
 
 Map* MapManager::FindBaseNonInstanceMap(uint32 mapId) const
 {
     Map* map = FindBaseMap(mapId);
-    if(map && map->Instanceable())
+    if (map && map->Instanceable())
         return NULL;
     return map;
 }

@@ -28,6 +28,7 @@ EndScriptData */
 #include "Transport.h"
 #include "CreatureGroups.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
+#include "CreatureAI.h"
 
 class npc_commandscript : public CommandScript
 {
@@ -73,6 +74,7 @@ public:
             { "phase",          SEC_GAMEMASTER,     false, &HandleNpcSetPhaseCommand,          "", NULL },
             { "spawndist",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnDistCommand,      "", NULL },
             { "spawntime",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnTimeCommand,      "", NULL },
+            { "data",           SEC_ADMINISTRATOR,  false, &HandleNpcSetDataCommand,           "", NULL },
             //{ TODO: fix or remove these commands
             { "name",           SEC_GAMEMASTER,     false, &HandleNpcSetNameCommand,           "", NULL },
             { "subname",        SEC_GAMEMASTER,     false, &HandleNpcSetSubNameCommand,        "", NULL },
@@ -108,6 +110,7 @@ public:
     {
         if (!*args)
             return false;
+
         char* charID = handler->extractKeyFromLink((char*)args, "Hcreature_entry");
         if (!charID)
             return false;
@@ -130,12 +133,24 @@ public:
         {
             uint32 tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
             if (tguid > 0)
-                WorldDatabase.PExecute("INSERT INTO creature_transport (guid, npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (%u, %u, %f, %f, %f, %f, %u)", tguid, id, chr->GetTransport()->GetEntry(), chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+            {
+                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_TRANSPORT);
+
+                stmt->setInt32(0, int32(tguid));
+                stmt->setInt32(1, int32(id));
+                stmt->setInt32(2, int32(chr->GetTransport()->GetEntry()));
+                stmt->setFloat(3, chr->GetTransOffsetX());
+                stmt->setFloat(4, chr->GetTransOffsetY());
+                stmt->setFloat(5, chr->GetTransOffsetZ());
+                stmt->setFloat(6, chr->GetTransOffsetO());
+
+                WorldDatabase.Execute(stmt);
+            }
 
             return true;
         }
 
-        Creature* creature = new Creature;
+        Creature* creature = new Creature();
         if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
         {
             delete creature;
@@ -462,7 +477,7 @@ public:
         // Faction is set in creature_template - not inside creature
 
         // Update in memory..
-        if (CreatureTemplate const* cinfo = creature->GetCreatureInfo())
+        if (CreatureTemplate const* cinfo = creature->GetCreatureTemplate())
         {
             const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
             const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
@@ -511,6 +526,39 @@ public:
         return true;
     }
 
+    //set data of creature for testing scripting
+    static bool HandleNpcSetDataCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        char* arg1 = strtok((char*)args, " ");
+        char* arg2 = strtok((char*)NULL, "");
+
+        if (!arg1 || !arg2)
+            return false;
+
+        uint32 data_1 = (uint32)atoi(arg1);
+        uint32 data_2 = (uint32)atoi(arg2);
+
+        if (!data_1 || !data_2)
+            return false;
+
+        Creature* creature = handler->getSelectedCreature();
+
+        if (!creature)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        creature->AI()->SetData(data_1, data_2);
+        std::string AIorScript = creature->GetAIName() != "" ? "AI type: " + creature->GetAIName() : (creature->GetScriptName() != "" ? "Script Name: " + creature->GetScriptName() : "No AI or Script Name Set");
+        handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID(), creature->GetEntry(), creature->GetName(), data_1, data_2, AIorScript.c_str());
+        return true;
+    }
+
     //npc follow handling
     static bool HandleNpcFollowCommand(ChatHandler* handler, const char* /*args*/)
     {
@@ -547,7 +595,7 @@ public:
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();
-        CreatureTemplate const* cInfo = target->GetCreatureInfo();
+        CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
         int64 curRespawnDelay = target->GetRespawnTimeEx()-time(NULL);
         if (curRespawnDelay < 0)
@@ -677,9 +725,16 @@ public:
             return false;
         }
 
-        if (target->GetTransport())
-            if (target->GetGUIDTransport())
-                WorldDatabase.PExecute("UPDATE creature_transport SET emote=%u WHERE transport_entry=%u AND guid=%u", emote, target->GetTransport()->GetEntry(), target->GetGUIDTransport());
+        if (target->GetTransport() && target->GetGUIDTransport())
+        {
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_TRANSPORT_EMOTE);
+
+            stmt->setInt32(0, int32(emote));
+            stmt->setInt32(1, target->GetTransport()->GetEntry());
+            stmt->setInt32(2, target->GetGUIDTransport());
+
+            WorldDatabase.Execute(stmt);
+        }
 
         target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
 
@@ -1036,7 +1091,7 @@ public:
         }
 
         if (/*creature->GetMotionMaster()->empty() ||*/
-            creature->GetMotionMaster()->GetCurrentMovementGeneratorType () != FOLLOW_MOTION_TYPE)
+            creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
         {
             handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName());
             handler->SetSentErrorMessage(true);
@@ -1131,24 +1186,24 @@ public:
     //npc tame handling
     static bool HandleNpcTameCommand(ChatHandler* handler, const char* /*args*/)
     {
-        Creature* creatureTarget = handler->getSelectedCreature ();
-        if (!creatureTarget || creatureTarget->isPet ())
+        Creature* creatureTarget = handler->getSelectedCreature();
+        if (!creatureTarget || creatureTarget->isPet())
         {
             handler->PSendSysMessage (LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage (true);
             return false;
         }
 
-        Player* player = handler->GetSession()->GetPlayer ();
+        Player* player = handler->GetSession()->GetPlayer();
 
-        if (player->GetPetGUID ())
+        if (player->GetPetGUID())
         {
             handler->SendSysMessage (LANG_YOU_ALREADY_HAVE_PET);
             handler->SetSentErrorMessage (true);
             return false;
         }
 
-        CreatureTemplate const* cInfo = creatureTarget->GetCreatureInfo();
+        CreatureTemplate const* cInfo = creatureTarget->GetCreatureTemplate();
 
         if (!cInfo->isTameable (player->CanTameExoticPets()))
         {
@@ -1168,8 +1223,8 @@ public:
 
         // place pet before player
         float x, y, z;
-        player->GetClosePoint (x, y, z, creatureTarget->GetObjectSize (), CONTACT_DISTANCE);
-        pet->Relocate (x, y, z, M_PI-player->GetOrientation ());
+        player->GetClosePoint (x, y, z, creatureTarget->GetObjectSize(), CONTACT_DISTANCE);
+        pet->Relocate(x, y, z, M_PI-player->GetOrientation());
 
         // set pet to defensive mode by default (some classes can't control controlled pets in fact).
         pet->SetReactState(REACT_DEFENSIVE);
@@ -1229,7 +1284,7 @@ public:
         group_member->leaderGUID     = leaderGUID;
         group_member->groupAI        = 0;
 
-        CreatureGroupMap[lowguid] = group_member;
+        sFormationMgr->CreatureGroupMap[lowguid] = group_member;
         creature->SearchFormation();
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);

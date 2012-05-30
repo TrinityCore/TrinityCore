@@ -107,9 +107,9 @@ public:
 
     struct boss_fathomlord_karathressAI : public ScriptedAI
     {
-        boss_fathomlord_karathressAI(Creature* c) : ScriptedAI(c)
+        boss_fathomlord_karathressAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             Advisors[0] = 0;
             Advisors[1] = 0;
             Advisors[2] = 0;
@@ -225,7 +225,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -317,9 +317,9 @@ public:
 
     struct boss_fathomguard_sharkkisAI : public ScriptedAI
     {
-        boss_fathomguard_sharkkisAI(Creature* c) : ScriptedAI(c)
+        boss_fathomguard_sharkkisAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -354,7 +354,7 @@ public:
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -381,7 +381,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -471,9 +471,9 @@ public:
 
     struct boss_fathomguard_tidalvessAI : public ScriptedAI
     {
-        boss_fathomguard_tidalvessAI(Creature* c) : ScriptedAI(c)
+        boss_fathomguard_tidalvessAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -494,7 +494,7 @@ public:
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -522,7 +522,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -598,9 +598,9 @@ public:
 
     struct boss_fathomguard_caribdisAI : public ScriptedAI
     {
-        boss_fathomguard_caribdisAI(Creature* c) : ScriptedAI(c)
+        boss_fathomguard_caribdisAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -621,7 +621,7 @@ public:
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
             {
@@ -648,7 +648,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -691,7 +691,7 @@ public:
                 Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%5), TEMPSUMMON_TIMED_DESPAWN, 15000);
                 if (Cyclone)
                 {
-                    CAST_CRE(Cyclone)->SetFloatValue(OBJECT_FIELD_SCALE_X, 3.0f);
+                    CAST_CRE(Cyclone)->SetObjectScale(3.0f);
                     Cyclone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Cyclone->setFaction(me->getFaction());
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
@@ -730,13 +730,13 @@ public:
                 switch (rand()%4)
                 {
                 case 0:
-                    unit = Unit::GetUnit((*me), instance->GetData64(DATA_KARATHRESS));
+                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
                     break;
                 case 1:
-                    unit = Unit::GetUnit((*me), instance->GetData64(DATA_SHARKKIS));
+                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
                     break;
                 case 2:
-                    unit = Unit::GetUnit((*me), instance->GetData64(DATA_TIDALVESS));
+                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
                     break;
                 case 3:
                     unit = me;

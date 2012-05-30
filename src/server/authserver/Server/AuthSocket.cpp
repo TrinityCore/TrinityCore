@@ -849,13 +849,22 @@ bool AuthSocket::_HandleRealmList()
 
         pkt << i->second.icon;                              // realm type
         pkt << lock;                                    // if 1, then realm locked
-        pkt << i->second.color;                             // if 2, then realm is offline
+        pkt << uint8(i->second.flag);                       // RealmFlags
         pkt << i->first;
         pkt << i->second.address;
         pkt << i->second.populationLevel;
         pkt << AmountOfCharacters;
         pkt << i->second.timezone;                          // realm category
         pkt << uint8(0x2C);                             // unk, may be realm number/id?
+
+        if (i->second.flag & REALM_FLAG_SPECIFYBUILD)
+        {
+            // TODO: Make this customizable
+            pkt << uint8(3);
+            pkt << uint8(3);
+            pkt << uint8(5);
+            pkt << uint16(12340);
+        }
 
         ++RealmListSize;
     }

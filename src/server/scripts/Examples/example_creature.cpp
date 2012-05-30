@@ -90,7 +90,7 @@ class example_creature : public CreatureScript
         {
             // *** HANDLED FUNCTION ***
             //This is the constructor, called only once when the Creature is first created
-            example_creatureAI(Creature* c) : ScriptedAI(c) {}
+            example_creatureAI(Creature* creature) : ScriptedAI(creature) {}
 
             // *** CUSTOM VARIABLES ****
             //These variables are for use only by this individual script.
@@ -271,10 +271,10 @@ class example_creature : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
-            if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            if (action == GOSSIP_ACTION_INFO_DEF+1)
             {
                 player->CLOSE_GOSSIP_MENU();
                 //Set our faction to hostile towards all

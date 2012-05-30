@@ -27,12 +27,21 @@
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "GameEventMgr.h"
+#include "CreatureTextMgr.h"
 
 #include "SmartScriptMgr.h"
 
 void SmartWaypointMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
+
+    for (UNORDERED_MAP<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
+    {
+        for (WPPath::iterator pathItr = itr->second->begin(); pathItr != itr->second->end(); ++pathItr)
+            delete pathItr->second;
+
+        delete itr->second;
+    }
 
     waypoint_map.clear();
 
@@ -48,7 +57,6 @@ void SmartWaypointMgr::LoadFromDB()
 
     uint32 count = 0;
     uint32 total = 0;
-    WPPath* path = NULL;
     uint32 last_entry = 0;
     uint32 last_id = 1;
 
@@ -62,27 +70,19 @@ void SmartWaypointMgr::LoadFromDB()
         y = fields[3].GetFloat();
         z = fields[4].GetFloat();
 
-        WayPoint* wp = new WayPoint(id, x, y, z);
-
         if (last_entry != entry)
         {
-            path = new WPPath;
+            waypoint_map[entry] = new WPPath();
             last_id = 1;
+            count++;
         }
 
         if (last_id != id)
-        {
             sLog->outErrorDb("SmartWaypointMgr::LoadFromDB: Path entry %u, unexpected point id %u, expected %u.", entry, id, last_id);
-        }
 
         last_id++;
-        (*path)[id] = wp;
+        (*waypoint_map[entry])[id] = new WayPoint(id, x, y, z);
 
-        if (last_entry != entry)
-        {
-            count++;
-            waypoint_map[entry] = path;
-        }
         last_entry = entry;
         total++;
     }
@@ -90,6 +90,19 @@ void SmartWaypointMgr::LoadFromDB()
 
     sLog->outString(">> Loaded %u SmartAI waypoint paths (total %u waypoints) in %u ms", count, total, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
+}
+
+SmartWaypointMgr::~SmartWaypointMgr()
+{
+    for (UNORDERED_MAP<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
+    {
+        for (WPPath::iterator pathItr = itr->second->begin(); pathItr != itr->second->end(); ++pathItr)
+            delete pathItr->second;
+
+        delete itr->second;
+    }
+
+    waypoint_map.clear();
 }
 
 void SmartAIMgr::LoadSmartAIFromDB()
@@ -185,7 +198,6 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.event.raw.param4 = fields[11].GetUInt32();
 
         temp.action.type = (SMART_ACTION)fields[12].GetUInt8();
-
         temp.action.raw.param1 = fields[13].GetUInt32();
         temp.action.raw.param2 = fields[14].GetUInt32();
         temp.action.raw.param3 = fields[15].GetUInt32();
@@ -312,7 +324,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d, event type %u can not be used for Script type %u", e.entryOrGuid, e.GetEventType(), e.GetScriptType());
         return false;
     }
-    if (e.action.type >= SMART_ACTION_END)
+    if (e.action.type <= 0 || e.action.type >= SMART_ACTION_END)
     {
         sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has invalid action type (%u), skipped.", e.entryOrGuid, e.event_id, e.GetActionType());
         return false;
@@ -322,11 +334,19 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has invalid phase mask (%u), skipped.", e.entryOrGuid, e.event_id, e.event.event_phase_mask);
         return false;
     }
+    if (e.event.event_flags > SMART_EVENT_FLAGS_ALL)
+    {
+        sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has invalid event flags (%u), skipped.", e.entryOrGuid, e.event_id, e.event.event_flags);
+        return false;
+    }
     if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
     {
         e.event.type = SMART_EVENT_UPDATE_OOC;//force default OOC, can change when calling the script!
-        if (!IsMinMaxValid(e, e.event.minMaxRepeat.min, e.event.minMaxRepeat.max)) return false;
-        if (!IsMinMaxValid(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax)) return false;
+        if (!IsMinMaxValid(e, e.event.minMaxRepeat.min, e.event.minMaxRepeat.max))
+            return false;
+
+        if (!IsMinMaxValid(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax))
+            return false;
     }
     else
     {
@@ -344,8 +364,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_DAMAGED:
             case SMART_EVENT_DAMAGED_TARGET:
             case SMART_EVENT_RECEIVE_HEAL:
-                if (!IsMinMaxValid(e, e.event.minMaxRepeat.min, e.event.minMaxRepeat.max)) return false;
-                if (!IsMinMaxValid(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax)) return false;
+                if (!IsMinMaxValid(e, e.event.minMaxRepeat.min, e.event.minMaxRepeat.max))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax))
+                    return false;
                 break;
             case SMART_EVENT_SPELLHIT:
             case SMART_EVENT_SPELLHIT_TARGET:
@@ -363,11 +386,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         return false;
                     }
                 }
-                if (!IsMinMaxValid(e, e.event.spellHit.cooldownMin, e.event.spellHit.cooldownMax)) return false;
+                if (!IsMinMaxValid(e, e.event.spellHit.cooldownMin, e.event.spellHit.cooldownMax))
+                    return false;
                 break;
             case SMART_EVENT_OOC_LOS:
             case SMART_EVENT_IC_LOS:
-                if (!IsMinMaxValid(e, e.event.los.cooldownMin, e.event.los.cooldownMax)) return false;
+                if (!IsMinMaxValid(e, e.event.los.cooldownMin, e.event.los.cooldownMax))
+                    return false;
                 break;
             case SMART_EVENT_RESPAWN:
                 if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_MAP && !sMapStore.LookupEntry(e.event.respawn.map))
@@ -382,32 +407,48 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 }
                 break;
             case SMART_EVENT_FRIENDLY_HEALTH:
-                if (!NotNULL(e, e.event.friendlyHealt.radius)) return false;
-                if (!IsMinMaxValid(e, e.event.friendlyHealt.repeatMin, e.event.friendlyHealt.repeatMax)) return false;
+                if (!NotNULL(e, e.event.friendlyHealt.radius))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.friendlyHealt.repeatMin, e.event.friendlyHealt.repeatMax))
+                    return false;
                 break;
             case SMART_EVENT_FRIENDLY_IS_CC:
-                if (!IsMinMaxValid(e, e.event.friendlyCC.repeatMin, e.event.friendlyCC.repeatMax)) return false;
+                if (!IsMinMaxValid(e, e.event.friendlyCC.repeatMin, e.event.friendlyCC.repeatMax))
+                    return false;
                 break;
             case SMART_EVENT_FRIENDLY_MISSING_BUFF:
             {
-                if (!IsSpellValid(e, e.event.missingBuff.spell)) return false;
-                if (!NotNULL(e, e.event.missingBuff.radius)) return false;
-                if (!IsMinMaxValid(e, e.event.missingBuff.repeatMin, e.event.missingBuff.repeatMax)) return false;
+                if (!IsSpellValid(e, e.event.missingBuff.spell))
+                    return false;
+
+                if (!NotNULL(e, e.event.missingBuff.radius))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.missingBuff.repeatMin, e.event.missingBuff.repeatMax))
+                    return false;
                 break;
             }
             case SMART_EVENT_KILL:
-                if (!IsMinMaxValid(e, e.event.kill.cooldownMin, e.event.kill.cooldownMax)) return false;
-                if (e.event.kill.creature && !IsCreatureValid(e, e.event.kill.creature)) return false;
+                if (!IsMinMaxValid(e, e.event.kill.cooldownMin, e.event.kill.cooldownMax))
+                    return false;
+
+                if (e.event.kill.creature && !IsCreatureValid(e, e.event.kill.creature))
+                    return false;
                 break;
             case SMART_EVENT_TARGET_CASTING:
             case SMART_EVENT_PASSENGER_BOARDED:
             case SMART_EVENT_PASSENGER_REMOVED:
-                if (!IsMinMaxValid(e, e.event.minMax.repeatMin, e.event.minMax.repeatMax)) return false;
+                if (!IsMinMaxValid(e, e.event.minMax.repeatMin, e.event.minMax.repeatMax))
+                    return false;
                 break;
             case SMART_EVENT_SUMMON_DESPAWNED:
             case SMART_EVENT_SUMMONED_UNIT:
-                if (e.event.summoned.creature && !IsCreatureValid(e, e.event.summoned.creature)) return false;
-                if (!IsMinMaxValid(e, e.event.summoned.cooldownMin, e.event.summoned.cooldownMax)) return false;
+                if (e.event.summoned.creature && !IsCreatureValid(e, e.event.summoned.creature))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.summoned.cooldownMin, e.event.summoned.cooldownMax))
+                    return false;
                 break;
             case SMART_EVENT_ACCEPTED_QUEST:
             case SMART_EVENT_REWARD_QUEST:
@@ -416,20 +457,27 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 break;
             case SMART_EVENT_RECEIVE_EMOTE:
             {
-                if (e.event.emote.emote && !IsTextEmoteValid(e, e.event.emote.emote)) return false;
-                if (!IsMinMaxValid(e, e.event.emote.cooldownMin, e.event.emote.cooldownMax)) return false;
+                if (e.event.emote.emote && !IsTextEmoteValid(e, e.event.emote.emote))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.emote.cooldownMin, e.event.emote.cooldownMax))
+                    return false;
                 break;
             }
             case SMART_EVENT_HAS_AURA:
             case SMART_EVENT_TARGET_BUFFED:
             {
-                if (!IsSpellValid(e, e.event.aura.spell)) return false;
-                if (!IsMinMaxValid(e, e.event.aura.repeatMin, e.event.aura.repeatMax)) return false;
+                if (!IsSpellValid(e, e.event.aura.spell))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.aura.repeatMin, e.event.aura.repeatMax))
+                    return false;
                 break;
             }
             case SMART_EVENT_TRANSPORT_ADDCREATURE:
                 {
-                    if (e.event.transportAddCreature.creature && !IsCreatureValid(e, e.event.transportAddCreature.creature)) return false;
+                    if (e.event.transportAddCreature.creature && !IsCreatureValid(e, e.event.transportAddCreature.creature))
+                        return false;
                     break;
                 }
             case SMART_EVENT_MOVEMENTINFORM:
@@ -443,12 +491,14 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 }
             case SMART_EVENT_DATA_SET:
                 {
-                    if (!IsMinMaxValid(e, e.event.dataSet.cooldownMin, e.event.dataSet.cooldownMax)) return false;
+                    if (!IsMinMaxValid(e, e.event.dataSet.cooldownMin, e.event.dataSet.cooldownMax))
+                        return false;
                     break;
                 }
             case SMART_EVENT_AREATRIGGER_ONTRIGGER:
                 {
-                    if (e.event.areatrigger.id && !IsAreaTriggerValid(e, e.event.areatrigger.id)) return false;
+                    if (e.event.areatrigger.id && !IsAreaTriggerValid(e, e.event.areatrigger.id))
+                        return false;
                     break;
                 }
             case SMART_EVENT_TEXT_OVER:
@@ -464,8 +514,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     break;
                 }
             case SMART_EVENT_DUMMY_EFFECT:
-                if (!IsSpellValid(e, e.event.dummy.spell)) return false;
-                if (e.event.dummy.effIndex > EFFECT_2) return false;
+                if (!IsSpellValid(e, e.event.dummy.spell))
+                    return false;
+
+                if (e.event.dummy.effIndex > EFFECT_2)
+                    return false;
                 break;
             case SMART_EVENT_IS_BEHIND_TARGET:
                 if (!IsMinMaxValid(e, e.event.behindTarget.cooldownMin, e.event.behindTarget.cooldownMax))
@@ -562,11 +615,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_SET_EMOTE_STATE:
         case SMART_ACTION_PLAY_EMOTE:
-            if (!IsEmoteValid(e, e.action.emote.emote)) return false;
+            if (!IsEmoteValid(e, e.action.emote.emote))
+                return false;
             break;
         case SMART_ACTION_FAIL_QUEST:
         case SMART_ACTION_ADD_QUEST:
-            if (!e.action.quest.quest || !IsQuestValid(e, e.action.quest.quest)) return false;
+            if (!e.action.quest.quest || !IsQuestValid(e, e.action.quest.quest))
+                return false;
             break;
         case SMART_ACTION_ACTIVATE_TAXI:
             {
@@ -578,17 +633,29 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 break;
             }
         case SMART_ACTION_RANDOM_EMOTE:
-            if (e.action.randomEmote.emote1 && !IsEmoteValid(e, e.action.randomEmote.emote1)) return false;
-            if (e.action.randomEmote.emote2 && !IsEmoteValid(e, e.action.randomEmote.emote2)) return false;
-            if (e.action.randomEmote.emote3 && !IsEmoteValid(e, e.action.randomEmote.emote3)) return false;
-            if (e.action.randomEmote.emote4 && !IsEmoteValid(e, e.action.randomEmote.emote4)) return false;
-            if (e.action.randomEmote.emote5 && !IsEmoteValid(e, e.action.randomEmote.emote5)) return false;
-            if (e.action.randomEmote.emote6 && !IsEmoteValid(e, e.action.randomEmote.emote6)) return false;
+            if (e.action.randomEmote.emote1 && !IsEmoteValid(e, e.action.randomEmote.emote1))
+                return false;
+
+            if (e.action.randomEmote.emote2 && !IsEmoteValid(e, e.action.randomEmote.emote2))
+                return false;
+
+            if (e.action.randomEmote.emote3 && !IsEmoteValid(e, e.action.randomEmote.emote3))
+                return false;
+
+            if (e.action.randomEmote.emote4 && !IsEmoteValid(e, e.action.randomEmote.emote4))
+                return false;
+
+            if (e.action.randomEmote.emote5 && !IsEmoteValid(e, e.action.randomEmote.emote5))
+                return false;
+
+            if (e.action.randomEmote.emote6 && !IsEmoteValid(e, e.action.randomEmote.emote6))
+                return false;
             break;
         case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_CAST:
         case SMART_ACTION_INVOKER_CAST:
-            if (!IsSpellValid(e, e.action.cast.spell)) return false;
+            if (!IsSpellValid(e, e.action.cast.spell))
+                return false;
             break;
         case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
         case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
@@ -607,8 +674,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_SEND_CASTCREATUREORGO:
-            if (!IsQuestValid(e, e.action.castCreatureOrGO.quest)) return false;
-            if (!IsSpellValid(e, e.action.castCreatureOrGO.spell)) return false;
+            if (!IsQuestValid(e, e.action.castCreatureOrGO.quest))
+                return false;
+
+            if (!IsSpellValid(e, e.action.castCreatureOrGO.spell))
+                return false;
             break;
 
 
@@ -632,11 +702,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_CALL_CASTEDCREATUREORGO:
-            if (!IsCreatureValid(e, e.action.castedCreatureOrGO.creature)) return false;
-            if (!IsSpellValid(e, e.action.castedCreatureOrGO.spell)) return false;
+            if (!IsCreatureValid(e, e.action.castedCreatureOrGO.creature))
+                return false;
+
+            if (!IsSpellValid(e, e.action.castedCreatureOrGO.spell))
+                return false;
             break;
         case SMART_ACTION_REMOVEAURASFROMSPELL:
-            if (!IsSpellValid(e, e.action.removeAura.spell)) return false;
+            if (!IsSpellValid(e, e.action.removeAura.spell))
+                return false;
             break;
         case SMART_ACTION_RANDOM_PHASE:
             {
@@ -660,11 +734,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u attempts to set invalid phase, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                     return false;
                 }
-                if (!IsMinMaxValid(e, e.action.randomPhaseRange.phaseMin, e.action.randomPhaseRange.phaseMax)) return false;
+                if (!IsMinMaxValid(e, e.action.randomPhaseRange.phaseMin, e.action.randomPhaseRange.phaseMax))
+                    return false;
                 break;
             }
         case SMART_ACTION_SUMMON_CREATURE:
-            if (!IsCreatureValid(e, e.action.summonCreature.creature)) return false;
+            if (!IsCreatureValid(e, e.action.summonCreature.creature))
+                return false;
             if (e.action.summonCreature.type < TEMPSUMMON_TIMED_OR_DEAD_DESPAWN || e.action.summonCreature.type > TEMPSUMMON_MANUAL_DESPAWN)
             {
                 sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses incorrect TempSummonType %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.type);
@@ -672,10 +748,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_CALL_KILLEDMONSTER:
-            if (!IsCreatureValid(e, e.action.killedMonster.creature)) return false;
+            if (!IsCreatureValid(e, e.action.killedMonster.creature))
+                return false;
             break;
         case SMART_ACTION_UPDATE_TEMPLATE:
-            if (e.action.updateTemplate.creature && !IsCreatureValid(e, e.action.updateTemplate.creature)) return false;
+            if (e.action.updateTemplate.creature && !IsCreatureValid(e, e.action.updateTemplate.creature))
+                return false;
             break;
         case SMART_ACTION_SET_SHEATH:
             if (e.action.setSheath.sheath && e.action.setSheath.sheath >= MAX_SHEATH_STATE)
@@ -694,12 +772,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 break;
             }
         case SMART_ACTION_SUMMON_GO:
-            if (!IsGameObjectValid(e, e.action.summonGO.entry)) return false;
+            if (!IsGameObjectValid(e, e.action.summonGO.entry))
+                return false;
             break;
         case SMART_ACTION_ADD_ITEM:
         case SMART_ACTION_REMOVE_ITEM:
-            if (!IsItemValid(e, e.action.item.entry)) return false;
-            if (!NotNULL(e, e.action.item.count)) return false;
+            if (!IsItemValid(e, e.action.item.entry))
+                return false;
+
+            if (!NotNULL(e, e.action.item.count))
+                return false;
             break;
         case SMART_ACTION_TELEPORT:
             if (!sMapStore.LookupEntry(e.action.teleport.mapID))
@@ -716,7 +798,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_WP_STOP:
-            if (e.action.wpStop.quest && !IsQuestValid(e, e.action.wpStop.quest)) return false;
+            if (e.action.wpStop.quest && !IsQuestValid(e, e.action.wpStop.quest))
+                return false;
             break;
         case SMART_ACTION_WP_START:
             {
@@ -725,7 +808,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     sLog->outErrorDb("SmartAIMgr: Creature %d Event %u Action %u uses non-existent WaypointPath id %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.pathID);
                     return false;
                 }
-                if (e.action.wpStart.quest && !IsQuestValid(e, e.action.wpStart.quest)) return false;
+                if (e.action.wpStart.quest && !IsQuestValid(e, e.action.wpStart.quest))
+                    return false;
                 if (e.action.wpStart.reactState > REACT_AGGRESSIVE)
                 {
                     sLog->outErrorDb("SmartAIMgr: Creature %d Event %u Action %u uses invalid React State %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.reactState);
@@ -735,8 +819,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
         case SMART_ACTION_CREATE_TIMED_EVENT:
         {
-            if (!IsMinMaxValid(e, e.action.timeEvent.min, e.action.timeEvent.max)) return false;
-            if (!IsMinMaxValid(e, e.action.timeEvent.repeatMin, e.action.timeEvent.repeatMax)) return false;
+            if (!IsMinMaxValid(e, e.action.timeEvent.min, e.action.timeEvent.max))
+                return false;
+
+            if (!IsMinMaxValid(e, e.action.timeEvent.repeatMin, e.action.timeEvent.repeatMax))
+                return false;
             break;
         }
         case SMART_ACTION_FOLLOW:

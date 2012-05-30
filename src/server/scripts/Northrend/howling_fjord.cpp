@@ -71,7 +71,7 @@ public:
         npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){}
         uint32 PotTimer;
 
-        void Reset ()
+        void Reset()
         {
             SetDespawnAtFar(false);
             PotTimer = 10000; //10 sec cooldown on potion
@@ -97,20 +97,20 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
-            switch (i)
+
+            switch (waypointId)
             {
                 case 1:
                     me->SetReactState(REACT_AGGRESSIVE);
                     SetRun(true);
                     break;
                 case 23:
-                    if (player)
-                        player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
                     me->DespawnOrUnsummon();
                     break;
                 case 5:
@@ -254,10 +254,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL2, creature->GetGUID());
@@ -303,10 +303,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -389,7 +389,7 @@ public:
             {
                 if (player->isAlive())
                 {
-                    summon->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    summon->SetWalk(false);
                     summon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);
                     summon->AI()->AttackStart(player);
                     return;

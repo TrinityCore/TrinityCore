@@ -23,17 +23,22 @@ SDComment: Quest support: 925
 SDCategory: Thunder Bluff
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 /*#####
 # npc_cairne_bloodhoof
 ######*/
 
-#define SPELL_BERSERKER_CHARGE  16636
-#define SPELL_CLEAVE            16044
-#define SPELL_MORTAL_STRIKE     16856
-#define SPELL_THUNDERCLAP       23931
-#define SPELL_UPPERCUT          22916
+enum CairneBloodhoof
+{
+    SPELL_BERSERKER_CHARGE  = 16636,
+    SPELL_CLEAVE            = 16044,
+    SPELL_MORTAL_STRIKE     = 16856,
+    SPELL_THUNDERCLAP       = 23931,
+    SPELL_UPPERCUT          = 22916
+};
 
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
 //TODO: verify abilities/timers
@@ -42,10 +47,10 @@ class npc_cairne_bloodhoof : public CreatureScript
 public:
     npc_cairne_bloodhoof() : CreatureScript("npc_cairne_bloodhoof") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_SENDER_INFO)
+        if (action == GOSSIP_SENDER_INFO)
         {
             player->CastSpell(player, 23123, false);
             player->SEND_GOSSIP_MENU(7014, creature->GetGUID());
@@ -73,21 +78,21 @@ public:
 
     struct npc_cairne_bloodhoofAI : public ScriptedAI
     {
-        npc_cairne_bloodhoofAI(Creature* c) : ScriptedAI(c) {}
+        npc_cairne_bloodhoofAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 BerserkerCharge_Timer;
-        uint32 Cleave_Timer;
-        uint32 MortalStrike_Timer;
-        uint32 Thunderclap_Timer;
-        uint32 Uppercut_Timer;
+        uint32 BerserkerChargeTimer;
+        uint32 CleaveTimer;
+        uint32 MortalStrikeTimer;
+        uint32 ThunderclapTimer;
+        uint32 UppercutTimer;
 
         void Reset()
         {
-            BerserkerCharge_Timer = 30000;
-            Cleave_Timer = 5000;
-            MortalStrike_Timer = 10000;
-            Thunderclap_Timer = 15000;
-            Uppercut_Timer = 10000;
+            BerserkerChargeTimer = 30000;
+            CleaveTimer = 5000;
+            MortalStrikeTimer = 10000;
+            ThunderclapTimer = 15000;
+            UppercutTimer = 10000;
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -97,37 +102,37 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (BerserkerCharge_Timer <= diff)
+            if (BerserkerChargeTimer <= diff)
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
                     DoCast(target, SPELL_BERSERKER_CHARGE);
-                BerserkerCharge_Timer = 25000;
-            } else BerserkerCharge_Timer -= diff;
+                BerserkerChargeTimer = 25000;
+            } else BerserkerChargeTimer -= diff;
 
-            if (Uppercut_Timer <= diff)
+            if (UppercutTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_UPPERCUT);
-                Uppercut_Timer = 20000;
-            } else Uppercut_Timer -= diff;
+                UppercutTimer = 20000;
+            } else UppercutTimer -= diff;
 
-            if (Thunderclap_Timer <= diff)
+            if (ThunderclapTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_THUNDERCLAP);
-                Thunderclap_Timer = 15000;
-            } else Thunderclap_Timer -= diff;
+                ThunderclapTimer = 15000;
+            } else ThunderclapTimer -= diff;
 
-            if (MortalStrike_Timer <= diff)
+            if (MortalStrikeTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
-                MortalStrike_Timer = 15000;
-            } else MortalStrike_Timer -= diff;
+                MortalStrikeTimer = 15000;
+            } else MortalStrikeTimer -= diff;
 
-            if (Cleave_Timer <= diff)
+            if (CleaveTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = 7000;
-            } else Cleave_Timer -= diff;
+                CleaveTimer = 7000;
+            } else CleaveTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

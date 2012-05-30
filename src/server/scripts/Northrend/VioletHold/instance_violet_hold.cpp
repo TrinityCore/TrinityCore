@@ -221,7 +221,8 @@ public:
         bool IsEncounterInProgress() const
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS) return true;
+                if (m_auiEncounter[i] == IN_PROGRESS)
+                    return true;
 
             return false;
         }
@@ -689,7 +690,8 @@ public:
                 {
                     AddWave();
                     bActive = false;
-                    uiActivationTimer = 5000;
+                    // 1 minute waiting time after each boss fight
+                    uiActivationTimer = (uiWaveCount == 6 || uiWaveCount == 12) ? 60000 : 5000;
                 } else uiActivationTimer -= diff;
             }
 
@@ -795,7 +797,7 @@ public:
             }
         }
 
-        void ProcessEvent(WorldObject* /*pGO*/, uint32 uiEventId)
+        void ProcessEvent(WorldObject* /*go*/, uint32 uiEventId)
         {
             switch (uiEventId)
             {

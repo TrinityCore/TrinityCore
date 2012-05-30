@@ -16,6 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <ace/Guard_T.h>
+
 #include "Cryptography/BigNumber.h"
 #include <openssl/bn.h>
 #include <openssl/crypto.h>
@@ -168,6 +170,8 @@ bool BigNumber::isZero() const
 uint8 *BigNumber::AsByteArray(int minSize, bool reverse)
 {
     int length = (minSize >= GetNumBytes()) ? minSize : GetNumBytes();
+
+    ACE_GUARD_RETURN(ACE_Mutex, g, _lock, 0);
 
     if (_array)
     {

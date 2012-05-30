@@ -660,6 +660,7 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
     bg->SetName(data.BattlegroundName);
     bg->SetTeamStartLoc(ALLIANCE, data.Team1StartLocX, data.Team1StartLocY, data.Team1StartLocZ, data.Team1StartLocO);
     bg->SetTeamStartLoc(HORDE,    data.Team2StartLocX, data.Team2StartLocY, data.Team2StartLocZ, data.Team2StartLocO);
+    bg->SetStartMaxDist(data.StartMaxDist);
     bg->SetLevelRange(data.LevelMin, data.LevelMax);
     bg->SetScriptId(data.scriptId);
 
@@ -677,8 +678,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     uint8 selectionWeight;
     BattlemasterListEntry const* bl;
 
-    //                                               0   1                  2                  3       4       5                 6               7              8            9       10
-    QueryResult result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, Weight, ScriptName FROM battleground_template");
+    //                                               0   1                  2                  3       4       5                 6               7              8            9             10      11
+    QueryResult result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName FROM battleground_template");
 
     if (!result)
     {
@@ -708,21 +709,24 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         CreateBattlegroundData data;
         data.bgTypeId = BattlegroundTypeId(bgTypeID_);
         data.IsArena = (bl->type == TYPE_ARENA);
-        data.MinPlayersPerTeam = fields[1].GetUInt32();
-        data.MaxPlayersPerTeam = fields[2].GetUInt32();
-        data.LevelMin = fields[3].GetUInt32();
-        data.LevelMax = fields[4].GetUInt32();
-        //check values from DB
-        if (data.MaxPlayersPerTeam == 0 || data.MinPlayersPerTeam == 0 || data.MinPlayersPerTeam > data.MaxPlayersPerTeam)
+        data.MinPlayersPerTeam = fields[1].GetUInt16();
+        data.MaxPlayersPerTeam = fields[2].GetUInt16();
+        data.LevelMin = fields[3].GetUInt8();
+        data.LevelMax = fields[4].GetUInt8();
+
+        // check values from DB
+        if (data.MaxPlayersPerTeam == 0 || data.MinPlayersPerTeam > data.MaxPlayersPerTeam)
         {
-            data.MinPlayersPerTeam = 0;                          // by default now expected strong full bg requirement
-            data.MaxPlayersPerTeam = 40;
+            sLog->outErrorDb("Table `battleground_template` for id %u has bad values for MinPlayersPerTeam (%u) and MaxPlayersPerTeam(%u)",
+                data.bgTypeId, data.MinPlayersPerTeam, data.MaxPlayersPerTeam);
+            continue;
         }
+
         if (data.LevelMin == 0 || data.LevelMax == 0 || data.LevelMin > data.LevelMax)
         {
-            //TO-DO: FIX ME
-            data.LevelMin = 0;//bl->minlvl;
-            data.LevelMax = 80;//bl->maxlvl;
+            sLog->outErrorDb("Table `battleground_template` for id %u has bad values for LevelMin (%u) and LevelMax(%u)",
+                data.bgTypeId, data.LevelMin, data.LevelMax);
+            continue;
         }
 
         startId = fields[5].GetUInt32();
@@ -767,9 +771,10 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             continue;
         }
 
-        selectionWeight = fields[9].GetUInt8();
-        data.scriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
+        data.StartMaxDist = fields[9].GetFloat();
+        
         //data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
+        data.scriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
         data.MapID = bl->mapid[0];
 
         if (!CreateBattleground(data))

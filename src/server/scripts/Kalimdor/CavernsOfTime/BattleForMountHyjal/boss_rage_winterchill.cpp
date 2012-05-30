@@ -58,11 +58,10 @@ public:
 
     struct boss_rage_winterchillAI : public hyjal_trashAI
     {
-        boss_rage_winterchillAI(Creature* c) : hyjal_trashAI(c)
+        boss_rage_winterchillAI(Creature* creature) : hyjal_trashAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             go = false;
-            pos = 0;
         }
 
         uint32 FrostArmorTimer;
@@ -70,7 +69,6 @@ public:
         uint32 NovaTimer;
         uint32 IceboltTimer;
         bool go;
-        uint32 pos;
 
         void Reset()
         {
@@ -107,20 +105,19 @@ public:
             }
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
-            pos = i;
-            if (i == 7 && instance)
+            if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
+                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* killer)
         {
-            hyjal_trashAI::JustDied(victim);
+            hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
                 instance->SetData(DATA_RAGEWINTERCHILLEVENT, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);

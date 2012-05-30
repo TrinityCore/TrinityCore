@@ -27,8 +27,7 @@ template < class T >
 class HomeMovementGenerator;
 
 template <>
-class HomeMovementGenerator<Creature>
-: public MovementGeneratorMedium< Creature, HomeMovementGenerator<Creature> >
+class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature, HomeMovementGenerator<Creature> >
 {
     public:
 

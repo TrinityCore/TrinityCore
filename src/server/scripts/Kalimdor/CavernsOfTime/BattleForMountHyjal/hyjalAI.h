@@ -171,7 +171,7 @@ const Yells ThrallQuotes[]=
 
 struct hyjalAI : public npc_escortAI
 {
-    hyjalAI(Creature* c);
+    hyjalAI(Creature* creature);
 
     void Reset();                                           // Generically used to reset our variables. Do *not* call in EnterEvadeMode as this may make problems if the raid is still in combat
 
@@ -196,7 +196,7 @@ struct hyjalAI : public npc_escortAI
     void SummonedCreatureDespawn(Creature* summoned);
     void HideNearPos(float x, float y);
     void RespawnNearPos(float x, float y);
-    void WaypointReached(uint32 i);
+    void WaypointReached(uint32 waypointId);
     void DoOverrun(uint32 faction, const uint32 diff);
     void MoveInLineOfSight(Unit* who);
 

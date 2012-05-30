@@ -177,24 +177,27 @@ class spell_warr_deep_wounds : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 int32 damage = GetEffectValue();
+                Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
-                    if (Unit* caster = GetCaster())
-                    {
-                        // apply percent damage mods
-                        damage = caster->SpellDamageBonus(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
+                {
+                    // apply percent damage mods
+                    damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
-                        ApplyPctN(damage, 16 * sSpellMgr->GetSpellRank(GetSpellInfo()->Id));
+                    ApplyPctN(damage, 16 * sSpellMgr->GetSpellRank(GetSpellInfo()->Id));
+                    
+                    damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
+                    
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_DEEP_WOUNDS_RANK_PERIODIC);
+                    uint32 ticks = spellInfo->GetDuration() / spellInfo->Effects[EFFECT_0].Amplitude;
 
-                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_DEEP_WOUNDS_RANK_PERIODIC);
-                        uint32 ticks = spellInfo->GetDuration() / spellInfo->Effects[EFFECT_0].Amplitude;
+                    // Add remaining ticks to damage done
+                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_DEEP_WOUNDS_RANK_PERIODIC, EFFECT_0, caster->GetGUID()))
+                        damage += aurEff->GetAmount() * (ticks - aurEff->GetTickNumber());
 
-                        // Add remaining ticks to damage done
-                        if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_DEEP_WOUNDS_RANK_PERIODIC, EFFECT_0, caster->GetGUID()))
-                            damage += aurEff->GetAmount() * (ticks - aurEff->GetTickNumber());
+                    damage = damage / ticks;
 
-                        damage = damage / ticks;
-                        caster->CastCustomSpell(target, SPELL_DEEP_WOUNDS_RANK_PERIODIC, &damage, NULL, NULL, true);
-                    }
+                    caster->CastCustomSpell(target, SPELL_DEEP_WOUNDS_RANK_PERIODIC, &damage, NULL, NULL, true);
+                }
             }
 
             void Register()
@@ -365,7 +368,7 @@ class spell_warr_concussion_blow : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                SetHitDamage(GetHitDamage() + CalculatePctF(GetHitDamage(),GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK)));
+                SetHitDamage(CalculatePctN(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectValue()));
             }
 
             void Register()
@@ -397,8 +400,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 int32 damage = GetEffectValue();
-                if (GetHitUnit())
-                    GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
+                GetCaster()->CastCustomSpell(GetCaster(), SPELL_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
             }
 
             void Register()
@@ -413,6 +415,51 @@ class spell_warr_bloodthirst : public SpellScriptLoader
         }
 };
 
+enum Overpower
+{
+    SPELL_UNRELENTING_ASSAULT_RANK_1        = 46859,
+    SPELL_UNRELENTING_ASSAULT_RANK_2        = 46860,
+    SPELL_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
+    SPELL_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
+};
+
+class spell_warr_overpower : public SpellScriptLoader
+{
+public:
+    spell_warr_overpower() : SpellScriptLoader("spell_warr_overpower") { }
+
+    class spell_warr_overpower_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_overpower_SpellScript);
+
+        void HandleEffect(SpellEffIndex /* effIndex */)
+        {
+            uint32 spellId = 0;
+            if (GetCaster()->HasAura(SPELL_UNRELENTING_ASSAULT_RANK_1))
+                spellId = SPELL_UNRELENTING_ASSAULT_TRIGGER_1;
+            else if (GetCaster()->HasAura(SPELL_UNRELENTING_ASSAULT_RANK_2))
+                spellId = SPELL_UNRELENTING_ASSAULT_TRIGGER_2;
+
+            if (!spellId)
+                return;
+
+            if (Player* target = GetHitPlayer())
+                if (target->HasUnitState(UNIT_STATE_CASTING))
+                    target->CastSpell(target, spellId, true);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_overpower_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_ANY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_overpower_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_last_stand();
@@ -424,4 +471,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_execute();
     new spell_warr_concussion_blow();
     new spell_warr_bloodthirst();
+    new spell_warr_overpower();
 }

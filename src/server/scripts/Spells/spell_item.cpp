@@ -55,8 +55,8 @@ class spell_item_trigger_spell : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (Item* pItem = GetCastItem())
-                    caster->CastSpell(caster, _triggeredSpellId, true, pItem);
+                if (Item* item = GetCastItem())
+                    caster->CastSpell(caster, _triggeredSpellId, true, item);
             }
 
             void Register()
@@ -1095,7 +1095,7 @@ class spell_item_shimmering_vessel : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 if (Creature* target = GetHitCreature())
-                    target->setDeathState(JUST_ALIVED);
+                    target->setDeathState(JUST_RESPAWNED);
             }
 
             void Register()
@@ -1513,7 +1513,7 @@ class spell_item_complete_raptor_capture : public SpellScriptLoader
 enum ImpaleLeviroth
 {
     NPC_LEVIROTH                = 26452,
-    SPELL_LEVIROTH_SELF_IMPALE  = 49882
+    SPELL_LEVIROTH_SELF_IMPALE  = 49882,
 };
 
 class spell_item_impale_leviroth : public SpellScriptLoader
@@ -1534,11 +1534,9 @@ class spell_item_impale_leviroth : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                Unit* target = GetHitCreature();
-                if (!target || target->GetEntry() != NPC_LEVIROTH || !target->HealthBelowPct(95))
-                    return;
-
-                target->CastSpell(target, SPELL_LEVIROTH_SELF_IMPALE, true);
+                if (Unit* target = GetHitCreature())
+                    if (target->GetEntry() == NPC_LEVIROTH && !target->HealthBelowPct(95))
+                        target->CastSpell(target, SPELL_LEVIROTH_SELF_IMPALE, true);
             }
 
             void Register()
@@ -1591,15 +1589,15 @@ class spell_item_brewfest_mount_transformation : public SpellScriptLoader
                     {
                         case SPELL_BREWFEST_MOUNT_TRANSFORM:
                             if (caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
-                                spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100 ;
+                                spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100;
                             else
-                                spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60 ;
+                                spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60;
                             break;
                         case SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE:
                             if (caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
-                                spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100 ;
+                                spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100;
                             else
-                                spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60 ;
+                                spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60;
                             break;
                         default:
                             return;
@@ -1746,11 +1744,20 @@ class spell_item_rocket_boots : public SpellScriptLoader
                 if (Battleground* bg = caster->GetBattleground())
                     bg->EventPlayerDroppedFlag(caster);
 
+                caster->RemoveSpellCooldown(SPELL_ROCKET_BOOTS_PROC);
                 caster->CastSpell(caster, SPELL_ROCKET_BOOTS_PROC, true, NULL);
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (GetCaster()->IsInWater())
+                    return SPELL_FAILED_ONLY_ABOVEWATER;
+                return SPELL_CAST_OK;
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_item_rocket_boots_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_item_rocket_boots_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -1994,6 +2001,65 @@ class spell_item_refocus : public SpellScriptLoader
         }
 };
 
+class spell_item_muisek_vessel : public SpellScriptLoader
+{
+    public:
+        spell_item_muisek_vessel() : SpellScriptLoader("spell_item_muisek_vessel") { }
+
+        class spell_item_muisek_vessel_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_muisek_vessel_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* target = GetHitCreature())
+                    if (target->isDead())
+                        target->DespawnOrUnsummon();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_muisek_vessel_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_muisek_vessel_SpellScript();
+        }
+};
+
+enum GreatmothersSoulcather
+{
+    SPELL_FORCE_CAST_SUMMON_GNOME_SOUL = 46486,
+};
+class spell_item_greatmothers_soulcatcher : public SpellScriptLoader
+{
+public:
+    spell_item_greatmothers_soulcatcher() : SpellScriptLoader("spell_item_greatmothers_soulcatcher") { }
+
+    class spell_item_greatmothers_soulcatcher_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_greatmothers_soulcatcher_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (GetHitUnit())
+                GetCaster()->CastSpell(GetCaster(),SPELL_FORCE_CAST_SUMMON_GNOME_SOUL);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_item_greatmothers_soulcatcher_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_greatmothers_soulcatcher_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2045,4 +2111,6 @@ void AddSC_item_spell_scripts()
     new spell_item_unusual_compass();
     new spell_item_uded();
     new spell_item_chicken_cover();
+    new spell_item_muisek_vessel();
+    new spell_item_greatmothers_soulcatcher();
 }

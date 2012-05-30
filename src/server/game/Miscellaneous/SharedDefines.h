@@ -258,7 +258,8 @@ enum SpellCategory
     SPELL_CATEGORY_DRINK            = 59,
 };
 
-const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
+const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
+{
     0xff9d9d9d,        //GREY
     0xffffffff,        //WHITE
     0xff1eff00,        //GREEN
@@ -278,7 +279,7 @@ enum SpellAttr0
     SPELL_ATTR0_UNK0                             = 0x00000001, //  0
     SPELL_ATTR0_REQ_AMMO                         = 0x00000002, //  1 on next ranged
     SPELL_ATTR0_ON_NEXT_SWING                    = 0x00000004, //  2
-    SPELL_ATTR0_UNK3                             = 0x00000008, //  3 not set in 3.0.3
+    SPELL_ATTR0_IS_REPLENISHMENT                 = 0x00000008, //  3 not set in 3.0.3
     SPELL_ATTR0_ABILITY                          = 0x00000010, //  4 client puts 'ability' instead of 'spell' in game strings for these spells
     SPELL_ATTR0_TRADESPELL                       = 0x00000020, //  5 trade spells (recipes), will be added by client to a sublist of profession spell
     SPELL_ATTR0_PASSIVE                          = 0x00000040, //  6 Passive spell
@@ -323,7 +324,7 @@ enum SpellAttr1
     SPELL_ATTR1_MELEE_COMBAT_START               = 0x00000200, //  9 player starts melee combat after this spell is cast
     SPELL_ATTR1_NO_THREAT                        = 0x00000400, // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
     SPELL_ATTR1_UNK11                            = 0x00000800, // 11 aura
-    SPELL_ATTR1_UNK12                            = 0x00001000, // 12 pickpoket
+    SPELL_ATTR1_IS_PICKPOCKET                    = 0x00001000, // 12 Pickpocket
     SPELL_ATTR1_FARSIGHT                         = 0x00002000, // 13 Client removes farsight on aura loss
     SPELL_ATTR1_CHANNEL_TRACK_TARGET             = 0x00004000, // 14 Client automatically forces player to face target when channeling
     SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY         = 0x00008000, // 15 remove auras on immunity
@@ -335,7 +336,7 @@ enum SpellAttr1
     SPELL_ATTR1_UNK21                            = 0x00200000, // 21
     SPELL_ATTR1_REQ_COMBO_POINTS2                = 0x00400000, // 22 Req combo points on target
     SPELL_ATTR1_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR1_UNK24                            = 0x01000000, // 24 only fishing spells
+    SPELL_ATTR1_IS_FISHING                       = 0x01000000, // 24 only fishing spells
     SPELL_ATTR1_UNK25                            = 0x02000000, // 25
     SPELL_ATTR1_UNK26                            = 0x04000000, // 26 works correctly with [target=focus] and [target=mouseover] macros?
     SPELL_ATTR1_UNK27                            = 0x08000000, // 27 melee spell?
@@ -360,17 +361,17 @@ enum SpellAttr2
     SPELL_ATTR2_UNK10                            = 0x00000400, // 10 related to tame
     SPELL_ATTR2_HEALTH_FUNNEL                    = 0x00000800, // 11
     SPELL_ATTR2_UNK12                            = 0x00001000, // 12 Cleave, Heart Strike, Maul, Sunder Armor, Swipe
-    SPELL_ATTR2_UNK13                            = 0x00002000, // 13 Items enchanted by spells with this flag preserve the enchant to arenas
+    SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA        = 0x00002000, // 13 Items enchanted by spells with this flag preserve the enchant to arenas
     SPELL_ATTR2_UNK14                            = 0x00004000, // 14
     SPELL_ATTR2_UNK15                            = 0x00008000, // 15 not set in 3.0.3
     SPELL_ATTR2_TAME_BEAST                       = 0x00010000, // 16
     SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS           = 0x00020000, // 17 don't reset timers for melee autoattacks (swings) or ranged autoattacks (autoshoots)
-    SPELL_ATTR2_UNK18                            = 0x00040000, // 18 Only Revive pet - possible req dead pet
+    SPELL_ATTR2_REQ_DEAD_PET                     = 0x00040000, // 18 Only Revive pet and Heart of the Pheonix
     SPELL_ATTR2_NOT_NEED_SHAPESHIFT              = 0x00080000, // 19 does not necessarly need shapeshift
     SPELL_ATTR2_UNK20                            = 0x00100000, // 20
     SPELL_ATTR2_DAMAGE_REDUCED_SHIELD            = 0x00200000, // 21 for ice blocks, pala immunity buffs, priest absorb shields, but used also for other spells -> not sure!
     SPELL_ATTR2_UNK22                            = 0x00400000, // 22 Ambush, Backstab, Cheap Shot, Death Grip, Garrote, Judgements, Mutilate, Pounce, Ravage, Shiv, Shred
-    SPELL_ATTR2_UNK23                            = 0x00800000, // 23 Only mage Arcane Concentration have this flag
+    SPELL_ATTR2_IS_ARCANE_CONCENTRATION          = 0x00800000, // 23 Only mage Arcane Concentration have this flag
     SPELL_ATTR2_UNK24                            = 0x01000000, // 24
     SPELL_ATTR2_UNK25                            = 0x02000000, // 25
     SPELL_ATTR2_UNK26                            = 0x04000000, // 26 unaffected by school immunity
@@ -397,7 +398,7 @@ enum SpellAttr3
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
     SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
     SPELL_ATTR3_UNK13                            = 0x00002000, // 13
-    SPELL_ATTR3_UNK14                            = 0x00004000, // 14 "Honorless Target" only this spells have this flag
+    SPELL_ATTR3_IS_HONORLESS_TARGET              = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
     SPELL_ATTR3_CANT_TRIGGER_PROC                = 0x00010000, // 16 confirmed with many patchnotes
     SPELL_ATTR3_NO_INITIAL_AGGRO                 = 0x00020000, // 17 Soothe Animal, 39758, Mind Soothe
@@ -419,8 +420,8 @@ enum SpellAttr3
 
 enum SpellAttr4
 {
-    SPELL_ATTR4_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR4_PROC_ONLY_ON_DUMMY               = 0x00000002, //  1 proc only on SPELL_EFFECT_DUMMY?
+    SPELL_ATTR4_IGNORE_RESISTANCES               = 0x00000001, //  0 spells with this attribute will completely ignore the target's resistance (these spells can't be resisted)
+    SPELL_ATTR4_PROC_ONLY_ON_CASTER              = 0x00000002, //  1 proc only on effects with TARGET_UNIT_CASTER?
     SPELL_ATTR4_UNK2                             = 0x00000004, //  2
     SPELL_ATTR4_UNK3                             = 0x00000008, //  3
     SPELL_ATTR4_UNK4                             = 0x00000010, //  4 This will no longer cause guards to attack on use??
@@ -441,16 +442,16 @@ enum SpellAttr4
     SPELL_ATTR4_UNK19                            = 0x00080000, // 19 proc dalayed, after damage or don't proc on absorb?
     SPELL_ATTR4_NOT_CHECK_SELFCAST_POWER         = 0x00100000, // 20 supersedes message "More powerful spell applied" for self casts.
     SPELL_ATTR4_UNK21                            = 0x00200000, // 21 Pally aura, dk presence, dudu form, warrior stance, shadowform, hunter track
-    SPELL_ATTR4_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR4_UNK22                            = 0x00400000, // 22 Seal of Command (42058,57770) and Gymer's Smash 55426
     SPELL_ATTR4_UNK23                            = 0x00800000, // 23
     SPELL_ATTR4_UNK24                            = 0x01000000, // 24 some shoot spell
-    SPELL_ATTR4_UNK25                            = 0x02000000, // 25 pet scaling auras
+    SPELL_ATTR4_IS_PET_SCALING                   = 0x02000000, // 25 pet scaling auras
     SPELL_ATTR4_CAST_ONLY_IN_OUTLAND             = 0x04000000, // 26 Can only be used in Outland.
     SPELL_ATTR4_UNK27                            = 0x08000000, // 27
     SPELL_ATTR4_UNK28                            = 0x10000000, // 28 Aimed Shot
     SPELL_ATTR4_UNK29                            = 0x20000000, // 29
     SPELL_ATTR4_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR4_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR4_UNK31                            = 0x80000000  // 31 Polymorph (chicken) 228 and Sonic Boom (38052,38488)
 };
 
 enum SpellAttr5
@@ -470,7 +471,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK12                            = 0x00001000, // 12 Cleave related?
     SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // 13 haste effects decrease duration of this
     SPELL_ATTR5_UNK14                            = 0x00004000, // 14
-    SPELL_ATTR5_UNK15                            = 0x00008000, // 15
+    SPELL_ATTR5_UNK15                            = 0x00008000, // 15 Inflits on multiple targets?
     SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK         = 0x00010000, // 16 this allows spells with EquippedItemClass to affect spells from other items if the required item is equipped
     SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // 17 usable while feared
     SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // 18 usable while confused
@@ -2640,7 +2641,7 @@ enum CreatureTypeFlags
 {
     CREATURE_TYPEFLAGS_TAMEABLE         = 0x00000001,         // Tameable by any hunter
     CREATURE_TYPEFLAGS_GHOST            = 0x00000002,         // Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
-    CREATURE_TYPEFLAGS_UNK2             = 0x00000004,
+    CREATURE_TYPEFLAGS_BOSS             = 0x00000004,
     CREATURE_TYPEFLAGS_UNK3             = 0x00000008,
     CREATURE_TYPEFLAGS_UNK4             = 0x00000010,
     CREATURE_TYPEFLAGS_UNK5             = 0x00000020,
@@ -2664,7 +2665,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK23            = 0x00800000,         // ? First seen in 3.2.2. Related to banner/backpack of creature/companion?
     CREATURE_TYPEFLAGS_UNK24            = 0x01000000,
     CREATURE_TYPEFLAGS_UNK25            = 0x02000000,
-    CREATURE_TYPEFLAGS_UNK26            = 0x04000000,
+    CREATURE_TYPEFLAGS_PARTY_MEMBER     = 0x04000000,         //! Creature can be targeted by spells that require target to be in caster's party/raid
     CREATURE_TYPEFLAGS_UNK27            = 0x08000000,
     CREATURE_TYPEFLAGS_UNK28            = 0x10000000,
     CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
@@ -3421,25 +3422,25 @@ enum BanReturn
 // indexes of BattlemasterList.dbc
 enum BattlegroundTypeId
 {
-    BATTLEGROUND_TYPE_NONE          = 0,
-    BATTLEGROUND_AV                 = 1,
-    BATTLEGROUND_WS                 = 2,
-    BATTLEGROUND_AB                 = 3,
-    BATTLEGROUND_NA                 = 4,
-    BATTLEGROUND_BE                 = 5,
-    BATTLEGROUND_AA                 = 6,
-    BATTLEGROUND_EY                 = 7,
-    BATTLEGROUND_RL                 = 8,
-    BATTLEGROUND_SA                 = 9,
-    BATTLEGROUND_DS                 = 10,
-    BATTLEGROUND_RV                 = 11,
-    BATTLEGROUND_IC                 = 30,
-    BATTLEGROUND_RB                 = 32,
-    BATTLEGROUND_RATED_10_VS_10     = 100,
-    BATTLEGROUND_RATED_15_VS_15     = 101,
-    BATTLEGROUND_RATED_25_VS_25     = 102,
-    BATTLEGROUND_TP                 = 108,
-    BATTLEGROUND_BFG                = 120,
+    BATTLEGROUND_TYPE_NONE          = 0, // None
+    BATTLEGROUND_AV                 = 1, // Alterac Valley
+    BATTLEGROUND_WS                 = 2, // Warsong Gulch
+    BATTLEGROUND_AB                 = 3, // Arathi Basin
+    BATTLEGROUND_NA                 = 4, // Nagrand Arena
+    BATTLEGROUND_BE                 = 5, // Blade's Edge Arena
+    BATTLEGROUND_AA                 = 6, // All Arenas
+    BATTLEGROUND_EY                 = 7, // Eye of the Storm
+    BATTLEGROUND_RL                 = 8, // Ruins of Lordaernon
+    BATTLEGROUND_SA                 = 9, // Strand of the Ancients
+    BATTLEGROUND_DS                 = 10, // Dalaran Sewers
+    BATTLEGROUND_RV                 = 11, // Ring of Valor
+    BATTLEGROUND_IC                 = 30, // Isle of Conquest
+    BATTLEGROUND_RB                 = 32, // Random Battleground
+    BATTLEGROUND_RATED_10_VS_10     = 100, // Rated BG 10 vs 10
+    BATTLEGROUND_RATED_15_VS_15     = 101, // Rated BG 15 vs 15
+    BATTLEGROUND_RATED_25_VS_25     = 102, // Rated BG 25 vs 25
+    BATTLEGROUND_TP                 = 108, // Twin Peaks
+    BATTLEGROUND_BFG                = 120, // Battle For Gilneas
     // 441 = "Icecrown Citadel"
     // 443 = "The Ruby Sanctum"
     // 656 = "Rated Eye of the Storm"
@@ -3558,5 +3559,106 @@ enum ActivateTaxiReply
     ERR_TAXISAMENODE                = 11,
     ERR_TAXINOTSTANDING             = 12
 };
+
+// Calendar - start
+
+enum CalendarFlags
+{
+    CALENDAR_FLAG_ALL_ALLOWED     = 0x001,
+    CALENDAR_FLAG_INVITES_LOCKED  = 0x010,
+    CALENDAR_FLAG_WITHOUT_INVITES = 0x040,
+    CALENDAR_FLAG_GUILD_ONLY      = 0x400,
+};
+
+enum CalendarActionData
+{
+    CALENDAR_ACTION_NONE,
+    CALENDAR_ACTION_ADD_EVENT,
+    CALENDAR_ACTION_MODIFY_EVENT,
+    CALENDAR_ACTION_REMOVE_EVENT,
+    CALENDAR_ACTION_COPY_EVENT,
+    CALENDAR_ACTION_ADD_EVENT_INVITE,
+    CALENDAR_ACTION_MODIFY_EVENT_INVITE,
+    CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE,
+    CALENDAR_ACTION_REMOVE_EVENT_INVITE,
+    CALENDAR_ACTION_SIGNUP_TO_EVENT,
+};
+
+enum CalendarModerationRank
+{
+    CALENDAR_RANK_PLAYER,
+    CALENDAR_RANK_MODERATOR,
+    CALENDAR_RANK_OWNER,
+};
+
+enum CalendarSendEventType
+{
+    CALENDAR_SENDTYPE_GET,
+    CALENDAR_SENDTYPE_ADD,
+    CALENDAR_SENDTYPE_COPY,
+};
+
+enum CalendarEventType
+{
+    CALENDAR_TYPE_RAID,
+    CALENDAR_TYPE_DUNGEON,
+    CALENDAR_TYPE_PVP,
+    CALENDAR_TYPE_MEETING,
+    CALENDAR_TYPE_OTHER,
+};
+
+enum CalendarInviteStatus
+{
+    CALENDAR_STATUS_INVITED,
+    CALENDAR_STATUS_ACCEPTED,
+    CALENDAR_STATUS_DECLINED,
+    CALENDAR_STATUS_TENTATIVE,
+    CALENDAR_STATUS_OUT,
+    CALENDAR_STATUS_STANDBY,
+    CALENDAR_STATUS_CONFIRMED,
+    CALENDAR_STATUS_NO_OWNER,
+    CALENDAR_STATUS_8,
+    CALENDAR_STATUS_9,
+};
+
+enum CalendarError
+{
+    CALENDAR_OK                                 = 0,
+    CALENDAR_ERROR_GUILD_EVENTS_EXCEEDED        = 1,
+    CALENDAR_ERROR_EVENTS_EXCEEDED              = 2,
+    CALENDAR_ERROR_SELF_INVITES_EXCEEDED        = 3,
+    CALENDAR_ERROR_OTHER_INVITES_EXCEEDED       = 4,
+    CALENDAR_ERROR_PERMISSIONS                  = 5,
+    CALENDAR_ERROR_EVENT_INVALID                = 6,
+    CALENDAR_ERROR_NOT_INVITED                  = 7,
+    CALENDAR_ERROR_INTERNAL                     = 8,
+    CALENDAR_ERROR_GUILD_PLAYER_NOT_IN_GUILD    = 9,
+    CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S   = 10,
+    CALENDAR_ERROR_PLAYER_NOT_FOUND             = 11,
+    CALENDAR_ERROR_NOT_ALLIED                   = 12,
+    CALENDAR_ERROR_IGNORING_YOU_S               = 13,
+    CALENDAR_ERROR_INVITES_EXCEEDED             = 14,
+    CALENDAR_ERROR_INVALID_DATE                 = 16,
+    CALENDAR_ERROR_INVALID_TIME                 = 17,
+
+    CALENDAR_ERROR_NEEDS_TITLE                  = 19,
+    CALENDAR_ERROR_EVENT_PASSED                 = 20,
+    CALENDAR_ERROR_EVENT_LOCKED                 = 21,
+    CALENDAR_ERROR_DELETE_CREATOR_FAILED        = 22,
+    CALENDAR_ERROR_SYSTEM_DISABLED              = 24,
+    CALENDAR_ERROR_RESTRICTED_ACCOUNT           = 25,
+    CALENDAR_ERROR_ARENA_EVENTS_EXCEEDED        = 26,
+    CALENDAR_ERROR_RESTRICTED_LEVEL             = 27,
+    CALENDAR_ERROR_USER_SQUELCHED               = 28,
+    CALENDAR_ERROR_NO_INVITE                    = 29,
+
+    CALENDAR_ERROR_EVENT_WRONG_SERVER           = 36,
+    CALENDAR_ERROR_INVITE_WRONG_SERVER          = 37,
+    CALENDAR_ERROR_NO_GUILD_INVITES             = 38,
+    CALENDAR_ERROR_INVALID_SIGNUP               = 39,
+    CALENDAR_ERROR_NO_MODERATOR                 = 40
+};
+
+// Calendar - end
 
 #endif

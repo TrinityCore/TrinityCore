@@ -45,7 +45,7 @@ public:
 
     struct boss_kruulAI : public ScriptedAI
     {
-        boss_kruulAI(Creature* c) : ScriptedAI(c) {}
+        boss_kruulAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ShadowVolley_Timer;
         uint32 Cleave_Timer;
@@ -151,7 +151,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_kruul()

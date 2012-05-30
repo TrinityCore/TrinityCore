@@ -66,7 +66,7 @@ public:
 
     struct npc_aeranasAI : public ScriptedAI
     {
-        npc_aeranasAI(Creature* c) : ScriptedAI(c) {}
+        npc_aeranasAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Faction_Timer;
         uint32 EnvelopingWinds_Timer;
@@ -124,7 +124,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -181,9 +180,9 @@ public:
             npc_escortAI::MoveInLineOfSight(who);
         }
 
-        void WaypointReached(uint32 uiPointId)
+        void WaypointReached(uint32 waypointId)
         {
-            switch (uiPointId)
+            switch (waypointId)
             {
                 case 0:
                     DoScriptText(EMOTE_WOLF_LIFT_HEAD, me);
@@ -198,7 +197,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -215,7 +213,6 @@ public:
         go->SummonCreature(C_AERANAS, -1321.79f, 4043.80f, 116.24f, 1.25f, TEMPSUMMON_TIMED_DESPAWN, 180000);
         return false;
     }
-
 };
 
 /*######
@@ -234,10 +231,10 @@ class npc_naladu : public CreatureScript
 public:
     npc_naladu() : CreatureScript("npc_naladu") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
             player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_NALADU1, creature->GetGUID());
 
         return true;
@@ -252,7 +249,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -274,10 +270,10 @@ class npc_tracy_proudwell : public CreatureScript
 public:
     npc_tracy_proudwell() : CreatureScript("npc_tracy_proudwell") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TRACY_PROUDWELL_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -308,7 +304,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -331,10 +326,10 @@ class npc_trollbane : public CreatureScript
 public:
     npc_trollbane() : CreatureScript("npc_trollbane") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -361,7 +356,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -406,40 +400,39 @@ public:
 
     struct npc_wounded_blood_elfAI : public npc_escortAI
     {
-        npc_wounded_blood_elfAI(Creature* c) : npc_escortAI(c) {}
+        npc_wounded_blood_elfAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 waypointId)
         {
             Player* player = GetPlayerForEscort();
-
             if (!player)
                 return;
 
-            switch (i)
+            switch (waypointId)
             {
-            case 0:
-                DoScriptText(SAY_ELF_START, me, player);
-                break;
-            case 9:
-                DoScriptText(SAY_ELF_SUMMON1, me, player);
-                // Spawn two Haal'eshi Talonguard
-                DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                break;
-            case 13:
-                DoScriptText(SAY_ELF_RESTING, me, player);
-                break;
-            case 14:
-                DoScriptText(SAY_ELF_SUMMON2, me, player);
-                // Spawn two Haal'eshi Windwalker
-                DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                break;
-            case 27:
-                DoScriptText(SAY_ELF_COMPLETE, me, player);
-                // Award quest credit
-                player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH, me);
-                break;
+                case 0:
+                    DoScriptText(SAY_ELF_START, me, player);
+                    break;
+                case 9:
+                    DoScriptText(SAY_ELF_SUMMON1, me, player);
+                    // Spawn two Haal'eshi Talonguard
+                    DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    break;
+                case 13:
+                    DoScriptText(SAY_ELF_RESTING, me, player);
+                    break;
+                case 14:
+                    DoScriptText(SAY_ELF_SUMMON2, me, player);
+                    // Spawn two Haal'eshi Windwalker
+                    DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    break;
+                case 27:
+                    DoScriptText(SAY_ELF_COMPLETE, me, player);
+                    // Award quest credit
+                    player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH, me);
+                    break;
             }
         }
 
@@ -456,7 +449,6 @@ public:
             summoned->AI()->AttackStart(me);
         }
     };
-
 };
 
 /*######
@@ -529,7 +521,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_hellfire_peninsula()

@@ -72,9 +72,9 @@ public:
 
     struct boss_najentusAI : public ScriptedAI
     {
-        boss_najentusAI(Creature* c) : ScriptedAI(c)
+        boss_najentusAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -98,7 +98,7 @@ public:
             events.DelayEvents(5000, GCD_YELL);
         }
 
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
@@ -130,7 +130,9 @@ public:
 
         bool RemoveImpalingSpine()
         {
-            if (!SpineTargetGUID) return false;
+            if (!SpineTargetGUID)
+                return false;
+
             Unit* target = Unit::GetUnit(*me, SpineTargetGUID);
             if (target && target->HasAura(SPELL_IMPALING_SPINE))
                 target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);

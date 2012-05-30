@@ -20,7 +20,7 @@
 #define _UTIL_H
 
 #include "Common.h"
-
+#include "Containers.h"
 #include <string>
 #include <vector>
 
@@ -73,7 +73,7 @@ inline uint32 secsToTimeBitFields(time_t secs)
  double rand_norm(void);
 
 /* Return a random double from 0.0 to 99.9999999999999. Floats support only 7 valid decimal digits.
- * A double supports up to 15 valid decimal digits and is used internaly (RAND32_MAX has 10 digits).
+ * A double supports up to 15 valid decimal digits and is used internally (RAND32_MAX has 10 digits).
  * With an FPU, there is usually no difference in performance between float and double. */
  double rand_chance(void);
 
@@ -652,13 +652,5 @@ public:
         return (part[el]);
     };
 };
-
-/* Select a random element from a container. Note: make sure you explicitly empty check the container */
-template <class C> typename C::value_type const& SelectRandomContainerElement(C const& container)
-{
-    typename C::const_iterator it = container.begin();
-    std::advance(it, urand(0, container.size() - 1));
-    return *it;
-}
 
 #endif
