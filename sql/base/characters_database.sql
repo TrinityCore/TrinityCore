@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.5.21, for Win64 (x86)
 --
--- Host: localhost    Database: characters
+-- Host: localhost    Database: characters_4x
 -- ------------------------------------------------------
 -- Server version	5.5.21
 
@@ -2265,4 +2265,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-03-25 21:14:19
+-- Dump completed on 2012-05-30 12:56:18
