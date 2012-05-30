@@ -1706,6 +1706,10 @@ AuraStateType SpellInfo::GetAuraState() const
     if (Category == 1133)
         return AURA_STATE_FAERIE_FIRE;
 
+    // Touch of Zanzil
+    if (Id == 9991)
+        return AURA_STATE_FAERIE_FIRE;
+
     // Victorious
     if (SpellFamilyName == SPELLFAMILY_WARRIOR &&  SpellFamilyFlags[1] & 0x00040000)
         return AURA_STATE_WARRIOR_VICTORY_RUSH;
