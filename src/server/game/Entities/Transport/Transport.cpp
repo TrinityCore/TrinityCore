@@ -656,6 +656,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
         o + GetOrientation());
 
     creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
+    creature->SetTransportHomePosition(creature->m_movementInfo.t_pos);
 
     if (!creature->IsPositionValid())
     {
@@ -698,11 +699,33 @@ void Transport::UpdateNPCPositions()
         Creature* npc = *itr;
 
         float x, y, z, o;
-        o = GetOrientation() + npc->m_movementInfo.t_pos.m_orientation;
-        x = GetPositionX() + (npc->m_movementInfo.t_pos.m_positionX * cos(GetOrientation()) + npc->m_movementInfo.t_pos.m_positionY * sin(GetOrientation() + M_PI));
-        y = GetPositionY() + (npc->m_movementInfo.t_pos.m_positionY * cos(GetOrientation()) + npc->m_movementInfo.t_pos.m_positionX * sin(GetOrientation()));
-        z = GetPositionZ() + npc->m_movementInfo.t_pos.m_positionZ;
-        npc->SetHomePosition(x, y, z, o);
+        npc->m_movementInfo.t_pos.GetPosition(x, y, z, o);
+        CalculatePassengerPosition(x, y, z, o);
         GetMap()->CreatureRelocation(npc, x, y, z, o, false);
+        npc->GetTransportHomePosition(x, y, z, o);
+        CalculatePassengerPosition(x, y, z, o);
+        npc->SetHomePosition(x, y, z, o);
     }
+}
+
+//! This method transforms supplied transport offsets into global coordinates
+void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
+{
+    float inx = x, iny = y, inz = z, ino = o;
+    o = GetOrientation() + ino;
+    x = GetPositionX() + (inx * cos(GetOrientation()) + iny * sin(GetOrientation() + M_PI));
+    y = GetPositionY() + (iny * cos(GetOrientation()) + inx * sin(GetOrientation()));
+    z = GetPositionZ() + inz;
+}
+
+//! This method transforms supplied global coordinates into local offsets
+void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
+{
+    o -= GetOrientation();
+    z -= GetPositionZ();
+    y -= GetPositionY();    // y = searchedY * cos(o) + searchedX * sin(o)
+    x -= GetPositionX();    // x = searchedX * cos(o) + searchedY * sin(o + pi)
+    float inx = x, iny = y;
+    y = (iny - inx * tan(GetOrientation())) / (cos(GetOrientation()) - sin(GetOrientation() + M_PI) * tan(GetOrientation()));
+    x = (inx - iny * sin(GetOrientation() + M_PI) / cos(GetOrientation())) / (cos(GetOrientation()) - tan(GetOrientation()) * sin(GetOrientation() + M_PI));
 }
