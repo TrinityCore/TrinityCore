@@ -1962,7 +1962,7 @@ public:
                 if (owner && owner->getVictim())
                     AttackStart(owner->getVictim());
 
-            else if (me->getVictim() && me->getVictim() != owner->getVictim())
+            if (me->getVictim() && me->getVictim() != owner->getVictim())
                 AttackStart(owner->getVictim());
 
             CasterAI::UpdateAI(diff);
