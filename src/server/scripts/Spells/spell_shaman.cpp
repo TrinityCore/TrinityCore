@@ -35,13 +35,15 @@ enum ShamanSpells
     SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1    = 8349,
     SHAMAN_SPELL_SATED                     = 57724,
     SHAMAN_SPELL_EXHAUSTION                = 57723,
-    
+
     SHAMAN_SPELL_STORM_EARTH_AND_FIRE      = 51483,
     EARTHBIND_TOTEM_SPELL_EARTHGRAB        = 64695,
 
     // For Earthen Power
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM     = 6474,
     SHAMAN_TOTEM_SPELL_EARTHEN_POWER       = 59566,
+
+    SHAMAN_GLYPH_OF_EARTH_SHIELD           = 63279
 };
 
 // 51474 - Astral shift
@@ -255,7 +257,7 @@ class EarthenPowerTargetSelector
 {
     public:
         EarthenPowerTargetSelector() { }
- 
+
         bool operator() (Unit* target)
         {
             if (!target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
@@ -652,6 +654,40 @@ class spell_sha_chain_heal : public SpellScriptLoader
         }
 };
 
+class spell_sha_earth_shield : public SpellScriptLoader
+{
+    public:
+        spell_sha_earth_shield() : SpellScriptLoader("spell_sha_earth_shield") { }
+
+        class spell_sha_earth_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_earth_shield_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
+                    amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
+
+                    // Glyph of Earth Shield
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(SHAMAN_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
+                        AddPctN(amount, aurEff->GetAmount());
+                }
+            }
+
+            void Register()
+            {
+                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_earth_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_earth_shield_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_astral_shift();
@@ -667,4 +703,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_mana_spring_totem();
     new spell_sha_lava_lash();
     new spell_sha_chain_heal();
+    new spell_sha_earth_shield();
 }
