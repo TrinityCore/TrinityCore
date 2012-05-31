@@ -20,6 +20,8 @@
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
 #include "Unit.h"
+#include "Transport.h"
+#include "Vehicle.h"
 
 namespace Movement
 {
@@ -58,17 +60,25 @@ namespace Movement
     {
         MoveSpline& move_spline = *unit.movespline;
 
-        Location real_position(unit.GetPositionX(),unit.GetPositionY(),unit.GetPositionZMinusOffset(),unit.GetOrientation());
-        // there is a big chane that current position is unknown if current state is not finalized, need compute it
+        bool transport = false;
+        Location real_position(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZMinusOffset(), unit.GetOrientation());
+        if (unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        {
+            transport = true;
+            real_position.x = unit.GetTransOffsetX();
+            real_position.y = unit.GetTransOffsetY();
+            real_position.z = unit.GetTransOffsetZ();
+            real_position.orientation = unit.GetTransOffsetO();
+        }
+
+        // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
         if (!move_spline.Finalized())
             real_position = move_spline.ComputePosition();
 
+        // should i do the things that user should do? - no.
         if (args.path.empty())
-        {
-            // should i do the things that user should do?
-            MoveTo(real_position);
-        }
+            return;
 
         // corrent first vertex
         args.path[0] = real_position;
@@ -82,7 +92,7 @@ namespace Movement
 
         moveFlags |= (MOVEMENTFLAG_SPLINE_ENABLED|MOVEMENTFLAG_FORWARD);
 
-        if (args.velocity == 0.f)
+        if (!args.HasVelocity)
             args.velocity = unit.GetSpeed(SelectSpeedType(moveFlags));
 
         if (!args.Validate())
@@ -94,8 +104,20 @@ namespace Movement
         unit.m_movementInfo.SetMovementFlags((MovementFlags)moveFlags);
         move_spline.Initialize(args);
 
-        WorldPacket data(SMSG_MONSTER_MOVE, 64);
+        WorldPacket data(!transport ? SMSG_MONSTER_MOVE : SMSG_MONSTER_MOVE_TRANSPORT, 64);
         data.append(unit.GetPackGUID());
+        if (transport)
+        {
+            if (unit.GetVehicle())
+                data.appendPackGUID(unit.GetVehicleBase()->GetGUID());
+            else if (unit.GetTransport())
+                data.appendPackGUID(unit.GetTransGUID());
+            else
+                data << uint8(0);
+
+            data << int8(unit.GetTransSeat());
+        }
+
         PacketBuilder::WriteMonsterMove(move_spline, data);
         unit.SendMessageToSet(&data,true);
     }
@@ -119,4 +141,33 @@ namespace Movement
         args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());
         args.flags.EnableFacingAngle();
     }
+
+    void MoveSplineInit::MoveTo(Vector3 const& dest)
+    {
+        args.path_Idx_offset = 0;
+        args.path.resize(2);
+        TransportPathTransform transform(unit);
+        args.path[1] = transform(dest);
+    }
+
+    Vector3 TransportPathTransform::operator()(Vector3 input)
+    {
+        if (_owner.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        {
+            if (Unit* vehicle = _owner.GetVehicleBase())
+            {
+                input.x -= vehicle->GetPositionX();
+                input.y -= vehicle->GetPositionY();
+                input.z -= vehicle->GetPositionZMinusOffset();
+            }
+            else if (Transport* transport = _owner.GetTransport())
+            {
+                float unused = 0.0f;
+                transport->CalculatePassengerOffset(input.x, input.y, input.z, unused);
+            }
+        }
+
+        return input;
+    }
+
 }

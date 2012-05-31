@@ -677,6 +677,11 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void GetHomePosition(float &x, float &y, float &z, float &ori) { m_homePosition.GetPosition(x, y, z, ori); }
         Position GetHomePosition() { return m_homePosition; }
 
+        void SetTransportHomePosition(float x, float y, float z, float o) { m_transportHomePosition.Relocate(x, y, z, o); }
+        void SetTransportHomePosition(const Position &pos) { m_transportHomePosition.Relocate(pos); }
+        void GetTransportHomePosition(float &x, float &y, float &z, float &ori) { m_transportHomePosition.GetPosition(x, y, z, ori); }
+        Position GetTransportHomePosition() { return m_transportHomePosition; }
+
         uint32 GetWaypointPath(){return m_path_id;}
         void LoadPath(uint32 pathid) { m_path_id = pathid; }
 
@@ -750,6 +755,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint32 m_originalEntry;
 
         Position m_homePosition;
+        Position m_transportHomePosition;
 
         bool DisableReputationGain;
 
