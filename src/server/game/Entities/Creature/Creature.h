@@ -266,10 +266,12 @@ struct CreatureData
 // `creature_addon` table
 struct CreatureAddon
 {
-    uint32 path_id;
+    uint32 pathId;
     uint32 mount;
     uint32 bytes1;
     uint32 bytes2;
+    uint32 movementFlags;
+    uint16 extraMovementFlags;
     uint32 emote;
     std::vector<uint32> auras;
 };
