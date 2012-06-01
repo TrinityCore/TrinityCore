@@ -55,7 +55,7 @@ BattlegroundMgr::BattlegroundMgr() : m_AutoDistributionTimeChecker(0), m_ArenaTe
 {
     for (uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; i++)
         m_Battlegrounds[i].clear();
-    m_NextRatingDiscardUpdate = sWorld->getIntConfig(CONFIG_ARENA_RATING_DISCARD_TIMER);
+    m_NextRatedArenaUpdate = sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER);
     m_Testing=false;
 }
 
@@ -143,10 +143,10 @@ void BattlegroundMgr::Update(uint32 diff)
     }
 
     // if rating difference counts, maybe force-update queues
-    if (sWorld->getIntConfig(CONFIG_ARENA_MAX_RATING_DIFFERENCE) && sWorld->getIntConfig(CONFIG_ARENA_RATING_DISCARD_TIMER))
+    if (sWorld->getIntConfig(CONFIG_ARENA_MAX_RATING_DIFFERENCE) && sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER))
     {
         // it's time to force update
-        if (m_NextRatingDiscardUpdate < diff)
+        if (m_NextRatedArenaUpdate < diff)
         {
             // forced update for rated arenas (scan all, but skipped non rated)
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr: UPDATING ARENA QUEUES");
@@ -156,10 +156,10 @@ void BattlegroundMgr::Update(uint32 diff)
                         BATTLEGROUND_AA, BattlegroundBracketId(bracket),
                         BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId(qtype)), true, 0);
 
-            m_NextRatingDiscardUpdate = sWorld->getIntConfig(CONFIG_ARENA_RATING_DISCARD_TIMER);
+            m_NextRatedArenaUpdate = sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER);
         }
         else
-            m_NextRatingDiscardUpdate -= diff;
+            m_NextRatedArenaUpdate -= diff;
     }
     if (sWorld->getBoolConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
     {
