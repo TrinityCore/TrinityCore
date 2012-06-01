@@ -3004,7 +3004,6 @@ public:
         void Reset()
         {
             me->SetUnitMovementFlags(MOVEMENTFLAG_ROOT);
-            me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING | MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
         }
     };
 
