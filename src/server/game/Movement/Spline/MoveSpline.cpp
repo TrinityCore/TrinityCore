@@ -203,7 +203,7 @@ bool MoveSplineInitArgs::Validate() const
         return false;\
     }
     CHECK(path.size() > 1);
-    CHECK(velocity > 0.f);
+    CHECK(velocity > 0.1f);
     CHECK(time_perc >= 0.f && time_perc <= 1.f);
     //CHECK(_checkPathBounds());
     return true;
