@@ -6,7 +6,10 @@ WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
 FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
 =========================================================
 
-CHECK http://www.trinitycore.org/w/How-to:Linux FOR FURTHER HELP
+CHECK http://www.trinitycore.info/How-to:Linux FOR FURTHER HELP
+
+These are instructions for installation in a Linux environment, if you are
+using Windows refer to http://www.trinitycore.info/How-to:Win
 
 Installing TrinityCore is fairly simple on a Linux machine, assuming you 
 have all required applications
@@ -14,11 +17,11 @@ have all required applications
 The most important ones are:
 
     g++
-    gcc
+    gcc version 4.3.x or greater
     make
     cmake version 2.6.x or greater
     libmysql++-dev
-    mercurial (for checking out the core and database)
+    git (for checking out the core and database)
     openssl
     libssl-dev
     zlib1g-dev
@@ -51,12 +54,9 @@ flags like
     TOOLS               Build map/vmap extraction/assembler tools
     USE_SCRIPTPCH       Use precompiled headers when compiling scripts
     USE_COREPCH         Use precompiled headers when compiling servers
-    USE_SFMT            Use SFMT as random numbergenerator
     WITH_WARNINGS       Show all warnings during compile
     WITH_COREDEBUG      Include additional debug-code in core
-    PREFIX              Set installation directory
-    CONF_DIR            Set configuration directory
-    LIBSDIR             Set library directory
+    CMAKE_INSTALL_PREFIX Set installation directory
     CMAKE_C_FLAGS       Set C_FLAGS for compile (advanced users only)
     CMAKE_CXX_FLAGS     Set CXX_FLAGS for compile (advanced users only)
 
