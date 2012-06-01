@@ -167,7 +167,7 @@ class FrostwyrmLandEvent : public BasicEvent
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
         {
-            _owner.GetMotionMaster()->MoveLand(POINT_FROSTWYRM_LAND, _dest, 8.247422f);
+            _owner.GetMotionMaster()->MoveLand(POINT_FROSTWYRM_LAND, _dest);
             return true;
         }
 
@@ -481,7 +481,7 @@ class boss_sindragosa : public CreatureScript
                             Position pos;
                             pos.Relocate(me);
                             pos.m_positionZ += 17.0f;
-                            me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos, 8.30078125f);
+                            me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos);
                             events.CancelEventGroup(EVENT_GROUP_LAND_PHASE);
                             events.ScheduleEvent(EVENT_AIR_PHASE, 110000);
                             break;
@@ -523,7 +523,7 @@ class boss_sindragosa : public CreatureScript
                             events.ScheduleEvent(EVENT_FROST_BREATH, urand(10000, 15000), EVENT_GROUP_LAND_PHASE);
                             events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(12000, 17000), EVENT_GROUP_LAND_PHASE);
                             events.ScheduleEvent(EVENT_ICY_GRIP, urand(35000, 40000), EVENT_GROUP_LAND_PHASE);
-                            me->GetMotionMaster()->MoveLand(POINT_LAND_GROUND, SindragosaLandPos, 0.0f);
+                            me->GetMotionMaster()->MoveLand(POINT_LAND_GROUND, SindragosaLandPos);
                             break;
                         case EVENT_THIRD_PHASE_CHECK:
                         {
