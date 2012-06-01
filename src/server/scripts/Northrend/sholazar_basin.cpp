@@ -807,9 +807,7 @@ public:
             Unit* shooter = GetCaster();
             Creature* wilhelm = GetHitUnit()->ToCreature();
             Creature* apple = shooter->FindNearestCreature(NPC_APPLE, 30);
-            Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
             Creature* drostan = shooter->FindNearestCreature(NPC_DROSTAN, 30);
-            Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
 
             if (!wilhelm || !apple || !drostan)
                 return;
@@ -818,12 +816,15 @@ public:
             {
                 case EVENT_MISS_BIRD:
                 {
+                    Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
+                    Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
+
                     if (!bird || !crunchy)
                         ; // fall to EVENT_MISS
                     else
                     {
                         shooter->CastSpell(bird, SPELL_MISS_BIRD_APPLE);
-                        shooter->CastSpell(bird, SPELL_BIRD_FALL);
+                        bird->CastSpell(bird, SPELL_BIRD_FALL);
                         wilhelm->AI()->Talk(SAY_WILHELM_MISS);
                         drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
 
@@ -831,6 +832,8 @@ public:
                         crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
                             bird->GetMap()->GetWaterOrGroundLevel(bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
                         // TODO: Make crunchy perform emote eat when he reaches the bird
+
+                        break;
                     }
                 }
                 case EVENT_MISS:
