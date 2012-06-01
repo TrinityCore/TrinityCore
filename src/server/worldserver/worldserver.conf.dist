@@ -2514,6 +2514,13 @@ Arena.MaxRatingDifference = 150
 Arena.RatingDiscardTimer = 600000
 
 #
+#    Arena.RatedUpdateTimer
+#        Description: Time (in milliseconds) between checks for matchups in rated arena
+#        Default:     5000 - (5 seconds)
+
+Arena.RatedUpdateTimer = 5000
+
+#
 #    Arena.AutoDistributePoints
 #        Description: Automatically distribute arena points.
 #        Default:     0 - (Disabled)
