@@ -746,6 +746,127 @@ public:
     }
 };
 
+/*######
+## Quest Kick, What Kick? (12589)
+######*/
+
+enum KickWhatKick
+{
+    NPC_LUCKY_WILHELM = 28054,
+    NPC_APPLE = 28053,
+    NPC_DROSTAN = 28328,
+    NPC_CRUNCHY = 28346,
+    NPC_THICKBIRD = 28093,
+
+    SPELL_HIT_APPLE = 51331,
+    SPELL_MISS_APPLE = 51332,
+    SPELL_MISS_BIRD_APPLE = 51366,
+    SPELL_APPLE_FALL = 51371,
+    SPELL_BIRD_FALL = 51369,
+
+    EVENT_MISS = 0,
+    EVENT_HIT = 1,
+    EVENT_MISS_BIRD = 2,
+
+    SAY_WILHELM_MISS = 0,
+    SAY_WILHELM_HIT = 1,
+    SAY_DROSTAN_REPLY_MISS = 0,
+};
+
+class spell_q12589_shoot_rjr : public SpellScriptLoader
+{
+public:
+    spell_q12589_shoot_rjr() : SpellScriptLoader("spell_q12589_shoot_rjr") { }
+
+    class spell_q12589_shoot_rjr_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q12589_shoot_rjr_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Unit* target = GetExplTargetUnit())
+                if (target->GetEntry() == NPC_LUCKY_WILHELM)
+                    return SPELL_CAST_OK;
+
+            SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_TARGET_WILHELM);
+            return SPELL_FAILED_CUSTOM_ERROR;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            uint32 roll = urand(1, 100);
+
+            uint8 ev;
+            if (roll <= 50)
+                ev = EVENT_MISS;
+            else if (roll <= 83)
+                ev = EVENT_HIT;
+            else
+                ev = EVENT_MISS_BIRD;
+
+            Unit* shooter = GetCaster();
+            Creature* wilhelm = GetHitUnit()->ToCreature();
+            Creature* apple = shooter->FindNearestCreature(NPC_APPLE, 30);
+            Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
+            Creature* drostan = shooter->FindNearestCreature(NPC_DROSTAN, 30);
+            Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
+
+            if (!wilhelm || !apple || !drostan)
+                return;
+
+            switch (ev)
+            {
+                case EVENT_MISS_BIRD:
+                {
+                    if (!bird || !crunchy)
+                        ; // fall to EVENT_MISS
+                    else
+                    {
+                        shooter->CastSpell(bird, SPELL_MISS_BIRD_APPLE);
+                        shooter->CastSpell(bird, SPELL_BIRD_FALL);
+                        wilhelm->AI()->Talk(SAY_WILHELM_MISS);
+                        drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
+
+                        bird->Kill(bird);
+                        crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
+                            bird->GetMap()->GetWaterOrGroundLevel(bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
+                        // TODO: Make crunchy perform emote eat when he reaches the bird
+                    }
+                }
+                case EVENT_MISS:
+                {
+                    shooter->CastSpell(wilhelm, SPELL_MISS_APPLE);
+                    wilhelm->AI()->Talk(SAY_WILHELM_MISS);
+                    drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
+                    break;
+                }
+                case EVENT_HIT:
+                {
+                    shooter->CastSpell(apple, SPELL_HIT_APPLE);
+                    apple->CastSpell(apple, SPELL_APPLE_FALL);
+                    wilhelm->AI()->Talk(SAY_WILHELM_HIT);
+                    if (Player* player = shooter->ToPlayer())
+                        player->KilledMonsterCredit(NPC_APPLE, 0);
+                    apple->DespawnOrUnsummon();
+
+                    break;
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_q12589_shoot_rjr_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_q12589_shoot_rjr_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12589_shoot_rjr_SpellScript();
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     new npc_injured_rainspeaker_oracle();
@@ -756,4 +877,5 @@ void AddSC_sholazar_basin()
     new npc_adventurous_dwarf();
     new npc_jungle_punch_target();
     new spell_q12620_the_lifewarden_wrath();
+    new spell_q12589_shoot_rjr();
 }
