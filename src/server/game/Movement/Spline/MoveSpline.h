@@ -24,6 +24,22 @@
 
 namespace Movement
 {
+    enum{
+        minimal_duration = 1,
+    };
+
+    struct CommonInitializer
+    {
+        CommonInitializer(float _velocity) : velocityInv(1000.f/_velocity), time(minimal_duration) {}
+        float velocityInv;
+        int32 time;
+        inline int32 operator()(Spline<int32>& s, int32 i)
+        {
+            time += (s.SegLength(i) * velocityInv);
+            return time;
+        }
+    };
+
     struct Location : public Vector3
     {
         Location() : orientation(0) {}
