@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -119,8 +119,8 @@ public:
 
                 //Get all immediatly nearby floors
                 std::list<GameObject*> nearFloorList;
-                Trinity::GameObjectInRangeCheck check(pFloorEruption->GetPositionX(), pFloorEruption->GetPositionY(), pFloorEruption->GetPositionZ(), 15);
-                Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(pFloorEruption, nearFloorList, check);
+                GreenPis::GameObjectInRangeCheck check(pFloorEruption->GetPositionX(), pFloorEruption->GetPositionY(), pFloorEruption->GetPositionZ(), 15);
+                GreenPis::GameObjectListSearcher<GreenPis::GameObjectInRangeCheck> searcher(pFloorEruption, nearFloorList, check);
                 pFloorEruption->VisitNearbyGridObject(999, searcher);
                 //remove all that are not present on FloorEruptionGUID[1] and update treeLen on each GUID
                 for (std::list<GameObject*>::const_iterator itr = nearFloorList.begin(); itr != nearFloorList.end(); ++itr)

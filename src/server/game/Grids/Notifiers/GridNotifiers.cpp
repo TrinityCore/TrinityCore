@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@
 #include "CellImpl.h"
 #include "SpellInfo.h"
 
-using namespace Trinity;
+using namespace GreenPis;
 
 void VisibleNotifier::SendToSelf()
 {
@@ -211,7 +211,7 @@ void DelayedUnitRelocation::Visit(PlayerMapType &m)
         if (player != viewPoint && !viewPoint->IsPositionValid())
             continue;
 
-        CellCoord pair2(Trinity::ComputeCellCoord(viewPoint->GetPositionX(), viewPoint->GetPositionY()));
+        CellCoord pair2(GreenPis::ComputeCellCoord(viewPoint->GetPositionX(), viewPoint->GetPositionY()));
         Cell cell2(pair2);
         //cell.SetNoCreate(); need load cells around viewPoint or player, that's why its commented
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -221,10 +221,10 @@ class example_escort : public CreatureScript
                         pEscortAI->Start(false, true, player->GetGUID());
                     break;
                 default:
-                    return false;                                   // nothing defined      -> trinity core handling
+                    return false;                                   // nothing defined      -> GreenPis core handling
             }
 
-            return true;                                            // no default handling  -> prevent trinity core handling
+            return true;                                            // no default handling  -> prevent GreenPis core handling
         }
 };
 

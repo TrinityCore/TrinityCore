@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TRINITYSERVER_MOVESPLINEINIT_ARGS_H
-#define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
+#ifndef GreenPisSERVER_MOVESPLINEINIT_ARGS_H
+#define GreenPisSERVER_MOVESPLINEINIT_ARGS_H
 
 #include "MoveSplineFlag.h"
 #include <G3D/Vector3.h>
@@ -65,4 +65,4 @@ namespace Movement
     };
 }
 
-#endif // TRINITYSERVER_MOVESPLINEINIT_ARGS_H
+#endif // GreenPisSERVER_MOVESPLINEINIT_ARGS_H

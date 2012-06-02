@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -290,7 +290,7 @@ class boss_general_vezax : public CreatureScript
                     if (size < playersMin)
                         return NULL;
 
-                    return Trinity::Containers::SelectRandomContainerElement(PlayerList);
+                    return GreenPis::Containers::SelectRandomContainerElement(PlayerList);
                 }
 
                 return NULL;

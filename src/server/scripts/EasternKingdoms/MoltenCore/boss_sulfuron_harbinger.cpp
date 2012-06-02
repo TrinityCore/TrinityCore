@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -103,7 +103,7 @@ class boss_sulfuron : public CreatureScript
                         {
                             std::list<Creature*> healers = DoFindFriendlyMissingBuff(45.0f, SPELL_INSPIRE);
                             if (!healers.empty())
-                                DoCast(Trinity::Containers::SelectRandomContainerElement(healers), SPELL_INSPIRE);
+                                DoCast(GreenPis::Containers::SelectRandomContainerElement(healers), SPELL_INSPIRE);
 
                             DoCast(me, SPELL_INSPIRE);
                             events.ScheduleEvent(EVENT_INSPIRE, urand(20000, 26000));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_BYTECONVERTER_H
-#define TRINITY_BYTECONVERTER_H
+#ifndef GreenPis_BYTECONVERTER_H
+#define GreenPis_BYTECONVERTER_H
 
 /** ByteConverter reverse your byte order.  This is use
     for cross platform where they have different endians.
@@ -44,7 +44,7 @@ namespace ByteConverter
     }
 }
 
-#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
+#if GreenPis_ENDIAN == GreenPis_BIGENDIAN
 template<typename T> inline void EndianConvert(T& val) { ByteConverter::apply<T>(&val); }
 template<typename T> inline void EndianConvertReverse(T&) { }
 #else

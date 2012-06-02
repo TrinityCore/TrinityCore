@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_OBJECTACCESSOR_H
-#define TRINITY_OBJECTACCESSOR_H
+#ifndef GreenPis_OBJECTACCESSOR_H
+#define GreenPis_OBJECTACCESSOR_H
 
 #include "Define.h"
 #include <ace/Singleton.h>
@@ -52,19 +52,19 @@ class HashMapHolder
 
         static void Insert(T* o)
         {
-            TRINITY_WRITE_GUARD(LockType, i_lock);
+            GreenPis_WRITE_GUARD(LockType, i_lock);
             m_objectMap[o->GetGUID()] = o;
         }
 
         static void Remove(T* o)
         {
-            TRINITY_WRITE_GUARD(LockType, i_lock);
+            GreenPis_WRITE_GUARD(LockType, i_lock);
             m_objectMap.erase(o->GetGUID());
         }
 
         static T* Find(uint64 guid)
         {
-            TRINITY_READ_GUARD(LockType, i_lock);
+            GreenPis_READ_GUARD(LockType, i_lock);
             typename MapType::iterator itr = m_objectMap.find(guid);
             return (itr != m_objectMap.end()) ? itr->second : NULL;
         }
@@ -152,14 +152,14 @@ class ObjectAccessor
             if (!obj || obj->GetMapId() != mapid)
                 return NULL;
 
-            CellCoord p = Trinity::ComputeCellCoord(x, y);
+            CellCoord p = GreenPis::ComputeCellCoord(x, y);
             if (!p.IsCoordValid())
             {
                 sLog->outError("ObjectAccessor::GetObjectInWorld: invalid coordinates supplied X:%f Y:%f grid cell [%u:%u]", x, y, p.x_coord, p.y_coord);
                 return NULL;
             }
 
-            CellCoord q = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
+            CellCoord q = GreenPis::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
             if (!q.IsCoordValid())
             {
                 sLog->outError("ObjectAccessor::GetObjecInWorld: object (GUID: %u TypeId: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), q.x_coord, q.y_coord);
@@ -227,13 +227,13 @@ class ObjectAccessor
         //non-static functions
         void AddUpdateObject(Object* obj)
         {
-            TRINITY_GUARD(ACE_Thread_Mutex, i_objectLock);
+            GreenPis_GUARD(ACE_Thread_Mutex, i_objectLock);
             i_objects.insert(obj);
         }
 
         void RemoveUpdateObject(Object* obj)
         {
-            TRINITY_GUARD(ACE_Thread_Mutex, i_objectLock);
+            GreenPis_GUARD(ACE_Thread_Mutex, i_objectLock);
             i_objects.erase(obj);
         }
 

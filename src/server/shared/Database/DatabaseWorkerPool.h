@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -344,7 +344,7 @@ class DatabaseWorkerPool
         //! were appended to the transaction will be respected during execution.
         void CommitTransaction(SQLTransaction transaction)
         {
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             //! Only analyze transaction weaknesses in Debug mode.
             //! Ideally we catch the faults in Debug mode and then correct them,
             //! so there's no need to waste these CPU cycles in Release mode.
@@ -359,7 +359,7 @@ class DatabaseWorkerPool
                 default:
                     break;
             }
-            #endif // TRINITY_DEBUG
+            #endif // GreenPis_DEBUG
 
             Enqueue(new TransactionTask(transaction));
         }

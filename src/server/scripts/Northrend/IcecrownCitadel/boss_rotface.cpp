@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -445,14 +445,14 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                 if (triggers.empty())
                     return;
 
-                triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
+                triggers.sort(GreenPis::ObjectDistanceOrderPred(GetHitUnit()));
                 GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
             }
 
             void FilterTargets(std::list<Unit*>& targetList)
             {
                 // get 2 targets except 2 nearest
-                targetList.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                targetList.sort(GreenPis::ObjectDistanceOrderPred(GetCaster()));
 
                 // .resize() runs pop_back();
                 if (targetList.size() > 4)
@@ -494,11 +494,11 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             {
                 // remove targets with this aura already
                 // tank is not on this list
-                targets.remove_if (Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
+                targets.remove_if (GreenPis::UnitAuraCheck(true, GetSpellInfo()->Id));
                 if (targets.empty())
                     return;
 
-                Unit* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                Unit* target = GreenPis::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
                 _target = target;

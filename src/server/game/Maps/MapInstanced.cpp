@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -187,7 +187,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
 InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty)
 {
     // load/create a map
-    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+    GreenPis_GUARD(ACE_Thread_Mutex, Lock);
 
     // make sure we have a valid map id
     const MapEntry* entry = sMapStore.LookupEntry(GetId());
@@ -221,7 +221,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
 BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battleground* bg)
 {
     // load/create a map
-    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+    GreenPis_GUARD(ACE_Thread_Mutex, Lock);
 
     sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
 

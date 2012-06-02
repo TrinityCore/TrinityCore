@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,7 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Vehicle.h"
 
 /*######
 ## Quest 12027: Mr. Floppy's Perilous Adventure
@@ -694,6 +695,38 @@ public:
         }
     };
 };
+/*
+* Commiter: GreenpisCore
+* Fix quest #12244, #12270
+*/
+
+class spell_shredder_delivery : public SpellScriptLoader
+{
+public:
+    spell_shredder_delivery() : SpellScriptLoader("spell_shredder_delivery") { }
+
+    class spell_shredder_delivery_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_shredder_delivery_SpellScript);
+
+        void HandleKillCredit(SpellEffIndex effIndex)
+        {
+            if (GetCaster()->GetVehicleKit()->GetPassenger(0) && GetCaster()->GetVehicleKit()->GetPassenger(0)->GetTypeId() == TYPEID_PLAYER)
+                if (Player* player = GetCaster()->GetVehicleKit()->GetPassenger(0)->ToPlayer())
+                    player->KilledMonsterCredit(27396, 0);
+        }
+
+        void Register()
+        {
+             OnEffectHit += SpellEffectFn(spell_shredder_delivery_SpellScript::HandleKillCredit, EFFECT_1, SPELL_EFFECT_KILL_CREDIT2);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_shredder_delivery_SpellScript();
+    }
+};
 
 void AddSC_grizzly_hills()
 {
@@ -705,4 +738,5 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher();
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
+    new spell_shredder_delivery();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,7 +62,7 @@ void WorldLog::outTimestampLog(char const* fmt, ...)
 {
     if (LogWorld())
     {
-        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+        GreenPis_GUARD(ACE_Thread_Mutex, Lock);
         ASSERT(i_file);
 
         Log::outTimestamp(i_file);
@@ -90,7 +90,7 @@ void WorldLog::outLog(char const* fmt, ...)
 {
     if (LogWorld())
     {
-        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+        GreenPis_GUARD(ACE_Thread_Mutex, Lock);
         ASSERT(i_file);
 
         va_list args;

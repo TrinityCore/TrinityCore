@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -270,13 +270,13 @@ inline GameObject* Map::_FindGameObject(WorldObject* searchObject, uint32 guid) 
 {
     GameObject* gameobject = NULL;
 
-    CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
+    CellCoord p(GreenPis::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
     Cell cell(p);
 
-    Trinity::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
-    Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(searchObject, gameobject, goCheck);
+    GreenPis::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
+    GreenPis::GameObjectSearcher<GreenPis::GameObjectWithDbGUIDCheck> checker(searchObject, gameobject, goCheck);
 
-    TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
+    TypeContainerVisitor<GreenPis::GameObjectSearcher<GreenPis::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
     cell.Visit(p, objectChecker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
 
     return gameobject;
@@ -378,7 +378,7 @@ void Map::ScriptsProcess()
                     if (Player* player = _GetScriptPlayerSourceOrTarget(source, target, step.script))
                     {
                         LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-                        std::string text(sObjectMgr->GetTrinityString(step.script->Talk.TextID, loc_idx));
+                        std::string text(sObjectMgr->GetGreenPisString(step.script->Talk.TextID, loc_idx));
 
                         switch (step.script->Talk.ChatType)
                         {
@@ -823,13 +823,13 @@ void Map::ScriptsProcess()
                 {
                     WorldObject* wSource = dynamic_cast <WorldObject*> (source);
 
-                    CellCoord p(Trinity::ComputeCellCoord(wSource->GetPositionX(), wSource->GetPositionY()));
+                    CellCoord p(GreenPis::ComputeCellCoord(wSource->GetPositionX(), wSource->GetPositionY()));
                     Cell cell(p);
 
-                    Trinity::CreatureWithDbGUIDCheck target_check(wSource, step.script->CallScript.CreatureEntry);
-                    Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(wSource, cTarget, target_check);
+                    GreenPis::CreatureWithDbGUIDCheck target_check(wSource, step.script->CallScript.CreatureEntry);
+                    GreenPis::CreatureSearcher<GreenPis::CreatureWithDbGUIDCheck> checker(wSource, cTarget, target_check);
 
-                    TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
+                    TypeContainerVisitor<GreenPis::CreatureSearcher <GreenPis::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
                     cell.Visit(p, unit_checker, *wSource->GetMap(), *wSource, wSource->GetGridActivationRange());
                 }
                 else //check hashmap holders

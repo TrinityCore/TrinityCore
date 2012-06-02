@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -290,8 +290,8 @@ bool OPvPCapturePoint::Update(uint32 diff)
     }
 
     std::list<Player*> players;
-    Trinity::AnyPlayerInObjectRangeCheck checker(m_capturePoint, radius);
-    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(m_capturePoint, players, checker);
+    GreenPis::AnyPlayerInObjectRangeCheck checker(m_capturePoint, radius);
+    GreenPis::PlayerListSearcher<GreenPis::AnyPlayerInObjectRangeCheck> searcher(m_capturePoint, players, checker);
     m_capturePoint->VisitNearbyWorldObject(radius, searcher);
 
     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)

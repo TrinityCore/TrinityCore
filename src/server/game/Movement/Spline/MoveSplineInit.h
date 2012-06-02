@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TRINITYSERVER_MOVESPLINEINIT_H
-#define TRINITYSERVER_MOVESPLINEINIT_H
+#ifndef GreenPisSERVER_MOVESPLINEINIT_H
+#define GreenPisSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
 
@@ -172,4 +172,4 @@ namespace Movement
         args.flags.EnableFacingPoint();
     }
 }
-#endif // TRINITYSERVER_MOVESPLINEINIT_H
+#endif // GreenPisSERVER_MOVESPLINEINIT_H

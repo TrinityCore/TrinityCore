@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -199,13 +199,13 @@ bool ChatHandler::HandleCooldownCommand(const char *args)
 
         if (!sSpellMgr->GetSpellInfo(spell_id))
         {
-            PSendSysMessage(LANG_UNKNOWN_SPELL, target == m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : tNameLink.c_str());
+            PSendSysMessage(LANG_UNKNOWN_SPELL, target == m_session->GetPlayer() ? GetGreenPisString(LANG_YOU) : tNameLink.c_str());
             SetSentErrorMessage(true);
             return false;
         }
 
         target->RemoveSpellCooldown(spell_id, true);
-        PSendSysMessage(LANG_REMOVE_COOLDOWN, spell_id, target == m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : tNameLink.c_str());
+        PSendSysMessage(LANG_REMOVE_COOLDOWN, spell_id, target == m_session->GetPlayer() ? GetGreenPisString(LANG_YOU) : tNameLink.c_str());
    }
     return true;
 }
@@ -264,7 +264,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
     if (!plTarget)
         plTarget = player;
 
-    sLog->outDetail(GetTrinityString(LANG_ADDITEM), itemId, count);
+    sLog->outDetail(GetGreenPisString(LANG_ADDITEM), itemId, count);
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemId);
     if (!pProto)
@@ -343,7 +343,7 @@ bool ChatHandler::HandleAddItemSetCommand(const char *args)
     if (!playerTarget)
         playerTarget = player;
 
-    sLog->outDetail(GetTrinityString(LANG_ADDITEMSET), itemsetId);
+    sLog->outDetail(GetGreenPisString(LANG_ADDITEMSET), itemsetId);
 
     bool found = false;
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
@@ -957,13 +957,13 @@ bool ChatHandler::HandleLookupSkillCommand(const char *args)
                 char const* knownStr = "";
                 if (target && target->HasSkill(id))
                 {
-                    knownStr = GetTrinityString(LANG_KNOWN);
+                    knownStr = GetGreenPisString(LANG_KNOWN);
                     uint32 curValue = target->GetPureSkillValue(id);
                     uint32 maxValue  = target->GetPureMaxSkillValue(id);
                     uint32 permValue = target->GetSkillPermBonusValue(id);
                     uint32 tempValue = target->GetSkillTempBonusValue(id);
 
-                    char const* valFormat = GetTrinityString(LANG_SKILL_VALUES);
+                    char const* valFormat = GetGreenPisString(LANG_SKILL_VALUES);
                     snprintf(valStr, 50, valFormat, curValue, maxValue, permValue, tempValue);
                 }
 
@@ -1064,7 +1064,7 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
 
                 // include rank in link name
                 if (rank)
-                    ss << GetTrinityString(LANG_SPELL_RANK) << rank;
+                    ss << GetGreenPisString(LANG_SPELL_RANK) << rank;
 
                 if (m_session)
                     ss << ' ' << localeNames[loc] << "]|h|r";
@@ -1072,15 +1072,15 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
                     ss << ' ' << localeNames[loc];
 
                 if (talent)
-                    ss << GetTrinityString(LANG_TALENT);
+                    ss << GetGreenPisString(LANG_TALENT);
                 if (passive)
-                    ss << GetTrinityString(LANG_PASSIVE);
+                    ss << GetGreenPisString(LANG_PASSIVE);
                 if (learn)
-                    ss << GetTrinityString(LANG_LEARN);
+                    ss << GetGreenPisString(LANG_LEARN);
                 if (known)
-                    ss << GetTrinityString(LANG_KNOWN);
+                    ss << GetGreenPisString(LANG_KNOWN);
                 if (active)
-                    ss << GetTrinityString(LANG_ACTIVE);
+                    ss << GetGreenPisString(LANG_ACTIVE);
 
                 SendSysMessage(ss.str().c_str());
 
@@ -1147,12 +1147,12 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
                             if (status == QUEST_STATUS_COMPLETE)
                             {
                                 if (target->GetQuestRewardStatus(qinfo->GetQuestId()))
-                                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
+                                    statusStr = GetGreenPisString(LANG_COMMAND_QUEST_REWARDED);
                                 else
-                                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
+                                    statusStr = GetGreenPisString(LANG_COMMAND_QUEST_COMPLETE);
                             }
                             else if (status == QUEST_STATUS_INCOMPLETE)
-                                statusStr = GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
+                                statusStr = GetGreenPisString(LANG_COMMAND_QUEST_ACTIVE);
                         }
 
                         if (m_session)
@@ -1190,12 +1190,12 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
                 if (status == QUEST_STATUS_COMPLETE)
                 {
                     if (target->GetQuestRewardStatus(qinfo->GetQuestId()))
-                        statusStr = GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
+                        statusStr = GetGreenPisString(LANG_COMMAND_QUEST_REWARDED);
                     else
-                        statusStr = GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
+                        statusStr = GetGreenPisString(LANG_COMMAND_QUEST_COMPLETE);
                 }
                 else if (status == QUEST_STATUS_INCOMPLETE)
-                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
+                    statusStr = GetGreenPisString(LANG_COMMAND_QUEST_ACTIVE);
             }
 
             if (m_session)
@@ -1438,25 +1438,25 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
                 if (repState)                               // and then target != NULL also
                 {
                     uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
-                    std::string rankName = GetTrinityString(index);
+                    std::string rankName = GetGreenPisString(index);
 
                     ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
                     if (repState->Flags & FACTION_FLAG_VISIBLE)
-                        ss << GetTrinityString(LANG_FACTION_VISIBLE);
+                        ss << GetGreenPisString(LANG_FACTION_VISIBLE);
                     if (repState->Flags & FACTION_FLAG_AT_WAR)
-                        ss << GetTrinityString(LANG_FACTION_ATWAR);
+                        ss << GetGreenPisString(LANG_FACTION_ATWAR);
                     if (repState->Flags & FACTION_FLAG_PEACE_FORCED)
-                        ss << GetTrinityString(LANG_FACTION_PEACE_FORCED);
+                        ss << GetGreenPisString(LANG_FACTION_PEACE_FORCED);
                     if (repState->Flags & FACTION_FLAG_HIDDEN)
-                        ss << GetTrinityString(LANG_FACTION_HIDDEN);
+                        ss << GetGreenPisString(LANG_FACTION_HIDDEN);
                     if (repState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
-                        ss << GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
+                        ss << GetGreenPisString(LANG_FACTION_INVISIBLE_FORCED);
                     if (repState->Flags & FACTION_FLAG_INACTIVE)
-                        ss << GetTrinityString(LANG_FACTION_INACTIVE);
+                        ss << GetGreenPisString(LANG_FACTION_INACTIVE);
                 }
                 else
-                    ss << GetTrinityString(LANG_FACTION_NOREPUTATION);
+                    ss << GetGreenPisString(LANG_FACTION_NOREPUTATION);
 
                 SendSysMessage(ss.str().c_str());
 
@@ -1599,20 +1599,20 @@ bool ChatHandler::HandleLookupMapCommand(const char *args)
                     ss << id << " - [" << name << ']';
 
                 if (MapInfo->IsContinent())
-                    ss << GetTrinityString(LANG_CONTINENT);
+                    ss << GetGreenPisString(LANG_CONTINENT);
 
                 switch (MapInfo->map_type)
                 {
-                    case MAP_INSTANCE:      ss << GetTrinityString(LANG_INSTANCE);      break;
-                    case MAP_BATTLEGROUND:  ss << GetTrinityString(LANG_BATTLEGROUND);  break;
-                    case MAP_ARENA:         ss << GetTrinityString(LANG_ARENA);         break;
+                    case MAP_INSTANCE:      ss << GetGreenPisString(LANG_INSTANCE);      break;
+                    case MAP_BATTLEGROUND:  ss << GetGreenPisString(LANG_BATTLEGROUND);  break;
+                    case MAP_ARENA:         ss << GetGreenPisString(LANG_ARENA);         break;
                 }
 
                 if (MapInfo->IsRaid())
-                    ss << GetTrinityString(LANG_RAID);
+                    ss << GetGreenPisString(LANG_RAID);
 
                 if (MapInfo->SupportsHeroicMode())
-                    ss << GetTrinityString(LANG_HEROIC);
+                    ss << GetGreenPisString(LANG_HEROIC);
 
                 uint32 ResetTimeRaid = MapInfo->resetTimeRaid;
 
@@ -1626,7 +1626,7 @@ bool ChatHandler::HandleLookupMapCommand(const char *args)
                     ResetTimeHeroicStr = secsToTimeString(ResetTimeHeroic, true, false);
 
                 if (MapInfo->IsMountAllowed())
-                    ss << GetTrinityString(LANG_MOUNTABLE);
+                    ss << GetGreenPisString(LANG_MOUNTABLE);
 
                 if (ResetTimeRaid && !ResetTimeHeroic)
                     PSendSysMessage(ss.str().c_str(), ResetTimeRaidStr.c_str());
@@ -2088,14 +2088,14 @@ bool ChatHandler::HandleNearGraveCommand(const char *args)
 
         g_team = data->team;
 
-        std::string team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_NOTEAM);
+        std::string team_name = GetGreenPisString(LANG_COMMAND_GRAVEYARD_NOTEAM);
 
         if (g_team == 0)
-            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ANY);
+            team_name = GetGreenPisString(LANG_COMMAND_GRAVEYARD_ANY);
         else if (g_team == HORDE)
-            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_HORDE);
+            team_name = GetGreenPisString(LANG_COMMAND_GRAVEYARD_HORDE);
         else if (g_team == ALLIANCE)
-            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
+            team_name = GetGreenPisString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
         PSendSysMessage(LANG_COMMAND_GRAVEYARDNEAREST, g_id, team_name.c_str(), zone_id);
     }
@@ -2104,11 +2104,11 @@ bool ChatHandler::HandleNearGraveCommand(const char *args)
         std::string team_name;
 
         if (g_team == 0)
-            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ANY);
+            team_name = GetGreenPisString(LANG_COMMAND_GRAVEYARD_ANY);
         else if (g_team == HORDE)
-            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_HORDE);
+            team_name = GetGreenPisString(LANG_COMMAND_GRAVEYARD_HORDE);
         else if (g_team == ALLIANCE)
-            team_name = GetTrinityString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
+            team_name = GetGreenPisString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
         if (g_team == ~uint32(0))
             PSendSysMessage(LANG_COMMAND_ZONENOGRAVEYARDS, zone_id);
@@ -2390,8 +2390,8 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
         return false;
     }
 
-    char const* talentStr = GetTrinityString(LANG_TALENT);
-    char const* passiveStr = GetTrinityString(LANG_PASSIVE);
+    char const* talentStr = GetGreenPisString(LANG_TALENT);
+    char const* passiveStr = GetGreenPisString(LANG_PASSIVE);
 
     Unit::AuraApplicationMap const& uAuras = unit->GetAppliedAuras();
     PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, uAuras.size());
@@ -2680,7 +2680,7 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
 
     CharacterDatabase.Execute(stmt);
 
-    TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
+    GreenPis_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType const& plist = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
         itr->second->SetAtLoginFlag(atLogin);
@@ -3128,9 +3128,9 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
         if (fields[2].GetUInt8() && (!fields[1].GetUInt32() || unbandate >= time(NULL)))
             active = true;
         bool permanent = (fields[1].GetUInt32() == uint32(0));
-        std::string bantime = permanent ? GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt32(), true);
+        std::string bantime = permanent ? GetGreenPisString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt32(), true);
         PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
-            fields[0].GetCString(), bantime.c_str(), active ? GetTrinityString(LANG_BANINFO_YES) : GetTrinityString(LANG_BANINFO_NO), fields[4].GetCString(), fields[5].GetCString());
+            fields[0].GetCString(), bantime.c_str(), active ? GetGreenPisString(LANG_BANINFO_YES) : GetGreenPisString(LANG_BANINFO_NO), fields[4].GetCString(), fields[5].GetCString());
     }
     while (result->NextRow());
 
@@ -3156,9 +3156,9 @@ bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
         if (fields[2].GetBool() && (fields[1].GetUInt64() == (uint64)0 ||unbandate >= time(NULL)))
             active = true;
         bool permanent = (fields[1].GetUInt64() == (uint64)0);
-        std::string bantime = permanent ? GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), true);
+        std::string bantime = permanent ? GetGreenPisString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), true);
         PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
-            fields[0].GetCString(), bantime.c_str(), active ? GetTrinityString(LANG_BANINFO_YES) : GetTrinityString(LANG_BANINFO_NO), fields[4].GetCString(), fields[5].GetCString());
+            fields[0].GetCString(), bantime.c_str(), active ? GetGreenPisString(LANG_BANINFO_YES) : GetGreenPisString(LANG_BANINFO_NO), fields[4].GetCString(), fields[5].GetCString());
     } while (result->NextRow());
 
     return true;
@@ -3189,8 +3189,8 @@ bool ChatHandler::HandleBanInfoIPCommand(const char *args)
     Field* fields = result->Fetch();
     bool permanent = !fields[6].GetUInt64();
     PSendSysMessage(LANG_BANINFO_IPENTRY,
-        fields[0].GetCString(), fields[1].GetCString(), permanent ? GetTrinityString(LANG_BANINFO_NEVER) : fields[2].GetCString(),
-        permanent ? GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[3].GetUInt64(), true).c_str(), fields[4].GetCString(), fields[5].GetCString());
+        fields[0].GetCString(), fields[1].GetCString(), permanent ? GetGreenPisString(LANG_BANINFO_NEVER) : fields[2].GetCString(),
+        permanent ? GetGreenPisString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[3].GetUInt64(), true).c_str(), fields[4].GetCString(), fields[5].GetCString());
 
     return true;
 }
@@ -3485,14 +3485,14 @@ bool ChatHandler::HandleRespawnCommand(const char* /*args*/)
         return true;
     }
 
-    CellCoord p(Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
+    CellCoord p(GreenPis::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
     Cell cell(p);
     cell.SetNoCreate();
 
-    Trinity::RespawnDo u_do;
-    Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
+    GreenPis::RespawnDo u_do;
+    GreenPis::WorldObjectWorker<GreenPis::RespawnDo> worker(player, u_do);
 
-    TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
+    TypeContainerVisitor<GreenPis::WorldObjectWorker<GreenPis::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
     cell.Visit(p, obj_worker, *player->GetMap(), *player, player->GetGridActivationRange());
 
     return true;

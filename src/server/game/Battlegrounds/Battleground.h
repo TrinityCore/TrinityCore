@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -554,7 +554,7 @@ class Battleground
         void DoorOpen(uint32 type);
         void DoorClose(uint32 type);
         //to be removed
-        const char* GetTrinityString(int32 entry);
+        const char* GetGreenPisString(int32 entry);
 
         virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
 

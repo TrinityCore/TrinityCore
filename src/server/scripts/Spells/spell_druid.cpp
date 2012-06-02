@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -250,7 +250,7 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
                         return;
                     }
 
-                    Unit* target = Trinity::Containers::SelectRandomContainerElement(tempTargets);
+                    Unit* target = GreenPis::Containers::SelectRandomContainerElement(tempTargets);
                     unitList.clear();
                     unitList.push_back(target);
                 }

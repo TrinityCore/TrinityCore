@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -139,7 +139,7 @@ class boss_emalon : public CreatureScript
                         case EVENT_OVERCHARGE:
                             if (!summons.empty())
                             {
-                                Creature* minion = Unit::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(summons));
+                                Creature* minion = Unit::GetCreature(*me, GreenPis::Containers::SelectRandomContainerElement(summons));
                                 if (minion && minion->isAlive())
                                 {
                                     minion->CastSpell(me, SPELL_OVERCHARGED, true);

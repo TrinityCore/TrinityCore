@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -359,8 +359,8 @@ public:
                         DoCastVictim(SPELL_BELLOWING_ROAR);
                         // Eruption
                         GameObject* pFloor = NULL;
-                        Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
-                        Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, pFloor, check);
+                        GreenPis::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
+                        GreenPis::GameObjectLastSearcher<GreenPis::GameObjectInRangeCheck> searcher(me, pFloor, check);
                         me->VisitNearbyGridObject(30, searcher);
                         if (instance && pFloor)
                             instance->SetData64(DATA_FLOOR_ERUPTION_GUID, pFloor->GetGUID());

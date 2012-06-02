@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,15 +18,15 @@
 
 // THIS FILE IS DEPRECATED
 
-#ifndef TRINITY_SYSTEMCONFIG_H
-#define TRINITY_SYSTEMCONFIG_H
+#ifndef GreenPis_SYSTEMCONFIG_H
+#define GreenPis_SYSTEMCONFIG_H
 
 #include "Define.h"
 #include "revision.h"
 
-#define _PACKAGENAME "TrinityCore"
+#define _PACKAGENAME "GreenPis"
 
-#if TRINITY_ENDIAN == TRINITY_BIGENDIAN
+#if GreenPis_ENDIAN == GreenPis_BIGENDIAN
 # define _ENDIAN_STRING "big-endian"
 #else
 # define _ENDIAN_STRING "little-endian"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CONTAINERS_H
-#define TRINITY_CONTAINERS_H
+#ifndef GreenPis_CONTAINERS_H
+#define GreenPis_CONTAINERS_H
 
 #include <list>
 
 //! Because circular includes are bad
 extern uint32 urand(uint32 min, uint32 max);
 
-namespace Trinity
+namespace GreenPis
 {
     namespace Containers
     {
@@ -66,6 +66,6 @@ namespace Trinity
     };
     //! namespace Containers
 };
-//! namespace Trinity
+//! namespace GreenPis
 
-#endif //! #ifdef TRINITY_CONTAINERS_H
+#endif //! #ifdef GreenPis_CONTAINERS_H

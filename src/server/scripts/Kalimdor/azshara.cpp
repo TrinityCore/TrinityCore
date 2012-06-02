@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -419,7 +419,7 @@ public:
         void SendText(int32 iTextEntry, Player* player)
         {
             LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-            const char* text = sObjectMgr->GetTrinityString(iTextEntry, loc_idx);
+            const char* text = sObjectMgr->GetGreenPisString(iTextEntry, loc_idx);
             sWorld->SendServerMessage(SERVER_MSG_STRING, text, player);
         }
 

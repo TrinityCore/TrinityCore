@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -316,7 +316,7 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recv_data)
 
     uint32 guildguid;
     uint64 petitionguid;
-    recv_data >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
+    recv_data >> guildguid;                                 // in GreenPis always same as GUID_LOPART(petitionguid)
     recv_data >> petitionguid;                              // petition guid
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionguid), guildguid);
 
@@ -349,7 +349,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     }
 
     WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+name.size()+1+1+4*12+2+10));
-    data << uint32(GUID_LOPART(petitionguid));              // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
+    data << uint32(GUID_LOPART(petitionguid));              // guild/team guid (in GreenPis always same as GUID_LOPART(petition guid)
     data << uint64(ownerguid);                              // charter owner guid
     data << name;                                           // name (guild/arena team)
     data << uint8(0);                                       // some string

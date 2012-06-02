@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -73,7 +73,7 @@ bool ChatHandler::HandleAnnounceCommand(const char* args)
         return false;
 
     char buff[2048];
-    sprintf(buff, GetTrinityString(LANG_SYSTEMMESSAGE), args);
+    sprintf(buff, GetGreenPisString(LANG_SYSTEMMESSAGE), args);
     sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
     return true;
 }
@@ -94,7 +94,7 @@ bool ChatHandler::HandleNotifyCommand(const char* args)
     if (!*args)
         return false;
 
-    std::string str = GetTrinityString(LANG_GLOBAL_NOTIFY);
+    std::string str = GetGreenPisString(LANG_GLOBAL_NOTIFY);
     str += args;
 
     WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
@@ -110,7 +110,7 @@ bool ChatHandler::HandleGMNotifyCommand(const char* args)
     if (!*args)
         return false;
 
-    std::string str = GetTrinityString(LANG_GM_NOTIFY);
+    std::string str = GetGreenPisString(LANG_GM_NOTIFY);
     str += args;
 
     WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
@@ -220,7 +220,7 @@ bool ChatHandler::HandleSummonCommand(const char* args)
 
         std::string nameLink = playerLink(target_name);
 
-        PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), GetTrinityString(LANG_OFFLINE));
+        PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), GetGreenPisString(LANG_OFFLINE));
 
         // in point where GM stay
         Player::SavePositionInDB(m_session->GetPlayer()->GetMapId(),
@@ -589,7 +589,7 @@ bool ChatHandler::HandleWhispersCommand(const char* args)
 {
     if (!*args)
     {
-        PSendSysMessage(LANG_COMMAND_WHISPERACCEPTING, m_session->GetPlayer()->isAcceptWhispers() ?  GetTrinityString(LANG_ON) : GetTrinityString(LANG_OFF));
+        PSendSysMessage(LANG_COMMAND_WHISPERACCEPTING, m_session->GetPlayer()->isAcceptWhispers() ?  GetGreenPisString(LANG_ON) : GetGreenPisString(LANG_OFF));
         return true;
     }
 

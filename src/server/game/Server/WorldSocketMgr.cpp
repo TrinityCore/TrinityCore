@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2008  MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -109,7 +109,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         int AddSocket (WorldSocket* sock)
         {
-            TRINITY_GUARD(ACE_Thread_Mutex, m_NewSockets_Lock);
+            GreenPis_GUARD(ACE_Thread_Mutex, m_NewSockets_Lock);
 
             ++m_Connections;
             sock->AddReference();
@@ -130,7 +130,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         void AddNewSockets()
         {
-            TRINITY_GUARD(ACE_Thread_Mutex, m_NewSockets_Lock);
+            GreenPis_GUARD(ACE_Thread_Mutex, m_NewSockets_Lock);
 
             if (m_NewSockets.empty())
                 return;

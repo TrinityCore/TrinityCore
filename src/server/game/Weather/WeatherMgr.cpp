@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,7 @@ namespace WeatherMgr
 
 namespace
 {
-    typedef UNORDERED_MAP<uint32, Trinity::AutoPtr<Weather, ACE_Null_Mutex> > WeatherMap;
+    typedef UNORDERED_MAP<uint32, GreenPis::AutoPtr<Weather, ACE_Null_Mutex> > WeatherMap;
     typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
 
     WeatherMap m_weathers;

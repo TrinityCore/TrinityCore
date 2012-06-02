@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -179,7 +179,7 @@ public:
                 if (unit && unit->isAlive())
                     targets.push_back(unit);
             }
-            targets.sort(Trinity::ObjectDistanceOrderPred(me));
+            targets.sort(GreenPis::ObjectDistanceOrderPred(me));
             Unit* target = targets.front();
             if (target && me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
             {
@@ -338,7 +338,7 @@ public:
         {
             /************************************************************************/
             /** NOTE FOR FUTURE DEVELOPER: PROPERLY IMPLEMENT THE GHOST PORTION *****/
-            /**  ONLY AFTER TrinIty FULLY IMPLEMENTS MIND CONTROL ABILITIES      *****/
+            /**  ONLY AFTER GreenPis FULLY IMPLEMENTS MIND CONTROL ABILITIES      *****/
             /**   THE CURRENT CODE IN THIS FUNCTION IS ONLY THE BEGINNING OF    *****/
             /**    WHAT IS FULLY NECESSARY FOR GOREFIEND TO BE 100% COMPLETE    *****/
             /************************************************************************/

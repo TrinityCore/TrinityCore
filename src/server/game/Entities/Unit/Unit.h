@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2383,7 +2383,7 @@ class Unit : public WorldObject
         bool _targetLocked; // locks the target during spell cast for proper facing
 };
 
-namespace Trinity
+namespace GreenPis
 {
     // Binary predicate for sorting Units based on percent value of a power
     class PowerPctOrderPred

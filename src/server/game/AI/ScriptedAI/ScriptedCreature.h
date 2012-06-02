@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,7 +41,7 @@ class SummonList : public std::list<uint64>
 
         template <class Predicate> void DoAction(int32 info, Predicate& predicate, uint16 max = 0)
         {
-            Trinity::Containers::RandomResizeList<uint64, Predicate>(*this, predicate, max);
+            GreenPis::Containers::RandomResizeList<uint64, Predicate>(*this, predicate, max);
             for (iterator i = begin(); i != end(); )
             {
                 Creature* summon = Unit::GetCreature(*me, *i++);

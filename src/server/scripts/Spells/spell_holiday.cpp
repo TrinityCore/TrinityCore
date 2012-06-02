@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -70,8 +70,8 @@ class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
                 // For nearby players, check if they have the same aura. If so, cast Romantic Picnic (45123)
                 // required by achievement and "hearts" visual
                 std::list<Player*> playerList;
-                Trinity::AnyPlayerInObjectRangeCheck checker(target, INTERACTION_DISTANCE*2);
-                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(target, playerList, checker);
+                GreenPis::AnyPlayerInObjectRangeCheck checker(target, INTERACTION_DISTANCE*2);
+                GreenPis::PlayerListSearcher<GreenPis::AnyPlayerInObjectRangeCheck> searcher(target, playerList, checker);
                 target->VisitNearbyWorldObject(INTERACTION_DISTANCE*2, searcher);
                 for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                 {

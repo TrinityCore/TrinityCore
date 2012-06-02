@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TRINITYSERVER_PACKET_BUILDER_H
-#define TRINITYSERVER_PACKET_BUILDER_H
+#ifndef GreenPisSERVER_PACKET_BUILDER_H
+#define GreenPisSERVER_PACKET_BUILDER_H
 
 class ByteBuffer;
 class WorldPacket;
@@ -34,4 +34,4 @@ namespace Movement
         static void WriteCreate(const MoveSpline& mov, ByteBuffer& data);
     };
 }
-#endif // TRINITYSERVER_PACKET_BUILDER_H
+#endif // GreenPisSERVER_PACKET_BUILDER_H

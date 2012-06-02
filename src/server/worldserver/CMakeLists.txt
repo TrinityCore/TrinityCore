@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -149,7 +149,7 @@ set(worldserver_LINK_FLAGS "")
 add_executable(worldserver ${worldserver_SRCS})
 
 if( NOT WIN32 )
-  add_definitions(-D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"')
+  add_definitions(-D_GreenPis_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"')
 endif()
 
 add_dependencies(worldserver revision.h)

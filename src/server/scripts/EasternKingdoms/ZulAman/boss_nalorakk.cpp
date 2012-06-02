@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -162,14 +162,14 @@ class boss_nalorakk : public CreatureScript
                 me->GetPosition(x, y, z);
 
                 {
-                    CellCoord pair(Trinity::ComputeCellCoord(x, y));
+                    CellCoord pair(GreenPis::ComputeCellCoord(x, y));
                     Cell cell(pair);
                     cell.SetNoCreate();
 
-                    Trinity::AllFriendlyCreaturesInGrid check(me);
-                    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
+                    GreenPis::AllFriendlyCreaturesInGrid check(me);
+                    GreenPis::CreatureListSearcher<GreenPis::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
 
-                    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
+                    TypeContainerVisitor<GreenPis::CreatureListSearcher<GreenPis::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
 
                     cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
                 }

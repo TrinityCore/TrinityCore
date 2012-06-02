@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -170,7 +170,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         if (!sender->CanSpeak())
         {
             std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
-            SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+            SendNotification(GetGreenPisString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
             recv_data.rfinish(); // Prevent warnings
             return;
         }
@@ -184,7 +184,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         std::string msg="";
         recv_data >> msg;
 
-        SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName());
+        SendNotification(GetGreenPisString(LANG_GM_SILENCE), sender->GetName());
         return;
     }
 
@@ -244,7 +244,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ))
             {
-                SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
+                SendNotification(GetGreenPisString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
                 return;
             }
 
@@ -259,7 +259,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ))
             {
-                SendNotification(GetTrinityString(LANG_WHISPER_REQ), sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
+                SendNotification(GetGreenPisString(LANG_WHISPER_REQ), sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
                 return;
             }
 
@@ -287,7 +287,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 
             if (GetPlayer()->HasAura(1852) && !receiver->isGameMaster())
             {
-                SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName());
+                SendNotification(GetGreenPisString(LANG_GM_SILENCE), GetPlayer()->GetName());
                 return;
             }
 
@@ -421,7 +421,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             {
                 if (_player->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
                 {
-                    SendNotification(GetTrinityString(LANG_CHANNEL_REQ), sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ));
+                    SendNotification(GetGreenPisString(LANG_CHANNEL_REQ), sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ));
                     return;
                 }
             }
@@ -444,7 +444,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                 if (!_player->isAFK())
                 {
                     if (msg.empty())
-                        msg  = GetTrinityString(LANG_PLAYER_AFK_DEFAULT);
+                        msg  = GetGreenPisString(LANG_PLAYER_AFK_DEFAULT);
                     _player->afkMsg = msg;
                 }
 
@@ -462,7 +462,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                 if (!_player->isDND())
                 {
                     if (msg.empty())
-                        msg = GetTrinityString(LANG_PLAYER_DND_DEFAULT);
+                        msg = GetGreenPisString(LANG_PLAYER_DND_DEFAULT);
                     _player->dndMsg = msg;
                 }
 
@@ -490,7 +490,7 @@ void WorldSession::HandleEmoteOpcode(WorldPacket & recv_data)
     GetPlayer()->HandleEmoteCommand(emote);
 }
 
-namespace Trinity
+namespace GreenPis
 {
     class EmoteChatBuilder
     {
@@ -520,7 +520,7 @@ namespace Trinity
             uint32        i_emote_num;
             Unit const*   i_target;
     };
-}                                                           // namespace Trinity
+}                                                           // namespace GreenPis
 
 void WorldSession::HandleTextEmoteOpcode(WorldPacket & recv_data)
 {
@@ -530,7 +530,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recv_data)
     if (!GetPlayer()->CanSpeak())
     {
         std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
-        SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+        SendNotification(GetGreenPisString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
         return;
     }
 
@@ -566,15 +566,15 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recv_data)
 
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
 
-    CellCoord p = Trinity::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
+    CellCoord p = GreenPis::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
 
     Cell cell(p);
     cell.SetNoCreate();
 
-    Trinity::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, unit);
-    Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > emote_do(emote_builder);
-    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > > emote_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
-    TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);
+    GreenPis::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, unit);
+    GreenPis::LocalizedPacketDo<GreenPis::EmoteChatBuilder > emote_do(emote_builder);
+    GreenPis::PlayerDistWorker<GreenPis::LocalizedPacketDo<GreenPis::EmoteChatBuilder > > emote_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
+    TypeContainerVisitor<GreenPis::PlayerDistWorker<GreenPis::LocalizedPacketDo<GreenPis::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);
     cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 
     GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);

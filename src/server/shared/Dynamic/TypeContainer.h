@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_TYPECONTAINER_H
-#define TRINITY_TYPECONTAINER_H
+#ifndef GreenPis_TYPECONTAINER_H
+#define GreenPis_TYPECONTAINER_H
 
 /*
  * Here, you'll find a series of containers that allow you to hold multiple
@@ -98,19 +98,19 @@ template<class OBJECT_TYPES>
 class TypeMapContainer
 {
     public:
-        template<class SPECIFIC_TYPE> size_t Count() const { return Trinity::Count(i_elements, (SPECIFIC_TYPE*)NULL); }
+        template<class SPECIFIC_TYPE> size_t Count() const { return GreenPis::Count(i_elements, (SPECIFIC_TYPE*)NULL); }
 
         /// inserts a specific object into the container
         template<class SPECIFIC_TYPE> bool insert(SPECIFIC_TYPE *obj)
         {
-            SPECIFIC_TYPE* t = Trinity::Insert(i_elements, obj);
+            SPECIFIC_TYPE* t = GreenPis::Insert(i_elements, obj);
             return (t != NULL);
         }
 
         ///  Removes the object from the container, and returns the removed object
         //template<class SPECIFIC_TYPE> bool remove(SPECIFIC_TYPE* obj)
         //{
-        //    SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj);
+        //    SPECIFIC_TYPE* t = GreenPis::Remove(i_elements, obj);
         //    return (t != NULL);
         //}
 

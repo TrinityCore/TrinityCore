@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1064,7 +1064,7 @@ public:
     {
         if (player->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
         {
-            // Hack Why Trinity Dont Support Custom Summon Location
+            // Hack Why GreenPis Dont Support Custom Summon Location
             if (Creature* miner = player->SummonCreature(28841, 2383.869629f, -5900.312500f, 107.996086f, player->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1))
             {
                 player->CastSpell(player, SPELL_CART_SUMM, true);
