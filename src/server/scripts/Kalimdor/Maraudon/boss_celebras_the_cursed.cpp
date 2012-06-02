@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Maraudon
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -46,15 +47,15 @@ public:
     {
         celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 Wrath_Timer;
-        uint32 EntanglingRoots_Timer;
-        uint32 CorruptForces_Timer;
+        uint32 WrathTimer;
+        uint32 EntanglingRootsTimer;
+        uint32 CorruptForcesTimer;
 
         void Reset()
         {
-            Wrath_Timer = 8000;
-            EntanglingRoots_Timer = 2000;
-            CorruptForces_Timer = 30000;
+            WrathTimer = 8000;
+            EntanglingRootsTimer = 2000;
+            CorruptForcesTimer = 30000;
         }
 
         void EnterCombat(Unit* /*who*/) { }
@@ -70,32 +71,30 @@ public:
                 return;
 
             //Wrath
-            if (Wrath_Timer <= diff)
+            if (WrathTimer <= diff)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_WRATH);
-                Wrath_Timer = 8000;
+                WrathTimer = 8000;
             }
-            else Wrath_Timer -= diff;
+            else WrathTimer -= diff;
 
             //EntanglingRoots
-            if (EntanglingRoots_Timer <= diff)
+            if (EntanglingRootsTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ENTANGLINGROOTS);
-                EntanglingRoots_Timer = 20000;
+                DoCastVictim(SPELL_ENTANGLINGROOTS);
+                EntanglingRootsTimer = 20000;
             }
-            else EntanglingRoots_Timer -= diff;
+            else EntanglingRootsTimer -= diff;
 
             //CorruptForces
-            if (CorruptForces_Timer <= diff)
+            if (CorruptForcesTimer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
                 DoCast(me, SPELL_CORRUPT_FORCES);
-                CorruptForces_Timer = 20000;
+                CorruptForcesTimer = 20000;
             }
-            else CorruptForces_Timer -= diff;
+            else CorruptForcesTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
