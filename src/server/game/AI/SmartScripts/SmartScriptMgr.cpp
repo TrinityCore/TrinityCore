@@ -709,7 +709,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_REMOVEAURASFROMSPELL:
-            if (!IsSpellValid(e, e.action.removeAura.spell))
+            if (e.action.removeAura.spell != 0 && !IsSpellValid(e, e.action.removeAura.spell))
                 return false;
             break;
         case SMART_ACTION_RANDOM_PHASE:
