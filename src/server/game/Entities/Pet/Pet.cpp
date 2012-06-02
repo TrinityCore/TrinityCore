@@ -922,9 +922,15 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
 
-            // remove Corpse Explosion visual from ghouls
-            if (GetEntry() == 26125 && HasAura(51270))
-                RemoveAura(51270);
+            if (GetEntry() == 26125)
+            {
+                // remove Corpse Explosion visual from ghouls
+                if (HasAura(51270))
+                    RemoveAura(51270);
+
+                // ghoul should inherit full owners hit chance
+                m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+            }
 
             break;
         }
