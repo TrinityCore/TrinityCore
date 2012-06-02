@@ -295,16 +295,42 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
         }
 
         // if we boarded a transport, add us to it
-        if (plrMover && !plrMover->GetTransport())
+        if (plrMover)
         {
-            // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just dismount if the guid can be found in the transport list
-            for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
+            if (!plrMover->GetTransport())
             {
-                if ((*iter)->GetGUID() == movementInfo.t_guid)
+                // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just dismount if the guid can be found in the transport list
+                for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
                 {
-                    plrMover->m_transport = (*iter);
-                    (*iter)->AddPassenger(plrMover);
-                    break;
+                    if ((*iter)->GetGUID() == movementInfo.t_guid)
+                    {
+                        plrMover->m_transport = *iter;
+                        (*iter)->AddPassenger(plrMover);
+                        break;
+                    }
+                }
+            }
+            else if (plrMover->GetTransport()->GetGUID() != movementInfo.t_guid)
+            {
+                bool foundNewTransport = false;
+                plrMover->m_transport->RemovePassenger(plrMover);
+                for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
+                {
+                    if ((*iter)->GetGUID() == movementInfo.t_guid)
+                    {
+                        foundNewTransport = true;
+                        plrMover->m_transport = *iter;
+                        (*iter)->AddPassenger(plrMover);
+                        break;
+                    }
+                }
+
+                if (!foundNewTransport)
+                {
+                    plrMover->m_transport = NULL;
+                    movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+                    movementInfo.t_time = 0;
+                    movementInfo.t_seat = -1;
                 }
             }
         }
