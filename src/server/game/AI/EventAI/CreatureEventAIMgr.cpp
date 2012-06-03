@@ -204,12 +204,16 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         temp.raw.param3 = fields[8].GetInt32();
         temp.raw.param4 = fields[9].GetInt32();
 
+        CreatureTemplate* cInfo = sObjectMgr->GetCreatureTemplate(temp.creature_id);
         //Creature does not exist in database
-        if (!sObjectMgr->GetCreatureTemplate(temp.creature_id))
+        if (!cInfo)
         {
             sLog->outErrorDb("CreatureEventAI:  Event %u has script for non-existing creature entry (%u), skipping.", i, temp.creature_id);
             continue;
         }
+        
+        if (cInfo->AIName != "EventAI")
+            sLog->outErrorDb("Creature entry %u has EventAI scripts, but its AIName is not 'EventAI' - possible AI-mismatch?", temp.creature_id);
 
         //No chance of this event occuring
         if (temp.event_chance == 0)
@@ -734,15 +738,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
 
     }
     while (result->NextRow());
-
-    for (CreatureEventAI_Event_Map::const_iterator itr = m_CreatureEventAI_Event_Map.begin(); itr != m_CreatureEventAI_Event_Map.end(); ++itr)
-    {
-        if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(itr->first))
-        {
-            if (cInfo->AIName != "EventAI")
-                sLog->outErrorDb("Creature entry %u has EventAI scripts, but its AIName is not 'EventAI' - possible AI-mismatch?", itr->first);
-        }
-    }
 
     sLog->outString(">> Loaded %u CreatureEventAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
