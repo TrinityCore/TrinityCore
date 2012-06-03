@@ -47,6 +47,7 @@ EndContentData */
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "PetAI.h"
 
 /*########
 # npc_air_force_bots
@@ -2100,16 +2101,18 @@ class npc_shadowfiend : public CreatureScript
     public:
         npc_shadowfiend() : CreatureScript("npc_shadowfiend") { }
 
-        struct npc_shadowfiendAI : public ScriptedAI
+        struct npc_shadowfiendAI : public PetAI
         {
-            npc_shadowfiendAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_shadowfiendAI(Creature* creature) : PetAI(creature) {}
 
-            void DamageTaken(Unit* /*killer*/, uint32& damage)
+            void JustDied(Unit* killer)
             {
                 if (me->isSummon())
                     if (Unit* owner = me->ToTempSummon()->GetSummoner())
-                        if (owner->HasAura(GLYPH_OF_SHADOWFIEND) && damage >= me->GetHealth())
+                        if (owner->HasAura(GLYPH_OF_SHADOWFIEND))
                             owner->CastSpell(owner, GLYPH_OF_SHADOWFIEND_MANA, true);
+
+                PetAI::JustDied(killer);
             }
         };
 
