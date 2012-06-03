@@ -30,7 +30,9 @@ enum DruidSpells
     DRUID_INCREASED_MOONFIRE_DURATION   = 38414,
     DRUID_NATURES_SPLENDOR              = 57865,
     DRUID_LIFEBLOOM_FINAL_HEAL          = 33778,
-    DRUID_LIFEBLOOM_ENERGIZE            = 64372
+    DRUID_LIFEBLOOM_ENERGIZE            = 64372,
+    DRUID_SURVIVAL_INSTINCTS            = 50322,
+    DRUID_SAVAGE_ROAR                   = 62071
 };
 
 // 54846 Glyph of Starfire
@@ -481,6 +483,166 @@ class spell_dru_lifebloom : public SpellScriptLoader
         }
 };
 
+class spell_dru_predatory_strikes : public SpellScriptLoader
+{
+    public:
+        spell_dru_predatory_strikes() : SpellScriptLoader("spell_dru_predatory_strikes") { }
+
+        class spell_dru_predatory_strikes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_predatory_strikes_AuraScript);
+
+            void UpdateAmount(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* target = GetTarget()->ToPlayer())
+                    target->UpdateAttackPowerAndDamage();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_predatory_strikes_AuraScript::UpdateAmount, EFFECT_ALL, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_predatory_strikes_AuraScript::UpdateAmount, EFFECT_ALL, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_predatory_strikes_AuraScript();
+        }
+};
+
+class spell_dru_savage_roar : public SpellScriptLoader
+{
+    public:
+        spell_dru_savage_roar() : SpellScriptLoader("spell_dru_savage_roar") { }
+
+        class spell_dru_savage_roar_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_savage_roar_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->GetShapeshiftForm() != FORM_CAT)
+                    return SPELL_FAILED_ONLY_SHAPESHIFT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dru_savage_roar_SpellScript::CheckCast);
+            }
+        };
+
+        class spell_dru_savage_roar_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_savage_roar_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(DRUID_SAVAGE_ROAR))
+                    return false;
+                return true;
+            }
+
+            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                int32 bp0 = aurEff->GetAmount(); // todo: check if needed
+                target->CastCustomSpell(target, DRUID_SAVAGE_ROAR, &bp0, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+            }
+
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(DRUID_SAVAGE_ROAR);
+            }
+
+            void Register()
+            {
+                // todo: check AuraEffectHandleModes
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_savage_roar_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_savage_roar_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_savage_roar_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_savage_roar_AuraScript();
+        }
+};
+
+class spell_dru_survival_instincts : public SpellScriptLoader
+{
+    public:
+        spell_dru_survival_instincts() : SpellScriptLoader("spell_dru_survival_instincts") { }
+
+        class spell_dru_survival_instincts_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_survival_instincts_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (!caster->IsInFeralForm())
+                    return SPELL_FAILED_ONLY_SHAPESHIFT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dru_survival_instincts_SpellScript::CheckCast);
+            }
+        };
+
+        class spell_dru_survival_instincts_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_survival_instincts_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(DRUID_SURVIVAL_INSTINCTS))
+                    return false;
+                return true;
+            }
+
+            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                int32 bp0 = target->CountPctFromMaxHealth(aurEff->GetAmount());
+                target->CastCustomSpell(target, DRUID_SURVIVAL_INSTINCTS, &bp0, NULL, NULL, true);
+            }
+
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(DRUID_SURVIVAL_INSTINCTS);
+            }
+
+            void Register()
+            {
+                // todo: check AuraEffectHandleModes
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_survival_instincts_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_survival_instincts_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_survival_instincts_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_survival_instincts_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_glyph_of_starfire();
@@ -492,4 +654,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_swift_flight_passive();
     new spell_dru_starfall_dummy();
     new spell_dru_lifebloom();
+    new spell_dru_predatory_strikes();
+    new spell_dru_savage_roar();
+    new spell_dru_survival_instincts();
 }

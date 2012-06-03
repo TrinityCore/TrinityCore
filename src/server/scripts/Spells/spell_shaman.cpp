@@ -43,6 +43,8 @@ enum ShamanSpells
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM     = 6474,
     SHAMAN_TOTEM_SPELL_EARTHEN_POWER       = 59566,
 
+    SHAMAN_BIND_SIGHT                      = 6277,
+
     ICON_ID_SHAMAN_LAVA_FLOW               = 3087,
     SHAMAN_LAVA_FLOWS_R1                   = 51480,
     SHAMAN_LAVA_FLOWS_TRIGGERED_R1         = 64694,
@@ -702,6 +704,52 @@ class spell_sha_flame_shock : public SpellScriptLoader
         }
 };
 
+class spell_sha_sentry_totem : public SpellScriptLoader
+{
+    public:
+        spell_sha_sentry_totem() : SpellScriptLoader("spell_sha_sentry_totem") { }
+
+        class spell_sha_sentry_totem_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_sentry_totem_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SHAMAN_BIND_SIGHT))
+                    return false;
+                return true;
+            }
+
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[4]))
+                        if (totem->isTotem())
+                            caster->CastSpell(totem, SHAMAN_BIND_SIGHT, true);
+                }
+            }
+
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster)
+                    if (Player* caster = GetCaster()->ToPlayer())
+                        caster->StopCastingBindSight();
+            }
+
+            void Register()
+            {
+                 AfterEffectApply += AuraEffectApplyFn(spell_sha_sentry_totem_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                 AfterEffectRemove += AuraEffectRemoveFn(spell_sha_sentry_totem_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_sentry_totem_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_astral_shift();
@@ -718,4 +766,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_lash();
     new spell_sha_chain_heal();
     new spell_sha_flame_shock();
+    new spell_sha_sentry_totem();
 }

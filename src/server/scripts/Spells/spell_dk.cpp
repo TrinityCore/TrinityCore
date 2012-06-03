@@ -730,17 +730,6 @@ class spell_dk_death_coil : public SpellScriptLoader
                 return true;
             }
 
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetExplTargetUnit())
-                {
-                    if (target->IsFriendlyTo(caster) && target->GetCreatureType() != CREATURE_TYPE_UNDEAD)
-                        return SPELL_FAILED_BAD_TARGETS;
-                }
-                return SPELL_CAST_OK;
-            }
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();

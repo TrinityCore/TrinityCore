@@ -353,21 +353,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             return;
                         break;
                     }
-                    case 33671: // gruul's shatter
-                    case 50811: // krystallus shatter ( Normal )
-                    case 61547: // krystallus shatter ( Heroic )
-                    {
-                        // don't damage self and only players
-                        if (unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                            return;
-
-                        float radius = m_spellInfo->Effects[EFFECT_0].CalcRadius(m_caster);
-                        if (!radius)
-                            return;
-                        float distance = m_caster->GetDistance2d(unitTarget);
-                        damage = (distance > radius) ? 0 : int32(m_spellInfo->Effects[EFFECT_0].CalcValue(m_caster) * ((radius - distance)/radius));
-                        break;
-                    }
                     // Gargoyle Strike
                     case 51963:
                     {
@@ -3774,12 +3759,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (!itemTarget && m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    uint32 spell_id = 0;
-                    switch (urand(1, 5))
-                    {
-                    case 1:  spell_id = 8854; break;
-                    default: spell_id = 8855; break;
-                    }
+                    uint32 spell_id = roll_chance_i(20) ? 8854 : 8855;
 
                     m_caster->CastSpell(m_caster, spell_id, true, NULL);
                     return;
@@ -3826,10 +3806,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);
                     return;
                 }
-                // Escape artist
-                case 20589:
-                    m_caster->RemoveMovementImpairingAuras();
-                    return;
                 // Decimate
                 case 28374:
                 case 54426:
@@ -3860,15 +3836,8 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         DoCreateItem(effIndex, item);
                     break;
                 }
-                // Improved Sprint
-                case 30918:
-                {
-                    // Removes snares and roots.
-                    unitTarget->RemoveMovementImpairingAuras();
-                    break;
-                }
-                // Spirit Walk
-                case 58876:
+                case 20589: // Escape artist
+                case 30918: // Improved Sprint
                 {
                     // Removes snares and roots.
                     unitTarget->RemoveMovementImpairingAuras();
@@ -3886,96 +3855,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         }
                     }
                     break;
-                case 48025:                                     // Headless Horseman's Mount
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts and client crashes upon dismounting
-                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent on riding skill and zone
-                    bool canFly = true;
-                    uint32 v_map = GetVirtualMapForMapAndZone(unitTarget->GetMapId(), unitTarget->GetZoneId());
-                    if (v_map != 530 && v_map != 571)
-                        canFly = false;
-
-                    if (canFly && v_map == 571 && !unitTarget->ToPlayer()->HasSpell(54197))
-                        canFly = false;
-
-                    float x, y, z;
-                    unitTarget->GetPosition(x, y, z);
-                    uint32 areaFlag = unitTarget->GetBaseMap()->GetAreaFlag(x, y, z);
-                    AreaTableEntry const* pArea = sAreaStore.LookupEntry(areaFlag);
-                    if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
-                        canFly = false;
-
-                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
-                    {
-                    case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;
-                    case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
-                    case 225:
-                        {
-                            if (canFly)
-                                unitTarget->CastSpell(unitTarget, 51617, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 48024, true);
-                        }break;
-                    case 300:
-                        {
-                            if (canFly)
-                                unitTarget->CastSpell(unitTarget, 48023, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 48024, true);
-                        }break;
-                    }
-                    return;
-                }
-                case 47977:                                     // Magic Broom
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts and client crashes upon dismounting
-                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent on riding skill and zone
-                    bool canFly = true;
-                    uint32 v_map = GetVirtualMapForMapAndZone(unitTarget->GetMapId(), unitTarget->GetZoneId());
-                    if (v_map != 530 && v_map != 571)
-                        canFly = false;
-
-                    if (canFly && v_map == 571 && !unitTarget->ToPlayer()->HasSpell(54197))
-                        canFly = false;
-
-                    float x, y, z;
-                    unitTarget->GetPosition(x, y, z);
-                    uint32 areaFlag = unitTarget->GetBaseMap()->GetAreaFlag(x, y, z);
-                    AreaTableEntry const* pArea = sAreaStore.LookupEntry(areaFlag);
-                    if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
-                        canFly = false;
-
-                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
-                    {
-                    case 75: unitTarget->CastSpell(unitTarget, 42680, true); break;
-                    case 150: unitTarget->CastSpell(unitTarget, 42683, true); break;
-                    case 225:
-                        {
-                            if (canFly)
-                                unitTarget->CastSpell(unitTarget, 42667, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 42683, true);
-                        }break;
-                    case 300:
-                        {
-                            if (canFly)
-                                unitTarget->CastSpell(unitTarget, 42668, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 42683, true);
-                        }break;
-                    }
-                    return;
-                }
                 // Mug Transformation
                 case 41931:
                 {
@@ -4167,25 +4046,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (unitTarget)
                         unitTarget->CastSpell(m_caster, damage, true);
                     return;
-                // Winged Steed of the Ebon Blade
-                case 54729:
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts and client crashes upon dismounting
-                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent on riding skill
-                    if (uint16 skillval = unitTarget->ToPlayer()->GetSkillValue(SKILL_RIDING))
-                    {
-                        if (skillval >= 300)
-                            unitTarget->CastSpell(unitTarget, 54727, true);
-                        else
-                            unitTarget->CastSpell(unitTarget, 54726, true);
-                    }
-                    return;
-                }
                 case 57347: // Retrieving (Wintergrasp RP-GG pickup spell)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -4266,188 +4126,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         m_caster->CastSpell(m_caster, 63914, true);
                     else
                         m_caster->CastSpell(m_caster, 63919, true);
-                    return;
-                }
-                case 71342:                                     // Big Love Rocket
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts and client crashes upon dismounting
-                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent on riding skill and zone
-                    bool canFly = true;
-                    uint32 v_map = GetVirtualMapForMapAndZone(unitTarget->GetMapId(), unitTarget->GetZoneId());
-                    if (v_map != 530 && v_map != 571)
-                        canFly = false;
-
-                    if (canFly && v_map == 571 && !unitTarget->ToPlayer()->HasSpell(54197))
-                        canFly = false;
-
-                    float x, y, z;
-                    unitTarget->GetPosition(x, y, z);
-                    uint32 areaFlag = unitTarget->GetBaseMap()->GetAreaFlag(x, y, z);
-                    AreaTableEntry const* pArea = sAreaStore.LookupEntry(areaFlag);
-                    if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
-                        canFly = false;
-
-                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
-                    {
-                    case 0: unitTarget->CastSpell(unitTarget, 71343, true); break;
-                    case 75: unitTarget->CastSpell(unitTarget, 71344, true); break;
-                    case 150: unitTarget->CastSpell(unitTarget, 71345, true); break;
-                    case 225:
-                        {
-                        if (canFly)
-                                unitTarget->CastSpell(unitTarget, 71346, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 71345, true);
-                        }break;
-                    case 300:
-                        {
-                        if (canFly)
-                            unitTarget->CastSpell(unitTarget, 71347, true);
-                        else
-                            unitTarget->CastSpell(unitTarget, 71345, true);
-                        }break;
-                    }
-                    return;
-                }
-                case 72286:                                     // Invincible
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts and client crashes upon dismounting
-                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent on riding skill and zone
-                    bool canFly = true;
-                    uint32 v_map = GetVirtualMapForMapAndZone(unitTarget->GetMapId(), unitTarget->GetZoneId());
-                    if (v_map != 530 && v_map != 571)
-                        canFly = false;
-
-                    if (canFly && v_map == 571 && !unitTarget->ToPlayer()->HasSpell(54197))
-                        canFly = false;
-
-                    float x, y, z;
-                    unitTarget->GetPosition(x, y, z);
-                    uint32 areaFlag = unitTarget->GetBaseMap()->GetAreaFlag(x, y, z);
-                    AreaTableEntry const* pArea = sAreaStore.LookupEntry(areaFlag);
-                    if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
-                        canFly = false;
-
-                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
-                    {
-                    case 75: unitTarget->CastSpell(unitTarget, 72281, true); break;
-                    case 150: unitTarget->CastSpell(unitTarget, 72282, true); break;
-                    case 225:
-                        {
-                        if (canFly)
-                                unitTarget->CastSpell(unitTarget, 72283, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 72282, true);
-                        }break;
-                    case 300:
-                        {
-                        if (canFly)
-                            unitTarget->CastSpell(unitTarget, 72284, true);
-                        else
-                            unitTarget->CastSpell(unitTarget, 72282, true);
-                        }break;
-                    }
-                    return;
-                }
-                case 74856:                                     // Blazing Hippogryph
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts and client crashes upon dismounting
-                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent on riding skill
-                    if (uint16 skillval = unitTarget->ToPlayer()->GetSkillValue(SKILL_RIDING))
-                    {
-                        if (skillval >= 300)
-                            unitTarget->CastSpell(unitTarget, 74855, true);
-                        else
-                            unitTarget->CastSpell(unitTarget, 74854, true);
-                    }
-                    return;
-                }
-                case 75614:                                     // Celestial Steed
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts and client crashes upon dismounting
-                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent on riding skill and zone
-                    bool canFly = true;
-                    uint32 v_map = GetVirtualMapForMapAndZone(unitTarget->GetMapId(), unitTarget->GetZoneId());
-                    if (v_map != 530 && v_map != 571)
-                        canFly = false;
-
-                    if (canFly && v_map == 571 && !unitTarget->ToPlayer()->HasSpell(54197))
-                        canFly = false;
-
-                    float x, y, z;
-                    unitTarget->GetPosition(x, y, z);
-                    uint32 areaFlag = unitTarget->GetBaseMap()->GetAreaFlag(x, y, z);
-                    AreaTableEntry const* pArea = sAreaStore.LookupEntry(areaFlag);
-                    if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
-                        canFly = false;
-
-                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
-                    {
-                    case 75: unitTarget->CastSpell(unitTarget, 75619, true); break;
-                    case 150: unitTarget->CastSpell(unitTarget, 75620, true); break;
-                    case 225:
-                        {
-                            if (canFly)
-                                unitTarget->CastSpell(unitTarget, 75617, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 75620, true);
-                        }break;
-                    case 300:
-                        {
-                            if (canFly)
-                            {
-                                if (unitTarget->ToPlayer()->Has310Flyer(false))
-                                    unitTarget->CastSpell(unitTarget, 76153, true);
-                                else
-                                    unitTarget->CastSpell(unitTarget, 75618, true);
-                            }
-                            else
-                                unitTarget->CastSpell(unitTarget, 75620, true);
-                        }break;
-                    }
-                    return;
-                }
-                case 75973:                                     // X-53 Touring Rocket
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts
-                    unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent on riding skill
-                    if (uint16 skillval = unitTarget->ToPlayer()->GetSkillValue(SKILL_RIDING))
-                    {
-                        if (skillval >= 300)
-                        {
-                            if (unitTarget->ToPlayer()->Has310Flyer(false))
-                                unitTarget->CastSpell(unitTarget, 76154, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 75972, true);
-                        }
-                        else
-                            unitTarget->CastSpell(unitTarget, 75957, true);
-                    }
                     return;
                 }
                 case 59317:                                 // Teleporting
@@ -5065,16 +4743,14 @@ void Spell::EffectDisEnchant(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    Player* p_caster = (Player*)m_caster;
     if (!itemTarget || !itemTarget->GetTemplate()->DisenchantID)
         return;
 
-    p_caster->UpdateCraftSkill(m_spellInfo->Id);
-
-    m_caster->ToPlayer()->SendLoot(itemTarget->GetGUID(), LOOT_DISENCHANTING);
+    if (Player* caster = m_caster->ToPlayer())
+    {
+        caster->UpdateCraftSkill(m_spellInfo->Id);
+        caster->SendLoot(itemTarget->GetGUID(), LOOT_DISENCHANTING);
+    }
 
     // item will be removed at disenchanting end
 }

@@ -4948,38 +4948,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     target->SetEntry(apply ? 17654 : 17326);
                     break;
                 }
-                //Summon Fire Elemental
-                case 40133:
-                {
-                    if (!caster)
-                        break;
-
-                    Unit* owner = caster->GetOwner();
-                    if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (apply)
-                            owner->CastSpell(owner, 8985, true);
-                        else
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
-                    }
-                    break;
-                }
-                //Summon Earth Elemental
-                case 40132 :
-                {
-                    if (!caster)
-                        break;
-
-                    Unit* owner = caster->GetOwner();
-                    if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (apply)
-                            owner->CastSpell(owner, 19704, true);
-                        else
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
-                    }
-                    break;
-                }
                 case 57819: // Argent Champion
                 case 57820: // Ebon Champion
                 case 57821: // Champion of the Kirin Tor
@@ -5072,69 +5040,14 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         }
         case SPELLFAMILY_DRUID:
         {
-            if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
-                break;
-            switch (GetId())
-            {
-                case 52610:                                 // Savage Roar
-                {
-                    uint32 spellId = 62071;
-                    if (apply)
-                    {
-                        if (target->GetShapeshiftForm() != FORM_CAT)
-                            break;
-
-                        target->CastSpell(target, spellId, true, NULL, NULL, GetCasterGUID());
-                        break;
-                    }
-                    target->RemoveAurasDueToSpell(spellId);
-                    break;
-                }
-                case 61336:                                 // Survival Instincts
-                {
-                    if (!(mode & AURA_EFFECT_HANDLE_REAL))
-                        break;
-
-                    if (apply)
-                    {
-                        if (!target->IsInFeralForm())
-                            break;
-
-                        int32 bp0 = int32(target->CountPctFromMaxHealth(GetAmount()));
-                        target->CastCustomSpell(target, 50322, &bp0, NULL, NULL, true);
-                    }
-                    else
-                        target->RemoveAurasDueToSpell(50322);
-                    break;
-                }
-            }
-            // Predatory Strikes
-            if (target->GetTypeId() == TYPEID_PLAYER && GetSpellInfo()->SpellIconID == 1563)
-            {
-                target->ToPlayer()->UpdateAttackPowerAndDamage();
-            }
+            //if (!(mode & AURA_EFFECT_HANDLE_REAL))
+                //break;
             break;
         }
         case SPELLFAMILY_SHAMAN:
         {
-            if (!(mode & AURA_EFFECT_HANDLE_REAL))
-                break;
-            // Sentry Totem
-            if (GetId() == 6495 && caster && caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (apply)
-                {
-                    if (uint64 guid = caster->m_SummonSlot[4])
-                    {
-                        if (Creature* totem = caster->GetMap()->GetCreature(guid))
-                            if (totem->isTotem())
-                                caster->ToPlayer()->CastSpell(totem, 6277, true);
-                    }
-                }
-                else
-                    caster->ToPlayer()->StopCastingBindSight();
-                return;
-            }
+            //if (!(mode & AURA_EFFECT_HANDLE_REAL))
+                //break;
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -6428,33 +6341,6 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
         target->AddThreat(caster, float(gainedAmount) * 0.5f, GetSpellInfo()->GetSchoolMask(), GetSpellInfo());
     }
 
-    // spell-specific code
-    switch (GetId())
-    {
-        case 31447: // Mark of Kaz'rogal
-            if (target->GetPower(powerType) == 0)
-            {
-                target->CastSpell(target, 31463, true, 0, this);
-                // Remove aura
-                GetBase()->SetDuration(0);
-            }
-            break;
-        case 32960: // Mark of Kazzak
-        {
-            int32 modifier = int32(target->GetPower(powerType) * 0.05f);
-            target->ModifyPower(powerType, -modifier);
-
-            if (target->GetPower(powerType) == 0)
-            {
-                target->CastSpell(target, 32961, true, 0, this);
-                // Remove aura
-                GetBase()->SetDuration(0);
-            }
-            break;
-        }
-        default:
-            break;
-    }
     // Drain Mana
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK
         && m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
