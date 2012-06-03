@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _TRINITY_AUTO_PTR_H
-#define _TRINITY_AUTO_PTR_H
+#ifndef _GreenPis_AUTO_PTR_H
+#define _GreenPis_AUTO_PTR_H
 
 #include <ace/Bound_Ptr.h>
 
-namespace Trinity
+namespace GreenPis
 {
     template <class Pointer, class Lock>
     class AutoPtr : public ACE_Strong_Bound_Ptr<Pointer, Lock>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_NGRID_H
-#define TRINITY_NGRID_H
+#ifndef GreenPis_NGRID_H
+#define GreenPis_NGRID_H
 
 /** NGrid is nothing more than a wrapper of the Grid with an NxN cells
  */

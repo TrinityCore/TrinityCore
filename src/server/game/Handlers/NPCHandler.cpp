@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -112,7 +112,7 @@ void WorldSession::HandleTrainerListOpcode(WorldPacket & recv_data)
 
 void WorldSession::SendTrainerList(uint64 guid)
 {
-    std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
+    std::string str = GetGreenPisString(LANG_NPC_TAINER_HELLO);
     SendTrainerList(guid, str);
 }
 

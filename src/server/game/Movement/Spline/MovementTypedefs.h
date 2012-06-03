@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef TRINITYSERVER_TYPEDEFS_H
-#define TRINITYSERVER_TYPEDEFS_H
+#ifndef GreenPisSERVER_TYPEDEFS_H
+#define GreenPisSERVER_TYPEDEFS_H
 
 #include "Common.h"
 
@@ -78,4 +78,4 @@ namespace Movement
     extern float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity);
 }
 
-#endif // TRINITYSERVER_TYPEDEFS_H
+#endif // GreenPisSERVER_TYPEDEFS_H

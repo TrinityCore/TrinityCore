@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,7 @@
  */
 
 /** \file
-    \ingroup Trinityd
+    \ingroup GreenPisd
  */
 
 #include "Common.h"
@@ -67,11 +67,11 @@ void RARunnable::run()
 
     if (acceptor.open(listen_addr, m_Reactor) == -1)
     {
-        sLog->outError("Trinity RA can not bind to port %d on %s", raport, stringip.c_str());
+        sLog->outError("GreenPis RA can not bind to port %d on %s", raport, stringip.c_str());
         return;
     }
 
-    sLog->outString("Starting Trinity RA on port %d on %s", raport, stringip.c_str());
+    sLog->outString("Starting GreenPis RA on port %d on %s", raport, stringip.c_str());
 
     while (!World::IsStopped())
     {
@@ -82,5 +82,5 @@ void RARunnable::run()
             break;
     }
 
-    sLog->outStaticDebug("Trinity RA thread exiting");
+    sLog->outStaticDebug("GreenPis RA thread exiting");
 }

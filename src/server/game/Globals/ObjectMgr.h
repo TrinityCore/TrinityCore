@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -369,18 +369,18 @@ typedef UNORDERED_MAP<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> Map
 
 typedef UNORDERED_MAP<uint64/*(instance, guid) pair*/, time_t> RespawnTimes;
 
-// Trinity string ranges
-#define MIN_TRINITY_STRING_ID           1                    // 'trinity_string'
-#define MAX_TRINITY_STRING_ID           2000000000
-#define MIN_DB_SCRIPT_STRING_ID        MAX_TRINITY_STRING_ID // 'db_script_string'
+// GreenPis string ranges
+#define MIN_GreenPis_STRING_ID           1                    // 'GreenPis_string'
+#define MAX_GreenPis_STRING_ID           2000000000
+#define MIN_DB_SCRIPT_STRING_ID        MAX_GreenPis_STRING_ID // 'db_script_string'
 #define MAX_DB_SCRIPT_STRING_ID        2000010000
 #define MIN_CREATURE_AI_TEXT_STRING_ID (-1)                 // 'creature_ai_texts'
 #define MAX_CREATURE_AI_TEXT_STRING_ID (-1000000)
 
-// Trinity Trainer Reference start range
-#define TRINITY_TRAINER_START_REF      200000
+// GreenPis Trainer Reference start range
+#define GreenPis_TRAINER_START_REF      200000
 
-struct TrinityStringLocale
+struct GreenPisStringLocale
 {
     StringVector Content;
 };
@@ -395,7 +395,7 @@ typedef UNORDERED_MAP<uint32, ItemSetNameLocale> ItemSetNameLocaleContainer;
 typedef UNORDERED_MAP<uint32, QuestLocale> QuestLocaleContainer;
 typedef UNORDERED_MAP<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef UNORDERED_MAP<uint32, PageTextLocale> PageTextLocaleContainer;
-typedef UNORDERED_MAP<int32, TrinityStringLocale> TrinityStringLocaleContainer;
+typedef UNORDERED_MAP<int32, GreenPisStringLocale> GreenPisStringLocaleContainer;
 typedef UNORDERED_MAP<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef UNORDERED_MAP<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 
@@ -843,8 +843,8 @@ class ObjectMgr
         void LoadSpellScriptNames();
         void ValidateSpellScripts();
 
-        bool LoadTrinityStrings(char const* table, int32 min_value, int32 max_value);
-        bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
+        bool LoadGreenPisStrings(char const* table, int32 min_value, int32 max_value);
+        bool LoadGreenPisStrings() { return LoadGreenPisStrings("GreenPis_string", MIN_GreenPis_STRING_ID, MAX_GreenPis_STRING_ID); }
         void LoadDbScriptStrings();
         void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
@@ -1034,14 +1034,14 @@ class ObjectMgr
         GameObjectData& NewGOData(uint32 guid) { return _gameObjectDataStore[guid]; }
         void DeleteGOData(uint32 guid);
 
-        TrinityStringLocale const* GetTrinityStringLocale(int32 entry) const
+        GreenPisStringLocale const* GetGreenPisStringLocale(int32 entry) const
         {
-            TrinityStringLocaleContainer::const_iterator itr = _trinityStringLocaleStore.find(entry);
-            if (itr == _trinityStringLocaleStore.end()) return NULL;
+            GreenPisStringLocaleContainer::const_iterator itr = _GreenPisStringLocaleStore.find(entry);
+            if (itr == _GreenPisStringLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        const char *GetTrinityString(int32 entry, LocaleConstant locale_idx) const;
-        const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry, DBCLocaleIndex); }
+        const char *GetGreenPisString(int32 entry, LocaleConstant locale_idx) const;
+        const char *GetGreenPisStringForDBCLocale(int32 entry) const { return GetGreenPisString(entry, DBCLocaleIndex); }
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
 
@@ -1064,14 +1064,14 @@ class ObjectMgr
 
         time_t GetCreatureRespawnTime(uint32 loguid, uint32 instance)
         {
-            TRINITY_GUARD(ACE_Thread_Mutex, _creatureRespawnTimesMutex);
+            GreenPis_GUARD(ACE_Thread_Mutex, _creatureRespawnTimesMutex);
             return _creatureRespawnTimes[MAKE_PAIR64(loguid, instance)];
         }
         void SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t);
         void RemoveCreatureRespawnTime(uint32 loguid, uint32 instance);
         time_t GetGORespawnTime(uint32 loguid, uint32 instance)
         {
-            TRINITY_GUARD(ACE_Thread_Mutex, _goRespawnTimesMutex);
+            GreenPis_GUARD(ACE_Thread_Mutex, _goRespawnTimesMutex);
             return _goRespawnTimes[MAKE_PAIR64(loguid, instance)];
         }
         void SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t);
@@ -1304,7 +1304,7 @@ class ObjectMgr
         QuestLocaleContainer _questLocaleStore;
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
-        TrinityStringLocaleContainer _trinityStringLocaleStore;
+        GreenPisStringLocaleContainer _GreenPisStringLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
         RespawnTimes _creatureRespawnTimes;
@@ -1330,6 +1330,6 @@ class ObjectMgr
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()
 
 // scripting access functions
-bool LoadTrinityStrings(char const* table, int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
+bool LoadGreenPisStrings(char const* table, int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,8 +33,8 @@
 #include "RealmList.h"
 #include "RealmAcceptor.h"
 
-#ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "authserver.conf"
+#ifndef _GreenPis_REALM_CONFIG
+# define _GreenPis_REALM_CONFIG  "authserver.conf"
 #endif
 
 bool StartDB();
@@ -45,7 +45,7 @@ bool stopEvent = false;                                     // Setting it to tru
 LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the auth server database
 
 // Handle authserver's termination signals
-class AuthServerSignalHandler : public Trinity::SignalHandler
+class AuthServerSignalHandler : public GreenPis::SignalHandler
 {
 public:
     virtual void HandleSignal(int SigNum)
@@ -73,7 +73,7 @@ extern int main(int argc, char **argv)
 {
     sLog->SetLogDB(false);
     // Command line parsing to get the configuration file name
-    char const* cfg_file = _TRINITY_REALM_CONFIG;
+    char const* cfg_file = _GreenPis_REALM_CONFIG;
     int c = 1;
     while (c < argc)
     {
@@ -102,7 +102,7 @@ extern int main(int argc, char **argv)
     sLog->outString("%s (authserver)", _FULLVERSION);
     sLog->outString("<Ctrl-C> to stop.\n");
     sLog->outString("Using configuration file %s.", cfg_file);
-    sLog->outString("GreenPisCore");
+    sLog->outString("GreenPis");
 
     sLog->outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
 

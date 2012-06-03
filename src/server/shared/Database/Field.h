@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ class Field
             if (!data.value)
                 return 0;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_TINY))
             {
                 sLog->outSQLDriver("Warning: GetUInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
@@ -58,7 +58,7 @@ class Field
             if (!data.value)
                 return 0;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_TINY))
             {
                 sLog->outSQLDriver("Warning: GetInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
@@ -76,7 +76,7 @@ class Field
             if (!data.value)
                 return 0;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_SHORT) && !IsType(MYSQL_TYPE_YEAR))
             {
                 sLog->outSQLDriver("Warning: GetUInt16() on non-smallint field. Using type: %s.", FieldTypeToString(data.type));
@@ -94,7 +94,7 @@ class Field
             if (!data.value)
                 return 0;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_SHORT) && !IsType(MYSQL_TYPE_YEAR))
             {
                 sLog->outSQLDriver("Warning: GetInt16() on non-smallint field. Using type: %s.", FieldTypeToString(data.type));
@@ -112,7 +112,7 @@ class Field
             if (!data.value)
                 return 0;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_INT24) && !IsType(MYSQL_TYPE_LONG))
             {
                 sLog->outSQLDriver("Warning: GetUInt32() on non-(medium)int field. Using type: %s.", FieldTypeToString(data.type));
@@ -130,7 +130,7 @@ class Field
             if (!data.value)
                 return 0;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_INT24) && !IsType(MYSQL_TYPE_LONG))
             {
                 sLog->outSQLDriver("Warning: GetInt32() on non-(medium)int field. Using type: %s.", FieldTypeToString(data.type));
@@ -148,7 +148,7 @@ class Field
             if (!data.value)
                 return 0;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_LONGLONG) && !IsType(MYSQL_TYPE_BIT))
             {
                 sLog->outSQLDriver("Warning: GetUInt64() on non-bigint field. Using type: %s.", FieldTypeToString(data.type));
@@ -166,7 +166,7 @@ class Field
             if (!data.value)
                 return 0;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_LONGLONG) && !IsType(MYSQL_TYPE_BIT))
             {
                 sLog->outSQLDriver("Warning: GetInt64() on non-bigint field. Using type: %s.", FieldTypeToString(data.type));
@@ -184,7 +184,7 @@ class Field
             if (!data.value)
                 return 0.0f;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_FLOAT))
             {
                 sLog->outSQLDriver("Warning: GetFloat() on non-float field. Using type: %s.", FieldTypeToString(data.type));
@@ -202,7 +202,7 @@ class Field
             if (!data.value)
                 return 0.0f;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (!IsType(MYSQL_TYPE_DOUBLE))
             {
                 sLog->outSQLDriver("Warning: GetDouble() on non-double field. Using type: %s.", FieldTypeToString(data.type));
@@ -220,7 +220,7 @@ class Field
             if (!data.value)
                 return NULL;
 
-            #ifdef TRINITY_DEBUG
+            #ifdef GreenPis_DEBUG
             if (IsNumeric())
             {
                 sLog->outSQLDriver("Error: GetCString() on numeric field. Using type: %s.", FieldTypeToString(data.type));
@@ -344,7 +344,7 @@ class Field
         }
 
     private:
-        #ifdef TRINITY_DEBUG
+        #ifdef GreenPis_DEBUG
         static char const* FieldTypeToString(enum_field_types type)
         {
             switch (type)

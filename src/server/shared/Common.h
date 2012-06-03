@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_COMMON_H
-#define TRINITYCORE_COMMON_H
+#ifndef GreenPisCORE_COMMON_H
+#define GreenPisCORE_COMMON_H
 
 // config.h needs to be included 1st
 // TODO this thingy looks like hack, but its not, need to
@@ -25,7 +25,7 @@
 #ifdef HAVE_CONFIG_H
 // Remove Some things that we will define
 // This is in case including another config.h
-// before trinity config.h
+// before GreenPis config.h
 #ifdef PACKAGE
 #undef PACKAGE
 #endif //PACKAGE
@@ -204,20 +204,20 @@ typedef std::vector<std::string> StringVector;
 
 #define MAX_QUERY_LEN 32*1024
 
-#define TRINITY_GUARD(MUTEX, LOCK) \
-  ACE_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
+#define GreenPis_GUARD(MUTEX, LOCK) \
+  ACE_Guard< MUTEX > GreenPis_GUARD_OBJECT (LOCK); \
+    if (GreenPis_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
 //! For proper implementation of multiple-read, single-write pattern, use
 //! ACE_RW_Mutex as underlying @MUTEX
-# define TRINITY_WRITE_GUARD(MUTEX, LOCK) \
-  ACE_Write_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
+# define GreenPis_WRITE_GUARD(MUTEX, LOCK) \
+  ACE_Write_Guard< MUTEX > GreenPis_GUARD_OBJECT (LOCK); \
+    if (GreenPis_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
 //! For proper implementation of multiple-read, single-write pattern, use
 //! ACE_RW_Mutex as underlying @MUTEX
-# define TRINITY_READ_GUARD(MUTEX, LOCK) \
-  ACE_Read_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
+# define GreenPis_READ_GUARD(MUTEX, LOCK) \
+  ACE_Read_Guard< MUTEX > GreenPis_GUARD_OBJECT (LOCK); \
+    if (GreenPis_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
 #endif

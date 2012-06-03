@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -427,7 +427,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
 
             if (const Quest *quest = sObjectMgr->GetQuestTemplate(questId))
             {
-                if (quest->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
+                if (quest->HasFlag(QUEST_GreenPis_FLAGS_TIMED))
                     _player->RemoveTimedQuest(questId);
             }
 

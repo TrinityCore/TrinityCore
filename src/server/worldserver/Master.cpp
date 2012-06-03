@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  */
 
 /** \file
-    \ingroup Trinityd
+    \ingroup GreenPisd
 */
 
 #include <ace/Sig_Handler.h>
@@ -51,7 +51,7 @@ extern int m_ServiceStatus;
 #endif
 
 /// Handle worldservers's termination signals
-class WorldServerSignalHandler : public Trinity::SignalHandler
+class WorldServerSignalHandler : public GreenPis::SignalHandler
 {
     public:
         virtual void HandleSignal(int SigNum)
@@ -127,7 +127,7 @@ int Master::Run()
     sLog->outString("%s (worldserver-daemon)", _FULLVERSION);
     sLog->outString("<Ctrl-C> to stop.\n");
 
-    sLog->outString("GreenPisCore ");
+    sLog->outString("GreenPis ");
 
 
     /// worldserver PID file creation

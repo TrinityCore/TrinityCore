@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -143,8 +143,8 @@ bool FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float 
         }
         temp_x = x + distance * cos(angle);
         temp_y = y + distance * sin(angle);
-        Trinity::NormalizeMapCoord(temp_x);
-        Trinity::NormalizeMapCoord(temp_y);
+        GreenPis::NormalizeMapCoord(temp_x);
+        GreenPis::NormalizeMapCoord(temp_y);
         if (owner.IsWithinLOS(temp_x, temp_y, z))
         {
             bool is_water_now = _map->IsInWater(x,y,z);

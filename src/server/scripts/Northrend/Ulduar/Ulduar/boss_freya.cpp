@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -421,8 +421,8 @@ class boss_freya : public CreatureScript
                         {
                             // On every player
                             std::list<Player*> PlayerList;
-                            Trinity::AnyPlayerInObjectRangeCheck checker(me, 50.0f);
-                            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, PlayerList, checker);
+                            GreenPis::AnyPlayerInObjectRangeCheck checker(me, 50.0f);
+                            GreenPis::PlayerListSearcher<GreenPis::AnyPlayerInObjectRangeCheck> searcher(me, PlayerList, checker);
                             me->VisitNearbyWorldObject(50.0f, searcher);
                             for (std::list<Player*>::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                                 (*itr)->CastSpell(*itr, SPELL_SUMMON_NATURE_BOMB, true);

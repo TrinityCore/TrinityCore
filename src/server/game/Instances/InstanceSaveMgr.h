@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -80,8 +80,8 @@ class InstanceSave
 
         /* online players bound to the instance (perm/solo)
            does not include the members of the group unless they have permanent saves */
-        void AddPlayer(Player* player) { TRINITY_GUARD(ACE_Thread_Mutex, _lock); m_playerList.push_back(player); }
-        bool RemovePlayer(Player* player) { TRINITY_GUARD(ACE_Thread_Mutex, _lock); m_playerList.remove(player); return UnloadIfEmpty(); }
+        void AddPlayer(Player* player) { GreenPis_GUARD(ACE_Thread_Mutex, _lock); m_playerList.push_back(player); }
+        bool RemovePlayer(Player* player) { GreenPis_GUARD(ACE_Thread_Mutex, _lock); m_playerList.remove(player); return UnloadIfEmpty(); }
         /* all groups bound to the instance */
         void AddGroup(Group* group) { m_groupList.push_back(group); }
         bool RemoveGroup(Group* group) { m_groupList.remove(group); return UnloadIfEmpty(); }

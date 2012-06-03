@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_DISABLEMGR_H
-#define TRINITY_DISABLEMGR_H
+#ifndef GreenPis_DISABLEMGR_H
+#define GreenPis_DISABLEMGR_H
 
 #include "Define.h"
 
@@ -61,4 +61,4 @@ namespace DisableMgr
     void CheckQuestDisables();
 }
 
-#endif //TRINITY_DISABLEMGR_H
+#endif //GreenPis_DISABLEMGR_H

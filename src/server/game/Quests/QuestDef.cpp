@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -146,7 +146,7 @@ Quest::Quest(Field* questRecord)
     // int32 WDBVerified = questRecord[146].GetInt32();
 
     Flags |= SpecialFlags << 20;
-    if (Flags & QUEST_TRINITY_FLAGS_AUTO_ACCEPT)
+    if (Flags & QUEST_GreenPis_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 
     m_reqitemscount = 0;

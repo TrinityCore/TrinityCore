@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 GreenPisCore <http://www.GreenPiscore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
     m_CreatureEventAI_TextMap.clear();
 
     // Load EventAI Text
-    sObjectMgr->LoadTrinityStrings("creature_ai_texts", MIN_CREATURE_AI_TEXT_STRING_ID, MAX_CREATURE_AI_TEXT_STRING_ID);
+    sObjectMgr->LoadGreenPisStrings("creature_ai_texts", MIN_CREATURE_AI_TEXT_STRING_ID, MAX_CREATURE_AI_TEXT_STRING_ID);
 
     // Gather Additional data from EventAI Texts       0      1      2       3       4
     QueryResult result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM creature_ai_texts");
@@ -69,7 +69,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
         }
 
         // range negative (must not happen, loaded from same table)
-        if (!sObjectMgr->GetTrinityStringLocale(i))
+        if (!sObjectMgr->GetGreenPisStringLocale(i))
         {
             sLog->outErrorDb("CreatureEventAI:  Entry %i in table `creature_ai_texts` not found", i);
             continue;
@@ -135,7 +135,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
         temp.orientation = fields[4].GetFloat();
         temp.SpawnTimeSecs = fields[5].GetUInt32();
 
-        if (!Trinity::IsValidMapCoord(temp.position_x, temp.position_y, temp.position_z, temp.orientation))
+        if (!GreenPis::IsValidMapCoord(temp.position_x, temp.position_y, temp.position_z, temp.orientation))
         {
             sLog->outErrorDb("CreatureEventAI:  Summon id %u have wrong coordinates (%f, %f, %f, %f), skipping.", i, temp.position_x, temp.position_y, temp.position_z, temp.orientation);
             continue;
@@ -544,7 +544,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 case ACTION_T_QUEST_EVENT:
                     if (Quest const* qid = sObjectMgr->GetQuestTemplate(action.quest_event.questId))
                     {
-                        if (!qid->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
+                        if (!qid->HasFlag(QUEST_GreenPis_FLAGS_EXPLORATION_OR_EVENT))
                             sLog->outErrorDb("CreatureEventAI:  Event %u Action %u. SpecialFlags for quest entry %u does not include |2, Action will not have any effect.", i, j+1, action.quest_event.questId);
                     }
                     else
@@ -586,7 +586,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 case ACTION_T_QUEST_EVENT_ALL:
                     if (Quest const* qid = sObjectMgr->GetQuestTemplate(action.quest_event_all.questId))
                     {
-                        if (!qid->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
+                        if (!qid->HasFlag(QUEST_GreenPis_FLAGS_EXPLORATION_OR_EVENT))
                             sLog->outErrorDb("CreatureEventAI:  Event %u Action %u. SpecialFlags for quest entry %u does not include |2, Action will not have any effect.", i, j+1, action.quest_event_all.questId);
                     }
                     else
