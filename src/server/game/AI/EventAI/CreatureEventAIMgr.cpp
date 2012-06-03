@@ -740,10 +740,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(itr->first))
         {
             if (cInfo->AIName != "EventAI")
-            {
-                sLog->outErrorDb("Creature entry %u has EventAI scripts, but its AIName is not 'EventAI', changing to EventAI", itr->first);
-                const_cast<CreatureTemplate*>(cInfo)->AIName = "EventAI";
-            }
+                sLog->outErrorDb("Creature entry %u has EventAI scripts, but its AIName is not 'EventAI' - possible AI-mismatch?", itr->first);
         }
     }
 
