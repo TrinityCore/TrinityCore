@@ -208,7 +208,7 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason)
 {
-    sLog->outError("SESSION (account: %u, guidlow: %u, char: %s): received unexpected opcode %s (0x%.4X, status: %s) %s",
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION (account: %u, guidlow: %u, char: %s): received unexpected opcode %s (0x%.4X, status: %s) %s",
         GetAccountId(), m_GUIDLow, _player ? _player->GetName() : "<none>",
         LookupOpcodeName(packet->GetOpcode()), packet->GetOpcode(), status, reason);
 }
@@ -216,7 +216,7 @@ void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, 
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 {
-    sLog->outError("SESSION: opcode %s (0x%.4X) have unprocessed tail data (read stop at %u from %u)",
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: opcode %s (0x%.4X) have unprocessed tail data (read stop at %u from %u)",
         LookupOpcodeName(packet->GetOpcode()), packet->GetOpcode(), uint32(packet->rpos()), uint32(packet->wpos()));
     packet->print_storage();
 }
@@ -334,7 +334,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnprocessedTail(packet);
                         break;
                     case STATUS_NEVER:
-                        sLog->outError("SESSION (account: %u, guidlow: %u, char: %s): received not allowed opcode %s (0x%.4X)",
+                        sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION (account: %u, guidlow: %u, char: %s): received not allowed opcode %s (0x%.4X)",
                             GetAccountId(), m_GUIDLow, _player ? _player->GetName() : "<none>",
                             LookupOpcodeName(packet->GetOpcode()), packet->GetOpcode());
                         break;
