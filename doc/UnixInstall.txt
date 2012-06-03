@@ -40,7 +40,7 @@ you created a dir named build ad want to have your finalcompiled product
 installed in /home/trinity/server, an example sequence of commands can 
 be :
 
-    cmake ../ -DPREFIX=/home/trinity/server
+    cmake ../ -DPREFIX=/home/trinity/server -DTOOLS=1 -DWITH_WARNINGS=1
     make
     make install
     
@@ -56,16 +56,18 @@ flags like
     USE_COREPCH         Use precompiled headers when compiling servers
     WITH_WARNINGS       Show all warnings during compile
     WITH_COREDEBUG      Include additional debug-code in core
-    CMAKE_INSTALL_PREFIX Set installation directory
+    PREFIX              Set installation directory
+    NOJEM               Do not build with jemalloc (advanced users only)
+    CONF_DIR            Set path as default configuration directory
+    LIBSDIR             Set path as default library directory
     CMAKE_C_FLAGS       Set C_FLAGS for compile (advanced users only)
     CMAKE_CXX_FLAGS     Set CXX_FLAGS for compile (advanced users only)
-
     CMAKE_BUILD_TYPE    Set buildtype - the supported modes are :
                         Release, MinSizeRel, RelWithDebInfo, Debug
 
-Of course, replace the paths in prefix, conf_dir with the directories 
-you wish to install TrinityCore to. The datadir is where maps, DBCs, and 
-SQLs are stored. The sysconfdir is where configuration files are stored.
+Of course, replace the paths in PREFIX, CONF_DIR and LIBSDIR with the
+directories you wish to install TrinityCore to. The datadir is where maps,
+DBCs, and SQLs are stored. The sysconfdir is where configuration files are stored.
 
 Once TrinityCore is installed you will need to apply database updates 
 where necessary. Furthermore, you must configure your installation by 
