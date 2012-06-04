@@ -3043,6 +3043,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 61588: // Blazing Harpoon
             case 52479: // Gift of the Harvester
             case 48246: // Ball of Flame
+            case 36384: // Skartax Purple Beam
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 41376: // Spite
@@ -3084,7 +3085,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 50312: // Unholy Frenzy
                 spellInfo->MaxAffectedTargets = 15;
                 break;
-            case 33711: //Murmur's Touch
+            case 33711: // Murmur's Touch
             case 38794:
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->EffectTriggerSpell[0] = 33760;

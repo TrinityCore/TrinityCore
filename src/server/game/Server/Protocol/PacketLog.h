@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,46 +15,36 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup u2w
-/// @{
-/// \file
-
-#ifndef TRINITY_WORLDLOG_H
-#define TRINITY_WORLDLOG_H
+#ifndef TRINITY_PACKETLOG_H
+#define TRINITY_PACKETLOG_H
 
 #include "Common.h"
 #include <ace/Singleton.h>
-#include "Errors.h"
 
-#include <stdarg.h>
-
-/// %Log packets to a file
-class WorldLog
+enum Direction
 {
-    friend class ACE_Singleton<WorldLog, ACE_Thread_Mutex>;
+    CLIENT_TO_SERVER,
+    SERVER_TO_CLIENT
+};
+
+class WorldPacket;
+
+class PacketLog
+{
+    friend class ACE_Singleton<PacketLog, ACE_Thread_Mutex>;
 
     private:
-        WorldLog();
-        ~WorldLog();
-        WorldLog(const WorldLog &);
-        WorldLog& operator=(const WorldLog &);
-        ACE_Thread_Mutex Lock;
+        PacketLog();
+        ~PacketLog();
 
     public:
         void Initialize();
-        /// Is the world logger active?
-        bool LogWorld(void) const { return (i_file != NULL); }
-        /// %Log to the file
-        void outLog(char const* fmt, ...);
-        void outTimestampLog(char const* fmt, ...);
+        bool CanLogPacket() const { return (_file != NULL); }
+        void LogPacket(WorldPacket const& packet, Direction direction);
 
     private:
-        FILE* i_file;
-
-        bool m_dbWorld;
+        FILE* _file;
 };
 
-#define sWorldLog ACE_Singleton<WorldLog, ACE_Thread_Mutex>::instance()
+#define sPacketLog ACE_Singleton<PacketLog, ACE_Thread_Mutex>::instance()
 #endif
-/// @}
-
