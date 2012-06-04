@@ -67,14 +67,6 @@ void PetAI::_stopAttack()
         me->CombatStop();
         me->getHostileRefManager().deleteReferences();
 
-        // Glyph of Shadowfiend
-        if (me->GetEntry() == 19668)
-        {
-            Unit* owner = me->GetCharmerOrOwner();
-            if (owner->HasAura(58228))
-                owner->CastSpell(owner, 58227, true);
-        }
-
         return;
     }
 
