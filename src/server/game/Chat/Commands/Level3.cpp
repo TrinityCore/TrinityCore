@@ -1144,15 +1144,20 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
                         {
                             QuestStatus status = target->GetQuestStatus(qinfo->GetQuestId());
 
-                            if (status == QUEST_STATUS_COMPLETE)
+                            switch (status) 
                             {
-                                if (target->GetQuestRewardStatus(qinfo->GetQuestId()))
-                                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
-                                else
+                                case QUEST_STATUS_COMPLETE:
                                     statusStr = GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
+                                    break;
+                                case QUEST_STATUS_INCOMPLETE:
+                                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
+                                    break;
+                                case QUEST_STATUS_REWARDED:
+                                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
+                                    break;
+                                default:
+                                    break;
                             }
-                            else if (status == QUEST_STATUS_INCOMPLETE)
-                                statusStr = GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
                         }
 
                         if (m_session)
@@ -1187,15 +1192,20 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
             {
                 QuestStatus status = target->GetQuestStatus(qinfo->GetQuestId());
 
-                if (status == QUEST_STATUS_COMPLETE)
+                switch (status) 
                 {
-                    if (target->GetQuestRewardStatus(qinfo->GetQuestId()))
-                        statusStr = GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
-                    else
+                    case QUEST_STATUS_COMPLETE:
                         statusStr = GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
+                        break;
+                    case QUEST_STATUS_INCOMPLETE:
+                        statusStr = GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
+                        break;
+                    case QUEST_STATUS_REWARDED:
+                        statusStr = GetTrinityString(LANG_COMMAND_QUEST_REWARDED);
+                        break;
+                    default:
+                        break;
                 }
-                else if (status == QUEST_STATUS_INCOMPLETE)
-                    statusStr = GetTrinityString(LANG_COMMAND_QUEST_ACTIVE);
             }
 
             if (m_session)
