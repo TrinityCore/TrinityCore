@@ -27,6 +27,8 @@ enum Direction
     SERVER_TO_CLIENT
 };
 
+class WorldPacket;
+
 class PacketLog
 {
     friend class ACE_Singleton<PacketLog, ACE_Thread_Mutex>;
