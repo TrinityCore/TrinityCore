@@ -7,7 +7,7 @@ DELETE FROM `gossip_menu` WHERE `entry`=7046;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (7046,8292);
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=7046 AND `id` IN (0);
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES 
-(@GOSSIP,0,1, 'Hey Vi''el, show me your wares!',3,128,0,0,0,0, '');
+(7046,0,1, 'Hey Vi''el, show me your wares!',3,128,0,0,0,0, '');
 UPDATE `creature_template` SET `gossip_menu_id`=9821 WHERE `entry`=11119;
 UPDATE `creature_template` SET `gossip_menu_id`=6092 WHERE `entry`=14742;
 DELETE FROM `gossip_menu` WHERE `entry`=6092;
