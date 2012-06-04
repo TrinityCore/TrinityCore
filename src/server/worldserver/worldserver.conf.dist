@@ -483,12 +483,13 @@ LogFileLevel = 0
 DebugLogMask = 0
 
 #
-#    WorldLogFile
-#        Description: Packet logging file for the world server.
-#        Example:     "World.log" - (Enabled)
+#    PacketLogFile
+#        Description: Binary packet logging file for the world server.
+#                     Filename extension must be .bin to be parsable with WowPacketParser.
+#        Example:     "World.bin" - (Enabled)
 #        Default:     ""          - (Disabled)
 
-WorldLogFile = ""
+PacketLogFile = ""
 
 #
 #    DBErrorLogFile
