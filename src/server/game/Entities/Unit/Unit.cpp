@@ -435,7 +435,7 @@ void Unit::SendMonsterMoveExitVehicle(Position const* newPos)
 
     data << uint8(SPLINETYPE_FACING_ANGLE);
     data << float(GetOrientation());                        // guess
-    data << uint32(SPLINEFLAG_EXIT_VEHICLE);
+    data << uint32(SPLINEFLAG_TRANSPORT_EXIT);
     data << uint32(0);                                      // Time in between points
     data << uint32(1);                                      // 1 single waypoint
     data << newPos->GetPositionX();

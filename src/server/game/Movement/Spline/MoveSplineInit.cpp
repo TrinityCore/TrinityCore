@@ -138,6 +138,14 @@ namespace Movement
 
     void MoveSplineInit::SetFacing(float angle)
     {
+        if (unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        {
+            if (Unit* vehicle = unit.GetVehicleBase())
+                angle -= vehicle->GetOrientation();
+            else if (Transport* transport = unit.GetTransport())
+                angle -= transport->GetOrientation();
+        }
+
         args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());
         args.flags.EnableFacingAngle();
     }
