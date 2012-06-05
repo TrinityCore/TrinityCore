@@ -3322,7 +3322,7 @@ void Player::SendInitialSpells()
 
     uint16 spellCooldowns = m_spellCooldowns.size();
     data << uint16(spellCooldowns);
-    for (SpellCooldowns::const_iterator itr=m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
+    for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
     {
         SpellInfo const* sEntry = sSpellMgr->GetSpellInfo(itr->first);
         if (!sEntry)
@@ -9103,7 +9103,6 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
     loot->loot_type = loot_type;
 
     WorldPacket data(SMSG_LOOT_RESPONSE, (9+50));           // we guess size
-
     data << uint64(guid);
     data << uint8(loot_type);
     data << LootView(*loot, this, permission);
@@ -13555,9 +13554,9 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
             }
             case EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM:    // no idea about this one...
             {
-                data << uint64(0);
-                data << uint32(0);
-                data << uint64(0);
+                data << uint64(0); // item guid
+                data << uint32(0); // slot
+                data << uint64(0); // container
                 break;
             }
             case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED:
@@ -14242,7 +14241,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     data << uint64(GetGUID());                              // player GUID
     data << uint32(received);                               // 0=looted, 1=from npc
     data << uint32(created);                                // 0=received, 1=created
-    data << uint32(1);                                      // always 0x01 (probably meant to be count of listed items)
+    data << uint32(1);                                      // bool print error to chat
     data << uint8(item->GetBagSlot());                      // bagslot
                                                             // item slot, but when added to stack: 0xFFFFFFFF
     data << uint32((item->GetCount() == count) ? item->GetSlot() : -1);
@@ -20121,8 +20120,10 @@ void Player::PetSpellInitialize()
     WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
     data << uint64(pet->GetGUID());
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
-    data << uint32(0);
-    data << uint8(pet->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
+    data << uint32(pet->GetDuration());
+    data << uint8(pet->GetReactState());
+    data << uint8(charmInfo->GetCommandState());
+    data << uint16(0); // Flags, mostly unknown
 
     // action bar loop
     charmInfo->BuildActionBar(&data);
@@ -20155,22 +20156,33 @@ void Player::PetSpellInitialize()
 
     for (CreatureSpellCooldowns::const_iterator itr = pet->m_CreatureSpellCooldowns.begin(); itr != pet->m_CreatureSpellCooldowns.end(); ++itr)
     {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+        if (!spellInfo)
+        {
+            data << uint32(0);
+            data << uint16(0);
+            data << uint32(0);
+            data << uint32(0);
+            continue;
+        }
+
         time_t cooldown = (itr->second > curTime) ? (itr->second - curTime) * IN_MILLISECONDS : 0;
+        data << uint32(itr->first);                 // spell ID
 
-        data << uint32(itr->first);                         // spellid
-        data << uint16(0);                                  // spell category?
-        data << uint32(cooldown);                           // cooldown
-        data << uint32(0);                                  // category cooldown
-    }
-
-    for (CreatureSpellCooldowns::const_iterator itr = pet->m_CreatureCategoryCooldowns.begin(); itr != pet->m_CreatureCategoryCooldowns.end(); ++itr)
-    {
-        time_t cooldown = (itr->second > curTime) ? (itr->second - curTime) * IN_MILLISECONDS : 0;
-
-        data << uint32(itr->first);                         // spellid
-        data << uint16(0);                                  // spell category?
-        data << uint32(0);                                  // cooldown
-        data << uint32(cooldown);                           // category cooldown
+        CreatureSpellCooldowns::const_iterator categoryitr = pet->m_CreatureCategoryCooldowns.find(spellInfo->Category);
+        if (categoryitr != pet->m_CreatureCategoryCooldowns.end())
+        {
+            time_t categoryCooldown = (categoryitr->second > curTime) ? (categoryitr->second - curTime) * IN_MILLISECONDS : 0;
+            data << uint16(spellInfo->Category);    // spell category
+            data << uint32(cooldown);               // spell cooldown
+            data << uint32(categoryCooldown);       // category cooldown
+        }
+        else
+        {
+            data << uint16(0);
+            data << uint32(cooldown);
+            data << uint32(0);
+        }
     }
 
     GetSession()->SendPacket(&data);
@@ -20206,24 +20218,24 @@ void Player::PossessSpellInitialize()
 
 void Player::VehicleSpellInitialize()
 {
-    Creature* veh = GetVehicleCreatureBase();
-    if (!veh)
+    Creature* vehicle = GetVehicleCreatureBase();
+    if (!vehicle)
         return;
 
-    uint8 cooldownCount = veh->m_CreatureSpellCooldowns.size() + veh->m_CreatureCategoryCooldowns.size();
+    uint8 cooldownCount = vehicle->m_CreatureSpellCooldowns.size();
 
     WorldPacket data(SMSG_PET_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
-    data << uint64(veh->GetGUID());
-    data << uint16(veh->GetCreatureTemplate()->family);
-    data << uint32(0);
-    // The following three segments are read as one uint32
-    data << uint8(veh->GetReactState());
-    data << uint8(0);   // CommandState?
-    data << uint16(0);  // unk
+    data << uint64(vehicle->GetGUID());                     // Guid
+    data << uint16(0);                                      // Pet Family (0 for all vehicles)
+    data << uint32(vehicle->isSummon() ? vehicle->ToTempSummon()->GetTimer() : 0); // Duration
+    // The following three segments are read by the client as one uint32
+    data << uint8(vehicle->GetReactState());                // React State
+    data << uint8(0);                                       // Command State
+    data << uint16(0x800);                                  // DisableActions (set for all vehicles)
 
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
     {
-        uint32 spellId = veh->m_spells[i];
+        uint32 spellId = vehicle->m_spells[i];
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
@@ -20231,54 +20243,59 @@ void Player::VehicleSpellInitialize()
             continue;
         }
 
-        ConditionList conditions = sConditionMgr->GetConditionsForVehicleSpell(veh->GetEntry(), spellId);
-        if (!sConditionMgr->IsObjectMeetToConditions(this, veh, conditions))
+        ConditionList conditions = sConditionMgr->GetConditionsForVehicleSpell(vehicle->GetEntry(), spellId);
+        if (!sConditionMgr->IsObjectMeetToConditions(this, vehicle, conditions))
         {
-            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "VehicleSpellInitialize: conditions not met for Vehicle entry %u spell %u", veh->ToCreature()->GetEntry(), spellId);
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "VehicleSpellInitialize: conditions not met for Vehicle entry %u spell %u", vehicle->ToCreature()->GetEntry(), spellId);
             data << uint16(0) << uint8(0) << uint8(i+8);
             continue;
         }
 
         if (spellInfo->IsPassive())
-        {
-            veh->CastSpell(veh, spellId, true);
-            data << uint16(0) << uint8(0) << uint8(i+8);
-        }
-        else
-            data << uint32(MAKE_UNIT_ACTION_BUTTON(spellId, i+8));
+            vehicle->CastSpell(vehicle, spellId, true);
+
+        data << uint32(MAKE_UNIT_ACTION_BUTTON(spellId, i+8));
     }
 
     for (uint32 i = CREATURE_MAX_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
-        data << uint16(0) << uint8(0) << uint8(i+8);
+        data << uint32(0);
 
-    data << uint8(0);
-    /*if (v23 > 0)
-    {
-        for (uint32 i = 0; i < v23; ++i)
-            data << uint32(v16);    // Some spellid?
-    }*/
+    data << uint8(0); // Auras?
 
     // Cooldowns
-    data << cooldownCount;
+    data << uint8(cooldownCount);
 
     time_t now = sWorld->GetGameTime();
-    CreatureSpellCooldowns::const_iterator itr;
-    for (itr = veh->m_CreatureSpellCooldowns.begin(); itr != veh->m_CreatureSpellCooldowns.end(); ++itr)
-    {
-        time_t cooldown = (itr->second > now) ? (itr->second - now) * IN_MILLISECONDS : 0;
-        data << uint32(itr->first); // SpellId
-        data << uint16(0);          // unk
-        data << uint32(cooldown);   // spell cooldown
-        data << uint32(0);          // category cooldown
-    }
 
-    for (itr = veh->m_CreatureCategoryCooldowns.begin(); itr != veh->m_CreatureCategoryCooldowns.end(); ++itr)
+    for (CreatureSpellCooldowns::const_iterator itr = vehicle->m_CreatureSpellCooldowns.begin(); itr != vehicle->m_CreatureSpellCooldowns.end(); ++itr)
     {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+        if (!spellInfo)
+        {
+            data << uint32(0);
+            data << uint16(0);
+            data << uint32(0);
+            data << uint32(0);
+            continue;
+        }
+
         time_t cooldown = (itr->second > now) ? (itr->second - now) * IN_MILLISECONDS : 0;
-        data << uint32(itr->first); // SpellId
-        data << uint16(0);          // unk
-        data << uint32(0);          // spell cooldown
-        data << uint32(cooldown);   // category cooldown
+        data << uint32(itr->first);                 // spell ID
+
+        CreatureSpellCooldowns::const_iterator categoryitr = vehicle->m_CreatureCategoryCooldowns.find(spellInfo->Category);
+        if (categoryitr != vehicle->m_CreatureCategoryCooldowns.end())
+        {
+            time_t categoryCooldown = (categoryitr->second > now) ? (categoryitr->second - now) * IN_MILLISECONDS : 0;
+            data << uint16(spellInfo->Category);    // spell category
+            data << uint32(cooldown);               // spell cooldown
+            data << uint32(categoryCooldown);       // category cooldown
+        }
+        else
+        {
+            data << uint16(0);
+            data << uint32(cooldown);
+            data << uint32(0);
+        }
     }
 
     GetSession()->SendPacket(&data);
@@ -20317,7 +20334,7 @@ void Player::CharmSpellInitialize()
     if (charm->GetTypeId() != TYPEID_PLAYER)
         data << uint8(charm->ToCreature()->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
     else
-        data << uint8(0) << uint8(0) << uint16(0);
+        data << uint32(0);
 
     charmInfo->BuildActionBar(&data);
 
@@ -22299,8 +22316,8 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     data << uint32(time);
     if (type == RAID_INSTANCE_WELCOME)
     {
-        data << uint8(0);                                   // is your (1)
-        data << uint8(0);                                   // is extended (1), ignored if prev field is 0
+        data << uint8(0);                                   // is locked
+        data << uint8(0);                                   // is extended, ignored if prev field is 0
     }
     GetSession()->SendPacket(&data);
 }
