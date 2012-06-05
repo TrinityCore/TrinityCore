@@ -24,6 +24,7 @@
 #include <string>
 #include <set>
 #include "vec3d.h"
+#include "mpqfile.h"
 
 // MOPY flags
 #define WMO_MATERIAL_NOCAMCOLLIDE    0x01
