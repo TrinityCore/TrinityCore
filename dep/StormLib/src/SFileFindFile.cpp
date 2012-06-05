@@ -376,7 +376,7 @@ HANDLE WINAPI SFileFindFirstFile(HANDLE hMpq, const char * szMask, SFILE_FIND_DA
     if(nError == ERROR_SUCCESS)
     {
         memset(hs, 0, sizeof(TMPQSearch));
-        strcpy(hs->szSearchMask, szMask);
+        strcpy(&hs->szSearchMask[0], szMask);
         hs->dwFlagMask = MPQ_FILE_EXISTS;
         hs->ha = ha;
 
