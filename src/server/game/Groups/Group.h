@@ -276,14 +276,14 @@ class Group
         void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
         void SendLootRoll(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootRollWon(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
-        void SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r);
+        void SendLootAllPassed(Roll const& roll);
         void SendLooter(Creature* creature, Player* pLooter);
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);
         void NeedBeforeGreed(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(uint64 Guid);
-        void CountTheRoll(Rolls::iterator roll, uint32 NumberOfPlayers);
-        void CountRollVote(uint64 playerGUID, uint64 Guid, uint32 NumberOfPlayers, uint8 Choise);
+        void CountTheRoll(Rolls::iterator roll);
+        void CountRollVote(uint64 playerGUID, uint64 Guid, uint8 Choise);
         void EndRoll(Loot* loot);
 
         // related to disenchant rolls

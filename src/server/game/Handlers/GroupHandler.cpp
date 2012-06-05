@@ -429,7 +429,7 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recv_data)
     group->SendUpdate();
 }
 
-void WorldSession::HandleLootRoll(WorldPacket &recv_data)
+void WorldSession::HandleLootRoll(WorldPacket& recvData)
 {
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -438,15 +438,15 @@ void WorldSession::HandleLootRoll(WorldPacket &recv_data)
         return;
     }
 
-    uint64 Guid;
-    uint32 NumberOfPlayers;
+    uint64 guid;
+    uint32 itemSlot;
     uint8  rollType;
-    recv_data >> Guid;                                      //guid of the item rolled
-    recv_data >> NumberOfPlayers;
-    recv_data >> rollType;                                    //0: pass, 1: need, 2: greed
+    recvData >> guid;                  // guid of the item rolled
+    recvData >> itemSlot;
+    recvData >> rollType;              // 0: pass, 1: need, 2: greed
 
     // everything's fine, do it
-    group->CountRollVote(GetPlayer()->GetGUID(), Guid, NumberOfPlayers, rollType);
+    group->CountRollVote(GetPlayer()->GetGUID(), guid, rollType);
 
     switch (rollType)
     {
