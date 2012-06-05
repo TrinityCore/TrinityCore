@@ -26,7 +26,6 @@ EndScriptData */
 /* ContentData
 npc_lorax
 npc_rivern_frostwind
-npc_witch_doctor_mauari
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -131,49 +130,8 @@ public:
 
 };
 
-/*######
-## npc_witch_doctor_mauari
-######*/
-
-#define GOSSIP_HWDM "I'd like you to make me a new Cache of Mau'ari please."
-
-class npc_witch_doctor_mauari : public CreatureScript
-{
-public:
-    npc_witch_doctor_mauari() : CreatureScript("npc_witch_doctor_mauari") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, 16351, false);
-        }
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestRewardStatus(975))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HWDM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(3377, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(3375, creature->GetGUID());
-
-        return true;
-    }
-};
-
 void AddSC_winterspring()
 {
     new npc_lorax();
     new npc_rivern_frostwind();
-    new npc_witch_doctor_mauari();
 }
