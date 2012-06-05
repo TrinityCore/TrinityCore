@@ -175,7 +175,7 @@ void Compress_ZLIB(
     // Storm.dll uses zlib version 1.1.3
     // Wow.exe uses zlib version 1.2.3
     nResult = deflateInit2(&z,
-                            Z_DEFAULT_COMPRESSION,
+                            6,                  // Compression level used by WoW MPQs
                             Z_DEFLATED,
                             windowBits,
                             8,
@@ -292,7 +292,13 @@ static void Compress_PKLIB(
     Info.pbOutBuff    = pbOutBuffer;
     Info.pbOutBuffEnd = pbOutBuffer + *pcbOutBuffer;
 
-    // Set the compression type and dictionary size
+    //
+    // Set the dictionary size
+    //
+    // Diablo I ues fixed dictionary size of CMP_IMPLODE_DICT_SIZE3
+    // Starcraft uses the variable dictionary size based on algorithm below
+    //
+
     if (cbInBuffer < 0x600)
         dict_size = CMP_IMPLODE_DICT_SIZE1;
     else if(0x600 <= cbInBuffer && cbInBuffer < 0xC00)
@@ -455,7 +461,7 @@ static void LZMA_Callback_Free(void *p, void *address)
 // the data compressed by StormLib.
 //
 
-static void Compress_LZMA(
+/*static */ void Compress_LZMA(
     char * pbOutBuffer,
     int * pcbOutBuffer,
     char * pbInBuffer,
@@ -752,13 +758,13 @@ int WINAPI SCompExplode(char * pbOutBuffer, int * pcbOutBuffer, char * pbInBuffe
 
 static TCompressTable cmp_table[] =
 {
-    {MPQ_COMPRESSION_SPARSE,      Compress_SPARSE},         // Sparse compression
-    {MPQ_COMPRESSION_WAVE_MONO,   Compress_ADPCM_mono},     // IMA ADPCM mono compression
-    {MPQ_COMPRESSION_WAVE_STEREO, Compress_ADPCM_stereo},   // IMA ADPCM stereo compression
-    {MPQ_COMPRESSION_HUFFMANN,    Compress_huff},           // Huffmann compression
-    {MPQ_COMPRESSION_ZLIB,        Compress_ZLIB},           // Compression with the "zlib" library
-    {MPQ_COMPRESSION_PKWARE,      Compress_PKLIB},          // Compression with Pkware DCL
-    {MPQ_COMPRESSION_BZIP2,       Compress_BZIP2}           // Compression Bzip2 library
+    {MPQ_COMPRESSION_SPARSE,       Compress_SPARSE},         // Sparse compression
+    {MPQ_COMPRESSION_ADPCM_MONO,   Compress_ADPCM_mono},     // IMA ADPCM mono compression
+    {MPQ_COMPRESSION_ADPCM_STEREO, Compress_ADPCM_stereo},   // IMA ADPCM stereo compression
+    {MPQ_COMPRESSION_HUFFMANN,     Compress_huff},           // Huffmann compression
+    {MPQ_COMPRESSION_ZLIB,         Compress_ZLIB},           // Compression with the "zlib" library
+    {MPQ_COMPRESSION_PKWARE,       Compress_PKLIB},          // Compression with Pkware DCL
+    {MPQ_COMPRESSION_BZIP2,        Compress_BZIP2}           // Compression Bzip2 library
 };
 
 int WINAPI SCompCompress(
@@ -904,13 +910,13 @@ int WINAPI SCompCompress(
 // of compressed data
 static TDecompressTable dcmp_table[] =
 {
-    {MPQ_COMPRESSION_BZIP2,       Decompress_BZIP2},        // Decompression with Bzip2 library
-    {MPQ_COMPRESSION_PKWARE,      Decompress_PKLIB},        // Decompression with Pkware Data Compression Library
-    {MPQ_COMPRESSION_ZLIB,        Decompress_ZLIB},         // Decompression with the "zlib" library
-    {MPQ_COMPRESSION_HUFFMANN,    Decompress_huff},         // Huffmann decompression
-    {MPQ_COMPRESSION_WAVE_STEREO, Decompress_ADPCM_stereo}, // IMA ADPCM stereo decompression
-    {MPQ_COMPRESSION_WAVE_MONO,   Decompress_ADPCM_mono},   // IMA ADPCM mono decompression
-    {MPQ_COMPRESSION_SPARSE,      Decompress_SPARSE}        // Sparse decompression
+    {MPQ_COMPRESSION_BZIP2,        Decompress_BZIP2},        // Decompression with Bzip2 library
+    {MPQ_COMPRESSION_PKWARE,       Decompress_PKLIB},        // Decompression with Pkware Data Compression Library
+    {MPQ_COMPRESSION_ZLIB,         Decompress_ZLIB},         // Decompression with the "zlib" library
+    {MPQ_COMPRESSION_HUFFMANN,     Decompress_huff},         // Huffmann decompression
+    {MPQ_COMPRESSION_ADPCM_STEREO, Decompress_ADPCM_stereo}, // IMA ADPCM stereo decompression
+    {MPQ_COMPRESSION_ADPCM_MONO,   Decompress_ADPCM_mono},   // IMA ADPCM mono decompression
+    {MPQ_COMPRESSION_SPARSE,       Decompress_SPARSE}        // Sparse decompression
 };
 
 int WINAPI SCompDecompress(
@@ -919,109 +925,86 @@ int WINAPI SCompDecompress(
     char * pbInBuffer,
     int cbInBuffer)
 {
-    DECOMPRESS DecompressFuncArray[0x10];   // Array of compression functions, applied sequentially
     char *   pbWorkBuffer = NULL;           // Temporary storage for decompressed data
     char *   pbOutput = pbOutBuffer;        // Where to store decompressed data
     char *   pbInput;                       // Where to store decompressed data
     unsigned uCompressionMask;              // Decompressions applied to the data
+    unsigned uCompressionCopy;              // Decompressions applied to the data
     int      cbOutBuffer = *pcbOutBuffer;   // Current size of the output buffer
     int      cbInLength;                    // Current size of the input buffer
     int      nCompressCount = 0;            // Number of compressions to be applied
     int      nCompressIndex = 0;
     int      nResult = 1;
 
-    // Zero input data bring zero output data
-    if(cbInBuffer == 0)
-    {
-        *pcbOutBuffer = 0;
-        return 1;
-    }
+    // Verify buffer sizes
+    if(cbOutBuffer < cbInBuffer || cbInBuffer < 1)
+        return 0;
 
-/*
     // If the input length is the same as output length, do nothing.
-    // Unfortunately, some data in WoW-Cataclysm BETA MPQs are like that ....
-    if(cbInBuffer == cbOutBuffer)
+    if(cbOutBuffer == cbInBuffer)
     {
         // If the buffers are equal, don't copy anything.
-        if(pbInBuffer == pbOutBuffer)
-            return 1;
-
-        memcpy(pbOutBuffer, pbInBuffer, cbInBuffer);
+        if(pbInBuffer != pbOutBuffer)
+            memcpy(pbOutBuffer, pbInBuffer, cbInBuffer);
         return 1;
     }
-*/
 
     // Get applied compression types and decrement data length
-    uCompressionMask = (unsigned char)*pbInBuffer++;              
+    uCompressionMask = uCompressionCopy = (unsigned char)*pbInBuffer++;              
     cbInBuffer--;
 
     // Get current compressed data and length of it
     pbInput = pbInBuffer;
     cbInLength = cbInBuffer;
 
-    //
-    // Beginning with Starcraft II, the decompression byte can no longer contain
-    // any arbitrary combination types. Instead, it can be one of the few
-    // pre-set values (0x02, 0x08, 0x10, 0x12, 0x20, 0x22, 0x30)
-    // Note that Starcraft II no longer uses WAVE files, so compressions 0x41, 0x48, 0x81, 0x88
-    // are no longer used.
-    //
+    // This compression function doesn't support LZMA
+    assert(uCompressionMask != MPQ_COMPRESSION_LZMA);
 
-    // Special case: LZMA decompression (added in Starcraft II)
-    if(uCompressionMask == MPQ_COMPRESSION_LZMA)
+    // Parse the compression mask
+    for(size_t i = 0; i < (sizeof(dcmp_table) / sizeof(TDecompressTable)); i++)
     {
-        DecompressFuncArray[0] = Decompress_LZMA;
-        nCompressCount = 1;
-    }
-    else
-    {
-        // Fill the compressions array
-        for(size_t i = 0; i < (sizeof(dcmp_table) / sizeof(TDecompressTable)); i++)
+        // If the mask agrees, insert the compression function to the array
+        if(uCompressionMask & dcmp_table[i].uMask)
         {
-            // If the mask agrees, insert the compression function to the array
-            if(uCompressionMask & dcmp_table[i].uMask)
-            {
-                DecompressFuncArray[nCompressCount] = dcmp_table[i].Decompress;
-                uCompressionMask &= ~dcmp_table[i].uMask;
-                nCompressCount++;
-            }
+            uCompressionCopy &= ~dcmp_table[i].uMask;
+            nCompressCount++;
         }
+    }
 
-        // If at least one of the compressions remaing unknown, return an error
-        if(uCompressionMask != 0)
+    // If at least one of the compressions remaing unknown, return an error
+    if(nCompressCount == 0 || uCompressionCopy != 0)
+    {
+        SetLastError(ERROR_NOT_SUPPORTED);
+        return 0;
+    }
+
+    // If there is more than one compression, we have to allocate extra buffer
+    if(nCompressCount > 1)
+    {
+        pbWorkBuffer = STORM_ALLOC(char, cbOutBuffer);
+        if(pbWorkBuffer == NULL)
         {
-            SetLastError(ERROR_NOT_SUPPORTED);
+            SetLastError(ERROR_NOT_ENOUGH_MEMORY);
             return 0;
         }
     }
 
-    // If there is at least one decompression, do it
-    if(nCompressCount > 0)
+    // Get the current compression index
+    nCompressIndex = nCompressCount - 1;
+
+    // Apply all decompressions
+    for(size_t i = 0; i < (sizeof(dcmp_table) / sizeof(TDecompressTable)); i++)
     {
-        // If there is more than one compression, we have to allocate extra buffer
-        if(nCompressCount > 1)
-        {
-            pbWorkBuffer = STORM_ALLOC(char, *pcbOutBuffer);
-            if(pbWorkBuffer == NULL)
-            {
-                SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-                return 0;
-            }
-        }
-
-        // Get the current compression index
-        nCompressIndex = nCompressCount - 1;
-
-        // Apply all decompressions
-        for(int i = 0; i < nCompressCount; i++)
+        // Perform the (next) decompression
+        if(uCompressionMask & dcmp_table[i].uMask)
         {
             // Get the correct output buffer
             pbOutput = (nCompressIndex & 1) ? pbWorkBuffer : pbOutBuffer;
             nCompressIndex--;
-            
-            // Perform the (next) decompression
+        
+            // Perform the decompression
             cbOutBuffer = *pcbOutBuffer;
-            nResult = DecompressFuncArray[i](pbOutput, &cbOutBuffer, pbInput, cbInLength);
+            nResult = dcmp_table[i].Decompress(pbOutput, &cbOutBuffer, pbInput, cbInLength);
             if(nResult == 0 || cbOutBuffer == 0)
             {
                 SetLastError(ERROR_FILE_CORRUPT);
@@ -1030,21 +1013,123 @@ int WINAPI SCompDecompress(
             }
 
             // Switch buffers
-            pbInput = pbOutput;
             cbInLength = cbOutBuffer;
+            pbInput = pbOutput;
         }
+    }
 
-        // Put the length of the decompressed data to the output buffer
-        *pcbOutBuffer = cbOutBuffer;
-    }
-    else
-    {
-        memcpy(pbOutBuffer, pbInBuffer, cbInBuffer);
-        *pcbOutBuffer = cbInBuffer;
-    }
+    // Put the length of the decompressed data to the output buffer
+    *pcbOutBuffer = cbOutBuffer;
 
     // Cleanup and return
     if(pbWorkBuffer != NULL)
         STORM_FREE(pbWorkBuffer);
+    return nResult;
+}
+
+int WINAPI SCompDecompress2(
+    char * pbOutBuffer,
+    int * pcbOutBuffer,
+    char * pbInBuffer,
+    int cbInBuffer)
+{
+    DECOMPRESS pfnDecompress1 = NULL;
+    DECOMPRESS pfnDecompress2 = NULL;
+    char * pbWorkBuffer = pbOutBuffer;
+    int cbWorkBuffer = *pcbOutBuffer;
+    int nResult;
+    char CompressionMethod;
+
+    // Verify buffer sizes
+    if(*pcbOutBuffer < cbInBuffer || cbInBuffer < 1)
+        return 0;
+
+    // If the outputbuffer is as big as input buffer, just copy the block
+    if(*pcbOutBuffer == cbInBuffer)
+    {
+        if(pbOutBuffer != pbInBuffer)
+            memcpy(pbOutBuffer, pbInBuffer, cbInBuffer);
+        return 1;
+    }
+
+    // Get the compression methods
+    CompressionMethod = *pbInBuffer++;
+    cbInBuffer--;
+
+    // We only recognize a fixed set of compression methods
+    switch((unsigned char)CompressionMethod)
+    {
+        case MPQ_COMPRESSION_ZLIB:
+            pfnDecompress1 = Decompress_ZLIB;
+            break;
+
+        case MPQ_COMPRESSION_PKWARE:
+            pfnDecompress1 = Decompress_PKLIB;
+            break;
+
+        case MPQ_COMPRESSION_BZIP2:
+            pfnDecompress1 = Decompress_BZIP2;
+            break;
+
+        case MPQ_COMPRESSION_LZMA:
+            pfnDecompress1 = Decompress_LZMA;
+            break;
+
+        case MPQ_COMPRESSION_SPARSE:
+            pfnDecompress1 = Decompress_SPARSE;
+            break;
+
+        case (MPQ_COMPRESSION_SPARSE | MPQ_COMPRESSION_ZLIB):
+            pfnDecompress1 = Decompress_ZLIB;
+            pfnDecompress2 = Decompress_SPARSE;
+            break;
+
+        case (MPQ_COMPRESSION_SPARSE | MPQ_COMPRESSION_BZIP2):
+            pfnDecompress1 = Decompress_BZIP2;
+            pfnDecompress2 = Decompress_SPARSE;
+            break;
+
+        //
+        // Note: Any combination including MPQ_COMPRESSION_ADPCM_MONO,
+        // MPQ_COMPRESSION_ADPCM_STEREO or MPQ_COMPRESSION_HUFFMANN
+        // is not supported by newer MPQs.
+        //
+
+        default:
+            SetLastError(ERROR_FILE_CORRUPT);
+            return 0;
+    }
+
+    // If we have to use two decompressions, allocate temporary buffer
+    if(pfnDecompress2 != NULL)
+    {
+        pbWorkBuffer = STORM_ALLOC(char, *pcbOutBuffer);
+        if(pbWorkBuffer == NULL)
+        {
+            SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+            return 0;
+        }
+    }
+
+    // Apply the first decompression method
+    nResult = pfnDecompress1(pbWorkBuffer, &cbWorkBuffer, pbInBuffer, cbInBuffer);
+
+    // Apply the second decompression method, if any
+    if(pfnDecompress2 != NULL && nResult != 0)
+    {
+        cbInBuffer   = cbWorkBuffer;
+        cbWorkBuffer = *pcbOutBuffer;
+        nResult = pfnDecompress2(pbOutBuffer, &cbWorkBuffer, pbWorkBuffer, cbInBuffer);
+    }
+
+    // Supply the output buffer size
+    *pcbOutBuffer = cbWorkBuffer;
+
+    // Free temporary buffer
+    if(pbWorkBuffer != pbOutBuffer)
+        STORM_FREE(pbWorkBuffer);
+
+    if(nResult == 0)
+        SetLastError(ERROR_FILE_CORRUPT);
     return nResult;
 }
