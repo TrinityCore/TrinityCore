@@ -109,7 +109,6 @@ __inline void DebugFree(void * ptr)
 //-----------------------------------------------------------------------------
 // StormLib internal global variables
 
-extern DWORD dwGlobalFlags;                     // Global StormLib flags
 extern LCID lcFileLocale;                       // Preferred file locale
 
 //-----------------------------------------------------------------------------
@@ -122,7 +121,7 @@ extern LCID lcFileLocale;                       // Preferred file locale
 
 DWORD HashString(const char * szFileName, DWORD dwHashType);
 
-void InitializeMpqCryptography();
+void  InitializeMpqCryptography();
 
 DWORD GetHashTableSizeForFileCount(DWORD dwFileCount);
 
@@ -130,6 +129,8 @@ bool IsPseudoFileName(const char * szFileName, LPDWORD pdwFileIndex);
 ULONGLONG HashStringJenkins(const char * szFileName);
 
 int ConvertMpqHeaderToFormat4(TMPQArchive * ha, ULONGLONG FileSize, DWORD dwFlags);
+
+DWORD GetDefaultSpecialFileFlags(TMPQArchive * ha, DWORD dwFileSize);
 
 void  EncryptMpqBlock(void * pvFileBlock, DWORD dwLength, DWORD dwKey);
 void  DecryptMpqBlock(void * pvFileBlock, DWORD dwLength, DWORD dwKey);
@@ -158,7 +159,10 @@ DWORD AllocateHetEntry(TMPQArchive * ha, TFileEntry * pFileEntry);
 
 void FindFreeMpqSpace(TMPQArchive * ha, ULONGLONG * pFreeSpacePos);
 
-// Functions that load the HET abd BET tables
+// Functions that loads and verifies MPQ data bitmap
+int  LoadMpqDataBitmap(TMPQArchive * ha, ULONGLONG FileSize, bool * pbFileIsComplete);
+
+// Functions that load the HET and BET tables
 int  CreateHashTable(TMPQArchive * ha, DWORD dwHashTableSize);
 int  LoadAnyHashTable(TMPQArchive * ha);
 int  BuildFileTable(TMPQArchive * ha, ULONGLONG FileSize);
@@ -206,7 +210,7 @@ int  WriteMemDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, void * pvRawD
 int  WriteMpqDataMD5(TFileStream * pStream, ULONGLONG RawDataOffs, DWORD dwRawDataSize, DWORD dwChunkSize);
 void FreeMPQFile(TMPQFile *& hf);
 
-bool IsPatchData(const void * pvData, DWORD cbData, LPDWORD pdwPatchedFileSize);
+bool IsIncrementalPatchFile(const void * pvData, DWORD cbData, LPDWORD pdwPatchedFileSize);
 int  PatchFileData(TMPQFile * hf);
 
 void FreeMPQArchive(TMPQArchive *& ha);
