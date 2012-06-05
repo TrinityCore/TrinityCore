@@ -431,13 +431,6 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleLootRoll(WorldPacket& recvData)
 {
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
-    {
-        recv_data.rfinish();
-        return;
-    }
-
     uint64 guid;
     uint32 itemSlot;
     uint8  rollType;
@@ -445,7 +438,10 @@ void WorldSession::HandleLootRoll(WorldPacket& recvData)
     recvData >> itemSlot;
     recvData >> rollType;              // 0: pass, 1: need, 2: greed
 
-    // everything's fine, do it
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
+        return;
+
     group->CountRollVote(GetPlayer()->GetGUID(), guid, rollType);
 
     switch (rollType)
