@@ -79,6 +79,7 @@ uint32 CONF_TargetBuild = 15595;              // 4.3.4.15595
 char const* CONF_mpq_list[]=
 {
     "world.MPQ",
+    "art.MPQ",
     "world2.MPQ",
     "expansion1.MPQ",
     "expansion2.MPQ",
