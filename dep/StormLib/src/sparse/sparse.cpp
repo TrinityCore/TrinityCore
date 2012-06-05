@@ -255,6 +255,10 @@ int DecompressSparse(unsigned char * pbOutBuffer, int * pcbOutBuffer, unsigned c
     OneByte = *pbInBuffer++;
     cbOutBuffer |= (OneByte << 0x00);
 
+    // Verify the size of the stream against the output buffer size
+    if(cbOutBuffer > *pcbOutBuffer)
+        return 0;
+
     // Put the output size to the buffer
     *pcbOutBuffer = cbOutBuffer;
 

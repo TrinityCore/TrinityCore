@@ -15,12 +15,11 @@
 #include "StormLib.h"
 #include "StormCommon.h"
 
-char StormLibCopyright[] = "StormLib v " STORMLIB_VERSION_STRING " Copyright Ladislav Zezula 1998-2011";
+char StormLibCopyright[] = "StormLib v " STORMLIB_VERSION_STRING " Copyright Ladislav Zezula 1998-2012";
 
 //-----------------------------------------------------------------------------
 // The buffer for decryption engine.
 
-DWORD   dwGlobalFlags = 0;                      // Global flags
 LCID    lcFileLocale = LANG_NEUTRAL;            // File locale
 USHORT  wPlatform = 0;                          // File platform
 
@@ -317,6 +316,20 @@ int ConvertMpqHeaderToFormat4(
 
     return nError;
 }
+
+//-----------------------------------------------------------------------------
+// Default flags for (attributes) and (listfile)
+
+DWORD GetDefaultSpecialFileFlags(TMPQArchive * ha, DWORD dwFileSize)
+{
+    // Fixed for format 1.0
+    if(ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
+        return MPQ_FILE_COMPRESS | MPQ_FILE_ENCRYPTED | MPQ_FILE_FIX_KEY;
+
+    // Size-dependent for formats 2.0-4.0
+    return (dwFileSize > 0x4000) ? (MPQ_FILE_COMPRESS | MPQ_FILE_SECTOR_CRC) : (MPQ_FILE_COMPRESS | MPQ_FILE_SINGLE_UNIT);
+}
+
 
 //-----------------------------------------------------------------------------
 // Encrypting and decrypting MPQ file data
@@ -692,11 +705,9 @@ void FindFreeMpqSpace(TMPQArchive * ha, ULONGLONG * pFreeSpacePos)
                 FreeSpacePos = pFileEntry->ByteOffset + pFileEntry->dwCmpSize;
 
                 // Add the MD5 chunks, if present
-                if(pHeader->dwRawChunkSize != 0)
+                if(pHeader->dwRawChunkSize != 0 && pFileEntry->dwCmpSize != 0)
                 {
-                    dwChunkCount = pFileEntry->dwCmpSize / pHeader->dwRawChunkSize;
-                    if(pFileEntry->dwCmpSize % pHeader->dwRawChunkSize)
-                        dwChunkCount++;
+                    dwChunkCount = ((pFileEntry->dwCmpSize - 1) / pHeader->dwRawChunkSize) + 1;
                     FreeSpacePos += dwChunkCount * MD5_DIGEST_SIZE;
                 }
             }
@@ -773,7 +784,7 @@ int LoadMpqTable(
             int cbOutBuffer = (int)dwRealSize;
             int cbInBuffer = (int)dwCompressedSize;
 
-            if(!SCompDecompress((char *)pvTable, &cbOutBuffer, (char *)pbCompressed, cbInBuffer))
+            if(!SCompDecompress2((char *)pvTable, &cbOutBuffer, (char *)pbCompressed, cbInBuffer))
                 nError = GetLastError();
 
             // Free the temporary buffer
@@ -828,13 +839,11 @@ unsigned char * AllocateMd5Buffer(
     DWORD cbMd5Size;
 
     // Sanity check
+    assert(dwRawDataSize != 0);
     assert(dwChunkSize != 0);
 
     // Calculate how many MD5's we will calculate
-    cbMd5Size = dwRawDataSize / dwChunkSize;
-    if(dwRawDataSize % dwChunkSize)
-        cbMd5Size++;
-    cbMd5Size *= MD5_DIGEST_SIZE;
+    cbMd5Size = (((dwRawDataSize - 1) / dwChunkSize) + 1) * MD5_DIGEST_SIZE;
 
     // Allocate space for array or MD5s
     md5_array = STORM_ALLOC(BYTE, cbMd5Size);
@@ -853,8 +862,11 @@ int AllocateSectorBuffer(TMPQFile * hf)
     // Caller of AllocateSectorBuffer must ensure these
     assert(hf->pbFileSector == NULL);
     assert(hf->pFileEntry != NULL);
-    assert(hf->dwDataSize != 0);
     assert(hf->ha != NULL);
+
+    // Don't allocate anything if the file has zero size
+    if(hf->pFileEntry->dwFileSize == 0 || hf->dwDataSize == 0)
+        return ERROR_SUCCESS;
 
     // Determine the file sector size and allocate buffer for it
     hf->dwSectorSize = (hf->pFileEntry->dwFlags & MPQ_FILE_SINGLE_UNIT) ? hf->dwDataSize : ha->dwSectorSize;
@@ -889,7 +901,7 @@ __AllocateAndLoadPatchInfo:
         // Load the patch header
         if(!FileStream_Read(ha->pStream, &hf->RawFilePos, hf->pPatchInfo, dwLength))
         {
-            // Free the sector offsets
+            // Free the patch info
             STORM_FREE(hf->pPatchInfo);
             hf->pPatchInfo = NULL;
             return GetLastError();
@@ -904,10 +916,14 @@ __AllocateAndLoadPatchInfo:
         // If it's not default size, we have to reload them
         if(hf->pPatchInfo->dwLength > dwLength)
         {
+            // Free the patch info
             dwLength = hf->pPatchInfo->dwLength;
             STORM_FREE(hf->pPatchInfo);
             hf->pPatchInfo = NULL;
 
+            // If the length is out of all possible ranges, fail the operation
+            if(dwLength > 0x400)
+                return ERROR_FILE_CORRUPT;
             goto __AllocateAndLoadPatchInfo;
         }
 
@@ -947,6 +963,7 @@ int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
     }
 
     // Calculate the number of data sectors
+    // Note that this doesn't work if the file size is zero
     hf->dwSectorCount = ((hf->dwDataSize - 1) / hf->dwSectorSize) + 1;
 
     // Calculate the number of file sectors
@@ -961,6 +978,8 @@ int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
     // Only allocate and load the table if the file is compressed
     if(pFileEntry->dwFlags & MPQ_FILE_COMPRESSED)
     {
+        __LoadSectorOffsets:
+
         // Allocate the sector offset table
         hf->SectorOffsets = (DWORD *)STORM_ALLOC(BYTE, dwSectorOffsLen);
         if(hf->SectorOffsets == NULL)
@@ -1044,10 +1063,18 @@ int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
             // There may be various extra DWORDs loaded after the sector offset table.
             // They are mostly empty on WoW release MPQs, but on MPQs from PTR,
             // they contain random non-zero data. Their meaning is unknown.
-            // At this point, we completely ignore them
+            //
+            // These extra values are, however, include in the dwCmpSize in the file
+            // table. We cannot ignore them, because compacting archive would fail
             // 
 
-//          assert(dwSectorOffsLen == hf->SectorOffsets[0]);
+            if(hf->SectorOffsets[0] > dwSectorOffsLen)
+            {
+                dwSectorOffsLen = hf->SectorOffsets[0];
+                STORM_FREE(hf->SectorOffsets);
+                hf->SectorOffsets = NULL;
+                goto __LoadSectorOffsets;
+            }
         }
         else
         {
@@ -1388,6 +1415,10 @@ void FreeMPQArchive(TMPQArchive *& ha)
         if(ha->haPatch != NULL)
             FreeMPQArchive(ha->haPatch);
 
+        // Close the file stream
+        FileStream_Close(ha->pStream);
+        ha->pStream = NULL;
+
         // Free the file names from the file table
         if(ha->pFileTable != NULL)
         {
@@ -1402,11 +1433,12 @@ void FreeMPQArchive(TMPQArchive *& ha)
             STORM_FREE(ha->pFileTable);
         }
 
+        if(ha->pBitmap != NULL)
+            STORM_FREE(ha->pBitmap);
         if(ha->pHashTable != NULL)
             STORM_FREE(ha->pHashTable);
         if(ha->pHetTable != NULL)
             FreeHetTable(ha->pHetTable);
-        FileStream_Close(ha->pStream);
         STORM_FREE(ha);
         ha = NULL;
     }

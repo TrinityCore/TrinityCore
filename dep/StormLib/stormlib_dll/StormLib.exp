@@ -4,13 +4,12 @@
 # swilkins1337@gmail.com
 #
 
-_SFileGetGlobalFlags
-_SFileSetGlobalFlags
 _SFileSetLocale
 _SFileGetLocale
 
 _SFileOpenArchive
 _SFileCreateArchive
+_SFileGetArchiveBitmap
 _SFileFlushArchive
 _SFileCloseArchive
 

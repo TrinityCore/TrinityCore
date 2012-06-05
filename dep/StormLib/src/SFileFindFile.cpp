@@ -31,7 +31,7 @@ struct TMPQSearch
     DWORD  dwSearchTableItems;          // Number of items in the search table
     DWORD  dwNextIndex;                 // Next file index to be checked
     DWORD  dwFlagMask;                  // For checking flag mask
-    char * szSearchMask;                // Search mask (variable length)
+    char   szSearchMask[1];             // Search mask (variable length)
 };
 
 //-----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ bool CheckWildCard(const char * szString, const char * szWildCard)
             szString++;
         }
 
-        // If there is '*', means zero or more chars. We have to
+        // If there is '*', means zero or more chars. We have to 
         // find the sequence after '*'
         if(*szWildCard == '*')
         {
@@ -337,8 +337,6 @@ static void FreeMPQSearch(TMPQSearch *& hs)
     {
         if(hs->pSearchTable != NULL)
             STORM_FREE(hs->pSearchTable);
-        if(hs->szSearchMask != NULL)
-            free(hs->szSearchMask); // allocated with strdup
         STORM_FREE(hs);
         hs = NULL;
     }
@@ -378,7 +376,7 @@ HANDLE WINAPI SFileFindFirstFile(HANDLE hMpq, const char * szMask, SFILE_FIND_DA
     if(nError == ERROR_SUCCESS)
     {
         memset(hs, 0, sizeof(TMPQSearch));
-        hs->szSearchMask = strdup(szMask);
+        strcpy(hs->szSearchMask, szMask);
         hs->dwFlagMask = MPQ_FILE_EXISTS;
         hs->ha = ha;
 
@@ -408,7 +406,7 @@ HANDLE WINAPI SFileFindFirstFile(HANDLE hMpq, const char * szMask, SFILE_FIND_DA
         FreeMPQSearch(hs);
         SetLastError(nError);
     }
-
+    
     // Return the result value
     return (HANDLE)hs;
 }
