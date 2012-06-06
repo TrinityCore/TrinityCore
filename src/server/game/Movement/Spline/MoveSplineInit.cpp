@@ -62,7 +62,8 @@ namespace Movement
 
         bool transport = false;
         Location real_position(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZMinusOffset(), unit.GetOrientation());
-        if (unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
+        if (unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit.GetTransGUID())
         {
             transport = true;
             real_position.x = unit.GetTransOffsetX();
@@ -108,13 +109,7 @@ namespace Movement
         data.append(unit.GetPackGUID());
         if (transport)
         {
-            if (unit.GetVehicle())
-                data.appendPackGUID(unit.GetVehicleBase()->GetGUID());
-            else if (unit.GetTransport())
-                data.appendPackGUID(unit.GetTransGUID());
-            else
-                data << uint8(0);
-
+            data.appendPackGUID(unit.GetTransGUID());
             data << int8(unit.GetTransSeat());
         }
 
@@ -124,6 +119,8 @@ namespace Movement
 
     MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)
     {
+        // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
+        args.TransformForTransport = unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit.GetTransGUID();
         // mix existing state into new
         args.flags.walkmode = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
         args.flags.flying = unit.m_movementInfo.HasMovementFlag((MovementFlags)(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_DISABLE_GRAVITY));
@@ -138,7 +135,7 @@ namespace Movement
 
     void MoveSplineInit::SetFacing(float angle)
     {
-        if (unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        if (args.TransformForTransport)
         {
             if (Unit* vehicle = unit.GetVehicleBase())
                 angle -= vehicle->GetOrientation();
@@ -154,13 +151,13 @@ namespace Movement
     {
         args.path_Idx_offset = 0;
         args.path.resize(2);
-        TransportPathTransform transform(unit);
+        TransportPathTransform transform(unit, args.TransformForTransport);
         args.path[1] = transform(dest);
     }
 
     Vector3 TransportPathTransform::operator()(Vector3 input)
     {
-        if (_owner.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        if (_transformForTransport)
         {
             if (Unit* vehicle = _owner.GetVehicleBase())
             {
@@ -177,5 +174,4 @@ namespace Movement
 
         return input;
     }
-
 }

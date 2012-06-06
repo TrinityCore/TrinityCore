@@ -735,52 +735,6 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK16                    = 0x00008000,
 };
 
-enum SplineFlags
-{
-    SPLINEFLAG_NONE                 = 0x00000000,
-    SPLINEFLAG_FORWARD              = 0x00000001,
-    SPLINEFLAG_BACKWARD             = 0x00000002,
-    SPLINEFLAG_STRAFE_LEFT          = 0x00000004,
-    SPLINEFLAG_STRAFE_RIGHT         = 0x00000008,
-    SPLINEFLAG_TURN_LEFT            = 0x00000010,
-    SPLINEFLAG_TURN_RIGHT           = 0x00000020,
-    SPLINEFLAG_PITCH_UP             = 0x00000040,
-    SPLINEFLAG_PITCH_DOWN           = 0x00000080,
-    SPLINEFLAG_DONE                 = 0x00000100,
-    SPLINEFLAG_FALLING              = 0x00000200,
-    SPLINEFLAG_NO_SPLINE            = 0x00000400,
-    SPLINEFLAG_TRAJECTORY           = 0x00000800,
-    SPLINEFLAG_WALK_MODE            = 0x00001000,
-    SPLINEFLAG_FLYING               = 0x00002000,
-    SPLINEFLAG_KNOCKBACK            = 0x00004000,
-    SPLINEFLAG_FINAL_POINT          = 0x00008000,
-    SPLINEFLAG_FINAL_TARGET         = 0x00010000,
-    SPLINEFLAG_FINAL_FACING         = 0x00020000,
-    SPLINEFLAG_CATMULL_ROM          = 0x00040000,
-    SPLINEFLAG_CYCLIC               = 0x00080000,
-    SPLINEFLAG_ENTER_CYCLE          = 0x00100000,
-    SPLINEFLAG_ANIMATION_TIER       = 0x00200000,
-    SPLINEFLAG_FROZEN               = 0x00400000,
-    SPLINEFLAG_TRANSPORT            = 0x00800000,
-    SPLINEFLAG_TRANSPORT_EXIT       = 0x01000000,
-    SPLINEFLAG_UNKNOWN7             = 0x02000000,
-    SPLINEFLAG_UNKNOWN8             = 0x04000000,
-    SPLINEFLAG_ORIENTATION_INVERTED = 0x08000000,
-    SPLINEFLAG_USE_PATH_SMOOTHING   = 0x10000000,
-    SPLINEFLAG_ANIMATION            = 0x20000000,
-    SPLINEFLAG_UNCOMPRESSED_PATH    = 0x40000000,
-    SPLINEFLAG_UNKNOWN10            = 0x80000000,
-};
-
-enum SplineType
-{
-    SPLINETYPE_NORMAL               = 0,
-    SPLINETYPE_STOP                 = 1,
-    SPLINETYPE_FACING_SPOT          = 2,
-    SPLINETYPE_FACING_TARGET        = 3,
-    SPLINETYPE_FACING_ANGLE         = 4,
-};
-
 enum UnitTypeMask
 {
     UNIT_MASK_NONE                  = 0x00000000,
@@ -1662,9 +1616,7 @@ class Unit : public WorldObject
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed);
         //void SetFacing(float ori, WorldObject* obj = NULL);
-        void SendMonsterMoveExitVehicle(Position const* newPos);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
-        void SendMonsterMoveTransport(Unit* vehicleOwner);
         void SendMovementFlagUpdate();
 
         /*! These methods send the same packet to the client in apply and unapply case.
