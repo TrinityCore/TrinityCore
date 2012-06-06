@@ -220,16 +220,18 @@ void WorldSession::HandleLootOpcode(WorldPacket & recv_data)
         GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
-void WorldSession::HandleLootReleaseOpcode(WorldPacket & recv_data)
+void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
-    recv_data.read_skip<uint64>();                          // guid;
+    uint64 guid;
+    recvData >> guid;
 
     if (uint64 lguid = GetPlayer()->GetLootGUID())
-        DoLootRelease(lguid);
+        if (lguid == guid)
+            DoLootRelease(lguid);
 }
 
 void WorldSession::DoLootRelease(uint64 lguid)
