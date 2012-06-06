@@ -24,78 +24,12 @@ SDCategory: Winterspring
 EndScriptData */
 
 /* ContentData
-npc_lorax
 npc_rivern_frostwind
 EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-
-/*######
-## npc_lorax
-######*/
-
-#define GOSSIP_HL "Talk to me"
-
-#define GOSSIP_SL1 "What do you do here?"
-#define GOSSIP_SL2 "I can help you"
-#define GOSSIP_SL3 "What deal?"
-#define GOSSIP_SL4 "Then what happened?"
-#define GOSSIP_SL5 "He is not safe, i'll make sure of that."
-
-class npc_lorax : public CreatureScript
-{
-public:
-    npc_lorax() : CreatureScript("npc_lorax") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SL1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(3759, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SL2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(3760, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SL3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(3761, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SL4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->SEND_GOSSIP_MENU(3762, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SL5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(3763, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(5126);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(5126) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-};
 
 /*######
 ## npc_rivern_frostwind
@@ -132,6 +66,5 @@ public:
 
 void AddSC_winterspring()
 {
-    new npc_lorax();
     new npc_rivern_frostwind();
 }
