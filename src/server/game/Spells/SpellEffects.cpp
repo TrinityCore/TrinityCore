@@ -3309,6 +3309,14 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
                         spell_bonus += (m_spellInfo->Effects[EFFECT_0].CalcValue() * 0.35);
             }
+            if (m_spellInfo->SpellFamilyFlags[0] & 0x8000000) // Mocking Blow
+            {
+                if (unitTarget->IsImmunedToSpellEffect(m_spellInfo,EFFECT_1) || unitTarget->GetTypeId() == TYPEID_PLAYER)
+                {
+                    m_damage = 0;
+                    return;
+                }
+            }
             break;
         }
         case SPELLFAMILY_ROGUE:
