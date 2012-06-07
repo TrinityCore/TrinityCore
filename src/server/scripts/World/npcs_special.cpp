@@ -1894,6 +1894,7 @@ public:
 
         uint32 despawnTimer;
         Unit* owner;
+        Unit* target;
 
         void InitializeAI()
         {
@@ -1906,6 +1907,8 @@ public:
 
             // Not needed to be despawned now
             despawnTimer = 0;
+
+            target = NULL;
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1958,13 +1961,27 @@ public:
                 return;
             }
 
-            // make the gargoyle attack the DKs target
-            if (!me->getVictim())
-                if (owner && owner->getVictim())
-                    AttackStart(owner->getVictim());
-
-            if (me->getVictim() && me->getVictim() != owner->getVictim())
-                AttackStart(owner->getVictim());
+            if (!target)
+            {
+                // Find victim of Summon Gargoyle spell
+                std::list<Unit*> targets;
+                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+                me->VisitNearbyObject(30, searcher);
+                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                {
+                    if ((*iter)->HasAura(49206, me->GetOwnerGUID()))
+                    {
+                        target = (*iter);
+                        AttackStart(target);
+                        break;
+                    }
+                }
+            }
+            else if (target && target->isAlive())
+            {
+                AttackStart(target);
+            }
 
             CasterAI::UpdateAI(diff);
         }
