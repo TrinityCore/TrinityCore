@@ -360,7 +360,7 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         if (Group const* group = player->GetGroup())
         {
-            if ((pProto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT) == 0 || (pProto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT && (group->GetLootMethod() != MASTER_LOOT || group->GetLooterGuid() != player->GetGUID())))
+            if (pProto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT || ((pProto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT) == 0 && (group->GetLootMethod() != MASTER_LOOT || group->GetLooterGuid() != player->GetGUID())))
                 return false;
         }
         else return false;
