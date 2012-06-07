@@ -338,7 +338,7 @@ void GameObject::Update(uint32 diff)
                 if (m_respawnTime <= now)            // timer expired
                 {
                     uint64 dbtableHighGuid = MAKE_NEW_GUID(m_DBTableGuid, GetEntry(), HIGHGUID_GAMEOBJECT);
-                    time_t linkedRespawntime = sObjectMgr->GetLinkedRespawnTime(dbtableHighGuid, GetMap()->GetInstanceId());
+                    time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                     if (linkedRespawntime)             // Can't respawn, the master is dead
                     {
                         uint64 targetGuid = sObjectMgr->GetLinkedRespawnGuid(dbtableHighGuid);
@@ -761,13 +761,13 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
         else
         {
             m_respawnDelayTime = data->spawntimesecs;
-            m_respawnTime = sObjectMgr->GetGORespawnTime(m_DBTableGuid, map->GetInstanceId());
+            m_respawnTime = GetMap()->GetGORespawnTime(m_DBTableGuid);
 
             // ready to respawn
             if (m_respawnTime && m_respawnTime <= time(NULL))
             {
                 m_respawnTime = 0;
-                sObjectMgr->RemoveGORespawnTime(m_DBTableGuid, GetInstanceId());
+                GetMap()->RemoveGORespawnTime(m_DBTableGuid);
             }
         }
     }
@@ -788,7 +788,7 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
 
 void GameObject::DeleteFromDB()
 {
-    sObjectMgr->RemoveGORespawnTime(m_DBTableGuid, GetInstanceId());
+    GetMap()->RemoveGORespawnTime(m_DBTableGuid);
     sObjectMgr->DeleteGOData(m_DBTableGuid);
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
@@ -863,7 +863,7 @@ Unit* GameObject::GetOwner() const
 void GameObject::SaveRespawnTime()
 {
     if (m_goData && m_goData->dbData && m_respawnTime > time(NULL) && m_spawnedByDefault)
-        sObjectMgr->SaveGORespawnTime(m_DBTableGuid, GetInstanceId(), m_respawnTime);
+        GetMap()->SaveGORespawnTime(m_DBTableGuid, m_respawnTime);
 }
 
 bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
@@ -908,7 +908,7 @@ void GameObject::Respawn()
     if (m_spawnedByDefault && m_respawnTime > 0)
     {
         m_respawnTime = time(NULL);
-        sObjectMgr->RemoveGORespawnTime(m_DBTableGuid, GetInstanceId());
+        GetMap()->RemoveGORespawnTime(m_DBTableGuid);
     }
 }
 
