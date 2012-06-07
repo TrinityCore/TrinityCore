@@ -2893,7 +2893,8 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
                     InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
                 m_AutoRepeatFirstCast = true;
             }
-            AddUnitState(UNIT_STATE_CASTING);
+            if (m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->CalcCastTime(this) > 0 && IsNonMeleeSpellCasted(false, false, true))
+                AddUnitState(UNIT_STATE_CASTING);
         } break;
 
         case CURRENT_CHANNELED_SPELL:
