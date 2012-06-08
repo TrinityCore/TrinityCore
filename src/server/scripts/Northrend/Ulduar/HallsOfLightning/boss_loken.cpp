@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Boss Loken
 SD%Complete: 60%
-SDComment: Missing intro. Aura is not working (59414)
+SDComment: Missing intro.
 SDCategory: Halls of Lightning
 EndScriptData */
 
@@ -85,7 +85,7 @@ public:
         {
             m_uiArcLightning_Timer = 15000;
             m_uiLightningNova_Timer = 20000;
-            m_uiResumePulsingShockwave_Timer = 15000;
+            m_uiResumePulsingShockwave_Timer = 1000;
 
             m_uiHealthAmountModifier = 1;
 
@@ -112,7 +112,10 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
+            {
                 instance->SetData(TYPE_LOKEN, DONE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PULSING_SHOCKWAVE_AURA);
+            }
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -130,7 +133,6 @@ public:
             {
                 if (m_uiResumePulsingShockwave_Timer <= uiDiff)
                 {
-                    //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
                     DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
 
                     DoCast(me, SPELL_PULSING_SHOCKWAVE_N, true);

@@ -5297,29 +5297,10 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         switch (m_spellInfo->Effects[i].ApplyAuraName)
         {
-            case SPELL_AURA_DUMMY:
-            {
-                //custom check
-                switch (m_spellInfo->Id)
-                {
-                    case 44795: // Parachute
-                    {
-                        float x, y, z;
-                        m_caster->GetPosition(x, y, z);
-                        float ground_Z = m_caster->GetMap()->GetHeight(m_caster->GetPhaseMask(), x, y, z);
-                        if (fabs(ground_Z - z) < 0.1f)
-                            return SPELL_FAILED_DONT_REPORT;
-                        break;
-                    }
-                    default:
-                        break;
-                }
-                break;
-            }
             case SPELL_AURA_MOD_POSSESS_PET:
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)

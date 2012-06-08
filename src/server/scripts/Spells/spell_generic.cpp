@@ -239,7 +239,7 @@ class spell_gen_parachute : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_parachute_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PARACHUTE) || !sSpellMgr->GetSpellInfo(SPELL_PARACHUTE_BUFF))
                     return false;
@@ -252,7 +252,12 @@ class spell_gen_parachute : public SpellScriptLoader
                     if (target->IsFalling())
                     {
                         target->RemoveAurasDueToSpell(SPELL_PARACHUTE);
-                        target->CastSpell(target, SPELL_PARACHUTE_BUFF, true);
+
+                        float x, y, z;
+                        target->GetPosition(x, y, z);
+                        float groundZ = target->GetMap()->GetHeight(target->GetPhaseMask(), x, y, z);
+                        if (fabs(groundZ - z) > 0.1f)
+                            target->CastSpell(target, SPELL_PARACHUTE_BUFF, true);
                     }
             }
 
@@ -2864,6 +2869,8 @@ class spell_gen_summon_elemental : public SpellScriptLoader
 
 enum Mounts
 {
+    SPELL_COLD_WEATHER_FLYING           = 54197,
+
     // Magic Broom
     SPELL_MAGIC_BROOM_60                = 42680,
     SPELL_MAGIC_BROOM_100               = 42683,
@@ -2953,7 +2960,7 @@ class spell_gen_mount : public SpellScriptLoader
                     // Triggered spell id dependent on riding skill and zone
                     bool canFly = false;
                     uint32 vmap = GetVirtualMapForMapAndZone(target->GetMapId(), target->GetZoneId());
-                    if (vmap == 530 || (vmap == 571 && target->HasSpell(54197)))
+                    if (vmap == 530 || (vmap == 571 && target->HasSpell(SPELL_COLD_WEATHER_FLYING)))
                         canFly = true;
 
                     float x, y, z;
@@ -2998,9 +3005,7 @@ class spell_gen_mount : public SpellScriptLoader
 
                     if (mount)
                     {
-                        // Prevent stacking of mounts and client crashes upon dismounting
-                        //target->RemoveAurasByType(SPELL_AURA_MOUNTED, 0, GetHitAura());
-
+                        PreventHitAura();
                         target->CastSpell(target, mount, true);
                     }
                 }
