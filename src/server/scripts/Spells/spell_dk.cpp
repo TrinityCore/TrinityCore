@@ -383,6 +383,12 @@ class spell_dk_scourge_strike : public SpellScriptLoader
             PrepareSpellScript(spell_dk_scourge_strike_SpellScript);
             float multiplier;
 
+            bool Load()
+            {
+                multiplier = 1.0f;
+                return true;
+            }
+
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(DK_SPELL_SCOURGE_STRIKE_TRIGGERED))
