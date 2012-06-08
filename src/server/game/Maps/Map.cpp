@@ -2880,14 +2880,19 @@ void Map::DeleteRespawnTimes()
     _creatureRespawnTimes.clear();
     _goRespawnTimes.clear();
 
+    DeleteRespawnTimesInDB(GetId(), GetInstanceId());
+}
+
+void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)
+{
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
-    stmt->setUInt16(0, GetId());
-    stmt->setUInt32(1, GetInstanceId());
+    stmt->setUInt16(0, mapId);
+    stmt->setUInt32(1, instanceId);
     CharacterDatabase.Execute(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN_BY_INSTANCE);
-    stmt->setUInt16(0, GetId());
-    stmt->setUInt32(1, GetInstanceId());
+    stmt->setUInt16(0, mapId);
+    stmt->setUInt32(1, instanceId);
     CharacterDatabase.Execute(stmt);
 }
 
@@ -2906,3 +2911,4 @@ time_t Map::GetLinkedRespawnTime(uint64 guid) const
 
     return time_t(0);
 }
+
