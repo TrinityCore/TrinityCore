@@ -2975,7 +2975,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 break;
             case 63665: // Charge (Argent Tournament emote on riders)
-            case 31447: // Mark of Kaz'rogal (needs target selection script)
             case 31298: // Sleep (needs target selection script)
             case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
             case 2895:  // Wrath of Air Totem rank 1 (Aura)
@@ -3256,6 +3255,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 27010: // Entangling Roots (Rank 7) -- Nature's Grasp Proc
             case 53313: // Entangling Roots (Rank 8) -- Nature's Grasp Proc
                 spellInfo->CastingTimeIndex = 1;
+                break;
+            case 59414: // Pulsing Shockwave Aura (Loken)
+                // this flag breaks movement, remove it
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;

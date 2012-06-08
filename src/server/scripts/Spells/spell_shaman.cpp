@@ -713,7 +713,7 @@ class spell_sha_sentry_totem : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_sentry_totem_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SHAMAN_BIND_SIGHT))
                     return false;
@@ -732,9 +732,9 @@ class spell_sha_sentry_totem : public SpellScriptLoader
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetCaster)
-                    if (Player* caster = GetCaster()->ToPlayer())
-                        caster->StopCastingBindSight();
+                if (Unit* caster = GetCaster())
+                    if (caster->GetTypeId() == TYPEID_PLAYER)
+                        caster->ToPlayer()->StopCastingBindSight();
             }
 
             void Register()

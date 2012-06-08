@@ -18,6 +18,8 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "GridNotifiers.h"
+#include "CombatAI.h"
 #include "naxxramas.h"
 
 enum Yells
@@ -591,14 +593,14 @@ class mob_gothik_minion : public CreatureScript
         }
 };
 
-class spell_gothic_shadow_bolt_volley : public SpellScriptLoader
+class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
 {
     public:
-        spell_gothic_shadow_bolt_volley() : SpellScriptLoader("spell_gothic_shadow_bolt_volley") { }
+        spell_gothik_shadow_bolt_volley() : SpellScriptLoader("spell_gothik_shadow_bolt_volley") { }
 
-        class spell_gothic_shadow_bolt_volley_SpellScript : public SpellScript
+        class spell_gothik_shadow_bolt_volley_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gothic_shadow_bolt_volley_SpellScript);
+            PrepareSpellScript(spell_gothik_shadow_bolt_volley_SpellScript);
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
@@ -607,13 +609,13 @@ class spell_gothic_shadow_bolt_volley : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_gothic_shadow_bolt_volley_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_gothik_shadow_bolt_volley_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_gothic_shadow_bolt_volley_SpellScript();
+            return new spell_gothik_shadow_bolt_volley_SpellScript();
         }
 };
 
@@ -621,5 +623,5 @@ void AddSC_boss_gothik()
 {
     new boss_gothik();
     new mob_gothik_minion();
-    new spell_gothic_shadow_bolt_volley();
+    new spell_gothik_shadow_bolt_volley();
 }
