@@ -66,7 +66,7 @@ enum ShamanPetCalculate
 
 enum MiscPetCalculate
 {
-     SPELL_FERAL_SPIRIT_PET_SCALING_04  = 61783,
+     SPELL_MAGE_PET_PASSIVE_ELEMENTAL   = 44559,
      SPELL_PET_HEALTH_SCALING           = 61679,
      SPELL_PET_UNK_01                   = 67561,
      SPELL_PET_UNK_01                   = 67557,
