@@ -25,17 +25,51 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
-enum PetCalculate
+enum HunterPetCalculate
 {
-     SPELL_HUNTER_PET_CRIT              = 19591,
+     SPELL_TAMED_PET_PASSIVE_06         = 19591,
+     SPELL_TAMED_PET_PASSIVE_07         = 20784,
+     SPELL_TAMED_PET_PASSIVE_08         = 34666,
+     SPELL_TAMED_PET_PASSIVE_09         = 34667,
+     SPELL_TAMED_PET_PASSIVE_10         = 34675,
      SPELL_HUNTER_PET_SCALING_01        = 34902,
      SPELL_HUNTER_PET_SCALING_02        = 34903,
      SPELL_HUNTER_PET_SCALING_03        = 34904,
      SPELL_HUNTER_PET_SCALING_04        = 61017,
-     SPELL_WARLOCK_PET_CRIT             = 35695,
-     SPELL_WARLOCK_PET_HIT_EXPERTISE    = 61013,
-     SPELL_DK_PET_HIT                   = 61697,
-     SPELL_SHAMAN_PET_HIT               = 61783,
+};
+
+enum WarlockPetCalculate
+{
+     SPELL_PET_PASSIVE_CRIT             = 35695,
+     SPELL_PET_PASSIVE_DAMAGE_TAKEN     = 35697,
+     SPELL_WARLOCK_PET_SCALING_01       = 34947,
+     SPELL_WARLOCK_PET_SCALING_02       = 34956,
+     SPELL_WARLOCK_PET_SCALING_03       = 34957,
+     SPELL_WARLOCK_PET_SCALING_04       = 34958,
+     SPELL_WARLOCK_PET_SCALING_05       = 61013,
+};
+
+enum DKPetCalculate
+{
+    SPELL_DEATH_KNIGHT_PET_SCALING_01   = 54566,
+    SPELL_DEATH_KNIGHT_PET_SCALING_02   = 51996,
+    SPELL_DEATH_KNIGHT_PET_SCALING_03   = 61697,
+};
+
+enum ShamanPetCalculate
+{
+    SPELL_FERAL_SPIRIT_PET_UNK_01      = 35674,
+    SPELL_FERAL_SPIRIT_PET_UNK_02      = 35675,
+    SPELL_FERAL_SPIRIT_PET_UNK_03      = 35676,
+    SPELL_FERAL_SPIRIT_PET_SCALING_04  = 61783,
+};
+
+enum MiscPetCalculate
+{
+     SPELL_FERAL_SPIRIT_PET_SCALING_04  = 61783,
+     SPELL_PET_HEALTH_SCALING           = 61679,
+     SPELL_PET_UNK_01                   = 67561,
+     SPELL_PET_UNK_01                   = 67557,
 };
 
 class spell_gen_pet_calculate : public SpellScriptLoader
@@ -141,21 +175,21 @@ class spell_gen_pet_calculate : public SpellScriptLoader
             {
                 switch (m_scriptSpellId)
                 {
-                    case SPELL_HUNTER_PET_CRIT:
+                    case SPELL_TAMED_PET_PASSIVE_06:
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountCritMelee, EFFECT_0, SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountCritSpell, EFFECT_1, SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                         break;
-                    case SPELL_WARLOCK_PET_CRIT:
+                    case SPELL_PET_PASSIVE_CRIT:
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountCritSpell, EFFECT_0, SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountCritMelee, EFFECT_1, SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
                         break;
-                    case SPELL_WARLOCK_PET_HIT_EXPERTISE:
+                    case SPELL_WARLOCK_PET_SCALING_05:
                     case SPELL_HUNTER_PET_SCALING_04:
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountMeleeHit, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE);
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountSpellHit, EFFECT_1, SPELL_AURA_MOD_SPELL_HIT_CHANCE);
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountExpertise, EFFECT_2, SPELL_AURA_MOD_EXPERTISE);
                         break;
-                    case SPELL_DK_PET_HIT:
+                    case SPELL_DEATH_KNIGHT_PET_SCALING_03:
                     case SPELL_SHAMAN_PET_HIT:
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountMeleeHit, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE);
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountSpellHit, EFFECT_1, SPELL_AURA_MOD_SPELL_HIT_CHANCE);
