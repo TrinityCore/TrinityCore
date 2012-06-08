@@ -381,11 +381,13 @@ class spell_dk_scourge_strike : public SpellScriptLoader
         class spell_dk_scourge_strike_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dk_scourge_strike_SpellScript);
-    private:
-        float m_multip;
-    public:
-        spell_dk_scourge_strike_SpellScript() : m_multip(0.0f) { }
+            float multiplier;
 
+            bool Load()
+            {
+                multiplier = 1.0f;
+                return true;
+            }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -398,15 +400,15 @@ class spell_dk_scourge_strike : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
-                m_multip = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID())) / 100.0f;
-        }
+                    multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
+            }
 
-        void HandleAfterHit()
-        {
-            Unit* caster = GetCaster();
-            if (Unit* unitTarget = GetHitUnit())
+            void HandleAfterHit()
+            {
+                Unit* caster = GetCaster();
+                if (Unit* unitTarget = GetHitUnit())
                 {
-                    int32 bp = GetTrueDamage() * m_multip;
+                    int32 bp = GetHitDamage() * multiplier;
                     caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
                 }
             }
