@@ -4106,6 +4106,68 @@ std::string GetTimeString(uint64 time)
     return ss.str();
 }
 
+bool ChatHandler::HandleInstanceGetDataCommand(const char* args)
+{
+    Map* map = getSelectedPlayer()->GetMap();
+    if (!map->IsDungeon())
+    {
+        PSendSysMessage("Map is not a dungeon.");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript();
+    if (!instanceScript)
+    {
+        PSendSysMessage("Map has no instance script.");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint32 dataIndex = uint32(atof(strtok((char*)args, " ")));
+    uint32 dataValue = instanceScript->GetData(dataIndex);
+
+    PSendSysMessage("Data %u (MapId: %u, InstanceID: %u) value: %u.", dataIndex, map->GetId(), map->GetInstanceId(), dataValue);
+    return true;
+}
+
+bool ChatHandler::HandleInstanceSetDataCommand(const char * args)
+{
+    Map* map = getSelectedPlayer()->GetMap();
+    if (!map->IsDungeon())
+    {
+        PSendSysMessage("Map is not a dungeon.");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript();
+    if (!instanceScript)
+    {
+        PSendSysMessage("Map has no instance script.");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint32 dataIndex = uint32(atof(strtok((char*)args, " ")));
+    char* newVal = strtok(NULL, " ");
+    if (!newVal)
+    {
+        PSendSysMessage("You must provide a new value for that data index.");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint32 newValue = uint32(atol(newVal));
+
+    uint32 oldValue = instanceScript->GetData(dataIndex);
+    instanceScript->SetData(dataIndex, newValue);
+
+    PSendSysMessage("Data %u (MapId: %u, InstanceID: %u).", dataIndex, map->GetId(), map->GetInstanceId());
+    PSendSysMessage("Old value: %u. New Value: %u", oldValue, newValue);
+    return true;
+}
+
 bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
 {
     Player* player = getSelectedPlayer();

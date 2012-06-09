@@ -161,6 +161,8 @@ ChatCommand* ChatHandler::getCommandTable()
         { "listbinds",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceListBindsCommand>,   "", NULL },
         { "unbind",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceUnbindCommand>,      "", NULL },
         { "stats",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceStatsCommand>,       "", NULL },
+        { "setdata",        SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceSetDataCommand>,     "", NULL },
+        { "getdata",        SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceGetDataCommand>,     "", NULL },
         { "savedata",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceSaveDataCommand>,    "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
