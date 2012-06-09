@@ -423,6 +423,12 @@ class spell_dk_scourge_strike : public SpellScriptLoader
             PrepareSpellScript(spell_dk_scourge_strike_SpellScript);
             float multiplier;
 
+            bool Load()
+            {
+                multiplier = 1.0f;
+                return true;
+            }
+
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(DK_SPELL_SCOURGE_STRIKE_TRIGGERED))
@@ -434,7 +440,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
-                    multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID())) * 0.01f;
+                    multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
             }
 
             void HandleAfterHit()
@@ -459,6 +465,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                     caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
                 }
             }
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_dk_scourge_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);

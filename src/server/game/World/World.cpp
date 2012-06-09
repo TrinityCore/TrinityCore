@@ -1410,14 +1410,8 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Creature Addon Data...");
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
-    sLog->outString("Loading Creature Respawn Data...");         // must be after PackInstances()
-    sObjectMgr->LoadCreatureRespawnTimes();
-
     sLog->outString("Loading Gameobject Data...");
     sObjectMgr->LoadGameobjects();
-
-    sLog->outString("Loading Gameobject Respawn Data...");       // must be after PackInstances()
-    sObjectMgr->LoadGameobjectRespawnTimes();
 
     sLog->outString("Loading Creature Linked Respawn...");
     sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
