@@ -18,6 +18,7 @@
 #include "PacketLog.h"
 #include "Config.h"
 #include "ByteBuffer.h"
+#include "WorldPacket.h"
 
 PacketLog::PacketLog() : _file(NULL)
 {
