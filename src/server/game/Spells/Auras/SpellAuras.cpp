@@ -1739,6 +1739,54 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
             }
+            // Improved Blood Presence
+            else if (GetSpellInfo()->SpellIconID == 2636 && GetSpellInfo()->IsPassive())
+            {
+                // if Frost or Unholy Presence is active
+                if (apply && (target->HasAura(48263) || target->HasAura(48265)))
+                {
+                    int32 basePoints1 = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                    target->CastCustomSpell(target, 63611, NULL, &basePoints1, NULL, true, 0, GetEffect(EFFECT_1));
+                }
+                // if no Unholy Presence active
+                else if (!apply && !target->HasAura(48266))
+                    target->RemoveAurasDueToSpell(63611);
+                return;
+            }
+            // Improved Frost Presence
+            else if (GetSpellInfo()->SpellIconID == 2632 && GetSpellInfo()->IsPassive())
+            {
+                // if Unholy or Blood Presence is active
+                if (apply && (target->HasAura(48265) || target->HasAura(48266)))
+                {
+                    int32 basePoints0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                    target->CastCustomSpell(target, 61261, &basePoints0, NULL, NULL, true, 0, GetEffect(EFFECT_0));
+                }
+                // if no Frost Presence is active
+                else if (!apply && !target->HasAura(48263))
+                    target->RemoveAurasDueToSpell(61261);
+                return;
+            }
+            // Improved Unholy Presence
+            else if (GetSpellInfo()->SpellIconID == 2633 && GetSpellInfo()->IsPassive())
+            {
+                // if Unholy Presence is active
+                if (apply && target->HasAura(48265))
+                {
+                    int32 basePoints0 = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                    target->CastCustomSpell(target, 49772, &basePoints0, &basePoints0, &basePoints0, true, 0, GetEffect(EFFECT_1));
+                }
+                // if Blood or Frost presence is active
+                else if (apply && (target->HasAura(48266) || target->HasAura(48263)))
+                {
+                    int32 basePoints0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                    target->CastCustomSpell(target, 49772, &basePoints0, NULL, NULL, true, 0, GetEffect(EFFECT_0));
+                }
+                // if no Unholy presence is active
+                else if (!apply && !target->HasAura(48265))
+                    target->RemoveAurasDueToSpell(49772);
+                return;
+            }
             break;
         case SPELLFAMILY_WARLOCK:
             // Drain Soul - If the target is at or below 25% health, Drain Soul causes four times the normal damage
