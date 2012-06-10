@@ -13107,15 +13107,6 @@ Unit* Creature::SelectVictim()
     if (GetVehicle())
         return NULL;
 
-    // search nearby enemy before enter evade mode
-    if (HasReactState(REACT_AGGRESSIVE))
-    {
-        target = SelectNearestTargetInAttackDistance(m_CombatDistance ? m_CombatDistance : ATTACK_DISTANCE);
-
-        if (target && _IsTargetAcceptable(target))
-            return target;
-    }
-
     Unit::AuraEffectList const& iAuras = GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
     if (!iAuras.empty())
     {
