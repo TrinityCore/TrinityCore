@@ -5320,7 +5320,7 @@ void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)
     if (unitTarget->m_extraAttacks)
         return;
 
-    unitTarget->m_extraAttacks = damage;
+    unitTarget->m_extraAttacks = GetSpellInfo()->Effects[effIndex].BasePoints;
 
     ExecuteLogEffectExtraAttacks(effIndex, unitTarget->getVictim(), damage);
 }
