@@ -532,3 +532,21 @@ bool PetAI::CanAttack(Unit* target)
     // default, though we shouldn't ever get here
     return false;
 }
+
+
+void PetAI::ReceiveEmote(Player* player, uint32 emote)
+{
+    sLog->outError("recieved emote : %d", emote);
+    if (me->GetOwnerGUID() && me->GetOwnerGUID() == player->GetGUID())
+        switch (emote)
+        {
+            case TEXT_EMOTE_COWER:
+                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                break;
+            case TEXT_EMOTE_ANGRY:
+                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_COWER);
+                break;
+        }
+}
