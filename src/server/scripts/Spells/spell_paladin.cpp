@@ -43,6 +43,8 @@ enum PaladinSpells
     SPELL_DIVINE_STORM                           = 53385,
     SPELL_DIVINE_STORM_DUMMY                     = 54171,
     SPELL_DIVINE_STORM_HEAL                      = 54172,
+
+    SPELL_HAND_OF_SACRIFICE                      = 6940,
 };
 
 // 31850 - Ardent Defender
@@ -433,6 +435,49 @@ class spell_pal_divine_storm_dummy : public SpellScriptLoader
         }
 };
 
+class spell_pal_hand_of_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_pal_hand_of_sacrifice() : SpellScriptLoader("spell_pal_hand_of_sacrifice") { }
+
+        class spell_pal_hand_of_sacrifice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript);
+
+            uint32 splitPct;
+            int32 remainingAmount;
+
+            bool Load()
+            {
+                remainingAmount = GetCaster()->GetMaxHealth();
+                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                return true;
+            }
+
+            void Split(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & splitAmount)
+            {
+                splitAmount = CalculatePctN(dmgInfo.GetDamage(), splitPct);
+                remainingAmount -= splitAmount;
+
+                if (remainingAmount <= 0)
+                {
+                    Unit* target = GetTarget();
+                    target->RemoveAura(SPELL_HAND_OF_SACRIFICE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectSplit += AuraEffectSplitFn(spell_pal_hand_of_sacrifice_AuraScript::Split, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_hand_of_sacrifice_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -443,4 +488,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_judgement_of_command();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
+    new spell_pal_hand_of_sacrifice();
 }
