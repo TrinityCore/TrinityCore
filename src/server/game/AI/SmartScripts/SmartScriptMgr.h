@@ -153,9 +153,10 @@ enum SMART_EVENT
     SMART_EVENT_IS_BEHIND_TARGET         = 67,      //1             // cooldownMin, CooldownMax
     SMART_EVENT_GAME_EVENT_START         = 68,      //1             // game_event.Entry
     SMART_EVENT_GAME_EVENT_END           = 69,      //1             // game_event.Entry
-    SMART_EVENT_GO_STATE_CHANGED         = 70,      //                 go state
+    SMART_EVENT_GO_STATE_CHANGED         = 70,      //1             // go state
+    SMART_EVENT_GO_EVENT_INFORM          = 71,      //1             // eventId
 
-    SMART_EVENT_END                      = 71,
+    SMART_EVENT_END                      = 72,
 };
 
 struct SmartEvent
@@ -349,6 +350,11 @@ struct SmartEvent
         {
             uint32 state;
         } goStateChanged;
+
+        struct
+        {
+            uint32 eventId;
+        } eventInform;
 
         struct
         {
