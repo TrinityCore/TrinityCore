@@ -235,30 +235,31 @@ class SmartAI : public CreatureAI
 
 class SmartGameObjectAI : public GameObjectAI
 {
-public:
-    SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) {}
-    ~SmartGameObjectAI() {}
+    public:
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) {}
+        ~SmartGameObjectAI() {}
 
-    void UpdateAI(uint32 diff);
-    void InitializeAI();
-    void Reset();
-    SmartScript* GetScript() { return &mScript; }
-    static int Permissible(const GameObject* g);
+        void UpdateAI(uint32 diff);
+        void InitializeAI();
+        void Reset();
+        SmartScript* GetScript() { return &mScript; }
+        static int Permissible(const GameObject* g);
 
-    bool GossipHello(Player* player);
-    bool GossipSelect(Player* player, uint32 sender, uint32 action);
-    bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/);
-    bool QuestAccept(Player* player, Quest const* quest);
-    bool QuestReward(Player* player, Quest const* quest, uint32 opt);
-    uint32 GetDialogStatus(Player* /*player*/);
-    void Destroyed(Player* player, uint32 eventId);
-    void SetData(uint32 id, uint32 value);
-    void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
-    void OnGameEvent(bool start, uint16 eventId);
-    void OnStateChanged(uint32 state, Unit* unit);
+        bool GossipHello(Player* player);
+        bool GossipSelect(Player* player, uint32 sender, uint32 action);
+        bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/);
+        bool QuestAccept(Player* player, Quest const* quest);
+        bool QuestReward(Player* player, Quest const* quest, uint32 opt);
+        uint32 GetDialogStatus(Player* /*player*/);
+        void Destroyed(Player* player, uint32 eventId);
+        void SetData(uint32 id, uint32 value);
+        void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        void OnGameEvent(bool start, uint16 eventId);
+        void OnStateChanged(uint32 state, Unit* unit);
+        void EventInform(uint32 eventId);
 
-protected:
-    GameObject* const go;
-    SmartScript mScript;
+    protected:
+        GameObject* const go;
+        SmartScript mScript;
 };
 #endif
