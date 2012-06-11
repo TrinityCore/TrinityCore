@@ -533,10 +533,8 @@ bool PetAI::CanAttack(Unit* target)
     return false;
 }
 
-
 void PetAI::ReceiveEmote(Player* player, uint32 emote)
 {
-    sLog->outError("recieved emote : %d", emote);
     if (me->GetOwnerGUID() && me->GetOwnerGUID() == player->GetGUID())
         switch (emote)
         {
