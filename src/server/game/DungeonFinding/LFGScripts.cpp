@@ -117,13 +117,14 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
         return;
     }
 
+    uint32 state = sLFGMgr->GetState(gguid);
     sLFGMgr->ClearState(guid);
     sLFGMgr->SetState(guid, LFG_STATE_NONE);
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
+        if (method == GROUP_REMOVEMETHOD_LEAVE && state != LFG_STATE_FINISHED_DUNGEON && player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
+            player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, false);
         /*
-        if (method == GROUP_REMOVEMETHOD_LEAVE)
-            // Add deserter flag
         else if (group->isLfgKickActive())
             // Update internal kick cooldown of kicked
         */
@@ -134,7 +135,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
             sLFGMgr->TeleportPlayer(player, true);
     }
 
-    if (sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON)// Need more players to finish the dungeon
+    if (state != LFG_STATE_FINISHED_DUNGEON)// Need more players to finish the dungeon
         sLFGMgr->OfferContinue(group);
 }
 
