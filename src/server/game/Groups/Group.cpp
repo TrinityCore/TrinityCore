@@ -2076,20 +2076,6 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
     return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
 }
 
-Group::MemberSlotList const& Group::GetMemberSlots() const
-{
-    return m_memberSlots;
-}
-
-GroupReference* Group::GetFirstMember()
-{
-    return m_memberMgr.getFirst();
-}
-
-uint32 Group::GetMembersCount() const
-{
-    return m_memberSlots.size();
-}
 
 uint8 Group::GetMemberGroup(uint64 guid) const
 {
