@@ -23362,7 +23362,7 @@ Player* Player::GetNextRandomRaidMember(float radius)
 
 PartyResult Player::CanUninviteFromGroup() const
 {
-    const Group* grp = GetGroup();
+    Group const* grp = GetGroup();
     if (!grp)
         return ERR_NOT_IN_GROUP;
 
@@ -23385,8 +23385,12 @@ PartyResult Player::CanUninviteFromGroup() const
         if (grp->isRollLootActive())
             return ERR_PARTY_LFG_BOOT_LOOT_ROLLS;
 
+        // TODO: Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
+        for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+            if (itr->getSource() && itr->getSource()->isInCombat())
+                return ERR_PARTY_LFG_BOOT_IN_COMBAT;
+
         /* Missing support for these types
-            return ERR_PARTY_LFG_BOOT_IN_COMBAT; // also have a cooldown (some secs after combat finish
             return ERR_PARTY_LFG_BOOT_COOLDOWN_S;
             return ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S;
         */
