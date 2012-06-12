@@ -1716,7 +1716,13 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
 
 void GameObject::EventInform(uint32 eventId)
 {
-    if (eventId && m_zoneScript)
+    if (!eventId)
+        return;
+
+    if (AI())
+        AI()->EventInform(eventId);
+
+    if (m_zoneScript)
         m_zoneScript->ProcessEvent(this, eventId);
 }
 
