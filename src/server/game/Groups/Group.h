@@ -230,9 +230,11 @@ class Group
         bool SameSubGroup(Player const* member1, Player const* member2) const;
         bool HasFreeSlotSubGroup(uint8 subgroup) const;
 
-        MemberSlotList const& GetMemberSlots() const;
-        GroupReference* GetFirstMember();
-        uint32 GetMembersCount() const;
+        MemberSlotList const& GetMemberSlots() const { return m_memberSlots; }
+        GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
+        GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
+        uint32 GetMembersCount() const { return m_memberSlots.size(); }
+
         uint8 GetMemberGroup(uint64 guid) const;
 
         void ConvertToLFG();
