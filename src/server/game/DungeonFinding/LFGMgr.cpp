@@ -1626,6 +1626,7 @@ void LFGMgr::InitBoot(Group* grp, uint64 kicker, uint64 victim, std::string reas
 {
     if (!grp)
         return;
+
     uint64 gguid = grp->GetGUID();
     SetState(gguid, LFG_STATE_BOOT);
 
@@ -1635,7 +1636,6 @@ void LFGMgr::InitBoot(Group* grp, uint64 kicker, uint64 victim, std::string reas
     pBoot->reason = reason;
     pBoot->victim = victim;
     pBoot->votedNeeded = GetVotesNeeded(gguid);
-    PlayerSet players;
 
     // Set votes
     for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -1651,14 +1651,10 @@ void LFGMgr::InitBoot(Group* grp, uint64 kicker, uint64 victim, std::string reas
             else
             {
                 pBoot->votes[guid] = LFG_ANSWER_PENDING;   // Other members need to vote
-                players.insert(plrg);
+                plrg->GetSession()->SendLfgBootPlayer(pBoot);
             }
         }
     }
-
-    // Notify players
-    for (PlayerSet::const_iterator it = players.begin(); it != players.end(); ++it)
-        (*it)->GetSession()->SendLfgBootPlayer(pBoot);
 
     m_Boots[grp->GetLowGUID()] = pBoot;
 }
@@ -1770,6 +1766,9 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         uint64 gguid = grp->GetGUID();
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(GetDungeon(gguid));
 
+        if (GetState(gguid) == LFG_STATE_FINISHED_DUNGEON)
+            error = LFG_TELEPORTERROR_INVALID_LOCATION;
+
         if (!dungeon)
             error = LFG_TELEPORTERROR_INVALID_LOCATION;
         else if (player->GetMapId() != uint32(dungeon->map))  // Do not teleport players in dungeon to the entrance
@@ -1817,7 +1816,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
 
             if (error == LFG_TELEPORTERROR_OK)
             {
-                if (!player->GetMap()->IsDungeon() && !player->GetMap()->IsRaid())
+                if (!player->GetMap()->IsDungeon())
                     player->SetBattlegroundEntryPoint();
 
                 if (player->isInFlight())
