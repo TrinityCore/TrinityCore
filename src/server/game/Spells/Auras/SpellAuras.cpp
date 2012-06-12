@@ -1620,6 +1620,29 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
         case SPELLFAMILY_PALADIN:
+            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA)
+            {
+                // search for Swift Retribution rank
+                float hasteBonus = 0;
+                Unit::AuraEffectList const& TalentAuras = caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                for (Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
+                {
+                    if ((*itr)->GetSpellInfo()->SpellIconID == 3028)
+                    {
+                        hasteBonus = ((*itr)->GetSpellInfo()->Effects[0].CalcValue(target));
+                        break;
+                    }
+                }
+                // make Swift retribution apply its buffs on every paladin aura
+                if (hasteBonus)
+                {
+                    target->ApplyCastTimePercentMod(hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(BASE_ATTACK, hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(OFF_ATTACK, hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(RANGED_ATTACK, hasteBonus, apply);
+                }
+            }
+
             switch (GetId())
             {
                 case 19746:
