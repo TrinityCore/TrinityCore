@@ -2935,7 +2935,7 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
                     InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
                 m_AutoRepeatFirstCast = true;
             }
-            if ((pSpell->m_spellInfo->CalcCastTime(this) > 0) && IsNonMeleeSpellCasted(false, false, true))
+            if (pSpell->m_spellInfo->CalcCastTime(this) > 0)
                 AddUnitState(UNIT_STATE_CASTING);
 
             break;
