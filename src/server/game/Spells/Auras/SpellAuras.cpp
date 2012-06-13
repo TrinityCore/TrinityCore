@@ -1620,19 +1620,21 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
         case SPELLFAMILY_PALADIN:
-            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA)
+            // retribution aura works fine by default, dont do anything to it
+            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && GetSpellInfo()->SpellIconID != 555)
             {
-                // search for Swift Retribution rank
+                // search for Swift and Sanctified Retribution
                 float hasteBonus = 0;
                 Unit::AuraEffectList const& TalentAuras = caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
                 for (Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
                 {
                     if ((*itr)->GetSpellInfo()->SpellIconID == 3028)
-                    {
                         hasteBonus = ((*itr)->GetSpellInfo()->Effects[0].CalcValue(target));
-                        break;
-                    }
+                    // add melee dmg bonus of Sanctified Retribution to the paladin
+                    if ((*itr)->GetSpellInfo()->Id == 31869)
+                        ((*itr)->HandleModDamagePercentDone(aurApp, AURA_EFFECT_HANDLE_REAL, apply));
                 }
+
                 // make Swift retribution apply its buffs on every paladin aura
                 if (hasteBonus)
                 {
