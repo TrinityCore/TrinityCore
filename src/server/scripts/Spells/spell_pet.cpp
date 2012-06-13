@@ -24,6 +24,9 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Unit.h"
+#include "Player.h"
+#include "Pet.h"
 
 enum HunterPetCalculate
 {
@@ -52,6 +55,7 @@ enum WarlockPetCalculate
      ENTRY_VOIDWALKER                   = 1860,
      ENTRY_FELHUNTER                    = 417,
      ENTRY_SUCCUBUS                     = 1863,
+     ENTRY_IMP                          = 416,
 };
 
 enum DKPetCalculate
@@ -60,6 +64,9 @@ enum DKPetCalculate
     SPELL_DEATH_KNIGHT_PET_SCALING_01   = 54566,
     SPELL_DEATH_KNIGHT_PET_SCALING_02   = 51996,
     SPELL_DEATH_KNIGHT_PET_SCALING_03   = 61697,
+    SPELL_NIGHT_OF_THE_DEAD             = 55620,
+    ENTRY_ARMY_OF_THE_DEAD_GHOUL        = 24207,
+    SPELL_DEATH_KNIGHT_GLYPH_OF_GHOUL   = 58686,
 };
 
 enum ShamanPetCalculate
@@ -225,95 +232,111 @@ public:
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            _tempHealth = 0;
+            _tempBonus = 0;
             return true;
         }
 
         void CalculateStaminaAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-            {
-                if (!pet->isPet())
-                    return;
+                if (pet->isPet())
+                    if (Unit* owner = pet->ToPet()->GetOwner())
+                    {
+                        float ownerBonus = CalculatePctN(owner->GetStat(STAT_STAMINA), 75);
 
-                Unit* owner = pet->ToPet()->GetOwner();
-                if (!owner)
-                    return;
-
-                float ownerBonus = 0.0f;
-
-                ownerBonus = CalculatePctN(owner->GetStat(STAT_STAMINA), 75);
-
-                amount += ownerBonus;
-            }
+                        amount += ownerBonus;
+                    }
         }
 
         void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* pet = GetUnitOwner())
-                if (_tempHealth)
-                    pet->SetHealth(_tempHealth);
+                if (_tempBonus)
+                {
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    uint32 healthMod = 0;
+                    uint32 baseHealth = pInfo->health;
+                    switch (pet->GetEntry())
+                    {
+                        case ENTRY_IMP:
+                            healthMod = uint32(_tempBonus * 8.4f);
+                            break;
+                        case ENTRY_VOIDWALKER:
+                            healthMod = _tempBonus * 11;
+                            break;
+                        case ENTRY_SUCCUBUS:
+                            healthMod = uint32(_tempBonus * 9.1f);
+                            break;
+                        case ENTRY_FELHUNTER:
+                            healthMod = uint32(_tempBonus * 9.5f);
+                            break;
+                        case ENTRY_FELGUARD:
+                            healthMod = _tempBonus * 11;
+                            break;
+                        default:
+                            healthMod = 0;
+                            break;
+                    }
+                    if (healthMod)
+                        pet->ToPet()->SetCreateHealth(baseHealth + healthMod);
+                }
         }
 
         void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* pet = GetUnitOwner())
-                _tempHealth = pet->GetHealth();
+                if (pet->isPet())
+                {
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    pet->ToPet()->SetCreateHealth(pInfo->health);
+                }
         }
 
         void CalculateAttackPowerAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-            {
-                if (!pet->isPet())
-                    return;
+                if (pet->isPet())
 
-                Unit* owner = pet->ToPet()->GetOwner();
-                if (!owner)
-                    return;
-
-                int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-                int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
-                int32 maximum  = (fire > shadow) ? fire : shadow;
-                if (maximum < 0)
-                    maximum = 0;
-                float bonusAP = maximum * 0.57f;
-
-                amount += bonusAP;
-
-                // Glyph of felguard
-                if (pet->GetEntry() == ENTRY_FELGUARD)
+                if (Unit* owner = pet->ToPet()->GetOwner())
                 {
-                    if (AuraEffect* aurEffect = owner->GetAuraEffect(56246, EFFECT_0))
+                    int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+                    int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
+                    int32 maximum  = (fire > shadow) ? fire : shadow;
+                    if (maximum < 0)
+                        maximum = 0;
+                    float bonusAP = maximum * 0.57f;
+
+                    amount += bonusAP;
+
+                    // Glyph of felguard
+                    if (pet->GetEntry() == ENTRY_FELGUARD)
                     {
-                        float base_attPower = pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE) * pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_PCT);
-                        amount += CalculatePctN(amount+base_attPower, aurEffect->GetAmount());
+                        if (AuraEffect* aurEffect = owner->GetAuraEffect(56246, EFFECT_0))
+                        {
+                            float base_attPower = pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE) * pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_PCT);
+                            amount += CalculatePctN(amount+base_attPower, aurEffect->GetAmount());
+                        }
                     }
                 }
-            }
         }
 
         void CalculateDamageDoneAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-            {
-                if (!pet->isPet())
-                    return;
+                if (pet->isPet())
+                    if (Unit* owner = pet->ToPet()->GetOwner())
+                    {
+                        //the damage bonus used for pets is either fire or shadow damage, whatever is higher
+                        int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+                        int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
+                        int32 maximum  = (fire > shadow) ? fire : shadow;
+                        float bonusDamage = 0.0f;
 
-                Unit* owner = pet->ToPet()->GetOwner();
-                if (!owner)
-                    return;
+                        if (maximum > 0)
+                            bonusDamage = maximum * 0.15f;
 
-                //the damage bonus used for pets is either fire or shadow damage, whatever is higher
-                int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-                int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
-                int32 maximum  = (fire > shadow) ? fire : shadow;
-                if (maximum < 0)
-                    maximum = 0;
-                float bonusDamage = maximum * 0.15f;
-
-                amount += bonusDamage;
-            }
+                        amount += bonusDamage;
+                    }
         }
 
         void Register()
@@ -326,7 +349,7 @@ public:
         }
 
     private:
-        uint32 _tempHealth;
+        uint32 _tempBonus;
     };
 
     AuraScript* GetAuraScript() const
@@ -355,20 +378,15 @@ public:
         void CalculateIntellectAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* pet = GetUnitOwner())
-            {
-                if (!pet->isPet())
-                    return;
+                if (pet->isPet())
+                    if (Unit* owner = pet->ToPet()->GetOwner())
+                    {
+                        float ownerBonus = 0.0f;
 
-                Unit* owner = pet->ToPet()->GetOwner();
-                if (!owner)
-                    return;
+                        ownerBonus = CalculatePctN(owner->GetStat(STAT_INTELLECT), 30);
 
-                float ownerBonus = 0.0f;
-
-                ownerBonus = CalculatePctN(owner->GetStat(STAT_INTELLECT), 30);
-
-                amount += ownerBonus;
-            }
+                        amount += ownerBonus;
+                    }
         }
 
         void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1470,18 +1488,14 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                Unit* owner = pet->GetOwner();
-                if (!owner)
-                    return;
+                if (Unit* owner = pet->GetOwner())
 
-                // Army of the dead ghoul
-                if (pet->GetEntry() == 24207)
-                    amount = -90;
-                // Night of the dead
-                else if (owner->HasAura(55623))
-                    amount = -90;
-                else if (owner->HasAura(55620))
-                    amount = -45;
+                    // Army of the dead ghoul
+                    if (pet->GetEntry() == ENTRY_ARMY_OF_THE_DEAD_GHOUL)
+                        amount = -90;
+                    // Night of the dead
+                    else if ( Aura * aur = owner->GetAuraOfRankedSpell(SPELL_NIGHT_OF_THE_DEAD))
+                        amount = aur->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
             }
         }
 
@@ -1518,29 +1532,25 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
             {
-                if (!pet->isGuardian())
-                    return;
-
-                Unit* owner = pet->GetOwner();
-                if (!owner)
-                    return;
-
-                float mod = 0.3f;
-
-                // Ravenous Dead
-                AuraEffect const* aurEff = NULL;
-                // Check just if owner has Ravenous Dead since it's effect is not an aura
-                aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
-                if (aurEff)
+                if (pet->isGuardian())
                 {
-                    mod += CalculatePctN(mod, aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());                   // Ravenous Dead edits the original scale
+                    if (Unit* owner = pet->GetOwner())
+                    {
+                        float mod = 0.3f;
+
+                        // Ravenous Dead. Check just if owner has Ravenous Dead since it's effect is not an aura
+                        if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0))
+                        {
+                            mod += aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()/100;                   // Ravenous Dead edits the original scale
+                        }
+                        // Glyph of the Ghoul
+                        if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_DEATH_KNIGHT_GLYPH_OF_GHOUL, 0))
+                            mod += aurEff->GetAmount()/100;
+
+                        float ownerBonus = float(owner->GetStat(STAT_STAMINA)) * mod;
+                        amount += ownerBonus;
+                    }
                 }
-                // Glyph of the Ghoul
-                aurEff = owner->GetAuraEffect(58686, 0);
-                if (aurEff)
-                    mod += CalculatePctN(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
-                float ownerBonus = float(owner->GetStat(STAT_STAMINA)) * mod;
-                amount += ownerBonus;
             }
         }
 
