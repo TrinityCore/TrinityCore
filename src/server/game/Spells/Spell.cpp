@@ -2547,12 +2547,31 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         return SPELL_MISS_EVADE;
 
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
-    // disable effects to which unit is immune
-    for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
-        if (effectMask & (1 << effectNumber) && unit->IsImmunedToSpellEffect(m_spellInfo, effectNumber))
-            effectMask &= ~(1 << effectNumber);
-    if (!effectMask || (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo))))
+    if (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
         return SPELL_MISS_IMMUNE;
+
+    // disable effects to which unit is immune
+    SpellMissInfo returnVal = SPELL_MISS_IMMUNE;
+    for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
+    {
+        if (effectMask & (1 << effectNumber))
+            if (unit->IsImmunedToSpellEffect(m_spellInfo, effectNumber))
+                effectMask &= ~(1 << effectNumber);
+            else if (m_spellInfo->Effects[effectNumber].IsAura() && !m_spellInfo->IsPositiveEffect(effectNumber))
+            {
+                int32 debuff_resist_chance = unit->GetMaxPositiveAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(m_spellInfo->Dispel));
+                debuff_resist_chance += unit->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(m_spellInfo->Dispel));
+
+                if (debuff_resist_chance > 0)
+                    if (irand(0,10000) <= (debuff_resist_chance * 100))
+                    {
+                        effectMask &= ~(1 << effectNumber);
+                        returnVal = SPELL_MISS_RESIST;
+                    }
+            }
+    }
+    if (!effectMask)
+        return returnVal;
 
     PrepareScriptHitHandlers();
     CallScriptBeforeHitHandlers();
