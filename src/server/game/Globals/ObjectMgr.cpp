@@ -410,7 +410,7 @@ void ObjectMgr::LoadCreatureTemplates()
             creatureTemplate.DifficultyEntry[i] = fields[1 + i].GetUInt32();
 
         for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
-            creatureTemplate.KillCredit[i] = fields[4 + i].GetUInt32();
+            creatureTemplate.KillCredit[i] = fields[4 + i].GetInt32();
 
         creatureTemplate.Modelid1          = fields[6].GetUInt32();
         creatureTemplate.Modelid2          = fields[7].GetUInt32();
@@ -753,7 +753,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     {
         if (cInfo->KillCredit[k])
         {
-            if (!GetCreatureTemplate(cInfo->KillCredit[k]))
+            if (!GetCreatureTemplate(uint32(abs(cInfo->KillCredit[k]))))
             {
                 sLog->outErrorDb("Creature (Entry: %u) lists non-existing creature entry %u in `KillCredit%d`.", cInfo->Entry, cInfo->KillCredit[k], k + 1);
                 const_cast<CreatureTemplate*>(cInfo)->KillCredit[k] = 0;

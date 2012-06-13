@@ -16054,8 +16054,8 @@ void Player::KilledMonster(CreatureTemplate const* cInfo, uint64 guid)
         KilledMonsterCredit(cInfo->Entry, guid);
 
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
-        if (cInfo->KillCredit[i])
-            KilledMonsterCredit(cInfo->KillCredit[i], 0);
+        if (cInfo->KillCredit[i] > 0)
+            KilledMonsterCredit(uint32(abs(cInfo->KillCredit[i])), 0);
 }
 
 void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
@@ -16203,8 +16203,8 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
                             {
                                 CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
                                 for (uint8 k = 0; k < MAX_KILL_CREDIT; ++k)
-                                    if (cinfo->KillCredit[k] == reqTarget)
-                                        entry = cinfo->KillCredit[k];
+                                    if (uint32(abs(cinfo->KillCredit[k])) == reqTarget)
+                                        entry = uint32(abs(cinfo->KillCredit[k]));
                             }
                          }
                     }
