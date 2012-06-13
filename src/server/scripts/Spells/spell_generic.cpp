@@ -2691,7 +2691,7 @@ public:
     {
         PrepareSpellScript(spell_gen_touch_the_nightmare_SpellScript);
 
-        void HandleDamageCalc(SpellEffIndex effIndex)
+        void HandleDamageCalc(SpellEffIndex /*effIndex*/)
         {
             uint32 bp = GetCaster()->GetMaxHealth() * 0.3f;
             SetHitDamage(bp);
