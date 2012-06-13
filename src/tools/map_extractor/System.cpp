@@ -48,9 +48,9 @@ char output_path[128] = ".";
 char input_path[128] = ".";
 uint32 maxAreaId = 0;
 
-//**************************************************
+// **************************************************
 // Extractor options
-//**************************************************
+// **************************************************
 enum Extract
 {
     EXTRACT_MAP = 1,
@@ -221,7 +221,7 @@ uint32 ReadMapDBC()
         map_ids[x].id = dbc.getRecord(x).getUInt(0);
         strcpy(map_ids[x].name, dbc.getRecord(x).getString(1));
     }
-    printf("Done! (%u maps loaded)\n", map_count);
+    printf("Done! (%zu maps loaded)\n", map_count);
     return map_count;
 }
 
@@ -246,7 +246,7 @@ void ReadAreaTableDBC()
 
     maxAreaId = dbc.getMaxId();
 
-    printf("Done! (%u areas loaded)\n", area_count);
+    printf("Done! (%zu areas loaded)\n", area_count);
 }
 
 void ReadLiquidTypeTableDBC()
@@ -267,7 +267,7 @@ void ReadLiquidTypeTableDBC()
     for(uint32 x = 0; x < liqTypeCount; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
-    printf("Done! (%u LiqTypes loaded)\n", liqTypeCount);
+    printf("Done! (%zu LiqTypes loaded)\n", liqTypeCount);
 }
 
 //
@@ -572,7 +572,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     // Try store as packed in uint16 or uint8 values
     if (!(heightHeader.flags & MAP_HEIGHT_NO_HEIGHT))
     {
-        float step;
+        float step = 0;
         // Try Store as uint values
         if (CONF_allow_float_to_int)
         {
