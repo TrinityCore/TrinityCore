@@ -3691,7 +3691,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId
                             // mana
                             if (Unit* caster = aura->GetCaster())
                             {
-                                int32 mana = CalculatePctU(caster->GetCreateMana(), aura->GetSpellInfo()->ManaCostPercentage) * chargesRemoved / 2;
+                                int32 mana = aura->GetSpellInfo()->CalcPowerCost(caster, aura->GetSpellInfo()->GetSchoolMask()) * chargesRemoved / 2;
                                 caster->CastCustomSpell(caster, 64372, &mana, NULL, NULL, true, NULL, NULL, aura->GetCasterGUID());
                             }
                         }
