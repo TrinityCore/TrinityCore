@@ -239,7 +239,7 @@ class spell_gen_parachute : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_parachute_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PARACHUTE) || !sSpellMgr->GetSpellInfo(SPELL_PARACHUTE_BUFF))
                     return false;
@@ -252,7 +252,12 @@ class spell_gen_parachute : public SpellScriptLoader
                     if (target->IsFalling())
                     {
                         target->RemoveAurasDueToSpell(SPELL_PARACHUTE);
-                        target->CastSpell(target, SPELL_PARACHUTE_BUFF, true);
+
+                        float x, y, z;
+                        target->GetPosition(x, y, z);
+                        float groundZ = target->GetMap()->GetHeight(target->GetPhaseMask(), x, y, z);
+                        if (fabs(groundZ - z) > 0.1f)
+                            target->CastSpell(target, SPELL_PARACHUTE_BUFF, true);
                     }
             }
 
@@ -2739,6 +2744,352 @@ public:
     }
 };
 
+enum GenericBandage
+{
+    SPELL_RECENTLY_BANDAGED = 11196,
+};
+
+class spell_gen_bandage : public SpellScriptLoader
+{
+    public:
+        spell_gen_bandage() : SpellScriptLoader("spell_gen_bandage") { }
+
+        class spell_gen_bandage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_bandage_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RECENTLY_BANDAGED))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (target->HasAura(SPELL_RECENTLY_BANDAGED))
+                        return SPELL_FAILED_TARGET_AURASTATE;
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void HandleScript()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_RECENTLY_BANDAGED, true);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_bandage_SpellScript::CheckCast);
+                AfterHit += SpellHitFn(spell_gen_bandage_SpellScript::HandleScript);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_bandage_SpellScript();
+        }
+};
+
+enum GenericLifebloom
+{
+    SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL        = 43422,
+    SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL              = 52552,
+    SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL           = 53692,
+    SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL           = 57763,
+    SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL    = 66094,
+};
+
+class spell_gen_lifebloom : public SpellScriptLoader
+{
+    public:
+        spell_gen_lifebloom(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+
+        class spell_gen_lifebloom_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_lifebloom_AuraScript);
+
+        public:
+            spell_gen_lifebloom_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(_spellId))
+                    return false;
+                return true;
+            }
+
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                // Final heal only on duration end
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                // final heal
+                GetTarget()->CastSpell(GetTarget(), _spellId, true, NULL, aurEff, GetCasterGUID());
+            }
+
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
+            {
+                // final heal
+                if (Unit* target = GetUnitOwner())
+                    target->CastSpell(target, _spellId, true, NULL, GetEffect(EFFECT_0), GetCasterGUID());
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                AfterDispel += AuraDispelFn(spell_gen_lifebloom_AuraScript::HandleDispel);
+            }
+
+        private:
+            uint32 _spellId;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_lifebloom_AuraScript(_spellId);
+        }
+
+    private:
+        uint32 _spellId;
+};
+
+enum SummonElemental
+{
+    SPELL_SUMMON_FIRE_ELEMENTAL  = 8985,
+    SPELL_SUMMON_EARTH_ELEMENTAL = 19704
+};
+
+class spell_gen_summon_elemental : public SpellScriptLoader
+{
+    public:
+        spell_gen_summon_elemental(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+
+        class spell_gen_summon_elemental_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_summon_elemental_AuraScript);
+
+        public:
+            spell_gen_summon_elemental_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(_spellId))
+                    return false;
+                return true;
+            }
+
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster())
+                    if (Unit* owner = GetCaster()->GetOwner())
+                        if (owner->GetTypeId() == TYPEID_PLAYER) // todo: this check is maybe wrong
+                            owner->CastSpell(owner, _spellId, true);
+            }
+
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster())
+                    if (Unit* owner = GetCaster()->GetOwner())
+                        if (owner->GetTypeId() == TYPEID_PLAYER) // todo: this check is maybe wrong
+                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+            }
+
+            void Register()
+            {
+                 AfterEffectApply += AuraEffectApplyFn(spell_gen_summon_elemental_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                 AfterEffectRemove += AuraEffectRemoveFn(spell_gen_summon_elemental_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+
+        private:
+            uint32 _spellId;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_summon_elemental_AuraScript(_spellId);
+        }
+
+    private:
+        uint32 _spellId;
+};
+
+enum Mounts
+{
+    SPELL_COLD_WEATHER_FLYING           = 54197,
+
+    // Magic Broom
+    SPELL_MAGIC_BROOM_60                = 42680,
+    SPELL_MAGIC_BROOM_100               = 42683,
+    SPELL_MAGIC_BROOM_150               = 42667,
+    SPELL_MAGIC_BROOM_280               = 42668,
+
+    // Headless Horseman's Mount
+    SPELL_HEADLESS_HORSEMAN_MOUNT_60    = 51621,
+    SPELL_HEADLESS_HORSEMAN_MOUNT_100   = 48024,
+    SPELL_HEADLESS_HORSEMAN_MOUNT_150   = 51617,
+    SPELL_HEADLESS_HORSEMAN_MOUNT_280   = 48023,
+
+    // Winged Steed of the Ebon Blade
+    SPELL_WINGED_STEED_150              = 54726,
+    SPELL_WINGED_STEED_280              = 54727,
+
+    // Big Love Rocket
+    SPELL_BIG_LOVE_ROCKET_0             = 71343,
+    SPELL_BIG_LOVE_ROCKET_60            = 71344,
+    SPELL_BIG_LOVE_ROCKET_100           = 71345,
+    SPELL_BIG_LOVE_ROCKET_150           = 71346,
+    SPELL_BIG_LOVE_ROCKET_310           = 71347,
+
+    // Invincible
+    SPELL_INVINCIBLE_60                 = 72281,
+    SPELL_INVINCIBLE_100                = 72282,
+    SPELL_INVINCIBLE_150                = 72283,
+    SPELL_INVINCIBLE_310                = 72284,
+
+    // Blazing Hippogryph
+    SPELL_BLAZING_HIPPOGRYPH_150        = 74854,
+    SPELL_BLAZING_HIPPOGRYPH_280        = 74855,
+
+    // Celestial Steed
+    SPELL_CELESTIAL_STEED_60            = 75619,
+    SPELL_CELESTIAL_STEED_100           = 75620,
+    SPELL_CELESTIAL_STEED_150           = 75617,
+    SPELL_CELESTIAL_STEED_280           = 75618,
+    SPELL_CELESTIAL_STEED_310           = 76153,
+
+    // X-53 Touring Rocket
+    SPELL_X53_TOURING_ROCKET_150        = 75957,
+    SPELL_X53_TOURING_ROCKET_280        = 75972,
+    SPELL_X53_TOURING_ROCKET_310        = 76154,
+};
+
+class spell_gen_mount : public SpellScriptLoader
+{
+    public:
+        spell_gen_mount(const char* name, uint32 mount0 = 0, uint32 mount60 = 0, uint32 mount100 = 0, uint32 mount150 = 0, uint32 mount280 = 0, uint32 mount310 = 0) : SpellScriptLoader(name),
+            _mount0(mount0), _mount60(mount60), _mount100(mount100), _mount150(mount150), _mount280(mount280), _mount310(mount310) { }
+
+        class spell_gen_mount_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_mount_SpellScript);
+
+        public:
+            spell_gen_mount_SpellScript(uint32 mount0, uint32 mount60, uint32 mount100, uint32 mount150, uint32 mount280, uint32 mount310) : SpellScript(),
+                _mount0(mount0), _mount60(mount60), _mount100(mount100), _mount150(mount150), _mount280(mount280), _mount310(mount310) { }
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (_mount0 && !sSpellMgr->GetSpellInfo(_mount0))
+                    return false;
+                if (_mount60 && !sSpellMgr->GetSpellInfo(_mount60))
+                    return false;
+                if (_mount100 && !sSpellMgr->GetSpellInfo(_mount100))
+                    return false;
+                if (_mount150 && !sSpellMgr->GetSpellInfo(_mount150))
+                    return false;
+                if (_mount280 && !sSpellMgr->GetSpellInfo(_mount280))
+                    return false;
+                if (_mount310 && !sSpellMgr->GetSpellInfo(_mount310))
+                    return false;
+                return true;
+            }
+
+            void HandleMount(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Player* target = GetHitPlayer())
+                {
+                    // Prevent stacking of mounts and client crashes upon dismounting
+                    target->RemoveAurasByType(SPELL_AURA_MOUNTED, 0, GetHitAura());
+
+                    // Triggered spell id dependent on riding skill and zone
+                    bool canFly = false;
+                    uint32 vmap = GetVirtualMapForMapAndZone(target->GetMapId(), target->GetZoneId());
+                    if (vmap == 530 || (vmap == 571 && target->HasSpell(SPELL_COLD_WEATHER_FLYING)))
+                        canFly = true;
+
+                    float x, y, z;
+                    target->GetPosition(x, y, z);
+                    uint32 areaFlag = target->GetBaseMap()->GetAreaFlag(x, y, z);
+                    AreaTableEntry const* area = sAreaStore.LookupEntry(areaFlag);
+                    if (!area || (canFly && (area->flags & AREA_FLAG_NO_FLY_ZONE)))
+                        canFly = false;
+
+                    uint32 mount = 0;
+                    switch (target->GetBaseSkillValue(SKILL_RIDING))
+                    {
+                        case 0:
+                            mount = _mount0;
+                            break;
+                        case 75:
+                            mount = _mount60;
+                            break;
+                        case 150:
+                            mount = _mount100;
+                            break;
+                        case 225:
+                            if (canFly)
+                                mount = _mount150;
+                            else
+                                mount = _mount100;
+                            break;
+                        case 300:
+                            if (canFly)
+                            {
+                                if (_mount310 && target->Has310Flyer(false))
+                                    mount = _mount310;
+                                else
+                                    mount = _mount280;
+                            }
+                            else
+                                mount = _mount100;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (mount)
+                    {
+                        PreventHitAura();
+                        target->CastSpell(target, mount, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                 OnEffectHitTarget += SpellEffectFn(spell_gen_mount_SpellScript::HandleMount, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+
+        private:
+            uint32 _mount0;
+            uint32 _mount60;
+            uint32 _mount100;
+            uint32 _mount150;
+            uint32 _mount280;
+            uint32 _mount310;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_mount_SpellScript(_mount0, _mount60, _mount100, _mount150, _mount280, _mount310);
+        }
+
+    private:
+        uint32 _mount0;
+        uint32 _mount60;
+        uint32 _mount100;
+        uint32 _mount150;
+        uint32 _mount280;
+        uint32 _mount310;
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2795,4 +3146,20 @@ void AddSC_generic_spell_scripts()
     new spell_gen_despawn_self();
     new spell_gen_touch_the_nightmare();
     new spell_gen_dream_funnel();
+    new spell_gen_bandage();
+    new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_lifebloom("spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_lifebloom("spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_lifebloom("spell_twisted_visage_lifebloom", SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_lifebloom("spell_faction_champion_dru_lifebloom", SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL);
+    new spell_gen_summon_elemental("spell_gen_summon_fire_elemental", SPELL_SUMMON_FIRE_ELEMENTAL);
+    new spell_gen_summon_elemental("spell_gen_summon_earth_elemental", SPELL_SUMMON_EARTH_ELEMENTAL);
+    new spell_gen_mount("spell_magic_broom", 0, SPELL_MAGIC_BROOM_60, SPELL_MAGIC_BROOM_100, SPELL_MAGIC_BROOM_150, SPELL_MAGIC_BROOM_280);
+    new spell_gen_mount("spell_headless_horseman_mount", 0, SPELL_HEADLESS_HORSEMAN_MOUNT_60, SPELL_HEADLESS_HORSEMAN_MOUNT_100, SPELL_HEADLESS_HORSEMAN_MOUNT_150, SPELL_HEADLESS_HORSEMAN_MOUNT_280);
+    new spell_gen_mount("spell_winged_steed_of_the_ebon_blade", 0, 0, 0, SPELL_WINGED_STEED_150, SPELL_WINGED_STEED_280);
+    new spell_gen_mount("spell_big_love_rocket", SPELL_BIG_LOVE_ROCKET_0, SPELL_BIG_LOVE_ROCKET_60, SPELL_BIG_LOVE_ROCKET_100, SPELL_BIG_LOVE_ROCKET_150, SPELL_BIG_LOVE_ROCKET_310);
+    new spell_gen_mount("spell_invincible", 0, SPELL_INVINCIBLE_60, SPELL_INVINCIBLE_100, SPELL_INVINCIBLE_150, SPELL_INVINCIBLE_310);
+    new spell_gen_mount("spell_blazing_hippogryph", 0, 0, 0, SPELL_BLAZING_HIPPOGRYPH_150, SPELL_BLAZING_HIPPOGRYPH_280);
+    new spell_gen_mount("spell_celestial_steed", 0, SPELL_CELESTIAL_STEED_60, SPELL_CELESTIAL_STEED_100, SPELL_CELESTIAL_STEED_150, SPELL_CELESTIAL_STEED_280, SPELL_CELESTIAL_STEED_310);
+    new spell_gen_mount("spell_x53_touring_rocket", 0, 0, 0, SPELL_X53_TOURING_ROCKET_150, SPELL_X53_TOURING_ROCKET_280, SPELL_X53_TOURING_ROCKET_310);
 }
