@@ -16,7 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -36,6 +39,7 @@ enum Spells
     SPELL_THUNDERCLAP           = 36706,
     SPELL_VOID_BOLT             = 39329,
     SPELL_MARK_OF_KAZZAK        = 32960,
+    SPELL_MARK_OF_KAZZAK_DAMAGE = 32961,
     SPELL_ENRAGE                = 32964,
     SPELL_CAPTURE_SOUL          = 32966,
     SPELL_TWISTED_REFLECTION    = 21063,
@@ -171,7 +175,55 @@ class boss_doomlord_kazzak : public CreatureScript
         }
 };
 
+class spell_mark_of_kazzak : public SpellScriptLoader
+{
+    public:
+        spell_mark_of_kazzak() : SpellScriptLoader("spell_mark_of_kazzak") { }
+
+        class spell_mark_of_kazzak_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mark_of_kazzak_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_KAZZAK_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* owner = GetUnitOwner())
+                    amount = CalculatePctU(owner->GetPower(POWER_MANA), 5);
+            }
+
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                Unit* target = GetTarget();
+
+                if (target->GetPower(POWER_MANA) == 0)
+                {
+                    target->CastSpell(target, SPELL_MARK_OF_KAZZAK_DAMAGE, true, NULL, aurEff);
+                    // Remove aura
+                    SetDuration(0);
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mark_of_kazzak_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mark_of_kazzak_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mark_of_kazzak_AuraScript();
+        }
+};
+
 void AddSC_boss_doomlordkazzak()
 {
     new boss_doomlord_kazzak();
+    new spell_mark_of_kazzak();
 }

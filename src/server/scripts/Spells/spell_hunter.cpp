@@ -618,6 +618,86 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
         }
 };
 
+class spell_hun_disengage : public SpellScriptLoader
+{
+    public:
+        spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
+
+        class spell_hun_disengage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_disengage_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->GetTypeId() == TYPEID_PLAYER && !caster->isInCombat())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_hun_disengage_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_disengage_SpellScript();
+        }
+};
+
+class spell_hun_tame_beast : public SpellScriptLoader
+{
+    public:
+        spell_hun_tame_beast() : SpellScriptLoader("spell_hun_tame_beast") { }
+
+        class spell_hun_tame_beast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_tame_beast_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (!GetExplTargetUnit())
+                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                if (Creature* target = GetExplTargetUnit()->ToCreature())
+                {
+                    if (target->getLevel() > caster->getLevel())
+                        return SPELL_FAILED_HIGHLEVEL;
+
+                    // use SMSG_PET_TAME_FAILURE?
+                    if (!target->GetCreatureTemplate()->isTameable(caster->ToPlayer()->CanTameExoticPets()))
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    if (caster->GetPetGUID())
+                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                    if (caster->GetCharmGUID())
+                        return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                }
+                else
+                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_hun_tame_beast_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_tame_beast_SpellScript();
+        }
+};
 
 void AddSC_hunter_spell_scripts()
 {
@@ -633,4 +713,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_pet_carrion_feeder();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
+    new spell_hun_disengage();
+    new spell_hun_tame_beast();
 }

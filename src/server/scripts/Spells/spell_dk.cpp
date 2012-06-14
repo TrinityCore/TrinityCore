@@ -738,14 +738,14 @@ class spell_dk_death_coil : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_coil_SpellScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_COIL_DAMAGE) || !sSpellMgr->GetSpellInfo(SPELL_DEATH_COIL_HEAL))
                     return false;
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex /* effIndex */)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
                 Unit* caster = GetCaster();

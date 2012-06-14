@@ -34,6 +34,7 @@ enum PriestSpells
     PRIEST_SPELL_PENANCE_R1_HEAL                = 47757,
     PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED    = 33619,
     PRIEST_SPELL_REFLECTIVE_SHIELD_R1           = 33201,
+    PRIEST_SPELL_VAMPIRIC_TOUCH_DISPEL          = 64085,
 };
 
 // Guardian Spirit
@@ -330,6 +331,50 @@ public:
     }
 };
 
+class spell_pri_vampiric_touch : public SpellScriptLoader
+{
+    public:
+        spell_pri_vampiric_touch() : SpellScriptLoader("spell_pri_vampiric_touch") { }
+
+        class spell_pri_vampiric_touch_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_vampiric_touch_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_VAMPIRIC_TOUCH_DISPEL))
+                    return false;
+                return true;
+            }
+
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetUnitOwner())
+                    {
+                        if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
+                        {
+                            int32 damage = aurEff->GetAmount() * 8;
+                            // backfire damage
+                            caster->CastCustomSpell(target, PRIEST_SPELL_VAMPIRIC_TOUCH_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_pri_vampiric_touch_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_vampiric_touch_AuraScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
@@ -339,4 +384,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_reflective_shield_trigger();
     new spell_pri_mind_sear();
     new spell_pri_prayer_of_mending_heal();
+    new spell_pri_vampiric_touch();
 }
