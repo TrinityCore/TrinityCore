@@ -7382,10 +7382,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 originalCaster = triggeredByAura->GetCasterGUID();
                 target = this;
                 basepoints0 = triggerAmount;
-
-                // Glyph of Earth Shield
-                if (AuraEffect* aur = GetAuraEffect(63279, 0))
-                    AddPctN(basepoints0, aur->GetAmount());
                 triggered_spell_id = 379;
                 break;
             }
