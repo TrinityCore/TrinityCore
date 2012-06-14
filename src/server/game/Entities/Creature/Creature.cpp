@@ -2055,7 +2055,7 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->Entry);
 }
 
-//creature_addon table
+// creature_addon table
 bool Creature::LoadCreaturesAddon(bool reload)
 {
     CreatureAddon const* cainfo = GetCreatureAddon();
@@ -2064,6 +2064,13 @@ bool Creature::LoadCreaturesAddon(bool reload)
 
     if (cainfo->mount != 0)
         Mount(cainfo->mount);
+
+    //! Need to be called before bytes1
+    if (cainfo->movementFlags != 0)
+        SetUnitMovementFlags(cainfo->movementFlags);
+
+    if (cainfo->extraMovementFlags != 0)
+        SetExtraUnitMovementFlags(cainfo->extraMovementFlags);
 
     if (cainfo->bytes1 != 0)
     {
@@ -2081,6 +2088,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
         //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
         //! If no inhabittype_fly (if no MovementFlag_DisableGravity flag found in sniffs)
         //! Set MovementFlag_Hover. Otherwise do nothing.
+        // TO-DO: Need convert in DB
         if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE1_FLAG_HOVER && !IsLevitating())
             AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
@@ -2103,16 +2111,16 @@ bool Creature::LoadCreaturesAddon(bool reload)
     if (cainfo->emote != 0)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
 
-    //Load Path
-    if (cainfo->path_id != 0)
-        m_path_id = cainfo->path_id;
+    // Load Path
+    if (cainfo->pathId != 0)
+        m_path_id = cainfo->pathId;
 
     if (!cainfo->auras.empty())
     {
         for (std::vector<uint32>::const_iterator itr = cainfo->auras.begin(); itr != cainfo->auras.end(); ++itr)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
-            if (!AdditionalSpellInfo)
+            SpellInfo const* additionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
+            if (!additionalSpellInfo)
             {
                 sLog->outErrorDb("Creature (GUID: %u Entry: %u) has wrong spell %u defined in `auras` field.", GetGUIDLow(), GetEntry(), *itr);
                 continue;
@@ -2123,7 +2131,6 @@ bool Creature::LoadCreaturesAddon(bool reload)
             {
                 if (!reload)
                     sLog->outErrorDb("Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.", GetGUIDLow(), GetEntry(), *itr);
-
                 continue;
             }
 

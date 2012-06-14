@@ -499,9 +499,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, auras FROM creature_template_addon");
-
+    //                                                 0      1        2      3       4       5               6                     7      8
+    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, movement_flags, extra_movement_flags, emote, auras FROM creature_template_addon");
     if (!result)
     {
         sLog->outString(">> Loaded 0 creature template addon definitions. DB table `creature_template_addon` is empty.");
@@ -522,15 +521,17 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             continue;
         }
 
-        CreatureAddon& creatureAddon = _creatureTemplateAddonStore[entry];
+        CreatureAddon& creatureAddon        = _creatureTemplateAddonStore[entry];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
-        creatureAddon.mount   = fields[2].GetUInt32();
-        creatureAddon.bytes1  = fields[3].GetUInt32();
-        creatureAddon.bytes2  = fields[4].GetUInt32();
-        creatureAddon.emote   = fields[5].GetUInt32();
+        creatureAddon.pathId                = fields[1].GetUInt32();
+        creatureAddon.mount                 = fields[2].GetUInt32();
+        creatureAddon.bytes1                = fields[3].GetUInt32();
+        creatureAddon.bytes2                = fields[4].GetUInt32();
+        creatureAddon.movementFlags         = fields[5].GetUInt32();
+        creatureAddon.extraMovementFlags    = fields[6].GetUInt16();
+        creatureAddon.emote                 = fields[7].GetUInt32();
 
-        Tokens tokens(fields[6].GetString(), ' ');
+        Tokens tokens(fields[8].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokens::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -876,9 +877,8 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, auras FROM creature_addon");
-
+    //                                                 0     1        2      3       4       5               6                     7      8
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, movement_flags, extra_movement_flags, emote, auras FROM creature_addon");
     if (!result)
     {
         sLog->outString(">> Loaded 0 creature addon definitions. DB table `creature_addon` is empty.");
@@ -902,19 +902,21 @@ void ObjectMgr::LoadCreatureAddons()
 
         CreatureAddon& creatureAddon = _creatureAddonStore[guid];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
-        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.path_id)
+        creatureAddon.pathId = fields[1].GetUInt32();
+        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.pathId)
         {
             const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
             sLog->outErrorDb("Creature (GUID %u) has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
         }
 
-        creatureAddon.mount   = fields[2].GetUInt32();
-        creatureAddon.bytes1  = fields[3].GetUInt32();
-        creatureAddon.bytes2  = fields[4].GetUInt32();
-        creatureAddon.emote   = fields[5].GetUInt32();
-
-        Tokens tokens(fields[6].GetString(), ' ');
+        creatureAddon.mount                 = fields[2].GetUInt32();
+        creatureAddon.bytes1                = fields[3].GetUInt32();
+        creatureAddon.bytes2                = fields[4].GetUInt32();
+        creatureAddon.movementFlags         = fields[5].GetUInt32();
+        creatureAddon.extraMovementFlags    = fields[6].GetUInt16();
+        creatureAddon.emote                 = fields[7].GetUInt32();
+ 
+        Tokens tokens(fields[8].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokens::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
