@@ -10743,6 +10743,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                     }
                 }
             }
+
+            // Death and Decay (Death Knight T10 Tank 2P Bonus)
+            if (spellProto->Id == 52212)
+                if (AuraEffect const* aurEff = GetAuraEffect(70650, EFFECT_0))
+                    AddPctN(DoneTotalMod, aurEff->GetAmount());
+
             break;
     }
 
