@@ -37,6 +37,7 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CIRCLE_SUMMON           = 48018,
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
     WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
+    WARLOCK_HAUNT                           = 48181,
     WARLOCK_HAUNT_HEAL                      = 48210,
     WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
 };
@@ -534,16 +535,15 @@ class spell_warl_haunt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_haunt_SpellScript);
 
-            void HandleOnHit()
+            void HandleEffectHit(SpellEffIndex /*effIndex*/)
             {
-                if (Aura* aura = GetHitAura())
-                    if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
-                        aurEff->SetAmount(CalculatePctN(aurEff->GetAmount(), GetHitDamage()));
+                if (AuraEffect* aurEff = GetExplTargetUnit()->GetAuraEffectOfRankedSpell(WARLOCK_HAUNT,EFFECT_1))
+                    aurEff->SetAmount(CalculatePctN(aurEff->GetAmount(), GetHitDamage()));
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_haunt_SpellScript::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -560,6 +560,9 @@ class spell_warl_haunt : public SpellScriptLoader
 
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
                 if (Unit* caster = GetCaster())
                 {
                     int32 amount = aurEff->GetAmount();
@@ -603,14 +606,12 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* caster = GetCaster())
-                {
                     if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
                     {
                         int32 damage = aurEff->GetAmount() * 9;
                         // backfire damage and silence
                         caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
                     }
-                }
             }
 
             void Register()

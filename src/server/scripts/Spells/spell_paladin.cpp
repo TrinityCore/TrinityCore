@@ -462,19 +462,10 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetExplTargetUnit())
-                {
                     if (caster == target)
-                    {
-                        if (target->HasAura(SPELL_FORBEARANCE))
+                        if (target->HasAura(SPELL_FORBEARANCE) || target->HasAura(SPELL_AVENGING_WRATH_MARKER) || target->HasAura(SPELL_IMMUNE_SHIELD_MARKER))
                             return SPELL_FAILED_TARGET_AURASTATE;
 
-                        if (target->HasAura(SPELL_AVENGING_WRATH_MARKER))
-                            return SPELL_FAILED_TARGET_AURASTATE;
-
-                        if (target->HasAura(SPELL_IMMUNE_SHIELD_MARKER))
-                            return SPELL_FAILED_TARGET_AURASTATE;
-                    }
-                }
                 return SPELL_CAST_OK;
             }
 

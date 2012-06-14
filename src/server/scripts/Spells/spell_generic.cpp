@@ -252,12 +252,7 @@ class spell_gen_parachute : public SpellScriptLoader
                     if (target->IsFalling())
                     {
                         target->RemoveAurasDueToSpell(SPELL_PARACHUTE);
-
-                        float x, y, z;
-                        target->GetPosition(x, y, z);
-                        float groundZ = target->GetMap()->GetHeight(target->GetPhaseMask(), x, y, z);
-                        if (fabs(groundZ - z) > 0.1f)
-                            target->CastSpell(target, SPELL_PARACHUTE_BUFF, true);
+                        target->CastSpell(target, SPELL_PARACHUTE_BUFF, true);
                     }
             }
 
@@ -2825,24 +2820,16 @@ class spell_gen_lifebloom : public SpellScriptLoader
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 // Final heal only on duration end
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
                     return;
 
                 // final heal
                 GetTarget()->CastSpell(GetTarget(), _spellId, true, NULL, aurEff, GetCasterGUID());
             }
 
-            void HandleDispel(DispelInfo* /*dispelInfo*/)
-            {
-                // final heal
-                if (Unit* target = GetUnitOwner())
-                    target->CastSpell(target, _spellId, true, NULL, GetEffect(EFFECT_0), GetCasterGUID());
-            }
-
             void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_gen_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-                AfterDispel += AuraDispelFn(spell_gen_lifebloom_AuraScript::HandleDispel);
             }
 
         private:
@@ -2887,8 +2874,7 @@ class spell_gen_summon_elemental : public SpellScriptLoader
             {
                 if (GetCaster())
                     if (Unit* owner = GetCaster()->GetOwner())
-                        if (owner->GetTypeId() == TYPEID_PLAYER) // todo: this check is maybe wrong
-                            owner->CastSpell(owner, _spellId, true);
+                        owner->CastSpell(owner, _spellId, true);
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3010,14 +2996,11 @@ class spell_gen_mount : public SpellScriptLoader
 
                     // Triggered spell id dependent on riding skill and zone
                     bool canFly = false;
-                    uint32 vmap = GetVirtualMapForMapAndZone(target->GetMapId(), target->GetZoneId());
-                    if (vmap == 530 || (vmap == 571 && target->HasSpell(SPELL_COLD_WEATHER_FLYING)))
+                    uint32 map = target->GetMapId();
+                    if (map == 530 || (map == 571 && target->HasSpell(SPELL_COLD_WEATHER_FLYING)))
                         canFly = true;
 
-                    float x, y, z;
-                    target->GetPosition(x, y, z);
-                    uint32 areaFlag = target->GetBaseMap()->GetAreaFlag(x, y, z);
-                    AreaTableEntry const* area = sAreaStore.LookupEntry(areaFlag);
+                    AreaTableEntry const* area = sAreaStore.LookupEntry(target->GetAreaId());
                     if (!area || (canFly && (area->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
