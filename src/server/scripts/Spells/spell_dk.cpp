@@ -400,7 +400,12 @@ class spell_dk_scourge_strike : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
+                {
                     multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
+                    // Death Knight T8 Melee 4P Bonus
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(64736, EFFECT_0))
+                        AddPctF(multiplier, aurEff->GetAmount());
+                }
             }
 
             void HandleAfterHit()
