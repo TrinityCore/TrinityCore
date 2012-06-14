@@ -9,7 +9,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@NPC,0,2,0,61,0,100,0,0,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Charles Worth - On Gossip Select - Close Gossip');
 -- Add missing Gossip for Charles Worth
 DELETE FROM `gossip_menu` WHERE `entry` IN (10136,10138);
-DELETE FROM `gossip_menu` WHERE `entry`=14076 AND `text_id`=14076;
+DELETE FROM `gossip_menu` WHERE `entry`=10118 AND `text_id`=14076;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (10136,14072),(10138,14074),(10118,14076);
 -- Add Gossip Options
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=@GOSSIP AND `id` IN (2,3,4,5);
