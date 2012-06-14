@@ -179,3 +179,15 @@ UPDATE `creature_ai_scripts` SET `event_flags`=1 WHERE `creature_id`=23119;
 
 -- fix wrong conditions conversion
 DELETE FROM `conditions` WHERE `SourceEntry` = 66665 AND `ConditionValue2` = 35015;
+
+-- Icecrown Citadel (Lich King) coordinates fixes
+-- Highlord Tirion Fordring (38995)
+UPDATE `creature` SET `position_z` = 840.94 WHERE `guid`=115781;
+-- The Lich King
+UPDATE `creature` SET `position_z` = 864.96 WHERE `guid`=115782;
+-- Platform
+UPDATE `gameobject`  SET `position_z` = 840.86 WHERE `guid` IN (8304,8310,8364,9007);
+UPDATE `gameobject`  SET `position_z` = 836.61 WHERE `guid` IN (8322,8344,8377,8482);
+UPDATE `gameobject`  SET `position_z` = 840.52 WHERE `guid`=8790;
+UPDATE `gameobject`  SET `position_z` = 858.68 WHERE `guid`=8967;
+
