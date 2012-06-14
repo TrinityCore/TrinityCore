@@ -3417,7 +3417,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Blood Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x400000)
             {
-                AddPctF(totalDamagePercentMod, m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 2.0f);
+                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 2.0f;
+                // Death Knight T8 Melee 4P Bonus
+                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
+                    AddPctF(bonusPct, aurEff->GetAmount());
+                AddPctF(totalDamagePercentMod, bonusPct);
 
                 // Glyph of Blood Strike
                 if (m_caster->GetAuraEffect(59332, EFFECT_0))
@@ -3444,7 +3448,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (roll_chance_i(aurEff->GetAmount()))
                         consumeDiseases = false;
 
-                AddPctF(totalDamagePercentMod, m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2.0f);
+                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2.0f;
+                // Death Knight T8 Melee 4P Bonus
+                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
+                    AddPctF(bonusPct, aurEff->GetAmount());
+                AddPctF(totalDamagePercentMod, bonusPct);
                 break;
             }
             // Blood-Caked Strike - Blood-Caked Blade
@@ -3456,7 +3464,12 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Heart Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x1000000)
             {
-                AddPctN(totalDamagePercentMod, m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()));
+                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
+                // Death Knight T8 Melee 4P Bonus
+                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
+                    AddPctF(bonusPct, aurEff->GetAmount());
+
+                AddPctF(totalDamagePercentMod, bonusPct);
                 break;
             }
             break;
