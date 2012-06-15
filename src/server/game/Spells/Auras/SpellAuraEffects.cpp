@@ -781,32 +781,17 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool create, bool load)
                 m_amplitude = 1 * IN_MILLISECONDS;
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_HEAL:
-        case SPELL_AURA_PERIODIC_ENERGIZE:
         case SPELL_AURA_OBS_MOD_HEALTH:
+        case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+        case SPELL_AURA_PERIODIC_ENERGIZE:
         case SPELL_AURA_PERIODIC_LEECH:
         case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
         case SPELL_AURA_PERIODIC_MANA_LEECH:
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
         case SPELL_AURA_POWER_BURN:
-            m_isPeriodic = true;
-            break;
-        case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-            if (GetId() == 51912)
-                m_amplitude = 3000;
-            m_isPeriodic = true;
-            break;
-        case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
         case SPELL_AURA_PERIODIC_DUMMY:
+        case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
             m_isPeriodic = true;
-            break;
-        case SPELL_AURA_DUMMY:
-            // Haunting Spirits - perdiodic trigger demon
-            if (GetId() == 7057)
-            {
-                m_isPeriodic = true;
-                m_amplitude = irand (0, 60) + 30;
-                m_amplitude *= IN_MILLISECONDS;
-            }
             break;
         default:
             break;
@@ -1103,14 +1088,6 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
 {
     switch (GetAuraType())
     {
-        case SPELL_AURA_DUMMY:
-            // Haunting Spirits
-            if (GetId() == 7057)
-            {
-                m_amplitude = irand (0, 60) + 30;
-                m_amplitude *= IN_MILLISECONDS;
-            }
-            break;
         case SPELL_AURA_PERIODIC_DUMMY:
             switch (GetSpellInfo()->SpellFamilyName)
             {
@@ -1311,11 +1288,6 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
             break;
         case SPELL_AURA_POWER_BURN:
             HandlePeriodicPowerBurnAuraTick(target, caster);
-            break;
-        case SPELL_AURA_DUMMY:
-            // Haunting Spirits
-            if (GetId() == 7057)
-                target->CastSpell((Unit*)NULL, GetAmount(), true);
             break;
         default:
             break;
@@ -5158,57 +5130,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             break;
                     }
                     break;
-                case SPELLFAMILY_MAGE:
-                    // Living Bomb
-                    if (m_spellInfo->SpellFamilyFlags[1] & 0x20000)
-                    {
-                        AuraRemoveMode removeMode = aurApp->GetRemoveMode();
-                        if (caster && (removeMode == AURA_REMOVE_BY_ENEMY_SPELL || removeMode == AURA_REMOVE_BY_EXPIRE))
-                            caster->CastSpell(target, GetAmount(), true);
-                    }
-                    break;
-                case SPELLFAMILY_PRIEST:
-                    // Vampiric Touch
-                    if (m_spellInfo->SpellFamilyFlags[1] & 0x0400 && aurApp->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && GetEffIndex() == 0)
-                        if (AuraEffect const* aurEff = GetBase()->GetEffect(1))
-                        {
-                            int32 damage = aurEff->GetAmount() * 8;
-                            // backfire damage
-                            target->CastCustomSpell(target, 64085, &damage, NULL, NULL, true, NULL, NULL, GetCasterGUID());
-                        }
-                    break;
-                case SPELLFAMILY_WARLOCK:
-                    // Haunt
-                    if (m_spellInfo->SpellFamilyFlags[1] & 0x40000)
-                        if (caster)
-                            target->CastCustomSpell(caster, 48210, &m_amount, 0, 0, true, NULL, this, GetCasterGUID());
-                    break;
-                case SPELLFAMILY_DRUID:
-                    // Lifebloom
-                    if (GetSpellInfo()->SpellFamilyFlags[1] & 0x10)
-                    {
-                        // Final heal only on duration end
-                        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-                            return;
-
-                        // final heal
-                        int32 stack = GetBase()->GetStackAmount();
-                        int32 heal = m_amount;
-                        if (caster)
-                        {
-                            heal = caster->SpellHealingBonusDone(target, GetSpellInfo(), heal, HEAL, stack);
-                            heal = target->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, HEAL, stack);
-                        }
-                        target->CastCustomSpell(target, 33778, &heal, &stack, NULL, true, NULL, this, GetCasterGUID());
-
-                        // restore mana
-                        if (caster)
-                        {
-                            int32 returnmana = GetSpellInfo()->CalcPowerCost(caster, GetSpellInfo()->GetSchoolMask()) * stack / 2;
-                            caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
-                        }
-                    }
-                    break;
                 case SPELLFAMILY_DEATHKNIGHT:
                     // Summon Gargoyle (Dismiss Gargoyle at remove)
                     if (GetId() == 61777)
@@ -5282,48 +5203,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 {
                     // Tag/untag Blacksilt Scout
                     target->SetEntry(apply ? 17654 : 17326);
-                    break;
-                }
-                //Summon Fire Elemental
-                case 40133:
-                {
-                    if (!caster)
-                        break;
-
-                    Unit* owner = caster->GetOwner();
-                    if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (apply)
-                            owner->CastSpell(owner, 8985, true);
-                        else
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
-                    }
-                    break;
-                }
-                //Summon Earth Elemental
-                case 40132 :
-                {
-                    if (!caster)
-                        break;
-
-                    Unit* owner = caster->GetOwner();
-                    if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (apply)
-                            owner->CastSpell(owner, 19704, true);
-                        else
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
-                    }
-                    break;
-                }
-                case 57723: // Exhaustion
-                case 57724: // Sated
-                {
-                    switch (GetId())
-                    {
-                        case 57723: target->ApplySpellImmune(GetId(), IMMUNITY_ID, 32182, apply); break; // Heroism
-                        case 57724: target->ApplySpellImmune(GetId(), IMMUNITY_ID, 2825, apply);  break; // Bloodlust
-                    }
                     break;
                 }
                 case 57819: // Argent Champion
@@ -5418,69 +5297,14 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         }
         case SPELLFAMILY_DRUID:
         {
-            if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
-                break;
-            switch (GetId())
-            {
-                case 52610:                                 // Savage Roar
-                {
-                    uint32 spellId = 62071;
-                    if (apply)
-                    {
-                        if (target->GetShapeshiftForm() != FORM_CAT)
-                            break;
-
-                        target->CastSpell(target, spellId, true, NULL, NULL, GetCasterGUID());
-                        break;
-                    }
-                    target->RemoveAurasDueToSpell(spellId);
-                    break;
-                }
-                case 61336:                                 // Survival Instincts
-                {
-                    if (!(mode & AURA_EFFECT_HANDLE_REAL))
-                        break;
-
-                    if (apply)
-                    {
-                        if (!target->IsInFeralForm())
-                            break;
-
-                        int32 bp0 = int32(target->CountPctFromMaxHealth(GetAmount()));
-                        target->CastCustomSpell(target, 50322, &bp0, NULL, NULL, true);
-                    }
-                    else
-                        target->RemoveAurasDueToSpell(50322);
-                    break;
-                }
-            }
-            // Predatory Strikes
-            if (target->GetTypeId() == TYPEID_PLAYER && GetSpellInfo()->SpellIconID == 1563)
-            {
-                target->ToPlayer()->UpdateAttackPowerAndDamage();
-            }
+            //if (!(mode & AURA_EFFECT_HANDLE_REAL))
+                //break;
             break;
         }
         case SPELLFAMILY_SHAMAN:
         {
-            if (!(mode & AURA_EFFECT_HANDLE_REAL))
-                break;
-            // Sentry Totem
-            if (GetId() == 6495 && caster && caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (apply)
-                {
-                    if (uint64 guid = caster->m_SummonSlot[4])
-                    {
-                        if (Creature* totem = caster->GetMap()->GetCreature(guid))
-                            if (totem->isTotem())
-                                caster->ToPlayer()->CastSpell(totem, 6277, true);
-                    }
-                }
-                else
-                    caster->ToPlayer()->StopCastingBindSight();
-                return;
-            }
+            //if (!(mode & AURA_EFFECT_HANDLE_REAL))
+                //break;
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -6122,14 +5946,6 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                     case 27808:
                         if (caster)
                             caster->CastCustomSpell(29879, SPELLVALUE_BASE_POINT0, int32(target->CountPctFromMaxHealth(21)), target, true, NULL, this);
-                        return;
-                    // Detonate Mana
-                    case 27819:
-                        if (int32 mana = (int32)(target->GetMaxPower(POWER_MANA) / 10))
-                        {
-                            mana = target->ModifyPower(POWER_MANA, -mana);
-                            target->CastCustomSpell(27820, SPELLVALUE_BASE_POINT0, -mana*10, target, true, NULL, this);
-                        }
                         return;
                     // Inoculate Nestlewood Owlkin
                     case 29528:
@@ -6795,33 +6611,6 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
         target->AddThreat(caster, float(gainedAmount) * 0.5f, GetSpellInfo()->GetSchoolMask(), GetSpellInfo());
     }
 
-    // spell-specific code
-    switch (GetId())
-    {
-        case 31447: // Mark of Kaz'rogal
-            if (target->GetPower(powerType) == 0)
-            {
-                target->CastSpell(target, 31463, true, 0, this);
-                // Remove aura
-                GetBase()->SetDuration(0);
-            }
-            break;
-        case 32960: // Mark of Kazzak
-        {
-            int32 modifier = int32(target->GetPower(powerType) * 0.05f);
-            target->ModifyPower(powerType, -modifier);
-
-            if (target->GetPower(powerType) == 0)
-            {
-                target->CastSpell(target, 32961, true, 0, this);
-                // Remove aura
-                GetBase()->SetDuration(0);
-            }
-            break;
-        }
-        default:
-            break;
-    }
     // Drain Mana
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK
         && m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
