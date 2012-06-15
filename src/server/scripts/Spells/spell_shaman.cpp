@@ -35,7 +35,7 @@ enum ShamanSpells
     SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1    = 8349,
     SHAMAN_SPELL_SATED                     = 57724,
     SHAMAN_SPELL_EXHAUSTION                = 57723,
-    
+
     SHAMAN_SPELL_STORM_EARTH_AND_FIRE      = 51483,
     EARTHBIND_TOTEM_SPELL_EARTHGRAB        = 64695,
 
@@ -261,7 +261,7 @@ class EarthenPowerTargetSelector
 {
     public:
         EarthenPowerTargetSelector() { }
- 
+
         bool operator() (Unit* target)
         {
             if (!target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
@@ -679,9 +679,8 @@ class spell_sha_flame_shock : public SpellScriptLoader
             void HandleDispel(DispelInfo* /*dispelInfo*/)
             {
                 if (Unit* caster = GetCaster())
-                {
                     // Lava Flows
-                    if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, ICON_ID_SHAMAN_LAVA_FLOW, 0))
+                    if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, ICON_ID_SHAMAN_LAVA_FLOW, EFFECT_0))
                     {
                         if (sSpellMgr->GetFirstSpellInChain(SHAMAN_LAVA_FLOWS_R1) != sSpellMgr->GetFirstSpellInChain(aurEff->GetId()))
                             return;
@@ -689,7 +688,6 @@ class spell_sha_flame_shock : public SpellScriptLoader
                         uint8 rank = sSpellMgr->GetSpellRank(aurEff->GetId());
                         caster->CastSpell(caster, sSpellMgr->GetSpellWithRank(SHAMAN_LAVA_FLOWS_TRIGGERED_R1, rank), true);
                     }
-                }
             }
 
             void Register()
@@ -723,11 +721,9 @@ class spell_sha_sentry_totem : public SpellScriptLoader
             void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-                {
                     if (Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[4]))
                         if (totem->isTotem())
                             caster->CastSpell(totem, SHAMAN_BIND_SIGHT, true);
-                }
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
