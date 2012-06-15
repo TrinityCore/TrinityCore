@@ -397,8 +397,8 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                // Final heal only on duration end and dispel
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+                // Final heal only on duration end
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
                 // final heal
@@ -409,16 +409,46 @@ class spell_dru_lifebloom : public SpellScriptLoader
                     healAmount = caster->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, stack);
                     healAmount = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, stack);
 
+                    GetTarget()->CastCustomSpell(GetTarget(), DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+
                     // restore mana
                     int32 returnMana = CalculatePctU(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * stack / 2;
                     caster->CastCustomSpell(caster, DRUID_LIFEBLOOM_ENERGIZE, &returnMana, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+                    return;
                 }
+
                 GetTarget()->CastCustomSpell(GetTarget(), DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+            }
+
+            void HandleDispel(DispelInfo* dispelInfo)
+            {
+                if (Unit* target = GetUnitOwner())
+                {
+                    if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
+                    {
+                        // final heal
+                        int32 healAmount = aurEff->GetAmount();
+                        if (Unit* caster = GetCaster())
+                        {
+                            healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
+                            healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
+                            target->CastCustomSpell(target, DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULL, GetCasterGUID());
+
+                            // restore mana
+                            int32 returnMana = CalculatePctU(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * dispelInfo->GetRemovedCharges() / 2;
+                            caster->CastCustomSpell(caster, DRUID_LIFEBLOOM_ENERGIZE, &returnMana, NULL, NULL, true, NULL, NULL, GetCasterGUID());
+                            return;
+                        }
+
+                        target->CastCustomSpell(target, DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULL, GetCasterGUID());
+                    }
+                }
             }
 
             void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
             }
         };
 
