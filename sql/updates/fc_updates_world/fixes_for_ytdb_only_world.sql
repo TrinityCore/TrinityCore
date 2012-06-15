@@ -190,4 +190,4 @@ UPDATE `gameobject`  SET `position_z` = 840.86 WHERE `guid` IN (8304,8310,8364,9
 UPDATE `gameobject`  SET `position_z` = 836.61 WHERE `guid` IN (8322,8344,8377,8482);
 UPDATE `gameobject`  SET `position_z` = 840.52 WHERE `guid`=8790;
 UPDATE `gameobject`  SET `position_z` = 858.68 WHERE `guid`=8967;
-
+UPDATE `creature_template` SET `mechanic_immune_mask`=0, `flags_extra`=0 WHERE  `entry` =38995;
