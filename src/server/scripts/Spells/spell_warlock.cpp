@@ -535,15 +535,16 @@ class spell_warl_haunt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_haunt_SpellScript);
 
-            void HandleEffectHit(SpellEffIndex /*effIndex*/)
+            void HandleEffectHit()
             {
-                if (AuraEffect* aurEff = GetExplTargetUnit()->GetAuraEffectOfRankedSpell(WARLOCK_HAUNT,EFFECT_1))
-                    aurEff->SetAmount(CalculatePctN(aurEff->GetAmount(), GetHitDamage()));
+                if (Aura* aura = GetHitAura())
+                    if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
+                        aurEff->SetAmount(CalculatePctN(aurEff->GetAmount(), GetHitDamage()));
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warl_haunt_SpellScript::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
             }
         };
 
