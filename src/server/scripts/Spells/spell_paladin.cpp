@@ -591,7 +591,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sacred_shield();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
-    new spell_pal_righteous_defense();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
     new spell_pal_lay_on_hands();
