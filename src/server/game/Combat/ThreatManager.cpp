@@ -354,7 +354,9 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* attacker, HostileR
                 // list sorted and and we check current target, then this is best case
                 if (currentVictim == currentRef || currentRef->getThreat() <= 1.1f * currentVictim->getThreat())
                 {
-                    currentRef = currentVictim;            // for second case
+                    if (currentVictim != currentRef && attacker->canCreatureAttack(currentVictim->getTarget()))
+                        currentRef = currentVictim;            // for second case, if currentvictim is attackable
+
                     found = true;
                     break;
                 }
