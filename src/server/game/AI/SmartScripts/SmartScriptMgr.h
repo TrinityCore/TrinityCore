@@ -22,7 +22,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-#include "ConditionMgr.h"
 #include "Spell.h"
 
 //#include "SmartScript.h"
@@ -1391,26 +1390,6 @@ class SmartAIMgr
             }
             return true;
         }
-        /*inline bool IsConditionValid(SmartScriptHolder e, int32 t, int32 v1, int32 v2, int32 v3)
-        {
-            bool error = false;
-            if (t > 0 && v1 >= 0 && v2 >= 0 && v3 >= 0)
-            {
-                Condition cond;
-                cond.mConditionType = ConditionType(t);
-                cond.mConditionValue1 = uint32(v1);
-                cond.mConditionValue2 = uint32(v2);
-                cond.mConditionValue3 = uint32(v3);
-                if (!sConditionMgr->isConditionTypeValid(&cond))
-                    error = true;
-            }
-            if (error)
-            {
-                sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid Condition, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
-                return false;
-            }
-            return true;
-        }*/
 
         bool IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry)
         {
