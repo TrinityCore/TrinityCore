@@ -83,8 +83,6 @@ class SmartScript
             return obj && obj->GetTypeId() == TYPEID_GAMEOBJECT;
         }
 
-        bool ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3);
-
         void OnUpdate(const uint32 diff);
         void OnMoveInLineOfSight(Unit* who);
 
