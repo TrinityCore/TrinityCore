@@ -475,63 +475,76 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 break;
             }
             case SMART_EVENT_TRANSPORT_ADDCREATURE:
-                {
-                    if (e.event.transportAddCreature.creature && !IsCreatureValid(e, e.event.transportAddCreature.creature))
-                        return false;
-                    break;
-                }
+            {
+                if (e.event.transportAddCreature.creature && !IsCreatureValid(e, e.event.transportAddCreature.creature))
+                    return false;
+                break;
+            }
             case SMART_EVENT_MOVEMENTINFORM:
+            {
+                if (e.event.movementInform.type > NULL_MOTION_TYPE)
                 {
-                    if (e.event.movementInform.type > NULL_MOTION_TYPE)
-                    {
-                        sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid Motion type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.movementInform.type);
-                        return false;
-                    }
-                    break;
+                    sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid Motion type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.movementInform.type);
+                    return false;
                 }
+                break;
+            }
             case SMART_EVENT_DATA_SET:
-                {
-                    if (!IsMinMaxValid(e, e.event.dataSet.cooldownMin, e.event.dataSet.cooldownMax))
-                        return false;
-                    break;
-                }
+            {
+                if (!IsMinMaxValid(e, e.event.dataSet.cooldownMin, e.event.dataSet.cooldownMax))
+                    return false;
+                break;
+            }
             case SMART_EVENT_AREATRIGGER_ONTRIGGER:
-                {
-                    if (e.event.areatrigger.id && !IsAreaTriggerValid(e, e.event.areatrigger.id))
-                        return false;
-                    break;
-                }
+            {
+                if (e.event.areatrigger.id && !IsAreaTriggerValid(e, e.event.areatrigger.id))
+                    return false;
+                break;
+            }
             case SMART_EVENT_TEXT_OVER:
                 //if (e.event.textOver.textGroupID && !IsTextValid(e, e.event.textOver.textGroupID)) return false;// 0 is a valid text group!
                 break;
             case SMART_EVENT_LINK:
+            {
+                if (e.link && e.link == e.event_id)
                 {
-                    if (e.link && e.link == e.event_id)
-                    {
-                        sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u, Event %u, Link Event is linking self (infinite loop), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id);
-                        return false;
-                    }
-                    break;
+                    sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u, Event %u, Link Event is linking self (infinite loop), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id);
+                    return false;
                 }
+                break;
+            }
             case SMART_EVENT_DUMMY_EFFECT:
+            {
                 if (!IsSpellValid(e, e.event.dummy.spell))
                     return false;
 
                 if (e.event.dummy.effIndex > EFFECT_2)
                     return false;
                 break;
+            }
             case SMART_EVENT_IS_BEHIND_TARGET:
+            {
                 if (!IsMinMaxValid(e, e.event.behindTarget.cooldownMin, e.event.behindTarget.cooldownMax))
                     return false;
                 break;
+            }
             case SMART_EVENT_GAME_EVENT_START:
             case SMART_EVENT_GAME_EVENT_END:
+            {
+                GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+                if (e.event.gameEvent.gameEventId >= events.size() || !events[e.event.gameEvent.gameEventId].isValid())
+                    return false;
+                break;
+            }
+            case SMART_EVENT_ACTION_DONE:
+            {
+                if (e.event.doAction.eventId < EventId::EVENT_SPELLCLICK || e.event.doAction.eventId > EventId::EVENT_CHARGE)
                 {
-                    GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
-                    if (e.event.gameEvent.gameEventId >= events.size() || !events[e.event.gameEvent.gameEventId].isValid())
-                        return false;
-                    break;
+                    sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid event id %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.doAction.eventId);
+                    return false;
                 }
+                break;
+            }
             case SMART_EVENT_GO_STATE_CHANGED:
             case SMART_EVENT_GO_EVENT_INFORM:
             case SMART_EVENT_TIMED_EVENT_TRIGGERED:

@@ -2778,6 +2778,12 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessAction(e, NULL, var0);
             break;
         }
+        case SMART_EVENT_ACTION_DONE:
+        {
+            if (e.event.doAction.eventId != var0)
+                return;
+            ProcessAction(e, unit, var0);
+        }
         default:
             sLog->outErrorDb("SmartScript::ProcessEvent: Unhandled Event type %u", e.GetEventType());
             break;
