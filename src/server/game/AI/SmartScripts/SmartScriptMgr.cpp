@@ -538,7 +538,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             case SMART_EVENT_ACTION_DONE:
             {
-                if (e.event.doAction.eventId < EventId::EVENT_SPELLCLICK || e.event.doAction.eventId > EventId::EVENT_CHARGE)
+                if (e.event.doAction.eventId < EVENT_SPELLCLICK || e.event.doAction.eventId > EVENT_CHARGE)
                 {
                     sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid event id %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.doAction.eventId);
                     return false;
