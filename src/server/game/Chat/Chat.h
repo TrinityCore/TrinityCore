@@ -123,6 +123,23 @@ class ChatHandler
         void SetSentErrorMessage(bool val){ sentErrorMessage = val;};
         static bool LoadCommandTable() { return load_command_table;}
         static void SetLoadCommandTable(bool val){ load_command_table = val;};
+		
+        void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel);
+        // Stores informations about a deleted character
+        struct DeletedInfo
+        {
+            uint32      lowguid;                            ///< the low GUID from the character
+            std::string name;                               ///< the character name
+            uint32      accountId;                          ///< the account id
+            std::string accountName;                        ///< the account name
+            time_t      deleteDate;                         ///< the date at which the character has been deleted
+        };
+
+        typedef std::list<DeletedInfo> DeletedInfoList;
+        bool GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::string searchString = "");
+        std::string GenerateDeletedCharacterGUIDsWhereStr(DeletedInfoList::const_iterator& itr, DeletedInfoList::const_iterator const& itr_end);
+        void HandleCharacterDeletedListHelper(DeletedInfoList const& foundList);
+        void HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo);
 
     protected:
         explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
@@ -323,24 +340,7 @@ class ChatHandler
         bool HandleBanHelper(BanMode mode, char const* args);
         bool HandleBanInfoHelper(uint32 accountid, char const* accountname);
         bool HandleUnBanHelper(BanMode mode, char const* args);
-        void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel);
         void HandleLearnSkillRecipesHelper(Player* player, uint32 skill_id);
-
-        // Stores informations about a deleted character
-        struct DeletedInfo
-        {
-            uint32      lowguid;                            ///< the low GUID from the character
-            std::string name;                               ///< the character name
-            uint32      accountId;                          ///< the account id
-            std::string accountName;                        ///< the account name
-            time_t      deleteDate;                         ///< the date at which the character has been deleted
-        };
-
-        typedef std::list<DeletedInfo> DeletedInfoList;
-        bool GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::string searchString = "");
-        std::string GenerateDeletedCharacterGUIDsWhereStr(DeletedInfoList::const_iterator& itr, DeletedInfoList::const_iterator const& itr_end);
-        void HandleCharacterDeletedListHelper(DeletedInfoList const& foundList);
-        void HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo);
 
     private:
         bool _HandleGMTicketResponseAppendCommand(const char* args, bool newLine);
