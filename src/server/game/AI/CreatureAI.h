@@ -128,8 +128,6 @@ class CreatureAI : public UnitAI
 
         void OnCharmed(bool apply);
 
-        //virtual void SpellClick(Player* player) {}
-
         // Called at reaching home after evade
         virtual void JustReachedHome() {}
 
@@ -170,6 +168,8 @@ class CreatureAI : public UnitAI
         //Creature* const me;
 
         virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) {}
+
+        virtual void OnSpellClick(Unit* /*clicker*/) { }
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
     protected:
