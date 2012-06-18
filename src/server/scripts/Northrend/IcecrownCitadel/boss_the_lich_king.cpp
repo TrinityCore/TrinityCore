@@ -486,12 +486,19 @@ class TriggerWickedSpirit : public BasicEvent
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
             _owner->CastCustomSpell(SPELL_TRIGGER_VILE_SPIRIT_HEROIC, SPELLVALUE_MAX_TARGETS, 1, NULL, true);
-            return --_counter > 0;
+
+            if (--_counter)
+            {
+                _owner->m_Events.AddEvent(this, _owner->m_Events.CalculateTime(3000));
+                return false;
+            }
+
+            return true;
         }
 
     private:
         Creature* _owner;
-        int32 _counter;
+        uint32 _counter;
 };
 
 class boss_the_lich_king : public CreatureScript
