@@ -180,11 +180,6 @@ class ChatHandler
         bool HandleGuildRankCommand(const char* args);
         bool HandleGuildDeleteCommand(const char* args);
 
-        bool HandleInstanceListBindsCommand(const char* args);
-        bool HandleInstanceUnbindCommand(const char* args);
-        bool HandleInstanceStatsCommand(const char* args);
-        bool HandleInstanceSaveDataCommand(const char * args);
-
         bool HandleListAurasCommand(const char * args);
         bool HandleListCreatureCommand(const char* args);
         bool HandleListItemCommand(const char* args);
