@@ -224,24 +224,6 @@ class ChatHandler
         bool HandleSendMessageCommand(const char * args);
         bool HandleSendMoneyCommand(const char* args);
 
-        bool HandleServerCorpsesCommand(const char* args);
-        bool HandleServerExitCommand(const char* args);
-        bool HandleServerIdleRestartCommand(const char* args);
-        bool HandleServerIdleShutDownCommand(const char* args);
-        bool HandleServerInfoCommand(const char* args);
-        bool HandleServerMotdCommand(const char* args);
-        bool HandleServerPLimitCommand(const char* args);
-        bool HandleServerRestartCommand(const char* args);
-        bool HandleServerSetLogLevelCommand(const char* args);
-        bool HandleServerSetMotdCommand(const char* args);
-        bool HandleServerShutDownCommand(const char* args);
-        bool HandleServerShutDownCancelCommand(const char* args);
-        bool HandleServerSetClosedCommand(const char* args);
-        bool HandleServerToggleQueryLogging(const char* args);
-
-        bool HandleServerSetLogFileLevelCommand(const char* args);
-        bool HandleServerSetDiffTimeCommand(const char* args);
-
         bool HandleUnBanAccountCommand(const char* args);
         bool HandleUnBanAccountByCharCommand(const char* args);
         bool HandleUnBanCharacterCommand(const char* args);

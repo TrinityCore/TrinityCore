@@ -846,13 +846,6 @@ bool ChatHandler::LookupPlayerSearchCommand(PreparedQueryResult result, int32 li
     return true;
 }
 
-/// Triggering corpses expire check in world
-bool ChatHandler::HandleServerCorpsesCommand(const char* /*args*/)
-{
-    sObjectAccessor->RemoveOldCorpses();
-    return true;
-}
-
 bool ChatHandler::HandleRepairitemsCommand(const char* args)
 {
     Player* target;
