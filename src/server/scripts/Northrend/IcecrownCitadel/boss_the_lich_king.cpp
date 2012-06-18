@@ -138,7 +138,7 @@ enum Spells
     SPELL_IN_FROSTMOURNE_ROOM           = 74276,
     SPELL_KILL_FROSTMOURNE_PLAYERS      = 75127,
     SPELL_HARVESTED_SOUL                = 72679,
-    SPELL_TRIGGER_VILE_SPIRIT_HEROIC    = 73582,
+    SPELL_TRIGGER_VILE_SPIRIT_HEROIC    = 73582,    // TODO: Cast every 3 seconds during Frostmourne phase, targets a Wicked Spirit amd activates it
 
     // Frostmourne
     SPELL_LIGHTS_FAVOR                  = 69382,
@@ -152,6 +152,7 @@ enum Spells
     SPELL_SUMMON_SPIRIT_BOMB_1          = 73581,    // (Heroic)
     SPELL_SUMMON_SPIRIT_BOMB_2          = 74299,    // (Heroic)
     SPELL_EXPLOSION                     = 73576,    // Spirit Bomb (Heroic)
+    SPELL_HARVEST_SOUL_DAMAGE_AURA      = 73655,
 
     // Outro
     SPELL_FURY_OF_FROSTMOURNE           = 72350,
@@ -221,7 +222,7 @@ enum Events
     EVENT_QUAKE_2                   = 27,
     EVENT_VILE_SPIRITS              = 28,
     EVENT_HARVEST_SOULS             = 29,   // heroic only
-    EVENT_WICKED_SPIRITS            = 30,
+    EVENT_BERSERK                   = 30,
     EVENT_SOUL_RIP                  = 31,
     EVENT_DESTROY_SOUL              = 32,
     EVENT_FROSTMOURNE_TALK_1        = 33,
@@ -249,19 +250,18 @@ enum Events
     EVENT_OUTRO_TERENAS_TALK_2      = 55,
     EVENT_OUTRO_TALK_7              = 56,
     EVENT_OUTRO_TALK_8              = 57,
-    EVENT_BERSERK                   = 58,
 
     // Shambling Horror
-    EVENT_SHOCKWAVE                 = 59,
-    EVENT_ENRAGE                    = 60,
+    EVENT_SHOCKWAVE                 = 58,
+    EVENT_ENRAGE                    = 59,
 
     // Raging Spirit
-    EVENT_SOUL_SHRIEK               = 61,
+    EVENT_SOUL_SHRIEK               = 60,
 
     // Strangulate Vehicle (Harvest Soul)
-    EVENT_TELEPORT                  = 62,
-    EVENT_MOVE_TO_LICH_KING         = 63,
-    EVENT_DESPAWN_SELF              = 64,
+    EVENT_TELEPORT                  = 61,
+    EVENT_MOVE_TO_LICH_KING         = 62,
+    EVENT_DESPAWN_SELF              = 63,
 };
 
 enum EventGroups
@@ -475,6 +475,25 @@ class VileSpiritActivateEvent : public BasicEvent
         Creature* _owner;
 };
 
+class TriggerWickedSpirit : public BasicEvent
+{
+    public:
+        explicit TriggerWickedSpirit(Creature* owner)
+            : _owner(owner), _counter(13)
+        {
+        }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        {
+            _owner->CastCustomSpell(SPELL_TRIGGER_VILE_SPIRIT_HEROIC, SPELLVALUE_MAX_TARGETS, 1, NULL, true);
+            return --_counter > 0;
+        }
+
+    private:
+        Creature* _owner;
+        int32 _counter;
+};
+
 class boss_the_lich_king : public CreatureScript
 {
     public:
@@ -503,6 +522,8 @@ class boss_the_lich_king : public CreatureScript
                 me->SetDisableGravity(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->GetMotionMaster()->MoveFall();
+                if (Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 50.0f))
+                    frostmourne->DespawnOrUnsummon();
             }
 
             void EnterCombat(Unit* target)
@@ -601,8 +622,6 @@ class boss_the_lich_king : public CreatureScript
                         summons.DoAction(ACTION_TELEPORT_BACK, pred);
                         if (!IsHeroic())
                             Talk(SAY_LK_FROSTMOURNE_ESCAPE);
-                        else
-                            DoCastAOE(SPELL_TRIGGER_VILE_SPIRIT_HEROIC);
                         break;
                     }
                     default:
@@ -645,6 +664,8 @@ class boss_the_lich_king : public CreatureScript
                 if (events.GetPhaseMask() & PHASE_MASK_ONE && !HealthAbovePct(70))
                 {
                     events.SetPhase(PHASE_TRANSITION);
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_1, CenterPosition);
                     return;
                 }
@@ -652,6 +673,8 @@ class boss_the_lich_king : public CreatureScript
                 if (events.GetPhaseMask() & PHASE_MASK_TWO && !HealthAbovePct(40))
                 {
                     events.SetPhase(PHASE_TRANSITION);
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_2, CenterPosition);
                     return;
                 }
@@ -664,7 +687,8 @@ class boss_the_lich_king : public CreatureScript
                     events.SetPhase(PHASE_OUTRO);
                     summons.DespawnAll();
                     SendMusicToPlayers(MUSIC_FURY_OF_FROSTMOURNE);
-                    DoCastAOE(SPELL_FURY_OF_FROSTMOURNE);
+                    me->InterruptNonMeleeSpells(true);
+                    me->CastSpell((Unit*)NULL, SPELL_FURY_OF_FROSTMOURNE, TRIGGERED_NONE);
                     me->SetWalk(true);
                     events.ScheduleEvent(EVENT_OUTRO_TALK_1, 2600, 0, PHASE_OUTRO);
                     events.ScheduleEvent(EVENT_OUTRO_EMOTE_TALK, 6600, 0, PHASE_OUTRO);
@@ -712,7 +736,6 @@ class boss_the_lich_king : public CreatureScript
                         break;
                     case NPC_FROSTMOURNE_TRIGGER:
                     {
-                        summons.Summon(summon);
                         summon->CastSpell((Unit*)NULL, SPELL_BROKEN_FROSTMOURNE, true);
 
                         SendLightOverride(LIGHT_SOULSTORM, 10000);
@@ -724,16 +747,11 @@ class boss_the_lich_king : public CreatureScript
                     case NPC_VILE_SPIRIT:
                     {
                         summons.Summon(summon);
-                        if (events.GetPhaseMask() & PHASE_MASK_FROSTMOURNE)
-                        {
-                            TeleportSpirit(summon);
-                            return;
-                        }
-
                         summon->SetReactState(REACT_PASSIVE);
                         summon->SetSpeed(MOVE_FLIGHT, 0.5f);
                         summon->GetMotionMaster()->MoveRandom(10.0f);
-                        summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(15000));
+                        if (!(events.GetPhaseMask() & PHASE_MASK_FROSTMOURNE))
+                            summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(15000));
                         return;
                     }
                     case NPC_STRANGULATE_VEHICLE:
@@ -756,7 +774,6 @@ class boss_the_lich_king : public CreatureScript
                     case NPC_VALKYR_SHADOWGUARD:
                     case NPC_RAGING_SPIRIT:
                     case NPC_VILE_SPIRIT:
-                    case NPC_WICKED_SPIRIT:
                         summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
                         break;
                     default:
@@ -802,8 +819,6 @@ class boss_the_lich_king : public CreatureScript
                         me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         SendMusicToPlayers(MUSIC_SPECIAL);
-                        me->SetReactState(REACT_PASSIVE);
-                        me->AttackStop();
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
                         events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
                         events.ScheduleEvent(EVENT_QUAKE, 62500, 0, PHASE_TRANSITION);
@@ -819,8 +834,6 @@ class boss_the_lich_king : public CreatureScript
                         me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         SendMusicToPlayers(MUSIC_SPECIAL);
-                        me->SetReactState(REACT_PASSIVE);
-                        me->AttackStop();
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
                         summons.DespawnEntry(NPC_VALKYR_SHADOWGUARD);
                         events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
@@ -992,10 +1005,6 @@ class boss_the_lich_king : public CreatureScript
                             DoCastAOE(SPELL_VILE_SPIRITS);
                             events.ScheduleEvent(EVENT_VILE_SPIRITS, urand(35000, 40000), EVENT_GROUP_VILE_SPIRITS, PHASE_THREE);
                             break;
-                        case EVENT_WICKED_SPIRITS:
-                            DoCastAOE(SPELL_VILE_SPIRITS);
-                            events.ScheduleEvent(EVENT_WICKED_SPIRITS, urand(35000, 40000), 0, PHASE_FROSTMOURNE);
-                            break;
                         case EVENT_HARVEST_SOULS:
                             Talk(SAY_LK_HARVEST_SOUL);
                             DoCastAOE(SPELL_HARVEST_SOULS);
@@ -1003,7 +1012,6 @@ class boss_the_lich_king : public CreatureScript
                             events.SetPhase(PHASE_FROSTMOURNE); // will stop running UpdateVictim (no evading)
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
-                            events.ScheduleEvent(EVENT_WICKED_SPIRITS, events.GetNextEventTime(EVENT_VILE_SPIRITS) - events.GetTimer(), 0, PHASE_FROSTMOURNE);
                             events.DelayEvents(50000, EVENT_GROUP_VILE_SPIRITS);
                             events.RescheduleEvent(EVENT_DEFILE, 50000, 0, PHASE_THREE);
                             events.RescheduleEvent(EVENT_SOUL_REAPER, urand(57000, 62000), 0, PHASE_THREE);
@@ -1019,16 +1027,22 @@ class boss_the_lich_king : public CreatureScript
                                 if (!triggers.empty())
                                 {
                                     triggers.sort(Trinity::ObjectDistanceOrderPred(terenas, true));
-                                    Unit* spawner = triggers.front();
+                                    Creature* spawner = triggers.front();
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_1, true);  // summons bombs randomly
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_2, true);  // summons bombs on players
+                                    spawner->m_Events.AddEvent(new TriggerWickedSpirit(spawner), spawner->m_Events.CalculateTime(3000));
                                 }
 
                                 for (SummonList::iterator i = summons.begin(); i != summons.end(); ++i)
                                 {
                                     Creature* summon = ObjectAccessor::GetCreature(*me, *i);
                                     if (summon && summon->GetEntry() == NPC_VILE_SPIRIT)
-                                        TeleportSpirit(summon);
+                                    {
+                                        summon->m_Events.KillAllEvents(true);
+                                        summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(50000));
+                                        summon->GetMotionMaster()->MoveRandom(10.0f);
+                                        summon->SetReactState(REACT_PASSIVE);
+                                    }
                                 }
                             }
                             break;
@@ -1099,22 +1113,6 @@ class boss_the_lich_king : public CreatureScript
             }
 
         private:
-
-            void TeleportSpirit(Creature* summon)
-            {
-                float dist = me->GetObjectSize() + (15.0f - me->GetObjectSize()) * float(rand_norm());
-                float angle = float(rand_norm()) * float(2.0f * M_PI);
-                Position dest = TerenasSpawnHeroic;
-                me->MovePosition(dest, dist, angle);
-                dest.m_positionZ += 15.0f;
-                summon->UpdateEntry(NPC_WICKED_SPIRIT);
-                summon->SetReactState(REACT_PASSIVE);
-                summon->NearTeleportTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), dest.GetOrientation());
-                summon->SetSpeed(MOVE_FLIGHT, 0.5f);
-                summon->m_Events.KillAllEvents(true);
-                summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(1000));
-            }
-
             void SendMusicToPlayers(uint32 musicId) const
             {
                 WorldPacket data(SMSG_PLAY_MUSIC, 4);
@@ -1635,8 +1633,13 @@ class npc_strangulate_vehicle : public CreatureScript
                     return;
 
                 if (TempSummon* summ = me->ToTempSummon())
+                {
                     if (Unit* summoner = summ->GetSummoner())
+                    {
                         DoCast(summoner, SPELL_HARVEST_SOUL_TELEPORT_BACK);
+                        summoner->RemoveAurasDueToSpell(SPELL_HARVEST_SOUL_DAMAGE_AURA);
+                    }
+                }
 
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                     lichKing->AI()->SummonedCreatureDespawn(me);
@@ -1991,6 +1994,10 @@ class npc_broken_frostmourne : public CreatureScript
             {
                 if (action == ACTION_SUMMON_TERENAS)
                     _events.ScheduleEvent(EVENT_OUTRO_SUMMON_TERENAS, 6000, 0, PHASE_OUTRO);
+            }
+
+            void EnterEvadeMode()
+            {
             }
 
             void UpdateAI(uint32 const diff)
@@ -2472,14 +2479,18 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
                 static Position const offset = {0.0f, 0.0f, 15.0f, 0.0f};
                 WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
                 dest->RelocateOffset(offset);
+                GetHitDest()->RelocateOffset(offset);
                 // spirit bombs get higher
                 if (GetSpellInfo()->Effects[effIndex].MiscValue == NPC_SPIRIT_BOMB)
+                {
                     dest->RelocateOffset(offset);
+                    GetHitDest()->RelocateOffset(offset);
+                }
             }
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_the_lich_king_summon_into_air_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit += SpellEffectFn(spell_the_lich_king_summon_into_air_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -2954,6 +2965,15 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
                     lichKing->AI()->DoAction(ACTION_TELEPORT_BACK);
                 if (Creature* spawner = GetCaster()->FindNearestCreature(NPC_WORLD_TRIGGER_INFINITE_AOI, 50.0f))
                     spawner->RemoveAllAuras();
+
+                std::list<Creature*> spirits;
+                GetCaster()->GetCreatureListWithEntryInGrid(spirits, NPC_WICKED_SPIRIT, 200.0f);
+                for (std::list<Creature*>::iterator itr = spirits.begin(); itr != spirits.end(); ++itr)
+                {
+                    (*itr)->m_Events.KillAllEvents(true);
+                    (*itr)->SetReactState(REACT_PASSIVE);
+                    (*itr)->AI()->EnterEvadeMode();
+                }
             }
 
             void RemoveAura()
@@ -3046,23 +3066,18 @@ class spell_the_lich_king_trigger_vile_spirit : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_trigger_vile_spirit_SpellScript);
 
-            void TeleportOutside()
+            void ActivateSpirit()
             {
                 Creature* target = GetHitCreature();
                 if (!target)
                     return;
 
-                Position dest;
-                Position offset;
-                TerenasSpawnHeroic.GetPositionOffsetTo(*target, offset);
-                GetCaster()->GetPosition(&dest);
-                dest.RelocateOffset(offset);
-                target->NearTeleportTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), dest.GetOrientation());
+                VileSpiritActivateEvent(target).Execute(0, 0);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_the_lich_king_trigger_vile_spirit_SpellScript::TeleportOutside);
+                OnHit += SpellHitFn(spell_the_lich_king_trigger_vile_spirit_SpellScript::ActivateSpirit);
             }
         };
 
