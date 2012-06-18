@@ -52,6 +52,7 @@ void AddSC_gm_commandscript();
 void AddSC_go_commandscript();
 void AddSC_gobject_commandscript();
 void AddSC_honor_commandscript();
+void AddSC_instance_commandscript();
 void AddSC_learn_commandscript();
 void AddSC_misc_commandscript();
 void AddSC_modify_commandscript();
@@ -654,6 +655,7 @@ void AddCommandScripts()
     AddSC_go_commandscript();
     AddSC_gobject_commandscript();
     AddSC_honor_commandscript();
+    AddSC_instance_commandscript();
     AddSC_learn_commandscript();
     AddSC_misc_commandscript();
     AddSC_modify_commandscript();
