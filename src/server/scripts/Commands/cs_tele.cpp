@@ -97,16 +97,16 @@ public:
         if (!*args)
             return false;
 
-		 // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
+         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
         GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
-		if (!tele)
-		{
-			handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
+        if (!tele)
+        {
+            handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
             handler->SetSentErrorMessage(true);
             return false;
-		}
+        }
         std::string name = tele->name;
-		sObjectMgr->DeleteGameTele(name);
+        sObjectMgr->DeleteGameTele(name);
         handler->SendSysMessage(LANG_COMMAND_TP_DELETED);
         return true;
     }
