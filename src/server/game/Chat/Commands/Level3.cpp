@@ -2198,47 +2198,6 @@ void ChatHandler::HandleCharacterLevel(Player* player, uint64 playerGuid, uint32
     }
 }
 
-bool ChatHandler::HandleCharacterLevelCommand(const char *args)
-{
-    char* nameStr;
-    char* levelStr;
-    extractOptFirstArg((char*)args, &nameStr, &levelStr);
-    if (!levelStr)
-        return false;
-
-    // exception opt second arg: .character level $name
-    if (isalpha(levelStr[0]))
-    {
-        nameStr = levelStr;
-        levelStr = NULL;                                    // current level will used
-    }
-
-    Player* target;
-    uint64 target_guid;
-    std::string target_name;
-    if (!extractPlayerTarget(nameStr, &target, &target_guid, &target_name))
-        return false;
-
-    int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromDB(target_guid);
-    int32 newlevel = levelStr ? atoi(levelStr) : oldlevel;
-
-    if (newlevel < 1)
-        return false;                                       // invalid level
-
-    if (newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
-        newlevel = STRONG_MAX_LEVEL;
-
-    HandleCharacterLevel(target, target_guid, oldlevel, newlevel);
-
-    if (!m_session || m_session->GetPlayer() != target)      // including player == NULL
-    {
-        std::string nameLink = playerLink(target_name);
-        PSendSysMessage(LANG_YOU_CHANGE_LVL, nameLink.c_str(), newlevel);
-    }
-
-    return true;
-}
-
 bool ChatHandler::HandleLevelUpCommand(const char *args)
 {
     char* nameStr;

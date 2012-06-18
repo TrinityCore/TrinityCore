@@ -154,19 +154,6 @@ class ChatHandler
         bool HandleCastTargetCommand(const char *args);
         bool HandleCastDestCommand(const char *args);
 
-        bool HandleCharacterCustomizeCommand(const char* args);
-        bool HandleCharacterChangeFactionCommand(const char* args);
-        bool HandleCharacterChangeRaceCommand(const char * args);
-        bool HandleCharacterDeletedDeleteCommand(const char* args);
-        bool HandleCharacterDeletedListCommand(const char* args);
-        bool HandleCharacterDeletedRestoreCommand(const char* args);
-        bool HandleCharacterDeletedOldCommand(const char* args);
-        bool HandleCharacterEraseCommand(const char* args);
-        bool HandleCharacterLevelCommand(const char* args);
-        bool HandleCharacterRenameCommand(const char* args);
-        bool HandleCharacterReputationCommand(const char* args);
-        bool HandleCharacterTitlesCommand(const char* args);
-
         bool HandleChannelSetOwnership(const char *args);
 
         bool HandlePossessCommand(const char* args);
