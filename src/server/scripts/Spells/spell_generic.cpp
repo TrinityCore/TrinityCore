@@ -2996,11 +2996,14 @@ class spell_gen_mount : public SpellScriptLoader
 
                     // Triggered spell id dependent on riding skill and zone
                     bool canFly = false;
-                    uint32 map = target->GetMapId();
+                    uint32 map = GetVirtualMapForMapAndZone(target->GetMapId(), target->GetZoneId());
                     if (map == 530 || (map == 571 && target->HasSpell(SPELL_COLD_WEATHER_FLYING)))
                         canFly = true;
 
-                    AreaTableEntry const* area = sAreaStore.LookupEntry(target->GetAreaId());
+                    float x, y, z;
+                    target->GetPosition(x, y, z);
+                    uint32 areaFlag = target->GetBaseMap()->GetAreaFlag(x, y, z);
+                    AreaTableEntry const* area = sAreaStore.LookupEntry(areaFlag);
                     if (!area || (canFly && (area->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
