@@ -2214,7 +2214,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
     for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
     {
-
         AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(entryId);
         if (!criteria)
             continue;
@@ -2245,7 +2244,6 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
     for (uint32 entryId = 0; entryId < sAchievementStore.GetNumRows(); ++entryId)
     {
-
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(entryId);
         if (!achievement || !achievement->refAchievement)
             continue;
@@ -2253,6 +2251,10 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         m_AchievementListByReferencedId[achievement->refAchievement].push_back(achievement);
         ++count;
     }
+
+    // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
+    if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(4539))
+        const_cast<AchievementEntry*>(achievement)->mapID = 631;    // Correct map requirement (currently has Ulduar)
 
     sLog->outString(">> Loaded %u achievement references in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
