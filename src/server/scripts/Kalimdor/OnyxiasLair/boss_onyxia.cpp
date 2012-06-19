@@ -187,7 +187,6 @@ public:
             DoScriptText(SAY_AGGRO, me);
             me->SetInCombatWithZone();
 
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             if (instance)
             {
                 instance->SetData(DATA_ONYXIA, IN_PROGRESS);
@@ -353,9 +352,7 @@ public:
                     if (HealthBelowPct(60))
                     {
                         SetCombatMovement(false);
-                        m_uiPhase = PHASE_BREATH;
-                        me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                        me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+                        Phase = PHASE_BREATH;
                         me->GetMotionMaster()->MovePoint(10, Phase2Location);
                         return;
                     }
@@ -423,10 +420,7 @@ public:
 
                     SetCombatMovement(true);
                     me->SetCanFly(false);
-                    m_bIsMoving = false;
-                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-                    me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
-                    me->GetMotionMaster()->MovePoint(9,me->GetHomePosition());
+                    IsMoving = false;
                     me->GetMotionMaster()->MovePoint(9, me->GetHomePosition());
                     return;
                 }
