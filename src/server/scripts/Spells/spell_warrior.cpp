@@ -184,9 +184,9 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                     damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
                     ApplyPctN(damage, 16 * sSpellMgr->GetSpellRank(GetSpellInfo()->Id));
-                    
+
                     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
-                    
+
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_DEEP_WOUNDS_RANK_PERIODIC);
                     uint32 ticks = spellInfo->GetDuration() / spellInfo->Effects[EFFECT_0].Amplitude;
 
@@ -405,7 +405,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -413,6 +413,33 @@ class spell_warr_bloodthirst : public SpellScriptLoader
         {
             return new spell_warr_bloodthirst_SpellScript();
         }
+};
+
+class spell_warr_bloodthirst_heal : public SpellScriptLoader
+{
+public:
+    spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
+
+    class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
+
+        void HandleHeal(SpellEffIndex /* effIndex */)
+        {
+            if (GetTriggeringSpell())
+                SetHitHeal(CalculatePctN(GetCaster()->GetMaxHealth(),GetTriggeringSpell()->Effects[EFFECT_1].CalcValue()));
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_bloodthirst_heal_SpellScript();
+    }
 };
 
 enum Overpower
@@ -472,4 +499,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_concussion_blow();
     new spell_warr_bloodthirst();
     new spell_warr_overpower();
+    new spell_warr_bloodthirst_heal();
 }

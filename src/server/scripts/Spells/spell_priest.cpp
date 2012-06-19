@@ -352,17 +352,13 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
             void HandleDispel(DispelInfo* /*dispelInfo*/)
             {
                 if (Unit* caster = GetCaster())
-                {
                     if (Unit* target = GetUnitOwner())
-                    {
                         if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
                         {
                             int32 damage = aurEff->GetAmount() * 8;
                             // backfire damage
                             caster->CastCustomSpell(target, PRIEST_SPELL_VAMPIRIC_TOUCH_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
                         }
-                    }
-                }
             }
 
             void Register()
