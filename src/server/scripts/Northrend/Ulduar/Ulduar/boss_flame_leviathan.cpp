@@ -720,20 +720,18 @@ class boss_flame_leviathan_overload_device : public CreatureScript
             {
             }
 
-            void DoAction(const int32 param)
+            void OnSpellClick(Unit* /*clicker*/)
             {
-                if (param == EVENT_SPELLCLICK)
+                if (me->GetVehicle())
                 {
-                    if (me->GetVehicle())
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+                    if (Unit* player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                     {
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        if (Unit* player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
-                        {
-                            me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
-                            player->GetMotionMaster()->MoveKnockbackFrom(me->GetVehicleBase()->GetPositionX(), me->GetVehicleBase()->GetPositionY(), 30, 30);
-                            player->ExitVehicle();
-                        }
+                        me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
+                        player->GetMotionMaster()->MoveKnockbackFrom(me->GetVehicleBase()->GetPositionX(), me->GetVehicleBase()->GetPositionY(), 30, 30);
+                        player->ExitVehicle();
                     }
                 }
             }

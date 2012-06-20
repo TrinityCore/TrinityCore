@@ -290,6 +290,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_TERENAS_MENETHIL_FROSTMOURNE_H:
                         TerenasMenethilGUID = creature->GetGUID();
                         break;
+                    case NPC_WICKED_SPIRIT:
+                        // Remove corpse as soon as it dies (and respawn 10 seconds later)
+                        creature->SetCorpseDelay(0);
+                        creature->SetReactState(REACT_PASSIVE);
+                        break;
                     default:
                         break;
                 }
