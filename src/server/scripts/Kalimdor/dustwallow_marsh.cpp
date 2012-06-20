@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 mobs_risen_husk_spirit
-npc_deserter_agitator
 npc_lady_jaina_proudmoore
 npc_nat_pagle
 npc_private_hendel
@@ -213,112 +212,6 @@ public:
 
             if (Id == 1)
                 me->DisappearAndDie();
-        }
-    };
-};
-
-/*######
-## npc_deserter_agitator
-######*/
-
-enum TheramoreGuard
-{
-    SAY_QUEST1                                   = -1000641,
-    SAY_QUEST2                                   = -1000642,
-    SAY_QUEST3                                   = -1000643,
-    SAY_QUEST4                                   = -1000644,
-    SAY_QUEST5                                   = -1000645,
-    SAY_QUEST6                                   = -1000646,
-    SAY_QUEST7                                   = -1000647,
-    SAY_QUEST8                                   = -1000648,
-    SAY_QUEST9                                   = -1000649,
-
-    QUEST_DISCREDITING_THE_DESERTERS             = 11133,
-
-    NPC_THERAMORE_GUARD                          = 4979,
-
-    SPELL_DOCTORED_LEAFLET                       = 42725,
-    SPELL_PROPAGANDIZED                          = 42246,
-};
-
-#define GOSSIP_ITEM_THERAMORE_GUARD "You look like an intelligent person. Why don't you read one of these leaflets and give it some thought?"
-
-class npc_theramore_guard : public CreatureScript
-{
-public:
-    npc_theramore_guard() : CreatureScript("npc_theramore_guard") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
-            DoScriptText(SAY_QUEST1, creature);
-            creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->YellTimer = 4000;
-            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->bYellTimer = true;
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_theramore_guardAI(creature);
-    }
-
-    struct npc_theramore_guardAI : public ScriptedAI
-    {
-        npc_theramore_guardAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 YellTimer;
-        uint32 Step;
-        bool bYellTimer;
-
-        void Reset()
-        {
-            bYellTimer = false;
-            Step = 0;
-        }
-
-        void UpdateAI(const uint32 Diff)
-        {
-            if (!me->HasAura(SPELL_PROPAGANDIZED))
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-            if (bYellTimer && YellTimer <= Diff)
-            {
-                switch (Step)
-                {
-                    case 0:
-                        DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);
-                        YellTimer = 3000;
-                        ++Step;
-                        break;
-                    case 1:
-                        DoScriptText(RAND(SAY_QUEST7, SAY_QUEST8, SAY_QUEST9), me);
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        Step = 0;
-                        bYellTimer = false;
-                        break;
-                }
-            }
-            else
-                YellTimer -= Diff;
         }
     };
 };
@@ -865,7 +758,6 @@ void AddSC_dustwallow_marsh()
     new npc_zelfrax();
     new npc_stinky();
     new npc_theramore_guard();
-    new npc_deserter_agitator();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
