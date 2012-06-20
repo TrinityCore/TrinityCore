@@ -397,7 +397,20 @@ class spell_warr_bloodthirst : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
 
-            void HandleDummy(SpellEffIndex /* effIndex */)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                int32 damage = GetEffectValue();
+                ApplyPctF(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
+
+                if (Unit* target = GetHitUnit())
+                {
+                    damage = GetCaster()->SpellDamageBonusDone(target, GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
+                    damage = target->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
+                }
+                SetHitDamage(damage);
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
                 GetCaster()->CastCustomSpell(GetCaster(), SPELL_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
@@ -405,6 +418,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
@@ -415,31 +429,36 @@ class spell_warr_bloodthirst : public SpellScriptLoader
         }
 };
 
+enum BloodthirstHeal
+{
+    SPELL_BLOODTHIRST_DAMAGE = 23881,
+};
+
 class spell_warr_bloodthirst_heal : public SpellScriptLoader
 {
-public:
-    spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
+    public:
+        spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
 
-    class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
-
-        void HandleHeal(SpellEffIndex /* effIndex */)
+        class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
         {
-            if (GetTriggeringSpell())
-                SetHitHeal(CalculatePctN(GetCaster()->GetMaxHealth(),GetTriggeringSpell()->Effects[EFFECT_1].CalcValue()));
-        }
+            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
 
-        void Register()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOODTHIRST_DAMAGE))
+                    SetHitHeal(GetCaster()->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_1].CalcValue(GetCaster())));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            return new spell_warr_bloodthirst_heal_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_bloodthirst_heal_SpellScript();
-    }
 };
 
 enum Overpower
@@ -498,6 +517,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_execute();
     new spell_warr_concussion_blow();
     new spell_warr_bloodthirst();
-    new spell_warr_overpower();
     new spell_warr_bloodthirst_heal();
+    new spell_warr_overpower();
 }
