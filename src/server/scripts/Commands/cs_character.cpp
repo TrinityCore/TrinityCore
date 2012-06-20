@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "AccountMgr.h"
+#include "ObjectMgr.h"
 
 class character_commandscript : public CommandScript
 {
