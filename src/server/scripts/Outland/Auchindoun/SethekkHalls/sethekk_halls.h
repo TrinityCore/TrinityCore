@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +15,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_SETHEKK_HALLS_H
-#define DEF_SETHEKK_HALLS_H
+#ifndef SETHEKK_HALLS_H_
+#define SETHEKK_HALLS_H_
 
-enum eTypes
+#define SHScriptName "instance_sethekk_halls"
+
+uint32 const EncounterCount = 3;
+
+enum CreaturesIds
 {
-    DATA_IKISSDOOREVENT = 1,
-    TYPE_ANZU_ENCOUNTER = 2,
+    NPC_FIRE_ELEMENTAL      = 19203,
+    NPC_FROST_ELEMENTAL     = 19204,
+    NPC_ARCANE_ELEMENTAL    = 19205,
+    NPC_SHADOW_ELEMENTAL    = 19206,
+    
+    NPC_ANZU                = 23035
 };
-#endif
 
+enum GameObjectsIds
+{
+    GO_IKISS_DOOR           = 177203,
+    GO_TALON_KINGS_COFFER   = 187372
+};
+
+enum DataTypes
+{
+    DATA_DARKWEAVER_SYTH    = 0,
+    DATA_TALON_KING_IKISS   = 1,
+    DATA_ANZU               = 2
+};
+
+#endif SETHEKK_HALLS_H_

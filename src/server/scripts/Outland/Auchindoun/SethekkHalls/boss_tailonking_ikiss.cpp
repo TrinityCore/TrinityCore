@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,202 +15,192 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Talon_King_Ikiss
-SD%Complete: 80
-SDComment: Heroic supported. Some details missing, but most are spell related.
-SDCategory: Auchindoun, Sethekk Halls
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "sethekk_halls.h"
 
-#define SAY_INTRO                   -1556007
+enum Texts
+{
+    SAY_INTRO           = 0,
+    SAY_AGGRO           = 1,
+    SAY_SLAY            = 2,
+    SAY_DEATH           = 3,
+    EMOTE_ARCANE_EXP    = 4
+};
 
-#define SAY_AGGRO_1                 -1556008
-#define SAY_AGGRO_2                 -1556009
-#define SAY_AGGRO_3                 -1556010
+enum Spells
+{
+    SPELL_ARCANE_BUBBLE         = 9438,
+    SPELL_SLOW                  = 35032,
+    SPELL_ARCANE_VOLLEY         = 35059,
+    SPELL_MANA_SHIELD           = 38151,
+    SPELL_BLINK                 = 38194,
+    SPELL_ARCANE_EXPLOSION      = 38197,
+    SPELL_BLINK_TELEPORT        = 38203,
+    SPELL_POLYMORPH             = 38245
+};
 
-#define SAY_SLAY_1                  -1556011
-#define SAY_SLAY_2                  -1556012
-#define SAY_DEATH                   -1556013
-#define EMOTE_ARCANE_EXP            -1556015
-
-#define SPELL_BLINK                 38194
-#define SPELL_BLINK_TELEPORT        38203
-#define SPELL_MANA_SHIELD           38151
-#define SPELL_ARCANE_BUBBLE         9438
-#define H_SPELL_SLOW                35032
-
-#define SPELL_POLYMORPH             38245
-#define H_SPELL_POLYMORPH           43309
-
-#define SPELL_ARCANE_VOLLEY         35059
-#define H_SPELL_ARCANE_VOLLEY       40424
-
-#define SPELL_ARCANE_EXPLOSION      38197
-#define H_SPELL_ARCANE_EXPLOSION    40425
+enum Events
+{
+    EVENT_ARCANE_VOLLEY = 1,
+    EVENT_POLYMORPH     = 2,
+    EVENT_BLINK         = 3,
+    EVENT_SLOW          = 4
+};
 
 class boss_talon_king_ikiss : public CreatureScript
 {
-public:
-    boss_talon_king_ikiss() : CreatureScript("boss_talon_king_ikiss") { }
+    public:
+        boss_talon_king_ikiss() : CreatureScript("boss_talon_king_ikiss") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_talon_king_ikissAI (creature);
-    }
-
-    struct boss_talon_king_ikissAI : public ScriptedAI
-    {
-        boss_talon_king_ikissAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_talon_king_ikissAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        uint32 ArcaneVolley_Timer;
-        uint32 Sheep_Timer;
-        uint32 Blink_Timer;
-        uint32 Slow_Timer;
-
-        bool ManaShield;
-        bool Blink;
-        bool Intro;
-
-        void Reset()
-        {
-            ArcaneVolley_Timer = 5000;
-            Sheep_Timer = 8000;
-            Blink_Timer = 35000;
-            Slow_Timer = 15000+rand()%15000;
-            Blink = false;
-            Intro = false;
-            ManaShield = false;
-        }
-
-        void MoveInLineOfSight(Unit* who)
-        {
-            if (!me->getVictim() && me->canCreatureAttack(who))
+            boss_talon_king_ikissAI(Creature* creature) : BossAI(creature, DATA_TALON_KING_IKISS)
             {
-                if (!Intro && me->IsWithinDistInMap(who, 100))
-                {
-                    Intro = true;
-                    DoScriptText(SAY_INTRO, me);
-                }
-
-                if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                    return;
-
-                float attackRadius = me->GetAttackDistance(who);
-                if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
-                {
-                    //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-                    AttackStart(who);
-                }
-            }
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-
-            if (instance)
-                instance->SetData(DATA_IKISSDOOREVENT, DONE);
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (Blink)
-            {
-                DoCast(me, SPELL_ARCANE_EXPLOSION);
-                DoCast(me, SPELL_ARCANE_BUBBLE, true);
-                Blink = false;
+                _introDone = false;
             }
 
-            if (ArcaneVolley_Timer <= diff)
+            void Reset()
             {
-                DoCast(me, SPELL_ARCANE_VOLLEY);
-                ArcaneVolley_Timer = 7000+rand()%5000;
-            } else ArcaneVolley_Timer -= diff;
-
-            if (Sheep_Timer <= diff)
-            {
-                Unit* target;
-
-                //second top aggro target in normal, random target in heroic correct?
+                _Reset();
+                events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5000);
+                events.ScheduleEvent(EVENT_POLYMORPH, 8000);
+                events.ScheduleEvent(EVENT_BLINK, 35000);
                 if (IsHeroic())
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                else
-                    target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                    events.ScheduleEvent(EVENT_SLOW, urand(15000,30000));
 
-                if (target)
-                    DoCast(target, SPELL_POLYMORPH);
-                Sheep_Timer = 15000+rand()%2500;
-            } else Sheep_Timer -= diff;
-
-            //may not be correct time to cast
-            if (!ManaShield && HealthBelowPct(20))
-            {
-                DoCast(me, SPELL_MANA_SHIELD);
-                ManaShield = true;
+                _isManaShield = false;
             }
 
-            if (IsHeroic())
+            void MoveInLineOfSight(Unit* who)
             {
-                if (Slow_Timer <= diff)
-                {
-                    DoCast(me, H_SPELL_SLOW);
-                    Slow_Timer = 15000+rand()%25000;
-                } else Slow_Timer -= diff;
+                if (_introDone)
+                    return;
+                    
+                if (!me->IsWithinDistInMap(who, 100.0f))
+                    return;
+                    
+                 _introDone = true;
+                 Talk(SAY_INTRO);
             }
 
-            if (Blink_Timer <= diff)
+            void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(EMOTE_ARCANE_EXP, me);
+                _EnterCombat();
+                Talk(SAY_AGGRO);
+            }
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            void JustDied(Unit* /*Killer*/)
+            {
+                Talk(SAY_DEATH);
+                
+                _JustDied();
+            }
+
+            void KilledUnit(Unit* /*victim*/)
+            {
+                Talk(SAY_SLAY);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+                    
+                if (!_isManaShield && HealthBelowPct(20))
                 {
-                    if (me->IsNonMeleeSpellCasted(false))
-                        me->InterruptNonMeleeSpells(false);
-
-                    //Spell doesn't work, but we use for visual effect at least
-                    DoCast(target, SPELL_BLINK);
-
-                    float X = target->GetPositionX();
-                    float Y = target->GetPositionY();
-                    float Z = target->GetPositionZ();
-
-                    DoTeleportTo(X, Y, Z);
-
-                    DoCast(target, SPELL_BLINK_TELEPORT);
-                    Blink = true;
+                    DoCast(me, SPELL_MANA_SHIELD);
+                    _isManaShield = true;
                 }
-                Blink_Timer = 35000+rand()%5000;
-            } else Blink_Timer -= diff;
+                
+                events.Update(diff);
 
-            if (!Blink)
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_ARCANE_VOLLEY:
+                            DoCast(me, SPELL_ARCANE_VOLLEY);
+                            events.ScheduleEvent(EVENT_ARCANE_VOLLEY, urand(7000, 12000));
+                            break;
+                        case EVENT_POLYMORPH:
+                            if (Unit* target = IsHeroic() ? SelectTarget(SELECT_TARGET_RANDOM, 0) : SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
+                                DoCast(target, SPELL_POLYMORPH);
+                            events.ScheduleEvent(EVENT_POLYMORPH, urand(15000,17500));
+                            break;
+                        case EVENT_SLOW:
+                            DoCast(me, SPELL_SLOW);
+                            events.ScheduleEvent(EVENT_SLOW, urand(15000,30000));
+                            break;
+                        case EVENT_BLINK:
+                            Talk(EMOTE_ARCANE_EXP);
+                            
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            {
+                                if (me->IsNonMeleeSpellCasted(false))
+                                    me->InterruptNonMeleeSpells(false);
+                        
+                                DoCast(target, SPELL_BLINK);
+                                DoCast(me, SPELL_ARCANE_BUBBLE, true);
+                                DoCast(me, SPELL_ARCANE_EXPLOSION);
+                                DoResetThreat();
+                            }
+                            events.ScheduleEvent(EVENT_BLINK, urand(35000,40000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 DoMeleeAttackIfReady();
+            }
+            
+            private:
+                bool _isManaShield;
+                bool _introDone;
+        };
+        
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_talon_king_ikissAI (creature);
         }
-    };
+};
 
+class spell_talon_king_ikiss_blink : public SpellScriptLoader
+{
+    public:
+        spell_talon_king_ikiss_blink() : SpellScriptLoader("spell_talon_king_ikiss_blink") { }
+
+        class spell_talon_king_ikiss_blink_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_talon_king_ikiss_blink_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLINK_TELEPORT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                    caster->CastSpell(target, SPELL_BLINK_TELEPORT, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_talon_king_ikiss_blink_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_talon_king_ikiss_blink_SpellScript();
+        }
 };
 
 void AddSC_boss_talon_king_ikiss()
 {
     new boss_talon_king_ikiss();
+    new spell_talon_king_ikiss_blink();
 }
