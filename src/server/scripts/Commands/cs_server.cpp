@@ -33,7 +33,7 @@ public:
     server_commandscript() : CommandScript("server_commandscript") { }
 
     ChatCommand* GetCommands() const
-	{
+    {
         static ChatCommand serverIdleRestartCommandTable[] =
         {
             { "cancel",         SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCancelCommand, "", NULL },
@@ -88,7 +88,7 @@ public:
             { NULL,             0,                  false, NULL,                                  "", NULL }
         };
 
-		 static ChatCommand commandTable[] =
+         static ChatCommand commandTable[] =
         {
             { "server",         SEC_ADMINISTRATOR,  true,  NULL,            "", serverCommandTable   },
             { NULL,             0,                  false, NULL,            "", NULL }
@@ -125,14 +125,14 @@ public:
 
         return true;
     }
-	// Display the 'Message of the day' for the realm
+    // Display the 'Message of the day' for the realm
     static bool HandleServerMotdCommand(ChatHandler* handler, char const* args)
     {
         handler->PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd());
         return true;
     }
 
-	static bool HandleServerPLimitCommand(ChatHandler* handler, char const* args)
+    static bool HandleServerPLimitCommand(ChatHandler* handler, char const* args)
     {
         if (*args)
         {
@@ -203,7 +203,7 @@ public:
 
         if (exitcode_str)
         {
-        int32 exitcode = atoi (exitcode_str);
+        int32 exitcode = atoi(exitcode_str);
 
         // Handle atoi() errors
         if (exitcode == 0 && (exitcode_str[0] != '0' || exitcode_str[1] != '\0'))
@@ -327,7 +327,7 @@ public:
             return true;
     }
 
-	// Exit the realm
+    // Exit the realm
     static bool HandleServerExitCommand(ChatHandler* handler, char const* args)
     {
         handler->SendSysMessage(LANG_COMMAND_EXIT);
@@ -335,7 +335,7 @@ public:
         return true;
     }
 
-	// Define the 'Message of the day' for the realm
+    // Define the 'Message of the day' for the realm
     static bool HandleServerSetMotdCommand(ChatHandler* handler, char const* args)
     {
         sWorld->SetMotd(args);

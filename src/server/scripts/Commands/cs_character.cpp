@@ -32,33 +32,33 @@ public:
     character_commandscript() : CommandScript("character_commandscript") { }
 
     ChatCommand* GetCommands() const
-	{
-            static ChatCommand characterDeletedCommandTable[] =
     {
-        { "delete",         SEC_CONSOLE,        true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
-        { "list",           SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedListCommand,     "", NULL },
-        { "restore",        SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedRestoreCommand,  "", NULL },
-        { "old",            SEC_CONSOLE,        true,  &HandleCharacterDeletedOldCommand,      "", NULL },
-        { NULL,             0,                  false, NULL,                                   "", NULL }
-    };
-
-    static ChatCommand characterCommandTable[] =
-    {
-        { "customize",      SEC_GAMEMASTER,     true,  &HandleCharacterCustomizeCommand,       "", NULL },
-        { "changefaction",  SEC_GAMEMASTER,     true,  &HandleCharacterChangeFactionCommand,   "", NULL },
-        { "changerace",     SEC_GAMEMASTER,     true,  &HandleCharacterChangeRaceCommand,      "", NULL },
-        { "deleted",        SEC_GAMEMASTER,     true,  NULL,            "", characterDeletedCommandTable},
-        { "erase",          SEC_CONSOLE,        true,  &HandleCharacterEraseCommand,           "", NULL },
-        { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           "", NULL },
-        { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
-        { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      "", NULL },
-        { "titles",         SEC_GAMEMASTER,     true,  &HandleCharacterTitlesCommand,          "", NULL },
-        { NULL,             0,                  false, NULL,                                   "", NULL }
-    };
-
-			 static ChatCommand commandTable[] =
+        static ChatCommand characterDeletedCommandTable[] =
         {
-       { "character",      SEC_GAMEMASTER,     true,  NULL,                    "", characterCommandTable},
+            { "delete",         SEC_CONSOLE,        true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
+            { "list",           SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedListCommand,     "", NULL },
+            { "restore",        SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedRestoreCommand,  "", NULL },
+            { "old",            SEC_CONSOLE,        true,  &HandleCharacterDeletedOldCommand,      "", NULL },
+            { NULL,             0,                  false, NULL,                                   "", NULL }
+        };
+
+        static ChatCommand characterCommandTable[] =
+        {
+            { "customize",      SEC_GAMEMASTER,     true,  &HandleCharacterCustomizeCommand,       "", NULL },
+            { "changefaction",  SEC_GAMEMASTER,     true,  &HandleCharacterChangeFactionCommand,   "", NULL },
+            { "changerace",     SEC_GAMEMASTER,     true,  &HandleCharacterChangeRaceCommand,      "", NULL },
+            { "deleted",        SEC_GAMEMASTER,     true,  NULL,            "", characterDeletedCommandTable},
+            { "erase",          SEC_CONSOLE,        true,  &HandleCharacterEraseCommand,           "", NULL },
+            { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           "", NULL },
+            { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
+            { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      "", NULL },
+            { "titles",         SEC_GAMEMASTER,     true,  &HandleCharacterTitlesCommand,          "", NULL },
+            { NULL,             0,                  false, NULL,                                   "", NULL }
+        };
+
+        static ChatCommand commandTable[] =
+        {
+            { "character",      SEC_GAMEMASTER,     true,  NULL,                    "", characterCommandTable},
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
  
@@ -71,7 +71,7 @@ public:
         if (!*args)
             return false;
 
-		Player* target;
+        Player* target;
         if (!handler->extractPlayerTarget((char*)args, &target))
             return false;
 
@@ -83,6 +83,7 @@ public:
         for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
         {
             CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
+
             if (titleInfo && target->HasTitle(titleInfo))
             {
                 std::string name = titleInfo->name[loc];
@@ -90,14 +91,14 @@ public:
                     continue;
 
                 char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
-                    ? handler->GetTrinityString(LANG_ACTIVE)
-                    : "";
+                ? handler->GetTrinityString(LANG_ACTIVE)
+                : "";
 
                 char titleNameStr[80];
                 snprintf(titleNameStr, 80, name.c_str(), targetName);
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
-				if (handler->GetSession())
+                if (handler->GetSession())
                     handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->bit_index, id, titleNameStr, localeNames[loc], knownStr, activeStr);
                 else
                     handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->bit_index, name.c_str(), localeNames[loc], knownStr, activeStr);
@@ -137,8 +138,7 @@ public:
             stmt->setUInt32(1, GUID_LOPART(targetGuid));
             CharacterDatabase.Execute(stmt);
         }
-
-    return true;
+        return true;
     }
 
     static bool HandleCharacterLevelCommand(ChatHandler* handler, char const* args)
@@ -471,7 +471,7 @@ public:
     }
 
     static bool HandleCharacterEraseCommand(ChatHandler* handler, char const* args)
-	{
+    {
         if (!*args)
             return false;
 
