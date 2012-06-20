@@ -3603,8 +3603,6 @@ bool ChatHandler::HandleComeToMeCommand(const char *args)
     return true;
 }
 
-}
-
 //Send items by mail
 bool ChatHandler::HandleSendItemsCommand(const char *args)
 {

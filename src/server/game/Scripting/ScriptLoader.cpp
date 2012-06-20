@@ -670,7 +670,7 @@ void AddCommandScripts()
 	AddSC_server_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
-	AddSC_character_commandscript();
+    AddSC_character_commandscript();
 }
 
 void AddWorldScripts()

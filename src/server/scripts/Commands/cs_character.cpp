@@ -65,6 +65,166 @@ public:
         return commandTable;
     }
 
+    // Stores informations about a deleted character
+    struct DeletedInfo
+    {
+        uint32      lowguid;                            ///< the low GUID from the character
+        std::string name;                               ///< the character name
+        uint32      accountId;                          ///< the account id
+        std::string accountName;                        ///< the account name
+        time_t      deleteDate;                         ///< the date at which the character has been deleted
+    };
+
+    typedef std::list<DeletedInfo> DeletedInfoList;
+
+    /**
+    * Collects all GUIDs (and related info) from deleted characters which are still in the database.
+    *
+    * @param foundList    a reference to an std::list which will be filled with info data
+    * @param searchString the search string which either contains a player GUID or a part fo the character-name
+    * @return             returns false if there was a problem while selecting the characters (e.g. player name not normalizeable)
+    */
+    static bool GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::string searchString)
+    {
+        PreparedQueryResult result;
+        PreparedStatement* stmt;
+        if (!searchString.empty())
+        {
+            // search by GUID
+            if (isNumeric(searchString.c_str()))
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_GUID);
+    
+                stmt->setUInt32(0, uint32(atoi(searchString.c_str())));
+    
+                result = CharacterDatabase.Query(stmt);
+            }
+            // search by name
+            else
+            {
+                if (!normalizePlayerName(searchString))
+                    return false;
+    
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_NAME);
+    
+                stmt->setString(0, searchString);
+    
+                result = CharacterDatabase.Query(stmt);
+            }
+        }
+        else
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO);
+    
+            result = CharacterDatabase.Query(stmt);
+        }
+    
+        if (result)
+        {
+            do
+            {
+                Field* fields = result->Fetch();
+    
+                DeletedInfo info;
+    
+                info.lowguid    = fields[0].GetUInt32();
+                info.name       = fields[1].GetString();
+                info.accountId  = fields[2].GetUInt32();
+    
+                // account name will be empty for not existed account
+                AccountMgr::GetName(info.accountId, info.accountName);
+    
+                info.deleteDate = time_t(fields[3].GetUInt32());
+    
+                foundList.push_back(info);
+            } while (result->NextRow());
+        }
+    
+        return true;
+    }
+
+    /**
+    * Shows all deleted characters which matches the given search string, expected non empty list
+    *
+    * @see HandleCharacterDeletedListCommand
+    * @see HandleCharacterDeletedRestoreCommand
+    * @see HandleCharacterDeletedDeleteCommand
+    * @see DeletedInfoList
+    *
+    * @param foundList contains a list with all found deleted characters
+    */
+    static void HandleCharacterDeletedListHelper(DeletedInfoList const& foundList, ChatHandler* handler)
+    {
+        if (!handler->GetSession())
+        {
+            handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_BAR);
+            handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_HEADER);
+            handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_BAR);
+        }
+    
+        for (DeletedInfoList::const_iterator itr = foundList.begin(); itr != foundList.end(); ++itr)
+        {
+            std::string dateStr = TimeToTimestampStr(itr->deleteDate);
+    
+            if (!handler->GetSession())
+                handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CONSOLE,
+                    itr->lowguid, itr->name.c_str(), itr->accountName.empty() ? "<Not existed>" : itr->accountName.c_str(),
+                    itr->accountId, dateStr.c_str());
+            else
+                handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CHAT,
+                    itr->lowguid, itr->name.c_str(), itr->accountName.empty() ? "<Not existed>" : itr->accountName.c_str(),
+                    itr->accountId, dateStr.c_str());
+        }
+    
+        if (!handler->GetSession())
+            handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_BAR);
+    }
+
+    /**
+    * Restore a previously deleted character
+    *
+    * @see HandleCharacterDeletedListHelper
+    * @see HandleCharacterDeletedRestoreCommand
+    * @see HandleCharacterDeletedDeleteCommand
+    * @see DeletedInfoList
+    *
+    * @param delInfo the informations about the character which will be restored
+    */
+    static void HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo, ChatHandler* handler)
+    {
+        if (delInfo.accountName.empty())                    // account not exist
+        {
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.lowguid, delInfo.accountId);
+            return;
+        }
+    
+        // check character count
+        uint32 charcount = AccountMgr::GetCharactersCount(delInfo.accountId);
+        if (charcount >= 10)
+        {
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.lowguid, delInfo.accountId);
+            return;
+        }
+    
+        if (sObjectMgr->GetPlayerGUIDByName(delInfo.name))
+        {
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.lowguid, delInfo.accountId);
+            return;
+        }
+    
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_RESTORE_DELETE_INFO);
+    
+        stmt->setString(0, delInfo.name);
+        stmt->setUInt32(1, delInfo.accountId);
+        stmt->setUInt32(2, delInfo.lowguid);
+    
+        CharacterDatabase.Execute(stmt);
+    
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
+        stmt->setUInt32(0, delInfo.lowguid);
+        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+            sWorld->AddCharacterNameData(delInfo.lowguid, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8());
+    }
 
     static bool HandleCharacterTitlesCommand(ChatHandler* handler, char const* args)
     {
@@ -311,17 +471,17 @@ public:
    /**
     * Handles the '.character deleted list' command, which shows all deleted characters which matches the given search string
     *
-    * @see ChatHandler::HandleCharacterDeletedListHelper
-    * @see ChatHandler::HandleCharacterDeletedRestoreCommand
-    * @see ChatHandler::HandleCharacterDeletedDeleteCommand
-    * @see ChatHandler::DeletedInfoList
+    * @see HandleCharacterDeletedListHelper
+    * @see HandleCharacterDeletedRestoreCommand
+    * @see HandleCharacterDeletedDeleteCommand
+    * @see DeletedInfoList
     *
     * @param args the search string which either contains a player GUID or a part fo the character-name
     */
     static bool HandleCharacterDeletedListCommand(ChatHandler* handler, char const* args)
     {
         DeletedInfoList foundList;
-        if (!handler->GetDeletedCharacterInfoList(foundList, args))
+        if (!GetDeletedCharacterInfoList(foundList, args))
             return false;
 
         // if no characters have been found, output a warning
@@ -331,7 +491,7 @@ public:
             return false;
         }
 
-        handler->HandleCharacterDeletedListHelper(foundList);
+        HandleCharacterDeletedListHelper(foundList, handler);
         return true;
     }
 
@@ -340,9 +500,9 @@ public:
      *
      * The command automatically calls '.character deleted list' command with the search string to show all restored characters.
      *
-     * @see ChatHandler::HandleCharacterDeletedRestoreHelper
-     * @see ChatHandler::HandleCharacterDeletedListCommand
-     * @see ChatHandler::HandleCharacterDeletedDeleteCommand
+     * @see HandleCharacterDeletedRestoreHelper
+     * @see HandleCharacterDeletedListCommand
+     * @see HandleCharacterDeletedDeleteCommand
      *
      * @param args the search string which either contains a player GUID or a part of the character-name
      */
@@ -361,7 +521,7 @@ public:
         params >> searchString >> newCharName >> newAccount;
 
         DeletedInfoList foundList;
-        if (!handler->GetDeletedCharacterInfoList(foundList, searchString))
+        if (!GetDeletedCharacterInfoList(foundList, searchString))
             return false;
 
         if (foundList.empty())
@@ -371,13 +531,13 @@ public:
         }
 
         handler->SendSysMessage(LANG_CHARACTER_DELETED_RESTORE);
-        handler->HandleCharacterDeletedListHelper(foundList);
+        HandleCharacterDeletedListHelper(foundList, handler);
 
         if (newCharName.empty())
         {
             // Drop not existed account cases
             for (DeletedInfoList::iterator itr = foundList.begin(); itr != foundList.end(); ++itr)
-                handler->HandleCharacterDeletedRestoreHelper(*itr);
+                HandleCharacterDeletedRestoreHelper(*itr, handler);
         }
         else if (foundList.size() == 1 && normalizePlayerName(newCharName))
         {
@@ -393,7 +553,7 @@ public:
                 AccountMgr::GetName(newAccount, delInfo.accountName);
             }
 
-            handler->HandleCharacterDeletedRestoreHelper(delInfo);
+            HandleCharacterDeletedRestoreHelper(delInfo, handler);
         }
         else
             handler->SendSysMessage(LANG_CHARACTER_DELETED_ERR_RENAME);
@@ -406,8 +566,8 @@ public:
      *
      * @see Player::GetDeletedCharacterGUIDs
      * @see Player::DeleteFromDB
-     * @see ChatHandler::HandleCharacterDeletedListCommand
-     * @see ChatHandler::HandleCharacterDeletedRestoreCommand
+     * @see HandleCharacterDeletedListCommand
+     * @see HandleCharacterDeletedRestoreCommand
      *
      * @param args the search string which either contains a player GUID or a part fo the character-name
      */
@@ -418,7 +578,7 @@ public:
             return false;
 
         DeletedInfoList foundList;
-        if (!handler->GetDeletedCharacterInfoList(foundList, args))
+        if (!GetDeletedCharacterInfoList(foundList, args))
             return false;
 
         if (foundList.empty())
@@ -428,7 +588,7 @@ public:
         }
 
         handler->SendSysMessage(LANG_CHARACTER_DELETED_DELETE);
-        handler->HandleCharacterDeletedListHelper(foundList);
+        HandleCharacterDeletedListHelper(foundList, handler);
 
         // Call the appropriate function to delete them (current account for deleted characters is 0)
         for (DeletedInfoList::const_iterator itr = foundList.begin(); itr != foundList.end(); ++itr)
@@ -442,9 +602,9 @@ public:
      *
      * @see Player::DeleteOldCharacters
      * @see Player::DeleteFromDB
-     * @see ChatHandler::HandleCharacterDeletedDeleteCommand
-     * @see ChatHandler::HandleCharacterDeletedListCommand
-     * @see ChatHandler::HandleCharacterDeletedRestoreCommand
+     * @see HandleCharacterDeletedDeleteCommand
+     * @see HandleCharacterDeletedListCommand
+     * @see HandleCharacterDeletedRestoreCommand
      *
      * @param args the search string which either contains a player GUID or a part fo the character-name
      */
