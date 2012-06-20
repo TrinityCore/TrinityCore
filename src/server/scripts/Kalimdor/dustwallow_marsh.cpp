@@ -131,28 +131,40 @@ class mobs_risen_husk_spirit : public CreatureScript
 };
 
 /*######
-## npc_deserter_agitator
+## npc_theramor_guard
 ######*/
 
-enum Deserter
+enum TheramoreGuard
 {
-    QUEST_TRAITORS_AMONG_US                      = 11126,
-    NPC_THERAMORE_DESERTER                       = 23602,
+    SAY_QUEST1                                   = -1000641,
+    SAY_QUEST2                                   = -1000642,
+    SAY_QUEST3                                   = -1000643,
+    SAY_QUEST4                                   = -1000644,
+    SAY_QUEST5                                   = -1000645,
+    SAY_QUEST6                                   = -1000646,
+    SAY_QUEST7                                   = -1000647,
+    SAY_QUEST8                                   = -1000648,
+    SAY_QUEST9                                   = -1000649,
+
+    QUEST_DISCREDITING_THE_DESERTERS             = 11133,
+
+    NPC_THERAMORE_GUARD                          = 4979,
+
+    SPELL_DOCTORED_LEAFLET                       = 42725,
+    SPELL_PROPAGANDIZED                          = 42246,
 };
 
-const Position DeserterDisappearPos = {-3609.03f, -4332.91f, 9.39354f, 3.73862f};
+#define GOSSIP_ITEM_THERAMORE_GUARD "You look like an intelligent person. Why don't you read one of these leaflets and give it some thought?"
 
-#define GOSSIP_ITEM_DESERTER "Your propaganda wont`t work on me. Spout your treasonous filth elsewhere traitor!"
-
-class npc_deserter_agitator : public CreatureScript
+class npc_theramore_guard : public CreatureScript
 {
 public:
-    npc_deserter_agitator() : CreatureScript("npc_deserter_agitator") { }
+    npc_theramore_guard() : CreatureScript("npc_theramore_guard") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (player->GetQuestStatus(QUEST_TRAITORS_AMONG_US) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DESERTER, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+        if (player->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
@@ -166,23 +178,12 @@ public:
         if (action == GOSSIP_SENDER_INFO)
         {
             player->CLOSE_GOSSIP_MENU();
-            switch (urand(0, 1))
-            {
-                case 0:
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    creature->setFaction(14);
-                    creature->AI()->AttackStart(player);
-                    break;
-                case 1:
-                    player->KilledMonsterCredit(NPC_THERAMORE_DESERTER, 0);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    creature->SetSpeed(MOVE_RUN, creature->GetSpeedRate(MOVE_RUN), true);
-                    creature->setFaction(35);
-                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-                    creature->SetReactState(REACT_PASSIVE);
-                    creature->GetMotionMaster()->MovePoint(1, DeserterDisappearPos);
-                    break;
-            }
+            player->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
+            DoScriptText(SAY_QUEST1, creature);
+            creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->YellTimer = 4000;
+            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->bYellTimer = true;
         }
 
         return true;
@@ -190,28 +191,47 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_deserter_agitatorAI(creature);
+        return new npc_theramore_guardAI(creature);
     }
 
-    struct npc_deserter_agitatorAI : public ScriptedAI
+    struct npc_theramore_guardAI : public ScriptedAI
     {
-        npc_deserter_agitatorAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_theramore_guardAI(Creature* creature) : ScriptedAI(creature) { }
+
+        uint32 YellTimer;
+        uint32 Step;
+        bool bYellTimer;
 
         void Reset()
         {
-            me->RestoreFaction();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_AGGRESSIVE);
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            bYellTimer = false;
+            Step = 0;
         }
 
-        void MovementInform(uint32 Type, uint32 Id)
+        void UpdateAI(const uint32 Diff)
         {
-            if (Type != POINT_MOTION_TYPE)
-                return;
+            if (!me->HasAura(SPELL_PROPAGANDIZED))
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            if (Id == 1)
-                me->DisappearAndDie();
+            if (bYellTimer && YellTimer <= Diff)
+            {
+                switch (Step)
+                {
+                    case 0:
+                        DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);
+                        YellTimer = 3000;
+                        ++Step;
+                        break;
+                    case 1:
+                        DoScriptText(RAND(SAY_QUEST7, SAY_QUEST8, SAY_QUEST9), me);
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                        Step = 0;
+                        bYellTimer = false;
+                        break;
+                }
+            }
+            else
+                YellTimer -= Diff;
         }
     };
 };
