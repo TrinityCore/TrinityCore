@@ -61,8 +61,10 @@ void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
 void AddSC_reload_commandscript();
 void AddSC_tele_commandscript();
+void AddSC_server_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
+void AddSC_character_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -665,8 +667,10 @@ void AddCommandScripts()
     AddSC_quest_commandscript();
     AddSC_reload_commandscript();
     AddSC_tele_commandscript();
+	AddSC_server_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
+    AddSC_character_commandscript();
 }
 
 void AddWorldScripts()
