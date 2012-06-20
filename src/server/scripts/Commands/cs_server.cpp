@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "SystemConfig.h"
 #include "Config.h"
+#include "ObjectAccessor.h"
 
 class server_commandscript : public CommandScript
 {
