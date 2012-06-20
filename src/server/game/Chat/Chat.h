@@ -124,7 +124,7 @@ class ChatHandler
         static bool LoadCommandTable() { return load_command_table; }
         static void SetLoadCommandTable(bool val) { load_command_table = val; }
         
-        // cs_character
+        // character_commandscript
         void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel);
 
     protected:
@@ -315,7 +315,6 @@ class ChatHandler
         bool HandleBanInfoHelper(uint32 accountid, char const* accountname);
         bool HandleUnBanHelper(BanMode mode, char const* args);
         void HandleLearnSkillRecipesHelper(Player* player, uint32 skill_id);
-        void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel);
 
     private:
         bool _HandleGMTicketResponseAppendCommand(const char* args, bool newLine);
