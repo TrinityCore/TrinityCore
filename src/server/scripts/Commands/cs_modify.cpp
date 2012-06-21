@@ -1390,7 +1390,7 @@ public:
         if (!target)
             target = handler->GetSession()->GetPlayer();
 
-		// check online security
+        // check online security
         else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
             return false;
 
