@@ -78,7 +78,7 @@ struct ServerPktHeader
         return 2+(isLargePacket()?3:2);
     }
 
-    bool isLargePacket()
+    bool isLargePacket() const
     {
         return size > 0x7FFF;
     }

@@ -196,7 +196,6 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
             sWorld->BanAccount(BAN_ACCOUNT, accountName, duration.str(), banReason.str(),"Server");
 
             return "Ban";
-            break;
         }
     default:
         break;
