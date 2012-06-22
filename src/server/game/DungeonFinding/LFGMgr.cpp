@@ -791,7 +791,7 @@ LfgProposal* LFGMgr::FindNewGroups(LfgGuidList& check, LfgGuidList& all)
     sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FindNewGroup: (%s) - all(%s)", ConcatenateGuids(check).c_str(), ConcatenateGuids(all).c_str());
 
     LfgProposal* pProposal = NULL;
-    if (!check.size() || check.size() > MAXGROUPSIZE || !CheckCompatibility(check, pProposal))
+    if (check.empty() || check.size() > MAXGROUPSIZE || !CheckCompatibility(check, pProposal))
         return NULL;
 
     // Try to match with queued groups
