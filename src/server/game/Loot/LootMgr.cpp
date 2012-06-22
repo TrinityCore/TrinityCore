@@ -479,7 +479,7 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 
         if (!item->is_looted && item->freeforall && item->AllowedForPlayer(player))
             if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
-                if (proto->BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS)
+                if (proto->IsCurrencyToken())
                     player->StoreLootItem(i, this);
     }
 }
