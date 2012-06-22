@@ -433,8 +433,8 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
             locktype = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > DUNGEON_DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
         {
-            if (!player->GetGroup() || !player->GetGroup()->isLFGGroup() || GetDungeon(player->GetGroup()->GetGUID(), true) != dungeon->ID || GetState(player->GetGroup()->GetGUID()) != LFG_STATE_DUNGEON)
-                locktype = LFG_LOCKSTATUS_RAID_LOCKED;
+            //if (!player->GetGroup() || !player->GetGroup()->isLFGGroup() || GetDungeon(player->GetGroup()->GetGUID(), true) != dungeon->ID || GetState(player->GetGroup()->GetGUID()) != LFG_STATE_DUNGEON)
+            locktype = LFG_LOCKSTATUS_RAID_LOCKED;
         }
         else if (dungeon->minlevel > level)
             locktype = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
@@ -791,7 +791,7 @@ LfgProposal* LFGMgr::FindNewGroups(LfgGuidList& check, LfgGuidList& all)
     sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FindNewGroup: (%s) - all(%s)", ConcatenateGuids(check).c_str(), ConcatenateGuids(all).c_str());
 
     LfgProposal* pProposal = NULL;
-    if (!check.size() || check.size() > MAXGROUPSIZE || !CheckCompatibility(check, pProposal))
+    if (check.empty() || check.size() > MAXGROUPSIZE || !CheckCompatibility(check, pProposal))
         return NULL;
 
     // Try to match with queued groups

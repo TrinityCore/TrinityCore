@@ -222,7 +222,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
     //    return;
     //}
 
-    bool found = false;
+    //bool found = false;
 
     std::string str = "Test string!";
 
@@ -238,7 +238,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
     if (memcmp(sha1Hash, sha1.GetDigest(), 20))
     {
         sLog->outDebug(LOG_FILTER_WARDEN, "Handle data failed: SHA1 hash is wrong!");
-        found = true;
+        //found = true;
     }
 
     MD5_CTX ctx;
@@ -253,7 +253,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
     if (memcmp(ourMD5Hash, theirsMD5Hash, 16))
     {
         sLog->outDebug(LOG_FILTER_WARDEN, "Handle data failed: MD5 hash is wrong!");
-        found = true;
+        //found = true;
     }
 
     _session->KickPlayer();

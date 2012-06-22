@@ -500,13 +500,13 @@ struct MovementInfo
         t_seat = -1;
     }
 
-    uint32 GetMovementFlags() { return flags; }
+    uint32 GetMovementFlags() const { return flags; }
     void SetMovementFlags(uint32 flag) { flags = flag; }
     void AddMovementFlag(uint32 flag) { flags |= flag; }
     void RemoveMovementFlag(uint32 flag) { flags &= ~flag; }
     bool HasMovementFlag(uint32 flag) const { return flags & flag; }
 
-    uint16 GetExtraMovementFlags() { return flags2; }
+    uint16 GetExtraMovementFlags() const { return flags2; }
     void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
     bool HasExtraMovementFlag(uint16 flag) const { return flags2 & flag; }
 
