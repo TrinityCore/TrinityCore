@@ -826,6 +826,11 @@ void SmartAI::sOnGameEvent(bool start, uint16 eventId)
     GetScript()->ProcessEventsFor(start ? SMART_EVENT_GAME_EVENT_START : SMART_EVENT_GAME_EVENT_END, NULL, eventId);
 }
 
+void SmartAI::OnSpellClick(Unit* clicker)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELLCLICK, clicker);
+}
+
 int SmartGameObjectAI::Permissible(const GameObject* g)
 {
     if (g->GetAIName() == "SmartGameObjectAI")

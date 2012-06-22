@@ -154,8 +154,9 @@ enum SMART_EVENT
     SMART_EVENT_GO_STATE_CHANGED         = 70,      // go state
     SMART_EVENT_GO_EVENT_INFORM          = 71,      // eventId
     SMART_EVENT_ACTION_DONE              = 72,      // eventId (SharedDefines.EventId)
+    SMART_EVENT_ON_SPELLCLICK            = 73,      // clicker (unit)
 
-    SMART_EVENT_END                      = 73,
+    SMART_EVENT_END                      = 74,
 };
 
 struct SmartEvent
@@ -1178,6 +1179,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_GO_STATE_CHANGED,          SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GO_EVENT_INFORM,           SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_ACTION_DONE,               SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_ON_SPELLCLICK,             SMART_SCRIPT_TYPE_MASK_CREATURE },
 };
 
 enum SmartEventFlags

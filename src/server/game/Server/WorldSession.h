@@ -323,7 +323,7 @@ class WorldSession
         void LoadTutorialsData();
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
-        uint32 GetTutorialInt(uint8 index) { return m_Tutorials[index]; }
+        uint32 GetTutorialInt(uint8 index) const { return m_Tutorials[index]; }
         void SetTutorialInt(uint8 index, uint32 value)
         {
             if (m_Tutorials[index] != value)
@@ -390,8 +390,8 @@ class WorldSession
         }
 
         // Recruit-A-Friend Handling
-        uint32 GetRecruiterId() { return recruiterId; }
-        bool IsARecruiter() { return isRecruiter; }
+        uint32 GetRecruiterId() const { return recruiterId; }
+        bool IsARecruiter() const { return isRecruiter; }
 
     public:                                                 // opcodes handlers
 

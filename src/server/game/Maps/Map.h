@@ -193,10 +193,10 @@ public:
     bool loadData(char* filaname);
     void unloadData();
 
-    uint16 getArea(float x, float y);
-    inline float getHeight(float x, float y) {return (this->*_gridGetHeight)(x, y);}
-    float getLiquidLevel(float x, float y);
-    uint8 getTerrainType(float x, float y);
+    uint16 getArea(float x, float y) const;
+    inline float getHeight(float x, float y) const {return (this->*_gridGetHeight)(x, y);}
+    float getLiquidLevel(float x, float y) const;
+    uint8 getTerrainType(float x, float y) const;
     ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0);
 };
 
