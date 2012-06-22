@@ -124,7 +124,7 @@ class ChatHandler
         static bool LoadCommandTable() { return load_command_table; }
         static void SetLoadCommandTable(bool val) { load_command_table = val; }
         
-        // character_commandscript
+        // cs_character
         void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel);
 
     protected:
@@ -162,11 +162,6 @@ class ChatHandler
         bool HandleGuildUninviteCommand(const char* args);
         bool HandleGuildRankCommand(const char* args);
         bool HandleGuildDeleteCommand(const char* args);
-
-        bool HandleListAurasCommand(const char * args);
-        bool HandleListCreatureCommand(const char* args);
-        bool HandleListItemCommand(const char* args);
-        bool HandleListObjectCommand(const char* args);
 
         bool HandleLookupAreaCommand(const char* args);
         bool HandleLookupCreatureCommand(const char* args);
