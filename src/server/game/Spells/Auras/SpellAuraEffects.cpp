@@ -3548,7 +3548,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
             break;
     }
 
-    if (aura_immunity_list.size() == 0)
+    if (aura_immunity_list.empty())
     {
             if (miscVal & (1<<10))
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
