@@ -327,7 +327,6 @@ Player* FollowerAI::GetLeaderForFollower()
                         sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI GetLeader changed and returned new leader.");
                         m_uiLeaderGUID = member->GetGUID();
                         return member;
-                        break;
                     }
                 }
             }
