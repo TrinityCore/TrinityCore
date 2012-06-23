@@ -25,6 +25,8 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "SpellAuraEffects.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 
 class list_commandscript : public CommandScript
 {

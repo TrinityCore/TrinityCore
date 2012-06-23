@@ -1543,8 +1543,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            float attackDistance = (float)e.action.setRangedMovement.distance;
-            float attackAngle = e.action.setRangedMovement.angle / 180.0f * M_PI;
+            float attackDistance = float(e.action.setRangedMovement.distance);
+            float attackAngle = float(e.action.setRangedMovement.angle) / 180.0f * M_PI;
 
             ObjectList* targets = GetTargets(e, unit);
             if (targets)
