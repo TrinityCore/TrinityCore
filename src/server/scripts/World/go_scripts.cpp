@@ -1275,6 +1275,28 @@ public:
     }
 };
 
+/*######
+## go_midsummer_bonfire
+######*/
+
+enum eMidsummerBonfire
+{
+    STAMP_OUT_BONFIRE_QUEST_COMPLETE    = 45458,
+};
+
+class go_midsummer_bonfire : public GameObjectScript
+{
+public:
+    go_midsummer_bonfire() : GameObjectScript("go_midsummer_bonfire") { }
+
+    bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/)
+    {
+        player->CastSpell(player, STAMP_OUT_BONFIRE_QUEST_COMPLETE, true);
+        player->CLOSE_GOSSIP_MENU();
+        return false;
+    }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1316,4 +1338,5 @@ void AddSC_go_scripts()
     new go_large_gjalerbron_cage;
     new go_veil_skith_cage;
     new go_frostblade_shrine;
+    new go_midsummer_bonfire;
 }
