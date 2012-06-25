@@ -1,7 +1,7 @@
 -- Chillwind Camp Mid Summer Festival Go Spawns
 SET @OGUID := 17845;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+17;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (@OGUID+0,181300,0,1,1,945.1077,-1435.984,62.91423,5.288348,0,0,0,1,120,255,1),
 (@OGUID+1,181302,0,1,1,1004.427,-1443.667,62.28303,2.949595,0,0,0,1,120,255,1),
 (@OGUID+2,181302,0,1,1,1004.097,-1446.269,61.98349,1.989672,0,0,0,1,120,255,1),

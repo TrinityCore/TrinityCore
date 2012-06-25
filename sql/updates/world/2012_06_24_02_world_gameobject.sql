@@ -1,7 +1,7 @@
 -- Burning Steppes Mid Summer Festival Go Spawns
 SET @OGUID := 17820;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+19;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (@OGUID+0,181302,0,1,1,-8265.07,-2627.144,135.0536,1.989672,0,0,0,1,120,255,1),
 (@OGUID+1,181302,0,1,1,-8263.305,-2627.122,134.5683,2.949595,0,0,0,1,120,255,1),
 (@OGUID+2,181305,0,1,1,-8258.544,-2624.803,133.4996,5.98648,0,0,0,1,120,255,1),
