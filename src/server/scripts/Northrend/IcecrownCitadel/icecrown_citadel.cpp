@@ -158,6 +158,9 @@ enum Spells
     SPELL_FEL_IRON_BOMB_UNDEAD      = 71787,
     SPELL_MACHINE_GUN_UNDEAD        = 71788,
     SPELL_ROCKET_LAUNCH_UNDEAD      = 71786,
+
+    // Invisible Stalker (Float, Uninteractible, LargeAOI)
+    SPELL_SOUL_MISSILE              = 72585,
 };
 
 // Helper defines
@@ -248,6 +251,9 @@ enum EventTypes
     EVENT_RUPERT_FEL_IRON_BOMB          = 52,
     EVENT_RUPERT_MACHINE_GUN            = 53,
     EVENT_RUPERT_ROCKET_LAUNCH          = 54,
+
+    // Invisible Stalker (Float, Uninteractible, LargeAOI)
+    EVENT_SOUL_MISSILE                  = 55,
 };
 
 enum DataTypesICC
@@ -1668,6 +1674,56 @@ class npc_impaling_spear : public CreatureScript
         }
 };
 
+class npc_arthas_teleport_visual : public CreatureScript
+{
+    public:
+        npc_arthas_teleport_visual() : CreatureScript("npc_arthas_teleport_visual") { }
+
+        struct npc_arthas_teleport_visualAI : public NullCreatureAI
+        {
+            npc_arthas_teleport_visualAI(Creature* creature) : NullCreatureAI(creature), _instance(creature->GetInstanceScript())
+            {
+            }
+
+            void Reset()
+            {
+                _events.Reset();
+                if (_instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE &&
+                    _instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
+                    _instance->GetBossState(DATA_SINDRAGOSA) == DONE)
+                    _events.ScheduleEvent(EVENT_SOUL_MISSILE, urand(1000, 6000));
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (_events.Empty())
+                    return;
+
+                _events.Update(diff);
+
+                if (_events.ExecuteEvent() == EVENT_SOUL_MISSILE)
+                {
+                    DoCastAOE(SPELL_SOUL_MISSILE);
+                    _events.ScheduleEvent(EVENT_SOUL_MISSILE, urand(5000, 7000));
+                }
+            }
+
+        private:
+            InstanceScript* _instance;
+            EventMap _events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            // Distance from the center of the spire
+            if (creature->GetExactDist2d(4357.052f, 2769.421f) < 100.0f && creature->GetHomePosition().GetPositionZ() < 315.0f)
+                return GetIcecrownCitadelAI<npc_arthas_teleport_visualAI>(creature);
+
+            // Default to no script
+            return NULL;
+        }
+};
+
 class spell_icc_stoneform : public SpellScriptLoader
 {
     public:
@@ -1974,6 +2030,33 @@ class spell_svalna_remove_spear : public SpellScriptLoader
         }
 };
 
+class spell_icc_soul_missile : public SpellScriptLoader
+{
+    public:
+        spell_icc_soul_missile() : SpellScriptLoader("spell_icc_soul_missile") { }
+
+        class spell_icc_soul_missile_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_icc_soul_missile_SpellScript);
+
+            void RelocateDest()
+            {
+                static Position const offset = {0.0f, 0.0f, 200.0f, 0.0f};
+                const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_icc_soul_missile_SpellScript::RelocateDest);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_icc_soul_missile_SpellScript();
+        }
+};
+
 class at_icc_saurfang_portal : public AreaTriggerScript
 {
     public:
@@ -2063,6 +2146,7 @@ void AddSC_icecrown_citadel()
     new npc_captain_rupert();
     new npc_frostwing_vrykul();
     new npc_impaling_spear();
+    new npc_arthas_teleport_visual();
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
     new spell_frost_giant_death_plague();
@@ -2070,6 +2154,7 @@ void AddSC_icecrown_citadel()
     new spell_trigger_spell_from_caster("spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
     new spell_svalna_revive_champion();
     new spell_svalna_remove_spear();
+    new spell_icc_soul_missile();
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
     new at_icc_start_blood_quickening();
