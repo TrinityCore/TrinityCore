@@ -20,6 +20,7 @@
 #include "Player.h"
 #include "DisableMgr.h"
 #include "ScriptMgr.h"
+#include "OutdoorPvPWG.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()
 {

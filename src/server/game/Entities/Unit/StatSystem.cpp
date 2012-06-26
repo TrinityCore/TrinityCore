@@ -491,7 +491,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 14.0f * att_speed;
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
-    float total_pct   = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
+    float total_pct   = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) * GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT) : 1.0f;
 
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
@@ -1205,7 +1205,7 @@ void Guardian::UpdateArmor()
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
     // hunter and warlock pets gain 35% of owner's armor value
-    if (isPet())
+    if (isPet()&&!IsPetGhoul())
         bonus_armor = float(CalculatePctN(m_owner->GetArmor(), 35));
 
     value  = GetModifierValue(unitMod, BASE_VALUE);
@@ -1235,9 +1235,12 @@ void Guardian::UpdateMaxHealth()
     }
 
     float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
-    value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
-    value *= GetModifierValue(unitMod, TOTAL_PCT);
+    value  *= GetModifierValue(unitMod, BASE_PCT);
+    if (GetEntry()==ENTRY_GHOUL)
+        value  += GetModifierValue(unitMod, TOTAL_VALUE) + (stamina+GetCreateStat(STAT_STAMINA)) * multiplicator;
+    else
+        value  += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
+    value  *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxHealth((uint32)value);
 }

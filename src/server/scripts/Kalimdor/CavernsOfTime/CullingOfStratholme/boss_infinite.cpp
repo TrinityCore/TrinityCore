@@ -31,6 +31,8 @@ enum Yells
     SAY_DEATH                                   = -1595047
 };
 
+#define ACHIEVEMENT_CULLING_OF_TIME 1817
+
 class boss_infinite_corruptor : public CreatureScript
 {
 public:

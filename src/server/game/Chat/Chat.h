@@ -145,9 +145,11 @@ class ChatHandler
         bool HandleBanIPCommand(const char* args);
         bool HandleBanInfoAccountCommand(const char* args);
         bool HandleBanInfoCharacterCommand(const char* args);
+        bool HandleBanInfoAccountByCharCommand(const char* args);
         bool HandleBanInfoIPCommand(const char* args);
         bool HandleBanListAccountCommand(const char* args);
         bool HandleBanListCharacterCommand(const char* args);
+        bool HandleBanListPlayerAccountCommand(const char* args);
         bool HandleBanListIPCommand(const char* args);
 
         bool HandleChannelSetOwnership(const char *args);
@@ -310,6 +312,14 @@ class ChatHandler
         bool HandleBanInfoHelper(uint32 accountid, char const* accountname);
         bool HandleUnBanHelper(BanMode mode, char const* args);
         void HandleLearnSkillRecipesHelper(Player* player, uint32 skill_id);
+
+        //Wintergrasp
+        bool HandleWintergraspStatusCommand(const char *args);
+        bool HandleWintergraspStartCommand(const char *args);
+        bool HandleWintergraspStopCommand(const char *args);
+        bool HandleWintergraspEnableCommand(const char *args);
+        bool HandleWintergraspSwitchTeamCommand(const char *args);
+        bool HandleWintergraspTimerCommand(const char *args);
 
     private:
         bool _HandleGMTicketResponseAppendCommand(const char* args, bool newLine);

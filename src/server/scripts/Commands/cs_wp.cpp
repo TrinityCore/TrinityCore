@@ -43,6 +43,7 @@ public:
             { "unload",         SEC_GAMEMASTER,     false, &HandleWpUnLoadCommand,             "", NULL },
             { "reload",         SEC_ADMINISTRATOR,  false, &HandleWpReloadCommand,             "", NULL },
             { "show",           SEC_GAMEMASTER,     false, &HandleWpShowCommand,               "", NULL },
+            { "get",            SEC_GAMEMASTER,     false, &HandleWpGetCommand,                "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1114,6 +1115,20 @@ public:
 
         handler->PSendSysMessage("|cffff33ffDEBUG: wpshow - no valid command found|r");
         return true;
+    }
+
+    static bool HandleWpGetCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float x,y,z;
+
+        Player* Pl = handler->GetSession()->GetPlayer();
+        Pl->GetPosition(x,y,z);
+        sLog->outString("AddWaypoint(, %ff, %ff, %ff);",x,y,z);
+        Pl->SummonGameObject(188650, x, y, z,0,0,0,0,0,0);
+        return false;
     }
 };
 

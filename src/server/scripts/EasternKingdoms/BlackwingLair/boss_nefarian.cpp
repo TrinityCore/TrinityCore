@@ -188,11 +188,11 @@ public:
                         break;
                     case 1:
                         DoScriptText(SAY_WARRIOR, me);
-                        DoCast(me, SPELL_WARRIOR);
+                        //DoCast(me, SPELL_WARRIOR);
                         break;
                     case 2:
                         DoScriptText(SAY_DRUID, me);
-                        DoCast(me, SPELL_DRUID);
+                        //DoCast(me, SPELL_DRUID);
                         break;
                     case 3:
                         DoScriptText(SAY_PRIEST, me);
