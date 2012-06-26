@@ -3269,6 +3269,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
+            case 70650: // Death Knight T10 Tank 2P Bonus
+                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_PCT_MODIFIER;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
@@ -3337,9 +3340,6 @@ void SpellMgr::LoadDbcDataCorrections()
             // THESE SPELLS ARE WORKING CORRECTLY EVEN WITHOUT THIS HACK
             // THE ONLY REASON ITS HERE IS THAT CURRENT GRID SYSTEM
             // DOES NOT ALLOW FAR OBJECT SELECTION (dist > 333)
-            case 70650: // Death Knight T10 Tank 2P Bonus
-                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_PCT_MODIFIER;
-                break;
             case 70781: // Light's Hammer Teleport
             case 70856: // Oratory of the Damned Teleport
             case 70857: // Rampart of Skulls Teleport
