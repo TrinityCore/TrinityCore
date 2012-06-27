@@ -639,7 +639,7 @@ class spell_q12851_going_bearback : public SpellScriptLoader
                     // Already in fire
                     if (target->HasAura(SPELL_ABLAZE))
                         return;
-                        
+
                     if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
                     {
                         switch (target->GetEntry())
@@ -1160,6 +1160,38 @@ class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
         {
             return new spell_q12277_wintergarde_mine_explosion_SpellScript();
         }
+};
+
+enum FocusOnTheBeach
+{
+    SPELL_BUNNY_CREDIT_BEAM = 47390,
+};
+
+class spell_q12066_bunny_kill_credit : public SpellScriptLoader
+{
+public:
+    spell_q12066_bunny_kill_credit() : SpellScriptLoader("spell_q12066_bunny_kill_credit") { }
+
+    class spell_q12066_bunny_kill_credit_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q12066_bunny_kill_credit_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Creature* target = GetHitCreature())
+                target()->CastSpell(GetCaster(), SPELL_BUNNY_CREDIT_BEAM, false);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_q12066_bunny_kill_credit_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12066_bunny_kill_credit_SpellScript();
+    }
 };
 
 void AddSC_quest_spell_scripts()
