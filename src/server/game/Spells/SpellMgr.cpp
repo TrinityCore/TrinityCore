@@ -3349,6 +3349,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 49206: // Summon Gargoyle
                 spellInfo->DurationIndex = 587;
                 break;
+            case 70650: // Death Knight T10 Tank 2P Bonus
+                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_PCT_MODIFIER;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
