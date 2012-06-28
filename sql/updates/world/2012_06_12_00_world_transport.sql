@@ -45,19 +45,19 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY*100,9,3,0,0,0,100,0,3000,3000,0,0,5,5,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Sky-Captain Blastnut emote'),
 (@ENTRY*100,9,4,0,0,0,100,0,1000,1000,0,0,5,25,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Chief Officer Ograh emote'),
 -- Script 1
-(@ENTRY*100+1,9,0,0,0,0,100,0,0,0,0,0,1,1,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Sky-Captain Blastnut Say 1'),
-(@ENTRY*100+1,9,1,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Chief Officer Ograh Say 0'),
-(@ENTRY*100+1,9,2,0,0,0,100,0,4000,4000,0,0,5,25,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Chief Officer Ograh emote'),
+(@ENTRY*100+1,9,0,0,0,0,100,0,0,0,0,0,1,1,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Leave Orgrimmar - Sky-Captain Blastnut Say 1'),
+(@ENTRY*100+1,9,1,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Leave Orgrimmar - Chief Officer Ograh Say 0'),
+(@ENTRY*100+1,9,2,0,0,0,100,0,4000,4000,0,0,5,25,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Leave Orgrimmar - Chief Officer Ograh emote'),
 -- Script 2
-(@ENTRY*100+2,9,0,0,0,0,100,0,0,0,0,0,1,2,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Sky-Captain Blastnut Say 2'),
-(@ENTRY*100+2,9,1,0,0,0,100,0,0,0,0,0,1,1,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Chief Officer Ograh Say 1'),
-(@ENTRY*100+2,9,2,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,19,34766,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Krendle Bigpockets Say 0'),
-(@ENTRY*100+2,9,3,0,0,0,100,0,3000,3000,0,0,5,5,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Sky-Captain Blastnut emote'),
-(@ENTRY*100+2,9,4,0,0,0,100,0,1000,1000,0,0,5,25,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Chief Officer Ograh emote'),
+(@ENTRY*100+2,9,0,0,0,0,100,0,0,0,0,0,1,2,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Thunder Bluff - Sky-Captain Blastnut Say 2'),
+(@ENTRY*100+2,9,1,0,0,0,100,0,0,0,0,0,1,1,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Thunder Bluff - Chief Officer Ograh Say 1'),
+(@ENTRY*100+2,9,2,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,19,34766,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Thunder Bluff - Krendle Bigpockets Say 0'),
+(@ENTRY*100+2,9,3,0,0,0,100,0,3000,3000,0,0,5,5,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Thunder Bluff - Sky-Captain Blastnut emote'),
+(@ENTRY*100+2,9,4,0,0,0,100,0,1000,1000,0,0,5,25,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Thunder Bluff - Chief Officer Ograh emote'),
 -- Script 3
-(@ENTRY*100+3,9,0,0,0,0,100,0,0,0,0,0,1,3,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Sky-Captain Blastnut Say 3'),
-(@ENTRY*100+3,9,1,0,0,0,100,0,0,0,0,0,1,2,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Chief Officer Ograh Say 2'),
-(@ENTRY*100+3,9,2,0,0,0,100,0,4000,4000,0,0,5,25,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Dock Orgrimmar - Chief Officer Ograh emote');
+(@ENTRY*100+3,9,0,0,0,0,100,0,0,0,0,0,1,3,0,0,0,0,0,19,34715,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Leave Thunder Bluff - Sky-Captain Blastnut Say 3'),
+(@ENTRY*100+3,9,1,0,0,0,100,0,0,0,0,0,1,2,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Leave Thunder Bluff - Chief Officer Ograh Say 2'),
+(@ENTRY*100+3,9,2,0,0,0,100,0,4000,4000,0,0,5,25,0,0,0,0,0,19,34721,100,0,0,0,0,0,'Zeppelin: <The Zephyr> - Script Leave Thunder Bluff - Chief Officer Ograh emote');
 -- Watcher Tolwe <The Zephyr> SAI
 SET @ENTRY  := 34723;
 UPDATE `creature_template` SET `AIName`= 'SmartAI',`ScriptName`='' WHERE `entry`=@ENTRY;
@@ -76,7 +76,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (34715,2,0,'Watch your step! Don''t want you becoming a smudge down there. Welcome to Thunder Bluff!',12,1,100,1,0,0,'Sky-Captain Blastnut - Dock at Thunder Bluff'), -- wait 3 sec do emote 5
 (34715,3,0,'Okay, boys, let''s get this baby over to Orgrimmar!',12,1,100,25,0,0,'Sky-Captain Blastnut - Leave for Orgrimmar'),
 (34721,0,0,'Move it, Zippik! We don''t have all day!',12,1,100,5,0,0,'Chief Officer Ograh - Leave for Thunder Bluff'),
-(34721,1,0,'Careful. CAREFUL! Did I feel a shudder? You''re going to knock that tower down, oaf!',12,1,100,5,0,0,'Chief Officer Ograh - Dock at Thunder Bluff'), -- wait 4 sec do emote 25
+(34721,1,0,'Careful. CAREFUL! Did I feel a shudder? You''re going to knock that tower down, oaf!',12,1,100,5,0,0,'Chief Officer Ograh - Dock at Orgrimmar & Thunder Bluff'),
 (34721,2,0,'We''re behind schedule! Turn this tub east! EAST!',12,1,100,5,0,0,'Chief Officer Ograh - Leave for Orgrimmar'),
 (34766,0,0,'Step right up! The zeppelin to Orgrimmar has arrived! All aboard to Durotar!',14,0,100,22,0,11804,'Krendle Bigpockets - Dock at Thunder Bluff'),
 (34765,0,0,'The zeppelin to Thunder Bluff has arrived! All aboard for a smooth ride across the Barrens!',14,0,100,22,0,11804,'Zelli Hotnozzle - Dock at Orgrimmar');

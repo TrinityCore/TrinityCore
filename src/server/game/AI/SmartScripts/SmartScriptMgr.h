@@ -356,11 +356,11 @@ struct SmartEvent
             uint32 eventId;
         } eventInform;
 
-        struct 
+        struct
         {
             uint32 eventId;
         } doAction;
-        
+
         struct
         {
             uint32 param1;
@@ -857,9 +857,9 @@ struct SmartAction
 
         struct
         {
-            bool withDelayed;
+            uint32 withDelayed;
             uint32 spell_id;
-            bool withInstant;
+            uint32 withInstant;
         } interruptSpellCasting;
 
         struct
@@ -906,9 +906,12 @@ struct SmartAction
 
         struct
         {
-            float distance;
-            float angle;
+            uint32 distance;
+            uint32 angle;
         } setRangedMovement;
+
+        //! Note for any new future actions
+        //! All parameters must have type uint32
 
         struct
         {
