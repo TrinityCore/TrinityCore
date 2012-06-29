@@ -159,7 +159,7 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* pSpell)
+        void SpellHitTarget(Unit* /*target*/, const SpellInfo* pSpell)
         {
             //this part should be in the core
             if (pSpell->Id == SPELL_SHATTER || pSpell->Id == H_SPELL_SHATTER)

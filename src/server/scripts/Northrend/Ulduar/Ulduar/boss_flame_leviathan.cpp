@@ -1617,7 +1617,7 @@ class FlameLeviathanPursuedTargetSelector
     public:
         explicit FlameLeviathanPursuedTargetSelector(Unit* unit) : _me(unit) {};
 
-        bool operator()(Unit* target) const
+        bool operator()(WorldObject* target) const
         {
             //! No players, only vehicles (todo: check if blizzlike)
             Creature* creatureTarget = target->ToCreature();
@@ -1665,7 +1665,7 @@ class spell_pursue : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargets(std::list<Unit*>& targets)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));
                 if (targets.empty())
@@ -1681,7 +1681,7 @@ class spell_pursue : public SpellScriptLoader
                 }
             }
 
-            void FilterTargetsSubsequently(std::list<Unit*>& targets)
+            void FilterTargetsSubsequently(std::list<WorldObject*>& targets)
             {
                 targets.clear();
                 if (_target)
@@ -1708,12 +1708,12 @@ class spell_pursue : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursue_SpellScript::FilterTargetsSubsequently, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursue_SpellScript::FilterTargetsSubsequently, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_pursue_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
 
-            Unit* _target;
+            WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const
