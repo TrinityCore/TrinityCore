@@ -207,7 +207,7 @@ public:
         }
 
         // mail case
-        uint32 mailCount;
+        uint32 mailCount = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT_ITEM);
         stmt->setUInt32(0, itemId);
