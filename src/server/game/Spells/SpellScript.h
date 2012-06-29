@@ -131,7 +131,7 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_BEFORE_HIT,
     SPELL_SCRIPT_HOOK_HIT,
     SPELL_SCRIPT_HOOK_AFTER_HIT,
-    SPELL_SCRIPT_HOOK_UNIT_TARGET_SELECT,
+    SPELL_SCRIPT_HOOK_OBJECT_AREA_TARGET_SELECT,
     SPELL_SCRIPT_HOOK_CHECK_CAST,
     SPELL_SCRIPT_HOOK_BEFORE_CAST,
     SPELL_SCRIPT_HOOK_ON_CAST,
@@ -196,16 +196,24 @@ class SpellScript : public _SpellScript
                 SpellHitFnType pHitHandlerScript;
         };
 
-        class ObjectAreaTargetSelectHandler : public _SpellScript::EffectHook
+        class TargetHook : public _SpellScript::EffectHook
+        {
+            public:
+                TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area);
+                bool CheckEffect(SpellInfo const* spellEntry, uint8 targetType);
+                std::string ToString();
+            protected:
+                uint16 targetType;
+                bool area;
+        };
+
+        class ObjectAreaTargetSelectHandler : public TargetHook
         {
             public:
                 ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType);
-                std::string ToString();
-                bool CheckEffect(SpellInfo const* spellEntry, uint8 targetType);
                 void Call(SpellScript* spellScript, std::list<WorldObject*>& targets);
             private:
                 SpellObjectAreaTargetSelectFnType pObjectAreaTargetSelectHandlerScript;
-                uint16 targetType;
         };
 
         #define SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
@@ -267,15 +275,15 @@ class SpellScript : public _SpellScript
         // where function is: void function()
         #define SpellHitFn(F) HitHandlerFunction(&F)
 
-        // example: OnUnitTargetSelect += SpellUnitTargetFn(class::function, EffectIndexSpecifier, TargetsNameSpecifier);
-        // where function is void function(std::list<Unit*>& targetList)
+        // example: OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(class::function, EffectIndexSpecifier, TargetsNameSpecifier);
+        // where function is void function(std::list<WorldObject*>& targets)
         HookList<ObjectAreaTargetSelectHandler> OnObjectAreaTargetSelect;
         #define SpellObjectAreaTargetSelectFn(F, I, N) ObjectAreaTargetSelectHandlerFunction(&F, I, N)
 
         // hooks are executed in following order, at specified event of spell:
         // 1. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
         // 2. OnCheckCast - allows to override result of CheckCast function
-        // 3. OnUnitTargetSelect - executed just before adding selected targets to final target list
+        // 3a. OnObjectAreaTargetSelect - executed just before adding selected targets to final target list (for area targets)
         // 4. OnCast - executed just before spell is launched (creates missile) or executed
         // 5. AfterCast - executed after spell missile is launched and immediate spell actions are done
         // 6. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched

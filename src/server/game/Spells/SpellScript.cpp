@@ -203,20 +203,19 @@ void SpellScript::HitHandler::Call(SpellScript* spellScript)
     (spellScript->*pHitHandlerScript)();
 }
 
-SpellScript::ObjectAreaTargetSelectHandler::ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
-    : _SpellScript::EffectHook(_effIndex), targetType(_targetType)
+SpellScript::TargetHook::TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area)
+    : _SpellScript::EffectHook(_effectIndex), targetType(_targetType), area(_area)
 {
-    pObjectAreaTargetSelectHandlerScript = _pObjectAreaTargetSelectHandlerScript;
 }
 
-std::string SpellScript::ObjectAreaTargetSelectHandler::ToString()
+std::string SpellScript::TargetHook::ToString()
 {
     std::ostringstream oss;
     oss << "Index: " << EffIndexToString() << " Target: " << targetType;
     return oss.str();
 }
 
-bool SpellScript::ObjectAreaTargetSelectHandler::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
+bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
 {
     if (!targetType)
         return false;
@@ -225,8 +224,42 @@ bool SpellScript::ObjectAreaTargetSelectHandler::CheckEffect(SpellInfo const* sp
         spellEntry->Effects[effIndex].TargetB.GetTarget() != targetType)
         return false;
 
-    // TODO: Smart check if this hook will run for this targetType
-    return true;
+    SpellImplicitTargetInfo targetType(targetType);
+    switch (targetType.GetSelectionCategory())
+    {
+        case TARGET_SELECT_CATEGORY_CHANNEL: // SINGLE
+            return !area;
+        case TARGET_SELECT_CATEGORY_NEARBY: // BOTH
+            return true;
+        case TARGET_SELECT_CATEGORY_CONE: // AREA
+        case TARGET_SELECT_CATEGORY_AREA: // AREA
+            return area;
+        case TARGET_SELECT_CATEGORY_DEFAULT:
+            switch (targetType.GetObjectType())
+            {
+                case TARGET_OBJECT_TYPE_SRC: // EMPTY
+                case TARGET_OBJECT_TYPE_DEST: // EMPTY
+                    return false;
+                default:
+                    switch(targetType.GetReferenceType())
+                    {
+                        case TARGET_REFERENCE_TYPE_CASTER: // SINGLE
+                            return !area;
+                        case TARGET_REFERENCE_TYPE_TARGET: // BOTH
+                            return true;
+                    }
+                    break;
+            }
+            break;
+    }
+
+    return false;
+}
+
+SpellScript::ObjectAreaTargetSelectHandler::ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
+    : TargetHook(_effIndex, _targetType, true)
+{
+    pObjectAreaTargetSelectHandlerScript = _pObjectAreaTargetSelectHandlerScript;
 }
 
 void SpellScript::ObjectAreaTargetSelectHandler::Call(SpellScript* spellScript, std::list<WorldObject*>& targets)
@@ -254,7 +287,7 @@ bool SpellScript::_Validate(SpellInfo const* entry)
 
     for (std::list<ObjectAreaTargetSelectHandler>::iterator itr = OnObjectAreaTargetSelect.begin(); itr != OnObjectAreaTargetSelect.end(); ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
-            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnUnitTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectAreaTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
     return _SpellScript::_Validate(entry);
 }
