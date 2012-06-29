@@ -342,7 +342,7 @@ class spell_dk_death_pact : public SpellScriptLoader
                         if (Creature* undeadPet = (*itr)->ToCreature())
                             if (undeadPet->isAlive() &&
                                 undeadPet->GetOwnerGUID() == player->GetGUID() &&
-                                undeadPet->GetCreatureInfo()->type == CREATURE_TYPE_UNDEAD &&
+                                undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
                                 undeadPet->IsWithinDist(player, 100.0f, false))
                                 return SPELL_CAST_OK;
 
