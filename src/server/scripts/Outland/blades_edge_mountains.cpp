@@ -651,7 +651,7 @@ class npc_simon_bunny : public CreatureScript
             {
                 _events.Update(diff);
 
-                switch(_events.ExecuteEvent())
+                switch (_events.ExecuteEvent())
                 {
                     case EVENT_SIMON_PERIODIC_PLAYER_CHECK:
                         if (!CheckPlayer())
