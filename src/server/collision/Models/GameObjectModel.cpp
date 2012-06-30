@@ -176,7 +176,7 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     Ray modRay(p, iInvRot * ray.direction());
     float distance = MaxDist * iInvScale;
     bool hit = iModel->IntersectRay(modRay, distance, StopAtFirstHit);
-    if(hit)
+    if (hit)
     {
         distance *= iScale;
         MaxDist = distance;

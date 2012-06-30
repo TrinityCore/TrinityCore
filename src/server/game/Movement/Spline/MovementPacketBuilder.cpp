@@ -49,7 +49,7 @@ namespace Movement
         data << move_spline.spline.getPoint(move_spline.spline.first());
         data << move_spline.GetId();
 
-        switch(splineflags & MoveSplineFlag::Mask_Final_Facing)
+        switch (splineflags & MoveSplineFlag::Mask_Final_Facing)
         {
             case MoveSplineFlag::Final_Target:
                 data << uint8(MonsterMoveFacingTarget);

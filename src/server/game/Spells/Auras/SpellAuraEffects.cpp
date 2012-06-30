@@ -5083,7 +5083,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     break;
                 case SPELLFAMILY_ROGUE:
                     //  Tricks of the trade
-                    switch(GetId())
+                    switch (GetId())
                     {
                         case 59628: //Tricks of the trade buff on rogue (6sec duration)
                             target->SetReducedThreatPercent(0,0);
