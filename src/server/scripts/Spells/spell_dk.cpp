@@ -334,16 +334,30 @@ class spell_dk_death_pact : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_pact_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            SpellCastResult CheckCast()
+            {
+                // Check if we have valid targets, otherwise skip spell casting here
+                if (Player* player = GetCaster()->ToPlayer())
+                    for (Unit::ControlList::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
+                        if (Creature* undeadPet = (*itr)->ToCreature())
+                            if (undeadPet->isAlive() &&
+                                undeadPet->GetOwnerGUID() == player->GetGUID() &&
+                                undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
+                                undeadPet->IsWithinDist(player, 100.0f, false))
+                                return SPELL_CAST_OK;
+
+                return SPELL_FAILED_NO_PET;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 Unit* unit_to_add = NULL;
-                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                 {
-                    if ((*itr)->GetTypeId() == TYPEID_UNIT
-                        && (*itr)->GetOwnerGUID() == GetCaster()->GetGUID()
-                        && (*itr)->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_UNDEAD)
+                    if (Unit* unit = (*itr)->ToUnit())
+                    if (unit->GetOwnerGUID() == GetCaster()->GetGUID() && unit->GetCreatureType() == CREATURE_TYPE_UNDEAD)
                     {
-                        unit_to_add = (*itr);
+                        unit_to_add = unit;
                         break;
                     }
                 }
@@ -351,18 +365,12 @@ class spell_dk_death_pact : public SpellScriptLoader
                 unitList.clear();
                 if (unit_to_add)
                     unitList.push_back(unit_to_add);
-                else
-                {
-                    // Pet not found - remove cooldown
-                    if (Player* modOwner = GetCaster()->GetSpellModOwner())
-                        modOwner->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                    FinishCast(SPELL_FAILED_NO_PET);
-                }
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_dk_death_pact_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+                OnCheckCast += SpellCheckCastFn(spell_dk_death_pact_SpellScript::CheckCast);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_death_pact_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
 
