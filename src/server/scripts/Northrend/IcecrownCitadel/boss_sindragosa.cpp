@@ -1041,7 +1041,26 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             bool Load()
             {
                 _targetCount = 0;
-                return true;
+
+                // This script should execute only in Icecrown Citadel
+                if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
+                    if (instance->GetInstanceScript())
+                        if (instance->GetScriptId() == sObjectMgr->GetScriptId(ICCScriptName))
+                            return true;
+
+                return false;
+            }
+
+            void SelectDest()
+            {
+                if (Position* dest = const_cast<WorldLocation*>(GetExplTargetDest()))
+                {
+                    float destX = float(rand_norm()) * 75.0f + 4350.0f;
+                    float destY = float(rand_norm()) * 75.0f + 2450.0f;
+                    float destZ = 205.0f; // random number close to ground, get exact in next call
+                    GetCaster()->UpdateGroundPositionZ(destX, destY, destZ);
+                    dest->Relocate(destX, destY, destZ);
+                }
             }
 
             void CountTargets(std::list<WorldObject*>& targets)
@@ -1057,10 +1076,10 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
                     return;
 
                 float resistance = float(GetHitUnit()->GetResistance(SpellSchoolMask(GetSpellInfo()->SchoolMask)));
-                uint32 minResistFactor = uint32((resistance / (resistance + 510.0f))* 10.0f) * 2;
-                uint32 randomResist = urand(0, (9 - minResistFactor) * 100)/100 + minResistFactor;
+                uint32 minResistFactor = uint32((resistance / (resistance + 510.0f)) * 10.0f) * 2;
+                uint32 randomResist = urand(0, (9 - minResistFactor) * 100) / 100 + minResistFactor;
 
-                uint32 damage = (uint32(GetEffectValue()/_targetCount) * randomResist) / 10;
+                uint32 damage = (uint32(GetEffectValue() / _targetCount) * randomResist) / 10;
 
                 SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
                 damageInfo.damage = damage;
@@ -1070,8 +1089,9 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                BeforeCast += SpellCastFn(spell_sindragosa_s_fury_SpellScript::SelectDest);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_s_fury_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnEffectHitTarget += SpellEffectFn(spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
 
             uint32 _targetCount;
