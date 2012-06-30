@@ -224,8 +224,8 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
         spellEntry->Effects[effIndex].TargetB.GetTarget() != targetType)
         return false;
 
-    SpellImplicitTargetInfo targetType(this->targetType);
-    switch (targetType.GetSelectionCategory())
+    SpellImplicitTargetInfo targetInfo(targetType);
+    switch (targetInfo.GetSelectionCategory())
     {
         case TARGET_SELECT_CATEGORY_CHANNEL: // SINGLE
             return !area;
@@ -235,13 +235,13 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
         case TARGET_SELECT_CATEGORY_AREA: // AREA
             return area;
         case TARGET_SELECT_CATEGORY_DEFAULT:
-            switch (targetType.GetObjectType())
+            switch (targetInfo.GetObjectType())
             {
                 case TARGET_OBJECT_TYPE_SRC: // EMPTY
                 case TARGET_OBJECT_TYPE_DEST: // EMPTY
                     return false;
                 default:
-                    switch(targetType.GetReferenceType())
+                    switch (targetInfo.GetReferenceType())
                     {
                         case TARGET_REFERENCE_TYPE_CASTER: // SINGLE
                             return !area;
