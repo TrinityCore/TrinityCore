@@ -359,7 +359,7 @@ class DistanceCheck
     public:
         explicit DistanceCheck(Unit* _caster) : caster(_caster) { }
 
-        bool operator() (WorldObject* unit) const
+        bool operator() (Unit* unit)
         {
             if (caster->GetExactDist2d(unit) <= 10.0f)
                 return true;
@@ -378,25 +378,25 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_bronjahm_soulstorm_targeting_SpellScript);
 
-            void FilterTargetsInitial(std::list<WorldObject*>& targets)
+            void FilterTargetsInitial(std::list<Unit*>& unitList)
             {
-                targets.remove_if(DistanceCheck(GetCaster()));
-                sharedTargets = targets;
+                unitList.remove_if (DistanceCheck(GetCaster()));
+                sharedUnitList = unitList;
             }
 
             // use the same target for first and second effect
-            void FilterTargetsSubsequent(std::list<WorldObject*>& targets)
+            void FilterTargetsSubsequent(std::list<Unit*>& unitList)
             {
-                targets = sharedTargets;
+                unitList = sharedUnitList;
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsInitial, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsInitial, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
             }
 
-            std::list<WorldObject*> sharedTargets;
+            std::list<Unit*> sharedUnitList;
         };
 
         SpellScript* GetSpellScript() const

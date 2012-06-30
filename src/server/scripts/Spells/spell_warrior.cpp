@@ -77,7 +77,7 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
                 if (GetCaster())
                     unitList.remove(GetCaster());
@@ -85,7 +85,7 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
             }
         };
 

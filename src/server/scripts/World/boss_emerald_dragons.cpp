@@ -224,9 +224,9 @@ class DreamFogTargetSelector
     public:
         DreamFogTargetSelector() { }
 
-        bool operator()(WorldObject* object) const
+        bool operator()(Unit* unit)
         {
-            return object->ToUnit() && object->ToUnit()->HasAura(SPELL_SLEEP);
+            return unit->HasAura(SPELL_SLEEP);
         }
 };
 
@@ -239,14 +239,14 @@ class spell_dream_fog_sleep : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dream_fog_sleep_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(DreamFogTargetSelector());
+                unitList.remove_if (DreamFogTargetSelector());
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dream_fog_sleep_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dream_fog_sleep_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
@@ -265,12 +265,10 @@ class MarkOfNatureTargetSelector
     public:
         MarkOfNatureTargetSelector() { }
 
-        bool operator()(WorldObject* object) const
+        bool operator()(Unit* unit)
         {
-            if (Unit* unit = object->ToUnit())
-                // return anyone that isn't tagged or already under the influence of Aura of Nature
-                return !(unit->HasAura(SPELL_MARK_OF_NATURE) && !unit->HasAura(SPELL_AURA_OF_NATURE));
-            return true;
+            // return anyone that isn't tagged or already under the influence of Aura of Nature
+            return !(unit->HasAura(SPELL_MARK_OF_NATURE) && !unit->HasAura(SPELL_AURA_OF_NATURE));
         }
 };
 
@@ -292,9 +290,9 @@ class spell_mark_of_nature : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                targets.remove_if(MarkOfNatureTargetSelector());
+                unitList.remove_if (MarkOfNatureTargetSelector());
             }
 
             void HandleEffect(SpellEffIndex effIndex)
@@ -307,7 +305,7 @@ class spell_mark_of_nature : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_mark_of_nature_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };

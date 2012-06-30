@@ -522,12 +522,12 @@ public:
     };
 };
 
-class RitualTargetCheck
+class checkRitualTarget
 {
     public:
-        explicit RitualTargetCheck(Unit* _caster) : caster(_caster) { }
+        explicit checkRitualTarget(Unit* _caster) : caster(_caster) { }
 
-        bool operator() (WorldObject* unit) const
+        bool operator() (Unit* unit)
         {
             if (InstanceScript* instance = caster->GetInstanceScript())
                 if (instance->GetData64(DATA_SACRIFICED_PLAYER) == unit->GetGUID())
@@ -549,14 +549,14 @@ class spell_paralyze_pinnacle : public SpellScriptLoader
         {
             PrepareSpellScript(spell_paralyze_pinnacle_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(RitualTargetCheck(GetCaster()));
+                unitList.remove_if(checkRitualTarget(GetCaster()));
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_paralyze_pinnacle_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_paralyze_pinnacle_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

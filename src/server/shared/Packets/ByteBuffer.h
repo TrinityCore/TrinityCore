@@ -185,7 +185,8 @@ class ByteBuffer
 
         ByteBuffer &operator<<(const char *str)
         {
-            if (size_t len = (str ? strlen(str) : 0))
+            size_t len = 0;
+            if (str && (len = strlen(str)))
                 append((uint8 const*)str, len);
             append((uint8)0);
             return *this;

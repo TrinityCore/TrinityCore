@@ -1325,14 +1325,9 @@ namespace Trinity
     {
         public:
             UnitAuraCheck(bool present, uint32 spellId, uint64 casterGUID = 0) : _present(present), _spellId(spellId), _casterGUID(casterGUID) {}
-            bool operator()(Unit* unit) const
+            bool operator()(Unit* unit)
             {
                 return unit->HasAura(_spellId, _casterGUID) == _present;
-            }
-
-            bool operator()(WorldObject* object) const
-            {
-                return object->ToUnit() && object->ToUnit()->HasAura(_spellId, _casterGUID) == _present;
             }
 
         private:

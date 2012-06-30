@@ -186,7 +186,7 @@ class ConflagrationTargetSelector
     public:
         ConflagrationTargetSelector() { }
 
-        bool operator()(WorldObject* unit) const
+        bool operator()(Unit* unit)
         {
             return unit->GetTypeId() != TYPEID_PLAYER;
         }
@@ -201,12 +201,12 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
         {
             PrepareSpellScript(spell_saviana_conflagration_init_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                targets.remove_if(ConflagrationTargetSelector());
+                unitList.remove_if (ConflagrationTargetSelector());
                 uint8 maxSize = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 3);
-                if (targets.size() > maxSize)
-                    Trinity::Containers::RandomResizeList(targets, maxSize);
+                if (unitList.size() > maxSize)
+                    Trinity::Containers::RandomResizeList(unitList, maxSize);
             }
 
             void HandleDummy(SpellEffIndex effIndex)
@@ -218,7 +218,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_saviana_conflagration_init_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_saviana_conflagration_init_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_saviana_conflagration_init_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };

@@ -602,14 +602,14 @@ class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gothik_shadow_bolt_volley_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_SHADOW_MARK));
+                unitList.remove_if(Trinity::UnitAuraCheck(false, SPELL_SHADOW_MARK));
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gothik_shadow_bolt_volley_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_gothik_shadow_bolt_volley_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

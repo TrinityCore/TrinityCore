@@ -302,15 +302,15 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_seed_of_corruption_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
                 if (GetExplTargetUnit())
-                    targets.remove(GetExplTargetUnit());
+                    unitList.remove(GetExplTargetUnit());
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_seed_of_corruption_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_warl_seed_of_corruption_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 

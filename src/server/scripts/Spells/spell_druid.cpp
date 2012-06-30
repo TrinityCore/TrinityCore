@@ -232,37 +232,37 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
                 if (!GetCaster()->ToPlayer()->GetGroup())
                 {
-                    targets.clear();
-                    targets.push_back(GetCaster());
+                    unitList.clear();
+                    unitList.push_back(GetCaster());
                 }
                 else
                 {
-                    targets.remove(GetExplTargetUnit());
+                    unitList.remove(GetExplTargetUnit());
                     std::list<Unit*> tempTargets;
-                    for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                        if ((*itr)->GetTypeId() == TYPEID_PLAYER && GetCaster()->IsInRaidWith((*itr)->ToUnit()))
-                            tempTargets.push_back((*itr)->ToUnit());
+                    for (std::list<Unit*>::const_iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                        if ((*itr)->GetTypeId() == TYPEID_PLAYER && GetCaster()->IsInRaidWith(*itr))
+                            tempTargets.push_back(*itr);
 
                     if (tempTargets.empty())
                     {
-                        targets.clear();
+                        unitList.clear();
                         FinishCast(SPELL_FAILED_DONT_REPORT);
                         return;
                     }
 
                     Unit* target = Trinity::Containers::SelectRandomContainerElement(tempTargets);
-                    targets.clear();
-                    targets.push_back(target);
+                    unitList.clear();
+                    unitList.push_back(target);
                 }
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_t10_restoration_4p_bonus_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_t10_restoration_4p_bonus_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
 
@@ -281,14 +281,14 @@ class spell_dru_starfall_aoe : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_starfall_aoe_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                targets.remove(GetExplTargetUnit());
+                unitList.remove(GetExplTargetUnit());
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_starfall_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_starfall_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
@@ -341,9 +341,9 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_starfall_dummy_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                Trinity::Containers::RandomResizeList(targets, 2);
+                Trinity::Containers::RandomResizeList(unitList, 2);
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -366,7 +366,7 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_starfall_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_starfall_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_starfall_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };

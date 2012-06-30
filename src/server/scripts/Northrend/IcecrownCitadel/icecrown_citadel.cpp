@@ -1834,15 +1834,15 @@ class DeathPlagueTargetSelector
     public:
         explicit DeathPlagueTargetSelector(Unit* caster) : _caster(caster) {}
 
-        bool operator()(WorldObject* object) const
+        bool operator()(Unit* unit)
         {
-            if (object == _caster)
+            if (unit == _caster)
                 return true;
 
-            if (object->GetTypeId() != TYPEID_PLAYER)
+            if (unit->GetTypeId() != TYPEID_PLAYER)
                 return true;
 
-            if (object->ToUnit()->HasAura(SPELL_RECENTLY_INFECTED) || object->ToUnit()->HasAura(SPELL_DEATH_PLAGUE_AURA))
+            if (unit->HasAura(SPELL_RECENTLY_INFECTED) || unit->HasAura(SPELL_DEATH_PLAGUE_AURA))
                 return true;
 
             return false;
@@ -1868,25 +1868,25 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
             }
 
             // First effect
-            void CountTargets(std::list<WorldObject*>& targets)
+            void CountTargets(std::list<Unit*>& unitList)
             {
-                targets.remove(GetCaster());
-                _failed = targets.empty();
+                unitList.remove(GetCaster());
+                _failed = unitList.empty();
             }
 
             // Second effect
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
                 // Select valid targets for jump
-                targets.remove_if(DeathPlagueTargetSelector(GetCaster()));
-                if (!targets.empty())
+                unitList.remove_if (DeathPlagueTargetSelector(GetCaster()));
+                if (!unitList.empty())
                 {
-                    WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-                    targets.clear();
-                    targets.push_back(target);
+                    Unit* target = Trinity::Containers::SelectRandomContainerElement(unitList);
+                    unitList.clear();
+                    unitList.push_back(target);
                 }
 
-                targets.push_back(GetCaster());
+                unitList.push_back(GetCaster());
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1900,8 +1900,8 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
                 OnEffectHitTarget += SpellEffectFn(spell_frost_giant_death_plague_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
@@ -1950,11 +1950,9 @@ class spell_icc_harvest_blight_specimen : public SpellScriptLoader
 class AliveCheck
 {
     public:
-        bool operator()(WorldObject* object) const
+        bool operator()(Unit* unit)
         {
-            if (Unit* unit = object->ToUnit())
-                return unit->isAlive();
-            return true;
+            return unit->isAlive();
         }
 };
 
@@ -1967,10 +1965,10 @@ class spell_svalna_revive_champion : public SpellScriptLoader
         {
             PrepareSpellScript(spell_svalna_revive_champion_SpellScript);
 
-            void RemoveAliveTarget(std::list<WorldObject*>& targets)
+            void RemoveAliveTarget(std::list<Unit*>& unitList)
             {
-                targets.remove_if(AliveCheck());
-                Trinity::Containers::RandomResizeList(targets, 2);
+                unitList.remove_if(AliveCheck());
+                Trinity::Containers::RandomResizeList(unitList, 2);
             }
 
             void Land(SpellEffIndex /*effIndex*/)
@@ -1990,7 +1988,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_svalna_revive_champion_SpellScript::RemoveAliveTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_svalna_revive_champion_SpellScript::RemoveAliveTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
                 OnEffectHit += SpellEffectFn(spell_svalna_revive_champion_SpellScript::Land, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };

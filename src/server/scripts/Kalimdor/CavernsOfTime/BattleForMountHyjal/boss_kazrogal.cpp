@@ -199,10 +199,11 @@ public:
 class MarkTargetFilter
 {
     public:
-        bool operator()(WorldObject* target) const
+        bool operator()(Unit* target) const
         {
-            if (Unit* unit = target->ToUnit())
-                return unit->getPowerType() != POWER_MANA;
+            if (target->getPowerType() != POWER_MANA)
+                return true;
+
             return false;
         }
 };
@@ -216,14 +217,14 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mark_of_kazrogal_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                targets.remove_if(MarkTargetFilter());
+                unitList.remove_if(MarkTargetFilter());
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_kazrogal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_mark_of_kazrogal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

@@ -456,10 +456,10 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            void HandleTargets(std::list<WorldObject*>& targets)
+            void HandleTargets(std::list<Unit*>& targetList)
             {
                 uint8 count = 0;
-                for (std::list<WorldObject*>::iterator ihit = targets.begin(); ihit != targets.end(); ++ihit)
+                for (std::list<Unit*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
                     if ((*ihit)->GetGUID() != GetCaster()->GetGUID())
                         if (Player* target = (*ihit)->ToPlayer())
                             if (target->HasAura(GetTriggeringSpell()->Id))
@@ -498,7 +498,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_thaddius_pos_neg_charge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thaddius_pos_neg_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_thaddius_pos_neg_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 

@@ -268,10 +268,10 @@ GameObjectAI* GetUlduarAI(GameObject* go)
 class PlayerOrPetCheck
 {
     public:
-        bool operator()(WorldObject* object) const
+        bool operator() (Unit* unit)
         {
-            if (object->GetTypeId() != TYPEID_PLAYER)
-                if (!object->ToCreature()->isPet())
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit->ToCreature()->isPet())
                     return true;
 
             return false;

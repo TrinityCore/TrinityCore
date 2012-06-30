@@ -518,7 +518,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
                 return true;
             }
 
-            void CountTargets(std::list<WorldObject*>& targetList)
+            void CountTargets(std::list<Unit*>& targetList)
             {
                 _targetCount = targetList.size();
             }
@@ -549,7 +549,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_astromancer_wrath_of_the_astromancer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_astromancer_wrath_of_the_astromancer_SpellScript::CountTargets, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_astromancer_wrath_of_the_astromancer_SpellScript::CountTargets, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
             }
         };
 
