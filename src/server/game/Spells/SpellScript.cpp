@@ -224,7 +224,7 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
         spellEntry->Effects[effIndex].TargetB.GetTarget() != targetType)
         return false;
 
-    SpellImplicitTargetInfo targetType(targetType);
+    SpellImplicitTargetInfo targetType(this->targetType);
     switch (targetType.GetSelectionCategory())
     {
         case TARGET_SELECT_CATEGORY_CHANNEL: // SINGLE
