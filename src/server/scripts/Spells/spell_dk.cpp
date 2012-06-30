@@ -41,6 +41,7 @@ enum DeathKnightSpells
     DK_SPELL_UNHOLY_PRESENCE                    = 48265,
     DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_T8_MALEE_4P_BONUS             = 64736,
+    DK_SPELL_BLACK_ICE_R1                       = 49140,
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -422,6 +423,10 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     int32 bp = GetHitDamage() * multiplier;
+
+                    if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(DK_SPELL_BLACK_ICE_R1, EFFECT_0))
+                        AddPctN(bp, aurEff->GetAmount());
+
                     caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
                 }
             }
