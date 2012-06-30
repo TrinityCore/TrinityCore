@@ -3441,7 +3441,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_200_YARDS;   // 200yd
                 break;
             case 70598: // Sindragosa's Fury
-                spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_CASTER;
+                spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
                 break;
             case 69846: // Frost Bomb
                 spellInfo->speed = 0.0f;    // This spell's summon happens instantly
