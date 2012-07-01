@@ -184,14 +184,6 @@ class ChatHandler
         bool HandlePDumpLoadCommand(const char *args);
         bool HandlePDumpWriteCommand(const char *args);
 
-        bool HandleResetAchievementsCommand(const char * args);
-        bool HandleResetAllCommand(const char * args);
-        bool HandleResetHonorCommand(const char * args);
-        bool HandleResetLevelCommand(const char * args);
-        bool HandleResetSpellsCommand(const char* args);
-        bool HandleResetStatsCommand(const char * args);
-        bool HandleResetTalentsCommand(const char* args);
-
         bool HandleSendItemsCommand(const char* args);
         bool HandleSendMailCommand(const char* args);
         bool HandleSendMessageCommand(const char * args);
