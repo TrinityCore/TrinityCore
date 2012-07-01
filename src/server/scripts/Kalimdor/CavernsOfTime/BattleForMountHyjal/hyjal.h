@@ -21,7 +21,7 @@
 
 #define ERROR_INST_DATA     "TSCR: Instance data not set properly for Mount Hyjal. Encounters will be buggy."
 
-enum eTypes
+enum Types
 {
     WORLD_STATE_WAVES         = 2842,
     WORLD_STATE_ENEMY         = 2453,
