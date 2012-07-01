@@ -30,22 +30,17 @@ enum Spells
     SPELL_MARK_DAMAGE   = 31463
 };
 
-#define SOUND_ONDEATH 11018
+enum Texts
+{
+    SAY_ONSLAY          = 0,
+    SAY_MARK            = 1,
+    SAY_ONAGGRO         = 2,
+};
 
-#define SAY_ONSLAY1 "Shaza-Kiel!"
-#define SAY_ONSLAY2 "You... are nothing!"
-#define SAY_ONSLAY3 "Miserable nuisance!"
-#define SOUND_ONSLAY1 11017
-#define SOUND_ONSLAY2 11053
-#define SOUND_ONSLAY3 11054
-
-#define SAY_MARK1 "Your death will be a painful one."
-#define SAY_MARK2 "You... are marked."
-#define SOUND_MARK1 11016
-#define SOUND_MARK2 11052
-
-#define SAY_ONAGGRO "Cry for mercy! Your meaningless lives will soon be forfeit."
-#define SOUND_ONAGGRO 11015
+enum Sounds
+{
+    SOUND_ONDEATH       = 11018,
+};
 
 class boss_kazrogal : public CreatureScript
 {
@@ -87,27 +82,12 @@ public:
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
-            DoPlaySoundToSet(me, SOUND_ONAGGRO);
-            me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
+            Talk(SAY_ONAGGRO);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            switch (urand(0, 2))
-            {
-                case 0:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY1);
-                    me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
-                    break;
-                case 1:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY2);
-                    me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
-                    break;
-                case 2:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY3);
-                    me->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, 0);
-                    break;
-            }
+            Talk(SAY_ONSLAY);
         }
 
         void WaypointReached(uint32 waypointId)
@@ -177,17 +157,7 @@ public:
                 if (MarkTimerBase < 5500)
                     MarkTimerBase = 5500;
                 MarkTimer = MarkTimerBase;
-                switch (urand(0, 2))
-                {
-                    case 0:
-                        DoPlaySoundToSet(me, SOUND_MARK1);
-                        me->MonsterYell(SAY_MARK1, LANG_UNIVERSAL, 0);
-                        break;
-                    case 1:
-                        DoPlaySoundToSet(me, SOUND_MARK2);
-                        me->MonsterYell(SAY_MARK2, LANG_UNIVERSAL, 0);
-                        break;
-                }
+                Talk(SAY_MARK);
             } else MarkTimer -= diff;
 
             DoMeleeAttackIfReady();
