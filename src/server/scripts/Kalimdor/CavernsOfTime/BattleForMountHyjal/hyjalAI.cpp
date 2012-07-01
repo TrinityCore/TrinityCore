@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "hyjalAI.h"
