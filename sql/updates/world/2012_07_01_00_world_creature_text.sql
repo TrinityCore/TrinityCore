@@ -1,3 +1,5 @@
+DELETE FROM `script_texts` WHERE entry IN (-1534019, -1534020, -1534021, -1534022, -1534023, -1534024, -1534025, -1534026, -1534027, -1534028, -1534029 , -1534030);
+
 -- Anetheron
 DELETE FROM `creature_text` WHERE `entry`=17808;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
