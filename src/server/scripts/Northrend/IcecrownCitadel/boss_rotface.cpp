@@ -449,23 +449,23 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                 GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
             }
 
-            void FilterTargets(std::list<Unit*>& targetList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // get 2 targets except 2 nearest
-                targetList.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
 
                 // .resize() runs pop_back();
-                if (targetList.size() > 4)
-                    targetList.resize(4);
+                if (targets.size() > 4)
+                    targets.resize(4);
 
-                while (targetList.size() > 2)
-                    targetList.pop_front();
+                while (targets.size() > 2)
+                    targets.pop_front();
             }
 
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_rotface_ooze_flood_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_rotface_ooze_flood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_ooze_flood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
@@ -490,21 +490,21 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargets(std::list<Unit*>& targets)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // remove targets with this aura already
                 // tank is not on this list
-                targets.remove_if (Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
+                targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
                 if (targets.empty())
                     return;
 
-                Unit* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
                 _target = target;
             }
 
-            void ReplaceTargets(std::list<Unit*>& targets)
+            void ReplaceTargets(std::list<WorldObject*>& targets)
             {
                 targets.clear();
                 if (_target)
@@ -520,13 +520,13 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_rotface_mutated_infection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_rotface_mutated_infection_SpellScript::ReplaceTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_rotface_mutated_infection_SpellScript::ReplaceTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_mutated_infection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_mutated_infection_SpellScript::ReplaceTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rotface_mutated_infection_SpellScript::ReplaceTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterHit += SpellHitFn(spell_rotface_mutated_infection_SpellScript::NotifyTargets);
             }
 
-            Unit* _target;
+            WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const

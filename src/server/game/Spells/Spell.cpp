@@ -827,7 +827,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             break;
     }
 
-    switch(targetType.GetSelectionCategory())
+    switch (targetType.GetSelectionCategory())
     {
         case TARGET_SELECT_CATEGORY_CHANNEL:
             SelectImplicitChannelTargets(effIndex, targetType);
@@ -845,7 +845,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             switch (targetType.GetObjectType())
             {
                 case TARGET_OBJECT_TYPE_SRC:
-                    switch(targetType.GetReferenceType())
+                    switch (targetType.GetReferenceType())
                     {
                         case TARGET_REFERENCE_TYPE_CASTER:
                             m_targets.SetSrc(*m_caster);
@@ -856,7 +856,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
                     }
                     break;
                 case TARGET_OBJECT_TYPE_DEST:
-                     switch(targetType.GetReferenceType())
+                     switch (targetType.GetReferenceType())
                      {
                          case TARGET_REFERENCE_TYPE_CASTER:
                              SelectImplicitCasterDestTargets(effIndex, targetType);
@@ -873,7 +873,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
                      }
                      break;
                 default:
-                    switch(targetType.GetReferenceType())
+                    switch (targetType.GetReferenceType())
                     {
                         case TARGET_REFERENCE_TYPE_CASTER:
                             SelectImplicitCasterObjectTargets(effIndex, targetType);
@@ -1041,7 +1041,9 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
     {
         Trinity::WorldObjectSpellConeTargetCheck check(coneAngle, radius, m_caster, m_spellInfo, selectionType, condList);
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-        SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> > (searcher, containerTypeMask, m_caster, m_caster, radius);
+        SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius);
+
+        CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
 
         if (!targets.empty())
         {
@@ -1068,8 +1070,6 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 else if (GameObject* gObjTarget = (*itr)->ToGameObject())
                     gObjTargets.push_back(gObjTarget);
             }
-
-            CallScriptAfterUnitTargetSelectHandlers(unitTargets, effIndex);
 
             for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
                 AddUnitTarget(*itr, effMask, false);
@@ -1146,6 +1146,8 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
         else if (GameObject* gObjTarget = (*itr)->ToGameObject())
             gObjTargets.push_back(gObjTarget);
     }
+
+    CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
 
     if (!unitTargets.empty())
     {
@@ -1272,8 +1274,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             Trinity::Containers::RandomResizeList(unitTargets, maxTargets);
         }
 
-        CallScriptAfterUnitTargetSelectHandlers(unitTargets, effIndex);
-
         for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
             AddUnitTarget(*itr, effMask, false);
     }
@@ -1289,6 +1289,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
             Trinity::Containers::RandomResizeList(gObjTargets, maxTargets);
         }
+
         for (std::list<GameObject*>::iterator itr = gObjTargets.begin(); itr != gObjTargets.end(); ++itr)
             AddGOTarget(*itr, effMask);
     }
@@ -1296,7 +1297,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
 void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
-    switch(targetType.GetTarget())
+    switch (targetType.GetTarget())
     {
         case TARGET_DEST_CASTER:
             m_targets.SetDst(*m_caster);
@@ -1361,7 +1362,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
 void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
     WorldObject* target = m_targets.GetObjectTarget();
-    switch(targetType.GetTarget())
+    switch (targetType.GetTarget())
     {
         case TARGET_DEST_TARGET_ENEMY:
         case TARGET_DEST_TARGET_ANY:
@@ -1394,7 +1395,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffIndex effIndex, SpellImplicitT
     if (!m_targets.HasDst())
         m_targets.SetDst(*m_caster);
 
-    switch(targetType.GetTarget())
+    switch (targetType.GetTarget())
     {
         case TARGET_DEST_DYNOBJ_ENEMY:
         case TARGET_DEST_DYNOBJ_ALLY:
@@ -1420,7 +1421,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffIndex effIndex, SpellImplicitT
 
 void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
-    switch(targetType.GetTarget())
+    switch (targetType.GetTarget())
     {
         case TARGET_UNIT_CASTER:
             AddUnitTarget(m_caster, 1 << effIndex, false);
@@ -1497,7 +1498,8 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
             if (Unit* unitTarget = (*itr)->ToUnit())
                 unitTargets.push_back(unitTarget);
 
-        CallScriptAfterUnitTargetSelectHandlers(unitTargets, effIndex);
+        // Chain primary target is added earlier
+        CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
 
         for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
             AddUnitTarget(*itr, effMask, false);
@@ -7082,15 +7084,15 @@ void Spell::CallScriptAfterHitHandlers()
     }
 }
 
-void Spell::CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTargets, SpellEffIndex effIndex)
+void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex)
 {
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
-        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_UNIT_TARGET_SELECT);
-        std::list<SpellScript::UnitTargetHandler>::iterator hookItrEnd = (*scritr)->OnUnitTargetSelect.end(), hookItr = (*scritr)->OnUnitTargetSelect.begin();
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_OBJECT_AREA_TARGET_SELECT);
+        std::list<SpellScript::ObjectAreaTargetSelectHandler>::iterator hookItrEnd = (*scritr)->OnObjectAreaTargetSelect.end(), hookItr = (*scritr)->OnObjectAreaTargetSelect.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
             if ((*hookItr).IsEffectAffected(m_spellInfo, effIndex))
-                (*hookItr).Call(*scritr, unitTargets);
+                (*hookItr).Call(*scritr, targets);
 
         (*scritr)->_FinishScriptCall();
     }

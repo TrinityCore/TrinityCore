@@ -870,26 +870,26 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            void SelectTarget(std::list<Unit*>& targetList)
+            void SelectTarget(std::list<WorldObject*>& targets)
             {
-                if (targetList.empty())
+                if (targets.empty())
                 {
                     FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
                     GetCaster()->ToCreature()->DespawnOrUnsummon(1);    // despawn next update
                     return;
                 }
 
-                Unit* target = Trinity::Containers::SelectRandomContainerElement(targetList);
-                targetList.clear();
-                targetList.push_back(target);
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(target);
                 _target = target;
             }
 
-            void SetTarget(std::list<Unit*>& targetList)
+            void SetTarget(std::list<WorldObject*>& targets)
             {
-                targetList.clear();
+                targets.clear();
                 if (_target)
-                    targetList.push_back(_target);
+                    targets.push_back(_target);
             }
 
             void StartAttack()
@@ -912,14 +912,14 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_ooze_channel_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_ooze_channel_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_ooze_channel_SpellScript::SetTarget, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_ooze_channel_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_ooze_channel_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_ooze_channel_SpellScript::SetTarget, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterHit += SpellHitFn(spell_putricide_ooze_channel_SpellScript::StartAttack);
                 OnCast += SpellCastFn(spell_putricide_ooze_channel_SpellScript::CheckTarget);
             }
 
-            Unit* _target;
+            WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const
@@ -933,7 +933,7 @@ class ExactDistanceCheck
     public:
         ExactDistanceCheck(Unit* source, float dist) : _source(source), _dist(dist) {}
 
-        bool operator()(Unit* unit)
+        bool operator()(WorldObject* unit) const
         {
             return _source->GetExactDist2d(unit) > _dist;
         }
@@ -952,15 +952,15 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_slime_puddle_SpellScript);
 
-            void ScaleRange(std::list<Unit*>& targets)
+            void ScaleRange(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(ExactDistanceCheck(GetCaster(), 2.5f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_slime_puddle_SpellScript::ScaleRange, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_slime_puddle_SpellScript::ScaleRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_slime_puddle_SpellScript::ScaleRange, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_slime_puddle_SpellScript::ScaleRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
             }
         };
 
@@ -1178,13 +1178,13 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_eat_ooze_SpellScript);
 
-            void SelectTarget(std::list<Unit*>& targets)
+            void SelectTarget(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
                     return;
 
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-                Unit* target = targets.front();
+                WorldObject* target = targets.front();
                 targets.clear();
                 targets.push_back(target);
             }
@@ -1211,7 +1211,7 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_putricide_eat_ooze_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_eat_ooze_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_eat_ooze_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
             }
         };
 
@@ -1458,15 +1458,15 @@ class spell_putricide_mutated_transformation_dmg : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_mutated_transformation_dmg_SpellScript);
 
-            void FilterTargetsInitial(std::list<Unit*>& unitList)
+            void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
                 if (Unit* owner = ObjectAccessor::GetUnit(*GetCaster(), GetCaster()->GetCreatorGUID()))
-                    unitList.remove(owner);
+                    targets.remove(owner);
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_putricide_mutated_transformation_dmg_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_mutated_transformation_dmg_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
