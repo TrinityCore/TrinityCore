@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ObjectAccessor.h"
 
 class reset_commandscript : public CommandScript
 {
