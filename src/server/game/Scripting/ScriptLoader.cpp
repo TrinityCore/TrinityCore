@@ -61,6 +61,7 @@ void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
 void AddSC_reload_commandscript();
+void AddSC_reset_commandscript();
 void AddSC_tele_commandscript();
 void AddSC_server_commandscript();
 void AddSC_titles_commandscript();
@@ -668,6 +669,7 @@ void AddCommandScripts()
     AddSC_npc_commandscript();
     AddSC_quest_commandscript();
     AddSC_reload_commandscript();
+    AddSC_reset_commandscript();
     AddSC_tele_commandscript();
     AddSC_server_commandscript();
     AddSC_titles_commandscript();
