@@ -36,7 +36,7 @@
 #endif
 
 #ifdef PLATFORM_MAC
-#define WORK_PATH_ROOT "/Users/sam/Downloads/"
+#define WORK_PATH_ROOT "/Users/sam/StormLib/test"
 #endif
 
 #ifndef LANG_CZECH
@@ -472,6 +472,29 @@ static int TestPartFileRead(const TCHAR * szFileName)
 }
 
 //-----------------------------------------------------------------------------
+// Compare PKLIB decompression
+
+BYTE pbCompressed1[] = {0x00, 0x04, 0x00, 0x00, 0x04, 0xF0, 0x1F, 0x7B, 0x01, 0xFF};
+BYTE pbCompressed2[] = {0x00, 0x04, 0x00, 0x00, 0x04, 0xF0, 0x1F, 0x00, 0x00, 0x04, 0xFC, 0x03};
+
+static int ComparePklibCompressions()
+{
+    char Decompressed[0x1000];
+    char Compressed[0x1000];
+    int cbDecompressed = 0x208;
+    int cbCompressed = sizeof(Compressed);
+
+    memset(Decompressed, 0, cbDecompressed);
+    SCompImplode(Compressed, &cbCompressed, Decompressed, cbDecompressed);
+    
+    cbDecompressed = sizeof(Decompressed);
+    SCompExplode(Decompressed, &cbDecompressed, Compressed, cbCompressed);
+
+
+    return ERROR_SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
 // Compare LZMA decompression
 
 #ifdef PLATFORM_WINDOWS
@@ -713,7 +736,7 @@ __TryAgain:
 
 static int TestArchiveOpenAndClose(const TCHAR * szMpqName)
 {
-    const char * szFileName1 = "world\\maps\\AhnQiraj\\AhnQiraj_27_51_tex1.adt";
+    const char * szFileName1 = "DBFilesClient\\Item.dbc";
 //  const char * szFileName2 = "items\\map\\mapz_deleted.cel";
     TMPQArchive * ha = NULL;
     HANDLE hFile1 = NULL;
@@ -724,7 +747,7 @@ static int TestArchiveOpenAndClose(const TCHAR * szMpqName)
     if(nError == ERROR_SUCCESS)
     {
         _tprintf(_T("Opening archive %s ...\n"), szMpqName);
-        if(!SFileOpenArchive(szMpqName, 0, 0, /* MPQ_OPEN_ENCRYPTED,*/ &hMpq))
+        if(!SFileOpenArchive(szMpqName, 0, STREAM_PROVIDER_ENCRYPTED | BASE_PROVIDER_FILE, &hMpq))
             nError = GetLastError();
         ha = (TMPQArchive *)hMpq;
     }
@@ -866,7 +889,7 @@ static int TestMpqCompacting(const TCHAR * szMpqName)
 
     if(nError == ERROR_SUCCESS)
     {
-        char * szFileName = "Shaders\\Effects\\shadowmap.wfx";
+        const char * szFileName = "Shaders\\Effects\\shadowmap.wfx";
 
         printf("Deleting file %s ...\r", szFileName);
         if(!SFileRemoveFile(hMpq, szFileName))
@@ -904,7 +927,7 @@ static int TestCreateArchive(const TCHAR * szMpqName)
 
     // Create the new file
     _tprintf(_T("Creating %s ...\n"), szMpqName);
-    pStream = FileStream_CreateFile(szMpqName);
+    pStream = FileStream_CreateFile(szMpqName, STREAM_PROVIDER_LINEAR | BASE_PROVIDER_FILE);
     if(pStream == NULL)
         nError = GetLastError();
 
@@ -1305,7 +1328,7 @@ static int TestCreateArchiveCopy(const TCHAR * szMpqName, const TCHAR * szMpqCop
         szListFile = NULL;
 
     // Create the new file
-    pStream = FileStream_CreateFile(szMpqCopyName);
+    pStream = FileStream_CreateFile(szMpqCopyName, STREAM_PROVIDER_LINEAR | BASE_PROVIDER_FILE);
     if(pStream == NULL)
         nError = GetLastError();
 
@@ -1393,154 +1416,6 @@ static int TestCreateArchiveCopy(const TCHAR * szMpqName, const TCHAR * szMpqCop
         SFileCloseArchive(hMpq2);
     if(hMpq1 != NULL)
         SFileCloseArchive(hMpq1);
-    return nError;
-}
-
-static int TestCompareTwoArchives(
-    const TCHAR * szMpqName1,
-    const TCHAR * szMpqName2,
-    const char * szListFile,
-    DWORD dwBlockSize)
-{
-    TMPQArchive * ha1 = NULL;
-    TMPQArchive * ha2 = NULL;
-    LPBYTE pbBuffer1 = NULL;
-    LPBYTE pbBuffer2 = NULL;
-    HANDLE hMpq1 = NULL;                // Handle of the first archive
-    HANDLE hMpq2 = NULL;                // Handle of the second archive
-    HANDLE hFile1 = NULL;
-    HANDLE hFile2 = NULL;
-    int nError = ERROR_SUCCESS;
-
-    // If no listfile or an empty one, use NULL
-    if(szListFile == NULL || *szListFile == 0)
-        szListFile = NULL;
-
-    // Allocate both buffers
-    pbBuffer1 = new BYTE[dwBlockSize];
-    pbBuffer2 = new BYTE[dwBlockSize];
-    if(pbBuffer1 == NULL || pbBuffer2 == NULL)
-        nError = ERROR_NOT_ENOUGH_MEMORY;
-
-    _tprintf(_T("=============== Comparing MPQ archives ===============\n"));
-
-    // Open the first MPQ archive
-    if(nError == ERROR_SUCCESS && szMpqName1 != NULL)
-    {
-        _tprintf(_T("Opening %s ...\n"), szMpqName1);
-        if(!SFileOpenArchive(szMpqName1, 0, 0, &hMpq1))
-            nError = GetLastError();
-        ha1 = (TMPQArchive *)hMpq1;
-    }
-
-    // Open the second MPQ archive
-    if(nError == ERROR_SUCCESS && szMpqName2 != NULL)
-    {
-        _tprintf(_T("Opening %s ...\n"), szMpqName2);
-        if(!SFileOpenArchive(szMpqName2, 0, 0, &hMpq2))
-            nError = GetLastError();
-        ha2 = (TMPQArchive *)hMpq2;
-    }
-
-    // Compare the header
-    if(nError == ERROR_SUCCESS && (ha1 != NULL && ha2 != NULL))
-    {
-        if(ha1->pHeader->dwHeaderSize != ha2->pHeader->dwHeaderSize)
-            printf(" - Header size is different\n");
-        if(ha1->pHeader->wFormatVersion != ha2->pHeader->wFormatVersion)
-            printf(" - Format version is different\n");
-        if(ha1->pHeader->wSectorSize != ha2->pHeader->wSectorSize)
-            printf(" - Sector size is different\n");
-        if(ha1->pHeader->HetTableSize64 != ha2->pHeader->HetTableSize64)
-            printf(" - HET table size is different\n");
-        if(ha1->pHeader->BetTableSize64 != ha2->pHeader->BetTableSize64)
-            printf(" - BET table size is different\n");
-        if(ha1->pHeader->dwHashTableSize != ha2->pHeader->dwHashTableSize)
-            printf(" - Hash table size is different\n");
-        if(ha1->pHeader->dwBlockTableSize != ha2->pHeader->dwBlockTableSize)
-            printf(" - Block table size is different\n");
-    }
-
-    // Find all files in the first archive and compare them
-    if(nError == ERROR_SUCCESS)
-    {
-        SFILE_FIND_DATA sf;
-        HANDLE hFind = SFileFindFirstFile(hMpq1, "*", &sf, szListFile);
-        DWORD dwSearchScope1 = SFILE_OPEN_FROM_MPQ;
-        DWORD dwSearchScope2 = SFILE_OPEN_FROM_MPQ;
-        bool bResult = true;
-
-        if(hMpq1 == NULL)
-            dwSearchScope1 = SFILE_OPEN_LOCAL_FILE;
-        if(hMpq2 == NULL)
-            dwSearchScope2 = SFILE_OPEN_LOCAL_FILE;
-
-        while(hFind != NULL && bResult == true)
-        {
-            printf("%s\n", sf.cFileName);
-            SFileSetLocale(sf.lcLocale);
-
-            // Open the first file
-            if(!SFileOpenFileEx(hMpq1, sf.cFileName, dwSearchScope1, &hFile1))
-            {
-                printf("Failed to open the file %s in the first archive\n", sf.cFileName);
-                continue;
-            }
-
-            if(!SFileOpenFileEx(hMpq2, sf.cFileName, dwSearchScope2, &hFile2))
-            {
-                printf("Failed to open the file %s in the second archive\n", sf.cFileName);
-                continue;
-            }
-
-            if(dwSearchScope1 == SFILE_OPEN_FROM_MPQ && dwSearchScope2 == SFILE_OPEN_FROM_MPQ)
-            {
-                TMPQFile * hf1 = (TMPQFile *)hFile1;
-                TMPQFile * hf2 = (TMPQFile *)hFile2;
-
-                // Compare the file sizes
-                if(hf1->pFileEntry->dwFileSize != hf2->pFileEntry->dwFileSize)
-                    printf(" - %s different size (%u x %u)\n", sf.cFileName, hf1->pFileEntry->dwFileSize, hf2->pFileEntry->dwFileSize);
-
-                if(hf1->pFileEntry->dwFlags != hf2->pFileEntry->dwFlags)
-                    printf(" - %s different flags (%08X x %08X)\n", sf.cFileName, hf1->pFileEntry->dwFlags, hf2->pFileEntry->dwFlags);
-            }
-
-            if(!CompareArchivedFiles(sf.cFileName, hFile1, hFile2, 0x1001))
-                printf(" - %s different content\n", sf.cFileName);
-
-            if(!CompareArchivedFilesRR(sf.cFileName, hFile1, hFile2, 0x100000))
-                printf(" - %s different content\n", sf.cFileName);
-
-            // Close both files
-            SFileCloseFile(hFile2);
-            SFileCloseFile(hFile1);
-            hFile2 = hFile1 = NULL;
-
-            // Find the next file
-            bResult = SFileFindNextFile(hFind, &sf);
-        }
-
-        // Close all handles
-        if(hFile2 != NULL)
-            SFileCloseFile(hFile2);
-        if(hFile1 != NULL)
-            SFileCloseFile(hFile1);
-        if(hFind != NULL)
-            SFileFindClose(hFind);
-    }
-
-    // Close both archives
-    clreol();
-    printf("================ MPQ compare complete ================\n");
-    if(hMpq2 != NULL)
-        SFileCloseArchive(hMpq2);
-    if(hMpq1 != NULL)
-        SFileCloseArchive(hMpq1);
-    if(pbBuffer2 != NULL)
-        delete [] pbBuffer2;
-    if(pbBuffer1 != NULL)
-        delete [] pbBuffer1;
     return nError;
 }
 
@@ -1648,7 +1523,7 @@ static int TestOpenPatchedArchive(const TCHAR * szMpqName, ...)
                 if(nError == ERROR_SUCCESS)
                 {
                     MergeLocalPath(szLocFileName, MAKE_PATH("Work//"), GetPlainFileNameA(szFileName));
-                    pStream = FileStream_CreateFile(szLocFileName);
+                    pStream = FileStream_CreateFile(szLocFileName, STREAM_PROVIDER_LINEAR | BASE_PROVIDER_FILE);
                     if(pStream != NULL)
                     {
                         FileStream_Write(pStream, NULL, pbFullFile, dwFileSize);
@@ -1668,6 +1543,222 @@ static int TestOpenPatchedArchive(const TCHAR * szMpqName, ...)
         SFileCloseArchive(hMpq);
     return nError;
 }
+
+static int TestCompareTwoArchives(
+    const TCHAR * szMpqName1,
+    const TCHAR * szMpqName2,
+    const char * szListFile,
+    DWORD dwBlockSize)
+{
+    TMPQArchive * ha1 = NULL;
+    TMPQArchive * ha2 = NULL;
+    HANDLE hMpq1 = NULL;                // Handle of the first archive
+    HANDLE hMpq2 = NULL;                // Handle of the second archive
+    HANDLE hFile1 = NULL;
+    HANDLE hFile2 = NULL;
+    int nError = ERROR_SUCCESS;
+
+    // If no listfile or an empty one, use NULL
+    if(szListFile == NULL || *szListFile == 0)
+        szListFile = NULL;
+
+    _tprintf(_T("=============== Comparing MPQ archives ===============\n"));
+
+    // Open the first MPQ archive
+    if(nError == ERROR_SUCCESS && szMpqName1 != NULL)
+    {
+        _tprintf(_T("Opening %s ...\n"), szMpqName1);
+        if(!SFileOpenArchive(szMpqName1, 0, 0, &hMpq1))
+            nError = GetLastError();
+        ha1 = (TMPQArchive *)hMpq1;
+    }
+
+    // Open the second MPQ archive
+    if(nError == ERROR_SUCCESS && szMpqName2 != NULL)
+    {
+        _tprintf(_T("Opening %s ...\n"), szMpqName2);
+        if(!SFileOpenArchive(szMpqName2, 0, 0, &hMpq2))
+            nError = GetLastError();
+        ha2 = (TMPQArchive *)hMpq2;
+    }
+
+    // Compare the header
+    if(nError == ERROR_SUCCESS && (ha1 != NULL && ha2 != NULL))
+    {
+        if(ha1->pHeader->dwHeaderSize != ha2->pHeader->dwHeaderSize)
+            printf(" - Header size is different\n");
+        if(ha1->pHeader->wFormatVersion != ha2->pHeader->wFormatVersion)
+            printf(" - Format version is different\n");
+        if(ha1->pHeader->wSectorSize != ha2->pHeader->wSectorSize)
+            printf(" - Sector size is different\n");
+        if(ha1->pHeader->HetTableSize64 != ha2->pHeader->HetTableSize64)
+            printf(" - HET table size is different\n");
+        if(ha1->pHeader->BetTableSize64 != ha2->pHeader->BetTableSize64)
+            printf(" - BET table size is different\n");
+        if(ha1->pHeader->dwHashTableSize != ha2->pHeader->dwHashTableSize)
+            printf(" - Hash table size is different\n");
+        if(ha1->pHeader->dwBlockTableSize != ha2->pHeader->dwBlockTableSize)
+            printf(" - Block table size is different\n");
+    }
+
+    // Find all files in the first archive and compare them
+    if(nError == ERROR_SUCCESS)
+    {
+        SFILE_FIND_DATA sf;
+        TMPQFile * hf1;
+        TMPQFile * hf2;
+        HANDLE hFind = SFileFindFirstFile(hMpq1, "*", &sf, szListFile);
+        bool bResult = true;
+
+        while(hFind != NULL && bResult == true)
+        {
+//          printf("%s           \r", sf.cFileName);
+            SFileSetLocale(sf.lcLocale);
+
+            // Open the first file
+            if(!SFileOpenFileEx(hMpq1, sf.cFileName, 0, &hFile1))
+                printf("Failed to open the file %s in the first archive\n", sf.cFileName);
+
+            if(!SFileOpenFileEx(hMpq2, sf.cFileName, 0, &hFile2))
+                printf("Failed to open the file %s in the second archive\n", sf.cFileName);
+
+            if(hFile1 != NULL && hFile2 != NULL)
+            {
+                // Get the TMPQFile pointers
+                hf1 = (TMPQFile *)hFile1;
+                hf2 = (TMPQFile *)hFile2;
+
+                // Compare the file sizes
+                if(hf1->pFileEntry->dwFileSize != hf2->pFileEntry->dwFileSize)
+                    printf("Different file size: %s (%u x %u)\n", sf.cFileName, hf1->pFileEntry->dwFileSize, hf2->pFileEntry->dwFileSize);
+
+                if(hf1->pFileEntry->dwCmpSize != hf2->pFileEntry->dwCmpSize)
+                    printf("Different cmpr size: %s (%u x %u)\n", sf.cFileName, hf1->pFileEntry->dwCmpSize, hf2->pFileEntry->dwCmpSize);
+
+                if(hf1->pFileEntry->dwFlags != hf2->pFileEntry->dwFlags)
+                    printf("Different mpq flags: %s (%08X x %08X)\n", sf.cFileName, hf1->pFileEntry->dwFlags, hf2->pFileEntry->dwFlags);
+
+                if(!CompareArchivedFiles(sf.cFileName, hFile1, hFile2, dwBlockSize))
+                    printf("Different file data: %s\n", sf.cFileName);
+
+//              if(!CompareArchivedFilesRR(sf.cFileName, hFile1, hFile2, dwBlockSize))
+//                  printf("Different file data: %s\n", sf.cFileName);
+            }
+
+            // Close both files
+            if(hFile2 != NULL)
+                SFileCloseFile(hFile2);
+            if(hFile1 != NULL)
+                SFileCloseFile(hFile1);
+            hFile2 = hFile1 = NULL;
+
+            // Find the next file
+            bResult = SFileFindNextFile(hFind, &sf);
+        }
+
+        // Close the find handle
+        if(hFind != NULL)
+            SFileFindClose(hFind);
+    }
+
+    // Close both archives
+    clreol();
+    printf("================ MPQ compare complete ================\n");
+    if(hMpq2 != NULL)
+        SFileCloseArchive(hMpq2);
+    if(hMpq1 != NULL)
+        SFileCloseArchive(hMpq1);
+    return nError;
+}
+
+//-----------------------------------------------------------------------------
+// Searching all known MPQs
+
+#ifdef _WIN32
+static int TestSearchOneArchive(const TCHAR * szMpqName)
+{
+    SFILE_FIND_DATA sf;
+    HANDLE hFind;
+    HANDLE hMpq;
+    const TCHAR * szExtension;
+    bool bFound = true;
+
+    // Get the file extension
+    szExtension = _tcsrchr(szMpqName, _T('.'));
+    if(szExtension == NULL)
+        return ERROR_SUCCESS;
+
+    // Only search defined extensions
+    if(_tcsicmp(szExtension, _T(".mpq")) && _tcsnicmp(szExtension, _T(".SC2"), 4))
+        return ERROR_SUCCESS;
+
+    _tprintf(_T("Searching %s ...\n"), szMpqName);
+
+    // Try to open the MPQ
+    if(SFileOpenArchive(szMpqName, 0, MPQ_OPEN_READ_ONLY, &hMpq))
+    {
+        hFind = SFileFindFirstFile(hMpq, "*", &sf, NULL);
+        if(hFind != NULL)
+        {
+            while(bFound)
+            {
+                if(sf.dwFileFlags & MPQ_FILE_DELETE_MARKER)
+                    _tprintf(_T("Delete marker: %s:%hs\n"), szMpqName, sf.cFileName);
+
+                bFound = SFileFindNextFile(hFind, &sf);
+            }
+        }
+
+        SFileCloseArchive(hMpq);
+    }
+
+    return ERROR_SUCCESS;
+}
+
+static int TestSearchAllArchives(const TCHAR * szSearchMask)
+{
+    WIN32_FIND_DATA wf;
+    LPTSTR szFilePart;
+    HANDLE hFind;
+    TCHAR szFullPath[MAX_PATH];
+    BOOL bFound = TRUE;
+
+    // Initiate search
+    _tcscpy(szFullPath, szSearchMask);
+    szFilePart = _tcschr(szFullPath, _T('*'));
+    assert(szFilePart != NULL);
+
+    // Begin search
+    hFind = FindFirstFile(szSearchMask, &wf);
+    if(hFind != INVALID_HANDLE_VALUE)
+    {
+        while(bFound)
+        {
+            // Eliminate "." and ".."
+            if(wf.cFileName[0] != _T('.'))
+            {
+                // Construct the full path
+                _tcscpy(szFilePart, wf.cFileName);
+
+                // If it a directory?
+                if(wf.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+                {
+                    _tcscat(szFullPath, _T("\\*"));
+                    TestSearchAllArchives(szFullPath);
+                }
+                else
+                {
+                    TestSearchOneArchive(szFullPath);
+                }
+            }
+            bFound = FindNextFile(hFind, &wf);
+        }
+        FindClose(hFind);
+    }
+
+    return ERROR_SUCCESS;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Main
@@ -1697,6 +1788,9 @@ int main(void)
 //  if(nError == ERROR_SUCCESS)
 //      nError = TestPartFileRead(MAKE_PATH("2009 - PartialMPQs/patch.MPQ.part"));
 
+//  if(nError == ERROR_SUCCESS)
+//      nError = ComparePklibCompressions();
+
     // Test LZMA compression method against the code ripped from Starcraft II
 //  if(nError == ERROR_SUCCESS)
 //      nError = CompareLzmaCompressions(MPQ_SECTOR_SIZE);
@@ -1706,8 +1800,8 @@ int main(void)
 //      nError = TestSectorCompress(MPQ_SECTOR_SIZE);
 
     // Test the archive open and close
-    if(nError == ERROR_SUCCESS)
-        nError = TestArchiveOpenAndClose(MAKE_PATH("2011 - WoW/15050/world.MPQ"));
+//  if(nError == ERROR_SUCCESS)
+//      nError = TestArchiveOpenAndClose(_T("d:\\Install\\Blizzard\\Diablo III\\Diablo-III-8370-enGB-Installer\\Installer Tome 1.MPQE"));
 //      nError = TestArchiveOpenAndClose(MAKE_PATH("2011 - WoW BETA/wow-update-13202.MPQ"));
 //      nError = TestArchiveOpenAndClose(MAKE_PATH("2002 - Warcraft III/ProtectedMap_HashTable_FakeValid.w3x"));
 //      nError = TestArchiveOpenAndClose(MAKE_PATH("2010 - Starcraft II/Installer Tome 1 enGB.MPQE"));
@@ -1763,22 +1857,10 @@ int main(void)
     // Create copy of the archive, appending some bytes before the MPQ header
 //  if(nError == ERROR_SUCCESS)
 //      nError = TestCreateArchiveCopy(MAKE_PATH("PartialMPQs/interface.MPQ.part"), MAKE_PATH("PartialMPQs/interface-copy.MPQ.part"), NULL);
-/*
-    if(nError == ERROR_SUCCESS)
-    {
-        nError = TestCompareTwoArchives(MAKE_PATH("2011 - WoW-Cataclysm/wow-update-13189.MPQ"),
-                                        MAKE_PATH("wow-update-13189.MPQ"),
-                                        NULL,
-                                        0x1001);
-    }
-*/
 
+/*
     if(nError == ERROR_SUCCESS)
     {
-        nError = TestOpenPatchedArchive(MAKE_PATH("2004 - Wow 3.x/lichking.MPQ"),
-                                        MAKE_PATH("2011 - WoW 4.x/wow-update-13287.MPQ"),
-                                        NULL);
-/*
         nError = TestOpenPatchedArchive(MAKE_PATH("2011 - WoW 4.x/locale-enGB.MPQ"),
                                         MAKE_PATH("2011 - WoW 4.x/wow-update-13164.MPQ"),
                                         MAKE_PATH("2011 - WoW 4.x/wow-update-13205.MPQ"),
@@ -1791,14 +1873,20 @@ int main(void)
                                         MAKE_PATH("2011 - WoW 4.x/wow-update-enGB-14333.MPQ"),
                                         MAKE_PATH("2011 - WoW 4.x/wow-update-enGB-14480.MPQ"),
                                         NULL);
+    }
 */
+
+    if(nError == ERROR_SUCCESS)
+    {
+        nError = TestCompareTwoArchives(MAKE_PATH("Sound-copy.mpq"),
+                                        MAKE_PATH("Sound.mpq"),
+                                        NULL,
+                                        0x1001);
     }
 
-    // Remove the working directory
-    clreol();
-    if(nError != ERROR_SUCCESS)
-        printf("One or more errors occurred when testing StormLib\n");
 
-    printf("Work complete.\n");
+//  if(nError == ERROR_SUCCESS)
+//      nError = TestSearchAllArchives(MAKE_PATH("*"));
+
     return nError;
 }

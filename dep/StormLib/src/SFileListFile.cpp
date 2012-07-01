@@ -343,13 +343,16 @@ int SListFileSaveToMpq(TMPQArchive * ha)
             }
         }
 
+        // Determine the flags for (listfile)
+        if(ha->dwFileFlags1 == 0)
+            ha->dwFileFlags1 = GetDefaultSpecialFileFlags(ha, dwFileSize);
+
         // Create the listfile in the MPQ
-        assert(ha->dwFileFlags1 != 0);
         nError = SFileAddFile_Init(ha, LISTFILE_NAME,
                                        0,
                                        dwFileSize,
                                        LANG_NEUTRAL,
-                                       ha->dwFileFlags1,
+                                       ha->dwFileFlags1 | MPQ_FILE_REPLACEEXISTING,
                                       &hf);
         // Add all file names
         if(nError == ERROR_SUCCESS)

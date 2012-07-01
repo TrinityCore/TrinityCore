@@ -19,10 +19,12 @@
 #include "vmapexport.h"
 #include "model.h"
 #include "wmo.h"
-#include "mpq_libmpq04.h"
+#include "mpqfile.h"
 #include <cassert>
 #include <algorithm>
 #include <cstdio>
+
+extern HANDLE WorldMpq;
 
 Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
 {
@@ -30,7 +32,7 @@ Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0
 
 bool Model::open()
 {
-    MPQFile f(filename.c_str());
+    MPQFile f(WorldMpq, filename.c_str());
 
     ok = !f.isEof();
 

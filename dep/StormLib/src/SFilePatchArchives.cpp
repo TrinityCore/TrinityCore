@@ -400,7 +400,7 @@ static int ApplyMpqPatch(
 //-----------------------------------------------------------------------------
 // Public functions (StormLib internals)
 
-bool IsPatchData(const void * pvData, DWORD cbData, LPDWORD pdwPatchedFileSize)
+bool IsIncrementalPatchFile(const void * pvData, DWORD cbData, LPDWORD pdwPatchedFileSize)
 {
     TPatchHeader * pPatchHeader = (TPatchHeader *)pvData;
     BLIZZARD_BSDIFF40_FILE DiffFile;
@@ -520,7 +520,7 @@ bool WINAPI SFileOpenPatchArchive(
 
     if(nError == ERROR_SUCCESS)
     {
-        if((ha->pStream->StreamFlags & STREAM_FLAG_READ_ONLY) == 0)
+        if(!FileStream_IsReadOnly(ha->pStream))
             nError = ERROR_ACCESS_DENIED;
     }
 
@@ -539,7 +539,7 @@ bool WINAPI SFileOpenPatchArchive(
         {
             if(!SFileHasFile(hPatchMpq, PATCH_METADATA_NAME))
             {
-                GetDefaultPatchPrefix(ha->pStream->szFileName, szPatchPrefixBuff);
+                GetDefaultPatchPrefix(FileStream_GetFileName(ha->pStream), szPatchPrefixBuff);
                 szPatchPathPrefix = szPatchPrefixBuff;
             }
         }

@@ -26,7 +26,7 @@
 #include <fstream>
 #undef min
 #undef max
-#include "mpq_libmpq04.h"
+#include "mpqfile.h"
 
 using namespace std;
 extern uint16 *LiqType;
@@ -35,9 +35,11 @@ WMORoot::WMORoot(std::string &filename) : filename(filename)
 {
 }
 
+extern HANDLE WorldMpq;
+
 bool WMORoot::open()
 {
-    MPQFile f(filename.c_str());
+    MPQFile f(WorldMpq, filename.c_str());
     if(f.isEof ())
     {
         printf("No such file.\n");
@@ -143,7 +145,7 @@ WMOGroup::WMOGroup(std::string &filename) : filename(filename),
 
 bool WMOGroup::open()
 {
-    MPQFile f(filename.c_str());
+    MPQFile f(WorldMpq, filename.c_str());
     if(f.isEof ())
     {
         printf("No such file.\n");

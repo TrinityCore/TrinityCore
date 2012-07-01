@@ -19,7 +19,7 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "mpq_libmpq04.h"
+#include "mpqfile.h"
 #include "wmo.h"
 #include "model.h"
 
