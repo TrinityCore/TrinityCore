@@ -15,42 +15,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
 
-#define SPELL_CARRION_SWARM 31306
-#define SPELL_SLEEP 31298
-#define SPELL_VAMPIRIC_AURA 38196
-#define SPELL_INFERNO 31299
+enum Spells
+{
+    SPELL_CARRION_SWARM     = 31306,
+    SPELL_SLEEP             = 31298,
+    SPELL_VAMPIRIC_AURA     = 38196,
+    SPELL_INFERNO           = 31299,
+    SPELL_IMMOLATION        = 31303,
+    SPELL_INFERNO_EFFECT    = 31302,
+};
 
-#define SAY_ONDEATH "The clock... is still... ticking."
-#define SOUND_ONDEATH 10982
-
-#define SAY_ONSLAY1 "Your hopes are lost!"
-#define SAY_ONSLAY2 "Scream for me!"
-#define SAY_ONSLAY3 "Pity, no time for a slow death!"
-#define SOUND_ONSLAY1 10981
-#define SOUND_ONSLAY2 11038
-#define SOUND_ONSLAY3 11039
-
-#define SAY_SWARM1 "The swarm is eager to feed!"
-#define SAY_SWARM2 "Pestilence upon you!"
-#define SOUND_SWARM1 10979
-#define SOUND_SWARM2 11037
-
-#define SAY_SLEEP1 "You look tired..."
-#define SAY_SLEEP2 "Sweet dreams..."
-#define SOUND_SLEEP1 10978
-#define SOUND_SLEEP2 11545
-
-#define SAY_INFERNO1 "Let fire rain from above!"
-#define SAY_INFERNO2 "Earth and sky shall burn!"
-#define SOUND_INFERNO1 10980
-#define SOUND_INFERNO2 11036
-
-#define SAY_ONAGGRO "You are defenders of a doomed world! Flee here, and perhaps you will prolong your pathetic lives!"
-#define SOUND_ONAGGRO 10977
+enum Texts
+{
+    SAY_ONDEATH         = 0,
+    SAY_ONSLAY          = 1,
+    SAY_SWARM           = 2,
+    SAY_SLEEP           = 3,
+    SAY_INFERNO         = 4,
+    SAY_ONAGGRO         = 5,
+};
 
 class boss_anetheron : public CreatureScript
 {
@@ -92,27 +80,12 @@ public:
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
-            DoPlaySoundToSet(me, SOUND_ONAGGRO);
-            me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
+            Talk(SAY_ONAGGRO);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            switch (urand(0, 2))
-            {
-                case 0:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY1);
-                    me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
-                    break;
-                case 1:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY2);
-                    me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
-                    break;
-                case 2:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY3);
-                    me->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, 0);
-                    break;
-            }
+            Talk(SAY_ONSLAY);
         }
 
         void WaypointReached(uint32 waypointId)
@@ -130,8 +103,7 @@ public:
             hyjal_trashAI::JustDied(killer);
             if (instance && IsEvent)
                 instance->SetData(DATA_ANETHERONEVENT, DONE);
-            DoPlaySoundToSet(me, SOUND_ONDEATH);
-            me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
+            Talk(SAY_ONDEATH);
         }
 
         void UpdateAI(const uint32 diff)
@@ -169,17 +141,7 @@ public:
                     DoCast(target, SPELL_CARRION_SWARM);
 
                 SwarmTimer = urand(45000, 60000);
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        DoPlaySoundToSet(me, SOUND_SWARM1);
-                        me->MonsterYell(SAY_SWARM1, LANG_UNIVERSAL, 0);
-                        break;
-                    case 1:
-                        DoPlaySoundToSet(me, SOUND_SWARM2);
-                        me->MonsterYell(SAY_SWARM2, LANG_UNIVERSAL, 0);
-                        break;
-                }
+                Talk(SAY_SWARM);
             } else SwarmTimer -= diff;
 
             if (SleepTimer <= diff)
@@ -190,17 +152,7 @@ public:
                         target->CastSpell(target, SPELL_SLEEP, true);
                 }
                 SleepTimer = 60000;
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        DoPlaySoundToSet(me, SOUND_SLEEP1);
-                        me->MonsterYell(SAY_SLEEP1, LANG_UNIVERSAL, 0);
-                        break;
-                    case 1:
-                        DoPlaySoundToSet(me, SOUND_SLEEP2);
-                        me->MonsterYell(SAY_SLEEP2, LANG_UNIVERSAL, 0);
-                        break;
-                }
+                Talk(SAY_SLEEP);
             } else SleepTimer -= diff;
             if (AuraTimer <= diff)
             {
@@ -211,17 +163,7 @@ public:
             {
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_INFERNO);
                 InfernoTimer = 45000;
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        DoPlaySoundToSet(me, SOUND_INFERNO1);
-                        me->MonsterYell(SAY_INFERNO1, LANG_UNIVERSAL, 0);
-                        break;
-                    case 1:
-                        DoPlaySoundToSet(me, SOUND_INFERNO2);
-                        me->MonsterYell(SAY_INFERNO2, LANG_UNIVERSAL, 0);
-                        break;
-                }
+                Talk(SAY_INFERNO);
             } else InfernoTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -229,9 +171,6 @@ public:
     };
 
 };
-
-#define SPELL_IMMOLATION     31303
-#define SPELL_INFERNO_EFFECT 31302
 
 class mob_towering_infernal : public CreatureScript
 {
