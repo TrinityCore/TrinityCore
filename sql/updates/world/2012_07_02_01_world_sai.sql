@@ -1,3 +1,4 @@
+-- Add SAI for Dark Ritualist <Cult of the Damned> ID: 34734 // timings are taken from other script finds
 SET @Ritualist := 34734;
 UPDATE `creature_template` SET  `AIName`='SmartAI' WHERE `entry`=@Ritualist;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@Ritualist;
