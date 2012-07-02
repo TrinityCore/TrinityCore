@@ -47,7 +47,9 @@ enum Drakes
 
     NPC_VERDISA                                   = 27657,
     NPC_BELGARISTRASZ                             = 27658,
-    NPC_ETERNOS                                   = 27659
+    NPC_ETERNOS                                   = 27659,
+
+    SPELL_SHOCK_CHARGE                            = 49836,
 };
 
 enum Says
@@ -210,8 +212,40 @@ public:
     }
 };
 
+class spell_gen_stop_time : public SpellScriptLoader
+{
+public:
+    spell_gen_stop_time() : SpellScriptLoader("spell_gen_stop_time") { }
+
+    class spell_gen_stop_time_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_stop_time_AuraScript);
+
+        void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+            Unit* target = GetTarget();
+            for (uint32 i = 0; i < 5; ++i)
+                caster->CastSpell(target, SPELL_SHOCK_CHARGE, false);
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_gen_stop_time_AuraScript::Apply, EFFECT_0);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_stop_time_AuraScript();
+    }
+};
+
 void AddSC_oculus()
 {
     new npc_oculus_drake();
     new npc_image_belgaristrasz();
+    new spell_gen_stop_time();
 }
