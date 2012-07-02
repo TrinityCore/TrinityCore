@@ -1769,12 +1769,16 @@ void Battleground::HandleTriggerBuff(uint64 go_guid)
     SpawnBGObject(index, BUFF_RESPAWN_TIME);
 }
 
-void Battleground::HandleKillPlayer(Player* player, Player* killer)
+void Battleground::HandleKillPlayer(Player* victim, Player* killer)
 {
     // Keep in mind that for arena this will have to be changed a bit
 
+    // Don't reward credit for killing ourselves, like fall damage of hellfire (warlock)
+    if (victim && killer && killer == victim)
+        return;
+
     // Add +1 deaths
-    UpdatePlayerScore(player, SCORE_DEATHS, 1);
+    UpdatePlayerScore(victim, SCORE_DEATHS, 1);
     // Add +1 kills to group and +1 killing_blows to killer
     if (killer)
     {
@@ -1787,7 +1791,7 @@ void Battleground::HandleKillPlayer(Player* player, Player* killer)
             if (!creditedPlayer || creditedPlayer == killer)
                 continue;
 
-            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(player))
+            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
                 UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
@@ -1795,8 +1799,8 @@ void Battleground::HandleKillPlayer(Player* player, Player* killer)
     if (!isArena())
     {
         // To be able to remove insignia -- ONLY IN Battlegrounds
-        player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
-        RewardXPAtKill(killer, player);
+        victim->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+        RewardXPAtKill(killer, victim);
     }
 }
 
