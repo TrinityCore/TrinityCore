@@ -52,10 +52,10 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
                 return true;
             }
 
-            void HandleTargets(std::list<Unit*>& targetList)
+            void HandleTargets(std::list<WorldObject*>& targetList)
             {
                 uint8 count = 0;
-                for (std::list<Unit*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
+                for (std::list<WorldObject*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
                     if ((*ihit)->GetGUID() != GetCaster()->GetGUID())
                         if (Player* target = (*ihit)->ToPlayer())
                             if (target->HasAura(GetTriggeringSpell()->Id))
@@ -88,7 +88,7 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_capacitus_polarity_charge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_capacitus_polarity_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_capacitus_polarity_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 

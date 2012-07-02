@@ -167,18 +167,6 @@ ChatCommand* ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
-    static ChatCommand resetCommandTable[] =
-    {
-        { "achievements",   SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetAchievementsCommand>,   "", NULL },
-        { "honor",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetHonorCommand>,          "", NULL },
-        { "level",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetLevelCommand>,          "", NULL },
-        { "spells",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetSpellsCommand>,         "", NULL },
-        { "stats",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetStatsCommand>,          "", NULL },
-        { "talents",        SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetTalentsCommand>,        "", NULL },
-        { "all",            SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetAllCommand>,            "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
     static ChatCommand sendCommandTable[] =
     {
         { "items",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleSendItemsCommand>,           "", NULL },
@@ -242,7 +230,6 @@ ChatCommand* ChatHandler::getCommandTable()
         { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", pdumpCommandTable    },
         { "guild",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", guildCommandTable    },
         { "group",          SEC_ADMINISTRATOR,  false, NULL,                                           "", groupCommandTable    },
-        { "reset",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", resetCommandTable    },
 
         { "channel",        SEC_ADMINISTRATOR, true, NULL,                                             "", channelCommandTable  },
 
