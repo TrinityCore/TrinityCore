@@ -127,10 +127,6 @@ UPDATE creature_template SET scriptname = 'npc_7th_legion_siege_engineer' WHERE 
 UPDATE creature_template SET scriptname = 'vehicle_alliance_steamtank' WHERE entry = 27587;
 UPDATE creature_template SET scriptname = 'mob_woodlands_walker' WHERE entry = 26421;
 
--- Fix Koralon's Meteor Fists
-DELETE FROM spell_script_names WHERE spell_id = 66765;
-INSERT INTO spell_script_names VALUES 
-(66765, "spell_koralon_meteor_fists");
 
 DELETE FROM `creature_model_info` WHERE (`modelid`=29524);
 INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`) VALUES 
