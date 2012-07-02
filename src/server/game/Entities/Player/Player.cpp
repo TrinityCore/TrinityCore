@@ -20560,7 +20560,7 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
     else
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIG_BY_GUID_TYPE);
-        stmt->setUInt8(0, uint8(type));
+        stmt->setUInt8(1, uint8(type));
     }
 
     stmt->setUInt32(0, GUID_LOPART(guid));
