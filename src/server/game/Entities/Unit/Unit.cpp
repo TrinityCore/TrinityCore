@@ -527,13 +527,7 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
         if (absorb)
             *absorb += damage;
         damage = 0;
-        return;
     }
-
-    uint32 originalDamage = damage;
-
-    if (absorb && originalDamage > damage)
-        *absorb += (originalDamage - damage);
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)

@@ -391,7 +391,7 @@ class HeightDifferenceCheck
         {
         }
 
-        bool operator()(Unit* unit) const
+        bool operator()(WorldObject* unit) const
         {
             return (unit->GetPositionZ() - _baseObject->GetPositionZ() > _difference) != _reverse;
         }
@@ -2288,7 +2288,7 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_shadow_trap_periodic_SpellScript);
 
-            void CheckTargetCount(std::list<Unit*>& targets)
+            void CheckTargetCount(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
                     return;
@@ -2298,7 +2298,7 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_shadow_trap_periodic_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_shadow_trap_periodic_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -2322,10 +2322,10 @@ class spell_the_lich_king_quake : public SpellScriptLoader
                 return GetCaster()->GetInstanceScript() != NULL;
             }
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (GameObject* platform = ObjectAccessor::GetGameObject(*GetCaster(), GetCaster()->GetInstanceScript()->GetData64(DATA_ARTHAS_PLATFORM)))
-                    unitList.remove_if(HeightDifferenceCheck(platform, 5.0f, false));
+                    targets.remove_if(HeightDifferenceCheck(platform, 5.0f, false));
             }
 
             void HandleSendEvent(SpellEffIndex /*effIndex*/)
@@ -2336,7 +2336,7 @@ class spell_the_lich_king_quake : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_quake_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 OnEffectHit += SpellEffectFn(spell_the_lich_king_quake_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
@@ -2363,7 +2363,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
                 return true;
             }
 
-            void CheckTargetCount(std::list<Unit*>& unitList)
+            void CheckTargetCount(std::list<WorldObject*>& unitList)
             {
                 if (unitList.empty())
                     return;
@@ -2371,12 +2371,16 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
                 // if there is at least one affected target cast the explosion
                 GetCaster()->CastSpell(GetCaster(), SPELL_ICE_BURST, true);
                 if (GetCaster()->GetTypeId() == TYPEID_UNIT)
+                {
+                    GetCaster()->ToCreature()->SetReactState(REACT_PASSIVE);
+                    GetCaster()->AttackStop();
                     GetCaster()->ToCreature()->DespawnOrUnsummon(500);
+                }
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_ice_burst_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_ice_burst_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -2425,7 +2429,7 @@ class ExactDistanceCheck
     public:
         ExactDistanceCheck(Unit* source, float dist) : _source(source), _dist(dist) {}
 
-        bool operator()(Unit* unit)
+        bool operator()(WorldObject* unit)
         {
             return _source->GetExactDist2d(unit) > _dist;
         }
@@ -2444,7 +2448,7 @@ class spell_the_lich_king_defile : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_defile_SpellScript);
 
-            void CorrectRange(std::list<Unit*>& targets)
+            void CorrectRange(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
             }
@@ -2460,8 +2464,8 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_defile_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnHit += SpellHitFn(spell_the_lich_king_defile_SpellScript::ChangeDamageAndGrow);
             }
         };
@@ -2563,26 +2567,26 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
                 return true;
             }
 
-            void SelectTarget(std::list<Unit*>& unitList)
+            void SelectTarget(std::list<WorldObject*>& targets)
             {
-                if (unitList.empty())
+                if (targets.empty())
                     return;
 
-                unitList.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
-                if (unitList.empty())
+                targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
+                if (targets.empty())
                     return;
 
-                _target = Trinity::Containers::SelectRandomContainerElement(unitList);
-                unitList.clear();
-                unitList.push_back(_target);
+                _target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(_target);
                 GetCaster()->GetAI()->SetGUID(_target->GetGUID());
             }
 
-            void ReplaceTarget(std::list<Unit*>& unitList)
+            void ReplaceTarget(std::list<WorldObject*>& targets)
             {
-                unitList.clear();
+                targets.clear();
                 if (_target)
-                    unitList.push_back(_target);
+                    targets.push_back(_target);
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -2593,12 +2597,12 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_valkyr_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_valkyr_target_search_SpellScript::ReplaceTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_valkyr_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_valkyr_target_search_SpellScript::ReplaceTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_valkyr_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
-            Unit* _target;
+            WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const
@@ -2775,7 +2779,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            void SelectTarget(std::list<Unit*>& targets)
+            void SelectTarget(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
                     return;
@@ -2796,11 +2800,11 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_vile_spirit_move_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
-            Unit* _target;
+            WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const
@@ -2823,7 +2827,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            void CheckTargetCount(std::list<Unit*>& targets)
+            void CheckTargetCount(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
                     return;
@@ -2840,7 +2844,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             Unit* _target;

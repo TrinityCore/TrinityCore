@@ -66,7 +66,7 @@ public:
         return ss.str();
     }
 
-    static bool HandleInstanceListBindsCommand(ChatHandler* handler, char const* args)
+    static bool HandleInstanceListBindsCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)

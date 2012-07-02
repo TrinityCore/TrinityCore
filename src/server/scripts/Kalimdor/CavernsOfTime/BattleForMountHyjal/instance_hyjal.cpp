@@ -23,15 +23,16 @@ SDComment: Instance Data Scripts and functions to acquire mobs and set encounter
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
-#include "ScriptPCH.h"
-#include "hyjal.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 #include "hyjal_trash.h"
 
-enum eEnums
+enum Misc
 {
     MAX_ENCOUNTER       = 5,
 
-    GO_ANCIENT_GEM      = 185557
+    GO_ANCIENT_GEM      = 185557,
 };
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
