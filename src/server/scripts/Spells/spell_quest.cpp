@@ -1194,6 +1194,52 @@ public:
     }
 };
 
+enum ACleansingSong
+{
+    SPELL_SUMMON_SPIRIT_ATAH        = 52954,
+    SPELL_SUMMON_SPIRIT_HAKHALAN    = 52958,
+    SPELL_SUMMON_SPIRIT_KOOSU       = 52959,
+
+    AREA_BITTERTIDELAKE             = 4385,
+    AREA_RIVERSHEART                = 4290,
+    AREA_WINTERGRASPRIVER           = 4388,
+};
+
+class spell_q12735_song_of_cleansing : public SpellScriptLoader
+{
+    public:
+        spell_q12735_song_of_cleansing() : SpellScriptLoader("spell_q12735_song_of_cleansing") { }
+
+        class spell_q12735_song_of_cleansing_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12735_song_of_cleansing_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster && caster->GetAreaId() == AREA_BITTERTIDELAKE)
+                    caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_ATAH);
+
+                else if (caster && caster->GetAreaId() == AREA_RIVERSHEART)
+                    caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_HAKHALAN);
+
+                else if (caster && caster->GetAreaId() == AREA_WINTERGRASPRIVER)
+                    caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_KOOSU);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12735_song_of_cleansing_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12735_song_of_cleansing_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1222,4 +1268,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12987_read_pronouncement();
     new spell_q12277_wintergarde_mine_explosion();
     new spell_q12066_bunny_kill_credit();
+    new spell_q12735_song_of_cleansing();
 }
