@@ -267,6 +267,17 @@ void SpellScript::ObjectAreaTargetSelectHandler::Call(SpellScript* spellScript, 
     (spellScript->*pObjectAreaTargetSelectHandlerScript)(targets);
 }
 
+SpellScript::ObjectTargetSelectHandler::ObjectTargetSelectHandler(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
+    : TargetHook(_effIndex, _targetType, false)
+{
+    pObjectTargetSelectHandlerScript = _pObjectTargetSelectHandlerScript;
+}
+
+void SpellScript::ObjectTargetSelectHandler::Call(SpellScript* spellScript, WorldObject*& target)
+{
+    (spellScript->*pObjectTargetSelectHandlerScript)(target);
+}
+
 bool SpellScript::_Validate(SpellInfo const* entry)
 {
     for (std::list<EffectHandler>::iterator itr = OnEffectLaunch.begin(); itr != OnEffectLaunch.end(); ++itr)
@@ -288,6 +299,10 @@ bool SpellScript::_Validate(SpellInfo const* entry)
     for (std::list<ObjectAreaTargetSelectHandler>::iterator itr = OnObjectAreaTargetSelect.begin(); itr != OnObjectAreaTargetSelect.end(); ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectAreaTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<ObjectTargetSelectHandler>::iterator itr = OnObjectTargetSelect.begin(); itr != OnObjectTargetSelect.end(); ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
     return _SpellScript::_Validate(entry);
 }
