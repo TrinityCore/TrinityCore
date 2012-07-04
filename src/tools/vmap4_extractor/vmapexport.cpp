@@ -525,7 +525,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         printf("   -s : (default) small size (data size optimization), ~500MB less vmap data.\n");
         printf("   -l : large size, ~500MB more vmap data. (might contain more details)\n");
         printf("   -d <path>: Path to the vector data source folder.\n");
-        printf("   -b : target build (default 14545)");
+        printf("   -b : target build (default %u)", CONF_TargetBuild);
         printf("   -? : This message.\n");
     }
 
