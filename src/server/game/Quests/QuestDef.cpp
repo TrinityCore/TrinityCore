@@ -61,14 +61,14 @@ Quest::Quest(Field* questRecord)
     SourceSpellid = questRecord[36].GetUInt32();
     Flags = questRecord[37].GetUInt32();
     uint32 SpecialFlags = questRecord[38].GetUInt8();
-    MinimapTargetMark = questRecord[39].GetUInt32();
+    MinimapTargetMark = questRecord[39].GetUInt8();
     RewardTitleId = questRecord[40].GetUInt8();
     RequiredPlayerKills = questRecord[41].GetUInt8();
     RewardTalents = questRecord[42].GetUInt8();
     RewardArenaPoints = questRecord[43].GetUInt16();
-    RewardSkillId = questRecord[44].GetUInt32();
-    RewardSkillPoints = questRecord[45].GetUInt32();
-    RewardReputationMask = questRecord[46].GetUInt32();
+    RewardSkillId = questRecord[44].GetUInt16();
+    RewardSkillPoints = questRecord[45].GetUInt8();
+    RewardReputationMask = questRecord[46].GetUInt8();
     QuestGiverPortrait = questRecord[47].GetUInt32();
     QuestTurnInPortrait = questRecord[48].GetUInt32();
 
@@ -147,8 +147,8 @@ Quest::Quest(Field* questRecord)
     QuestGiverTargetName = questRecord[149].GetString();
     QuestTurnTextWindow = questRecord[150].GetString();
     QuestTurnTargetName = questRecord[151].GetString();
-    SoundAccept = questRecord[152].GetUInt32();
-    SoundTurnIn = questRecord[153].GetUInt32();
+    SoundAccept = questRecord[152].GetUInt16();
+    SoundTurnIn = questRecord[153].GetUInt16();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         DetailsEmote[i] = questRecord[154+i].GetUInt16();
