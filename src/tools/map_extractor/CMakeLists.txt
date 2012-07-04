@@ -23,6 +23,7 @@ add_executable(mapextractor
 )
 
 target_link_libraries(mapextractor
+  mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   storm

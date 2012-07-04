@@ -298,7 +298,7 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z)
     }
 }
 
-void MotionMaster::MoveLand(uint32 id, Position const& pos, float speed)
+void MotionMaster::MoveLand(uint32 id, Position const& pos)
 {
     float x, y, z;
     pos.GetPosition(x, y, z);
@@ -307,13 +307,12 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, float speed)
 
     Movement::MoveSplineInit init(*_owner);
     init.MoveTo(x,y,z);
-    init.SetVelocity(speed);
     init.SetAnimation(Movement::ToGround);
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
-void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
+void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
 {
     float x, y, z;
     pos.GetPosition(x, y, z);
@@ -322,7 +321,6 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
 
     Movement::MoveSplineInit init(*_owner);
     init.MoveTo(x,y,z);
-    init.SetVelocity(speed);
     init.SetAnimation(Movement::ToFly);
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
