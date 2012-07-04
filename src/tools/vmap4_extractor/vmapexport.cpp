@@ -59,7 +59,7 @@
 HANDLE WorldMpq = NULL;
 HANDLE LocaleMpq = NULL;
 
-uint32 CONF_TargetBuild = 15595;              // 4.3.4.15595
+uint32 CONF_TargetBuild = 14545;              // 4.2.2.14545
 
 // List MPQ for extract maps from
 char const* CONF_mpq_list[]=
@@ -517,6 +517,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
             break;
         }
     }
+
     if(!result)
     {
         printf("Extract %s.\n",versionString);
@@ -524,6 +525,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         printf("   -s : (default) small size (data size optimization), ~500MB less vmap data.\n");
         printf("   -l : large size, ~500MB more vmap data. (might contain more details)\n");
         printf("   -d <path>: Path to the vector data source folder.\n");
+        printf("   -b : target build (default 14545)");
         printf("   -? : This message.\n");
     }
 
@@ -545,7 +547,6 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
 int main(int argc, char ** argv)
 {
-    getc(stdin);
     bool success=true;
     const char *versionString = "V4.00 2012_02";
 
