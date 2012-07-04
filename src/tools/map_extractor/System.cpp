@@ -1019,7 +1019,9 @@ void ExtractDBCFiles(int l, bool basicLocale)
     uint32 count = 0;
     if (listFile)
     {
-        std::string outputPath = "./dbc/";
+        std::string outputPath = output_path;
+        outputPath += "/dbc/";
+
         CreateDir(outputPath);
         if (!basicLocale)
         {
@@ -1063,7 +1065,8 @@ void ExtractDB2Files(int l, bool basicLocale)
     uint32 count = 0;
     if (listFile)
     {
-        std::string outputPath = "./dbc/";
+        std::string outputPath = output_path;
+        outputPath += "/dbc/";
         if (!basicLocale)
         {
             outputPath += Locales[l];
