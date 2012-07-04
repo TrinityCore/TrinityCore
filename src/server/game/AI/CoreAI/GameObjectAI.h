@@ -53,7 +53,8 @@ class GameObjectAI
         virtual uint64 GetData64(uint32 /*id*/) { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
-        virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
+        virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) {}
+        virtual void EventInform(uint32 /*eventId*/) {}
 };
 
 class NullGameObjectAI : public GameObjectAI

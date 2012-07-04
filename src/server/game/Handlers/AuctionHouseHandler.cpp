@@ -161,7 +161,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 
     etime *= MINUTE;
 
-    switch(etime)
+    switch (etime)
     {
         case 1*MIN_AUCTION_TIME:
         case 2*MIN_AUCTION_TIME:

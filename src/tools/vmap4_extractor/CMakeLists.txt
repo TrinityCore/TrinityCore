@@ -28,6 +28,7 @@ include_directories(
 add_executable(vmap4extractor ${sources})
 
 target_link_libraries(vmap4extractor
+  mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   storm

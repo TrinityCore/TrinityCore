@@ -1080,7 +1080,7 @@ class NotVictimFilter
         {
         }
 
-        bool operator()(Unit* target)
+        bool operator()(WorldObject* target)
         {
             return target != _victim;
         }
@@ -1098,14 +1098,14 @@ class spell_algalon_arcane_barrage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_algalon_arcane_barrage_SpellScript);
 
-            void SelectTarget(std::list<Unit*>& targets)
+            void SelectTarget(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(NotVictimFilter(GetCaster()));
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_arcane_barrage_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_algalon_arcane_barrage_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -1118,9 +1118,9 @@ class spell_algalon_arcane_barrage : public SpellScriptLoader
 class ActiveConstellationFilter
 {
     public:
-        bool operator()(Unit* target) const
+        bool operator()(WorldObject* target) const
         {
-            return target->GetAI()->GetData(0);
+            return target->ToUnit() && target->ToUnit()->GetAI() && target->ToUnit()->GetAI()->GetData(0);
         }
 };
 
@@ -1133,7 +1133,7 @@ class spell_algalon_trigger_3_adds : public SpellScriptLoader
         {
             PrepareSpellScript(spell_algalon_trigger_3_adds_SpellScript);
 
-            void SelectTarget(std::list<Unit*>& targets)
+            void SelectTarget(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(ActiveConstellationFilter());
             }
@@ -1150,7 +1150,7 @@ class spell_algalon_trigger_3_adds : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_trigger_3_adds_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_algalon_trigger_3_adds_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
@@ -1202,7 +1202,7 @@ class spell_algalon_big_bang : public SpellScriptLoader
                 return true;
             }
 
-            void CountTargets(std::list<Unit*>& targets)
+            void CountTargets(std::list<WorldObject*>& targets)
             {
                 _targetCount = targets.size();
             }
@@ -1215,7 +1215,7 @@ class spell_algalon_big_bang : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_algalon_big_bang_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_algalon_big_bang_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterCast += SpellCastFn(spell_algalon_big_bang_SpellScript::CheckTargets);
             }
 

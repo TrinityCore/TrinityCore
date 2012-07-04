@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 mobs_risen_husk_spirit
-npc_deserter_agitator
 npc_lady_jaina_proudmoore
 npc_nat_pagle
 npc_private_hendel
@@ -132,93 +131,7 @@ class mobs_risen_husk_spirit : public CreatureScript
 };
 
 /*######
-## npc_deserter_agitator
-######*/
-
-enum Deserter
-{
-    QUEST_TRAITORS_AMONG_US                      = 11126,
-    NPC_THERAMORE_DESERTER                       = 23602,
-};
-
-const Position DeserterDisappearPos = {-3609.03f, -4332.91f, 9.39354f, 3.73862f};
-
-#define GOSSIP_ITEM_DESERTER "Your propaganda wont`t work on me. Spout your treasonous filth elsewhere traitor!"
-
-class npc_deserter_agitator : public CreatureScript
-{
-public:
-    npc_deserter_agitator() : CreatureScript("npc_deserter_agitator") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_TRAITORS_AMONG_US) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DESERTER, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            switch (urand(0, 1))
-            {
-                case 0:
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    creature->setFaction(14);
-                    creature->AI()->AttackStart(player);
-                    break;
-                case 1:
-                    player->KilledMonsterCredit(NPC_THERAMORE_DESERTER, 0);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    creature->SetSpeed(MOVE_RUN, creature->GetSpeedRate(MOVE_RUN), true);
-                    creature->setFaction(35);
-                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-                    creature->SetReactState(REACT_PASSIVE);
-                    creature->GetMotionMaster()->MovePoint(1, DeserterDisappearPos);
-                    break;
-            }
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_deserter_agitatorAI(creature);
-    }
-
-    struct npc_deserter_agitatorAI : public ScriptedAI
-    {
-        npc_deserter_agitatorAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset()
-        {
-            me->RestoreFaction();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_AGGRESSIVE);
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        }
-
-        void MovementInform(uint32 Type, uint32 Id)
-        {
-            if (Type != POINT_MOTION_TYPE)
-                return;
-
-            if (Id == 1)
-                me->DisappearAndDie();
-        }
-    };
-};
-
-/*######
-## npc_deserter_agitator
+## npc_theramor_guard
 ######*/
 
 enum TheramoreGuard
@@ -794,16 +707,16 @@ class spell_energize_aoe : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
                     if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(GetSpellInfo()->Effects[EFFECT_1].CalcValue()) == QUEST_STATUS_INCOMPLETE)
                         ++itr;
                     else
-                        unitList.erase(itr++);
+                        targets.erase(itr++);
                 }
-                unitList.push_back(GetCaster());
+                targets.push_back(GetCaster());
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -815,8 +728,8 @@ class spell_energize_aoe : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_energize_aoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_energize_aoe_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
@@ -865,7 +778,6 @@ void AddSC_dustwallow_marsh()
     new npc_zelfrax();
     new npc_stinky();
     new npc_theramore_guard();
-    new npc_deserter_agitator();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();

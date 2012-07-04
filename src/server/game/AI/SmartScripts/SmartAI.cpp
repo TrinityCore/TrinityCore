@@ -696,8 +696,9 @@ void SmartAI::OnCharmed(bool apply)
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 }
 
-void SmartAI::DoAction(const int32 /*param*/)
+void SmartAI::DoAction(const int32 param)
 {
+    GetScript()->ProcessEventsFor(SMART_EVENT_ACTION_DONE, NULL, param);
 }
 
 uint32 SmartAI::GetData(uint32 /*id*/)
@@ -825,27 +826,10 @@ void SmartAI::sOnGameEvent(bool start, uint16 eventId)
     GetScript()->ProcessEventsFor(start ? SMART_EVENT_GAME_EVENT_START : SMART_EVENT_GAME_EVENT_END, NULL, eventId);
 }
 
-/*
-SMART_EVENT_UPDATE_OOC
-SMART_EVENT_SPELLHIT
-SMART_EVENT_RANGE
-SMART_EVENT_RESPAWN
-SMART_EVENT_SUMMONED_UNIT
-SMART_EVENT_ACCEPTED_QUEST
-SMART_EVENT_REWARD_QUEST
-SMART_EVENT_TARGET_BUFFED
-SMART_EVENT_SUMMON_DESPAWNED
-SMART_EVENT_AI_INIT
-SMART_EVENT_DATA_SET
-SMART_EVENT_TEXT_OVER
-SMART_EVENT_TIMED_EVENT_TRIGGERED
-SMART_EVENT_UPDATE
-SMART_EVENT_LINK
-SMART_EVENT_GOSSIP_SELECT
-SMART_EVENT_JUST_CREATED
-SMART_EVENT_GOSSIP_HELLO
-SMART_EVENT_DEATH
-*/
+void SmartAI::OnSpellClick(Unit* clicker)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELLCLICK, clicker);
+}
 
 int SmartGameObjectAI::Permissible(const GameObject* g)
 {
@@ -935,6 +919,11 @@ void SmartGameObjectAI::OnGameEvent(bool start, uint16 eventId)
 void SmartGameObjectAI::OnStateChanged(uint32 state, Unit* unit)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_GO_STATE_CHANGED, unit, state);
+}
+
+void SmartGameObjectAI::EventInform(uint32 eventId)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_GO_EVENT_INFORM, NULL, eventId);
 }
 
 class SmartTrigger : public AreaTriggerScript

@@ -777,10 +777,10 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
-        {
-            DoCast(me, SPELL_DE_MATERIALIZE);
-        }
+        //void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        //{
+        //    DoCast(me, SPELL_DE_MATERIALIZE);
+        //}
 
         void UpdateAI(const uint32 diff)
         {

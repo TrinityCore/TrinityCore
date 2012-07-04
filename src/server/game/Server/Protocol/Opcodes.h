@@ -791,7 +791,7 @@ enum Opcodes
     SMSG_LEARNED_DANCE_MOVES                         = 0xE52,
     SMSG_LEARNED_SPELL                               = 0x88D3,
     SMSG_LEVELUP_INFO                                = 0x9A73,
-    SMSG_LFG_BOOT_PLAYER                             = 0x4A5F,
+    SMSG_LFG_BOOT_PROPOSAL_UPDATE                    = 0x4A5F,
     SMSG_LFG_DISABLED                                = 0xCAEA,
     SMSG_LFG_JOIN_RESULT                             = 0xCCCB,
     SMSG_LFG_OFFER_CONTINUE                          = 0x8E7E,
@@ -843,22 +843,22 @@ enum Opcodes
     SMSG_MOUNTSPECIAL_ANIM                           = 0x9E77,
     SMSG_MOVE_DISABLE_COLLISION                      = 0xF2DE, //forced, for self
     SMSG_MOVE_DISABLE_GRAVITY                        = 0x60DC, //forced, for self
-    SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY= 0x365E, //forced, for self
+    SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY= 0x365E, //forced, for self
     SMSG_MOVE_ENABLE_COLLISION                       = 0x64DC, //forced, for self
     SMSG_MOVE_ENABLE_GRAVITY                         = 0x645E, //forced, for self
-    SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x60CC, //forced, for self
+    SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x60CC, //forced, for self
     SMSG_MOVE_KNOCK_BACK                             = 0x60FE, //forced, for self
     SMSG_MOVE_ROOT                                   = 0xB0DE, //forced, for self
     SMSG_MOVE_SET_ACTIVE_MOVER                       = 0xA0DE,
     SMSG_MOVE_SET_CAN_FLY                            = 0xB66E, //forced, for self
     SMSG_MOVE_SET_COLLISION_HEIGHT                   = 0x20DC, //forced, for self
     SMSG_MOVE_SET_COMPOUND_STATE                     = 0xF25E,
-    SMSG_MOVE_SET_FEATHER_FALL                       = 0xF2CC, //forced, for self
+    SMSG_MOVE_FEATHER_FALL                       = 0xF2CC, //forced, for self
     SMSG_MOVE_SET_FLIGHT_BACK_SPEED                  = 0x627C, //forced, for self
     SMSG_MOVE_SET_FLIGHT_SPEED                       = 0x365C, //forced, for self
-    SMSG_MOVE_SET_HOVERING                           = 0x74FC, //forced, for self
-    SMSG_MOVE_SET_LAND_WALK                          = 0x76CE, //forced, for self
-    SMSG_MOVE_SET_NORMAL_FALL                        = 0xF4DC, //forced, for self
+    SMSG_MOVE_SET_HOVER                           = 0x74FC, //forced, for self
+    SMSG_MOVE_LAND_WALK                          = 0x76CE, //forced, for self
+    SMSG_MOVE_NORMAL_FALL                        = 0xF4DC, //forced, for self
     SMSG_MOVE_SET_PITCH_RATE                         = 0x24FE, //forced, for self
     SMSG_MOVE_SET_RUN_BACK_SPEED                     = 0x747C, //forced, for self
     SMSG_MOVE_SET_RUN_SPEED                          = 0xE24E, // for self
@@ -868,28 +868,28 @@ enum Opcodes
     SMSG_MOVE_SET_VEHICLE_REC_ID                     = 0xA44C, //forced, for self
     SMSG_MOVE_SET_WALK_IN_AIR                        = 0x00,
     SMSG_MOVE_SET_WALK_SPEED                         = 0x246E, //forced, for self
-    SMSG_MOVE_SET_WATER_WALK                         = 0x625E, //forced, for self
+    SMSG_MOVE_WATER_WALK                         = 0x625E, //forced, for self
     SMSG_MOVE_SKIP_TIME                              = 0x32DE,
     SMSG_MOVE_SPLINE_DISABLE_COLLISION               = 0xE04E,
-    SMSG_MOVE_SPLINE_DISABLE_GRAVITY                 = 0xF04C,
+    SMSG_SPLINE_MOVE_GRAVITY_DISABLE                 = 0xF04C,
     SMSG_MOVE_SPLINE_ENABLE_COLLISION                = 0x227C,
-    SMSG_MOVE_SPLINE_ENABLE_GRAVITY                  = 0xA4DE,
+    SMSG_SPLINE_MOVE_GRAVITY_ENABLE                  = 0xA4DE,
     SMSG_MOVE_SPLINE_ROOT                            = 0x265C,
     SMSG_MOVE_SPLINE_SET_FEATHER_FALL                = 0xB6CC,
     SMSG_MOVE_SPLINE_SET_FLIGHT_BACK_SPEED           = 0x70EC,
     SMSG_MOVE_SPLINE_SET_FLIGHT_SPEED                = 0x644C,
     SMSG_MOVE_SPLINE_SET_FLYING                      = 0x70DC,
-    SMSG_MOVE_SPLINE_SET_HOVER                       = 0x667E,
+    SMSG_SPLINE_MOVE_SET_HOVER                       = 0x667E,
     SMSG_MOVE_SPLINE_SET_LAND_WALK                   = 0xA65E,
     SMSG_MOVE_SPLINE_SET_NORMAL_FALL                 = 0xE2FC,
     SMSG_MOVE_SPLINE_SET_PITCH_RATE                  = 0x60CE,
     SMSG_MOVE_SPLINE_SET_RUN_BACK_SPEED              = 0x624E,
-    SMSG_MOVE_SPLINE_SET_RUN_MODE                    = 0x26CC,
+    SMSG_SPLINE_MOVE_SET_RUN_MODE                    = 0x26CC,
     SMSG_MOVE_SPLINE_SET_RUN_SPEED                   = 0xB2CE, // for others
     SMSG_MOVE_SPLINE_SET_SWIM_BACK_SPEED             = 0x326C,
     SMSG_MOVE_SPLINE_SET_SWIM_SPEED                  = 0x327E,
     SMSG_MOVE_SPLINE_SET_TURN_RATE                   = 0x745C,
-    SMSG_MOVE_SPLINE_SET_WALK_MODE                   = 0xF65C,
+    SMSG_SPLINE_MOVE_SET_WALK_MODE                   = 0xF65C,
     SMSG_MOVE_SPLINE_SET_WALK_SPEED                  = 0x0000, // exists, but not yet known
     SMSG_MOVE_SPLINE_SET_WATER_WALK                  = 0xA24E,
     SMSG_MOVE_SPLINE_START_SWIM                      = 0xF0FC,
@@ -900,7 +900,7 @@ enum Opcodes
     SMSG_MOVE_TELEPORT                               = 0xF25C,
     SMSG_MOVE_UNROOT                                 = 0xB0CE, //forced, for self
     SMSG_MOVE_UNSET_CAN_FLY                          = 0xA24C, //forced, for self
-    SMSG_MOVE_UNSET_HOVERING                         = 0x325E, //forced, for self
+    SMSG_MOVE_UNSET_HOVER                            = 0x325E, //forced, for self
     SMSG_MOVE_UNSET_WALK_IN_AIR                      = 0x00,
     SMSG_MOVE_UPDATE_KNOCK_BACK                      = 0x725C,
     SMSG_MOVE_UPDATE_TELEPORT                        = 0xF6DC,
@@ -1112,7 +1112,7 @@ enum SessionStatus
     STATUS_AUTHED = 0,                                      // Player authenticated (_player == NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
     STATUS_LOGGEDIN,                                        // Player in game (_player != NULL, m_GUID == _player->GetGUID(), inWorld())
     STATUS_TRANSFER,                                        // Player transferring to another map (_player != NULL, m_GUID == _player->GetGUID(), !inWorld())
-    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player!= NULL or _player == NULL && m_playerRecentlyLogout, m_GUID store last _player guid)
+    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player != NULL or _player == NULL && m_playerRecentlyLogout && m_playerLogout, m_GUID store last _player guid)
     STATUS_NEVER,                                           // Opcode not accepted from client (deprecated or server side only)
     STATUS_UNHANDLED,                                       // Opcode not handled yet
 };
