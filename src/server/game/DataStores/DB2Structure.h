@@ -62,6 +62,9 @@ struct ItemSparseEntry
     uint32     Quality;                                      // 1
     uint32     Flags;                                        // 2
     uint32     Flags2;                                       // 3
+    float      Unk430_1;
+    float      Unk430_2;
+    uint32     BuyCount;
     uint32     BuyPrice;                                     // 4
     uint32     SellPrice;                                    // 5
     uint32     InventoryType;                                // 6
@@ -109,7 +112,6 @@ struct ItemSparseEntry
     uint32     RandomProperty;                               // 108
     uint32     RandomSuffix;                                 // 109
     uint32     ItemSet;                                      // 110
-    uint32     MaxDurability;                                // 111
     uint32     Area;                                         // 112
     uint32     Map;                                          // 113
     uint32     BagFamily;                                    // 114

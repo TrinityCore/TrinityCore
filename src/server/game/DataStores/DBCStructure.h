@@ -1269,21 +1269,21 @@ struct LFGDungeonEntry
 {
     uint32  ID;                                             // 0
     //char*   name[16];                                     // 1-17 Name lang
-    uint32  minlevel;                                       // 18
-    uint32  maxlevel;                                       // 19
-    uint32  reclevel;                                       // 20
-    uint32  recminlevel;                                    // 21
-    uint32  recmaxlevel;                                    // 22
-    int32  map;                                             // 23
-    uint32  difficulty;                                     // 24
-    //uint32  unk;                                          // 25
-    uint32  type;                                           // 26
-    //uint32  unk2;                                         // 27
-    //char*   unk3;                                         // 28
-    uint32  expansion;                                      // 29
-    //uint32  unk4;                                         // 30
-    uint32  grouptype;                                      // 31
-    //char*   desc;                                         // 32 Description
+    uint32  minlevel;                                       // 2
+    uint32  maxlevel;                                       // 3
+    uint32  reclevel;                                       // 4
+    uint32  recminlevel;                                    // 5
+    uint32  recmaxlevel;                                    // 6
+    int32  map;                                             // 7
+    uint32  difficulty;                                     // 8
+    //uint32  unk;                                          // 9
+    uint32  type;                                           // 10
+    //uint32  unk2;                                         // 11
+    //char*   unk3;                                         // 12
+    uint32  expansion;                                      // 13
+    //uint32  unk4;                                         // 14
+    uint32  grouptype;                                      // 15
+    //char*   desc;                                         // 16 Description
     // Helpers
     uint32 Entry() const { return ID + (type << 24); }
 };
@@ -1850,7 +1850,8 @@ struct SpellPowerEntry
     uint32    ManaCostPercentage;                           // 3       m_manaCostPct
     uint32    manaPerSecond;                                // 4       m_manaPerSecond
     //uint32  PowerDisplayId;                               // 5       m_powerDisplayID - id from PowerDisplay.dbc, new in 3.1
-    //uint32  unk1;                                         // 6        4.0.0
+    //uint32  unk1;                                         // 6       4.0.0
+    //float   unk2;                                         // 7       4.3.0
 };
 
 struct SpellRuneCostEntry
@@ -2216,6 +2217,9 @@ struct WorldMapAreaEntry
     int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
     // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
     // uint32  parentMapID;                                 // 10
+
+    // uint32  minRecommendedLevel;                         // 12 Minimum recommended level displayed on world map
+    // uint32  maxRecommendedLevel;                         // 13 Maximum recommended level displayed on world map
 };
 
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4
