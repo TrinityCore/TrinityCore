@@ -23,17 +23,22 @@ SDComment:
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Cell.h"
+#include "CellImpl.h"
 #include "hyjalAI.h"
 #include "hyjal_trash.h"
-#include "MapManager.h"
-#include "Language.h"
-#include "Chat.h"
-#include "Object.h"
 
-#define SPAWN_GARG_GATE 0
-#define SPAWN_WYRM_GATE 1
-#define SPAWN_NEAR_TOWER 2
+enum Spawns
+{
+    SPAWN_GARG_GATE     = 0,
+    SPAWN_WYRM_GATE     = 1,
+    SPAWN_NEAR_TOWER    = 2,
+};
 
 #define YELL_HURRY  "Hurry, we don't have much time"
 

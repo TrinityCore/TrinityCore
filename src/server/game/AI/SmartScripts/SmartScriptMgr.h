@@ -885,7 +885,7 @@ struct SmartAction
 
         struct
         {
-            uint8 pointId;
+            uint32 pointId;
         } MoveToPos;
 
         struct
