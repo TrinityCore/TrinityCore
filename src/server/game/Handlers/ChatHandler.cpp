@@ -91,15 +91,15 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CMSG_MESSAGECHAT_AFK:
             type = CHAT_MSG_AFK;
             break;
-        case CMSG_MESSAGECHAT_DND:
-            type = CHAT_MSG_DND;
-            break;
-        case CMSG_MESSAGECHAT_EMOTE:
-            type = CHAT_MSG_EMOTE;
-            break;
-        case CMSG_MESSAGECHAT_PARTY:
-            type = CHAT_MSG_PARTY;
-            break;
+        //case CMSG_MESSAGECHAT_DND:
+        //    type = CHAT_MSG_DND;
+        //    break;
+        //case CMSG_MESSAGECHAT_EMOTE:
+        //    type = CHAT_MSG_EMOTE;
+        //    break;
+        //case CMSG_MESSAGECHAT_PARTY:
+        //    type = CHAT_MSG_PARTY;
+        //    break;
         //case CMSG_MESSAGECHAT_PARTY_LEADER:
         //    type = CHAT_MSG_PARTY_LEADER;
         //    break;
@@ -139,7 +139,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     if (type != CHAT_MSG_EMOTE)
     {
         recvData >> lang;
-    
+
         // prevent talking at unknown language (cheating)
         LanguageDesc const* langDesc = GetLanguageDescByID(lang);
         if (!langDesc)
@@ -542,7 +542,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
 {
     Player* sender = GetPlayer();
     ChatMsg type;
-    
+
     switch (recvData.GetOpcode())
     {
         case CMSG_MESSAGECHAT_ADDON_BATTLEGROUND:
@@ -554,12 +554,12 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
         case CMSG_MESSAGECHAT_ADDON_PARTY:
             type = CHAT_MSG_PARTY;
             break;
-        case CMSG_MESSAGECHAT_ADDON_RAID:
-            type = CHAT_MSG_RAID;
-            break;
-        case CMSG_MESSAGECHAT_ADDON_WHISPER:
-            type = CHAT_MSG_WHISPER;
-            break;
+        //case CMSG_MESSAGECHAT_ADDON_RAID:
+        //    type = CHAT_MSG_RAID;
+        //    break;
+        //case CMSG_MESSAGECHAT_ADDON_WHISPER:
+        //    type = CHAT_MSG_WHISPER;
+        //    break;
         default:
             sLog->outDetail("HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
@@ -624,7 +624,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
         case CHAT_MSG_PARTY:
         case CHAT_MSG_RAID:
         {
-            
+
             Group* group = sender->GetGroup();
             if (!group || group->isBGGroup())
                 break;

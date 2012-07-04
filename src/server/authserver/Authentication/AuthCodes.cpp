@@ -19,7 +19,7 @@
 
 namespace AuthHelper
 {
-    bool IsAcceptedBuild(int build)
+    bool IsAcceptedClientBuild(int build)
     {
         static int accepted_versions[] = TRINITYCORE_ACCEPTED_CLIENT_BUILD;
 
@@ -28,10 +28,5 @@ namespace AuthHelper
                 return true;
 
         return false;
-    }
-
-    bool IsAcceptedClientBuild(int build)
-    {
-        return (IsAcceptedBuild(build));
     }
 };

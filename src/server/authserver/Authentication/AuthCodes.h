@@ -65,13 +65,12 @@ enum LoginResult
     LOGIN_LOCKED_ENFORCED                        = 0x10,
 };
 
-#define TRINITYCORE_ACCEPTED_CLIENT_BUILD        {14545, 14480, 14333, 14007, 0}
+#define TRINITYCORE_ACCEPTED_CLIENT_BUILD        {15595, 12340, 0}  // accept one Cataclysm and one Wrath of the Lich King build
 
 
 namespace AuthHelper
 {
     bool IsAcceptedClientBuild(int build);
-    bool IsAcceptedBuild(int build);
 };
 
 #endif
