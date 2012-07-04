@@ -47,8 +47,8 @@ void WardenWin::Init(WorldSession* session, BigNumber *k)
     _session = session;
     // Generate Warden Key
     SHA1Randx WK(k->AsByteArray(), k->GetNumBytes());
-    WK.generate(_inputKey, 16);
-    WK.generate(_outputKey, 16);
+    WK.Generate(_inputKey, 16);
+    WK.Generate(_outputKey, 16);
 
     memcpy(_seed, Module.Seed, 16);
 

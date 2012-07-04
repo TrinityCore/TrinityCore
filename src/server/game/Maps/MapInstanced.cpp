@@ -211,6 +211,8 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon());
 
+    map->LoadRespawnTimes();
+
     bool load_data = save != NULL;
     map->CreateInstanceData(load_data);
 

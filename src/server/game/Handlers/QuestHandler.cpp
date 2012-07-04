@@ -324,7 +324,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
                         // Send next quest
                         if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(quest, true))
+                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
                             {
                                 _player->AddQuest(nextQuest, object);
                                 if (_player->CanCompleteQuest(nextQuest->GetQuestId()))
@@ -343,7 +343,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
                         // Send next quest
                         if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(quest, true))
+                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true) && _player->CanTakeQuest(nextQuest, true))
                             {
                                 _player->AddQuest(nextQuest, object);
                                 if (_player->CanCompleteQuest(nextQuest->GetQuestId()))
@@ -496,10 +496,9 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
     if (!_player->CanInteractWithQuestGiver(object))
         return;
 
-    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
-    if (quest)
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
     {
-        if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId)==QUEST_STATUS_NONE)
+        if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
         {
             sLog->outError("Possible hacking attempt: Player %s [playerGuid: %u] tried to complete questId [entry: %u] without being in possession of the questId!",
                           _player->GetName(), _player->GetGUIDLow(), questId);

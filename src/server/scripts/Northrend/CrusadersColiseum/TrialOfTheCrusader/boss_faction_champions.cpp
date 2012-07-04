@@ -27,7 +27,10 @@ EndScriptData */
 // All - untested
 // Pets aren't being summoned by their masters
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "trial_of_the_crusader.h"
 
 enum eYell
@@ -945,18 +948,18 @@ public:
 
 };
 
-enum eWarlockSpells
+enum WarlockSpells
 {
-    SPELL_HELLFIRE              = 65816,
-    SPELL_CORRUPTION            = 65810,
-    SPELL_CURSE_OF_AGONY        = 65814,
-    SPELL_CURSE_OF_EXHAUSTION   = 65815,
-    SPELL_FEAR                  = 65809, //8s
-    SPELL_SEARING_PAIN          = 65819,
-    SPELL_SHADOW_BOLT           = 65821,
-    SPELL_UNSTABLE_AFFLICTION   = 65812,
-    SPELL_SUMMON_FELHUNTER      = 67514,
-    H_SPELL_UNSTABLE_AFFLICTION  = 68155, //15s
+    SPELL_HELLFIRE                   = 65816,
+    SPELL_CORRUPTION                 = 65810,
+    SPELL_CURSE_OF_AGONY             = 65814,
+    SPELL_CURSE_OF_EXHAUSTION        = 65815,
+    SPELL_FEAR                       = 65809, // 8s
+    SPELL_SEARING_PAIN               = 65819,
+    SPELL_SHADOW_BOLT                = 65821,
+    SPELL_UNSTABLE_AFFLICTION        = 65812, // 15s
+    SPELL_UNSTABLE_AFFLICTION_DISPEL = 65813,
+    SPELL_SUMMON_FELHUNTER           = 67514,
 };
 
 class mob_toc_warlock : public CreatureScript
@@ -2030,6 +2033,40 @@ public:
     };
 };
 
+class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
+{
+    public:
+        spell_faction_champion_warl_unstable_affliction() : SpellScriptLoader("spell_faction_champion_warl_unstable_affliction") { }
+
+        class spell_faction_champion_warl_unstable_affliction_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_faction_champion_warl_unstable_affliction_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_UNSTABLE_AFFLICTION_DISPEL))
+                    return false;
+                return true;
+            }
+
+            void HandleDispel(DispelInfo* dispelInfo)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_UNSTABLE_AFFLICTION_DISPEL, true, NULL, GetEffect(EFFECT_0));
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_faction_champion_warl_unstable_affliction_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_faction_champion_warl_unstable_affliction_AuraScript();
+        }
+};
+
 void AddSC_boss_faction_champions()
 {
     new boss_toc_champion_controller();
@@ -2049,4 +2086,5 @@ void AddSC_boss_faction_champions()
     new mob_toc_retro_paladin();
     new mob_toc_pet_warlock();
     new mob_toc_pet_hunter();
+    new spell_faction_champion_warl_unstable_affliction();
 }

@@ -153,6 +153,7 @@ class Pet : public Guardian
         bool HaveInDiet(ItemTemplate const* item) const;
         uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel);
         void SetDuration(int32 dur) { m_duration = dur; }
+        int32 GetDuration() { return m_duration; }
 
         /*
         bool UpdateStats(Stats stat);

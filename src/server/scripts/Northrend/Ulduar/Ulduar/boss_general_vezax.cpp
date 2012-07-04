@@ -51,6 +51,8 @@ enum VezaxSpells
     SPELL_SHADOW_CRASH_HIT                       = 62659,
     SPELL_SURGE_OF_DARKNESS                      = 62662,
     SPELL_SARONITE_VAPORS                        = 63323,
+    SPELL_SARONITE_VAPORS_ENERGIZE               = 63337,
+    SPELL_SARONITE_VAPORS_DAMAGE                 = 63338,
     SPELL_SUMMON_SARONITE_VAPORS                 = 63081,
     SPELL_BERSERK                                = 26662,
 
@@ -463,6 +465,45 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
         }
 };
 
+class spell_general_vezax_saronite_vapors : public SpellScriptLoader
+{
+    public:
+        spell_general_vezax_saronite_vapors() : SpellScriptLoader("spell_general_vezax_saronite_vapors") { }
+
+        class spell_general_vezax_saronite_vapors_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_general_vezax_saronite_vapors_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_ENERGIZE) || !sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 mana = int32(aurEff->GetAmount() * pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
+                    int32 damage = mana * 2;
+                    caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_ENERGIZE, &mana, NULL, NULL, true);
+                    caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_DAMAGE, &damage, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_general_vezax_saronite_vapors_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_general_vezax_saronite_vapors_AuraScript();
+        }
+};
+
 class achievement_shadowdodger : public AchievementCriteriaScript
 {
     public:
@@ -509,6 +550,7 @@ void AddSC_boss_general_vezax()
     new boss_saronite_animus();
     new npc_saronite_vapors();
     new spell_mark_of_the_faceless();
+    new spell_general_vezax_saronite_vapors();
     new achievement_shadowdodger();
     new achievement_smell_saronite();
 }

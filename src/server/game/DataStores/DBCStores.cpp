@@ -635,7 +635,7 @@ void LoadDBCStores(const std::string& dataPath)
     // include existed nodes that have at least single not spell base (scripted) path
     {
         std::set<uint32> spellPaths;
-        for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
+        for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
             if (SpellEffectEntry const* sInfo = sSpellEffectStore.LookupEntry (i))
                 if (sInfo->Effect == SPELL_EFFECT_SEND_TAXI)
                     spellPaths.insert(sInfo->EffectMiscValue);
@@ -1166,11 +1166,3 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
     return 0;
 }
 
-// script support functions
-DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
-DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
-DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
-DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
-DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
-DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }
-DBCStorage <AchievementEntry>   const* GetAchievementStore()    { return &sAchievementStore;    }
