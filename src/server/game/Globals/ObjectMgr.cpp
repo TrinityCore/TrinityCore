@@ -2191,6 +2191,89 @@ uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, ui
     return uint32(shield->Value[quality] + 0.5f);
 }
 
+uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventoryType, uint32 quality, uint32 itemLevel)
+{
+    if (itemClass != ITEM_CLASS_ARMOR && itemClass != ITEM_CLASS_WEAPON)
+        return 0;
+
+    static float const qualityMultipliers[MAX_ITEM_QUALITY] =
+    {
+        1.0f, 1.0f, 1.0f, 1.17f, 1.37f, 1.68f, 0.0f, 0.0f
+    };
+
+    static float const armorMultipliers[MAX_INVTYPE] =
+    {
+        0.00f, // INVTYPE_NON_EQUIP
+        0.59f, // INVTYPE_HEAD
+        0.00f, // INVTYPE_NECK
+        0.59f, // INVTYPE_SHOULDERS
+        0.00f, // INVTYPE_BODY
+        1.00f, // INVTYPE_CHEST
+        0.35f, // INVTYPE_WAIST
+        0.75f, // INVTYPE_LEGS
+        0.49f, // INVTYPE_FEET
+        0.35f, // INVTYPE_WRISTS
+        0.35f, // INVTYPE_HANDS
+        0.00f, // INVTYPE_FINGER
+        0.00f, // INVTYPE_TRINKET
+        0.00f, // INVTYPE_WEAPON
+        1.00f, // INVTYPE_SHIELD
+        0.00f, // INVTYPE_RANGED
+        0.00f, // INVTYPE_CLOAK
+        0.00f, // INVTYPE_2HWEAPON
+        0.00f, // INVTYPE_BAG
+        0.00f, // INVTYPE_TABARD
+        1.00f, // INVTYPE_ROBE
+        0.00f, // INVTYPE_WEAPONMAINHAND
+        0.00f, // INVTYPE_WEAPONOFFHAND
+        0.00f, // INVTYPE_HOLDABLE
+        0.00f, // INVTYPE_AMMO
+        0.00f, // INVTYPE_THROWN
+        0.00f, // INVTYPE_RANGEDRIGHT
+        0.00f, // INVTYPE_QUIVER
+        0.00f, // INVTYPE_RELIC
+    };
+
+    static float const weaponMultipliers[MAX_ITEM_SUBCLASS_WEAPON] =
+    {
+        0.89f, // ITEM_SUBCLASS_WEAPON_AXE
+        1.03f, // ITEM_SUBCLASS_WEAPON_AXE2
+        0.77f, // ITEM_SUBCLASS_WEAPON_BOW
+        0.77f, // ITEM_SUBCLASS_WEAPON_GUN
+        0.89f, // ITEM_SUBCLASS_WEAPON_MACE
+        1.03f, // ITEM_SUBCLASS_WEAPON_MACE2
+        1.03f, // ITEM_SUBCLASS_WEAPON_POLEARM
+        0.89f, // ITEM_SUBCLASS_WEAPON_SWORD
+        1.03f, // ITEM_SUBCLASS_WEAPON_SWORD2
+        0.00f, // ITEM_SUBCLASS_WEAPON_Obsolete
+        1.03f, // ITEM_SUBCLASS_WEAPON_STAFF
+        0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC
+        0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC2
+        0.64f, // ITEM_SUBCLASS_WEAPON_FIST_WEAPON
+        0.00f, // ITEM_SUBCLASS_WEAPON_MISCELLANEOUS
+        0.64f, // ITEM_SUBCLASS_WEAPON_DAGGER
+        0.64f, // ITEM_SUBCLASS_WEAPON_THROWN
+        0.00f, // ITEM_SUBCLASS_WEAPON_SPEAR
+        0.77f, // ITEM_SUBCLASS_WEAPON_CROSSBOW
+        0.64f, // ITEM_SUBCLASS_WEAPON_WAND
+        0.64f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
+    };
+
+    float levelPenalty = 1.0f;
+    if (itemLevel <= 28)
+        levelPenalty = 0.966f - float(28u - itemLevel) * 1.0f / 54.0f;
+
+    if (itemClass == ITEM_CLASS_ARMOR)
+    {
+        if (inventoryType > INVTYPE_ROBE)
+            return 0;
+
+        return 5 * uint32(23.0f * qualityMultipliers[quality] * armorMultipliers[inventoryType] * levelPenalty + 0.5f);
+    }
+
+    return 5 * uint32(17.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty + 0.5f);
+};
+
 void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill, ItemTemplate const& itemTemplate)
 {
     *disenchantID = 0;
@@ -2255,7 +2338,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Quality = sparse->Quality;
         itemTemplate.Flags = sparse->Flags;
         itemTemplate.Flags2 = sparse->Flags2;
-        itemTemplate.BuyCount = 1;
+        itemTemplate.BuyCount = std::max(sparse->BuyCount, 1u);
         itemTemplate.BuyPrice = sparse->BuyPrice;
         itemTemplate.SellPrice = sparse->SellPrice;
         itemTemplate.InventoryType = db2Data->InventoryType;
@@ -2315,7 +2398,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.RandomProperty = sparse->RandomProperty;
         itemTemplate.RandomSuffix = sparse->RandomSuffix;
         itemTemplate.ItemSet = sparse->ItemSet;
-        itemTemplate.MaxDurability = sparse->MaxDurability;
+        itemTemplate.MaxDurability = FillMaxDurability(db2Data->Class, db2Data->SubClass, sparse->Quality, sparse->InventoryType, sparse->ItemLevel);
         itemTemplate.Area = sparse->Area;
         itemTemplate.Map = sparse->Map;
         itemTemplate.BagFamily = sparse->BagFamily;
@@ -2463,7 +2546,9 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.RandomProperty = fields[109].GetInt32();
             itemTemplate.RandomSuffix = fields[110].GetInt32();
             itemTemplate.ItemSet = fields[111].GetUInt32();
-            itemTemplate.MaxDurability = fields[112].GetUInt32();
+            itemTemplate.MaxDurability = FillMaxDurability(itemTemplate.Class, itemTemplate.SubClass,
+                itemTemplate.Quality, itemTemplate.InventoryType, itemTemplate.ItemLevel);
+
             itemTemplate.Area = fields[113].GetUInt32();
             itemTemplate.Map = fields[114].GetUInt32();
             itemTemplate.BagFamily = fields[115].GetUInt32();
@@ -2525,7 +2610,7 @@ void ObjectMgr::LoadItemTemplateAddon()
     uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, BuyCount, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance FROM item_template_addon");
+    QueryResult result = WorldDatabase.Query("SELECT Id, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance FROM item_template_addon");
     if (result)
     {
         do
@@ -2545,9 +2630,9 @@ void ObjectMgr::LoadItemTemplateAddon()
                 buyCount = 1;
             }
 
-            uint8 foodType = fields[2].GetUInt8();
-            uint32 minMoneyLoot = fields[3].GetUInt32();
-            uint32 maxMoneyLoot = fields[4].GetUInt32();
+            uint8 foodType = fields[1].GetUInt8();
+            uint32 minMoneyLoot = fields[2].GetUInt32();
+            uint32 maxMoneyLoot = fields[3].GetUInt32();
             if (minMoneyLoot > maxMoneyLoot)
             {
                 sLog->outErrorDb("Minimum money loot specified in `item_template_addon` for item %u was greater than maximum amount, swapping.", itemId);
@@ -2555,11 +2640,10 @@ void ObjectMgr::LoadItemTemplateAddon()
             }
 
             ItemTemplate& itemTemplate = _itemTemplateStore[itemId];
-            itemTemplate.BuyCount = buyCount;
             itemTemplate.FoodType = foodType;
             itemTemplate.MinMoneyLoot = minMoneyLoot;
             itemTemplate.MaxMoneyLoot = maxMoneyLoot;
-            itemTemplate.SpellPPMRate = fields[5].GetFloat();
+            itemTemplate.SpellPPMRate = fields[4].GetFloat();
             ++count;
         } while (result->NextRow());
     }
@@ -2650,7 +2734,7 @@ void ObjectMgr::LoadItemSetNames()
             if (setEntry->itemId[i])
                 itemSetItems.insert(setEntry->itemId[i]);
     }
-    
+
     //                                                  0        1            2
     QueryResult result = WorldDatabase.Query("SELECT `entry`, `name`, `InventoryType` FROM `item_set_names`");
 
