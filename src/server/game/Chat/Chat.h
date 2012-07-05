@@ -157,12 +157,6 @@ class ChatHandler
         bool HandleBindSightCommand(const char* args);
         bool HandleUnbindSightCommand(const char* args);
 
-        bool HandleGuildCreateCommand(const char* args);
-        bool HandleGuildInviteCommand(const char* args);
-        bool HandleGuildUninviteCommand(const char* args);
-        bool HandleGuildRankCommand(const char* args);
-        bool HandleGuildDeleteCommand(const char* args);
-
         bool HandleLookupAreaCommand(const char* args);
         bool HandleLookupCreatureCommand(const char* args);
         bool HandleLookupEventCommand(const char* args);
