@@ -157,7 +157,7 @@ enum Opcodes
     CMSG_DUEL_CANCELLED                               = 0x0000,
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x4C26,
-    CMSG_ENABLE_NAGLE                                 = 0x0000,
+    CMSG_ENABLE_NAGLE                                 = 0x4449, // client CVar disableServerNagle set to 1 prevents sending this opcode
     CMSG_EQUIPMENT_SET_DELETE                         = 0x0000,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,
     CMSG_EQUIPMENT_SET_USE                            = 0x0000,
