@@ -169,9 +169,7 @@ static void CalculateArchiveRange(
     TMPQArchive * ha,
     PMPQ_SIGNATURE_INFO pSI)
 {
-    TMPQHeader * pHeader = ha->pHeader;
     ULONGLONG TempPos = 0;
-    ULONGLONG MaxPos;
     char szMapHeader[0x200];
 
     // Get the MPQ begin
@@ -188,31 +186,9 @@ static void CalculateArchiveRange(
         }
     }
 
-    // Get the MPQ data end. The end is calculated as the biggest
-    // value of (end of the last file), (end of block table),
-    // (end of ext block table), (end of hash table)
-    FindFreeMpqSpace(ha, &MaxPos);
-
-    // Check if hash table is beyond
-    TempPos = ha->MpqPos + MAKE_OFFSET64(pHeader->wHashTablePosHi, pHeader->dwHashTablePos) + pHeader->HashTableSize64;
-    if(TempPos > MaxPos)
-        MaxPos = TempPos;
-
-    // Check if block table is beyond
-    TempPos = ha->MpqPos + MAKE_OFFSET64(pHeader->wBlockTablePosHi, pHeader->dwBlockTablePos) + pHeader->BlockTableSize64;
-    if(TempPos > MaxPos)
-        MaxPos = TempPos;
-
-    // Check if ext block table is beyond
-    if(pHeader->HiBlockTablePos64 != 0)
-    {
-        TempPos = ha->MpqPos + pHeader->HiBlockTablePos64 + pHeader->HiBlockTableSize64;
-        if(TempPos > MaxPos)
-            MaxPos = TempPos;
-    }
-
-    // Give the end
-    pSI->EndMpqData = MaxPos;
+    // Get the MPQ data end. This is stored in our MPQ header,
+    // and it's been already prepared by SFileOpenArchive,
+    pSI->EndMpqData = ha->MpqPos + ha->pHeader->ArchiveSize64;
 
     // Get the size of the entire file
     FileStream_GetSize(ha->pStream, pSI->EndOfFile);
@@ -421,7 +397,7 @@ static bool CalculateMpqHashSha1(
     sha1_done(&sha1_state_temp, sha1_tail0);
 
     memcpy(&sha1_state_temp, &sha1_state, sizeof(hash_state));
-    GetPlainAnsiFileName(ha->pStream->szFileName, szPlainName);
+    GetPlainAnsiFileName(FileStream_GetFileName(ha->pStream), szPlainName);
     AddTailToSha1(&sha1_state_temp, szPlainName);
     sha1_done(&sha1_state_temp, sha1_tail1);
 
@@ -449,11 +425,13 @@ static int VerifyRawMpqData(
     DWORD dwMD5Size;
     int nError = ERROR_SUCCESS;
 
+    // Don't verify zero-sized blocks
+    if(dwDataSize == 0)
+        return ERROR_SUCCESS;
+
     // Get the number of data chunks to calculate MD5
     assert(dwChunkSize != 0);
-    dwChunkCount = dwDataSize / dwChunkSize;
-    if(dwDataSize % dwChunkSize)
-        dwChunkCount++;
+    dwChunkCount = ((dwDataSize - 1) / dwChunkSize) + 1;
     dwMD5Size = dwChunkCount * MD5_DIGEST_SIZE;
 
     // Allocate space for data chunk and for the MD5 array
@@ -659,6 +637,35 @@ static DWORD VerifyFile(
     if(SFileIsPatchedArchive(hMpq))
         dwSearchScope = SFILE_OPEN_PATCHED_FILE;
 
+    // If we have to verify raw data MD5, do it before file open
+    if(dwFlags & SFILE_VERIFY_RAW_MD5)
+    {
+        TMPQArchive * ha = (TMPQArchive *)hMpq;
+
+        // Parse the base MPQ and all patches
+        while(ha != NULL)
+        {
+            // Does the archive have support for raw MD5?
+            if(ha->pHeader->dwRawChunkSize != 0)
+            {
+                // The file has raw MD5 if the archive supports it
+                dwVerifyResult |= VERIFY_FILE_HAS_RAW_MD5;
+
+                // Find file entry for the file
+                pFileEntry = GetFileEntryLocale(ha, szFileName, lcFileLocale);
+                if(pFileEntry != NULL)
+                {
+                    // If the file's raw MD5 doesn't match, don't bother with more checks
+                    if(VerifyRawMpqData(ha, pFileEntry->ByteOffset, pFileEntry->dwCmpSize) != ERROR_SUCCESS)
+                        return dwVerifyResult | VERIFY_FILE_RAW_MD5_ERROR;
+                }
+            }
+
+            // Move to the next patch
+            ha = ha->haPatch;
+        }
+    }
+
     // Attempt to open the file
     if(SFileOpenFileEx(hMpq, szFileName, dwSearchScope, &hFile))
     {
@@ -670,18 +677,6 @@ static DWORD VerifyFile(
         // Initialize the CRC32 and MD5 contexts
         md5_init(&md5_state);
         dwCrc32 = crc32(0, Z_NULL, 0);
-
-        // If we have to verify raw data MD5, do it
-        if(dwFlags & SFILE_VERIFY_RAW_MD5)
-        {
-            if(hf->ha->pHeader->dwRawChunkSize != 0)
-            {
-                // Note: we have to open the file from the MPQ where it was open from
-                if(VerifyRawMpqData(hf->ha, pFileEntry->ByteOffset, pFileEntry->dwCmpSize) != ERROR_SUCCESS)
-                    dwVerifyResult |= VERIFY_FILE_RAW_MD5_ERROR;
-                dwVerifyResult |= VERIFY_FILE_HAS_RAW_MD5;
-            }
-        }
 
         // Also turn on sector checksum verification
         if(dwFlags & SFILE_VERIFY_SECTOR_CRC)

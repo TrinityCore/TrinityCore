@@ -33,6 +33,19 @@ namespace Movement
         FlyToGround = 3, // 463 = FlyToGround
     };
 
+    // Transforms coordinates from global to transport offsets
+    class TransportPathTransform
+    {
+    public:
+        TransportPathTransform(Unit& owner, bool transformForTransport)
+            : _owner(owner), _transformForTransport(transformForTransport) { }
+        Vector3 operator()(Vector3 input);
+
+    private:
+        Unit& _owner;
+        bool _transformForTransport;
+    };
+
     /*  Initializes and launches spline movement
      */
     class MoveSplineInit
@@ -96,6 +109,12 @@ namespace Movement
         /* Enables falling mode. Disabled by default
          */
         void SetFall();
+        /* Enters transport. Disabled by default
+         */
+        void SetTransportEnter();
+        /* Exits transport. Disabled by default
+         */
+        void SetTransportExit();
         /* Inverses unit model orientation. Disabled by default
          */
         void SetOrientationInversed();
@@ -112,38 +131,37 @@ namespace Movement
 
         PointsArray& Path() { return args.path; }
 
+        /* Disables transport coordinate transformations for cases where raw offsets are available
+        */
+        void DisableTransportPathTransformations();
     protected:
 
         MoveSplineInitArgs args;
         Unit&  unit;
     };
 
-    inline void MoveSplineInit::SetFly() { args.flags.EnableFlying();}
+    inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
     inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable;}
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom();}
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true;}
     inline void MoveSplineInit::SetFall() { args.flags.EnableFalling();}
-    inline void MoveSplineInit::SetVelocity(float vel){  args.velocity = vel;}
+    inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
     inline void MoveSplineInit::SetOrientationInversed() { args.flags.orientationInversed = true;}
+    inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }
+    inline void MoveSplineInit::SetTransportExit() { args.flags.EnableTransportExit(); }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable;}
 
     inline void MoveSplineInit::MovebyPath(const PointsArray& controls, int32 path_offset)
     {
         args.path_Idx_offset = path_offset;
-        args.path.assign(controls.begin(),controls.end());
+        args.path.resize(controls.size());
+        std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
     }
 
     inline void MoveSplineInit::MoveTo(float x, float y, float z)
     {
-        Vector3 v(x,y,z);
+        Vector3 v(x, y, z);
         MoveTo(v);
-    }
-
-    inline void MoveSplineInit::MoveTo(const Vector3& dest)
-    {
-        args.path_Idx_offset = 0;
-        args.path.resize(2);
-        args.path[1] = dest;
     }
 
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)
@@ -161,10 +179,14 @@ namespace Movement
 
     inline void MoveSplineInit::SetFacing(Vector3 const& spot)
     {
-        args.facing.f.x = spot.x;
-        args.facing.f.y = spot.y;
-        args.facing.f.z = spot.z;
+        TransportPathTransform transform(unit, args.TransformForTransport);
+        Vector3 finalSpot = transform(spot);
+        args.facing.f.x = finalSpot.x;
+        args.facing.f.y = finalSpot.y;
+        args.facing.f.z = finalSpot.z;
         args.flags.EnableFacingPoint();
     }
+
+    inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H

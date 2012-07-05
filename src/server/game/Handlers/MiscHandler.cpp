@@ -494,7 +494,7 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket & recv_data)
     uint32 newZone;
     recv_data >> newZone;
 
-    sLog->outDetail("WORLD: Recvd ZONE_UPDATE: %u", newZone);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd ZONE_UPDATE: %u", newZone);
 
     // use server size data
     uint32 newzone, newarea;
@@ -737,7 +737,7 @@ void WorldSession::HandleBugOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleReclaimCorpseOpcode(WorldPacket &recv_data)
 {
-    sLog->outDetail("WORLD: Received CMSG_RECLAIM_CORPSE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RECLAIM_CORPSE");
 
     uint64 guid;
     recv_data >> guid;
@@ -774,7 +774,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket &recv_data)
 
 void WorldSession::HandleResurrectResponseOpcode(WorldPacket & recv_data)
 {
-    sLog->outDetail("WORLD: Received CMSG_RESURRECT_RESPONSE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RESURRECT_RESPONSE");
 
     uint64 guid;
     uint8 status;
@@ -945,7 +945,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
 {
-    sLog->outDetail("WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
 
     uint32 type, timestamp, decompressedSize;
     recv_data >> type >> timestamp >> decompressedSize;
@@ -1000,7 +1000,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
 
 void WorldSession::HandleRequestAccountData(WorldPacket& recv_data)
 {
-    sLog->outDetail("WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
 
     uint32 type;
     recv_data >> type;
@@ -1079,12 +1079,12 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleCompleteCinematic(WorldPacket & /*recv_data*/)
 {
-    sLog->outStaticDebug("WORLD: Player is watching cinema");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_COMPLETE_CINEMATIC");
 }
 
 void WorldSession::HandleNextCinematicCamera(WorldPacket & /*recv_data*/)
 {
-    sLog->outStaticDebug("WORLD: Which movie to play");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
@@ -1127,7 +1127,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleFeatherFallAck(WorldPacket &recv_data)
 {
-    sLog->outStaticDebug("WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
 
     // no used
     recv_data.rfinish();                       // prevent warnings spam
@@ -1215,13 +1215,17 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 {
     uint64 guid;
     recv_data >> guid;
-    sLog->outStaticDebug("Inspected guid is " UI64FMTD, guid);
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_INSPECT");
 
     _player->SetSelection(guid);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player)                                                // wrong player
+    if (!player)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT: No player found from GUID: " UI64FMTD, guid);
         return;
+    }
 
     uint32 talent_points = 41;
     WorldPacket data(SMSG_INSPECT_TALENT, 8 + 4 + 1 + 1 + talent_points + 8 + 4 + 8 + 4);
@@ -1256,7 +1260,7 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recv_data)
 
     if (!player)
     {
-        sLog->outError("InspectHonorStats: WTF, player not found...");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_INSPECT_HONOR_STATS: No player found from GUID: " UI64FMTD, guid);
         return;
     }
 
@@ -1270,10 +1274,6 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
 {
-    // write in client console: worldport 469 452 6454 2536 180 or /console worldport 469 452 6454 2536 180
-    // Received opcode CMSG_WORLD_TELEPORT
-    // Time is ***, map=469, x=452.000000, y=6454.000000, z=2536.000000, orient=3.141593
-
     uint32 time;
     uint32 mapid;
     float PositionX;
@@ -1288,20 +1288,20 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
     recv_data >> PositionZ;
     recv_data >> Orientation;                               // o (3.141593 = 180 degrees)
 
-    //sLog->outDebug("Received opcode CMSG_WORLD_TELEPORT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_WORLD_TELEPORT");
+
     if (GetPlayer()->isInFlight())
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) in flight, ignore worldport command.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
         return;
     }
 
-    sLog->outStaticDebug("Time %u sec, map=%u, x=%f, y=%f, z=%f, orient=%f", time/1000, mapid, PositionX, PositionY, PositionZ, Orientation);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f", GetPlayer()->GetName(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
 
     if (AccountMgr::IsAdminAccount(GetSecurity()))
         GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received worldport command from player %s", GetPlayer()->GetName());
 }
 
 void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)

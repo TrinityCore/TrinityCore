@@ -452,6 +452,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         if (!basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
                 Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
                 Effect != SPELL_EFFECT_KNOCK_BACK &&
+                Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
                 ApplyAuraName != SPELL_AURA_MOD_SPEED_ALWAYS &&
                 ApplyAuraName != SPELL_AURA_MOD_SPEED_NOT_STACK &&
                 ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
@@ -1810,6 +1811,7 @@ AuraStateType SpellInfo::GetAuraState() const
     switch (Id)
     {
         case 71465: // Divine Surge
+        case 50241: // Evasive Charges
             return AURA_STATE_UNKNOWN22;
         default:
             break;

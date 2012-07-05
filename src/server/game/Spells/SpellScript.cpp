@@ -203,52 +203,106 @@ void SpellScript::HitHandler::Call(SpellScript* spellScript)
     (spellScript->*pHitHandlerScript)();
 }
 
-SpellScript::UnitTargetHandler::UnitTargetHandler(SpellUnitTargetFnType _pUnitTargetHandlerScript, uint8 _effIndex, uint16 _targetType)
-    : _SpellScript::EffectHook(_effIndex), targetType(_targetType)
+SpellScript::TargetHook::TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area)
+    : _SpellScript::EffectHook(_effectIndex), targetType(_targetType), area(_area)
 {
-    pUnitTargetHandlerScript = _pUnitTargetHandlerScript;
 }
 
-std::string SpellScript::UnitTargetHandler::ToString()
+std::string SpellScript::TargetHook::ToString()
 {
     std::ostringstream oss;
     oss << "Index: " << EffIndexToString() << " Target: " << targetType;
     return oss.str();
 }
 
-bool SpellScript::UnitTargetHandler::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
+bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
 {
     if (!targetType)
         return false;
-    return (effIndex == EFFECT_ALL) || (spellEntry->Effects[effIndex].TargetA.GetTarget() == targetType || spellEntry->Effects[effIndex].TargetB.GetTarget() == targetType);
+
+    if (spellEntry->Effects[effIndex].TargetA.GetTarget() != targetType &&
+        spellEntry->Effects[effIndex].TargetB.GetTarget() != targetType)
+        return false;
+
+    SpellImplicitTargetInfo targetInfo(targetType);
+    switch (targetInfo.GetSelectionCategory())
+    {
+        case TARGET_SELECT_CATEGORY_CHANNEL: // SINGLE
+            return !area;
+        case TARGET_SELECT_CATEGORY_NEARBY: // BOTH
+            return true;
+        case TARGET_SELECT_CATEGORY_CONE: // AREA
+        case TARGET_SELECT_CATEGORY_AREA: // AREA
+            return area;
+        case TARGET_SELECT_CATEGORY_DEFAULT:
+            switch (targetInfo.GetObjectType())
+            {
+                case TARGET_OBJECT_TYPE_SRC: // EMPTY
+                case TARGET_OBJECT_TYPE_DEST: // EMPTY
+                    return false;
+                default:
+                    switch (targetInfo.GetReferenceType())
+                    {
+                        case TARGET_REFERENCE_TYPE_CASTER: // SINGLE
+                            return !area;
+                        case TARGET_REFERENCE_TYPE_TARGET: // BOTH
+                            return true;
+                    }
+                    break;
+            }
+            break;
+    }
+
+    return false;
 }
 
-void SpellScript::UnitTargetHandler::Call(SpellScript* spellScript, std::list<Unit*>& unitTargets)
+SpellScript::ObjectAreaTargetSelectHandler::ObjectAreaTargetSelectHandler(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
+    : TargetHook(_effIndex, _targetType, true)
 {
-    (spellScript->*pUnitTargetHandlerScript)(unitTargets);
+    pObjectAreaTargetSelectHandlerScript = _pObjectAreaTargetSelectHandlerScript;
+}
+
+void SpellScript::ObjectAreaTargetSelectHandler::Call(SpellScript* spellScript, std::list<WorldObject*>& targets)
+{
+    (spellScript->*pObjectAreaTargetSelectHandlerScript)(targets);
+}
+
+SpellScript::ObjectTargetSelectHandler::ObjectTargetSelectHandler(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType)
+    : TargetHook(_effIndex, _targetType, false)
+{
+    pObjectTargetSelectHandlerScript = _pObjectTargetSelectHandlerScript;
+}
+
+void SpellScript::ObjectTargetSelectHandler::Call(SpellScript* spellScript, WorldObject*& target)
+{
+    (spellScript->*pObjectTargetSelectHandlerScript)(target);
 }
 
 bool SpellScript::_Validate(SpellInfo const* entry)
 {
-    for (std::list<EffectHandler>::iterator itr = OnEffectLaunch.begin(); itr != OnEffectLaunch.end();  ++itr)
+    for (std::list<EffectHandler>::iterator itr = OnEffectLaunch.begin(); itr != OnEffectLaunch.end(); ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectLaunch` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
-    for (std::list<EffectHandler>::iterator itr = OnEffectLaunchTarget.begin(); itr != OnEffectLaunchTarget.end();  ++itr)
+    for (std::list<EffectHandler>::iterator itr = OnEffectLaunchTarget.begin(); itr != OnEffectLaunchTarget.end(); ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectLaunchTarget` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
-    for (std::list<EffectHandler>::iterator itr = OnEffectHit.begin(); itr != OnEffectHit.end();  ++itr)
+    for (std::list<EffectHandler>::iterator itr = OnEffectHit.begin(); itr != OnEffectHit.end(); ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectHit` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
-    for (std::list<EffectHandler>::iterator itr = OnEffectHitTarget.begin(); itr != OnEffectHitTarget.end();  ++itr)
+    for (std::list<EffectHandler>::iterator itr = OnEffectHitTarget.begin(); itr != OnEffectHitTarget.end(); ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectHitTarget` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
-    for (std::list<UnitTargetHandler>::iterator itr = OnUnitTargetSelect.begin(); itr != OnUnitTargetSelect.end();  ++itr)
+    for (std::list<ObjectAreaTargetSelectHandler>::iterator itr = OnObjectAreaTargetSelect.begin(); itr != OnObjectAreaTargetSelect.end(); ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
-            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnUnitTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectAreaTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<ObjectTargetSelectHandler>::iterator itr = OnObjectTargetSelect.begin(); itr != OnObjectTargetSelect.end(); ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
     return _SpellScript::_Validate(entry);
 }

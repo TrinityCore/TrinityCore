@@ -1230,7 +1230,7 @@ bool GridMap::loadLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
     return true;
 }
 
-uint16 GridMap::getArea(float x, float y)
+uint16 GridMap::getArea(float x, float y) const
 {
     if (!_areaMap)
         return _gridArea;
@@ -1463,7 +1463,7 @@ float GridMap::getHeightFromUint16(float x, float y) const
     return (float)((a * x) + (b * y) + c)*_gridIntHeightMultiplier + _gridHeight;
 }
 
-float GridMap::getLiquidLevel(float x, float y)
+float GridMap::getLiquidLevel(float x, float y) const
 {
     if (!_liquidMap)
         return _liquidLevel;
@@ -1483,7 +1483,7 @@ float GridMap::getLiquidLevel(float x, float y)
 }
 
 // Why does this return LIQUID data?
-uint8 GridMap::getTerrainType(float x, float y)
+uint8 GridMap::getTerrainType(float x, float y) const
 {
     if (!_liquidFlags)
         return 0;
@@ -2633,7 +2633,7 @@ void InstanceMap::UnloadAll()
     ASSERT(!HavePlayers());
 
     if (m_resetAfterUnload == true)
-        sObjectMgr->DeleteRespawnTimeForInstance(GetInstanceId());
+        DeleteRespawnTimes();
 
     Map::UnloadAll();
 }
@@ -2782,3 +2782,134 @@ void Map::UpdateIteratorBack(Player* player)
     if (m_mapRefIter == player->GetMapRef())
         m_mapRefIter = m_mapRefIter->nocheck_prev();
 }
+
+void Map::SaveCreatureRespawnTime(uint32 dbGuid, time_t respawnTime)
+{
+    if (!respawnTime)
+    {
+        // Delete only
+        RemoveCreatureRespawnTime(dbGuid);
+        return;
+    }
+
+    _creatureRespawnTimes[dbGuid] = respawnTime;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
+    stmt->setUInt32(0, dbGuid);
+    stmt->setUInt32(1, uint32(respawnTime));
+    stmt->setUInt16(2, GetId());
+    stmt->setUInt32(3, GetInstanceId());
+    CharacterDatabase.Execute(stmt);
+}
+
+void Map::RemoveCreatureRespawnTime(uint32 dbGuid)
+{
+    _creatureRespawnTimes.erase(dbGuid);
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
+    stmt->setUInt32(0, dbGuid);
+    stmt->setUInt16(1, GetId());
+    stmt->setUInt32(2, GetInstanceId());
+    CharacterDatabase.Execute(stmt);
+}
+
+void Map::SaveGORespawnTime(uint32 dbGuid, time_t respawnTime)
+{
+    if (!respawnTime)
+    {
+        // Delete only
+        RemoveGORespawnTime(dbGuid);
+        return;
+    }
+
+    _goRespawnTimes[dbGuid] = respawnTime;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
+    stmt->setUInt32(0, dbGuid);
+    stmt->setUInt32(1, uint32(respawnTime));
+    stmt->setUInt16(2, GetId());
+    stmt->setUInt32(3, GetInstanceId());
+    CharacterDatabase.Execute(stmt);
+}
+
+void Map::RemoveGORespawnTime(uint32 dbGuid)
+{
+    _goRespawnTimes.erase(dbGuid);
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN);
+    stmt->setUInt32(0, dbGuid);
+    stmt->setUInt16(1, GetId());
+    stmt->setUInt32(2, GetInstanceId());
+    CharacterDatabase.Execute(stmt);
+}
+
+void Map::LoadRespawnTimes()
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATURE_RESPAWNS);
+    stmt->setUInt16(0, GetId());
+    stmt->setUInt32(1, GetInstanceId());
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 loguid      = fields[0].GetUInt32();
+            uint32 respawnTime = fields[1].GetUInt32();
+
+            _creatureRespawnTimes[loguid] = time_t(respawnTime);
+        } while (result->NextRow());
+    }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GO_RESPAWNS);
+    stmt->setUInt16(0, GetId());
+    stmt->setUInt32(1, GetInstanceId());
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 loguid      = fields[0].GetUInt32();
+            uint32 respawnTime = fields[1].GetUInt32();
+
+            _goRespawnTimes[loguid] = time_t(respawnTime);
+        } while (result->NextRow());
+    }
+}
+
+void Map::DeleteRespawnTimes()
+{
+    _creatureRespawnTimes.clear();
+    _goRespawnTimes.clear();
+
+    DeleteRespawnTimesInDB(GetId(), GetInstanceId());
+}
+
+void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
+    stmt->setUInt16(0, mapId);
+    stmt->setUInt32(1, instanceId);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN_BY_INSTANCE);
+    stmt->setUInt16(0, mapId);
+    stmt->setUInt32(1, instanceId);
+    CharacterDatabase.Execute(stmt);
+}
+
+time_t Map::GetLinkedRespawnTime(uint64 guid) const
+{
+    uint64 linkedGuid = sObjectMgr->GetLinkedRespawnGuid(guid);
+    switch (GUID_HIPART(linkedGuid))
+    {
+        case HIGHGUID_UNIT:
+            return GetCreatureRespawnTime(GUID_LOPART(linkedGuid));
+        case HIGHGUID_GAMEOBJECT:
+            return GetGORespawnTime(GUID_LOPART(linkedGuid));
+        default:
+            break;
+    }
+
+    return time_t(0);
+}
+

@@ -1868,9 +1868,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
             case RACE_NIGHTELF:
                 stmt->setUInt16(1, 113);
                 break;
-        case RACE_WORGEN:
-            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 791, 300, 300)", lowGuid);
-            break;
+            case RACE_WORGEN:
+                stmt->setUInt16(1, 791);
+                break;
             case RACE_UNDEAD_PLAYER:
                 stmt->setUInt16(1, 673);
                 break;
@@ -1883,9 +1883,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
             case RACE_BLOODELF:
                 stmt->setUInt16(1, 137);
                 break;
-        case RACE_GOBLIN:
-            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 792, 300, 300)", lowGuid);
-            break;
+            case RACE_GOBLIN:
+                stmt->setUInt16(1, 792);
+                break;
         }
 
         trans->Append(stmt);

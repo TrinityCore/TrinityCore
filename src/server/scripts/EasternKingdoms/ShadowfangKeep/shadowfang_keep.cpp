@@ -27,7 +27,11 @@ EndScriptData */
 npc_shadowfang_prisoner
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "ScriptedEscortAI.h"
 #include "shadowfang_keep.h"
 
@@ -193,8 +197,48 @@ public:
 
 };
 
+class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
+{
+    public:
+        spell_shadowfang_keep_haunting_spirits() : SpellScriptLoader("spell_shadowfang_keep_haunting_spirits") { }
+
+        class spell_shadowfang_keep_haunting_spirits_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_shadowfang_keep_haunting_spirits_AuraScript);
+
+            void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+            {
+                isPeriodic = true;
+                amplitude = (irand(0, 60) + 30) * IN_MILLISECONDS;
+            }
+
+            void HandleDummyTick(AuraEffect const* aurEff)
+            {
+                GetTarget()->CastSpell((Unit*)NULL, aurEff->GetAmount(), true);
+            }
+
+            void HandleUpdatePeriodic(AuraEffect* aurEff)
+            {
+                aurEff->CalculatePeriodic(GetCaster());
+            }
+
+            void Register()
+            {
+                DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_shadowfang_keep_haunting_spirits_AuraScript();
+        }
+};
+
 void AddSC_shadowfang_keep()
 {
     new npc_shadowfang_prisoner();
     new npc_arugal_voidwalker();
+    new spell_shadowfang_keep_haunting_spirits();
 }

@@ -344,9 +344,11 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
                     if (unit_target2->GetTypeId() == TYPEID_PLAYER)
                         pet->SendUpdateToPlayer((Player*)unit_target2);
                 }
+
                 if (Unit* powner = pet->GetCharmerOrOwner())
                     if (powner->GetTypeId() == TYPEID_PLAYER)
-              pet->SendUpdateToPlayer(powner->ToPlayer());
+                        pet->SendUpdateToPlayer(powner->ToPlayer());
+
                 result = SPELL_CAST_OK;
             }
 
@@ -738,7 +740,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDetail("WORLD: CMSG_PET_CAST_SPELL");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL");
 
     uint64 guid;
     uint8  castCount;

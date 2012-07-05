@@ -65,8 +65,6 @@ class TOutputStream
 // Huffmann tree item (?)
 struct THTreeItem
 {
-    public:
-    
     THTreeItem * Call1501DB70(THTreeItem * pLast);
     THTreeItem * GetPrevItem(LONG_PTR value);
     void         ClearItemLinks();

@@ -151,11 +151,11 @@ void ArenaTeamMgr::DistributeArenaPoints()
         if (ArenaTeam* at = teamItr->second)
             at->UpdateArenaPointsHelper(PlayerPoints);
 
+    /*
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Cycle that gives points to all players
-	/*
-	PreparedStatement* stmt;
+    PreparedStatement* stmt;
 
     for (std::map<uint32, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
     {
@@ -170,9 +170,9 @@ void ArenaTeamMgr::DistributeArenaPoints()
             trans->Append(stmt);
         }
     }
-	*/
 
     CharacterDatabase.CommitTransaction(trans);
+    */
 
     PlayerPoints.clear();
 

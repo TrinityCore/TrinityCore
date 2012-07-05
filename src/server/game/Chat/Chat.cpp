@@ -92,40 +92,6 @@ ChatCommand* ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
-    static ChatCommand castCommandTable[] =
-    {
-        { "back",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastBackCommand>,            "", NULL },
-        { "dist",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastDistCommand>,            "", NULL },
-        { "self",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastSelfCommand>,            "", NULL },
-        { "target",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastTargetCommand>,          "", NULL },
-        { "dest",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastDestCommand>,          "", NULL },
-        { "",               SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastCommand>,                "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand characterDeletedCommandTable[] =
-    {
-        { "delete",         SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleCharacterDeletedDeleteCommand>,   "", NULL },
-        { "list",           SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleCharacterDeletedListCommand>,     "", NULL },
-        { "restore",        SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleCharacterDeletedRestoreCommand>,  "", NULL },
-        { "old",            SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleCharacterDeletedOldCommand>,      "", NULL },
-        { NULL,             0,                  false, NULL,                                                "", NULL }
-    };
-
-    static ChatCommand characterCommandTable[] =
-    {
-        { "customize",      SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleCharacterCustomizeCommand>,     "", NULL },
-        { "changefaction",  SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleCharacterChangeFactionCommand>, "", NULL },
-        { "changerace",     SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleCharacterChangeRaceCommand>,    "", NULL },
-        { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                              "", characterDeletedCommandTable},
-        { "erase",          SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleCharacterEraseCommand>,         "", NULL },
-        { "level",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleCharacterLevelCommand>,         "", NULL },
-        { "rename",         SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleCharacterRenameCommand>,        "", NULL },
-        { "reputation",     SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleCharacterReputationCommand>,    "", NULL },
-        { "titles",         SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleCharacterTitlesCommand>,        "", NULL },
-        { NULL,             0,                  false, NULL,                                              "", NULL }
-    };
-
     static ChatCommand channelSetCommandTable[] =
     {
         { "ownership",      SEC_ADMINISTRATOR,  false,  OldHandler<&ChatHandler::HandleChannelSetOwnership>, "", NULL },
@@ -153,24 +119,6 @@ ChatCommand* ChatHandler::getCommandTable()
         { "invite",         SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleGuildInviteCommand>,         "", NULL },
         { "uninvite",       SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleGuildUninviteCommand>,       "", NULL },
         { "rank",           SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleGuildRankCommand>,           "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand instanceCommandTable[] =
-    {
-        { "listbinds",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceListBindsCommand>,   "", NULL },
-        { "unbind",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceUnbindCommand>,      "", NULL },
-        { "stats",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceStatsCommand>,       "", NULL },
-        { "savedata",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceSaveDataCommand>,    "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand listCommandTable[] =
-    {
-        { "creature",       SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleListCreatureCommand>,        "", NULL },
-        { "item",           SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleListItemCommand>,            "", NULL },
-        { "object",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleListObjectCommand>,          "", NULL },
-        { "auras",          SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleListAurasCommand>,           "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
@@ -217,18 +165,6 @@ ChatCommand* ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
-    static ChatCommand resetCommandTable[] =
-    {
-        { "achievements",   SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetAchievementsCommand>,   "", NULL },
-        { "honor",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetHonorCommand>,          "", NULL },
-        { "level",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetLevelCommand>,          "", NULL },
-        { "spells",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetSpellsCommand>,         "", NULL },
-        { "stats",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetStatsCommand>,          "", NULL },
-        { "talents",        SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetTalentsCommand>,        "", NULL },
-        { "all",            SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleResetAllCommand>,            "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
     static ChatCommand sendCommandTable[] =
     {
         { "items",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleSendItemsCommand>,           "", NULL },
@@ -236,60 +172,6 @@ ChatCommand* ChatHandler::getCommandTable()
         { "message",        SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleSendMessageCommand>,         "", NULL },
         { "money",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleSendMoneyCommand>,           "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand serverIdleRestartCommandTable[] =
-    {
-        { "cancel",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerShutDownCancelCommand>, "", NULL },
-        { ""   ,            SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerIdleRestartCommand>,   "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand serverIdleShutdownCommandTable[] =
-    {
-        { "cancel",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerShutDownCancelCommand>, "", NULL },
-        { ""   ,            SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerIdleShutDownCommand>,  "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand serverRestartCommandTable[] =
-    {
-        { "cancel",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerShutDownCancelCommand>, "", NULL },
-        { ""   ,            SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerRestartCommand>,       "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand serverShutdownCommandTable[] =
-    {
-        { "cancel",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerShutDownCancelCommand>, "", NULL },
-        { ""   ,            SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerShutDownCommand>,      "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand serverSetCommandTable[] =
-    {
-        { "difftime",       SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerSetDiffTimeCommand>,   "", NULL },
-        { "loglevel",       SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerSetLogLevelCommand>,   "", NULL },
-        { "logfilelevel",   SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerSetLogFileLevelCommand>,   "", NULL },
-        { "motd",           SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerSetMotdCommand>,       "", NULL },
-        { "closed",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerSetClosedCommand>,     "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
-    };
-
-    static ChatCommand serverCommandTable[] =
-    {
-        { "corpses",        SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleServerCorpsesCommand>,     "", NULL },
-        { "exit",           SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerExitCommand>,        "", NULL },
-        { "idlerestart",    SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverIdleRestartCommandTable },
-        { "idleshutdown",   SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverIdleShutdownCommandTable },
-        { "info",           SEC_PLAYER,         true,  OldHandler<&ChatHandler::HandleServerInfoCommand>,        "", NULL },
-        { "motd",           SEC_PLAYER,         true,  OldHandler<&ChatHandler::HandleServerMotdCommand>,        "", NULL },
-        { "plimit",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerPLimitCommand>,      "", NULL },
-        { "restart",        SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverRestartCommandTable },
-        { "shutdown",       SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverShutdownCommandTable },
-        { "set",            SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverSetCommandTable },
-        { "togglequerylog", SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerToggleQueryLogging>, "", NULL },
-        { NULL,             0,                  false, NULL,                                                     "", NULL }
     };
 
     static ChatCommand unbanCommandTable[] =
@@ -331,16 +213,10 @@ ChatCommand* ChatHandler::getCommandTable()
 
     static ChatCommand commandTable[] =
     {
-        { "character",      SEC_GAMEMASTER,     true,  NULL,                                           "", characterCommandTable},
-        { "list",           SEC_ADMINISTRATOR,  true,  NULL,                                           "", listCommandTable     },
         { "lookup",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", lookupCommandTable   },
         { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", pdumpCommandTable    },
         { "guild",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", guildCommandTable    },
         { "group",          SEC_ADMINISTRATOR,  false, NULL,                                           "", groupCommandTable    },
-        { "cast",           SEC_ADMINISTRATOR,  false, NULL,                                           "", castCommandTable     },
-        { "reset",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", resetCommandTable    },
-        { "instance",       SEC_ADMINISTRATOR,  true,  NULL,                                           "", instanceCommandTable },
-        { "server",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverCommandTable   },
 
         { "channel",        SEC_ADMINISTRATOR, true, NULL,                                             "", channelCommandTable  },
 

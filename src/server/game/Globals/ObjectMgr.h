@@ -367,8 +367,6 @@ struct CellObjectGuids
 typedef UNORDERED_MAP<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef UNORDERED_MAP<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
 
-typedef UNORDERED_MAP<uint64/*(instance, guid) pair*/, time_t> RespawnTimes;
-
 // Trinity string ranges
 #define MIN_TRINITY_STRING_ID           1                    // 'trinity_string'
 #define MAX_TRINITY_STRING_ID           2000000000
@@ -624,14 +622,14 @@ class ObjectMgr
         Player* GetPlayerByLowGUID(uint32 lowguid) const;
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
-        GameObjectTemplateContainer const* GetGameObjectTemplates() { return &_gameObjectTemplateStore; }
+        GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
         int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32> *skip_vendors);
 
         void LoadGameObjectTemplate();
         void AddGameobjectInfo(GameObjectTemplate* goinfo);
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
-        CreatureTemplateContainer const* GetCreatureTemplates() { return &_creatureTemplateStore; }
+        CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
         static uint32 ChooseDisplayId(uint32 team, const CreatureTemplate* cinfo, const CreatureData* data = NULL);
@@ -640,7 +638,7 @@ class ObjectMgr
         CreatureAddon const* GetCreatureAddon(uint32 lowguid);
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
         ItemTemplate const* GetItemTemplate(uint32 entry);
-        ItemTemplateContainer const* GetItemTemplateStore() { return &_itemTemplateStore; }
+        ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
 
         ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId)
         {
@@ -863,13 +861,11 @@ class ObjectMgr
         void LoadCreatures();
         void LoadLinkedRespawn();
         bool SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid);
-        void LoadCreatureRespawnTimes();
         void LoadCreatureAddons();
         void LoadCreatureModelInfo();
         void LoadEquipmentTemplates();
         void LoadGameObjectLocales();
         void LoadGameobjects();
-        void LoadGameobjectRespawnTimes();
         void LoadItemTemplates();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
@@ -927,7 +923,7 @@ class ObjectMgr
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
-        uint32 GetXPForLevel(uint8 level);
+        uint32 GetXPForLevel(uint8 level) const;
 
         int32 GetFishingBaseSkillLevel(uint32 entry) const
         {
@@ -1059,36 +1055,6 @@ class ObjectMgr
         void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
         void DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid);
 
-        time_t GetLinkedRespawnTime(uint64 guid, uint32 instance)
-        {
-            uint64 linkedGuid = GetLinkedRespawnGuid(guid);
-            switch (GUID_HIPART(linkedGuid))
-            {
-                case HIGHGUID_UNIT:
-                    return GetCreatureRespawnTime(GUID_LOPART(linkedGuid), instance);
-                case HIGHGUID_GAMEOBJECT:
-                    return GetGORespawnTime(GUID_LOPART(linkedGuid), instance);
-                default:
-                    return 0;
-             }
-        }
-
-        time_t GetCreatureRespawnTime(uint32 loguid, uint32 instance)
-        {
-            TRINITY_GUARD(ACE_Thread_Mutex, _creatureRespawnTimesMutex);
-            return _creatureRespawnTimes[MAKE_PAIR64(loguid, instance)];
-        }
-        void SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t);
-        void RemoveCreatureRespawnTime(uint32 loguid, uint32 instance);
-        time_t GetGORespawnTime(uint32 loguid, uint32 instance)
-        {
-            TRINITY_GUARD(ACE_Thread_Mutex, _goRespawnTimesMutex);
-            return _goRespawnTimes[MAKE_PAIR64(loguid, instance)];
-        }
-        void SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t);
-        void RemoveGORespawnTime(uint32 loguid, uint32 instance);
-        void DeleteRespawnTimeForInstance(uint32 instance);
-
         // grid objects
         void AddCreatureToGrid(uint32 guid, CreatureData const* data);
         void RemoveCreatureFromGrid(uint32 guid, CreatureData const* data);
@@ -1143,7 +1109,7 @@ class ObjectMgr
 
         void LoadScriptNames();
         ScriptNameContainer &GetScriptNames() { return _scriptNamesStore; }
-        const char * GetScriptName(uint32 id) { return id < _scriptNamesStore.size() ? _scriptNamesStore[id].c_str() : ""; }
+        const char * GetScriptName(uint32 id) const { return id < _scriptNamesStore.size() ? _scriptNamesStore[id].c_str() : ""; }
         uint32 GetScriptId(const char *name);
 
         SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
@@ -1321,10 +1287,6 @@ class ObjectMgr
         TrinityStringLocaleContainer _trinityStringLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
-        RespawnTimes _creatureRespawnTimes;
-        ACE_Thread_Mutex _creatureRespawnTimesMutex;
-        RespawnTimes _goRespawnTimes;
-        ACE_Thread_Mutex _goRespawnTimesMutex;
 
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;
@@ -1339,7 +1301,6 @@ class ObjectMgr
             GO_TO_GO,
             GO_TO_CREATURE,         // GO is dependant on creature
         };
-
         HotfixData _hotfixData;
 };
 

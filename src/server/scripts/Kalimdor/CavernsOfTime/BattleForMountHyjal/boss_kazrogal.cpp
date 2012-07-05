@@ -15,30 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
 
-#define SPELL_CLEAVE 31436
-#define SPELL_WARSTOMP 31480
-#define SPELL_MARK 31447
+enum Spells
+{
+    SPELL_CLEAVE        = 31436,
+    SPELL_WARSTOMP      = 31480,
+    SPELL_MARK          = 31447,
+    SPELL_MARK_DAMAGE   = 31463
+};
 
-#define SOUND_ONDEATH 11018
+enum Texts
+{
+    SAY_ONSLAY          = 0,
+    SAY_MARK            = 1,
+    SAY_ONAGGRO         = 2,
+};
 
-#define SAY_ONSLAY1 "Shaza-Kiel!"
-#define SAY_ONSLAY2 "You... are nothing!"
-#define SAY_ONSLAY3 "Miserable nuisance!"
-#define SOUND_ONSLAY1 11017
-#define SOUND_ONSLAY2 11053
-#define SOUND_ONSLAY3 11054
-
-#define SAY_MARK1 "Your death will be a painful one."
-#define SAY_MARK2 "You... are marked."
-#define SOUND_MARK1 11016
-#define SOUND_MARK2 11052
-
-#define SAY_ONAGGRO "Cry for mercy! Your meaningless lives will soon be forfeit."
-#define SOUND_ONAGGRO 11015
+enum Sounds
+{
+    SOUND_ONDEATH       = 11018,
+};
 
 class boss_kazrogal : public CreatureScript
 {
@@ -80,27 +82,12 @@ public:
         {
             if (instance && IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
-            DoPlaySoundToSet(me, SOUND_ONAGGRO);
-            me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
+            Talk(SAY_ONAGGRO);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            switch (urand(0, 2))
-            {
-                case 0:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY1);
-                    me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
-                    break;
-                case 1:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY2);
-                    me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
-                    break;
-                case 2:
-                    DoPlaySoundToSet(me, SOUND_ONSLAY3);
-                    me->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, 0);
-                    break;
-            }
+            Talk(SAY_ONSLAY);
         }
 
         void WaypointReached(uint32 waypointId)
@@ -162,37 +149,15 @@ public:
                 WarStompTimer = 60000;
             } else WarStompTimer -= diff;
 
-            if (me->HasAura(SPELL_MARK))
-                me->RemoveAurasDueToSpell(SPELL_MARK);
             if (MarkTimer <= diff)
             {
-                //cast dummy, useful for bos addons
-                me->CastCustomSpell(me, SPELL_MARK, NULL, NULL, NULL, false, NULL, NULL, me->GetGUID());
+                DoCastAOE(SPELL_MARK);
 
-                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
-                {
-                    Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (target && target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA)
-                    {
-                        target->CastSpell(target, SPELL_MARK, true);//only cast on mana users
-                    }
-                }
                 MarkTimerBase -= 5000;
                 if (MarkTimerBase < 5500)
                     MarkTimerBase = 5500;
                 MarkTimer = MarkTimerBase;
-                switch (urand(0, 2))
-                {
-                    case 0:
-                        DoPlaySoundToSet(me, SOUND_MARK1);
-                        me->MonsterYell(SAY_MARK1, LANG_UNIVERSAL, 0);
-                        break;
-                    case 1:
-                        DoPlaySoundToSet(me, SOUND_MARK2);
-                        me->MonsterYell(SAY_MARK2, LANG_UNIVERSAL, 0);
-                        break;
-                }
+                Talk(SAY_MARK);
             } else MarkTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -201,7 +166,79 @@ public:
 
 };
 
+class MarkTargetFilter
+{
+    public:
+        bool operator()(WorldObject* target) const
+        {
+            if (Unit* unit = target->ToUnit())
+                return unit->getPowerType() != POWER_MANA;
+            return false;
+        }
+};
+
+class spell_mark_of_kazrogal : public SpellScriptLoader
+{
+    public:
+        spell_mark_of_kazrogal() : SpellScriptLoader("spell_mark_of_kazrogal") { }
+
+        class spell_mark_of_kazrogal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mark_of_kazrogal_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(MarkTargetFilter());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_kazrogal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        class spell_mark_of_kazrogal_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mark_of_kazrogal_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                Unit* target = GetTarget();
+
+                if (target->GetPower(POWER_MANA) == 0)
+                {
+                    target->CastSpell(target, SPELL_MARK_DAMAGE, true, NULL, aurEff);
+                    // Remove aura
+                    SetDuration(0);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mark_of_kazrogal_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mark_of_kazrogal_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mark_of_kazrogal_AuraScript();
+        }
+};
+
 void AddSC_boss_kazrogal()
 {
     new boss_kazrogal();
+    new spell_mark_of_kazrogal();
 }

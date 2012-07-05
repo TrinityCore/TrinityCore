@@ -194,6 +194,7 @@ static int CopyMpqFileSectors(
             if(!FileStream_Write(pNewStream, NULL, SectorOffsetsCopy, dwSectorOffsLen))
                 nError = GetLastError();
 
+            dwBytesToCopy -= dwSectorOffsLen;
             dwCmpSize += dwSectorOffsLen;
         }
 
@@ -216,16 +217,16 @@ static int CopyMpqFileSectors(
             DWORD dwRawDataInSector = hf->dwSectorSize;
             DWORD dwRawByteOffset = dwSector * hf->dwSectorSize;
 
-            // Last sector: If there is not enough bytes remaining in the file, cut the raw size
-            if(dwRawDataInSector > dwBytesToCopy)
-                dwRawDataInSector = dwBytesToCopy;
-
             // Fix the raw data length if the file is compressed
             if(hf->SectorOffsets != NULL)
             {
                 dwRawDataInSector = hf->SectorOffsets[dwSector+1] - hf->SectorOffsets[dwSector];
                 dwRawByteOffset = hf->SectorOffsets[dwSector];
             }
+
+            // Last sector: If there is not enough bytes remaining in the file, cut the raw size
+            if(dwRawDataInSector > dwBytesToCopy)
+                dwRawDataInSector = dwBytesToCopy;
 
             // Calculate the raw file offset of the file sector
             CalculateRawSectorOffset(RawFilePos, hf, dwRawByteOffset);
@@ -263,7 +264,7 @@ static int CopyMpqFileSectors(
             }
 
             // Adjust byte counts
-            dwBytesToCopy -= hf->dwSectorSize;
+            dwBytesToCopy -= dwRawDataInSector;
             dwCmpSize += dwRawDataInSector;
         }
     }
@@ -291,8 +292,37 @@ static int CopyMpqFileSectors(
             }
 
             // Size of the CRC block is also included in the compressed file size
+            dwBytesToCopy -= dwCrcLength;
             dwCmpSize += dwCrcLength;
         }
+    }
+
+    // There might be extra data beyond sector checksum table
+    // Sometimes, these data are even part of sector offset table
+    // Examples:
+    // 2012 - WoW\15354\locale-enGB.MPQ:DBFilesClient\SpellLevels.dbc
+    // 2012 - WoW\15354\locale-enGB.MPQ:Interface\AddOns\Blizzard_AuctionUI\Blizzard_AuctionUI.xml
+    if(nError == ERROR_SUCCESS && dwBytesToCopy != 0)
+    {
+        LPBYTE pbExtraData;
+
+        // Allocate space for the extra data
+        pbExtraData = STORM_ALLOC(BYTE, dwBytesToCopy);
+        if(pbExtraData != NULL)
+        {
+            if(!FileStream_Read(ha->pStream, NULL, pbExtraData, dwBytesToCopy))
+                nError = GetLastError();
+
+            if(!FileStream_Write(pNewStream, NULL, pbExtraData, dwBytesToCopy))
+                nError = GetLastError();
+
+            // Include these extra data in the compressed size
+            dwCmpSize += dwBytesToCopy;
+            dwBytesToCopy = 0;
+            STORM_FREE(pbExtraData);
+        }
+        else
+            nError = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // Write the MD5's of the raw file data, if needed
@@ -469,13 +499,13 @@ bool WINAPI SFileCompactArchive(HANDLE hMpq, const char * szListFile, bool /* bR
     // Get the temporary file name and create it
     if(nError == ERROR_SUCCESS)
     {
-        _tcscpy(szTempFile, ha->pStream->szFileName);
+        _tcscpy(szTempFile, FileStream_GetFileName(ha->pStream));
         if((szTemp = _tcsrchr(szTempFile, '.')) != NULL)
             _tcscpy(szTemp + 1, _T("mp_"));
         else
             _tcscat(szTempFile, _T("_"));
 
-        pTempStream = FileStream_CreateFile(szTempFile);
+        pTempStream = FileStream_CreateFile(szTempFile, STREAM_PROVIDER_LINEAR | BASE_PROVIDER_FILE);
         if(pTempStream == NULL)
             nError = GetLastError();
     }
@@ -531,7 +561,7 @@ bool WINAPI SFileCompactArchive(HANDLE hMpq, const char * szListFile, bool /* bR
     // If succeeded, switch the streams
     if(nError == ERROR_SUCCESS)
     {
-        if(FileStream_MoveFile(ha->pStream, pTempStream))
+        if(FileStream_Switch(ha->pStream, pTempStream))
             pTempStream = NULL;
         else
             nError = ERROR_CAN_NOT_COMPLETE;

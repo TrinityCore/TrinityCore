@@ -113,7 +113,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
                 ObjectMgr::GetLocaleString(cl->SubName, loc_idx, SubName);
             }
         }
-        sLog->outDetail("WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), entry);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), entry);
                                                             // guess size
         WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 100);
         data << uint32(entry);                              // creature entry
@@ -184,7 +184,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
                 ObjectMgr::GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
             }
         }
-        sLog->outDetail("WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name.c_str(), entry);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name.c_str(), entry);
         WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 150);
         data << uint32(entry);
         data << uint32(info->type);
@@ -215,7 +215,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
 {
-    sLog->outDetail("WORLD: Received MSG_CORPSE_QUERY");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_CORPSE_QUERY");
 
     Corpse* corpse = GetPlayer()->GetCorpse();
 
@@ -270,7 +270,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
     uint64 guid;
 
     recv_data >> textID;
-    sLog->outDetail("WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
     recv_data >> guid;
     GetPlayer()->SetSelection(guid);
@@ -350,7 +350,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
 {
-    sLog->outDetail("WORLD: Received CMSG_PAGE_TEXT_QUERY");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PAGE_TEXT_QUERY");
 
     uint32 pageID;
     recv_data >> pageID;

@@ -50,9 +50,9 @@ char output_path[128] = ".";
 char input_path[128] = ".";
 uint32 maxAreaId = 0;
 
-//**************************************************
+// **************************************************
 // Extractor options
-//**************************************************
+// **************************************************
 enum Extract
 {
     EXTRACT_MAP = 1,
@@ -79,13 +79,14 @@ uint32 CONF_TargetBuild = 14545;              // 4.2.2.14545
 char const* CONF_mpq_list[]=
 {
     "world.MPQ",
+    "art.MPQ",
     "world2.MPQ",
     "expansion1.MPQ",
     "expansion2.MPQ",
     "expansion3.MPQ",
 };
 
-uint32 const Builds[] = {13164, 13205, 13287, 13329, 13596, 13623, 13914, 14007, 14333, 14480, 14545, 15005, 15050, 15211, 0};
+uint32 const Builds[] = {13164, 13205, 13287, 13329, 13596, 13623, 13914, 14007, 14333, 14480, 14545, 15005, 15050, 15211, 15354, 15595, 0};
 #define LAST_DBC_IN_DATA_BUILD 13623    // after this build mpqs with dbc are back to locale folder
 
 char* const Locales[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU"};
@@ -293,7 +294,7 @@ void ReadAreaTableDBC()
         areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
     SFileCloseFile(dbcFile);
-    printf("Done! (%u areas loaded)\n", area_count);
+    printf("Done! (%zu areas loaded)\n", area_count);
 }
 
 void ReadLiquidTypeTableDBC()
@@ -419,7 +420,7 @@ uint8 liquid_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
 
-bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 build)
+bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/, uint32 build)
 {
     ADT_file adt;
 
@@ -623,7 +624,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
     // Try store as packed in uint16 or uint8 values
     if (!(heightHeader.flags & MAP_HEIGHT_NO_HEIGHT))
     {
-        float step;
+        float step = 0;
         // Try Store as uint values
         if (CONF_allow_float_to_int)
         {
@@ -1018,7 +1019,9 @@ void ExtractDBCFiles(int l, bool basicLocale)
     uint32 count = 0;
     if (listFile)
     {
-        std::string outputPath = "./dbc/";
+        std::string outputPath = output_path;
+        outputPath += "/dbc/";
+
         CreateDir(outputPath);
         if (!basicLocale)
         {
@@ -1062,7 +1065,8 @@ void ExtractDB2Files(int l, bool basicLocale)
     uint32 count = 0;
     if (listFile)
     {
-        std::string outputPath = "./dbc/";
+        std::string outputPath = output_path;
+        outputPath += "/dbc/";
         if (!basicLocale)
         {
             outputPath += Locales[l];
@@ -1150,8 +1154,15 @@ void LoadCommonMPQFiles(uint32 build)
 
         _stprintf(filename, _T("%s/Data/%s"), input_path, CONF_mpq_list[i]);
         if (!SFileOpenPatchArchive(WorldMpq, filename, "", 0))
+        {
             if (GetLastError() != ERROR_PATH_NOT_FOUND)
                 _tprintf(_T("Cannot open archive %s\n"), filename);
+            else
+                _tprintf(_T("Not found %s\n"), filename);
+        }
+        else
+            _tprintf(_T("Loaded %s\n"), filename);
+
     }
 
     char const* prefix = NULL;
@@ -1173,8 +1184,12 @@ void LoadCommonMPQFiles(uint32 build)
         {
             if (GetLastError() != ERROR_PATH_NOT_FOUND)
                 _tprintf(_T("Cannot open patch archive %s\n"), filename);
+            else
+                _tprintf(_T("Not found %s\n"), filename);
             continue;
         }
+        else
+            _tprintf(_T("Loaded %s\n"), filename);
     }
 
 }
@@ -1191,9 +1206,6 @@ int main(int argc, char * arg[])
 
     for (int i = 0; i < LOCALES_COUNT; ++i)
     {
-        TCHAR tmp1[512];
-        _stprintf(tmp1, _T("%s/Data/%s/locale-%s.MPQ"), input_path, Locales[i], Locales[i]);
-
         //Open MPQs
         if (!LoadLocaleMPQFile(i))
         {

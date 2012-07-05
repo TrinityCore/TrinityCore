@@ -1888,7 +1888,7 @@ class Player : public Unit, public GridObject<Player>
             m_guildId = GuildId;
         }
         uint32 GetGuildId() { return m_guildId; }
-        static uint32 GetGuildIdFromGuid(uint64 guid);
+        static uint32 GetGuildIdFromDB(uint64 guid);
 
         void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
         uint8 GetRank() { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
@@ -2049,6 +2049,7 @@ class Player : public Unit, public GridObject<Player>
             StopMirrorTimer(BREATH_TIMER);
             StopMirrorTimer(FIRE_TIMER);
         }
+        bool IsMirrorTimerActive(MirrorTimerType type) { return m_MirrorTimer[type] == getMaxTimer(type); }
 
         void SetMovement(PlayerMovementType pType);
 

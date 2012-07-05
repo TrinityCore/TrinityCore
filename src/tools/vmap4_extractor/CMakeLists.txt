@@ -15,9 +15,11 @@ file(GLOB_RECURSE sources *.cpp *.h)
 add_definitions("-DIOMAP_DEBUG")
 
 # build setup currently only supports libmpq 0.4.x
-add_definitions("-Wall")
-add_definitions("-ggdb")
-add_definitions("-O3")
+if( NOT WIN32 )
+  add_definitions("-Wall")
+  add_definitions("-ggdb")
+  add_definitions("-O3")
+endif()
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/dep/StormLib/src
@@ -26,6 +28,7 @@ include_directories(
 add_executable(vmap4extractor ${sources})
 
 target_link_libraries(vmap4extractor
+  mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   storm

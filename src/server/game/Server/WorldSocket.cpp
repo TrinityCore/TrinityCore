@@ -42,7 +42,7 @@
 #include "WorldSession.h"
 #include "WorldSocketMgr.h"
 #include "Log.h"
-#include "WorldLog.h"
+#include "PacketLog.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 
@@ -78,7 +78,7 @@ struct ServerPktHeader
         return 2+(isLargePacket()?3:2);
     }
 
-    bool isLargePacket()
+    bool isLargePacket() const
     {
         return size > 0x7FFF;
     }
@@ -152,7 +152,7 @@ const std::string& WorldSocket::GetRemoteAddress (void) const
     return m_Address;
 }
 
-int WorldSocket::SendPacket(const WorldPacket& pct)
+int WorldSocket::SendPacket(WorldPacket const& pct)
 {
     ACE_GUARD_RETURN (LockType, Guard, m_OutBufferLock, -1);
 
@@ -160,24 +160,8 @@ int WorldSocket::SendPacket(const WorldPacket& pct)
         return -1;
 
     // Dump outgoing packet.
-    if (sWorldLog->LogWorld())
-    {
-        sWorldLog->outTimestampLog ("SERVER:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
-                     (uint32) get_handle(),
-                     pct.size(),
-                     LookupOpcodeName (pct.GetOpcode()),
-                     pct.GetOpcode());
-
-        uint32 p = 0;
-        while (p < pct.size())
-        {
-            for (uint32 j = 0; j < 16 && p < pct.size(); j++)
-                sWorldLog->outLog("%.2X ", const_cast<WorldPacket&>(pct)[p++]);
-
-            sWorldLog->outLog("\n");
-        }
-        sWorldLog->outLog("\n");
-    }
+    if (sPacketLog->CanLogPacket())
+        sPacketLog->LogPacket(pct, SERVER_TO_CLIENT);
 
     sLog->outOpCode(uint32(pct.GetOpcode()), LookupOpcodeName(pct.GetOpcode()), true);
 
@@ -668,7 +652,7 @@ int WorldSocket::schedule_wakeup_output (GuardType& g)
     return 0;
 }
 
-int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
+int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 {
     ACE_ASSERT (new_pct);
 
@@ -681,24 +665,8 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
         return -1;
 
     // Dump received packet.
-    if (sWorldLog->LogWorld())
-    {
-        sWorldLog->outTimestampLog ("CLIENT:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
-                     (uint32) get_handle(),
-                     new_pct->size(),
-                     LookupOpcodeName (new_pct->GetOpcode()),
-                     new_pct->GetOpcode());
-
-        uint32 p = 0;
-        while (p < new_pct->size())
-        {
-            for (uint32 j = 0; j < 16 && p < new_pct->size(); j++)
-                sWorldLog->outLog ("%.2X ", (*new_pct)[p++]);
-
-            sWorldLog->outLog ("\n");
-        }
-        sWorldLog->outLog ("\n");
-    }
+    if (sPacketLog->CanLogPacket())
+        sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
     sLog->outOpCode(uint32(Opcodes(opcode)), LookupOpcodeName(Opcodes(opcode)), false);
 
@@ -808,7 +776,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     LocaleConstant locale;
     std::string account;
     SHA1Hash sha;
-    BigNumber v, s, g, N, k;
+    BigNumber k;
     WorldPacket addonsData;
 
     recvPacket.read_skip<uint32>();
@@ -891,21 +859,9 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (expansion > world_expansion)
         expansion = world_expansion;
 
-    N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
-    g.SetDword(7);
-
-    v.SetHexStr(fields[4].GetCString());
-    s.SetHexStr(fields[5].GetCString());
-
-    const char* sStr = s.AsHexStr();                       //Must be freed by OPENSSL_free()
-    const char* vStr = v.AsHexStr();                       //Must be freed by OPENSSL_free()
-
     sLog->outStaticDebug("WorldSocket::HandleAuthSession: (s,v) check s: %s v: %s",
-        sStr,
-        vStr);
-
-    OPENSSL_free((void*) sStr);
-    OPENSSL_free((void*) vStr);
+        fields[5].GetCString(),
+        fields[4].GetCString());
 
     ///- Re-check ip locking (same check as in realmd).
     if (fields[3].GetUInt8() == 1) // if ip is locked

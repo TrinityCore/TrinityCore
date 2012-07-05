@@ -35,13 +35,19 @@ enum ShamanSpells
     SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1    = 8349,
     SHAMAN_SPELL_SATED                     = 57724,
     SHAMAN_SPELL_EXHAUSTION                = 57723,
-    
+
     SHAMAN_SPELL_STORM_EARTH_AND_FIRE      = 51483,
     EARTHBIND_TOTEM_SPELL_EARTHGRAB        = 64695,
 
     // For Earthen Power
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM     = 6474,
     SHAMAN_TOTEM_SPELL_EARTHEN_POWER       = 59566,
+
+    SHAMAN_BIND_SIGHT                      = 6277,
+
+    ICON_ID_SHAMAN_LAVA_FLOW               = 3087,
+    SHAMAN_LAVA_FLOWS_R1                   = 51480,
+    SHAMAN_LAVA_FLOWS_TRIGGERED_R1         = 64694,
 };
 
 // 51474 - Astral shift
@@ -255,10 +261,13 @@ class EarthenPowerTargetSelector
 {
     public:
         EarthenPowerTargetSelector() { }
- 
-        bool operator() (Unit* target)
+
+        bool operator() (WorldObject* target)
         {
-            if (!target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
+            if (!target->ToUnit())
+                return true;
+
+            if (!target->ToUnit()->HasAuraWithMechanic(1 << MECHANIC_SNARE))
                 return true;
 
             return false;
@@ -274,14 +283,14 @@ class spell_sha_earthen_power : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_earthen_power_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(EarthenPowerTargetSelector());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sha_earthen_power_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_earthen_power_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -307,7 +316,7 @@ class spell_sha_bloodlust : public SpellScriptLoader
                 return true;
             }
 
-            void RemoveInvalidTargets(std::list<Unit*>& targets)
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(Trinity::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
             }
@@ -320,9 +329,9 @@ class spell_sha_bloodlust : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_bloodlust_SpellScript::ApplyDebuff);
             }
         };
@@ -349,9 +358,9 @@ class spell_sha_heroism : public SpellScriptLoader
                 return true;
             }
 
-            void RemoveInvalidTargets(std::list<Unit*>& targets)
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if (Trinity::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
             }
 
             void ApplyDebuff()
@@ -362,9 +371,9 @@ class spell_sha_heroism : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
             }
         };
@@ -652,6 +661,94 @@ class spell_sha_chain_heal : public SpellScriptLoader
         }
 };
 
+class spell_sha_flame_shock : public SpellScriptLoader
+{
+    public:
+        spell_sha_flame_shock() : SpellScriptLoader("spell_sha_flame_shock") { }
+
+        class spell_sha_flame_shock_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_flame_shock_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SHAMAN_LAVA_FLOWS_R1))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SHAMAN_LAVA_FLOWS_TRIGGERED_R1))
+                    return false;
+                return true;
+            }
+
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
+            {
+                if (Unit* caster = GetCaster())
+                    // Lava Flows
+                    if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, ICON_ID_SHAMAN_LAVA_FLOW, EFFECT_0))
+                    {
+                        if (sSpellMgr->GetFirstSpellInChain(SHAMAN_LAVA_FLOWS_R1) != sSpellMgr->GetFirstSpellInChain(aurEff->GetId()))
+                            return;
+
+                        uint8 rank = sSpellMgr->GetSpellRank(aurEff->GetId());
+                        caster->CastSpell(caster, sSpellMgr->GetSpellWithRank(SHAMAN_LAVA_FLOWS_TRIGGERED_R1, rank), true);
+                    }
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_sha_flame_shock_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_flame_shock_AuraScript();
+        }
+};
+
+class spell_sha_sentry_totem : public SpellScriptLoader
+{
+    public:
+        spell_sha_sentry_totem() : SpellScriptLoader("spell_sha_sentry_totem") { }
+
+        class spell_sha_sentry_totem_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_sentry_totem_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SHAMAN_BIND_SIGHT))
+                    return false;
+                return true;
+            }
+
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[4]))
+                        if (totem->isTotem())
+                            caster->CastSpell(totem, SHAMAN_BIND_SIGHT, true);
+            }
+
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (caster->GetTypeId() == TYPEID_PLAYER)
+                        caster->ToPlayer()->StopCastingBindSight();
+            }
+
+            void Register()
+            {
+                 AfterEffectApply += AuraEffectApplyFn(spell_sha_sentry_totem_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                 AfterEffectRemove += AuraEffectRemoveFn(spell_sha_sentry_totem_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_sentry_totem_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_astral_shift();
@@ -667,4 +764,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_mana_spring_totem();
     new spell_sha_lava_lash();
     new spell_sha_chain_heal();
+    new spell_sha_flame_shock();
+    new spell_sha_sentry_totem();
 }
