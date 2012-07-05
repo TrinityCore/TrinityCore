@@ -236,21 +236,22 @@ set(TEST_SRC_FILES
 
 add_definitions(-D_7ZIP_ST -DBZ_STRICT_ANSI)
 
-if( WIN32 )
-    if( MSVC )
+if(WIN32)
+    if(MSVC)
         add_definitions(-D_7ZIP_ST -DWIN32)
     endif()
     set(SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES})
+    set(LINK_LIBS wininet)
 endif()
 
-if( APPLE )
+if(APPLE)
     set(LINK_LIBS z bz2)
     set(SRC_ADDITIONAL_FILES ${TOMCRYPT_FILES} ${TOMMATH_FILES})
 endif()
 
-if( ${CMAKE_SYSTEM_NAME} STREQUAL Linux )
+if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
     option(WITH_LIBTOMCRYPT "Use system LibTomCrypt library" OFF)
-    if( WITH_LIBTOMCRYPT )
+    if(WITH_LIBTOMCRYPT)
         set(LINK_LIBS z bz2 tomcrypt)
     else()
         set(LINK_LIBS z bz2)
@@ -261,17 +262,17 @@ endif()
 add_library(storm STATIC ${SRC_FILES} ${SRC_ADDITIONAL_FILES})
 target_link_libraries(storm ${LINK_LIBS})
 
-if( APPLE )
+if(APPLE)
     set_target_properties(storm PROPERTIES FRAMEWORK true)
     set_target_properties(storm PROPERTIES PUBLIC_HEADER "src/StormLib.h src/StormPort.h")
     set_target_properties(storm PROPERTIES LINK_FLAGS "-framework Carbon")
 endif()
 
-if( UNIX )
+if(UNIX)
     set_target_properties(storm PROPERTIES SOVERSION 0)
 endif()
 
 # On Win32, build StormLib.dll since we don't want to clash with Storm.dll
-if( WIN32 )
+if(WIN32)
     set_target_properties(storm PROPERTIES OUTPUT_NAME StormLib)
 endif()

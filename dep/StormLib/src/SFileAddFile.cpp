@@ -13,6 +13,33 @@
 #include "StormCommon.h"
 
 //-----------------------------------------------------------------------------
+// Local structures
+
+#define FILE_SIGNATURE_RIFF     0x46464952
+#define FILE_SIGNATURE_WAVE     0x45564157
+#define FILE_SIGNATURE_FMT      0x20746D66
+#define AUDIO_FORMAT_PCM                 1
+
+typedef struct _WAVE_FILE_HEADER
+{
+    DWORD dwChunkId;                        // 0x52494646 ("RIFF")
+    DWORD dwChunkSize;                      // Size of that chunk, in bytes
+    DWORD dwFormat;                         // Must be 0x57415645 ("WAVE")
+   
+    // Format sub-chunk 
+    DWORD dwSubChunk1Id;                    // 0x666d7420 ("fmt ")
+    DWORD dwSubChunk1Size;                  // 0x16 for PCM
+    USHORT wAudioFormat;                    // 1 = PCM. Other value means some sort of compression
+    USHORT wChannels;                       // Number of channels
+    DWORD dwSampleRate;                     // 8000, 44100, etc.
+    DWORD dwBytesRate;                      // SampleRate * NumChannels * BitsPerSample/8
+    USHORT wBlockAlign;                     // NumChannels * BitsPerSample/8
+    USHORT wBitsPerSample;                  // 8 bits = 8, 16 bits = 16, etc.
+
+    // Followed by "data" sub-chunk (we don't care)
+} WAVE_FILE_HEADER, *PWAVE_FILE_HEADER;
+
+//-----------------------------------------------------------------------------
 // Local variables
 
 // Data compression for SFileAddFile
@@ -26,6 +53,29 @@ static void * pvUserData = NULL;
 // MPQ write data functions
 
 #define LOSSY_COMPRESSION_MASK (MPQ_COMPRESSION_ADPCM_MONO | MPQ_COMPRESSION_ADPCM_STEREO | MPQ_COMPRESSION_HUFFMANN)
+
+static int IsWaveFile(
+    LPBYTE pbFileData,
+    DWORD cbFileData,
+    LPDWORD pdwChannels)
+{
+    PWAVE_FILE_HEADER pWaveHdr = (PWAVE_FILE_HEADER)pbFileData;
+
+    if(cbFileData > sizeof(WAVE_FILE_HEADER))
+    {
+        if(pWaveHdr->dwChunkId == FILE_SIGNATURE_RIFF && pWaveHdr->dwFormat == FILE_SIGNATURE_WAVE)
+        {
+            if(pWaveHdr->dwSubChunk1Id == FILE_SIGNATURE_FMT && pWaveHdr->wAudioFormat == AUDIO_FORMAT_PCM)
+            {
+                *pdwChannels = pWaveHdr->wChannels;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 
 static int WriteDataToMpqFile(
     TMPQArchive * ha,
@@ -86,16 +136,6 @@ static int WriteDataToMpqFile(
                 // Set the position in the file
                 ByteOffset = hf->RawFilePos + pFileEntry->dwCmpSize;
 
-                // If the file is compressed, allocate buffer for the compressed data.
-                // Note that we allocate buffer that is a bit longer than sector size,
-                // for case if the compression method performs a buffer overrun
-                if((pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) && pbCompressed == NULL)
-                {
-                    pbToWrite = pbCompressed = STORM_ALLOC(BYTE, hf->dwSectorSize + 0x100);
-                    if(pbCompressed == NULL)
-                        nError = ERROR_NOT_ENOUGH_MEMORY;
-                }
-
                 // Update CRC32 and MD5 of the file
                 md5_process((hash_state *)hf->hctx, hf->pbFileSector, dwBytesInSector);
                 hf->dwCrc32 = crc32(hf->dwCrc32, hf->pbFileSector, dwBytesInSector);
@@ -106,7 +146,18 @@ static int WriteDataToMpqFile(
                     int nOutBuffer = (int)dwBytesInSector;
                     int nInBuffer = (int)dwBytesInSector;
 
-                    assert(pbCompressed != NULL);
+                    // If the file is compressed, allocate buffer for the compressed data.
+                    // Note that we allocate buffer that is a bit longer than sector size,
+                    // for case if the compression method performs a buffer overrun
+                    if(pbCompressed == NULL)
+                    {
+                        pbToWrite = pbCompressed = STORM_ALLOC(BYTE, hf->dwSectorSize + 0x100);
+                        if(pbCompressed == NULL)
+                        {
+                            nError = ERROR_NOT_ENOUGH_MEMORY;
+                            break;
+                        }
+                    }
 
                     //
                     // Note that both SCompImplode and SCompCompress give original buffer,
@@ -319,11 +370,17 @@ int SFileAddFile_Init(
     // flags get to this point
     //
 
-    // Adjust file flags for too-small files
-    if(dwFileSize < 0x04)
-        dwFlags &= ~(MPQ_FILE_ENCRYPTED | MPQ_FILE_FIX_KEY);
-    if(dwFileSize < 0x20)
-        dwFlags &= ~(MPQ_FILE_COMPRESSED | MPQ_FILE_SECTOR_CRC);
+    // Sestor CRC is not allowed with single unit files
+    if(dwFlags & MPQ_FILE_SINGLE_UNIT)
+        dwFlags &= ~MPQ_FILE_SECTOR_CRC;
+
+    // Sector CRC is not allowed if the file is not compressed
+    if(!(dwFlags & MPQ_FILE_COMPRESSED))
+        dwFlags &= ~MPQ_FILE_SECTOR_CRC;
+    
+    // Fix Key is not allowed if the file is not enrypted
+    if(!(dwFlags & MPQ_FILE_ENCRYPTED))
+        dwFlags &= ~MPQ_FILE_FIX_KEY;
 
     // If the MPQ is of version 3.0 or higher, we ignore file locale.
     // This is because HET and BET tables have no known support for it
@@ -371,12 +428,9 @@ int SFileAddFile_Init(
         }
         else
         {
-            // If the file is marked as deleted, it's OK
-            if(!(pFileEntry->dwFlags & MPQ_FILE_DELETE_MARKER))
-            {
-                if((dwFlags & MPQ_FILE_REPLACEEXISTING) == 0)
-                    nError = ERROR_ALREADY_EXISTS;
-            }
+            // If the file exists and "replace existing" is not set, fail it
+            if((dwFlags & MPQ_FILE_REPLACEEXISTING) == 0)
+                nError = ERROR_ALREADY_EXISTS;
 
             // If the file entry already contains a file
             // and it is a pseudo-name, replace it
@@ -459,7 +513,7 @@ int SFileAddFile_Write(TMPQFile * hf, const void * pvData, DWORD dwSize, DWORD d
         }
 
         // Allocate patch info, if the data is patch
-        if(hf->pPatchInfo == NULL && IsPatchData(pvData, dwSize, &hf->dwPatchedFileSize))
+        if(hf->pPatchInfo == NULL && IsIncrementalPatchFile(pvData, dwSize, &hf->dwPatchedFileSize))
         {
             // Set the MPQ_FILE_PATCH_FILE flag
             hf->pFileEntry->dwFlags |= MPQ_FILE_PATCH_FILE;
@@ -782,6 +836,9 @@ bool WINAPI SFileAddFileEx(
     DWORD dwBytesRemaining = 0;
     DWORD dwBytesToRead;
     DWORD dwSectorSize = 0x1000;
+    DWORD dwChannels = 0;
+    bool bIsAdpcmCompression = false;
+    bool bIsFirstSector = true;
     int nError = ERROR_SUCCESS;
 
     // Check parameters
@@ -791,7 +848,7 @@ bool WINAPI SFileAddFileEx(
     // Open added file
     if(nError == ERROR_SUCCESS)
     {
-        pStream = FileStream_OpenFile(szFileName, false);
+        pStream = FileStream_OpenFile(szFileName, STREAM_FLAG_READ_ONLY | STREAM_PROVIDER_LINEAR | BASE_PROVIDER_FILE);
         if(pStream == NULL)
             nError = GetLastError();
     }
@@ -799,7 +856,7 @@ bool WINAPI SFileAddFileEx(
     // Get the file size and file time
     if(nError == ERROR_SUCCESS)
     {
-        FileStream_GetLastWriteTime(pStream, &FileTime);
+        FileStream_GetTime(pStream, &FileTime);
         FileStream_GetSize(pStream, FileSize);
         
         // Files bigger than 4GB cannot be added to MPQ
@@ -821,16 +878,19 @@ bool WINAPI SFileAddFileEx(
     {
         // When the compression for next blocks is set to default,
         // we will copy the compression for the first sector
-        if(dwCompressionNext == 0xFFFFFFFF)
+        if(dwCompressionNext == MPQ_COMPRESSION_NEXT_SAME)
             dwCompressionNext = dwCompression;
         
-        // If the caller wants ADPCM compression, we make sure that the first sector is not
-        // compressed with lossy compression
-        if(dwCompressionNext & (MPQ_COMPRESSION_WAVE_MONO | MPQ_COMPRESSION_WAVE_STEREO))
+        // If the caller wants ADPCM compression, we make sure
+        // that the first sector is not compressed with lossy compression
+        if(dwCompressionNext & (MPQ_COMPRESSION_ADPCM_MONO | MPQ_COMPRESSION_ADPCM_STEREO))
         {
             // The first compression must not be WAVE
-            if(dwCompression & (MPQ_COMPRESSION_WAVE_MONO | MPQ_COMPRESSION_WAVE_STEREO))
+            if(dwCompression & (MPQ_COMPRESSION_ADPCM_MONO | MPQ_COMPRESSION_ADPCM_STEREO))
                 dwCompression = MPQ_COMPRESSION_PKWARE;
+            
+            dwCompressionNext &= ~(MPQ_COMPRESSION_ADPCM_MONO | MPQ_COMPRESSION_ADPCM_STEREO);
+            bIsAdpcmCompression = true;
         }
 
         // Initiate adding file to the MPQ
@@ -851,6 +911,21 @@ bool WINAPI SFileAddFileEx(
         {
             nError = GetLastError();
             break;
+        }
+
+        // If the file being added is a WAVE file, we check number of channels
+        if(bIsFirstSector && bIsAdpcmCompression)
+        {
+            // The file must really be a wave file, otherwise it's data corruption
+            if(!IsWaveFile(pbFileData, dwBytesToRead, &dwChannels))
+            {
+                nError = ERROR_BAD_FORMAT;
+                break;
+            }
+
+            // Setup the compression according to number of channels
+            dwCompressionNext |= (dwChannels == 1) ? MPQ_COMPRESSION_ADPCM_MONO : MPQ_COMPRESSION_ADPCM_STEREO;
+            bIsFirstSector = false;
         }
 
         // Add the file sectors to the MPQ
@@ -920,12 +995,12 @@ bool WINAPI SFileAddWave(HANDLE hMpq, const TCHAR * szFileName, const char * szA
 
         case MPQ_WAVE_QUALITY_MEDIUM:
 //          WaveCompressionLevel = 4;
-            dwCompression = MPQ_COMPRESSION_WAVE_STEREO | MPQ_COMPRESSION_HUFFMANN;
+            dwCompression = MPQ_COMPRESSION_ADPCM_STEREO | MPQ_COMPRESSION_HUFFMANN;
             break;
 
         case MPQ_WAVE_QUALITY_LOW:
 //          WaveCompressionLevel = 2;
-            dwCompression = MPQ_COMPRESSION_WAVE_STEREO | MPQ_COMPRESSION_HUFFMANN;
+            dwCompression = MPQ_COMPRESSION_ADPCM_STEREO | MPQ_COMPRESSION_HUFFMANN;
             break;
     }
 

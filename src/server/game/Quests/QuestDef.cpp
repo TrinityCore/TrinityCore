@@ -132,16 +132,16 @@ Quest::Quest(Field* questRecord)
         ObjectiveText[i] = questRecord[128+i].GetString();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyId[i] = questRecord[132+i].GetUInt32();
+        RewardCurrencyId[i] = questRecord[132+i].GetUInt16();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyCount[i] = questRecord[136+i].GetUInt32();
+        RewardCurrencyCount[i] = questRecord[136+i].GetUInt8();
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyId[i] = questRecord[140+i].GetUInt32();
+        RequiredCurrencyId[i] = questRecord[140+i].GetUInt16();
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyCount[i] = questRecord[144+i].GetUInt32();
+        RequiredCurrencyCount[i] = questRecord[144+i].GetUInt8();
 
     QuestGiverTextWindow = questRecord[148].GetString();
     QuestGiverTargetName = questRecord[149].GetString();

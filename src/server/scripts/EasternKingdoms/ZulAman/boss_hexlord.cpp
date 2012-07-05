@@ -23,7 +23,10 @@ SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "zulaman.h"
 
 #define YELL_AGGRO              "Da shadow gonna fall on you... "
@@ -47,54 +50,58 @@ EndScriptData */
 
 //Defines for various powers he uses after using soul drain
 
-//Druid
-#define SPELL_DR_LIFEBLOOM      43421
-#define SPELL_DR_THORNS         43420
-#define SPELL_DR_MOONFIRE       43545
+enum Spells
+{
+    // Druid
+    SPELL_DR_THORNS                 = 43420,
+    SPELL_DR_LIFEBLOOM              = 43421,
+    SPELL_DR_MOONFIRE               = 43545,
 
-//Hunter
-#define SPELL_HU_EXPLOSIVE_TRAP 43444
-#define SPELL_HU_FREEZING_TRAP  43447
-#define SPELL_HU_SNAKE_TRAP     43449
+    // Hunter
+    SPELL_HU_EXPLOSIVE_TRAP         = 43444,
+    SPELL_HU_FREEZING_TRAP          = 43447,
+    SPELL_HU_SNAKE_TRAP             = 43449,
 
-//Mage
-#define SPELL_MG_FIREBALL       41383
-#define SPELL_MG_FROSTBOLT      43428
-#define SPELL_MG_FROST_NOVA     43426
-#define SPELL_MG_ICE_LANCE      43427
+    // Mage
+    SPELL_MG_FIREBALL               = 41383,
+    SPELL_MG_FROST_NOVA             = 43426,
+    SPELL_MG_ICE_LANCE              = 43427,
+    SPELL_MG_FROSTBOLT              = 43428,
 
-//Paladin
-#define SPELL_PA_CONSECRATION   43429
-#define SPELL_PA_HOLY_LIGHT     43451
-#define SPELL_PA_AVENGING_WRATH 43430
+    // Paladin
+    SPELL_PA_CONSECRATION           = 43429,
+    SPELL_PA_AVENGING_WRATH         = 43430,
+    SPELL_PA_HOLY_LIGHT             = 43451,
 
-//Priest
-#define SPELL_PR_HEAL           41372
-#define SPELL_PR_MIND_CONTROL   43550
-#define SPELL_PR_MIND_BLAST     41374
-#define SPELL_PR_SW_DEATH       41375
-#define SPELL_PR_PSYCHIC_SCREAM 43432
-#define SPELL_PR_PAIN_SUPP      44416
+    // Priest
+    SPELL_PR_HEAL                   = 41372,
+    SPELL_PR_MIND_BLAST             = 41374,
+    SPELL_PR_SW_DEATH               = 41375,
+    SPELL_PR_PSYCHIC_SCREAM         = 43432,
+    SPELL_PR_MIND_CONTROL           = 43550,
+    SPELL_PR_PAIN_SUPP              = 44416,
 
-//Rogue
-#define SPELL_RO_BLIND          43433
-#define SPELL_RO_SLICE_DICE     43457
-#define SPELL_RO_WOUND_POISON   39665
+    // Rogue
+    SPELL_RO_BLIND                  = 43433,
+    SPELL_RO_SLICE_DICE             = 43457,
+    SPELL_RO_WOUND_POISON           = 43461,
 
-//Shaman
-#define SPELL_SH_FIRE_NOVA      43436
-#define SPELL_SH_HEALING_WAVE   43548
-#define SPELL_SH_CHAIN_LIGHT    43435
+    // Shaman
+    SPELL_SH_CHAIN_LIGHT            = 43435,
+    SPELL_SH_FIRE_NOVA              = 43436,
+    SPELL_SH_HEALING_WAVE           = 43548,
 
-//Warlock
-#define SPELL_WL_CURSE_OF_DOOM  43439
-#define SPELL_WL_RAIN_OF_FIRE   43440
-#define SPELL_WL_UNSTABLE_AFFL  35183
+    // Warlock
+    SPELL_WL_CURSE_OF_DOOM          = 43439,
+    SPELL_WL_RAIN_OF_FIRE           = 43440,
+    SPELL_WL_UNSTABLE_AFFL          = 43522,
+    SPELL_WL_UNSTABLE_AFFL_DISPEL   = 43523,
 
-//Warrior
-#define SPELL_WR_SPELL_REFLECT  43443
-#define SPELL_WR_WHIRLWIND      43442
-#define SPELL_WR_MORTAL_STRIKE  43441
+    // Warrior
+    SPELL_WR_MORTAL_STRIKE          = 43441,
+    SPELL_WR_WHIRLWIND              = 43442,
+    SPELL_WR_SPELL_REFLECT          = 43443
+};
 
 #define ORIENT                  1.5696f
 #define POS_Y                   921.2795f
@@ -936,6 +943,40 @@ class boss_koragg : public CreatureScript
         }
 };
 
+class spell_hexlord_unstable_affliction : public SpellScriptLoader
+{
+    public:
+        spell_hexlord_unstable_affliction() : SpellScriptLoader("spell_hexlord_unstable_affliction") { }
+
+        class spell_hexlord_unstable_affliction_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hexlord_unstable_affliction_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WL_UNSTABLE_AFFL_DISPEL))
+                    return false;
+                return true;
+            }
+
+            void HandleDispel(DispelInfo* dispelInfo)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WL_UNSTABLE_AFFL_DISPEL, true, NULL, GetEffect(EFFECT_0));
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_hexlord_unstable_affliction_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hexlord_unstable_affliction_AuraScript();
+        }
+};
+
 void AddSC_boss_hex_lord_malacrass()
 {
     new boss_hexlord_malacrass();
@@ -947,5 +988,6 @@ void AddSC_boss_hex_lord_malacrass()
     new boss_fenstalker();
     new boss_koragg();
     new boss_alyson_antille();
+    new spell_hexlord_unstable_affliction();
 }
 

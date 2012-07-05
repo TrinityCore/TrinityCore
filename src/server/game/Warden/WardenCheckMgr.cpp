@@ -121,7 +121,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
         if (checkType == MPQ_CHECK || checkType == MEM_CHECK)
         {
-            WardenCheckResult *wr = new WardenCheckResult();
+            WardenCheckResult* wr = new WardenCheckResult();
             wr->Result.SetHexStr(checkResult.c_str());
             int len = checkResult.size() / 2;
             if (wr->Result.GetNumBytes() < len)

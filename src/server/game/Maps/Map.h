@@ -193,10 +193,10 @@ public:
     bool loadData(char* filaname);
     void unloadData();
 
-    uint16 getArea(float x, float y);
-    inline float getHeight(float x, float y) {return (this->*_gridGetHeight)(x, y);}
-    float getLiquidLevel(float x, float y);
-    uint8 getTerrainType(float x, float y);
+    uint16 getArea(float x, float y) const;
+    inline float getHeight(float x, float y) const {return (this->*_gridGetHeight)(x, y);}
+    float getLiquidLevel(float x, float y) const;
+    uint8 getTerrainType(float x, float y) const;
     ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0);
 };
 
@@ -443,6 +443,38 @@ class Map : public GridRefManager<NGridType>
         void Insert(const GameObjectModel& mdl) { _dynamicTree.insert(mdl); }
         bool Contains(const GameObjectModel& mdl) const { return _dynamicTree.contains(mdl);}
         bool getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist);
+
+        /*
+            RESPAWN TIMES
+        */
+        time_t GetLinkedRespawnTime(uint64 guid) const;
+        time_t GetCreatureRespawnTime(uint32 dbGuid) const
+        {
+            UNORDERED_MAP<uint32 /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
+            if (itr != _creatureRespawnTimes.end())
+                return itr->second;
+
+            return time_t(0);
+        }
+
+        time_t GetGORespawnTime(uint32 dbGuid) const
+        {
+            UNORDERED_MAP<uint32 /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
+            if (itr != _goRespawnTimes.end())
+                return itr->second;
+
+            return time_t(0);
+        }
+
+        void SaveCreatureRespawnTime(uint32 dbGuid, time_t respawnTime);
+        void RemoveCreatureRespawnTime(uint32 dbGuid);
+        void SaveGORespawnTime(uint32 dbGuid, time_t respawnTime);
+        void RemoveGORespawnTime(uint32 dbGuid);
+        void LoadRespawnTimes();
+        void DeleteRespawnTimes();
+
+        static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
+
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
@@ -488,6 +520,7 @@ class Map : public GridRefManager<NGridType>
         void ScriptsProcess();
 
         void UpdateActiveCells(const float &x, const float &y, const uint32 t_diff);
+
     protected:
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
 
@@ -570,6 +603,9 @@ class Map : public GridRefManager<NGridType>
             else
                 m_activeNonPlayers.erase(obj);
         }
+
+        UNORDERED_MAP<uint32 /*dbGUID*/, time_t> _creatureRespawnTimes;
+        UNORDERED_MAP<uint32 /*dbGUID*/, time_t> _goRespawnTimes;
 };
 
 enum InstanceResetMethod

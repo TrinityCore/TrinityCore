@@ -28,7 +28,7 @@ bool WINAPI SFileExtractFile(HANDLE hMpq, const char * szToExtract, const TCHAR 
     // Create the local file
     if(nError == ERROR_SUCCESS)
     {
-        pLocalFile = FileStream_CreateFile(szExtracted);
+        pLocalFile = FileStream_CreateFile(szExtracted, STREAM_PROVIDER_LINEAR | BASE_PROVIDER_FILE);
         if(pLocalFile == NULL)
             nError = GetLastError();
     }

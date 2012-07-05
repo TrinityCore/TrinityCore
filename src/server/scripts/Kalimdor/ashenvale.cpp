@@ -169,15 +169,15 @@ class npc_torek : public CreatureScript
 # npc_ruul_snowhoof
 ####*/
 
-enum RuulSnowhoof	
-{	
+enum RuulSnowhoof
+{
     NPC_THISTLEFUR_URSA         = 3921,
     NPC_THISTLEFUR_TOTEMIC      = 3922,
     NPC_THISTLEFUR_PATHFINDER   = 3926,
     
     QUEST_FREEDOM_TO_RUUL       = 6482,
 
-    GO_CAGE                     = 178147	
+    GO_CAGE                     = 178147
 };
 
 Position const RuulSnowhoofSummonsCoord[6] =

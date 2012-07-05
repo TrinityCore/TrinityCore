@@ -263,10 +263,15 @@ static void InsertItem(THTreeItem ** itemPtr, THTreeItem * item, unsigned long n
            
             if(PTR_INVALID(prev2))
             {
-                prev2 = PTR_NOT(prev);
- 
-                prev2->next = item;
-                item2->prev = item;     // Next after last item
+                if(prev != NULL)
+                {
+                    prev2 = PTR_NOT(prev);
+                    if(prev2 != NULL)
+                    {
+                        prev2->next = item;
+                        item2->prev = item;     // Next after last item
+                    }
+                }
                 return;
             }
  
@@ -1009,8 +1014,8 @@ unsigned int THuffmannTree::DoDecompression(unsigned char * pbOutBuffer, unsigne
     for(;;)
     {
         // Security check: If we are at the end of the input buffer,
-        // it means that the data are corrupt.
-        if(is->pbInBuffer > is->pbInBufferEnd)
+        // it means that the data is corrupt
+        if(is->BitCount == 0 && is->pbInBuffer >= is->pbInBufferEnd)
             return 0;
 
         // Get 7 bits from input stream
@@ -1046,6 +1051,9 @@ _1500E549:
  
             do
             {
+                if(pItem1 == NULL)
+                    return 0;
+
                 pItem1 = pItem1->child;     // Move down by one level
                 if(is->GetBit())            // If current bit is set, move to previous
                     pItem1 = pItem1->prev;

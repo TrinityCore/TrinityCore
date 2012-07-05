@@ -25,7 +25,7 @@
 class DBCFile
 {
     public:
-        DBCFile(HANDLE file);
+        DBCFile(HANDLE mpq, const char* filename);
         ~DBCFile();
 
         // Open database. It must be openened before it can be used.
@@ -131,6 +131,8 @@ class DBCFile
         size_t getMaxId();
 
     private:
+        HANDLE _mpq;
+        const char* _filename;
         HANDLE _file;
         size_t _recordSize;
         size_t _recordCount;

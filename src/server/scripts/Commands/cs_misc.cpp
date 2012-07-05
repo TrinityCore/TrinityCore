@@ -135,15 +135,14 @@ public:
         else
             handler->PSendSysMessage("no VMAP available for area info");
 
-        /*handler->PSendSysMessage(LANG_MAP_POSITION,
-            object->GetMapId(), (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
+        handler->PSendSysMessage(LANG_MAP_POSITION,
+            object->GetMapId(), (mapEntry ? mapEntry->name : "<unknown>"),
+            zoneId, (zoneEntry ? zoneEntry->area_name : "<unknown>"),
+            areaId, (areaEntry ? areaEntry->area_name : "<unknown>"),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
             zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
-        */
 
         LiquidData liquidStatus;
         ZLiquidStatus status = map->getLiquidStatus(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);

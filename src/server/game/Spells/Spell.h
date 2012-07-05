@@ -629,7 +629,8 @@ class Spell
         void CallScriptBeforeHitHandlers();
         void CallScriptOnHitHandlers();
         void CallScriptAfterHitHandlers();
-        void CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTargets, SpellEffIndex effIndex);
+        void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex);
+        void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex);
         std::list<SpellScript*> m_loadedScripts;
 
         struct HitTriggerSpell

@@ -75,13 +75,14 @@ static bool GetFilePatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInfo
     if(hf->pStream != NULL)
     {
         // Calculate the length needed
-        cchCharsNeeded += _tcslen(hf->pStream->szFileName) + 1;
+        szFileName = FileStream_GetFileName(hf->pStream);
+        cchCharsNeeded += _tcslen(szFileName) + 1;
         cbLengthNeeded = (DWORD)(cchCharsNeeded * sizeof(TCHAR));
         
         // If we have enough space, copy the file name
         if(cbFileInfo >= cbLengthNeeded)
         {
-            nLength = _tcslen(szFileName = hf->pStream->szFileName) + 1;
+            nLength = _tcslen(szFileName) + 1;
             memcpy(szPatchChain, szFileName, nLength * sizeof(TCHAR));
             szPatchChain += nLength;
 
@@ -93,7 +94,7 @@ static bool GetFilePatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInfo
     {
         // Calculate number of characters needed
         for(hfTemp = hf; hfTemp != NULL; hfTemp = hfTemp->hfPatchFile)
-            cchCharsNeeded += _tcslen(hfTemp->ha->pStream->szFileName) + 1;
+            cchCharsNeeded += _tcslen(FileStream_GetFileName(hfTemp->ha->pStream)) + 1;
         cbLengthNeeded = (DWORD)(cchCharsNeeded * sizeof(TCHAR));
 
         // If we have enough space, the copy the patch chain
@@ -101,7 +102,8 @@ static bool GetFilePatchChain(TMPQFile * hf, void * pvFileInfo, DWORD cbFileInfo
         {
             for(hfTemp = hf; hfTemp != NULL; hfTemp = hfTemp->hfPatchFile)
             {
-                nLength = _tcslen(szFileName = hfTemp->ha->pStream->szFileName) + 1;
+                szFileName = FileStream_GetFileName(hfTemp->ha->pStream);
+                nLength = _tcslen(szFileName) + 1;
                 memcpy(szPatchChain, szFileName, nLength * sizeof(TCHAR));
                 szPatchChain += nLength;
             }
@@ -265,15 +267,19 @@ static int ReadMpqSectors(TMPQFile * hf, LPBYTE pbBuffer, DWORD dwByteOffset, DW
             int cbInSector = dwRawBytesInThisSector;
             int nResult = 0;
 
-            // Is the file compressed by PKWARE Data Compression Library ?
-            if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
-                nResult = SCompExplode((char *)pbOutSector, &cbOutSector, (char *)pbInSector, cbInSector);
-
             // Is the file compressed by Blizzard's multiple compression ?
             if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS)
             {
-                hf->PreviousCompression = pbInSector[0];
-                nResult = SCompDecompress((char *)pbOutSector, &cbOutSector, (char *)pbInSector, cbInSector);
+                if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_2)
+                    nResult = SCompDecompress2((char *)pbOutSector, &cbOutSector, (char *)pbInSector, cbInSector);
+                else
+                    nResult = SCompDecompress((char *)pbOutSector, &cbOutSector, (char *)pbInSector, cbInSector);
+            }
+
+            // Is the file compressed by PKWARE Data Compression Library ?
+            else if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
+            {
+                nResult = SCompExplode((char *)pbOutSector, &cbOutSector, (char *)pbInSector, cbInSector);
             }
 
             // Did the decompression fail ?
@@ -314,7 +320,6 @@ static int ReadMpqFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
     TFileEntry * pFileEntry = hf->pFileEntry;
     LPBYTE pbCompressed = NULL;
     LPBYTE pbRawData = NULL;
-    bool bIsReallyCompressed = false;
     int nError = ERROR_SUCCESS;
 
     // If the file buffer is not allocated yet, do it.
@@ -334,13 +339,12 @@ static int ReadMpqFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
     if(hf->dwSectorOffs != 0)
     {
         // Is the file compressed?
-        if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS)
+        if(pFileEntry->dwFlags & MPQ_FILE_COMPRESSED)
         {
             // Allocate space for compressed data
             pbCompressed = STORM_ALLOC(BYTE, pFileEntry->dwCmpSize);
             if(pbCompressed == NULL)
                 return ERROR_NOT_ENOUGH_MEMORY;
-            bIsReallyCompressed = true;
             pbRawData = pbCompressed;
         }
         
@@ -359,47 +363,43 @@ static int ReadMpqFileSingleUnit(TMPQFile * hf, void * pvBuffer, DWORD dwFilePos
             BSWAP_ARRAY32_UNSIGNED(pbRawData, pFileEntry->dwCmpSize);
         }
 
-        //
-        // In "wow-update-12694.MPQ" from Wow-Cataclysm BETA:
-        //
-        // File                                    CmpSize FileSize  Data
-        // --------------------------------------  ------- --------  ---------------
-        // esES\DBFilesClient\LightSkyBox.dbc      0xBE    0xBC      Is compressed
-        // deDE\DBFilesClient\MountCapability.dbc  0x93    0x77      Is uncompressed
-        // 
-        // Now tell me how to deal with this mess.
-        //
-
-        if(hf->pPatchInfo != NULL)
-        {
-            if(pbRawData[0] == 'P' && pbRawData[1] == 'T' && pbRawData[2] == 'C' && pbRawData[3] == 'H')
-            {
-                assert(pFileEntry->dwCmpSize >= hf->dwDataSize);
-                bIsReallyCompressed = false;
-            }
-        }
-        else
-        {
-            if(pFileEntry->dwCmpSize >= hf->dwDataSize)
-                bIsReallyCompressed = false;
-        }
-
         // If the file is compressed, we have to decompress it now
-        if(bIsReallyCompressed)
+        if(pFileEntry->dwFlags & MPQ_FILE_COMPRESSED)
         {
             int cbOutBuffer = (int)hf->dwDataSize;
+            int cbInBuffer = (int)pFileEntry->dwCmpSize;
+            int nResult = 0;
 
-            // Note: Single unit files compressed with IMPLODE are not supported by Blizzard
-            if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
-            {
-                if(!SCompExplode((char *)hf->pbFileSector, &cbOutBuffer, (char *)pbRawData, (int)pFileEntry->dwCmpSize))
-                    nError = ERROR_FILE_CORRUPT;
-            }
+            //
+            // If the file is an incremental patch, the size of compressed data
+            // is determined as pFileEntry->dwCmpSize - sizeof(TPatchInfo)
+            //
+            // In "wow-update-12694.MPQ" from Wow-Cataclysm BETA:
+            //
+            // File                                    CmprSize   DcmpSize DataSize Compressed?
+            // --------------------------------------  ---------- -------- -------- ---------------
+            // esES\DBFilesClient\LightSkyBox.dbc      0xBE->0xA2  0xBC     0xBC     Yes
+            // deDE\DBFilesClient\MountCapability.dbc  0x93->0x77  0x77     0x77     No
+            // 
+
+            if(pFileEntry->dwFlags & MPQ_FILE_PATCH_FILE)
+                cbInBuffer = cbInBuffer - sizeof(TPatchInfo);
+
+            // Is the file compressed by Blizzard's multiple compression ?
             if(pFileEntry->dwFlags & MPQ_FILE_COMPRESS)
             {
-                if(!SCompDecompress((char *)hf->pbFileSector, &cbOutBuffer, (char *)pbRawData, (int)pFileEntry->dwCmpSize))
-                    nError = ERROR_FILE_CORRUPT;
+                if(ha->pHeader->wFormatVersion >= MPQ_FORMAT_VERSION_2)
+                    nResult = SCompDecompress2((char *)hf->pbFileSector, &cbOutBuffer, (char *)pbRawData, cbInBuffer);
+                else
+                    nResult = SCompDecompress((char *)hf->pbFileSector, &cbOutBuffer, (char *)pbRawData, cbInBuffer);
             }
+
+            // Is the file compressed by PKWARE Data Compression Library ?
+            // Note: Single unit files compressed with IMPLODE are not supported by Blizzard
+            else if(pFileEntry->dwFlags & MPQ_FILE_IMPLODE)
+                nResult = SCompExplode((char *)hf->pbFileSector, &cbOutBuffer, (char *)pbRawData, cbInBuffer);
+
+            nError = (nResult != 0) ? ERROR_SUCCESS : ERROR_FILE_CORRUPT;
         }
         else
         {
@@ -938,7 +938,7 @@ bool WINAPI SFileGetFileName(HANDLE hFile, char * szFileName)
         if(pFileEntry != NULL && pFileEntry->szFileName != NULL)
             strcpy(szFileName, pFileEntry->szFileName);
         else if(hf->pStream != NULL)
-            CopyFileName(szFileName, hf->pStream->szFileName);
+            CopyFileName(szFileName, FileStream_GetFileName(hf->pStream));
     }
     return (nError == ERROR_SUCCESS);
 }
@@ -988,8 +988,8 @@ bool WINAPI SFileGetFileInfo(
             VERIFY_MPQ_HANDLE(ha);
             
             // pvFileInfo receives the name of the archive, terminated by 0
-            cbLengthNeeded = (DWORD)(_tcslen(ha->pStream->szFileName) + 1) * sizeof(TCHAR);
-            pvSrcFileInfo = ha->pStream->szFileName;
+            pvSrcFileInfo = FileStream_GetFileName(ha->pStream);
+            cbLengthNeeded = (DWORD)(_tcslen((TCHAR *)pvSrcFileInfo) + 1) * sizeof(TCHAR);
             break;
 
         case SFILE_INFO_ARCHIVE_SIZE:       // Size of the archive
@@ -1056,15 +1056,13 @@ bool WINAPI SFileGetFileInfo(
             pvSrcFileInfo = &dwFileCount;
             break;
 
-        case SFILE_INFO_STREAM_FLAGS:   // Stream flags for the MPQ. See STREAM_FLAG_XXX
-            VERIFY_MPQ_HANDLE(ha);
-            cbLengthNeeded = sizeof(DWORD);
-            pvSrcFileInfo = &ha->pStream->StreamFlags;
+        case SFILE_INFO_STREAM_FLAGS:   // Deprecated
+            nError = ERROR_INVALID_PARAMETER;
             break;
 
         case SFILE_INFO_IS_READ_ONLY:
             VERIFY_MPQ_HANDLE(ha);
-            dwIsReadOnly = ((ha->pStream->StreamFlags & STREAM_FLAG_READ_ONLY) || (ha->dwFlags & MPQ_FLAG_READ_ONLY));
+            dwIsReadOnly = (FileStream_IsReadOnly(ha->pStream) || (ha->dwFlags & MPQ_FLAG_READ_ONLY));
             cbLengthNeeded = sizeof(DWORD);
             pvSrcFileInfo = &dwIsReadOnly;
             break;

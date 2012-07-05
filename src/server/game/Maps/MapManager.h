@@ -71,7 +71,7 @@ class MapManager
 
         void SetMapUpdateInterval(uint32 t)
         {
-            if (t > MIN_MAP_UPDATE_DELAY)
+            if (t < MIN_MAP_UPDATE_DELAY)
                 t = MIN_MAP_UPDATE_DELAY;
 
             i_timer.SetInterval(t);
@@ -143,7 +143,7 @@ class MapManager
         void RegisterInstanceId(uint32 instanceId);
         void FreeInstanceId(uint32 instanceId);
 
-        uint32 GetNextInstanceId() { return _nextInstanceId; };
+        uint32 GetNextInstanceId() const { return _nextInstanceId; };
         void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
 
         MapUpdater * GetMapUpdater() { return &m_updater; }

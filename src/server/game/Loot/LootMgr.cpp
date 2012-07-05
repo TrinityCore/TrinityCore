@@ -356,18 +356,14 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && player->GetTeam() != ALLIANCE)
         return false;
 
-    if (needs_quest)
-    {
-        // Checking quests for quest-only drop (check only quests requirements in this case)
-        if (!player->HasQuestForItem(itemid))
-            return false;
-    }
-    else
-    {
-        // Not quest only drop (check quest starting items for already accepted non-repeatable quests)
-        if (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE && !player->HasQuestForItem(itemid))
-            return false;
-    }
+    // check quest requirements
+    if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
+        if (Group const* group = player->GetGroup())
+        {
+            if (pProto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT || ((pProto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT) == 0 && (group->GetLootMethod() != MASTER_LOOT || group->GetLooterGuid() != player->GetGUID())))
+                return false;
+        }
+        else return false;
 
     return true;
 }
@@ -483,7 +479,7 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 
         if (!item->is_looted && item->freeforall && item->AllowedForPlayer(player))
             if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
-                if (proto->BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS)
+                if (proto->IsCurrencyToken())
                     player->StoreLootItem(i, this);
     }
 }
@@ -899,6 +895,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     }
 
     LootSlotType slotType = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
+    LootSlotType partySlotType = lv.permission == MASTER_PERMISSION ? LOOT_SLOT_TYPE_MASTER : (lv.permission == GROUP_PERMISSION ? LOOT_SLOT_TYPE_ROLL_ONGOING : slotType);
     QuestItemMap const& lootPlayerQuestItems = l.GetPlayerQuestItems();
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(lv.viewer->GetGUIDLow());
     if (q_itr != lootPlayerQuestItems.end())
@@ -911,7 +908,10 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             {
                 b << uint8(l.items.size() + (qi - q_list->begin()));
                 b << item;
-                b << uint8(slotType);
+                if (!item.freeforall)
+                    b << uint8(partySlotType);
+                else
+                    b << uint8(slotType);
                 ++itemsShown;
             }
         }
@@ -929,7 +929,10 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             {
                 b << uint8(fi->index);
                 b << item;
-                b << uint8(slotType);
+                if (!item.freeforall)
+                    b << uint8(partySlotType);
+                else
+                    b << uint8(slotType);
                 ++itemsShown;
             }
         }
@@ -947,7 +950,10 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             {
                 b << uint8(ci->index);
                 b << item;
-                b << uint8(slotType);
+                if (!item.freeforall)
+                    b << uint8(partySlotType);
+                else
+                    b << uint8(slotType);
                 ++itemsShown;
             }
         }

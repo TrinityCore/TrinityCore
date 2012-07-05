@@ -34,11 +34,11 @@
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
 #define ATTACK_DISTANCE             5.0f
-#define MAX_VISIBILITY_DISTANCE     500.0f // max distance for visible objects
+#define MAX_VISIBILITY_DISTANCE     SIZE_OF_GRIDS           // max distance for visible objects
 #define SIGHT_RANGE_UNIT            50.0f
-#define DEFAULT_VISIBILITY_DISTANCE 90.0f // default visible distance, 90 yards on continents
-#define DEFAULT_VISIBILITY_INSTANCE 120.0f // default visible distance in instances, 120 yards
-#define DEFAULT_VISIBILITY_BGARENAS 180.0f // default visible distance in BG/Arenas, 180 yards
+#define DEFAULT_VISIBILITY_DISTANCE 90.0f                   // default visible distance, 90 yards on continents
+#define DEFAULT_VISIBILITY_INSTANCE 170.0f                  // default visible distance in instances, 170 yards
+#define DEFAULT_VISIBILITY_BGARENAS 533.0f                  // default visible distance in BG/Arenas, roughly 533 yards
 
 #define DEFAULT_WORLD_OBJECT_SIZE   0.388999998569489f      // player size, also currently used (correctly?) for any non Unit world objects
 #define DEFAULT_COMBAT_REACH        1.5f
@@ -500,13 +500,13 @@ struct MovementInfo
         t_seat = -1;
     }
 
-    uint32 GetMovementFlags() { return flags; }
+    uint32 GetMovementFlags() const { return flags; }
     void SetMovementFlags(uint32 flag) { flags = flag; }
     void AddMovementFlag(uint32 flag) { flags |= flag; }
     void RemoveMovementFlag(uint32 flag) { flags &= ~flag; }
     bool HasMovementFlag(uint32 flag) const { return flags & flag; }
 
-    uint16 GetExtraMovementFlags() { return flags2; }
+    uint16 GetExtraMovementFlags() const { return flags2; }
     void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
     bool HasExtraMovementFlag(uint16 flag) const { return flags2 & flag; }
 

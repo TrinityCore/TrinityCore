@@ -441,7 +441,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
 uint32 Condition::GetMaxAvailableConditionTargets()
 {
     // returns number of targets which are available for given source type
-    switch(SourceType)
+    switch (SourceType)
     {
         case CONDITION_SOURCE_TYPE_SPELL:
         case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:

@@ -23,6 +23,7 @@ typedef struct _MPQ_ATTRIBUTES_HEADER
     // Followed by an array of CRC32
     // Followed by an array of file times
     // Followed by an array of MD5
+    // Followed by an array of patch bits
 } MPQ_ATTRIBUTES_HEADER, *PMPQ_ATTRIBUTES_HEADER;
 
 //-----------------------------------------------------------------------------
@@ -147,6 +148,40 @@ int SAttrLoadAttributes(TMPQArchive * ha)
                 nError = ERROR_NOT_ENOUGH_MEMORY;
         }
 
+        // Read the patch bit for each file
+        if(nError == ERROR_SUCCESS && (AttrHeader.dwFlags & MPQ_ATTRIBUTE_PATCH_BIT))
+        {
+            LPBYTE pbBitArray;
+            DWORD dwByteSize = ((dwBlockTableSize - 1) / 8) + 1;
+
+            pbBitArray = STORM_ALLOC(BYTE, dwByteSize);
+            if(pbBitArray != NULL)
+            {
+                SFileReadFile(hFile, pbBitArray, dwByteSize, &dwBytesRead, NULL);
+                if(dwBytesRead == dwByteSize)
+                {
+                    for(i = 0; i < dwBlockTableSize; i++)
+                    {
+                        DWORD dwByteIndex = i / 8;
+                        DWORD dwBitMask = 0x80 >> (i & 7);
+
+                        // Is the appropriate bit set?
+                        if(pbBitArray[dwByteIndex] & dwBitMask)
+                        {
+                            // At the moment, we assume that the patch bit is present
+                            // in both file table and (attributes)
+                            assert((ha->pFileTable[i].dwFlags & MPQ_FILE_PATCH_FILE) != 0);
+                            ha->pFileTable[i].dwFlags |= MPQ_FILE_PATCH_FILE;
+                        }
+                    }
+                }
+                else
+                    nError = ERROR_FILE_CORRUPT;
+
+                STORM_FREE(pbBitArray);
+            }
+        }
+
         // 
         // Note: Version 7.00 of StormLib saved the (attributes) incorrectly. 
         // Sometimes, number of entries in the (attributes) was 1 item less
@@ -173,6 +208,19 @@ int SAttrFileSaveToMpq(TMPQArchive * ha)
     DWORD dwToWrite;
     DWORD i;
     int nError = ERROR_SUCCESS;
+
+    // Now we have to check if we need patch bits in the (attributes)
+    if(nError == ERROR_SUCCESS)
+    {
+        for(i = 0; i < ha->dwFileTableSize; i++)
+        {
+            if(ha->pFileTable[i].dwFlags & MPQ_FILE_PATCH_FILE)
+            {
+                ha->dwAttrFlags |= MPQ_ATTRIBUTE_PATCH_BIT;
+                break;
+            }
+        }
+    }
 
     // If the (attributes) is not in the file table yet,
     // we have to increase the final block table size
@@ -210,15 +258,20 @@ int SAttrFileSaveToMpq(TMPQArchive * ha)
             dwFileSize += dwFinalBlockTableSize * sizeof(ULONGLONG);
         if(ha->dwAttrFlags & MPQ_ATTRIBUTE_MD5)
             dwFileSize += dwFinalBlockTableSize * MD5_DIGEST_SIZE;
+        if(ha->dwAttrFlags & MPQ_ATTRIBUTE_PATCH_BIT)
+            dwFileSize += ((dwFinalBlockTableSize - 1)) / 8 + 1;
     }
 
+    // Determine the flags for (attributes)
+    if(ha->dwFileFlags2 == 0)
+        ha->dwFileFlags2 = GetDefaultSpecialFileFlags(ha, dwFileSize);
+
     // Create the attributes file in the MPQ
-    assert(ha->dwFileFlags2 != 0);
     nError = SFileAddFile_Init(ha, ATTRIBUTES_NAME,
                                    0,
                                    dwFileSize,
                                    LANG_NEUTRAL,
-                                   ha->dwFileFlags2,
+                                   ha->dwFileFlags2 | MPQ_FILE_REPLACEEXISTING,
                                   &hf);
 
     // Write all parts of the (attributes) file
@@ -226,8 +279,9 @@ int SAttrFileSaveToMpq(TMPQArchive * ha)
     {
         assert(ha->dwFileTableSize == dwFinalBlockTableSize);
 
+        // Note that we don't know what the new bit (0x08) means.
         AttrHeader.dwVersion = BSWAP_INT32_UNSIGNED(100);
-        AttrHeader.dwFlags   = BSWAP_INT32_UNSIGNED(ha->dwAttrFlags);
+        AttrHeader.dwFlags   = BSWAP_INT32_UNSIGNED((ha->dwAttrFlags & MPQ_ATTRIBUTE_ALL));
         dwToWrite = sizeof(MPQ_ATTRIBUTES_HEADER);
         nError = SFileAddFile_Write(hf, &AttrHeader, dwToWrite, MPQ_COMPRESSION_ZLIB);
     }
@@ -280,6 +334,30 @@ int SAttrFileSaveToMpq(TMPQArchive * ha)
             dwToWrite = ha->dwFileTableSize * MD5_DIGEST_SIZE;
             nError = SFileAddFile_Write(hf, pArrayMD5, dwToWrite, MPQ_COMPRESSION_ZLIB);
             STORM_FREE(pArrayMD5);
+        }
+    }
+
+    // Write the array of patch bits
+    if(nError == ERROR_SUCCESS && (ha->dwAttrFlags & MPQ_ATTRIBUTE_PATCH_BIT))
+    {
+        LPBYTE pbBitArray;
+        DWORD dwByteSize = ((ha->dwFileTableSize - 1) / 8) + 1;
+
+        pbBitArray = STORM_ALLOC(BYTE, dwByteSize);
+        if(pbBitArray != NULL)
+        {
+            memset(pbBitArray, 0, dwByteSize);
+            for(i = 0; i < ha->dwFileTableSize; i++)
+            {
+                DWORD dwByteIndex = i / 8;
+                DWORD dwBitMask = 0x80 >> (i & 7);
+
+                if(ha->pFileTable[i].dwFlags & MPQ_FILE_PATCH_FILE)
+                    pbBitArray[dwByteIndex] |= dwBitMask;
+            }
+
+            nError = SFileAddFile_Write(hf, pbBitArray, dwByteSize, MPQ_COMPRESSION_ZLIB);
+            STORM_FREE(pbBitArray);
         }
     }
 

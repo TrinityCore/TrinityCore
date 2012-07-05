@@ -29,10 +29,10 @@ static bool OpenLocalFile(const char * szFileName, HANDLE * phFile)
     for(i = 0; szFileName[i] != 0; i++)
         szFileNameT[i] = szFileName[i];
     szFileNameT[i] = 0;
-    pStream = FileStream_OpenFile(szFileNameT, false);
+    pStream = FileStream_OpenFile(szFileNameT, STREAM_PROVIDER_LINEAR | BASE_PROVIDER_FILE);
 
 #else
-    pStream = FileStream_OpenFile(szFileName, false);
+    pStream = FileStream_OpenFile(szFileName, STREAM_PROVIDER_LINEAR | BASE_PROVIDER_FILE);
 #endif
 
     if(pStream != NULL)
@@ -73,7 +73,7 @@ bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, DWORD dwReserved, HAN
     {
         // Construct the name of the patch file
         strcpy(szPatchFileName, ha->szPatchPrefix);
-        strcat(szPatchFileName, szFileName);
+        strcpy(&szPatchFileName[ha->cchPatchPrefix], szFileName);
         if(SFileOpenFileEx((HANDLE)ha, szPatchFileName, SFILE_OPEN_FROM_MPQ, (HANDLE *)&hfBase))
         {
             // The file must be a base file, i.e. without MPQ_FILE_PATCH_FILE
@@ -102,7 +102,7 @@ bool OpenPatchedFile(HANDLE hMpq, const char * szFileName, DWORD dwReserved, HAN
     {
         // Construct patch file name
         strcpy(szPatchFileName, ha->szPatchPrefix);
-        strcat(szPatchFileName, szFileName);
+        strcpy(&szPatchFileName[ha->cchPatchPrefix], szFileName);
         if(SFileOpenFileEx((HANDLE)ha, szPatchFileName, SFILE_OPEN_FROM_MPQ, &hPatchFile))
         {
             // Remember the new version
@@ -229,7 +229,11 @@ int WINAPI SFileEnumLocales(
 bool WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName)
 {
     TMPQArchive * ha = (TMPQArchive *)hMpq;
+    TFileEntry * pFileEntry;
+    DWORD dwFlagsToCheck = MPQ_FILE_EXISTS;
     DWORD dwFileIndex = 0;
+    char szPatchFileName[MAX_PATH];
+    bool bIsPseudoName;
     int nError = ERROR_SUCCESS;
 
     if(!IsValidMpqHandle(ha))
@@ -240,26 +244,39 @@ bool WINAPI SFileHasFile(HANDLE hMpq, const char * szFileName)
     // Prepare the file opening
     if(nError == ERROR_SUCCESS)
     {
-        if(!IsPseudoFileName(szFileName, &dwFileIndex))
+        // Different processing for pseudo-names
+        bIsPseudoName = IsPseudoFileName(szFileName, &dwFileIndex);
+
+        // Walk through the MPQ and all patches
+        while(ha != NULL)
         {
-            if(GetFileEntryLocale(ha, szFileName, lcFileLocale) == NULL)
+            // Verify presence of the file
+            pFileEntry = (bIsPseudoName == false) ? GetFileEntryLocale(ha, szFileName, lcFileLocale)
+                                                  : GetFileEntryByIndex(ha, dwFileIndex);
+            // Verify the file flags
+            if(pFileEntry != NULL && (pFileEntry->dwFlags & dwFlagsToCheck) == MPQ_FILE_EXISTS)
+                return true;
+
+            // If this is patched archive, go to the patch
+            dwFlagsToCheck = MPQ_FILE_EXISTS | MPQ_FILE_PATCH_FILE;
+            ha = ha->haPatch;
+
+            // Prepare the patched file name
+            if(ha != NULL)
             {
-                nError = ERROR_FILE_NOT_FOUND;
+                strcpy(szPatchFileName, ha->szPatchPrefix);
+                strcat(szPatchFileName, szFileName);
+                szFileName = szPatchFileName;
             }
         }
-        else
-        {
-            if(GetFileEntryByIndex(ha, dwFileIndex) == NULL)
-            {
-                nError = ERROR_FILE_NOT_FOUND;
-            }
-        }
+
+        // Not found, sorry
+        nError = ERROR_FILE_NOT_FOUND;
     }
 
     // Cleanup
-    if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
-    return (nError == ERROR_SUCCESS);
+    SetLastError(nError);
+    return false;
 }
 
 
