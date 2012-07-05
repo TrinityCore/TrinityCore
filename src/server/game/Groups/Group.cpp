@@ -949,6 +949,64 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         else
             i->is_underthreshold = true;
     }
+
+    for (i = loot->quest_items.begin(); i != loot->quest_items.end(); ++i, ++itemSlot)
+    {
+        if (!i->follow_loot_rules)
+            continue;
+
+        item = sObjectMgr->GetItemTemplate(i->itemid);
+        if (!item)
+        {
+            //sLog->outDebug("Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            continue;
+        }
+
+        uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
+        Roll* r = new Roll(newitemGUID, *i);
+
+        //a vector is filled with only near party members
+        for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* member = itr->getSource();
+            if (!member || !member->GetSession())
+                continue;
+
+            if (i->AllowedForPlayer(member))
+            {
+                if (member->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+                {
+                    r->totalPlayersRolling++;
+                    r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
+                }
+            }
+        }
+
+        if (r->totalPlayersRolling > 0)
+        {
+            r->setLoot(loot);
+            r->itemSlot = itemSlot;
+
+            loot->quest_items[itemSlot - loot->items.size()].is_blocked = true;
+
+            SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
+
+            RollId.push_back(r);
+
+            if (Creature* creature = pLootedObject->ToCreature())
+            {
+                creature->m_groupLootTimer = 60000;
+                creature->lootingGroupLowGUID = GetLowGUID();
+            }
+            else if (GameObject* go = pLootedObject->ToGameObject())
+            {
+                go->m_groupLootTimer = 60000;
+                go->lootingGroupLowGUID = GetLowGUID();
+            }
+        }
+        else
+            delete r;
+    }
 }
 
 void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
@@ -1032,6 +1090,66 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         }
         else
             i->is_underthreshold = true;
+    }
+
+    for (std::vector<LootItem>::iterator i = loot->quest_items.begin(); i != loot->quest_items.end(); ++i, ++itemSlot)
+    {
+        if (!i->follow_loot_rules)
+            continue;
+
+        item = sObjectMgr->GetItemTemplate(i->itemid);
+        uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
+        Roll* r = new Roll(newitemGUID, *i);
+
+        for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* playerToRoll = itr->getSource();
+            if (!playerToRoll || !playerToRoll->GetSession())
+                continue;
+
+            bool allowedForPlayer = i->AllowedForPlayer(playerToRoll);
+            if (allowedForPlayer && playerToRoll->IsWithinDistInMap(lootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+            {
+                r->totalPlayersRolling++;
+                r->playerVote[playerToRoll->GetGUID()] = NOT_EMITED_YET;
+            }
+        }
+
+        if (r->totalPlayersRolling > 0)
+        {
+            r->setLoot(loot);
+            r->itemSlot = itemSlot;
+
+            loot->quest_items[itemSlot - loot->items.size()].is_blocked = true;
+
+            //Broadcast Pass and Send Rollstart
+            for (Roll::PlayerVote::const_iterator itr = r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
+            {
+                Player* p = ObjectAccessor::FindPlayer(itr->first);
+                if (!p || !p->GetSession())
+                    continue;
+
+                if (itr->second == PASS)
+                    SendLootRoll(newitemGUID, p->GetGUID(), 128, ROLL_PASS, *r);
+                else
+                    SendLootStartRollToPlayer(60000, lootedObject->GetMapId(), p, p->CanRollForItemInLFG(item, lootedObject) == EQUIP_ERR_OK, *r);
+            }
+
+            RollId.push_back(r);
+
+            if (Creature* creature = lootedObject->ToCreature())
+            {
+                creature->m_groupLootTimer = 60000;
+                creature->lootingGroupLowGUID = GetLowGUID();
+            }
+            else if (GameObject* go = lootedObject->ToGameObject())
+            {
+                go->m_groupLootTimer = 60000;
+                go->lootingGroupLowGUID = GetLowGUID();
+            }
+        }
+        else
+            delete r;
     }
 }
 
