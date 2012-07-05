@@ -1036,6 +1036,13 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recv_data)
     SendPacket(&data);
 }
 
+int32 WorldSession::HandleEnableNagleAlgorithm()
+{
+    // Instructs the server we wish to receive few amounts of large packets (SMSG_MULTIPLE_PACKETS?)
+    // instead of large amount of small packets
+    return 0;
+}
+
 void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ACTION_BUTTON");

@@ -657,7 +657,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     ACE_ASSERT (new_pct);
 
     // manage memory ;)
-    ACE_Auto_Ptr<WorldPacket> aptr (new_pct);
+    ACE_Auto_Ptr<WorldPacket> aptr(new_pct);
 
     const ACE_UINT16 opcode = PacketFilter::DropHighBytes(new_pct->GetOpcode());
 
@@ -675,7 +675,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
         switch (opcode)
         {
             case CMSG_PING:
-                return HandlePing (*new_pct);
+                return HandlePing(*new_pct);
             case CMSG_AUTH_SESSION:
                 if (m_Session)
                 {
@@ -684,9 +684,9 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 }
 
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
-                return HandleAuthSession (*new_pct);
+                return HandleAuthSession(*new_pct);
             case CMSG_KEEP_ALIVE:
-                sLog->outStaticDebug ("CMSG_KEEP_ALIVE, size: " UI64FMTD, uint64(new_pct->size()));
+                sLog->outStaticDebug("CMSG_KEEP_ALIVE, size: " UI64FMTD, uint64(new_pct->size()));
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             case CMSG_LOG_DISCONNECT:
@@ -705,9 +705,14 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                     return -1;
                 return HandleSendAuthSession();
             }
+            case CMSG_ENABLE_NAGLE:
+            {
+                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
+                return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
+            }
             default:
             {
-                ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);
+                ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
                 if (!opcodeTable[Opcodes(opcode)])
                 {
                     sLog->outError("Opcode with no defined handler received from client: %u", new_pct->GetOpcode());
@@ -723,7 +728,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                     aptr.release();
                     // WARNINIG here we call it with locks held.
                     // Its possible to cause deadlock if QueuePacket calls back
-                    m_Session->QueuePacket (new_pct);
+                    m_Session->QueuePacket(new_pct);
                     return 0;
                 }
                 else
