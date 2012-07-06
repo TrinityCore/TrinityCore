@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 #include "the_eye.h"
 
@@ -501,9 +502,9 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
     public:
         spell_astromancer_wrath_of_the_astromancer() : SpellScriptLoader("spell_astromancer_wrath_of_the_astromancer") { }
 
-        class spell_astromancer_wrath_of_the_astromancer_SpellScript : public SpellScript
+        class spell_astromancer_wrath_of_the_astromancer_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_astromancer_wrath_of_the_astromancer_SpellScript);
+            PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer_AuraScript);
 
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
@@ -512,50 +513,25 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
                 return true;
             }
 
-            bool Load()
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                _targetCount = 0;
-                return true;
+                // Final heal only on duration end
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                Unit* target = GetUnitOwner();
+                target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_1].CalcValue(),false);
             }
-
-            void CountTargets(std::list<WorldObject*>& targetList)
-            {
-                _targetCount = targetList.size();
-            }
-
-            void HandleDummy(SpellEffIndex /* effIndex */)
-            {
-                if (Unit* caster = GetOriginalCaster())
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (!target->isAlive() || !_targetCount)
-                            return;
-
-                        int32 damage = 10000 / _targetCount;
-
-                        SpellNonMeleeDamage damageInfo(caster, target, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
-                        damageInfo.damage = damage;
-
-                        caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &damageInfo.absorb, &damageInfo.resist, GetSpellInfo());
-                        caster->DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
-                        caster->SendSpellNonMeleeDamageLog(&damageInfo);
-                        caster->DealSpellDamage(&damageInfo, false);
-                    }
-            }
-
-        private:
-            int32 _targetCount;
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_astromancer_wrath_of_the_astromancer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_astromancer_wrath_of_the_astromancer_SpellScript::CountTargets, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_astromancer_wrath_of_the_astromancer_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_astromancer_wrath_of_the_astromancer_SpellScript();
+            return new spell_astromancer_wrath_of_the_astromancer_AuraScript();
         }
 };
 
