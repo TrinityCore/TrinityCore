@@ -472,7 +472,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
     if (!loot)
         return;
 
-    if (slotid > loot->items.size() + loot->quest_items.size())
+    if (slotid >= loot->items.size() + loot->quest_items.size())
     {
         sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), slotid, (unsigned long)loot->items.size());
         return;
