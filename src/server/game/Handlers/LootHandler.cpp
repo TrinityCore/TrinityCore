@@ -478,7 +478,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
         return;
     }
 
-    LootItem& item = slotid > loot->items.size() ? loot->quest_items[slotid - loot->items.size()] : loot->items[slotid];
+    LootItem& item = slotid >= loot->items.size() ? loot->quest_items[slotid - loot->items.size()] : loot->items[slotid];
 
     ItemPosCountVec dest;
     InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
