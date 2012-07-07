@@ -1599,9 +1599,9 @@ void LoadLootTemplates_Item()
     LootTemplates_Item.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outString(">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u item loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog->outErrorDb(">> Loaded 0 prospecting loot templates. DB table `item_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 item loot templates. DB table `item_loot_template` is empty");
 
     sLog->outString();
 }
