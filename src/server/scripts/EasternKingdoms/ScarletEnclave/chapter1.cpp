@@ -909,7 +909,11 @@ public:
         {
             if (!apply)
                 if (Creature* miner = Unit::GetCreature(*me, minerGUID))
+                {
                     miner->DisappearAndDie();
+                    me->GetPlayer(*me, me->GetCreatorGUID())->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->GetPlayer(*me, me->GetCreatorGUID())->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                }
         }
     };
 
@@ -1014,6 +1018,8 @@ public:
                         car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1);
                         car->StopMoving();
                         car->RemoveAura(SPELL_CART_DRAG);
+                        car->GetPlayer(*me, car->GetCreatorGUID())->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        car->GetPlayer(*me, car->GetCreatorGUID())->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                     }
                     me->MonsterSay(SAY_SCARLET_MINER2, LANG_UNIVERSAL, 0);
                     break;
@@ -1073,6 +1079,8 @@ public:
                     if (car->GetEntry() == 28817)
                     {
                         car->AI()->SetGUID(miner->GetGUID());
+                        car->GetPlayer(*car, car->GetCreatorGUID())->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        car->GetPlayer(*car, car->GetCreatorGUID())->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                         CAST_AI(npc_scarlet_miner::npc_scarlet_minerAI, miner->AI())->InitCartQuest(player);
                     } else sLog->outError("TSCR: OnGossipHello vehicle entry is not correct.");
                 } else sLog->outError("TSCR: OnGossipHello player is not on the vehicle.");
