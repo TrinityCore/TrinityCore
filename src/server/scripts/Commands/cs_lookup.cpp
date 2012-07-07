@@ -27,6 +27,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "GameEventMgr.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 
 class lookup_commandscript : public CommandScript
 {
