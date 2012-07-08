@@ -658,6 +658,14 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 // we're getting total damage on aura apply, change it to be damage per tick
                 amount = int32((float)amount / GetTotalTicks());
             }
+            // Insect Swarm
+            else if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && GetSpellInfo()->SpellFamilyFlags[0] & 0x200000)
+            {
+                m_canBeRecalculated = false;
+                // Idol of the Crying Wind
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(64950, EFFECT_0))
+                    amount += aurEff->GetAmount();
+            }
             break;
         case SPELL_AURA_PERIODIC_ENERGIZE:
             switch (m_spellInfo->Id)
