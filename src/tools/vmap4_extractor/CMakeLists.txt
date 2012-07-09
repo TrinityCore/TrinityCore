@@ -33,7 +33,7 @@ target_link_libraries(vmap4extractor
   storm
 )
 
-add_dependencies(vmap4extractor mpq)
+add_dependencies(vmap4extractor storm)
 
 if( UNIX )
   install(TARGETS vmap4extractor DESTINATION bin)
