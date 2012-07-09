@@ -405,7 +405,25 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 9. Validate loaded guild data
+    // 9. Load guild achievements
+    {
+        PreparedQueryResult achievementResult;
+        PreparedQueryResult criteriaResult;
+        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_ACHIEVEMENT);
+            stmt->setUInt32(0, itr->first);
+            achievementResult = CharacterDatabase.Query(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_ACHIEVEMENT_CRITERIA);
+            stmt->setUInt32(0, itr->first);
+            criteriaResult = CharacterDatabase.Query(stmt);
+
+            itr->second->GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
+        }
+    }
+
+    // 10. Validate loaded guild data
     sLog->outString("Validating data of loaded guilds...");
     {
         uint32 oldMSTime = getMSTime();

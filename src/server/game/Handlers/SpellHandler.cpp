@@ -306,7 +306,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 
     go->AI()->GossipHello(_player);
 
-    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
 }
 
 void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
@@ -599,7 +599,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket & recv_data)
         data << uint8(player->GetByteValue(PLAYER_BYTES, 2));   // hair
         data << uint8(player->GetByteValue(PLAYER_BYTES, 3));   // haircolor
         data << uint8(player->GetByteValue(PLAYER_BYTES_2, 0)); // facialhair
-        data << uint64(guild ? guild->GetGuid() : 0);
+        data << uint64(guild ? guild->GetGUID() : 0);
 
         static EquipmentSlots const itemSlots[] =
         {

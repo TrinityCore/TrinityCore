@@ -234,7 +234,7 @@ class ByteBuffer
             if (!bit)
                 byte = 0;
             else
-                byte = ReadUInt8() ^ bit;
+                byte = uint8(ReadUInt8() ^ bit);
         }
 
         void WriteByteMask(uint8 b)

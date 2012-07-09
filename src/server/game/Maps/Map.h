@@ -444,6 +444,7 @@ class Map : public GridRefManager<NGridType>
         bool Contains(const GameObjectModel& mdl) const { return _dynamicTree.contains(mdl);}
         bool getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist);
 
+        virtual uint32 GetOwnerGuildId(uint32 /*team*/ = TEAM_OTHER) const { return 0; }
         /*
             RESPAWN TIMES
         */

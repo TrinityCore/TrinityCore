@@ -1691,7 +1691,16 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket & recv_data)
     if (!player)
         return;
 
-    player->GetAchievementMgr().SendRespondInspectAchievements(_player);
+    player->GetAchievementMgr().SendAchievementInfo(_player);
+}
+
+void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
+{
+    uint32 achievementId;
+    recvData >> achievementId;
+
+    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+        guild->GetAchievementMgr().SendAchievementInfo(_player, achievementId);
 }
 
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recv_data*/)
