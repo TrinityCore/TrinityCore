@@ -913,10 +913,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
-                            {
                                 b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
-                                item.is_blocked = true;
-                            }
                             else
                                 b << uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
                             break;
@@ -972,10 +969,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     case GROUP_PERMISSION:
                     case ROUND_ROBIN_PERMISSION:
                         if (!item.is_blocked)
-                        {
                             b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
-                            item.is_blocked = true;
-                        }
                         else
                             b << uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
                         break;
