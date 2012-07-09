@@ -1028,7 +1028,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
-    ACE_OS::sleep(ACE_Time_Value (0, sleepTime));
+    ACE_OS::sleep(ACE_Time_Value(0, sleepTime));
 
     sWorld->AddSession(m_Session);
     return 0;

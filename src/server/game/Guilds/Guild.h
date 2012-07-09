@@ -600,7 +600,7 @@ public:
 
     // Getters
     uint32 GetId() const { return m_id; }
-    uint64 GetGuid() const { return MAKE_NEW_GUID(m_id, 0, HIGHGUID_GUILD); }
+    uint64 GetGUID() const { return MAKE_NEW_GUID(m_id, 0, HIGHGUID_GUILD); }
     uint64 GetLeaderGUID() const { return m_leaderGuid; }
     const std::string& GetName() const { return m_name; }
     const std::string& GetMOTD() const { return m_motd; }
@@ -679,6 +679,9 @@ public:
     // Bank tabs
     void SetBankTabText(uint8 tabId, const std::string& text);
 
+    AchievementMgr<Guild>& GetAchievementMgr() { return m_achievementMgr; }
+    AchievementMgr<Guild> const& GetAchievementMgr() const { return m_achievementMgr; }
+
 protected:
     uint32 m_id;
     std::string m_name;
@@ -698,6 +701,8 @@ protected:
     // These are actually ordered lists. The first element is the oldest entry.
     LogHolder* m_eventLog;
     LogHolder* m_bankEventLog[GUILD_BANK_MAX_TABS + 1];
+
+    AchievementMgr<Guild> m_achievementMgr;
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }

@@ -440,7 +440,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
 
         _player->SetQuestSlot(slot, 0);
 
-        _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED, 1);
+        _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED, 1);
     }
 }
 

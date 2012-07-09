@@ -1887,7 +1887,7 @@ class Player : public Unit, public GridObject<Player>
             CharacterDatabase.Execute(stmt);
             m_guildId = GuildId;
         }
-        uint32 GetGuildId() { return m_guildId; }
+        uint32 GetGuildId() const { return m_guildId; }
         static uint32 GetGuildIdFromDB(uint64 guid);
 
         void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
@@ -2532,8 +2532,8 @@ class Player : public Unit, public GridObject<Player>
         void AddRunePower(uint8 index);
         void InitRunes();
 
-        AchievementMgr& GetAchievementMgr() { return m_achievementMgr; }
-        AchievementMgr const& GetAchievementMgr() const { return m_achievementMgr; }
+        AchievementMgr<Player>& GetAchievementMgr() { return m_achievementMgr; }
+        AchievementMgr<Player> const& GetAchievementMgr() const { return m_achievementMgr; }
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
         void CompletedAchievement(AchievementEntry const* entry);
 
@@ -2914,7 +2914,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
 
-        AchievementMgr m_achievementMgr;
+        AchievementMgr<Player> m_achievementMgr;
         ReputationMgr  m_reputationMgr;
 
         SpellCooldowns m_spellCooldowns;
