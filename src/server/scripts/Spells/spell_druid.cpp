@@ -616,32 +616,31 @@ class spell_dru_survival_instincts : public SpellScriptLoader
         }
 };
 
-// 64950 - Idol of the Crying Wind
-class spell_dru_idol_of_the_crying_wind : public SpellScriptLoader
+class spell_dru_insect_swarm : public SpellScriptLoader
 {
     public:
-        spell_dru_idol_of_the_crying_wind() : SpellScriptLoader("spell_dru_idol_of_the_crying_wind") { }
+        spell_dru_insect_swarm() : SpellScriptLoader("spell_dru_insect_swarm") { }
 
-        class spell_dru_idol_of_the_crying_wind_AuraScript : public AuraScript
+        class spell_dru_insect_swarm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dru_idol_of_the_crying_wind_AuraScript);
+            PrepareAuraScript(spell_dru_insect_swarm_AuraScript);
 
-            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
-                    if (aurEff = caster->GetAuraEffect(SPELL_DRUID_ITEM_T8_BALANCE_RELIC, EFFECT_0))
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DRUID_ITEM_T8_BALANCE_RELIC, EFFECT_0))
                         amount += aurEff->GetAmount();
             }
 
             void Register()
             {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_idol_of_the_crying_wind_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_insect_swarm_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_dru_idol_of_the_crying_wind_AuraScript();
+            return new spell_dru_insect_swarm_AuraScript();
         }
 };
 
@@ -659,5 +658,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_predatory_strikes();
     new spell_dru_savage_roar();
     new spell_dru_survival_instincts();
-    new spell_dru_idol_of_the_crying_wind();
+    new spell_dru_insect_swarm();
 }
