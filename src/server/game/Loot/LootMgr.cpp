@@ -514,7 +514,7 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
     {
         LootItem &item = quest_items[i];
 
-        if ((!item.is_looted && item.AllowedForPlayer(player)) || (item.follow_loot_rules && player->GetGroup() && player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetLooterGuid() == player->GetGUID()))
+        if (!item.is_looted && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && (player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT )))
         {
             ql->push_back(QuestItem(i));
 
@@ -522,11 +522,10 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
             // player's quest vector
             //
             // increase once if one looter only, looter-times if free for all
-            if (item.freeforall && !item.is_blocked)
-            {
+            if (item.freeforall || !item.is_blocked)
                 ++unlootedCount;
+            if (!player->GetGroup() || (player->GetGroup()->GetLootMethod() != GROUP_LOOT || player->GetGroup()->GetLootMethod() != ROUND_ROBIN))
                 item.is_blocked = true;
-            }
 
             if (items.size() + ql->size() == MAX_NR_LOOT_ITEMS)
                 break;
@@ -549,7 +548,7 @@ QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool pres
     for (uint8 i = 0; i < items.size(); ++i)
     {
         LootItem &item = items[i];
-        if (!item.is_looted && !item.freeforall && (item.AllowedForPlayer(player)) || (item.follow_loot_rules && player->GetGroup() && player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetLooterGuid() == player->GetGUID()))
+        if (!item.is_looted && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && (player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT )))
         {
             if (presentAtLooting)
                 item.AddAllowedLooter(player);
@@ -892,7 +891,6 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     }
 
     LootSlotType slotType = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
-    LootSlotType partySlotType = lv.permission == MASTER_PERMISSION ? LOOT_SLOT_TYPE_MASTER : (lv.permission == GROUP_PERMISSION ? LOOT_SLOT_TYPE_ROLL_ONGOING : slotType);
     QuestItemMap const& lootPlayerQuestItems = l.GetPlayerQuestItems();
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(lv.viewer->GetGUIDLow());
     if (q_itr != lootPlayerQuestItems.end())
@@ -913,8 +911,12 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                             b << uint8(LOOT_SLOT_TYPE_MASTER);
                             break;
                         case GROUP_PERMISSION:
+                        case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
+                            {
                                 b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                                item.is_blocked == true;
+                            }
                             else
                                 b << uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
                             break;
@@ -968,8 +970,12 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         b << uint8(LOOT_SLOT_TYPE_MASTER);
                         break;
                     case GROUP_PERMISSION:
+                    case ROUND_ROBIN_PERMISSION:
                         if (!item.is_blocked)
+                        {
                             b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                            item.is_blocked == true;
+                        }
                         else
                             b << uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
                         break;
