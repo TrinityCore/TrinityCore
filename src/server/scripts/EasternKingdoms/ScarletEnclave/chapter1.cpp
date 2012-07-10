@@ -911,11 +911,11 @@ public:
                 if (Creature* miner = Unit::GetCreature(*me, minerGUID))
                 {
                     miner->DisappearAndDie();
-					if (Unit* player = Unit::GetPlayer(*me, me->GetCreatorGUID()))
-					{
-						player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-						player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-					}
+                    if (Unit* player = Unit::GetPlayer(*me, me->GetCreatorGUID()))
+                    {
+                        player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    }
                 }
         }
     };
@@ -1021,11 +1021,11 @@ public:
                         car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1);
                         car->StopMoving();
                         car->RemoveAura(SPELL_CART_DRAG);
-						if (Unit* player = Unit::GetPlayer(*car, car->GetCreatorGUID()))
-						{
-							player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-							player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-						}
+                        if (Unit* player = Unit::GetPlayer(*car, car->GetCreatorGUID()))
+                        {
+                            player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                        }
                     }
                     me->MonsterSay(SAY_SCARLET_MINER2, LANG_UNIVERSAL, 0);
                     break;
