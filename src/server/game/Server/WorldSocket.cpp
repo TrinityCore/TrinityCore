@@ -981,8 +981,9 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (memcmp(sha.GetDigest(), digest, 20))
     {
         WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
+        packet.WriteBit(0); // has queue info
+        packet.WriteBit(0); // has account info
         packet << uint8(AUTH_FAILED);
-
         SendPacket(packet);
 
         sLog->outError("WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
