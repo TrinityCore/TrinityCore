@@ -10791,7 +10791,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     for (AuraEffectList::const_iterator i = IgnoreResistAuras.begin(); i != IgnoreResistAuras.end(); ++i)
     {
         if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
-            TakenTotalCasterMod += (float((*i)->GetAmount())/100);
+            TakenTotalCasterMod += (float((*i)->GetAmount()));
     }
 
     // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
@@ -11842,7 +11842,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     for (AuraEffectList::const_iterator i = IgnoreResistAuras.begin(); i != IgnoreResistAuras.end(); ++i)
     {
         if ((*i)->GetMiscValue() & attackSchoolMask)
-            TakenTotalCasterMod += (float((*i)->GetAmount())/100);
+            TakenTotalCasterMod += (float((*i)->GetAmount()));
     }
 
     // ..taken
