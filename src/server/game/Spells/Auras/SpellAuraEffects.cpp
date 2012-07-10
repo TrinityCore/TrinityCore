@@ -858,21 +858,6 @@ void AuraEffect::CalculateSpellMod()
         case SPELL_AURA_DUMMY:
             switch (GetSpellInfo()->SpellFamilyName)
             {
-                case SPELLFAMILY_PRIEST:
-                    // Pain and Suffering
-                    if (m_spellInfo->SpellIconID == 2874)
-                    {
-                        if (!m_spellmod)
-                        {
-                            m_spellmod = new SpellModifier(GetBase());
-                            m_spellmod->op = SPELLMOD_DOT;
-                            m_spellmod->type = SPELLMOD_PCT;
-                            m_spellmod->spellId = GetId();
-                            m_spellmod->mask[1] = 0x00002000;
-                        }
-                        m_spellmod->value = GetAmount();
-                    }
-                    break;
                 case SPELLFAMILY_DRUID:
                     switch (GetId())
                     {
