@@ -235,7 +235,7 @@ class AchievementMgr
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 = 0, uint32 miscvalue2 = 0, bool evenIfCriteriaComplete = false);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL, Player* referencePlayer = NULL);
         void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
-        void CheckAllAchievementCriteria();
+        void CheckAllAchievementCriteria(Player* referencePlayer);
         void SendAllAchievementData(Player* receiver) const;
         void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
         bool HasAchieved(uint32 achievementId) const;
