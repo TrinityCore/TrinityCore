@@ -744,14 +744,14 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     if (!items)
     {
         WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + 1);
-        data.WriteByteMask(bytes[5]);
-        data.WriteByteMask(bytes[6]);
-        data.WriteByteMask(bytes[1]);
-        data.WriteByteMask(bytes[2]);
-        data.WriteByteMask(bytes[3]);
-        data.WriteByteMask(bytes[0]);
-        data.WriteByteMask(bytes[7]);
-        data.WriteByteMask(bytes[4]);
+        data.WriteBit(bytes[5]);
+        data.WriteBit(bytes[6]);
+        data.WriteBit(bytes[1]);
+        data.WriteBit(bytes[2]);
+        data.WriteBit(bytes[3]);
+        data.WriteBit(bytes[0]);
+        data.WriteBit(bytes[7]);
+        data.WriteBit(bytes[4]);
 
         data.WriteByteSeq(bytes[2]);
         data.WriteByteSeq(bytes[3]);
@@ -771,14 +771,14 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
     WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
 
-    data.WriteByteMask(bytes[5]);
-    data.WriteByteMask(bytes[6]);
-    data.WriteByteMask(bytes[1]);
-    data.WriteByteMask(bytes[2]);
-    data.WriteByteMask(bytes[3]);
-    data.WriteByteMask(bytes[0]);
-    data.WriteByteMask(bytes[7]);
-    data.WriteByteMask(bytes[4]);
+    data.WriteBit(bytes[5]);
+    data.WriteBit(bytes[6]);
+    data.WriteBit(bytes[1]);
+    data.WriteBit(bytes[2]);
+    data.WriteBit(bytes[3]);
+    data.WriteBit(bytes[0]);
+    data.WriteBit(bytes[7]);
+    data.WriteBit(bytes[4]);
 
     data.WriteByteSeq(bytes[2]);
     data.WriteByteSeq(bytes[3]);

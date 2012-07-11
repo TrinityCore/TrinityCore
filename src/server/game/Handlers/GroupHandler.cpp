@@ -62,18 +62,18 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
 void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE");
- 
-    BytesGuid guid;
-    guid.guid = 0;
-    
-    recv_data.ReadByteMask(guid.bytes[6]);
-    recv_data.ReadByteMask(guid.bytes[5]);
-    recv_data.ReadByteMask(guid.bytes[0]);
-    recv_data.ReadByteMask(guid.bytes[3]);
-    recv_data.ReadByteMask(guid.bytes[4]);
-    recv_data.ReadByteMask(guid.bytes[7]);
-    recv_data.ReadByteMask(guid.bytes[1]);
-    recv_data.ReadByteMask(guid.bytes[2]);
+
+    //BytesGuid guid;
+    //guid.guid = 0;
+
+    //recv_data.ReadByteMask(guid.bytes[6]);
+    //recv_data.ReadByteMask(guid.bytes[5]);
+    //recv_data.ReadByteMask(guid.bytes[0]);
+    //recv_data.ReadByteMask(guid.bytes[3]);
+    //recv_data.ReadByteMask(guid.bytes[4]);
+    //recv_data.ReadByteMask(guid.bytes[7]);
+    //recv_data.ReadByteMask(guid.bytes[1]);
+    //recv_data.ReadByteMask(guid.bytes[2]);
 
     recv_data.read_skip<uint32>();
     recv_data.read_skip<uint32>();
@@ -82,16 +82,16 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
     recv_data >> membername;
     recv_data.read_skip<uint32>();
 
-    recv_data.ReadByteSeq(guid.bytes[0]);
-    recv_data.ReadByteSeq(guid.bytes[7]);
-    recv_data.ReadByteSeq(guid.bytes[4]);
-    recv_data.ReadByteSeq(guid.bytes[1]);
-    recv_data.ReadByteSeq(guid.bytes[2]);
-    recv_data.ReadByteSeq(guid.bytes[6]);
-    recv_data.ReadByteSeq(guid.bytes[5]);
+    //recv_data.ReadByteSeq(guid.bytes[0]);
+    //recv_data.ReadByteSeq(guid.bytes[7]);
+    //recv_data.ReadByteSeq(guid.bytes[4]);
+    //recv_data.ReadByteSeq(guid.bytes[1]);
+    //recv_data.ReadByteSeq(guid.bytes[2]);
+    //recv_data.ReadByteSeq(guid.bytes[6]);
+    //recv_data.ReadByteSeq(guid.bytes[5]);
     std::string string0;
     recv_data >> string0;
-    recv_data.ReadByteSeq(guid.bytes[3]);
+    //recv_data.ReadByteSeq(guid.bytes[3]);
 
     // attempt add selected player
 

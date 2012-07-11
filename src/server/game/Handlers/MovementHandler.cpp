@@ -192,22 +192,14 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_TELEPORT_ACK");
 
-    BitStream mask = recv_data.ReadBitStream(8);
+    recv_data.rfinish();
+    return;
 
     uint32 flags, time;
     recv_data >> flags >> time;
 
-    ByteBuffer bytes(8, true);
-    recv_data.ReadXorByte(mask[6], bytes[1]);
-    recv_data.ReadXorByte(mask[0], bytes[3]);
-    recv_data.ReadXorByte(mask[1], bytes[2]);
-    recv_data.ReadXorByte(mask[7], bytes[0]);
-    recv_data.ReadXorByte(mask[5], bytes[6]);
-    recv_data.ReadXorByte(mask[3], bytes[4]);
-    recv_data.ReadXorByte(mask[2], bytes[7]);
-    recv_data.ReadXorByte(mask[4], bytes[5]);
 
-    uint64 guid = BitConverter::ToUInt64(bytes);
+    uint64 guid = 0;
 
     sLog->outStaticDebug("Guid " UI64FMTD, guid);
     sLog->outStaticDebug("Flags %u, time %u", flags, time/IN_MILLISECONDS);
@@ -618,11 +610,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
    if (sequence == NULL)
        return;
 
-   BytesGuid guid;
-   BytesGuid tguid;
-
-   guid.guid = 0;
-   tguid.guid = 0;
+   ObjectGuid guid;
+   ObjectGuid tguid;
 
    for (uint32 i = 0; i < MSE_COUNT; i++)
    {
@@ -630,7 +619,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
        if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
        {
-           data.ReadByteMask(guid.bytes[element - MSEGuidByte0]);
+           guid[element - MSEGuidByte0] = data.ReadBit();
            continue;
        }
 
@@ -638,13 +627,13 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
            element <= MSETransportGuidByte7)
        {
            if (HaveTransportData)
-               data.ReadByteMask(tguid.bytes[element - MSETransportGuidByte0]);
+               tguid[element - MSETransportGuidByte0] = data.ReadBit();
            continue;
        }
 
        if (element >= MSEGuidByte0_2 && element <= MSEGuidByte7_2)
        {
-           data.ReadByteSeq(guid.bytes[element - MSEGuidByte0_2]);
+           data.ReadByteSeq(guid[element - MSEGuidByte0_2]);
            continue;
        }
 
@@ -652,7 +641,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
            element <= MSETransportGuidByte7_2)
        {
            if (HaveTransportData)
-               data.ReadByteSeq(tguid.bytes[element - MSETransportGuidByte0_2]);
+               data.ReadByteSeq(tguid[element - MSETransportGuidByte0_2]);
            continue;
        }
 
@@ -763,8 +752,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
        }
    }
 
-   mi->guid = guid.guid;
-   mi->t_guid = tguid.guid;
+   mi->guid = guid;
+   mi->t_guid = tguid;
 
    if (HaveTransportData && mi->pos.m_positionX != mi->t_pos.m_positionX)
        if (GetPlayer()->GetTransport())
@@ -866,7 +855,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
 
        if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
        {
-           data.WriteByteMask(guid[element - MSEGuidByte0]);
+           data.WriteBit(guid[element - MSEGuidByte0]);
            continue;
        }
 
@@ -874,7 +863,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
            element <= MSETransportGuidByte7)
        {
            if (HaveTransportData)
-               data.WriteByteMask(tguid[element - MSETransportGuidByte0]);
+               data.WriteBit(tguid[element - MSETransportGuidByte0]);
            continue;
        }
 

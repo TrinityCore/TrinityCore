@@ -84,12 +84,6 @@ struct AccountData
     std::string Data;
 };
 
-union BytesGuid
-{
-    uint8 bytes[8];
-    uint64 guid;
-};
-
 enum PartyOperation
 {
     PARTY_OP_INVITE = 0,

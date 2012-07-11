@@ -751,33 +751,35 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 {
     if (PlayerLoading() || GetPlayer() != NULL)
     {
-        sLog->outError("Player tryes to login again, AccountId = %d", GetAccountId());
+        sLog->outError("Player tries to login again, AccountId = %d", GetAccountId());
         return;
     }
 
     m_playerLoading = true;
-    uint64 playerGuid = 0;
+    ObjectGuid playerGuid;
 
     sLog->outStaticDebug("WORLD: Recvd Player Logon Message");
+    playerGuid[2] = recvData.ReadBit();
+    playerGuid[3] = recvData.ReadBit();
+    playerGuid[0] = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+    playerGuid[4] = recvData.ReadBit();
+    playerGuid[5] = recvData.ReadBit();
+    playerGuid[1] = recvData.ReadBit();
+    playerGuid[7] = recvData.ReadBit();
 
-    BitStream mask = recv_data.ReadBitStream(8);
-
-    ByteBuffer bytes(8, true);
-
-    recv_data.ReadXorByte(mask[6], bytes[5]);
-    recv_data.ReadXorByte(mask[0], bytes[0]);
-    recv_data.ReadXorByte(mask[4], bytes[3]);
-    recv_data.ReadXorByte(mask[1], bytes[4]);
-    recv_data.ReadXorByte(mask[2], bytes[7]);
-    recv_data.ReadXorByte(mask[5], bytes[2]);
-    recv_data.ReadXorByte(mask[7], bytes[6]);
-    recv_data.ReadXorByte(mask[3], bytes[1]);
-
-    playerGuid = BitConverter::ToUInt64(bytes);
+    recvData.ReadByteSeq(playerGuid[2]);
+    recvData.ReadByteSeq(playerGuid[7]);
+    recvData.ReadByteSeq(playerGuid[0]);
+    recvData.ReadByteSeq(playerGuid[3]);
+    recvData.ReadByteSeq(playerGuid[5]);
+    recvData.ReadByteSeq(playerGuid[6]);
+    recvData.ReadByteSeq(playerGuid[1]);
+    recvData.ReadByteSeq(playerGuid[4]);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Character (Guid: %u) logging in", GUID_LOPART(playerGuid));
 
@@ -802,9 +804,10 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recv_data)
 void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
 {
     sLog->outStaticDebug("WORLD: Recvd CMSG_LOAD_SCREEN");
-    uint8 unkMask; // Loading start: 0x80, loading end: 0x0
     uint32 mapID;
-    recvPacket >> unkMask >> mapID;
+
+    recvPacket >> mapID;
+    recvPacket.ReadBit();
 
     // TODO: Do something with this packet
 }

@@ -1098,22 +1098,23 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
 
-    BitStream mask = recv_data.ReadBitStream(8);
+    recv_data.rfinish();
+    return;
 
     uint32 time;
     recv_data >> time;
 
-    ByteBuffer bytes(8, true);
-    recv_data.ReadXorByte(mask[0], bytes[1]);
-    recv_data.ReadXorByte(mask[1], bytes[4]);
-    recv_data.ReadXorByte(mask[7], bytes[2]);
-    recv_data.ReadXorByte(mask[5], bytes[5]);
-    recv_data.ReadXorByte(mask[3], bytes[0]);
-    recv_data.ReadXorByte(mask[6], bytes[7]);
-    recv_data.ReadXorByte(mask[2], bytes[6]);
-    recv_data.ReadXorByte(mask[4], bytes[3]);
+    //ByteBuffer bytes(8, true);
+    //recv_data.ReadXorByte(mask[0], bytes[1]);
+    //recv_data.ReadXorByte(mask[1], bytes[4]);
+    //recv_data.ReadXorByte(mask[7], bytes[2]);
+    //recv_data.ReadXorByte(mask[5], bytes[5]);
+    //recv_data.ReadXorByte(mask[3], bytes[0]);
+    //recv_data.ReadXorByte(mask[6], bytes[7]);
+    //recv_data.ReadXorByte(mask[2], bytes[6]);
+    //recv_data.ReadXorByte(mask[4], bytes[3]);
 
-    uint64 guid = BitConverter::ToUInt64(bytes);
+    //uint64 guid = BitConverter::ToUInt64(bytes);
 
     //TODO!
 
@@ -1763,14 +1764,15 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
 
 void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
 {
+    recvPacket.rfinish();
+    return;
+
     uint32 type, count;
     recvPacket >> type >> count;
 
     ByteBuffer* guidBytes = new ByteBuffer[count];
-    BitStream* mask = new BitStream[count];
     for (uint32 i = 0; i < count; ++i)
     {
-        mask[i] = recvPacket.ReadBitStream(8);
         guidBytes[i].resize(8); // damn c++ not allowing to use non-default constructor with new[]
     }
 
@@ -1779,15 +1781,15 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
     for (uint32 i = 0; i < count; ++i)
     {
         recvPacket >> entry;
-        recvPacket.ReadXorByte(mask[i][7], guidBytes[i][2]);
-        recvPacket.ReadXorByte(mask[i][4], guidBytes[i][6]);
-        recvPacket.ReadXorByte(mask[i][1], guidBytes[i][3]);
-        recvPacket.ReadXorByte(mask[i][2], guidBytes[i][0]);
-        recvPacket.ReadXorByte(mask[i][3], guidBytes[i][5]);
-        recvPacket.ReadXorByte(mask[i][0], guidBytes[i][7]);
-        recvPacket.ReadXorByte(mask[i][6], guidBytes[i][1]);
-        recvPacket.ReadXorByte(mask[i][5], guidBytes[i][4]);
-        guid = BitConverter::ToUInt64(guidBytes[i]);
+        //recvPacket.ReadXorByte(mask[i][7], guidBytes[i][2]);
+        //recvPacket.ReadXorByte(mask[i][4], guidBytes[i][6]);
+        //recvPacket.ReadXorByte(mask[i][1], guidBytes[i][3]);
+        //recvPacket.ReadXorByte(mask[i][2], guidBytes[i][0]);
+        //recvPacket.ReadXorByte(mask[i][3], guidBytes[i][5]);
+        //recvPacket.ReadXorByte(mask[i][0], guidBytes[i][7]);
+        //recvPacket.ReadXorByte(mask[i][6], guidBytes[i][1]);
+        //recvPacket.ReadXorByte(mask[i][5], guidBytes[i][4]);
+        //guid = BitConverter::ToUInt64(guidBytes[i]);
 
         switch (type)
         {
@@ -1803,7 +1805,6 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
     }
 
     delete[] guidBytes;
-    delete[] mask;
 }
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)

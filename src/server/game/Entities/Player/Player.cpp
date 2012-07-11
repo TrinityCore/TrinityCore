@@ -1842,10 +1842,8 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     //    "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.data, character_banned.guid, character_declinedname.genitive "
 
     Field* fields = result->Fetch();
-    uint8 guid[8];
-    uint8 guildGuid[8];
 
-    *reinterpret_cast<uint64*>(&guid[0]) = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+    ObjectGuid guid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
     std::string name = fields[1].GetString();
     uint8 plrRace = fields[2].GetUInt8();
     uint8 plrClass = fields[3].GetUInt8();
@@ -1862,7 +1860,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     float y = fields[11].GetFloat();
     float z = fields[12].GetFloat();
     uint32 guildId = fields[13].GetUInt32();
-    *reinterpret_cast<uint64*>(&guildGuid[0]) = MAKE_NEW_GUID(guildId, 0, guildId ? HIGHGUID_GUILD : 0);
+    ObjectGuid guildGuid = MAKE_NEW_GUID(guildId, 0, guildId ? HIGHGUID_GUILD : 0);
     uint32 playerFlags = fields[14].GetUInt32();
     uint32 atLoginFlags = fields[15].GetUInt16();
     Tokens equipment(fields[19].GetString(), ' ');

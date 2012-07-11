@@ -46,7 +46,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 
     uint64 guildGuid, playerGuid;
     recvPacket >> guildGuid >> playerGuid;
-    
+
     // If guild doesn't exist or player is not part of the guild send error
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(playerGuid))
@@ -129,20 +129,8 @@ void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ROSTER");
 
-    BitStream mask = recvPacket.ReadBitStream(8);
 
-    ByteBuffer bytes(8, true);
-    
-    recvPacket.ReadXorByte(mask[0], bytes[7]);
-    recvPacket.ReadXorByte(mask[3], bytes[5]);
-    recvPacket.ReadXorByte(mask[4], bytes[4]);
-    recvPacket.ReadXorByte(mask[5], bytes[0]);
-    recvPacket.ReadXorByte(mask[6], bytes[1]);
-    recvPacket.ReadXorByte(mask[1], bytes[2]);
-    recvPacket.ReadXorByte(mask[2], bytes[6]);
-    recvPacket.ReadXorByte(mask[7], bytes[3]);
-
-    uint64 guildGuid = BitConverter::ToUInt64(bytes);
+    uint64 guildGuid = 0;
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(GetPlayer()->GetGUID()))
