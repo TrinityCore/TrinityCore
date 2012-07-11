@@ -171,6 +171,12 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         return;
     }
 
+    if (!opcodeTable[packet->GetOpcode()])
+    {
+        sLog->outError("Prevented sending disabled opcode %d (hex %#04X)", packet->GetOpcode(), packet->GetOpcode());
+        return;
+    }
+
 #ifdef TRINITY_DEBUG
     // Code for network use statistic
     static uint64 sendPacketCount = 0;
