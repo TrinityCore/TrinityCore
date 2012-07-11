@@ -230,11 +230,16 @@ void MySQLPreparedStatement::ClearParameters()
     }
 }
 
+static bool ParementerIndexAssertFail(uint32 stmtIndex, uint8 index, uint32 paramCount)
+{
+    sLog->outError("Attempted to bind parameter %u%s on a PreparedStatement %u (statement has only %u parameters)", uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);
+    return false;
+}
+
 //- Bind on mysql level
 bool MySQLPreparedStatement::CheckValidIndex(uint8 index)
 {
-    if (index >= m_paramCount)
-        return false;
+    ASSERT(index < m_paramCount || ParementerIndexAssertFail(m_stmt->m_index, index, m_paramCount));
 
     if (m_paramsSet[index])
         sLog->outSQLDriver("[WARNING] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
