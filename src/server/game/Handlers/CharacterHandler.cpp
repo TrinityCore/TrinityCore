@@ -1430,9 +1430,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     recv_data >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
-
     stmt->setUInt32(0, GUID_LOPART(guid));
-
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
