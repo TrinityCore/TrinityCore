@@ -280,18 +280,19 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
 void WorldSession::SendItemDb2Reply(uint32 entry)
 {
     WorldPacket data(SMSG_DB_REPLY, 44);
-    data << uint32(DB2_REPLY_ITEM);
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(entry);
     if (!proto)
     {
         data << uint32(-1);         // entry
-        data << uint32(1322512289); // some kind of flags
+        data << uint32(DB2_REPLY_ITEM);
+        data << uint32(1322512289); // hotfix date
         data << uint32(0);          // size of next block
         return;
     }
 
     data << uint32(entry);
-    data << uint32(1322512290);     // flags
+    data << uint32(DB2_REPLY_ITEM);
+    data << uint32(1322512290);     // hotfix date
 
     ByteBuffer buff;
     buff << uint32(entry);
@@ -312,24 +313,28 @@ void WorldSession::SendItemDb2Reply(uint32 entry)
 void WorldSession::SendItemSparseDb2Reply(uint32 entry)
 {
     WorldPacket data(SMSG_DB_REPLY, 526);
-    data << uint32(DB2_REPLY_SPARSE);
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(entry);
     if (!proto)
     {
         data << uint32(-1);         // entry
-        data << uint32(1322512289); // some kind of flags
+        data << uint32(DB2_REPLY_SPARSE);
+        data << uint32(1322512289); // hotfix date
         data << uint32(0);          // size of next block
         return;
     }
 
     data << uint32(entry);
-    data << uint32(1322512290);     // flags
+    data << uint32(DB2_REPLY_SPARSE);
+    data << uint32(1322512290);     // hotfix date
 
     ByteBuffer buff;
     buff << uint32(entry);
     buff << uint32(proto->Quality);
     buff << uint32(proto->Flags);
     buff << uint32(proto->Flags2);
+    buff << float(1.0f);
+    buff << float(1.0f);
+    buff << uint32(proto->BuyCount);
     buff << int32(proto->BuyPrice);
     buff << uint32(proto->SellPrice);
     buff << uint32(proto->InventoryType);
@@ -409,7 +414,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << int32(proto->RandomProperty);
     buff << int32(proto->RandomSuffix);
     buff << uint32(proto->ItemSet);
-    buff << uint32(proto->MaxDurability);
 
     buff << uint32(proto->Area);
     buff << uint32(proto->Map);
