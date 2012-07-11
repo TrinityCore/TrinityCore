@@ -848,8 +848,31 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
     data << uint8(2);                                       // unknown value
-    data << uint8(0);                                       // enable(1) / disable(0) voice chat interface in client
-    data << uint32(0);                                      // Complain System Status
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.FlushBits();
+    //if (featureBit4)
+    //{
+    //    data << uint32(0);
+    //    data << uint32(0);
+    //    data << uint32(0);
+    //    data << uint32(0);
+    //}
+
+    //if (featureBit5)
+    //{
+    //    data << uint32(0);
+    //    data << uint32(0);
+    //    data << uint32(0);
+    //}
     SendPacket(&data);
 
     // Send MOTD
@@ -916,13 +939,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 
     data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
-    data << uint32(0);
-    data << uint32(0);
+    data << uint64(0);
     SendPacket(&data);
 
     data.Initialize(SMSG_HOTFIX_INFO);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    data << uint32(hotfix.size());
+    data.WriteBits(hotfix.size(), 22);
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
         data << uint32(hotfix[i].Type);
@@ -977,15 +999,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
-
     stmt->setUInt32(0, pCurrChar->GetGUIDLow());
-
     CharacterDatabase.Execute(stmt);
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_ONLINE);
-
     stmt->setUInt32(0, GetAccountId());
-
     LoginDatabase.Execute(stmt);
 
     pCurrChar->SetInGameTime(getMSTime());
