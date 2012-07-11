@@ -14105,7 +14105,7 @@ void Unit::SetPower(Powers power, int32 val)
 
     SetStatInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
 
-    WorldPacket data(SMSG_POWER_UPDATE);
+    WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
     data.append(GetPackGUID());
     data << uint32(1);//unk
     data << uint8(powerIndex);

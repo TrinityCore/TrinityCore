@@ -1764,32 +1764,36 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
 
 void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
 {
-    recvPacket.rfinish();
-    return;
-
     uint32 type, count;
-    recvPacket >> type >> count;
+    recvPacket >> type;
 
-    ByteBuffer* guidBytes = new ByteBuffer[count];
+    count = recvPacket.ReadBits(23);
+
+    ObjectGuid* guids = new ObjectGuid[count];
     for (uint32 i = 0; i < count; ++i)
     {
-        guidBytes[i].resize(8); // damn c++ not allowing to use non-default constructor with new[]
+        guids[i][0] = recvPacket.ReadBit();
+        guids[i][4] = recvPacket.ReadBit();
+        guids[i][7] = recvPacket.ReadBit();
+        guids[i][2] = recvPacket.ReadBit();
+        guids[i][5] = recvPacket.ReadBit();
+        guids[i][3] = recvPacket.ReadBit();
+        guids[i][6] = recvPacket.ReadBit();
+        guids[i][1] = recvPacket.ReadBit();
     }
 
     uint32 entry;
-    uint64 guid;
     for (uint32 i = 0; i < count; ++i)
     {
+        recvPacket.ReadByteSeq(guids[i][5]);
+        recvPacket.ReadByteSeq(guids[i][6]);
+        recvPacket.ReadByteSeq(guids[i][7]);
+        recvPacket.ReadByteSeq(guids[i][0]);
+        recvPacket.ReadByteSeq(guids[i][1]);
+        recvPacket.ReadByteSeq(guids[i][3]);
+        recvPacket.ReadByteSeq(guids[i][4]);
         recvPacket >> entry;
-        //recvPacket.ReadXorByte(mask[i][7], guidBytes[i][2]);
-        //recvPacket.ReadXorByte(mask[i][4], guidBytes[i][6]);
-        //recvPacket.ReadXorByte(mask[i][1], guidBytes[i][3]);
-        //recvPacket.ReadXorByte(mask[i][2], guidBytes[i][0]);
-        //recvPacket.ReadXorByte(mask[i][3], guidBytes[i][5]);
-        //recvPacket.ReadXorByte(mask[i][0], guidBytes[i][7]);
-        //recvPacket.ReadXorByte(mask[i][6], guidBytes[i][1]);
-        //recvPacket.ReadXorByte(mask[i][5], guidBytes[i][4]);
-        //guid = BitConverter::ToUInt64(guidBytes[i]);
+        recvPacket.ReadByteSeq(guids[i][2]);
 
         switch (type)
         {
@@ -1804,7 +1808,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
         }
     }
 
-    delete[] guidBytes;
+    delete[] guids;
 }
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
@@ -1850,3 +1854,10 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
         HandleMovementOpcodes(recvPacket);
     }
 }
+ void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
+ {
+     uint8 violenceLevel;
+     recvPacket >> violenceLevel;
+
+     // do something?
+ }
