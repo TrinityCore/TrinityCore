@@ -3376,7 +3376,7 @@ void Player::SendInitialSpells()
         data << uint32(itr->first);
         data << uint16(0);                                  // it's not slot id
 
-        spellCount +=1;
+        ++spellCount;
     }
 
     data.put<uint16>(countPos, spellCount);                  // write real count value
@@ -3391,7 +3391,7 @@ void Player::SendInitialSpells()
 
         data << uint32(itr->first);
 
-        data << uint16(itr->second.itemid);                 // cast item id
+        data << uint32(itr->second.itemid);                 // cast item id
         data << uint16(sEntry->Category);                   // spell category
 
         // send infinity cooldown in special format
@@ -6772,7 +6772,6 @@ void Player::SendActionButtons(uint32 state) const
     sLog->outDetail("Sending Action Buttons for '%u' spec '%u'", GetGUIDLow(), GetActiveSpec());
 
     WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
-    data << uint8(state);
     /*
         state can be 0, 1, 2
         0 - Looks to be sent when initial action buttons get sent, however on Trinity we use 1 since 0 had some difficulties
@@ -6791,6 +6790,7 @@ void Player::SendActionButtons(uint32 state) const
         }
     }
 
+    data << uint8(state);
     GetSession()->SendPacket(&data);
     sLog->outDetail("Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
 }
@@ -7404,39 +7404,40 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
 void Player::SendCurrencies() const
 {
-   WorldPacket packet(SMSG_INIT_CURRENCY, 4 + m_currencies.size()*(5*4 + 1));
-   packet << uint32(m_currencies.size());
+    ByteBuffer currencyData;
+    WorldPacket packet(SMSG_INIT_CURRENCY, 4 + m_currencies.size()*(5*4 + 1));
+    packet.WriteBits(m_currencies.size(), 23);
 
-   for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
-   {
+    for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
+    {
         CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-        if (!entry)
+        if (!entry) // should never happen
             continue;
 
         uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
-        packet.WriteBit(_GetCurrencyWeekCap(entry) / precision);
-        packet.WriteBit(0);
-        packet.WriteBit(itr->second.weekCount / precision);
-   }
+        uint32 weekCount = itr->second.weekCount / precision;
+        uint32 weekCap = _GetCurrencyWeekCap(entry) / precision;
 
-   for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
-   {
-        CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-        if (!entry)
-            continue;
+        packet.WriteBit(weekCount);
+        packet.WriteBits(0, 4); // some flags
+        packet.WriteBit(weekCap);
+        packet.WriteBit(0);     // season total earned
 
-        uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
-        packet << uint32(entry->ID);
-        if (uint32 weekCap = (_GetCurrencyWeekCap(entry) / precision))
-            packet << uint32(weekCap);
-        packet << uint32(itr->second.totalCount / precision);
-        packet << uint8(0);                     // unknown
-        //packet << uint32(0); // season total earned
-        if (uint32 weekCount = (itr->second.weekCount / precision))
-            packet << uint32(weekCount);
-   }
+        currencyData << uint32(itr->second.totalCount / precision);
+        if (weekCap)
+            currencyData << uint32(weekCap);
 
-   GetSession()->SendPacket(&packet);
+        //if (seasonTotal)
+        //    currencyData << uint32(seasonTotal);
+
+        currencyData << uint32(entry->ID);
+        if (weekCount)
+            currencyData << uint32(weekCount);
+    }
+
+    packet.FlushBits();
+    packet.append(currencyData);
+    GetSession()->SendPacket(&packet);
 }
 
 uint32 Player::GetCurrency(uint32 id) const
@@ -18687,7 +18688,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     if (!info)
     {
-        sLog->outError("Player (Name %s) has incorrect race/class pair. Can't be loaded.", GetName());
+        sLog->outError("Player (Name %s) has incorrect race/class (%u/%u) pair. Can't be loaded.", GetName(), uint32(getRace()), uint32(getClass()));
         return false;
     }
 
@@ -22216,12 +22217,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_UPDATE_AURA_DURATION
 
     SendTalentsInfoData(false);
-
-    // SMSG_INSTANCE_DIFFICULTY
-    data.Initialize(SMSG_INSTANCE_DIFFICULTY, 4+4);
-    data << uint32(GetMap()->GetDifficulty());
-    data << uint32(0);
-    GetSession()->SendPacket(&data);
 
     SendInitialSpells();
 
