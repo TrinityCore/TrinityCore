@@ -33,18 +33,18 @@
 
 enum HighGuid
 {
-    HIGHGUID_ITEM           = 0x4000,                       // blizz 4000
-    HIGHGUID_CONTAINER      = 0x4000,                       // blizz 4000
-    HIGHGUID_PLAYER         = 0x0000,                       // blizz 0000
-    HIGHGUID_GAMEOBJECT     = 0xF110,                       // blizz F110
-    HIGHGUID_TRANSPORT      = 0xF120,                       // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
-    HIGHGUID_UNIT           = 0xF130,                       // blizz F130
-    HIGHGUID_PET            = 0xF140,                       // blizz F140
-    HIGHGUID_VEHICLE        = 0xF150,                       // blizz F550
-    HIGHGUID_DYNAMICOBJECT  = 0xF100,                       // blizz F100
+    HIGHGUID_ITEM           = 0x400,                       // blizz 4000
+    HIGHGUID_CONTAINER      = 0x400,                       // blizz 4000
+    HIGHGUID_PLAYER         = 0x000,                       // blizz 0000
+    HIGHGUID_GAMEOBJECT     = 0xF11,                       // blizz F110
+    HIGHGUID_TRANSPORT      = 0xF12,                       // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
+    HIGHGUID_UNIT           = 0xF13,                       // blizz F130
+    HIGHGUID_PET            = 0xF14,                       // blizz F140
+    HIGHGUID_VEHICLE        = 0xF15,                       // blizz F550
+    HIGHGUID_DYNAMICOBJECT  = 0xF10,                       // blizz F100
     HIGHGUID_CORPSE         = 0xF101,                       // blizz F100
-    HIGHGUID_MO_TRANSPORT   = 0x1FC0,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
-    HIGHGUID_GROUP          = 0x1F50,
+    HIGHGUID_MO_TRANSPORT   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    HIGHGUID_GROUP          = 0x1F5,
     HIGHGUID_GUILD          = 0x1FF5,                       // new 4.x
 };
 
@@ -70,15 +70,20 @@ enum HighGuid
 // l - OBJECT_FIELD_GUID
 // e - OBJECT_FIELD_ENTRY for GO (except GAMEOBJECT_TYPE_MO_TRANSPORT) and creatures or UNIT_FIELD_PETNUMBER for pets
 // h - OBJECT_FIELD_GUID + 1
-#define MAKE_NEW_GUID(l, e, h)   uint64(uint64(l) | (uint64(e) << 24) | (uint64(h) << 48))
+#define MAKE_NEW_GUID(l, e, h)   uint64(uint64(l) | (uint64(e) << 32) | (uint64(h) << ((h == HIGHGUID_GUILD || h == HIGHGUID_CORPSE) ? 48 : 52)))
 
-#define GUID_HIPART(x)   (uint32)((uint64(x) >> 48) & 0x0000FFFF)
+//#define GUID_HIPART(x)   (uint32)((uint64(x) >> 52)) & 0x0000FFFF)
+inline uint32 GUID_HIPART(uint64 guid)
+{
+    uint32 t = ((uint64(guid) >> 48) & 0x0000FFFF);
+    return (t == HIGHGUID_GUILD || t == HIGHGUID_CORPSE) ? t : ((uint32(t) >> 4) & 0x00000FFF);
+}
 
 // We have different low and middle part size for different guid types
 #define _GUID_ENPART_2(x) 0
-#define _GUID_ENPART_3(x) (uint32)((uint64(x) >> 24) & UI64LIT(0x0000000000FFFFFF))
+#define _GUID_ENPART_3(x) (uint32)((uint64(x) >> 32) & UI64LIT(0x0000000000FFFFFF))
 #define _GUID_LOPART_2(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
-#define _GUID_LOPART_3(x) (uint32)(uint64(x)         & UI64LIT(0x0000000000FFFFFF))
+#define _GUID_LOPART_3(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 
 inline bool IsGuidHaveEnPart(uint64 guid)
 {

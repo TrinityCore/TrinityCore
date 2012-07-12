@@ -945,6 +945,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     data.Initialize(SMSG_HOTFIX_INFO);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
     data.WriteBits(hotfix.size(), 22);
+    data.FlushBits();
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
         data << uint32(hotfix[i].Type);
