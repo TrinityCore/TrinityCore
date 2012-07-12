@@ -28,13 +28,12 @@ include_directories(
 add_executable(vmap4extractor ${sources})
 
 target_link_libraries(vmap4extractor
-  mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   storm
 )
 
-add_dependencies(vmap4extractor mpq)
+add_dependencies(vmap4extractor storm)
 
 if( UNIX )
   install(TARGETS vmap4extractor DESTINATION bin)

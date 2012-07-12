@@ -2501,7 +2501,7 @@ bool Creature::SetHover(bool enable)
         return true;
 
     //! Not always a packet is sent
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_HOVER : SMSG_MOVE_UNSET_HOVER, 9);
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_HOVER : SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
     data.append(GetPackGUID());
     SendMessageToSet(&data, false);
     return true;
