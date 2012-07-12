@@ -173,7 +173,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 
     if (!opcodeTable[packet->GetOpcode()])
     {
-        sLog->outError("Prevented sending disabled opcode %d (hex %#04X)", packet->GetOpcode(), packet->GetOpcode());
+        sLog->outError("Prevented sending disabled opcode %d (hex 0x%04X)", packet->GetOpcode(), packet->GetOpcode());
         return;
     }
 
