@@ -2364,10 +2364,10 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
     ObjectGuid counter;
 
     WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA, 4 + numAchievements * (4 + 4) + 4 + numCriteria * (4 + 4 + 4 + 4 + 8 + 8));
-    data.WriteBits(21, numCriteria);
+    data.WriteBits(numCriteria, 21);
     for (CriteriaProgressMap::const_iterator itr = m_criteriaProgress.begin(); itr != m_criteriaProgress.end(); ++itr)
     {
-        counter = itr->second.counter;
+        counter = uint64(itr->second.counter);
 
         data.WriteBit(guid[4]);
         data.WriteBit(counter[3]);
@@ -2380,7 +2380,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
         data.WriteBit(guid[2]);
         data.WriteBit(counter[7]);
         data.WriteBit(guid[7]);
-        data.WriteBits(0, 2);
+        data.WriteBits(0u, 2);
         data.WriteBit(guid[6]);
         data.WriteBit(counter[2]);
         data.WriteBit(counter[1]);
@@ -2410,6 +2410,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
     }
 
     data.WriteBits(numAchievements, 23);
+    data.FlushBits();
     data.append(criteriaData);
 
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
@@ -2417,8 +2418,8 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
         if (!isVisible(*itr))
             continue;
 
-        data << uint32(secsToTimeBitFields(itr->second.date));
         data << uint32(itr->first);
+        data << uint32(secsToTimeBitFields(itr->second.date));
     }
 
     if (data.size() > 0x1000)
@@ -2512,6 +2513,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
 
     data.WriteBit(guid[6]);
     data.WriteBit(guid[5]);
+    data.FlushBits();
     data.append(criteriaData);
     data.WriteByteSeq(guid[1]);
     data.WriteByteSeq(guid[6]);
