@@ -356,28 +356,19 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
         status = GMTICKET_STATUS_HASTEXT;
     }
 
-    WorldPacket data(SMSG_GMTICKET_GETTICKET, (4 + 4 + (ticket ? message.length() + 1 + 4 + 4 + 4 + 1 + 1 : 0)));
+    WorldPacket data(SMSG_GMTICKET_GETTICKET, (4 + (ticket ? 4 + message.length() + 1 + 4 + 4 + 4 + 1 + 1 : 0)));
     data << uint32(status);                         // standard 0x0A, 0x06 if text present
-    data << uint32(ticket ? ticket->GetId() : 0);   // ticketID
 
     if (ticket)
     {
+        data << uint32(ticket->GetId());            // ticketID
         data << message.c_str();                    // ticket text
         data << uint8(0x7);                         // ticket category; why is this hardcoded? does it make a diff re: client?
 
         // we've got the easy stuff done by now.
         // Now we need to go through the client logic for displaying various levels of ticket load
-        if (ticket)
-            ticket->WritePacket(data);
-        else
-        {
-            // we can't actually get any numbers here...
-            data << float(0);
-            data << float(0);
-            data << float(1);
-            data << uint8(0);
-            data << uint8(0);
-        }
+        ticket->WritePacket(data);
     }
+
     session->SendPacket(&data);
 }

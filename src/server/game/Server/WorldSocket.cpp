@@ -1096,7 +1096,7 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
         }
     }
 
-    WorldPacket packet (SMSG_PONG, 4);
+    WorldPacket packet(SMSG_PONG, 4);
     packet << ping;
     return SendPacket(packet);
 }
