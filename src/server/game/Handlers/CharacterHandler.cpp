@@ -1514,6 +1514,14 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
         uint64 itemGuid;
         recv_data.readPackGUID(itemGuid);
 
+        // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
+        if (itemGuid == 1)
+        {
+            // ignored slots saved as bit mask because we have no free special values for Items[i]
+            eqSet.IgnoreMask |= 1 << i;
+            continue;
+        }
+
         Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
         if (!item && itemGuid)                               // cheating check 1
@@ -1554,6 +1562,10 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
         recv_data >> srcbag >> srcslot;
 
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
+
+        // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
+        if (itemGuid == 1)
+            continue;
 
         Item* item = _player->GetItemByGuid(itemGuid);
 
