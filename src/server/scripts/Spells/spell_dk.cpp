@@ -40,7 +40,7 @@ enum DeathKnightSpells
     DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     DK_SPELL_UNHOLY_PRESENCE                    = 48265,
     DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
-    SPELL_DK_ITEM_T8_MALEE_4P_BONUS             = 64736,
+    SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     DK_SPELL_BLACK_ICE_R1                       = 49140,
 };
 
@@ -412,7 +412,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                 {
                     multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
                     // Death Knight T8 Melee 4P Bonus
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_ITEM_T8_MALEE_4P_BONUS, EFFECT_0))
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_ITEM_T8_MELEE_4P_BONUS, EFFECT_0))
                         AddPctF(multiplier, aurEff->GetAmount());
                 }
             }
