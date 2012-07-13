@@ -452,7 +452,7 @@ int WorldSocket::Update (void)
 
     int ret;
     do
-        ret = handle_output (get_handle());
+        ret = handle_output(get_handle());
     while (ret > 0);
 
     return ret;
@@ -460,18 +460,18 @@ int WorldSocket::Update (void)
 
 int WorldSocket::handle_input_header (void)
 {
-    ACE_ASSERT (m_RecvWPct == NULL);
+    ACE_ASSERT(m_RecvWPct == NULL);
 
-    ACE_ASSERT (m_Header.length() == sizeof(ClientPktHeader));
+    ACE_ASSERT(m_Header.length() == sizeof(ClientPktHeader));
 
-    m_Crypt.DecryptRecv ((uint8*) m_Header.rd_ptr(), sizeof(ClientPktHeader));
+    m_Crypt.DecryptRecv ((uint8*)m_Header.rd_ptr(), sizeof(ClientPktHeader));
 
-    ClientPktHeader& header = *((ClientPktHeader*) m_Header.rd_ptr());
+    ClientPktHeader& header = *((ClientPktHeader*)m_Header.rd_ptr());
 
     EndianConvertReverse(header.size);
     EndianConvert(header.cmd);
 
-    if ((header.size < 4) || (header.size > 10240))
+    if ((header.size < 4) || (header.size > 10240) || (header.cmd > 0xFFFF && (header.cmd >> 16) != 0x4C52))  // LR (from MSG_VERIFY_CONNECTIVITY)
     {
         Player* _player = m_Session ? m_Session->GetPlayer() : NULL;
         sLog->outError("WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d, cmd: %d)",
@@ -486,11 +486,11 @@ int WorldSocket::handle_input_header (void)
 
     header.size -= 4;
 
-    ACE_NEW_RETURN (m_RecvWPct, WorldPacket (PacketFilter::DropHighBytes(Opcodes(header.cmd)), header.size), -1);
+    ACE_NEW_RETURN(m_RecvWPct, WorldPacket (PacketFilter::DropHighBytes(Opcodes(header.cmd)), header.size), -1);
 
     if (header.size > 0)
     {
-        m_RecvWPct->resize (header.size);
+        m_RecvWPct->resize(header.size);
         m_RecvPct.base ((char*) m_RecvWPct->contents(), m_RecvWPct->size());
     }
     else
