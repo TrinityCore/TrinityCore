@@ -843,7 +843,7 @@ enum Opcodes
     SMSG_MIRRORIMAGE_DATA                             = 0x0000,
     SMSG_MODIFY_COOLDOWN                              = 0x0000,
     SMSG_MONSTER_MOVE                                 = 0x6E17,
-    SMSG_MONSTER_MOVE_TRANSPORT                       = 0x0000,
+    SMSG_MONSTER_MOVE_TRANSPORT                       = 0x2004,
     SMSG_MOTD                                         = 0x0A35,
     SMSG_MOUNTRESULT                                  = 0x0000,
     SMSG_MOUNTSPECIAL_ANIM                            = 0x0000,
