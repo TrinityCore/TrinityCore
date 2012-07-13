@@ -43,7 +43,7 @@ enum DeathKnightSpells
     DK_SPELL_RAISE_DEAD_NORMAL                  = 46585,
     DK_SPELL_RAISE_DEAD_IMPROVED                = 52150,    // improved with Master of Ghouls talent
     DK_SPELL_GLYPH_OF_RAISE_DEAD                = 60200,
-    SPELL_DK_ITEM_T8_MALEE_4P_BONUS             = 64736,
+    SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     DK_SPELL_BLACK_ICE_R1                       = 49140,
 };
 
@@ -453,7 +453,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                 {
                     multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
                     // Death Knight T8 Melee 4P Bonus
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_ITEM_T8_MALEE_4P_BONUS, EFFECT_0))
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_ITEM_T8_MELEE_4P_BONUS, EFFECT_0))
                         AddPctF(multiplier, aurEff->GetAmount());
                 }
             }

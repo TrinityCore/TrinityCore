@@ -80,7 +80,7 @@ public:
         char* countStr = strtok(NULL, " ");
         uint32 count = countStr ? atol(countStr) : 10;
 
-        if (count < 0)
+        if (count == 0)
             return false;
 
         QueryResult result;
@@ -152,7 +152,7 @@ public:
         char* countStr = strtok(NULL, " ");
         uint32 count = countStr ? atol(countStr) : 10;
 
-        if (count < 0)
+        if (count == 0)
             return false;
 
         PreparedQueryResult result;
@@ -369,7 +369,7 @@ public:
         char* countStr = strtok(NULL, " ");
         uint32 count = countStr ? atol(countStr) : 10;
 
-        if (count < 0)
+        if (count == 0)
             return false;
 
         QueryResult result;
