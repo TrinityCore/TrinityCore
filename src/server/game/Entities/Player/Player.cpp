@@ -24826,7 +24826,7 @@ void Player::SendEquipmentSetList()
         {
             // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
             if (itr->second.IgnoreMask & (1 << i))
-                data.appendPackGUID(MAKE_NEW_GUID(uint64(1)));
+                data.appendPackGUID(uint64(1));
             else
                 data.appendPackGUID(MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM));
         }
