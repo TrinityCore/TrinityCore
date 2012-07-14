@@ -675,28 +675,26 @@ enum MovementFlags
     MOVEMENTFLAG_PITCH_UP              = 0x00000040,
     MOVEMENTFLAG_PITCH_DOWN            = 0x00000080,
     MOVEMENTFLAG_WALKING               = 0x00000100,               // Walking
-    MOVEMENTFLAG_ONTRANSPORT           = 0x00000200,               // Used for flying on some creatures
-    MOVEMENTFLAG_DISABLE_GRAVITY       = 0x00000400,               // Former MOVEMENTFLAG_LEVITATING. This is used when walking is not possible.
-    MOVEMENTFLAG_ROOT                  = 0x00000800,               // Must not be set along with MOVEMENTFLAG_MASK_MOVING
-    MOVEMENTFLAG_FALLING               = 0x00001000,               // damage dealt on that type of falling
-    MOVEMENTFLAG_FALLING_FAR           = 0x00002000,
-    MOVEMENTFLAG_PENDING_STOP          = 0x00004000,
-    MOVEMENTFLAG_PENDING_STRAFE_STOP   = 0x00008000,
-    MOVEMENTFLAG_PENDING_FORWARD       = 0x00010000,
-    MOVEMENTFLAG_PENDING_BACKWARD      = 0x00020000,
-    MOVEMENTFLAG_PENDING_STRAFE_LEFT   = 0x00040000,
-    MOVEMENTFLAG_PENDING_STRAFE_RIGHT  = 0x00080000,
-    MOVEMENTFLAG_PENDING_ROOT          = 0x00100000,
-    MOVEMENTFLAG_SWIMMING              = 0x00200000,               // appears with fly flag also
-    MOVEMENTFLAG_ASCENDING             = 0x00400000,               // press "space" when flying
-    MOVEMENTFLAG_DESCENDING            = 0x00800000,
-    MOVEMENTFLAG_CAN_FLY               = 0x01000000,               // Appears when unit can fly AND also walk
-    MOVEMENTFLAG_FLYING                = 0x02000000,               // unit is actually flying. pretty sure this is only used for players. creatures use disable_gravity
-    MOVEMENTFLAG_SPLINE_ELEVATION      = 0x04000000,               // used for flight paths
-    MOVEMENTFLAG_SPLINE_ENABLED        = 0x08000000,               // used for flight paths
-    MOVEMENTFLAG_WATERWALKING          = 0x10000000,               // prevent unit from falling through water
-    MOVEMENTFLAG_FALLING_SLOW          = 0x20000000,               // active rogue safe fall spell (passive)
-    MOVEMENTFLAG_HOVER                 = 0x40000000,               // hover, cannot jump
+    MOVEMENTFLAG_DISABLE_GRAVITY       = 0x00000200,               // Former MOVEMENTFLAG_LEVITATING. This is used when walking is not possible.
+    MOVEMENTFLAG_ROOT                  = 0x00000400,               // Must not be set along with MOVEMENTFLAG_MASK_MOVING
+    MOVEMENTFLAG_FALLING               = 0x00000800,               // damage dealt on that type of falling
+    MOVEMENTFLAG_FALLING_FAR           = 0x00001000,
+    MOVEMENTFLAG_PENDING_STOP          = 0x00002000,
+    MOVEMENTFLAG_PENDING_STRAFE_STOP   = 0x00004000,
+    MOVEMENTFLAG_PENDING_FORWARD       = 0x00008000,
+    MOVEMENTFLAG_PENDING_BACKWARD      = 0x00010000,
+    MOVEMENTFLAG_PENDING_STRAFE_LEFT   = 0x00020000,
+    MOVEMENTFLAG_PENDING_STRAFE_RIGHT  = 0x00040000,
+    MOVEMENTFLAG_PENDING_ROOT          = 0x00080000,
+    MOVEMENTFLAG_SWIMMING              = 0x00100000,               // appears with fly flag also
+    MOVEMENTFLAG_ASCENDING             = 0x00200000,               // press "space" when flying
+    MOVEMENTFLAG_DESCENDING            = 0x00400000,
+    MOVEMENTFLAG_CAN_FLY               = 0x00800000,               // Appears when unit can fly AND also walk
+    MOVEMENTFLAG_FLYING                = 0x01000000,               // unit is actually flying. pretty sure this is only used for players. creatures use disable_gravity
+    MOVEMENTFLAG_SPLINE_ELEVATION      = 0x02000000,               // used for flight paths
+    MOVEMENTFLAG_WATERWALKING          = 0x04000000,               // prevent unit from falling through water
+    MOVEMENTFLAG_FALLING_SLOW          = 0x08000000,               // active rogue safe fall spell (passive)
+    MOVEMENTFLAG_HOVER                 = 0x10000000,               // hover, cannot jump
 
     // TODO: Check if PITCH_UP and PITCH_DOWN really belong here..
     MOVEMENTFLAG_MASK_MOVING =
@@ -2103,6 +2101,7 @@ class Unit : public WorldObject
         uint16 HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.flags2 & f; }
         uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.flags2; }
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
+        bool IsSplineEnabled() const;
 
         float GetPositionZMinusOffset() const
         {

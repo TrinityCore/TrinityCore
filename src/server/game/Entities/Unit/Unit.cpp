@@ -396,7 +396,7 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
         m_movesplineTimer.Reset(POSITION_UPDATE_DELAY);
         Movement::Location loc = movespline->ComputePosition();
 
-        if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        if (GetTransGUID())
         {
             Position& pos = m_movementInfo.t_pos;
             pos.m_positionX = loc.x;
@@ -420,7 +420,7 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
 void Unit::DisableSpline()
 {
-    m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEMENTFLAG_SPLINE_ENABLED|MOVEMENTFLAG_FORWARD));
+    m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
     movespline->_Interrupt();
 }
 
@@ -17644,7 +17644,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     *data << GetPositionZMinusOffset();
     *data << GetOrientation();
 
-    bool onTransport = GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT;
+    bool onTransport = m_movementInfo.t_guid != 0;
     bool hasInterpolatedMovement = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
     bool time3 = false;
     bool swimming = ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
@@ -18179,4 +18179,9 @@ void Unit::SendMovementCanFlyChange()
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
+}
+
+bool Unit::IsSplineEnabled() const
+{
+    return !movespline->Finalized();
 }
