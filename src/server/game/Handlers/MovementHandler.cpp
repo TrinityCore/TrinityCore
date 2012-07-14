@@ -776,7 +776,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 if (hasFallDirection)
                     data >> mi->j_xyspeed;
                 break;
-            case MSESplineElev:
+            case MSESplineElevation:
                 if (hasSplineElevation)
                     data >> mi->splineElevation;
                 break;
@@ -898,6 +898,8 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
     for(uint32 i = 0; i < MSE_COUNT; ++i)
     {
         MovementStatusElements element = sequence[i];
+        if (element == MSEEnd)
+            break;
 
         if (element >= MSEHasGuidByte0 && element <= MSEHasGuidByte7)
         {
@@ -1049,7 +1051,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
                 if (hasFallDirection)
                     data << mi->j_xyspeed;
                 break;
-            case MSESplineElev:
+            case MSESplineElevation:
                 if (hasSplineElevation)
                     data << mi->splineElevation;
                 break;
