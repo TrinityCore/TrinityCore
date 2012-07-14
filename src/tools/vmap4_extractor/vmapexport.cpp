@@ -59,7 +59,7 @@
 HANDLE WorldMpq = NULL;
 HANDLE LocaleMpq = NULL;
 
-uint32 CONF_TargetBuild = 14545;              // 4.2.2.14545
+uint32 CONF_TargetBuild = 15595;              // 4.3.4.15595
 
 // List MPQ for extract maps from
 char const* CONF_mpq_list[]=
