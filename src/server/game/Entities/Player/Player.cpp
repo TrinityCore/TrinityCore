@@ -16715,10 +16715,11 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
         uint8 index    = fields[1].GetUInt8();
         eqSet.Name      = fields[2].GetString();
         eqSet.IconName  = fields[3].GetString();
+        eqSet.IgnoreMask = fields[4].GetUInt32();
         eqSet.state     = EQUIPMENT_SET_UNCHANGED;
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            eqSet.Items[i] = fields[4+i].GetUInt32();
+            eqSet.Items[i] = fields[5+i].GetUInt32();
 
         m_EquipmentSets[index] = eqSet;
 
@@ -17374,11 +17375,21 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // restore remembered power/health values (but not more max values)
     uint32 savedHealth = fields[48].GetUInt32();
     SetHealth(savedHealth > GetMaxHealth() ? GetMaxHealth() : savedHealth);
-    for (uint8 i = 0; i < MAX_STORED_POWERS; ++i)
+    uint32 loadedPowers = 0;
+    for (uint32 i = 0; i < MAX_POWERS; ++i)
     {
-        uint32 savedPower = fields[49+i].GetUInt32();
-        SetPower(Powers(i), savedPower > GetMaxPower(Powers(i)) ? GetMaxPower(Powers(i)) : savedPower);
+        if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+        {
+            uint32 savedPower = fields[49+loadedPowers].GetUInt32();
+            uint32 maxPower = GetUInt32Value(UNIT_FIELD_MAXPOWER1 + loadedPowers);
+            SetPower(Powers(i), (savedPower > maxPower) ? maxPower : savedPower);
+            if (++loadedPowers >= MAX_STORED_POWERS)
+                break;
+        }
     }
+
+    for (; loadedPowers < MAX_STORED_POWERS; ++loadedPowers)
+        SetUInt32Value(UNIT_FIELD_POWER1 + loadedPowers, 0);
 
     // must be after loading spells and talents
     Tokens talentTrees(fields[26].GetString(), ' ', MAX_TALENT_SPECS);
@@ -18830,8 +18841,19 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt16(index++, (uint16)(GetUInt32Value(PLAYER_BYTES_3) & 0xFFFE));
         stmt->setUInt32(index++, GetHealth());
 
-        for (uint32 i = 0; i < MAX_STORED_POWERS; ++i)
-            stmt->setUInt32(index++, GetPower(Powers(i)));
+        uint32 storedPowers = 0;
+        for (uint32 i = 0; i < MAX_POWERS; ++i)
+        {
+            if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+            {
+                stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER1 + storedPowers));
+                if (++storedPowers >= MAX_STORED_POWERS)
+                    break;
+            }
+        }
+
+        for (; storedPowers < MAX_STORED_POWERS; ++storedPowers)
+            stmt->setUInt32(index++, 0);
 
         stmt->setUInt32(index++, GetSession()->GetLatency());
 
@@ -18941,8 +18963,19 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt16(index++, (uint16)(GetUInt32Value(PLAYER_BYTES_3) & 0xFFFE));
         stmt->setUInt32(index++, GetHealth());
 
-        for (uint32 i = 0; i < MAX_STORED_POWERS; ++i)
-            stmt->setUInt32(index++, GetPower(Powers(i)));
+        uint32 storedPowers = 0;
+        for (uint32 i = 0; i < MAX_POWERS; ++i)
+        {
+            if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+            {
+                stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER1 + storedPowers));
+                if (++storedPowers >= MAX_STORED_POWERS)
+                    break;
+            }
+        }
+
+        for (; storedPowers < MAX_STORED_POWERS; ++storedPowers)
+            stmt->setUInt32(index++, 0);
 
         stmt->setUInt32(index++, GetSession()->GetLatency());
 
@@ -24903,7 +24936,13 @@ void Player::SendEquipmentSetList()
         data << itr->second.Name;
         data << itr->second.IconName;
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            data.appendPackGUID(MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM));
+        {
+            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
+            if (itr->second.IgnoreMask & (1 << i))
+                data.appendPackGUID(uint64(1));
+            else
+                data.appendPackGUID(MAKE_NEW_GUID(itr->second.Items[i], 0, HIGHGUID_ITEM));
+        }
 
         ++count;                                            // client have limit but it checked at loading and set
     }
@@ -24969,6 +25008,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_EQUIP_SET);
                 stmt->setString(j++, eqset.Name.c_str());
                 stmt->setString(j++, eqset.IconName.c_str());
+                stmt->setUInt32(j++, eqset.IgnoreMask);
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
                     stmt->setUInt32(j++, eqset.Items[i]);
                 stmt->setUInt32(j++, GetGUIDLow());
@@ -24985,6 +25025,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt->setUInt32(j++, index);
                 stmt->setString(j++, eqset.Name.c_str());
                 stmt->setString(j++, eqset.IconName.c_str());
+                stmt->setUInt32(j++, eqset.IgnoreMask);
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
                     stmt->setUInt32(j++, eqset.Items[i]);
                 trans->Append(stmt);

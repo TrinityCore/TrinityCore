@@ -673,7 +673,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 uint8 cp = caster->ToPlayer()->GetComboPoints();
 
                 // Idol of Feral Shadows. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                if (AuraEffect const* aurEff = caster->GetAuraEffect(34241, 0))
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(34241, EFFECT_0))
+                    amount += cp * aurEff->GetAmount();
+                // Idol of Worship. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
+                else if (AuraEffect const* aurEff = caster->GetAuraEffect(60774, EFFECT_0))
                     amount += cp * aurEff->GetAmount();
 
                 amount += uint32(CalculatePctU(caster->GetTotalAttackPowerValue(BASE_ATTACK), cp));

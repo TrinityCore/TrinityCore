@@ -6432,7 +6432,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Effect 0 - mod damage while having Enrage
                 if (effIndex == 0)
                 {
-                    if (!(procSpell->SpellFamilyFlags[0] & 0x00080000))
+                    if (!(procSpell->SpellFamilyFlags[0] & 0x00080000) || procSpell->SpellIconID != 916)
                         return false;
                     triggered_spell_id = 51185;
                     basepoints0 = triggerAmount;
@@ -6442,7 +6442,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Effect 1 - Tiger's Fury restore energy
                 else if (effIndex == 1)
                 {
-                    if (!(procSpell->SpellFamilyFlags[2] & 0x00000800))
+                    if (!(procSpell->SpellFamilyFlags[2] & 0x00000800) || procSpell->SpellIconID != 1181)
                         return false;
                     triggered_spell_id = 51178;
                     basepoints0 = triggerAmount;
@@ -10691,7 +10691,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     for (AuraEffectList::const_iterator i = IgnoreResistAuras.begin(); i != IgnoreResistAuras.end(); ++i)
     {
         if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
-            TakenTotalCasterMod += (float((*i)->GetAmount())/100);
+            TakenTotalCasterMod += (float((*i)->GetAmount()));
     }
 
     // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
@@ -11737,7 +11737,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     for (AuraEffectList::const_iterator i = IgnoreResistAuras.begin(); i != IgnoreResistAuras.end(); ++i)
     {
         if ((*i)->GetMiscValue() & attackSchoolMask)
-            TakenTotalCasterMod += (float((*i)->GetAmount())/100);
+            TakenTotalCasterMod += (float((*i)->GetAmount()));
     }
 
     // ..taken

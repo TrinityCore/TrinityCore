@@ -655,7 +655,7 @@ enum EquipmentSetUpdateState
 
 struct EquipmentSet
 {
-    EquipmentSet() : Guid(0), state(EQUIPMENT_SET_NEW)
+    EquipmentSet() : Guid(0), IgnoreMask(0), state(EQUIPMENT_SET_NEW)
     {
         for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
             Items[i] = 0;
@@ -664,6 +664,7 @@ struct EquipmentSet
     uint64 Guid;
     std::string Name;
     std::string IconName;
+    uint32 IgnoreMask;
     uint32 Items[EQUIPMENT_SLOT_END];
     EquipmentSetUpdateState state;
 };

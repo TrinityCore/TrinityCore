@@ -19,10 +19,12 @@ set(scripts_STAT_SRCS
   Commands/cs_gm.cpp
   Commands/cs_go.cpp
   Commands/cs_gobject.cpp
+  Commands/cs_guild.cpp
   Commands/cs_honor.cpp
   Commands/cs_instance.cpp
   Commands/cs_learn.cpp
   Commands/cs_list.cpp
+  Commands/cs_lookup.cpp
   Commands/cs_misc.cpp
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
@@ -33,9 +35,7 @@ set(scripts_STAT_SRCS
   Commands/cs_server.cpp
   Commands/cs_titles.cpp
   Commands/cs_wp.cpp
-#  Commands/cs_lookup.cpp
 #  Commands/cs_pdump.cpp
-#  Commands/cs_guild.cpp
 #  Commands/cs_channel.cpp
 #  Commands/cs_pet.cpp
 #  Commands/cs_ticket.cpp
