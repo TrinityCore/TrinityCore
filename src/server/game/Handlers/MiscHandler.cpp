@@ -383,8 +383,8 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
     if (reason)
     {
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-        data << uint8(reason);
         data << uint32(0);
+        data << uint8(reason);
         SendPacket(&data);
         LogoutRequest(0);
         return;
@@ -395,8 +395,8 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
         GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)))
     {
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-        data << uint8(0);
         data << uint32(16777216);
+        data << uint8(0);
         SendPacket(&data);
         LogoutPlayer(true);
         return;
@@ -415,8 +415,8 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
     }
 
     WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-    data << uint8(0);
     data << uint32(0);
+    data << uint8(0);
     SendPacket(&data);
     LogoutRequest(time(NULL));
 }
