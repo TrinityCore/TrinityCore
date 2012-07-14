@@ -1217,15 +1217,20 @@ class spell_q12735_song_of_cleansing : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-
-                if (caster && caster->GetAreaId() == AREA_BITTERTIDELAKE)
-                    caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_ATAH);
-
-                else if (caster && caster->GetAreaId() == AREA_RIVERSHEART)
-                    caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_HAKHALAN);
-
-                else if (caster && caster->GetAreaId() == AREA_WINTERGRASPRIVER)
-                    caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_KOOSU);
+                switch (caster->GetAreaId())
+                {
+                    case AREA_BITTERTIDELAKE:
+                        caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_ATAH);
+                        break;
+                    case AREA_RIVERSHEART:
+                        caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_HAKHALAN);
+                        break;
+                    case AREA_WINTERGRASPRIVER:
+                        caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_KOOSU);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void Register()

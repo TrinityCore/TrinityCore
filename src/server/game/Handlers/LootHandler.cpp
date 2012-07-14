@@ -472,16 +472,18 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
     if (!loot)
         return;
 
-    if (slotid > loot->items.size())
+    if (slotid >= loot->items.size() + loot->quest_items.size())
     {
         sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), slotid, (unsigned long)loot->items.size());
         return;
     }
 
-    LootItem& item = loot->items[slotid];
+    LootItem& item = slotid >= loot->items.size() ? loot->quest_items[slotid - loot->items.size()] : loot->items[slotid];
 
     ItemPosCountVec dest;
     InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
+    if (item.follow_loot_rules && !item.AllowedForPlayer(target))
+        msg = EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
     if (msg != EQUIP_ERR_OK)
     {
         target->SendEquipError(msg, NULL, NULL, item.itemid);

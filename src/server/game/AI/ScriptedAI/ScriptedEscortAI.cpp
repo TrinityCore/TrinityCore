@@ -32,7 +32,8 @@ npc_escortAI::npc_escortAI(Creature* creature) : ScriptedAI(creature),
     m_bCanReturnToStart(false),
     DespawnAtEnd(true),
     DespawnAtFar(true),
-    ScriptWP(false)
+    ScriptWP(false),
+    HasImmuneToNPCFlags(false)
 {}
 
 void npc_escortAI::AttackStart(Unit* who)
@@ -179,6 +180,8 @@ void npc_escortAI::EnterEvadeMode()
     else
     {
         me->GetMotionMaster()->MoveTargetedHome();
+        if (HasImmuneToNPCFlags)
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         Reset();
     }
 }
@@ -462,6 +465,11 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
 
     //disable npcflags
     me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+    if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
+    {
+        HasImmuneToNPCFlags = true;
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+    }
 
     sLog->outDebug(LOG_FILTER_TSCR, "TSCR: EscortAI started with " UI64FMTD " waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = " UI64FMTD "", uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID);
 

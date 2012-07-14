@@ -157,30 +157,6 @@ class ChatHandler
         bool HandleBindSightCommand(const char* args);
         bool HandleUnbindSightCommand(const char* args);
 
-        bool HandleGuildCreateCommand(const char* args);
-        bool HandleGuildInviteCommand(const char* args);
-        bool HandleGuildUninviteCommand(const char* args);
-        bool HandleGuildRankCommand(const char* args);
-        bool HandleGuildDeleteCommand(const char* args);
-
-        bool HandleLookupAreaCommand(const char* args);
-        bool HandleLookupCreatureCommand(const char* args);
-        bool HandleLookupEventCommand(const char* args);
-        bool HandleLookupFactionCommand(const char * args);
-        bool HandleLookupItemCommand(const char * args);
-        bool HandleLookupItemSetCommand(const char * args);
-        bool HandleLookupObjectCommand(const char* args);
-        bool HandleLookupPlayerIpCommand(const char* args);
-        bool HandleLookupPlayerAccountCommand(const char* args);
-        bool HandleLookupPlayerEmailCommand(const char* args);
-        bool HandleLookupQuestCommand(const char* args);
-        bool HandleLookupSkillCommand(const char* args);
-        bool HandleLookupSpellCommand(const char* args);
-        bool HandleLookupTaxiNodeCommand(const char * args);
-        bool HandleLookupTeleCommand(const char * args);
-        bool HandleLookupMapCommand(const char* args);
-        bool HandleLookupTitleCommand(const char * args);
-
         bool HandlePDumpLoadCommand(const char *args);
         bool HandlePDumpWriteCommand(const char *args);
 
