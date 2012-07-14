@@ -166,8 +166,6 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     if (packet->GetOpcode() == NULL_OPCODE || packet->GetOpcode() == UNKNOWN_OPCODE)
     {
         sLog->outError("Prevented sending of %s", packet->GetOpcode() == NULL_OPCODE ? "NULL_OPCODE" : "UNKNOWN_OPCODE");
-        //ACE_Stack_Trace trace;
-        //sLog->outError("%s", trace.c_str());
         return;
     }
 

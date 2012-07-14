@@ -47,6 +47,7 @@
 #include "OutdoorPvPMgr.h"
 #include "MovementPacketBuilder.h"
 #include "DynamicTree.h"
+#include "Unit.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -331,13 +332,13 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(0);
         data->WriteBit(!((movementFlags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) ||
             (movementFlagsExtra & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)));       // Has pitch
-        data->WriteBit(movementFlags & MOVEMENTFLAG_SPLINE_ENABLED);            // Has spline data
+        data->WriteBit(self->IsSplineEnabled());                                // Has spline data
         data->WriteBit(movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_TURNING);// Has fall data
         data->WriteBit(!(movementFlags & MOVEMENTFLAG_SPLINE_ELEVATION));       // Has spline elevation
         data->WriteBit(guid[5]);
-        data->WriteBit(movementFlags & MOVEMENTFLAG_ONTRANSPORT);               // Has transport data
+        data->WriteBit(self->m_movementInfo.t_guid);                            // Has transport data
         data->WriteBit(0);                                                      // Is missing time
-        if (movementFlags & MOVEMENTFLAG_ONTRANSPORT)
+        if (self->m_movementInfo.t_guid)
         {
             ObjectGuid transGuid = self->m_movementInfo.t_guid;
 
@@ -354,7 +355,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         }
 
         data->WriteBit(guid[4]);
-        if (movementFlags & MOVEMENTFLAG_SPLINE_ENABLED)
+        if (self->IsSplineEnabled())
         {
             data->WriteBit(1);                                                  // Has extended spline data
             Movement::PacketBuilder::WriteCreateBits(*self->movespline, *data);
@@ -440,12 +441,12 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (movementFlags & MOVEMENTFLAG_SPLINE_ELEVATION)
             *data << float(self->m_movementInfo.splineElevation);
 
-        if (movementFlags & MOVEMENTFLAG_SPLINE_ENABLED)
+        if (self->IsSplineEnabled())
             Movement::PacketBuilder::WriteCreateData(*self->movespline, *data);
 
         *data << float(self->GetPositionZMinusOffset());
         data->WriteByteSeq(guid[5]);
-        if (movementFlags & MOVEMENTFLAG_ONTRANSPORT)
+        if (self->m_movementInfo.t_guid)
         {
             ObjectGuid transGuid = self->m_movementInfo.t_guid;
 
@@ -1298,7 +1299,7 @@ void MovementInfo::OutDebug()
     sLog->outString("flags2 %u", flags2);
     sLog->outString("time %u current time " UI64FMTD "", flags2, uint64(::time(NULL)));
     sLog->outString("position: `%s`", pos.ToString().c_str());
-    if (flags & MOVEMENTFLAG_ONTRANSPORT)
+    if (t_guid)
     {
         sLog->outString("TRANSPORT:");
         sLog->outString("guid: " UI64FMTD, t_guid);

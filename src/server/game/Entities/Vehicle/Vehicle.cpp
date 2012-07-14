@@ -342,7 +342,6 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING))
         unit->AddUnitState(UNIT_STATE_ONVEHICLE);
 
-    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = seat->second.SeatInfo;
     unit->m_movementInfo.t_pos.m_positionX = veSeat->m_attachmentOffsetX;
     unit->m_movementInfo.t_pos.m_positionY = veSeat->m_attachmentOffsetY;
@@ -419,7 +418,6 @@ void Vehicle::RemovePassenger(Unit* unit)
 
     if (_me->IsInWorld())
     {
-        unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         unit->m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
         unit->m_movementInfo.t_time = 0;
         unit->m_movementInfo.t_seat = 0;

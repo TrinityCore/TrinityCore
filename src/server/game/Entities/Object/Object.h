@@ -529,16 +529,16 @@ struct MovementInfo
     // transport
     uint64 t_guid;
     Position t_pos;
+    int8 t_seat;
     uint32 t_time;
     uint32 t_time2;
     uint32 t_time3;
-    int8 t_seat;
     // swimming/flying
     float pitch;
     // falling
     uint32 fallTime;
     // jumping
-    float j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed;
+    float j_zspeed, j_cosAngle, j_sinAngle, j_xyspeed;
     // spline
     float splineElevation;
 

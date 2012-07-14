@@ -63,7 +63,7 @@ namespace Movement
         bool transport = false;
         Location real_position(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZMinusOffset(), unit.GetOrientation());
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        if (unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit.GetTransGUID())
+        if (unit.GetTransGUID())
         {
             transport = true;
             real_position.x = unit.GetTransOffsetX();
@@ -91,7 +91,7 @@ namespace Movement
         else
             moveFlags &= ~MOVEMENTFLAG_WALKING;
 
-        moveFlags |= (MOVEMENTFLAG_SPLINE_ENABLED|MOVEMENTFLAG_FORWARD);
+        moveFlags |= MOVEMENTFLAG_FORWARD;
 
         if (!args.HasVelocity)
             args.velocity = unit.GetSpeed(SelectSpeedType(moveFlags));
@@ -120,7 +120,7 @@ namespace Movement
     MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)
     {
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        args.TransformForTransport = unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit.GetTransGUID();
+        args.TransformForTransport = unit.GetTransGUID();
         // mix existing state into new
         args.flags.walkmode = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
         args.flags.flying = unit.m_movementInfo.HasMovementFlag((MovementFlags)(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_DISABLE_GRAVITY));

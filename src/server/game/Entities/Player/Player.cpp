@@ -2176,15 +2176,14 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if (m_transport)
     {
-        if (options & TELE_TO_NOT_LEAVE_TRANSPORT)
-            AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-        else
+        if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT))
         {
             m_transport->RemovePassenger(this);
             m_transport = NULL;
             m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
             m_movementInfo.t_time = 0;
             m_movementInfo.t_seat = -1;
+            m_movementInfo.t_guid = 0;
         }
     }
 
