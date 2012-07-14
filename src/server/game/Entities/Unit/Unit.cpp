@@ -17596,7 +17596,7 @@ void Unit::SendMovementHover()
     WorldPacket data(MSG_MOVE_HOVER, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 }
 
 void Unit::SendMovementWaterWalking()
@@ -17607,7 +17607,7 @@ void Unit::SendMovementWaterWalking()
     WorldPacket data(MSG_MOVE_WATER_WALK, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 }
 
 void Unit::SendMovementFeatherFall()
@@ -17618,7 +17618,7 @@ void Unit::SendMovementFeatherFall()
     WorldPacket data(MSG_MOVE_FEATHER_FALL, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 }
 
 void Unit::SendMovementGravityChange()
@@ -17626,7 +17626,7 @@ void Unit::SendMovementGravityChange()
     WorldPacket data(MSG_MOVE_GRAVITY_CHNG, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 }
 
 void Unit::SendMovementCanFlyChange()
@@ -17651,5 +17651,5 @@ void Unit::SendMovementCanFlyChange()
     WorldPacket data(MSG_MOVE_UPDATE_CAN_FLY, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 }
