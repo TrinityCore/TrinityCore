@@ -384,17 +384,7 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
 
         // we've got the easy stuff done by now.
         // Now we need to go through the client logic for displaying various levels of ticket load
-        if (ticket)
-            ticket->WritePacket(data);
-        else
-        {
-            // we can't actually get any numbers here...
-            data << float(0);
-            data << float(0);
-            data << float(1);
-            data << uint8(0);
-            data << uint8(0);
-        }
+        ticket->WritePacket(data);
     }
     session->SendPacket(&data);
 }
