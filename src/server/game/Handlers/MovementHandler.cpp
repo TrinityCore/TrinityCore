@@ -689,7 +689,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 if (hasFallData)
                     hasFallDirection = data.ReadBit();
                 break;
-            case MSEHasSplineElev:
+            case MSEHasSplineElevation:
                 hasSplineElevation = !data.ReadBit();
                 break;
             case MSEHasSpline:
@@ -964,7 +964,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
                 if (hasFallData)
                     data.WriteBit(hasFallDirection);
                 break;
-            case MSEHasSplineElev:
+            case MSEHasSplineElevation:
                 data.WriteBit(!hasSplineElevation);
                 break;
             case MSEHasSpline:
