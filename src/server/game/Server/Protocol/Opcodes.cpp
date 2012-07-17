@@ -719,11 +719,10 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(MSG_MOVE_JUMP,                                STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_ROOT,                                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_ALL_SPEED_CHEAT,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_COLLISION_HGT,                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_FACING,                          STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
+    DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_FACING,                          STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT,         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_FLIGHT_SPEED_CHEAT,              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_PITCH,                           STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
+    DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_PITCH,                           STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_PITCH_RATE_CHEAT,                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT,            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RUN_SPEED,                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
