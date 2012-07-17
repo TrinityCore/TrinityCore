@@ -13,6 +13,7 @@ set(scripts_STAT_SRCS
   Commands/cs_anticheat.cpp
   Commands/cs_account.cpp
   Commands/cs_achievement.cpp
+  Commands/cs_ban.cpp
   Commands/cs_cast.cpp
   Commands/cs_character.cpp
   Commands/cs_debug.cpp
@@ -66,10 +67,6 @@ set(scripts_STAT_SRCS
 #  Commands/cs_save.cpp
 #  Commands/cs_saveall.cpp
 #  Commands/cs_kick.cpp
-#  Commands/cs_ban.cpp
-#  Commands/cs_unban.cpp
-#  Commands/cs_baninfo.cpp
-#  Commands/cs_banlist.cpp
 #  Commands/cs_start.cpp
 #  Commands/cs_taxicheat.cpp
 #  Commands/cs_linkgrave.cpp

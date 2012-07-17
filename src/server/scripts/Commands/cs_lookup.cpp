@@ -1364,7 +1364,7 @@ public:
                 do
                 {
                     Field* characterFields  = result2->Fetch();
-                    uint64 guid             = characterFields[0].GetUInt64();
+                    uint32 guid             = characterFields[0].GetUInt32();
                     std::string name        = characterFields[1].GetString();
 
                     handler->PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid);

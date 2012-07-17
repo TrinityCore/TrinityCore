@@ -61,7 +61,9 @@ void AddSC_SmartSCripts();
 void AddSC_anticheat_commandscript();
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
+void AddSC_ban_commandscript();
 void AddSC_cast_commandscript();
+void AddSC_character_commandscript();
 void AddSC_debug_commandscript();
 void AddSC_event_commandscript();
 void AddSC_gm_commandscript();
@@ -79,11 +81,10 @@ void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
 void AddSC_reload_commandscript();
 void AddSC_reset_commandscript();
-void AddSC_tele_commandscript();
 void AddSC_server_commandscript();
+void AddSC_tele_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
-void AddSC_character_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -679,7 +680,9 @@ void AddCommandScripts()
     AddSC_anticheat_commandscript();
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
+    AddSC_ban_commandscript();
     AddSC_cast_commandscript();
+    AddSC_character_commandscript();
     AddSC_debug_commandscript();
     AddSC_event_commandscript();
     AddSC_gm_commandscript();
@@ -697,11 +700,10 @@ void AddCommandScripts()
     AddSC_quest_commandscript();
     AddSC_reload_commandscript();
     AddSC_reset_commandscript();
-    AddSC_tele_commandscript();
     AddSC_server_commandscript();
+    AddSC_tele_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
-    AddSC_character_commandscript();
 }
 
 void AddWorldScripts()
