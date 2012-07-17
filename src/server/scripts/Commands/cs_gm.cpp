@@ -98,9 +98,9 @@ public:
 
         WorldPacket data;
         if (strncmp(args, "on", 3) == 0)
-            target->SendSetFlyPacket(true);
+            target->SendMovementSetCanFly(true);
         else if (strncmp(args, "off", 4) == 0)
-            target->SendSetFlyPacket(false);
+            target->SendMovementSetCanFly(false);
         else
         {
             handler->SendSysMessage(LANG_USE_BOL);
