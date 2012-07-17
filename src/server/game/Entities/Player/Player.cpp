@@ -2039,86 +2039,61 @@ uint8 Player::GetChatTag() const
 
 void Player::SendTeleportPacket(Position &oldPos)
 {
-    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
+    ObjectGuid guid = GetGUID();
+    ObjectGuid transGuid = GetTransGUID();
 
-    uint64 guid = GetGUID();
-    uint8* bytes = (uint8*)&guid;
+    WorldPacket data(MSG_MOVE_TELEPORT, 38);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(0);       // unknown
+    data.WriteBit(uint64(transGuid));
+    data.WriteBit(guid[1]);
+    if (transGuid)
+    {
+        data.WriteBit(transGuid[1]);
+        data.WriteBit(transGuid[3]);
+        data.WriteBit(transGuid[2]);
+        data.WriteBit(transGuid[5]);
+        data.WriteBit(transGuid[0]);
+        data.WriteBit(transGuid[7]);
+        data.WriteBit(transGuid[6]);
+        data.WriteBit(transGuid[4]);
+    }
 
-    data.WriteBit(GetTransGUID());
-    data.WriteBit(bytes[0]);
-    data.WriteBit(bytes[2]);
-    data.WriteBit(bytes[6]);
-    data.WriteBit(bytes[7]);
-    data.WriteBit(bytes[4]);
-    data.WriteBit(bytes[5]);
-    data.WriteBit(bytes[3]);
-    data.WriteBit(bytes[1]);
-    data.WriteBit(0); //unk byte's bit
-    data << GetPositionX();
-    data << GetPositionY();
-    data << GetPositionZ();
-    data.WriteByteSeq(bytes[5]);
-    data.WriteByteSeq(bytes[4]);
-    if (GetTransGUID()) data << GetTransGUID();
-    data.WriteByteSeq(bytes[2]);
-    data.WriteByteSeq(bytes[7]);
-    data << uint32(0); //unk int
-    data.WriteByteSeq(bytes[1]);
-    data.WriteByteSeq(bytes[0]);
-    data.WriteByteSeq(bytes[6]);
-    data.WriteByteSeq(bytes[3]);
-    // unk byte, only if bit is set
-    data << GetOrientation();
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.FlushBits();
+
+    if (transGuid)
+    {
+        data.WriteByteSeq(transGuid[6]);
+        data.WriteByteSeq(transGuid[5]);
+        data.WriteByteSeq(transGuid[1]);
+        data.WriteByteSeq(transGuid[7]);
+        data.WriteByteSeq(transGuid[0]);
+        data.WriteByteSeq(transGuid[2]);
+        data.WriteByteSeq(transGuid[4]);
+        data.WriteByteSeq(transGuid[3]);
+    }
+
+    data << uint32(0);  // counter
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[5]);
+    data << float(GetPositionX());
+    data.WriteByteSeq(guid[4]);
+    data << float(GetOrientation());
+    data.WriteByteSeq(guid[7]);
+    data << float(GetPositionZMinusOffset());
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[6]);
+    data << float(GetPositionY());
 
     Relocate(&oldPos);
-    SendDirectMessage(&data);
-}
-
-void Player::SendSetFlyPacket(bool apply)
-{
-    WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
-    uint64 guid = GetGUID();
-    uint8* bytes = (uint8*)&guid;
-    if (apply)
-    {
-        data.WriteBit(bytes[4]);
-        data.WriteBit(bytes[3]);
-        data.WriteBit(bytes[6]);
-        data.WriteBit(bytes[0]);
-        data.WriteBit(bytes[1]);
-        data.WriteBit(bytes[2]);
-        data.WriteBit(bytes[7]);
-        data.WriteBit(bytes[5]);
-        data.WriteByteSeq(bytes[3]);
-        data.WriteByteSeq(bytes[7]);
-        data.WriteByteSeq(bytes[5]);
-        data.WriteByteSeq(bytes[0]);
-        data.WriteByteSeq(bytes[1]);
-        data.WriteByteSeq(bytes[4]);
-        data << uint32(sWorld->GetGameTime());
-        data.WriteByteSeq(bytes[6]);
-        data.WriteByteSeq(bytes[2]);
-    }
-    else
-    {
-        data.WriteBit(bytes[1]);
-        data.WriteBit(bytes[6]);
-        data.WriteBit(bytes[0]);
-        data.WriteBit(bytes[2]);
-        data.WriteBit(bytes[4]);
-        data.WriteBit(bytes[5]);
-        data.WriteBit(bytes[7]);
-        data.WriteBit(bytes[3]);
-        data.WriteByteSeq(bytes[7]);
-        data.WriteByteSeq(bytes[6]);
-        data.WriteByteSeq(bytes[5]);
-        data.WriteByteSeq(bytes[0]);
-        data << uint32(sWorld->GetGameTime());
-        data.WriteByteSeq(bytes[3]);
-        data.WriteByteSeq(bytes[1]);
-        data.WriteByteSeq(bytes[2]);
-        data.WriteByteSeq(bytes[4]);
-    }
     SendDirectMessage(&data);
 }
 
@@ -2316,10 +2291,16 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             {
                 // send transfer packets
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
-                data << uint32(mapid);
+                data.WriteBit(0);       // unknown
                 if (m_transport)
-                    data << m_transport->GetEntry() << GetMapId();
+                {
+                    data.WriteBit(1);   // has transport
+                    data << GetMapId() << m_transport->GetEntry();
+                }
+                else
+                    data.WriteBit(0);   // has transport
 
+                data << uint32(mapid);
                 GetSession()->SendPacket(&data);
             }
 
@@ -2349,17 +2330,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                if (m_transport)
-                    data << m_movementInfo.t_pos.PositionXYZStream();
-                else
-                    data << m_teleport_dest.PositionXYZStream();
-
+                data << float(m_teleport_dest.GetPositionX());
+                data << float(m_teleport_dest.GetOrientation());
+                data << float(m_teleport_dest.GetPositionZ());
                 data << uint32(mapid);
-
-                if (m_transport)
-                    data << m_movementInfo.t_pos.GetOrientation();
-                else
-                    data << m_teleport_dest.GetOrientation();
+                data << float(m_teleport_dest.GetPositionY());
 
                 GetSession()->SendPacket(&data);
                 SendSavedInstances();

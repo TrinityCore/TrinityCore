@@ -32,9 +32,9 @@
 #include "ObjectMgr.h"
 #include "MovementStructures.h"
 
-void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got CMSG_WORLD_PORT_RESPONSE.");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -188,20 +188,33 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
+void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_TELEPORT_ACK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_MOVE_TELEPORT_ACK");
 
-    recv_data.rfinish();
-    return;
-
+    ObjectGuid guid;
     uint32 flags, time;
-    recv_data >> flags >> time;
+    recvPacket >> flags >> time;
 
+    guid[5] = recvPacket.ReadBit();
+    guid[0] = recvPacket.ReadBit();
+    guid[1] = recvPacket.ReadBit();
+    guid[6] = recvPacket.ReadBit();
+    guid[3] = recvPacket.ReadBit();
+    guid[7] = recvPacket.ReadBit();
+    guid[2] = recvPacket.ReadBit();
+    guid[4] = recvPacket.ReadBit();
 
-    uint64 guid = 0;
+    recvPacket.ReadByteSeq(guid[4]);
+    recvPacket.ReadByteSeq(guid[2]);
+    recvPacket.ReadByteSeq(guid[7]);
+    recvPacket.ReadByteSeq(guid[6]);
+    recvPacket.ReadByteSeq(guid[5]);
+    recvPacket.ReadByteSeq(guid[1]);
+    recvPacket.ReadByteSeq(guid[3]);
+    recvPacket.ReadByteSeq(guid[0]);
 
-    sLog->outStaticDebug("Guid " UI64FMTD, guid);
+    sLog->outStaticDebug("Guid " UI64FMTD, uint64(guid));
     sLog->outStaticDebug("Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
@@ -243,9 +256,9 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
     GetPlayer()->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
+void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 {
-    uint16 opcode = recvData.GetOpcode();
+    uint16 opcode = recvPacket.GetOpcode();
 
     Unit* mover = _player->m_mover;
 
@@ -256,13 +269,13 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
     {
-        recvData.rfinish();                     // prevent warnings spam
+        recvPacket.rfinish();                     // prevent warnings spam
         return;
     }
 
     /* extract packet */
     MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
+    ReadMovementInfo(recvPacket, &movementInfo);
 
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID())
@@ -283,14 +296,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
         if (movementInfo.t_pos.GetPositionX() > 50 || movementInfo.t_pos.GetPositionY() > 50 || movementInfo.t_pos.GetPositionZ() > 50)
         {
-            recvData.rfinish();                 // prevent warnings spam
+            recvPacket.rfinish();                 // prevent warnings spam
             return;
         }
 
         if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.t_pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.t_pos.GetPositionY(),
             movementInfo.pos.GetPositionZ() + movementInfo.t_pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.t_pos.GetOrientation()))
         {
-            recvData.rfinish();                 // prevent warnings spam
+            recvPacket.rfinish();                 // prevent warnings spam
             return;
         }
 
@@ -364,7 +377,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
     /*----------------------*/
 
     /* process position-change */
-    WorldPacket data(SMSG_PLAYER_MOVE, recvData.size());
+    WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
     movementInfo.time = getMSTime();
     movementInfo.guid = mover->GetGUID();
     WriteMovementInfo(data, &movementInfo);
