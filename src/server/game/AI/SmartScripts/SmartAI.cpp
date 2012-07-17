@@ -733,6 +733,7 @@ void SmartAI::SetRun(bool run)
 void SmartAI::SetFly(bool fly)
 {
     me->SetDisableGravity(fly);
+    me->SetHover(fly);
     me->SendMovementFlagUpdate();
 }
 
