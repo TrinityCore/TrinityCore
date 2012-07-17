@@ -2615,8 +2615,10 @@ void World::SendAutoBroadcast()
 
     else if (abcenter == 1)
     {
-        WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
-        data << msg;
+        WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
+        data.WriteBits(msg.length(), 13);
+        data.FlushBits();
+        data.append(msg.c_str(), msg.length());
         sWorld->SendGlobalMessage(&data);
     }
 
@@ -2624,8 +2626,10 @@ void World::SendAutoBroadcast()
     {
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
-        WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
-        data << msg;
+        WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
+        data.WriteBits(msg.length(), 13);
+        data.FlushBits();
+        data.append(msg.c_str(), msg.length());
         sWorld->SendGlobalMessage(&data);
     }
 
