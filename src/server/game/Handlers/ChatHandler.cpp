@@ -554,26 +554,36 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
         case CMSG_MESSAGECHAT_ADDON_PARTY:
             type = CHAT_MSG_PARTY;
             break;
-        //case CMSG_MESSAGECHAT_ADDON_RAID:
-        //    type = CHAT_MSG_RAID;
-        //    break;
-        //case CMSG_MESSAGECHAT_ADDON_WHISPER:
-        //    type = CHAT_MSG_WHISPER;
-        //    break;
+        case CMSG_MESSAGECHAT_ADDON_RAID:
+            type = CHAT_MSG_RAID;
+            break;
+        case CMSG_MESSAGECHAT_ADDON_WHISPER:
+            type = CHAT_MSG_WHISPER;
+            break;
         default:
             sLog->outDetail("HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
             return;
     }
 
+    uint32 msgLen = recvData.ReadBits(9);
+    uint32 prefixLen = recvData.ReadBits(5);
     std::string message = "";
     std::string prefix = "";
     std::string targetName = "";
 
     if (type == CHAT_MSG_WHISPER)
-        recvData >> prefix >> targetName >> message;
+    {
+        uint32 targetLen = recvData.ReadBits(10);
+        message = recvData.ReadString(msgLen);
+        prefix = recvData.ReadString(prefixLen);
+        targetName = recvData.ReadString(targetLen);
+    }
     else
-        recvData >> message >> prefix;
+    {
+        message = recvData.ReadString(msgLen);
+        prefix = recvData.ReadString(prefixLen);
+    }
 
     // Logging enabled?
     if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
