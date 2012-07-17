@@ -2659,16 +2659,31 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
                     break;
                 case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                 case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
                 case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                 case SPELL_AURA_OBS_MOD_HEALTH:
                 case SPELL_AURA_OBS_MOD_POWER:
                 case SPELL_AURA_POWER_BURN:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    break;
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_BINARY;
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    break;
+            }
+
+            switch (spellInfo->Effects[j].Mechanic)
+            {
+                case MECHANIC_SNARE:
+                case MECHANIC_ROOT:
+                case MECHANIC_INTERRUPT:
+                case MECHANIC_SILENCE:
+                case MECHANIC_HORROR:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_BINARY;
                     break;
             }
 
@@ -2682,8 +2697,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_HEAL:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_DIRECT_DAMAGE;
                     break;
-                case SPELL_EFFECT_POWER_DRAIN:
-                case SPELL_EFFECT_POWER_BURN:
                 case SPELL_EFFECT_HEAL_MAX_HEALTH:
                 case SPELL_EFFECT_HEALTH_LEECH:
                 case SPELL_EFFECT_HEAL_PCT:
@@ -2698,6 +2711,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_JUMP_DEST:
                 case SPELL_EFFECT_LEAP_BACK:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_CHARGE;
+                    break;
+                case SPELL_EFFECT_DISPEL:
+                case SPELL_EFFECT_STEAL_BENEFICIAL_BUFF:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_BINARY;
+                    break;
+                case SPELL_EFFECT_POWER_DRAIN:
+                case SPELL_EFFECT_POWER_BURN:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_BINARY;
                     break;
                 case SPELL_EFFECT_PICKPOCKET:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_PICKPOCKET;
@@ -2733,6 +2756,17 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 }
             }
+        }
+
+        switch (spellInfo->Mechanic)
+        {
+            case MECHANIC_FEAR:
+            case MECHANIC_CHARM:
+            case MECHANIC_SNARE:
+            case MECHANIC_FREEZE:
+            case MECHANIC_BANISH:
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_BINARY;
+                break;
         }
 
         if (!spellInfo->_IsPositiveEffect(EFFECT_0, false))
