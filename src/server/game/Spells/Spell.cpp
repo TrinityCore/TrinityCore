@@ -3878,11 +3878,42 @@ void Spell::SendSpellStart()
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
     data << int32(m_timer);                                 // delay?
+    data << uint32(0);
 
     m_targets.Write(data);
 
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
         data << uint32(m_caster->GetPower((Powers)m_spellInfo->PowerType));
+
+    if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
+    {
+        //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
+        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
+        if (Player* player = m_caster->ToPlayer())
+        {
+            data << uint8(m_runesState);                     // runes state before
+            data << uint8(player->GetRunesState());          // runes state after
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            {
+                // float casts ensure the division is performed on floats as we need float result
+                float baseCd = float(player->GetRuneBaseCooldown(i));
+                data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+            }
+        }
+        else
+        {
+            data << uint8(0);
+            data << uint8(0);
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+                data << uint8(0);
+        }
+    }
+
+    if (castFlags & CAST_FLAG_PROJECTILE)
+    {
+        data << uint32(0); // Ammo display ID
+        data << uint32(0); // Inventory Type
+    }
 
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
@@ -3896,7 +3927,6 @@ void Spell::SendSpellStart()
         data << uint8(0); // unkByte
         // if (unkByte == 2)
             // data.append(0);
-
     }
 
     m_caster->SendMessageToSet(&data, true);
@@ -3952,6 +3982,7 @@ void Spell::SendSpellGo()
     data << uint8(m_cast_count);                            // pending spell cast?
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
+    data << uint32(m_timer);
     data << uint32(getMSTime());                            // timestamp
 
     WriteSpellGoTargets(&data);
@@ -4003,7 +4034,7 @@ void Spell::SendSpellGo()
 
     if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
     {
-        data << uint8(0); // Extra targets count
+        data << uint32(0); // Extra targets count
         /*
         for (uint8 i = 0; i < count; ++i)
         {

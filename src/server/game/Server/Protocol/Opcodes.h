@@ -916,7 +916,6 @@ enum Opcodes
     SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x0000,
     SMSG_MOVE_SET_WALK_IN_AIR                         = 0x0000,
     SMSG_MOVE_SET_WALK_SPEED                          = 0x1DA4,
-    SMSG_MOVE_TELEPORT                                = 0x0000,
     SMSG_MOVE_UNROOT                                  = 0x7DB4,
     SMSG_MOVE_UNSET_CAN_FLY                           = 0x0000,
     SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x0000,
