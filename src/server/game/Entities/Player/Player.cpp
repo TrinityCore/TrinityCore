@@ -694,7 +694,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     duel = NULL;
 
     m_GuildIdInvited = 0;
-    m_guildId = 0;
     m_ArenaTeamIdInvited = 0;
 
     m_atLoginFlags = AT_LOGIN_NONE;
@@ -967,6 +966,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetByteValue(PLAYER_BYTES_3, 0, createInfo->Gender);
     SetByteValue(PLAYER_BYTES_3, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
 
+    SetUInt64Value(OBJECT_FIELD_DATA, 0);
     SetUInt32Value(PLAYER_GUILDRANK, 0);
     SetUInt32Value(PLAYER_GUILD_TIMESTAMP, 0);
 
@@ -4534,6 +4534,9 @@ void Player::InitVisibleBits()
     updateVisualBits.SetCount(PLAYER_END);
 
     updateVisualBits.SetBit(OBJECT_FIELD_GUID);
+    updateVisualBits.SetBit(OBJECT_FIELD_GUID + 1);
+    updateVisualBits.SetBit(OBJECT_FIELD_DATA);
+    updateVisualBits.SetBit(OBJECT_FIELD_DATA + 1);
     updateVisualBits.SetBit(OBJECT_FIELD_TYPE);
     updateVisualBits.SetBit(OBJECT_FIELD_ENTRY);
     updateVisualBits.SetBit(OBJECT_FIELD_SCALE_X);
@@ -5547,13 +5550,13 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
 
             if (guildBank)
             {
-                if (m_guildId == 0)
+                if (GetGuildId() == 0)
                 {
                     sLog->outStaticDebug("You are not member of a guild");
                     return TotalCost;
                 }
 
-                Guild* guild = sGuildMgr->GetGuildById(m_guildId);
+                Guild* guild = sGuildMgr->GetGuildById(GetGuildId());
                 if (!guild)
                     return TotalCost;
 
@@ -5633,7 +5636,7 @@ bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, Area
     if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)))
         return false;
 
-    if ((channel->flags & CHANNEL_DBC_FLAG_GUILD_REQ) && m_guildId)
+    if ((channel->flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
         return false;
 
     return true;
@@ -7544,10 +7547,10 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
 
 uint32 Player::GetGuildIdFromDB(uint64 guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUILD_ID);
-    stmt->setUInt64(0, guid);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
+    stmt->setUInt32(0, GUID_LOPART(guid));
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-        return (*result)[0].GetUInt32();
+        return result->Fetch()[0].GetUInt32();
 
     return 0;
 }
@@ -7556,15 +7559,10 @@ uint8 Player::GetRankFromDB(uint64 guid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
     stmt->setUInt32(0, GUID_LOPART(guid));
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        return result->Fetch()[1].GetUInt8();
 
-    if (result)
-    {
-        uint32 v = result->Fetch()[1].GetUInt8();
-        return v;
-    }
-    else
-        return 0;
+    return 0;
 }
 
 uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
@@ -16792,8 +16790,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     //"conquestPoints, totalHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
     // 48      49      50      51      52      53      54           55         56          57             58
     //"health, power1, power2, power3, power4, power5, instance_id, speccount, activespec, exploredZones, equipmentCache, "
-    // 59           60          61               62
-    //"knownTitles, actionBars, grantableLevels, guildId FROM characters WHERE guid = '%u'", guid);
+    // 59           60          61
+    //"knownTitles, actionBars, grantableLevels FROM characters WHERE guid = '%u'", guid);
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
     if (!result)
@@ -17433,8 +17431,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     if (m_grantableLevels > 0)
         SetByteValue(PLAYER_FIELD_BYTES, 1, 0x01);
-
-    m_guildId = fields[62].GetUInt32();
 
     _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES));
 
@@ -24354,7 +24350,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 mis
     if (sAchievementMgr->IsGroupCriteriaType(type))
         return;
 
-    if (Guild* guild = sGuildMgr->GetGuildById(m_guildId))
+    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
         guild->GetAchievementMgr().UpdateAchievementCriteria(type, miscValue1, miscValue2, unit, this);
 }
 
@@ -25418,7 +25414,7 @@ uint32 Player::GetReputation(uint32 factionentry)
 
 std::string Player::GetGuildName()
 {
-    return sGuildMgr->GetGuildById(m_guildId)->GetName();
+    return sGuildMgr->GetGuildById(GetGuildId())->GetName();
 }
 
 void Player::SendDuelCountdown(uint32 counter)
