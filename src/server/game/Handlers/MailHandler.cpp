@@ -517,7 +517,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recv_data)
     uint64 mailbox;
     uint64 money;
     uint32 mailId;
-    
+
     recv_data >> mailbox;
     recv_data >> mailId;
     recv_data >> money;
@@ -747,7 +747,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/)
 
     if (_player->unReadMails > 0)
     {
-        data << uint32(0);                                 // float
+        data << float(0);                                 // float
         data << uint32(0);                                 // count
 
         uint32 count = 0;
@@ -763,10 +763,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/)
             if (now < m->deliver_time)
                 continue;
 
-            if (m->messageType)
-                data << uint64(m->sender); // player guid
-            else
-                data << uint32(m->sender); // creature entry
+            data << uint64(m->sender);
 
             switch (m->messageType)
             {
@@ -781,17 +778,18 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/)
                     data << uint32(m->stationery);
                     break;
             }
-            data << uint32(0xC6000000);                    // float unk, time or something
 
-            ++count;
-            if (count == 2)                                  // do not display more than 2 mails
+            data << uint32(0xC6000000);                     // float unk, time or something
+
+            if (++count >= 2)                               // do not display more than 2 mails
                 break;
         }
+
         data.put<uint32>(4, count);
     }
     else
     {
-        data << uint32(0xC7A8C000);
+        data << float(-DAY);
         data << uint32(0x00000000);
     }
     SendPacket(&data);

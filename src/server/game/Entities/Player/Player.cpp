@@ -18494,6 +18494,7 @@ void Player::SendRaidInfo()
             }
         }
     }
+
     data.put<uint32>(p_counter, counter);
     GetSession()->SendPacket(&data);
 }
@@ -25463,16 +25464,40 @@ void Player::SendRefundInfo(Item *item)
         return;
     }
 
+    ObjectGuid guid = item->GetGUID();
     WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8+4+4+4+4*4+4*4+4+4);
-    data << uint64(item->GetGUID());                    // item guid
-    data << uint32(item->GetPaidMoney());               // money cost
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+    data.FlushBits();
+    data.WriteByteSeq(guid[7]);
+    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // item cost data
     {
-        data << uint32(iece->RequiredItem[i]);
         data << uint32(iece->RequiredItemCount[i]);
+        data << uint32(iece->RequiredItem[i]);
     }
+
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[2]);
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // currency cost data
+    {
+        data << uint32(iece->RequiredCurrencyCount[i]);
+        data << uint32(iece->RequiredCurrency[i]);
+    }
+
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
     data << uint32(0);
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());
+    data.WriteByteSeq(guid[0]);
+    data << uint32(item->GetPaidMoney());               // money cost
     GetSession()->SendPacket(&data);
 }
 
