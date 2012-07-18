@@ -8211,11 +8211,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             if (charm->GetTypeId() == TYPEID_UNIT)
                 charm->SetUnitFlag(UNIT_FLAG_STUNNED);
 
-        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
-        data << GetPackGUID();
-        data << uint32(GameTime::GetGameTime());   // Packet counter
-        data << player->GetCollisionHeight();
-        player->SendDirectMessage(&data);
+        player->SendMovementSetCollisionHeight(player->GetCollisionHeight());
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -8230,13 +8226,7 @@ void Unit::Dismount()
     RemoveUnitFlag(UNIT_FLAG_MOUNT);
 
     if (Player* thisPlayer = ToPlayer())
-    {
-        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
-        data << GetPackGUID();
-        data << uint32(GameTime::GetGameTime());   // Packet counter
-        data << thisPlayer->GetCollisionHeight();
-        thisPlayer->SendDirectMessage(&data);
-    }
+        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight());
 
     WorldPacket data(SMSG_DISMOUNT, 8);
     data << GetPackGUID();

@@ -4379,24 +4379,6 @@ void Player::DeleteOldCharacters(uint32 keepDays)
     }
 }
 
-void Player::SetMovement(PlayerMovementType pType)
-{
-    WorldPacket data;
-    switch (pType)
-    {
-        case MOVE_ROOT:       data.Initialize(SMSG_FORCE_MOVE_ROOT,   GetPackGUID().size()+4); break;
-        case MOVE_UNROOT:     data.Initialize(SMSG_FORCE_MOVE_UNROOT, GetPackGUID().size()+4); break;
-        case MOVE_WATER_WALK: data.Initialize(SMSG_MOVE_WATER_WALK,   GetPackGUID().size()+4); break;
-        case MOVE_LAND_WALK:  data.Initialize(SMSG_MOVE_LAND_WALK,    GetPackGUID().size()+4); break;
-        default:
-            TC_LOG_ERROR("entities.player", "Player::SetMovement: Unsupported move type ({}), data not sent to client.", pType);
-            return;
-    }
-    data << GetPackGUID();
-    data << uint32(0);
-    SendDirectMessage(&data);
-}
-
 /* Preconditions:
   - a resurrectable corpse must not be loaded for the player (only bones)
   - the player must be in world
@@ -4434,9 +4416,9 @@ void Player::BuildPlayerRepop()
     setDeathState(DEAD);
     SetHealth(1);
 
-    SetMovement(MOVE_WATER_WALK);
+    SetWaterWalking(true);
     if (!GetSession()->isLogingOut())
-        SetMovement(MOVE_UNROOT);
+        SetRooted(false);
 
     // BG - remove insignia related
     RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
@@ -4475,8 +4457,10 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     setDeathState(ALIVE);
 
-    SetMovement(MOVE_LAND_WALK);
-    SetMovement(MOVE_UNROOT);
+    // add the flag to make sure opcode is always sent
+    AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+    SetWaterWalking(false);
+    SetRooted(false);
 
     m_deathTimer = 0;
 
@@ -4545,7 +4529,7 @@ void Player::KillPlayer()
     if (IsFlying() && !GetTransport())
         GetMotionMaster()->MoveFall();
 
-    SetMovement(MOVE_ROOT);
+    SetRooted(true);
 
     StopMirrorTimers();                                     //disable timers(bars)
 
@@ -22651,7 +22635,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     }
 
     if (HasAuraType(SPELL_AURA_MOD_STUN))
-        SetMovement(MOVE_ROOT);
+        SetRooted(true);
 
     WorldPacket setCompoundState(SMSG_MULTIPLE_MOVES, 100);
     setCompoundState << uint32(0); // size placeholder
@@ -26538,6 +26522,15 @@ bool Player::SetFeatherFall(bool apply, bool packetOnly /*= false*/)
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
     return true;
+}
+
+void Player::SendMovementSetCollisionHeight(float height)
+{
+    WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
+    data << GetPackGUID();
+    data << uint32(GetMovementCounterAndInc());
+    data << height;
+    SendDirectMessage(&data);
 }
 
 std::string Player::GetMapAreaAndZoneString() const

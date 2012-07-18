@@ -306,14 +306,6 @@ struct EnchantDuration
 typedef std::list<EnchantDuration> EnchantDurationList;
 typedef std::list<Item*> ItemDurationList;
 
-enum PlayerMovementType
-{
-    MOVE_ROOT       = 1,
-    MOVE_UNROOT     = 2,
-    MOVE_WATER_WALK = 3,
-    MOVE_LAND_WALK  = 4
-};
-
 enum DrunkenState
 {
     DRUNKEN_SOBER   = 0,
@@ -1773,8 +1765,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void StopMirrorTimers();
         bool IsMirrorTimerActive(MirrorTimerType type) const;
 
-        void SetMovement(PlayerMovementType pType);
-
         bool CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone) const;
 
         void JoinedChannel(Channel* c);
@@ -2238,6 +2228,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SetWaterWalking(bool apply, bool packetOnly = false) override;
         bool SetFeatherFall(bool apply, bool packetOnly = false) override;
         bool SetHover(bool enable, bool packetOnly = false, bool updateAnimTier = true) override;
+        void SendMovementSetCollisionHeight(float height);
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
         bool CanEnterWater() const override { return true; }

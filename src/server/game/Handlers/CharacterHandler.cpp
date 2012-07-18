@@ -863,7 +863,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // setting Ghost+speed if dead
     if (pCurrChar->m_deathState == DEAD)
-        pCurrChar->SetMovement(MOVE_WATER_WALK);
+        pCurrChar->SetWaterWalking(true);
 
     pCurrChar->ContinueTaxiFlight();
 
