@@ -21,6 +21,7 @@
 */
 
 #include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
+#include <zlib.h>
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
@@ -111,6 +112,19 @@ isRecruiter(isARecruiter), timeLastWhoCommand(0)
     }
 
     InitializeQueryCallbackParameters();
+
+    _compressionStream = new z_stream();
+    _compressionStream->zalloc = (alloc_func)NULL;
+    _compressionStream->zfree = (free_func)NULL;
+    _compressionStream->opaque = (voidpf)NULL;
+    _compressionStream->avail_in = 0;
+    _compressionStream->next_in = NULL;
+    int32 z_res = deflateInit(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION));
+    if (z_res != Z_OK)
+    {
+        sLog->outError("Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
+        return;
+    }
 }
 
 /// WorldSession destructor
@@ -137,6 +151,15 @@ WorldSession::~WorldSession()
         delete packet;
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
+
+    int32 z_res = deflateEnd(_compressionStream);
+    if (z_res != Z_OK && z_res != Z_DATA_ERROR) // Z_DATA_ERROR signals that internal state was BUSY
+    {
+        sLog->outError("Can't close packet compression stream (zlib: deflateEnd) Error code: %i (%s)", z_res, zError(z_res));
+        return;
+    }
+
+    delete _compressionStream;
 }
 
 void WorldSession::SizeError(WorldPacket const& packet, uint32 size) const
@@ -158,7 +181,7 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket const* packet)
+void WorldSession::SendPacket(WorldPacket* packet)
 {
     if (!m_Socket)
         return;
@@ -174,6 +197,9 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sLog->outError("Prevented sending disabled opcode %d (hex 0x%04X)", packet->GetOpcode(), packet->GetOpcode());
         return;
     }
+
+    if (packet->size() > 0x400)
+        packet->Compress(_compressionStream);
 
 #ifdef TRINITY_DEBUG
     // Code for network use statistic
