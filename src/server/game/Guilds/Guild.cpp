@@ -1814,24 +1814,26 @@ void Guild::SendPermissions(WorldSession* session) const
 {
     uint64 guid = session->GetPlayer()->GetGUID();
     uint8 rankId = session->GetPlayer()->GetRank();
-    WorldPacket data(MSG_GUILD_PERMISSIONS, 4 * 15 + 1);
+    WorldPacket data(SMSG_GUILD_PERMISSIONS_QUERY_RESULTS, 4 * 15 + 1);
     data << uint32(rankId);
+    data << uint32(_GetPurchasedTabsSize());
     data << uint32(_GetRankRights(rankId));
     data << uint32(_GetMemberRemainingMoney(guid));
-    data << uint8(_GetPurchasedTabsSize());
+    data.WriteBits(GUILD_BANK_MAX_TABS, 23);
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
     {
         data << uint32(_GetRankBankTabRights(rankId, tabId));
         data << uint32(_GetMemberRemainingSlots(guid, tabId));
     }
+
     session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (MSG_GUILD_PERMISSIONS)");
 }
 
 void Guild::SendMoneyInfo(WorldSession* session) const
 {
-    WorldPacket data(MSG_GUILD_BANK_MONEY_WITHDRAWN, 4);
-    data << uint32(_GetMemberRemainingMoney(session->GetPlayer()->GetGUID()));
+    WorldPacket data(SMSG_GUILD_BANK_MONEY_WITHDRAWN, 4);
+    data << uint64(_GetMemberRemainingMoney(session->GetPlayer()->GetGUID()));
     session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent MSG_GUILD_BANK_MONEY_WITHDRAWN");
 }
