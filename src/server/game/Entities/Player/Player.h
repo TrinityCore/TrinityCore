@@ -1874,18 +1874,17 @@ class Player : public Unit, public GridObject<Player>
 
         void SetInGuild(uint32 GuildId)
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_GUILD_ID);
-            stmt->setUInt32(0, GuildId);
-            stmt->setUInt64(1, GetGUID());
-            CharacterDatabase.Execute(stmt);
-            m_guildId = GuildId;
+            if (GuildId)
+                SetUInt64Value(OBJECT_FIELD_DATA, MAKE_NEW_GUID(GuildId, 0, HIGHGUID_GUILD));
+            else
+                SetUInt64Value(OBJECT_FIELD_DATA, 0);
         }
-        uint32 GetGuildId() const { return m_guildId; }
-        static uint32 GetGuildIdFromDB(uint64 guid);
 
         void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
         uint8 GetRank() { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
         void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
+        uint32 GetGuildId() const { return GetUInt32Value(OBJECT_FIELD_DATA); /* return only lower part */ }
+        static uint32 GetGuildIdFromDB(uint64 guid);
         static uint8 GetRankFromDB(uint64 guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
@@ -2799,8 +2798,6 @@ class Player : public Unit, public GridObject<Player>
         time_t m_deathExpireTime;
 
         uint32 m_restTime;
-
-        uint32 m_guildId;
 
         uint32 m_WeaponProficiency;
         uint32 m_ArmorProficiency;
