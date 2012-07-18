@@ -19,9 +19,16 @@
 #include "WorldPacket.h"
 #include "World.h"
 
+//! Compresses packet in place
 void WorldPacket::Compress(z_stream* compressionStream)
 {
     Opcodes uncompressedOpcode = GetOpcode();
+    if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
+    {
+        sLog->outError("Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
+        return;
+    }
+
     Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = wpos();
     uint32 destsize = compressBound(size);
@@ -37,6 +44,38 @@ void WorldPacket::Compress(z_stream* compressionStream)
     reserve(destsize + sizeof(uint32));
     *this << uint32(size);
     append(&storage[0], destsize);
+    SetOpcode(opcode);
+
+    sLog->outStaticDebug("Successfully compressed opcode %u (len %u) to %u (len %u)", uncompressedOpcode, size, opcode, destsize);
+}
+
+//! Compresses another packet and stores it in self (source left intact)
+void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* source)
+{
+    ASSERT(source != this);
+
+    Opcodes uncompressedOpcode = source->GetOpcode();
+    if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
+    {
+        sLog->outError("Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
+        return;
+    }
+
+    Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
+    uint32 size = source->size();
+    uint32 destsize = compressBound(size);
+
+    size_t sizePos = 0;
+    resize(destsize + sizeof(uint32));
+
+    _compressionStream = compressionStream;
+    Compress(static_cast<void*>(&_storage[0] + sizeof(uint32)), &destsize, static_cast<const void*>(source->contents()), size);
+    if (destsize == 0)
+        return;
+
+    put<uint32>(sizePos, size);
+    resize(destsize + sizeof(uint32));
+
     SetOpcode(opcode);
 
     sLog->outStaticDebug("Successfully compressed opcode %u (len %u) to %u (len %u)", uncompressedOpcode, size, opcode, destsize);
