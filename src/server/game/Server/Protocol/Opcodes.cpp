@@ -27,16 +27,16 @@ OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS] = { };
 /// Correspondence between opcodes and their names
 void InitOpcodes()
 {
-#define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                              \
-    if (opcode == 0)                                                                            \
-        sLog->outError("Opcode %s got value 0", #opcode);                                       \
-    if (opcode < NUM_OPCODE_HANDLERS) {                                                         \
-        if (opcodeTable[opcode] != NULL)                                                        \
-        {                                                                                       \
-            sLog->outError("Tried to override handler of %s with %s (opcode %u)",               \
-                opcodeTable[opcode]->name, #opcode, opcode);                                    \
-        }                                                                                       \
-        else opcodeTable[opcode] = new OpcodeHandler(#opcode, status, processing, handler);     \
+#define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                                                  \
+    if (opcode == 0)                                                                                                \
+        sLog->outError("Opcode %s got value 0", #opcode);                                                           \
+    if (opcode < NUM_OPCODE_HANDLERS) {                                                                             \
+        if (opcodeTable[opcode] != NULL)                                                                            \
+        {                                                                                                           \
+            sLog->outError("Tried to override handler of %s with %s (opcode %u)",                                   \
+                opcodeTable[opcode]->name, #opcode, opcode);                                                        \
+        }                                                                                                           \
+        else opcodeTable[opcode] = new OpcodeHandler(#opcode, #opcode##"_COMPRESSED", status, processing, handler); \
     }
 
     memset(opcodeTable, 0, sizeof(opcodeTable));

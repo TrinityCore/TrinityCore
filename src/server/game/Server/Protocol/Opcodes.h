@@ -28,9 +28,10 @@
 /// List of Opcodes
 enum Opcodes
 {
-    NUM_OPCODE_HANDLERS                               = (0xFFFF+1),
-    UNKNOWN_OPCODE                                    = NUM_OPCODE_HANDLERS,
+    NUM_OPCODE_HANDLERS                               = (0x7FFF+1),
+    UNKNOWN_OPCODE                                    = (0xFFFF+1),
     NULL_OPCODE                                       = 0,
+    COMPRESSED_OPCODE_MASK                            = 0x8000,
 
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0205,
     CMSG_ACCEPT_TRADE                                 = 0x7110,
@@ -1186,10 +1187,11 @@ typedef void(WorldSession::*pOpcodeHandler)(WorldPacket& recvPacket);
 struct OpcodeHandler
 {
     OpcodeHandler() {}
-    OpcodeHandler(const char* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
-        : name(_name), status(_status), packetProcessing(_processing), handler(_handler) {}
+    OpcodeHandler(char const* _name, char const* _compressedName, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
+        : name(_name), compressedName(_compressedName), status(_status), packetProcessing(_processing), handler(_handler) {}
 
     char const* name;
+    char const* compressedName;
     SessionStatus status;
     PacketProcessing packetProcessing;
     pOpcodeHandler handler;
@@ -1201,13 +1203,16 @@ void InitOpcodes();
 /// Lookup opcode name for human understandable logging
 inline const char* LookupOpcodeName(Opcodes id)
 {
-    if (id < NUM_OPCODE_HANDLERS)
+    if (id < UNKNOWN_OPCODE)
     {
-        OpcodeHandler* handler = opcodeTable[uint32(id)];
-        return handler ? handler->name : "UNKNOWN OPCODE";
-    }
-    else
+        bool isCompressed = uint32(id) & COMPRESSED_OPCODE_MASK;
+        if (OpcodeHandler* handler = opcodeTable[uint32(id) & 0x7FFF])
+            return isCompressed ? handler->compressedName : handler->name;
+
         return "UNKNOWN OPCODE";
+    }
+
+    return "INVALID OPCODE";
 }
 #endif
 /// @}

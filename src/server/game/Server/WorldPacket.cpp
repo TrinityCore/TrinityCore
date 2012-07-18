@@ -15,24 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldPacket.h"
 #include <zlib.h>
+#include "WorldPacket.h"
 #include "World.h"
 
-void WorldPacket::Compress(Opcodes opcode)
+void WorldPacket::Compress(z_stream* compressionStream)
 {
-    if (opcode == UNKNOWN_OPCODE || opcode == NULL_OPCODE)
-    {
-        sLog->outError("Tried to compress packet with unknown opcode (%u)", uint32(opcode));
-        return;
-    }
-
     Opcodes uncompressedOpcode = GetOpcode();
+    Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = wpos();
     uint32 destsize = compressBound(size);
 
     std::vector<uint8> storage(destsize);
 
+    _compressionStream = compressionStream;
     Compress(static_cast<void*>(&storage[0]), &destsize, static_cast<const void*>(contents()), size);
     if (destsize == 0)
         return;
@@ -43,62 +39,30 @@ void WorldPacket::Compress(Opcodes opcode)
     append(&storage[0], destsize);
     SetOpcode(opcode);
 
-    sLog->outStaticDebug("Successfully compressed opcode %u (len %u) to %u (len %u)",
-        uncompressedOpcode, size, opcode, destsize);
+    sLog->outStaticDebug("Successfully compressed opcode %u (len %u) to %u (len %u)", uncompressedOpcode, size, opcode, destsize);
 }
 
 void WorldPacket::Compress(void* dst, uint32 *dst_size, const void* src, int src_size)
 {
-    z_stream c_stream;
+    _compressionStream->next_out = (Bytef*)dst;
+    _compressionStream->avail_out = *dst_size;
+    _compressionStream->next_in = (Bytef*)src;
+    _compressionStream->avail_in = (uInt)src_size;
 
-    c_stream.zalloc = (alloc_func)NULL;
-    c_stream.zfree = (free_func)NULL;
-    c_stream.opaque = (voidpf)NULL;
-
-    // default Z_BEST_SPEED (1)
-    int z_res = deflateInit(&c_stream, sWorld->getIntConfig(CONFIG_COMPRESSION));
+    int32 z_res = deflate(_compressionStream, Z_SYNC_FLUSH);
     if (z_res != Z_OK)
     {
-        sLog->outError("Can't compress packet (zlib: deflateInit) Error code: %i (%s)",z_res,zError(z_res));
+        sLog->outError("Can't compress packet (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
         *dst_size = 0;
         return;
     }
 
-    c_stream.next_out = (Bytef*)dst;
-    c_stream.avail_out = *dst_size;
-    c_stream.next_in = (Bytef*)src;
-    c_stream.avail_in = (uInt)src_size;
-
-    z_res = deflate(&c_stream, Z_NO_FLUSH);
-    if (z_res != Z_OK)
-    {
-        sLog->outError("Can't compress packet (zlib: deflate) Error code: %i (%s)",z_res,zError(z_res));
-        *dst_size = 0;
-        return;
-    }
-
-    if (c_stream.avail_in != 0)
+    if (_compressionStream->avail_in != 0)
     {
         sLog->outError("Can't compress packet (zlib: deflate not greedy)");
         *dst_size = 0;
         return;
     }
 
-    z_res = deflate(&c_stream, Z_FINISH);
-    if (z_res != Z_STREAM_END)
-    {
-        sLog->outError("Can't compress packet (zlib: deflate should report Z_STREAM_END instead %i (%s)",z_res,zError(z_res));
-        *dst_size = 0;
-        return;
-    }
-
-    z_res = deflateEnd(&c_stream);
-    if (z_res != Z_OK)
-    {
-        sLog->outError("Can't compress packet (zlib: deflateEnd) Error code: %i (%s)",z_res,zError(z_res));
-        *dst_size = 0;
-        return;
-    }
-
-    *dst_size = c_stream.total_out;
+    *dst_size -= _compressionStream->avail_out;
 }

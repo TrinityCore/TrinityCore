@@ -235,7 +235,7 @@ class WorldSession
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
         void WriteMovementInfo(WorldPacket &data, MovementInfo* mi);
 
-        void SendPacket(WorldPacket const* packet);
+        void SendPacket(WorldPacket* packet);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
@@ -994,6 +994,7 @@ class WorldSession
         bool isRecruiter;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
         time_t timeLastWhoCommand;
+        z_stream_s* _compressionStream;
 };
 #endif
 /// @}

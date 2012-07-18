@@ -2422,9 +2422,6 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
         data << uint32(secsToTimeBitFields(itr->second.date));
     }
 
-    if (data.size() > 0x1000)
-        data.Compress(SMSG_COMPRESSED_ACHIEVEMENT_DATA);
-
     SendPacket(&data);
 }
 
