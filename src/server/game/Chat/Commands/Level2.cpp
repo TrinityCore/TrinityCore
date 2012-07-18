@@ -461,7 +461,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 bool ChatHandler::HandleCombatStopCommand(const char* args)
 {
     Player* target = NULL;
-    
+
     if (args && strlen(args) > 0)
     {
         target = sObjectAccessor->FindPlayerByName(args);
@@ -472,7 +472,7 @@ bool ChatHandler::HandleCombatStopCommand(const char* args)
             return false;
         }
     }
-    
+
     if (!target)
         if (!extractPlayerTarget((char*)args, &target))
             return false;
@@ -525,9 +525,9 @@ bool ChatHandler::HandleWaterwalkCommand(const char* args)
         return false;
 
     if (strncmp(args, "on", 3) == 0)
-        player->SetMovement(MOVE_WATER_WALK);               // ON
+        player->SendMovementSetWaterWalking(true);      // ON
     else if (strncmp(args, "off", 4) == 0)
-        player->SetMovement(MOVE_LAND_WALK);                // OFF
+        player->SendMovementSetWaterWalking(false);     // OFF
     else
     {
         SendSysMessage(LANG_USE_BOL);
