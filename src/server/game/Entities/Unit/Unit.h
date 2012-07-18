@@ -2340,11 +2340,13 @@ class Unit : public WorldObject
         float GetCombatRatingReduction(CombatRating cr) const;
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
 
+    protected:
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
         void SetRooted(bool apply);
 
+    private:
         uint32 m_rootTimes;
 
         uint32 m_state;                                     // Even derived shouldn't modify
