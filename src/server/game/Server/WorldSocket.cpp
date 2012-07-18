@@ -159,26 +159,35 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     if (closing_)
         return -1;
 
-    // Dump outgoing packet.
+    // Dump outgoing packet - uncompressed, easier to parse
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(pct, SERVER_TO_CLIENT);
 
-    sLog->outOpCode(uint32(pct.GetOpcode()), LookupOpcodeName(pct.GetOpcode()), true);
+    WorldPacket const* pkt = &pct;
 
-    // Create a copy of the original packet; this is to avoid issues if a hook modifies it.
-    sScriptMgr->OnPacketSend(this, WorldPacket(pct));
+    // Empty buffer used in case packet should be compressed
+    WorldPacket buff;
+    if (m_Session && pkt->size() > 0x400)
+    {
+        buff.Compress(m_Session->GetCompressionStream(), pkt);
+        pkt = &buff;
+    }
 
-    ServerPktHeader header(pct.size()+2, pct.GetOpcode());
+    sLog->outOpCode(uint32(pkt->GetOpcode()), LookupOpcodeName(pkt->GetOpcode()), true);
+
+    sScriptMgr->OnPacketSend(this, *pkt);
+
+    ServerPktHeader header(pkt->size()+2, pkt->GetOpcode());
     m_Crypt.EncryptSend ((uint8*)header.header, header.getHeaderLength());
 
-    if (m_OutBuffer->space() >= pct.size() + header.getHeaderLength() && msg_queue()->is_empty())
+    if (m_OutBuffer->space() >= pkt->size() + header.getHeaderLength() && msg_queue()->is_empty())
     {
         // Put the packet on the buffer.
         if (m_OutBuffer->copy((char*) header.header, header.getHeaderLength()) == -1)
             ACE_ASSERT (false);
 
-        if (!pct.empty())
-            if (m_OutBuffer->copy((char*) pct.contents(), pct.size()) == -1)
+        if (!pkt->empty())
+            if (m_OutBuffer->copy((char*) pkt->contents(), pkt->size()) == -1)
                 ACE_ASSERT (false);
     }
     else
@@ -186,12 +195,12 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
         // Enqueue the packet.
         ACE_Message_Block* mb;
 
-        ACE_NEW_RETURN(mb, ACE_Message_Block(pct.size() + header.getHeaderLength()), -1);
+        ACE_NEW_RETURN(mb, ACE_Message_Block(pkt->size() + header.getHeaderLength()), -1);
 
         mb->copy((char*) header.header, header.getHeaderLength());
 
-        if (!pct.empty())
-            mb->copy((const char*)pct.contents(), pct.size());
+        if (!pkt->empty())
+            mb->copy((const char*)pkt->contents(), pkt->size());
 
         if (msg_queue()->enqueue_tail(mb, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
         {

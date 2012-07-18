@@ -181,7 +181,7 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket* packet)
+void WorldSession::SendPacket(WorldPacket const* packet)
 {
     if (!m_Socket)
         return;
@@ -197,9 +197,6 @@ void WorldSession::SendPacket(WorldPacket* packet)
         sLog->outError("Prevented sending disabled opcode %d (hex 0x%04X)", packet->GetOpcode(), packet->GetOpcode());
         return;
     }
-
-    if (packet->size() > 0x400)
-        packet->Compress(_compressionStream);
 
 #ifdef TRINITY_DEBUG
     // Code for network use statistic

@@ -1146,7 +1146,7 @@ class boss_the_lich_king : public CreatureScript
             }
 
             // Send packet to all players in The Frozen Throne
-            void SendPacketToPlayers(WorldPacket* data) const
+            void SendPacketToPlayers(WorldPacket const* data) const
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
