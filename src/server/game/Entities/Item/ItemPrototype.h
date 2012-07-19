@@ -652,8 +652,8 @@ struct ItemTemplate
     uint32 ItemLimitCategory;                               // id from ItemLimitCategory.dbc
     uint32 HolidayId;                                       // id from Holidays.dbc
     float  StatScalingFactor;
-    int32  Field130;
-    int32  Field131;
+    uint32 CurrencySubstitutionId;                          // May be used instead of a currency
+    uint32 CurrencySubstitutionCount;
 
     // extra fields, not part of db2 files
     float  DamageMin;

@@ -125,8 +125,8 @@ struct ItemSparseEntry
     uint32     ItemLimitCategory;                            // 126
     uint32     HolidayId;                                    // 127
     float      StatScalingFactor;                            // 128
-    int32      Field130;                                     // 129
-    int32      Field131;                                     // 130
+    int32      CurrencySubstitutionId;                       // 129
+    int32      CurrencySubstitutionCount;                    // 130
 };
 
 #define MAX_ITEM_EXT_COST_ITEMS         5

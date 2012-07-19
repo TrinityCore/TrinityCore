@@ -2355,8 +2355,8 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.ItemLimitCategory = sparse->ItemLimitCategory;
         itemTemplate.HolidayId = sparse->HolidayId;
         itemTemplate.StatScalingFactor = sparse->StatScalingFactor;
-        itemTemplate.Field130 = sparse->Field130;
-        itemTemplate.Field131 = sparse->Field131;
+        itemTemplate.CurrencySubstitutionId = sparse->CurrencySubstitutionId;
+        itemTemplate.CurrencySubstitutionCount = sparse->CurrencySubstitutionCount;
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
@@ -2399,8 +2399,10 @@ void ObjectMgr::LoadItemTemplates()
                                              "Sheath, RandomProperty, RandomSuffix, ItemSet, Area, Map, BagFamily, TotemCategory, "
     //                                        119            120              121            122              123            124              125
                                              "SocketColor_1, SocketContent_1, SocketColor_2, SocketContent_2, SocketColor_3, SocketContent_3, SocketBonus, "
-    //                                        126            127                  128       129                130        131                132       133
-                                             "GemProperties, ArmorDamageModifier, Duration, ItemLimitCategory, HolidayId, StatScalingFactor, Field130, Field131 "
+    //                                        126            127                  128       129                130        131
+                                             "GemProperties, ArmorDamageModifier, Duration, ItemLimitCategory, HolidayId, StatScalingFactor, "
+    //                                        132                     133
+                                             "CurrencySubstitutionId, CurrencySubstitutionCount "
                                              "FROM item_template");
 
     if (result)
@@ -2506,17 +2508,17 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.GemProperties       = fields[126].GetUInt32();
             FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill, itemTemplate);
 
-            itemTemplate.ArmorDamageModifier = fields[127].GetFloat();
-            itemTemplate.Duration            = fields[128].GetUInt32();
-            itemTemplate.ItemLimitCategory   = uint32(fields[129].GetInt16());
-            itemTemplate.HolidayId           = fields[130].GetUInt32();
-            itemTemplate.StatScalingFactor   = fields[131].GetFloat();
-            itemTemplate.Field130            = fields[132].GetInt32();
-            itemTemplate.Field131            = fields[133].GetInt32();
-            itemTemplate.ScriptId            = 0;
-            itemTemplate.FoodType            = 0;
-            itemTemplate.MinMoneyLoot        = 0;
-            itemTemplate.MaxMoneyLoot        = 0;
+            itemTemplate.ArmorDamageModifier       = fields[127].GetFloat();
+            itemTemplate.Duration                  = fields[128].GetUInt32();
+            itemTemplate.ItemLimitCategory         = uint32(fields[129].GetInt16());
+            itemTemplate.HolidayId                 = fields[130].GetUInt32();
+            itemTemplate.StatScalingFactor         = fields[131].GetFloat();
+            itemTemplate.CurrencySubstitutionId    = fields[132].GetInt32();
+            itemTemplate.CurrencySubstitutionCount = fields[133].GetInt32();
+            itemTemplate.ScriptId                  = 0;
+            itemTemplate.FoodType                  = 0;
+            itemTemplate.MinMoneyLoot              = 0;
+            itemTemplate.MaxMoneyLoot              = 0;
             ++dbCount;
         } while (result->NextRow());
     }
