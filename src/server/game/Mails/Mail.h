@@ -67,17 +67,6 @@ enum MailState
     MAIL_STATE_DELETED   = 3
 };
 
-enum MailAuctionAnswers
-{
-    AUCTION_OUTBIDDED           = 0,
-    AUCTION_WON                 = 1,
-    AUCTION_SUCCESSFUL          = 2,
-    AUCTION_EXPIRED             = 3,
-    AUCTION_CANCELLED_TO_BIDDER = 4,
-    AUCTION_CANCELED            = 5,
-    AUCTION_SALE_PENDING        = 6
-};
-
 enum MailShowFlags
 {
     MAIL_SHOW_UNK0    = 0x0001,
