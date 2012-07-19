@@ -255,7 +255,7 @@ enum Opcodes
     CMSG_LFG_PROPOSAL_RESULT                          = 0x0000,
     CMSG_LFG_SET_ROLES                                = 0x25B1,
     CMSG_LFG_TELEPORT                                 = 0x2482,
-    CMSG_LF_GUILD_JOIN,                               = 0x68C5,
+    CMSG_LF_GUILD_JOIN                                = 0x68C5,
     CMSG_LIST_INVENTORY                               = 0x2806,
     CMSG_LOAD_SCREEN                                  = 0x2422,
     CMSG_LOGOUT_CANCEL                                = 0x2324,
