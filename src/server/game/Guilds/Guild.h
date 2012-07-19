@@ -682,6 +682,8 @@ public:
     AchievementMgr<Guild>& GetAchievementMgr() { return m_achievementMgr; }
     AchievementMgr<Guild> const& GetAchievementMgr() const { return m_achievementMgr; }
 
+    uint32 GetLevel() const { return m_level; }
+
 protected:
     uint32 m_id;
     std::string m_name;
@@ -703,6 +705,8 @@ protected:
     LogHolder* m_bankEventLog[GUILD_BANK_MAX_TABS + 1];
 
     AchievementMgr<Guild> m_achievementMgr;
+
+    uint32 m_level;
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
