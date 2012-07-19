@@ -919,23 +919,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         Field* fields = resultGuild->Fetch();
         pCurrChar->SetInGuild(fields[0].GetUInt32());
         pCurrChar->SetRank(fields[1].GetUInt8());
+        if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
+            pCurrChar->SetUInt32Value(PLAYER_GUILDLEVEL, guild->GetLevel());
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
         pCurrChar->SetInGuild(0);
         pCurrChar->SetRank(0);
-    }
-
-    if (pCurrChar->GetGuildId() != 0)
-    {
-        if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
-            guild->SendLoginInfo(this);
-        else
-        {
-            // remove wrong guild data
-            sLog->outError("Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.", pCurrChar->GetName(), pCurrChar->GetGUIDLow(), pCurrChar->GetGuildId());
-            pCurrChar->SetInGuild(0);
-        }
     }
 
     data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
@@ -996,6 +986,18 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     sObjectAccessor->AddObject(pCurrChar);
     //sLog->outDebug("Player %s added to Map.", pCurrChar->GetName());
+
+    if (pCurrChar->GetGuildId() != 0)
+    {
+        if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
+            guild->SendLoginInfo(this);
+        else
+        {
+            // remove wrong guild data
+            sLog->outError("Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.", pCurrChar->GetName(), pCurrChar->GetGUIDLow(), pCurrChar->GetGuildId());
+            pCurrChar->SetInGuild(0);
+        }
+    }
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
