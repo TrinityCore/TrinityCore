@@ -360,7 +360,7 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_ITEM_REFUND,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleItemRefund                );
     DEFINE_OPCODE_HANDLER(CMSG_ITEM_REFUND_INFO,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleItemRefundInfoRequest     );
     //DEFINE_OPCODE_HANDLER(CMSG_ITEM_TEXT_QUERY,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleItemTextQuery             );
-    //DEFINE_OPCODE_HANDLER(CMSG_JOIN_CHANNEL,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleJoinChannel               );
+    DEFINE_OPCODE_HANDLER(CMSG_JOIN_CHANNEL,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleJoinChannel               );
     //DEFINE_OPCODE_HANDLER(CMSG_KEEP_ALIVE,                              STATUS_NEVER,    PROCESS_THREADUNSAFE, &WorldSession::Handle_EarlyProccess            );
     //DEFINE_OPCODE_HANDLER(CMSG_LEARN_DANCE_MOVE,                        STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_LEARN_PREVIEW_TALENTS,                   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLearnPreviewTalents       );
@@ -871,7 +871,7 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_CHANGEPLAYER_DIFFICULTY_RESULT,          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHANNEL_LIST,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHANNEL_MEMBER_COUNT,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_CHANNEL_NOTIFY,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    DEFINE_OPCODE_HANDLER(SMSG_CHANNEL_NOTIFY,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHARACTER_LOGIN_FAILED,                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHARACTER_PROFILE,                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHARACTER_PROFILE_REALM_CONNECTED,       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
