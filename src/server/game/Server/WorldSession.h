@@ -930,6 +930,7 @@ class WorldSession
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleRequestHotfix(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPacket& recvPacket);
+        void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         int32 HandleEnableNagleAlgorithm();
 
     private:
