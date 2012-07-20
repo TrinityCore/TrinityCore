@@ -194,7 +194,7 @@ namespace Movement
             data.WriteByteSeq(facingGuid[7]);
             data.WriteByteSeq(facingGuid[1]);
             data.WriteByteSeq(facingGuid[6]);
-            data.WriteByteSeq(facingGuid[5]);
+            data.WriteByteSeq(facingGuid[4]);
             data.WriteByteSeq(facingGuid[2]);
             data.WriteByteSeq(facingGuid[0]);
         }
