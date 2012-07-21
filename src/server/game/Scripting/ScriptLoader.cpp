@@ -68,6 +68,7 @@ void AddSC_reload_commandscript();
 void AddSC_reset_commandscript();
 void AddSC_server_commandscript();
 void AddSC_tele_commandscript();
+void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 
@@ -679,6 +680,7 @@ void AddCommandScripts()
     AddSC_reset_commandscript();
     AddSC_server_commandscript();
     AddSC_tele_commandscript();
+    AddSC_ticket_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
 }
