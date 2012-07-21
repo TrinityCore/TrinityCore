@@ -211,26 +211,6 @@ class ChatHandler
         bool HandleChangeWeather(const char* args);
         bool HandleKickPlayerCommand(const char * args);
 
-        // GM ticket command handlers
-        bool HandleGMTicketListCommand(const char* args);
-        bool HandleGMTicketListOnlineCommand(const char* args);
-        bool HandleGMTicketListClosedCommand(const char* args);
-        bool HandleGMTicketListEscalatedCommand(const char* args);
-        bool HandleGMTicketGetByIdCommand(const char* args);
-        bool HandleGMTicketGetByNameCommand(const char* args);
-        bool HandleGMTicketCloseByIdCommand(const char* args);
-        bool HandleGMTicketAssignToCommand(const char* args);
-        bool HandleGMTicketUnAssignCommand(const char* args);
-        bool HandleGMTicketCommentCommand(const char* args);
-        bool HandleGMTicketDeleteByIdCommand(const char* args);
-        bool HandleGMTicketResetCommand(const char* /* args */);
-        bool HandleGMTicketReloadCommand(const char*);
-        bool HandleToggleGMTicketSystem(const char* args);
-        bool HandleGMTicketEscalateCommand(const char* args);
-        bool HandleGMTicketCompleteCommand(const char* args);
-        bool HandleGMTicketResponseAppendCommand(const char* args);
-        bool HandleGMTicketResponseAppendLnCommand(const char* args);
-
         bool HandleMaxSkillCommand(const char* args);
         bool HandleSetSkillCommand(const char* args);
         bool HandleRespawnCommand(const char* args);
@@ -259,8 +239,6 @@ class ChatHandler
         void HandleLearnSkillRecipesHelper(Player* player, uint32 skill_id);
 
     private:
-        bool _HandleGMTicketResponseAppendCommand(const char* args, bool newLine);
-
         WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
 
         // common global flag
