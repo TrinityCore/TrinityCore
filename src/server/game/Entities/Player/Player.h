@@ -1069,9 +1069,6 @@ class Player : public Unit, public GridObject<Player>
 
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        static UpdateMask updateVisualBits;
-        static void InitVisibleBits();
-
         void AddToWorld();
         void RemoveFromWorld();
 
@@ -2619,9 +2616,6 @@ class Player : public Unit, public GridObject<Player>
         void _SaveTalents(SQLTransaction& trans);
         void _SaveStats(SQLTransaction& trans);
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
-
-        void _SetCreateBits(UpdateMask* updateMask, Player* target) const;
-        void _SetUpdateBits(UpdateMask* updateMask, Player* target) const;
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/

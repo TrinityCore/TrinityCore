@@ -963,24 +963,6 @@ struct SpellPeriodicAuraLogInfo
 
 uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition);
 
-enum UnitAnimationState
-{
-    ANIMATION_ON_GROUND = 0,
-    ANIMATION_SWIMMING  = 1,
-    ANIMATION_HOVER     = 2,
-    ANIMATION_FLYING    = 3,
-};
-
-struct MonsterMoveData
-{
-    MonsterMoveData() : SplineFlag(0), AnimationState(ANIMATION_ON_GROUND), Time(0), SpeedZ(0.0f) {}
-    Position DestLocation;
-    uint32 SplineFlag;
-    UnitAnimationState AnimationState;  // Only used with SPLINEFLAG_ANIMATIONTIER
-    uint32 Time;
-    float SpeedZ;                       // Only used with SPLINEFLAG_TRAJECTORY
-};
-
 #define MAX_DECLINED_NAME_CASES 5
 
 struct DeclinedName
@@ -1656,6 +1638,7 @@ class Unit : public WorldObject
         virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
 
         uint64 GetOwnerGUID() const { return  GetUInt64Value(UNIT_FIELD_SUMMONEDBY); }
+        void SetOwnerGUID(uint64 owner);
         uint64 GetCreatorGUID() const { return GetUInt64Value(UNIT_FIELD_CREATEDBY); }
         void SetCreatorGUID(uint64 creator) { SetUInt64Value(UNIT_FIELD_CREATEDBY, creator); }
         uint64 GetMinionGUID() const { return GetUInt64Value(UNIT_FIELD_SUMMON); }
