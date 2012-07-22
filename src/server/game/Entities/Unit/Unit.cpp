@@ -16279,7 +16279,7 @@ void Unit::SetRooted(bool apply)
             WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
             data.append(GetPackGUID());
             SendMessageToSet(&data, true);
-            ToCreature()->StopMoving();
+            StopMoving();
         }
     }
     else

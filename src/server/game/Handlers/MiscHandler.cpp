@@ -406,11 +406,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
     if (GetPlayer()->CanFreeMove())
     {
         GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
-
-        WorldPacket data(SMSG_MOVE_ROOT, (8+4));    // guess size
-        data.append(GetPlayer()->GetPackGUID());
-        data << (uint32)2;
-        SendPacket(&data);
+        GetPlayer()->SetRooted(true);
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
@@ -443,10 +439,7 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket & /*recv_data*/)
     if (GetPlayer()->CanFreeMove())
     {
         //!we can move again
-        data.Initialize(SMSG_MOVE_UNROOT, 8);       // guess size
-        data.append(GetPlayer()->GetPackGUID());
-        data << uint32(0);
-        SendPacket(&data);
+        GetPlayer()->SetRooted(false);
 
         //! Stand Up
         GetPlayer()->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1864,4 +1857,29 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
      recvPacket >> violenceLevel;
 
      // do something?
+ }
+
+ void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket)
+ {
+     ObjectGuid guid;
+     guid[6] = recvPacket.ReadBit();
+     guid[7] = recvPacket.ReadBit();
+     guid[4] = recvPacket.ReadBit();
+     guid[0] = recvPacket.ReadBit();
+     guid[1] = recvPacket.ReadBit();
+     guid[5] = recvPacket.ReadBit();
+     guid[3] = recvPacket.ReadBit();
+     guid[2] = recvPacket.ReadBit();
+
+     recvPacket.ReadByteSeq(guid[6]);
+     recvPacket.ReadByteSeq(guid[7]);
+     recvPacket.ReadByteSeq(guid[2]);
+     recvPacket.ReadByteSeq(guid[3]);
+     recvPacket.ReadByteSeq(guid[1]);
+     recvPacket.ReadByteSeq(guid[4]);
+     recvPacket.ReadByteSeq(guid[0]);
+     recvPacket.ReadByteSeq(guid[5]);
+
+     WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
+     sLog->outError("Object update failed for object "UI64FMTD" (%s) for player %s (%u)", uint64(guid), obj ? obj->GetName() : "object-not-found", GetPlayerName(), GetGuidLow());
  }
