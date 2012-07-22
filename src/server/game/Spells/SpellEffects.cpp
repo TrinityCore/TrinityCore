@@ -2418,7 +2418,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
                         if (properties->Category == SUMMON_CATEGORY_ALLY)
                         {
-                            summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_originalCaster->GetGUID());
+                            summon->SetOwnerGUID(m_originalCaster->GetGUID());
                             summon->setFaction(m_originalCaster->getFaction());
                             summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
                         }
