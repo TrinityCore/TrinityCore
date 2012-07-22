@@ -252,6 +252,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 
             AH->item_guidlow = item->GetGUIDLow();
             AH->item_template = item->GetEntry();
+            AH->itemCount = item->GetCount();
             AH->owner = _player->GetGUIDLow();
             AH->startbid = bid;
             AH->bidder = 0;
@@ -297,6 +298,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 
             AH->item_guidlow = newItem->GetGUIDLow();
             AH->item_template = newItem->GetEntry();
+            AH->itemCount = newItem->GetCount();
             AH->owner = _player->GetGUIDLow();
             AH->startbid = bid;
             AH->bidder = 0;
@@ -520,12 +522,9 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
                 sAuctionMgr->SendAuctionCancelledToBidderMail(auction, trans);
                 player->ModifyMoney(-int32(auctionCut));
             }
-            // Return the item by mail
-            std::ostringstream msgAuctionCanceledOwner;
-            msgAuctionCanceledOwner << auction->item_template << ":0:" << AUCTION_CANCELED << ":0:0";
 
             // item will deleted or added to received mail list
-            MailDraft(msgAuctionCanceledOwner.str(), "")    // TODO: fix body
+            MailDraft(auction->BuildAuctionMailSubject(AUCTION_CANCELED), AuctionEntry::BuildAuctionMailBody(0, 0, auction->buyout, auction->deposit, 0))
                 .AddItem(pItem)
                 .SendMailTo(trans, player, auction, MAIL_CHECK_MASK_COPIED);
         }
