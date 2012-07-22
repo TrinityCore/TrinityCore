@@ -67,6 +67,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 {
     uint32 type = 0;
     uint32 lang;
+    bool ignoreChecks = false;
 
     switch(recvData.GetOpcode())
     {
@@ -85,39 +86,41 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CMSG_MESSAGECHAT_GUILD:
             type = CHAT_MSG_GUILD;
             break;
-        //case CMSG_MESSAGECHAT_OFFICER:
-        //    type = CHAT_MSG_OFFICER;
-        //    break;
+        case CMSG_MESSAGECHAT_OFFICER:
+            type = CHAT_MSG_OFFICER;
+            break;
         case CMSG_MESSAGECHAT_AFK:
             type = CHAT_MSG_AFK;
+            ignoreChecks = true;
             break;
-        //case CMSG_MESSAGECHAT_DND:
-        //    type = CHAT_MSG_DND;
-        //    break;
-        //case CMSG_MESSAGECHAT_EMOTE:
-        //    type = CHAT_MSG_EMOTE;
-        //    break;
-        //case CMSG_MESSAGECHAT_PARTY:
-        //    type = CHAT_MSG_PARTY;
-        //    break;
+        case CMSG_MESSAGECHAT_DND:
+            type = CHAT_MSG_DND;
+            ignoreChecks = true;
+            break;
+        case CMSG_MESSAGECHAT_EMOTE:
+            type = CHAT_MSG_EMOTE;
+            break;
+        case CMSG_MESSAGECHAT_PARTY:
+            type = CHAT_MSG_PARTY;
+            break;
         //case CMSG_MESSAGECHAT_PARTY_LEADER:
         //    type = CHAT_MSG_PARTY_LEADER;
         //    break;
-        //case CMSG_MESSAGECHAT_RAID:
-        //    type = CHAT_MSG_RAID;
-        //    break;
+        case CMSG_MESSAGECHAT_RAID:
+            type = CHAT_MSG_RAID;
+            break;
         //case CMSG_MESSAGECHAT_RAID_LEADER:
         //    type = CHAT_MSG_RAID_LEADER;
         //    break;
-        //case CMSG_MESSAGECHAT_BATTLEGROUND:
-        //    type = CHAT_MSG_BATTLEGROUND;
-        //    break;
-        //case CMSG_MESSAGECHAT_BATTLEGROUND_LEADER:
-        //    type = CHAT_MSG_BATTLEGROUND_LEADER;
-        //    break;
-        //case CMSG_MESSAGECHAT_RAID_WARNING:
-        //    type = CHAT_MSG_RAID_WARNING;
-        //    break;
+        case CMSG_MESSAGECHAT_BATTLEGROUND:
+            type = CHAT_MSG_BATTLEGROUND;
+            break;
+        case CMSG_MESSAGECHAT_BATTLEGROUND_LEADER:
+            type = CHAT_MSG_BATTLEGROUND_LEADER;
+            break;
+        case CMSG_MESSAGECHAT_RAID_WARNING:
+            type = CHAT_MSG_RAID_WARNING;
+            break;
         default:
             sLog->outDetail("HandleMessagechatOpcode : Unknown chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
@@ -136,10 +139,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     //sLog->outDebug("CHAT: packet received. type %u, lang %u", type, lang);
 
     // no language sent with emote packet.
-    if (type != CHAT_MSG_EMOTE)
+    // on 4xx AFK and DND not send lang.
+    if (type != CHAT_MSG_EMOTE && !ignoreChecks)
     {
         recvData >> lang;
-
         // prevent talking at unknown language (cheating)
         LanguageDesc const* langDesc = GetLanguageDescByID(lang);
         if (!langDesc)
@@ -248,9 +251,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     }
 
     std::string to, channel, msg;
-    bool ignoreChecks = false;
+    uint32 Len1, Len2;
+
     switch (type)
     {
+        case CHAT_MSG_AFK:
+        case CHAT_MSG_DND:
         case CHAT_MSG_SAY:
         case CHAT_MSG_EMOTE:
         case CHAT_MSG_YELL:
@@ -263,20 +269,25 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CHAT_MSG_RAID_WARNING:
         case CHAT_MSG_BATTLEGROUND:
         case CHAT_MSG_BATTLEGROUND_LEADER:
-            recvData >> msg;
+            Len1 = recvData.ReadBits(9);
+            Len2 = recvData.ReadBits(7);
+            msg = recvData.ReadString(Len1);
             break;
         case CHAT_MSG_WHISPER:
-            recvData >> msg;
-            recvData >> to;
+            recvData.ReadBit();
+            Len1 = recvData.ReadBits(9);
+            Len2 = recvData.ReadBits(9);
+
+            to = recvData.ReadString(Len2);
+            msg = recvData.ReadString(Len1);
             break;
         case CHAT_MSG_CHANNEL:
-            recvData >> msg;
-            recvData >> channel;
-            break;
-        case CHAT_MSG_AFK:
-        case CHAT_MSG_DND:
-            recvData >> msg;
-            ignoreChecks = true;
+            recvData.ReadBit();
+            Len1 = recvData.ReadBits(9);
+            Len2 = recvData.ReadBits(9);
+
+            msg = recvData.ReadString(Len2);
+            channel = recvData.ReadString(Len1);
             break;
     }
 
@@ -487,7 +498,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
             {
-
                 if (Channel* chn = cMgr->GetChannel(channel, _player))
                 {
                     sScriptMgr->OnPlayerChat(_player, type, lang, msg, chn);
