@@ -446,6 +446,29 @@ class ByteBuffer
             return retval;
         }
 
+        void GetSizeDataBits(uint8 *data, uint8 *data2=NULL)
+        {
+            uint8 Len1, Len1a, Len2, Len2a;
+
+            Len1 = ReadBits(4);
+            Len1a = ReadBits(4);
+            *data = (Len1 << 4) | Len1a;
+
+            if(data2)
+            {
+                Len2 = ReadBits(4);
+                Len2a = ReadBits(4);
+                *data2 = (Len2 << 4) | Len2a;
+            }
+        }
+
+        void GetDataText(std::string *data)
+        {
+            uint8 sizeData;
+            GetSizeDataBits(&sizeData);
+            *data = ReadString(sizeData);
+        }
+
         const uint8 *contents() const { return &_storage[0]; }
 
         size_t size() const { return _storage.size(); }
