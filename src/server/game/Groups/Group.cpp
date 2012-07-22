@@ -34,6 +34,7 @@
 #include "MapInstanced.h"
 #include "Util.h"
 #include "LFGMgr.h"
+#include "UpdateFieldFlags.h"
 
 Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -467,6 +468,47 @@ bool Group::AddMember(Player* player)
         // quest related GO state dependent from raid membership
         if (isRaidGroup())
             player->UpdateForQuestWorldObjects();
+
+        {
+            // Broadcast new player group member fields to rest of the group
+            player->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+
+            UpdateData groupData(player->GetMapId());
+            WorldPacket groupDataPacket;
+
+            // Broadcast group members' fields to player
+            for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                if (itr->getSource() == player)
+                    continue;
+
+                if (Player* member = itr->getSource())
+                {
+                    if (player->HaveAtClient(member))   // must be on the same map, or shit will break
+                    {
+                        member->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+                        member->BuildValuesUpdateBlockForPlayer(&groupData, player);
+                        member->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+                    }
+
+                    if (member->HaveAtClient(player))
+                    {
+                        UpdateData newData(player->GetMapId());
+                        WorldPacket newDataPacket;
+                        player->BuildValuesUpdateBlockForPlayer(&newData, member);
+                        member->SendDirectMessage(&newDataPacket);
+                    }
+                }
+            }
+
+            if (groupData.HasData())
+            {
+                groupData.BuildPacket(&groupDataPacket);
+                player->SendDirectMessage(&groupDataPacket);
+            }
+
+            player->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+        }
 
         if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
             m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
