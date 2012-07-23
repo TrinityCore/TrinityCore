@@ -9680,7 +9680,7 @@ void Unit::SetOwnerGUID(uint64 owner)
 
     SetFieldNotifyFlag(UF_FLAG_OWNER);
 
-    UpdateData udata;
+    UpdateData udata(GetMapId());
     WorldPacket packet;
     BuildValuesUpdateBlockForPlayer(&udata, player);
     udata.BuildPacket(&packet);
@@ -12084,7 +12084,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
                 continue;
         }
 
-        if (mountCapability->RequiredMap != -1 && GetMapId() != mountCapability->RequiredMap)
+        if (mountCapability->RequiredMap != -1 && int32(GetMapId()) != mountCapability->RequiredMap)
             continue;
 
         if (mountCapability->RequiredArea && (mountCapability->RequiredArea != zoneId && mountCapability->RequiredArea != areaId))

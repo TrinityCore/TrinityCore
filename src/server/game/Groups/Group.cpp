@@ -473,7 +473,7 @@ bool Group::AddMember(Player* player)
             // Broadcast new player group member fields to rest of the group
             player->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
 
-            UpdateData groupData;
+            UpdateData groupData(player->GetMapId());
             WorldPacket groupDataPacket;
 
             // Broadcast group members' fields to player
@@ -484,7 +484,7 @@ bool Group::AddMember(Player* player)
 
                 if (Player* member = itr->getSource())
                 {
-                    if (player->HaveAtClient(member))
+                    if (player->HaveAtClient(member))   // must be on the same map, or shit will break
                     {
                         member->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
                         member->BuildValuesUpdateBlockForPlayer(&groupData, player);
@@ -493,7 +493,7 @@ bool Group::AddMember(Player* player)
 
                     if (member->HaveAtClient(player))
                     {
-                        UpdateData newData;
+                        UpdateData newData(player->GetMapId());
                         WorldPacket newDataPacket;
                         player->BuildValuesUpdateBlockForPlayer(&newData, member);
                         member->SendDirectMessage(&newDataPacket);
