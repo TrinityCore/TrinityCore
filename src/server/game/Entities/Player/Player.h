@@ -1869,12 +1869,14 @@ class Player : public Unit, public GridObject<Player>
         void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(), GetGUID(), method); }
         void SendUpdateToOutOfRangeGroupMembers();
 
-        void SetInGuild(uint32 GuildId)
+        void SetInGuild(uint32 guildId)
         {
-            if (GuildId)
-                SetUInt64Value(OBJECT_FIELD_DATA, MAKE_NEW_GUID(GuildId, 0, HIGHGUID_GUILD));
+            if (guildId)
+                SetUInt64Value(OBJECT_FIELD_DATA, MAKE_NEW_GUID(guildId, 0, HIGHGUID_GUILD));
             else
                 SetUInt64Value(OBJECT_FIELD_DATA, 0);
+
+            SetUInt16Value(OBJECT_FIELD_TYPE, 1, guildId != 0);
         }
 
         void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
