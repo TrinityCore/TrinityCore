@@ -294,7 +294,7 @@ void ReadAreaTableDBC()
         areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
     SFileCloseFile(dbcFile);
-    printf("Done! (%zu areas loaded)\n", area_count);
+    printf("Done! (%u areas loaded)\n", area_count);
 }
 
 void ReadLiquidTypeTableDBC()
