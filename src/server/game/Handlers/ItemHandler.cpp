@@ -27,7 +27,7 @@
 #include "UpdateData.h"
 #include "ObjectAccessor.h"
 #include "SpellInfo.h"
-#include <list>
+#include <vector>
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket & recv_data)
 {
@@ -723,19 +723,6 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket & recv_data)
     SendListInventory(guid);
 }
 
-struct VendorItemHelper
-{
-    uint32 Slot;
-    uint32 Type;
-    uint32 Entry;
-    uint32 DisplayId;
-    uint32 Durability;
-    uint32 ExtendedCost;
-    uint32 Price;
-    int32 LeftInStock;
-    uint32 BuyCount;
-};
-
 void WorldSession::SendListInventory(uint64 vendorGuid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LIST_INVENTORY");
@@ -756,13 +743,15 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     if (vendor->HasUnitState(UNIT_STATE_MOVING))
         vendor->StopMoving();
 
-    // build list of available items
     VendorItemData const* vendorItems = vendor->GetVendorItems();
-    std::list<VendorItemHelper> items;
     uint8 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
     //if (rawItemCount > 300), 
     //    rawItemCount = 300; // client cap but uint8 max value is 255
+
+    ByteBuffer itemsData(32 * rawItemCount);
+    std::vector<bool> enablers;
+    enablers.reserve(2 * rawItemCount);
 
     const float discountMod = _player->GetReputationPriceDiscount(vendor);
     uint8 count = 0;
@@ -798,28 +787,35 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
         uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
 
-        VendorItemHelper item;
-        item.Slot = count + 1;           // client expects counting to start at 1
-        item.Type = 1;                   // 1 is items, 2 is currency (FIXME: currency isn't implemented)
-        item.Entry = vendorItem->item;
-        item.DisplayId = itemTemplate->DisplayInfoID;
-        item.Durability = itemTemplate->MaxDurability;
-        item.ExtendedCost = vendorItem->ExtendedCost;
-        item.Price = price;
-        item.LeftInStock = leftInStock;
-        item.BuyCount = itemTemplate->BuyCount;
+        itemsData << uint32(count++ + 1);        // client expects counting to start at 1
+        itemsData << uint32(itemTemplate->MaxDurability);
 
-        items.push_back(item);
+        if (vendorItem->ExtendedCost != 0)
+        {
+            enablers.push_back(0);
+            itemsData << uint32(vendorItem->ExtendedCost);
+        }
+        else
+            enablers.push_back(1);
+        enablers.push_back(1);                 // unk bit
+
+        itemsData << uint32(vendorItem->item);
+        itemsData << uint32(1);                // 1 is items, 2 is currency (FIXME: currency isn't implemented)
+        itemsData << uint32(price);
+        itemsData << uint32(itemTemplate->DisplayInfoID);
+        // if (!unk "enabler") data << uint32(something);
+        itemsData << int32(leftInStock);
+        itemsData << uint32(itemTemplate->BuyCount);
     }
 
     uint8* guidBytes = (uint8*)&vendorGuid;
 
-    WorldPacket data(SMSG_LIST_INVENTORY, 12 + 33 * items.size());
+    WorldPacket data(SMSG_LIST_INVENTORY, 12 + itemsData.size());
 
     data.WriteBit(guidBytes[1]);
     data.WriteBit(guidBytes[0]);
 
-    data.WriteBits(items.size(), 21); // item count
+    data.WriteBits(count, 21); // item count
 
     data.WriteBit(guidBytes[3]);
     data.WriteBit(guidBytes[6]);
@@ -827,28 +823,13 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     data.WriteBit(guidBytes[2]);
     data.WriteBit(guidBytes[7]);
 
-    for (std::list<VendorItemHelper>::const_iterator itr = items.begin(); itr != items.end(); ++itr)
-    {
-        data.WriteBit((*itr).ExtendedCost == 0);
-        data.WriteBit(1); // unk "enabler"
-    }
+    for (std::vector<bool>::const_iterator itr = enablers.begin(); itr != enablers.end(); ++itr)
+        data.WriteBit(*itr);
 
     data.WriteBit(guidBytes[4]);
 
-    for (std::list<VendorItemHelper>::const_iterator itr = items.begin(); itr != items.end(); ++itr)
-    {
-        data << uint32((*itr).Slot);
-        data << uint32((*itr).Durability);
-        if ((*itr).ExtendedCost != 0)
-            data << uint32((*itr).ExtendedCost);
-        data << uint32((*itr).Entry);
-        data << uint32((*itr).Type);                
-        data << uint32((*itr).Price);
-        data << uint32((*itr).DisplayId);
-        // if (!unk "enabler") data << uint32(something);
-        data << int32((*itr).LeftInStock);
-        data << uint32((*itr).BuyCount);
-    }
+    data.FlushBits();
+    data.append(itemsData);
 
     data.WriteByteSeq(guidBytes[5]);
     data.WriteByteSeq(guidBytes[4]);
@@ -856,7 +837,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     data.WriteByteSeq(guidBytes[0]);
     data.WriteByteSeq(guidBytes[6]);
 
-    data << uint8(items.size() == 0); // unk byte, item count 0: 1, item count != 0: 0 or some "random" value below 300
+    data << uint8(count == 0); // unk byte, item count 0: 1, item count != 0: 0 or some "random" value below 300
 
     data.WriteByteSeq(guidBytes[2]);
     data.WriteByteSeq(guidBytes[3]);
