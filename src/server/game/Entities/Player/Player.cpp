@@ -4730,7 +4730,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                     uint32 sender        = mailFields[3].GetUInt32();
                     std::string subject  = mailFields[4].GetString();
                     std::string body     = mailFields[5].GetString();
-                    uint32 money         = mailFields[6].GetUInt32();
+                    uint64 money         = mailFields[6].GetUInt64();
                     bool has_items       = mailFields[7].GetBool();
 
                     // We can return mail now
@@ -17868,8 +17868,8 @@ void Player::_LoadMail()
             bool has_items    = fields[6].GetBool();
             m->expire_time    = time_t(fields[7].GetUInt32());
             m->deliver_time   = time_t(fields[8].GetUInt32());
-            m->money          = fields[9].GetUInt32();
-            m->COD            = fields[10].GetUInt32();
+            m->money          = fields[9].GetUInt64();
+            m->COD            = fields[10].GetUInt64();
             m->checked        = fields[11].GetUInt8();
             m->stationery     = fields[12].GetUInt8();
             m->mailTemplateId = fields[13].GetInt16();
