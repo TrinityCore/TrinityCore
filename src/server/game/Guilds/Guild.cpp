@@ -1322,12 +1322,12 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
     if (!_IsLeader(player))
         // "Only guild leaders can create emblems."
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_NOTGUILDMASTER);
-    else if (!player->HasEnoughMoney(EMBLEM_PRICE))
+    else if (!player->HasEnoughMoney(uint64(EMBLEM_PRICE)))
         // "You can't afford to do that."
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_NOTENOUGHMONEY);
     else
     {
-        player->ModifyMoney(-int32(EMBLEM_PRICE));
+        player->ModifyMoney(-int64(EMBLEM_PRICE));
 
         m_emblemInfo = emblemInfo;
         m_emblemInfo.SaveToDB(m_id);
@@ -1418,13 +1418,13 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
         return;
 
     Player* player = session->GetPlayer();
-    if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
+    if (!player->HasEnoughMoney(uint64(tabCost)))                   // Should not happen, this is checked by client
         return;
 
     if (!_CreateNewBankTab())
         return;
 
-    player->ModifyMoney(-int32(tabCost));
+    player->ModifyMoney(-int64(tabCost));
     _SetRankBankMoneyPerDay(player->GetRank(), uint32(GUILD_WITHDRAW_MONEY_UNLIMITED));
     _SetRankBankTabRightsAndSlots(player->GetRank(), tabId, GuildBankRightsAndSlots(GUILD_BANK_RIGHT_FULL, uint32(GUILD_WITHDRAW_SLOT_UNLIMITED)));
     HandleRoster();                                         // Broadcast for tab rights update
@@ -1652,13 +1652,13 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
     // Add money to bank
     _ModifyBankMoney(trans, amount, true);
     // Remove money from player
-    player->ModifyMoney(-int32(amount));
+    player->ModifyMoney(-int64(amount));
     player->SaveGoldToDB(trans);
     // Log GM action (TODO: move to scripts)
     if (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog->outCommand(player->GetSession()->GetAccountId(),
-            "GM %s (Account: %u) deposit money (Amount: %u) to guild bank (Guild ID %u)",
+            "GM %s (Account: %u) deposit money (Amount: " UI64FMTD ") to guild bank (Guild ID %u)",
             player->GetName(), player->GetSession()->GetAccountId(), amount, m_id);
     }
     // Log guild bank event
