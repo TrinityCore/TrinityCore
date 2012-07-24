@@ -1387,12 +1387,12 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recv_data)
     if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->getGender()))
         return;
 
-    uint32 Cost = _player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id, bs_skinColor);
+    uint32 cost = _player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id, bs_skinColor);
 
     // 0 - ok
     // 1, 3 - not enough money
     // 2 - you have to seat on barber chair
-    if (!_player->HasEnoughMoney(Cost))
+    if (!_player->HasEnoughMoney((uint64)cost))
     {
         WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
         data << uint32(1);                                  // no money
@@ -1406,8 +1406,8 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recv_data)
         SendPacket(&data);
     }
 
-    _player->ModifyMoney(-int32(Cost));                     // it isn't free
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, Cost);
+    _player->ModifyMoney(-int64(cost));                     // it isn't free
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
     _player->SetByteValue(PLAYER_BYTES, 2, uint8(bs_hair->hair_id));
     _player->SetByteValue(PLAYER_BYTES, 3, uint8(Color));

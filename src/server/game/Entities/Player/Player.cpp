@@ -346,7 +346,7 @@ void TradeData::SetSpell(uint32 spell_id, Item* castItem /*= NULL*/)
     Update(false);                                          // send spell info to caster self
 }
 
-void TradeData::SetMoney(uint32 money)
+void TradeData::SetMoney(uint64 money)
 {
     if (m_money == money)
         return;
@@ -4412,7 +4412,7 @@ bool Player::ResetTalents(bool no_cost)
     {
         cost = GetNextResetTalentsCost();
 
-        if (!HasEnoughMoney(cost))
+        if (!HasEnoughMoney(uint64(cost)))
         {
             SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return false;
@@ -5454,13 +5454,13 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
 
                 TotalCost = costs;
             }
-            else if (!HasEnoughMoney(costs))
+            else if (!HasEnoughMoney(uint64(costs)))
             {
                 sLog->outStaticDebug("You do not have enough money");
                 return TotalCost;
             }
             else
-                ModifyMoney(-int32(costs));
+                ModifyMoney(-int64(costs));
         }
     }
 
@@ -14325,7 +14325,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         return;
 
     int32 cost = int32(item->BoxMoney);
-    if (!HasEnoughMoney(cost))
+    if (!HasEnoughMoney(int64(cost)))
     {
         SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
         PlayerTalkClass->SendCloseGossip();
@@ -14773,7 +14773,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 
             if (qInfo->GetRewOrReqMoney() < 0)
             {
-                if (!HasEnoughMoney(-qInfo->GetRewOrReqMoney()))
+                if (!HasEnoughMoney(-int64(qInfo->GetRewOrReqMoney())))
                     return false;
             }
 
@@ -14836,7 +14836,7 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg)
     }
 
     // prevent receive reward with low money and GetRewOrReqMoney() < 0
-    if (quest->GetRewOrReqMoney() < 0 && !HasEnoughMoney(-quest->GetRewOrReqMoney()))
+    if (quest->GetRewOrReqMoney() < 0 && !HasEnoughMoney(-int64(quest->GetRewOrReqMoney())))
         return false;
 
     return true;
@@ -16755,7 +16755,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // load achievements before anything else to prevent multiple gains for the same achievement/criteria on every loading (as loading does call UpdateAchievementCriteria)
     m_achievementMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACHIEVEMENTS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS));
 
-    uint32 money = fields[8].GetUInt32();
+    uint64 money = fields[8].GetUInt64();
     if (money > MAX_MONEY_AMOUNT)
         money = MAX_MONEY_AMOUNT;
     SetMoney(money);
@@ -18647,7 +18647,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, getGender());
         stmt->setUInt8(index++, getLevel());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_XP));
-        stmt->setUInt32(index++, GetMoney());
+        stmt->setUInt64(index++, GetMoney());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_BYTES));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_BYTES_2));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
@@ -18755,7 +18755,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, getGender());
         stmt->setUInt8(index++, getLevel());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_XP));
-        stmt->setUInt32(index++, GetMoney());
+        stmt->setUInt64(index++, GetMoney());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_BYTES));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_BYTES_2));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
@@ -18921,7 +18921,7 @@ void Player::SaveInventoryAndGoldToDB(SQLTransaction& trans)
 void Player::SaveGoldToDB(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_MONEY);
-    stmt->setUInt32(0, GetMoney());
+    stmt->setUInt64(0, GetMoney());
     stmt->setUInt32(1, GetGUIDLow());
     trans->Append(stmt);
 }
@@ -20772,7 +20772,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
-    uint32 money = GetMoney();
+    uint64 money = GetMoney();
 
     if (npc)
         totalcost = (uint32)ceil(totalcost*GetReputationPriceDiscount(npc));
@@ -20785,7 +20785,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     //Checks and preparations done, DO FLIGHT
-    ModifyMoney(-(int32)totalcost);
+    ModifyMoney(-int64(totalcost));
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN, 1);
 
@@ -21161,7 +21161,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         // reputation discount
         price = uint32(floor(price * GetReputationPriceDiscount(creature)));
 
-        if (!HasEnoughMoney(price))
+        if (!HasEnoughMoney(uint64(price)))
         {
             SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, item, 0);
             return false;
@@ -21949,16 +21949,16 @@ void Player::InitPrimaryProfessions()
     SetFreePrimaryProfessions(sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL));
 }
 
-void Player::ModifyMoney(int32 d)
+void Player::ModifyMoney(int64 d)
 {
     sScriptMgr->OnPlayerMoneyChanged(this, d);
 
     if (d < 0)
-        SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
+        SetMoney (GetMoney() > uint64(-d) ? GetMoney() + d : 0);
     else
     {
-        uint32 newAmount = 0;
-        if (GetMoney() < uint32(MAX_MONEY_AMOUNT - d))
+        uint64 newAmount = 0;
+        if (GetMoney() < uint64(MAX_MONEY_AMOUNT - d))
             newAmount = GetMoney() + d;
         else
         {
@@ -21967,7 +21967,7 @@ void Player::ModifyMoney(int32 d)
             if (d)
                 SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
         }
-        SetMoney (newAmount);
+        SetMoney(newAmount);
     }
 }
 

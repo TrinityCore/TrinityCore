@@ -209,7 +209,7 @@ int32 DoLowUnlearnCost(Player* player)                     //blacksmith
 
 void ProcessCastaction(Player* player, Creature* creature, uint32 spellId, uint32 triggeredSpellId, int32 cost)
 {
-    if (!(spellId && player->HasSpell(spellId)) && player->HasEnoughMoney(cost))
+    if (!(spellId && player->HasSpell(spellId)) && player->HasEnoughMoney((int64)cost))
     {
         player->CastSpell(player, triggeredSpellId, true);
         player->ModifyMoney(-cost);
@@ -347,11 +347,11 @@ void ProcessUnlearnAction(Player* player, Creature* creature, uint32 spellId, ui
 {
     if (EquippedOk(player, spellId))
     {
-        if (player->HasEnoughMoney(cost))
+        if (player->HasEnoughMoney(int64(cost)))
         {
             player->CastSpell(player, spellId, true);
             ProfessionUnlearnSpells(player, spellId);
-            player->ModifyMoney(-cost);
+            player->ModifyMoney(-int64(cost));
             if (alternativeSpellId)
                 creature->CastSpell(player, alternativeSpellId, true);
         }

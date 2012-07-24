@@ -63,6 +63,7 @@
 #include "SmartAI.h"
 #include "Group.h"
 #include "ChannelMgr.h"
+#include <stdlib.h>
 
 bool ChatHandler::HandleMaxSkillCommand(const char* /*args*/)
 {
@@ -1388,7 +1389,7 @@ bool ChatHandler::HandleSendMoneyCommand(const char *args)
         return false;
 
     char* money_str = strtok(NULL, "");
-    int32 money = money_str ? atoi(money_str) : 0;
+    int64 money = money_str ? atoll(money_str) : 0;
     if (money <= 0)
         return false;
 
