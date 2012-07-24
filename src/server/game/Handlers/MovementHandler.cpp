@@ -795,15 +795,15 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                     data >> mi->j_zspeed;
                 break;
             case MSEFallCosAngle:
-                if (hasFallDirection)
+                if (hasFallData && hasFallDirection)
                     data >> mi->j_cosAngle;
                 break;
             case MSEFallSinAngle:
-                if (hasFallDirection)
+                if (hasFallData && hasFallDirection)
                     data >> mi->j_sinAngle;
                 break;
             case MSEFallHorizontalSpeed:
-                if (hasFallDirection)
+                if (hasFallData && hasFallDirection)
                     data >> mi->j_xyspeed;
                 break;
             case MSESplineElevation:
@@ -1070,15 +1070,15 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
                     data << mi->j_zspeed;
                 break;
             case MSEFallCosAngle:
-                if (hasFallDirection)
+                if (hasFallData && hasFallDirection)
                     data << mi->j_cosAngle;
                 break;
             case MSEFallSinAngle:
-                if (hasFallDirection)
+                if (hasFallData && hasFallDirection)
                     data << mi->j_sinAngle;
                 break;
             case MSEFallHorizontalSpeed:
-                if (hasFallDirection)
+                if (hasFallData && hasFallDirection)
                     data << mi->j_xyspeed;
                 break;
             case MSESplineElevation:
