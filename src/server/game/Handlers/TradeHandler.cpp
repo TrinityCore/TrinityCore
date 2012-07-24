@@ -519,28 +519,8 @@ void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
     my_trade->SetAccepted(false, true);
 }
 
-void WorldSession::HandleBeginTradeOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-/*
-    TODO: Need to verify
-
-    BitStream mask = recvPacket.ReadBitStream(8);
-
-    ByteBuffer bytes(8, true);
-    
-    recvPacket.ReadXorByte(mask[0], bytes[5]);
-    recvPacket.ReadXorByte(mask[4], bytes[2]);
-    recvPacket.ReadXorByte(mask[5], bytes[3]);
-    recvPacket.ReadXorByte(mask[2], bytes[4]);
-    recvPacket.ReadXorByte(mask[7], bytes[1]);
-    recvPacket.ReadXorByte(mask[3], bytes[0]);
-    recvPacket.ReadXorByte(mask[1], bytes[6]);
-    recvPacket.ReadXorByte(mask[6], bytes[7]);
-
-    uint64 tradeGuid = BitConverter::ToUInt64(bytes);
-*/
-    recvPacket.rfinish();
-
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
         return;
@@ -559,15 +539,32 @@ void WorldSession::SendCancelTrade()
 
 void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    // sended also after LOGOUT COMPLETE
+    // sent also after LOGOUT COMPLETE
     if (_player)                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
         _player->TradeCancel(true);
 }
 
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
-    uint64 ID;
-    recvPacket >> ID;
+    ObjectGuid guid;
+
+    guid[0] = recvPacket.ReadBit();
+    guid[3] = recvPacket.ReadBit();
+    guid[5] = recvPacket.ReadBit();
+    guid[1] = recvPacket.ReadBit();
+    guid[4] = recvPacket.ReadBit();
+    guid[6] = recvPacket.ReadBit();
+    guid[7] = recvPacket.ReadBit();
+    guid[2] = recvPacket.ReadBit();
+
+    recvPacket.ReadByteSeq(guid[7]);
+    recvPacket.ReadByteSeq(guid[4]);
+    recvPacket.ReadByteSeq(guid[3]);
+    recvPacket.ReadByteSeq(guid[5]);
+    recvPacket.ReadByteSeq(guid[1]);
+    recvPacket.ReadByteSeq(guid[2]);
+    recvPacket.ReadByteSeq(guid[6]);
+    recvPacket.ReadByteSeq(guid[0]);
 
     if (GetPlayer()->m_trade)
         return;
@@ -602,7 +599,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    Player* pOther = ObjectAccessor::FindPlayer(ID);
+    Player* pOther = ObjectAccessor::FindPlayer(guid);
 
     if (!pOther)
     {
