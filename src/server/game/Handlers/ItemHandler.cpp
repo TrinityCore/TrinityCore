@@ -27,6 +27,7 @@
 #include "UpdateData.h"
 #include "ObjectAccessor.h"
 #include "SpellInfo.h"
+#include <vector>
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket & recv_data)
 {
@@ -742,111 +743,106 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     if (vendor->HasUnitState(UNIT_STATE_MOVING))
         vendor->StopMoving();
 
-    uint8* bytes = (uint8*)&vendorGuid;
+    VendorItemData const* vendorItems = vendor->GetVendorItems();
+    uint8 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
-    VendorItemData const* items = vendor->GetVendorItems();
-    if (!items)
-    {
-        WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + 1);
-        data.WriteBit(bytes[5]);
-        data.WriteBit(bytes[6]);
-        data.WriteBit(bytes[1]);
-        data.WriteBit(bytes[2]);
-        data.WriteBit(bytes[3]);
-        data.WriteBit(bytes[0]);
-        data.WriteBit(bytes[7]);
-        data.WriteBit(bytes[4]);
+    //if (rawItemCount > 300), 
+    //    rawItemCount = 300; // client cap but uint8 max value is 255
 
-        data.WriteByteSeq(bytes[2]);
-        data.WriteByteSeq(bytes[3]);
+    ByteBuffer itemsData(32 * rawItemCount);
+    std::vector<bool> enablers;
+    enablers.reserve(2 * rawItemCount);
 
-        data << uint8(0);                                   // count == 0, next will be error code
-        data << uint8(0xA0);                                // Only seen 0xA0 (160) so far ( should we send 0 here?)
-
-        data.WriteByteSeq(bytes[4]);
-        data.WriteByteSeq(bytes[7]);
-        data.WriteByteSeq(bytes[6]);
-        SendPacket(&data);
-        return;
-    }
-
-    uint8 itemCount = items->GetItemCount();
+    const float discountMod = _player->GetReputationPriceDiscount(vendor);
     uint8 count = 0;
-
-    WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
-
-    data.WriteBit(bytes[5]);
-    data.WriteBit(bytes[6]);
-    data.WriteBit(bytes[1]);
-    data.WriteBit(bytes[2]);
-    data.WriteBit(bytes[3]);
-    data.WriteBit(bytes[0]);
-    data.WriteBit(bytes[7]);
-    data.WriteBit(bytes[4]);
-
-    data.WriteByteSeq(bytes[2]);
-    data.WriteByteSeq(bytes[3]);
-
-    size_t countPos = data.wpos();
-    data << uint32(count);
-
-    data.WriteByteSeq(bytes[5]);
-    data.WriteByteSeq(bytes[0]);
-    data.WriteByteSeq(bytes[1]);
-
-    data << uint8(0xA0); // Only seen 0xA0 (160) so far
-
-    data.WriteByteSeq(bytes[4]);
-    data.WriteByteSeq(bytes[7]);
-    data.WriteByteSeq(bytes[6]);
-
-
-    float discountMod = _player->GetReputationPriceDiscount(vendor);
-
-    for (uint8 slot = 0; slot < itemCount; ++slot)
+    for (uint8 slot = 0; slot < rawItemCount; ++slot)
     {
-        if (VendorItem const* item = items->GetItem(slot))
+        VendorItem const* vendorItem = vendorItems->GetItem(slot);
+        if (!vendorItem) continue;
+
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
+        if (!itemTemplate) continue;
+
+        if (!_player->isGameMaster()) // ignore conditions if GM on
         {
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item))
-            {
-                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP && !_player->isGameMaster())
-                    continue;
-                // Only display items in vendor lists for the team the
-                // player is on. If GM on, display all items.
-                if (!_player->isGameMaster() && ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) || (itemTemplate->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE)))
-                    continue;
+            // Respect allowed class
+            if (!(itemTemplate->AllowableClass & _player->getClassMask()))
+                continue;
 
-                // Items sold out are not displayed in list
-                uint32 leftInStock = !item->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(item);
-                if (!_player->isGameMaster() && !leftInStock)
-                    continue;
+            // Do not sell BOP items
+            if (itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                continue;
 
-                ++count;
+            // Only display items in vendor lists for the team the player is on
+            if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
+                (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                continue;
 
-                // reputation discount
-                int32 price = item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
-
-                data << uint32(itemTemplate->MaxDurability);
-                data << uint32(slot + 1);       // client expects counting to start at 1
-                data << uint32(item->item);
-                data << uint32(0);              // Always 0?
-                data << uint32(itemTemplate->DisplayInfoID);
-                data << int32(leftInStock);
-                data << uint32(itemTemplate->BuyCount);
-                data << uint32(item->ExtendedCost);
-                data << uint32(1);              // Always 1?
-                data << uint32(price);
-            }
+            // Items sold out are not displayed in list
+            uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
+            if (leftInStock == 0)
+                continue;
         }
+        
+        int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
+        uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
+
+        itemsData << uint32(count++ + 1);        // client expects counting to start at 1
+        itemsData << uint32(itemTemplate->MaxDurability);
+
+        if (vendorItem->ExtendedCost != 0)
+        {
+            enablers.push_back(0);
+            itemsData << uint32(vendorItem->ExtendedCost);
+        }
+        else
+            enablers.push_back(1);
+        enablers.push_back(1);                 // unk bit
+
+        itemsData << uint32(vendorItem->item);
+        itemsData << uint32(1);                // 1 is items, 2 is currency (FIXME: currency isn't implemented)
+        itemsData << uint32(price);
+        itemsData << uint32(itemTemplate->DisplayInfoID);
+        // if (!unk "enabler") data << uint32(something);
+        itemsData << int32(leftInStock);
+        itemsData << uint32(itemTemplate->BuyCount);
     }
 
-    if (count == 0)
-    {
-        SendPacket(&data);
-        return;
-    }
+    uint8* guidBytes = (uint8*)&vendorGuid;
 
-    data.put<uint32>(countPos, count);
+    WorldPacket data(SMSG_LIST_INVENTORY, 12 + itemsData.size());
+
+    data.WriteBit(guidBytes[1]);
+    data.WriteBit(guidBytes[0]);
+
+    data.WriteBits(count, 21); // item count
+
+    data.WriteBit(guidBytes[3]);
+    data.WriteBit(guidBytes[6]);
+    data.WriteBit(guidBytes[5]);
+    data.WriteBit(guidBytes[2]);
+    data.WriteBit(guidBytes[7]);
+
+    for (std::vector<bool>::const_iterator itr = enablers.begin(); itr != enablers.end(); ++itr)
+        data.WriteBit(*itr);
+
+    data.WriteBit(guidBytes[4]);
+
+    data.FlushBits();
+    data.append(itemsData);
+
+    data.WriteByteSeq(guidBytes[5]);
+    data.WriteByteSeq(guidBytes[4]);
+    data.WriteByteSeq(guidBytes[1]);
+    data.WriteByteSeq(guidBytes[0]);
+    data.WriteByteSeq(guidBytes[6]);
+
+    data << uint8(count == 0); // unk byte, item count 0: 1, item count != 0: 0 or some "random" value below 300
+
+    data.WriteByteSeq(guidBytes[2]);
+    data.WriteByteSeq(guidBytes[3]);
+    data.WriteByteSeq(guidBytes[7]);
+
     SendPacket(&data);
 }
 
