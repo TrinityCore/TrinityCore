@@ -169,8 +169,7 @@ enum eArgentValiant
 {
     SPELL_CHARGE                = 63010,
     SPELL_SHIELD_BREAKER        = 65147,
-
-    NPC_ARGENT_VALIANT_CREDIT   = 24108
+    SPELL_KILL_CREDIT           = 63049
 };
 
 class npc_argent_valiant : public CreatureScript
@@ -208,7 +207,7 @@ public:
             if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
                 uiDamage = 0;
-                CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT, 0);
+                pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
