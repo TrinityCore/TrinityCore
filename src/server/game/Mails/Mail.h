@@ -129,7 +129,7 @@ class MailDraft
 
     public:                                                 // modifiers
         MailDraft& AddItem(Item* item);
-        MailDraft& AddMoney(uint32 money) { m_money = money; return *this; }
+        MailDraft& AddMoney(uint64 money) { m_money = money; return *this; }
         MailDraft& AddCOD(uint32 COD) { m_COD = COD; return *this; }
 
     public:                                                 // finishers
@@ -147,8 +147,8 @@ class MailDraft
 
         MailItemMap m_items;                                // Keep the items in a map to avoid duplicate guids (which can happen), store only low part of guid
 
-        uint32 m_money;
-        uint32 m_COD;
+        uint64 m_money;
+        uint64 m_COD;
 };
 
 struct MailItemInfo
