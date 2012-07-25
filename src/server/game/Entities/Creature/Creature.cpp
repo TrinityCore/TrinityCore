@@ -2509,9 +2509,9 @@ bool Creature::SetWalk(bool enable)
         data.WriteBit(guid[5]);
         data.WriteBit(guid[6]);
         data.WriteBit(guid[3]);
+        data.WriteBit(guid[7]);
         data.WriteBit(guid[2]);
         data.WriteBit(guid[0]);
-        data.WriteBit(guid[7]);
         data.WriteBit(guid[4]);
         data.WriteBit(guid[1]);
         data.FlushBits();
@@ -2631,10 +2631,10 @@ bool Creature::SetHover(bool enable)
         WorldPacket data(SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
         data.WriteBit(guid[6]);
         data.WriteBit(guid[7]);
+        data.WriteBit(guid[4]);
         data.WriteBit(guid[0]);
         data.WriteBit(guid[3]);
         data.WriteBit(guid[1]);
-        data.WriteBit(guid[4]);
         data.WriteBit(guid[5]);
         data.WriteBit(guid[2]);
         data.FlushBits();
