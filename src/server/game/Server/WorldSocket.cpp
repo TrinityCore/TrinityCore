@@ -1051,8 +1051,8 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
     uint32 latency;
 
     // Get the ping packet content
-    recvPacket >> ping;
     recvPacket >> latency;
+    recvPacket >> ping;
 
     if (m_LastPingTime == ACE_Time_Value::zero)
         m_LastPingTime = ACE_OS::gettimeofday(); // for 1st ping
