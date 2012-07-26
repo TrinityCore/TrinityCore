@@ -83,35 +83,48 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
     TradeData* view_trade = trader_data ? _player->GetTradeData()->GetTraderData() : _player->GetTradeData();
 
     ByteBuffer itemData(7*2 + 7*4 + 3*4 + 3*4 + 1);
-    ByteBuffer bitData(3);
 
     uint8 count = 0;
+    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
+        if (view_trade->GetItem(TradeSlots(i)))
+            ++count;
+
+    WorldPacket data(SMSG_TRADE_STATUS_EXTENDED, 4*6 + 8 + 1 + 3 + count * 70);
+    data << uint32(0);                                      // this value must be equal to value from TRADE_STATUS_OPEN_WINDOW status packet (different value for different players to block multiple trades?)
+    data << uint32(0);                                      // unk 2
+    data << uint64(view_trade->GetMoney());                 // trader gold
+    data << uint32(view_trade->GetSpell());                 // spell casted on lowest slot item
+    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = next field in most cases
+    data << uint32(0);                                      // unk 5
+    data << uint8(trader_data);                             // 1 means traders data, 0 means own
+    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = prev field in most cases
+    data.WriteBits(count, 22);
+
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
     {
         Item* item = view_trade->GetItem(TradeSlots(i));
         if (!item)
             continue;
-        ++count;
 
         ObjectGuid giftCreatorGuid = item->GetUInt64Value(ITEM_FIELD_GIFTCREATOR);
         ObjectGuid creatorGuid = item->GetUInt64Value(ITEM_FIELD_CREATOR);
 
-        bitData.WriteBit(giftCreatorGuid[7]);
-        bitData.WriteBit(giftCreatorGuid[1]);
-        bool notWrapped = bitData.WriteBit(!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED));
-        bitData.WriteBit(giftCreatorGuid[3]);
+        data.WriteBit(giftCreatorGuid[7]);
+        data.WriteBit(giftCreatorGuid[1]);
+        bool notWrapped = data.WriteBit(!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED));
+        data.WriteBit(giftCreatorGuid[3]);
 
         if (notWrapped)
         {
-            bitData.WriteBit(creatorGuid[7]);
-            bitData.WriteBit(creatorGuid[1]);
-            bitData.WriteBit(creatorGuid[4]);
-            bitData.WriteBit(creatorGuid[6]);
-            bitData.WriteBit(creatorGuid[2]);
-            bitData.WriteBit(creatorGuid[3]);
-            bitData.WriteBit(creatorGuid[5]);
-            bitData.WriteBit(item->GetTemplate()->LockID != 0);
-            bitData.WriteBit(creatorGuid[0]);
+            data.WriteBit(creatorGuid[7]);
+            data.WriteBit(creatorGuid[1]);
+            data.WriteBit(creatorGuid[4]);
+            data.WriteBit(creatorGuid[6]);
+            data.WriteBit(creatorGuid[2]);
+            data.WriteBit(creatorGuid[3]);
+            data.WriteBit(creatorGuid[5]);
+            data.WriteBit(item->GetTemplate()->LockID != 0);
+            data.WriteBit(creatorGuid[0]);
 
             itemData.WriteByteSeq(creatorGuid[1]);
 
@@ -122,7 +135,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 
             itemData.WriteByteSeq(creatorGuid[6]);
             itemData.WriteByteSeq(creatorGuid[2]);
-            itemData.WriteByteSeq(creatorGuid[7]);  
+            itemData.WriteByteSeq(creatorGuid[7]);
             itemData.WriteByteSeq(creatorGuid[4]);
 
             itemData << uint32(0); // reforge id, FIXME: not implemented
@@ -141,11 +154,11 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             itemData.WriteByteSeq(creatorGuid[5]);
         }
 
-        bitData.WriteBit(giftCreatorGuid[6]);
-        bitData.WriteBit(giftCreatorGuid[4]);
-        bitData.WriteBit(giftCreatorGuid[2]);
-        bitData.WriteBit(giftCreatorGuid[0]);
-        bitData.WriteBit(giftCreatorGuid[5]);
+        data.WriteBit(giftCreatorGuid[6]);
+        data.WriteBit(giftCreatorGuid[4]);
+        data.WriteBit(giftCreatorGuid[2]);
+        data.WriteBit(giftCreatorGuid[0]);
+        data.WriteBit(giftCreatorGuid[5]);
 
         itemData.WriteByteSeq(giftCreatorGuid[6]);
         itemData.WriteByteSeq(giftCreatorGuid[1]);
@@ -166,20 +179,6 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         itemData.WriteByteSeq(giftCreatorGuid[3]);
     }
 
-    WorldPacket data(SMSG_TRADE_STATUS_EXTENDED, 4*6 + 8 + 1 + 3 + bitData.size() + itemData.size());
-
-    data << uint32(0);                                      // this value must be equal to value from TRADE_STATUS_OPEN_WINDOW status packet (different value for different players to block multiple trades?)
-    data << uint32(0);                                      // unk 2
-    data << uint64(view_trade->GetMoney());                 // trader gold
-    data << uint32(view_trade->GetSpell());                 // spell casted on lowest slot item
-    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = next field in most cases
-    data << uint32(0);                                      // unk 5
-    data << uint8(trader_data);                             // 1 means traders data, 0 means own
-    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = prev field in most cases
-
-    data.WriteBits(count, 22);
-    data.FlushBits();
-    data.append(bitData);
     data.FlushBits();
     data.append(itemData);
 
