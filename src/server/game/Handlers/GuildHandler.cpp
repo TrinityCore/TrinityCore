@@ -396,13 +396,13 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
 
-    uint64 GoGuid;
-    recv_data >> GoGuid;
+    uint64 goGuid;
+    recv_data >> goGuid;
 
-    uint32 money;
+    uint64 money;
     recv_data >> money;
 
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(goGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
             if (Guild* guild = _GetPlayerGuild(this))
                 guild->HandleMemberDepositMoney(this, money);

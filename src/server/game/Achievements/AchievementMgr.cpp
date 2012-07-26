@@ -2235,7 +2235,7 @@ void AchievementMgr<T>::RemoveTimedAchievement(AchievementCriteriaTimedTypes typ
 }
 
 template<class T>
-void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* achievement, Player* /*referencePlayer*/)
+void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
 {
     sLog->outDetail("AchievementMgr::CompletedAchievement(%u)", achievement->ID);
 
@@ -2258,8 +2258,8 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* achievement
     if (!(achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
         sAchievementMgr->SetRealmCompleted(achievement);
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, 0, 0, NULL, referencePlayer);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points, 0, NULL, referencePlayer);
 
     // reward items and titles if any
     AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement);
@@ -2340,8 +2340,8 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
 
     sAchievementMgr->SetRealmCompleted(achievement);
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, 0, 0, NULL, referencePlayer);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points, 0, NULL, referencePlayer);
 }
 
 struct VisibleAchievementPred

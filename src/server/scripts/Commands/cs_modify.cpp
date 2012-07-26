@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Chat.h"
+#include <stdlib.h>
 
 class modify_commandscript : public CommandScript
 {
@@ -1002,13 +1003,13 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        int32 addmoney = atoi((char*)args);
+        int64 addmoney = atoll((char*)args);
 
-        uint32 moneyuser = target->GetMoney();
+        uint64 moneyuser = target->GetMoney();
 
         if (addmoney < 0)
         {
-            int32 newmoney = int32(moneyuser) + addmoney;
+            int64 newmoney = int32(moneyuser) + addmoney;
 
             sLog->outDetail(handler->GetTrinityString(LANG_CURRENT_MONEY), moneyuser, addmoney, newmoney);
             if (newmoney <= 0)

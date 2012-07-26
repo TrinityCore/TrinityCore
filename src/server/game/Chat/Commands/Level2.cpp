@@ -251,7 +251,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         return false;
 
     uint32 accId             = 0;
-    uint32 money             = 0;
+    uint64 money             = 0;
     uint32 total_player_time = 0;
     uint8 level              = 0;
     uint32 latency           = 0;
@@ -299,7 +299,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         Field* fields     = result->Fetch();
         total_player_time = fields[0].GetUInt32();
         level             = fields[1].GetUInt8();
-        money             = fields[2].GetUInt32();
+        money             = fields[2].GetUInt64();
         accId             = fields[3].GetUInt32();
         race              = fields[4].GetUInt8();
         Class             = fields[5].GetUInt8();
@@ -422,9 +422,9 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     }
 
     std::string timeStr = secsToTimeString(total_player_time, true, true);
-    uint32 gold = money /GOLD;
-    uint32 silv = (money % GOLD) / SILVER;
-    uint32 copp = (money % GOLD) % SILVER;
+    uint64 gold = money / GOLD;
+    uint64 silv = (money % GOLD) / SILVER;
+    uint64 copp = (money % GOLD) % SILVER;
     PSendSysMessage(LANG_PINFO_LEVEL, race_s.c_str(), Class_s.c_str(), timeStr.c_str(), level, gold, silv, copp);
 
     // Add map, zone, subzone and phase to output

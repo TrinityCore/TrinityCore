@@ -105,7 +105,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
 
     uint32 cost = items_count ? 30 * items_count : 30;  // price hardcoded in client
 
-    uint32 reqmoney = cost + money;
+    uint64 reqmoney = cost + uint64(money);
 
     if (!player->HasEnoughMoney(reqmoney) && !player->isGameMaster())
     {
@@ -439,7 +439,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
     }
 
     // prevent cheating with skip client money check
-    if (!player->HasEnoughMoney(m->COD))
+    if (!player->HasEnoughMoney(uint64(m->COD)))
     {
         player->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;

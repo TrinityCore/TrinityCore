@@ -1224,7 +1224,7 @@ void ScriptMgr::OnPlayerTalentsReset(Player* player, bool noCost)
     FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, noCost);
 }
 
-void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)
+void ScriptMgr::OnPlayerMoneyChanged(Player* player, int64& amount)
 {
     FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(player, amount);
 }

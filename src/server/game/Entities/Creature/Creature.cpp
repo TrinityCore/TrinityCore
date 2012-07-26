@@ -381,6 +381,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     SetAttackTime(RANGED_ATTACK, cInfo->rangeattacktime);
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
+    SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
 
@@ -440,7 +441,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     */
 
     // TODO: Shouldn't we check whether or not the creature is in water first?
-    if (cInfo->InhabitType & INHABIT_WATER)
+    if (cInfo->InhabitType & INHABIT_WATER && IsInWater())
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
     return true;
@@ -1160,12 +1161,26 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
 
     // mana
     uint32 mana = stats->GenerateMana(cinfo);
-
     SetCreateMana(mana);
-    SetMaxPower(POWER_MANA, mana);                          //MAX Mana
-    SetPower(POWER_MANA, mana);
 
-    // TODO: set UNIT_FIELD_POWER*, for some creature class case (energy, etc)
+    switch (getClass())
+    {
+        case CLASS_WARRIOR:
+            setPowerType(POWER_RAGE);
+            SetMaxPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
+            SetPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
+            break;
+        case CLASS_ROGUE:
+            setPowerType(POWER_ENERGY);
+            SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+            SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+            break;
+        default:
+            setPowerType(POWER_MANA);
+            SetMaxPower(POWER_MANA, mana);
+            SetPower(POWER_MANA, mana);
+            break;
+    }
 
     SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
     SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)mana);
@@ -2465,9 +2480,52 @@ bool Creature::SetWalk(bool enable)
     if (!Unit::SetWalk(enable))
         return false;
 
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_WALK_MODE : SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
-    data.append(GetPackGUID());
-    SendMessageToSet(&data, false);
+    ObjectGuid guid = GetGUID();
+    if (enable)
+    {
+        WorldPacket data(SMSG_SPLINE_MOVE_SET_WALK_MODE, 9);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[0]);
+        data.FlushBits();
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[3]);
+        SendMessageToSet(&data, false);
+    }
+    else
+    {
+        WorldPacket data(SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[1]);
+        data.FlushBits();
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[3]);
+        SendMessageToSet(&data, false);
+    }
+
     return true;
 }
 
@@ -2481,9 +2539,52 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
     if (!movespline->Initialized())
         return true;
 
-    WorldPacket data(disable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
-    data.append(GetPackGUID());
-    SendMessageToSet(&data, false);
+    ObjectGuid guid = GetGUID();
+    if (disable)
+    {
+        WorldPacket data(SMSG_SPLINE_MOVE_GRAVITY_DISABLE, 9);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[6]);
+        data.FlushBits();
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[0]);
+        SendMessageToSet(&data, false);
+    }
+    else
+    {
+        WorldPacket data(SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[0]);
+        data.FlushBits();
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[5]);
+        SendMessageToSet(&data, false);
+    }
+
     return true;
 }
 
@@ -2502,8 +2603,51 @@ bool Creature::SetHover(bool enable)
         return true;
 
     //! Not always a packet is sent
-    WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_HOVER : SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
-    data.append(GetPackGUID());
-    SendMessageToSet(&data, false);
+    ObjectGuid guid = GetGUID();
+    if (enable)
+    {
+        WorldPacket data(SMSG_SPLINE_MOVE_SET_HOVER, 9);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[5]);
+        data.FlushBits();
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[6]);
+        SendMessageToSet(&data, false);
+    }
+    else
+    {
+        WorldPacket data(SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[2]);
+        data.FlushBits();
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[1]);
+        SendMessageToSet(&data, false);
+    }
+
     return true;
 }
