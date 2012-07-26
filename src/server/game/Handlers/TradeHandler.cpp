@@ -80,19 +80,8 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 {
     TradeData* view_trade = trader_data ? _player->GetTradeData()->GetTraderData() : _player->GetTradeData();
 
-    WorldPacket data(SMSG_TRADE_STATUS_EXTENDED, 1+4+4+4+4+4+7*(1+4+4+4+4+8+4+4+4+4+8+4+4+4+4+4+4));
-
-    data << uint32(0);                                      // this value must be equal to value from TRADE_STATUS_OPEN_WINDOW status packet (different value for different players to block multiple trades?)
-    data << uint32(0);                                      // unk 2
-    data << uint32(view_trade->GetMoney());                 // trader gold
-    data << uint32(view_trade->GetSpell());                 // spell casted on lowest slot item
-    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = next field in most cases
-    data << uint32(0);                                      // unk 5
-    data << uint8(trader_data);                             // 1 means traders data, 0 means own
-    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = prev field in most cases
-
-    ByteBuffer itemData;
-    ByteBuffer bitData;
+    ByteBuffer itemData(7*2 + 7*4 + 3*4 + 3*4 + 1);
+    ByteBuffer bitData(3);
 
     uint8 count = 0;
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
@@ -174,6 +163,17 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         itemData.WriteByteSeq(giftCreatorGuid[2]);
         itemData.WriteByteSeq(giftCreatorGuid[3]);
     }
+
+    WorldPacket data(SMSG_TRADE_STATUS_EXTENDED, 4*6 + 8 + 1 + 3 + bitData.size() + itemData.size());
+
+    data << uint32(0);                                      // this value must be equal to value from TRADE_STATUS_OPEN_WINDOW status packet (different value for different players to block multiple trades?)
+    data << uint32(0);                                      // unk 2
+    data << uint64(view_trade->GetMoney());                 // trader gold
+    data << uint32(view_trade->GetSpell());                 // spell casted on lowest slot item
+    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = next field in most cases
+    data << uint32(0);                                      // unk 5
+    data << uint8(trader_data);                             // 1 means traders data, 0 means own
+    data << uint32(TRADE_SLOT_COUNT);                       // trade slots count/number?, = prev field in most cases
 
     data.WriteBits(count, 22);
     data.FlushBits();
