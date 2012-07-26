@@ -1026,7 +1026,7 @@ class TradeData
         uint32     m_spell;                                 // m_player apply spell to non-traded slot item
         uint64     m_spellCastItem;                         // applied spell casted by item use
 
-        uint64     m_items[TRADE_SLOT_COUNT];               // traded itmes from m_player side including non-traded slot
+        uint64     m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
 };
 
 class KillRewarder
