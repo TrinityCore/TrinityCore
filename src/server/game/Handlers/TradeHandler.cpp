@@ -34,12 +34,12 @@ void WorldSession::SendTradeStatus(TradeStatus status)
 {
     WorldPacket data;
 
+    data.Initialize(SMSG_TRADE_STATUS, 1+4+4);
+    data.WriteBit(0); // unk bit, usually 0
+    data.WriteBits(status, 5);
+
     switch (status)
     {
-        data.Initialize(SMSG_TRADE_STATUS, 1+4+4);
-        data.WriteBit(0); // unk bit, usually 0
-        data.WriteBits(status, 5);
-
         case TRADE_STATUS_BEGIN_TRADE:
             data.WriteBits(0, 8); // zero guid
             break;
