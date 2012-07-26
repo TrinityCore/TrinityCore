@@ -63,6 +63,8 @@ void WorldSession::SendTradeStatus(TradeStatus status)
             break;
     }
 
+    data.FlushBits();
+
     SendPacket(&data);
 }
 
