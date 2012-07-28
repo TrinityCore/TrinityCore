@@ -2888,7 +2888,46 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#
+#
+ 
+Anticheat.Enable = 1
+ 
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+
+Anticheat.ReportsForIngameWarnings = 70
+ 
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+ 
+Anticheat.DetectionsEnabled = 31
+ 
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+ 
+Anticheat.MaxReportsForDailyReport = 70
+ 
+#
 ###################################################################################################
+
+#     Anticheat.Ban	
+#        Description: Make anticheat active (Ban cheaters character for 1 hour.)	
+#        Default:     1 - (Enabled)	
+#                     0 - (Disabled)
+	
+Anticheat.Ban = 1
 
 ###################################################################################################
 # WINTERGRASP OPTIONS
