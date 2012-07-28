@@ -23,6 +23,8 @@ void AddSC_example_escort();
 void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
+// Transmogrify
+void AddSC_transmogrify_script();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1255,6 +1257,7 @@ void AddBattlegroundScripts()
 
 void AddCustomScripts()
 {
+    AddSC_transmogrify_script();
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
 

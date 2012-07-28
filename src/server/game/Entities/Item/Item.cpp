@@ -276,6 +276,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->Duration);
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
+    SetUInt32Value(ITEM_FIELD_DISPLAY_ID, 0);
     return true;
 }
 
@@ -321,6 +322,10 @@ void Item::SaveToDB(SQLTransaction& trans)
             uint8 index = 0;
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
             stmt->setUInt32(  index, GetEntry());
+
+            if (uState == ITEM_CHANGED)
+                stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DISPLAY_ID));
+
             stmt->setUInt32(++index, GUID_LOPART(GetOwnerGUID()));
             stmt->setUInt32(++index, GUID_LOPART(GetUInt64Value(ITEM_FIELD_CREATOR)));
             stmt->setUInt32(++index, GUID_LOPART(GetUInt64Value(ITEM_FIELD_GIFTCREATOR)));
@@ -1195,4 +1200,132 @@ bool Item::CheckSoulboundTradeExpire()
     }
 
     return false;
+}
+
+FakeResult Item::SetFakeDisplay(uint32 iEntry)
+{
+    if (!iEntry)
+    {
+        RemoveFakeDisplay();
+        return FAKE_ERR_OK;
+    }
+
+    ItemTemplate const* myTmpl    = GetTemplate();
+    ItemTemplate const* otherTmpl = sObjectMgr->GetItemTemplate(iEntry);
+
+    if (!otherTmpl)
+        return FAKE_ERR_CANT_FIND_ITEM;
+
+    bool diff_inv_type = false;
+    if (myTmpl->InventoryType != otherTmpl->InventoryType)
+    {
+        diff_inv_type = true;
+
+        if (myTmpl->InventoryType == INVTYPE_CHEST && otherTmpl->InventoryType == INVTYPE_ROBE)
+            diff_inv_type = false;
+
+        if (myTmpl->InventoryType == INVTYPE_ROBE && otherTmpl->InventoryType == INVTYPE_CHEST)
+            diff_inv_type = false;
+
+        if (myTmpl->InventoryType == INVTYPE_RANGED && otherTmpl->InventoryType == INVTYPE_RANGEDRIGHT)
+            diff_inv_type = false;
+
+        if (myTmpl->InventoryType == INVTYPE_RANGEDRIGHT && otherTmpl->InventoryType == INVTYPE_RANGED)
+            diff_inv_type = false;
+    }
+
+    if (diff_inv_type)
+        return FAKE_ERR_DIFF_SLOTS;
+
+    switch (myTmpl->InventoryType)
+    {
+        case INVTYPE_NON_EQUIP:
+        //case INVTYPE_HEAD:
+        //case INVTYPE_NECK:
+        //case INVTYPE_SHOULDERS:
+        case INVTYPE_BODY:
+        //case INVTYPE_CHEST:
+        //case INVTYPE_WAIST:
+        //case INVTYPE_LEGS:
+        //case INVTYPE_FEET:
+        //case INVTYPE_WRISTS:
+        //case INVTYPE_HANDS:
+        //case INVTYPE_FINGER:
+        case INVTYPE_TRINKET:
+        //case INVTYPE_WEAPON:
+        //case INVTYPE_SHIELD:
+        //case INVTYPE_RANGED:
+        //case INVTYPE_CLOAK:
+        //case INVTYPE_2HWEAPON:
+        case INVTYPE_BAG:
+        case INVTYPE_TABARD:
+        //case INVTYPE_ROBE:
+        //case INVTYPE_WEAPONMAINHAND:
+        //case INVTYPE_WEAPONOFFHAND:
+        //case INVTYPE_HOLDABLE:
+        case INVTYPE_AMMO:
+        case INVTYPE_THROWN:
+        //case INVTYPE_RANGEDRIGHT:
+        case INVTYPE_QUIVER:
+        case INVTYPE_RELIC:
+            return FAKE_ERR_DIFF_SLOTS;
+        default:
+            break;
+    }
+
+    if (myTmpl->Class != otherTmpl->Class)
+        return FAKE_ERR_DIFF_CLASS;
+
+    bool diff_sub_class = false;
+    if (myTmpl->SubClass != otherTmpl->SubClass)
+    {
+        diff_sub_class = true;
+        if (myTmpl->Class == ITEM_CLASS_WEAPON)
+        {
+            //BOW & CROSSBOW
+            if (myTmpl->SubClass == ITEM_SUBCLASS_WEAPON_BOW && otherTmpl->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW)
+                diff_sub_class = false;
+
+            if (myTmpl->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW && otherTmpl->SubClass == ITEM_SUBCLASS_WEAPON_BOW)
+                diff_sub_class = false;
+
+            //BOW & GUN
+            if (myTmpl->SubClass == ITEM_SUBCLASS_WEAPON_BOW && otherTmpl->SubClass == ITEM_SUBCLASS_WEAPON_GUN)
+                diff_sub_class = false;
+
+            if (myTmpl->SubClass == ITEM_SUBCLASS_WEAPON_GUN && otherTmpl->SubClass == ITEM_SUBCLASS_WEAPON_BOW)
+                diff_sub_class = false;
+
+            //CROSSBOW & GUN
+            if (myTmpl->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW && otherTmpl->SubClass == ITEM_SUBCLASS_WEAPON_GUN)
+                diff_sub_class = false;
+
+            if (myTmpl->SubClass == ITEM_SUBCLASS_WEAPON_GUN && otherTmpl->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW)
+                diff_sub_class = false;
+        }
+    }
+
+    if (diff_sub_class)
+        return FAKE_ERR_DIFF_CLASS;
+
+    if (myTmpl->Class == ITEM_CLASS_WEAPON && myTmpl->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return FAKE_ERR_DIFF_CLASS;
+
+    if (otherTmpl->Class == ITEM_CLASS_WEAPON && otherTmpl->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return FAKE_ERR_DIFF_CLASS;
+
+    if (otherTmpl->Quality == ITEM_QUALITY_LEGENDARY || otherTmpl->Quality == ITEM_QUALITY_POOR)
+        return FAKE_ERR_WRONG_QUALITY;
+
+    if (myTmpl->Quality == ITEM_QUALITY_LEGENDARY || myTmpl->Quality == ITEM_QUALITY_POOR)
+        return FAKE_ERR_WRONG_QUALITY;
+
+    SetItemDisplayId(iEntry);
+
+    return FAKE_ERR_OK;
+}
+
+void Item::RemoveFakeDisplay()
+{
+    SetItemDisplayId(0);
 }
