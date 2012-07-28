@@ -24,14 +24,17 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
 
     uint32 channelId;
-    uint8 unknown1, unknown2;
+    uint32 channelLength, passLength;
     std::string channelName, pass;
 
     recvPacket >> channelId;
-    recvPacket >> unknown1 >> unknown2;
-    recvPacket >> pass;
-    recvPacket >> channelName;
-    
+    recvPacket.ReadBit();   // unknowns
+    recvPacket.ReadBit();
+    channelLength = recvPacket.ReadBits(8);
+    passLength = recvPacket.ReadBits(8);
+    channelName = recvPacket.ReadString(channelLength);
+    pass = recvPacket.ReadString(passLength);
+
     if (channelId)
     {
         ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(channelId);
