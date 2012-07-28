@@ -237,6 +237,14 @@ class ChatHandler
 
         // Utility methods for commands
         void HandleLearnSkillRecipesHelper(Player* player, uint32 skill_id);
+	
+        //Wintergrasp
+        bool HandleWintergraspStatusCommand(const char *args);
+        bool HandleWintergraspStartCommand(const char *args);
+        bool HandleWintergraspStopCommand(const char *args);
+        bool HandleWintergraspEnableCommand(const char *args);
+        bool HandleWintergraspSwitchTeamCommand(const char *args);
+        bool HandleWintergraspTimerCommand(const char *args);
 
     private:
         WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
