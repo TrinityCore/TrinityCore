@@ -413,6 +413,12 @@ void Vehicle::RemovePassenger(Unit* unit)
     }
 
     unit->ClearUnitState(UNIT_STATE_ONVEHICLE);
+	
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);	
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);	
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);

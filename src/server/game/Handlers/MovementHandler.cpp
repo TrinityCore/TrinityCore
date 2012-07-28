@@ -385,7 +385,16 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
     {
         plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-        if (movementInfo.pos.GetPositionZ() < -500.0f)
+        float underMapValueZ;
+
+        switch (plrMover->GetMapId())
+        {
+            case 617: underMapValueZ = 3.0f; break; // Dalaran Sewers
+            case 618: underMapValueZ = 28.0f; break; // Ring of Valor
+            default: underMapValueZ = -500.0f; break;
+        }
+
+        if (movementInfo.pos.GetPositionZ() < underMapValueZ)
         {
             if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(_player)))
             {

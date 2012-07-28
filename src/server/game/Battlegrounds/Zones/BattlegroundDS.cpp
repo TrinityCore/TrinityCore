@@ -38,6 +38,9 @@ BattlegroundDS::BattlegroundDS()
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
+	
+    knockback = 5000;
+    knockbackCheck = true;
 }
 
 BattlegroundDS::~BattlegroundDS()
@@ -108,12 +111,32 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
     }
     else
         setWaterFallTimer(getWaterFallTimer() - diff);
+		
+     if (GetStatus() == STATUS_IN_PROGRESS)
+    {
+        if(knockback < diff && knockbackCheck)
+        {
+            for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (plr->GetTeam() == ALLIANCE && plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
+                    KnockBackPlayer(plr, 6.15f, 50.00f, 7.00f);
+                if (plr->GetTeam() == HORDE && plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
+                    KnockBackPlayer(plr, 3.10f, 50.00f, 7.00f);
+                plr->RemoveAurasDueToSpell(48018);
+            }
+            knockbackCheck = false;
+        }
+            else knockback -= diff;
+    }
 }
 
 void BattlegroundDS::StartingEventCloseDoors()
 {
     for (uint32 i = BG_DS_OBJECT_DOOR_1; i <= BG_DS_OBJECT_DOOR_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+    knockback = 5000;
+    knockbackCheck = true;
 }
 
 void BattlegroundDS::StartingEventOpenDoors()
@@ -222,6 +245,9 @@ void BattlegroundDS::Reset()
 {
     //call parent's class reset
     Battleground::Reset();
+	
+    knockback = 5000;
+    knockbackCheck = true;
 }
 
 bool BattlegroundDS::SetupBattleground()
@@ -245,4 +271,21 @@ bool BattlegroundDS::SetupBattleground()
     }
 
     return true;
+}
+
+void BattlegroundDS::KnockBackPlayer(Unit *player, float angle, float horizontalSpeed, float verticalSpeed)
+{
+    if(player->GetTypeId() == TYPEID_PLAYER)
+    {
+        WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+2);
+        data.append(player->GetPackGUID());
+        data << uint32(0);
+        data << float(cos(angle));
+        data << float(sin(angle));
+        data << float(horizontalSpeed);
+        data << float(-verticalSpeed);
+        ((Player*)player)->GetSession()->SendPacket(&data);
+    }
+    else
+        sLog->outError("The target of KnockBackPlayer must be a player !");
 }
