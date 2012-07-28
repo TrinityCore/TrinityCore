@@ -61,7 +61,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "/root/data-dev"
 
 #
 #    LogsDir
@@ -87,9 +87,9 @@ LogsDir = ""
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
 
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo     = "127.0.0.1;3306;root;root;auth"
+WorldDatabaseInfo     = "127.0.0.1;3306;root;root;world"
+CharacterDatabaseInfo = "127.0.0.1;3306;root;root;characters"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -205,7 +205,7 @@ MaxOverspeedPings = 2
 #        Default:     1 - (enable, Unload grids)
 #                     0 - (disable, Do not unload grids)
 
-GridUnload = 1
+GridUnload = 0
 
 #
 #    SocketTimeOutTime
@@ -3003,3 +3003,13 @@ OutdoorPvP.Wintergrasp.Antifarm.Def = 5
 
 #
 ###################################################################################################
+
+###################################################################################################
+	
+# Channel.CityOnlyFlag
+# Description: Management for channels with flag CHANNEL_DBC_FLAG_CITY_ONLY.
+    # Default: 1 - (Enabled, Channels with flag CHANNEL_DBC_FLAG_CITY_ONLY will be activated in the cities only (blizzlike))
+    # 0 - (Disabled, Channels with flag CHANNEL_DBC_FLAG_CITY_ONLY will connected at any place)
+	
+Channel.CityOnlyFlag = 0	
+#
