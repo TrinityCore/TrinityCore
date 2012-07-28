@@ -184,39 +184,39 @@ public:
                 {
                     case 0:
                         DoScriptText(SAY_MAGE, me);
-                        DoCast(me, SPELL_MAGE);
+                       // DoCast(me, SPELL_MAGE);
                         break;
                     case 1:
                         DoScriptText(SAY_WARRIOR, me);
-                        DoCast(me, SPELL_WARRIOR);
+                        //DoCast(me, SPELL_WARRIOR);
                         break;
                     case 2:
                         DoScriptText(SAY_DRUID, me);
-                        DoCast(me, SPELL_DRUID);
+                        //DoCast(me, SPELL_DRUID);
                         break;
                     case 3:
                         DoScriptText(SAY_PRIEST, me);
-                        DoCast(me, SPELL_PRIEST);
+                        //DoCast(me, SPELL_PRIEST);
                         break;
                     case 4:
                         DoScriptText(SAY_PALADIN, me);
-                        DoCast(me, SPELL_PALADIN);
+                        //DoCast(me, SPELL_PALADIN);
                         break;
                     case 5:
                         DoScriptText(SAY_SHAMAN, me);
-                        DoCast(me, SPELL_SHAMAN);
+                        //DoCast(me, SPELL_SHAMAN);
                         break;
                     case 6:
                         DoScriptText(SAY_WARLOCK, me);
-                        DoCast(me, SPELL_WARLOCK);
+                        //DoCast(me, SPELL_WARLOCK);
                         break;
                     case 7:
                         DoScriptText(SAY_HUNTER, me);
-                        DoCast(me, SPELL_HUNTER);
+                        //DoCast(me, SPELL_HUNTER);
                         break;
                     case 8:
                         DoScriptText(SAY_ROGUE, me);
-                        DoCast(me, SPELL_ROGUE);
+                        //DoCast(me, SPELL_ROGUE);
                         break;
                 }
 
