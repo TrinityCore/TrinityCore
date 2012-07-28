@@ -2255,6 +2255,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case 32684:     // Envenom (Rank 2)
                 case 57992:     // Envenom (Rank 3)
                 case 57993:     // Envenom (Rank 4)
+                case 5171:      // Slice and Dice (Rank 1)
+                case 6774:      // Slice and Dice (Rank 2)
                     return true;
                 default:
                     break;
