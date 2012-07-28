@@ -1390,7 +1390,7 @@ Motd = "Welcome to wowgear.biz x100"
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Server.LoginInfo = 0
+Server.LoginInfo = 1
 
 #
 #    Command.LookupMaxResults
