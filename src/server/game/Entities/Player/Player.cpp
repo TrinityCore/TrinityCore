@@ -1594,6 +1594,12 @@ void Player::Update(uint32 p_time)
     }
 
     GetAchievementMgr().UpdateTimedAchievements(p_time);
+	
+    if (HasAura(14204) && HasAura(57522))
+        ToPlayer()->RemoveAura(57522);
+      	
+    if (HasAura(47585) && HasAuraType(SPELL_AURA_MOUNTED))
+        ToPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     if (HasUnitState(UNIT_STATE_MELEE_ATTACKING) && !HasUnitState(UNIT_STATE_CASTING))
     {
