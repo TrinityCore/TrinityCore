@@ -519,9 +519,7 @@ void MotionMaster::MoveDistract(uint32 timer)
         sLog->outStaticDebug("Creature (Entry: %u GUID: %u) (timer: %u)",
             _owner->GetEntry(), _owner->GetGUIDLow(), timer);
     }
-
-    DistractMovementGenerator* mgen = new DistractMovementGenerator(timer);
-    Mutate(mgen, MOTION_SLOT_CONTROLLED);
+    Mutate(new DistractMovementGenerator(timer), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
