@@ -413,6 +413,12 @@ void Vehicle::RemovePassenger(Unit* unit)
     }
 
     unit->ClearUnitState(UNIT_STATE_ONVEHICLE);
+	
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);	
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);	
+    unit->RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
@@ -511,4 +517,30 @@ uint8 Vehicle::GetAvailableSeatCount() const
             ++ret;
 
     return ret;
+}
+
+void Vehicle::Relocate(Position pos)
+{
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Relocate %u", _me->GetEntry());
+
+    std::set<Unit*> vehiclePlayers;
+    for (int8 i = 0; i < 8; i++)
+        vehiclePlayers.insert(GetPassenger(i));
+
+    // passengers should be removed or they will have movement stuck
+    RemoveAllPassengers();
+
+    for (std::set<Unit*>::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
+    {
+        if (Unit* plr = (*itr))
+        {
+            // relocate/setposition doesn't work for player
+            plr->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+            //plr->TeleportTo(pPlayer->GetMapId(), triggerPos.GetPositionX(), triggerPos.GetPositionY(), triggerPos.GetPositionZ(), triggerPos.GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT);
+        }
+    }
+
+    _me->UpdatePosition(pos, true);
+    // problems, and impossible to do delayed enter
+    //pPlayer->EnterVehicle(veh);
 }

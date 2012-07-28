@@ -1401,7 +1401,7 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);
-    return IsWithinLOS(ox, oy, oz);
+    return IsWithinLOS(ox, oy, oz) && GetMap()->IsInDynLOS(GetPositionX(), GetPositionY(), GetPositionZ(), ox, oy, oz);
 }
 
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const

@@ -30,6 +30,8 @@
 #include "CreatureAI.h"
 #include "MapManager.h"
 #include "BattlegroundIC.h"
+#include "OutdoorPvPMgr.h"
+#include "OutdoorPvPWG.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -1117,6 +1119,26 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             if (!(pArea && pArea->flags & AREA_FLAG_NO_FLY_ZONE))
                 return false;
             if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
+                return false;
+            break;
+        }
+        case 58730: // No fly Zone - Wintergrasp
+        {
+            if (!player)
+                return false;
+
+            if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+            {
+                OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                if ((pvpWG->isWarTime()==false) || player->isDead() || player->HasAura(45472) || player->HasAura(44795) || player->GetPositionZ() > 619.2f || player->isInFlight() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)))
+                   return false;
+            }
+            break;
+        }
+        case 58045: // Essence of Wintergrasp - Wintergrasp
+        case 57940: // Essence of Wintergrasp - Northrend
+        {
+            if (!player || player->GetTeamId() != sWorld->getWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
                 return false;
             break;
         }
@@ -3534,6 +3556,11 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 72405: // Broken Frostmourne
                 spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_200_YARDS;   // 200yd
+                break;
+            case 51678: // WintergraspSiegeEngine Ram set radius of damage for units to 5 yards 
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_5_YARDS; // SPELL_EFFECT_KNOCK_BACK
+                spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_5_YARDS; // SPELL_EFFECT_SCHOOL_DAMAGE
+                spellInfo->EffectRadiusIndex[2] = EFFECT_RADIUS_20_YARDS; // SPELL_EFFECT_WMO_DAMAGE, Huck but it must be -> Fortress towers are much bigger than original WMO damage radius of spell
                 break;
             case 40055: // Introspection
             case 40165: // Introspection

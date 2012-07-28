@@ -1071,6 +1071,8 @@ class Player : public Unit, public GridObject<Player>
 
         void AddToWorld();
         void RemoveFromWorld();
+		
+        void KnockBackWithAngle(float angle, float horizontalSpeed, float verticalSpeed);
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
@@ -1142,6 +1144,13 @@ class Player : public Unit, public GridObject<Player>
         bool Has310Flyer(bool checkAllSpells, uint32 excludeSpellId = 0);
         void SetHas310Flyer(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_HAS_310_FLYER; else m_ExtraFlags &= ~PLAYER_EXTRA_HAS_310_FLYER; }
         void SetPvPDeath(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }
+        bool HaveSpectators();
+        void SendSpectatorAddonMsgToBG(SpectatorAddonMsg msg);
+        bool isSpectateCanceled() { return spectateCanceled; }
+        void CancelSpectate()     { spectateCanceled = true; }
+        Unit* getSpectateFrom()   { return spectateFrom; }
+        bool isSpectator() const  { return spectatorFlag; }
+        void SetSpectate(bool on);
 
         void GiveXP(uint32 xp, Unit* victim, float group_rate=1.0f);
         void GiveLevel(uint8 level);
@@ -1570,7 +1579,7 @@ class Player : public Unit, public GridObject<Player>
         uint64 GetSelection() const { return m_curSelection; }
         Unit* GetSelectedUnit() const;
         Player* GetSelectedPlayer() const;
-        void SetSelection(uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(uint64 guid);
 
         uint8 GetComboPoints() const { return m_comboPoints; }
         uint64 GetComboTarget() const { return m_comboTarget; }
@@ -2855,6 +2864,11 @@ class Player : public Unit, public GridObject<Player>
         InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
+
+        // spectator system
+        bool spectatorFlag;
+        bool spectateCanceled;
+        Unit *spectateFrom;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

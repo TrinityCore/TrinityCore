@@ -53,6 +53,8 @@
 #include "SpellScript.h"
 #include "InstanceScript.h"
 #include "SpellInfo.h"
+#include "OutdoorPvPWG.h"
+#include "OutdoorPvPMgr.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -2185,7 +2187,11 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             m_delayMoment = targetInfo.timeDelay;
     }
     else
-        targetInfo.timeDelay = 0LL;
+    {
+        targetInfo.timeDelay = GetCCDelay(m_spellInfo);
+        if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
+            m_delayMoment = targetInfo.timeDelay;
+    }
 
     // If target reflect spell back to caster
     if (targetInfo.missCondition == SPELL_MISS_REFLECT)
@@ -3035,6 +3041,16 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
 
+    if (GetCaster() && GetSpellInfo())
+        if (Player *tmpPlayer = GetCaster()->ToPlayer())
+            if (tmpPlayer->HaveSpectators())
+            {
+                SpectatorAddonMsg msg;
+                msg.SetPlayer(tmpPlayer->GetName());
+                msg.CastSpell(GetSpellInfo()->Id, GetSpellInfo()->CastTimeEntry->CastTime);
+                tmpPlayer->SendSpectatorAddonMsgToBG(msg);
+            }
+
     //Containers for channeled spells have to be set
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channelled triggers channelled
@@ -3279,7 +3295,7 @@ void Spell::cast(bool skipCheck)
     SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
+    if (((m_spellInfo->Speed > 0.0f || GetCCDelay(m_spellInfo) > 0) && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -4718,6 +4734,10 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_ONLY_INDOORS;
     }
 
+    if (Player *tmpPlayer = m_caster->ToPlayer())
+        if (tmpPlayer->isSpectator())
+            return SPELL_FAILED_SPELL_UNAVAILABLE;
+
     // only check at first call, Stealth auras are already removed at second call
     // for now, ignore triggered spells
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_SHAPESHIFT))
@@ -5440,8 +5460,17 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER && m_originalCaster->isAlive())
                 {
                     if (AreaTableEntry const* pArea = GetAreaEntryByAreaID(m_originalCaster->GetAreaId()))
+                    {
                         if (pArea->flags & AREA_FLAG_NO_FLY_ZONE)
                             return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                        // Wintergrasp Zone. Deny cast fly spells
+                        if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+                        {
+                            OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                            if (m_originalCaster->GetZoneId() == 4197 && pvpWG && pvpWG != 0  && pvpWG->isWarTime())
+                                return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                        }
+                    }
                 }
                 break;
             }
@@ -5525,6 +5554,53 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
             return SPELL_FAILED_NOT_READY;
 
     return CheckCast(true);
+}
+
+uint32 Spell::GetCCDelay(SpellInfo const* _spell)
+{
+    // CCD for spell with auras
+    AuraType auraWithCCD[] = {
+        SPELL_AURA_MOD_STUN,
+        SPELL_AURA_MOD_CONFUSE,
+        SPELL_AURA_MOD_FEAR,
+        SPELL_AURA_MOD_SILENCE,
+        SPELL_AURA_MOD_DISARM,
+        SPELL_AURA_MOD_POSSESS
+    };
+    uint8 CCDArraySize = 6;
+
+    const uint32 delayForInstantSpells = 200;
+
+    switch(_spell->SpellFamilyName)
+    {
+        case SPELLFAMILY_HUNTER:
+            // Traps
+            if (_spell->SpellFamilyFlags[0] & 0x8 ||      // Frozen trap
+                _spell->Id == 57879 ||                    // Snake Trap
+                _spell->SpellFamilyFlags[2] & 0x00024000) // Explosive and Immolation Trap
+                return 0;
+
+            // Entrapment
+            if (_spell->SpellIconID == 20)
+                return 0;
+            break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            // Death Grip
+            if (_spell->Id == 49576)
+                return delayForInstantSpells;
+            break;
+        case SPELLFAMILY_ROGUE:
+            // Blind
+            if (_spell->Id == 2094)
+                return delayForInstantSpells;
+            break;
+    }
+
+    for (uint8 i = 0; i < CCDArraySize; ++i)
+        if (_spell->HasAura(auraWithCCD[i]))
+            return delayForInstantSpells;
+
+    return 0;
 }
 
 SpellCastResult Spell::CheckCasterAuras() const

@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "Language.h"
 #include "DatabaseEnv.h"
@@ -859,6 +860,10 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_SeasonalQuestChanged = false;
 
+    spectatorFlag = false;
+    spectateCanceled = false;
+    spectateFrom = NULL;
+
     SetPendingBind(0, 0);
 }
 
@@ -1590,6 +1595,12 @@ void Player::Update(uint32 p_time)
     }
 
     GetAchievementMgr().UpdateTimedAchievements(p_time);
+	
+    if (HasAura(14204) && HasAura(57522))
+        ToPlayer()->RemoveAura(57522);
+      	
+    if (HasAura(47585) && HasAuraType(SPELL_AURA_MOUNTED))
+        ToPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     if (HasUnitState(UNIT_STATE_MELEE_ATTACKING) && !HasUnitState(UNIT_STATE_CASTING))
     {
@@ -1825,6 +1836,15 @@ void Player::setDeathState(DeathState s)
             return;
         }
 
+        // send spectate addon message
+        if (HaveSpectators())
+        {
+            SpectatorAddonMsg msg;
+            msg.SetPlayer(GetName());
+            msg.SetStatus(false);
+            SendSpectatorAddonMsgToBG(msg);
+        }
+
         // drunken state is cleared on death
         SetDrunkValue(0);
         // lost combo points at any target (targeted combo points clear in Unit::setDeathState)
@@ -1858,6 +1878,20 @@ void Player::setDeathState(DeathState s)
     if (isAlive() && !cur)
         //clear aura case after resurrection by another way (spells will be applied before next death)
         SetUInt32Value(PLAYER_SELF_RES_SPELL, 0);
+}
+
+void Player::SetSelection(uint64 guid)
+{
+    m_curSelection = guid;
+    SetUInt64Value(UNIT_FIELD_TARGET, guid);
+    if (Player *target = ObjectAccessor::FindPlayer(guid))
+        if (HaveSpectators())
+        {
+            SpectatorAddonMsg msg;
+            msg.SetPlayer(GetName());
+            msg.SetTarget(target->GetName());
+            SendSpectatorAddonMsgToBG(msg);
+        }
 }
 
 bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
@@ -2311,6 +2345,22 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
+void Player::KnockBackWithAngle(float angle, float horizontalSpeed, float verticalSpeed)
+{
+    float vsin = sin(angle);
+    float vcos = cos(angle);
+  
+    // Effect propertly implemented only for players
+    WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+4);
+    data.append(GetPackGUID());
+    data << uint32(0);                                  // Sequence
+    data << float(vcos);                                // x direction
+    data << float(vsin);                                // y direction
+    data << float(horizontalSpeed);                     // Horizontal speed
+    data << float(-verticalSpeed);                      // Z Movement speed (vertical)
+    GetSession()->SendPacket(&data);
+}
+
 bool Player::TeleportToBGEntryPoint()
 {
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
@@ -2319,7 +2369,17 @@ bool Player::TeleportToBGEntryPoint()
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-    return TeleportTo(m_bgData.joinPos);
+    Battleground *oldBg = GetBattleground();
+    bool result = TeleportTo(m_bgData.joinPos);
+
+    if (isSpectator() && result)
+    {
+        SetSpectate(false);
+        if (oldBg)
+            oldBg->RemoveSpectator(GetGUID());
+    }
+
+    return result;
 }
 
 void Player::ProcessDelayedOperations()
@@ -2779,6 +2839,97 @@ void Player::SetInWater(bool apply)
     RemoveAurasWithInterruptFlags(apply ? AURA_INTERRUPT_FLAG_NOT_ABOVEWATER : AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
 
     getHostileRefManager().updateThreatTables();
+}
+
+void Player::SetSpectate(bool on)
+{
+    if (on)
+    {
+        SetSpeed(MOVE_RUN, 2.5);
+        spectatorFlag = true;
+
+        m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
+        setFaction(35);
+
+        if (Pet* pet = GetPet())
+        {
+            RemovePet(pet, PET_SAVE_AS_CURRENT);
+        }
+        UnsummonPetTemporaryIfAny();
+
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        ResetContestedPvP();
+
+        getHostileRefManager().setOnlineOfflineState(false);
+        CombatStopWithPets();
+
+        // random dispay id`s
+        uint32 morphs[8] = {25900, 18718, 29348, 22235, 30414, 736, 20582, 28213};
+        SetDisplayId(morphs[urand(0, 7)]);
+
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_ADMINISTRATOR);
+    }
+    else
+    {
+        uint32 newPhase = 0;
+        AuraEffectList const& phases = GetAuraEffectsByType(SPELL_AURA_PHASE);
+        if (!phases.empty())
+            for (AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+                newPhase |= (*itr)->GetMiscValue();
+
+        if (!newPhase)
+            newPhase = PHASEMASK_NORMAL;
+
+        SetPhaseMask(newPhase, false);
+
+        m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
+        setFactionForRace(getRace());
+        RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
+        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
+
+        if (spectateFrom)
+            SetViewpoint(spectateFrom, false);
+
+        // restore FFA PvP Server state
+        if (sWorld->IsFFAPvPRealm())
+            SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+
+        // restore FFA PvP area state, remove not allowed for GM mounts
+        UpdateArea(m_areaUpdateId);
+
+        getHostileRefManager().setOnlineOfflineState(true);
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
+        spectateCanceled = false;
+        spectatorFlag = false;
+        RestoreDisplayId();
+        UpdateSpeed(MOVE_RUN, true);
+    }
+    UpdateObjectVisibility();
+}
+
+bool Player::HaveSpectators()
+{
+    if (isSpectator())
+        return false;
+
+    if (Battleground *bg = GetBattleground())
+        if (bg->isArena())
+        {
+            if (bg->GetStatus() != STATUS_IN_PROGRESS)
+                return false;
+
+            return bg->HaveSpectators();
+        }
+
+    return false;
+}
+
+void Player::SendSpectatorAddonMsgToBG(SpectatorAddonMsg msg)
+{
+    if (!HaveSpectators())
+        return;
+
+    GetBattleground()->SendSpectateAddonsMsg(msg);
 }
 
 void Player::SetGameMaster(bool on)
@@ -5523,7 +5674,7 @@ bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, Area
     if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
         return false;
 
-    if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)))
+    if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)) && sWorld->getBoolConfig(CONFIG_CHANNEL_ON_CITY_ONLY_FLAG))
         return false;
 
     if ((channel->flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
@@ -11458,6 +11609,8 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             // check this only in game
             if (not_loading)
             {
+                if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED) && (pProto->Class == ITEM_CLASS_WEAPON || pProto->Class == ITEM_CLASS_ARMOR))
+                    return EQUIP_ERR_CANT_DO_RIGHT_NOW;
                 // May be here should be more stronger checks; STUNNED checked
                 // ROOT, CONFUSED, DISTRACTED, FLEEING this needs to be checked.
                 if (HasUnitState(UNIT_STATE_STUNNED))
@@ -12371,7 +12524,11 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
+        if (pItem->GetItemDisplayId() == 0)
+            SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
+        else
+            SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetItemDisplayId());
+
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
     }
@@ -17631,12 +17788,17 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
     Item* item = NULL;
     uint32 itemGuid  = fields[13].GetUInt32();
     uint32 itemEntry = fields[14].GetUInt32();
+    uint32 itemDisplayID = fields[15].GetUInt32();
+
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
         item = NewItemOrBag(proto);
         if (item->LoadFromDB(itemGuid, GetGUID(), fields, itemEntry))
         {
+            //Transmogrification2
+            item->SetUInt32Value(ITEM_FIELD_DISPLAY_ID, itemDisplayID);
+
             // Do not allow to have item limited to another map/zone in alive state
             if (isAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
             {
@@ -22460,6 +22622,31 @@ void Player::SendAurasForTarget(Unit* target)
         auraApp->BuildUpdatePacket(data, false);
     }
 
+    if (Player *stream = target->ToPlayer())
+        if (stream->HaveSpectators() && isSpectator())
+        {
+            for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+            {
+                AuraApplication * auraApp = itr->second;
+                auraApp->BuildUpdatePacket(data, false);
+                if (Aura* aura = auraApp->GetBase())
+                {
+                    SpectatorAddonMsg msg;
+                    uint64 casterID = 0;
+                    if (aura->GetCaster())
+                        casterID = (aura->GetCaster()->ToPlayer()) ? aura->GetCaster()->GetGUID() : 0;
+                    msg.SetPlayer(stream->GetName());
+                    msg.CreateAura(casterID, aura->GetSpellInfo()->Id,
+                                   aura->GetSpellInfo()->IsPositive(), aura->GetSpellInfo()->Dispel,
+                                   aura->GetDuration(), aura->GetMaxDuration(),
+                                   aura->GetStackAmount(), false);
+                    msg.SendPacket(GetGUID());
+                }
+
+            }
+
+        }
+
     GetSession()->SendPacket(&data);
 }
 
@@ -23452,6 +23639,16 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 {
     if (apply)
     {
+        if (target->ToPlayer() == this)
+            return;
+
+        //remove Viewpoint if already have
+        if (isSpectator() && spectateFrom)
+        {
+            SetViewpoint(spectateFrom, false);
+            spectateFrom = NULL;
+        }
+
         sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
 
         if (!AddUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
@@ -23464,10 +23661,18 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         UpdateVisibilityOf(target);
 
         if (target->isType(TYPEMASK_UNIT) && !GetVehicle())
+        {
+            if (isSpectator())
+                spectateFrom = (Unit*)target;
+
             ((Unit*)target)->AddPlayerToVision(this);
+        }
     }
     else
     {
+        if (isSpectator() && !spectateFrom)
+            return;
+
         sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s remove seer", GetName());
 
         if (!RemoveUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
@@ -23478,6 +23683,9 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
         if (target->isType(TYPEMASK_UNIT) && !GetVehicle())
             ((Unit*)target)->RemovePlayerFromVision(this);
+
+        if (isSpectator())
+            spectateFrom = NULL;
 
         //must immediately set seer back otherwise may crash
         m_seer = this;

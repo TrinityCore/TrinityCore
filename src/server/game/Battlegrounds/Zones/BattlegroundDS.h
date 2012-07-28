@@ -64,7 +64,7 @@ enum BattlegroundDSSpells
 
 enum BattlegroundDSData
 { // These values are NOT blizzlike... need the correct data!
-    BG_DS_WATERFALL_TIMER_MIN                    = 30000,
+    BG_DS_WATERFALL_TIMER_MIN                    = 35000,
     BG_DS_WATERFALL_TIMER_MAX                    = 60000,
     BG_DS_WATERFALL_WARNING_DURATION             = 5000,
     BG_DS_WATERFALL_DURATION                     = 30000,
@@ -111,6 +111,9 @@ class BattlegroundDS : public Battleground
         uint32 _waterfallKnockbackTimer;
         uint32 _pipeKnockBackTimer;
         uint8 _pipeKnockBackCount;
+        bool knockbackCheck;
+        uint32 knockback;
+        void KnockBackPlayer(Unit *pPlayer, float angle, float horizontalSpeed, float verticalSpeed);
 
         virtual void PostUpdateImpl(uint32 diff);
     protected:

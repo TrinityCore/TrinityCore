@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "CreatureAIImpl.h"
 #include "Log.h"
@@ -288,6 +289,19 @@ Unit::~Unit()
 
     _DeleteRemovedAuras();
 
+    // remove veiw point for spectator
+    if (!m_sharedVision.empty())
+    {
+        for (SharedVisionList::iterator itr = m_sharedVision.begin(); itr != m_sharedVision.end(); ++itr)
+            if ((*itr)->isSpectator() && (*itr)->getSpectateFrom())
+            {
+                (*itr)->SetViewpoint((*itr)->getSpectateFrom(), false);
+                if (m_sharedVision.empty())
+                    break;
+                --itr;
+            }
+    }
+
     delete m_charmInfo;
     delete movespline;
 
@@ -473,6 +487,54 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
         --attacker_number;
     GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin) * (float)rand_norm()
         , GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
+}
+
+void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
+{
+    if (Aura* aura = aur->GetBase())
+        if (Player *player = ToPlayer())
+            if (player->HaveSpectators() && slot < MAX_AURAS)
+            {
+                SpectatorAddonMsg msg;
+                uint64 casterID = 0;
+                if (aura->GetCaster())
+                    casterID = (aura->GetCaster()->ToPlayer()) ? aura->GetCaster()->GetGUID() : 0;
+                msg.SetPlayer(player->GetName());
+                msg.CreateAura(casterID, aura->GetSpellInfo()->Id,
+                               aura->GetSpellInfo()->IsPositive(), aura->GetSpellInfo()->Dispel,
+                               aura->GetDuration(), aura->GetMaxDuration(),
+                               aura->GetStackAmount(), false);
+                player->SendSpectatorAddonMsgToBG(msg);
+            }
+
+    m_visibleAuras[slot] = aur;
+    UpdateAuraForGroup(slot);
+}
+
+void Unit::RemoveVisibleAura(uint8 slot)
+{
+    AuraApplication *aurApp = GetVisibleAura(slot);
+    if (aurApp && slot < MAX_AURAS)
+    {
+        if (Aura* aura = aurApp->GetBase())
+            if (Player *player = ToPlayer())
+                if (player->HaveSpectators())
+                {
+                    SpectatorAddonMsg msg;
+                    uint64 casterID = 0;
+                    if (aura->GetCaster())
+                        casterID = (aura->GetCaster()->ToPlayer()) ? aura->GetCaster()->GetGUID() : 0;
+                    msg.SetPlayer(player->GetName());
+                    msg.CreateAura(casterID, aura->GetSpellInfo()->Id,
+                                   aurApp->IsPositive(), aura->GetSpellInfo()->Dispel,
+                                   aura->GetDuration(), aura->GetMaxDuration(),
+                                   aura->GetStackAmount(), true);
+                    player->SendSpectatorAddonMsgToBG(msg);
+                }
+    }
+
+    m_visibleAuras.erase(slot);
+    UpdateAuraForGroup(slot);
 }
 
 void Unit::UpdateInterruptMask()
@@ -13637,9 +13699,17 @@ void Unit::SetHealth(uint32 val)
 
     SetUInt32Value(UNIT_FIELD_HEALTH, val);
 
-    // group update
+    // group and spectator update
     if (Player* player = ToPlayer())
     {
+        if (player->HaveSpectators())
+        {
+            SpectatorAddonMsg msg;
+            msg.SetPlayer(player->GetName());
+            msg.SetCurrentHP(val);
+            player->SendSpectatorAddonMsgToBG(msg);
+        }
+
         if (player->GetGroup())
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_CUR_HP);
     }
@@ -13662,9 +13732,17 @@ void Unit::SetMaxHealth(uint32 val)
     uint32 health = GetHealth();
     SetUInt32Value(UNIT_FIELD_MAXHEALTH, val);
 
-    // group update
+    // group and spectators update
     if (GetTypeId() == TYPEID_PLAYER)
     {
+        if (ToPlayer()->HaveSpectators())
+        {
+            SpectatorAddonMsg msg;
+            msg.SetPlayer(ToPlayer()->GetName());
+            msg.SetMaxHP(val);
+            ToPlayer()->SendSpectatorAddonMsgToBG(msg);
+        }
+
         if (ToPlayer()->GetGroup())
             ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_MAX_HP);
     }
@@ -13699,9 +13777,18 @@ void Unit::SetPower(Powers power, uint32 val)
     data << uint32(val);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 
-    // group update
+    // group and spectators update
     if (Player* player = ToPlayer())
     {
+        if (player->HaveSpectators())
+        {
+            SpectatorAddonMsg msg;
+            msg.SetPlayer(player->GetName());
+            msg.SetCurrentPower(val);
+            msg.SetPowerType(power);
+            player->SendSpectatorAddonMsgToBG(msg);
+        }
+
         if (player->GetGroup())
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_CUR_POWER);
     }
@@ -13725,9 +13812,18 @@ void Unit::SetMaxPower(Powers power, uint32 val)
     uint32 cur_power = GetPower(power);
     SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + power, val);
 
-    // group update
+    // group and spectators update
     if (GetTypeId() == TYPEID_PLAYER)
     {
+        if (ToPlayer()->HaveSpectators())
+        {
+            SpectatorAddonMsg msg;
+            msg.SetPlayer(ToPlayer()->GetName());
+            msg.SetMaxPower(val);
+            msg.SetPowerType(power);
+            ToPlayer()->SendSpectatorAddonMsgToBG(msg);
+        }
+
         if (ToPlayer()->GetGroup())
             ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_MAX_POWER);
     }
@@ -15568,6 +15664,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
                 // FORM_SPIRITOFREDEMPTION and related auras
                 victim->CastSpell(victim, 27827, true, NULL, aurEff);
+                victim->CastSpell(victim, 27792, true);
                 spiritOfRedemption = true;
                 break;
             }
@@ -16436,8 +16533,8 @@ void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool 
             if (source && damage)
             {
                 if (isCrit)
-                    *damage -= target->GetMeleeCritDamageReduction(*damage);
-                *damage -= target->GetMeleeDamageReduction(*damage);
+                    *damage -= target->GetMeleeCritDamageReduction(*damage*1.2);
+                *damage -= target->GetMeleeDamageReduction(*damage*1.2);
             }
             break;
         case CR_CRIT_TAKEN_RANGED:
@@ -16447,8 +16544,8 @@ void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool 
             if (source && damage)
             {
                 if (isCrit)
-                    *damage -= target->GetRangedCritDamageReduction(*damage);
-                *damage -= target->GetRangedDamageReduction(*damage);
+                    *damage -= target->GetRangedCritDamageReduction(*damage*1.2);
+                *damage -= target->GetRangedDamageReduction(*damage*1.2);
             }
             break;
         case CR_CRIT_TAKEN_SPELL:
@@ -16458,8 +16555,8 @@ void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool 
             if (source && damage)
             {
                 if (isCrit)
-                    *damage -= target->GetSpellCritDamageReduction(*damage);
-                *damage -= target->GetSpellDamageReduction(*damage);
+                    *damage -= target->GetSpellCritDamageReduction(*damage*1.2);
+                *damage -= target->GetSpellDamageReduction(*damage*1.2);
             }
             break;
         default:
