@@ -81,7 +81,7 @@ inline uint32 GUID_HIPART(uint64 guid)
 
 // We have different low and middle part size for different guid types
 #define _GUID_ENPART_2(x) 0
-#define _GUID_ENPART_3(x) (uint32)((uint64(x) >> 32) & UI64LIT(0x0000000000FFFFFF))
+#define _GUID_ENPART_3(x) (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000000FFFFF))
 #define _GUID_LOPART_2(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 #define _GUID_LOPART_3(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 

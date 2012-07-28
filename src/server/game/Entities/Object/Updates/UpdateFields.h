@@ -435,6 +435,8 @@ enum EPlayerFields
     PLAYER_CHOSEN_TITLE                              = UNIT_END + 0x012B, // Size: 1, Type: INT, Flags: PUBLIC
     PLAYER_FAKE_INEBRIATION                          = UNIT_END + 0x012C, // Size: 1, Type: INT, Flags: PUBLIC
     PLAYER_FIELD_PAD_0                               = UNIT_END + 0x012D, // Size: 1, Type: INT, Flags: NONE
+    PLAYER_END_NOT_SELF                              = UNIT_END + 0x012E,
+
     PLAYER_FIELD_INV_SLOT_HEAD                       = UNIT_END + 0x012E, // Size: 46, Type: LONG, Flags: PRIVATE
     PLAYER_FIELD_PACK_SLOT_1                         = UNIT_END + 0x015C, // Size: 32, Type: LONG, Flags: PRIVATE
     PLAYER_FIELD_BANK_SLOT_1                         = UNIT_END + 0x017C, // Size: 56, Type: LONG, Flags: PRIVATE

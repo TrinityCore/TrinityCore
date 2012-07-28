@@ -183,9 +183,13 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     uint8  updatetype = UPDATETYPE_CREATE_OBJECT;
     uint16 flags      = m_updateFlag;
 
+    uint32 valCount = m_valuesCount;
+
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
+    else if (GetTypeId() == TYPEID_PLAYER)
+        valCount = PLAYER_END_NOT_SELF;
 
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
@@ -226,14 +230,14 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     //sLog->outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
 
     ByteBuffer buf(500);
-    buf << (uint8)updatetype;
+    buf << uint8(updatetype);
     buf.append(GetPackGUID());
-    buf << (uint8)m_objectTypeId;
+    buf << uint8(m_objectTypeId);
 
     _BuildMovementUpdate(&buf, flags);
 
     UpdateMask updateMask;
-    updateMask.SetCount(m_valuesCount);
+    updateMask.SetCount(valCount);
     _SetCreateBits(&updateMask, target);
     _BuildValuesUpdate(updatetype, &buf, &updateMask, target);
     data->AddUpdateBlock(buf);
@@ -254,11 +258,15 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
 {
     ByteBuffer buf(500);
 
-    buf << (uint8) UPDATETYPE_VALUES;
+    buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
 
     UpdateMask updateMask;
-    updateMask.SetCount(m_valuesCount);
+    uint32 valCount = m_valuesCount;
+    if (GetTypeId() == TYPEID_PLAYER && target != this)
+        valCount = PLAYER_END_NOT_SELF;
+
+    updateMask.SetCount(valCount);
 
     _SetUpdateBits(&updateMask, target);
     _BuildValuesUpdate(UPDATETYPE_VALUES, &buf, &updateMask, target);
@@ -332,7 +340,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             ObjectGuid transGuid = self->m_movementInfo.t_guid;
 
             data->WriteBit(transGuid[1]);
-            data->WriteBit(movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT);
+            data->WriteBit(0);                                                  // Has transport time 2
             data->WriteBit(transGuid[4]);
             data->WriteBit(transGuid[0]);
             data->WriteBit(transGuid[6]);
@@ -443,8 +451,8 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             data->WriteByteSeq(transGuid[7]);
             *data << uint32(self->GetTransTime());
             *data << float(self->GetTransOffsetO());
-            if (movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
-                *data << uint32(0);
+            //if (hasTransportTime2)
+            //    *data << uint32(0);
 
             *data << float(self->GetTransOffsetY());
             *data << float(self->GetTransOffsetX());
@@ -561,6 +569,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (flags & UPDATEFLAG_HAS_TARGET)
     {
         ObjectGuid victimGuid = ToUnit()->getVictim()->GetGUID();   // checked in BuildCreateUpdateBlockForPlayer
+        data->WriteByteSeq(victimGuid[4]);
         data->WriteByteSeq(victimGuid[0]);
         data->WriteByteSeq(victimGuid[3]);
         data->WriteByteSeq(victimGuid[5]);
@@ -568,7 +577,6 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteByteSeq(victimGuid[6]);
         data->WriteByteSeq(victimGuid[2]);
         data->WriteByteSeq(victimGuid[1]);
-        data->WriteByteSeq(victimGuid[4]);
     }
 
     //if (flags & UPDATEFLAG_ANIMKITS)
@@ -585,7 +593,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << uint32(getMSTime());                       // Unknown - getMSTime is wrong.
 }
 
-void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask* updateMask, Player* target) const
+void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* updateMask, Player* target) const
 {
     if (!target)
         return;
@@ -627,7 +635,11 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
         }
     }
 
-    WPAssert(updateMask && updateMask->GetCount() == m_valuesCount);
+    uint32 valCount = m_valuesCount;
+    if (GetTypeId() == TYPEID_PLAYER && target != this)
+        valCount = PLAYER_END_NOT_SELF;
+
+    WPAssert(updateMask && updateMask->GetCount() == valCount);
 
     *data << (uint8)updateMask->GetBlockCount();
     data->append(updateMask->GetMask(), updateMask->GetLength());
@@ -985,7 +997,11 @@ void Object::_SetUpdateBits(UpdateMask* updateMask, Player* target) const
 
     GetUpdateFieldData(target, flags, isOwner, isItemOwner, hasSpecialInfo, isPartyMember);
 
-    for (uint16 index = 0; index < m_valuesCount; ++index, ++indexes)
+    uint32 valCount = m_valuesCount;
+    if (GetTypeId() == TYPEID_PLAYER && target != this)
+        valCount = PLAYER_END_NOT_SELF;
+
+    for (uint16 index = 0; index < valCount; ++index, ++indexes)
         if (_fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (*indexes && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
             updateMask->SetBit(index);
 }
@@ -1002,7 +1018,11 @@ void Object::_SetCreateBits(UpdateMask* updateMask, Player* target) const
 
     GetUpdateFieldData(target, flags, isOwner, isItemOwner, hasSpecialInfo, isPartyMember);
 
-    for (uint16 index = 0; index < m_valuesCount; ++index, ++value)
+    uint32 valCount = m_valuesCount;
+    if (GetTypeId() == TYPEID_PLAYER && target != this)
+        valCount = PLAYER_END_NOT_SELF;
+
+    for (uint16 index = 0; index < valCount; ++index, ++value)
         if (_fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (*value && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
             updateMask->SetBit(index);
 }
