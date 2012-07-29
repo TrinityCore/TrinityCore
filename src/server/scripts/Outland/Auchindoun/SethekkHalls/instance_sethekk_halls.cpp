@@ -23,7 +23,8 @@ SDComment: Instance Data for Sethekk Halls instance
 SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "sethekk_halls.h"
 
 enum eEnums

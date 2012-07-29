@@ -23,7 +23,9 @@ SDComment: Missing some text, Vael beginning event, and spawns Nef in wrong plac
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 enum Says
 {
