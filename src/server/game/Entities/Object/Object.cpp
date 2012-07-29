@@ -647,7 +647,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
     // 2 specialized loops for speed optimization in non-unit case
     if (isType(TYPEMASK_UNIT))                               // unit (creature/player) case
     {
-        for (uint16 index = 0; index < m_valuesCount; ++index)
+        for (uint16 index = 0; index < valCount; ++index)
         {
             if (updateMask->GetBit(index))
             {
