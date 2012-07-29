@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "CreatureTextMgr.h"
 #include "culling_of_stratholme.h"
 

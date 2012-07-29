@@ -40,7 +40,9 @@ go_crystal_prison
 npc_enraged_spirit
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Group.h"
 

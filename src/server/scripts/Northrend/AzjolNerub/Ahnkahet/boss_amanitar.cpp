@@ -19,7 +19,8 @@
  * Comment:  Find correct mushrooms spell to make them visible - buffs of the mushrooms not ever applied to the users...
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ahnkahet.h"
 
 enum Spells

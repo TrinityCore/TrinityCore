@@ -23,7 +23,8 @@ SDComment: Temporary solution for orbital/shadow whip-ability. Needs more core s
 SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum eSays
 {

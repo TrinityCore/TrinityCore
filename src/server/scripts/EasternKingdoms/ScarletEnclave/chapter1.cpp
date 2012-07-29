@@ -15,10 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "ScriptedEscortAI.h"
+#include "CombatAI.h"
+#include "PassiveAI.h"
 
 /*######
 ##Quest 12848

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "OutdoorPvPTF.h"
 #include "OutdoorPvPMgr.h"
 #include "OutdoorPvP.h"
@@ -23,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "World.h"
-#include "ScriptPCH.h"
 
 OutdoorPvPTF::OutdoorPvPTF()
 {

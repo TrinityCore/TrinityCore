@@ -23,7 +23,8 @@ SDComment: SQL, weapon scripts, mind control, need correct spells(interruptible/
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "the_eye.h"
 #include "WorldPacket.h"
 

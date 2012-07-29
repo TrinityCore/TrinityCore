@@ -23,7 +23,8 @@ SDComment: some spells doesnt work correctly
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "molten_core.h"
 
 enum Texts

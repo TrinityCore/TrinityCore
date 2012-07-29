@@ -23,7 +23,8 @@ SDComment: place holder
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 #define SPELL_POISON_SHOCK          25993
 #define SPELL_POISONBOLT_VOLLEY     25991
