@@ -23,7 +23,8 @@ SDComment: Need confirmation if spell data are same in both modes. Summons shoul
 SDCategory: Coilfang Resevoir, Underbog
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 #define SPELL_FOUL_SPORES   31673
 #define SPELL_ACID_GEYSER   38739

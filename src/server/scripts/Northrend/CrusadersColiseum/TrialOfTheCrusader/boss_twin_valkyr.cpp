@@ -27,7 +27,15 @@ EndScriptData */
 //    - They should be floating but they aren't respecting the floor =(
 //    - Hardcoded bullets spawner
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Cell.h"
+#include "CellImpl.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells

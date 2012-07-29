@@ -28,8 +28,11 @@ npc_vekjik
 avatar_of_freya
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle

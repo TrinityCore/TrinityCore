@@ -23,7 +23,8 @@ SDComment: No Heroic support yet. Needs further testing. Several scripts for pet
 SDCategory: Magister's Terrace
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "magisters_terrace.h"
 
 struct Speech

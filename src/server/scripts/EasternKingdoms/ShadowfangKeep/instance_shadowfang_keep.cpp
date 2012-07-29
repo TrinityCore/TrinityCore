@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Shadowfang Keep
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "shadowfang_keep.h"
 
 #define MAX_ENCOUNTER              4

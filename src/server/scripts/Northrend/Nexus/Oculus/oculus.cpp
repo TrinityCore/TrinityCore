@@ -15,7 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "oculus.h"
 
 #define GOSSIP_ITEM_DRAKES         "So where do we go from here?"

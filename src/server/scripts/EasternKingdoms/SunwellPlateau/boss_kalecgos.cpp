@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 
 enum Yells
