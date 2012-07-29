@@ -90,6 +90,7 @@ public:
             { "pinfo",              SEC_GAMEMASTER,         true,  &HandlePInfoCommand,                 "", NULL },
             { "respawn",            SEC_ADMINISTRATOR,      false, &HandleRespawnCommand,               "", NULL },
             { "send",               SEC_MODERATOR,          true,  NULL,                                "", sendCommandTable },
+            { "pet",                SEC_GAMEMASTER,         false, NULL,                                "", petCommandTable },
             { "mute",               SEC_MODERATOR,          true,  &HandleMuteCommand,                  "", NULL },
             { "unmute",             SEC_MODERATOR,          true,  &HandleUnmuteCommand,                "", NULL },
             { "movegens",           SEC_ADMINISTRATOR,      false, &HandleMovegensCommand,              "", NULL },
