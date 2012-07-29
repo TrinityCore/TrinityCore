@@ -4,15 +4,10 @@ SET @ENTRY := 27482; -- Wounded Westfall Infantry npc
 SET @SOURCETYPE := 0;
 SET @CREDIT := 27466; -- Kill Credit Bunny - Wounded Skirmishers npc
 SET @ITEM := 37576; -- Renewing Bandage item
-SET @SPELL := 48845; -- Renew Infantry spell
 
 DELETE FROM `conditions` WHERE `SourceEntry`=@ITEM;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (18,0,@ITEM,0,24,1,@ENTRY,0,0,'', "Item Renewing Bandage target Wounded Westfall Infantry");
-
-#DELETE FROM `spell_scripts` WHERE `id`=@SPELL;
-#INSERT INTO `spell_scripts` (`id`,`effIndex`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
-#(@SPELL,0,0,8,@CREDIT,0,0,0,0,0,0); -- Kill Credit
 
 -- Wounded Westfall Infantry SAI
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
