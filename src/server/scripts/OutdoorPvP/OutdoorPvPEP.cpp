@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "OutdoorPvPEP.h"
 #include "WorldPacket.h"
 #include "Player.h"
@@ -26,7 +27,6 @@
 #include "Language.h"
 #include "World.h"
 #include "GossipDef.h"
-#include "ScriptPCH.h"
 
 OPvPCapturePointEP_EWT::OPvPCapturePointEP_EWT(OutdoorPvP* pvp)
 : OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_UnitsSummonedSide(0)

@@ -22,7 +22,8 @@ SD%Complete: 80
 SDComment: Find a way to start the intro, best code for the intro
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 
 enum Quotes

@@ -21,7 +21,12 @@ SD%Complete: 0
 SDComment:
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Cell.h"
+#include "CellImpl.h"
 #include "sunwell_plateau.h"
 
 enum Yells

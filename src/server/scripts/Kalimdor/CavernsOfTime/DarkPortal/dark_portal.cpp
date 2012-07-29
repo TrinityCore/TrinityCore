@@ -29,7 +29,9 @@ npc_time_rift
 npc_saat
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "dark_portal.h"
 
 #define SAY_ENTER               -1269020                    //where does this belong?

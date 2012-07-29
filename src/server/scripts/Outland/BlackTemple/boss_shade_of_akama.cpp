@@ -23,7 +23,9 @@ SDComment: Seems to be complete.
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "black_temple.h"
 
 #define SAY_DEATH                   -1564013
