@@ -131,19 +131,6 @@ class ChatHandler
         bool ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcmd);
         bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd, char const* subcmd);
 
-        bool HandlePossessCommand(const char* args);
-        bool HandleUnPossessCommand(const char* args);
-        bool HandleBindSightCommand(const char* args);
-        bool HandleUnbindSightCommand(const char* args);
-
-        bool HandlePDumpLoadCommand(const char *args);
-        bool HandlePDumpWriteCommand(const char *args);
-
-        bool HandleGroupLeaderCommand(const char* args);
-        bool HandleGroupDisbandCommand(const char* args);
-        bool HandleGroupRemoveCommand(const char* args);
-
-        bool HandlePlayAllCommand(const char* args);
     private:
         WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
 
