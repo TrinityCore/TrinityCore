@@ -37,11 +37,18 @@ public:
 
     ChatCommand* GetCommands() const
     {
+        static ChatCommand groupCommandTable[] =
+        {
+            { "leader",         SEC_ADMINISTRATOR,          false,  &HandleGroupLeaderCommand,          "", NULL },
+            { "disband",        SEC_ADMINISTRATOR,          false,  &HandleGroupDisbandCommand,         "", NULL },
+            { "remove",         SEC_ADMINISTRATOR,          false,  &HandleGroupRemoveCommand,          "", NULL },
+            { NULL,             0,                          false,  NULL,                               "", NULL }
+        };
         static ChatCommand petCommandTable[] =
         {
-            { "create",             SEC_GAMEMASTER,         false, &HandleCreatePetCommand,            "", NULL },
-            { "learn",              SEC_GAMEMASTER,         false, &HandlePetLearnCommand,             "", NULL },
-            { "unlearn",            SEC_GAMEMASTER,         false, &HandlePetUnlearnCommand,           "", NULL },
+            { "create",             SEC_GAMEMASTER,         false, &HandleCreatePetCommand,             "", NULL },
+            { "learn",              SEC_GAMEMASTER,         false, &HandlePetLearnCommand,              "", NULL },
+            { "unlearn",            SEC_GAMEMASTER,         false, &HandlePetUnlearnCommand,            "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
         static ChatCommand sendCommandTable[] =
@@ -103,6 +110,12 @@ public:
             { "freeze",             SEC_MODERATOR,          false, &HandleFreezeCommand,                "", NULL },
             { "unfreeze",           SEC_MODERATOR,          false, &HandleUnFreezeCommand,              "", NULL },
             { "listfreeze",         SEC_MODERATOR,          false, &HandleListFreezeCommand,            "", NULL },
+            { "group",              SEC_ADMINISTRATOR,      false, NULL,                                "", groupCommandTable },
+            { "possess",            SEC_ADMINISTRATOR,      false, HandlePossessCommand,                "", NULL },
+            { "unpossess",          SEC_ADMINISTRATOR,      false, HandleUnPossessCommand,              "", NULL },
+            { "bindsight",          SEC_ADMINISTRATOR,      false, HandleBindSightCommand,              "", NULL },
+            { "unbindsight",        SEC_ADMINISTRATOR,      false, HandleUnbindSightCommand,            "", NULL },
+            { "playall",            SEC_GAMEMASTER,         false, HandlePlayAllCommand,                "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
         return commandTable;
@@ -2747,6 +2760,115 @@ public:
         }
         while (result->NextRow());
 
+        return true;
+    }
+
+    static bool HandleGroupLeaderCommand(ChatHandler* handler, char const* args)
+    {
+        Player* player = NULL;
+        Group* group = NULL;
+        uint64 guid = 0;
+        char* nameStr = strtok((char*)args, " ");
+
+        if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
+            if (group && group->GetLeaderGUID() != guid)
+            {
+                group->ChangeLeader(guid);
+                group->SendUpdate();
+            }
+
+            return true;
+    }
+
+    static bool HandleGroupDisbandCommand(ChatHandler* handler, char const* args)
+    {
+        Player* player = NULL;
+        Group* group = NULL;
+        uint64 guid = 0;
+        char* nameStr = strtok((char*)args, " ");
+
+        if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
+            if (group)
+                group->Disband();
+
+        return true;
+    }
+
+    static bool HandleGroupRemoveCommand(ChatHandler* handler, char const* args)
+    {
+        Player* player = NULL;
+        Group* group = NULL;
+        uint64 guid = 0;
+        char* nameStr = strtok((char*)args, " ");
+
+        if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid, true))
+            if (group)
+                group->RemoveMember(guid);
+
+        return true;
+    }
+
+    static bool HandlePlayAllCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 soundId = atoi((char*)args);
+
+        if (!sSoundEntriesStore.LookupEntry(soundId))
+        {
+            handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        WorldPacket data(SMSG_PLAY_SOUND, 4);
+        data << uint32(soundId) << handler->GetSession()->GetPlayer()->GetGUID();
+        sWorld->SendGlobalMessage(&data);
+
+        handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
+        return true;
+    }
+
+    static bool HandlePossessCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (!unit)
+            return false;
+
+        handler->GetSession()->GetPlayer()->CastSpell(unit, 530, true);
+        return true;
+    }
+
+    static bool HandleUnPossessCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (!unit)
+            unit = handler->GetSession()->GetPlayer();
+
+        unit->RemoveCharmAuras();
+
+        return true;
+    }
+
+    static bool HandleBindSightCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (!unit)
+            return false;
+
+        handler->GetSession()->GetPlayer()->CastSpell(unit, 6277, true);
+        return true;
+    }
+
+    static bool HandleUnbindSightCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+
+        if (player->isPossessing())
+            return false;
+
+        player->StopCastingBindSight();
         return true;
     }
 };
