@@ -139,7 +139,7 @@ void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
     uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);
     SetUInt64Value(OBJECT_FIELD_GUID, guid);
     SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
-    m_PackGUID.wpos(0);
+    m_PackGUID.clear();
     m_PackGUID.appendPackGUID(GetGUID());
 }
 
@@ -220,14 +220,10 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             }
         }
 
-        if (isType(TYPEMASK_UNIT))
-        {
-            if (((Unit*)this)->getVictim())
-                flags |= UPDATEFLAG_HAS_TARGET;
-        }
     }
 
-    //sLog->outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
+    if (ToUnit() && ToUnit()->getVictim())
+        flags |= UPDATEFLAG_HAS_TARGET;
 
     ByteBuffer buf(500);
     buf << uint8(updatetype);
@@ -647,7 +643,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
     // 2 specialized loops for speed optimization in non-unit case
     if (isType(TYPEMASK_UNIT))                               // unit (creature/player) case
     {
-        for (uint16 index = 0; index < m_valuesCount; ++index)
+        for (uint16 index = 0; index < valCount; ++index)
         {
             if (updateMask->GetBit(index))
             {
@@ -811,7 +807,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
     }
     else if (isType(TYPEMASK_GAMEOBJECT))                    // gameobject case
     {
-        for (uint16 index = 0; index < m_valuesCount; ++index)
+        for (uint16 index = 0; index < valCount; ++index)
         {
             if (updateMask->GetBit(index))
             {
@@ -827,35 +823,28 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
-                                *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GENERIC:
                                 if (target->isGameMaster())
                                     *data << uint16(0);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_SPARKLE);
-                                *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GOOBER:
                                 if (target->isGameMaster())
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
                                 else
                                     *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
-                                *data << uint16(-1);
                                 break;
                             default:
-                                // unknown, not happen.
-                                *data << uint16(0);
-                                *data << uint16(-1);
+                                *data << uint16(0); // unknown, not happen.
                                 break;
                         }
                     }
                     else
-                    {
-                        // disable quest object
-                        *data << uint16(0);
-                        *data << uint16(-1);
-                    }
+                        *data << uint16(0);         // disable quest object
+
+                    *data << uint16(-1);
                 }
                 else if (index == GAMEOBJECT_FLAGS)
                 {
@@ -873,7 +862,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
     }
     else                                                    // other objects case (no special index checks)
     {
-        for (uint16 index = 0; index < m_valuesCount; ++index)
+        for (uint16 index = 0; index < valCount; ++index)
         {
             if (updateMask->GetBit(index))
             {
