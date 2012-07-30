@@ -19213,7 +19213,7 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
     {
         if (!_voidStorageItems[i]) // unused item
         {
-            // DELETE FROM void_Storage WHERE slot = ? AND playerGuid = ?
+            // DELETE FROM void_storage WHERE slot = ? AND playerGuid = ?
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_VOID_STORAGE_ITEM_BY_SLOT);
             stmt->setUInt8(0, i);
             stmt->setUInt32(1, lowGuid);

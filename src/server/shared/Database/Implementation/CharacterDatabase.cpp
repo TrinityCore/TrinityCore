@@ -557,6 +557,6 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT, "SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType FROM character_pet WHERE owner = ? AND slot = ?", CONNECTION_SYNCH);
 
     PREPARE_STATEMENT(CHAR_SEL_VOID_STORAGE, "SELECT itemid, itemEntry, slot, creatorGuid FROM void_storage WHERE playerGuid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_REP_VOID_STORAGE_ITEM, "REPLACE INTO void_Storage (itemId, playerGuid, itemEntry, slot, creatorGuid) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC)
-    PREPARE_STATEMENT(CHAR_DEL_VOID_STORAGE_ITEM_BY_SLOT, "DELETE FROM void_Storage WHERE slot = ? AND playerGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_REP_VOID_STORAGE_ITEM, "REPLACE INTO void_storage (itemId, playerGuid, itemEntry, slot, creatorGuid) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(CHAR_DEL_VOID_STORAGE_ITEM_BY_SLOT, "DELETE FROM void_storage WHERE slot = ? AND playerGuid = ?", CONNECTION_ASYNC);
 }
