@@ -2266,6 +2266,34 @@ LOCK TABLES `reserved_name` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `void_storage`
+--
+
+DROP TABLE IF EXISTS `void_storage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `void_storage` (
+  `itemId` bigint(20) unsigned NOT NULL,
+  `playerGuid` int(10) unsigned NOT NULL,
+  `itemEntry` mediumint(8) unsigned NOT NULL,
+  `slot` tinyint(3) unsigned NOT NULL,
+  `creatorGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`itemId`),
+  UNIQUE KEY `idx_player_slot` (`playerGuid`,`slot`),
+  KEY `idx_player` (`playerGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `void_storage`
+--
+
+LOCK TABLES `void_storage` WRITE;
+/*!40000 ALTER TABLE `void_storage` DISABLE KEYS */;
+/*!40000 ALTER TABLE `void_storage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `warden_action`
 --
 
@@ -2322,4 +2350,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-05-30 12:56:18
+-- Dump completed on 2012-07-30 16:34:12
