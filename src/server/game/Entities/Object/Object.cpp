@@ -814,6 +814,8 @@ void Object::GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOw
             flags = CorpseUpdateFieldFlags;
             isOwner = ToCorpse()->GetOwnerGUID() == target->GetGUID();
             break;
+        case TYPEID_OBJECT:
+            break;
     }
 }
 

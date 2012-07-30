@@ -1336,6 +1336,7 @@ class npc_dark_nucleus : public CreatureScript
                 {
                     _targetAuraCheck = 1000;
                     if (Unit* victim = me->getVictim())
+                    {
                         if (me->GetDistance(victim) < 15.0f &&
                             !victim->HasAura(SPELL_SHADOW_RESONANCE_RESIST, me->GetGUID()))
                         {
@@ -1344,6 +1345,7 @@ class npc_dark_nucleus : public CreatureScript
                         }
                         else
                             MoveInLineOfSight(me->getVictim());
+                    }
                 }
                 else
                     _targetAuraCheck -= diff;

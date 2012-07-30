@@ -247,9 +247,13 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
                             return !area;
                         case TARGET_REFERENCE_TYPE_TARGET: // BOTH
                             return true;
+                        default:
+                            break;
                     }
                     break;
             }
+            break;
+        default:
             break;
     }
 
