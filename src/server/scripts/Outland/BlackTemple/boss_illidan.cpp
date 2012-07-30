@@ -23,7 +23,10 @@ SDComment: Somewhat of a workaround for Parasitic Shadowfiend, unable to summon 
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "PassiveAI.h"
 #include "black_temple.h"
 
 #define GETGO(obj, guid)      GameObject* obj = instance->instance->GetGameObject(guid)

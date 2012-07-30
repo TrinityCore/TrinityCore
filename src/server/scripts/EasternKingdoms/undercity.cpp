@@ -29,7 +29,9 @@ npc_highborne_lamenter
 npc_parqual_fintallas
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_lady_sylvanas_windrunner

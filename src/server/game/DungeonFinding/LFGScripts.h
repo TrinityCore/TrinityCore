@@ -21,7 +21,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 class Player;
 class Group;

@@ -35,7 +35,8 @@ at_brewfest
 at_area_52_entrance
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 /*######
 ## at_coilfang_waterfall
