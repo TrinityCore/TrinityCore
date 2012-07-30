@@ -911,6 +911,13 @@ class WorldSession
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
         void SendCalendarCommandResult(CalendarError err, char const* param = NULL);
 
+        // Void Storage
+        void HandleVoidStorageUnlock(WorldPacket& recvData);
+        void HandleVoidStorageQuery(WorldPacket& recvData);
+        void HandleVoidStorageTransfer(WorldPacket& recvData);
+        void HandleVoidSwapItem(WorldPacket& recvData);
+        void SendVoidStorageTransferResult(VoidTransferError result);
+
         void HandleSpellClick(WorldPacket& recv_data);
         void HandleMirrorImageDataRequest(WorldPacket& recv_data);
         void HandleAlterAppearance(WorldPacket& recv_data);

@@ -714,7 +714,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    for (uint8 i=0; i<MAX_TIMERS; i++)
+    for (uint8 i=0; i < MAX_TIMERS; i++)
         m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
 
     m_MirrorTimerFlags = UNDERWATER_NONE;
@@ -730,7 +730,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     for (uint8 j = 0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; ++j)
     {
-        m_bgBattlegroundQueueID[j].bgQueueTypeId  = BATTLEGROUND_QUEUE_NONE;
+        m_bgBattlegroundQueueID[j].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
     }
 
@@ -842,6 +842,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_SeasonalQuestChanged = false;
 
     SetPendingBind(0, 0);
+
+    memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
 }
 
 Player::~Player()
@@ -872,6 +874,9 @@ Player::~Player()
 
     delete m_declinedname;
     delete m_runes;
+
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+        delete _voidStorageItems[i];
 
     sWorld->DecreasePlayerCount();
 }
@@ -17195,6 +17200,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINVENTORY), time_diff);
 
+    if (IsVoidStorageUnlocked())
+        _LoadVoidStorage(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE));
+
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
 
@@ -17652,6 +17660,50 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
     }
     //if (isAlive())
     _ApplyAllItemMods();
+}
+
+void Player::_LoadVoidStorage(PreparedQueryResult result)
+{
+    if (!result)
+        return;
+
+    do
+    {
+        // SELECT itemid, itemEntry, slot, creatorGuid FROM void_storage WHERE playerGuid = ?
+        Field* fields = result->Fetch();
+
+        uint64 itemId = fields[0].GetUInt64();
+        uint32 itemEntry = fields[1].GetUInt32();
+        uint8 slot = fields[2].GetUInt8();
+        uint32 creatorGuid = fields[3].GetUInt32();
+
+        if (!itemId)
+        {
+            sLog->outError("Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: %u, entry: %u).", GetGUIDLow(), GetName(), itemId, itemEntry);
+            continue;
+        }
+
+        if (!sObjectMgr->GetItemTemplate(itemEntry))
+        {
+            sLog->outError("Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: %u, entry: %u).", GetGUIDLow(), GetName(), itemId, itemEntry);
+            continue;
+        }
+
+        if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+        {
+            sLog->outError("Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: %u, entry: %u, slot: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, slot);
+            continue;
+        }
+
+        if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
+        {
+            sLog->outError("Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: %u, entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, creatorGuid);
+            creatorGuid = 0;
+        }
+
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid);
+    }
+    while (result->NextRow());
 }
 
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
@@ -18882,6 +18934,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
     _SaveBGData(trans);
     _SaveInventory(trans);
+    _SaveVoidStorage(trans);
     _SaveQuestStatus(trans);
     _SaveDailyQuestStatus(trans);
     _SaveWeeklyQuestStatus(trans);
@@ -19121,7 +19174,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
                 // save all changes to the item...
                 if (item->GetState() != ITEM_NEW) // only for existing items, no dupes
                     item->SaveToDB(trans);
-                // ...but do not save position in invntory
+                // ...but do not save position in inventory
                 continue;
             }
         }
@@ -19149,6 +19202,35 @@ void Player::_SaveInventory(SQLTransaction& trans)
         item->SaveToDB(trans);                                   // item have unchanged inventory record and can be save standalone
     }
     m_itemUpdateQueue.clear();
+}
+
+void Player::_SaveVoidStorage(SQLTransaction& trans)
+{
+    PreparedStatement* stmt = NULL;
+    uint32 lowGuid = GetGUIDLow();
+
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    {
+        if (!_voidStorageItems[i]) // unused item
+        {
+            // DELETE FROM void_Storage WHERE slot = ? AND playerGuid = ?
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_VOID_STORAGE_ITEM_BY_SLOT);
+            stmt->setUInt8(0, i);
+            stmt->setUInt32(1, lowGuid);
+        }
+        else
+        {
+            // REPLACE INTO character_inventory (itemId, playerGuid, itemEntry, slot, creatorGuid) VALUES (?, ?, ?, ?, ?)
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_VOID_STORAGE_ITEM);
+            stmt->setUInt64(0, _voidStorageItems[i]->ItemId);
+            stmt->setUInt32(1, lowGuid);
+            stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
+            stmt->setUInt8(3, i);
+            stmt->setUInt32(4, _voidStorageItems[i]->CreatorGuid);
+        }
+
+        trans->Append(stmt);
+    }
 }
 
 void Player::_SaveMail(SQLTransaction& trans)
@@ -25600,6 +25682,108 @@ bool Player::IsInWhisperWhiteList(uint64 guid)
             return true;
     }
     return false;
+}
+
+uint8 Player::GetNextVoidStorageFreeSlot() const
+{
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+        if (!_voidStorageItems[i]) // unused item
+            return i;
+
+    return -1;
+}
+
+uint8 Player::GetNumOfVoidStorageFreeSlots() const
+{
+    uint8 count = 0;
+
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+        if (!_voidStorageItems[i])
+            count++;
+
+    return count;
+}
+
+uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
+{
+    uint8 slot = GetNextVoidStorageFreeSlot();
+
+    if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+    {
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
+        return -1;
+    }
+    
+    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry, item.CreatorGuid);
+    return slot;
+}
+
+void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
+{
+    if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+    {
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
+        return;
+    }
+
+    if (_voidStorageItems[slot])
+    {
+        sLog->outError("Player::AddVoidStorageItemAtSlot - Player (GUID: %u, name: %s) tried to add an item to an used slot (item id: %u, entry: %u, slot: %u).", GetGUIDLow(), GetName(), _voidStorageItems[slot]->ItemId, _voidStorageItems[slot]->ItemEntry, slot);
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
+        return;
+    }
+
+    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId, item.CreatorGuid);
+}
+
+void Player::DeleteVoidStorageItem(uint8 slot)
+{
+    if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+    {
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
+        return;
+    }
+
+    delete _voidStorageItems[slot];
+    _voidStorageItems[slot] = NULL;
+}
+
+bool Player::SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot)
+{
+    if (oldSlot < 0 || oldSlot > VOID_STORAGE_MAX_SLOT || newSlot < 0 || newSlot > VOID_STORAGE_MAX_SLOT || oldSlot == newSlot)
+    {
+        
+        return false;
+    }
+
+    // verify
+    std::swap(_voidStorageItems[newSlot], _voidStorageItems[oldSlot]);
+    return true;
+}
+
+VoidStorageItem* Player::GetVoidStorageItem(uint8 slot) const
+{
+    if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+    {
+        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
+        return NULL;
+    }
+
+    return _voidStorageItems[slot];
+}
+
+VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
+{
+    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    {
+        if (_voidStorageItems[i] && _voidStorageItems[i]->ItemId == id)
+        {
+            slot = i;
+            return _voidStorageItems[i];
+        }
+    }
+
+    return NULL;
 }
 
 bool Player::SetHover(bool enable)
