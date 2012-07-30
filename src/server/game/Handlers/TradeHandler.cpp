@@ -769,9 +769,9 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     uint8 bag;
     uint8 slot;
 
+    recvPacket >> slot;
     recvPacket >> tradeSlot;
     recvPacket >> bag;
-    recvPacket >> slot;
 
     TradeData* my_trade = _player->GetTradeData();
     if (!my_trade)
