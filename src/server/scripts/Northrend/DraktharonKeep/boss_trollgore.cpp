@@ -19,7 +19,9 @@
  * Comment: TODO: spawn troll waves
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "drak_tharon_keep.h"
 
 enum Spells

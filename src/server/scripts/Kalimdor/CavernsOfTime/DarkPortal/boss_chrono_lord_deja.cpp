@@ -23,7 +23,8 @@ SDComment: All abilities not implemented
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "dark_portal.h"
 
 enum eEnums

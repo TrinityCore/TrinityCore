@@ -23,9 +23,10 @@
 #include "SharedDefines.h"
 #include "Player.h"
 #include "Group.h"
-#include "ScriptPCH.h"
 #include "LFGScripts.h"
 #include "LFGMgr.h"
+#include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 
 LFGPlayerScript::LFGPlayerScript() : PlayerScript("LFGPlayerScript")
 {
