@@ -17676,6 +17676,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 itemEntry = fields[1].GetUInt32();
         uint8 slot = fields[2].GetUInt8();
         uint32 creatorGuid = fields[3].GetUInt32();
+        uint32 randomProperty = fields[4].GetUInt32();
+        uint32 suffixFactor = fields[5].GetUInt32();
 
         if (!itemId)
         {
@@ -17701,7 +17703,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             creatorGuid = 0;
         }
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
     }
     while (result->NextRow());
 }
@@ -19227,6 +19229,8 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
             stmt->setUInt8(3, i);
             stmt->setUInt32(4, _voidStorageItems[i]->CreatorGuid);
+            stmt->setUInt32(5, _voidStorageItems[i]->ItemRandomPropertyId);
+            stmt->setUInt32(6, _voidStorageItems[i]->ItemSuffixFactor);
         }
 
         trans->Append(stmt);
@@ -25714,7 +25718,8 @@ uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
         return -1;
     }
     
-    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry, item.CreatorGuid);
+    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
     return slot;
 }
 
@@ -25733,7 +25738,8 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
         return;
     }
 
-    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId, item.CreatorGuid);
+    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId,
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
 }
 
 void Player::DeleteVoidStorageItem(uint8 slot)

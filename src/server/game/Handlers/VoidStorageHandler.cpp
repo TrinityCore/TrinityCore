@@ -151,7 +151,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
 
         itemData.WriteByteSeq(creatorGuid[3]);
 
-        itemData << int32(0); // unk, SuffixFactor? large ints, both positive and negative appear here
+        itemData << uint32(item->ItemSuffixFactor);
 
         itemData.WriteByteSeq(creatorGuid[4]);
 
@@ -161,7 +161,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         itemData.WriteByteSeq(itemId[6]);
         itemData.WriteByteSeq(creatorGuid[0]);
             
-        itemData << int32(0); // unk, usually 0, not always
+        itemData << uint32(item->ItemRandomPropertyId);
 
         itemData.WriteByteSeq(itemId[4]);
         itemData.WriteByteSeq(itemId[5]);
@@ -335,7 +335,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetUInt64Value(ITEM_FIELD_CREATOR));
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetUInt64Value(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
 
         uint8 slot = player->AddVoidStorageItem(itemVS);
 
@@ -369,9 +369,10 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
             return;
         }
 
-        Item* item = player->StoreNewItem(dest, itemVS->ItemEntry, true);
+        Item* item = player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId);
         item->SetUInt64Value(ITEM_FIELD_CREATOR, uint64(itemVS->CreatorGuid));
-        player->SendNewItem(item, 1, true, false, false);
+        item->SetBinding(true);
+        player->SendNewItem(item, 1, false, false, false);
 
         withdrawItems[withdrawCount++] = *itemVS;
 
@@ -439,7 +440,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         ObjectGuid itemId = depositItems[i].first.ItemId;
         ObjectGuid creatorGuid = depositItems[i].first.CreatorGuid;
 
-        data << int32(0); // unk
+        data << uint32(depositItems[i].first.ItemSuffixFactor);
 
         data.WriteByteSeq(itemId[6]);
         data.WriteByteSeq(itemId[4]);
@@ -464,7 +465,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         data.WriteByteSeq(creatorGuid[2]);
         data.WriteByteSeq(itemId[7]);
 
-        data << int32(0); // unk
+        data << uint32(depositItems[i].first.ItemRandomPropertyId);
     }
 
     SendPacket(&data);
