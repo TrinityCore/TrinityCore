@@ -22,7 +22,8 @@ SD%Complete: 85%
 SDComment:
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "zulaman.h"
 
 //Speech
