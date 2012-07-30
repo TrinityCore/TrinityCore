@@ -25757,12 +25757,8 @@ void Player::DeleteVoidStorageItem(uint8 slot)
 bool Player::SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot)
 {
     if (oldSlot < 0 || oldSlot > VOID_STORAGE_MAX_SLOT || newSlot < 0 || newSlot > VOID_STORAGE_MAX_SLOT || oldSlot == newSlot)
-    {
-        
         return false;
-    }
 
-    // verify
     std::swap(_voidStorageItems[newSlot], _voidStorageItems[oldSlot]);
     return true;
 }

@@ -609,11 +609,11 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
         data.WriteByteSeq(itemId[7]);
     }
 
-    if (usedSrcSlot)
-        data << uint32(newSlot);
-
     if (usedDestSlot)
         data << uint32(oldSlot);
+
+    if (usedSrcSlot)
+        data << uint32(newSlot);
 
     SendPacket(&data);
 }
