@@ -23,7 +23,8 @@ SDComment: Should reset if raid are out of room.
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "the_eye.h"
 
 enum eEnums

@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Hellfire Ramparts
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "hellfire_ramparts.h"
 
 class instance_ramparts : public InstanceMapScript
