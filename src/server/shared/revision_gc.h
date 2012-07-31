@@ -1,4 +1,4 @@
 #ifndef __REVISION_gc_H__
 #define __REVISION_gc_H__
- #define REVISION_gc "79"
+ #define REVISION_gc "80"
 #endif // __REVISION_gc_H__
