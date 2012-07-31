@@ -329,7 +329,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_TURNING);// Has fall data
         data->WriteBit(!(movementFlags & MOVEMENTFLAG_SPLINE_ELEVATION));       // Has spline elevation
         data->WriteBit(guid[5]);
-        data->WriteBit(self->m_movementInfo.t_guid);                            // Has transport data
+        data->WriteBit(bool(self->m_movementInfo.t_guid))                       // Has transport data
         data->WriteBit(0);                                                      // Is missing time
         if (self->m_movementInfo.t_guid)
         {
