@@ -233,7 +233,7 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiMoTransGuid(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiMoTransGuid(1), _voidItemId(1)
 {}
 
 ObjectMgr::~ObjectMgr()
@@ -6315,6 +6315,10 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups");
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
+
+    result = CharacterDatabase.Query("SELECT MAX(itemId) from void_storage");
+    if (result)
+        _voidItemId = (*result)[0].GetUInt64()+1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6795,6 +6799,11 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
 uint32 ObjectMgr::GeneratePetNumber()
 {
     return ++_hiPetNumber;
+}
+
+uint64 ObjectMgr::GenerateVoidStorageItemId()
+{
+    return ++_voidItemId;
 }
 
 void ObjectMgr::LoadCorpses()
