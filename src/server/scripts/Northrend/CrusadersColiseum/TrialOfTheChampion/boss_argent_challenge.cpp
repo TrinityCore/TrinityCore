@@ -15,7 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+/* ScriptData
+SDName: Argent Challenge Encounter.
+SD%Complete: 50 %
+SDComment: AI for Argent Soldiers are not implemented. AI from bosses need more improvements.
+SDCategory: Trial of the Champion
+EndScriptData */
+
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "trial_of_the_champion.h"
 #include "ScriptedEscortAI.h"
 

@@ -23,7 +23,8 @@ SDComment: Wrong cleave and red aura is missing.
 SDCategory: Zul'Gurub
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "zulgurub.h"
 
 enum eYells

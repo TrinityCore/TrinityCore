@@ -19,7 +19,8 @@
  * Comment: Find in the future best timers and the event is not implemented.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "azjol_nerub.h"
 
 enum Spells

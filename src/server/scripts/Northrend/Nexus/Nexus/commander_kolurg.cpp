@@ -23,7 +23,8 @@ SDComment:  Only Alliance Heroic
 SDCategory:
 Script Data End */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 #define SPELL_BATTLE_SHOUT                                    31403
 #define SPELL_CHARGE                                          60067

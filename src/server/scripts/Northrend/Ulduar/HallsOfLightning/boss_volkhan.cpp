@@ -23,7 +23,8 @@ SDComment: Event should be pretty close minus a few visual flaws
 SDCategory: Halls of Lightning
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
 
 enum eEnums

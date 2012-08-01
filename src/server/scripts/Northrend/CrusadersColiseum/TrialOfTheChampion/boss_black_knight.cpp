@@ -15,7 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+/* ScriptData
+SDName: Boss Black Knight
+SD%Complete: 80%
+SDComment: missing yells. not sure about timers.
+SDCategory: Trial of the Champion
+EndScriptData */
+
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "trial_of_the_champion.h"
 #include "Vehicle.h"

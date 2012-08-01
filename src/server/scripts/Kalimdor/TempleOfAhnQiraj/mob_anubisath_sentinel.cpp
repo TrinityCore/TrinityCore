@@ -23,7 +23,8 @@ SDComment: Shadow storm is not properly implemented in core it should only targe
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "WorldPacket.h"
 
 #include "Item.h"

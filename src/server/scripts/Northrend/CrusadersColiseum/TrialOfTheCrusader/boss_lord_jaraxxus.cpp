@@ -30,7 +30,8 @@ EndScriptData */
 // Redone summon's scripts in SAI
 // Add immunities to the boss and summons
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells

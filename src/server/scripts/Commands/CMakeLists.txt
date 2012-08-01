@@ -26,6 +26,7 @@ set(scripts_STAT_SRCS
   Commands/cs_learn.cpp
   Commands/cs_list.cpp
   Commands/cs_lookup.cpp
+  Commands/cs_message.cpp
   Commands/cs_misc.cpp
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
@@ -33,13 +34,13 @@ set(scripts_STAT_SRCS
   Commands/cs_reload.cpp
   Commands/cs_reset.cpp
   Commands/cs_tele.cpp
+  Commands/cs_ticket.cpp
   Commands/cs_server.cpp
   Commands/cs_titles.cpp
   Commands/cs_wp.cpp
 #  Commands/cs_pdump.cpp
 #  Commands/cs_channel.cpp
 #  Commands/cs_pet.cpp
-#  Commands/cs_ticket.cpp
 #  Commands/cs_aura.cpp
 #  Commands/cs_unaura.cpp
 #  Commands/cs_nameannounce.cpp

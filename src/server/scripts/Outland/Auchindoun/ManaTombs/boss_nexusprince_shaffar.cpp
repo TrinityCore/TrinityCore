@@ -28,7 +28,8 @@ boss_nexusprince_shaffar
 mob_ethereal_beacon
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum ePrince
 {

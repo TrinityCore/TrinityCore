@@ -561,9 +561,6 @@ class spell_warl_haunt : public SpellScriptLoader
 
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-                    return;
-
                 if (Unit* caster = GetCaster())
                 {
                     int32 amount = aurEff->GetAmount();
