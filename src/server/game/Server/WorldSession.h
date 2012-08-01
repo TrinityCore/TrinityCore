@@ -30,6 +30,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
+#include "Opcodes.h"
 
 class CalendarEvent;
 class CalendarInvite;
