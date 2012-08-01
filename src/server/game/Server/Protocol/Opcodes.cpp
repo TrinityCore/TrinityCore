@@ -21,6 +21,7 @@
 */
 
 #include "Opcodes.h"
+#include "WorldSession.h"
 
 OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS] = { };
 
