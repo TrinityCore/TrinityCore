@@ -1196,3 +1196,114 @@ bool Item::CheckSoulboundTradeExpire()
 
     return false;
 }
+
+bool Item::CanBeTransmogrified() const
+{
+    ItemTemplate const* proto = GetTemplate();
+
+    if (!proto)
+        return false;
+
+    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+        return false;
+
+    if (proto->Class != ITEM_CLASS_ARMOR &&
+        proto->Class != ITEM_CLASS_WEAPON)
+        return false;
+
+    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return false;
+
+    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
+        return false;
+
+    if (!HasStats())
+        return false;
+
+    return true;
+}
+
+bool Item::CanTransmogrify() const
+{
+    ItemTemplate const* proto = GetTemplate();
+
+    if (!proto)
+        return false;
+
+    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
+        return false;
+
+    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
+        return false;
+
+    if (proto->Class != ITEM_CLASS_ARMOR &&
+        proto->Class != ITEM_CLASS_WEAPON)
+        return false;
+
+    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        return false;
+
+    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+        return true;
+
+    if (!HasStats())
+        return false;
+
+    return true;
+}
+
+bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier)
+{
+    if (!transmogrifier || !transmogrified)
+        return false;
+
+    ItemTemplate const* proto1 = transmogrifier->GetTemplate(); // source
+    ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
+
+    if (proto1->ItemId == proto2->ItemId)
+        return false;
+
+    if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
+        return false;
+
+    if (proto1->InventoryType == INVTYPE_BAG ||
+        proto1->InventoryType == INVTYPE_RELIC ||
+        proto1->InventoryType == INVTYPE_BODY ||
+        proto1->InventoryType == INVTYPE_FINGER ||
+        proto1->InventoryType == INVTYPE_TRINKET ||
+        proto1->InventoryType == INVTYPE_AMMO ||
+        proto1->InventoryType == INVTYPE_QUIVER)
+        return false;
+
+    if (proto1->SubClass != proto2->SubClass && (proto1->Class != ITEM_CLASS_WEAPON || !transmogrified->IsRangedWeapon() || !transmogrifier->IsRangedWeapon()))
+        return false;
+
+    if (proto1->InventoryType != proto2->InventoryType &&
+        (proto1->Class != ITEM_CLASS_WEAPON || (proto2->InventoryType != INVTYPE_WEAPONMAINHAND && proto2->InventoryType != INVTYPE_WEAPONOFFHAND)))
+        return false;
+
+    return true;
+}
+
+bool Item::HasStats() const
+{
+    if (GetItemRandomPropertyId() != 0)
+        return true;
+
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        if (GetTemplate()->ItemStat[i].ItemStatValue != 0)
+            return true;
+
+    return false;
+}
+
+bool Item::IsRangedWeapon() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    if (proto && proto->Class == ITEM_CLASS_WEAPON)
+        return proto->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        proto->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        proto->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
+
+    return false;
+}

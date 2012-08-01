@@ -237,7 +237,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_DESTROYITEM");
+    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_DESTROY_ITEM");
     uint8 bag, slot, count, data1, data2, data3;
 
     recv_data >> bag >> slot >> count >> data1 >> data2 >> data3;
@@ -1456,4 +1456,171 @@ void WorldSession::HandleItemTextQuery(WorldPacket & recv_data )
     }
 
     SendPacket(&data);
+}
+
+void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
+    Player* player = GetPlayer();
+
+    // Read data
+
+    uint32 count = recvData.ReadBits(22);
+
+    if (count < EQUIPMENT_SLOT_START || count >= EQUIPMENT_SLOT_END)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", player->GetGUIDLow(), player->GetName(), count);
+        recvData.rfinish();
+        return;
+    }
+
+    ObjectGuid* itemGuids = new ObjectGuid[count];
+    uint32* newEntries = new uint32[count];
+    uint32* slots = new uint32[count];
+    
+    for (uint8 i = 0; i < count; ++i)
+    {
+        itemGuids[i][0] = recvData.ReadBit();
+        itemGuids[i][5] = recvData.ReadBit();
+        itemGuids[i][6] = recvData.ReadBit();
+        itemGuids[i][2] = recvData.ReadBit();
+        itemGuids[i][3] = recvData.ReadBit();
+        itemGuids[i][7] = recvData.ReadBit();
+        itemGuids[i][4] = recvData.ReadBit();
+        itemGuids[i][1] = recvData.ReadBit();
+    }
+
+    ObjectGuid npcGuid;
+    npcGuid[7] = recvData.ReadBit();
+    npcGuid[3] = recvData.ReadBit();
+    npcGuid[5] = recvData.ReadBit();
+    npcGuid[6] = recvData.ReadBit();
+    npcGuid[1] = recvData.ReadBit();
+    npcGuid[4] = recvData.ReadBit();
+    npcGuid[0] = recvData.ReadBit();
+    npcGuid[2] = recvData.ReadBit();
+
+    recvData.FlushBits();
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        recvData >> uint32(newEntries[i]);
+
+        recvData.ReadByteSeq(itemGuids[i][1]);
+        recvData.ReadByteSeq(itemGuids[i][5]);
+        recvData.ReadByteSeq(itemGuids[i][0]);
+        recvData.ReadByteSeq(itemGuids[i][4]);
+        recvData.ReadByteSeq(itemGuids[i][6]);
+        recvData.ReadByteSeq(itemGuids[i][7]);
+        recvData.ReadByteSeq(itemGuids[i][3]);
+        recvData.ReadByteSeq(itemGuids[i][2]);
+
+        recvData >> uint32(slots[i]);
+    }
+
+    recvData.ReadByteSeq(npcGuid[7]);
+    recvData.ReadByteSeq(npcGuid[2]);
+    recvData.ReadByteSeq(npcGuid[5]);
+    recvData.ReadByteSeq(npcGuid[4]);
+    recvData.ReadByteSeq(npcGuid[3]);
+    recvData.ReadByteSeq(npcGuid[1]);
+    recvData.ReadByteSeq(npcGuid[6]);
+    recvData.ReadByteSeq(npcGuid[0]);
+
+    // Validate
+
+    if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER))
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        return;
+    }
+
+    for (uint8 i = 0; i < count; ++i)
+    {
+        // slot of the transmogrified item
+        if (slots[i] < EQUIPMENT_SLOT_START || slots[i] >= EQUIPMENT_SLOT_END)
+        {
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", player->GetGUIDLow(), player->GetName(), GUID_LOPART(itemGuids[i]), slots[i]);
+            return;
+        }
+
+        // entry of the transmogrifier item, if it's not 0
+        if (newEntries[i])
+        {
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(newEntries[i]);
+            if (!proto)
+            {
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", player->GetGUIDLow(), player->GetName(), newEntries[i]);
+                return;
+            }
+        }
+
+        Item* itemTransmogrifier = NULL;
+        // guid of the transmogrifier item, if it's not 0
+        if (itemGuids[i])
+        {
+            itemTransmogrifier = player->GetItemByGuid(itemGuids[i]);
+            if (!itemTransmogrifier)
+            {
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (guid: "UI64FMTD").", player->GetGUIDLow(), player->GetName(), itemGuids[i]);
+                return;
+            }
+        }
+
+        // transmogrified item
+        Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slots[i]);
+        if (!itemTransmogrified)
+        {
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUIDLow(), player->GetName(), slots[i]);
+            return;
+        }
+
+        // uint16 tempDest;
+        //// has to be able to equip item transmogrified item
+        //if (!player->CanEquipItem(slots[i], tempDest, itemTransmogrified, true, true))
+        //{
+        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the item to be transmogrified (slot: %u, entry: %u).", player->GetGUIDLow(), player->GetName(), slots[i], itemTransmogrified->GetEntry());
+        //    return;
+        //}
+        //
+        //// has to be able to equip item transmogrifier item
+        //if (!player->CanEquipItem(slots[i], tempDest, itemTransmogrifier, true, true))
+        //{
+        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the transmogrifier item (slot: %u, entry: %u).", player->GetGUIDLow(), player->GetName(), slots[i], itemTransmogrifier->GetEntry());
+        //    return;
+        //}
+
+        if (!newEntries[i]) // reset look
+        {
+            player->SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slots[i] * 2), itemTransmogrified->GetEntry());
+            itemTransmogrified->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_10_1, 0);
+        }
+        else
+        {
+            if (!Item::CanTransmogrifyItemWithItem(itemTransmogrified, itemTransmogrifier))
+            {
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) failed CanTransmogrifyItemWithItem (%u with %u).", player->GetGUIDLow(), player->GetName(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
+                return;
+            }
+
+            // All okay, proceed
+
+            player->SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slots[i] * 2), newEntries[i]);
+            itemTransmogrified->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_10_1, newEntries[i]);
+
+            itemTransmogrified->UpdatePlayedTime(player);
+
+            itemTransmogrified->SetOwnerGUID(player->GetGUID());
+            itemTransmogrified->SetNotRefundable(player);
+            itemTransmogrified->ClearSoulboundTradeable(player);
+
+            itemTransmogrifier->SetOwnerGUID(player->GetGUID());
+            itemTransmogrifier->SetNotRefundable(player);
+            itemTransmogrifier->ClearSoulboundTradeable(player);
+        }
+    }
+
+    delete[] itemGuids;
+    delete[] newEntries;
+    delete[] slots;
 }
