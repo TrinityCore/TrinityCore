@@ -23,7 +23,8 @@ SDComment:
 SDCategory: CrystalsongForest
 Script Data End */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 /*******************************************************
  * npc_warmage_violetstand

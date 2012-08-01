@@ -27,7 +27,9 @@ SDCategory: instance script
 SDAuthor: /dev/rsa, modified by MaxXx2021 aka Mioka
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "halls_of_reflection.h"
 #include "World.h"
 

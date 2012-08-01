@@ -23,7 +23,8 @@ SDComment: Timers may be incorrect
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 
 #define EMOTE_SONIC_BOOM            -1555036

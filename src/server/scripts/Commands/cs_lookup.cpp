@@ -1156,7 +1156,7 @@ public:
         return true;
     }
 
-    static bool HandleLookupMapCommand(ChatHandler* handler, char const* args)
+    static bool HandleLookupMapCommand(ChatHandler* /*handler*/, char const* args)
     {
         if (!*args)
             return false;

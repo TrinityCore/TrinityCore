@@ -15,7 +15,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ScriptPCH.h"
+/* ScriptData
+SDName: boss_grand_champions
+SD%Complete: 50 %
+SDComment: Is missing the ai to make the npcs look for a new mount and use it.
+SDCategory: Trial Of the Champion
+EndScriptData */
+
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
 #include "trial_of_the_champion.h"

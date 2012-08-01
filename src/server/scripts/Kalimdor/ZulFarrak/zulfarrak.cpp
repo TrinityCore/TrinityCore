@@ -28,7 +28,9 @@ npc_sergeant_bly
 npc_weegli_blastfuse
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "zulfarrak.h"
 
 /*######

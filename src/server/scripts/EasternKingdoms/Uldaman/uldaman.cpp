@@ -30,7 +30,8 @@ go_keystone_chamber
 at_map_chamber
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "uldaman.h"
 
 /*######

@@ -15,7 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+/* ScriptData
+SDName: Instance Trial of the Champion
+SDComment:
+SDCategory: Trial Of the Champion
+EndScriptData */
+
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "trial_of_the_champion.h"
 
 #define MAX_ENCOUNTER  4

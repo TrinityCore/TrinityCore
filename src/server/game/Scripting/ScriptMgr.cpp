@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
 #include "ScriptMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
@@ -28,6 +27,10 @@
 #include "Transport.h"
 #include "sc_npc_teleport.h"
 #include "Vehicle.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "GossipDef.h"
+#include "CreatureAI.h"
 
 // This is the global static registry of scripts.
 template<class TScript>

@@ -43,12 +43,22 @@ npc_argent_squire       100%    Script for the Argent Squire/Gruntling
 npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
 #include "PetAI.h"
+#include "PassiveAI.h"
+#include "CombatAI.h"
+#include "GameEventMgr.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "SpellAuras.h"
 
 /*########
 # npc_air_force_bots

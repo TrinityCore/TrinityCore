@@ -15,7 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 #define LESS_MOB // if you do not have a good server and do not want it to be laggy as hell

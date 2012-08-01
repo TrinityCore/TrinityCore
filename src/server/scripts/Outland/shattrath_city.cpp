@@ -34,7 +34,9 @@ npc_ishanah
 npc_khadgar
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 /*######

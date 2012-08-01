@@ -23,7 +23,8 @@ SDComment: Instance Data Scripts and functions to acquire mobs and set encounter
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "black_temple.h"
 
 #define MAX_ENCOUNTER      9
