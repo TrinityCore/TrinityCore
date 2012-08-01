@@ -746,7 +746,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     VendorItemData const* vendorItems = vendor->GetVendorItems();
     uint8 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
-    //if (rawItemCount > 300), 
+    //if (rawItemCount > 300),
     //    rawItemCount = 300; // client cap but uint8 max value is 255
 
     ByteBuffer itemsData(32 * rawItemCount);
@@ -783,7 +783,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             if (leftInStock == 0)
                 continue;
         }
-        
+
         int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
         uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
 
@@ -1464,7 +1464,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     Player* player = GetPlayer();
 
     // Read data
-
     uint32 count = recvData.ReadBits(22);
 
     if (count < EQUIPMENT_SLOT_START || count >= EQUIPMENT_SLOT_END)
@@ -1477,7 +1476,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     ObjectGuid* itemGuids = new ObjectGuid[count];
     uint32* newEntries = new uint32[count];
     uint32* slots = new uint32[count];
-    
+
     for (uint8 i = 0; i < count; ++i)
     {
         itemGuids[i][0] = recvData.ReadBit();
@@ -1592,8 +1591,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
         if (!newEntries[i]) // reset look
         {
-            player->SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slots[i] * 2), itemTransmogrified->GetEntry());
-            itemTransmogrified->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_10_1, 0);
+            itemTransmogrified->ClearEnchantment(TRANSMOGRIFY_ENCHANTMENT_SLOT);
+            player->SetVisibleItemSlot(slots[i], itemTransmogrified);
         }
         else
         {
@@ -1604,9 +1603,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             }
 
             // All okay, proceed
-
-            player->SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slots[i] * 2), newEntries[i]);
-            itemTransmogrified->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_10_1, newEntries[i]);
+            itemTransmogrified->SetEnchantment(TRANSMOGRIFY_ENCHANTMENT_SLOT, newEntries[i], 0, 0);
+            player->SetVisibleItemSlot(slots[i], itemTransmogrified);
 
             itemTransmogrified->UpdatePlayedTime(player);
 
