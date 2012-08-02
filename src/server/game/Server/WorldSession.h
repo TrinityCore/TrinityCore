@@ -30,6 +30,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
+#include "Opcodes.h"
 
 class CalendarEvent;
 class CalendarInvite;
@@ -918,6 +919,10 @@ class WorldSession
         void HandleVoidSwapItem(WorldPacket& recvData);
         void SendVoidStorageTransferResult(VoidTransferError result);
 
+        // Transmogrification
+        void HandleTransmogrifyItems(WorldPacket& recvData);
+
+        // Miscellaneous
         void HandleSpellClick(WorldPacket& recv_data);
         void HandleMirrorImageDataRequest(WorldPacket& recv_data);
         void HandleAlterAppearance(WorldPacket& recv_data);

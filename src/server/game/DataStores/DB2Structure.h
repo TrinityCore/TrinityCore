@@ -25,6 +25,7 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "SharedDefines.h"
+#include "ItemPrototype.h"
 
 #include <map>
 #include <set>

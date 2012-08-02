@@ -164,14 +164,15 @@ enum EnchantmentSlot
     PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
     //TODO: 7,
     //TODO: 8,
-    MAX_INSPECTED_ENCHANTMENT_SLOT  = 9,
+    TRANSMOGRIFY_ENCHANTMENT_SLOT   = 9,
+    MAX_INSPECTED_ENCHANTMENT_SLOT  = 10,
 
-    PROP_ENCHANTMENT_SLOT_0         = 7,                    // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_1         = 8,                    // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_2         = 9,                    // used with RandomSuffix and RandomProperty
-    PROP_ENCHANTMENT_SLOT_3         = 10,                   // used with RandomProperty
-    PROP_ENCHANTMENT_SLOT_4         = 11,                   // used with RandomProperty
-    MAX_ENCHANTMENT_SLOT            = 12
+    PROP_ENCHANTMENT_SLOT_0         = 10,                   // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_1         = 11,                   // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_2         = 12,                   // used with RandomSuffix and RandomProperty
+    PROP_ENCHANTMENT_SLOT_3         = 13,                   // used with RandomProperty
+    PROP_ENCHANTMENT_SLOT_4         = 14,                   // used with RandomProperty
+    MAX_ENCHANTMENT_SLOT            = 15
 };
 
 #define MAX_VISIBLE_ITEM_OFFSET       2                     // 2 fields per visible item (entry+enchantment)
@@ -317,10 +318,12 @@ class Item : public Object
 
         bool hasQuest(uint32 quest_id) const { return GetTemplate()->StartQuest == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const { return false; }
+        bool HasStats() const;
         bool IsPotion() const { return GetTemplate()->IsPotion(); }
         bool IsWeaponVellum() const { return GetTemplate()->IsWeaponVellum(); }
         bool IsArmorVellum() const { return GetTemplate()->IsArmorVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
+        bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
@@ -343,6 +346,21 @@ class Item : public Object
         void BuildUpdate(UpdateDataMapType&);
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
+
+        bool CanBeTransmogrified() const;
+        bool CanTransmogrify() const;
+        static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
+        uint32 GetTransmogrifyCost() const;
+
+        uint32 GetVisibleEntry() const
+        {
+            if (uint32 transmogrification = GetEnchantmentId(TRANSMOGRIFY_ENCHANTMENT_SLOT))
+                return transmogrification;
+            return GetEntry();
+        }
+
+        uint32 GetSellPrice(bool& success) const;
+
     private:
         std::string m_text;
         uint8 m_slot;

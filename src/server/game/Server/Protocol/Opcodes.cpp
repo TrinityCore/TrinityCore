@@ -21,6 +21,7 @@
 */
 
 #include "Opcodes.h"
+#include "WorldSession.h"
 
 OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS] = { };
 
@@ -227,7 +228,7 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_DEL_IGNORE,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleDelIgnoreOpcode           );
     //DEFINE_OPCODE_HANDLER(CMSG_DEL_PVP_MEDAL_CHEAT,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_DEL_VOICE_IGNORE,                        STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_DESTROYITEM,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleDestroyItemOpcode         );
+    DEFINE_OPCODE_HANDLER(CMSG_DESTROY_ITEM,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleDestroyItemOpcode         );
     //DEFINE_OPCODE_HANDLER(CMSG_DESTROYMONSTER,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_DESTROY_ITEMS,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_DISABLE_PVP_CHEAT,                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -650,6 +651,7 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_TOGGLE_PVP,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTogglePvP                 );
     //DEFINE_OPCODE_HANDLER(CMSG_TOGGLE_XP_GAIN,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_TOTEM_DESTROYED,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTotemDestroyed            );
+    DEFINE_OPCODE_HANDLER(CMSG_TRANSMOGRIFY_ITEMS,                      STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleTransmogrifyItems         );
     //DEFINE_OPCODE_HANDLER(CMSG_TRAINER_BUY_SPELL,                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerBuySpellOpcode     );
     //DEFINE_OPCODE_HANDLER(CMSG_TRAINER_LIST,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerListOpcode         );
     //DEFINE_OPCODE_HANDLER(CMSG_TRIGGER_CINEMATIC_CHEAT,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -673,7 +675,7 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_UPDATE_PROJECTILE_POSITION,              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateProjectilePosition  );
     //DEFINE_OPCODE_HANDLER(CMSG_USE_ITEM,                                STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUseItemOpcode             );
     //DEFINE_OPCODE_HANDLER(CMSG_USE_SKILL_CHEAT,                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER(CMSG_VIOLENCE_LEVEL,                          STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleViolenceLevel             );
+    DEFINE_OPCODE_HANDLER(CMSG_VIOLENCE_LEVEL,                          STATUS_AUTHED,   PROCESS_INPLACE,      &WorldSession::HandleViolenceLevel             );
     DEFINE_OPCODE_HANDLER(CMSG_VOICE_SESSION_ENABLE,                    STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleVoiceSessionEnableOpcode  );
     //DEFINE_OPCODE_HANDLER(CMSG_VOICE_SET_TALKER_MUTED_REQUEST,          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER(CMSG_VOID_STORAGE_UNLOCK,                     STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleVoidStorageUnlock         );
