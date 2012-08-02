@@ -124,7 +124,7 @@ public:
         PreparedStatement* stmt2 = WorldDatabase.GetPreparedStatement(WORLD_INS_DISABLES);
         stmt2->setUInt32(0, entry);
         stmt2->setUInt8(1, disableType);
-        stmt->setUInt16(2, flags);
+        stmt2->setUInt16(2, flags);
         stmt2->setString(3, disableComment);
         WorldDatabase.Execute(stmt2);
                
