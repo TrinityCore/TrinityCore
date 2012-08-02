@@ -2420,12 +2420,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 return;
 
             // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
-            uint32 spell = VEHICLE_SPELL_RIDE_HARDCODED;
-            if (SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue()))
-                spell = spellProto->Id;
+            uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue());
+            if (spellInfo && spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                spellId = spellInfo->Id;
 
             // Hard coded enter vehicle spell
-            m_originalCaster->CastSpell(summon, spell, true);
+            m_originalCaster->CastSpell(summon, spellId, true);
 
             uint32 faction = properties->Faction;
             if (!faction)
