@@ -1593,6 +1593,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             switch (GetId())
             {
                 case 19746:
+                    // Improved concentration aura - linked aura
+                if (caster->HasAura(20254) || caster->HasAura(20255) || caster->HasAura(20256))
+                        if (apply)
+                            target->CastSpell(target, 63510, true);
+                        else target->RemoveAura(63510);
                 case 31821:
                     // Aura Mastery Triggered Spell Handler
                     // If apply Concentration Aura -> trigger -> apply Aura Mastery Immunity
@@ -1619,6 +1624,20 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->RemoveAurasDueToSpell(71166);
                     }
                     break;
+            }
+             if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA)
+                 {
+                // Improved devotion aura
+                if (caster->HasAura(20140) || caster->HasAura(20138) || caster->HasAura(20139))
+                    if (apply)
+                        caster->CastSpell(target, 63514, true);
+                    else target->RemoveAura(63514);
+                // 63531 - linked aura for both Sanctified Retribution and Swift Retribution talents
+                // Not allow for Retribution Aura (prevent stacking)
+                if ((GetSpellInfo()->SpellIconID != 555) && (caster->HasAura(53648) || caster->HasAura(53484) || caster->HasAura(53379) || caster->HasAura(31869)))
+                    if (apply)
+                        caster->CastSpell(target, 63531, true);
+                    else target->RemoveAura(63531);
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
