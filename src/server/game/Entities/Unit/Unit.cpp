@@ -13123,7 +13123,6 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(bytes[3]);
                 data << uint32(0);
                 data.WriteByteSeq(bytes[6]);
-                data.WriteByteSeq(bytes[7]);
                 data << float(GetSpeed(mtype));
                 data.WriteByteSeq(bytes[1]);
                 data.WriteByteSeq(bytes[2]);
