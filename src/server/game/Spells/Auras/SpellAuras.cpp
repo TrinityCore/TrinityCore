@@ -1373,17 +1373,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             case SPELLFAMILY_WARLOCK:
                 if (!caster)
                     break;
-                // Curse of Doom
-                if (GetSpellInfo()->SpellFamilyFlags[1] & 0x02)
-                {
-                    if (removeMode == AURA_REMOVE_BY_DEATH)
-                    {
-                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
-                            caster->CastSpell(target, 18662, true, NULL, GetEffect(0));
-                    }
-                }
                 // Improved Fear
-                else if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000400)
+                if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000400)
                 {
                     if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 98, 0))
                     {
