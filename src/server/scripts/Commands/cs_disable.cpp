@@ -87,7 +87,7 @@ public:
  
         std::string disableTypeStr = "";
  
-        switch(disableType)
+        switch (disableType)
         {
             case DISABLE_TYPE_SPELL:
                 disableTypeStr = "spell";
