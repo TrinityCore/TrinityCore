@@ -1226,11 +1226,10 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
 void Guild::HandleQuery(WorldSession* session)
 {
     WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 * 32 + 200);      // Guess size
-
     data << uint32(m_id);
     data << m_name;
 
-    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)              // Alwayse show 10 ranks
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)               // Always show 10 ranks
     {
         if (i < _GetRanksSize())
             data << m_ranks[i].GetName();
@@ -1239,9 +1238,9 @@ void Guild::HandleQuery(WorldSession* session)
     }
 
     m_emblemInfo.WritePacket(data);
-    data << uint32(0);                                              // Something new in WotLK
-
+    data << uint32(_GetRanksSize());                                // Amount of ranks
     session->SendPacket(&data);
+
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
 }
 
