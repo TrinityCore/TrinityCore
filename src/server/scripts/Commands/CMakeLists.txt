@@ -16,6 +16,7 @@ set(scripts_STAT_SRCS
   Commands/cs_cast.cpp
   Commands/cs_character.cpp
   Commands/cs_debug.cpp
+  Commands/cs_disable.cpp
   Commands/cs_event.cpp
   Commands/cs_gm.cpp
   Commands/cs_go.cpp
