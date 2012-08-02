@@ -2448,25 +2448,25 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.ContainerSlots            = uint32(fields[28].GetUInt8());
             for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
             {
-                itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[28 + i * 4 + 0].GetUInt8());
-                itemTemplate.ItemStat[i].ItemStatValue = int32(fields[28 + i * 4 + 1].GetInt16());
-                itemTemplate.ItemStat[i].ItemStatUnk1  = fields[28 + i * 4 + 2].GetInt32();
-                itemTemplate.ItemStat[i].ItemStatUnk2  = fields[28 + i * 4 + 3].GetInt32();
+                itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[29 + i * 4 + 0].GetUInt8());
+                itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 4 + 1].GetInt16());
+                itemTemplate.ItemStat[i].ItemStatUnk1  = fields[29 + i * 4 + 2].GetInt32();
+                itemTemplate.ItemStat[i].ItemStatUnk2  = fields[29 + i * 4 + 3].GetInt32();
             }
 
             itemTemplate.ScalingStatDistribution = uint32(fields[69].GetUInt16());
 
             // cache item damage
             FillItemDamageFields(&itemTemplate.DamageMin, &itemTemplate.DamageMax, &itemTemplate.DPS, itemTemplate.ItemLevel,
-                                 itemTemplate.Class, itemTemplate.SubClass, itemTemplate.Quality, fields[71].GetUInt32(),
+                                 itemTemplate.Class, itemTemplate.SubClass, itemTemplate.Quality, fields[71].GetUInt16(),
                                  fields[131].GetFloat(), itemTemplate.InventoryType, itemTemplate.Flags2);
 
-            itemTemplate.DamageType                = fields[70].GetUInt32();
+            itemTemplate.DamageType                = fields[70].GetUInt8();
             itemTemplate.Armor                     = FillItemArmor(itemTemplate.ItemLevel, itemTemplate.Class,
                                                                    itemTemplate.SubClass, itemTemplate.Quality,
                                                                    itemTemplate.InventoryType);
 
-            itemTemplate.Delay                     = fields[71].GetUInt32();
+            itemTemplate.Delay                     = fields[71].GetUInt16();
             itemTemplate.RangedModRange            = fields[72].GetFloat();
             for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
             {
@@ -8906,7 +8906,7 @@ void ObjectMgr::LoadHotfixData()
         HotfixInfo info;
         info.Entry = fields[0].GetUInt32();
         info.Type = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt32();
+        info.Timestamp = fields[2].GetUInt64();
 
         _hotfixData.push_back(info);
         ++count;
