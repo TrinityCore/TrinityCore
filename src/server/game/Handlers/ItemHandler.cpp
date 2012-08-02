@@ -1534,6 +1534,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         return;
     }
 
+    int32 cost = 0;
     for (uint8 i = 0; i < count; ++i)
     {
         // slot of the transmogrified item
@@ -1615,7 +1616,14 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             itemTransmogrifier->SetOwnerGUID(player->GetGUID());
             itemTransmogrifier->SetNotRefundable(player);
             itemTransmogrifier->ClearSoulboundTradeable(player);
+
+            cost += itemTransmogrified->GetTransmogrifyCost();
         }
+
+        // trusting the client, if it got here it has to have enough money
+        // ... unless client was modified
+        if (cost) // 0 cost if reverting look
+            player->ModifyMoney(-cost);
     }
 
     delete[] itemGuids;

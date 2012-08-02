@@ -19,6 +19,9 @@
 #ifndef TRINITY_DBCSFRM_H
 #define TRINITY_DBCSFRM_H
 
+// x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
+// n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
+
 const char Achievementfmt[]="niixsxiixixxii";
 //const std::string CustomAchievementfmt="pppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapapaaaaaaaaaaaaaaaaaapp";
 //const std::string CustomAchievementIndex = "ID";
@@ -74,12 +77,17 @@ const char GtOCTRegenHPfmt[]="f";
 //const char GtOCTRegenMPfmt[]="f";
 const char GtRegenHPPerSptfmt[]="f";
 const char GtRegenMPPerSptfmt[]="xf";
-
 const char Holidaysfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
+const char ImportPriceArmorfmt[]="nffff";
+const char ImportPriceQualityfmt[]="nf";
+const char ImportPriceShieldfmt[]="nf";
+const char ImportPriceWeaponfmt[]="nf";
+const char ItemPriceBasefmt[]="diff";
 const char ItemBagFamilyfmt[]="nx";
 const char ItemArmorQualityfmt[]="nfffffffi";
 const char ItemArmorShieldfmt[]="nifffffff";
 const char ItemArmorTotalfmt[]="niffff";
+const char ItemClassfmt[]="dixxfs";
 const char ItemDamagefmt[]="nfffffffi";
 const char ItemDisenchantLootfmt[]="niiiiii";
 //const char ItemDisplayTemplateEntryfmt[]="nxxxxxxxxxxixxxxxxxxxxx";
