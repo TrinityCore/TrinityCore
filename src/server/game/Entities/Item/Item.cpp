@@ -1408,7 +1408,7 @@ uint32 Item::GetSellPrice(bool& normalSellPrice) const
             {
                 wepType = 4;             // unk enum
 
-                ImportPriceWeaponEntry const* weaponPrice = sImportPriceWeaponStore.LookupEntry(wepType + 1); // it only has two rows, it's unclear which is the one used
+                ImportPriceWeaponEntry const* weaponPrice = sImportPriceWeaponStore.LookupEntry(wepType + 1);
                 if (!weaponPrice)
                     return 0;
 
