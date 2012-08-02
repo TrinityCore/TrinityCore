@@ -467,8 +467,8 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         *data << float(self->GetPositionX());
         *data << self->GetSpeed(MOVE_PITCH_RATE);
-        data->WriteByteSeq(guid[0]);
         data->WriteByteSeq(guid[3]);
+        data->WriteByteSeq(guid[0]);
         *data << self->GetSpeed(MOVE_SWIM);
         *data << float(self->GetPositionY());
         data->WriteByteSeq(guid[7]);
