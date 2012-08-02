@@ -1275,7 +1275,7 @@ bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* t
         proto1->InventoryType == INVTYPE_QUIVER)
         return false;
 
-    if (proto1->SubClass != proto2->SubClass && (proto1->Class != ITEM_CLASS_WEAPON || !transmogrified->IsRangedWeapon() || !transmogrifier->IsRangedWeapon()))
+    if (proto1->SubClass != proto2->SubClass && (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
         return false;
 
     if (proto1->InventoryType != proto2->InventoryType &&
@@ -1290,20 +1290,171 @@ bool Item::HasStats() const
     if (GetItemRandomPropertyId() != 0)
         return true;
 
+    ItemTemplate const* proto = GetTemplate();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (GetTemplate()->ItemStat[i].ItemStatValue != 0)
+        if (proto->ItemStat[i].ItemStatValue != 0)
             return true;
 
     return false;
 }
 
-bool Item::IsRangedWeapon() const
+// used by mail items, transmog cost, stationeryinfo and others
+uint32 Item::GetSellPrice(bool& normalSellPrice) const
 {
     ItemTemplate const* proto = GetTemplate();
-    if (proto && proto->Class == ITEM_CLASS_WEAPON)
-        return proto->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
-        proto->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
-        proto->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
+    normalSellPrice = true;
 
-    return false;
+    if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
+    {
+        return proto->BuyPrice;
+    }
+    else
+    {
+        ImportPriceQualityEntry const* qualityPrice = sImportPriceQualityStore.LookupEntry(proto->Quality + 1);
+        ItemPriceBaseEntry const* basePrice = sItemPriceBaseStore.LookupEntry(proto->ItemLevel);
+
+        if (!qualityPrice || !basePrice)
+            return 0;
+
+        float qualityFactor = qualityPrice->Factor;
+        float baseFactor = 0.0f;
+
+        uint32 inventoryType = proto->InventoryType;
+
+        if (inventoryType == INVTYPE_WEAPON ||
+            inventoryType == INVTYPE_2HWEAPON ||
+            inventoryType == INVTYPE_WEAPONMAINHAND ||
+            inventoryType == INVTYPE_WEAPONOFFHAND ||
+            inventoryType == INVTYPE_RANGED ||
+            inventoryType == INVTYPE_THROWN ||
+            inventoryType == INVTYPE_RANGEDRIGHT)
+            baseFactor = basePrice->WeaponFactor;
+        else
+            baseFactor = basePrice->ArmorFactor;
+
+        if (inventoryType == INVTYPE_ROBE)
+            inventoryType = INVTYPE_CHEST;
+
+        float typeFactor = 0.0f;
+        uint8 wepType = -1;
+
+        switch (inventoryType)
+        {
+            case INVTYPE_HEAD:
+            case INVTYPE_SHOULDERS:
+            case INVTYPE_CHEST:
+            case INVTYPE_WAIST:
+            case INVTYPE_LEGS:
+            case INVTYPE_FEET:
+            case INVTYPE_WRISTS:
+            case INVTYPE_HANDS:
+            case INVTYPE_CLOAK:
+            {
+                ImportPriceArmorEntry const* armorPrice = sImportPriceArmorStore.LookupEntry(inventoryType);
+                if (!armorPrice)
+                    return 0;
+
+                switch (proto->SubClass)
+                {
+                    case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
+                    case ITEM_SUBCLASS_ARMOR_CLOTH:
+                    {
+                        typeFactor = armorPrice->ClothFactor;
+                        break;
+                    }
+                    case ITEM_SUBCLASS_ARMOR_LEATHER:
+                    {
+                        typeFactor = armorPrice->ClothFactor;
+                        break;
+                    }
+                    case ITEM_SUBCLASS_ARMOR_MAIL:
+                    {
+                        typeFactor = armorPrice->ClothFactor;
+                        break;
+                    }
+                    case ITEM_SUBCLASS_ARMOR_PLATE:
+                    {
+                        typeFactor = armorPrice->ClothFactor;
+                        break;
+                    }
+                    default:
+                    {
+                        return 0;
+                    }
+                }
+
+                break;
+            }
+            case INVTYPE_SHIELD:
+            {
+                ImportPriceShieldEntry const* shieldPrice = sImportPriceShieldStore.LookupEntry(1); // it only has two rows, it's unclear which is the one used
+                if (!shieldPrice)
+                    return 0;
+
+                typeFactor = shieldPrice->Factor;
+                break;
+            }
+            case INVTYPE_WEAPONMAINHAND:
+                wepType = 0;             // unk enum, fall back
+            case INVTYPE_WEAPONOFFHAND:
+                wepType = 1;             // unk enum, fall back
+            case INVTYPE_WEAPON:
+                wepType = 2;             // unk enum, fall back
+            case INVTYPE_2HWEAPON:
+                wepType = 3;             // unk enum, fall back
+            case INVTYPE_RANGED:
+            case INVTYPE_RANGEDRIGHT:
+            case INVTYPE_RELIC:
+            {
+                wepType = 4;             // unk enum
+
+                ImportPriceWeaponEntry const* weaponPrice = sImportPriceWeaponStore.LookupEntry(wepType + 1); // it only has two rows, it's unclear which is the one used
+                if (!weaponPrice)
+                    return 0;
+
+                typeFactor = weaponPrice->Factor;
+                break;
+            }
+            default:
+                return proto->BuyPrice;
+        }
+
+        normalSellPrice = false;
+        return (uint32)(qualityFactor * proto->Unk430_2 * proto->Unk430_1 * typeFactor * baseFactor);
+    }
+}
+
+uint32 Item::GetTransmogrifyCost() const
+{
+    ItemTemplate const* proto = GetTemplate();
+    uint32 cost = 0;
+
+    if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
+        cost = proto->SellPrice;
+    else
+    {
+        bool normalPrice;
+        cost = GetSellPrice(normalPrice);
+        
+        if (!normalPrice)
+        {
+            if (proto->BuyCount <= 1)
+            {
+                ItemClassEntry const* classEntry = sItemClassStore.LookupEntry(proto->Class);
+                if (classEntry)
+                    cost *= classEntry->PriceFactor;
+                else
+                    cost = 0;
+            }
+            else
+                cost /= 4 * proto->BuyCount;
+        }
+        else
+            cost = proto->SellPrice;
+    }
+    
+    if (cost < 10000)
+        cost = 10000;
+    
+    return cost;
 }

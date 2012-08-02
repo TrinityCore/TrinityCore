@@ -1153,6 +1153,45 @@ struct HolidaysEntry
     //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
+// ImportPriceArmor.dbc
+struct ImportPriceArmorEntry
+{
+    uint32 InventoryType;                                   // 1        Id/InventoryType
+    float ClothFactor;                                      // 2        Price factor cloth
+    float LeatherFactor;                                    // 3        Price factor leather
+    float MailFactor;                                       // 4        Price factor mail
+    float PlateFactor;                                      // 5        Price factor plate
+};
+
+// ImportPriceQuality.dbc
+struct ImportPriceQualityEntry
+{
+    uint32 QualityId;                                       // 1        Quality Id (+1?)
+    float Factor;                                           // 2        Price factor
+};
+
+// ImportPriceShield.dbc
+struct ImportPriceShieldEntry
+{
+    uint32 Id;                                              // 1        Unk id (only 1 and 2)
+    float Factor;                                           // 2        Price factor
+};
+
+// ImportPriceWeapon.dbc
+struct ImportPriceWeaponEntry
+{
+    uint32 Id;                                              // 1        Unk id (mainhand - 0, offhand - 1, weapon - 2, 2hweapon - 3, ranged/rangedright/relic - 4)
+    float Factor;                                           // 2        Price factor
+};
+
+// ItemPriceBase.dbc
+struct ItemPriceBaseEntry
+{
+    uint32 ItemLevel;                                       // 2        Item level (1 - 1000)
+    float ArmorFactor;                                      // 3        Price factor for armor
+    float WeaponFactor;                                     // 4        Price factor for weapons
+};
+
 // common struct for:
 // ItemDamageAmmo.dbc
 // ItemDamageOneHand.dbc
@@ -1188,6 +1227,16 @@ struct ItemArmorTotalEntry
     uint32    Id;                                             // 0 item level
     uint32    Id2;                                            // 1 item level
     float     Value[4];                                       // 2-5 multiplier for armor types (cloth...plate)
+};
+
+// ItemClass.dbc
+struct ItemClassEntry
+{
+    uint32    Class;                                          // 1 item class id
+  //uint32    Unk;                                            // 2 unk
+  //uint32    IsWeapon;                                       // 3 1 for weapon, 0 for everything else
+    float     PriceFactor;                                    // 4 used to calculate certain prices
+  //char*     Name;                                           // class name
 };
 
 struct ItemBagFamilyEntry

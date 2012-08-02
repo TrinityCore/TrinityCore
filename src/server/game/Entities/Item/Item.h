@@ -323,7 +323,7 @@ class Item : public Object
         bool IsWeaponVellum() const { return GetTemplate()->IsWeaponVellum(); }
         bool IsArmorVellum() const { return GetTemplate()->IsArmorVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
-        bool IsRangedWeapon() const;
+        bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
@@ -350,6 +350,7 @@ class Item : public Object
         bool CanBeTransmogrified() const;
         bool CanTransmogrify() const;
         static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
+        uint32 GetTransmogrifyCost() const;
 
         uint32 GetVisibleEntry() const
         {
@@ -357,6 +358,8 @@ class Item : public Object
                 return transmogrification;
             return GetEntry();
         }
+
+        uint32 GetSellPrice(bool& success) const;
 
     private:
         std::string m_text;
