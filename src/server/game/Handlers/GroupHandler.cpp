@@ -59,86 +59,90 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
     SendPacket(&data);
 }
 
-void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
+void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE");
 
-    //BytesGuid guid;
-    //guid.guid = 0;
+    ObjectGuid crossRealmGuid; // unused
 
-    //recv_data.ReadByteMask(guid.bytes[6]);
-    //recv_data.ReadByteMask(guid.bytes[5]);
-    //recv_data.ReadByteMask(guid.bytes[0]);
-    //recv_data.ReadByteMask(guid.bytes[3]);
-    //recv_data.ReadByteMask(guid.bytes[4]);
-    //recv_data.ReadByteMask(guid.bytes[7]);
-    //recv_data.ReadByteMask(guid.bytes[1]);
-    //recv_data.ReadByteMask(guid.bytes[2]);
+    recvData.read_skip<uint32>(); // Non-zero in cross realm invites
+    recvData.read_skip<uint32>(); // Always 0
 
-    recv_data.read_skip<uint32>();
-    recv_data.read_skip<uint32>();
+    crossRealmGuid[2] = recvData.ReadBit();
+    crossRealmGuid[7] = recvData.ReadBit();
 
-    std::string membername;
-    recv_data >> membername;
-    recv_data.read_skip<uint32>();
+    uint8 realmLen = recvData.ReadBits(9);
 
-    //recv_data.ReadByteSeq(guid.bytes[0]);
-    //recv_data.ReadByteSeq(guid.bytes[7]);
-    //recv_data.ReadByteSeq(guid.bytes[4]);
-    //recv_data.ReadByteSeq(guid.bytes[1]);
-    //recv_data.ReadByteSeq(guid.bytes[2]);
-    //recv_data.ReadByteSeq(guid.bytes[6]);
-    //recv_data.ReadByteSeq(guid.bytes[5]);
-    std::string string0;
-    recv_data >> string0;
-    //recv_data.ReadByteSeq(guid.bytes[3]);
+    crossRealmGuid[3] = recvData.ReadBit();
+
+    uint8 nameLen = recvData.ReadBits(10);
+
+    crossRealmGuid[5] = recvData.ReadBit();
+    crossRealmGuid[4] = recvData.ReadBit();
+    crossRealmGuid[6] = recvData.ReadBit();
+    crossRealmGuid[0] = recvData.ReadBit();
+    crossRealmGuid[1] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(crossRealmGuid[4]);
+    recvData.ReadByteSeq(crossRealmGuid[7]);
+    recvData.ReadByteSeq(crossRealmGuid[6]);
+
+    std::string memberName, realmName;
+    memberName = recvData.ReadString(nameLen);
+    realmName = recvData.ReadString(realmLen); // unused
+
+    recvData.ReadByteSeq(crossRealmGuid[1]);
+    recvData.ReadByteSeq(crossRealmGuid[0]);
+    recvData.ReadByteSeq(crossRealmGuid[5]);
+    recvData.ReadByteSeq(crossRealmGuid[3]);
+    recvData.ReadByteSeq(crossRealmGuid[2]);
 
     // attempt add selected player
 
     // cheating
-    if (!normalizePlayerName(membername))
+    if (!normalizePlayerName(memberName))
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_BAD_PLAYER_NAME_S);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_BAD_PLAYER_NAME_S);
         return;
     }
 
-    Player* player = sObjectAccessor->FindPlayerByName(membername.c_str());
+    Player* player = sObjectAccessor->FindPlayerByName(memberName.c_str());
 
     // no player
     if (!player)
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_BAD_PLAYER_NAME_S);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_BAD_PLAYER_NAME_S);
         return;
     }
 
     // restrict invite to GMs
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_GM_GROUP) && !GetPlayer()->isGameMaster() && player->isGameMaster())
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_BAD_PLAYER_NAME_S);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_BAD_PLAYER_NAME_S);
         return;
     }
 
     // can't group with
     if (!GetPlayer()->isGameMaster() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && GetPlayer()->GetTeam() != player->GetTeam())
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_PLAYER_WRONG_FACTION);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PLAYER_WRONG_FACTION);
         return;
     }
     if (GetPlayer()->GetInstanceId() != 0 && player->GetInstanceId() != 0 && GetPlayer()->GetInstanceId() != player->GetInstanceId() && GetPlayer()->GetMapId() == player->GetMapId())
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_TARGET_NOT_IN_INSTANCE_S);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_TARGET_NOT_IN_INSTANCE_S);
         return;
     }
     // just ignore us
     if (player->GetInstanceId() != 0 && player->GetDungeonDifficulty() != GetPlayer()->GetDungeonDifficulty())
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_IGNORING_YOU_S);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_IGNORING_YOU_S);
         return;
     }
 
     if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_IGNORING_YOU_S);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_IGNORING_YOU_S);
         return;
     }
 
@@ -152,7 +156,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
     // player already in another group or invited
     if (group2 || player->GetGroupInvite())
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_ALREADY_IN_GROUP_S);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_ALREADY_IN_GROUP_S);
 
         if (group2)
         {
@@ -221,7 +225,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
     data << uint32(0);                                      // unk
     player->GetSession()->SendPacket(&data);
 
-    SendPartyResult(PARTY_OP_INVITE, membername, ERR_PARTY_RESULT_OK);
+    SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
 }
 
 void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
