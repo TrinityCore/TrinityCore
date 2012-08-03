@@ -416,7 +416,7 @@ public:
         }
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Sending opcode %u", data.GetOpcode());
         data.hexlike();
-        player->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket(&data, true);
         handler->PSendSysMessage(LANG_COMMAND_OPCODESENT, data.GetOpcode(), unit->GetName());
         return true;
     }
