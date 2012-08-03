@@ -772,7 +772,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         }
 
         data.StartMaxDist = fields[9].GetFloat();
-        
+
         selectionWeight = fields[10].GetUInt8();
         data.scriptId = sObjectMgr->GetScriptId(fields[11].GetCString());
 

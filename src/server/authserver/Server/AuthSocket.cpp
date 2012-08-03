@@ -868,10 +868,10 @@ bool AuthSocket::_HandleRealmList()
 
         ++RealmListSize;
     }
-    
+
     pkt << uint8(0x10);
     pkt << uint8(0x00);
-    
+
 
     // make a ByteBuffer which stores the RealmList's size
     ByteBuffer RealmListSizeBuffer;

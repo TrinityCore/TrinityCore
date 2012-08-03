@@ -30,7 +30,7 @@ void SystemMgr::LoadScriptTexts()
 
     sLog->outString("TSCR: Loading Script Texts additional data...");
     uint32 oldMSTime = getMSTime();
-    
+
     //                                                 0      1      2      3
     QueryResult result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM script_texts");
 
