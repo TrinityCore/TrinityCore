@@ -19910,7 +19910,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     *data << uint8(msgtype);
     *data << uint32(language);
     *data << uint64(GetGUID());
-    *data << uint32(language);                               //language 2.1.0 ?
+    *data << uint32(0);                                      // constant unknown time
     *data << uint64(GetGUID());
     *data << uint32(text.length() + 1);
     *data << text;
