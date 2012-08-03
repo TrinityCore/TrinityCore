@@ -4484,20 +4484,21 @@ void ObjectMgr::LoadQuestLocales()
         {
             LocaleConstant locale = (LocaleConstant) i;
 
-            AddLocaleString(fields[1 + 11 * (i - 1)].GetString(), locale, data.Title);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 1].GetString(), locale, data.Details);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 2].GetString(), locale, data.Objectives);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 5].GetString(), locale, data.EndText);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 6].GetString(), locale, data.CompletedText);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 7].GetString(), locale, data.QuestGiverTextWindow);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 8].GetString(), locale, data.QuestGiverTargetName);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 9].GetString(), locale, data.QuestTurnTextWindow);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 10].GetString(), locale, data.QuestTurnTargetName);
+            AddLocaleString(fields[1 + 15 * (i - 1)].GetString(), locale, data.Title);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 1].GetString(), locale, data.Details);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 2].GetString(), locale, data.Objectives);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 5].GetString(), locale, data.EndText);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 6].GetString(), locale, data.CompletedText);
 
             for (uint8 k = 0; k < 4; ++k)
-                AddLocaleString(fields[1 + 11 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveText[k]);
+                AddLocaleString(fields[1 + 15 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveText[k]);
+
+            AddLocaleString(fields[1 + 15 * (i - 1) + 11].GetString(), locale, data.QuestGiverTextWindow);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 12].GetString(), locale, data.QuestGiverTargetName);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 13].GetString(), locale, data.QuestTurnTextWindow);
+            AddLocaleString(fields[1 + 15 * (i - 1) + 14].GetString(), locale, data.QuestTurnTargetName);
         }
     } while (result->NextRow());
 
