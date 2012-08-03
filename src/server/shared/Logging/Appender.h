@@ -2,7 +2,7 @@
 #define APPENDER_H
 
 #include "Define.h"
-
+#include <time.h>
 #include <string>
 #include <map>
 

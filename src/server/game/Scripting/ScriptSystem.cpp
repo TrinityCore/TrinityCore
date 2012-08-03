@@ -30,14 +30,14 @@ void SystemMgr::LoadScriptTexts()
 
     sLog->outInfo(LOG_FILTER_TSCR, "TSCR: Loading Script Texts additional data...");
     uint32 oldMSTime = getMSTime();
-    
+
     //                                                 0      1      2      3
     QueryResult result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM script_texts");
 
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_TSCR, ">> Loaded 0 additional Script Texts data. DB table `script_texts` is empty.");
-        
+
         return;
     }
 
@@ -84,7 +84,7 @@ void SystemMgr::LoadScriptTexts()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_TSCR, ">> Loaded %u additional Script Texts data in %u ms", uiCount, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 void SystemMgr::LoadScriptTextsCustom()
@@ -99,7 +99,7 @@ void SystemMgr::LoadScriptTextsCustom()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_TSCR, ">> Loaded 0 additional Custom Texts data. DB table `custom_texts` is empty.");
-        
+
         return;
     }
 
@@ -146,7 +146,7 @@ void SystemMgr::LoadScriptTextsCustom()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_TSCR, ">> Loaded %u additional Custom Texts data.", uiCount);
-    
+
 }
 
 void SystemMgr::LoadScriptWaypoints()
@@ -171,7 +171,7 @@ void SystemMgr::LoadScriptWaypoints()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_TSCR, ">> Loaded 0 Script Waypoints. DB table `script_waypoint` is empty.");
-        
+
         return;
     }
 
@@ -207,5 +207,5 @@ void SystemMgr::LoadScriptWaypoints()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_TSCR, ">> Loaded %u Script Waypoint nodes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }

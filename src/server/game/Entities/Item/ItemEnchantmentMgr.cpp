@@ -71,12 +71,12 @@ void LoadRandomEnchantmentsTable()
         } while (result->NextRow());
 
         sLog->outInfo(LOG_FILTER_PLAYER_ITEMS, ">> Loaded %u Item Enchantment definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        
+
     }
     else
     {
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
-        
+
     }
 }
 
