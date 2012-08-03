@@ -89,13 +89,13 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
 
     if (!rc)
     {
-        sLog->outDetail("Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
             player->GetGUIDLow(), receiver.c_str(), subject.c_str(), body.c_str(), items_count, money, COD, unk1, unk2);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    sLog->outDetail("Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u", player->GetGUIDLow(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, unk1, unk2);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u", player->GetGUIDLow(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, unk1, unk2);
 
     if (player->GetGUID() == rc)
     {
@@ -614,7 +614,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
         }
 
         data << uint32((*itr)->COD);                         // COD
-        data << uint32(0);                                   // probably changed in 3.3.3
+        data << uint32(0);                                   // package (Package.dbc)
         data << uint32((*itr)->stationery);                  // stationery (Stationery.dbc)
         data << uint32((*itr)->money);                       // Gold
         data << uint32((*itr)->checked);                     // flags
@@ -713,7 +713,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
     bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
     bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
-    sLog->outDetail("HandleMailCreateTextItem mailid=%u", mailId);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleMailCreateTextItem mailid=%u", mailId);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);

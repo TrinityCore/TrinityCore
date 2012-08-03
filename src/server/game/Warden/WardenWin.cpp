@@ -157,7 +157,7 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
     if (memcmp(buff.contents() + 1, Module.ClientKeySeedHash, 20) != 0)
     {
         sLog->outDebug(LOG_FILTER_WARDEN, "Request hash reply: failed");
-        sLog->outWarden("WARDEN: Player %s (guid: %u, account: %u) failed hash reply. Action: %s",
+        sLog->outDebug(LOG_FILTER_WARDEN, "WARDEN: Player %s (guid: %u, account: %u) failed hash reply. Action: %s",
             _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), Penalty().c_str());
         return;
     }
@@ -344,7 +344,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
     {
         buff.rpos(buff.wpos());
         sLog->outDebug(LOG_FILTER_WARDEN, "CHECKSUM FAIL");
-        sLog->outWarden("WARDEN: Player %s (guid: %u, account: %u) failed checksum. Action: %s",
+        sLog->outDebug(LOG_FILTER_WARDEN, "WARDEN: Player %s (guid: %u, account: %u) failed checksum. Action: %s",
             _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), Penalty().c_str());
         return;
     }
@@ -357,7 +357,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
         if (result == 0x00)
         {
             sLog->outDebug(LOG_FILTER_WARDEN, "TIMING CHECK FAIL result 0x00");
-            sLog->outWarden("WARDEN: Player %s (guid: %u, account: %u) failed timing check. Action: %s",
+            sLog->outDebug(LOG_FILTER_WARDEN, "WARDEN: Player %s (guid: %u, account: %u) failed timing check. Action: %s",
                 _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), Penalty().c_str());
             return;
         }
@@ -501,7 +501,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
     {
         WardenCheck* check = sWardenCheckMgr->GetWardenDataById(checkFailed);
 
-        sLog->outWarden("WARDEN: Player %s (guid: %u, account: %u) failed Warden check %u. Action: %s",
+        sLog->outDebug(LOG_FILTER_WARDEN, "WARDEN: Player %s (guid: %u, account: %u) failed Warden check %u. Action: %s",
             _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), checkFailed, Penalty(check).c_str());
     }
 

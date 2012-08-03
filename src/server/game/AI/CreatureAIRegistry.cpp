@@ -30,7 +30,6 @@
 #include "CreatureAIFactory.h"
 #include "SmartAI.h"
 
-//#include "CreatureAIImpl.h"
 namespace AIRegistry
 {
     void Initialize()

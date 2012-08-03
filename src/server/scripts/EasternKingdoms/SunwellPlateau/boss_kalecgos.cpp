@@ -270,7 +270,7 @@ public:
                         }
                         else
                         {
-                            sLog->outError("TSCR: Didn't find Shathrowar. Kalecgos event reseted.");
+                            sLog->outError(LOG_FILTER_TSCR, "Didn't find Shathrowar. Kalecgos event reseted.");
                             EnterEvadeMode();
                             return;
                         }

@@ -69,116 +69,6 @@ BindIP = "0.0.0.0"
 PidFile = ""
 
 #
-#    LogLevel
-#        Description: Server console level of logging
-#        Default:     0 - (Minimum)
-#                     1 - (Basic)
-#                     2 - (Detail)
-#                     3 - (Full/Debug)
-
-LogLevel = 0
-
-#
-#    LogFile
-#        Description: Log file for main server log.
-#        Default:     "Auth.log" - (Enabled)
-#                     ""           - (Disabled)
-
-LogFile = "Auth.log"
-
-#
-#    Debug Log Mask
-#        Description: Bitmask that determines which debug log output (level 3)
-#                     will be logged.
-#        Possible flags:
-#
-#                  64 - Anything related to network input/output,
-#                        such as packet handlers and netcode logs
-#
-#                       Simply add the values together to create a bitmask.
-#                       For more info see enum DebugLogFilters in Log.h
-#
-#             Default: 0 (nothing)
-
-DebugLogMask = 64
-
-#
-#    SQLDriverLogFile
-#        Description: Log file for SQL driver events.
-#        Example:     "SQLDriver.log" - (Enabled)
-#        Default:      ""             - (Disabled)
-
-SQLDriverLogFile = ""
-
-#
-#    SQLDriverQueryLogging
-#        Description: Log SQL queries to the SQLDriverLogFile and console.
-#        Default:     0 - (Disabled, Query errors only)
-#                     1 - (Enabled, Full query logging - may have performance impact)
-
-SQLDriverQueryLogging = 0
-
-#
-#    LogTimestamp
-#        Description: Append timestamp to the server log file name.
-#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-LogTimestamp = 0
-
-#
-#    LogFileLevel
-#        Description: Server file level of logging
-#        Default:     0 - (Minimum)
-#                     1 - (Basic)
-#                     2 - (Detail)
-#                     3 - (Full/Debug)
-
-LogFileLevel = 0
-
-#
-#    LogColors
-#        Description: Colors for log messages (Format: "normal basic detail debug").
-#        Colors:      0  - Black
-#                     1  - Red
-#                     2  - Green
-#                     3  - Brown
-#                     4  - Blue
-#                     5  - Magenta
-#                     6  - Cyan
-#                     7  - Grey
-#                     8  - Yellow
-#                     9  - Lred
-#                     10 - Lgreen
-#                     11 - Lblue
-#                     12 - Lmagenta
-#                     13 - Lcyan
-#                     14 - White
-#        Example:     "13 11 9 5" - (Enabled)
-#        Default:     ""          - (Disabled)
-
-LogColors = ""
-
-#
-#    EnableLogDB
-#        Description: Write log messages to database (LogDatabaseInfo).
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-EnableLogDB = 0
-
-#
-#    DBLogLevel
-#        Description: Log level of databases logging.
-#        Default:     1 - (Basic)
-#                     0 - (Minimum)
-#                     2 - (Detail)
-#                     3 - (Full/Debug)
-
-DBLogLevel = 1
-
-#
 #    UseProcessors
 #        Description: Processors mask for Windows based multi-processor systems.
 #        Default:     0  - (Selected by OS)
@@ -255,3 +145,128 @@ LoginDatabase.WorkerThreads = 1
 
 #
 ###################################################################################################
+
+###################################################################################################
+#
+#  Logging system options.
+#  Note: As it uses dynamic option naming, all options related to one appender or logger are grouped.
+#
+#
+#  Appender config values: Given a appender "name" the following options
+#  can be read:
+#
+#    Appender.name.Type
+#        Description: Type of appender. Extra appender config options
+#                     will be read depending on this value
+#        Default:     0 - (None)
+#                     1 - (Console)
+#                     2 - (File)
+#                     3 - (DB)
+#
+#    Appender.name.Level
+#        Description: Appender level of logging
+#        Default:     0 - (Disabled)
+#                     1 - (Trace)
+#                     2 - (Debug)
+#                     3 - (Info)
+#                     4 - (Warn)
+#                     5 - (Error)
+#                     6 - (Fatal)
+#
+#    Appender.name.Colors
+#        Description: Colors for log messages
+#                     (Format: "fatal error warn info debug trace").
+#                     (Only used with Type = 1)
+#        Default: "" - no colors
+#        Colors: 0  - BLACK
+#                1  - RED
+#                2  - GREEN
+#                3  - BROWN
+#                4  - BLUE
+#                5  - MAGENTA
+#                6  - CYAN
+#                7  - GREY
+#                8  - YELLOW
+#                9  - LRED
+#                10 - LGREEN
+#                11 - LBLUE
+#                12 - LMAGENTA
+#                13 - LCYAN
+#                14 - WHITE
+#        Example: "13 11 9 5 3 1"
+#
+#    Appender.name.File
+#        Description: Name of the file
+#                     Allows to use one "%u" to create dynamic files
+#                     (Only used with Type = 2)
+#
+#    Appender.name.Mode
+#        Description: Mode to open the file
+#                     (Only used with Type = 2)
+#        Default:     a - (Append)
+#                     w - (Overwrite)
+#
+#    Appender.name.Backup
+#        Description: Make a backup of existing file before overwrite
+#                     (Only used with Mode = w)
+#        Default:     0 - false
+#                     1 - true
+#
+#    Appender.name.Timestamp
+#        Description: Append timestamp to the log file name.
+#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
+#                     (Only used with Type = 2)
+#
+#  Logger config values: Given a logger "name" the following options
+#  can be read:
+#
+#    Logger.name.Type
+#        Description: Type of logger. Logs anything related to...
+#                     If no logger with type = 0 exists core will create
+#                     it but disabled. Logger with type = 0 is the
+#                     default one, used when there is no other specific
+#                     logger configured for other logger types
+#        Default:     0 - Default. Each type that has no config will
+#                         rely on this one. Core will create this logger
+#                         (disabled) if it's not configured
+#                     7 - Network input/output, 
+#                    30 - Authserver
+#
+#    Logger.name.Level
+#        Description: Logger level of logging
+#        Default:     0 - (Disabled)
+#                     1 - (Trace)
+#                     2 - (Debug)
+#                     3 - (Info)
+#                     4 - (Warn)
+#                     5 - (Error)
+#                     6 - (Fatal)
+#
+#    Logger.name.Appenders
+#        Description: List of appenders linked to logger
+#                     (Using spaces as separator).
+#
+#    Appenders
+#        Description: List of Appenders to read from config
+#                     (Using spaces as separator).
+#        Default:     "Console Auth"
+#
+#    Loggers
+#        Description: List of Loggers to read from config
+#                     (Using spaces as separator).
+#        Default:     "root"
+
+Loggers=root
+Appenders=Console Auth
+
+Appender.Console.Type=1
+Appender.Console.Level=2
+
+Appender.Auth.Type=2
+Appender.Auth.Level=2
+Appender.Auth.File=Auth.log
+Appender.Auth.Mode=w
+
+Logger.root.Type=0
+Logger.root.Level=3
+Logger.root.Appenders=Console Auth
