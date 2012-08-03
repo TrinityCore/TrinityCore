@@ -320,7 +320,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
                 case DTT_CHARACTER:
                 {
                     if (result->GetFieldCount() <= 68)          // avoid crashes on next check
-                        sLog->outCrash("PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
+                        sLog->outFatal(LOG_FILTER_GENERAL, "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
 
                     if (result->Fetch()[68].GetUInt32())        // characters.deleteInfos_Account - if filled error
                         return false;
@@ -496,7 +496,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         std::string tn = gettablename(line);
         if (tn.empty())
         {
-            sLog->outError("LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
+            sLog->outError(LOG_FILTER_GENERAL, "LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -513,7 +513,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            sLog->outError("LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
+            sLog->outError(LOG_FILTER_GENERAL, "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -662,7 +662,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 break;
             }
             default:
-                sLog->outError("Unknown dump table type: %u", type);
+                sLog->outError(LOG_FILTER_GENERAL, "Unknown dump table type: %u", type);
                 break;
         }
 

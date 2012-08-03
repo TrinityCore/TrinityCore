@@ -177,7 +177,7 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
     PointOfInterest const* poi = sObjectMgr->GetPointOfInterest(poiId);
     if (!poi)
     {
-        sLog->outErrorDb("Request to send non-existing POI (Id: %u), ignored.", poiId);
+        sLog->outError(LOG_FILTER_SQL, "Request to send non-existing POI (Id: %u), ignored.", poiId);
         return;
     }
 
