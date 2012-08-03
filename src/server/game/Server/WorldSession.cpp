@@ -181,7 +181,7 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket const* packet)
+void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
 {
     if (!m_Socket)
         return;
@@ -192,10 +192,13 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         return;
     }
 
-    if (!opcodeTable[packet->GetOpcode()])
+    if (!forced)
     {
-        sLog->outError("Prevented sending disabled opcode %d (hex 0x%04X)", packet->GetOpcode(), packet->GetOpcode());
-        return;
+        if (!opcodeTable[packet->GetOpcode()])
+        {
+            sLog->outError("Prevented sending disabled opcode %d (hex 0x%04X)", packet->GetOpcode(), packet->GetOpcode());
+            return;
+        }
     }
 
 #ifdef TRINITY_DEBUG
