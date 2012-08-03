@@ -69,6 +69,89 @@ BindIP = "0.0.0.0"
 PidFile = ""
 
 #
+#    UseProcessors
+#        Description: Processors mask for Windows based multi-processor systems.
+#        Default:     0  - (Selected by OS)
+#                     1+ - (Bit mask value of selected processors)
+
+UseProcessors = 0
+
+#
+#    ProcessPriority
+#        Description: Process priority setting for Windows based systems.
+#        Default:     1 - (High)
+#                     0 - (Normal)
+
+ProcessPriority = 1
+
+#
+#    RealmsStateUpdateDelay
+#        Description: Time (in seconds) between realm list updates.
+#        Default:     20 - (Enabled)
+#                     0  - (Disabled)
+
+RealmsStateUpdateDelay = 20
+
+#
+#    WrongPass.MaxCount
+#        Description: Number of login attemps with wrong password before the account or IP will be
+#                     banned.
+#        Default:     0  - (Disabled)
+#                     1+ - (Enabled)
+
+WrongPass.MaxCount = 0
+
+#
+#    WrongPass.BanTime
+#        Description: Time (in seconds) for banning account or IP for invalid login attempts.
+#        Default:     600 - (10 minutes)
+#                     0   - (Permanent ban)
+
+WrongPass.BanTime = 600
+
+#
+#    WrongPass.BanType
+#        Description: Ban type for invalid login attempts.
+#        Default:     0 - (Ban IP)
+#                     1 - (Ban Account)
+
+WrongPass.BanType = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+# MYSQL SETTINGS
+#
+#    LoginDatabaseInfo
+#        Description: Database connection settings for the realm server.
+#        Example:     "hostname;port;username;password;database"
+#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#                                                                 "enable-named-pipe" to [mysqld]
+#                                                                 section my.ini)
+#                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
+#                                                                           Unix/Linux)
+#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
+
+LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
+
+#
+#    LoginDatabase.WorkerThreads
+#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
+#                     statements. Each worker thread is mirrored with its own connection to the
+#        Default:     1
+
+LoginDatabase.WorkerThreads = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#  Logging system options.
+#  Note: As it uses dynamic option naming, all options related to one appender or logger are grouped.
+#
+#
 #  Appender config values: Given a appender "name" the following options
 #  can be read:
 #
@@ -187,81 +270,3 @@ Appender.Auth.Mode=w
 Logger.root.Type=0
 Logger.root.Level=3
 Logger.root.Appenders=Console Auth
-
-#
-#    UseProcessors
-#        Description: Processors mask for Windows based multi-processor systems.
-#        Default:     0  - (Selected by OS)
-#                     1+ - (Bit mask value of selected processors)
-
-UseProcessors = 0
-
-#
-#    ProcessPriority
-#        Description: Process priority setting for Windows based systems.
-#        Default:     1 - (High)
-#                     0 - (Normal)
-
-ProcessPriority = 1
-
-#
-#    RealmsStateUpdateDelay
-#        Description: Time (in seconds) between realm list updates.
-#        Default:     20 - (Enabled)
-#                     0  - (Disabled)
-
-RealmsStateUpdateDelay = 20
-
-#
-#    WrongPass.MaxCount
-#        Description: Number of login attemps with wrong password before the account or IP will be
-#                     banned.
-#        Default:     0  - (Disabled)
-#                     1+ - (Enabled)
-
-WrongPass.MaxCount = 0
-
-#
-#    WrongPass.BanTime
-#        Description: Time (in seconds) for banning account or IP for invalid login attempts.
-#        Default:     600 - (10 minutes)
-#                     0   - (Permanent ban)
-
-WrongPass.BanTime = 600
-
-#
-#    WrongPass.BanType
-#        Description: Ban type for invalid login attempts.
-#        Default:     0 - (Ban IP)
-#                     1 - (Ban Account)
-
-WrongPass.BanType = 0
-
-#
-###################################################################################################
-
-###################################################################################################
-# MYSQL SETTINGS
-#
-#    LoginDatabaseInfo
-#        Description: Database connection settings for the realm server.
-#        Example:     "hostname;port;username;password;database"
-#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
-#                                                                 "enable-named-pipe" to [mysqld]
-#                                                                 section my.ini)
-#                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
-#                                                                           Unix/Linux)
-#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
-
-LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
-
-#
-#    LoginDatabase.WorkerThreads
-#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements. Each worker thread is mirrored with its own connection to the
-#        Default:     1
-
-LoginDatabase.WorkerThreads = 1
-
-#
-###################################################################################################
