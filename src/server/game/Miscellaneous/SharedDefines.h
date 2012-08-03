@@ -3530,7 +3530,7 @@ enum TradeStatus
     // 28 - nonexistent
     TRADE_STATUS_TARGET_STUNNED = 29,
     // 30 - nonexistent
-    TRADE_STATUS_CLOSE_WINDOW = 31,                                
+    TRADE_STATUS_CLOSE_WINDOW = 31,
 };
 
 enum XPColorChar

@@ -40,10 +40,10 @@ EndContentData */
 enum RiverbreezeAndSilversky
 {
     SPELL_CENARION_BEACON       = 15120,
-    
+
     NPC_ARATHANDRIS_SILVERSKY   = 9528,
     NPC_MAYBESS_RIVERBREEZE     = 9529,
-    
+
     QUEST_CLEASING_FELWOOD_A    = 4101,
     QUEST_CLEASING_FELWOOD_H    = 4102
 };

@@ -245,6 +245,6 @@ void BattlegroundRV::TogglePillarCollision()
                     gob->SendUpdateToPlayer(player);
         }
     }
-    
+
     SetPillarCollision(!apply);
 }

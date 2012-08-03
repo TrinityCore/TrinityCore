@@ -1435,7 +1435,7 @@ uint32 Item::GetTransmogrifyCost() const
     {
         bool normalPrice;
         cost = GetSellPrice(normalPrice);
-        
+
         if (!normalPrice)
         {
             if (proto->BuyCount <= 1)
@@ -1452,9 +1452,9 @@ uint32 Item::GetTransmogrifyCost() const
         else
             cost = proto->SellPrice;
     }
-    
+
     if (cost < 10000)
         cost = 10000;
-    
+
     return cost;
 }

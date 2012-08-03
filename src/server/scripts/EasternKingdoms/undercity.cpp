@@ -173,13 +173,13 @@ public:
                     if (me->GetDistance(victim) > 10.0f)
                         DoCast(victim, SPELL_MULTI_SHOT);
             } else FadeTimer -= diff;
-            
+
             if (SummonSkeletonTimer <= diff)
             {
                 DoCast(me, SPELL_SUMMON_SKELETON);
                 SummonSkeletonTimer = 20000 + rand()%10000;
             } else SummonSkeletonTimer -= diff;
-            
+
             if (BlackArrowTimer <= diff)
             {
                 if (Unit* victim = me->getVictim())
@@ -188,7 +188,7 @@ public:
                     BlackArrowTimer = 15000 + rand()%5000;
                 }
             } else BlackArrowTimer -= diff;
-            
+
             if (ShotTimer <= diff)
             {
                 if (Unit* victim = me->getVictim())
@@ -197,7 +197,7 @@ public:
                     ShotTimer = 8000 + rand()%2000;
                 }
             } else ShotTimer -= diff;
-                   
+
             if (MultiShotTimer <= diff)
             {
                 if (Unit* victim = me->getVictim())
@@ -205,7 +205,7 @@ public:
                     DoCast(victim, SPELL_MULTI_SHOT);
                     MultiShotTimer = 10000 + rand()%3000;
                 }
-            } else MultiShotTimer -= diff;   
+            } else MultiShotTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

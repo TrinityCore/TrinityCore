@@ -549,7 +549,7 @@ public:
                         (*itr)->Respawn();
                 }
             }
-            else 
+            else
                 sLog->outError("SD2 ERROR: FlagList is empty!");
         }
 
@@ -560,7 +560,7 @@ public:
                 if (EventStarted)
                     SayTimer = NextStep(Step++);
             }
-            else 
+            else
                 SayTimer -= diff;
         }
     };

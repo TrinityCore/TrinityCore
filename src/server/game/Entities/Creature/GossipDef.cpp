@@ -339,7 +339,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     data << uint32(quest->GetRequiredSpell());              // 4.x
 
     quest->BuildExtraQuestInfo(data, _session->GetPlayer());
-    
+
     data << uint32(QUEST_EMOTE_COUNT);
     for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {

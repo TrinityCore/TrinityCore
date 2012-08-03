@@ -211,7 +211,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             sLog->outErrorDb("CreatureEventAI:  Event %u has script for non-existing creature entry (%u), skipping.", i, creature_id);
             continue;
         }
-        
+
         // Only on the first script
         if (cInfo->AIName != "EventAI" && m_CreatureEventAI_Event_Map[creature_id].empty())
             sLog->outErrorDb("Creature entry %u has EventAI scripts, but its AIName is not 'EventAI' - possible AI-mismatch?", temp.creature_id);
