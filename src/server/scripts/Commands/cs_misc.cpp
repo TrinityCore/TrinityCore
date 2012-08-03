@@ -1278,7 +1278,7 @@ public:
         if (!playerTarget)
             playerTarget = player;
 
-        sLog->outDetail(handler->GetTrinityString(LANG_ADDITEM), itemId, count);
+        sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_ADDITEM), itemId, count);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         if (!itemTemplate)
@@ -1357,7 +1357,7 @@ public:
         if (!playerTarget)
             playerTarget = player;
 
-        sLog->outDetail(handler->GetTrinityString(LANG_ADDITEMSET), itemSetId);
+        sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_ADDITEMSET), itemSetId);
 
         bool found = false;
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
@@ -2508,7 +2508,7 @@ public:
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
-            sLog->outError("InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
+            sLog->outError(LOG_FILTER_GENERAL, "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
             handler->PSendSysMessage("Error 2");
             delete pet;
             return false;

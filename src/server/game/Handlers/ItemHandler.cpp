@@ -284,7 +284,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
     uint32 item;
     recv_data >> item;
 
-    sLog->outDetail("STORAGE: Item Query = %u", item);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Item Query = %u", item);
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
     if (pProto)
@@ -444,7 +444,7 @@ void WorldSession::HandleReadItem(WorldPacket & recv_data)
     uint8 bag, slot;
     recv_data >> bag >> slot;
 
-    //sLog->outDetail("STORAGE: Read bag = %u, slot = %u", bag, slot);
+    //sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Read bag = %u, slot = %u", bag, slot);
     Item* pItem = _player->GetItemByPos(bag, slot);
 
     if (pItem && pItem->GetTemplate()->PageText)
@@ -455,12 +455,12 @@ void WorldSession::HandleReadItem(WorldPacket & recv_data)
         if (msg == EQUIP_ERR_OK)
         {
             data.Initialize (SMSG_READ_ITEM_OK, 8);
-            sLog->outDetail("STORAGE: Item page sent");
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Item page sent");
         }
         else
         {
             data.Initialize(SMSG_READ_ITEM_FAILED, 8);
-            sLog->outDetail("STORAGE: Unable to read item");
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Unable to read item");
             _player->SendEquipError(msg, pItem, NULL);
         }
         data << pItem->GetGUID();
@@ -479,7 +479,7 @@ void WorldSession::HandlePageQuerySkippedOpcode(WorldPacket & recv_data)
 
     recv_data >> itemid >> guid;
 
-    sLog->outDetail("Packet Info: itemid: %u guidlow: %u guidentry: %u guidhigh: %u",
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Packet Info: itemid: %u guidlow: %u guidentry: %u guidhigh: %u",
         itemid, GUID_LOPART(guid), GUID_ENPART(guid), GUID_HIPART(guid));
 }
 
@@ -561,7 +561,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
                     Item* pNewItem = pItem->CloneItem(count, _player);
                     if (!pNewItem)
                     {
-                        sLog->outError("WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
+                        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
                         _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
                         return;
                     }
@@ -880,7 +880,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     // next slot
     ++slot;
 
-    sLog->outDetail("PLAYER: Buy bank bag slot, slot number = %u", slot);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "PLAYER: Buy bank bag slot, slot number = %u", slot);
 
     BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
 

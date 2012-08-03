@@ -70,7 +70,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
     recv_data >> guid;
 
     // This is disable by default to prevent lots of console spam
-    // sLog->outString("HandleNameQueryOpcode %u", guid);
+    // sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleNameQueryOpcode %u", guid);
 
     SendNameQueryOpcode(guid);
 }

@@ -73,7 +73,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         }
         else
         {
-            sLog->outError("SMSG_CALENDAR_SEND_CALENDAR: No Invite found with id [" UI64FMTD "]", *it);
+            sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Invite found with id [" UI64FMTD "]", *it);
             data << uint64(0);
             data << uint64(0);
             data << uint8(0);
@@ -99,7 +99,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         }
         else
         {
-            sLog->outError("SMSG_CALENDAR_SEND_CALENDAR: No Event found with id [" UI64FMTD "]", *it);
+            sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Event found with id [" UI64FMTD "]", *it);
             data << uint64(0);
             data << uint8(0);
             data << uint32(0);
@@ -251,7 +251,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 
         if (inviteCount != 1 || invitee != guid)
         {
-            sLog->outError("HandleCalendarAddEvent: [" UI64FMTD
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleCalendarAddEvent: [" UI64FMTD
                  "]: More than one invite (%d) or Invitee  [" UI64FMTD
                  "] differs", guid, inviteCount, invitee);
             return;
@@ -643,7 +643,7 @@ void WorldSession::SendCalendarEvent(CalendarEvent const& calendarEvent, Calenda
             data << uint8(0) << uint8(0) << uint8(0) << uint8(0)
                 << uint64(0) << uint32(0) << uint8(0);
 
-            sLog->outError("SendCalendarEvent: No Invite found with id [" UI64FMTD "]", *it);
+            sLog->outError(LOG_FILTER_NETWORKIO, "SendCalendarEvent: No Invite found with id [" UI64FMTD "]", *it);
         }
     }
     SendPacket(&data);
