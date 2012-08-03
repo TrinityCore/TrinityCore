@@ -136,10 +136,10 @@ enum ChatRestrictionType
 
 enum CharterTypes
 {
-    GUILD_CHARTER_TYPE                            = 9,
+    GUILD_CHARTER_TYPE                            = 4,
     ARENA_TEAM_CHARTER_2v2_TYPE                   = 2,
     ARENA_TEAM_CHARTER_3v3_TYPE                   = 3,
-    ARENA_TEAM_CHARTER_5v5_TYPE                   = 5
+    ARENA_TEAM_CHARTER_5v5_TYPE                   = 5,
 };
 
 #define DB2_REPLY_SPARSE 2442913102
