@@ -175,7 +175,7 @@ bool MySQLConnection::Execute(const char* sql)
 
             return false;
         }
-        else 
+        else
             sLog->outDebug(LOG_FILTER_SQL, "[%u ms] SQL: %s", getMSTimeDiff(_s, getMSTime()), sql);
     }
 

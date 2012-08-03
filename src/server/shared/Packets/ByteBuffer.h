@@ -480,12 +480,12 @@ class ByteBuffer
         {
             if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
                 return;
-            
+
             uint32 j = 1, k = 1;
-            
+
             std::ostringstream o;
             o << "STORAGE_SIZE: " << size();
-            
+
             for (uint32 i = 0; i < size(); ++i)
             {
                 char buf[3];
@@ -501,7 +501,7 @@ class ByteBuffer
                     ++k;
                     ++j;
                 }
-            
+
                 o << buf;
             }
             o << " ";

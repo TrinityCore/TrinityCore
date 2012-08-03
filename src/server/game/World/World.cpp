@@ -1246,7 +1246,7 @@ void World::SetInitialWorldSettings()
     sGameEventMgr->Initialize();
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
-    
+
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Trinity strings...");
     if (!sObjectMgr->LoadTrinityStrings())
         exit(1);                                            // Error message displayed in function already
@@ -1314,7 +1314,7 @@ void World::SetInitialWorldSettings()
 
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
-    
+
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();
@@ -1794,7 +1794,7 @@ void World::DetectDBCLang()
     m_defaultDbcLocale = LocaleConstant(default_locale);
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Using %s DBC Locale as default. All available DBC locales: %s", localeNames[m_defaultDbcLocale], availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
-    
+
 }
 
 void World::RecordTimeDiff(const char *text, ...)
@@ -1834,7 +1834,7 @@ void World::LoadAutobroadcasts()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty!");
-        
+
         return;
     }
 
@@ -1852,7 +1852,7 @@ void World::LoadAutobroadcasts()
     } while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u autobroadcasts definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 /// Update the World !
@@ -2835,7 +2835,7 @@ void World::LoadWorldStates()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 world states. DB table `worldstates` is empty!");
-        
+
         return;
     }
 
@@ -2850,7 +2850,7 @@ void World::LoadWorldStates()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 // Setting a worldstate will save it to DB
