@@ -182,7 +182,7 @@ extern int main(int argc, char **argv)
                 else
                     sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x", curAff);
             }
-            
+
         }
 
         bool Prio = ConfigMgr::GetBoolDefault("ProcessPriority", false);
@@ -193,7 +193,7 @@ extern int main(int argc, char **argv)
                 sLog->outInfo(LOG_FILTER_AUTHSERVER, "The auth server process priority class has been set to HIGH");
             else
                 sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set auth server process priority class.");
-            
+
         }
     }
 #endif

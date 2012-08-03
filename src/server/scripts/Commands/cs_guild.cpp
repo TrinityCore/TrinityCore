@@ -51,7 +51,7 @@ public:
         };
         return commandTable;
     }
-    
+
     /** \brief GM command level 3 - Create a guild.
      *
      * This command allows a GM (level 3) to create a guild.

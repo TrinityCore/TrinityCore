@@ -82,7 +82,7 @@ public:
 
         return true;
     }
-    
+
     static bool HandleResetStatsOrLevelHelper(Player* player)
     {
         ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->getClass());

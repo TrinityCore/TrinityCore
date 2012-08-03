@@ -38,7 +38,7 @@ enum Spells
     SPELL_BANSHEE_CURSE     = 31651,
     SPELL_BANSHEE_WAIL      = 38183,
     SPELL_ANTI_MAGIC_SHELL  = 31662,
-    SPELL_WEB               = 28991,    
+    SPELL_WEB               = 28991,
     SPELL_MANA_BURN         = 31729,
     SPELL_FROST_BREATH      = 31688,
     SPELL_GARGOYLE_STRIKE   = 31664,
