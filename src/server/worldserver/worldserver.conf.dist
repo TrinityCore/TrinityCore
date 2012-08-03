@@ -404,317 +404,175 @@ PersistentCharacterCleanFlags = 0
 PidFile = ""
 
 #
-#    LogLevel
-#        Description: Server console level of logging
-#        Default:     1 - (Basic)
-#                     0 - (Minimum)
-#                     2 - (Detail)
-#                     3 - (Full/Debug)
-
-LogLevel = 1
-
+#  Appender config values: Given a appender "name" the following options
+#  can be read:
 #
-#    LogFile
-#        Description: Log file for main server log.
-#        Default:     "Server.log" - (Enabled)
-#                     ""           - (Disabled)
-
-LogFile = "Server.log"
-
+#    Appender.name.Type
+#        Description: Type of appender. Extra appender config options
+#                     will be read depending on this value
+#        Default:     0 - (None)
+#                     1 - (Console)
+#                     2 - (File)
+#                     3 - (DB)
 #
-#    LogTimestamp
-#        Description: Append timestamp to the server log file name.
+#    Appender.name.Level
+#        Description: Appender level of logging
+#        Default:     0 - (Disabled)
+#                     1 - (Trace)
+#                     2 - (Debug)
+#                     3 - (Info)
+#                     4 - (Warn)
+#                     5 - (Error)
+#                     6 - (Fatal)
+#
+#    Appender.name.Colors
+#        Description: Colors for log messages
+#                     (Format: "fatal error warn info debug trace").
+#                     (Only used with Type = 1)
+#        Default: "" - no colors
+#        Colors: 0  - BLACK
+#                1  - RED
+#                2  - GREEN
+#                3  - BROWN
+#                4  - BLUE
+#                5  - MAGENTA
+#                6  - CYAN
+#                7  - GREY
+#                8  - YELLOW
+#                9  - LRED
+#                10 - LGREEN
+#                11 - LBLUE
+#                12 - LMAGENTA
+#                13 - LCYAN
+#                14 - WHITE
+#        Example: "13 11 9 5 3 1"
+#
+#    Appender.name.File
+#        Description: Name of the file
+#                     Allows to use one "%u" to create dynamic files
+#                     (Only used with Type = 2)
+#
+#    Appender.name.Mode
+#        Description: Mode to open the file
+#                     (Only used with Type = 2)
+#        Default:     a - (Append)
+#                     w - (Overwrite)
+#
+#    Appender.name.Backup
+#        Description: Make a backup of existing file before overwrite
+#                     (Only used with Mode = w)
+#        Default:     0 - false
+#                     1 - true
+#
+#    Appender.name.Timestamp
+#        Description: Append timestamp to the log file name.
 #                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
+#                     (Only used with Type = 2)
+#
+#  Logger config values: Given a logger "name" the following options
+#  can be read:
+#
+#    Logger.name.Type
+#        Description: Type of logger. Logs anything related to...
+#                     If no logger with type = 0 exists core will create
+#                     it but disabled. Logger with type = 0 is the
+#                     default one, used when there is no other specific
+#                     logger configured for other logger types
+#        Default:     0 - Default. Each type that has no config will
+#                         rely on this one. Core will create this logger
+#                         (disabled) if it's not configured
+#                     1 - Units that doesn't fit in other categories
+#                     2 - Pets
+#                     3 - Vehicles
+#                     4 - C++ AI, instance scripts, etc.
+#                     5 - DB AI, such as SAI, EAI, CreatureAI
+#                     6 - DB map scripts
+#                     7 - Network input/output, 
+#                         such as packet handlers and netcode logs
+#                     8 - Spellsystem and aurasystem
+#                     9 - Achievement system
+#                    10 - Condition system
+#                    11 - Pool system
+#                    12 - Auction house
+#                    13 - Arena's and battlegrounds
+#                    14 - Outdoor PVP
+#                    15 - Chat system
+#                    16 - LFG system
+#                    17 - Maps, instances (not scripts),
+#                         grids, cells, visibility, etc.
+#                    18 - Player that doesn't fit in other categories.
+#                    19 - Player loading from DB
+#                         (Player::_LoadXXX functions)
+#                    20 - Items
+#                    21 - Player skills (do not confuse with spells)
+#                    22 - Player chat logs
+#                    23 - loot
+#                    24 - guilds
+#                    25 - transports
+#                    26 - SQL. DB errors and SQL Driver
+#                    27 - GM Commands
+#                    28 - Remote Access Commands
+#                    29 - Warden
+#                    30 - Authserver
+#                    31 - Worldserver
+#                    32 - Game Events
+#                    33 - Calendar
+#
+#    Logger.name.Level
+#        Description: Logger level of logging
 #        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-LogTimestamp = 0
+#                     1 - (Trace)
+#                     2 - (Debug)
+#                     3 - (Info)
+#                     4 - (Warn)
+#                     5 - (Error)
+#                     6 - (Fatal)
+#
+#    Logger.name.Appenders
+#        Description: List of appenders linked to logger
+#                     (Using spaces as separator).
 
 #
-#    LogFileLevel
-#        Description: Server file level of logging
-#        Default:     0 - (Minimum)
-#                     1 - (Basic)
-#                     2 - (Detail)
-#                     3 - (Full/Debug)
-
-LogFileLevel = 0
-
+#    Appenders
+#        Description: List of Appenders to read from config
+#                     (Using spaces as separator).
+#        Default:     "Console Server"
 #
-#    Debug Log Mask
-#        Description: Bitmask that determines which debug log output (level 3)
-#                     will be logged.
-#        Possible flags:
-#                   1 - Anything related to units that doesn't fit in other
-#                          categories.
-#                   2 - Anything related to pets.
-#                   4 - Anything related to vehicles.
-#                   8 - Anything related to C++ AI, instance scripts, etc.
-#                  16 - Anything related to DB AI, such as SAI, EAI, CreatureAI
-#                  32 - Anything related to DB map scripts
-#                  64 - Anything related to network input/output,
-#                        such as packet handlers and netcode logs
-#                 128 - Anything related to the spellsystem and aurasystem
-#                 256 - Anything related to the achievement system
-#                 512 - Anything related to the condition system
-#                1024 - Anything related to the pool system
-#                2048 - Anything related to the auction house
-#                4096 - Anything related to arena's and battlegrounds
-#                8192 - Anything related to outdoor PVP
-#               16384 - Anything related to the chat system
-#               32768 - Anything related to the LFG system
-#               65536 - Anything related to maps, instances (not scripts),
-#                       grids, cells, visibility, etc.
-#              131072 - Anything related to player loading from DB
-#                      (Player::_LoadXXX functions)
-#              262144 - Anything related to items
-#              524288 - Anything related to player skills
-#                      (do not confuse with spells)
-#             1048576 - Anything related to loot
-#             2097152 - Anything related to guilds
-#             4194304 - Anything related to transports
-#             8388608 - Anything related to Warden anti cheat
-#
-#                       Simply add the values together to create a bitmask.
-#                       For more info see enum DebugLogFilters in Log.h
-#
-#             Default: 0 (nothing)
+#    Loggers
+#        Description: List of Loggers to read from config
+#                     (Using spaces as separator).
+#        Default:     "root"
 
-DebugLogMask = 0
+Loggers=root GM SQL
+Appenders=Console Server GM SQL
 
-#
-#    PacketLogFile
-#        Description: Binary packet logging file for the world server.
-#                     Filename extension must be .bin to be parsable with WowPacketParser.
-#        Example:     "World.bin" - (Enabled)
-#        Default:     ""          - (Disabled)
+Appender.Console.Type=1
+Appender.Console.Level=2
 
-PacketLogFile = ""
+Appender.Server.Type=2
+Appender.Server.Level=2
+Appender.Server.File=Server.log
+Appender.Server.Mode=w
 
-#
-#    DBErrorLogFile
-#        Description: Log file for database errors.
-#        Default:     "DBErrors.log" - (Enabled)
-#                     ""             - (Disabled)
+Appender.GM.Type=2
+Appender.GM.Level=2
+Appender.GM.File=gm_#%u.log
 
-DBErrorLogFile = "DBErrors.log"
+Appender.SQL.Type=2
+Appender.SQL.Level=2
+Appender.SQL.File=SQL.log
 
-#
-#    CharLogFile
-#        Description: Log file for character operations
-#        Default:     "Char.log" - (Enabled)
-#                     ""         - (Disabled)
+Logger.root.Type=0
+Logger.root.Level=3
+Logger.root.Appenders=Console Server
 
-CharLogFile = "Char.log"
+Logger.SQL.Type=26
+Logger.SQL.Level=3
+Logger.SQL.Appenders=Console Server SQL
 
-#
-#    CharLogTimestamp
-#        Description: Append timestamp to the character log file name.
-#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-CharLogTimestamp = 0
-
-#
-#    CharLogDump
-#        Description: Write a character dump in the CharLogFile before deleting it.
-#                     For restoration, copy character data from log file starting from
-#                     line == START DUMP == to line == END DUMP == (exclusive)
-#                     and load it using the "pdump load" command.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-CharLogDump = 0
-
-#
-#    CharLogDump.Separate
-#        Description: Write character dump to separate files files rather than adding it to the
-#                     CharLogFile.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-CharLogDump.Separate = 0
-
-#
-#    CharLogDump.SeparateDir
-#        Description: Write dump files into the sub folder within the log folder.
-#        Example:     "chardumps" - (Enabled)
-#        Default:     ""         - (Disabled)
-
-CharLogDump.SeparateDir = ""
-
-#
-#    GmLogFile
-#        Description: Log file for gamemaster commands.
-#        Default:     "GM.log" - (Enabled)
-#                     ""       - (Disabled)
-
-GmLogFile = "GM.log"
-
-#
-#    GmLogTimestamp
-#        Description: Append timestamp to the gamemaster log file name.
-#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-GmLogTimestamp = 0
-
-#
-#    GmLogPerAccount
-#        Description: Create a log file per gamemaster account.
-#        Important:   Logs not created if GmLogFile is not set.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-GmLogPerAccount = 0
-
-#
-#    RaLogFile
-#        Description: Log file for Remote Access commands.
-#        Default:     "RA.log" - (Enabled)
-#                     ""       - (Disabled)
-
-RaLogFile = "RA.log"
-
-#
-#    ArenaLogFile
-#        Description: Log file for arena fights and arena team creations.
-#        Example:     "Arena.log" - (Enabled)
-#        Default:     ""          - (Disabled)
-
-ArenaLogFile = ""
-
-#
-#    ArenaLog.ExtendedInfo
-#        Description: Include extended info to ArenaLogFile for each player after rated arena
-#                     matches (guid, name, team, IP, healing/damage done, killing blows).
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-ArenaLog.ExtendedInfo = 0
-
-#
-#    SQLDeveloperLogFile
-#        Description: Log file for core-generated SQL queries/dumps
-#        Example:     "SQLDev.log"    - (Enabled)
-#        Default:      ""             - (Disabled)
-
-SQLDeveloperLogFile = ""
-
-#
-#    SQLDriverLogFile
-#        Description: Log file for SQL driver events.
-#        Example:     "SQLDriver.log" - (Enabled)
-#        Default:      ""             - (Disabled)
-
-SQLDriverLogFile = ""
-
-#
-#    SQLDriverQueryLogging
-#        Description: Log SQL queries to the SQLDriverLogFile and console.
-#        Default:     0 - (Disabled, Query errors only)
-#                     1 - (Enabled, Full query logging - may have performance impact)
-
-SQLDriverQueryLogging = 0
-
-#
-#    LogColors
-#        Description: Colors for log messages (Format: "normal basic detail debug").
-#        Colors:      0  - Black
-#                     1  - Red
-#                     2  - Green
-#                     3  - Brown
-#                     4  - Blue
-#                     5  - Magenta
-#                     6  - Cyan
-#                     7  - Grey
-#                     8  - Yellow
-#                     9  - Lred
-#                     10 - Lgreen
-#                     11 - Lblue
-#                     12 - Lmagenta
-#                     13 - Lcyan
-#                     14 - White
-#        Example:     "13 11 9 5" - (Enabled)
-#        Default:     ""          - (Disabled)
-
-LogColors = ""
-
-#
-#    EnableLogDB
-#        Description: Write log messages to database (LogDatabaseInfo).
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-EnableLogDB = 0
-
-#
-#    DBLogLevel
-#        Description: Log level of databases logging.
-#        Default:     2 - (Detail)
-#                     0 - (Minimum)
-#                     1 - (Basic)
-#                     3 - (Full/Debug)
-
-DBLogLevel = 2
-
-#
-#    LogDB.Char
-#        Description: Log character operations to database.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-LogDB.Char = 0
-
-#
-#    LogDB.GM
-#        Description: Log gamemaster commands to database.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-LogDB.GM = 0
-
-#
-#    LogDB.RA
-#        Description: Log remote access events to database.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-LogDB.RA = 0
-
-#
-#    LogDB.World
-#        Description: Log world server packets to database.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled, May have performance impact)
-
-LogDB.World = 0
-
-#
-#    LogDB.Chat
-#        Description: Log chat messages to database.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-LogDB.Chat = 0
-
-
-#    ChatLogFile
-#        Description: Log file for chat logs.
-#        Default:     "Chat.log" - (Enabled)
-#                     ""         - (Disabled)
-
-ChatLogFile = "Chat.log"
-
-#    ChatLogTimestamp
-#        Description: Append timestamp to the chat log file name.
-#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-ChatLogTimestamp = 0
+Logger.GM.Type=27
+Logger.GM.Level=3
+Logger.GM.Appenders=Console Server GM
 
 #
 #    ChatLogs.Channel

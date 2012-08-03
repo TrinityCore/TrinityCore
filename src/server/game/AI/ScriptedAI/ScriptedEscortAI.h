@@ -123,4 +123,3 @@ struct npc_escortAI : public ScriptedAI
         bool HasImmuneToNPCFlags;
 };
 #endif
-

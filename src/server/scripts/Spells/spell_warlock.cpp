@@ -202,7 +202,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                             case WARLOCK_IMPROVED_HEALTHSTONE_R1: rank = 1; break;
                             case WARLOCK_IMPROVED_HEALTHSTONE_R2: rank = 2; break;
                             default:
-                                sLog->outError("Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
+                                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
                                 break;
                         }
                     }

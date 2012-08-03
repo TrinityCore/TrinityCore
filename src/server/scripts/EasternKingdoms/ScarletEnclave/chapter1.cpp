@@ -189,7 +189,7 @@ public:
                         anchorGUID = anchor->GetGUID();
                     }
                     else
-                        sLog->outError("npc_unworthy_initiateAI: unable to find anchor!");
+                        sLog->outError(LOG_FILTER_TSCR, "npc_unworthy_initiateAI: unable to find anchor!");
 
                     float dist = 99.0f;
                     GameObject* prison = NULL;
@@ -209,7 +209,7 @@ public:
                     if (prison)
                         prison->ResetDoorOrButton();
                     else
-                        sLog->outError("npc_unworthy_initiateAI: unable to find prison!");
+                        sLog->outError(LOG_FILTER_TSCR, "npc_unworthy_initiateAI: unable to find prison!");
                 }
                 break;
             case PHASE_TO_EQUIP:
@@ -1078,9 +1078,9 @@ public:
                     {
                         car->AI()->SetGUID(miner->GetGUID());
                         CAST_AI(npc_scarlet_miner::npc_scarlet_minerAI, miner->AI())->InitCartQuest(player);
-                    } else sLog->outError("TSCR: OnGossipHello vehicle entry is not correct.");
-                } else sLog->outError("TSCR: OnGossipHello player is not on the vehicle.");
-            } else sLog->outError("TSCR: OnGossipHello Scarlet Miner cant be found by script.");
+                    } else sLog->outError(LOG_FILTER_TSCR, "OnGossipHello vehicle entry is not correct.");
+                } else sLog->outError(LOG_FILTER_TSCR, "OnGossipHello player is not on the vehicle.");
+            } else sLog->outError(LOG_FILTER_TSCR, "OnGossipHello Scarlet Miner cant be found by script.");
         }
         return true;
     }

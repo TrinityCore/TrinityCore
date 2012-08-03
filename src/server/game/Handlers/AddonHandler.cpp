@@ -135,7 +135,7 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
     }
     else
     {
-        sLog->outError("Addon packet uncompress error :(");
+        sLog->outError(LOG_FILTER_NETWORKIO, "Addon packet uncompress error :(");
         return false;
     }
     return true;

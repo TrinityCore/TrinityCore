@@ -20,7 +20,6 @@
 #define TRINITY_PASSIVEAI_H
 
 #include "CreatureAI.h"
-//#include "CreatureAIImpl.h"
 
 class PassiveAI : public CreatureAI
 {

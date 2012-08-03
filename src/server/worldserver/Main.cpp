@@ -58,7 +58,7 @@ uint32 realmID;                                             ///< Id of the realm
 /// Print out the usage string for this program on the console.
 void usage(const char *prog)
 {
-    sLog->outString("Usage: \n %s [<options>]\n"
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Usage: \n %s [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef _WIN32
         "    Running as service functions:\n\r"
@@ -81,7 +81,7 @@ extern int main(int argc, char **argv)
         {
             if (++c >= argc)
             {
-                sLog->outError("Runtime-Error: -c option requires an input argument");
+                sLog->outError(LOG_FILTER_WORLDSERVER, "Runtime-Error: -c option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
@@ -97,25 +97,25 @@ extern int main(int argc, char **argv)
         {
             if (++c >= argc)
             {
-                sLog->outError("Runtime-Error: -s option requires an input argument");
+                sLog->outError(LOG_FILTER_WORLDSERVER, "Runtime-Error: -s option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
             if (strcmp(argv[c], "install") == 0)
             {
                 if (WinServiceInstall())
-                    sLog->outString("Installing service");
+                    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Installing service");
                 return 1;
             }
             else if (strcmp(argv[c], "uninstall") == 0)
             {
                 if (WinServiceUninstall())
-                    sLog->outString("Uninstalling service");
+                    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Uninstalling service");
                 return 1;
             }
             else
             {
-                sLog->outError("Runtime-Error: unsupported option %s", argv[c]);
+                sLog->outError(LOG_FILTER_WORLDSERVER, "Runtime-Error: unsupported option %s", argv[c]);
                 usage(argv[0]);
                 return 1;
             }
@@ -131,14 +131,14 @@ extern int main(int argc, char **argv)
 
     if (!ConfigMgr::Load(cfg_file))
     {
-        sLog->outError("Invalid or missing configuration file : %s", cfg_file);
-        sLog->outError("Verify that the file exists and has \'[worldserver]' written in the top of the file!");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Invalid or missing configuration file : %s", cfg_file);
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Verify that the file exists and has \'[worldserver]' written in the top of the file!");
         return 1;
     }
-    sLog->outString("Using configuration file %s.", cfg_file);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);
 
-    sLog->outString("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    sLog->outString("Using ACE version: %s", ACE_VERSION);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using ACE version: %s", ACE_VERSION);
 
     ///- and run the 'Master'
     /// \todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?

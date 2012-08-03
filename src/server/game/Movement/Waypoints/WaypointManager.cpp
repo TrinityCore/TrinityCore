@@ -48,8 +48,8 @@ void WaypointMgr::Load()
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
-        sLog->outString();
+        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
+        
         return;
     }
 
@@ -86,8 +86,8 @@ void WaypointMgr::Load()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u waypoints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u waypoints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    
 }
 
 void WaypointMgr::ReloadPath(uint32 id)
