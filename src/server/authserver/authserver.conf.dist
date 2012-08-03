@@ -229,7 +229,7 @@ LoginDatabase.WorkerThreads = 1
 #        Default:     0 - Default. Each type that has no config will
 #                         rely on this one. Core will create this logger
 #                         (disabled) if it's not configured
-#                     7 - Network input/output, 
+#                     7 - Network input/output,
 #                    30 - Authserver
 #
 #    Logger.name.Level
