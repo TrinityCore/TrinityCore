@@ -407,7 +407,7 @@ enum Opcodes
     CMSG_PETITION_BUY                                 = 0x4E05,
     CMSG_PETITION_QUERY                               = 0x4424,
     CMSG_PETITION_SHOWLIST                            = 0x4617,
-    CMSG_PETITION_SHOW_SIGNATURES                     = 0x0000,
+    CMSG_PETITION_SHOW_SIGNATURES                     = 0x4F15,
     CMSG_PETITION_SIGN                                = 0x0E04,
     CMSG_PET_ABANDON                                  = 0x0C24,
     CMSG_PET_ACTION                                   = 0x0226,

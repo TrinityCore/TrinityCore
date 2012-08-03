@@ -355,8 +355,8 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     data << uint8(0);                                       // some string
     if (type == GUILD_CHARTER_TYPE)
     {
-        data << uint32(9);
-        data << uint32(9);
+        data << uint32(4);
+        data << uint32(4);
         data << uint32(0);                                  // bypass client - side limitation, a different value is needed here for each petition
     }
     else
@@ -557,14 +557,10 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
         WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
         data << uint64(petitionGuid);
         data << uint64(_player->GetGUID());
-        data << (uint32)PETITION_SIGN_ALREADY_SIGNED;
+        data << uint32(PETITION_SIGN_ALREADY_SIGNED);
 
         // close at signer side
         SendPacket(&data);
-
-        // update for owner if online
-        if (Player* owner = ObjectAccessor::FindPlayer(ownerGuid))
-            owner->GetSession()->SendPacket(&data);
         return;
     }
 
@@ -954,7 +950,7 @@ void WorldSession::SendPetitionShowList(uint64 guid)
         data << uint32(CHARTER_DISPLAY_ID);                 // charter display id
         data << uint32(GUILD_CHARTER_COST);                 // charter cost
         data << uint32(0);                                  // unknown
-        data << uint32(9);                                  // required signs?
+        data << uint32(4);                                  // required signs?
     }
     else
     {
