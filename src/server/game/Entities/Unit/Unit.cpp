@@ -11126,9 +11126,12 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage
 
     crit_bonus -= damage;
 
-    // adds additional damage to crit_bonus (from talents)
-    if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
+    if (damage > uint32(crit_bonus))
+    {
+        // adds additional damage to critBonus (from talents)
+        if (Player* modOwner = GetSpellModOwner())
+            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
+    }
 
     crit_bonus += damage;
 
@@ -11585,6 +11588,11 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
 {
     if (!spellInfo || !spellInfo->Effects[index].IsEffect())
         return false;
+
+    // Anti-magic Shell; immune to magical aura effects
+    if (HasAura(48707, EFFECT_0))
+        if (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !spellInfo->_IsPositiveSpell() && spellInfo->Effects[index].Effect == SPELL_EFFECT_APPLY_AURA)
+            return true;
 
     // If m_immuneToEffect type contain this effect type, IMMUNE effect.
     uint32 effect = spellInfo->Effects[index].Effect;

@@ -5728,7 +5728,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                 SpellInfo const* auraInfo = aura->GetSpellInfo();
                 if (auraInfo->GetAllEffectsMechanicMask() & mechanic_immune)
                     continue;
-                if (auraInfo->GetSchoolMask() & school_immune)
+                if ((auraInfo->GetSchoolMask() & school_immune) && !(auraInfo->AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE))
                     continue;
                 if (auraInfo->GetDispelMask() & dispel_immune)
                     continue;
