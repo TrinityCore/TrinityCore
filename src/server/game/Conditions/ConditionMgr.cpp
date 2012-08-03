@@ -713,7 +713,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     if (!result)
     {
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 conditions. DB table `conditions` is empty!");
-        
+
         return;
     }
 
@@ -927,7 +927,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot)

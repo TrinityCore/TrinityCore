@@ -264,7 +264,7 @@ void AuctionHouseMgr::LoadAuctionItems()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 auction items. DB table `auctionhouse` or `item_instance` is empty!");
-        
+
         return;
     }
 
@@ -297,7 +297,7 @@ void AuctionHouseMgr::LoadAuctionItems()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u auction items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 void AuctionHouseMgr::LoadAuctions()
@@ -310,7 +310,7 @@ void AuctionHouseMgr::LoadAuctions()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
-        
+
         return;
     }
 
@@ -336,7 +336,7 @@ void AuctionHouseMgr::LoadAuctions()
     CharacterDatabase.CommitTransaction(trans);
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u auctions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 void AuctionHouseMgr::AddAItem(Item* it)
@@ -735,7 +735,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
     if (!expAuctions)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, ">> No expired auctions to delete");
-        
+
         return;
     }
 
@@ -783,7 +783,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
     } while (expAuctions->NextRow());
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Deleted %u expired auctions in %u ms", expirecount, GetMSTimeDiffToNow(oldMSTime));
-    
+
 
 }
 

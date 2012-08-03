@@ -64,7 +64,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     sWorld->SetCleaningFlags(flags);
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table, bool (*check)(uint32))

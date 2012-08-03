@@ -51,7 +51,7 @@ void SmartWaypointMgr::LoadFromDB()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 SmartAI Waypoint Paths. DB table `waypoints` is empty.");
-        
+
         return;
     }
 
@@ -89,7 +89,7 @@ void SmartWaypointMgr::LoadFromDB()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u SmartAI waypoint paths (total %u waypoints) in %u ms", count, total, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 SmartWaypointMgr::~SmartWaypointMgr()
@@ -118,7 +118,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 SmartAI scripts. DB table `smartai_scripts` is empty.");
-        
+
         return;
     }
 

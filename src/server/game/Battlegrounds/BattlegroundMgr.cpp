@@ -684,7 +684,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 battlegrounds. DB table `battleground_template` is empty.");
-        
+
         return;
     }
 
@@ -772,7 +772,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         }
 
         data.StartMaxDist = fields[9].GetFloat();
-        
+
         selectionWeight = fields[10].GetUInt8();
         data.scriptId = sObjectMgr->GetScriptId(fields[11].GetCString());
         data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
@@ -793,7 +793,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_BATTLEGROUND, ">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 void BattlegroundMgr::InitAutomaticArenaPointDistribution()
@@ -1078,7 +1078,7 @@ void BattlegroundMgr::LoadBattleMastersEntry()
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_BATTLEGROUND, ">> Loaded 0 battlemaster entries. DB table `battlemaster_entry` is empty!");
-        
+
         return;
     }
 
@@ -1103,7 +1103,7 @@ void BattlegroundMgr::LoadBattleMastersEntry()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_BATTLEGROUND, ">> Loaded %u battlemaster entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId)

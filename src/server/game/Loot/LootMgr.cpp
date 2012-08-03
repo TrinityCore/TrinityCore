@@ -1481,7 +1481,7 @@ void LoadLootTemplates_Creature()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 creature loot templates. DB table `creature_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Disenchant()
@@ -1515,7 +1515,7 @@ void LoadLootTemplates_Disenchant()
         sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u disenchanting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 disenchanting loot templates. DB table `disenchant_loot_template` is empty");
-    
+
 }
 
 void LoadLootTemplates_Fishing()
@@ -1541,7 +1541,7 @@ void LoadLootTemplates_Fishing()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 fishing loot templates. DB table `fishing_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Gameobject()
@@ -1577,7 +1577,7 @@ void LoadLootTemplates_Gameobject()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 gameobject loot templates. DB table `gameobject_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Item()
@@ -1603,7 +1603,7 @@ void LoadLootTemplates_Item()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 item loot templates. DB table `item_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Milling()
@@ -1634,7 +1634,7 @@ void LoadLootTemplates_Milling()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 milling loot templates. DB table `milling_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Pickpocketing()
@@ -1670,7 +1670,7 @@ void LoadLootTemplates_Pickpocketing()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 pickpocketing loot templates. DB table `pickpocketing_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Prospecting()
@@ -1701,7 +1701,7 @@ void LoadLootTemplates_Prospecting()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Mail()
@@ -1727,7 +1727,7 @@ void LoadLootTemplates_Mail()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Skinning()
@@ -1763,7 +1763,7 @@ void LoadLootTemplates_Skinning()
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 skinning loot templates. DB table `skinning_loot_template` is empty");
 
-    
+
 }
 
 void LoadLootTemplates_Spell()
@@ -1806,7 +1806,7 @@ void LoadLootTemplates_Spell()
         sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u spell loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
-    
+
 }
 
 void LoadLootTemplates_Reference()
@@ -1835,5 +1835,5 @@ void LoadLootTemplates_Reference()
     LootTemplates_Reference.ReportUnusedIds(lootIdSet);
 
     sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
-    
+
 }

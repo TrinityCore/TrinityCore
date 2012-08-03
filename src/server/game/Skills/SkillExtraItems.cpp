@@ -61,7 +61,7 @@ void LoadSkillExtraItemTable()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
-        
+
         return;
     }
 
@@ -111,7 +111,7 @@ void LoadSkillExtraItemTable()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u spell specialization definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+
 }
 
 bool canCreateExtraItems(Player* player, uint32 spellId, float &additionalChance, uint8 &additionalMax)
