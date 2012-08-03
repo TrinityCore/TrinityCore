@@ -584,35 +584,30 @@ public:
         if (player->GetSelection())
         {
             handler->SendSysMessage("You can't have an NPC or player selected while using this command.");
-            return true;
+            handler->SetSentErrorMessage(true);
+            return false;
         }
 
         if (!obj)
         {
             handler->SendSysMessage("No objects in range!");
-            return true;
+            handler->SetSentErrorMessage(true);
+            return false;
         }
 
-        float distX = player->GetPositionX() - obj->GetPositionX();
-        float distY = player->GetPositionY() - obj->GetPositionY();
-        float distZ = player->GetPositionZ() - obj->GetPositionZ();
-
-        float distance = sqrtf(distZ * distZ + distY * distY + distX * distX);
+        float distance = player->GetDistance(obj);
             
         entry = obj->GetEntry();
+        GameObjectTemplate const* goInfo = obj->ToGameObject()->GetGOInfo();
 
-        GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
-
-        if (!goinfo)
+        if (!goInfo)
             return false;
 
-        name = goinfo->name;
+        name = goInfo->name;
         guid = obj->ToGameObject()->GetGUIDLow();
 
-        handler->PSendSysMessage("Selected GameObject [ %s ](guid: %u) which is %f feet away from you.", name.c_str(), guid, distance);
+        handler->PSendSysMessage("Selected GameObject [ %s ] (guid: %u) which is %f feet away from you.", name.c_str(), guid, distance);
         handler->GetSession()->GetPlayer()->SetSelectedGobject(guid);
-        sLog->outString("SelectedGobj set to %u", guid);
-
         return true;
     }
 
