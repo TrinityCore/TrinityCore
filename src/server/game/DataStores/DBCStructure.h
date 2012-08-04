@@ -1192,6 +1192,15 @@ struct ItemPriceBaseEntry
     float WeaponFactor;                                     // 4        Price factor for weapons
 };
 
+struct ItemReforgeEntry
+{
+    uint32 Id;
+    uint32 FinalStat;
+    float FinalMultiplier;
+    uint32 SourceStat;
+    float SourceMultiplier;
+};
+
 // common struct for:
 // ItemDamageAmmo.dbc
 // ItemDamageOneHand.dbc

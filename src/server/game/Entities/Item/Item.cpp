@@ -1424,7 +1424,7 @@ uint32 Item::GetSellPrice(bool& normalSellPrice) const
     }
 }
 
-uint32 Item::GetTransmogrifyCost() const
+uint32 Item::GetSpecialPrice(uint32 minimumPrice) const
 {
     ItemTemplate const* proto = GetTemplate();
     uint32 cost = 0;
@@ -1453,8 +1453,8 @@ uint32 Item::GetTransmogrifyCost() const
             cost = proto->SellPrice;
     }
 
-    if (cost < 10000)
-        cost = 10000;
+    if (cost < minimumPrice)
+        cost = minimumPrice;
 
     return cost;
 }
