@@ -180,7 +180,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         // LANG_ADDON should not be changed nor be affected by flood control
         else
         {
-            // send in universal language if player in .gmon mode (ignore spell effects)
+            // send in universal language if player in .gm on mode (ignore spell effects)
             if (sender->isGameMaster())
                 lang = LANG_UNIVERSAL;
             else
@@ -538,23 +538,41 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             return;
     }
 
-    uint32 msgLen = recvData.ReadBits(9);
-    uint32 prefixLen = recvData.ReadBits(5);
-    std::string message = "";
-    std::string prefix = "";
-    std::string targetName = "";
+    std::string message;
+    std::string prefix;
+    std::string targetName;
 
-    if (type == CHAT_MSG_WHISPER)
+    switch (type)
     {
-        uint32 targetLen = recvData.ReadBits(10);
-        message = recvData.ReadString(msgLen);
-        prefix = recvData.ReadString(prefixLen);
-        targetName = recvData.ReadString(targetLen);
-    }
-    else
-    {
-        message = recvData.ReadString(msgLen);
-        prefix = recvData.ReadString(prefixLen);
+        case CHAT_MSG_WHISPER:
+        {
+            uint32 msgLen = recvData.ReadBits(9);
+            uint32 prefixLen = recvData.ReadBits(5);
+            uint32 targetLen = recvData.ReadBits(10);
+            message = recvData.ReadString(msgLen);
+            prefix = recvData.ReadString(prefixLen);
+            targetName = recvData.ReadString(targetLen);
+            break;
+        }
+        case CHAT_MSG_PARTY:
+        case CHAT_MSG_RAID:
+        case CHAT_MSG_OFFICER:
+        {
+            uint32 prefixLen = recvData.ReadBits(5);
+            uint32 msgLen = recvData.ReadBits(9);
+            prefix = recvData.ReadString(prefixLen);
+            message = recvData.ReadString(msgLen);
+            break;
+        }
+        case CHAT_MSG_GUILD:
+        case CHAT_MSG_BATTLEGROUND:
+        {
+            uint32 msgLen = recvData.ReadBits(9);
+            uint32 prefixLen = recvData.ReadBits(5);
+            message = recvData.ReadString(msgLen);
+            prefix = recvData.ReadString(prefixLen);
+            break;
+        }
     }
 
     // Logging enabled?
@@ -585,10 +603,11 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             break;
         }
         case CHAT_MSG_GUILD:
+        case CHAT_MSG_OFFICER:
         {
             if (sender->GetGuildId())
                 if (Guild* guild = sGuildMgr->GetGuildById(sender->GetGuildId()))
-                    guild->BroadcastToGuild(this, false, message, LANG_ADDON);
+                    guild->BroadcastAddonToGuild(this, type == CHAT_MSG_OFFICER, message, prefix);
             break;
         }
         case CHAT_MSG_WHISPER:
@@ -599,7 +618,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             if (!receiver)
                 break;
 
-            sender->Whisper(message, LANG_ADDON, receiver->GetGUID());
+            sender->WhisperAddon(message, prefix, receiver->GetGUID());
             break;
         }
         // Messages sent to "RAID" while in a party will get delivered to "PARTY"
@@ -612,7 +631,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
                 break;
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL, prefix.c_str());
             group->BroadcastPacket(&data, true, -1, group->GetMemberGroup(sender->GetGUID()));
             break;
         }
