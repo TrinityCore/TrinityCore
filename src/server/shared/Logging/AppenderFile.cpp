@@ -18,9 +18,10 @@
 #include "AppenderFile.h"
 #include "Common.h"
 
-AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* _filename, const char* _mode, bool _backup)
+AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* _filename, const char* _logDir, const char* _mode, bool _backup)
     : Appender(id, name, APPENDER_FILE, level)
     , filename(_filename)
+    , logDir(_logDir)
     , mode(_mode)
     , backup(_backup)
 {
@@ -67,5 +68,5 @@ FILE* AppenderFile::OpenFile(std::string const &filename, std::string const &mod
         newName.append(LogMessage::getTimeStr(time(NULL)));
         rename(filename.c_str(), newName.c_str()); // no error handling... if we couldn't make a backup, just ignore
     }
-    return fopen(filename.c_str(), mode.c_str());
+    return fopen((logDir + filename).c_str(), mode.c_str());
 }
