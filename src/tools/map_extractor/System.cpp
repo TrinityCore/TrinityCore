@@ -132,8 +132,8 @@ void Usage(char* prg)
         "-o set output path\n"\
         "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "-b target build (default 14545)"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"", prg, prg);
+        "-b target build (default %u)"\
+        "Example: %s -f 0 -i \"c:\\games\\game\"", prg, CONF_TargetBuild, prg);
     exit(1);
 }
 
