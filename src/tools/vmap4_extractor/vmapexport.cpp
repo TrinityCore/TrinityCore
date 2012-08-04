@@ -382,7 +382,6 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
     hasInputPathParam = false;
-    bool preciseVectorData = false;
 
     for(int i=1; i< argc; ++i)
     {
@@ -482,7 +481,7 @@ int main(int argc, char ** argv)
     for (size_t i=0; i < archiveNames.size(); ++i)
     {
         MPQArchive *archive = new MPQArchive(archiveNames[i].c_str());
-        if(!gOpenArchives.size() || gOpenArchives.front() != archive)
+        if(gOpenArchives.empty() || gOpenArchives.front() != archive)
             delete archive;
     }
 

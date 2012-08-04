@@ -78,7 +78,6 @@ public:
             return;
         }
 
-        std::string entryStr = cEntry;
         std::string disableComment = cComment;
         uint32 entry = (uint32)atoi(cEntry);
         uint8 flags = atoi(cFlags);
