@@ -1636,6 +1636,7 @@ void WorldSession::SendReforgeResult(bool success)
 {
     WorldPacket data(SMSG_REFORGE_RESULT, 1);
     data.WriteBit(success);
+    data.FlushBits();
     SendPacket(&data);
 }
 
