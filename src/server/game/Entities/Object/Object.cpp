@@ -2279,6 +2279,8 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     *data << (uint32)(strlen(text)+1);
     *data << text;
     *data << (uint8)0;                                      // ChatTag
+    *data << (float)0.0f;                                   // added in 4.2.0, unk
+    *data << (uint8)0;                                      // added in 4.2.0, unk
 }
 
 void Unit::BuildHeartBeatMsg(WorldPacket* data) const

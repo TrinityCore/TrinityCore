@@ -1619,12 +1619,13 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
             cost += itemTransmogrified->GetTransmogrifyCost();
         }
-
-        // trusting the client, if it got here it has to have enough money
-        // ... unless client was modified
-        if (cost) // 0 cost if reverting look
-            player->ModifyMoney(-cost);
     }
+
+    // trusting the client, if it got here it has to have enough money
+    // ... unless client was modified
+    if (cost) // 0 cost if reverting look
+        player->ModifyMoney(-cost);
+
 
     delete[] itemGuids;
     delete[] newEntries;
