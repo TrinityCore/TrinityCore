@@ -225,6 +225,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
         }
     }
+    else
+        lang = LANG_UNIVERSAL;
 
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
     {
