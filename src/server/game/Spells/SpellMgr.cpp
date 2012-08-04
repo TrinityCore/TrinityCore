@@ -3295,10 +3295,13 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
             case 61874: // Noblegarden Chocolate
-                spellInfo->Effect[1] = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->EffectApplyAuraName[1] = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-                spellInfo->EffectAmplitude[1] = 10000;
-                spellInfo->EffectTriggerSpell[1] = 24870;
+                spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->EffectApplyAuraName[EFFECT_1] = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->EffectAmplitude[EFFECT_1] = 10000;
+                spellInfo->EffectTriggerSpell[EFFECT_1] = 24870;
+                break;
+            case 64752: // Druid T8 Feral 2P Bonus
+                spellInfo->EffectSpellClassMask[EFFECT_0] = flag96(0x00001000, 0x00000100, 0x00200000);
                 break;
             case 70650: // Death Knight T10 Tank 2P Bonus
                 spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_PCT_MODIFIER;
