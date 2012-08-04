@@ -747,7 +747,7 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
 }
 
 //Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
-void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker)
+void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker, const char* addonPrefix /*= NULL*/)
 {
     uint32 messageLength = (message ? strlen(message) : 0) + 1;
 
@@ -823,9 +823,16 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     {
         ASSERT(channelName);
         *data << channelName;
+        *data << uint64(target_guid);
     }
+    else if (type == CHAT_MSG_ADDON)
+    {
+        ASSERT(addonPrefix);
+        *data << addonPrefix;
+    }
+    else
+        *data << uint64(target_guid);
 
-    *data << uint64(target_guid);
     *data << uint32(messageLength);
     *data << message;
     if (session != 0 && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)

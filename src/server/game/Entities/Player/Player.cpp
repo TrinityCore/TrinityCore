@@ -20046,13 +20046,16 @@ void Player::StopCastingCharm()
     }
 }
 
-inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language) const
+inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/) const
 {
     *data << uint8(msgtype);
     *data << uint32(language);
     *data << uint64(GetGUID());
     *data << uint32(0);                                      // constant unknown time
-    *data << uint64(GetGUID());
+    if (addonPrefix)
+        *data << addonPrefix;
+    else
+        *data << uint64(GetGUID());
     *data << uint32(text.length() + 1);
     *data << text;
     *data << uint8(GetChatTag());
@@ -20088,13 +20091,20 @@ void Player::TextEmote(const std::string& text)
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 }
 
+void Player::WhisperAddon(const std::string& text, const std::string& prefix, uint64 receiver)
+{
+    Player* rPlayer = ObjectAccessor::FindPlayer(receiver);
+
+    std::string _text(text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, _text, rPlayer);
+
+    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, LANG_UNIVERSAL, prefix.c_str());
+    rPlayer->GetSession()->SendPacket(&data);
+}
+
 void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
 {
-    bool isAddonMessage = language == LANG_ADDON;
-
-    if (!isAddonMessage)                                    // if not addon data
-        language = LANG_UNIVERSAL;                          // whispers should always be readable
-
     Player* rPlayer = ObjectAccessor::FindPlayer(receiver);
 
     std::string _text(text);
@@ -20107,21 +20117,12 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
         BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
         rPlayer->GetSession()->SendPacket(&data);
 
-        // not send confirmation for addon messages
-        if (!isAddonMessage)
-        {
-            data.Initialize(SMSG_MESSAGECHAT, 200);
-            rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
-            GetSession()->SendPacket(&data);
-        }
+        data.Initialize(SMSG_MESSAGECHAT, 200);
+        rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
+        GetSession()->SendPacket(&data);
     }
-    else if (!isAddonMessage)
-        // announce to player that player he is whispering to is dnd and cannot receive his message
+    else // announce to player that player he is whispering to is dnd and cannot receive his message
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
-
-    // rest stuff shouldn't happen in case of addon message
-    if (isAddonMessage)
-        return;
 
     if (!isAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
     {

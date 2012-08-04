@@ -1697,7 +1697,7 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
         return;
     }
     
-    if (player->HasEnoughMoney(item->GetSpecialPrice())) // cheating
+    if (player->HasEnoughMoney(uint64(item->GetSpecialPrice()))) // cheating
     {
         SendReforgeResult(false);
         return;
