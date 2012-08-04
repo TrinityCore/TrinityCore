@@ -520,11 +520,10 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPacket & recv_data)
     _player->SetStandState(animstate);
 }
 
-void WorldSession::HandleContactListOpcode(WorldPacket & recv_data)
+void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
 {
-    uint32 unk;
-    recv_data >> unk;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONTACT_LIST - Unk: %d", unk);
+    recvData.read_skip<uint32>(); // always 1
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONTACT_LIST");
     _player->GetSocial()->SendSocialList(_player);
 }
 
@@ -606,7 +605,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_FRIEND_STATUS)");
 }
 
-void WorldSession::HandleDelFriendOpcode(WorldPacket & recv_data)
+void WorldSession::HandleDelFriendOpcode(WorldPacket& recv_data)
 {
     uint64 FriendGUID;
 

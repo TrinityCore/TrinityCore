@@ -65,7 +65,7 @@ void WorldSession::SendTradeStatus(TradeStatus status)
             data << uint32(0); // unk
             data << uint32(0); // unk
         default:
-        	data.FlushBits();
+            data.FlushBits();
             break;
     }
 
