@@ -686,9 +686,9 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
     uint64 vendorguid, bagGuid;
     uint32 item, slot, count;
-    uint8 itemType; // 1 = item, 2 = currency
-    int8 bagSlot;
-
+    uint8 itemType; // 1 = item, 2 = currency (not implemented)
+    uint8 bagSlot;
+    
     recv_data >> vendorguid >> itemType >> item >> slot >> count >> bagGuid >> bagSlot;
 
     // client expects count starting at 1, and we send vendorslot+1 to client already
@@ -699,6 +699,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recv_data)
 
     Item* bagItem = _player->GetItemByGuid(bagGuid);
 
+    uint8 bag = NULL_BAG;
     if (bagItem && bagItem->IsBag())
         bag = bagItem->GetSlot();
 
