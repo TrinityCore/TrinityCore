@@ -25384,6 +25384,7 @@ void Player::SetReputation(uint32 factionentry, uint32 value)
 {
     GetReputationMgr().SetReputation(sFactionStore.LookupEntry(factionentry), value);
 }
+
 uint32 Player::GetReputation(uint32 factionentry)
 {
     return GetReputationMgr().GetReputation(sFactionStore.LookupEntry(factionentry));
@@ -25391,7 +25392,7 @@ uint32 Player::GetReputation(uint32 factionentry)
 
 std::string Player::GetGuildName()
 {
-    return sGuildMgr->GetGuildById(GetGuildId())->GetName();
+    return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId())->GetName() : "";
 }
 
 void Player::SendDuelCountdown(uint32 counter)
