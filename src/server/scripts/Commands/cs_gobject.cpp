@@ -597,7 +597,9 @@ public:
 
         float distance = player->GetDistance(obj);
             
-        entry = obj->GetEntry();
+        if (obj->GetTypeId() != TYPEID_GAMEOBJECT)
+            return false;
+
         GameObjectTemplate const* goInfo = obj->ToGameObject()->GetGOInfo();
 
         if (!goInfo)
