@@ -1117,6 +1117,15 @@ struct GtRegenMPPerSptEntry
     float    ratio;
 };
 
+struct GtOCTBaseHPByClassEntry
+{
+    float ratio;
+};
+
+struct GtOCTBaseMPByClassEntry
+{
+    float ratio;
+};
 /* no used
 struct HolidayDescriptionsEntry
 {
