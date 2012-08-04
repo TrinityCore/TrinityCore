@@ -70,7 +70,7 @@ public:
             { "levelup",        SEC_ADMINISTRATOR,  false, &HandleLevelUpCommand,                  "", NULL },
             { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                   "", pdumpCommandTable },
             { NULL,             0,                  false, NULL,                                   "", NULL }
-        }; 
+        };
         return commandTable;
     }
 
@@ -112,14 +112,14 @@ public:
                 if (!normalizePlayerName(searchString))
                     return false;
 
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_NAME);    
-                stmt->setString(0, searchString);    
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_NAME);
+                stmt->setString(0, searchString);
                 result = CharacterDatabase.Query(stmt);
             }
         }
         else
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO);    
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO);
             result = CharacterDatabase.Query(stmt);
         }
 
@@ -137,7 +137,7 @@ public:
 
                 // account name will be empty for not existed account
                 AccountMgr::GetName(info.accountId, info.accountName);
-                info.deleteDate = time_t(fields[3].GetUInt32());    
+                info.deleteDate = time_t(fields[3].GetUInt32());
                 foundList.push_back(info);
             }
             while (result->NextRow());

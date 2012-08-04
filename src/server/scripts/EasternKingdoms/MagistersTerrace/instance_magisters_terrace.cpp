@@ -219,25 +219,25 @@ public:
         {
             switch (identifier)
             {
-                case DATA_SELIN:                
+                case DATA_SELIN:
                     return SelinGUID;
-                case DATA_DELRISSA:             
+                case DATA_DELRISSA:
                     return DelrissaGUID;
-                case DATA_VEXALLUS_DOOR:        
+                case DATA_VEXALLUS_DOOR:
                     return VexallusDoorGUID;
-                case DATA_SELIN_DOOR:           
+                case DATA_SELIN_DOOR:
                     return SelinDoorGUID;
-                case DATA_SELIN_ENCOUNTER_DOOR: 
+                case DATA_SELIN_ENCOUNTER_DOOR:
                     return SelinEncounterDoorGUID;
-                case DATA_DELRISSA_DOOR:        
+                case DATA_DELRISSA_DOOR:
                     return DelrissaDoorGUID;
-                case DATA_KAEL_DOOR:            
+                case DATA_KAEL_DOOR:
                     return KaelDoorGUID;
-                case DATA_KAEL_STATUE_LEFT:     
+                case DATA_KAEL_STATUE_LEFT:
                     return KaelStatue[0];
-                case DATA_KAEL_STATUE_RIGHT:    
+                case DATA_KAEL_STATUE_RIGHT:
                     return KaelStatue[1];
-                case DATA_ESCAPE_ORB:           
+                case DATA_ESCAPE_ORB:
                     return EscapeOrbGUID;
 
                 case DATA_FEL_CRYSTAL:
