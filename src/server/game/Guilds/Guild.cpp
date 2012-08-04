@@ -1311,7 +1311,7 @@ void Guild::HandleGuildRanks(WorldSession* session)
     // perhaps move to guild.cpp.....
     ByteBuffer rankData(100);
     WorldPacket data(SMSG_GUILD_RANK, 100);
-    
+
     data.WriteBits(_GetRanksSize(), 18);
 
     for (uint8 i = 0; i < _GetRanksSize(); i++)
@@ -1599,7 +1599,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     data.WriteByteSeq(newGuildGuid[4]);
 
     data.append(m_name.c_str(), m_name.length());
-    
+
     data.WriteByteSeq(newGuildGuid[5]);
     data.WriteByteSeq(newGuildGuid[3]);
     data.WriteByteSeq(oldGuildGuid[4]);
@@ -1688,7 +1688,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, uint64 targetGuid, boo
             SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
             return;
         }
-   
+
         // Player cannot promote himself
         if (member->IsSamePlayer(player->GetGUID()))
         {
@@ -1741,7 +1741,7 @@ void Guild::HandleSetMemberRank(WorldSession* session, uint64 targetGuid, uint64
             SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
             return;
         }
-   
+
         // Player cannot promote himself
         if (member->IsSamePlayer(player->GetGUID()))
         {

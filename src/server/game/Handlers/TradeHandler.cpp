@@ -42,28 +42,32 @@ void WorldSession::SendTradeStatus(TradeStatus status)
     {
         case TRADE_STATUS_BEGIN_TRADE:
             data.WriteBits(0, 8); // zero guid
+            data.FlushBits();
             break;
         case TRADE_STATUS_OPEN_WINDOW:
+            data.FlushBits();
             data << uint32(0); // unk
             break;
         case TRADE_STATUS_CLOSE_WINDOW:
             data.WriteBit(0); // unk
+            data.FlushBits();
             data << uint32(0); // unk
             data << uint32(0); // unk
             break;
         case TRADE_STATUS_ONLY_CONJURED:
         case TRADE_STATUS_NOT_ELIGIBLE:
+            data.FlushBits();
             data << uint8(0); // unk
             break;
         case TRADE_STATUS_CURRENCY: // Not implemented
         case TRADE_STATUS_CURRENCY_NOT_TRADABLE: // Not implemented
+            data.FlushBits();
             data << uint32(0); // unk
             data << uint32(0); // unk
         default:
+        	data.FlushBits();
             break;
     }
-
-    data.FlushBits();
 
     SendPacket(&data);
 }

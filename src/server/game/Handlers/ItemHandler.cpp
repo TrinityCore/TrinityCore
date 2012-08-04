@@ -670,7 +670,7 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
         bag = INVENTORY_SLOT_BAG_0;
     else
         bagItem = _player->GetItemByGuid(bagguid);
-    
+
     if (bagItem && bagItem->IsBag())
         bag = bagItem->GetSlot();
 
@@ -684,10 +684,10 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
 void WorldSession::HandleBuyItemOpcode(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
-    uint64 vendorguid, bagGuid; 
+    uint64 vendorguid, bagGuid;
     uint32 item, slot, count;
     uint8 itemType; // 1 = item, 2 = currency
-    int8 bagSlot; 
+    int8 bagSlot;
 
     recv_data >> vendorguid >> itemType >> item >> slot >> count >> bagGuid >> bagSlot;
 
@@ -696,12 +696,12 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recv_data)
         --slot;
     else
         return; // cheating
-    
+
     Item* bagItem = _player->GetItemByGuid(bagGuid);
-    
+
     if (bagItem && bagItem->IsBag())
         bag = bagItem->GetSlot();
-        
+
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagSlot);
 }
 
@@ -1642,9 +1642,9 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     uint32 bag;
     Player* player = GetPlayer();
-    
+
     recvData >> reforgeEntry >> slot >> bag;
-    
+
     guid[2] = recvData.ReadBit();
     guid[6] = recvData.ReadBit();
     guid[3] = recvData.ReadBit();
@@ -1653,7 +1653,9 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     guid[0] = recvData.ReadBit();
     guid[7] = recvData.ReadBit();
     guid[5] = recvData.ReadBit();
-    
+
+    recvData.FlushBits();
+
     recvData.ReadByteSeq(guid[2]);
     recvData.ReadByteSeq(guid[3]);
     recvData.ReadByteSeq(guid[6]);
@@ -1669,16 +1671,16 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
         SendReforgeResult(false);
         return;
     }
-    
-    Item* item = player->GetItemByPos(bag, slot); 
-    
+
+    Item* item = player->GetItemByPos(bag, slot);
+
     if (!item)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an invalid/non-existant item.", player->GetGUIDLow(), player->GetName());
         SendReforgeResult(false);
         return;
     }
-    
+
     if (!reforgeEntry)
     {
         // Reset the item
@@ -1686,25 +1688,25 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
         SendReforgeResult(true);
         return;
     }
-    
+
     if (!sItemReforgeStore.LookupEntry(reforgeEntry))
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an item with invalid reforge entry (%u).", player->GetGUIDLow(), player->GetName(), reforgeEntry);
         SendReforgeResult(false);
         return;
     }
-    
+
     if (player->HasEnoughMoney(uint64(item->GetSpecialPrice()))) // cheating
     {
         SendReforgeResult(false);
         return;
     }
-        
+
     player->ModifyMoney(-int64(item->GetSpecialPrice()));
-    
+
     item->SetEnchantment(REFORGE_ENCHANTMENT_SLOT, reforgeEntry, 0, 0);
-    
+
     SendReforgeResult(true);
-    
+
     // ToDo: Apply and remove the destination/source stats to the player
 }

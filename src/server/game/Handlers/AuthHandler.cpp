@@ -28,6 +28,8 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
     packet.WriteBit(1);                                    // has account info
 
+    packet.FlushBits();
+
     // account info
     packet << uint32(0);                                   // BillingTimeRemaining
     packet << uint8(Expansion());                          // 0 - normal, 1 - TBC, 2 - WOTLK, 3 - CATA; must be set in database manually for each account

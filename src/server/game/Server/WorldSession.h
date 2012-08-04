@@ -922,7 +922,7 @@ class WorldSession
 
         // Transmogrification
         void HandleTransmogrifyItems(WorldPacket& recvData);
-        
+
         // Reforge
         void HandleReforgeItemOpcode(WorldPacket& recvData);
         void SendReforgeResult(bool success);

@@ -1013,6 +1013,8 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* e
     data.WriteBit(counter[7]);
     data.WriteBit(guid[4]);
 
+    data.FlushBits();
+
     data.WriteByteSeq(guid[5]);
     data << uint32(progress->date);      // unknown date
     data.WriteByteSeq(counter[3]);
