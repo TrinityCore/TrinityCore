@@ -1617,7 +1617,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             itemTransmogrifier->SetNotRefundable(player);
             itemTransmogrifier->ClearSoulboundTradeable(player);
 
-            cost += itemTransmogrified->GetTransmogrifyCost();
+            cost += itemTransmogrified->GetSpecialPrice();
         }
     }
 
@@ -1630,4 +1630,84 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     delete[] itemGuids;
     delete[] newEntries;
     delete[] slots;
+}
+
+void WorldSession::SendReforgeResult(bool success)
+{
+    WorldPacket data(SMSG_REFORGE_RESULT, 1);
+    data.WriteBit(success);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
+{
+    uint32 slot, reforgeEntry;
+    ObjectGuid guid;
+    uint32 bag;
+    Player* player = GetPlayer();
+    
+    recvData >> reforgeEntry >> slot >> bag;
+    
+    guid[2] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[5]);
+
+    if (!player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_REFORGER))
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(guid));
+        SendReforgeResult(false);
+        return;
+    }
+    
+    Item* item = player->GetItemByPos(bag, slot); 
+    
+    if (!item)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an invalid/non-existant item.", player->GetGUIDLow(), player->GetName());
+        SendReforgeResult(false);
+        return;
+    }
+    
+    if (!reforgeEntry)
+    {
+        // Reset the item
+        item->ClearEnchantment(REFORGE_ENCHANTMENT_SLOT);
+        SendReforgeResult(true);
+        return;
+    }
+    
+    if (!sItemReforgeStore.LookupEntry(reforgeEntry))
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an item with invalid reforge entry (%u).", player->GetGUIDLow(), player->GetName(), reforgeEntry);
+        SendReforgeResult(false);
+        return;
+    }
+    
+    if (player->HasEnoughMoney(item->GetSpecialPrice())) // cheating
+    {
+        SendReforgeResult(false);
+        return;
+    }
+        
+    player->ModifyMoney(-int64(item->GetSpecialPrice()));
+    
+    item->SetEnchantment(REFORGE_ENCHANTMENT_SLOT, reforgeEntry, 0, 0);
+    
+    SendReforgeResult(true);
+    
+    // ToDo: Apply and remove the destination/source stats to the player
 }

@@ -163,7 +163,7 @@ enum EnchantmentSlot
     BONUS_ENCHANTMENT_SLOT          = 5,
     PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
     //TODO: 7,
-    //TODO: 8,
+    REFORGE_ENCHANTMENT_SLOT        = 8,
     TRANSMOGRIFY_ENCHANTMENT_SLOT   = 9,
     MAX_INSPECTED_ENCHANTMENT_SLOT  = 10,
 
@@ -350,7 +350,7 @@ class Item : public Object
         bool CanBeTransmogrified() const;
         bool CanTransmogrify() const;
         static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
-        uint32 GetTransmogrifyCost() const;
+        uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const;
 
         uint32 GetVisibleEntry() const
         {
