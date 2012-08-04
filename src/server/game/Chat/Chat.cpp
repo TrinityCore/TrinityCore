@@ -801,6 +801,13 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
             *data << uint32(messageLength);
             *data << message;
             *data << uint8(0);
+
+            if (type == CHAT_MSG_RAID_BOSS_WHISPER || type == CHAT_MSG_RAID_BOSS_EMOTE)
+            {
+                *data << float(0.0f);                       // Added in 4.2.0, unk
+                *data << uint8(0);                          // Added in 4.2.0, unk
+            }
+
             return;
         }
         default:
