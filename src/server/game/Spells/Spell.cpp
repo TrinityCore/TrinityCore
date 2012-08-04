@@ -3877,8 +3877,8 @@ void Spell::SendSpellStart()
     data << uint8(m_cast_count);                            // pending spell cast?
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
-    data << int32(m_timer);                                 // delay?
-    data << uint32(0);
+    data << uint32(m_timer);                                // delay?
+    data << uint32(m_casttime);
 
     m_targets.Write(data);
 
