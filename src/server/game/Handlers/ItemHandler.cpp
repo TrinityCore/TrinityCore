@@ -1654,8 +1654,6 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     guid[7] = recvData.ReadBit();
     guid[5] = recvData.ReadBit();
 
-    recvData.FlushBits();
-
     recvData.ReadByteSeq(guid[2]);
     recvData.ReadByteSeq(guid[3]);
     recvData.ReadByteSeq(guid[6]);
