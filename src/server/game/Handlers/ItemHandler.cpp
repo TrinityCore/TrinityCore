@@ -1041,30 +1041,6 @@ void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid,
     SendPacket(&data);
 }
 
-void WorldSession::HandleItemNameQueryOpcode(WorldPacket & recv_data)
-{
-    uint32 itemid;
-    recv_data >> itemid;
-    recv_data.read_skip<uint64>();                          // guid
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_NAME_QUERY %u", itemid);
-    ItemSetNameEntry const* pName = sObjectMgr->GetItemSetNameEntry(itemid);
-    if (pName)
-    {
-        std::string Name = pName->name;
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
-            if (ItemSetNameLocale const* isnl = sObjectMgr->GetItemSetNameLocale(itemid))
-                ObjectMgr::GetLocaleString(isnl->Name, loc_idx, Name);
-
-        WorldPacket data(SMSG_ITEM_NAME_QUERY_RESPONSE, (4+Name.size()+1+4));
-        data << uint32(itemid);
-        data << Name;
-        data << uint32(pName->InventoryType);
-        SendPacket(&data);
-    }
-}
-
 void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WRAP_ITEM");
