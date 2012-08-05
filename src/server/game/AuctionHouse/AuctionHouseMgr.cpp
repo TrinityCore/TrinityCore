@@ -611,7 +611,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
     data << uint32(Id);
     data << uint32(item->GetEntry());
 
-    for (uint8 i = 0; i < PROP_ENCHANTMENT_SLOT_2; ++i) // PROP_ENCHANTMENT_SLOT_2 = 9
+    for (uint8 i = 0; i < PROP_ENCHANTMENT_SLOT_0; ++i) // PROP_ENCHANTMENT_SLOT_0 = 10
     {
         data << uint32(item->GetEnchantmentId(EnchantmentSlot(i)));
         data << uint32(item->GetEnchantmentDuration(EnchantmentSlot(i)));

@@ -92,7 +92,7 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket & recv_data)
     _player->SwapItem(src, dst);
 }
 
-void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket & recv_data)
+void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recv_data)
 {
     uint64 itemguid;
     uint8 dstslot;
@@ -600,13 +600,13 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
     return;
 }
 
-void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
+void WorldSession::HandleBuybackItem(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUYBACK_ITEM");
     uint64 vendorguid;
     uint32 slot;
 
-    recv_data >> vendorguid >> slot;
+    recvData >> vendorguid >> slot;
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
@@ -843,7 +843,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket & recv_data)
+void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recv_data)
 {
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOSTORE_BAG_ITEM");
     uint8 srcbag, srcslot, dstbag;
