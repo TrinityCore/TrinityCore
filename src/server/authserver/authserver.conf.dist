@@ -206,16 +206,15 @@ LoginDatabase.WorkerThreads = 1
 #        Default:     a - (Append)
 #                     w - (Overwrite)
 #
-#    Appender.name.Backup
-#        Description: Make a backup of existing file before overwrite
-#                     (Only used with Mode = w)
-#        Default:     0 - false
-#                     1 - true
-#
-#    Appender.name.Timestamp
-#        Description: Append timestamp to the log file name.
-#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
-#                     (Only used with Type = 2)
+#    Appender.name.Flags
+#        Description:
+#        Default:     Console = 6, File = 7, DB = 0
+#                     0 - None
+#                     1 - Prefix Timestamp to the text
+#                     2 - Prefix Log Level to the text
+#                     4 - Prefix Log Filter type to the text
+#                     8 - Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS (Only used with Type = 2)
+#                    16 - Make a backup of existing file before overwrite (Only used with Mode = w)
 #
 #  Logger config values: Given a logger "name" the following options
 #  can be read:

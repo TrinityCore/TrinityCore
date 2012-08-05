@@ -103,7 +103,8 @@ void Log::CreateAppenderFromConfig(const char* name)
     {
         case APPENDER_CONSOLE:
         {
-            AppenderConsole* appender = new AppenderConsole(NextAppenderId(), name, level);
+            AppenderFlags flags = AppenderFlags(GetConfigIntDefault(base, "Flags", APPENDER_FLAGS_PREFIX_LOGLEVEL | APPENDER_FLAGS_PREFIX_LOGFILTERTYPE));
+            AppenderConsole* appender = new AppenderConsole(NextAppenderId(), name, level, flags);
             appenders[appender->getId()] = appender;
 
             appender->InitColors(GetConfigStringDefault(base, "Colors", ""));
@@ -114,10 +115,9 @@ void Log::CreateAppenderFromConfig(const char* name)
         {
             std::string filename = GetConfigStringDefault(base, "File", "");
             std::string mode = GetConfigStringDefault(base, "Mode", "a");
-            std::string timestamp = GetConfigStringDefault(base, "Timestamp", "");
-            bool backup = GetConfigIntDefault(base, "Backup", 0);
+            AppenderFlags flags = AppenderFlags(GetConfigIntDefault(base, "Flags", APPENDER_FLAGS_PREFIX_TIMESTAMP | APPENDER_FLAGS_PREFIX_LOGLEVEL | APPENDER_FLAGS_PREFIX_LOGFILTERTYPE));
 
-            if (!timestamp.empty())
+            if (flags & APPENDER_FLAGS_USE_TIMESTAMP)
             {
                 size_t dot_pos = filename.find_last_of(".");
                 if (dot_pos != filename.npos)
@@ -127,7 +127,7 @@ void Log::CreateAppenderFromConfig(const char* name)
             }
 
             uint8 id = NextAppenderId();
-            appenders[id] = new AppenderFile(id, name, level, filename.c_str(), m_logsDir.c_str(), mode.c_str(), backup);
+            appenders[id] = new AppenderFile(id, name, level, filename.c_str(), m_logsDir.c_str(), mode.c_str(), flags);
             //fprintf(stdout, "Log::CreateAppenderFromConfig: Created Appender %s (%u), Type FILE, Mask %u, File %s, Mode %s\n", name, id, level, filename.c_str(), mode.c_str()); // DEBUG - RemoveMe
             break;
         }
@@ -228,7 +228,6 @@ void Log::EnableDBAppenders()
     for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
         if (it->second && it->second->getType() == APPENDER_DB)
             ((AppenderDB *)it->second)->setEnable(true);
-
 }
 
 void Log::log(LogFilterType filter, LogLevel level, char const* str, ...)
