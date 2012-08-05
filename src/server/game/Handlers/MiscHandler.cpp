@@ -805,10 +805,10 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
+void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 {
     uint32 triggerId;
-    recv_data >> triggerId;
+    recvData >> triggerId;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
 
@@ -1076,7 +1076,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
     }
 }
 
-void WorldSession::HandleCompleteCinematic(WorldPacket & /*recv_data*/)
+void WorldSession::HandleCompleteCinematic(WorldPacket& /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_COMPLETE_CINEMATIC");
 }

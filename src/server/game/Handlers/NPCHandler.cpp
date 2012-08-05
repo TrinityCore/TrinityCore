@@ -73,13 +73,13 @@ void WorldSession::SendTabardVendorActivate(uint64 guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPacket & recv_data)
+void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 {
     uint64 guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
 
-    recv_data >> guid;
+    recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
     if (!unit)
@@ -443,10 +443,10 @@ void WorldSession::SendSpiritResurrect()
         _player->UpdateObjectVisibility();
 }
 
-void WorldSession::HandleBinderActivateOpcode(WorldPacket & recv_data)
+void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
 {
     uint64 npcGUID;
-    recv_data >> npcGUID;
+    recvData >> npcGUID;
 
     if (!GetPlayer()->IsInWorld() || !GetPlayer()->isAlive())
         return;
