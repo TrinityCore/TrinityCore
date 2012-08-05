@@ -53,11 +53,11 @@
 #include "AccountMgr.h"
 #include "Spell.h"
 
-void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
+void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REPOP_REQUEST Message");
 
-    recv_data.read_skip<uint8>();
+    recvData.read_skip<uint8>(); // FromLua ?
 
     if (GetPlayer()->isAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
@@ -727,12 +727,12 @@ void WorldSession::HandleBugOpcode(WorldPacket & recv_data)
     CharacterDatabase.Execute(stmt);
 }
 
-void WorldSession::HandleReclaimCorpseOpcode(WorldPacket &recv_data)
+void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RECLAIM_CORPSE");
 
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     if (GetPlayer()->isAlive())
         return;
