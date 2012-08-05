@@ -1776,6 +1776,84 @@ MovementStatusElements MovementStartPitchUpSequence[] =
     MSEEnd,
 };
 
+MovementStatusElements MoveChngTransport[]=
+{
+    MSEPositionY,
+    MSEPositionX,
+    MSEPositionZ,
+    MSEHasGuidByte4,
+    MSEHasGuidByte0,
+    MSEHasGuidByte2,
+    MSEHasTransportData,
+    MSEHasSpline,
+    MSEHasOrientation,
+    MSEHasGuidByte6,
+    MSEHasTimestamp,
+    MSEHasGuidByte5,
+    MSEHasGuidByte7,
+    MSEHasPitch,
+    MSEZeroBit,
+    MSEHasGuidByte3,
+    MSEHasSplineElevation,
+    MSEHasGuidByte1,
+    MSEHasFallData,
+    MSEHasMovementFlags,
+    MSEHasMovementFlags2,
+
+    MSEHasTransportGuidByte3,
+    MSEHasTransportTime3,
+    MSEHasTransportGuidByte4,
+    MSEHasTransportGuidByte1,
+    MSEHasTransportGuidByte6,
+    MSEHasTransportGuidByte2,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte0,
+    MSEHasTransportGuidByte7,
+    MSEHasTransportGuidByte5,
+
+    MSEMovementFlags,
+    MSEMovementFlags2,
+    MSEHasFallDirection,
+
+    MSEGuidByte7,
+    MSEGuidByte5,
+    MSEGuidByte1,
+    MSEGuidByte2,
+    MSEGuidByte6,
+    MSEGuidByte4,
+    MSEGuidByte0,
+    MSEGuidByte3,
+
+    MSETransportPositionY,
+    MSETransportSeat,
+    MSETransportGuidByte1,
+    MSETransportGuidByte0,
+    MSETransportGuidByte2,
+    MSETransportGuidByte3,
+    MSETransportGuidByte6,
+    MSETransportPositionZ,
+    MSETransportPositionX,
+    MSETransportTime3,
+    MSETransportTime,
+    MSETransportGuidByte7,
+    MSETransportGuidByte5,
+    MSETransportGuidByte4,
+    MSETransportOrientation,
+    MSETransportTime2,
+
+    MSEFallTime,
+    MSEFallHorizontalSpeed,
+    MSEFallCosAngle,
+    MSEFallSinAngle,
+    MSEFallVerticalSpeed,
+
+    MSEOrientation,
+    MSEPitch,
+    MSESplineElevation,
+    MSETimestamp,
+    MSEEnd,
+};
+
 MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
 {
     switch (opcode)
@@ -1826,6 +1904,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
             return MovementStopTurnSequence;
         case SMSG_PLAYER_MOVE:
             return PlayerMoveSequence;
+        case CMSG_MOVE_CHNG_TRANSPORT:
+            return MoveChngTransport;
         default:
             break;
     }
