@@ -2205,14 +2205,16 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_GENERIC:
             switch (Id)
             {
+                case 29214: // Wrath of the Plaguebringer
                 case 34700: // Allergic Reaction
+                case 54836: // Wrath of the Plaguebringer
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
                 case 62532: // Conservator's Grip
                     return false;
+                case 30877: // Tag Murloc
                 case 61716: // Rabbit Costume
                 case 61734: // Noblegarden Bunny
-                case 30877: // Tag Murloc
                 case 62344: // Fists of Stone
                     return true;
                 default:
