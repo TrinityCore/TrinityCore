@@ -22190,6 +22190,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data << (uint32) m_homebindAreaId;
     GetSession()->SendPacket(&data);
 
+    ResetTimeSync();
+    SendTimeSync();
+
     // SMSG_SET_PROFICIENCY
     // SMSG_SET_PCT_SPELL_MODIFIER
     // SMSG_SET_FLAT_SPELL_MODIFIER
@@ -22205,10 +22208,25 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendInitialActionButtons();
     m_reputationMgr.SendInitialReputations();
+
+    // SMSG_CORPSE_RECLAIM_DELAY
+    // SMSG_INIT_WORLD_STATES
+    // SMSG_SET_PHASE_SHIFT
+
+    SendCurrencies();
+    SendEquipmentSetList();
     m_achievementMgr.SendAllAchievementData(this);
 
-    SendEquipmentSetList();
+    // SMSG_LOGIN_VERIFY_WORLD
+    data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
+    data << GetMapId();
+    data << GetPositionX();
+    data << GetPositionY();
+    data << GetPositionZ();
+    data << GetOrientation();
+    GetSession()->SendPacket(&data);
 
+    // SMSG_LOGIN_VERIFY_WORLD
     data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
     data << uint32(secsToTimeBitFields(sWorld->GetGameTime()));
     data << float(0.01666667f);                             // game speed
@@ -22217,12 +22235,14 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
 
+    // MSG_LIST_STABLED_PETS
+    // SMSG_WEEKLY_SPELL_USAGE
+    // SMSG_WORLD_SERVER_INFO
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
     // SMSG_PET_GUIDS
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 
-    SendCurrencies();
     SetMover(this);
 }
 
@@ -22234,9 +22254,6 @@ void Player::SendInitialPacketsAfterAddToMap()
     uint32 newzone, newarea;
     GetZoneAndAreaId(newzone, newarea);
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
-
-    ResetTimeSync();
-    SendTimeSync();
 
     CastSpell(this, 836, true);                             // LOGINEFFECT
 
