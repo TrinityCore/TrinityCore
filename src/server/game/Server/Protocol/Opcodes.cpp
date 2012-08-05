@@ -364,7 +364,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_ITEM_REFUND_INFO,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleItemRefundInfoRequest     );
     //DEFINE_OPCODE_HANDLER(CMSG_ITEM_TEXT_QUERY,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleItemTextQuery             );
     DEFINE_OPCODE_HANDLER(CMSG_JOIN_CHANNEL,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleJoinChannel               );
-    //DEFINE_OPCODE_HANDLER(CMSG_KEEP_ALIVE,                              STATUS_NEVER,    PROCESS_THREADUNSAFE, &WorldSession::Handle_EarlyProccess            );
+    DEFINE_OPCODE_HANDLER(CMSG_KEEP_ALIVE,                              STATUS_NEVER,    PROCESS_THREADUNSAFE, &WorldSession::Handle_EarlyProccess            );
     //DEFINE_OPCODE_HANDLER(CMSG_LEARN_DANCE_MOVE,                        STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_LEARN_PREVIEW_TALENTS,                   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLearnPreviewTalents       );
     //DEFINE_OPCODE_HANDLER(CMSG_LEARN_PREVIEW_TALENTS_PET,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLearnPreviewTalentsPet    );
@@ -500,7 +500,7 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_PLAYER_VEHICLE_ENTER,                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleEnterPlayerVehicle        );
     //DEFINE_OPCODE_HANDLER(CMSG_PLAY_DANCE,                              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_PROFILEDATA_REQUEST,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_PUSHQUESTTOPARTY,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandlePushQuestToParty          );
+    DEFINE_OPCODE_HANDLER(CMSG_PUSHQUESTTOPARTY,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandlePushQuestToParty          );
     //DEFINE_OPCODE_HANDLER(CMSG_PVP_QUEUE_STATS_REQUEST,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_QUERY_GUILD_MAX_XP,                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE,          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -532,10 +532,10 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_QUEST_QUERY,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestQueryOpcode          );
     //DEFINE_OPCODE_HANDLER(CMSG_RANDOMIZE_CHAR_NAME,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE,  &WorldSession::HandleRandomizeCharNameOpcode   );
     DEFINE_OPCODE_HANDLER(CMSG_READY_FOR_ACCOUNT_DATA_TIMES,            STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleReadyForAccountDataTimes  );
-    //DEFINE_OPCODE_HANDLER(CMSG_READ_ITEM,                               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReadItem                  );
+    DEFINE_OPCODE_HANDLER(CMSG_READ_ITEM,                               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReadItem                  );
     DEFINE_OPCODE_HANDLER(CMSG_REALM_SPLIT,                             STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleRealmSplitOpcode          );
     //DEFINE_OPCODE_HANDLER(CMSG_RECHARGE,                                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_RECLAIM_CORPSE,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReclaimCorpseOpcode       );
+    DEFINE_OPCODE_HANDLER(CMSG_RECLAIM_CORPSE,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReclaimCorpseOpcode       );
     //DEFINE_OPCODE_HANDLER(CMSG_REDIRECTION_AUTH_PROOF,                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_REDIRECTION_FAILED,                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_REFER_A_FRIEND,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -543,7 +543,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(SMSG_REFORGE_RESULT,                          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide              );
     //DEFINE_OPCODE_HANDLER(CMSG_REMOVE_GLYPH,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRemoveGlyph               );
     DEFINE_OPCODE_HANDLER(CMSG_REPAIR_ITEM,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRepairItemOpcode          );
-    //DEFINE_OPCODE_HANDLER(CMSG_REPOP_REQUEST,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRepopRequestOpcode        );
+    DEFINE_OPCODE_HANDLER(CMSG_REPOP_REQUEST,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRepopRequestOpcode        );
     //DEFINE_OPCODE_HANDLER(CMSG_REPORT_PVP_AFK,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReportPvPAFK              );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_ACCOUNT_DATA,                    STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleRequestAccountData        );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_HOTFIX,                          STATUS_AUTHED,   PROCESS_INPLACE,      &WorldSession::HandleRequestHotfix             );

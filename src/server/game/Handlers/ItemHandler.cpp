@@ -443,10 +443,10 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     SendPacket(&data);
 }
 
-void WorldSession::HandleReadItem(WorldPacket & recv_data)
+void WorldSession::HandleReadItem(WorldPacket& recvData)
 {
     uint8 bag, slot;
-    recv_data >> bag >> slot;
+    recvData >> bag >> slot;
 
     Item* pItem = _player->GetItemByPos(bag, slot);
 
