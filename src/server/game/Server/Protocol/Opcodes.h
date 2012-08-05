@@ -1005,7 +1005,6 @@ enum Opcodes
     SMSG_ITEM_COOLDOWN                                = 0x4D14,
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x0F27,
     SMSG_ITEM_EXPIRE_PURCHASE_REFUND                  = 0x1CA0,
-    SMSG_ITEM_NAME_QUERY_RESPONSE                     = 0x0000,
     SMSG_ITEM_PUSH_RESULT                             = 0x0E15,
     SMSG_ITEM_REFUND_INFO_RESPONSE                    = 0x15A3,
     SMSG_ITEM_REFUND_RESULT                           = 0x5DB1,
