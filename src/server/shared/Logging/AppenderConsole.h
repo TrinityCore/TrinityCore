@@ -45,7 +45,7 @@ const uint8 MaxColors = uint8(WHITE) + 1;
 class AppenderConsole: public Appender
 {
     public:
-        AppenderConsole(uint8 _id, std::string const& name, LogLevel level);
+        AppenderConsole(uint8 _id, std::string const& name, LogLevel level, AppenderFlags flags);
         void InitColors(const std::string& init_str);
 
     private:
