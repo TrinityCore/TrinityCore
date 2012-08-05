@@ -760,17 +760,6 @@ struct ItemLocale
     StringVector Description;
 };
 
-struct ItemSetNameEntry
-{
-    std::string name;
-    uint32 InventoryType;
-};
-
-struct ItemSetNameLocale
-{
-    StringVector Name;
-};
-
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()

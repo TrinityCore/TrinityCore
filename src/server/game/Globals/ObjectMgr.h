@@ -640,14 +640,6 @@ class ObjectMgr
         ItemTemplate const* GetItemTemplate(uint32 entry);
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
 
-        ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId)
-        {
-            ItemSetNameContainer::iterator itr = _itemSetNameStore.find(itemId);
-            if (itr != _itemSetNameStore.end())
-                return &itr->second;
-            return NULL;
-        }
-
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId);
 
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
@@ -864,8 +856,6 @@ class ObjectMgr
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
         void LoadItemLocales();
-        void LoadItemSetNames();
-        void LoadItemSetNameLocales();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -988,12 +978,6 @@ class ObjectMgr
         {
             ItemLocaleContainer::const_iterator itr = _itemLocaleStore.find(entry);
             if (itr == _itemLocaleStore.end()) return NULL;
-            return &itr->second;
-        }
-        ItemSetNameLocale const* GetItemSetNameLocale(uint32 entry) const
-        {
-            ItemSetNameLocaleContainer::const_iterator itr = _itemSetNameLocaleStore.find(entry);
-            if (itr == _itemSetNameLocaleStore.end())return NULL;
             return &itr->second;
         }
         QuestLocale const* GetQuestLocale(uint32 entry) const
@@ -1266,9 +1250,6 @@ class ObjectMgr
         HalfNameContainer _petHalfName0;
         HalfNameContainer _petHalfName1;
 
-        typedef UNORDERED_MAP<uint32, ItemSetNameEntry> ItemSetNameContainer;
-        ItemSetNameContainer _itemSetNameStore;
-
         MapObjectGuids _mapObjectGuidsStore;
         CreatureDataContainer _creatureDataStore;
         CreatureTemplateContainer _creatureTemplateStore;
@@ -1284,7 +1265,6 @@ class ObjectMgr
 
         ItemTemplateContainer _itemTemplateStore;
         ItemLocaleContainer _itemLocaleStore;
-        ItemSetNameLocaleContainer _itemSetNameLocaleStore;
         QuestLocaleContainer _questLocaleStore;
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
