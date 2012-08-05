@@ -957,7 +957,10 @@ enum TrinityStrings
     LANG_COMMAND_LOOKUP_MAX_RESULTS     = 5029,
     LANG_FLEE                           = 5030,
     LANG_NPCINFO_AIINFO                 = 5031,
-    // Room for more Trinity strings      5032-9999
+    LANG_COMMAND_NO_BATTLEGROUND_FOUND  = 5032,
+    LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND = 5033,
+    LANG_COMMAND_NO_OUTDOOR_PVP_FORUND  = 5034,
+    // Room for more Trinity strings      5035-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
