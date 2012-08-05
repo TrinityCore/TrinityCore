@@ -21,9 +21,11 @@
 
 #include <sstream>
 
-AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level):
-Appender(id, name, APPENDER_CONSOLE, level), _colored(false), _colors()
+AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags):
+Appender(id, name, APPENDER_CONSOLE, level, flags), _colored(false)
 {
+    for (uint8 i = 0; i < MaxLogLevels; ++i)
+        _colors[i] = ColorTypes(MaxColors);
 }
 
 void AppenderConsole::InitColors(std::string const& str)
@@ -183,9 +185,9 @@ void AppenderConsole::_write(LogMessage& message)
         }
 
         SetColor(stdout_stream, _colors[index]);
-        utf8printf(stdout_stream ? stdout : stderr, "%s %-5s [%-15s] %s", message.getTimeStr().c_str(), Appender::getLogLevelString(message.level), Appender::getLogFilterTypeString(message.type), message.text.c_str());
+        utf8printf(stdout_stream ? stdout : stderr, "%s%s", message.prefix.c_str(), message.text.c_str());
         ResetColor(stdout_stream);
     }
     else
-        utf8printf(stdout_stream ? stdout : stderr, "%s %-5s [%-15s] %s", message.getTimeStr().c_str(), Appender::getLogLevelString(message.level), Appender::getLogFilterTypeString(message.type), message.text.c_str());
+        utf8printf(stdout_stream ? stdout : stderr, "%s%s", message.prefix.c_str(), message.text.c_str());
 }

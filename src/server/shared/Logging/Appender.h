@@ -85,9 +85,23 @@ enum AppenderType
     APPENDER_DB,
 };
 
+enum AppenderFlags
+{
+    APPENDER_FLAGS_NONE                 = 0x00,
+    APPENDER_FLAGS_PREFIX_TIMESTAMP     = 0x01,
+    APPENDER_FLAGS_PREFIX_LOGLEVEL      = 0x02,
+    APPENDER_FLAGS_PREFIX_LOGFILTERTYPE = 0x04,
+    APPENDER_FLAGS_USE_TIMESTAMP        = 0x08, // only used by FileAppender
+    APPENDER_FLAGS_MAKE_FILE_BACKUP     = 0x10  // only used by FileAppender
+};
+
 struct LogMessage
 {
-    LogMessage(LogLevel _level, LogFilterType _type, std::string _text): level(_level), type(_type), text(_text)
+    LogMessage(LogLevel _level, LogFilterType _type, std::string _text)
+        : level(_level)
+        , type(_type)
+        , text(_text)
+        , param1(0)
     {
         mtime = time(NULL);
     }
@@ -98,6 +112,7 @@ struct LogMessage
     LogLevel level;
     LogFilterType type;
     std::string text;
+    std::string prefix;
     uint32 param1;
     time_t mtime;
 };
@@ -105,13 +120,14 @@ struct LogMessage
 class Appender
 {
     public:
-        Appender(uint8 _id, std::string const& name, AppenderType type = APPENDER_NONE, LogLevel level = LOG_LEVEL_DISABLED);
+        Appender(uint8 _id, std::string const& name, AppenderType type = APPENDER_NONE, LogLevel level = LOG_LEVEL_DISABLED, AppenderFlags flags = APPENDER_FLAGS_NONE);
         virtual ~Appender();
 
         uint8 getId() const;
         std::string const& getName() const;
         AppenderType getType() const;
         LogLevel getLogLevel() const;
+        AppenderFlags getFlags() const;
 
         void setLogLevel(LogLevel);
         void write(LogMessage& message);
@@ -125,6 +141,7 @@ class Appender
         std::string name;
         AppenderType type;
         LogLevel level;
+        AppenderFlags flags;
 };
 
 typedef std::map<uint8, Appender*> AppenderMap;
