@@ -1040,7 +1040,7 @@ public:
             if (addmoney >=MAX_MONEY_AMOUNT)
                 target->SetMoney(MAX_MONEY_AMOUNT);
             else
-                target->ModifyMoney(addmoney);
+                target->ModifyMoney(int64(addmoney));
         }
 
         sLog->outDetail(handler->GetTrinityString(LANG_NEW_MONEY), moneyuser, uint32(addmoney), target->GetMoney());
