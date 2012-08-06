@@ -66,6 +66,7 @@ enum Model
 enum Summons
 {
     NPC_SNOBOLD_VASSAL   = 34800,
+    NPC_FIRE_BOMB        = 34854,
     NPC_SLIME_POOL       = 35176,
 };
 
@@ -333,6 +334,12 @@ public:
                 instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
         }
 
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
+        {
+            if (spell->Id == SPELL_FIRE_BOMB)
+                me->SummonCreature(NPC_FIRE_BOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
+        }
+
         void UpdateAI(uint32 const diff)
         {
             if (m_bTargetDied || !UpdateVictim())
@@ -388,6 +395,40 @@ public:
         }
     };
 
+};
+
+class npc_firebomb : public CreatureScript
+{
+public:
+    npc_firebomb() : CreatureScript("npc_firebomb") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_firebombAI(creature);
+    }
+
+    struct npc_firebombAI : public ScriptedAI
+    {
+        npc_firebombAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instanceScript = creature->GetInstanceScript();
+        }
+
+        InstanceScript* instanceScript;
+
+        void Reset()
+        {
+            DoCast(me, SPELL_FIRE_BOMB_DOT, true);
+            SetCombatMovement(false);
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        void UpdateAI(uint32 const /*diff*/)
+        {
+            if (instanceScript->GetData(TYPE_BEASTS) != IN_PROGRESS)
+                me->DespawnOrUnsummon();
+        }
+    };
 };
 
 struct boss_jormungarAI : public ScriptedAI
@@ -1004,6 +1045,7 @@ void AddSC_boss_northrend_beasts()
 {
     new boss_gormok();
     new mob_snobold_vassal();
+    new npc_firebomb();
     new boss_acidmaw();
     new boss_dreadscale();
     new mob_slime_pool();

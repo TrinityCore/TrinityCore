@@ -15,3 +15,7 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
+
+-- firebomb scriptname and modelid (ToC Gormok encounter)
+UPDATE creature_template SET ScriptName = "npc_firebomb" WHERE entry = 34854;
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry = 34854;
