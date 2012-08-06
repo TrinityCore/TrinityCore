@@ -52,8 +52,8 @@ namespace Movement
             Unknown3            = 0x00020000,           // NOT VERIFIED
             Unknown4            = 0x00040000,           // NOT VERIFIED
             OrientationInversed = 0x00080000,
-            Unknown5            = 0x00100000,           // NOT VERIFIED
-            Walkmode            = 0x00200000,
+            Walkmode            = 0x00100000,           // simple relocation on ground
+            FlyingWalk          = 0x00200000,           // combination with ::Catmullrom | ::Flying used for taxi or creatures combine it with ::Flying to fly
             UncompressedPath    = 0x00400000,
             Unknown6            = 0x00800000,           // NOT VERIFIED
             Animation           = 0x01000000,           // Plays animation after some time passed
@@ -69,10 +69,12 @@ namespace Movement
             Mask_Final_Facing   = Final_Point | Final_Target | Final_Angle,
             // animation ids stored here, see AnimType enum, used with Animation flag
             Mask_Animations     = 0xF,
+            // flying mode
+            FlyingMode          = FlyingWalk | Flying,
             // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
             Mask_No_Monster_Move = Mask_Final_Facing | Mask_Animations | Done,
             // Unused, not suported flags
-            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7|Unknown8|Unknown9,
+            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown1|Unknown2|Unknown3|Unknown4|Unknown6|Unknown7|Unknown8|Unknown9,
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -103,14 +105,14 @@ namespace Movement
         void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations | Falling | Parabolic)) | Animation | (anim & Mask_Animations); }
         void EnableParabolic() { raw() = (raw() & ~(Mask_Animations | Falling | Animation)) | Parabolic; }
         void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Animation)) | Falling; }
-        void EnableFlying() { raw() =  Flying; }
+        void EnableFlying() { raw() =  FlyingMode; }
         void EnableCatmullRom() { raw() = Catmullrom | UncompressedPath; }
         void EnableFacingPoint() { raw() = (raw() & ~Mask_Final_Facing) | Final_Point; }
         void EnableFacingAngle() { raw() = (raw() & ~Mask_Final_Facing) | Final_Angle; }
         void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
-        void EnableTaxiFlight() { raw() = raw() | Catmullrom | Flying | Walkmode | UncompressedPath; }  //4.3.4 0x600A00
+        void EnableTaxiFlight() { raw() = raw() | Catmullrom | FlyingMode | UncompressedPath; }  //4.3.4 0x600A00
 
         uint8 animId             : 4;
         bool unknown1            : 1;
@@ -129,8 +131,8 @@ namespace Movement
         bool unknown3            : 1;
         bool unknown4            : 1;
         bool orientationInversed : 1;
-        bool unknown5            : 1;
         bool walkmode            : 1;
+        bool flyingmode          : 1;
         bool uncompressedPath    : 1;
         bool unknown6            : 1;
         bool animation           : 1;
