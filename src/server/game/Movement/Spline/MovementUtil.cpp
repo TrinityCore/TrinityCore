@@ -158,7 +158,7 @@ namespace Movement
         STR(AnimBit1           ),// 0x00000001,
         STR(AnimBit2           ),// 0x00000002,
         STR(AnimBit3           ),// 0x00000004,
-        STR(AnimBit4           ),// 0x00000008,
+        STR(Unknown0           ),// 0x00000008,
         STR(Unknown1           ),// 0x00000010,
         STR(Done               ),// 0x00000020,
         STR(Falling            ),// 0x00000040,           // Not Compartible With Trajectory Movement
@@ -175,7 +175,7 @@ namespace Movement
         STR(Unknown3           ),// 0x00020000,
         STR(Unknown4           ),// 0x00040000,
         STR(OrientationInversed),// 0x00080000,           // Appears With Runmode Flag, Nodes ),// 1, Handles Orientation
-        STR(Unknown5           ),// 0x00100000,
+        STR(SmoothGroundPath   ),// 0x00100000,
         STR(Walkmode           ),// 0x00200000,
         STR(UncompressedPath   ),// 0x00400000,
         STR(Unknown6           ),// 0x00800000,
