@@ -26,7 +26,7 @@
 #include "WorldSession.h"
 #include "Util.h"
 
-void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
+void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recvData)
 {
     // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
     if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
@@ -42,7 +42,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
     // Player must not have ticket
     if (!sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
-        GmTicket* ticket = new GmTicket(GetPlayer(), recv_data);
+        GmTicket* ticket = new GmTicket(GetPlayer(), recvData);
         sTicketMgr->AddTicket(ticket);
         sTicketMgr->UpdateLastChange();
 
@@ -56,10 +56,10 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recv_data)
+void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recvData)
 {
     std::string message;
-    recv_data >> message;
+    recvData >> message;
 
     GMTicketResponse response = GMTICKET_RESPONSE_UPDATE_ERROR;
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
@@ -78,7 +78,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
 {
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
@@ -93,7 +93,7 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recv_data*/)
     }
 }
 
-void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
 {
     SendQueryTimeResponse();
 
@@ -108,7 +108,7 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recv_data*/)
         sTicketMgr->SendTicket(this, NULL);
 }
 
-void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recvData*/)
 {
     // Note: This only disables the ticket UI at client side and is not fully reliable
     // are we sure this is a uint32? Should ask Zor
@@ -117,25 +117,25 @@ void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recv_data*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
+void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
 {
     uint32 nextSurveyID = sTicketMgr->GetNextSurveyID();
     // just put the survey into the database
     uint32 mainSurvey; // GMSurveyCurrentSurvey.dbc, column 1 (all 9) ref to GMSurveySurveys.dbc
-    recv_data >> mainSurvey;
+    recvData >> mainSurvey;
 
     // sub_survey1, r1, comment1, sub_survey2, r2, comment2, sub_survey3, r3, comment3, sub_survey4, r4, comment4, sub_survey5, r5, comment5, sub_survey6, r6, comment6, sub_survey7, r7, comment7, sub_survey8, r8, comment8, sub_survey9, r9, comment9, sub_survey10, r10, comment10,
     for (uint8 i = 0; i < 10; i++)
     {
         uint32 subSurveyId; // ref to i'th GMSurveySurveys.dbc field (all fields in that dbc point to fields in GMSurveyQuestions.dbc)
-        recv_data >> subSurveyId;
+        recvData >> subSurveyId;
         if (!subSurveyId)
             break;
 
         uint8 rank; // probably some sort of ref to GMSurveyAnswers.dbc
-        recv_data >> rank;
+        recvData >> rank;
         std::string comment; // comment ("Usage: GMSurveyAnswerSubmit(question, rank, comment)")
-        recv_data >> comment;
+        recvData >> comment;
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
         stmt->setUInt32(0, nextSurveyID);
@@ -146,7 +146,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
     }
 
     std::string comment; // just a guess
-    recv_data >> comment;
+    recvData >> comment;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
     stmt->setUInt32(0, GUID_LOPART(GetPlayer()->GetGUID()));
@@ -157,17 +157,17 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
     CharacterDatabase.Execute(stmt);
 }
 
-void WorldSession::HandleReportLag(WorldPacket& recv_data)
+void WorldSession::HandleReportLag(WorldPacket& recvData)
 {
     // just put the lag report into the database...
     // can't think of anything else to do with it
     uint32 lagType, mapId;
-    recv_data >> lagType;
-    recv_data >> mapId;
+    recvData >> lagType;
+    recvData >> mapId;
     float x, y, z;
-    recv_data >> x;
-    recv_data >> y;
-    recv_data >> z;
+    recvData >> x;
+    recvData >> y;
+    recvData >> z;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
     stmt->setUInt32(0, GUID_LOPART(GetPlayer()->GetGUID()));
