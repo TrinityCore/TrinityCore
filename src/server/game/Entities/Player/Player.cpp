@@ -18136,8 +18136,8 @@ void Player::SendSavedInstances()
         }
     }
 
-    //Send opcode 811. true or false means, whether you have current raid/heroic instances
-    data.Initialize(SMSG_UPDATE_INSTANCE_OWNERSHIP);
+    //Send opcode SMSG_UPDATE_INSTANCE_OWNERSHIP. true or false means, whether you have current raid/heroic instances
+    data.Initialize(SMSG_UPDATE_INSTANCE_OWNERSHIP, 4);
     data << uint32(hasBeenSaved);
     GetSession()->SendPacket(&data);
 
@@ -18150,7 +18150,7 @@ void Player::SendSavedInstances()
         {
             if (itr->second.perm)
             {
-                data.Initialize(SMSG_UPDATE_LAST_INSTANCE);
+                data.Initialize(SMSG_UPDATE_LAST_INSTANCE, 4);
                 data << uint32(itr->second.save->GetMapId());
                 GetSession()->SendPacket(&data);
             }
