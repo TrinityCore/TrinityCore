@@ -164,7 +164,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
         {
             // tell the player that they were invited but it failed as they were already in a group
             WorldPacket data(SMSG_GROUP_INVITE, 10);
-             data.WriteBit(0);
+            data.WriteBit(0);
             data.WriteBit(inviterGuid[0]);
             data.WriteBit(inviterGuid[3]);
             data.WriteBit(inviterGuid[2]);
