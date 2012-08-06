@@ -35,7 +35,8 @@ namespace Movement
     public:
         enum eFlags{
             None                = 0x00000000,
-                                                        // x00-xF(first byte) used as animation Ids storage in pair with Animation flag
+                                                        // x00-x07 used as animation Ids storage in pair with Animation flag
+            Unknown0            = 0x00000008,           // NOT VERIFIED
             Unknown1            = 0x00000010,           // NOT VERIFIED
             Done                = 0x00000020,
             Falling             = 0x00000040,           // Affects elevation computation, can't be combined with Parabolic flag
@@ -52,7 +53,7 @@ namespace Movement
             Unknown3            = 0x00020000,           // NOT VERIFIED
             Unknown4            = 0x00040000,           // NOT VERIFIED
             OrientationInversed = 0x00080000,
-            Unknown5            = 0x00100000,           // NOT VERIFIED
+            SmoothGroundPath    = 0x00100000,
             Walkmode            = 0x00200000,
             UncompressedPath    = 0x00400000,
             Unknown6            = 0x00800000,           // NOT VERIFIED
@@ -68,11 +69,11 @@ namespace Movement
             // Masks
             Mask_Final_Facing   = Final_Point | Final_Target | Final_Angle,
             // animation ids stored here, see AnimType enum, used with Animation flag
-            Mask_Animations     = 0xF,
+            Mask_Animations     = 0x7,
             // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
             Mask_No_Monster_Move = Mask_Final_Facing | Mask_Animations | Done,
             // Unused, not suported flags
-            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7|Unknown8|Unknown9,
+            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown1|Unknown2|Unknown3|Unknown4|SmoothGroundPath|Unknown6|Unknown7|Unknown8|Unknown9,
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -112,7 +113,8 @@ namespace Movement
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
         void EnableTaxiFlight() { raw() = raw() | Catmullrom | Flying | Walkmode | UncompressedPath; }  //4.3.4 0x600A00
 
-        uint8 animId             : 4;
+        uint8 animId             : 3;
+        bool unknown0            : 1;
         bool unknown1            : 1;
         bool done                : 1;
         bool falling             : 1;
@@ -129,7 +131,7 @@ namespace Movement
         bool unknown3            : 1;
         bool unknown4            : 1;
         bool orientationInversed : 1;
-        bool unknown5            : 1;
+        bool smoothGroundPath    : 1;
         bool walkmode            : 1;
         bool uncompressedPath    : 1;
         bool unknown6            : 1;
