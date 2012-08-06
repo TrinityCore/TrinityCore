@@ -428,7 +428,7 @@ void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
         guild->SendEventLog(this);
 }
 
-void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket & /* recv_data */)
+void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket & /* recvData */)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_BANK_MONEY_WITHDRAWN)");
 
@@ -436,7 +436,7 @@ void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket & /* recv_data */)
         guild->SendMoneyInfo(this);
 }
 
-void WorldSession::HandleGuildPermissions(WorldPacket& /* recv_data */)
+void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_PERMISSIONS)");
 
@@ -445,15 +445,15 @@ void WorldSession::HandleGuildPermissions(WorldPacket& /* recv_data */)
 }
 
 // Called when clicking on Guild bank gameobject
-void WorldSession::HandleGuildBankerActivate(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankerActivate(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANKER_ACTIVATE)");
 
     uint64 GoGuid;
-    recv_data >> GoGuid;
+    recvData >> GoGuid;
 
     uint8 fullSlotList;
-    recv_data >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
+    recvData >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
@@ -465,33 +465,33 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket & recv_data)
 }
 
 // Called when opening guild bank tab only (first one)
-void WorldSession::HandleGuildBankQueryTab(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_QUERY_TAB)");
 
     uint64 GoGuid;
-    recv_data >> GoGuid;
+    recvData >> GoGuid;
 
     uint8 tabId;
-    recv_data >> tabId;
+    recvData >> tabId;
 
     uint8 fullSlotList;
-    recv_data >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
+    recvData >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
             guild->SendBankTabData(this, tabId);
 }
 
-void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
 
     uint64 goGuid;
-    recv_data >> goGuid;
+    recvData >> goGuid;
 
     uint64 money;
-    recv_data >> money;
+    recvData >> money;
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(goGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
@@ -499,15 +499,15 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recv_data)
                 guild->HandleMemberDepositMoney(this, money);
 }
 
-void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_WITHDRAW_MONEY)");
 
     uint64 GoGuid;
-    recv_data >> GoGuid;
+    recvData >> GoGuid;
 
     uint32 money;
-    recv_data >> money;
+    recvData >> money;
 
     if (money)
         if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -515,28 +515,28 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recv_data)
                 guild->HandleMemberWithdrawMoney(this, money);
 }
 
-void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS)");
 
     uint64 GoGuid;
-    recv_data >> GoGuid;
+    recvData >> GoGuid;
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
-        recv_data.rfinish();                   // Prevent additional spam at rejected packet
+        recvData.rfinish();                   // Prevent additional spam at rejected packet
         return;
     }
 
     Guild* guild = _GetPlayerGuild(this);
     if (!guild)
     {
-        recv_data.rfinish();                   // Prevent additional spam at rejected packet
+        recvData.rfinish();                   // Prevent additional spam at rejected packet
         return;
     }
 
     uint8 bankToBank;
-    recv_data >> bankToBank;
+    recvData >> bankToBank;
 
     uint8 tabId;
     uint8 slotId;
@@ -546,19 +546,19 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
     if (bankToBank)
     {
         uint8 destTabId;
-        recv_data >> destTabId;
+        recvData >> destTabId;
 
         uint8 destSlotId;
-        recv_data >> destSlotId;
+        recvData >> destSlotId;
 
         uint32 destItemEntry;
-        recv_data >> destItemEntry;
+        recvData >> destItemEntry;
 
-        recv_data >> tabId;
-        recv_data >> slotId;
-        recv_data >> itemEntry;
-        recv_data.read_skip<uint8>();                       // Always 0
-        recv_data >> splitedAmount;
+        recvData >> tabId;
+        recvData >> slotId;
+        recvData >> itemEntry;
+        recvData.read_skip<uint8>();                       // Always 0
+        recvData >> splitedAmount;
 
         guild->SwapItems(GetPlayer(), tabId, slotId, destTabId, destSlotId, splitedAmount);
     }
@@ -568,24 +568,24 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
         uint8 playerSlotId = NULL_SLOT;
         uint8 toChar = 1;
 
-        recv_data >> tabId;
-        recv_data >> slotId;
-        recv_data >> itemEntry;
+        recvData >> tabId;
+        recvData >> slotId;
+        recvData >> itemEntry;
 
         uint8 autoStore;
-        recv_data >> autoStore;
+        recvData >> autoStore;
         if (autoStore)
         {
-            recv_data.read_skip<uint32>();                  // autoStoreCount
-            recv_data.read_skip<uint8>();                   // ToChar (?), always and expected to be 1 (autostore only triggered in Bank -> Char)
-            recv_data.read_skip<uint32>();                  // Always 0
+            recvData.read_skip<uint32>();                  // autoStoreCount
+            recvData.read_skip<uint8>();                   // ToChar (?), always and expected to be 1 (autostore only triggered in Bank -> Char)
+            recvData.read_skip<uint32>();                  // Always 0
         }
         else
         {
-            recv_data >> playerBag;
-            recv_data >> playerSlotId;
-            recv_data >> toChar;
-            recv_data >> splitedAmount;
+            recvData >> playerBag;
+            recvData >> playerSlotId;
+            recvData >> toChar;
+            recvData >> splitedAmount;
         }
 
         // Player <-> Bank
@@ -597,36 +597,36 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleGuildBankBuyTab(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankBuyTab(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_BUY_TAB)");
 
     uint64 GoGuid;
-    recv_data >> GoGuid;
+    recvData >> GoGuid;
 
     uint8 tabId;
-    recv_data >> tabId;
+    recvData >> tabId;
 
     if (!GoGuid || GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
             guild->HandleBuyBankTab(this, tabId);
 }
 
-void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_UPDATE_TAB)");
 
     uint64 GoGuid;
-    recv_data >> GoGuid;
+    recvData >> GoGuid;
 
     uint8 tabId;
-    recv_data >> tabId;
+    recvData >> tabId;
 
     std::string name;
-    recv_data >> name;
+    recvData >> name;
 
     std::string icon;
-    recv_data >> icon;
+    recvData >> icon;
 
     if (!name.empty() && !icon.empty())
         if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -634,37 +634,37 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recv_data)
                 guild->HandleSetBankTabInfo(this, tabId, name, icon);
 }
 
-void WorldSession::HandleGuildBankLogQuery(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankLogQuery(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_BANK_LOG_QUERY)");
 
     uint8 tabId;
-    recv_data >> tabId;
+    recvData >> tabId;
 
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SendBankLog(this, tabId);
 }
 
-void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recv_data)
+void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_QUERY_GUILD_BANK_TEXT");
 
     uint8 tabId;
-    recv_data >> tabId;
+    recvData >> tabId;
 
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SendBankTabText(this, tabId);
 }
 
-void WorldSession::HandleSetGuildBankTabText(WorldPacket& recv_data)
+void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_GUILD_BANK_TEXT");
 
     uint8 tabId;
-    recv_data >> tabId;
+    recvData >> tabId;
 
     std::string text;
-    recv_data >> text;
+    recvData >> text;
 
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SetBankTabText(tabId, text);

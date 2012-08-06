@@ -35,10 +35,10 @@
 #include "DisableMgr.h"
 #include "Group.h"
 
-void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recv_data)
+void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recvData)
 {
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from (GUID: %u TypeId:%u)", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
@@ -70,7 +70,7 @@ void WorldSession::SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId
     SendPacket(&data);
 }
 
-void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
+void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 {
     uint64 guid;
     uint32 bgTypeId_;
@@ -79,10 +79,10 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
     bool isPremade = false;
     Group* grp = NULL;
 
-    recv_data >> guid;                                      // battlemaster guid
-    recv_data >> bgTypeId_;                                 // battleground type id (DBC id)
-    recv_data >> instanceId;                                // instance id, 0 if First Available selected
-    recv_data >> joinAsGroup;                               // join as group
+    recvData >> guid;                                      // battlemaster guid
+    recvData >> bgTypeId_;                                 // battleground type id (DBC id)
+    recvData >> instanceId;                                // instance id, 0 if First Available selected
+    recvData >> joinAsGroup;                               // join as group
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
@@ -244,7 +244,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
     sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_BATTLEGROUND_PLAYER_POSITIONS Message");
 
@@ -290,7 +290,7 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recv_
     SendPacket(&data);
 }
 
-void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
 
@@ -309,12 +309,12 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recv_data*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent MSG_PVP_LOG_DATA Message");
 }
 
-void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recv_data)
+void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
 
     uint32 bgTypeId;
-    recv_data >> bgTypeId;                                  // id from DBC
+    recvData >> bgTypeId;                                  // id from DBC
 
     BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
     if (!bl)
@@ -328,7 +328,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
+void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
 
@@ -338,7 +338,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
     uint16 unk;                                             // 0x1F90 constant?
     uint8 action;                                           // enter battle 0x1, leave queue 0x0
 
-    recv_data >> type >> unk2 >> bgTypeId_ >> unk >> action;
+    recvData >> type >> unk2 >> bgTypeId_ >> unk >> action;
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
@@ -477,14 +477,14 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recv_data)
+void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LEAVE_BATTLEFIELD Message");
 
-    recv_data.read_skip<uint8>();                           // unk1
-    recv_data.read_skip<uint8>();                           // unk2
-    recv_data.read_skip<uint32>();                          // BattlegroundTypeId
-    recv_data.read_skip<uint16>();                          // unk3
+    recvData.read_skip<uint8>();                           // unk1
+    recvData.read_skip<uint8>();                           // unk2
+    recvData.read_skip<uint32>();                          // BattlegroundTypeId
+    recvData.read_skip<uint16>();                          // unk3
 
     // not allow leave battleground in combat
     if (_player->isInCombat())
@@ -495,7 +495,7 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recv_data)
     _player->LeaveBattleground();
 }
 
-void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
 {
     // empty opcode
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Battleground status");
@@ -559,14 +559,14 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recv_data*/)
     }
 }
 
-void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
 
     Battleground* bg = _player->GetBattleground();
 
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -579,14 +579,14 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recv_data)
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
 }
 
-void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
+void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
 
     Battleground* bg = _player->GetBattleground();
 
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -599,7 +599,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
         bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
 }
 
-void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
+void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
 
@@ -609,7 +609,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     uint8 isRated;                                          // isRated
     Group* grp = NULL;
 
-    recv_data >> guid >> arenaslot >> asGroup >> isRated;
+    recvData >> guid >> arenaslot >> asGroup >> isRated;
 
     // ignore if we already in BG or BG queue
     if (_player->InBattleground())
@@ -767,10 +767,10 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleReportPvPAFK(WorldPacket & recv_data)
+void WorldSession::HandleReportPvPAFK(WorldPacket & recvData)
 {
     uint64 playerGuid;
-    recv_data >> playerGuid;
+    recvData >> playerGuid;
     Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid);
 
     if (!reportedPlayer)

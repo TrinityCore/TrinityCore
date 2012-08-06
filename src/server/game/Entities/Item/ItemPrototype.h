@@ -235,10 +235,12 @@ enum SocketColor
     SOCKET_COLOR_META                           = 1,
     SOCKET_COLOR_RED                            = 2,
     SOCKET_COLOR_YELLOW                         = 4,
-    SOCKET_COLOR_BLUE                           = 8
+    SOCKET_COLOR_BLUE                           = 8,
+    // 16, Hydraulic, not used
+    SOCKET_COLOR_COGWHEEL                       = 32
 };
 
-#define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
+#define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE | SOCKET_COLOR_COGWHEEL)
 
 enum InventoryType
 {

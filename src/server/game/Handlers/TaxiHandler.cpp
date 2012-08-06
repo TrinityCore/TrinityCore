@@ -28,13 +28,13 @@
 #include "Path.h"
 #include "WaypointMovementGenerator.h"
 
-void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXINODE_STATUS_QUERY");
 
     uint64 guid;
 
-    recv_data >> guid;
+    recvData >> guid;
     SendTaxiStatus(guid);
 }
 
@@ -63,12 +63,12 @@ void WorldSession::SendTaxiStatus(uint64 guid)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXINODE_STATUS");
 }
 
-void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket & recv_data)
+void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXIQUERYAVAILABLENODES");
 
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     // cheating checks
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
@@ -163,14 +163,14 @@ void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
     }
 }
 
-void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recv_data)
+void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXIEXPRESS");
 
     uint64 guid;
     uint32 node_count;
 
-    recv_data >> guid >> node_count;
+    recvData >> guid >> node_count;
 
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!npc)
@@ -183,7 +183,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recv_data)
     for (uint32 i = 0; i < node_count; ++i)
     {
         uint32 node;
-        recv_data >> node;
+        recvData >> node;
         nodes.push_back(node);
     }
 
@@ -195,17 +195,17 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recv_data)
     GetPlayer()->ActivateTaxiPathTo(nodes, npc);
 }
 
-void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)
+void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_SPLINE_DONE");
 
     uint64 guid; // used only for proper packet read
-    recv_data.readPackGUID(guid);
+    recvData.readPackGUID(guid);
 
     MovementInfo movementInfo;                              // used only for proper packet read
-    ReadMovementInfo(recv_data, &movementInfo);
+    ReadMovementInfo(recvData, &movementInfo);
 
-    recv_data.read_skip<uint32>();                          // unk
+    recvData.read_skip<uint32>();                          // unk
 
     // in taxi flight packet received in 2 case:
     // 1) end taxi path in far (multi-node) flight
@@ -273,7 +273,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 }
 
-void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recv_data)
+void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI");
 
@@ -281,7 +281,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recv_data)
     std::vector<uint32> nodes;
     nodes.resize(2);
 
-    recv_data >> guid >> nodes[0] >> nodes[1];
+    recvData >> guid >> nodes[0] >> nodes[1];
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI from %d to %d", nodes[0], nodes[1]);
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!npc)

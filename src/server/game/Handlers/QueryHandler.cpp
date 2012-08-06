@@ -64,10 +64,10 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
+void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     // This is disable by default to prevent lots of console spam
     // sLog->outString("HandleNameQueryOpcode %u", guid);
@@ -75,7 +75,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
     SendNameQueryOpcode(guid);
 }
 
-void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
 {
     SendQueryTimeResponse();
 }
@@ -89,12 +89,12 @@ void WorldSession::SendQueryTimeResponse()
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recvData)
 {
     uint32 entry;
-    recv_data >> entry;
+    recvData >> entry;
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
     if (ci)
@@ -157,12 +157,12 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recvData)
 {
     uint32 entry;
-    recv_data >> entry;
+    recvData >> entry;
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
     if (info)
@@ -213,7 +213,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_CORPSE_QUERY");
 
@@ -264,15 +264,15 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
 {
     uint32 textID;
     uint64 guid;
 
-    recv_data >> textID;
+    recvData >> textID;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
-    recv_data >> guid;
+    recvData >> guid;
     GetPlayer()->SetSelection(guid);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
@@ -348,13 +348,13 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PAGE_TEXT_QUERY");
 
     uint32 pageID;
-    recv_data >> pageID;
-    recv_data.read_skip<uint64>();                          // guid
+    recvData >> pageID;
+    recvData.read_skip<uint64>();                          // guid
 
     while (pageID)
     {
@@ -388,12 +388,12 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleCorpseMapPositionQuery(WorldPacket & recv_data)
+void WorldSession::HandleCorpseMapPositionQuery(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
 
     uint32 unk;
-    recv_data >> unk;
+    recvData >> unk;
 
     WorldPacket data(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
     data << float(0);
@@ -403,15 +403,15 @@ void WorldSession::HandleCorpseMapPositionQuery(WorldPacket & recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
+void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 {
     uint32 count;
-    recv_data >> count; // quest count, max=25
+    recvData >> count; // quest count, max=25
     // 4.3 struct: count, byte, byte, byte, questIds[]
 
     if (count >= MAX_QUEST_LOG_SIZE)
     {
-        recv_data.rfinish();
+        recvData.rfinish();
         return;
     }
 
@@ -421,7 +421,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
     for (uint32 i = 0; i < count; ++i)
     {
         uint32 questId;
-        recv_data >> questId; // quest id
+        recvData >> questId; // quest id
 
         bool questOk = false;
 

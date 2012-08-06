@@ -26,10 +26,10 @@
 #include "ObjectAccessor.h"
 #include "UpdateMask.h"
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket & recv_data)
+void WorldSession::HandleLearnTalentOpcode(WorldPacket & recvData)
 {
     uint32 talentId, requestedRank;
-    recv_data >> talentId >> requestedRank;
+    recvData >> talentId >> requestedRank;
 
     if (_player->LearnTalent(talentId, requestedRank))
         _player->SendTalentsInfoData(false);
@@ -74,11 +74,11 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     _player->SendTalentsInfoData(false);
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_TALENT_WIPE_CONFIRM");
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
@@ -104,9 +104,9 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
     unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 
-void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recv_data)
+void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 {
     uint32 skillId;
-    recv_data >> skillId;
+    recvData >> skillId;
     GetPlayer()->SetSkill(skillId, 0, 0, 0);
 }
