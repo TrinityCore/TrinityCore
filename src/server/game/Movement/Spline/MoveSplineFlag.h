@@ -72,7 +72,7 @@ namespace Movement
             // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
             Mask_No_Monster_Move = Mask_Final_Facing | Mask_Animations | Done,
             // CatmullRom interpolation mode used
-            Mask_CatmullRom     = Catmullrom,
+            Mask_CatmullRom     = Catmullrom | Flying,
             // Unused, not suported flags
             Mask_Unused         = No_Spline|Enter_Cycle|Frozen|UncompressedPath|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7|Unknown8|Unknown9,
         };
@@ -112,6 +112,7 @@ namespace Movement
         void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
+        void EnableTaxiFlight() { raw() = raw() | Catmullrom | Flying | Walkmode | UncompressedPath; }  //4.3.4 0x600A00
 
         uint8 animId             : 4;
         bool unknown1            : 1;

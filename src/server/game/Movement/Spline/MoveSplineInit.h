@@ -102,6 +102,10 @@ namespace Movement
         void SetFly();
         /* Enables walk mode. Disabled by default
          */
+        void EnableTaxiFlight();
+        /* Flags used in taxi
+        */
+
         void SetWalk(bool enable);
         /* Makes movement cyclic. Disabled by default
          */
@@ -141,6 +145,7 @@ namespace Movement
     };
 
     inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
+    inline void MoveSplineInit::EnableTaxiFlight() { args.flags.EnableTaxiFlight(); }
     inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable;}
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom();}
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true;}
