@@ -1003,7 +1003,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        int64 addmoney = atoll((char*)args);
+        int32 addmoney = atoi((char*)args);
 
         uint64 moneyuser = target->GetMoney();
 
@@ -1027,7 +1027,7 @@ public:
 
                 handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, abs(addmoney), handler->GetNameLink(target).c_str());
                 if (handler->needReportToTarget(target))
-                    (ChatHandler(target)).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), llabs(addmoney));
+                    (ChatHandler(target)).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), abs(addmoney));
                 target->SetMoney(newmoney);
             }
         }
