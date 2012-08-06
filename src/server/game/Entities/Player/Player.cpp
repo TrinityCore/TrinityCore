@@ -8423,6 +8423,9 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     // item combat enchantments
     for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
     {
+        if (e_slot > PRISMATIC_ENCHANTMENT_SLOT || e_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+            continue;
+
         uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
@@ -8545,6 +8548,9 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // Item enchantments spells casted at use
     for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
     {
+        if (e_slot > PRISMATIC_ENCHANTMENT_SLOT || e_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+            continue;
+
         uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
@@ -13240,6 +13246,9 @@ void Player::AddEnchantmentDurations(Item* item)
 {
     for (int x = 0; x < MAX_ENCHANTMENT_SLOT; ++x)
     {
+        if (x > PRISMATIC_ENCHANTMENT_SLOT || x < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+            continue;
+
         if (!item->GetEnchantmentId(EnchantmentSlot(x)))
             continue;
 
@@ -13334,10 +13343,257 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
     }
 }
 
+void Player::ApplyReforgeEnchantment(Item* item, bool apply)
+{
+    if (!item)
+        return;
+
+    ItemReforgeEntry const* reforge = sItemReforgeStore.LookupEntry(item->GetEnchantmentId(REFORGE_ENCHANTMENT_SLOT));
+    if (!reforge)
+        return;
+
+    ItemTemplate const* proto = item->GetTemplate();
+
+    float removeValue = item->GetReforgableStat(ItemModType(reforge->SourceStat)) * reforge->SourceMultiplier;
+    float addValue = removeValue * reforge->FinalMultiplier;
+
+    switch (reforge->SourceStat)
+    {
+        case ITEM_MOD_MANA:
+            HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, -removeValue, apply);
+            break;
+        case ITEM_MOD_HEALTH:
+            HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, -removeValue, apply);
+            break;
+        case ITEM_MOD_AGILITY:
+            HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, -removeValue, apply);
+            ApplyStatBuffMod(STAT_AGILITY, -removeValue, apply);
+            break;
+        case ITEM_MOD_STRENGTH:
+            HandleStatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, -removeValue, apply);
+            ApplyStatBuffMod(STAT_STRENGTH, -removeValue, apply);
+            break;
+        case ITEM_MOD_INTELLECT:
+            HandleStatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, -removeValue, apply);
+            ApplyStatBuffMod(STAT_INTELLECT, -removeValue, apply);
+            break;
+        case ITEM_MOD_SPIRIT:
+            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, -removeValue, apply);
+            ApplyStatBuffMod(STAT_SPIRIT, -removeValue, apply);
+            break;
+        case ITEM_MOD_STAMINA:
+            HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, -removeValue, apply);
+            ApplyStatBuffMod(STAT_STAMINA, -removeValue, apply);
+            break;
+        case ITEM_MOD_DEFENSE_SKILL_RATING:
+            ApplyRatingMod(CR_DEFENSE_SKILL, -int32(removeValue), apply);
+            break;
+        case  ITEM_MOD_DODGE_RATING:
+            ApplyRatingMod(CR_DODGE, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_PARRY_RATING:
+            ApplyRatingMod(CR_PARRY, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_BLOCK_RATING:
+            ApplyRatingMod(CR_BLOCK, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_HIT_MELEE_RATING:
+            ApplyRatingMod(CR_HIT_MELEE, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_HIT_RANGED_RATING:
+            ApplyRatingMod(CR_HIT_RANGED, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_HIT_SPELL_RATING:
+            ApplyRatingMod(CR_HIT_SPELL, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_CRIT_MELEE_RATING:
+            ApplyRatingMod(CR_CRIT_MELEE, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_CRIT_RANGED_RATING:
+            ApplyRatingMod(CR_CRIT_RANGED, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_CRIT_SPELL_RATING:
+            ApplyRatingMod(CR_CRIT_SPELL, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_HASTE_SPELL_RATING:
+            ApplyRatingMod(CR_HASTE_SPELL, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_HIT_RATING:
+            ApplyRatingMod(CR_HIT_MELEE, -int32(removeValue), apply);
+            ApplyRatingMod(CR_HIT_RANGED, -int32(removeValue), apply);
+            ApplyRatingMod(CR_HIT_SPELL, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_CRIT_RATING:
+            ApplyRatingMod(CR_CRIT_MELEE, -int32(removeValue), apply);
+            ApplyRatingMod(CR_CRIT_RANGED, -int32(removeValue), apply);
+            ApplyRatingMod(CR_CRIT_SPELL, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_RESILIENCE_RATING:
+            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, -int32(removeValue), apply);
+            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, -int32(removeValue), apply);
+            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_HASTE_RATING:
+            ApplyRatingMod(CR_HASTE_MELEE, -int32(removeValue), apply);
+            ApplyRatingMod(CR_HASTE_RANGED, -int32(removeValue), apply);
+            ApplyRatingMod(CR_HASTE_SPELL, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_EXPERTISE_RATING:
+            ApplyRatingMod(CR_EXPERTISE, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_ATTACK_POWER:
+            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, -removeValue, apply);
+            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, -removeValue, apply);
+            break;
+        case ITEM_MOD_RANGED_ATTACK_POWER:
+            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, -removeValue, apply);
+            break;
+        case ITEM_MOD_MANA_REGENERATION:
+            ApplyManaRegenBonus(-int32(removeValue), apply);
+            break;
+        case ITEM_MOD_ARMOR_PENETRATION_RATING:
+            ApplyRatingMod(CR_ARMOR_PENETRATION, -int32(removeValue), apply);
+            break;
+        case ITEM_MOD_SPELL_POWER:
+            ApplySpellPowerBonus(-int32(removeValue), apply);
+            break;
+        case ITEM_MOD_HEALTH_REGEN:
+            ApplyHealthRegenBonus(-int32(removeValue), apply);
+            break;
+        case ITEM_MOD_SPELL_PENETRATION:
+            ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -int32(removeValue), apply);
+            m_spellPenetrationItemMod += apply ? -int32(removeValue) : int32(removeValue);
+            break;
+        case ITEM_MOD_BLOCK_VALUE:
+            HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, -removeValue, apply);
+            break;
+    }
+
+    switch (reforge->FinalStat)
+    {
+        case ITEM_MOD_MANA:
+            HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, addValue, apply);
+            break;
+        case ITEM_MOD_HEALTH:
+            HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, addValue, apply);
+            break;
+        case ITEM_MOD_AGILITY:
+            HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, addValue, apply);
+            ApplyStatBuffMod(STAT_AGILITY, addValue, apply);
+            break;
+        case ITEM_MOD_STRENGTH:
+            HandleStatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, addValue, apply);
+            ApplyStatBuffMod(STAT_STRENGTH, addValue, apply);
+            break;
+        case ITEM_MOD_INTELLECT:
+            HandleStatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, addValue, apply);
+            ApplyStatBuffMod(STAT_INTELLECT, addValue, apply);
+            break;
+        case ITEM_MOD_SPIRIT:
+            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, addValue, apply);
+            ApplyStatBuffMod(STAT_SPIRIT, addValue, apply);
+            break;
+        case ITEM_MOD_STAMINA:
+            HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, addValue, apply);
+            ApplyStatBuffMod(STAT_STAMINA, addValue, apply);
+            break;
+        case ITEM_MOD_DEFENSE_SKILL_RATING:
+            ApplyRatingMod(CR_DEFENSE_SKILL, int32(addValue), apply);
+            break;
+        case  ITEM_MOD_DODGE_RATING:
+            ApplyRatingMod(CR_DODGE, int32(addValue), apply);
+            break;
+        case ITEM_MOD_PARRY_RATING:
+            ApplyRatingMod(CR_PARRY, int32(addValue), apply);
+            break;
+        case ITEM_MOD_BLOCK_RATING:
+            ApplyRatingMod(CR_BLOCK, int32(addValue), apply);
+            break;
+        case ITEM_MOD_HIT_MELEE_RATING:
+            ApplyRatingMod(CR_HIT_MELEE, int32(addValue), apply);
+            break;
+        case ITEM_MOD_HIT_RANGED_RATING:
+            ApplyRatingMod(CR_HIT_RANGED, int32(addValue), apply);
+            break;
+        case ITEM_MOD_HIT_SPELL_RATING:
+            ApplyRatingMod(CR_HIT_SPELL, int32(addValue), apply);
+            break;
+        case ITEM_MOD_CRIT_MELEE_RATING:
+            ApplyRatingMod(CR_CRIT_MELEE, int32(addValue), apply);
+            break;
+        case ITEM_MOD_CRIT_RANGED_RATING:
+            ApplyRatingMod(CR_CRIT_RANGED, int32(addValue), apply);
+            break;
+        case ITEM_MOD_CRIT_SPELL_RATING:
+            ApplyRatingMod(CR_CRIT_SPELL, int32(addValue), apply);
+            break;
+        case ITEM_MOD_HASTE_SPELL_RATING:
+            ApplyRatingMod(CR_HASTE_SPELL, int32(addValue), apply);
+            break;
+        case ITEM_MOD_HIT_RATING:
+            ApplyRatingMod(CR_HIT_MELEE, int32(addValue), apply);
+            ApplyRatingMod(CR_HIT_RANGED, int32(addValue), apply);
+            ApplyRatingMod(CR_HIT_SPELL, int32(addValue), apply);
+            break;
+        case ITEM_MOD_CRIT_RATING:
+            ApplyRatingMod(CR_CRIT_MELEE, int32(addValue), apply);
+            ApplyRatingMod(CR_CRIT_RANGED, int32(addValue), apply);
+            ApplyRatingMod(CR_CRIT_SPELL, int32(addValue), apply);
+            break;
+        case ITEM_MOD_RESILIENCE_RATING:
+            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(addValue), apply);
+            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(addValue), apply);
+            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(addValue), apply);
+            break;
+        case ITEM_MOD_HASTE_RATING:
+            ApplyRatingMod(CR_HASTE_MELEE, int32(addValue), apply);
+            ApplyRatingMod(CR_HASTE_RANGED, int32(addValue), apply);
+            ApplyRatingMod(CR_HASTE_SPELL, int32(addValue), apply);
+            break;
+        case ITEM_MOD_EXPERTISE_RATING:
+            ApplyRatingMod(CR_EXPERTISE, int32(addValue), apply);
+            break;
+        case ITEM_MOD_ATTACK_POWER:
+            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, addValue, apply);
+            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, addValue, apply);
+            break;
+        case ITEM_MOD_RANGED_ATTACK_POWER:
+            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, addValue, apply);
+            break;
+        case ITEM_MOD_MANA_REGENERATION:
+            ApplyManaRegenBonus(int32(addValue), apply);
+            break;
+        case ITEM_MOD_ARMOR_PENETRATION_RATING:
+            ApplyRatingMod(CR_ARMOR_PENETRATION, int32(addValue), apply);
+            break;
+        case ITEM_MOD_SPELL_POWER:
+            ApplySpellPowerBonus(int32(addValue), apply);
+            break;
+        case ITEM_MOD_HEALTH_REGEN:
+            ApplyHealthRegenBonus(int32(addValue), apply);
+            break;
+        case ITEM_MOD_SPELL_PENETRATION:
+            ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, int32(addValue), apply);
+            m_spellPenetrationItemMod += apply ? int32(addValue) : -int32(addValue);
+            break;
+        case ITEM_MOD_BLOCK_VALUE:
+            HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, addValue, apply);
+            break;
+    }
+}
+
 void Player::ApplyEnchantment(Item* item, bool apply)
 {
     for (uint32 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
+    {
+        // Apply reforge as last enchant
+        if (slot == REFORGE_ENCHANTMENT_SLOT)
+            continue;
+
         ApplyEnchantment(item, EnchantmentSlot(slot), apply);
+    }
+
+    ApplyEnchantment(item, REFORGE_ENCHANTMENT_SLOT, apply);
 }
 
 void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
@@ -13347,6 +13603,15 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     if (slot >= MAX_ENCHANTMENT_SLOT)
         return;
+
+    if (slot == TRANSMOGRIFY_ENCHANTMENT_SLOT)
+        return;
+
+    if (slot == REFORGE_ENCHANTMENT_SLOT)
+    {
+        ApplyReforgeEnchantment(item, apply);
+        return;
+    }
 
     uint32 enchant_id = item->GetEnchantmentId(slot);
     if (!enchant_id)
@@ -13411,13 +13676,13 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         {
                             int32 basepoints = 0;
                             // Random Property Exist - try found basepoints for spell (basepoints depends from item suffix factor)
-                            if (item->GetItemRandomPropertyId())
+                            if (item->GetItemRandomPropertyId() < 0)
                             {
                                 ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                                 if (item_rand)
                                 {
                                     // Search enchant_amount
-                                    for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                                    for (int k = 0; k < 5; ++k)
                                     {
                                         if (item_rand->enchant_id[k] == enchant_id)
                                         {
@@ -13463,7 +13728,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                         if (item_rand_suffix)
                         {
-                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                            for (int k = 0; k < 5; ++k)
                             {
                                 if (item_rand_suffix->enchant_id[k] == enchant_id)
                                 {
@@ -13720,6 +13985,9 @@ void Player::UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 
         {
             for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
             {
+                if (slot > PRISMATIC_ENCHANTMENT_SLOT || slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+                    continue;
+
                 uint32 ench_id = m_items[i]->GetEnchantmentId(EnchantmentSlot(slot));
                 if (!ench_id)
                     continue;

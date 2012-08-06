@@ -688,7 +688,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
     uint32 item, slot, count;
     uint8 itemType; // 1 = item, 2 = currency (not implemented)
     uint8 bagSlot;
-    
+
     recvData >> vendorguid >> itemType >> item >> slot >> count >> bagGuid >> bagSlot;
 
     // client expects count starting at 1, and we send vendorslot+1 to client already
@@ -1216,7 +1216,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         // tried to put meta gem in normal socket
         if (itemProto->Socket[i].Color != SOCKET_COLOR_META && GemProps[i]->color == SOCKET_COLOR_META)
             return;
-            
+
         // tried to put normal gem in cogwheel socket
         if (itemProto->Socket[i].Color == SOCKET_COLOR_COGWHEEL && GemProps[i]->color != SOCKET_COLOR_COGWHEEL)
             return;
@@ -1667,14 +1667,23 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     if (!reforgeEntry)
     {
         // Reset the item
+        if (item->IsEquipped())
+            player->ApplyReforgeEnchantment(item, false);
         item->ClearEnchantment(REFORGE_ENCHANTMENT_SLOT);
         SendReforgeResult(true);
         return;
     }
 
-    if (!sItemReforgeStore.LookupEntry(reforgeEntry))
+    ItemReforgeEntry const* stats = sItemReforgeStore.LookupEntry(reforgeEntry);
+    if (!stats)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an item with invalid reforge entry (%u).", player->GetGUIDLow(), player->GetName(), reforgeEntry);
+        SendReforgeResult(false);
+        return;
+    }
+
+    if (!item->GetReforgableStat(ItemModType(stats->SourceStat)) || item->GetReforgableStat(ItemModType(stats->FinalStat))) // Cheating, you cant reforge to a stat that the item already has, nor reforge from a stat that the item does not have
+    {
         SendReforgeResult(false);
         return;
     }
@@ -1691,5 +1700,6 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
 
     SendReforgeResult(true);
 
-    // ToDo: Apply and remove the destination/source stats to the player
+    if (item->IsEquipped())
+        player->ApplyReforgeEnchantment(item, true);
 }
