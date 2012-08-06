@@ -59,10 +59,13 @@ enum LogFilterType
     LOG_FILTER_WORLDSERVER,
     LOG_FILTER_GAMEEVENTS,
     LOG_FILTER_CALENDAR,
-    LOG_FILTER_PLAYER_DELETE
+    LOG_FILTER_CHARACTER,
+    LOG_FILTER_ARENAS,
+    LOG_FILTER_SQL_DRIVER,
+    LOG_FILTER_SQL_DEV
 };
 
-const uint8 MaxLogFilter = uint8(LOG_FILTER_PLAYER_DELETE) + 1;
+const uint8 MaxLogFilter = uint8(LOG_FILTER_SQL_DEV) + 1;
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
 enum LogLevel
