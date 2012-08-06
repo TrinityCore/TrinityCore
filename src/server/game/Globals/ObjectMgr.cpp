@@ -859,13 +859,13 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             const_cast<CreatureTemplate*>(cInfo)->scale = 1.0f;
     }
 
-    if (cInfo->expansion > MAX_EXPANSION)
+    if (cInfo->expansion > MAX_CREATURE_BASE_HP)
     {
         sLog->outErrorDb("Table `creature_template` lists creature (Entry: %u) with `exp` %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansion);
         const_cast<CreatureTemplate*>(cInfo)->expansion = 0;
     }
 
-    if (cInfo->expansionUnknown > MAX_EXPANSION)
+    if (cInfo->expansionUnknown > MAX_CREATURE_BASE_HP)
     {
         sLog->outErrorDb("Table `creature_template` lists creature (Entry: %u) with `exp_unk` %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansionUnknown);
         const_cast<CreatureTemplate*>(cInfo)->expansionUnknown = 0;
@@ -8489,7 +8489,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor FROM creature_classlevelstats");
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basemana, basearmor FROM creature_classlevelstats");
 
     if (!result)
     {
