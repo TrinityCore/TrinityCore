@@ -2130,6 +2130,6 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
     data.WriteBit(0); // unk
     data.WriteBits(name->size(), 7);
-    data << *name;
+    data.append(name->c_str(), str->size());
     SendPacket(&data);
 }
