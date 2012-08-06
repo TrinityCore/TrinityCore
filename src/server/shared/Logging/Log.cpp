@@ -32,18 +32,8 @@
 Log::Log()
 {
     SetRealmID(0);
-    AppenderId = 0;
-    /// Common log files data
-    m_logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
-    if (!m_logsDir.empty())
-        if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
-            m_logsDir.push_back('/');
-
     m_logsTimestamp = "_" + GetTimestampStr();
-
-    ReadAppendersFromConfig();
-    ReadLoggersFromConfig();
-    worker = new LogWorker();
+    LoadFromConfig();
 }
 
 Log::~Log()
@@ -426,6 +416,20 @@ void Log::Close()
         it->second = NULL;
     }
     appenders.clear();
+    loggers.clear();
     delete worker;
     worker = NULL;
+}
+
+void Log::LoadFromConfig()
+{
+    Close();
+    AppenderId = 0;
+    m_logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
+    if (!m_logsDir.empty())
+        if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
+            m_logsDir.push_back('/');
+    ReadAppendersFromConfig();
+    ReadLoggersFromConfig();
+    worker = new LogWorker();
 }

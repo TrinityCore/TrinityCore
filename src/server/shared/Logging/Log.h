@@ -40,6 +40,7 @@ class Log
         ~Log();
 
     public:
+        void LoadFromConfig();
         void Close();
         bool ShouldLog(LogFilterType type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
