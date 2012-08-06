@@ -644,8 +644,8 @@ void Item::SetItemRandomProperties(int32 randomPropId)
                 SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, item_rand->ID);
                 SetState(ITEM_CHANGED, GetOwner());
             }
-            for (uint32 i = PROP_ENCHANTMENT_SLOT_2; i < PROP_ENCHANTMENT_SLOT_2 + 3; ++i)
-                SetEnchantment(EnchantmentSlot(i), item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_2], 0, 0);
+            for (uint32 i = PROP_ENCHANTMENT_SLOT_1; i < PROP_ENCHANTMENT_SLOT_1 + 3; ++i)
+                SetEnchantment(EnchantmentSlot(i), item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_1], 0, 0);
         }
     }
     else
@@ -661,7 +661,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
                 SetState(ITEM_CHANGED, GetOwner());
             }
 
-            for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i < PROP_ENCHANTMENT_SLOT_0 + 3; ++i)
+            for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i <= PROP_ENCHANTMENT_SLOT_4; ++i)
                 SetEnchantment(EnchantmentSlot(i), item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
         }
     }
@@ -781,10 +781,15 @@ bool Item::HasEnchantRequiredSkill(const Player* player) const
 {
     // Check all enchants for required skill
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
+    {
+        if (enchant_slot > PRISMATIC_ENCHANTMENT_SLOT || enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+            continue;
+
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
                 if (enchantEntry->requiredSkill && player->GetSkillValue(enchantEntry->requiredSkill) < enchantEntry->requiredSkillValue)
                     return false;
+    }
 
   return true;
 }
@@ -795,10 +800,15 @@ uint32 Item::GetEnchantRequiredLevel() const
 
     // Check all enchants for required level
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
+    {
+        if (enchant_slot > PRISMATIC_ENCHANTMENT_SLOT || enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+            continue;
+
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
                 if (enchantEntry->requiredLevel > level)
                     level = enchantEntry->requiredLevel;
+    }
 
     return level;
 }
@@ -807,10 +817,16 @@ bool Item::IsBoundByEnchant() const
 {
     // Check all enchants for soulbound
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
+    {
+        if (enchant_slot > PRISMATIC_ENCHANTMENT_SLOT || enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+            continue;
+
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
                 if (enchantEntry->slot & ENCHANTMENT_CAN_SOULBOUND)
                     return true;
+    }
+
     return false;
 }
 
@@ -1457,4 +1473,47 @@ uint32 Item::GetSpecialPrice(uint32 minimumPrice) const
         cost = minimumPrice;
 
     return cost;
+}
+
+int32 Item::GetReforgableStat(ItemModType statType) const
+{
+    ItemTemplate const* proto = GetTemplate();
+    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        if (proto->ItemStat[i].ItemStatType == statType)
+            return proto->ItemStat[i].ItemStatValue;
+
+    int32 randomPropId = GetItemRandomPropertyId();
+    if (!randomPropId)
+        return 0;
+
+    if (randomPropId < 0)
+    {
+        ItemRandomSuffixEntry const* randomSuffix = sItemRandomSuffixStore.LookupEntry(-randomPropId);
+        if (!randomSuffix)
+            return 0;
+
+        for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
+            if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
+                for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                        for (int k = 0; k < 5; ++k)
+                            if (randomSuffix->enchant_id[k] == enchant->ID)
+                                return int32((randomSuffix->prefix[k] * GetItemSuffixFactor()) / 10000);
+    }
+    else
+    {
+        ItemRandomPropertiesEntry const* randomProp = sItemRandomPropertiesStore.LookupEntry(randomPropId);
+        if (!randomProp)
+            return 0;
+
+        for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
+            if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
+                for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                        for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                            if (randomProp->enchant_id[k] == enchant->ID)
+                                return int32(enchant->amount[k]);
+    }
+
+    return 0;
 }

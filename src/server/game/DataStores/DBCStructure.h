@@ -1204,10 +1204,10 @@ struct ItemPriceBaseEntry
 struct ItemReforgeEntry
 {
     uint32 Id;
-    uint32 FinalStat;
-    float FinalMultiplier;
     uint32 SourceStat;
     float SourceMultiplier;
+    uint32 FinalStat;
+    float FinalMultiplier;
 };
 
 // common struct for:
