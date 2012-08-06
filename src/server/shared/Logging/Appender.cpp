@@ -201,6 +201,8 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "GAMEEVENTS";
         case LOG_FILTER_CALENDAR:
             return "CALENDAR";
+        case LOG_FILTER_PLAYER_DELETE:
+            return "PLAYER_DELETE";
         default:
             break;
     }
