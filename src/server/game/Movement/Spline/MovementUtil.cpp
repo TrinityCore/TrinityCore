@@ -159,7 +159,7 @@ namespace Movement
         STR(AnimBit2           ),// 0x00000002,
         STR(AnimBit3           ),// 0x00000004,
         STR(Unknown0           ),// 0x00000008,
-        STR(Unknown1           ),// 0x00000010,
+        STR(FallingSlow        ),// 0x00000010,
         STR(Done               ),// 0x00000020,
         STR(Falling            ),// 0x00000040,           // Not Compartible With Trajectory Movement
         STR(No_Spline          ),// 0x00000080,
