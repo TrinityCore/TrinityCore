@@ -306,6 +306,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->WriteBit(flags & UPDATEFLAG_UNK5);
     data->WriteBit(0);
     data->WriteBit(flags & UPDATEFLAG_TRANSPORT);
+    bool fullSpline = false;
 
     if (flags & UPDATEFLAG_LIVING)
     {
@@ -349,10 +350,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         data->WriteBit(guid[4]);
         if (self->IsSplineEnabled())
-        {
-            data->WriteBit(1);                                                  // Has extended spline data
-            Movement::PacketBuilder::WriteCreateBits(*self->movespline, *data);
-        }
+            Movement::PacketBuilder::WriteCreateBits(*self->movespline, *data, fullSpline);
 
         data->WriteBit(guid[6]);
         if (movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_TURNING)
@@ -435,7 +433,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             *data << float(self->m_movementInfo.splineElevation);
 
         if (self->IsSplineEnabled())
-            Movement::PacketBuilder::WriteCreateData(*self->movespline, *data);
+            Movement::PacketBuilder::WriteCreateData(*self->movespline, *data, fullSpline);
 
         *data << float(self->GetPositionZMinusOffset());
         data->WriteByteSeq(guid[5]);
