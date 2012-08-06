@@ -71,10 +71,8 @@ namespace Movement
             Mask_Animations     = 0xF,
             // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
             Mask_No_Monster_Move = Mask_Final_Facing | Mask_Animations | Done,
-            // CatmullRom interpolation mode used
-            Mask_CatmullRom     = Catmullrom | Flying,
             // Unused, not suported flags
-            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|UncompressedPath|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7|Unknown8|Unknown9,
+            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7|Unknown8|Unknown9,
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -86,7 +84,7 @@ namespace Movement
 
         // Constant interface
 
-        bool isSmooth() const { return raw() & Mask_CatmullRom; }
+        bool isSmooth() const { return raw() & Catmullrom; }
         bool isLinear() const { return !isSmooth(); }
         bool isFacing() const { return raw() & Mask_Final_Facing; }
 
@@ -99,14 +97,14 @@ namespace Movement
 
         // Not constant interface
 
-        void operator &= (uint32 f) { raw() &= f;}
-        void operator |= (uint32 f) { raw() |= f;}
+        void operator &= (uint32 f) { raw() &= f; }
+        void operator |= (uint32 f) { raw() |= f; }
 
-        void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations | Falling | Parabolic)) | Animation | anim; }
+        void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations | Falling | Parabolic)) | Animation | (anim & Mask_Animations); }
         void EnableParabolic() { raw() = (raw() & ~(Mask_Animations | Falling | Animation)) | Parabolic; }
         void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Animation)) | Falling; }
-        void EnableFlying() { raw() = (raw() & ~Catmullrom) | Flying; }
-        void EnableCatmullRom() { raw() = (raw() & ~Flying) | Catmullrom; }
+        void EnableFlying() { raw() =  Flying; }
+        void EnableCatmullRom() { raw() = Catmullrom | UncompressedPath; }
         void EnableFacingPoint() { raw() = (raw() & ~Mask_Final_Facing) | Final_Point; }
         void EnableFacingAngle() { raw() = (raw() & ~Mask_Final_Facing) | Final_Angle; }
         void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }

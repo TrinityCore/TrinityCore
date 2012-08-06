@@ -140,8 +140,12 @@ namespace Movement
             WriteLinearPath(spline, data);
     }
 
-    void PacketBuilder::WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data)
+    void PacketBuilder::WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data, bool& fullData)
     {
+        fullData = data.WriteBit(!moveSpline.Finalized());
+        if (!fullData)
+            return;
+
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);
         data.WriteBit(moveSpline.splineflags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation));
         data.WriteBits(moveSpline.getPath().size(), 22);
@@ -176,47 +180,50 @@ namespace Movement
         data.WriteBits(moveSpline.splineflags.raw(), 25);
     }
 
-    void PacketBuilder::WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data)
+    void PacketBuilder::WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data, bool fullData)
     {
-        MoveSplineFlag splineFlags = moveSpline.splineflags;
-
-        if ((splineFlags & MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration())
-            data << moveSpline.vertical_acceleration;   // added in 3.1
-
-        data << moveSpline.timePassed();
-
-        if (splineFlags.final_angle)
-            data << moveSpline.facing.angle;
-        else if (splineFlags.final_target)
+        if (fullData)
         {
-            ObjectGuid facingGuid = moveSpline.facing.target;
-            data.WriteByteSeq(facingGuid[5]);
-            data.WriteByteSeq(facingGuid[3]);
-            data.WriteByteSeq(facingGuid[7]);
-            data.WriteByteSeq(facingGuid[1]);
-            data.WriteByteSeq(facingGuid[6]);
-            data.WriteByteSeq(facingGuid[4]);
-            data.WriteByteSeq(facingGuid[2]);
-            data.WriteByteSeq(facingGuid[0]);
+            MoveSplineFlag splineFlags = moveSpline.splineflags;
+
+            if ((splineFlags & MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration())
+                data << moveSpline.vertical_acceleration;   // added in 3.1
+
+            data << moveSpline.timePassed();
+
+            if (splineFlags.final_angle)
+                data << moveSpline.facing.angle;
+            else if (splineFlags.final_target)
+            {
+                ObjectGuid facingGuid = moveSpline.facing.target;
+                data.WriteByteSeq(facingGuid[5]);
+                data.WriteByteSeq(facingGuid[3]);
+                data.WriteByteSeq(facingGuid[7]);
+                data.WriteByteSeq(facingGuid[1]);
+                data.WriteByteSeq(facingGuid[6]);
+                data.WriteByteSeq(facingGuid[4]);
+                data.WriteByteSeq(facingGuid[2]);
+                data.WriteByteSeq(facingGuid[0]);
+            }
+
+            uint32 nodes = moveSpline.getPath().size();
+            for (uint32 i = 0; i < nodes; ++i)
+            {
+                data << float(moveSpline.getPath()[i].z);
+                data << float(moveSpline.getPath()[i].x);
+                data << float(moveSpline.getPath()[i].y);
+            }
+
+            if (splineFlags.final_point)
+                data << moveSpline.facing.f.x << moveSpline.facing.f.z << moveSpline.facing.f.y;
+
+            data << float(1.f);                             // splineInfo.duration_mod_next; added in 3.1
+            data << moveSpline.Duration();
+            if (splineFlags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation))
+                data << moveSpline.effect_start_time;       // added in 3.1
+
+            data << float(1.f);                             // splineInfo.duration_mod; added in 3.1
         }
-
-        uint32 nodes = moveSpline.getPath().size();
-        for (uint32 i = 0; i < nodes; ++i)
-        {
-            data << float(moveSpline.getPath()[i].z);
-            data << float(moveSpline.getPath()[i].x);
-            data << float(moveSpline.getPath()[i].y);
-        }
-
-        if (splineFlags.final_point)
-            data << moveSpline.facing.f.x << moveSpline.facing.f.z << moveSpline.facing.f.y;
-
-        data << float(1.f);                             // splineInfo.duration_mod_next; added in 3.1
-        data << moveSpline.Duration();
-        if (splineFlags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation))
-            data << moveSpline.effect_start_time;       // added in 3.1
-
-        data << float(1.f);                             // splineInfo.duration_mod; added in 3.1
 
         if (!moveSpline.isCyclic())
         {
