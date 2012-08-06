@@ -1366,7 +1366,7 @@ enum Opcodes
     SMSG_TRANSFER_ABORTED                             = 0x0537,
     SMSG_TRANSFER_PENDING                             = 0x18A6,
     SMSG_TRIGGER_CINEMATIC                            = 0x6C27,
-    SMSG_TRIGGER_MOVIE                                = 0x0000,
+    SMSG_TRIGGER_MOVIE                                = 0x4625,
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x0F07,
     SMSG_TUTORIAL_FLAGS                               = 0x0B35,
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x2C26,
