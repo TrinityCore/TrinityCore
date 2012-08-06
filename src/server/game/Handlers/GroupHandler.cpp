@@ -707,7 +707,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket & recvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket & recvData)
+void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_RAID_READY_CHECK");
 
@@ -742,7 +742,7 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandleRaidReadyCheckFinishedOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleRaidReadyCheckFinishedOpcode(WorldPacket& /*recvData*/)
 {
     //Group* group = GetPlayer()->GetGroup();
     //if (!group)
