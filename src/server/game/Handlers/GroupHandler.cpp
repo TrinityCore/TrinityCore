@@ -97,8 +97,6 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     recvData.ReadByteSeq(crossRealmGuid[3]);
     recvData.ReadByteSeq(crossRealmGuid[2]);
     
-    ObjectGuid inviterGuid = GetPlayer()->GetGUID();
-
     // attempt add selected player
 
     // cheating
@@ -148,6 +146,8 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
         return;
     }
 
+    ObjectGuid invitedGuid = player->GetGUID();
+
     Group* group = GetPlayer()->GetGroup();
     if (group && group->isBGGroup())
         group = GetPlayer()->GetOriginalGroup();
@@ -163,49 +163,58 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
         if (group2)
         {
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_GROUP_INVITE, 10);
-             data.WriteBit(0);
-            data.WriteBit(inviterGuid[0]);
-            data.WriteBit(inviterGuid[3]);
-            data.WriteBit(inviterGuid[2]);
-            data.WriteBit(0); // Already in group byte
-            data.WriteBit(inviterGuid[6]);
-            data.WriteBit(inviterGuid[5]);
-  
-            data.WriteBits(0, 9); // Cross realm name or invited name size
-            data.WriteBit(inviterGuid[4]);
-            data.WriteBits(strlen(GetPlayer()->GetName()), 7);
-            data.WriteBits(0, 24); // Count 2
-   
+            WorldPacket data(SMSG_GROUP_INVITE, 50);
+
             data.WriteBit(0);
 
-            data.WriteBit(inviterGuid[1]);
-            data.WriteBit(inviterGuid[7]);
+            data.WriteBit(invitedGuid[0]);
+            data.WriteBit(invitedGuid[3]);
+            data.WriteBit(invitedGuid[2]);
+
+            data.WriteBit(0); // Inverse already in group
+
+            data.WriteBit(invitedGuid[6]);
+            data.WriteBit(invitedGuid[5]);
+
+            data.WriteBits(strlen(GetPlayer()->GetName()), 9); // Inviter name length
+
+            data.WriteBit(invitedGuid[4]);
+
+            data.WriteBits(strlen(player->GetName()), 7); // Invited name length
+
+            data.WriteBits(0, 24); // Count 2
+
+            data.WriteBit(0);
+
+            data.WriteBit(invitedGuid[1]);
+            data.WriteBit(invitedGuid[7]);
+
+            data.FlushBits();
     
-            data.WriteByteSeq(inviterGuid[1]);
-            data.WriteByteSeq(inviterGuid[4]);
+            data.WriteByteSeq(invitedGuid[1]);
+            data.WriteByteSeq(invitedGuid[4]);
     
             data << int32(getMSTime());
             data << int32(0);
             data << int32(0);
 
-            data.WriteByteSeq(inviterGuid[6]);
-            data.WriteByteSeq(inviterGuid[0]);
-            data.WriteByteSeq(inviterGuid[2]);
-            data.WriteByteSeq(inviterGuid[3]);
+            data.WriteByteSeq(invitedGuid[6]);
+            data.WriteByteSeq(invitedGuid[0]);
+            data.WriteByteSeq(invitedGuid[2]);
+            data.WriteByteSeq(invitedGuid[3]);
 
             // for count2 { int32(0) }
 
-            data.WriteByteSeq(inviterGuid[5]);
+            data.WriteByteSeq(invitedGuid[5]);
 
-            // If it's cross realm here is Realm Name, if it's normal case place here Player Name
-            data.append((uint8 const*)GetPlayer()->GetName(), strlen(GetPlayer()->GetName()));
+            data.append((uint8 const*)GetPlayer()->GetName(), strlen(GetPlayer()->GetName())); // inviter name
 
-            data.WriteByteSeq(inviterGuid[7]);
+            data.WriteByteSeq(invitedGuid[7]);
 
-            // Player name in Cross Realm case
+            data.append((uint8 const*)player->GetName(), strlen(player->GetName())); // invited name
     
             data << int32(0);
+
             player->GetSession()->SendPacket(&data);
         }
 
@@ -256,49 +265,58 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     }
 
     // ok, we do it
-    WorldPacket data(SMSG_GROUP_INVITE, 10);
-    data.WriteBit(0);
-    data.WriteBit(inviterGuid[0]);
-    data.WriteBit(inviterGuid[3]);
-    data.WriteBit(inviterGuid[2]);
-    data.WriteBit(1); // Already in group byte
-    data.WriteBit(inviterGuid[6]);
-    data.WriteBit(inviterGuid[5]);
-  
-    data.WriteBits(0, 9); // Cross realm name or invited name size
-    data.WriteBit(inviterGuid[4]);
-    data.WriteBits(strlen(GetPlayer()->GetName()), 7);
-    data.WriteBits(0, 24); // Count 2
-   
+    WorldPacket data(SMSG_GROUP_INVITE, 50);
+
     data.WriteBit(0);
 
-    data.WriteBit(inviterGuid[1]);
-    data.WriteBit(inviterGuid[7]);
-    
-    data.WriteByteSeq(inviterGuid[1]);
-    data.WriteByteSeq(inviterGuid[4]);
-    
+    data.WriteBit(invitedGuid[0]);
+    data.WriteBit(invitedGuid[3]);
+    data.WriteBit(invitedGuid[2]);
+
+    data.WriteBit(1); // Inverse already in group
+
+    data.WriteBit(invitedGuid[6]);
+    data.WriteBit(invitedGuid[5]);
+
+    data.WriteBits(strlen(GetPlayer()->GetName()), 9); // Inviter name length
+
+    data.WriteBit(invitedGuid[4]);
+
+    data.WriteBits(strlen(player->GetName()), 7); // Invited name length
+
+    data.WriteBits(0, 24); // Count 2
+
+    data.WriteBit(0);
+
+    data.WriteBit(invitedGuid[1]);
+    data.WriteBit(invitedGuid[7]);
+
+    data.FlushBits();
+
+    data.WriteByteSeq(invitedGuid[1]);
+    data.WriteByteSeq(invitedGuid[4]);
+
     data << int32(getMSTime());
     data << int32(0);
     data << int32(0);
 
-    data.WriteByteSeq(inviterGuid[6]);
-    data.WriteByteSeq(inviterGuid[0]);
-    data.WriteByteSeq(inviterGuid[2]);
-    data.WriteByteSeq(inviterGuid[3]);
+    data.WriteByteSeq(invitedGuid[6]);
+    data.WriteByteSeq(invitedGuid[0]);
+    data.WriteByteSeq(invitedGuid[2]);
+    data.WriteByteSeq(invitedGuid[3]);
 
     // for count2 { int32(0) }
 
-    data.WriteByteSeq(inviterGuid[5]);
+    data.WriteByteSeq(invitedGuid[5]);
 
-    // If it's cross realm here is Realm Name, if it's normal case place here Player Name
-    data.append((uint8 const*)GetPlayer()->GetName(), strlen(GetPlayer()->GetName()));
+    data.append((uint8 const*)GetPlayer()->GetName(), strlen(GetPlayer()->GetName())); // inviter name
 
-    data.WriteByteSeq(inviterGuid[7]);
+    data.WriteByteSeq(invitedGuid[7]);
 
-    // Player name in Cross Realm case
-    
+    data.append((uint8 const*)player->GetName(), strlen(player->GetName())); // invited name
+
     data << int32(0);
+
     player->GetSession()->SendPacket(&data);
 
     SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
