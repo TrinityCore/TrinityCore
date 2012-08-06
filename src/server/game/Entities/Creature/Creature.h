@@ -177,10 +177,6 @@ struct CreatureTemplate
 // Benchmarked: Faster than std::map (insert/find)
 typedef UNORDERED_MAP<uint32, CreatureTemplate> CreatureTemplateContainer;
 
-// Represents max amount of expansions.
-// TODO: Update to Cata, if required
-#define MAX_CREATURE_BASE_HP MAX_EXPANSION - 1
-
 // Defines base stats for creatures (used to calculate HP/mana/armor).
 struct CreatureBaseStats
 {

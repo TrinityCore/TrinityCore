@@ -22,7 +22,7 @@
 #include "Define.h"
 #include <cassert>
 
-#define MAX_EXPANSION 4
+#define MAX_CREATURE_BASE_HP 4
 
 enum SpellEffIndex
 {
