@@ -38,7 +38,7 @@ void AppenderDB::_write(LogMessage& message)
         case LOG_FILTER_SQL_DEV:
             break; // Avoid infinite loop, PExecute triggers Logging with LOG_FILTER_SQL type
         default: 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(LOGIN_INS_LOG);
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
             stmt->setUInt64(0, message.mtime);
             stmt->setUInt32(1, realm);
             stmt->setUInt8(2, message.type);
