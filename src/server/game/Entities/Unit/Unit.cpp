@@ -18252,5 +18252,5 @@ void Unit::SendMovementCanFlyChange()
 
 bool Unit::IsSplineEnabled() const
 {
-    return !movespline->Finalized();
+    return movespline->Initialized();
 }

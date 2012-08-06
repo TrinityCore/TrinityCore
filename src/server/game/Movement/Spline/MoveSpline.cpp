@@ -214,7 +214,7 @@ bool MoveSplineInitArgs::Validate() const
 // each vertex offset packed into 11 bytes
 bool MoveSplineInitArgs::_checkPathBounds() const
 {
-    if (!(flags & MoveSplineFlag::Mask_CatmullRom) && path.size() > 2)
+    if (!(flags & MoveSplineFlag::Catmullrom) && path.size() > 2)
     {
         enum{
             MAX_OFFSET = (1 << 11) / 2,
