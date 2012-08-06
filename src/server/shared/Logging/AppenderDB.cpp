@@ -37,9 +37,14 @@ void AppenderDB::_write(LogMessage& message)
         case LOG_FILTER_SQL_DRIVER:
         case LOG_FILTER_SQL_DEV:
             break; // Avoid infinite loop, PExecute triggers Logging with LOG_FILTER_SQL type
-        default:
-            LoginDatabase.PExecute("INSERT INTO logs (time, realm, type, level, string) "
-            "VALUES (" UI64FMTD ", %u, %u, %u, '%s');", message.mtime, realm, message.type, message.level, message.text.c_str());
+        default: 
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(LOGIN_INS_LOG);
+            stmt->setUInt64(0, message.mtime);
+            stmt->setUInt32(1, realm);
+            stmt->setUInt8(2, message.type);
+            stmt->setUInt8(3, message.level);
+            stmt->setString(4, message.text);
+            LoginDatabase.Execute(stmt);
             break;
     }
 }
