@@ -1291,9 +1291,7 @@ void Guild::HandleQuery(WorldSession* session)
     for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
     {
         if (i < _GetRanksSize())
-        {
             data << uint32(m_ranks[i].GetId());
-        }
         else
             data << uint32(0);
     }
@@ -1545,7 +1543,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     _LogEvent(GUILD_EVENT_LOG_INVITE_PLAYER, player->GetGUIDLow(), pInvitee->GetGUIDLow());
 
     WorldPacket data(SMSG_GUILD_INVITE, 100);
-    data << uint32(1); // Guild Level
+    data << uint32(GetLevel());
     data << uint32(m_emblemInfo.GetStyle());
     data << uint32(m_emblemInfo.GetBorderColor());
     data << uint32(m_emblemInfo.GetBorderStyle());

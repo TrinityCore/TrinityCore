@@ -29,44 +29,85 @@
 #include "Item.h"
 #include "AccountMgr.h"
 
-void WorldSession::HandleSendMail(WorldPacket & recvData)
+void WorldSession::HandleSendMail(WorldPacket& recvData)
 {
-    uint64 mailbox, unk3;
+    ObjectGuid mailbox;
+    uint64 money, COD;
     std::string receiver, subject, body;
-    uint32 unk1, unk2, money, COD;
-    uint8 unk4;
-    recvData >> mailbox;
-    recvData >> receiver;
+    uint32 bodyLength, subjectLength, receiverLength;
+    uint32 unk1, unk2;
+    
+    recvData >> unk1;
+    recvData >> unk2; // Stationery?
+   
+    recvData >> money >> COD;                              // money and cod
+    bodyLength = recvData.ReadBits(12);
+    subjectLength = recvData.ReadBits(9);
 
-    recvData >> subject;
-
-    recvData >> body;
-
-    recvData >> unk1;                                      // stationery?
-    recvData >> unk2;                                      // 0x00000000
-
-    uint8 items_count;
-    recvData >> items_count;                               // attached items count
-
+    uint8 items_count = recvData.ReadBits(5);              // attached items count
+    
     if (items_count > MAX_MAIL_ITEMS)                       // client limit
     {
         GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_TOO_MANY_ATTACHMENTS);
         recvData.rfinish();                   // set to end to avoid warnings spam
         return;
     }
+    
+    mailbox[0] = recvData.ReadBit();
 
-    uint64 itemGUIDs[MAX_MAIL_ITEMS];
+    ObjectGuid itemGUIDs[MAX_MAIL_ITEMS];
 
     for (uint8 i = 0; i < items_count; ++i)
     {
-        recvData.read_skip<uint8>();                       // item slot in mail, not used
-        recvData >> itemGUIDs[i];
+        itemGUIDs[i][2] = recvData.ReadBit();
+        itemGUIDs[i][6] = recvData.ReadBit();
+        itemGUIDs[i][3] = recvData.ReadBit();
+        itemGUIDs[i][7] = recvData.ReadBit();
+        itemGUIDs[i][1] = recvData.ReadBit();
+        itemGUIDs[i][0] = recvData.ReadBit();
+        itemGUIDs[i][4] = recvData.ReadBit();
+        itemGUIDs[i][5] = recvData.ReadBit();
     }
-
-    recvData >> money >> COD;                              // money and cod
-    recvData >> unk3;                                      // const 0
-    recvData >> unk4;                                      // const 0
-
+    
+    mailbox[3] = recvData.ReadBit();
+    mailbox[4] = recvData.ReadBit();
+    receiverLength = recvData.ReadBits(7);
+    mailbox[2] = recvData.ReadBit();
+    mailbox[6] = recvData.ReadBit();
+    mailbox[1] = recvData.ReadBit();
+    mailbox[7] = recvData.ReadBit();
+    mailbox[5] = recvData.ReadBit();
+    
+    recvData.ReadByteSeq(mailbox[4]);
+    
+    for (uint8 i = 0; i < items_count; ++i)
+    {
+        recvData.ReadByteSeq(itemGUIDs[i][6]);
+        recvData.ReadByteSeq(itemGUIDs[i][1]);
+        recvData.ReadByteSeq(itemGUIDs[i][7]);
+        recvData.ReadByteSeq(itemGUIDs[i][2]);
+        recvData.read_skip<uint8>();            // item slot in mail, not used
+        recvData.ReadByteSeq(itemGUIDs[i][3]);
+        recvData.ReadByteSeq(itemGUIDs[i][0]);
+        recvData.ReadByteSeq(itemGUIDs[i][4]);
+        recvData.ReadByteSeq(itemGUIDs[i][5]);
+    }
+    
+    recvData.ReadByteSeq(mailbox[7]);
+    recvData.ReadByteSeq(mailbox[3]);
+    recvData.ReadByteSeq(mailbox[6]);
+    recvData.ReadByteSeq(mailbox[5]);
+    
+    subject = recvData.ReadString(subjectLength);
+    receiver = recvData.ReadString(receiverLength);
+    
+    recvData.ReadByteSeq(mailbox[2]);
+    recvData.ReadByteSeq(mailbox[0]);
+    
+    body = recvData.ReadString(bodyLength);
+    
+    recvData.ReadByteSeq(mailbox[1]);
+    
     // packet read complete, now do check
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
@@ -89,13 +130,13 @@ void WorldSession::HandleSendMail(WorldPacket & recvData)
 
     if (!rc)
     {
-        sLog->outDetail("Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
+        sLog->outDetail("Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, unk2 = %u",
             player->GetGUIDLow(), receiver.c_str(), subject.c_str(), body.c_str(), items_count, money, COD, unk1, unk2);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    sLog->outDetail("Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u", player->GetGUIDLow(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, unk1, unk2);
+    sLog->outDetail("Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, unk2 = %u", player->GetGUIDLow(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, unk1, unk2);
 
     if (player->GetGUID() == rc)
     {
@@ -105,7 +146,7 @@ void WorldSession::HandleSendMail(WorldPacket & recvData)
 
     uint32 cost = items_count ? 30 * items_count : 30;  // price hardcoded in client
 
-    uint64 reqmoney = cost + uint64(money);
+    uint64 reqmoney = cost + money;
 
     if (!player->HasEnoughMoney(reqmoney) && !player->isGameMaster())
     {
@@ -245,7 +286,7 @@ void WorldSession::HandleSendMail(WorldPacket & recvData)
 
     player->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
-    player->ModifyMoney(-int32(reqmoney));
+    player->ModifyMoney(-int64(reqmoney));
     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
 
     bool needItemDelay = false;

@@ -1679,7 +1679,7 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Client used \"/timetest %d\" command", mode);
 }
 
-void WorldSession::HandleQueryInspectAchievements(WorldPacket & recvData)
+void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
 {
     uint64 guid;
     recvData.readPackGUID(guid);

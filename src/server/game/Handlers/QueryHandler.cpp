@@ -407,7 +407,6 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 {
     uint32 count;
     recvData >> count; // quest count, max=25
-    // 4.3 struct: count, byte, byte, byte, questIds[]
 
     if (count >= MAX_QUEST_LOG_SIZE)
     {
