@@ -1130,20 +1130,15 @@ public:
 
     static bool HandleModifyDrunkCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)    return false;
+        if (!*args)
+            return false;
 
-        uint32 drunklevel = (uint32)atoi(args);
+        uint8 drunklevel = (uint8)atoi(args);
         if (drunklevel > 100)
             drunklevel = 100;
 
-        uint16 drunkMod = drunklevel * 0xFFFF / 100;
-
-        Player* target = handler->getSelectedPlayer();
-        if (!target)
-            target = handler->GetSession()->GetPlayer();
-
-        if (target)
-            target->SetDrunkValue(drunkMod);
+        if (Player* target = handler->getSelectedPlayer())
+            target->SetDrunkValue(drunklevel);
 
         return true;
     }
