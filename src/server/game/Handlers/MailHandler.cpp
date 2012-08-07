@@ -458,7 +458,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recvData)
 }
 
 //called when player takes item attached in mail
-void WorldSession::HandleMailTakeItem(WorldPacket & recvData)
+void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -713,7 +713,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recvData)
 }
 
 //used when player copies mail body to his inventory
-void WorldSession::HandleMailCreateTextItem(WorldPacket & recvData)
+void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;

@@ -1247,9 +1247,9 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     player->BuildEnchantmentsInfoData(&data);
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
     {
-        data << uint64(MAKE_NEW_GUID(guild->GetId(), 0, HIGHGUID_GUILD));
-        data << uint32(0 /*guild->GetLevel()*/); // guild level
-        data << uint64(player->GetGUID()); // not sure
+        data << uint64(guild->GetGUID());
+        data << uint32(guild->GetLevel());
+        data << uint64(0/*guild->GetXP()*/);
         data << uint32(0/*guild->GetMembersCount()*/); // number of members
     }
     SendPacket(&data);
