@@ -29,7 +29,7 @@
 #include <cstdio>
 #include <sstream>
 
-Log::Log()
+Log::Log() : worker(NULL)
 {
     SetRealmID(0);
     m_logsTimestamp = "_" + GetTimestampStr();
