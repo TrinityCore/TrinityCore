@@ -1381,7 +1381,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             int32 overkill = int32(damage) - int32(GetHealth());
             data << uint32(overkill > 0 ? overkill : 0); // Overkill
             data << uint32(i_spellProto->SchoolMask);
-            data << uint32(0); // Unknown 4.x
+            data << uint32(0); // FIX ME: Send resisted damage, both fully resisted and partly resisted
             victim->SendMessageToSet(&data, true);
 
             victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
