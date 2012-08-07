@@ -48,7 +48,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
     _player->ExitVehicle();
 }
 
-void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recvData)
+void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
 
