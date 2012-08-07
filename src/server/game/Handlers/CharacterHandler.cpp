@@ -838,20 +838,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
 
-    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
-    data << pCurrChar->GetMapId();
-    data << pCurrChar->GetPositionX();
-    data << pCurrChar->GetPositionY();
-    data << pCurrChar->GetPositionZ();
-    data << pCurrChar->GetOrientation();
-    SendPacket(&data);
-
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
     bool featureBit4 = true;
-    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
+    WorldPacket data(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
     data << uint8(2);                                       // unknown value
     data << uint32(1);
     data << uint32(1);
