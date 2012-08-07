@@ -268,7 +268,7 @@ void WorldSession::HandleChannelUnban(WorldPacket& recvPacket)
     uint32 nameLength = recvPacket.ReadBits(8);
     
     std::string otp = recvPacket.ReadString(nameLength);
-    std::string channelname = recvPacket.ReadString(channelLength)
+    std::string channelname = recvPacket.ReadString(channelLength);
     
     if (!normalizePlayerName(otp))
         return;
