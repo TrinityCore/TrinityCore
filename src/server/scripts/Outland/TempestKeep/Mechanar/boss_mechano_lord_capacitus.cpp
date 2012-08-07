@@ -18,6 +18,7 @@
 //! TODO - Boss not scripted, just ported required spellscript from core
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 
 enum Spells

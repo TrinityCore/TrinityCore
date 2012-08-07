@@ -23,7 +23,10 @@ SDComment: Circle of Healing not working properly.
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "black_temple.h"
 
 //Speech'n'Sounds
@@ -156,7 +159,7 @@ public:
                 Council[1] = instance->GetData64(DATA_VERASDARKSHADOW);
                 Council[2] = instance->GetData64(DATA_LADYMALANDE);
                 Council[3] = instance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-            } else sLog->outError(ERROR_INST_DATA);
+            } else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -403,7 +406,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         }
         else
         {
-            sLog->outError(ERROR_INST_DATA);
+            sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
             EnterEvadeMode();
             return;
         }
@@ -451,7 +454,7 @@ struct boss_illidari_councilAI : public ScriptedAI
     {
         if (!instance)
         {
-            sLog->outError(ERROR_INST_DATA);
+            sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
             return;
         }
 

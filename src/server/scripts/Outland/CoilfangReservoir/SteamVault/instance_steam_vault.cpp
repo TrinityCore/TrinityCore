@@ -23,7 +23,8 @@ SDComment:  Instance script and access panel GO
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "steam_vault.h"
 
 #define MAX_ENCOUNTER 4
@@ -138,7 +139,7 @@ public:
                         if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
                             HandleGameObject(MainChambersDoor, true);
 
-                        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Steamvault: Access panel used.");
+                        sLog->outDebug(LOG_FILTER_TSCR, "Instance Steamvault: Access panel used.");
                     }
                     m_auiEncounter[0] = data;
                     break;
@@ -150,7 +151,7 @@ public:
                         if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
                             HandleGameObject(MainChambersDoor, true);
 
-                        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Steamvault: Access panel used.");
+                        sLog->outDebug(LOG_FILTER_TSCR, "Instance Steamvault: Access panel used.");
                     }
                     m_auiEncounter[1] = data;
                     break;

@@ -25,7 +25,8 @@ SDComment: <Known Bugs>
 SDCategory: Utgarde Pinnacle
 Script Data End */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "utgarde_pinnacle.h"
 
 //Yell

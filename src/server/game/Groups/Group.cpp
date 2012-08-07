@@ -73,7 +73,7 @@ Group::~Group()
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Group::~Group: battleground group being deleted.");
         if (m_bgGroup->GetBgRaid(ALLIANCE) == this) m_bgGroup->SetBgRaid(ALLIANCE, NULL);
         else if (m_bgGroup->GetBgRaid(HORDE) == this) m_bgGroup->SetBgRaid(HORDE, NULL);
-        else sLog->outError("Group::~Group: battleground group is not linked to the correct battleground.");
+        else sLog->outError(LOG_FILTER_GENERAL, "Group::~Group: battleground group is not linked to the correct battleground.");
     }
     Rolls::iterator itr;
     while (!RollId.empty())
@@ -946,7 +946,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug("Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //sLog->outDebug(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
@@ -1033,7 +1033,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug("Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //sLog->outDebug(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
@@ -2119,7 +2119,7 @@ void Group::BroadcastGroupUpdate(void)
         {
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
-            sLog->outStaticDebug("-- Forced group value update for '%s'", pp->GetName());
+            sLog->outDebug(LOG_FILTER_GENERAL, "-- Forced group value update for '%s'", pp->GetName());
         }
     }
 }

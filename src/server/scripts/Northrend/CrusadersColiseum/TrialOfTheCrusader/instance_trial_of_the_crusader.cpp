@@ -23,7 +23,8 @@ SDComment: by /dev/rsa
 SDCategory: Trial of the Crusader
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "trial_of_the_crusader.h"
 
 class instance_trial_of_the_crusader : public InstanceMapScript
@@ -393,7 +394,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (type < MAX_ENCOUNTERS)
                 {
-                    sLog->outDetail("[ToCr] EncounterStatus[type %u] %u = data %u;", type, EncounterStatus[type], data);
+                    sLog->outInfo(LOG_FILTER_TSCR, "[ToCr] EncounterStatus[type %u] %u = data %u;", type, EncounterStatus[type], data);
                     if (data == FAIL)
                     {
                         --TrialCounter;

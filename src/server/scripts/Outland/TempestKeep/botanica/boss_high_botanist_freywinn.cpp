@@ -23,7 +23,8 @@ SDComment: some strange visual related to tree form(if aura lost before normal d
 SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum eSays
 {

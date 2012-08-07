@@ -476,20 +476,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_PRIEST:
             {
-                // Shadow Word: Death - deals damage equal to damage done to caster
-                if (m_spellInfo->SpellFamilyFlags[1] & 0x2)
-                {
-                    int32 back_damage = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
-                    back_damage = unitTarget->SpellDamageBonusTaken(m_caster, m_spellInfo, (uint32)back_damage, SPELL_DIRECT_DAMAGE);
-                    // Pain and Suffering reduces damage
-                    if (AuraEffect* aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 2874, 0))
-                        AddPctN(back_damage, -aurEff->GetAmount());
-
-                    if (back_damage < int32(unitTarget->GetHealth()))
-                        m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
-                }
                 // Improved Mind Blast (Mind Blast in shadow form bonus)
-                else if (m_caster->GetShapeshiftForm() == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
+                if (m_caster->GetShapeshiftForm() == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
                 {
                     Unit::AuraEffectList const& ImprMindBlast = m_caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
                     for (Unit::AuraEffectList::const_iterator i = ImprMindBlast.begin(); i != ImprMindBlast.end(); ++i)
@@ -789,7 +777,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
         if (!spellInfo)
         {
-            sLog->outError("EffectDummy of spell %u: triggering unknown spell id %i\n", m_spellInfo->Id, spell_id);
+            sLog->outError(LOG_FILTER_SPELLS_AURAS, "EffectDummy of spell %u: triggering unknown spell id %i\n", m_spellInfo->Id, spell_id);
             return;
         }
 
@@ -1047,7 +1035,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
 
     if (!spellInfo)
     {
-        sLog->outError("Spell::EffectForceCast of spell %u: triggering unknown spell id %i", m_spellInfo->Id, triggered_spell_id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::EffectForceCast of spell %u: triggering unknown spell id %i", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
@@ -1092,7 +1080,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
 
     if (!spellInfo)
     {
-        sLog->outError("EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i", m_spellInfo->Id, triggered_spell_id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
@@ -1201,7 +1189,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     // If not exist data for dest location - return
     if (!m_targets.HasDst())
     {
-        sLog->outError("Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id);
         return;
     }
 
@@ -1527,7 +1515,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
 
             if (!targetAura)
             {
-                sLog->outError("Target(GUID:" UI64FMTD ") has aurastate AURA_STATE_SWIFTMEND but no matching aura.", unitTarget->GetGUID());
+                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Target(GUID:" UI64FMTD ") has aurastate AURA_STATE_SWIFTMEND but no matching aura.", unitTarget->GetGUID());
                 return;
             }
 
@@ -2002,7 +1990,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
         // Players shouldn't be able to loot gameobjects that are currently despawned
         if (!gameObjTarget->isSpawned() && !player->isGameMaster())
         {
-            sLog->outError("Possible hacking attempt: Player %s [guid: %u] tried to loot a gameobject [entry: %u id: %u] which is on respawn time without being in GM mode!",
+            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Possible hacking attempt: Player %s [guid: %u] tried to loot a gameobject [entry: %u id: %u] which is on respawn time without being in GM mode!",
                             player->GetName(), player->GetGUIDLow(), gameObjTarget->GetEntry(), gameObjTarget->GetGUIDLow());
             return;
         }
@@ -2300,7 +2288,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(m_spellInfo->Effects[effIndex].MiscValueB);
     if (!properties)
     {
-        sLog->outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->Effects[effIndex].MiscValueB);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "EffectSummonType: Unhandled summon type %u", m_spellInfo->Effects[effIndex].MiscValueB);
         return;
     }
 
@@ -2445,12 +2433,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 return;
 
             // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
-            uint32 spell = VEHICLE_SPELL_RIDE_HARDCODED;
-            if (SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue()))
-                spell = spellProto->Id;
+            uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue());
+            if (spellInfo && spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                spellId = spellInfo->Id;
 
             // Hard coded enter vehicle spell
-            m_originalCaster->CastSpell(summon, spell, true);
+            m_originalCaster->CastSpell(summon, spellId, true);
 
             uint32 faction = properties->Faction;
             if (!faction)
@@ -2861,7 +2850,7 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
         }
         if (!add_socket)
         {
-            sLog->outError("Spell::EffectEnchantItemPrismatic: attempt apply enchant spell %u with SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC (%u) but without ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET (%u), not suppoted yet.",
+            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::EffectEnchantItemPrismatic: attempt apply enchant spell %u with SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC (%u) but without ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET (%u), not suppoted yet.",
                 m_spellInfo->Id, SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC, ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET);
             return;
         }
@@ -2909,14 +2898,14 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
 
     if (!enchant_id)
     {
-        sLog->outError("Spell %u Effect %u (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have 0 as enchanting id", m_spellInfo->Id, effIndex);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell %u Effect %u (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have 0 as enchanting id", m_spellInfo->Id, effIndex);
         return;
     }
 
     SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
     if (!pEnchant)
     {
-        sLog->outError("Spell %u Effect %u (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have not existed enchanting id %u ", m_spellInfo->Id, effIndex, enchant_id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell %u Effect %u (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have not existed enchanting id %u ", m_spellInfo->Id, effIndex, enchant_id);
         return;
     }
 
@@ -3542,8 +3531,8 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             {
                 if (m_originalCaster)
                 {
-                    int32 duration = m_originalCaster->ModSpellDuration(m_spellInfo, unitTarget, m_originalCaster->CalcSpellDuration(m_spellInfo), false, 1 << effIndex);
-                    unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), duration/*GetSpellDuration(m_spellInfo)*/);
+                    int32 duration = m_spellInfo->GetDuration();
+                    unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
                 }
                 ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
@@ -4165,7 +4154,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         case 31893: spell_heal = 48084; break;
                         case 31883: spell_heal = 48085; break;
                         default:
-                            sLog->outError("Unknown Lightwell spell caster %u", m_caster->GetEntry());
+                            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Unknown Lightwell spell caster %u", m_caster->GetEntry());
                             return;
                     }
 
@@ -4282,7 +4271,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     case 57774: spellId1 = 20185; break;    // Judgement of Light
                     case 53408: spellId1 = 20186; break;    // Judgement of Wisdom
                     default:
-                        sLog->outError("Unsupported Judgement (seal trigger) spell (Id: %u) in Spell::EffectScriptEffect", m_spellInfo->Id);
+                        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Unsupported Judgement (seal trigger) spell (Id: %u) in Spell::EffectScriptEffect", m_spellInfo->Id);
                         return;
                 }
                 // all seals have aura dummy in 2 effect
@@ -4555,7 +4544,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     Player* target = (Player*)m_caster;
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell Effect: Stuck");
-    sLog->outDetail("Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", target->GetName(), target->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", target->GetName(), target->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
     if (target->isInFlight())
         return;
@@ -4745,16 +4734,18 @@ void Spell::EffectInebriate(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player* player = (Player*)unitTarget;
-    uint16 currentDrunk = player->GetDrunkValue();
-    uint16 drunkMod = damage * 256;
-    if (currentDrunk + drunkMod > 0xFFFF)
+    Player* player = unitTarget->ToPlayer();
+    uint8 currentDrunk = player->GetDrunkValue();
+    uint8 drunkMod = damage;
+    if (currentDrunk + drunkMod > 100)
     {
-        currentDrunk = 0xFFFF;
-        player->CastSpell(player, 67468, false);
+        currentDrunk = 100;
+        if (rand_chance() < 25.0f)
+            player->CastSpell(player, 67468, false);    // Drunken Vomit
     }
     else
         currentDrunk += drunkMod;
+
     player->SetDrunkValue(currentDrunk, m_CastItem ? m_CastItem->GetEntry() : 0);
 }
 
@@ -5167,6 +5158,10 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
         if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
             return;
 
+    // Spells with SPELL_EFFECT_KNOCK_BACK(like Thunderstorm) can't knoback target if target has ROOT/STUN
+    if (unitTarget->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
+        return;
+
     // Typhoon
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x01000000)
     {
@@ -5473,7 +5468,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     if (!goinfo)
     {
-        sLog->outErrorDb("Gameobject (Entry: %u) not exist and not created at spell (ID: %u) cast", name_id, m_spellInfo->Id);
+        sLog->outError(LOG_FILTER_SQL, "Gameobject (Entry: %u) not exist and not created at spell (ID: %u) cast", name_id, m_spellInfo->Id);
         return;
     }
 
@@ -5577,7 +5572,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
-    sLog->outStaticDebug("AddObject at SpellEfects.cpp EffectTransmitted");
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AddObject at SpellEfects.cpp EffectTransmitted");
     //m_caster->AddGameObject(pGameObj);
     //m_ObjToDel.push_back(pGameObj);
 
@@ -6120,7 +6115,7 @@ void Spell::EffectPlayMusic(SpellEffIndex effIndex)
 
     if (!sSoundEntriesStore.LookupEntry(soundid))
     {
-        sLog->outError("EffectPlayMusic: Sound (Id: %u) not exist in spell %u.", soundid, m_spellInfo->Id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "EffectPlayMusic: Sound (Id: %u) not exist in spell %u.", soundid, m_spellInfo->Id);
         return;
     }
 
@@ -6171,7 +6166,7 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
 
     if (!sSoundEntriesStore.LookupEntry(soundid))
     {
-        sLog->outError("EffectPlayerNotification: Sound (Id: %u) not exist in spell %u.", soundid, m_spellInfo->Id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "EffectPlayerNotification: Sound (Id: %u) not exist in spell %u.", soundid, m_spellInfo->Id);
         return;
     }
 
@@ -6281,7 +6276,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
         SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id);
         if (!st)
         {
-            sLog->outError("Spell::EffectBind - unknown teleport coordinates for spell ID %u", m_spellInfo->Id);
+            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::EffectBind - unknown teleport coordinates for spell ID %u", m_spellInfo->Id);
             return;
         }
 
@@ -6309,11 +6304,11 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     data << uint32(area_id);
     player->SendDirectMessage(&data);
 
-    sLog->outStaticDebug("New homebind X      : %f", loc.m_positionX);
-    sLog->outStaticDebug("New homebind Y      : %f", loc.m_positionY);
-    sLog->outStaticDebug("New homebind Z      : %f", loc.m_positionZ);
-    sLog->outStaticDebug("New homebind MapId  : %u", loc.m_mapId);
-    sLog->outStaticDebug("New homebind AreaId : %u", area_id);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind X      : %f", loc.m_positionX);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind Y      : %f", loc.m_positionY);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind Z      : %f", loc.m_positionZ);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind MapId  : %u", loc.m_mapId);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind AreaId : %u", area_id);
 
     // zone update
     data.Initialize(SMSG_PLAYERBOUND, 8+4);

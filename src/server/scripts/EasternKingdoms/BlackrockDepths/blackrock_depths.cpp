@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "blackrock_depths.h"
 
 //go_shadowforge_brazier
@@ -207,7 +209,7 @@ public:
                     {
                         instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
                         instance->SetData(TYPE_RING_OF_LAW, DONE);
-                        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_grimstone: event reached end and set complete.");
+                        sLog->outDebug(LOG_FILTER_TSCR, "npc_grimstone: event reached end and set complete.");
                     }
                     break;
             }

@@ -625,11 +625,11 @@ class spell_dru_insect_swarm : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_insect_swarm_AuraScript);
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DRUID_ITEM_T8_BALANCE_RELIC, EFFECT_0))
-                        amount += aurEff->GetAmount();
+                    if (AuraEffect const* relicAurEff = caster->GetAuraEffect(SPELL_DRUID_ITEM_T8_BALANCE_RELIC, EFFECT_0))
+                        amount += relicAurEff->GetAmount() / aurEff->GetTotalTicks();
             }
 
             void Register()

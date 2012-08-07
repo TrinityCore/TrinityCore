@@ -458,12 +458,12 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         if (msg == EQUIP_ERR_OK)
         {
             data.Initialize(SMSG_READ_ITEM_OK, 8);
-            sLog->outDetail("STORAGE: Item page sent");
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Item page sent");
         }
         else
         {
             data.Initialize(SMSG_READ_ITEM_FAILED, 8);
-            sLog->outDetail("STORAGE: Unable to read item");
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Unable to read item");
             _player->SendEquipError(msg, pItem, NULL);
         }
         data << pItem->GetGUID();
@@ -482,7 +482,7 @@ void WorldSession::HandlePageQuerySkippedOpcode(WorldPacket & recvData)
 
     recvData >> itemid >> guid;
 
-    sLog->outDetail("Packet Info: itemid: %u guidlow: %u guidentry: %u guidhigh: %u",
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Packet Info: itemid: %u guidlow: %u guidentry: %u guidhigh: %u",
         itemid, GUID_LOPART(guid), GUID_ENPART(guid), GUID_HIPART(guid));
 }
 
@@ -564,7 +564,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recvData)
                     Item* pNewItem = pItem->CloneItem(count, _player);
                     if (!pNewItem)
                     {
-                        sLog->outError("WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
+                        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
                         _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
                         return;
                     }
@@ -916,7 +916,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     // next slot
     ++slot;
 
-    sLog->outDetail("PLAYER: Buy bank bag slot, slot number = %u", slot);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "PLAYER: Buy bank bag slot, slot number = %u", slot);
 
     BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
 

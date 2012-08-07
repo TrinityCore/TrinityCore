@@ -1129,7 +1129,7 @@ struct GtOCTBaseMPByClassEntry
 /* no used
 struct HolidayDescriptionsEntry
 {
-    uint32 ID;                                              // 0, this is NOT holiday id
+    uint32 ID;                                              // 0, m_holidayDescriptionID
     //char*     name                                        // 1  m_name_lang
 };
 */
@@ -1137,7 +1137,7 @@ struct HolidayDescriptionsEntry
 /* no used
 struct HolidayNamesEntry
 {
-    uint32 ID;                                              // 0, this is NOT holiday id
+    uint32 ID;                                              // 0, m_holidayNameID
     //char*     name                                        // 1  m_name_lang
 };
 */
@@ -1335,7 +1335,7 @@ struct ItemSetEntry
 struct LFGDungeonEntry
 {
     uint32  ID;                                             // 0
-    //char*   name[16];                                     // 1-17 Name lang
+    //char*   name;                                         // 1
     uint32  minlevel;                                       // 2
     uint32  maxlevel;                                       // 3
     uint32  reclevel;                                       // 4

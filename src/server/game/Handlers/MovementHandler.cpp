@@ -67,7 +67,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     Map* oldMap = GetPlayer()->GetMap();
     if (GetPlayer()->IsInWorld())
     {
-        sLog->outError("Player (Name %s) is still in world when teleported from map %u to new map %u", GetPlayer()->GetName(), oldMap->GetId(), loc.GetMapId());
+        sLog->outError(LOG_FILTER_NETWORKIO, "Player (Name %s) is still in world when teleported from map %u to new map %u", GetPlayer()->GetName(), oldMap->GetId(), loc.GetMapId());
         oldMap->RemovePlayerFromMap(GetPlayer(), false);
     }
 
@@ -77,7 +77,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // while the player is in transit, for example the map may get full
     if (!newMap || !newMap->CanEnter(GetPlayer()))
     {
-        sLog->outError("Map %d could not be created for player %d, porting player to homebind", loc.GetMapId(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "Map %d could not be created for player %d, porting player to homebind", loc.GetMapId(), GetPlayer()->GetGUIDLow());
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
         return;
     }
@@ -90,7 +90,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
     if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
     {
-        sLog->outError("WORLD: failed to teleport player %s (%d) to map %d because of unknown reason!", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), loc.GetMapId());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: failed to teleport player %s (%d) to map %d because of unknown reason!", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), loc.GetMapId());
         GetPlayer()->ResetMap();
         GetPlayer()->SetMap(oldMap);
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
@@ -214,8 +214,8 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[3]);
     recvPacket.ReadByteSeq(guid[0]);
 
-    sLog->outStaticDebug("Guid " UI64FMTD, uint64(guid));
-    sLog->outStaticDebug("Flags %u, time %u", flags, time/IN_MILLISECONDS);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
 
@@ -280,12 +280,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID())
     {
-        sLog->outError("HandleMovementOpcodes: guid error");
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes: guid error");
         return;
     }
     if (!movementInfo.pos.IsPositionValid())
     {
-        sLog->outError("HandleMovementOpcodes: Invalid Position");
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes: Invalid Position");
         return;
     }
 
@@ -468,7 +468,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         //case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:   move_type = MOVE_FLIGHT_BACK;   force_move_type = MOVE_FLIGHT_BACK; break;
         //case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:          move_type = MOVE_PITCH_RATE;    force_move_type = MOVE_PITCH_RATE;  break;
         default:
-            sLog->outError("WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
             return;
     }
 
@@ -485,13 +485,13 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     {
         if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
         {
-            sLog->outError("%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
+            sLog->outError(LOG_FILTER_NETWORKIO, "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
                 move_type_name[move_type], _player->GetName(), _player->GetSpeed(move_type), newspeed);
             _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
         }
         else                                                // must be lesser - cheating
         {
-            sLog->outBasic("Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
+            sLog->outDebug(LOG_FILTER_GENERAL, "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
                 _player->GetName(), _player->GetSession()->GetAccountId(), _player->GetSpeed(move_type), newspeed);
             _player->GetSession()->KickPlayer();
         }
@@ -525,7 +525,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
     if (GetPlayer()->IsInWorld())
     {
         if (_player->m_mover->GetGUID() != guid)
-            sLog->outError("HandleSetActiveMoverOpcode: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, guid, GetLogNameForGuid(guid), GUID_ENPART(guid), _player->m_mover->GetGUID());
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleSetActiveMoverOpcode: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, guid, GetLogNameForGuid(guid), GUID_ENPART(guid), _player->m_mover->GetGUID());
     }
 }
 
@@ -643,7 +643,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
     MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (sequence == NULL)
     {
-        sLog->outError("WorldSession::ReadMovementInfo: No movement sequence found for opcode 0x%04X", uint32(data.GetOpcode()));
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::ReadMovementInfo: No movement sequence found for opcode 0x%04X", uint32(data.GetOpcode()));
         return;
     }
 
@@ -918,7 +918,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
     MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)
     {
-        sLog->outError("WorldSession::WriteMovementInfo: No movement sequence found for opcode 0x%04X", uint32(data.GetOpcode()));
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::WriteMovementInfo: No movement sequence found for opcode 0x%04X", uint32(data.GetOpcode()));
         return;
     }
 

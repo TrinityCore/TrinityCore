@@ -342,7 +342,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
-            sLog->outError("HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
             return;
         }
 
@@ -409,7 +409,7 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recvData)
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
     {
-        sLog->outError("WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
         return;
     }
 
@@ -459,7 +459,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recvData)
     // can't uninvite yourself
     if (GetPlayer()->GetName() == membername)
     {
-        sLog->outError("WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
         return;
     }
 
@@ -595,7 +595,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
     recvData >> x;
     recvData >> y;
 
-    //sLog->outDebug("Received opcode MSG_MINIMAP_PING X: %f, Y: %f", x, y);
+    //sLog->outDebug(LOG_FILTER_GENERAL, "Received opcode MSG_MINIMAP_PING X: %f, Y: %f", x, y);
 
     /** error handling **/
     /********************/
@@ -624,7 +624,7 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
     // everything's fine, do it
     roll = urand(minimum, maximum);
 
-    //sLog->outDebug("ROLL: MIN: %u, MAX: %u, ROLL: %u", minimum, maximum, roll);
+    //sLog->outDebug(LOG_FILTER_GENERAL, "ROLL: MIN: %u, MAX: %u, ROLL: %u", minimum, maximum, roll);
 
     WorldPacket data(MSG_RANDOM_ROLL, 4+4+4+8);
     data << uint32(minimum);
@@ -1113,7 +1113,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
 
 /*void WorldSession::HandleGroupCancelOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug("WORLD: got CMSG_GROUP_CANCEL.");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got CMSG_GROUP_CANCEL.");
 }*/
 
 void WorldSession::HandleOptOutOfLootOpcode(WorldPacket & recvData)
@@ -1127,7 +1127,7 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket & recvData)
     if (!GetPlayer())                                        // needed because STATUS_AUTHED
     {
         if (passOnLoot)
-            sLog->outError("CMSG_OPT_OUT_OF_LOOT value<>0 for not-loaded character!");
+            sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_OPT_OUT_OF_LOOT value<>0 for not-loaded character!");
         return;
     }
 

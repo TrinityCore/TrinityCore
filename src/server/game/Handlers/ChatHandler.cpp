@@ -52,7 +52,7 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
         if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) && AccountMgr::IsPlayerAccount(GetSecurity())
                 && !ChatHandler(this).isValidChatMessage(msg.c_str()))
         {
-            sLog->outError("Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName(),
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName(),
                     GetPlayer()->GetGUIDLow(), msg.c_str());
             if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
                 KickPlayer();
@@ -110,21 +110,21 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             type = CHAT_MSG_RAID_WARNING;
             break;
         default:
-            sLog->outDetail("HandleMessagechatOpcode : Unknown chat opcode (%u)", recvData.GetOpcode());
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleMessagechatOpcode : Unknown chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
             return;
     }
 
     if (type >= MAX_CHAT_MSG_TYPE)
     {
-        sLog->outError("CHAT: Wrong message type received: %u", type);
+        sLog->outError(LOG_FILTER_NETWORKIO, "CHAT: Wrong message type received: %u", type);
         recvData.rfinish();
         return;
     }
 
     Player* sender = GetPlayer();
 
-    //sLog->outDebug("CHAT: packet received. type %u, lang %u", type, lang);
+    //sLog->outDebug(LOG_FILTER_GENERAL, "CHAT: packet received. type %u, lang %u", type, lang);
 
     // no language sent with emote packet.
     if (type != CHAT_MSG_EMOTE && type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
@@ -504,7 +504,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
         } break;
         default:
-            sLog->outError("CHAT: unknown message type %u, lang: %u", type, lang);
+            sLog->outError(LOG_FILTER_NETWORKIO, "CHAT: unknown message type %u, lang: %u", type, lang);
             break;
     }
 }
@@ -535,7 +535,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             type = CHAT_MSG_WHISPER;
             break;
         default:
-            sLog->outDetail("HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
             return;
     }
@@ -639,7 +639,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
         }
         default:
         {
-            sLog->outError("HandleAddonMessagechatOpcode: unknown addon message type %u", type);
+            sLog->outError(LOG_FILTER_GENERAL, "HandleAddonMessagechatOpcode: unknown addon message type %u", type);
             break;
         }
     }

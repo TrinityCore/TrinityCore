@@ -31,7 +31,8 @@ EndScriptData */
 // Scarab   - Kill credit isn't crediting?
 // FrostSph - often they are casting Permafrost a little above the ground
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells

@@ -41,7 +41,7 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature &creature)
     if (!i_path)
     {
         // No movement found for entry
-        sLog->outErrorDb("WaypointMovementGenerator::LoadPath: creature %s (Entry: %u GUID: %u) doesn't have waypoint path id: %u", creature.GetName(), creature.GetEntry(), creature.GetGUIDLow(), path_id);
+        sLog->outError(LOG_FILTER_SQL, "WaypointMovementGenerator::LoadPath: creature %s (Entry: %u GUID: %u) doesn't have waypoint path id: %u", creature.GetName(), creature.GetEntry(), creature.GetGUIDLow(), path_id);
         return;
     }
 
@@ -316,11 +316,11 @@ void FlightPathMovementGenerator::PreloadEndGrid()
     // Load the grid
     if (endMap)
     {
-        sLog->outDetail("Preloading rid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, (uint32)(i_path->size()-1));
+        sLog->outInfo(LOG_FILTER_GENERAL, "Preloading rid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, (uint32)(i_path->size()-1));
         endMap->LoadGrid(_endGridX, _endGridY);
     }
     else
-        sLog->outDetail("Unable to determine map to preload flightmaster grid");
+        sLog->outInfo(LOG_FILTER_GENERAL, "Unable to determine map to preload flightmaster grid");
 }
 
 

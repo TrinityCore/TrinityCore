@@ -74,17 +74,17 @@ void WorldSession::HandlePetAction(WorldPacket & recvData)
 
     // used also for charmed creature
     Unit* pet= ObjectAccessor::GetUnit(*_player, guid1);
-    sLog->outDetail("HandlePetAction: Pet %u - flag: %u, spellid: %u, target: %u.", uint32(GUID_LOPART(guid1)), uint32(flag), spellid, uint32(GUID_LOPART(guid2)));
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet %u - flag: %u, spellid: %u, target: %u.", uint32(GUID_LOPART(guid1)), uint32(flag), spellid, uint32(GUID_LOPART(guid2)));
 
     if (!pet)
     {
-        sLog->outError("HandlePetAction: Pet (GUID: %u) doesn't exist for player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) doesn't exist for player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName());
         return;
     }
 
     if (pet != GetPlayer()->GetFirstControlled())
     {
-        sLog->outError("HandlePetAction: Pet (GUID: %u) does not belong to player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) does not belong to player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName());
         return;
     }
 
@@ -126,13 +126,13 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
 
     if (!pet)
     {
-        sLog->outError("HandlePetStopAttack: Pet %u does not exist", uint32(GUID_LOPART(guid)));
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetStopAttack: Pet %u does not exist", uint32(GUID_LOPART(guid)));
         return;
     }
 
     if (pet != GetPlayer()->GetPet() && pet != GetPlayer()->GetCharm())
     {
-        sLog->outError("HandlePetStopAttack: Pet GUID %u isn't a pet or charmed creature of player %s", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetStopAttack: Pet GUID %u isn't a pet or charmed creature of player %s", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
         return;
     }
 
@@ -147,7 +147,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        sLog->outError("WorldSession::HandlePetAction(petGuid: " UI64FMTD ", tagGuid: " UI64FMTD ", spellId: %u, flag: %u): object (entry: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!",
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandlePetAction(petGuid: " UI64FMTD ", tagGuid: " UI64FMTD ", spellId: %u, flag: %u): object (entry: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!",
             guid1, guid2, spellid, flag, pet->GetGUIDLow(), pet->GetTypeId());
         return;
     }
@@ -268,7 +268,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
                     }
                     break;
                 default:
-                    sLog->outError("WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
+                    sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
             }
             break;
         case ACT_REACTION:                                  // 0x6
@@ -297,7 +297,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
             if (!spellInfo)
             {
-                sLog->outError("WORLD: unknown PET spell id %i", spellid);
+                sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %i", spellid);
                 return;
             }
 
@@ -402,13 +402,13 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
             break;
         }
         default:
-            sLog->outError("WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
+            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
     }
 }
 
 void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
 {
-    sLog->outDetail("HandlePetNameQuery. CMSG_PET_NAME_QUERY");
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetNameQuery. CMSG_PET_NAME_QUERY");
 
     uint32 petnumber;
     uint64 petguid;
@@ -459,7 +459,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
     {
         if (!GetPlayer()->isGameMaster() && !GetPlayer()->HasAuraType(SPELL_AURA_OPEN_STABLE))
         {
-            sLog->outStaticDebug("Player (GUID:%u) attempt open stable in cheating way.", GUID_LOPART(guid));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "Player (GUID:%u) attempt open stable in cheating way.", GUID_LOPART(guid));
             return false;
         }
     }
@@ -468,7 +468,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
     {
         if (!GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_STABLEMASTER))
         {
-            sLog->outStaticDebug("Stablemaster (GUID:%u) not found or you can't interact with him.", GUID_LOPART(guid));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "Stablemaster (GUID:%u) not found or you can't interact with him.", GUID_LOPART(guid));
             return false;
         }
     }
@@ -477,7 +477,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
 
 void WorldSession::HandlePetSetAction(WorldPacket & recvData)
 {
-    sLog->outDetail("HandlePetSetAction. CMSG_PET_SET_ACTION");
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetSetAction. CMSG_PET_SET_ACTION");
 
     uint64 petguid;
     uint8  count;
@@ -488,14 +488,14 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
 
     if (!pet || pet != _player->GetFirstControlled())
     {
-        sLog->outError("HandlePetSetAction: Unknown pet (GUID: %u) or pet owner (GUID: %u)", GUID_LOPART(petguid), _player->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSetAction: Unknown pet (GUID: %u) or pet owner (GUID: %u)", GUID_LOPART(petguid), _player->GetGUIDLow());
         return;
     }
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        sLog->outError("WorldSession::HandlePetSetAction: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandlePetSetAction: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
         return;
     }
 
@@ -557,7 +557,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
         uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data[i]);
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
 
-        sLog->outDetail("Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position[i], spell_id, uint32(act_state));
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position[i], spell_id, uint32(act_state));
 
         //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
         if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
@@ -593,7 +593,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
 
 void WorldSession::HandlePetRename(WorldPacket & recvData)
 {
-    sLog->outDetail("HandlePetRename. CMSG_PET_RENAME");
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename. CMSG_PET_RENAME");
 
     uint64 petguid;
     uint8 isdeclined;
@@ -680,7 +680,7 @@ void WorldSession::HandlePetAbandon(WorldPacket & recvData)
 {
     uint64 guid;
     recvData >> guid;                                      //pet guid
-    sLog->outDetail("HandlePetAbandon. CMSG_PET_ABANDON pet guid is %u", GUID_LOPART(guid));
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetAbandon. CMSG_PET_ABANDON pet guid is %u", GUID_LOPART(guid));
 
     if (!_player->IsInWorld())
         return;
@@ -698,7 +698,7 @@ void WorldSession::HandlePetAbandon(WorldPacket & recvData)
 
 void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDetail("CMSG_PET_SPELL_AUTOCAST");
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_PET_SPELL_AUTOCAST");
     uint64 guid;
     uint32 spellid;
     uint8  state;                                           //1 for on, 0 for off
@@ -714,7 +714,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 
     if (!pet || (pet != _player->GetGuardianPet() && pet != _player->GetCharm()))
     {
-        sLog->outError("HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
         return;
     }
 
@@ -726,7 +726,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        sLog->outError("WorldSession::HandlePetSpellAutocastOpcod: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandlePetSpellAutocastOpcod: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
         return;
     }
 
@@ -759,14 +759,14 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
-        sLog->outError("HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
         return;
     }
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        sLog->outError("WORLD: unknown PET spell id %i", spellId);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %i", spellId);
         return;
     }
 
