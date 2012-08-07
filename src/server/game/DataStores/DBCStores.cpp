@@ -741,11 +741,11 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if (!sAreaStore.LookupEntry(4559)          ||     // last area (areaflag) added in 4.2.2 (14545)
-        !sCharTitlesStore.LookupEntry(279)     ||     // last char title added in 4.2.2 (14545)
-        !sGemPropertiesStore.LookupEntry(1860) ||     // last gem property added in 4.2.2 (14545)
-        !sMapStore.LookupEntry(968)            ||     // last map added in 4.2.2 (14545)
-        !sSpellStore.LookupEntry(102129)       )      // last spell added in 4.2.2 (14545)
+    if (!sAreaStore.LookupEntry(4713)          ||     // last area (areaflag) added in 4.3.4 (15595)
+        !sCharTitlesStore.LookupEntry(287)     ||     // last char title added in 4.3.4 (15595)
+        !sGemPropertiesStore.LookupEntry(2250) ||     // last gem property added in 4.3.4 (15595)
+        !sMapStore.LookupEntry(980)            ||     // last map added in 4.3.4 (15595)
+        !sSpellStore.LookupEntry(121820)       )      // last spell added in 4.3.4 (15595)
     {
         sLog->outError("You have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);
@@ -874,7 +874,7 @@ uint32 GetAreaFlagByMapId(uint32 mapid)
 
 uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
 {
-    if (mapid != 530 && mapid != 571)                        // speed for most cases
+    if (mapid != 530 && mapid != 571 && mapid != 732)   // speed for most cases
         return mapid;
 
     if (WorldMapAreaEntry const* wma = sWorldMapAreaStore.LookupEntry(zoneId))
@@ -893,12 +893,7 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
     if (!mapEntry)
         return CONTENT_1_60;
 
-    switch (mapEntry->Expansion())
-    {
-        default: return CONTENT_1_60;
-        case 1:  return CONTENT_61_70;
-        case 2:  return CONTENT_71_80;
-    }
+    return ContentLevels(mapEntry->Expansion());
 }
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)

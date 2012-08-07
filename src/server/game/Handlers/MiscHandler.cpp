@@ -1800,6 +1800,8 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
                 SendItemSparseDb2Reply(entry);
                 break;
             default:
+                sLog->outError("CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
+                recvPacket.rfinish();
                 break;
         }
     }
