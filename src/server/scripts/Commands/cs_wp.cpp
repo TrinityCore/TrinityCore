@@ -1126,7 +1126,7 @@ public:
 
         Player* Pl = handler->GetSession()->GetPlayer();
         Pl->GetPosition(x,y,z);
-        sLog->outString("AddWaypoint(, %ff, %ff, %ff);",x,y,z);
+        sLog->outInfo(LOG_FILTER_GENERAL, "AddWaypoint(, %ff, %ff, %ff);",x,y,z);
         Pl->SummonGameObject(188650, x, y, z,0,0,0,0,0,0);
         return false;
     }

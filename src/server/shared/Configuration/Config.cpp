@@ -80,7 +80,7 @@ std::string GetStringDefault(const char* name, const std::string &def)
 {
     ACE_TString val;
     return GetValueHelper(name, val) ? val.c_str() : def;
-};
+}
 
 bool GetBoolDefault(const char* name, bool def)
 {
@@ -91,19 +91,19 @@ bool GetBoolDefault(const char* name, bool def)
 
     return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" ||
         val == "1");
-};
+}
 
 int GetIntDefault(const char* name, int def)
 {
     ACE_TString val;
     return GetValueHelper(name, val) ? atoi(val.c_str()) : def;
-};
+}
 
 float GetFloatDefault(const char* name, float def)
 {
     ACE_TString val;
     return GetValueHelper(name, val) ? (float)atof(val.c_str()) : def;
-};
+}
 
 const std::string & GetFilename()
 {

@@ -67,7 +67,6 @@ public:
         {
             { "difftime",       SEC_CONSOLE,        true,  &HandleServerSetDiffTimeCommand,         "", NULL },
             { "loglevel",       SEC_CONSOLE,        true,  &HandleServerSetLogLevelCommand,         "", NULL },
-            { "logfilelevel",   SEC_CONSOLE,        true,  &HandleServerSetLogFileLevelCommand,     "", NULL },
             { "motd",           SEC_ADMINISTRATOR,  true,  &HandleServerSetMotdCommand,             "", NULL },
             { "closed",         SEC_ADMINISTRATOR,  true,  &HandleServerSetClosedCommand,           "", NULL },
             { NULL,             0,                  false, NULL,                                    "", NULL }
@@ -85,7 +84,6 @@ public:
             { "restart",        SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverRestartCommandTable },
             { "shutdown",       SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverShutdownCommandTable },
             { "set",            SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverSetCommandTable },
-            { "togglequerylog", SEC_CONSOLE,        true,  &HandleServerToggleQueryLogging,         "", NULL },
             { NULL,             0,                  false, NULL,                                    "", NULL }
         };
 
@@ -379,30 +377,19 @@ public:
     }
 
     // Set the level of logging
-    static bool HandleServerSetLogFileLevelCommand(ChatHandler* /*handler*/, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        char* newLevel = strtok((char*)args, " ");
-        if (!newLevel)
-            return false;
-
-        sLog->SetLogFileLevel(newLevel);
-        return true;
-    }
-
-    // Set the level of logging
     static bool HandleServerSetLogLevelCommand(ChatHandler* /*handler*/, char const* args)
     {
         if (!*args)
             return false;
 
-        char* newLevel = strtok((char*)args, " ");
-        if (!newLevel)
+        char* type = strtok((char*)args, " ");
+        char* name = strtok(NULL, " ");
+        char* level = strtok(NULL, " ");
+
+        if (!type || !name || !level || *name == '\0' || *level == '\0' || (*type != 'a' && *type != 'l'))
             return false;
 
-        sLog->SetLogLevel(newLevel);
+        sLog->SetLogLevel(name, level, *type == 'l');
         return true;
     }
 
@@ -423,18 +410,6 @@ public:
         sWorld->SetRecordDiffInterval(newTime);
         printf("Record diff every %u ms\n", newTime);
 
-        return true;
-    }
-
-    // toggle sql driver query logging
-    static bool HandleServerToggleQueryLogging(ChatHandler* handler, char const* /*args*/)
-    {
-        sLog->SetSQLDriverQueryLogging(!sLog->GetSQLDriverQueryLogging());
-
-        if (sLog->GetSQLDriverQueryLogging())
-            handler->PSendSysMessage(LANG_SQLDRIVER_QUERY_LOGGING_ENABLED);
-        else
-            handler->PSendSysMessage(LANG_SQLDRIVER_QUERY_LOGGING_DISABLED);
         return true;
     }
 };

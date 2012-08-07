@@ -212,7 +212,7 @@ public:
 
         void SetData64(uint32 type, uint64 data)
         {
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
+            sLog->outDebug(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
 
             switch (type)
             {
@@ -228,7 +228,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
+            sLog->outDebug(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
 
             switch (type)
             {

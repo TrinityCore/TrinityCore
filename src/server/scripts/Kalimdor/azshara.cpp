@@ -182,9 +182,9 @@ public:
 enum RizzleSprysprocketData
 {
     QUEST_CHASING_THE_MOONSTONE     = 10994,
-    
+
     MOB_DEPTH_CHARGE                = 23025,
-    
+
     SPELL_RIZZLE_BLACKJACK          = 39865,
     SPELL_RIZZLE_ESCAPE             = 39871,
     SPELL_RIZZLE_FROST_GRENADE      = 40525,
@@ -490,7 +490,7 @@ public:
             {
                 if (WeMustDieTimer <= diff)
                     me->DespawnOrUnsummon();
-                else 
+                else
                     WeMustDieTimer -= diff;
             }
             return;
