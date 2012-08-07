@@ -597,8 +597,8 @@ enum Opcodes
     CMSG_ZONEUPDATE                                   = 0x4F37,
     MSG_AUCTION_HELLO                                 = 0x2307,
     MSG_BATTLEGROUND_PLAYER_POSITIONS                 = 0x0000,
-    MSG_CHANNEL_START                                 = 0x0A15,
-    MSG_CHANNEL_UPDATE                                = 0x2417,
+    MSG_CHANNEL_START                                 = 0x0A15, // SMSG only?
+    MSG_CHANNEL_UPDATE                                = 0x2417, // SMSG only?
     MSG_CORPSE_QUERY                                  = 0x4336,
     MSG_GM_BIND_OTHER                                 = 0x0000,
     MSG_GM_SHOWLABEL                                  = 0x0000,

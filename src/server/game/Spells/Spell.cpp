@@ -3841,6 +3841,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             data << uint32(missingItem);  // first missing item
             break;
         }
+        // TODO: SPELL_FAILED_NOT_STANDING
         default:
             break;
     }
