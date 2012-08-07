@@ -163,7 +163,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
         if (group2)
         {
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_GROUP_INVITE, 50);
+            WorldPacket data(SMSG_GROUP_INVITE, 45);
 
             data.WriteBit(0);
 
@@ -176,7 +176,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
             data.WriteBit(invitedGuid[6]);
             data.WriteBit(invitedGuid[5]);
 
-            data.WriteBits(strlen(GetPlayer()->GetName()), 9); // Inviter name length
+            data.WriteBits(0, 9); // Realm name
 
             data.WriteBit(invitedGuid[4]);
 
@@ -207,7 +207,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
             data.WriteByteSeq(invitedGuid[5]);
 
-            data.append((uint8 const*)GetPlayer()->GetName(), strlen(GetPlayer()->GetName())); // inviter name
+            // data.append(realm name);
 
             data.WriteByteSeq(invitedGuid[7]);
 
@@ -265,7 +265,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     }
 
     // ok, we do it
-    WorldPacket data(SMSG_GROUP_INVITE, 50);
+    WorldPacket data(SMSG_GROUP_INVITE, 45);
 
     data.WriteBit(0);
 
@@ -278,7 +278,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     data.WriteBit(invitedGuid[6]);
     data.WriteBit(invitedGuid[5]);
 
-    data.WriteBits(strlen(GetPlayer()->GetName()), 9); // Inviter name length
+    data.WriteBits(0, 9); // Realm name
 
     data.WriteBit(invitedGuid[4]);
 
@@ -309,7 +309,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
     data.WriteByteSeq(invitedGuid[5]);
 
-    data.append((uint8 const*)GetPlayer()->GetName(), strlen(GetPlayer()->GetName())); // inviter name
+    // data.append(realm name);
 
     data.WriteByteSeq(invitedGuid[7]);
 
