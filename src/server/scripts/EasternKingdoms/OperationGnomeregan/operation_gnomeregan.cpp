@@ -143,7 +143,7 @@ class npc_og_suit : public CreatureScript
                         AddWaypoint(23, -5093.171387f, 469.209137f, 403.715790f);
                         break;
                     default:
-                        sLog->outError("Unexpected movement variation (%i) in npc_og_suitAI::SetupMovement call!", variation);
+                        sLog->outError(LOG_FILTER_SQL, "Unexpected movement variation (%i) in npc_og_suitAI::SetupMovement call!", variation);
                         return;
                 }
                 if (npc_og_suitAI* pEscortAI = CAST_AI(npc_og_suitAI, me->AI()))
@@ -297,7 +297,7 @@ class npc_og_infantry : public CreatureScript
                         AddWaypoint(10, -4964.441895f, 722.924133f, 258.709137f);
                         break;
                     default:
-                        sLog->outError("Unexpected movement variation (%i) in npc_og_infantryAI::SetupMovement call!", variation);
+                        sLog->outError(LOG_FILTER_SQL, "Unexpected movement variation (%i) in npc_og_infantryAI::SetupMovement call!", variation);
                         return;
                 }
                 uiVariation = variation;
@@ -472,7 +472,7 @@ class npc_og_tank : public CreatureScript
                         AddWaypoint(21, -5262.729492f, 572.853027f, 388.782532f);
                         break;
                     default:
-                        sLog->outError("Unexpected movement variation (%i) in npc_og_tankAI::SetupMovement call!", variation);
+                        sLog->outError(LOG_FILTER_SQL, "Unexpected movement variation (%i) in npc_og_tankAI::SetupMovement call!", variation);
                         return;
                 }
                 if (npc_og_tankAI* pEscortAI = CAST_AI(npc_og_tankAI, me->AI()))
@@ -566,7 +566,7 @@ class npc_og_i_tank : public CreatureScript
                         AddWaypoint(10, -5088.007324f, 474.113739f, 402.551941f);
                         break;
                     default:
-                        sLog->outError("Unexpected movement variation (%i) in npc_og_i_tankAI::SetupMovement call!", variation);
+                        sLog->outError(LOG_FILTER_SQL, "Unexpected movement variation (%i) in npc_og_i_tankAI::SetupMovement call!", variation);
                         return;
                 }
                 if (npc_og_i_tankAI* pEscortAI = CAST_AI(npc_og_i_tankAI, me->AI()))
@@ -1386,7 +1386,7 @@ class npc_og_mekkatorque : public CreatureScript
                                 case 4:
                                     break;
                                 default:
-                                    sLog->outError("More than 4 Rocket Launchers destroyed!");
+                                    sLog->outInfo(LOG_FILTER_GENERAL, "More than 4 Rocket Launchers destroyed!");
                             }
                         }
                         break;
@@ -1401,7 +1401,7 @@ class npc_og_mekkatorque : public CreatureScript
                             DoUpdateWorldState(WORLDSTATE_AIRFIELD_AND_COMMAND_CENTER_CAPTURED, 1);
                         }
                         if (uiCannonsDestroyed > 6)
-                            sLog->outError("More than 6 Tankbuster Cannons destroyed!");
+                            sLog->outInfo(LOG_FILTER_GENERAL, "More than 6 Tankbuster Cannons destroyed!");
                         break;
                     case 2:
                         DoUpdateWorldState(WORLDSTATE_BATTLE_NEAR_ENTRANCE, 0);
@@ -1415,7 +1415,7 @@ class npc_og_mekkatorque : public CreatureScript
                         JumpToNextStep(100);
                         break;
                     default:
-                        sLog->outError("Unexpected variation (%i) in npc_og_mekkatorqueAI::SpecialKill call!", variation);
+                        sLog->outError(LOG_FILTER_SQL, "Unexpected variation (%i) in npc_og_mekkatorqueAI::SpecialKill call!", variation);
                 }
             }
 
@@ -1466,7 +1466,7 @@ class npc_og_mekkatorque : public CreatureScript
                         PartyCast(SPELL_MUSIC_END);
                         break;
                     default:
-                        sLog->outError("Unexpected musicId (%i) in npc_og_mekkatorqueAI::DoPlayMusic call!", musicId);
+                        sLog->outError(LOG_FILTER_SQL, "Unexpected musicId (%i) in npc_og_mekkatorqueAI::DoPlayMusic call!", musicId);
                 }
             }
 
@@ -1560,7 +1560,7 @@ class npc_og_mekkatorque : public CreatureScript
                     BannerList_temp.clear();
                 }
                 else
-                    sLog->outError("TSCR error: BannerList is empty!");
+                    sLog->outError(LOG_FILTER_SQL, "TSCR error: BannerList is empty!");
             }
 
             void DoCleanup()
