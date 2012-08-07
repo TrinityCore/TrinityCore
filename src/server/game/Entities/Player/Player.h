@@ -2117,9 +2117,9 @@ class Player : public Unit, public GridObject<Player>
 
         inline SpellCooldowns GetSpellCooldowns() const { return m_spellCooldowns; }
 
-        void SetDrunkValue(uint16 newDrunkValue, uint32 itemid=0);
-        uint16 GetDrunkValue() const { return m_drunk; }
-        static DrunkenState GetDrunkenstateByValue(uint16 value);
+        void SetDrunkValue(uint8 newDrunkValue, uint32 itemId = 0);
+        uint8 GetDrunkValue() const { return GetByteValue(PLAYER_BYTES_3, 1); }
+        static DrunkenState GetDrunkenstateByValue(uint8 value);
 
         uint32 GetDeathTimer() const { return m_deathTimer; }
         uint32 GetCorpseReclaimDelay(bool pvp) const;
@@ -2803,7 +2803,6 @@ class Player : public Unit, public GridObject<Player>
         time_t m_lastDailyQuestTime;
 
         uint32 m_drunkTimer;
-        uint16 m_drunk;
         uint32 m_weaponChangeTimer;
 
         uint32 m_zoneUpdateId;

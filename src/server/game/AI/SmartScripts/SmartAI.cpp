@@ -27,9 +27,8 @@
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "Group.h"
-
 #include "SmartAI.h"
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 SmartAI::SmartAI(Creature* c) : CreatureAI(c)
 {
@@ -108,7 +107,7 @@ WayPoint* SmartAI::GetNextWayPoint()
         mLastWP = (*itr).second;
         if (mLastWP->id != mCurrentWPID)
         {
-            sLog->outError("SmartAI::GetNextWayPoint: Got not expected waypoint id %u, expected %u", mLastWP->id, mCurrentWPID);
+            sLog->outError(LOG_FILTER_GENERAL, "SmartAI::GetNextWayPoint: Got not expected waypoint id %u, expected %u", mLastWP->id, mCurrentWPID);
         }
         return (*itr).second;
     }
@@ -119,7 +118,7 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* /*invoker*/)
 {
     if (me->isInCombat())// no wp movement in combat
     {
-        sLog->outError("SmartAI::StartPath: Creature entry %u wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
+        sLog->outError(LOG_FILTER_GENERAL, "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
         return;
     }
     if (HasEscortState(SMART_ESCORT_ESCORTING))
@@ -135,8 +134,7 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* /*invoker*/)
 
     SetRun(run);
 
-    WayPoint* wp = GetNextWayPoint();
-    if (wp)
+    if (WayPoint* wp = GetNextWayPoint())
     {
         me->GetPosition(&mLastOOCPos);
         me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
@@ -164,7 +162,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
         return;
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        sLog->outError("SmartAI::StartPath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
+        sLog->outError(LOG_FILTER_GENERAL, "SmartAI::StartPath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
         return;
     }
     mForcedPaused = forced;
@@ -302,7 +300,6 @@ void SmartAI::UpdatePath(const uint32 diff)
             mWPPauseTimer = 0;
         } else {
             mWPPauseTimer -= diff;
-
         }
     }
     if (HasEscortState(SMART_ESCORT_RETURNING))
@@ -324,15 +321,12 @@ void SmartAI::UpdatePath(const uint32 diff)
         if (mCurrentWPID == GetWPCount())
         {
             EndPath();
-        } else {
-            WayPoint* wp = GetNextWayPoint();
-            if (wp)
-            {
-                SetRun(mRun);
-                me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
-            }
         }
-
+        else if (WayPoint* wp = GetNextWayPoint())
+        {
+            SetRun(mRun);
+            me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
+        }
     }
 }
 

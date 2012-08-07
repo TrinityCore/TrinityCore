@@ -962,7 +962,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket &recvData)
     if (decompressedSize > 0xFFFF)
     {
         recvData.rfinish();                   // unnneded warning spam in this case
-        sLog->outError("UAD: Account data packet too big, size %u", decompressedSize);
+        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Account data packet too big, size %u", decompressedSize);
         return;
     }
 
@@ -973,7 +973,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket &recvData)
     if (uncompress(const_cast<uint8*>(dest.contents()), &realSize, const_cast<uint8*>(recvData.contents() + recvData.rpos()), recvData.size() - recvData.rpos()) != Z_OK)
     {
         recvData.rfinish();                   // unnneded warning spam in this case
-        sLog->outError("UAD: Failed to decompress account data");
+        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Failed to decompress account data");
         return;
     }
 
@@ -1045,10 +1045,10 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
     uint32 action = ACTION_BUTTON_ACTION(packetData);
     uint8  type   = ACTION_BUTTON_TYPE(packetData);
 
-    sLog->outDetail("BUTTON: %u ACTION: %u TYPE: %u", button, action, type);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", button, action, type);
     if (!packetData)
     {
-        sLog->outDetail("MISC: Remove action from button %u", button);
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", button);
         GetPlayer()->removeActionButton(button);
     }
     else
@@ -1057,19 +1057,19 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
         {
             case ACTION_BUTTON_MACRO:
             case ACTION_BUTTON_CMACRO:
-                sLog->outDetail("MISC: Added Macro %u into button %u", action, button);
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, button);
                 break;
             case ACTION_BUTTON_EQSET:
-                sLog->outDetail("MISC: Added EquipmentSet %u into button %u", action, button);
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSet %u into button %u", action, button);
                 break;
             case ACTION_BUTTON_SPELL:
-                sLog->outDetail("MISC: Added Spell %u into button %u", action, button);
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, button);
                 break;
             case ACTION_BUTTON_ITEM:
-                sLog->outDetail("MISC: Added Item %u into button %u", action, button);
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, button);
                 break;
             default:
-                sLog->outError("MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName(), _player->GetGUIDLow());
+                sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName(), _player->GetGUIDLow());
                 return;
         }
         GetPlayer()->addActionButton(button, action, type);
@@ -1196,7 +1196,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recvPacket)
     if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
     {
         if (actionBar != 0)
-            sLog->outError("WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", uint32(actionBar));
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", uint32(actionBar));
         return;
     }
 
@@ -1447,7 +1447,7 @@ void WorldSession::HandleFarSightOpcode(WorldPacket & recvData)
             if (WorldObject* target = _player->GetViewpoint())
                 _player->SetSeer(target);
             else
-                sLog->outError("Player %s requests non-existing seer " UI64FMTD, _player->GetName(), _player->GetUInt64Value(PLAYER_FARSIGHT));
+                sLog->outError(LOG_FILTER_NETWORKIO, "Player %s requests non-existing seer " UI64FMTD, _player->GetName(), _player->GetUInt64Value(PLAYER_FARSIGHT));
             break;
         default:
             sLog->outDebug(LOG_FILTER_NETWORKIO, "Unhandled mode in CMSG_FAR_SIGHT: %u", apply);
@@ -1518,7 +1518,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
 
     if (mode >= MAX_DUNGEON_DIFFICULTY)
     {
-        sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUIDLow(), mode);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUIDLow(), mode);
         return;
     }
 
@@ -1529,7 +1529,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
     Map* map = _player->FindMap();
     if (map && map->IsDungeon())
     {
-        sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player (Name: %s, GUID: %u) tried to reset the instance while player is inside!", _player->GetName(), _player->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: player (Name: %s, GUID: %u) tried to reset the instance while player is inside!", _player->GetName(), _player->GetGUIDLow());
         return;
     }
 
@@ -1549,7 +1549,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
 
                 if (groupGuy->GetMap()->IsNonRaidDungeon())
                 {
-                    sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while group member (Name: %s, GUID: %u) is inside!", _player->GetGUIDLow(), groupGuy->GetName(), groupGuy->GetGUIDLow());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while group member (Name: %s, GUID: %u) is inside!", _player->GetGUIDLow(), groupGuy->GetName(), groupGuy->GetGUIDLow());
                     return;
                 }
             }
@@ -1575,7 +1575,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recvData)
 
     if (mode >= MAX_RAID_DIFFICULTY)
     {
-        sLog->outError("WorldSession::HandleSetRaidDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUIDLow(), mode);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetRaidDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUIDLow(), mode);
         return;
     }
 
@@ -1583,7 +1583,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recvData)
     Map* map = _player->FindMap();
     if (map && map->IsDungeon())
     {
-        sLog->outError("WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
         return;
     }
 
@@ -1606,7 +1606,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recvData)
 
                 if (groupGuy->GetMap()->IsRaid())
                 {
-                    sLog->outError("WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
                     return;
                 }
             }
@@ -1746,7 +1746,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
 
     if (!_player->HasPendingBind())
     {
-        sLog->outDetail("InstanceLockResponse: Player %s (guid %u) tried to bind himself/teleport to graveyard without a pending bind!", _player->GetName(), _player->GetGUIDLow());
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "InstanceLockResponse: Player %s (guid %u) tried to bind himself/teleport to graveyard without a pending bind!", _player->GetName(), _player->GetGUIDLow());
         return;
     }
 
@@ -1800,7 +1800,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
                 SendItemSparseDb2Reply(entry);
                 break;
             default:
-                sLog->outError("CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
+                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
                 recvPacket.rfinish();
                 break;
         }
@@ -1882,5 +1882,5 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
      recvPacket.ReadByteSeq(guid[5]);
 
      WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
-     sLog->outError("Object update failed for object "UI64FMTD" (%s) for player %s (%u)", uint64(guid), obj ? obj->GetName() : "object-not-found", GetPlayerName(), GetGuidLow());
+     sLog->outError(LOG_FILTER_NETWORKIO, "Object update failed for object "UI64FMTD" (%s) for player %s (%u)", uint64(guid), obj ? obj->GetName() : "object-not-found", GetPlayerName(), GetGuidLow());
  }

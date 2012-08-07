@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "AccountMgr.h"
 #include "ObjectMgr.h"
+#include "PlayerDump.h"
 
 class character_commandscript : public CommandScript
 {
@@ -34,6 +35,12 @@ public:
 
     ChatCommand* GetCommands() const
     {
+        static ChatCommand pdumpCommandTable[] =
+        {
+            { "load",           SEC_ADMINISTRATOR,  true,  &HandlePDumpLoadCommand,                 "", NULL },
+            { "write",          SEC_ADMINISTRATOR,  true,  &HandlePDumpWriteCommand,                "", NULL },
+            { NULL,             0,                  false, NULL,                                    "", NULL }
+        };
         static ChatCommand characterDeletedCommandTable[] =
         {
             { "delete",         SEC_CONSOLE,        true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
@@ -48,7 +55,7 @@ public:
             { "customize",      SEC_GAMEMASTER,     true,  &HandleCharacterCustomizeCommand,       "", NULL },
             { "changefaction",  SEC_GAMEMASTER,     true,  &HandleCharacterChangeFactionCommand,   "", NULL },
             { "changerace",     SEC_GAMEMASTER,     true,  &HandleCharacterChangeRaceCommand,      "", NULL },
-            { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                   "", characterDeletedCommandTable},
+            { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                   "", characterDeletedCommandTable },
             { "erase",          SEC_CONSOLE,        true,  &HandleCharacterEraseCommand,           "", NULL },
             { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           "", NULL },
             { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
@@ -59,7 +66,9 @@ public:
 
         static ChatCommand commandTable[] =
         {
-            { "character",      SEC_GAMEMASTER,     true,  NULL,                                   "", characterCommandTable},
+            { "character",      SEC_GAMEMASTER,     true,  NULL,                                   "", characterCommandTable },
+            { "levelup",        SEC_ADMINISTRATOR,  false, &HandleLevelUpCommand,                  "", NULL },
+            { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                   "", pdumpCommandTable },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
         return commandTable;
@@ -218,6 +227,34 @@ public:
             sWorld->AddCharacterNameData(delInfo.lowGuid, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8());
     }
 
+    static void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel, ChatHandler* handler)
+    {
+        if (player)
+        {
+            player->GiveLevel(newLevel);
+            player->InitTalentForLevel();
+            player->SetUInt32Value(PLAYER_XP, 0);
+
+            if (handler->needReportToTarget(player))
+            {
+                if (oldLevel == newLevel)
+                    ChatHandler(player).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink().c_str());
+                else if (oldLevel < newLevel)
+                    ChatHandler(player).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), newLevel);
+                else                                                // if (oldlevel > newlevel)
+                    ChatHandler(player).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), newLevel);
+            }
+        }
+        else
+        {
+            // Update level and reset XP, everything else will be updated at login
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
+            stmt->setUInt8(0, uint8(newLevel));
+            stmt->setUInt32(1, GUID_LOPART(playerGuid));
+            CharacterDatabase.Execute(stmt);
+        }
+    }
+
     static bool HandleCharacterTitlesCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
@@ -326,7 +363,7 @@ public:
         if (newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
             newlevel = STRONG_MAX_LEVEL;
 
-        handler->HandleCharacterLevel(target, targetGuid, oldlevel, newlevel);
+        HandleCharacterLevel(target, targetGuid, oldlevel, newlevel, handler);
         if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)      // including player == NULL
         {
             std::string nameLink = handler->playerLink(targetName);
@@ -668,6 +705,214 @@ public:
 
         Player::DeleteFromDB(characterGuid, accountId, true, true);
         handler->PSendSysMessage(LANG_CHARACTER_DELETED, characterName.c_str(), GUID_LOPART(characterGuid), accountName.c_str(), accountId);
+
+        return true;
+    }
+
+    static bool HandleLevelUpCommand(ChatHandler* handler, char const* args)
+    {
+        char* nameStr;
+        char* levelStr;
+        handler->extractOptFirstArg((char*)args, &nameStr, &levelStr);
+
+        // exception opt second arg: .character level $name
+        if (levelStr && isalpha(levelStr[0]))
+        {
+            nameStr = levelStr;
+            levelStr = NULL;                                    // current level will used
+        }
+
+        Player* target;
+        uint64 targetGuid;
+        std::string targetName;
+        if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
+            return false;
+
+        int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromDB(targetGuid);
+        int32 addlevel = levelStr ? atoi(levelStr) : 1;
+        int32 newlevel = oldlevel + addlevel;
+
+        if (newlevel < 1)
+            newlevel = 1;
+
+        if (newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
+            newlevel = STRONG_MAX_LEVEL;
+
+        HandleCharacterLevel(target, targetGuid, oldlevel, newlevel, handler);
+
+        if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)      // including chr == NULL
+        {
+            std::string nameLink = handler->playerLink(targetName);
+            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, nameLink.c_str(), newlevel);
+        }
+
+        return true;
+    }
+
+    static bool HandlePDumpLoadCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* fileStr = strtok((char*)args, " ");
+        if (!fileStr)
+            return false;
+
+        char* accountStr = strtok(NULL, " ");
+        if (!accountStr)
+            return false;
+
+        std::string accountName = accountStr;
+        if (!AccountMgr::normalizeString(accountName))
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 accountId = AccountMgr::GetId(accountName);
+        if (!accountId)
+        {
+            accountId = atoi(accountStr);                             // use original string
+            if (!accountId)
+            {
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
+        if (!AccountMgr::GetName(accountId, accountName))
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        char* guidStr = NULL;
+        char* nameStr = strtok(NULL, " ");
+
+        std::string name;
+        if (nameStr)
+        {
+            name = nameStr;
+            // normalize the name if specified and check if it exists
+            if (!normalizePlayerName(name))
+            {
+                handler->PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (ObjectMgr::CheckPlayerName(name, true) != CHAR_NAME_SUCCESS)
+            {
+                handler->PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            guidStr = strtok(NULL, " ");
+        }
+
+        uint32 guid = 0;
+
+        if (guidStr)
+        {
+            guid = uint32(atoi(guidStr));
+            if (!guid)
+            {
+                handler->PSendSysMessage(LANG_INVALID_CHARACTER_GUID);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (sObjectMgr->GetPlayerAccountIdByGUID(guid))
+            {
+                handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
+        switch (PlayerDumpReader().LoadDump(fileStr, accountId, name, guid))
+        {
+            case DUMP_SUCCESS:
+                handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
+                break;
+            case DUMP_FILE_OPEN_ERROR:
+                handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileStr);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case DUMP_FILE_BROKEN:
+                handler->PSendSysMessage(LANG_DUMP_BROKEN, fileStr);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case DUMP_TOO_MANY_CHARS:
+                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, accountName.c_str(), accountId);
+                handler->SetSentErrorMessage(true);
+                return false;
+            default:
+                handler->PSendSysMessage(LANG_COMMAND_IMPORT_FAILED);
+                handler->SetSentErrorMessage(true);
+                return false;
+        }
+
+        return true;
+    }
+
+    static bool HandlePDumpWriteCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* fileStr = strtok((char*)args, " ");
+        char* playerStr = strtok(NULL, " ");
+
+        if (!fileStr || !playerStr)
+            return false;
+
+        uint64 guid;
+        // character name can't start from number
+        if (isNumeric(playerStr))
+            guid = MAKE_NEW_GUID(atoi(playerStr), 0, HIGHGUID_PLAYER);
+        else
+        {
+            std::string name = handler->extractPlayerNameFromLink(playerStr);
+            if (name.empty())
+            {
+                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            guid = sObjectMgr->GetPlayerGUIDByName(name);
+        }
+
+        if (!sObjectMgr->GetPlayerAccountIdByGUID(guid))
+        {
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        switch (PlayerDumpWriter().WriteDump(fileStr, uint32(guid)))
+        {
+            case DUMP_SUCCESS:
+                handler->PSendSysMessage(LANG_COMMAND_EXPORT_SUCCESS);
+                break;
+            case DUMP_FILE_OPEN_ERROR:
+                handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileStr);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case DUMP_CHARACTER_DELETED:
+                handler->PSendSysMessage(LANG_COMMAND_EXPORT_DELETED_CHAR);
+                handler->SetSentErrorMessage(true);
+                return false;
+            default:
+                handler->PSendSysMessage(LANG_COMMAND_EXPORT_FAILED);
+                handler->SetSentErrorMessage(true);
+                return false;
+        }
 
         return true;
     }

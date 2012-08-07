@@ -257,7 +257,7 @@ namespace VMAP
             WorldModel* worldmodel = new WorldModel();
             if (!worldmodel->readFile(basepath + filename + ".vmo"))
             {
-                sLog->outError("VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
+                sLog->outError(LOG_FILTER_GENERAL, "VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
                 delete worldmodel;
                 return NULL;
             }
@@ -277,7 +277,7 @@ namespace VMAP
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
-            sLog->outError("VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
+            sLog->outError(LOG_FILTER_GENERAL, "VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
             return;
         }
         if (model->second.decRefCount() == 0)

@@ -15,36 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_PACKETLOG_H
-#define TRINITY_PACKETLOG_H
+#ifndef APPENDERDB_H
+#define APPENDERDB_H
 
-#include "Common.h"
-#include <ace/Singleton.h>
+#include "Appender.h"
 
-enum Direction
+class AppenderDB: public Appender
 {
-    CLIENT_TO_SERVER,
-    SERVER_TO_CLIENT
-};
-
-class WorldPacket;
-
-class PacketLog
-{
-    friend class ACE_Singleton<PacketLog, ACE_Thread_Mutex>;
-
-    private:
-        PacketLog();
-        ~PacketLog();
-
     public:
-        void Initialize();
-        bool CanLogPacket() const { return (_file != NULL); }
-        void LogPacket(WorldPacket const& packet, Direction direction);
+        AppenderDB(uint8 _id, std::string const& _name, LogLevel level, uint8 realmId);
+        ~AppenderDB();
+        void setEnable(bool enable);
 
     private:
-        FILE* _file;
+        uint8 realm;
+        bool enable;
+        void _write(LogMessage& message);
 };
 
-#define sPacketLog ACE_Singleton<PacketLog, ACE_Thread_Mutex>::instance()
 #endif

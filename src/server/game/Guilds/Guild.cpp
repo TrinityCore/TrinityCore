@@ -51,7 +51,7 @@ void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, Guil
     data << uint32(errCode);
     session->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_COMMAND_RESULT)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_COMMAND_RESULT)");
 }
 
 void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode)
@@ -60,10 +60,9 @@ void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode
     data << uint32(errCode);
     session->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (MSG_SAVE_GUILD_EMBLEM)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (MSG_SAVE_GUILD_EMBLEM)");
 }
 
-///////////////////////////////////////////////////////////////////////////////
 // LogHolder
 Guild::LogHolder::~LogHolder()
 {
@@ -326,21 +325,21 @@ bool Guild::BankTab::LoadItemFromDB(Field* fields)
     uint32 itemEntry = fields[15].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
     {
-        sLog->outError("Invalid slot for item (GUID: %u, id: %u) in guild bank, skipped.", itemGuid, itemEntry);
+        sLog->outError(LOG_FILTER_GUILD, "Invalid slot for item (GUID: %u, id: %u) in guild bank, skipped.", itemGuid, itemEntry);
         return false;
     }
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
     if (!proto)
     {
-        sLog->outError("Unknown item (GUID: %u, id: %u) in guild bank, skipped.", itemGuid, itemEntry);
+        sLog->outError(LOG_FILTER_GUILD, "Unknown item (GUID: %u, id: %u) in guild bank, skipped.", itemGuid, itemEntry);
         return false;
     }
 
     Item* pItem = NewItemOrBag(proto);
     if (!pItem->LoadFromDB(itemGuid, 0, fields, itemEntry))
     {
-        sLog->outError("Item (GUID %u, id: %u) not found in item_instance, deleting from guild bank!", itemGuid, itemEntry);
+        sLog->outError(LOG_FILTER_GUILD, "Item (GUID %u, id: %u) not found in item_instance, deleting from guild bank!", itemGuid, itemEntry);
 
         PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM);
         stmt->setUInt32(0, m_guildId);
@@ -588,7 +587,7 @@ bool Guild::Member::LoadFromDB(Field* fields)
 
     if (!m_zoneId)
     {
-        sLog->outError("Player (GUID: %u) has broken zone-data", GUID_LOPART(m_guid));
+        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has broken zone-data", GUID_LOPART(m_guid));
         m_zoneId = Player::GetZoneIdFromDB(m_guid);
     }
     return true;
@@ -599,12 +598,12 @@ bool Guild::Member::CheckStats() const
 {
     if (m_level < 1)
     {
-        sLog->outError("Player (GUID: %u) has a broken data in field `characters`.`level`, deleting him from guild!", GUID_LOPART(m_guid));
+        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has a broken data in field `characters`.`level`, deleting him from guild!", GUID_LOPART(m_guid));
         return false;
     }
     if (m_class < CLASS_WARRIOR || m_class >= MAX_CLASSES)
     {
-        sLog->outError("Player (GUID: %u) has a broken data in field `characters`.`class`, deleting him from guild!", GUID_LOPART(m_guid));
+        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has a broken data in field `characters`.`class`, deleting him from guild!", GUID_LOPART(m_guid));
         return false;
     }
     return true;
@@ -1259,7 +1258,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         session->SendPacket(&data);
     else
         BroadcastPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_ROSTER)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_ROSTER)");
 }
 
 void Guild::HandleQuery(WorldSession* session)
@@ -1301,7 +1300,8 @@ void Guild::HandleQuery(WorldSession* session)
     data << uint32(_GetRanksSize());                                // Number of ranks used
 
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
+
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
 }
 
 void Guild::HandleGuildRanks(WorldSession* session)
@@ -1603,7 +1603,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     data.WriteByteSeq(oldGuildGuid[4]);
     pInvitee->GetSession()->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_INVITE)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_INVITE)");
 }
 
 void Guild::HandleAcceptMember(WorldSession* session)
@@ -1906,7 +1906,7 @@ void Guild::SendInfo(WorldSession* session) const
     data << m_accountsNumber;                       // Number of accounts
 
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_INFO)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_INFO)");
 }
 
 void Guild::SendEventLog(WorldSession* session) const
@@ -1957,7 +1957,7 @@ void Guild::SendBankTabsInfo(WorldSession* session) const
     data << uint8(0);                                       // Do not send tab content
     session->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
 }
 
 void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
@@ -2097,13 +2097,13 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
             {
                 if (!isMoneyTab)
                 {
-                    sLog->outError("GuildBankEventLog ERROR: MoneyEvent(LogGuid: %u, Guild: %u) does not belong to money tab (%u), ignoring...", guid, m_id, dbTabId);
+                    sLog->outError(LOG_FILTER_GUILD, "GuildBankEventLog ERROR: MoneyEvent(LogGuid: %u, Guild: %u) does not belong to money tab (%u), ignoring...", guid, m_id, dbTabId);
                     return false;
                 }
             }
             else if (isMoneyTab)
             {
-                sLog->outError("GuildBankEventLog ERROR: non-money event (LogGuid: %u, Guild: %u) belongs to money tab, ignoring...", guid, m_id);
+                sLog->outError(LOG_FILTER_GUILD, "GuildBankEventLog ERROR: non-money event (LogGuid: %u, Guild: %u) belongs to money tab, ignoring...", guid, m_id);
                 return false;
             }
             pLog->LoadEvent(new BankEventLogEntry(
@@ -2126,7 +2126,7 @@ bool Guild::LoadBankTabFromDB(Field* fields)
     uint8 tabId = fields[1].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
-        sLog->outError("Invalid tab (tabId: %u) in guild bank, skipped.", tabId);
+        sLog->outError(LOG_FILTER_GUILD, "Invalid tab (tabId: %u) in guild bank, skipped.", tabId);
         return false;
     }
     return m_bankTabs[tabId]->LoadFromDB(fields);
@@ -2137,7 +2137,7 @@ bool Guild::LoadBankItemFromDB(Field* fields)
     uint8 tabId = fields[12].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
-        sLog->outError("Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
+        sLog->outError(LOG_FILTER_GUILD, "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
             fields[14].GetUInt32(), fields[15].GetUInt32());
         return false;
     }
@@ -2155,7 +2155,7 @@ bool Guild::Validate()
     bool broken_ranks = false;
     if (_GetRanksSize() < GUILD_RANKS_MIN_COUNT || _GetRanksSize() > GUILD_RANKS_MAX_COUNT)
     {
-        sLog->outError("Guild %u has invalid number of ranks, creating new...", m_id);
+        sLog->outError(LOG_FILTER_GUILD, "Guild %u has invalid number of ranks, creating new...", m_id);
         broken_ranks = true;
     }
     else
@@ -2165,7 +2165,7 @@ bool Guild::Validate()
             RankInfo* rankInfo = GetRankInfo(rankId);
             if (rankInfo->GetId() != rankId)
             {
-                sLog->outError("Guild %u has broken rank id %u, creating default set of ranks...", m_id, rankId);
+                sLog->outError(LOG_FILTER_GUILD, "Guild %u has broken rank id %u, creating default set of ranks...", m_id, rankId);
                 broken_ranks = true;
             }
         }
@@ -2736,7 +2736,7 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
     /*
     if (pItemSrc->GetCount() == 0)
     {
-        sLog->outCrash("Guild::SwapItems: Player %s(GUIDLow: %u) tried to move item %u from tab %u slot %u to tab %u slot %u, but item %u has a stack of zero!",
+        sLog->outFatal(LOG_FILTER_GENERAL, "Guild::SwapItems: Player %s(GUIDLow: %u) tried to move item %u from tab %u slot %u to tab %u slot %u, but item %u has a stack of zero!",
             player->GetName(), player->GetGUIDLow(), pItemSrc->GetEntry(), tabId, slotId, destTabId, destSlotId, pItemSrc->GetEntry());
         //return; // Commented out for now, uncomment when it's verified that this causes a crash!!
     }
@@ -2846,7 +2846,7 @@ void Guild::_SendBankContent(WorldSession* session, uint8 tabId) const
 
             session->SendPacket(&data);
 
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
+            sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
         }
 }
 
@@ -2861,7 +2861,7 @@ void Guild::_SendBankMoneyUpdate(WorldSession* session) const
     data << uint8(0);                                       // No items
     BroadcastPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
 }
 
 void Guild::_SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const
@@ -2921,7 +2921,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
                     player->GetSession()->SendPacket(&data);
                 }
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
+        sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
     }
 }
 
@@ -2945,7 +2945,7 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* par
 
     BroadcastPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_EVENT");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_EVENT");
 }
 
 void Guild::SendGuildRanksUpdate(uint64 setterGuid, uint64 targetGuid, uint32 rank)

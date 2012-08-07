@@ -27,7 +27,8 @@ EndScriptData */
 mob_crystalcore_devastator
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "the_eye.h"
 
 enum eSpells

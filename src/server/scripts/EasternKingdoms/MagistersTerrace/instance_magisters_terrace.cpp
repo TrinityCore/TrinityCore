@@ -23,7 +23,8 @@ SDComment:  Designed only for Selin Fireheart
 SDCategory: Magister's Terrace
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "magisters_terrace.h"
 
 #define MAX_ENCOUNTER      4
@@ -243,7 +244,7 @@ public:
                 {
                     if (FelCrystals.empty())
                     {
-                        sLog->outError("TSCR: Magisters Terrace: No Fel Crystals loaded in Inst Data");
+                        sLog->outError(LOG_FILTER_TSCR, "Magisters Terrace: No Fel Crystals loaded in Inst Data");
                         return 0;
                     }
 

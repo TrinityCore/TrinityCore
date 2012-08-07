@@ -33,7 +33,9 @@ npc_trollbane
 npc_wounded_blood_elf
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -158,7 +160,7 @@ public:
             if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
                 Start(false, false, creature->GetOwner()->GetGUID());
             else
-                sLog->outError("TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
+                sLog->outError(LOG_FILTER_TSCR, "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
 
             creature->SetSpeed(MOVE_WALK, 1.5f);
             Reset();

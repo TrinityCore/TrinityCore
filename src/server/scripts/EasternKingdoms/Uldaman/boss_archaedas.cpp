@@ -26,7 +26,8 @@ At 33%, he will awaken the Vault Walkers
 On his death the vault door opens.
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "uldaman.h"
 
 #define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"

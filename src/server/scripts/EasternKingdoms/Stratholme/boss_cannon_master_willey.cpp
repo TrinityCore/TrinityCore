@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 //front, left
 #define ADD_1X 3553.851807f

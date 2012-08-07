@@ -23,7 +23,8 @@ SDComment: Heroic and Normal Support. Needs further testing.
 SDCategory: Magister's Terrace
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "magisters_terrace.h"
 
 #define SAY_AGGRO                       -1585000
@@ -75,7 +76,7 @@ public:
                 for (uint8 i = 0; i < size; ++i)
                 {
                     uint64 guid = instance->GetData64(DATA_FEL_CRYSTAL);
-                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
+                    sLog->outDebug(LOG_FILTER_TSCR, "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
                     Crystals.push_back(guid);
                 }
             }
@@ -120,7 +121,7 @@ public:
                                                                 // Small door opened after event are expected to be closed by default
                 // Set Inst data for encounter
                 instance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
-            } else sLog->outError(ERROR_INST_DATA);
+            } else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
 
             DrainLifeTimer = urand(3000, 7000);
             DrainManaTimer = DrainLifeTimer + 5000;
@@ -222,7 +223,7 @@ public:
                 else
                 {
                     // Make an error message in case something weird happened here
-                    sLog->outError("TSCR: Selin Fireheart unable to drain crystal as the crystal is either dead or despawned");
+                    sLog->outError(LOG_FILTER_TSCR, "Selin Fireheart unable to drain crystal as the crystal is either dead or despawned");
                     DrainingCrystal = false;
                 }
             }
@@ -361,7 +362,7 @@ public:
                         }
                     }
                 }
-            } else sLog->outError(ERROR_INST_DATA);
+            } else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
         }
     };
 

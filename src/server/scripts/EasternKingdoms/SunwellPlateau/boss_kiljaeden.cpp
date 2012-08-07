@@ -24,7 +24,8 @@ EndScriptData */
 
 //TODO rewrite Armageddon
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 #include <math.h>
 
@@ -754,7 +755,7 @@ public:
                                 if (pRandomPlayer)
                                     DoCast(pRandomPlayer, SPELL_LEGION_LIGHTNING, false);
                                 else
-                                    sLog->outError("try to cast SPELL_LEGION_LIGHTNING on invalid target");
+                                    sLog->outError(LOG_FILTER_TSCR, "try to cast SPELL_LEGION_LIGHTNING on invalid target");
 
                                 Timer[TIMER_LEGION_LIGHTNING] = (Phase == PHASE_SACRIFICE) ? 18000 : 30000; // 18 seconds in PHASE_SACRIFICE
                                 Timer[TIMER_SOUL_FLAY] = 2500;
