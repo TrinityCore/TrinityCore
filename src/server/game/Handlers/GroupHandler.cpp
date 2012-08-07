@@ -324,15 +324,14 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
 void WorldSession::HandleGroupInviteResponseOpcode (WorldPacket & recv_data)
 {
-    uint8 result;
-    recv_data >> result;
+    bool result = recv_data.ReadBit();
 
     Group *group = GetPlayer()->GetGroupInvite();
     if (!group)
         return;
 
     // Flag accept invite ?
-    if(result & 0x40)
+    if(result)
     {
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
