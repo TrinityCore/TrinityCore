@@ -161,6 +161,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     uint8  m_uiStage;
     bool   m_bIsBerserk;
+
     uint32 m_uiWeapon;
     uint32 m_uiSpecialAbilityTimer;
     uint32 m_uiSpikeTimer;
@@ -179,7 +180,8 @@ struct boss_twin_baseAI : public ScriptedAI
     uint32 m_uiSpikeSpellId;
     uint32 m_uiTouchSpellId;
 
-    void Reset() {
+    void Reset()
+    {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->ModifyAuraState(m_uiAuraState, true);
@@ -207,13 +209,12 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if (uiType != POINT_MOTION_TYPE)
+        if (uiType != WAYPOINT_MOTION_TYPE)
             return;
 
         switch (uiId)
         {
             case 1:
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
@@ -631,7 +632,7 @@ public:
                     {
                         DoCastAOE(SPELL_UNLEASHED_DARK);
                         me->GetMotionMaster()->MoveIdle();
-                        me->DespawnOrUnsummon(500);
+                        me->DespawnOrUnsummon(1000);
                     }
                 m_uiRangeCheckTimer = IN_MILLISECONDS;
             }
@@ -672,7 +673,7 @@ public:
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT);
                         me->GetMotionMaster()->MoveIdle();
-                        me->DespawnOrUnsummon(500);
+                        me->DespawnOrUnsummon(1000);
                     }
                 m_uiRangeCheckTimer = IN_MILLISECONDS;
             }

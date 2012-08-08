@@ -259,7 +259,10 @@ public:
         mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             Reset();
+            instanceScript = creature->GetInstanceScript();
         }
+
+        InstanceScript* instanceScript;
 
         void Reset()
         {
@@ -271,6 +274,8 @@ public:
         void UpdateAI(const uint32 /*uiDiff*/)
         {
             UpdateVictim();
+            if (instanceScript->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
+                me->DespawnOrUnsummon();
         }
     };
 
@@ -378,6 +383,9 @@ public:
                     DoCast(target, SPELL_FEL_STREAK);
                 m_uiFelStreakTimer = 30*IN_MILLISECONDS;
             } else m_uiFelStreakTimer -= uiDiff;
+
+            if (instance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
+                me->DespawnOrUnsummon();
 
             DoMeleeAttackIfReady();
         }

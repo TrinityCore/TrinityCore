@@ -205,9 +205,6 @@ class npc_announcer_toc10 : public CreatureScript
                     if (instanceScript->GetData(TYPE_LICH_KING) != DONE && !player->isGameMaster())
                         return true;
 
-                    if (GameObject* floor = GameObject::GetGameObject(*player, instanceScript->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
-                        floor->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
-
                     creature->CastSpell(creature, 69016, false);
 
                     Creature* anubArak = Unit::GetCreature(*creature, instanceScript->GetData64(NPC_ANUBARAK));
@@ -324,7 +321,11 @@ class boss_lich_king_toc : public CreatureScript
                             break;
                         case 5080:
                             if (GameObject* go = instance->instance->GetGameObject(instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
-                                go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+                            {
+                                go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
+                                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
+                                go->SetGoState(GO_STATE_ACTIVE);
+                            }
                             me->CastSpell(me, 69016, false);
                             if (instance)
                             {
@@ -601,7 +602,7 @@ class npc_tirion_toc : public CreatureScript
                                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                                 if (Creature* temp = me->SummonCreature(NPC_DREADSCALE, ToCSpawnLoc[1].GetPositionX(), ToCSpawnLoc[1].GetPositionY(), ToCSpawnLoc[1].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
                                 {
-                                    temp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
+                                    temp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
                                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                     temp->SetReactState(REACT_PASSIVE);
                                 }
@@ -750,18 +751,19 @@ class npc_tirion_toc : public CreatureScript
                             instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                             if (Creature* temp = Unit::GetCreature((*me), instance->GetData64(NPC_LIGHTBANE)))
                             {
-                                temp->GetMotionMaster()->MovePoint(1, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
+                                temp->GetMotionMaster()->MovePath(NPC_LIGHTBANE, false);
                                 temp->SetVisible(true);
                             }
                             if (Creature* temp = Unit::GetCreature((*me), instance->GetData64(NPC_DARKBANE)))
                             {
-                                temp->GetMotionMaster()->MovePoint(1, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ());
+                                temp->GetMotionMaster()->MovePath(NPC_DARKBANE, false);
                                 temp->SetVisible(true);
                             }
-                            m_uiUpdateTimer = 5000;
+                            m_uiUpdateTimer = 10000;
                             instance->SetData(TYPE_EVENT, 4016);
                             break;
                         case 4016:
+                            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                             instance->SetData(TYPE_EVENT, 4017);
                             break;
                         case 4040:

@@ -33,6 +33,8 @@ enum
     SPELL_JARAXXUS_CHAINS       = 67924,
 
     DESPAWN_TIME                = 300000,
+
+    DISPLAYID_DESTROYED_FLOOR   = 9060,
 };
 
 const Position ToCSpawnLoc[]=
@@ -107,10 +109,10 @@ const Position FactionChampionLoc[]=
 
 const Position TwinValkyrsLoc[]=
 {
-    {586.060242f, 117.514809f, 394.314026f, 0}, // 0 - Dark essence 1
-    {541.602112f, 161.879837f, 394.587952f, 0}, // 1 - Dark essence 2
-    {541.021118f, 117.262932f, 395.314819f, 0}, // 2 - Light essence 1
-    {586.200562f, 162.145523f, 394.626129f, 0}, // 3 - Light essence 2
+    {586.060242f, 117.514809f, 394.41f, 0}, // 0 - Dark essence 1
+    {541.602112f, 161.879837f, 394.41f, 0}, // 1 - Dark essence 2
+    {541.021118f, 117.262932f, 394.41f, 0}, // 2 - Light essence 1
+    {586.200562f, 162.145523f, 394.41f, 0}, // 3 - Light essence 2
 };
 
 const Position LichKingLoc[]=
