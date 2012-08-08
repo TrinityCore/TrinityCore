@@ -95,11 +95,11 @@ void WorldSession::HandleChannelList(WorldPacket& recvPacket)
 void WorldSession::HandleChannelPassword(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    uint32 passLength = recvPacket.ReadBits(8);
-    uint32 nameLength = recvPacket.ReadBits(7);
-    
-    std::string pass = recvPacket.ReadString(passLength);
+    uint32 nameLength = recvPacket.ReadBits(8);
+    uint32 passLength = recvPacket.ReadBits(7);
+
     std::string channelname = recvPacket.ReadString(nameLength);
+    std::string pass = recvPacket.ReadString(passLength);
 
     if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
         if (Channel* chn = cMgr->GetChannel(channelname, _player))
@@ -209,12 +209,12 @@ void WorldSession::HandleChannelUnmute(WorldPacket& recvPacket)
 void WorldSession::HandleChannelInvite(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    uint32 channelLength = recvPacket.ReadBits(7);
-    uint32 nameLength = recvPacket.ReadBits(8);
-    
-    std::string channelname = recvPacket.ReadString(channelLength);
+    uint32 nameLength = recvPacket.ReadBits(7);
+    uint32 channelLength = recvPacket.ReadBits(8);
+
     std::string otp = recvPacket.ReadString(nameLength);
-    
+    std::string channelname = recvPacket.ReadString(channelLength);
+
     if (!normalizePlayerName(otp))
         return;
 
