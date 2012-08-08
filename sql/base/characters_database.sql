@@ -1144,7 +1144,7 @@ CREATE TABLE `character_void_storage` (
 -- Dumping data for table `character_void_storage`
 --
 
-LOCK TABLES `character_set_client` WRITE;
+LOCK TABLES `character_void_storage` WRITE;
 /*!40000 ALTER TABLE `character_void_storage` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_void_storage` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -2352,4 +2352,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-07-30 17:01:47
+-- Dump completed on 2012-08-08 18:51:30
