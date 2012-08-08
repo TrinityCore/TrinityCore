@@ -307,11 +307,11 @@ class Quest
         uint32 RequiredCurrencyCount[QUEST_REQUIRED_CURRENCY_COUNT];
 
         uint32 GetReqItemsCount() const { return m_reqItemsCount; }
-        uint32 GetRewItemsEffectiveCount() const;
         uint32 GetReqCreatureOrGOcount() const { return m_reqNpcOrGoCount; }
         uint32 GetRewChoiceItemsCount() const { return m_rewChoiceItemsCount; }
-        uint32 GetRewChoiceItemsEffectiveCount() const;
         uint32 GetRewItemsCount() const { return m_rewItemsCount; }
+        uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
+        uint32 GetReqCurrencyCount() const { return m_reqCurrencyCount; }
 
         void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
 

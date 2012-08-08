@@ -15794,7 +15794,8 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
 
                     m_QuestStatusSave[questid] = true;
 
-                    SendQuestUpdateAddItem(qInfo, j, additemcount);
+                    //SendQuestUpdateAddItem(qInfo, j, additemcount);
+                    // FIXME: verify if there's any packet sent updating item
                 }
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
@@ -16244,54 +16245,13 @@ bool Player::HasQuestForItem(uint32 itemid) const
 
 void Player::SendQuestComplete(Quest const* quest)
 {
-    // SMSG_QUESTUPDATE_COMPLETE - whole new structure in 4.x
-
-    std::string title      = quest->GetTitle();
-    std::string completedText    = quest->GetCompletedText();
-    std::string questGiverTextWindow = quest->GetQuestGiverTextWindow();
-    std::string questGiverTargetName = quest->GetQuestGiverTargetName();
-    std::string questTurnTextWindow = quest->GetQuestTurnTextWindow();
-    std::string questTurnTargetName = quest->GetQuestTurnTargetName();
-
-    int32 locale = GetSession()->GetSessionDbLocaleIndex();
-    if (locale >= 0)
+    if (quest)
     {
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(localeData->Title, locale, title);
-            ObjectMgr::GetLocaleString(localeData->CompletedText, locale, completedText);
-            ObjectMgr::GetLocaleString(localeData->QuestGiverTextWindow, locale, questGiverTextWindow);
-            ObjectMgr::GetLocaleString(localeData->QuestGiverTargetName, locale, questGiverTargetName);
-            ObjectMgr::GetLocaleString(localeData->QuestTurnTextWindow, locale, questTurnTextWindow);
-            ObjectMgr::GetLocaleString(localeData->QuestTurnTargetName, locale, questTurnTargetName);
-        }
+        WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
+        data << uint32(quest->GetQuestId());
+        GetSession()->SendPacket(&data);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
     }
-
-    WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
-    data << uint64(GetGUID());
-    data << uint32(quest->GetQuestId());
-    data << title;
-    data << completedText;
-    data << questGiverTextWindow;
-    data << questGiverTargetName;
-    data << questTurnTextWindow;
-    data << questTurnTargetName;
-    data << uint32(quest->GetQuestGiverPortrait());
-    data << uint32(quest->GetQuestTurnInPortrait());
-    data << int8(0);                                  // Unk
-    data << uint32(quest->GetFlags());
-    data << int32(0);                                 // Unk
-    data << uint32(QUEST_EMOTE_COUNT);
-    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
-    {
-        data << uint32(quest->DetailsEmote[i]);
-        data << uint32(quest->DetailsEmoteDelay[i]);       // DetailsEmoteDelay (in ms)
-    }
-
-    quest->BuildExtraQuestInfo(data, this);
-
-    GetSession()->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
 }
 
 void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
@@ -16299,26 +16259,33 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     uint32 questId = quest->GetQuestId();
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questId);
     sGameEventMgr->HandleQuestComplete(questId);
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
 
-    data << uint8(0x80); // 4.x unknown flag, most common value is 0x80 (it might be a single bit)
+    uint32 xp;
+    uint32 moneyReward;
 
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
-        data << uint32(XP);
-        data << uint32(quest->GetRewOrReqMoney());
+        xp = XP;
+        moneyReward = quest->GetRewOrReqMoney();
     }
     else // At max level, increase gold reward
     {
-        data << uint32(0);
-        data << uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
+        xp = 0;
+        moneyReward = uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
+    WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
+
+    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
     data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
+    data << uint32(moneyReward);
+    data << uint32(xp);
     data << uint32(questId);
     data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
 
-    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
+    data.WriteBit(0);                                      // FIXME: unknown bits, common values sent
+    data.WriteBit(1);
+
     GetSession()->SendPacket(&data);
 
     if (quest->GetQuestCompleteScript() != 0)
@@ -16387,15 +16354,6 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
         GetSession()->SendPacket(&data);
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent MSG_QUEST_PUSH_RESULT");
     }
-}
-
-void Player::SendQuestUpdateAddItem(Quest const* /*quest*/, uint32 /*item_idx*/, uint16 /*count*/)
-{
-    WorldPacket data(SMSG_QUESTUPDATE_ADD_ITEM, 0);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_ITEM");
-    //data << quest->RequiredItemId[item_idx];
-    //data << count;
-    GetSession()->SendPacket(&data);
 }
 
 void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
