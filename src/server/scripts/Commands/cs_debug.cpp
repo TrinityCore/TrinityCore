@@ -236,7 +236,7 @@ public:
             return false;
 
         SellResult msg = SellResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendSellError(msg, 0, 0, 0);
+        handler->GetSession()->GetPlayer()->SendSellError(msg, 0, 0);
         return true;
     }
 

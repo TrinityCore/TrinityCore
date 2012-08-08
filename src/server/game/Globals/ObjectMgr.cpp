@@ -6126,7 +6126,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
 
-    result = CharacterDatabase.Query("SELECT MAX(itemId) from void_storage");
+    result = CharacterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
     if (result)
         _voidItemId = (*result)[0].GetUInt64()+1;
 }
