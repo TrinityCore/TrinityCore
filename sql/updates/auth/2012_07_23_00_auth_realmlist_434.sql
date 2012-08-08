@@ -1,1 +1,1 @@
-UPDATE `realmlist` SET `gamebuild`=15595 WHERE `id`=1
+UPDATE `realmlist` SET `gamebuild`=15595 WHERE `id`=1;
