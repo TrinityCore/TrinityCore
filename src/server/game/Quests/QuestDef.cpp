@@ -235,6 +235,7 @@ uint32 Quest::GetXPReward(Player const* player) const
     return true;
 }
 
+<<<<<<< HEAD
 int32 Quest::GetRewOrReqMoney(Player const* player) const
 {
     // RequiredMoney: the amount is the negative copper sum.
@@ -266,14 +267,31 @@ bool Quest::IsAutoAccept() const
 void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 {
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+=======
+void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
+{
+    data << uint32(GetRewChoiceItemsCount());
+    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        data << uint32(RewardChoiceItemId[i]);
+    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        data << uint32(RewardChoiceItemCount[i]);
+    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+>>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
     {
-        data << uint32(0);                                  // Rewarded chosen items hidden
-        data << uint32(0);                                  // Rewarded items hidden
-        data << uint32(0);                                  // Rewarded money hidden
-        data << uint32(0);                                  // Rewarded XP hidden
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
+            data << uint32(itemTemplate->DisplayInfoID);
+        else
+            data << uint32(0);
     }
-    else
+
+    data << uint32(GetReqItemsCount());
+    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        data << uint32(RewardItemId[i]);
+    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        data << uint32(RewardItemIdCount[i]);
+    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
     {
+<<<<<<< HEAD
         data << uint32(quest->GetRewChoiceItemsCount());
         for (uint32 i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
@@ -327,6 +345,57 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         data << int32(quest->RewardFactionValueIdOverride[i]);
+=======
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
+            data << uint32(itemTemplate->DisplayInfoID);
+        else
+            data << uint32(0);
+    }
+
+    data << uint32(GetRewOrReqMoney());
+    data << uint32(XPValue(player) * sWorld->getRate(RATE_XP_QUEST));
+
+    data << uint32(GetCharTitleId());
+    data << uint32(0);                                      // unk
+    data << float(0.0f);                                    // unk
+    data << uint32(GetBonusTalents());
+    data << uint32(0);                                      // unk
+    data << uint32(GetRewardReputationMask());
+
+    /* Pre cata struct, some of these unks might be the missing values in cata:
+    // rewarded honor points. Multiply with 10 to satisfy client
+    data << 10 * Trinity::Honor::hk_honor_at_level(_session->GetPlayer()->getLevel(), quest->GetRewHonorMultiplier());
+    data << float(0);                                       // unk, honor multiplier?
+    data << uint32(0x08);                                   // unused by client?
+    data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
+    data << int32(quest->GetRewSpellCast());                // casted spell
+    data << uint32(0);                                      // unknown
+    data << uint32(quest->GetBonusTalents());               // bonus talents
+    data << uint32(quest->GetRewArenaPoints());             // arena points
+    data << uint32(0);
+    */
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward factions ids
+        data << uint32(RewardFactionId[i]);
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
+        data << int32(RewardFactionValueId[i]);
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
+        data << uint32(RewardFactionValueIdOverride[i]);
+
+    data << uint32(GetRewSpell());
+    data << uint32(GetRewSpellCast());
+
+    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+        data << uint32(RewardCurrencyId[i]);
+
+    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+        data << uint32(RewardCurrencyCount[i]);
+
+    data << uint32(GetRewardSkillId());
+    data << uint32(GetRewardSkillPoints());
+>>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
 }
 
 bool Quest::IsAutoComplete() const

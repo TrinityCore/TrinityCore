@@ -1283,6 +1283,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void MoneyChanged(uint32 value);
         void ReputationChanged(FactionEntry const* factionEntry);
         void ReputationChanged2(FactionEntry const* factionEntry);
+<<<<<<< HEAD
         bool HasQuestForItem(uint32 itemId, uint32 excludeQuestId = 0, bool turnIn = false) const;
         bool HasQuestForGO(int32 goId) const;
         void UpdateVisibleGameobjectsOrSpellClicks();
@@ -1306,6 +1307,28 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ClearQuestSharingInfo() { m_playerSharingQuest = ObjectGuid::Empty; m_sharedQuestId = 0; }
 
         uint32 GetInGameTime() const { return m_ingametime; }
+=======
+        bool HasQuestForItem(uint32 itemid) const;
+        bool HasQuestForGO(int32 GOId) const;
+        void UpdateForQuestWorldObjects();
+        bool CanShareQuest(uint32 quest_id) const;
+
+        void SendQuestComplete(Quest const* quest);
+        void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
+        void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
+        void SendQuestTimerFailed(uint32 quest_id);
+        void SendCanTakeQuestResponse(uint32 msg) const;
+        void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
+        void SendPushToPartyResponse(Player* player, uint32 msg);
+        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
+        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count);
+
+        uint64 GetDivider() { return m_divider; }
+        void SetDivider(uint64 guid) { m_divider = guid; }
+
+        uint32 GetInGameTime() { return m_ingametime; }
+
+>>>>>>> 10c9c55700... Core/Quests: Fix and enable all quest related opcodes
         void SetInGameTime(uint32 time) { m_ingametime = time; }
 
         void AddTimedQuest(uint32 questId) { m_timedquests.insert(questId); }
