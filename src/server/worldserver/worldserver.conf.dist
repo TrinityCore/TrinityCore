@@ -2566,6 +2566,11 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#    MemoryLeaks 
+#    Description: Will fix all memory leaks
+#    MemoryLeaks = 1
+#	 Default: 1
+
 ###################################################################################################
 
 ###################################################################################################
