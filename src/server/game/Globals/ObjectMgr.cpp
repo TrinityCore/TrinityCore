@@ -380,9 +380,9 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
     //                                          55      56      57      58      59      60      61      62       63               64       65       66       67         68
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                             69          70         71         72          73          74          75           76          77          78           79
-                                             "InhabitType, HoverHeight, Health_mod, Mana_mod, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            80           81            82         83               84               85             86
+    //                                             69          70         71         72            73            74          75           76          77          78           79          80
+                                             "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
+    //                                            81           82            83         84               85                  86          87
                                              " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -472,18 +472,19 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.HoverHeight    = fields[70].GetFloat();
         creatureTemplate.ModHealth      = fields[71].GetFloat();
         creatureTemplate.ModMana        = fields[72].GetFloat();
-        creatureTemplate.ModArmor       = fields[73].GetFloat();
-        creatureTemplate.RacialLeader   = fields[74].GetBool();
+        creatureTemplate.ModManaExtra   = fields[73].GetFloat();
+        creatureTemplate.ModArmor       = fields[74].GetFloat();
+        creatureTemplate.RacialLeader   = fields[75].GetBool();
 
         for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            creatureTemplate.questItems[i] = fields[75 + i].GetUInt32();
+            creatureTemplate.questItems[i] = fields[76 + i].GetUInt32();
 
-        creatureTemplate.movementId         = fields[81].GetUInt32();
-        creatureTemplate.RegenHealth        = fields[82].GetBool();
-        creatureTemplate.equipmentId        = fields[83].GetUInt32();
-        creatureTemplate.MechanicImmuneMask = fields[84].GetUInt32();
-        creatureTemplate.flags_extra        = fields[85].GetUInt32();
-        creatureTemplate.ScriptID           = GetScriptId(fields[86].GetCString());
+        creatureTemplate.movementId         = fields[82].GetUInt32();
+        creatureTemplate.RegenHealth        = fields[83].GetBool();
+        creatureTemplate.equipmentId        = fields[84].GetUInt32();
+        creatureTemplate.MechanicImmuneMask = fields[85].GetUInt32();
+        creatureTemplate.flags_extra        = fields[86].GetUInt32();
+        creatureTemplate.ScriptID           = GetScriptId(fields[87].GetCString());
 
         ++count;
     }
