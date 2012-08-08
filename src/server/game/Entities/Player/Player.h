@@ -44,6 +44,7 @@
 #include<vector>
 
 struct Mail;
+struct ItemExtendedCostEntry;
 class Channel;
 class Creature;
 class DynamicObject;

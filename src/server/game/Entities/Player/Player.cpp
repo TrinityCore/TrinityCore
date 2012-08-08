@@ -13136,7 +13136,7 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+(param?4:0)+1));  // last check 4.3.4
+    WorldPacket data(SMSG_SELL_ITEM, (8+8+1));  // last check 4.3.4
     data << uint64(creature ? creature->GetGUID() : 0);
     data << uint64(guid);
     data << uint8(msg);
@@ -17010,7 +17010,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // set value, including drunk invisibility detection
     // calculate sobering. after 15 minutes logged out, the player will be sober again
     uint8 newDrunkValue = 0;
-    if (time_diff < GetDrunkValue() * 9)
+    if (time_diff < uint32(GetDrunkValue()) * 9)
         newDrunkValue = GetDrunkValue() - time_diff / 9;
 
     SetDrunkValue(newDrunkValue);
@@ -17606,7 +17606,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
     do
     {
-        // SELECT itemid, itemEntry, slot, creatorGuid FROM void_storage WHERE playerGuid = ?
+        // SELECT itemid, itemEntry, slot, creatorGuid FROM character_void_storage WHERE playerGuid = ?
         Field* fields = result->Fetch();
 
         uint64 itemId = fields[0].GetUInt64();
