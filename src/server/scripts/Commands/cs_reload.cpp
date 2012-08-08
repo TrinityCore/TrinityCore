@@ -501,20 +501,21 @@ public:
             cInfo->HoverHeight        = fields[67].GetFloat();
             cInfo->ModHealth          = fields[68].GetFloat();
             cInfo->ModMana            = fields[69].GetFloat();
-            cInfo->ModArmor           = fields[70].GetFloat();
-            cInfo->RacialLeader       = fields[71].GetBool();
-            cInfo->questItems[0]      = fields[72].GetUInt32();
-            cInfo->questItems[1]      = fields[73].GetUInt32();
-            cInfo->questItems[2]      = fields[74].GetUInt32();
-            cInfo->questItems[3]      = fields[75].GetUInt32();
-            cInfo->questItems[4]      = fields[76].GetUInt32();
-            cInfo->questItems[5]      = fields[77].GetUInt32();
-            cInfo->movementId         = fields[78].GetUInt32();
-            cInfo->RegenHealth        = fields[79].GetBool();
-            cInfo->equipmentId        = fields[80].GetUInt32();
-            cInfo->MechanicImmuneMask = fields[81].GetUInt32();
-            cInfo->flags_extra        = fields[82].GetUInt32();
-            cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[83].GetCString());
+            cInfo->ModManaExtra       = fields[70].GetFloat();
+            cInfo->ModArmor           = fields[71].GetFloat();
+            cInfo->RacialLeader       = fields[72].GetBool();
+            cInfo->questItems[0]      = fields[73].GetUInt32();
+            cInfo->questItems[1]      = fields[74].GetUInt32();
+            cInfo->questItems[2]      = fields[75].GetUInt32();
+            cInfo->questItems[3]      = fields[76].GetUInt32();
+            cInfo->questItems[4]      = fields[77].GetUInt32();
+            cInfo->questItems[5]      = fields[78].GetUInt32();
+            cInfo->movementId         = fields[79].GetUInt32();
+            cInfo->RegenHealth        = fields[80].GetBool();
+            cInfo->equipmentId        = fields[81].GetUInt32();
+            cInfo->MechanicImmuneMask = fields[82].GetUInt32();
+            cInfo->flags_extra        = fields[83].GetUInt32();
+            cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[84].GetCString());
 
             sObjectMgr->CheckCreatureTemplate(cInfo);
         }

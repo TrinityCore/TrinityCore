@@ -139,6 +139,7 @@ struct CreatureTemplate
     float   HoverHeight;
     float   ModHealth;
     float   ModMana;
+    float   ModManaExtra;                                   // Added in 4.x, this value is usually 2 for a small group of creatures with double mana
     float   ModArmor;
     bool    RacialLeader;
     uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
@@ -197,7 +198,7 @@ struct CreatureBaseStats
         if (!BaseMana)
             return 0;
 
-        return uint32((BaseMana * info->ModMana) + 0.5f);
+        return uint32((BaseMana * info->ModMana * info->ModManaExtra) + 0.5f);
     }
 
     uint32 GenerateArmor(CreatureTemplate const* info) const
