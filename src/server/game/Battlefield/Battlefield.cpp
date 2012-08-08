@@ -202,7 +202,7 @@ void Battlefield::InvitePlayerToQueue(Player* player)
     if (m_PlayersInQueue[player->GetTeamId()].count(player->GetGUID()))
         return;
 
-    if (m_PlayersInQueue[player->GetTeam()].size() <= m_MinPlayer || m_PlayersInQueue[GetOtherTeam(player->GetTeamId())].size() >= m_MinPlayer)
+    if (m_PlayersInQueue[player->GetTeamId()].size() <= m_MinPlayer || m_PlayersInQueue[GetOtherTeam(player->GetTeamId())].size() >= m_MinPlayer)
         player->GetSession()->SendBfInvitePlayerToQueue(m_BattleId);
 }
 
