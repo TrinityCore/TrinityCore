@@ -192,15 +192,16 @@ void PlayerTaxi::LoadTaxiMask(const char* data)
 
 void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, bool all)
 {
+    data << uint32(TaxiMaskSize);
     if (all)
     {
-        for (uint8 i=0; i<TaxiMaskSize; i++)
-            data << uint32(sTaxiNodesMask[i]);              // all existed nodes
+        for (uint8 i=0; i< TaxiMaskSize; i++)
+            data << uint8(sTaxiNodesMask[i]);              // all existed nodes
     }
     else
     {
-        for (uint8 i=0; i<TaxiMaskSize; i++)
-            data << uint32(m_taximask[i]);                  // known nodes
+        for (uint8 i=0; i < TaxiMaskSize; i++)
+            data << uint8(m_taximask[i]);                  // known nodes
     }
 }
 
@@ -13132,14 +13133,12 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid, uint32 param)
+void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+(param?4:0)+1));  // last check 2.0.10
+    WorldPacket data(SMSG_SELL_ITEM, (8+8+(param?4:0)+1));  // last check 4.3.4
     data << uint64(creature ? creature->GetGUID() : 0);
     data << uint64(guid);
-    if (param > 0)
-        data << uint32(param);
     data << uint8(msg);
     GetSession()->SendPacket(&data);
 }
@@ -16269,7 +16268,7 @@ void Player::SendQuestComplete(Quest const* quest)
     }
 
     WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
-    data << uint64(this->GetGUID());
+    data << uint64(GetGUID());
     data << uint32(quest->GetQuestId());
     data << title;
     data << completedText;
@@ -25794,17 +25793,112 @@ void Player::SendMovementSetHover(bool apply)
 
 void Player::SendMovementSetWaterWalking(bool apply)
 {
-    WorldPacket data(apply ? SMSG_MOVE_WATER_WALK : SMSG_MOVE_LAND_WALK, 12);
-    data.append(GetPackGUID());
-    data << uint32(0);          //! movement counter
+    ObjectGuid guid = GetGUID();
+    WorldPacket data;
+    if (apply)
+    {
+        data.Initialize(SMSG_MOVE_WATER_WALK, 1 + 4 + 8);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[2]);
+        
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[2]);
+        
+        data << uint32(0);          //! movement counter
+        
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+    }
+    else
+    {
+        data.Initialize(SMSG_MOVE_LAND_WALK, 1 + 4 + 8);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[7]);
+        
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[2]);
+        
+        data << uint32(0);          //! movement counter
+    }
     SendDirectMessage(&data);
 }
 
 void Player::SendMovementSetFeatherFall(bool apply)
 {
-    WorldPacket data(apply ? SMSG_MOVE_FEATHER_FALL : SMSG_MOVE_NORMAL_FALL, 12);
-    data.append(GetPackGUID());
-    data << uint32(0);          //! movement counter
+    ObjectGuid guid = GetGUID();
+    WorldPacket data;
+    
+    if (apply)
+    {
+        data.Initialize(SMSG_MOVE_FEATHER_FALL, 1 + 4 + 8);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[6]);
+        
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[2]);
+        
+        data << uint32(0);          //! movement counter
+        
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[6]);
+    }
+    else
+    {
+        data.Initialize(SMSG_MOVE_NORMAL_FALL, 1 + 4 + 8);
+        
+        data << uint32(0);          //! movement counter
+        
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[2]);
+        
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[6]);
+    }
+        
     SendDirectMessage(&data);
 }
 
