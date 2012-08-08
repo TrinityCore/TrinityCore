@@ -1144,7 +1144,7 @@ CREATE TABLE `character_void_storage` (
 -- Dumping data for table `character_void_storage`
 --
 
-LOCK TABLES `void_storage` WRITE;
+LOCK TABLES `character_set_client` WRITE;
 /*!40000 ALTER TABLE `character_void_storage` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_void_storage` ENABLE KEYS */;
 UNLOCK TABLES;
