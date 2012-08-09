@@ -391,7 +391,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //335 SPELL_AURA_335
     &AuraEffect::HandleNULL,                                      //336 SPELL_AURA_MOD_FLYING_RESTRICTIONS
     &AuraEffect::HandleNULL,                                      //337 SPELL_AURA_MOD_VENDOR_ITEMS_PRICES
-    &AuraEffect::HandleNULL,                                      //338 SPELL_AURA_MOD_DURABILITY_LOSS
+    &AuraEffect::HandleNoImmediateEffect,                         //338 SPELL_AURA_MOD_DURABILITY_LOSS
     &AuraEffect::HandleNULL,                                      //339 SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE
     &AuraEffect::HandleNULL,                                      //340 SPELL_AURA_340
     &AuraEffect::HandleNULL,                                      //341 SPELL_AURA_341
