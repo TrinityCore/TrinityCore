@@ -12979,27 +12979,27 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 break;
             case MOVE_RUN:
                 data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4 );
+                data.WriteBit(bytes[6]);
                 data.WriteBit(bytes[1]);
-                data.WriteBit(bytes[0]);
-                data.WriteBit(bytes[7]);
                 data.WriteBit(bytes[5]);
                 data.WriteBit(bytes[2]);
-                data.WriteBit(bytes[4]);
+                data.WriteBit(bytes[7]);
+                data.WriteBit(bytes[0]);
                 data.WriteBit(bytes[3]);
-                data.WriteBit(bytes[6]);
+                data.WriteBit(bytes[4]);
 
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[3]);
                 data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[4]);
 
+                data << uint32(0);
                 data << float(GetSpeed(mtype));
 
                 data.WriteByteSeq(bytes[6]);
-                data.WriteByteSeq(bytes[2]);
-                data.WriteByteSeq(bytes[3]);
-                data.WriteByteSeq(bytes[7]);
-                data.WriteByteSeq(bytes[4]);
                 data.WriteByteSeq(bytes[0]);
-                data.WriteByteSeq(bytes[5]);
-                data << uint32(0);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[2]);
                 break;
             case MOVE_RUN_BACK:
                 data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4 + 4 );
@@ -13026,25 +13026,25 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 break;
             case MOVE_SWIM:
                 data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4 );
-                data.WriteBit(bytes[7]);
-                data.WriteBit(bytes[2]);
-                data.WriteBit(bytes[3]);
-                data.WriteBit(bytes[4]);
                 data.WriteBit(bytes[5]);
-                data.WriteBit(bytes[6]);
-                data.WriteBit(bytes[1]);
+                data.WriteBit(bytes[4]);
+                data.WriteBit(bytes[7]);
+                data.WriteBit(bytes[3]);
+                data.WriteBit(bytes[2]);
                 data.WriteBit(bytes[0]);
+                data.WriteBit(bytes[1]);
+                data.WriteBit(bytes[6]);
 
-                data.WriteByteSeq(bytes[6]);
-                data.WriteByteSeq(bytes[4]);
-                data.WriteByteSeq(bytes[7]);
                 data.WriteByteSeq(bytes[0]);
-                data << float(GetSpeed(mtype));
+                data << uint32(0);
+                data.WriteByteSeq(bytes[6]);
                 data.WriteByteSeq(bytes[3]);
-                data.WriteByteSeq(bytes[1]);
                 data.WriteByteSeq(bytes[5]);
                 data.WriteByteSeq(bytes[2]);
-                data << uint32(0);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[4]);
                 break;
             case MOVE_SWIM_BACK:
                 data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4 + 4 );
@@ -15892,6 +15892,13 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
     return true;
 }
 
+void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
+{
+    WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
+    data << uint32(percent);
+    receiver->GetSession()->SendPacket(percent);
+}
+
 void Unit::Kill(Unit* victim, bool durabilityLoss)
 {
     // Prevent killing unit twice (and giving reward from kill twice)
@@ -16047,11 +16054,13 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         // only if not player and not controlled by player pet. And not at BG
         if ((durabilityLoss && !player && !victim->ToPlayer()->InBattleground()) || (player && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
-            sLog->outDebug(LOG_FILTER_UNITS, "We are dead, losing %f percent durability", sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
-            plrVictim->DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
+            double baseLoss = sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH);
+            uint32 loss = uint32(baseLoss - (baseLoss * plrVictim->GetTotalAuraMultiplier(MSPELL_AURA_MOD_DURABILITY_LOSS)));
+            sLog->outDebug(LOG_FILTER_UNITS, "We are dead, losing %u percent durability", loss);
+            // Durability loss is calculated more accurately again for each item in Player::DurabilityLoss
+            plrVictim->DurabilityLossAll(baseLoss, false);
             // durability lost message
-            WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
-            plrVictim->GetSession()->SendPacket(&data);
+            SendDurabilityLoss(plrVictim, loss);
         }
         // Call KilledUnit for creatures
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
@@ -16236,6 +16245,63 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
 }
 
+void Unit::SendMoveRoot(uint32 value)
+{
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[3]);
+    
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[5]);
+    
+    data << uint32(value);
+    
+    
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[6]);
+    
+    SendMessageToSet(&data, true);
+}
+
+void Unit::SendMoveUnroot(uint32 value)
+{
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[6]);
+    
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[1]);
+    
+    data << uint32(value);
+    
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
+    
+    SendMessageToSet(&data, true);
+}
+
 void Unit::SetStunned(bool apply)
 {
     if (apply)
@@ -16255,10 +16321,7 @@ void Unit::SetStunned(bool apply)
         else
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        WorldPacket data(SMSG_MOVE_ROOT, 8);
-        data.append(GetPackGUID());
-        data << uint32(0);
-        SendMessageToSet(&data, true);
+        SendMoveRoot(0);
 
         CastStop();
     }
@@ -16274,11 +16337,7 @@ void Unit::SetStunned(bool apply)
 
         if (!HasUnitState(UNIT_STATE_ROOT))         // prevent moving if it also has root effect
         {
-            WorldPacket data(SMSG_MOVE_UNROOT, 8+4);
-            data.append(GetPackGUID());
-            data << uint32(0);
-            SendMessageToSet(&data, true);
-
+            SendMoveUnroot(0);
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
@@ -16298,12 +16357,7 @@ void Unit::SetRooted(bool apply)
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         if (GetTypeId() == TYPEID_PLAYER)
-        {
-            WorldPacket data(SMSG_MOVE_ROOT, 10);
-            data.append(GetPackGUID());
-            data << m_rootTimes;
-            SendMessageToSet(&data, true);
-        }
+            SendMoveRoot(m_rootTimes);
         else
         {
             ObjectGuid guid = GetGUID();
@@ -16334,12 +16388,7 @@ void Unit::SetRooted(bool apply)
         if (!HasUnitState(UNIT_STATE_STUNNED))      // prevent moving if it also has stun effect
         {
             if (GetTypeId() == TYPEID_PLAYER)
-            {
-                WorldPacket data(SMSG_MOVE_UNROOT, 10);
-                data.append(GetPackGUID());
-                data << ++m_rootTimes;
-                SendMessageToSet(&data, true);
-            }
+                SendMoveUnroot(++m_rootTimes);
             else
             {
                 ObjectGuid guid = GetGUID();

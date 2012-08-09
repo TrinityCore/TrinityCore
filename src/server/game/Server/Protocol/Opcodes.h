@@ -651,7 +651,6 @@ enum Opcodes
     MSG_MOVE_TOGGLE_COLLISION_CHEAT                   = 0x7B04,
     MSG_MOVE_TOGGLE_FALL_LOGGING                      = 0x0000,
     MSG_MOVE_TOGGLE_LOGGING                           = 0x0000,
-    MSG_MOVE_UNROOT                                   = 0x7DB4,
     MSG_MOVE_UPDATE_CAN_FLY                           = 0x0000,
     MSG_MOVE_UPDATE_FLIGHT_SPEED                      = 0x30B1,
     MSG_MOVE_UPDATE_MOUSE                             = 0x0000,
