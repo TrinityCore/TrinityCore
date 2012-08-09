@@ -182,81 +182,63 @@ public:
             if (!UpdateVictim())
                 return;
 
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             if (m_uiSummonInfernalEruptionTimer <= uiDiff)
             {
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                {
-                    DoScriptText(EMOTE_INFERNAL_ERUPTION, me);
-                    DoScriptText(SAY_INFERNAL_ERUPTION, me);
-                    DoCast(SPELL_INFERNAL_ERUPTION);
-                    m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
-                }
+                DoScriptText(EMOTE_INFERNAL_ERUPTION, me);
+                DoScriptText(SAY_INFERNAL_ERUPTION, me);
+                DoCast(SPELL_INFERNAL_ERUPTION);
+                m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonInfernalEruptionTimer -= uiDiff;
 
             if (m_uiSummonNetherPortalTimer <= uiDiff)
             {
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                {
-                    DoScriptText(EMOTE_NETHER_PORTAL, me);
-                    DoScriptText(SAY_NETHER_PORTAL, me);
-                    DoCast(SPELL_NETHER_PORTAL);
-                    m_uiSummonNetherPortalTimer = 2*MINUTE*IN_MILLISECONDS;
-                }
+                DoScriptText(EMOTE_NETHER_PORTAL, me);
+                DoScriptText(SAY_NETHER_PORTAL, me);
+                DoCast(SPELL_NETHER_PORTAL);
+                m_uiSummonNetherPortalTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonNetherPortalTimer -= uiDiff;
 
             if (m_uiFelFireballTimer <= uiDiff)
             {
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                {
-                    DoCastVictim(SPELL_FEL_FIREBALL);
-                    m_uiFelFireballTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-                }
+                DoCastVictim(SPELL_FEL_FIREBALL);
+                m_uiFelFireballTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiFelFireballTimer -= uiDiff;
 
             if (m_uiFelLightningTimer <= uiDiff)
             {
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(target, SPELL_FEL_LIGHTING);
-                    m_uiFelLightningTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-                }
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                    DoCast(target, SPELL_FEL_LIGHTING);
+                m_uiFelLightningTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiFelLightningTimer -= uiDiff;
 
             if (m_uiIncinerateFleshTimer <= uiDiff)
             {
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
-                    {
-                        DoScriptText(EMOTE_INCINERATE, me, target);
-                        DoScriptText(SAY_INCINERATE, me);
-                        DoCast(target, SPELL_INCINERATE_FLESH);
-                    }
-                    m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
+                    DoScriptText(EMOTE_INCINERATE, me, target);
+                    DoScriptText(SAY_INCINERATE, me);
+                    DoCast(target, SPELL_INCINERATE_FLESH);
                 }
+                m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             } else m_uiIncinerateFleshTimer -= uiDiff;
 
             if (m_uiNetherPowerTimer <= uiDiff)
             {
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                {
-                    me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5,10), me, true);
-                    m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
-                }
+                me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5,10), me, true);
+                m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             } else m_uiNetherPowerTimer -= uiDiff;
 
             if (m_uiLegionFlameTimer <= uiDiff)
             {
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
-                    {
-                        DoScriptText(EMOTE_LEGION_FLAME, me, target);
-                        DoCast(target, SPELL_LEGION_FLAME);
-                    }
-                    m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
+                    DoScriptText(EMOTE_LEGION_FLAME, me, target);
+                    DoCast(target, SPELL_LEGION_FLAME);
                 }
+                m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
             } else m_uiLegionFlameTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
