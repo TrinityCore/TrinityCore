@@ -385,8 +385,8 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //329 SPELL_AURA_MOD_RUNE_REGEN_SPEED
     &AuraEffect::HandleNULL,                                      //330 SPELL_AURA_CAST_WHILE_WALKING
     &AuraEffect::HandleNULL,                                      //331 SPELL_AURA_331
-    &AuraEffect::HandleNULL,                                      //332 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS
-    &AuraEffect::HandleNULL,                                      //333 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2
+    &AuraEffect::HandleOverrideActionbar,                         //332 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS
+    &AuraEffect::HandleOverrideActionbar,                         //333 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2
     &AuraEffect::HandleNULL,                                      //334 SPELL_AURA_334
     &AuraEffect::HandleNULL,                                      //335 SPELL_AURA_335
     &AuraEffect::HandleNULL,                                      //336 SPELL_AURA_MOD_FLYING_RESTRICTIONS
@@ -5673,6 +5673,49 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
         aurApp->GetTarget()->RemoveByteFlag(PLAYER_FIELD_BYTES, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
     else if (!aurApp->GetTarget()->GetBaseMap()->Instanceable())
         aurApp->GetTarget()->SetByteFlag(PLAYER_FIELD_BYTES, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
+}
+
+void AuraEffect::HandleOverrideActionbar(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    uint32 newSpellId = uint32(GetAmount());
+    if (!sSpellMgr->GetSpellInfo(newSpellId))
+        return;
+
+    bool foundAny = false;
+    PlayerSpellMap const& spells = target->GetSpellMap();
+    for (PlayerSpellMap::const_iterator itr = spells.begin(); itr != spells.end(); ++itr)
+    {
+        if (itr->second->state == PLAYERSPELL_REMOVED)
+            continue;
+
+        if (!itr->second->active || itr->second->disabled)
+            continue;
+
+        SpellInfo const* info = sSpellMgr->GetSpellInfo(itr->first);
+        if (!IsAffectingSpell(info))
+            continue;
+
+        foundAny = true;
+        if (apply)
+            target->AddSpellSwap(itr->first, newSpellId);
+        else
+            target->RemoveSpellSwap(itr->first);
+    }
+
+    if (foundAny)
+    {
+        if (apply)
+            target->AddTemporarySpell(newSpellId);
+        else
+            target->RemoveTemporarySpell(newSpellId);
+    }
 }
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const

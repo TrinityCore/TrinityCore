@@ -148,15 +148,8 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    // there are more auras that require this flag, this is just the beginning
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (((1 << i) & effMask) && GetBase()->GetSpellInfo()->Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
-        {
-            _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
-            break;
-        }
-    }
+    if (GetBase()->GetSpellInfo()->AttributesCu & SPELL_ATTR0_CU_SCALABLE)
+        _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
 }
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)

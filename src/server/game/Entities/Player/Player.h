@@ -2605,6 +2605,19 @@ class Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
 
+        // SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS handling
+        void AddSpellSwap(uint32 oldSpell, uint32 newSpell) { _spellSwaps[oldSpell] = newSpell; }
+        void RemoveSpellSwap(uint32 originalSpell) { _spellSwaps.erase(originalSpell); }
+
+        uint32 GetSpellForCast(uint32 spellId) const
+        {
+            std::map<uint32, uint32>::const_iterator itr = _spellSwaps.find(spellId);
+            if (itr != _spellSwaps.end())
+                return itr->second;
+
+            return spellId;
+        }
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -2933,6 +2946,8 @@ class Player : public Unit, public GridObject<Player>
         InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
+
+        std::map<uint32, uint32> _spellSwaps;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

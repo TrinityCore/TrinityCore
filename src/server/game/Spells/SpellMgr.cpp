@@ -2612,7 +2612,7 @@ void SpellMgr::LoadSpellInfoStore()
             mSpellInfoMap[i] = new SpellInfo(spellEntry);
     }
 
-    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, ">> Loaded spell custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 
 }
 
@@ -2669,6 +2669,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_OBS_MOD_POWER:
                 case SPELL_AURA_POWER_BURN:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    break;
+                case SPELL_AURA_MOUNTED:
+                case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+                case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_SCALABLE;
                     break;
             }
 
