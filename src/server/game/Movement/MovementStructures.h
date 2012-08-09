@@ -1854,6 +1854,86 @@ MovementStatusElements MoveChngTransport[]=
     MSEEnd,
 };
 
+// 4.3.4
+MovementStatusElements MoveSplineDone[] = 
+{
+    MSEPositionY,
+    MSEPositionX,
+    MSEPositionZ,
+    MSEHasGuidByte6,
+    MSEHasOrientation,
+    MSEHasFallData,
+    MSEHasTimestamp,
+    MSEHasGuidByte2,
+    MSEHasSplineElevation,
+    MSEHasGuidByte4,
+    MSEHasTransportData,
+    MSEHasGuidByte3,
+    MSEHasMovementFlags,
+    MSEHasGuidByte0,
+    MSEZeroBit,
+    MSEHasGuidByte1,
+    MSEHasGuidByte5,
+    MSEHasPitch,
+    MSEHasSpline,
+    MSEHasMovementFlags2,
+    MSEHasGuidByte7,
+
+    MSEHasTransportGuidByte1,
+    MSEHasTransportGuidByte7,
+    MSEHasTransportGuidByte5,
+    MSEHasTransportGuidByte3,
+    MSEHasTransportGuidByte4,
+    MSEHasTransportGuidByte6,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte2,
+    MSEHasTransportTime3,
+    MSEHasTransportGuidByte0,
+    
+    MSEHasFallDirection,
+    MSEMovementFlags2,
+    MSEMovementFlags,
+    
+    MSEGuidByte7,
+    MSEGuidByte4,
+    MSEGuidByte5,
+    MSEGuidByte6,
+    MSEGuidByte0,
+    MSEGuidByte1,
+    MSEGuidByte2,
+    MSEGuidByte3,
+
+    MSEFallVerticalSpeed,
+    MSEFallSinAngle,
+    MSEFallCosAngle,
+    MSEFallHorizontalSpeed,
+    MSEFallTime,
+    
+    MSEPitch,
+    MSEOrientation,
+
+    MSETransportGuidByte1,
+    MSETransportTime3,
+    MSETransportGuidByte7,
+    MSETransportTime,
+    MSETransportPositionY,
+    MSETransportPositionX,
+    MSETransportPositionZ,
+    MSETransportSeat,
+    MSETransportOrientation,
+    MSETransportGuidByte0,
+    MSETransportTime2,
+    MSETransportGuidByte2,
+    MSETransportGuidByte3,
+    MSETransportGuidByte5,
+    MSETransportGuidByte6,
+    MSETransportGuidByte4,
+
+    MSETimestamp,
+    MSESplineElevation,
+    MSEEnd,
+};
+
 MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
 {
     switch (opcode)
@@ -1906,6 +1986,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
             return PlayerMoveSequence;
         case CMSG_MOVE_CHNG_TRANSPORT:
             return MoveChngTransport;
+        case CMSG_MOVE_SPLINE_DONE:
+            return MoveSplineDone;
         default:
             break;
     }

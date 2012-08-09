@@ -397,7 +397,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recvData)
+void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_UNINVITE_GUID");
 

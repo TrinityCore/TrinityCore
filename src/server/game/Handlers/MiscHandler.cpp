@@ -451,7 +451,7 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket & /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
-void WorldSession::HandleTogglePvP(WorldPacket & recvData)
+void WorldSession::HandleTogglePvP(WorldPacket& recvData)
 {
     // this opcode can be used in two ways: Either set explicit new status or toggle old status
     if (recvData.size() == 1)
@@ -693,7 +693,7 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
 }
 
-void WorldSession::HandleSetContactNotesOpcode(WorldPacket & recvData)
+void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_CONTACT_NOTES");
     uint64 guid;
@@ -764,7 +764,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
     GetPlayer()->SpawnCorpseBones();
 }
 
-void WorldSession::HandleResurrectResponseOpcode(WorldPacket & recvData)
+void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RESURRECT_RESPONSE");
 
@@ -1496,7 +1496,7 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     _player->m_timeSyncClient = clientTicks;
 }
 
-void WorldSession::HandleResetInstancesOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_INSTANCES");
 
@@ -1663,7 +1663,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket & recvData)
     _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
-void WorldSession::HandleRequestPetInfoOpcode(WorldPacket & /*recvData */)
+void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 {
     /*
         sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_REQUEST_PET_INFO");

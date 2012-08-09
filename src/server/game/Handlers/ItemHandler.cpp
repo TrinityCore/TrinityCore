@@ -111,7 +111,7 @@ void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
     _player->SwapItem(item->GetPos(), dstpos);
 }
 
-void WorldSession::HandleSwapItem(WorldPacket & recvData)
+void WorldSession::HandleSwapItem(WorldPacket& recvData)
 {
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SWAP_ITEM");
     uint8 dstbag, dstslot, srcbag, srcslot;

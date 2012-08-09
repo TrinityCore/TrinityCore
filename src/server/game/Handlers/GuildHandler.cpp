@@ -445,7 +445,7 @@ void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
 }
 
 // Called when clicking on Guild bank gameobject
-void WorldSession::HandleGuildBankerActivate(WorldPacket & recvData)
+void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANKER_ACTIVATE)");
 
