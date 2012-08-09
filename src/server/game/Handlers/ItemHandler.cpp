@@ -1484,7 +1484,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     for (uint32 i = 0; i < count; ++i)
     {
-        recvData >> uint32(newEntries[i]);
+        recvData >> newEntries[i];
 
         recvData.ReadByteSeq(itemGuids[i][1]);
         recvData.ReadByteSeq(itemGuids[i][5]);
@@ -1495,7 +1495,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         recvData.ReadByteSeq(itemGuids[i][3]);
         recvData.ReadByteSeq(itemGuids[i][2]);
 
-        recvData >> uint32(slots[i]);
+        recvData >> slots[i];
     }
 
     recvData.ReadByteSeq(npcGuid[7]);

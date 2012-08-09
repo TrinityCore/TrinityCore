@@ -53,7 +53,7 @@ GmTicket::GmTicket(Player* player, WorldPacket& recvData) : _createTime(time(NUL
 
     recvData.rfinish();
     /*
-    recvData >> uint32(count); // text lines
+    recvData >> count; // text lines
     for (int i = 0; i < count; i++)
         recvData >> uint32();
 
