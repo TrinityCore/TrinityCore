@@ -348,7 +348,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PAGE_TEXT_QUERY");
 
