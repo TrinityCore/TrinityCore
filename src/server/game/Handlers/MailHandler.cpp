@@ -591,7 +591,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
 }
 
 //called when player lists his received mails
-void WorldSession::HandleGetMailList(WorldPacket & recvData)
+void WorldSession::HandleGetMailList(WorldPacket& recvData)
 {
     uint64 mailbox;
     recvData >> mailbox;

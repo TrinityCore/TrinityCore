@@ -359,9 +359,9 @@ void WorldSession::SendArenaTeamCommandResult(uint32 teamAction, const std::stri
 void WorldSession::SendNotInArenaTeamPacket(uint8 type)
 {
     WorldPacket data(SMSG_ARENA_ERROR, 4+1);                // 886 - You are not in a %uv%u arena team
-    uint32 unk = 0;
-    data << uint32(unk);                                    // unk(0)
-    if (!unk)
+    uint32 error = 0;
+    data << uint32(error);                                  // 0 = ERR_ARENA_NO_TEAM_II, 1 = ERR_ARENA_EXPIRED_CAIS, 2 = ERR_LFG_CANT_USE_BATTLEGROUND
+    if (!error)
         data << uint8(type);                                // team type (2=2v2, 3=3v3, 5=5v5), can be used for custom types...
     SendPacket(&data);
 }

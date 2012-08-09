@@ -1391,7 +1391,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recvData)
 
     // 0 - ok
     // 1, 3 - not enough money
-    // 2 - you have to seat on barber chair
+    // 2 - you have to sit on barber chair
     if (!_player->HasEnoughMoney((uint64)cost))
     {
         WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
@@ -1556,7 +1556,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleEquipmentSetSave(WorldPacket &recvData)
+void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_SAVE");
 
@@ -1618,7 +1618,7 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
     _player->DeleteEquipmentSet(setGuid);
 }
 
-void WorldSession::HandleEquipmentSetUse(WorldPacket &recvData)
+void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
     if (_player->isInCombat())
         return;
