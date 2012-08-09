@@ -139,7 +139,7 @@ class Appender
         static const char* getLogFilterTypeString(LogFilterType type);
 
     private:
-        virtual void _write(LogMessage& /*message*/) {};
+        virtual void _write(LogMessage& /*message*/) = 0;
 
         uint8 id;
         std::string name;
