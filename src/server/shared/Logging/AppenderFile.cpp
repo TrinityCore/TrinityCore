@@ -26,8 +26,8 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, co
 {
     dynamicName = std::string::npos != filename.find("%u");
     backup = _flags & APPENDER_FLAGS_MAKE_FILE_BACKUP;
-    if (!dynamicName)
-        logfile = OpenFile(_filename, _mode, backup);
+    
+    logfile = !dynamicName ? OpenFile(_filename, _mode, backup) : NULL;
 }
 
 AppenderFile::~AppenderFile()
