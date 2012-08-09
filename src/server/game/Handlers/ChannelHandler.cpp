@@ -67,7 +67,8 @@ void WorldSession::HandleLeaveChannel(WorldPacket& recvPacket)
     uint32 unk;
     std::string channelname;
     recvPacket >> unk;                                      // channel id?
-    recvPacket >> channelname;
+    uint32 length = recvPacket.ReadBits(8);
+    channelname = recvPacket.ReadString(length);
 
     if (channelname.empty())
         return;

@@ -1429,7 +1429,7 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket & recvData)
     //sLog->outDebug("response sent %u", unk);
 }
 
-void WorldSession::HandleFarSightOpcode(WorldPacket & recvData)
+void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
 

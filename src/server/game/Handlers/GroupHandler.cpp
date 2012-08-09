@@ -489,7 +489,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recvData)
     SendPartyResult(PARTY_OP_UNINVITE, membername, ERR_TARGET_NOT_IN_GROUP_S);
 }
 
-void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket & recvData)
+void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SET_LEADER");
 
@@ -510,7 +510,7 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket & recvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandleGroupDisbandOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleGroupDisbandOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_DISBAND");
 
@@ -637,7 +637,7 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
         SendPacket(&data);
 }
 
-void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket & recvData)
+void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_RAID_TARGET_UPDATE");
 
@@ -645,7 +645,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket & recvData)
     if (!group)
         return;
 
-    uint8  x;
+    uint8 x;
     recvData >> x;
 
     /** error handling **/
@@ -653,9 +653,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket & recvData)
 
     // everything's fine, do it
     if (x == 0xFF)                                           // target icon request
-    {
         group->SendTargetIconList(this);
-    }
     else                                                    // target icon update
     {
         if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
@@ -696,7 +694,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
         group->ConvertToGroup();
 }
 
-void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recvData)
+void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_CHANGE_SUB_GROUP");
 
@@ -722,10 +720,9 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recvData)
 
     Player* movedPlayer = sObjectAccessor->FindPlayerByName(name.c_str());
     uint64 guid;
+    
     if (movedPlayer)
-    {
         guid = movedPlayer->GetGUID();
-    }
     else
     {
         CharacterDatabase.EscapeString(name);
@@ -735,7 +732,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recvData)
     group->ChangeMembersGroup(guid, groupNr);
 }
 
-void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket & recvData)
+void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SWAP_SUB_GROUP");
     std::string unk1;
@@ -766,7 +763,7 @@ void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket & recvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandlePartyAssignmentOpcode(WorldPacket & recvData)
+void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_PARTY_ASSIGNMENT");
 
