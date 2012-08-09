@@ -154,7 +154,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
     WorldPacket data(SMSG_TRAINER_LIST, 8+4+4+trainer_spells->spellList.size()*38 + strTitle.size()+1);
     data << guid;
     data << uint32(trainer_spells->trainerType);
-    data << uint32(0);
+    data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
 
     size_t count_pos = data.wpos();
     data << uint32(trainer_spells->spellList.size());
