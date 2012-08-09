@@ -483,7 +483,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     ObjectGuid npcGuid;
     ObjectGuid itemId;
 
-    recvData >> uint32(newSlot);
+    recvData >> newSlot;
 
     npcGuid[2] = recvData.ReadBit();
     npcGuid[4] = recvData.ReadBit();
