@@ -15896,7 +15896,7 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
 {
     WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
     data << uint32(percent);
-    receiver->GetSession()->SendPacket(percent);
+    receiver->GetSession()->SendPacket(&data);
 }
 
 void Unit::Kill(Unit* victim, bool durabilityLoss)
@@ -16055,7 +16055,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         if ((durabilityLoss && !player && !victim->ToPlayer()->InBattleground()) || (player && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
             double baseLoss = sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH);
-            uint32 loss = uint32(baseLoss - (baseLoss * plrVictim->GetTotalAuraMultiplier(MSPELL_AURA_MOD_DURABILITY_LOSS)));
+            uint32 loss = uint32(baseLoss - (baseLoss * plrVictim->GetTotalAuraMultiplier(SPELL_AURA_MOD_DURABILITY_LOSS)));
             sLog->outDebug(LOG_FILTER_UNITS, "We are dead, losing %u percent durability", loss);
             // Durability loss is calculated more accurately again for each item in Player::DurabilityLoss
             plrVictim->DurabilityLossAll(baseLoss, false);
