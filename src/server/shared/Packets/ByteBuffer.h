@@ -452,6 +452,13 @@ class ByteBuffer
             return retval;
         }
 
+        //! Method for writing strings that have their length sent separately in packet
+        //! without null-terminating the string
+        void WriteString(std::string const& str)
+        {
+            append(str.c_str(), str.length());
+        }
+
         const uint8 *contents() const { return &_storage[0]; }
 
         size_t size() const { return _storage.size(); }
