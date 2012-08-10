@@ -29,7 +29,7 @@
 #include "ScriptMgr.h"
 #include "CreatureAISelector.h"
 #include "Group.h"
-
+#include "MapManager.h"
 #include "GameObjectModel.h"
 #include "DynamicTree.h"
 
