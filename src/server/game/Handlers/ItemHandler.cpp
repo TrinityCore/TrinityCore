@@ -473,19 +473,6 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
 }
 
-void WorldSession::HandlePageQuerySkippedOpcode(WorldPacket & recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PAGE_TEXT_QUERY");
-
-    uint32 itemid;
-    uint64 guid;
-
-    recvData >> itemid >> guid;
-
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Packet Info: itemid: %u guidlow: %u guidentry: %u guidhigh: %u",
-        itemid, GUID_LOPART(guid), GUID_ENPART(guid), GUID_HIPART(guid));
-}
-
 void WorldSession::HandleSellItemOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SELL_ITEM");
