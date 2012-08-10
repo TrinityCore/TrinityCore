@@ -67,7 +67,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             recvData.GetOpcode(), GetPlayer()->GetGUIDLow(), seat->m_flags);
         return;
     }
-    
+
     switch (recvData.GetOpcode())
     {
         case CMSG_REQUEST_VEHICLE_PREV_SEAT:

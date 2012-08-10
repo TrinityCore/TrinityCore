@@ -200,7 +200,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_SPLINE_DONE");
 
     recvData.read_skip<uint32>();                          // unk
-    
+
     MovementInfo movementInfo;                              // used only for proper packet read
     ReadMovementInfo(recvData, &movementInfo);
 

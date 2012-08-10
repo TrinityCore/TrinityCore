@@ -1855,7 +1855,7 @@ MovementStatusElements MoveChngTransport[]=
 };
 
 // 4.3.4
-MovementStatusElements MoveSplineDone[] = 
+MovementStatusElements MoveSplineDone[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -1889,11 +1889,11 @@ MovementStatusElements MoveSplineDone[] =
     MSEHasTransportGuidByte2,
     MSEHasTransportTime3,
     MSEHasTransportGuidByte0,
-    
+
     MSEHasFallDirection,
     MSEMovementFlags2,
     MSEMovementFlags,
-    
+
     MSEGuidByte7,
     MSEGuidByte4,
     MSEGuidByte5,
@@ -1908,7 +1908,7 @@ MovementStatusElements MoveSplineDone[] =
     MSEFallCosAngle,
     MSEFallHorizontalSpeed,
     MSEFallTime,
-    
+
     MSEPitch,
     MSEOrientation,
 

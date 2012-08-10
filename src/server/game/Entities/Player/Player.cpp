@@ -25415,16 +25415,16 @@ void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece,
             data << uint32(iece->RequiredCurrencyCount[i]);
             data << uint32(iece->RequiredCurrency[i]);
         }
-        
+
         data << uint32(item->GetPaidMoney());               // money cost
-        
+
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i) // item cost data
         {
             data << uint32(iece->RequiredItemCount[i]);
             data << uint32(iece->RequiredItem[i]);
         }
     }
-    
+
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[1]);
@@ -25433,7 +25433,7 @@ void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece,
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[5]);
-    
+
     data << uint8(error);                              // error code
     GetSession()->SendPacket(&data);
 }
@@ -25735,12 +25735,12 @@ void Player::SendMovementSetCanFly(bool apply)
         data.WriteBit(guid[4]);
         data.WriteBit(guid[2]);
         data.WriteBit(guid[3]);
-        
+
         data.WriteByteSeq(guid[6]);
         data.WriteByteSeq(guid[3]);
-        
+
         data << uint32(0);          //! movement counter
-        
+
         data.WriteByteSeq(guid[2]);
         data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[4]);
@@ -25759,12 +25759,12 @@ void Player::SendMovementSetCanFly(bool apply)
         data.WriteBit(guid[3]);
         data.WriteBit(guid[6]);
         data.WriteBit(guid[7]);
-        
+
         data.WriteByteSeq(guid[4]);
         data.WriteByteSeq(guid[6]);
-        
+
         data << uint32(0);          //! movement counter
-        
+
         data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[2]);
@@ -25808,13 +25808,13 @@ void Player::SendMovementSetWaterWalking(bool apply)
         data.WriteBit(guid[3]);
         data.WriteBit(guid[5]);
         data.WriteBit(guid[2]);
-        
+
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[5]);
         data.WriteByteSeq(guid[2]);
-        
+
         data << uint32(0);          //! movement counter
-        
+
         data.WriteByteSeq(guid[7]);
         data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[4]);
@@ -25832,7 +25832,7 @@ void Player::SendMovementSetWaterWalking(bool apply)
         data.WriteBit(guid[4]);
         data.WriteBit(guid[0]);
         data.WriteBit(guid[7]);
-        
+
         data.WriteByteSeq(guid[6]);
         data.WriteByteSeq(guid[1]);
         data.WriteByteSeq(guid[7]);
@@ -25841,7 +25841,7 @@ void Player::SendMovementSetWaterWalking(bool apply)
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[2]);
-        
+
         data << uint32(0);          //! movement counter
     }
     SendDirectMessage(&data);
@@ -25851,7 +25851,7 @@ void Player::SendMovementSetFeatherFall(bool apply)
 {
     ObjectGuid guid = GetGUID();
     WorldPacket data;
-    
+
     if (apply)
     {
         data.Initialize(SMSG_MOVE_FEATHER_FALL, 1 + 4 + 8);
@@ -25863,13 +25863,13 @@ void Player::SendMovementSetFeatherFall(bool apply)
         data.WriteBit(guid[2]);
         data.WriteBit(guid[5]);
         data.WriteBit(guid[6]);
-        
+
         data.WriteByteSeq(guid[5]);
         data.WriteByteSeq(guid[7]);
         data.WriteByteSeq(guid[2]);
-        
+
         data << uint32(0);          //! movement counter
-        
+
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[4]);
@@ -25879,9 +25879,9 @@ void Player::SendMovementSetFeatherFall(bool apply)
     else
     {
         data.Initialize(SMSG_MOVE_NORMAL_FALL, 1 + 4 + 8);
-        
+
         data << uint32(0);          //! movement counter
-        
+
         data.WriteBit(guid[3]);
         data.WriteBit(guid[0]);
         data.WriteBit(guid[1]);
@@ -25890,7 +25890,7 @@ void Player::SendMovementSetFeatherFall(bool apply)
         data.WriteBit(guid[4]);
         data.WriteBit(guid[6]);
         data.WriteBit(guid[2]);
-        
+
         data.WriteByteSeq(guid[2]);
         data.WriteByteSeq(guid[7]);
         data.WriteByteSeq(guid[1]);
@@ -25900,7 +25900,7 @@ void Player::SendMovementSetFeatherFall(bool apply)
         data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[6]);
     }
-        
+
     SendDirectMessage(&data);
 }
 
