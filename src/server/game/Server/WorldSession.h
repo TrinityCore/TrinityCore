@@ -77,6 +77,8 @@ enum AccountDataType
 #define GLOBAL_CACHE_MASK           0x15
 #define PER_CHARACTER_CACHE_MASK    0xEA
 
+#define REGISTERED_ADDON_PREFIX_SOFTCAP 64
+
 struct AccountData
 {
     AccountData() : Time(0), Data("") {}
@@ -232,6 +234,7 @@ class WorldSession
 
         void ReadAddonsInfo(WorldPacket& data);
         void SendAddonsInfo();
+        bool IsAddonRegistered(const std::string& prefix) const;
 
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
         void WriteMovementInfo(WorldPacket &data, MovementInfo* mi);
@@ -385,14 +388,8 @@ class WorldSession
             else
                 m_timeOutTime -= diff;
         }
-        void ResetTimeOutTime()
-        {
-            m_timeOutTime = sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME);
-        }
-        bool IsConnectionIdle() const
-        {
-            return (m_timeOutTime <= 0 && !m_inQueue);
-        }
+        void ResetTimeOutTime() { m_timeOutTime = sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME); }
+        bool IsConnectionIdle() const { return (m_timeOutTime <= 0 && !m_inQueue); }
 
         // Recruit-A-Friend Handling
         uint32 GetRecruiterId() const { return recruiterId; }
@@ -712,6 +709,9 @@ class WorldSession
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
+        void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
+        void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
+
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
         void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
@@ -1008,6 +1008,8 @@ class WorldSession
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;
         AddonsList m_addonsList;
+        std::vector<std::string> _registeredAddonPrefixes;
+        bool _filterAddonMessages;
         uint32 recruiterId;
         bool isRecruiter;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;

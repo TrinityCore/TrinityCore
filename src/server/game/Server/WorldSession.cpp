@@ -45,6 +45,9 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
+#include <algorithm>
+#include <vector>
+#include <string>
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -102,6 +105,7 @@ m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
 isRecruiter(isARecruiter), timeLastWhoCommand(0)
 {
     _warden = NULL;
+    _filterAddonMessages = false;
 
     if (sock)
     {
@@ -960,6 +964,19 @@ void WorldSession::SendAddonsInfo()
 
     SendPacket(&data);
 }
+
+bool WorldSession::IsAddonRegistered(const std::string& prefix) const
+{
+    if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
+        return true;
+
+    if (_registeredAddonPrefixes.empty())
+        return false;
+
+    std::vector<std::string>::iterator itr = std::find(_registeredAddonPrefixes.begin(), _registeredAddonPrefixes.end(), prefix);
+    return itr != _registeredAddonPrefixes.end();
+}
+
 
 void WorldSession::SetPlayer(Player* player)
 {
