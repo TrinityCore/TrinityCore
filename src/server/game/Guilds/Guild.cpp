@@ -1222,7 +1222,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         memberData << uint32(0);                                   // Remaining guild week Rep
 
         if (pubNoteLength)
-            memberData.append(member->GetPublicNote().c_str(), pubNoteLength);
+            memberData.WriteString(member->GetPublicNote());
 
         memberData.WriteByteSeq(guid[3]);
         memberData << uint8(player ? player->getLevel() : member->GetLevel());
@@ -1234,10 +1234,10 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         memberData << float(player ? 0.0f : float(::time(NULL) - member->GetLogoutTime()) / DAY);
 
         if (offNoteLength)
-            memberData.append(member->GetOfficerNote().c_str(), offNoteLength);
+            memberData.WriteString(member->GetOfficerNote());
 
         memberData.WriteByteSeq(guid[6]);
-        memberData.append(member->GetName().c_str(), member->GetName().length());
+        memberData.WriteString(member->GetName());
     }
 
     size_t infoLength = m_info.length();
@@ -1247,9 +1247,9 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
     data.append(memberData);
 
     if (infoLength)
-        data.append(m_info.c_str(), infoLength);
+        data.WriteString(m_info);
 
-    data.append(m_motd.c_str(), m_motd.length());
+    data.WriteString(m_motd);
     data << uint32(0);
     data << uint32(0);
     data << uint32(0);
@@ -1333,7 +1333,7 @@ void Guild::HandleGuildRanks(WorldSession* session)
         rankData << uint32(rankInfo->GetRights());
 
         if (rankInfo->GetName().length())
-            rankData.append(rankInfo->GetName().c_str(), rankInfo->GetName().length());
+            rankData.WriteString(rankInfo->GetName());
 
         rankData << uint32(rankInfo->GetId());
     }
@@ -1584,12 +1584,12 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     data.WriteByteSeq(newGuildGuid[0]);
 
     if (!pInvitee->GetGuildName().empty())
-        data.append(pInvitee->GetGuildName().c_str(), pInvitee->GetGuildName().length());
+        data.WriteString(pInvitee->GetGuildName());
 
     data.WriteByteSeq(newGuildGuid[7]);
     data.WriteByteSeq(newGuildGuid[2]);
 
-    data.append(player->GetName(), strlen(player->GetName()));
+    data.WriteString(player->GetName());
 
     data.WriteByteSeq(oldGuildGuid[7]);
     data.WriteByteSeq(oldGuildGuid[6]);
@@ -1597,7 +1597,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     data.WriteByteSeq(oldGuildGuid[0]);
     data.WriteByteSeq(newGuildGuid[4]);
 
-    data.append(m_name.c_str(), m_name.length());
+    data.WriteString(m_name);
 
     data.WriteByteSeq(newGuildGuid[5]);
     data.WriteByteSeq(newGuildGuid[3]);
