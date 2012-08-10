@@ -35,6 +35,7 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/Ulduar/boss_freya.cpp
   Northrend/Ulduar/Ulduar/boss_razorscale.cpp
   Northrend/Ulduar/Ulduar/boss_kologarn.cpp
+  Northrend/Ulduar/Ulduar/ulduar_trash.cpp
   Northrend/Ulduar/HallsOfStone/boss_krystallus.cpp
   Northrend/Ulduar/HallsOfStone/halls_of_stone.h
   Northrend/Ulduar/HallsOfStone/instance_halls_of_stone.cpp

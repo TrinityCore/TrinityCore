@@ -35,13 +35,29 @@ The teleporter appears to be active and stable.
 
 enum UlduarTeleporter
 {
-    BASE_CAMP                                    = 200,
-    GROUNDS                                      = 201,
-    FORGE                                        = 202,
-    SCRAPYARD                                    = 203,
-    ANTECHAMBER                                  = 204,
-    WALKWAY                                      = 205,
-    CONSERVATORY                                 = 206,
+    // Definitions for actions & gossips
+    BASE_CAMP    = GOSSIP_ACTION_INFO_DEF + 0,
+    GROUNDS      = GOSSIP_ACTION_INFO_DEF + 1,
+    FORGE        = GOSSIP_ACTION_INFO_DEF + 2,
+    SCRAPYARD    = GOSSIP_ACTION_INFO_DEF + 3,
+    ANTECHAMBER  = GOSSIP_ACTION_INFO_DEF + 4,
+    WALKWAY      = GOSSIP_ACTION_INFO_DEF + 5,
+    CONSERVATORY = GOSSIP_ACTION_INFO_DEF + 6,
+    SPARK        = GOSSIP_ACTION_INFO_DEF + 7,
+    MADNESS      = GOSSIP_ACTION_INFO_DEF + 8,
+};
+
+float TeleportPointsUlduar[9][3] =
+{
+    {-706.122f, -92.6024f, 429.876f},   // Base Camp
+    { 131.248f, -35.3802f, 409.804f},   // Grounds
+    { 553.233f, -12.3247f, 409.679f},   // Forge
+    { 926.292f, -11.4635f, 418.595f},   // Scrapyard
+    { 1498.09f, -24.246f,  420.967f},   // Antechamber
+    { 1859.45f, -24.1f,    448.9f  },   // Walkway
+    { 2086.27f, -24.3134f, 421.239f},   // Conservatory
+    { 2518.13f,  2569.34f, 421.382f},   // Spark
+    { 1855.03f, -11.629f,  334.58f },   // Descent into Madness
 };
 
 class ulduar_teleporter : public GameObjectScript
@@ -56,39 +72,23 @@ class ulduar_teleporter : public GameObjectScript
                 return false;
             if (!player->getAttackers().empty())
                 return false;
+            if (action < BASE_CAMP || action > MADNESS)
+                return false;
 
-            switch (action)
+            action -= GOSSIP_ACTION_INFO_DEF;   // eases evaluation
+
+            player->CLOSE_GOSSIP_MENU();
+
+            if (player->GetVehicle())    // If player is on vehicle, throw him out - we cannot teleport both (or maybe we can? dunno)                 
+                player->ExitVehicle();
+
+            if (action > SCRAPYARD)
             {
-                case BASE_CAMP:
-                    player->TeleportTo(603, -706.122f, -92.6024f, 429.876f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case GROUNDS:
-                    player->TeleportTo(603, 131.248f, -35.3802f, 409.804f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case FORGE:
-                    player->TeleportTo(603, 553.233f, -12.3247f, 409.679f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case SCRAPYARD:
-                    player->TeleportTo(603, 926.292f, -11.4635f, 418.595f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case ANTECHAMBER:
-                    player->TeleportTo(603, 1498.09f, -24.246f, 420.967f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case WALKWAY:
-                    player->TeleportTo(603, 1859.45f, -24.1f, 448.9f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
-                case CONSERVATORY:
-                    player->TeleportTo(603, 2086.27f, -24.3134f, 421.239f, 0.0f);
-                    player->CLOSE_GOSSIP_MENU();
-                    break;
+                // Drop player from mount - they are only allowed on the outside, up to XT002               
+                player->Dismount();
+                player->RemoveAurasByType(SPELL_AURA_MOUNTED);
             }
-
+            player->TeleportTo(MAP_ULDUAR, TeleportPointsUlduar[action][0], TeleportPointsUlduar[action][1], TeleportPointsUlduar[action][2], 0.0f);
             return true;
         }
 
@@ -110,6 +110,10 @@ class ulduar_teleporter : public GameObjectScript
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Shattered Walkway", GOSSIP_SENDER_MAIN, WALKWAY);
                 if (instance->GetBossState(BOSS_AURIAYA) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Conservatory of Life", GOSSIP_SENDER_MAIN, CONSERVATORY);
+                if (instance->GetBossState(BOSS_FREYA) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Spark of Imagination", GOSSIP_SENDER_MAIN, SPARK);
+                if (instance->GetBossState(BOSS_VEZAX) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Descent into Madness", GOSSIP_SENDER_MAIN, MADNESS);
             }
 
             player->SEND_GOSSIP_MENU(gameObject->GetGOInfo()->GetGossipMenuId(), gameObject->GetGUID());
