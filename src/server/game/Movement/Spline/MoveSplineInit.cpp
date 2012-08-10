@@ -81,7 +81,7 @@ namespace Movement
         if (args.path.empty())
             return;
 
-        // corrent first vertex
+        // correct first vertex
         args.path[0] = real_position;
         args.initialOrientation = real_position.orientation;
 
@@ -114,7 +114,7 @@ namespace Movement
         }
 
         PacketBuilder::WriteMonsterMove(move_spline, data);
-        unit.SendMessageToSet(&data,true);
+        unit.SendMessageToSet(&data, true);
     }
 
     MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)
@@ -124,6 +124,7 @@ namespace Movement
         // mix existing state into new
         args.flags.walkmode = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
         args.flags.flying = unit.m_movementInfo.HasMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
+        args.flags.smoothGroundPath = true; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
     }
 
     void MoveSplineInit::SetFacing(const Unit * target)
