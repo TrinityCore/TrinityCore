@@ -2467,9 +2467,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
     if (apply)
     {
         /*
-        WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 9);
-        data<<target->GetGUID();
-        data<<uint8(0);
+        WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
         target->SendMessageToSet(&data, true);
         */
 
@@ -2515,9 +2513,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
     else
     {
         /*
-        WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 9);
-        data<<target->GetGUID();
-        data<<uint8(1);
+        WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
         target->SendMessageToSet(&data, true);
         */
                                                             // blizz like 2.0.x
