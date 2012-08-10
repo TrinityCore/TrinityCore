@@ -29,7 +29,7 @@
 #include "SpellInfo.h"
 #include <vector>
 
-void WorldSession::HandleSplitItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SPLIT_ITEM");
     uint8 srcbag, srcslot, dstbag, dstslot;
@@ -1008,12 +1008,11 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID)
 {
-    WorldPacket data(SMSG_ENCHANTMENTLOG, (8+8+4+4+1));     // last check 2.0.10
-    data << uint64(Target);
-    data << uint64(Caster);
+    WorldPacket data(SMSG_ENCHANTMENTLOG, (8+8+4+4+1));     // last check 4.3.4
+    data.appendPackGUID(Target);
+    data.appendPackGUID(Caster);
     data << uint32(ItemID);
     data << uint32(SpellID);
-    data << uint8(0);
     SendPacket(&data);
 }
 

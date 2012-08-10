@@ -315,7 +315,7 @@ void WorldSession::HandleGetChannelMemberCount(WorldPacket &recvPacket)
     }
 }
 
-void WorldSession::HandleSetChannelWatch(WorldPacket &recvPacket)
+void WorldSession::HandleSetChannelWatch(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
     std::string channelname;
