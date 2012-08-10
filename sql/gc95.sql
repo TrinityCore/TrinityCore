@@ -16,9 +16,9 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 
----------------------------
+-- -------------------------
 -- TRIAL OF THE CRUSADER --
----------------------------
+-- -------------------------
 
 -- firebomb scriptname and modelid (ToC Gormok encounter)
 UPDATE creature_template SET ScriptName = "npc_firebomb" WHERE entry = 34854;
@@ -50,7 +50,7 @@ UPDATE creature_model_info SET bounding_radius = 1.085, combat_reach = 10.5 WHER
 UPDATE creature_model_info SET bounding_radius = 1.24, combat_reach = 12 WHERE modelid = 29815;
 
 -- spawn the Anub'arak gate in all versions of the instance
-UPDATE gameobject SET spawnMawk = 15 WHERE guid = 151192;
+UPDATE gameobject SET spawnMask = 15 WHERE guid = 151192;
 
 -- adding ToC boss immunities
 UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask | 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192 | 65536 | 131072 | 524288 | 4194304 | 8388608 | 67108864 | 536870912 
