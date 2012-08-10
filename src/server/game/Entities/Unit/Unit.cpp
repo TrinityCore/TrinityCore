@@ -17129,11 +17129,47 @@ void Unit::UpdateObjectVisibility(bool forced)
     }
 }
 
+void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin)
+{
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+
+    data.WriteByteSeq(guid[1]);
+    
+    data << float(vsin);
+    data << uint32(0);
+    
+    data.WriteByteSeq(bytes[6]);
+    data.WriteByteSeq(bytes[7]);
+
+    data << float(speedXY);
+  
+    data.WriteByteSeq(bytes[4]);
+    data.WriteByteSeq(bytes[5]);
+    data.WriteByteSeq(bytes[3]);
+
+    data << float(speedZ);
+    data << float(vcos);
+    
+    data.WriteByteSeq(bytes[2]);
+    data.WriteByteSeq(bytes[0]);
+
+    player->GetSession()->SendPacket(&data);
+}
+
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
     Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
-        player = (Player*)this;
+        player = ToPlayer();
     else if (Unit* charmer = GetCharmer())
     {
         player = charmer->ToPlayer();
@@ -17142,43 +17178,12 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
     }
 
     if (!player)
-    {
         GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ);
-    }
     else
     {
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
-
-        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
-        uint64 guid = GetGUID();
-        uint8* bytes = (uint8*)&guid;
-
-        data.WriteBit(bytes[5]);
-        data.WriteBit(bytes[2]);
-        data.WriteBit(bytes[6]);
-        data.WriteBit(bytes[3]);
-        data.WriteBit(bytes[1]);
-        data.WriteBit(bytes[4]);
-        data.WriteBit(bytes[0]);
-        data.WriteBit(bytes[7]);
-
-        data.WriteByteSeq(bytes[0]);
-        data << float(speedXY);
-        data << uint32(0);
-        data << float(-speedZ);
-        data.WriteByteSeq(bytes[6]);
-        data << float(vcos);
-        data << float(vsin);
-        data.WriteByteSeq(bytes[3]);
-        data.WriteByteSeq(bytes[1]);
-        data.WriteByteSeq(bytes[2]);
-        data.WriteByteSeq(bytes[4]);
-        data.WriteByteSeq(bytes[7]);
-        data.WriteByteSeq(bytes[5]);
-        data.WriteByteSeq(bytes[5]);
-
-        player->GetSession()->SendPacket(&data);
+        SendMoveKnockBack(player, speedXY, -speedZ, vcos, vsin);
     }
 }
 
@@ -17489,35 +17494,7 @@ void Unit::JumpTo(float speedXY, float speedZ, bool forward)
     {
         float vcos = cos(angle+GetOrientation());
         float vsin = sin(angle+GetOrientation());
-
-        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
-        uint64 guid = GetGUID();
-        uint8* bytes = (uint8*)&guid;
-
-        data.WriteBit(bytes[5]);
-        data.WriteBit(bytes[2]);
-        data.WriteBit(bytes[6]);
-        data.WriteBit(bytes[3]);
-        data.WriteBit(bytes[1]);
-        data.WriteBit(bytes[4]);
-        data.WriteBit(bytes[0]);
-        data.WriteBit(bytes[7]);
-
-        data.WriteByteSeq(bytes[0]);
-        data << float(speedXY);
-        data << uint32(0);
-        data << float(-speedZ);
-        data.WriteByteSeq(bytes[6]);
-        data << float(vcos);
-        data << float(vsin);
-        data.WriteByteSeq(bytes[3]);
-        data.WriteByteSeq(bytes[1]);
-        data.WriteByteSeq(bytes[2]);
-        data.WriteByteSeq(bytes[4]);
-        data.WriteByteSeq(bytes[7]);
-        data.WriteByteSeq(bytes[5]);
-
-        ToPlayer()->GetSession()->SendPacket(&data);
+        SendMoveKnockBack(ToPlayer(), speedXY, -speedZ, vcos, vsin);
     }
 }
 
