@@ -303,7 +303,6 @@ public:
 
         void EnterEvadeMode()
         {
-            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 

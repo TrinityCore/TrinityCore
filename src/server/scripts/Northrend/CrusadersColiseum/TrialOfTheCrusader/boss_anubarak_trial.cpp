@@ -128,6 +128,14 @@ enum MovementPoints
     POINT_FALL_GROUND           = 1
 };
 
+enum PursuingSpikesPhases
+{
+    PHASE_NO_MOVEMENT = 0,
+    PHASE_IMPALE_NORMAL = 1,
+    PHASE_IMPALE_MIDDLE = 2,
+    PHASE_IMPALE_FAST = 3
+};
+
 class boss_anubarak_trial : public CreatureScript
 {
 public:
@@ -164,7 +172,6 @@ public:
         uint8  m_uiStage;
         bool   m_bIntro;
         bool   m_bReachedPhase3;
-        uint64 m_uiTargetGUID;
         uint8  m_uiScarabSummoned;
 
         void Reset()
@@ -185,7 +192,6 @@ public:
             m_uiScarabSummoned = 0;
             m_bIntro = true;
             m_bReachedPhase3 = false;
-            m_uiTargetGUID = 0;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             Summons.DespawnAll();
             m_vBurrowGUID.clear();
@@ -240,7 +246,6 @@ public:
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
-                    DoScriptText(EMOTE_SPIKE, me, target);
                     break;
             }
             Summons.Summon(summoned);
@@ -369,7 +374,6 @@ public:
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     DoCast(me, SPELL_EMERGE_ANUBARAK);
-                    me->GetMotionMaster()->MoveChase(me->getVictim());
                     m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
                     m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
                     m_uiSummonScarabTimer = 2*IN_MILLISECONDS;
@@ -582,7 +586,8 @@ class mob_frost_sphere : public CreatureScript
                 me->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 //! end
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-                me->SetSpeed(MOVE_RUN, 0.5f, false);
+                me->SetSpeed(MOVE_FLIGHT, 0.5f, false);
+                me->CombatStop(true);
                 me->GetMotionMaster()->MoveRandom(20.0f);
                 DoCast(SPELL_FROST_SPHERE);
             }
@@ -649,15 +654,15 @@ public:
         }
 
         InstanceScript* instance;
-        uint32 m_uiIncreaseSpeedTimer;
-        uint8  m_uiSpeed;
-        uint64 m_uiTargetGUID;
+        uint32 m_PhaseSwitchTimer;
+        PursuingSpikesPhases m_Phase;
 
         void Reset()
         {
-            // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-            m_uiTargetGUID = 0;
+            m_Phase = PHASE_NO_MOVEMENT;
+            m_PhaseSwitchTimer = 1;
+            // make sure the spike has everyone on threat list
+            me->SetInCombatWithZone();
         }
 
         bool CanAIAttack(Unit const* victim) const
@@ -665,14 +670,13 @@ public:
             return victim->GetTypeId() == TYPEID_PLAYER;
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
-            m_uiTargetGUID = who->GetGUID();
-            DoCast(who, SPELL_MARK);
-            me->SetSpeed(MOVE_RUN, 0.5f);
-            m_uiSpeed = 0;
-            m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-            me->TauntApply(who);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            {
+                StartChase(target);
+                DoScriptText(EMOTE_SPIKE, me, target);
+            }
         }
 
         void DamageTaken(Unit* /*who*/, uint32& uiDamage)
@@ -682,42 +686,95 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
-            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK))
+            if (!UpdateVictim())
             {
-                if (Creature* pAnubarak = Unit::GetCreature((*me), instance->GetData64(NPC_ANUBARAK)))
-                    pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
                 return;
             }
 
-            if (m_uiIncreaseSpeedTimer)
+            if (m_PhaseSwitchTimer)
             {
-                if (m_uiIncreaseSpeedTimer <= uiDiff)
+                if (m_PhaseSwitchTimer <= uiDiff)
                 {
-                    switch (m_uiSpeed)
+                    switch (m_Phase)
                     {
-                        case 0:
+                        case PHASE_NO_MOVEMENT:
                             DoCast(me, SPELL_SPIKE_SPEED1);
                             DoCast(me, SPELL_SPIKE_TRAIL);
-                            m_uiSpeed = 1;
-                            m_uiIncreaseSpeedTimer = 7*IN_MILLISECONDS;
+                            m_Phase = PHASE_IMPALE_NORMAL;
+                            if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            {
+                                StartChase(target2);
+                                DoScriptText(EMOTE_SPIKE, me, target2);
+                            }
+                            m_PhaseSwitchTimer = 7000;
                             break;
-                        case 1:
+
+                        case PHASE_IMPALE_NORMAL:
                             DoCast(me, SPELL_SPIKE_SPEED2);
-                            m_uiSpeed = 2;
-                            m_uiIncreaseSpeedTimer = 7*IN_MILLISECONDS;
+                            m_Phase = PHASE_IMPALE_MIDDLE;
+                            m_PhaseSwitchTimer = 7000;
                             break;
-                        case 2:
+
+                        case PHASE_IMPALE_MIDDLE:
                             DoCast(me, SPELL_SPIKE_SPEED3);
-                            m_uiIncreaseSpeedTimer = 0;
+                            m_Phase = PHASE_IMPALE_FAST;
+                            m_PhaseSwitchTimer = 0;
                             break;
                     }
-                } else m_uiIncreaseSpeedTimer -= uiDiff;
+                } else m_PhaseSwitchTimer -= uiDiff;
             }
         }
-    };
 
+        void MoveInLineOfSight(Unit* pWho)
+        {
+            if (!pWho)
+                return;
+
+            if (pWho->GetEntry() != NPC_FROST_SPHERE)
+                return;
+
+            if (m_Phase == PHASE_NO_MOVEMENT)
+                return;
+
+            if (me->IsWithinDist(pWho, 8.0f))
+            {
+                switch (m_Phase)
+                {
+                    case PHASE_IMPALE_NORMAL:
+                        me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED1);
+                        break;
+                    case PHASE_IMPALE_MIDDLE:
+                        me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED2);
+                        break;
+                    case PHASE_IMPALE_FAST:
+                        me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED3);
+                        break;
+                }
+
+                me->CastSpell(me, SPELL_SPIKE_FAIL, true);
+
+                pWho->ToCreature()->DespawnOrUnsummon(3000);
+
+                // After the spikes hit the icy surface they can't move for about ~5 seconds
+                m_Phase = PHASE_NO_MOVEMENT;
+                m_PhaseSwitchTimer = 5000;
+                SetCombatMovement(false);
+                me->GetMotionMaster()->MoveIdle();
+                me->GetMotionMaster()->Clear();
+            }
+        }
+
+        void StartChase(Unit* who)
+        {
+            DoCast(who, SPELL_MARK);
+            me->SetSpeed(MOVE_RUN, 0.5f);
+            me->getThreatManager().addThreat(who, 100000.f);
+            me->GetMotionMaster()->Clear(true);
+            me->GetMotionMaster()->MoveChase(who);
+            me->TauntApply(who);
+        }
+    };
 };
 
 void AddSC_boss_anubarak_trial()

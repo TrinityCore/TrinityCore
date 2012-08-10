@@ -119,6 +119,14 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 1);
                     player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, GetData(TYPE_COUNTER));
                 }
+
+                // make sure Anub'arak isnt missing after a crash
+                if (GetData(TYPE_VALKIRIES) == DONE)
+                {
+                    Creature* anubArak = Unit::GetCreature(*player, GetData64(NPC_ANUBARAK));
+                    if (!anubArak || !anubArak->isAlive())
+                        anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                }
             }
 
             void OpenDoor(uint64 guid)

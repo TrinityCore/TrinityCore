@@ -205,7 +205,15 @@ class npc_announcer_toc10 : public CreatureScript
                     if (instanceScript->GetData(TYPE_LICH_KING) != DONE && !player->isGameMaster())
                         return true;
 
-                    creature->CastSpell(creature, 69016, false);
+                    if (GameObject* floor = GameObject::GetGameObject(*player, instanceScript->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                    {
+                        floor->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
+                        floor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
+                        floor->SetGoState(GO_STATE_ACTIVE);
+                    }
+
+                    creature->CastSpell(creature, SPELL_CORPSE_TELEPORT, false);
+                    creature->CastSpell(creature, SPELL_DESTROY_FLOOR_KNOCKUP, false);
 
                     Creature* anubArak = Unit::GetCreature(*creature, instanceScript->GetData64(NPC_ANUBARAK));
                     if (!anubArak || !anubArak->isAlive())
@@ -326,7 +334,10 @@ class boss_lich_king_toc : public CreatureScript
                                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
                                 go->SetGoState(GO_STATE_ACTIVE);
                             }
-                            me->CastSpell(me, 69016, false);
+
+                            me->CastSpell(me, SPELL_CORPSE_TELEPORT, false);
+                            me->CastSpell(me, SPELL_DESTROY_FLOOR_KNOCKUP, false);
+
                             if (instance)
                             {
                                 instance->SetData(TYPE_LICH_KING, DONE);
@@ -637,7 +648,6 @@ class npc_tirion_toc : public CreatureScript
                                     temp->GetMotionMaster()->MovePoint(2, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                     me->SetReactState(REACT_PASSIVE);
-
                                 }
                             }
                             m_uiUpdateTimer = 5000;
