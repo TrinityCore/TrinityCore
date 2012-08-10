@@ -36,23 +36,23 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     std::string receiver, subject, body;
     uint32 bodyLength, subjectLength, receiverLength;
     uint32 unk1, unk2;
-    
+
     recvData >> unk1;
     recvData >> unk2; // Stationery?
-   
+
     recvData >> money >> COD;                              // money and cod
     bodyLength = recvData.ReadBits(12);
     subjectLength = recvData.ReadBits(9);
 
     uint8 items_count = recvData.ReadBits(5);              // attached items count
-    
+
     if (items_count > MAX_MAIL_ITEMS)                       // client limit
     {
         GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_TOO_MANY_ATTACHMENTS);
         recvData.rfinish();                   // set to end to avoid warnings spam
         return;
     }
-    
+
     mailbox[0] = recvData.ReadBit();
 
     ObjectGuid itemGUIDs[MAX_MAIL_ITEMS];
@@ -68,7 +68,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         itemGUIDs[i][4] = recvData.ReadBit();
         itemGUIDs[i][5] = recvData.ReadBit();
     }
-    
+
     mailbox[3] = recvData.ReadBit();
     mailbox[4] = recvData.ReadBit();
     receiverLength = recvData.ReadBits(7);
@@ -77,9 +77,9 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     mailbox[1] = recvData.ReadBit();
     mailbox[7] = recvData.ReadBit();
     mailbox[5] = recvData.ReadBit();
-    
+
     recvData.ReadByteSeq(mailbox[4]);
-    
+
     for (uint8 i = 0; i < items_count; ++i)
     {
         recvData.ReadByteSeq(itemGUIDs[i][6]);
@@ -92,22 +92,22 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         recvData.ReadByteSeq(itemGUIDs[i][4]);
         recvData.ReadByteSeq(itemGUIDs[i][5]);
     }
-    
+
     recvData.ReadByteSeq(mailbox[7]);
     recvData.ReadByteSeq(mailbox[3]);
     recvData.ReadByteSeq(mailbox[6]);
     recvData.ReadByteSeq(mailbox[5]);
-    
+
     subject = recvData.ReadString(subjectLength);
     receiver = recvData.ReadString(receiverLength);
-    
+
     recvData.ReadByteSeq(mailbox[2]);
     recvData.ReadByteSeq(mailbox[0]);
-    
+
     body = recvData.ReadString(bodyLength);
-    
+
     recvData.ReadByteSeq(mailbox[1]);
-    
+
     // packet read complete, now do check
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))

@@ -17147,22 +17147,22 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     data.WriteBit(guid[4]);
 
     data.WriteByteSeq(guid[1]);
-    
+
     data << float(vsin);
     data << uint32(0);
-    
+
     data.WriteByteSeq(guid[6]);
     data.WriteByteSeq(guid[7]);
 
     data << float(speedXY);
-  
+
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[3]);
 
     data << float(speedZ);
     data << float(vcos);
-    
+
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[0]);
 

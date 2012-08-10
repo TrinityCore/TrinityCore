@@ -96,7 +96,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     recvData.ReadByteSeq(crossRealmGuid[5]);
     recvData.ReadByteSeq(crossRealmGuid[3]);
     recvData.ReadByteSeq(crossRealmGuid[2]);
-    
+
     // attempt add selected player
 
     // cheating
@@ -190,10 +190,10 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
             data.WriteBit(invitedGuid[7]);
 
             data.FlushBits();
-    
+
             data.WriteByteSeq(invitedGuid[1]);
             data.WriteByteSeq(invitedGuid[4]);
-    
+
             data << int32(getMSTime());
             data << int32(0);
             data << int32(0);
@@ -212,7 +212,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
             data.WriteByteSeq(invitedGuid[7]);
 
             data.WriteString(player->GetName()); // invited name
-    
+
             data << int32(0);
 
             player->GetSession()->SendPacket(&data);
@@ -720,7 +720,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 
     Player* movedPlayer = sObjectAccessor->FindPlayerByName(name.c_str());
     uint64 guid;
-    
+
     if (movedPlayer)
         guid = movedPlayer->GetGUID();
     else
