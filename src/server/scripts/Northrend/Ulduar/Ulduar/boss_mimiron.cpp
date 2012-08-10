@@ -1082,7 +1082,7 @@ class boss_leviathan_mk_turret : public CreatureScript
                     if (playerList.empty())
                         return SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true);
                     else
-                        return SelectRandomContainerElement(playerList);
+                        return Trinity::Containers::SelectRandomContainerElement(playerList);
                 }
                 else
                     return 0;

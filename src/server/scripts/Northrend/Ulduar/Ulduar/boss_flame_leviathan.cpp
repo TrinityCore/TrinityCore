@@ -2117,13 +2117,13 @@ class spell_pursued : public SpellScriptLoader
 
                 if (!tempList.empty())
                 {
-                    _target = SelectRandomContainerElement(tempList);
+                    _target = Trinity::Containers::SelectRandomContainerElement(tempList);
                     SetSelectedTarget(tempList);
                 }
                 else
                 {
                     // No vehicles found, select a random target
-                    _target = SelectRandomContainerElement(targets);
+                    _target = Trinity::Containers::SelectRandomContainerElement(targets);
                     SetSelectedTarget(targets);
                 }
             }

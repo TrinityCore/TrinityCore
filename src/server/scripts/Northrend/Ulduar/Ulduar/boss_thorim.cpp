@@ -1531,7 +1531,7 @@ class spell_stormhammer_targeting : public SpellScriptLoader
                 if (unitList.empty())
                     return;
 
-                _target = SelectRandomContainerElement(unitList);
+                _target = Trinity::Containers::SelectRandomContainerElement(unitList);
                 SetTarget(unitList);
             }
 
