@@ -354,10 +354,10 @@ void WorldSession::SendArenaTeamCommandResult(uint32 teamAction, const std::stri
     data.WriteBits(team.length(), 8);
     data.FlushBits();
 
-    data << player;
+    data.WriteString(player);
     data << uint32(teamAction);
     data << uint32(errorId);
-    data << team;
+    data.WriteString(team);
     SendPacket(&data);
 }
 

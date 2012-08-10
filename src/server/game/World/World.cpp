@@ -2601,7 +2601,7 @@ void World::SendAutoBroadcast()
         WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
         data.WriteBits(msg.length(), 13);
         data.FlushBits();
-        data.append(msg.c_str(), msg.length());
+        data.WriteString(msg);
         sWorld->SendGlobalMessage(&data);
     }
 
@@ -2612,7 +2612,7 @@ void World::SendAutoBroadcast()
         WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
         data.WriteBits(msg.length(), 13);
         data.FlushBits();
-        data.append(msg.c_str(), msg.length());
+        data.WriteString(msg);
         sWorld->SendGlobalMessage(&data);
     }
 
