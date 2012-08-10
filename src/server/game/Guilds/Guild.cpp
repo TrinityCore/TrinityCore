@@ -2234,8 +2234,9 @@ void Guild::BroadcastAddonToGuild(WorldSession* session, bool officerOnly, const
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindPlayer())
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
-                    !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
-                    player->GetSession()->SendPacket(&data);
+                    !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()) &&
+                    player->GetSession()->IsAddonRegistered(prefix))
+                        player->GetSession()->SendPacket(&data);
     }
 }
 

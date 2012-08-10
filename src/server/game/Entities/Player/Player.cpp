@@ -19986,16 +19986,17 @@ void Player::TextEmote(const std::string& text)
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 }
 
-void Player::WhisperAddon(const std::string& text, const std::string& prefix, uint64 receiver)
+void Player::WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver)
 {
-    Player* rPlayer = ObjectAccessor::FindPlayer(receiver);
-
     std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, _text, rPlayer);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, _text, receiver);
+
+    if (!receiver->GetSession()->IsAddonRegistered(prefix))
+        return;
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, LANG_UNIVERSAL, prefix.c_str());
-    rPlayer->GetSession()->SendPacket(&data);
+    receiver->GetSession()->SendPacket(&data);
 }
 
 void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
