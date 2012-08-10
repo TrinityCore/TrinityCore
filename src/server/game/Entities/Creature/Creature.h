@@ -673,8 +673,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }
         void SetHomePosition(const Position &pos) { m_homePosition.Relocate(pos); }
-        void GetHomePosition(float &x, float &y, float &z, float &ori) { m_homePosition.GetPosition(x, y, z, ori); }
-        Position GetHomePosition() { return m_homePosition; }
+        void GetHomePosition(float &x, float &y, float &z, float &ori) const { m_homePosition.GetPosition(x, y, z, ori); }
+        Position GetHomePosition() const { return m_homePosition; }
 
         void SetTransportHomePosition(float x, float y, float z, float o) { m_transportHomePosition.Relocate(x, y, z, o); }
         void SetTransportHomePosition(const Position &pos) { m_transportHomePosition.Relocate(pos); }

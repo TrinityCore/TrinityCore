@@ -303,7 +303,7 @@ class npc_coldflame : public CreatureScript
                     {
                         Position const* ownerPos = marrowgarAI->GetLastColdflamePosition();
                         float ang = me->GetAngle(ownerPos) - static_cast<float>(M_PI);
-                        MapManager::NormalizeOrientation(ang);
+                        ang = MapManager::NormalizeOrientation(ang);
                         me->SetOrientation(ang);
                         owner->GetNearPosition(pos, 2.5f, 0.0f);
                     }
