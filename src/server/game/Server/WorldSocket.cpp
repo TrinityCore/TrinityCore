@@ -870,11 +870,9 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     addonsData.resize(addonSize);
     recvPacket.read((uint8*)addonsData.contents(), addonSize);
 
-    uint8 highBitsAccountLen;
-    uint8 lowBitsAccountLen;
-    recvPacket >> highBitsAccountLen;
-    recvPacket >> lowBitsAccountLen;
-    account = recvPacket.ReadString(((highBitsAccountLen << 5) & 0xFF) | (lowBitsAccountLen >> 3));
+    recvPacket.ReadBit();
+    uint32 accountNameLength = recvPacket.ReadBits(12);
+    account = recvPacket.ReadString(accountNameLength);
 
     if (sWorld->IsClosed())
     {
