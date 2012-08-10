@@ -581,6 +581,7 @@ class WorldSession
         void HandleGuildDelRankOpcode(WorldPacket& recvPacket);
         void HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket);
         void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
+        void HandleGuildRequestPartyState(WorldPacket& recvPacket);
 
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);

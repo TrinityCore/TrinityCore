@@ -972,6 +972,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     SetUInt64Value(OBJECT_FIELD_DATA, 0);
     SetUInt32Value(PLAYER_GUILDRANK, 0);
+    SetUInt32Value(PLAYER_GUILDLEVEL, 0);
     SetUInt32Value(PLAYER_GUILD_TIMESTAMP, 0);
 
     for (int i = 0; i < KNOWN_TITLES_SIZE; ++i)
@@ -1074,8 +1075,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (getPowerType() == POWER_RUNIC_POWER)
     {
-        SetPower(POWER_RUNE, 8);
-        SetMaxPower(POWER_RUNE, 8);
+        SetPower(POWER_RUNES, 8);
+        SetMaxPower(POWER_RUNES, 8);
         SetPower(POWER_RUNIC_POWER, 0);
         SetMaxPower(POWER_RUNIC_POWER, 1000);
     }
@@ -2579,7 +2580,7 @@ void Player::Regenerate(Powers power)
         case POWER_FOCUS:
             addvalue += 4.0f * m_modAttackSpeedPct[RANGED_ATTACK] * sWorld->getRate(RATE_POWER_FOCUS);
             break;
-        case POWER_RUNE:
+        case POWER_RUNES:
         case POWER_HEALTH:
             break;
         default:
@@ -23699,7 +23700,7 @@ uint32 Player::GetRuneBaseCooldown(uint8 index)
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
     {
-        if ((*i)->GetMiscValue() == POWER_RUNE && (*i)->GetMiscValueB() == rune)
+        if ((*i)->GetMiscValue() == POWER_RUNES && (*i)->GetMiscValueB() == rune)
             cooldown = cooldown*(100-(*i)->GetAmount())/100;
     }
 

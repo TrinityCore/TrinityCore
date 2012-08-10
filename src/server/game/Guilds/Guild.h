@@ -77,55 +77,48 @@ enum GuildRankRights
 
 enum GuildCommandType
 {
-    GUILD_CREATE            = 0x00,
-    GUILD_INVITE            = 0x01,
-    GUILD_QUIT              = 0x03,
-    GUILD_ROSTER            = 0x05,
-    GUILD_PROMOTE           = 0x06,
-    GUILD_DEMOTE            = 0x07,
-    GUILD_KICK              = 0x08,
-    GUILD_LEADER            = 0x0A,
-    GUILD_MOTD              = 0x0B,
-    GUILD_GUILDCHAT         = 0x0D,
-    GUILD_FOUNDER           = 0x0E,
-    GUILD_CHANGE_RANK       = 0x10,
-    GUILD_EDIT_PUB_NOTE     = 0x13,
-    GUILD_UNK               = 0x14,
-    GUILD_VIEW_TAB          = 0x15,
-    GUILD_MOVE_ITEM         = 0x16,
-    GUILD_REPAIR            = 0x19,
+    GUILD_CREATE_S  = 0x00,
+    GUILD_INVITE_S  = 0x01,
+    GUILD_QUIT_S    = 0x03,
+    GUILD_FOUNDER_S = 0x0E,
+    GUILD_UNK1      = 0x13,
+    GUILD_UNK2      = 0x14
 };
 
 enum GuildCommandError
 {
-    ERR_PLAYER_NO_MORE_IN_GUILD     = 0x00,
-    ERR_GUILD_INTERNAL              = 0x01,
-    ERR_ALREADY_IN_GUILD            = 0x02,
-    ERR_ALREADY_IN_GUILD_S          = 0x03,
-    ERR_INVITED_TO_GUILD            = 0x04,
-    ERR_ALREADY_INVITED_TO_GUILD_S  = 0x05,
-    ERR_GUILD_NAME_INVALID          = 0x06,
-    ERR_GUILD_NAME_EXISTS_S         = 0x07,
-    ERR_GUILD_LEADER_LEAVE          = 0x08,
-    ERR_GUILD_PERMISSIONS           = 0x08,
-    ERR_GUILD_PLAYER_NOT_IN_GUILD   = 0x09,
-    ERR_GUILD_PLAYER_NOT_IN_GUILD_S = 0x0A,
-    ERR_GUILD_PLAYER_NOT_FOUND_S    = 0x0B,
-    ERR_GUILD_NOT_ALLIED            = 0x0C,
-    ERR_GUILD_RANK_TOO_HIGH_S       = 0x0D,
-    ERR_GUILD_RANK_TOO_LOW_S        = 0x0E,
-    ERR_GUILD_RANKS_LOCKED          = 0x11,
-    ERR_GUILD_RANK_IN_USE           = 0x12,
-    ERR_GUILD_IGNORING_YOU_S        = 0x13,
-    ERR_GUILD_UNK1                  = 0x14,
-    ERR_GUILD_WITHDRAW_LIMIT        = 0x19,
-    ERR_GUILD_NOT_ENOUGH_MONEY      = 0x1A,
-    ERR_GUILD_BANK_FULL             = 0x1C,
-    ERR_GUILD_ITEM_NOT_FOUND        = 0x1D,
-    ERR_GUILD_TOO_MUCH_MONEY        = 0x1F,
-    ERR_GUILD_WRONG_TAB             = 0x20,
-    ERR_GUILD_REQ_AUTHENTICATOR     = 0x22,
-    ERR_GUILD_BANK_VOUCHER_FAILED   = 0x23,
+    ERR_PLAYER_NO_MORE_IN_GUILD         = 0x00,
+    ERR_GUILD_INTERNAL                  = 0x01,
+    ERR_ALREADY_IN_GUILD                = 0x02,
+    ERR_ALREADY_IN_GUILD_S              = 0x03,
+    ERR_INVITED_TO_GUILD                = 0x04,
+    ERR_ALREADY_INVITED_TO_GUILD_S      = 0x05,
+    ERR_GUILD_NAME_INVALID              = 0x06,
+    ERR_GUILD_NAME_EXISTS_S             = 0x07,
+    ERR_GUILD_LEADER_LEAVE              = 0x08,
+    ERR_GUILD_PERMISSIONS               = 0x08,
+    ERR_GUILD_PLAYER_NOT_IN_GUILD       = 0x09,
+    ERR_GUILD_PLAYER_NOT_IN_GUILD_S     = 0x0A,
+    ERR_GUILD_PLAYER_NOT_FOUND_S        = 0x0B,
+    ERR_GUILD_NOT_ALLIED                = 0x0C,
+    ERR_GUILD_RANK_TOO_HIGH_S           = 0x0D,
+    ERR_GUILD_RANK_TOO_LOW_S            = 0x0E,
+    ERR_GUILD_RANKS_LOCKED              = 0x11,
+    ERR_GUILD_RANK_IN_USE               = 0x12,
+    ERR_GUILD_IGNORING_YOU_S            = 0x13,
+    ERR_GUILD_UNK1                      = 0x14,
+    ERR_GUILD_WITHDRAW_LIMIT            = 0x19,
+    ERR_GUILD_NOT_ENOUGH_MONEY          = 0x1A,
+    ERR_GUILD_BANK_FULL                 = 0x1C,
+    ERR_GUILD_ITEM_NOT_FOUND            = 0x1D,
+    ERR_GUILD_TOO_MUCH_MONEY            = 0x1F,
+    ERR_GUILD_BANK_WRONG_TAB            = 0x20,
+    ERR_RANK_REQUIRES_AUTHENTICATOR     = 0x22,
+    ERR_GUILD_BANK_VOUCHER_FAILED       = 0x23,
+    ERR_GUILD_TRIAL_ACCOUNT             = 0x24,
+    ERR_GUILD_UNDELETABLE_DUE_TO_LEVEL  = 0x25,
+    ERR_GUILD_MOVE_STARTING             = 0x26,
+    ERR_GUILD_REP_TOO_LOW               = 0x27,
 };
 
 enum GuildEvents
@@ -662,6 +655,7 @@ public:
     bool HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool repair = false);
     void HandleMemberLogout(WorldSession* session);
     void HandleDisband(WorldSession* session);
+    void HandleGuildPartyRequest(WorldSession* session);
 
     // Send info to client
     void SendInfo(WorldSession* session) const;
@@ -770,7 +764,7 @@ private:
             if (itr->second->GetName() == name)
                 return itr->second;
 
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PLAYER_NOT_IN_GUILD_S, name);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD_S, name);
         return NULL;
     }
     inline void _DeleteMemberFromDB(uint32 lowguid) const

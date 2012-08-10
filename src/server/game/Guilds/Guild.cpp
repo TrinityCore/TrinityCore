@@ -1067,6 +1067,7 @@ bool Guild::Create(Player* pLeader, const std::string& name)
     m_motd = "No message set.";
     m_bankMoney = 0;
     m_createdDate = ::time(NULL);
+    m_level = 1;
     _CreateLogHolders();
 
     sLog->outDebug(LOG_FILTER_GUILD, "GUILD: creating guild [%s] for leader %s (%u)",
@@ -1180,8 +1181,8 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         ObjectGuid guid = member->GetGUID();
         data.WriteBit(guid[3]);
         data.WriteBit(guid[4]);
-        data.WriteBit(0); // unk
-        data.WriteBit(0); // unk
+        data.WriteBit(0); // Has Authenticator
+        data.WriteBit(0); // Can Scroll of Ressurect
         data.WriteBits(pubNoteLength, 8);
         data.WriteBits(offNoteLength, 8);
         data.WriteBit(guid[0]);
@@ -1349,7 +1350,7 @@ void Guild::HandleSetMOTD(WorldSession* session, const std::string& motd)
 
     // Player must have rights to set MOTD
     if (!_HasRankRight(session->GetPlayer(), GR_RIGHT_SETMOTD))
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
     else
     {
         m_motd = motd;
@@ -1372,7 +1373,7 @@ void Guild::HandleSetInfo(WorldSession* session, const std::string& info)
 
     // Player must have rights to set guild's info
     if (!_HasRankRight(session->GetPlayer(), GR_RIGHT_MODIFY_GUILD_INFO))
-        SendCommandResult(session, GUILD_CREATE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_CREATE_S, ERR_GUILD_PERMISSIONS);
     else
     {
         m_info = info;
@@ -1414,7 +1415,7 @@ void Guild::HandleSetLeader(WorldSession* session, const std::string& name)
     Player* player = session->GetPlayer();
     // Only leader can assign new leader
     if (!_IsLeader(player))
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
     // Old leader must be a member of guild
     else if (Member* pOldLeader = GetMember(player->GetGUID()))
     {
@@ -1427,7 +1428,7 @@ void Guild::HandleSetLeader(WorldSession* session, const std::string& name)
         }
     }
     else
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
 }
 
 void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, const std::string& name, const std::string& icon)
@@ -1444,7 +1445,7 @@ void Guild::HandleSetMemberNote(WorldSession* session, std::string const& note, 
 {
     // Player must have rights to set public/officer note
     if (!_HasRankRight(session->GetPlayer(), isPublic ? GR_RIGHT_EPNOTE : GR_RIGHT_EOFFNOTE))
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
     else if (Member* member = GetMember(guid))
     {
         if (isPublic)
@@ -1459,7 +1460,7 @@ void Guild::HandleSetRankInfo(WorldSession* session, uint32 rankId, const std::s
 {
     // Only leader can modify ranks
     if (!_IsLeader(session->GetPlayer()))
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
     else if (RankInfo* rankInfo = GetRankInfo(rankId))
     {
         sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Changed RankName to '%s', rights to 0x%08X", name.c_str(), rights);
@@ -1505,7 +1506,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     Player* pInvitee = sObjectAccessor->FindPlayerByName(name.c_str());
     if (!pInvitee)
     {
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PLAYER_NOT_FOUND_S, name);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PLAYER_NOT_FOUND_S, name);
         return;
     }
 
@@ -1515,7 +1516,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
         return;
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && pInvitee->GetTeam() != player->GetTeam())
     {
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_NOT_ALLIED, name);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_NOT_ALLIED, name);
         return;
     }
     // Invited player cannot be in another guild
@@ -1527,13 +1528,13 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     // Invited player cannot be invited
     if (pInvitee->GetGuildIdInvited())
     {
-        SendCommandResult(session, GUILD_INVITE, ERR_ALREADY_INVITED_TO_GUILD_S, name);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_ALREADY_INVITED_TO_GUILD_S, name);
         return;
     }
     // Inviting player must have rights to invite
     if (!_HasRankRight(player, GR_RIGHT_INVITE))
     {
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
         return;
     }
 
@@ -1544,9 +1545,9 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
 
     WorldPacket data(SMSG_GUILD_INVITE, 100);
     data << uint32(GetLevel());
-    data << uint32(m_emblemInfo.GetStyle());
-    data << uint32(m_emblemInfo.GetBorderColor());
     data << uint32(m_emblemInfo.GetBorderStyle());
+    data << uint32(m_emblemInfo.GetBorderColor());
+    data << uint32(m_emblemInfo.GetStyle());
     data << uint32(m_emblemInfo.GetBackgroundColor());
     data << uint32(m_emblemInfo.GetColor());
 
@@ -1628,7 +1629,7 @@ void Guild::HandleLeaveMember(WorldSession* session)
     {
         if (m_members.size() > 1)
             // Leader cannot leave if he is not the last member
-            SendCommandResult(session, GUILD_QUIT, ERR_GUILD_LEADER_LEAVE);
+            SendCommandResult(session, GUILD_QUIT_S, ERR_GUILD_LEADER_LEAVE);
         else
             // Guild is disbanded if leader leaves.
             Disband();
@@ -1640,7 +1641,7 @@ void Guild::HandleLeaveMember(WorldSession* session)
         _LogEvent(GUILD_EVENT_LOG_LEAVE_GUILD, player->GetGUIDLow());
         _BroadcastEvent(GE_LEFT, player->GetGUID(), player->GetName());
 
-        SendCommandResult(session, GUILD_QUIT, ERR_PLAYER_NO_MORE_IN_GUILD, m_name);
+        SendCommandResult(session, GUILD_QUIT_S, ERR_PLAYER_NO_MORE_IN_GUILD, m_name);
     }
 }
 
@@ -1652,16 +1653,16 @@ void Guild::HandleRemoveMember(WorldSession* session, uint64 guid)
 
     // Player must have rights to remove members
     if (!_HasRankRight(player, GR_RIGHT_REMOVE))
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
     // Removed player must be a member of the guild
     else if (member && removedPlayer)
     {
         // Guild masters cannot be removed
         if (member->IsRank(GR_GUILDMASTER))
-            SendCommandResult(session, GUILD_QUIT, ERR_GUILD_LEADER_LEAVE);
+            SendCommandResult(session, GUILD_QUIT_S, ERR_GUILD_LEADER_LEAVE);
         // Do not allow to remove player with the same rank or higher
         else if (member->IsRankNotLower(player->GetRank()))
-            SendCommandResult(session, GUILD_QUIT, ERR_GUILD_RANK_TOO_HIGH_S, removedPlayer->GetName());
+            SendCommandResult(session, GUILD_QUIT_S, ERR_GUILD_RANK_TOO_HIGH_S, removedPlayer->GetName());
         else
         {
             // After call to DeleteMember pointer to member becomes invalid
@@ -1671,7 +1672,7 @@ void Guild::HandleRemoveMember(WorldSession* session, uint64 guid)
         }
     }
     else if (removedPlayer)
-        SendCommandResult(session, GUILD_QUIT, ERR_PLAYER_NO_MORE_IN_GUILD, removedPlayer->GetName());
+        SendCommandResult(session, GUILD_QUIT_S, ERR_PLAYER_NO_MORE_IN_GUILD, removedPlayer->GetName());
 }
 
 void Guild::HandleUpdateMemberRank(WorldSession* session, uint64 targetGuid, bool demote)
@@ -1683,14 +1684,14 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, uint64 targetGuid, boo
     {
         if (!_HasRankRight(player, demote ? GR_RIGHT_DEMOTE : GR_RIGHT_PROMOTE))
         {
-            SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+            SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
             return;
         }
 
         // Player cannot promote himself
         if (member->IsSamePlayer(player->GetGUID()))
         {
-            SendCommandResult(session, GUILD_INVITE, ERR_GUILD_NAME_INVALID);
+            SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_NAME_INVALID);
             return;
         }
 
@@ -1699,13 +1700,13 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, uint64 targetGuid, boo
             // Player can demote only lower rank members
             if (member->IsRankNotLower(player->GetRank()))
             {
-                SendCommandResult(session, GUILD_INVITE, ERR_GUILD_RANK_TOO_HIGH_S, member->GetName());
+                SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_RANK_TOO_HIGH_S, member->GetName());
                 return;
             }
             // Lowest rank cannot be demoted
             if (member->GetRankId() >= _GetLowestRankId())
             {
-                SendCommandResult(session, GUILD_INVITE, ERR_GUILD_RANK_TOO_LOW_S, member->GetName());
+                SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_RANK_TOO_LOW_S, member->GetName());
                 return;
             }
         }
@@ -1715,7 +1716,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, uint64 targetGuid, boo
             // member->GetRank() + 1 is the highest rank that current player can promote to
             if (member->IsRankNotLower(player->GetRank() + 1))
             {
-                SendCommandResult(session, GUILD_INVITE, ERR_GUILD_RANK_TOO_HIGH_S, member->GetName());
+                SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_RANK_TOO_HIGH_S, member->GetName());
                 return;
             }
         }
@@ -1736,14 +1737,14 @@ void Guild::HandleSetMemberRank(WorldSession* session, uint64 targetGuid, uint64
     {
         if (!_HasRankRight(player, rank > member->GetRankId() ? GR_RIGHT_DEMOTE : GR_RIGHT_PROMOTE))
         {
-            SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+            SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
             return;
         }
 
         // Player cannot promote himself
         if (member->IsSamePlayer(player->GetGUID()))
         {
-            SendCommandResult(session, GUILD_INVITE, ERR_GUILD_NAME_INVALID);
+            SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_NAME_INVALID);
             return;
         }
 
@@ -1758,7 +1759,7 @@ void Guild::HandleAddNewRank(WorldSession* session, std::string const& name) //,
 
     // Only leader can add new rank
     if (!_IsLeader(session->GetPlayer()))
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
     else
     {
         _CreateRank(name, GR_RIGHT_GCHATLISTEN | GR_RIGHT_GCHATSPEAK);
@@ -1775,7 +1776,7 @@ void Guild::HandleRemoveRank(WorldSession* session, uint32 rankId)
 
     // Only leader can delete ranks
     if (!_IsLeader(session->GetPlayer()))
-        SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
     else
     {
         // Delete bank rights for rank
@@ -1887,12 +1888,32 @@ void Guild::HandleDisband(WorldSession* session)
 {
     // Only leader can disband guild
     if (!_IsLeader(session->GetPlayer()))
-        Guild::SendCommandResult(session, GUILD_INVITE, ERR_GUILD_PERMISSIONS);
+        Guild::SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
     else
     {
         Disband();
         sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Guild Successfully Disbanded");
     }
+}
+
+void Guild::HandleGuildPartyRequest(WorldSession* session)
+{
+    Player* player = session->GetPlayer();
+    Group* group = player->GetGroup();
+
+    // Make sure player is a member of the guild and that he is in a group.
+    if (!IsMember(player->GetGUID()) || !group)
+        return;
+
+    WorldPacket data(SMSG_GUILD_PARTY_STATE_RESPONSE, 13);
+    data.WriteBit(0);                               // Is guild group
+    data.FlushBits();
+    data << float(0.f);                             // Guild XP multiplier
+    data << uint32(0);                              // Current guild members
+    data << uint32(0);                              // Needed guild members
+
+    session->SendPacket(&data);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE_RESPONSE)");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1942,7 +1963,6 @@ void Guild::SendBankTabData(WorldSession* session, uint8 tabId) const
 
 void Guild::SendBankTabsInfo(WorldSession* session) const
 {
-    // TODO
     WorldPacket data(SMSG_GUILD_BANK_LIST, 500);
 
     data << uint64(m_bankMoney);
@@ -2315,6 +2335,7 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
     {
         player->SetInGuild(m_id);
         player->SetRank(rankId);
+        player->SetGuildLevel(m_level);
         player->SetGuildIdInvited(0);
     }
 
@@ -2898,7 +2919,7 @@ void Guild::_SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) cons
 
 void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 {
-    if (const BankTab* pTab = GetBankTab(tabId))
+    if (BankTab const* tab = GetBankTab(tabId))
     {
         WorldPacket data(SMSG_GUILD_BANK_LIST, 1200);
 
@@ -2912,7 +2933,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
         data << uint8(slots.size());
         for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
             if (slots.find(slotId) != slots.end())
-                pTab->WriteSlotPacket(data, slotId);
+                tab->WriteSlotPacket(data, slotId);
 
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (_MemberHasTabRights(itr->second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
