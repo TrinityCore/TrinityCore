@@ -12753,6 +12753,24 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         {
             case MOVE_WALK:
                 data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.WriteBit(bytes[0]);
+                data.WriteBit(bytes[6]);
+                data.WriteBit(bytes[7]);
+                data.WriteBit(bytes[3]);
+                data.WriteBit(bytes[5]);
+                data.WriteBit(bytes[1]);
+                data.WriteBit(bytes[2]);
+                data.WriteBit(bytes[4]);
+                data.FlushBits();
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[3]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[9]);
+                data.WriteByteSeq(bytes[5]);
                 break;
             case MOVE_RUN:
                 data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 1 + 8 + 4);
@@ -12927,17 +12945,6 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 return;
         }
 
-        /*data.append(GetPackGUID());
-        data << uint32(0);                                  // movement flags
-        data << uint16(0);                                  // unk flags
-        data << uint32(getMSTime());
-        data << float(GetPositionX());
-        data << float(GetPositionY());
-        data << float(GetPositionZ());
-        data << float(GetOrientation());
-        data << uint32(0);                                  // fall time
-        data << float(GetSpeed(mtype));*/
-
         SendMessageToSet(&data, true);
     }
     else
@@ -12956,7 +12963,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         switch (mtype)
         {
             case MOVE_WALK:
-                data.Initialize(SMSG_MOVE_SET_WALK_SPEED, 1 + 8 + 4 + 4 );
+                data.Initialize(SMSG_MOVE_SET_WALK_SPEED, 1 + 8 + 4 + 4);
                 data.WriteBit(bytes[6]);
                 data.WriteBit(bytes[5]);
                 data.WriteBit(bytes[7]);
@@ -12978,7 +12985,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(bytes[0]);
                 break;
             case MOVE_RUN:
-                data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4 );
+                data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4);
                 data.WriteBit(bytes[6]);
                 data.WriteBit(bytes[1]);
                 data.WriteBit(bytes[5]);
@@ -13002,30 +13009,29 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(bytes[2]);
                 break;
             case MOVE_RUN_BACK:
-                data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4 + 4 );
-                data.WriteBit(bytes[3]);
+                data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4 + 4);
                 data.WriteBit(bytes[0]);
                 data.WriteBit(bytes[6]);
                 data.WriteBit(bytes[2]);
-                data.WriteBit(bytes[7]);
                 data.WriteBit(bytes[1]);
+                data.WriteBit(bytes[3]);
                 data.WriteBit(bytes[4]);
                 data.WriteBit(bytes[5]);
+                data.WriteBit(bytes[7]);
 
-                data << float(GetSpeed(mtype));
-
-                data.WriteByteSeq(bytes[4]);
-                data.WriteByteSeq(bytes[1]);
-                data << uint32(0);
                 data.WriteByteSeq(bytes[5]);
-                data.WriteByteSeq(bytes[3]);
-                data.WriteByteSeq(bytes[7]);
-                data.WriteByteSeq(bytes[6]);
-                data.WriteByteSeq(bytes[2]);
+                data << uint32(0);
+                data << float(GetSpeed(mtype));
                 data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[6]);
                 break;
             case MOVE_SWIM:
-                data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4 );
+                data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4);
                 data.WriteBit(bytes[5]);
                 data.WriteBit(bytes[4]);
                 data.WriteBit(bytes[7]);
@@ -13047,75 +13053,73 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(bytes[4]);
                 break;
             case MOVE_SWIM_BACK:
-                data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4 + 4 );
-                data.WriteBit(bytes[3]);
-                data.WriteBit(bytes[1]);
+                data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4 + 4);
                 data.WriteBit(bytes[4]);
                 data.WriteBit(bytes[2]);
-                data.WriteBit(bytes[7]);
+                data.WriteBit(bytes[3]);
                 data.WriteBit(bytes[6]);
                 data.WriteBit(bytes[5]);
+                data.WriteBit(bytes[1]);
                 data.WriteBit(bytes[0]);
+                data.WriteBit(bytes[7]);
 
-                data.WriteByteSeq(bytes[6]);
-                data.WriteByteSeq(bytes[3]);
-                data.WriteByteSeq(bytes[7]);
-                data.WriteByteSeq(bytes[0]);
                 data << uint32(0);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[3]);
                 data.WriteByteSeq(bytes[4]);
-                data.WriteByteSeq(bytes[1]);
-                data.WriteByteSeq(bytes[2]);
-                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[6]);
                 data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[1]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[7]);
                 break;
             case MOVE_TURN_RATE:
-                data.Initialize(SMSG_MOVE_SET_TURN_RATE, 1 + 8 + 4 + 4 );
-                data.WriteBit(bytes[0]);
+                data.Initialize(SMSG_MOVE_SET_TURN_RATE, 1 + 8 + 4 + 4);
+                data.WriteBit(bytes[7]);
                 data.WriteBit(bytes[2]);
                 data.WriteBit(bytes[1]);
-                data.WriteBit(bytes[5]);
-                data.WriteBit(bytes[3]);
-                data.WriteBit(bytes[7]);
-                data.WriteBit(bytes[6]);
+                data.WriteBit(bytes[0]);
                 data.WriteBit(bytes[4]);
+                data.WriteBit(bytes[5]);
+                data.WriteBit(bytes[6]);
+                data.WriteBit(bytes[3]);
 
-                data << float(GetSpeed(mtype));
-
-                data.WriteByteSeq(bytes[1]);
-                data.WriteByteSeq(bytes[4]);
                 data.WriteByteSeq(bytes[5]);
-                data << uint32(0);
-                data.WriteByteSeq(bytes[3]);
-                data.WriteByteSeq(bytes[6]);
-                data.WriteByteSeq(bytes[2]);
-                data.WriteByteSeq(bytes[0]);
                 data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[2]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[0]);
+                data << uint32(0);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[4]);
                 break;
             case MOVE_FLIGHT:
-                data.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4 + 4 );
-                data.WriteBit(bytes[0]);
-                data.WriteBit(bytes[7]);
-                data.WriteBit(bytes[4]);
-                data.WriteBit(bytes[5]);
-                data.WriteBit(bytes[6]);
+                data.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4 + 4);
                 data.WriteBit(bytes[1]);
                 data.WriteBit(bytes[2]);
+                data.WriteBit(bytes[6]);
+                data.WriteBit(bytes[4]);
+                data.WriteBit(bytes[7]);
                 data.WriteBit(bytes[3]);
+                data.WriteBit(bytes[0]);
+                data.WriteBit(bytes[5]);
 
-                data << float(GetSpeed(mtype));
-
-                data.WriteByteSeq(bytes[5]);
-                data.WriteByteSeq(bytes[1]);
-                data.WriteByteSeq(bytes[7]);
-                data.WriteByteSeq(bytes[0]);
-                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[3]);
                 data << uint32(0);
                 data.WriteByteSeq(bytes[6]);
-                data.WriteByteSeq(bytes[3]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[2]);
                 data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[7]);
                 break;
             case MOVE_FLIGHT_BACK:
-                data.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4 + 4 );
+                data.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4 + 4);
                 data.WriteBit(bytes[3]);
                 data.WriteBit(bytes[4]);
                 data.WriteBit(bytes[5]);
@@ -13137,26 +13141,26 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(bytes[5]);
                 break;
             case MOVE_PITCH_RATE:
-                data.Initialize(SMSG_MOVE_SET_PITCH_RATE, 1 + 8 + 4 + 4 );
-                data.WriteBit(bytes[7]);
-                data.WriteBit(bytes[5]);
-                data.WriteBit(bytes[6]);
+                data.Initialize(SMSG_MOVE_SET_PITCH_RATE, 1 + 8 + 4 + 4);
+                data.WriteBit(bytes[1]);
                 data.WriteBit(bytes[2]);
-                data.WriteBit(bytes[4]);
+                data.WriteBit(bytes[6]);
+                data.WriteBit(bytes[7]);
                 data.WriteBit(bytes[0]);
                 data.WriteBit(bytes[3]);
-                data.WriteBit(bytes[1]);
+                data.WriteBit(bytes[5]);
+                data.WriteBit(bytes[4]);
 
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[4]);
                 data.WriteByteSeq(bytes[0]);
                 data << uint32(0);
-                data.WriteByteSeq(bytes[3]);
-                data << float(GetSpeed(mtype));
-                data.WriteByteSeq(bytes[5]);
                 data.WriteByteSeq(bytes[1]);
-                data.WriteByteSeq(bytes[6]);
-                data.WriteByteSeq(bytes[7]);
                 data.WriteByteSeq(bytes[2]);
-                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[5]);
                 break;
             default:
                 sLog->outError(LOG_FILTER_UNITS, "Unit::SetSpeed: Unsupported move type (%d), data not sent to client.", mtype);
@@ -13967,7 +13971,7 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
         case UNIT_MOD_RAGE:        return POWER_RAGE;
         case UNIT_MOD_FOCUS:       return POWER_FOCUS;
         case UNIT_MOD_ENERGY:      return POWER_ENERGY;
-        case UNIT_MOD_RUNE:        return POWER_RUNE;
+        case UNIT_MOD_RUNE:        return POWER_RUNES;
         case UNIT_MOD_RUNIC_POWER: return POWER_RUNIC_POWER;
         default:
         case UNIT_MOD_MANA:        return POWER_MANA;
@@ -14194,9 +14198,9 @@ int32 Unit::GetCreatePowers(Powers power) const
             return 100;
         case POWER_RUNIC_POWER:
             return 1000;
-        case POWER_RUNE:
+        case POWER_RUNES:
             return 0;
-        case POWER_SOULSHARD:
+        case POWER_SOUL_SHARDS:
             return 3;
         case POWER_ECLIPSE:
             return 0;

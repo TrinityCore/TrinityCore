@@ -36,7 +36,7 @@ inline Guild* _GetPlayerGuild(WorldSession* session, bool sendError = false)
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))   // Find guild by id
             return guild;
     if (sendError)
-        Guild::SendCommandResult(session, GUILD_CREATE, ERR_GUILD_PLAYER_NOT_IN_GUILD);
+        Guild::SendCommandResult(session, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
     return NULL;
 }
 
@@ -55,7 +55,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
             return;
         }
 
-    Guild::SendCommandResult(this, GUILD_CREATE, ERR_GUILD_PLAYER_NOT_IN_GUILD);
+    Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }
 
 void WorldSession::HandleGuildCreateOpcode(WorldPacket& recvPacket)
@@ -460,7 +460,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
         if (Guild* guild = _GetPlayerGuild(this))
             guild->SendBankTabsInfo(this);
         else
-            Guild::SendCommandResult(this, GUILD_VIEW_TAB, ERR_GUILD_PLAYER_NOT_IN_GUILD);
+            Guild::SendCommandResult(this, GUILD_UNK1, ERR_GUILD_PLAYER_NOT_IN_GUILD);
     }
 }
 
@@ -737,4 +737,32 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
     std::string rankName = recvPacket.ReadString(nameLength);
 
     guild->HandleSetRankInfo(this, rankId, rankName, newRights, moneyPerDay, rightsAndSlots);
+}
+
+void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REQUEST_PARTY_STATE");
+
+    ObjectGuid guildGuid;
+
+    guildGuid[0] = recvData.ReadBit();
+    guildGuid[6] = recvData.ReadBit();
+    guildGuid[7] = recvData.ReadBit();
+    guildGuid[3] = recvData.ReadBit();
+    guildGuid[5] = recvData.ReadBit();
+    guildGuid[1] = recvData.ReadBit();
+    guildGuid[2] = recvData.ReadBit();
+    guildGuid[4] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(guildGuid[6]);
+    recvData.ReadByteSeq(guildGuid[3]);
+    recvData.ReadByteSeq(guildGuid[2]);
+    recvData.ReadByteSeq(guildGuid[1]);
+    recvData.ReadByteSeq(guildGuid[5]);
+    recvData.ReadByteSeq(guildGuid[0]);
+    recvData.ReadByteSeq(guildGuid[7]);
+    recvData.ReadByteSeq(guildGuid[4]);
+
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
+        guild->HandleGuildPartyRequest(this);
 }

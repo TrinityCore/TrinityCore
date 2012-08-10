@@ -179,12 +179,13 @@ enum Powers
     POWER_RAGE                          = 1,
     POWER_FOCUS                         = 2,
     POWER_ENERGY                        = 3,
-    POWER_RUNE                          = 5,
+    POWER_UNUSED                        = 4,
+    POWER_RUNES                         = 5,
     POWER_RUNIC_POWER                   = 6,
-    POWER_SOULSHARD                     = 7,
+    POWER_SOUL_SHARDS                   = 7,
     POWER_ECLIPSE                       = 8,
     POWER_HOLY_POWER                    = 9,
-    POWER_ALTERNATIVE                   = 10,           // Used in some quests
+    POWER_ALTERNATE_POWER               = 10,           // Used in some quests
     MAX_POWERS                          = 11,
     POWER_ALL                           = 127,          // default for class?
     POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
@@ -834,7 +835,7 @@ enum SpellEffects
     SPELL_EFFECT_160                                = 160,
     SPELL_EFFECT_TALENT_SPEC_COUNT                  = 161,
     SPELL_EFFECT_TALENT_SPEC_SELECT                 = 162,
-    SPELL_EFFECT_163                                = 163, // Unused (4.2.2)
+    SPELL_EFFECT_163                                = 163,  // Unused (4.2.2)
     SPELL_EFFECT_REMOVE_AURA                        = 164,
     SPELL_EFFECT_165                                = 165,
     SPELL_EFFECT_166                                = 166,
@@ -844,7 +845,7 @@ enum SpellEffects
     SPELL_EFFECT_170                                = 170,
     SPELL_EFFECT_171                                = 171,  // Summons gamebject
     SPELL_EFFECT_172                                = 172,  // Aoe ressurection
-    SPELL_EFFECT_173                                = 173,  // Guild tab unlocked (guild perk)
+    SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173,  // Guild tab unlocked (guild perk)
     SPELL_EFFECT_174                                = 174,  //
     SPELL_EFFECT_175                                = 175,  // Unused (4.2.2)
     SPELL_EFFECT_176                                = 176,  // Some kind of sanctuary effect (Vanish)
