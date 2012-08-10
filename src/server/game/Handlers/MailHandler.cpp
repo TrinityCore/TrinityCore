@@ -611,7 +611,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
     uint32 mailsCount = 0;                                 // real send to client mails amount
     uint32 realCount  = 0;                                 // real mails amount
 
-    WorldPacket data(SMSG_MAIL_LIST_RESULT, (200));         // guess size
+    WorldPacket data(SMSG_MAIL_LIST_RESULT, 200);         // guess size
     data << uint32(0);                                      // real mail's count
     data << uint8(0);                                       // mail's count
     time_t cur_time = time(NULL);
@@ -659,7 +659,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         }
 
         data << uint64((*itr)->COD);                         // COD
-        data << uint32(0);                                   // probably changed in 3.3.3
+        data << uint32(0);                                   // Package.dbc ID ?
         data << uint32((*itr)->stationery);                  // stationery (Stationery.dbc)
         data << uint64((*itr)->money);                       // Gold
         data << uint32((*itr)->checked);                     // flags
