@@ -45,9 +45,6 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
-#include <algorithm>
-#include <vector>
-#include <string>
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -973,10 +970,48 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
     if (_registeredAddonPrefixes.empty())
         return false;
 
-    std::vector<std::string>::iterator itr = std::find(_registeredAddonPrefixes.begin(), _registeredAddonPrefixes.end(), prefix);
+    std::vector<std::string>::const_iterator itr = std::find(_registeredAddonPrefixes.begin(), _registeredAddonPrefixes.end(), prefix);
     return itr != _registeredAddonPrefixes.end();
 }
 
+void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UNREGISTER_ALL_ADDON_PREFIXES");
+
+    _registeredAddonPrefixes.clear();
+}
+
+void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
+
+    // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
+
+    uint32 count = recvPacket.ReadBits(25);
+
+    if (count > REGISTERED_ADDON_PREFIX_SOFTCAP)
+    {
+        // if we have hit the softcap (64) nothing should be filtered
+        _filterAddonMessages = false;
+        recvPacket.rfinish();
+        return;
+    }
+
+    std::vector<uint8> lengths(count);
+    for (uint32 i = 0; i < count; ++i)
+        lengths[i] = recvPacket.ReadBits(5);
+
+    for (uint32 i = 0; i < count; ++i)
+        _registeredAddonPrefixes.push_back(recvPacket.ReadString(lengths[i]));
+
+    if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
+    {
+        _filterAddonMessages = false;
+        return;
+    }
+
+    _filterAddonMessages = true;
+}
 
 void WorldSession::SetPlayer(Player* player)
 {

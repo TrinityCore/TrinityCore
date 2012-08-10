@@ -17147,20 +17147,20 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     data << float(vsin);
     data << uint32(0);
     
-    data.WriteByteSeq(bytes[6]);
-    data.WriteByteSeq(bytes[7]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[7]);
 
     data << float(speedXY);
   
-    data.WriteByteSeq(bytes[4]);
-    data.WriteByteSeq(bytes[5]);
-    data.WriteByteSeq(bytes[3]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[3]);
 
     data << float(speedZ);
     data << float(vcos);
     
-    data.WriteByteSeq(bytes[2]);
-    data.WriteByteSeq(bytes[0]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
 
     player->GetSession()->SendPacket(&data);
 }

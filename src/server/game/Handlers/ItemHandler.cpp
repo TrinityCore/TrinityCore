@@ -1454,9 +1454,9 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         return;
     }
 
-    ObjectGuid* itemGuids = new ObjectGuid[count];
-    uint32* newEntries = new uint32[count];
-    uint32* slots = new uint32[count];
+    std::vector<ObjectGuid> itemGuids(count, ObjectGuid(0));
+    std::vector<uint32> newEntries(count, 0);
+    std::vector<uint32> slots(count, 0);
 
     for (uint8 i = 0; i < count; ++i)
     {
@@ -1606,11 +1606,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     // ... unless client was modified
     if (cost) // 0 cost if reverting look
         player->ModifyMoney(-cost);
-
-
-    delete[] itemGuids;
-    delete[] newEntries;
-    delete[] slots;
 }
 
 void WorldSession::SendReforgeResult(bool success)

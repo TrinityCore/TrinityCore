@@ -46,7 +46,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_TRADE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptTradeOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_ACTIVATETAXI,                            STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleActivateTaxiOpcode        );
     DEFINE_OPCODE_HANDLER(CMSG_ACTIVATETAXIEXPRESS,                     STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleActivateTaxiExpressOpcode );
-    DEFINE_OPCODE_HANDLER(CMSG_ADDON_REGISTERED_PREFIXES,               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::HandleAddonRegisteredPrefixesOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_ADDON_REGISTERED_PREFIXES,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAddonRegisteredPrefixesOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_ADD_FRIEND,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAddFriendOpcode           );
     DEFINE_OPCODE_HANDLER(CMSG_ADD_IGNORE,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAddIgnoreOpcode           );
     //DEFINE_OPCODE_HANDLER(CMSG_ADD_VOICE_IGNORE,                        STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -514,7 +514,7 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_TOTEM_DESTROYED,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTotemDestroyed            );
     DEFINE_OPCODE_HANDLER(CMSG_TRAINER_BUY_SPELL,                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerBuySpellOpcode     );
     DEFINE_OPCODE_HANDLER(CMSG_TRAINER_LIST,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerListOpcode         );
-    DEFINE_OPCODE_HANDLER(CMSG_TRANSMOGRIFY_ITEMS,                      STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleTransmogrifyItems         );
+    DEFINE_OPCODE_HANDLER(CMSG_TRANSMOGRIFY_ITEMS,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTransmogrifyItems         );
     DEFINE_OPCODE_HANDLER(CMSG_TURN_IN_PETITION,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTurnInPetitionOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_TUTORIAL_CLEAR,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTutorialClear             );
     DEFINE_OPCODE_HANDLER(CMSG_TUTORIAL_FLAG,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTutorialFlag              );
@@ -522,7 +522,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_UNACCEPT_TRADE,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUnacceptTradeOpcode       );
     //DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SKILL,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUnlearnSkillOpcode        );
     //DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SPECIALIZATION,                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER(CMSG_UNREGISTER_ALL_ADDON_PREFIXES,           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::HandleUnregisterAddonPrefixesOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_UNREGISTER_ALL_ADDON_PREFIXES,           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUnregisterAddonPrefixesOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_UPDATE_ACCOUNT_DATA,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateAccountData         );
     //DEFINE_OPCODE_HANDLER(CMSG_UPDATE_MISSILE_TRAJECTORY,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory   );
     //DEFINE_OPCODE_HANDLER(CMSG_UPDATE_PROJECTILE_POSITION,              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateProjectilePosition  );

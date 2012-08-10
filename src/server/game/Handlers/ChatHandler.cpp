@@ -509,46 +509,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UNREGISTER_ALL_ADDON_PREFIXES");
-
-    _registeredAddonPrefixes.clear();
-}
-
-void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
-
-    // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
-
-    uint32 count = recvPacket.ReadBits(25);
-
-    if (count > REGISTERED_ADDON_PREFIX_SOFTCAP)
-    {
-        // if we have hit the softcap (64) nothing should be filtered
-        _filterAddonMessages = false;
-        recvPacket.rfinish();
-        return;
-    }
-
-    std::vector<uint8> lengths(count);
-    for (uint32 i = 0; i < count; ++i)
-        lengths.push_back(recvPacket.ReadBits(5));
-
-    std::vector<std::string> prefixes(count);
-    for (uint32 i = 0; i < count; ++i)
-        _registeredAddonPrefixes.push_back(recvPacket.ReadString(lengths[i]));
-
-    if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
-    {
-        _filterAddonMessages = false;
-        return;
-    }
-
-    _filterAddonMessages = true;
-}
-
 void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
 {
     Player* sender = GetPlayer();
@@ -674,7 +634,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
 
             WorldPacket data;
             ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL, prefix.c_str());
-            group->BroadcastAddonMessagePacket(&data, true, prefix, -1, group->GetMemberGroup(sender->GetGUID()));
+            group->BroadcastAddonMessagePacket(&data, prefix, true, -1, group->GetMemberGroup(sender->GetGUID()));
             break;
         }
         default:
