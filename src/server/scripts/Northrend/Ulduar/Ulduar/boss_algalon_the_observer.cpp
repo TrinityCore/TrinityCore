@@ -369,7 +369,7 @@ public:
 
 };
 
-void AddSC_boss_Algalon_The_Observer()
+void AddSC_boss_algalon_the_observer()
 {
     new boss_algalon_the_observer();
     new mob_collapsing_star();

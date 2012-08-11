@@ -565,12 +565,12 @@ bool IsPlayerInBrainRoom(const Player* pPlayer)
     return pPlayer->GetPositionZ() < 300.0f;
 }
 
-class DontLooksDirectlyInGazeCheck : public std::unary_function<Unit*, bool>
+class DontLooksDirectlyInGazeCheck : public std::unary_function<WorldObject*, bool>
 {
     public:
-        DontLooksDirectlyInGazeCheck(Unit* caster) : __caster(caster) {}
+        DontLooksDirectlyInGazeCheck(WorldObject* caster) : __caster(caster) {}
 
-        bool operator() (Unit* unit)
+        bool operator() (WorldObject* unit)
         {
             Position pos;
             __caster->GetPosition(&pos);
@@ -578,24 +578,24 @@ class DontLooksDirectlyInGazeCheck : public std::unary_function<Unit*, bool>
         }
 
     private:
-        Unit* __caster;
+        WorldObject* __caster;
 };
 
-class NotIsWeakenedImmortalCheck : public std::unary_function<Unit*, bool>
+class NotIsWeakenedImmortalCheck : public std::unary_function<WorldObject*, bool>
 {
     public:
         NotIsWeakenedImmortalCheck() {}
 
-        bool operator() (Unit* unit)
+        bool operator() (WorldObject* unit)
         {
-            return !(unit->HasAura(SPELL_WEAKENED));
+            return !(unit->ToUnit()->HasAura(SPELL_WEAKENED));
         }
 };
 
-class BrainLinkTargetSelector : public std::unary_function<Unit*, bool> 
+class BrainLinkTargetSelector : public std::unary_function<WorldObject*, bool> 
 {
     public:
-        bool operator() (Unit* unit)
+        bool operator() (WorldObject* unit)
         {
             return unit->GetPositionZ() < 300.0f;
         }
@@ -749,7 +749,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
         {
             npc_yogg_saron_encounter_controllerAI(Creature* c) : BossAI(c, BOSS_YOGGSARON), guidEventTentacles(me), guidEventSkulls(me)
             {
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->SetVisible(false);
             }            
 
@@ -1451,7 +1451,7 @@ class boss_sara : public CreatureScript
         {
             boss_saraAI(Creature *c) : BossAI(c, BOSS_SARA)
             {
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_DEATH_GRIP, true); 
             }
@@ -2023,7 +2023,7 @@ class npc_yogg_saron_tentacle : public CreatureScript
                 SetTentacleType(c->GetEntry());
                 once = false;
                 me->setFaction(14);
-                me->SetFlying(true);
+                me->SetCanFly(true);
             }
         
             void SetTentacleType(uint32 entry)
@@ -2247,7 +2247,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
                 instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->setFaction(14);
-                me->SetFlying(true);
+                me->SetCanFly(true);
             }
 
             void Reset()
@@ -2345,7 +2345,7 @@ class boss_yogg_saron : public CreatureScript
             {
                 instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING | MOVEMENTFLAG_SWIMMING);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_SWIMMING);
             }            
 
             void Reset()
@@ -2978,7 +2978,7 @@ class npc_death_orb : public CreatureScript
 
             void Reset()
             {
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->setFaction(14);
                 prepaired = false;
                 Summons.DespawnAll();
@@ -3170,15 +3170,15 @@ class spell_lunatic_gaze_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_lunatic_gaze_targeting_SpellScript)
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(DontLooksDirectlyInGazeCheck(GetCaster()));
+                targets.remove_if(DontLooksDirectlyInGazeCheck(GetCaster()));
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lunatic_gaze_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -3198,14 +3198,14 @@ class spell_brain_link_periodic_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_brain_link_periodic_dummy_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(BrainLinkTargetSelector());
+                targets.remove_if(BrainLinkTargetSelector());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_brain_link_periodic_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_brain_link_periodic_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -3268,14 +3268,14 @@ class spell_titanic_storm_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_titanic_storm_targeting_SpellScript)
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(NotIsWeakenedImmortalCheck());
+                targets.remove_if(NotIsWeakenedImmortalCheck());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_titanic_storm_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_titanic_storm_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
@@ -3326,13 +3326,13 @@ class spell_summon_tentacle_position : public SpellScriptLoader
 
             void ChangeSummonPos(SpellEffIndex /*effIndex*/)
             {
-                if (GetTargetDest())    // Check for non-nullptr, since dereferencing a nullptr may cause a crash
+                if (GetExplTargetDest())    // Check for non-nullptr, since dereferencing a nullptr may cause a crash
                 {
-                    WorldLocation summonPos(*GetTargetDest());
+                    WorldLocation summonPos(*GetExplTargetDest());
                     if (Unit* caster = GetCaster())
                         summonPos.m_positionZ = caster->GetMap()->GetHeight(summonPos.GetPositionX(), summonPos.GetPositionY(), summonPos.GetPositionZ());
 
-                    SetTargetDest(summonPos);
+                    SetExplTargetDest(summonPos);
                 }                
             }
 

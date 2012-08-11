@@ -1010,7 +1010,7 @@ class npc_mechanolift : public CreatureScript
                             liquid->CastSpell(liquid, SPELL_DUST_CLOUD_IMPACT, true);
                             // Just hope that this works in time...
 
-                            liquid->SetFlying(true);
+                            liquid->SetCanFly(true);
                             liquid->GetMotionMaster()->MovePoint(0, x, y, z);
                         }
 
@@ -1556,7 +1556,7 @@ class npc_leviathan_player_vehicle : public CreatureScript
             {
                 // TODO: Check where this id comes from.
                 if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3013)))
-                    vehSeat->m_flags &= ~VEHICLE_SEAT_FLAG_UNK1;
+                    vehSeat->m_flags &= ~VEHICLE_SEAT_FLAG_ALLOW_TURNING;
             }
 
             void PassengerBoarded(Unit* unit, int8 seat, bool apply)
@@ -1975,12 +1975,12 @@ class spell_anti_air_rocket : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
 
-                if (const WorldLocation* pos = GetTargetDest())
+                if (const WorldLocation* pos = GetExplTargetDest())
                 {
                     if (Creature* temp = GetCaster()->SummonCreature(NPC_WORLD_TRIGGER, *pos, TEMPSUMMON_TIMED_DESPAWN, 500))
                     {
                         temp->SetReactState(REACT_PASSIVE);
-                        temp->SetFlying(true);
+                        temp->SetCanFly(true);
                         temp->SetVisible(false);
                         std::list<Creature*> list;
                         GetCreatureListWithEntryInGrid(list, GetCaster(), NPC_MECHANOLIFT, 100.0f);
@@ -2015,18 +2015,18 @@ class spell_anti_air_rocket : public SpellScriptLoader
 
 struct FlameLeviathanPursuedTargetSelector
 {  
-    bool operator() (Unit* unit)
+    bool operator() (WorldObject* object)
     {
         // check area
-        if (unit->GetAreaId() != AREA_FORMATION_GROUNDS)
+        if (object->ToUnit()->GetAreaId() != AREA_FORMATION_GROUNDS)
             return true;
 
         // ignore players loaded on leviathan seats
-        if (unit->GetVehicleBase() && unit->GetVehicleBase()->GetEntry() == NPC_SEAT)
+        if (object->ToUnit()->GetVehicleBase() && object->ToUnit()->GetVehicleBase()->GetEntry() == NPC_SEAT)
             return true;
 
         // if target is creature
-        Creature* creatureTarget = unit->ToCreature();
+        Creature* creatureTarget = object->ToCreature();
         if (creatureTarget)
         {
             // needs to be one of the 3 vehicles
@@ -2075,7 +2075,7 @@ class spell_pursued : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargets(std::list<Unit*>& targets)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // Step 1: Remove all theoretical targets that cannot be our target
                 targets.remove_if(FlameLeviathanPursuedTargetSelector());
@@ -2087,13 +2087,13 @@ class spell_pursued : public SpellScriptLoader
                 }
 
                 // Step 2: Try to find Demolisher or Siege Engine
-                std::list<Unit*> tempList;
+                std::list<WorldObject*> tempList;
                 // try to find demolisher or siege engine first (not the current target)
-                for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                 {
                     _target = *itr;
 
-                    if (!_target->ToCreature() || _target->HasAura(SPELL_PURSUED))
+                    if (!_target->ToCreature() || _target->ToUnit()->HasAura(SPELL_PURSUED))
                         continue;
 
                     if (_target->ToCreature()->GetEntry() == VEHICLE_SIEGE || _target->ToCreature()->GetEntry() == VEHICLE_DEMOLISHER)
@@ -2103,11 +2103,11 @@ class spell_pursued : public SpellScriptLoader
                 if (tempList.empty())
                 {
                     // no demolisher or siege engine, find a chopper (not the current target)
-                    for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                     {
                         _target = *itr;
 
-                        if (!_target->ToCreature() || _target->HasAura(SPELL_PURSUED))
+                        if (!_target->ToCreature() || _target->ToUnit()->HasAura(SPELL_PURSUED))
                             continue;
 
                         if (_target->ToCreature()->GetEntry() == VEHICLE_CHOPPER)
@@ -2128,7 +2128,7 @@ class spell_pursued : public SpellScriptLoader
                 }
             }
 
-            void SetSelectedTarget(std::list<Unit*>& targets)
+            void SetSelectedTarget(std::list<WorldObject*>& targets)
             {
                 targets.clear();
                 if(_target)
@@ -2155,12 +2155,12 @@ class spell_pursued : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursued_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursued_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 //OnUnitTargetSelect += SpellUnitTargetFn(spell_pursue_SpellScript::FilterTargetsSubsequently, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_pursued_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
 
-            Unit* _target;
+            WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const
@@ -2404,18 +2404,18 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                 Spell* baseSpell = GetSpell();
                 SpellCastTargets targets = baseSpell->m_targets;
                 int32 damage = GetEffectValue();
-                if (targets.HasTraj())
+                /*if (targets.HasTraj())
                     if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(damage - 1))
                         {
-                            std::list<Unit*> unitList;
+                            std::list<Unit*> targets;
                             // use 99 because it is 3d search
-                            SearchAreaTarget(unitList, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, NPC_SEAT);
+                            SearchAreaTargets(targets, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, NPC_SEAT);
                             float minDist = 99 * 99;
                             Unit* target = NULL;
-                            for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                            for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                             {
-                                if (Vehicle* seat = (*itr)->GetVehicleKit())
+                                if (Vehicle* seat = (*itr)->ToUnit()->GetVehicleKit())
                                     if (!seat->GetPassenger(0))
                                         if (Unit* device = seat->GetPassenger(2))
                                             if (!device->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
@@ -2437,7 +2437,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                                 targets.GetDst()->GetPosition(x, y, z);
                                 passenger->GetMotionMaster()->MoveJump(x, y, z, targets.GetSpeedXY(), targets.GetSpeedZ());
                             }
-                        }
+                        }*/
             }
 
             void Register()
@@ -2476,8 +2476,8 @@ class spell_freyas_ward_summon : public SpellScriptLoader
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* leviathan = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_LEVIATHAN)))
                             for (uint8 i = 0; i < urand(3, 5); ++i)
-                                leviathan->SummonCreature(NPC_WRITHING_LASHER, GetTargetDest()->GetPositionX(), GetTargetDest()->GetPositionY(),
-                                GetTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 3000);
+                                leviathan->SummonCreature(NPC_WRITHING_LASHER, GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY(),
+                                GetExplTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 3000);
             }
 
             void HandleSummon(SpellEffIndex effIndex)
@@ -2487,8 +2487,8 @@ class spell_freyas_ward_summon : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* leviathan = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_LEVIATHAN)))
-                            leviathan->SummonCreature(NPC_WARD_OF_LIFE, GetTargetDest()->GetPositionX(), GetTargetDest()->GetPositionY(),
-                            GetTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 3000);
+                            leviathan->SummonCreature(NPC_WARD_OF_LIFE, GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY(),
+                            GetExplTargetDest()->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 3000);
             }
 
             void Register()
@@ -2506,20 +2506,20 @@ class spell_freyas_ward_summon : public SpellScriptLoader
 
 struct FlameVentsTargetSelector
 {
-    bool operator() (Unit* unit)
+    bool operator() (WorldObject* object)
     {
-        if (unit->GetTypeId() != TYPEID_PLAYER)
+        if (object->GetTypeId() != TYPEID_PLAYER)
         {
-            if (unit->ToCreature()->GetEntry() == VEHICLE_SIEGE ||
-                unit->ToCreature()->GetEntry() == VEHICLE_CHOPPER ||
-                unit->ToCreature()->GetEntry() == VEHICLE_DEMOLISHER)
+            if (object->ToCreature()->GetEntry() == VEHICLE_SIEGE ||
+                object->ToCreature()->GetEntry() == VEHICLE_CHOPPER ||
+                object->ToCreature()->GetEntry() == VEHICLE_DEMOLISHER)
                 return false;
 
-            if (!unit->ToCreature()->isPet())
+            if (!object->ToCreature()->isPet())
                 return true;
         }
 
-        return unit->GetVehicle();
+        return object->ToUnit()->GetVehicle();
     }
 };
 
@@ -2540,14 +2540,14 @@ class spell_leviathan_flame_vents_triggered : public SpellScriptLoader
             }
 
             // Filter has to be applied since the spell should only affect vehicles
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(FlameVentsTargetSelector());
+                targets.remove_if(FlameVentsTargetSelector());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_leviathan_flame_vents_triggered_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_leviathan_flame_vents_triggered_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 

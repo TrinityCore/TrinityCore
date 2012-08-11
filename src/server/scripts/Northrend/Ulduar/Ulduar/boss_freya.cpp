@@ -470,7 +470,7 @@ class boss_freya : public CreatureScript
                             Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
                         }
                 }
-                me->ForcedDespawn(7500);
+                me->DespawnOrUnsummon(7500);
                 _JustDied();
             }
 
@@ -649,7 +649,7 @@ class boss_freya : public CreatureScript
                                         for (uint8 n = 0; n < 3; ++n)
                                         {
                                             summons.remove(Elemental[n][i]->GetGUID());
-                                            Elemental[n][i]->ForcedDespawn(5000);
+                                            Elemental[n][i]->DespawnOrUnsummon(5000);
                                             trioDefeated[i] = true; // Stack-decrease spell is automatically performed through SummonedCreatureDespawn
                                         }
                                     }
@@ -770,7 +770,7 @@ class boss_freya : public CreatureScript
                         break;
                     case NPC_ANCIENT_CONSERVATOR:
                         summoned->CastSpell(me, SPELL_REMOVE_25STACK, true);
-                        summoned->ForcedDespawn(5000);
+                        summoned->DespawnOrUnsummon(5000);
                         summons.Despawn(summoned);
                         break;
                 }
@@ -783,7 +783,7 @@ class boss_freya : public CreatureScript
                     case NPC_DETONATING_LASHER:
                         summoned->CastSpell(me, SPELL_REMOVE_2STACK, true);
                         summoned->CastSpell(who, SPELL_DETONATE, true);
-                        summoned->ForcedDespawn(5000);
+                        summoned->DespawnOrUnsummon(5000);
                         summons.Despawn(summoned);
                         break;
                     case NPC_SNAPLASHER:
@@ -1650,7 +1650,7 @@ class npc_sun_beam : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetDisplayId(MODEL_INVISIBLE);
-                me->ForcedDespawn(12000);
+                me->DespawnOrUnsummon(12000);
                 DoCast(me, SPELL_FREYA_UNSTABLE_ENERGY_VISUAL, true); // visual
             }
 
@@ -1706,7 +1706,7 @@ class npc_healthy_spore : public CreatureScript
                 if (lifeTimer <= diff)
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
-                    me->ForcedDespawn(2200);
+                    me->DespawnOrUnsummon(2200);
                     lifeTimer = urand(22000, 30000);
                 }
                 else
@@ -1756,7 +1756,7 @@ class npc_eonars_gift : public CreatureScript
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
                     DoCast(SPELL_LIFEBINDERS_GIFT);
-                    me->ForcedDespawn(2500);
+                    me->DespawnOrUnsummon(2500);
                     // lifeBindersGiftTimer = 12000;   // Wt... ? Cannot cast after being despawned...
                 }
                 else
@@ -1883,7 +1883,7 @@ class npc_unstable_sun_beam : public CreatureScript
 class IsNoAllyOfNature
 {
     public:
-        bool operator() (Unit* unit)
+        bool operator() (WorldObject* unit)
         {
             if (unit->ToCreature())
             {
@@ -1912,14 +1912,14 @@ class spell_essence_targeting_ironbranch : public SpellScriptLoader
         {
             PrepareSpellScript(spell_essence_targeting_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(IsNoAllyOfNature());
+                targets.remove_if(IsNoAllyOfNature());
             }
 
             void Register()
             {                
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);                         
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);                         
             }
         };
 
@@ -1938,15 +1938,15 @@ public:
     {
         PrepareSpellScript(spell_essence_targeting_SpellScript);
 
-        void FilterTargets(std::list<Unit*>& unitList)
+        void FilterTargets(std::list<WorldObject*>& targets)
         {
-            unitList.remove_if(IsNoAllyOfNature());
+            targets.remove_if(IsNoAllyOfNature());
         }
 
         void Register()
         {                
-            OnUnitTargetSelect += SpellUnitTargetFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-            OnUnitTargetSelect += SpellUnitTargetFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);                         
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);                         
         }
     };
 
@@ -1966,18 +1966,18 @@ class spell_aggregation_pheromones_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_aggregation_pheromones_targeting_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // remove caster if this is the only target
-                if (unitList.size() < 2)
-                    unitList.clear();
+                if (targets.size() < 2)
+                    targets.clear();
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_aggregation_pheromones_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_aggregation_pheromones_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_aggregation_pheromones_targeting_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_aggregation_pheromones_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_aggregation_pheromones_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_aggregation_pheromones_targeting_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 

@@ -556,14 +556,14 @@ public:
     {
         PrepareSpellScript(spell_mark_of_the_faceless_drain_SpellScript);
 
-        void FilterTargets(std::list<Unit*>& unitList)
+        void FilterTargets(std::list<WorldObject*>& targets)
         {
-            unitList.remove(GetTargetUnit());   // The target of this spell should _not_ be in this list (due to spell definition), yet it seems it occurs there sometimes...
+            targets.remove(GetHitUnit());   // The target of this spell should _not_ be in this list (due to spell definition), yet it seems it occurs there sometimes...
         }
 
         void Register()
         {
-            OnUnitTargetSelect += SpellUnitTargetFn(spell_mark_of_the_faceless_drain_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mark_of_the_faceless_drain_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
         }
     };
 

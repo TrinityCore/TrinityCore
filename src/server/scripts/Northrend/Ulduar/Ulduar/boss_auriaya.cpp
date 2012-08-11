@@ -320,14 +320,14 @@ class npc_auriaya_seeping_trigger : public CreatureScript
             {
                 me->SetDisplayId(MODEL_INVISIBLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
-                me->ForcedDespawn(600000);
+                me->DespawnOrUnsummon(600000);
                 DoCast(me, SPELL_SEEPING_FERAL_ESSENCE);
             }
 
             void UpdateAI(uint32 const /*diff*/)
             {
                 if (instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
             }
 
             private:
@@ -504,7 +504,7 @@ class npc_feral_defender : public CreatureScript
 class SanctumSentryCheck
 {
     public:
-        bool operator() (Unit* unit)
+        bool operator() (WorldObject* unit)
         {
             if (unit->GetEntry() == NPC_SANCTUM_SENTRY)
                 return false;
@@ -522,14 +522,14 @@ class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
         {
             PrepareSpellScript(spell_auriaya_strenght_of_the_pack_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(SanctumSentryCheck());
+                targets.remove_if(SanctumSentryCheck());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_strenght_of_the_pack_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_auriaya_strenght_of_the_pack_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -548,15 +548,15 @@ class spell_auriaya_sentinel_blast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_auriaya_sentinel_blast_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if (PlayerOrPetCheck());
+                targets.remove_if (PlayerOrPetCheck());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_auriaya_sentinel_blast_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

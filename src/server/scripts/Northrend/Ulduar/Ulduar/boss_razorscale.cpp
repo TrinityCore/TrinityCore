@@ -170,7 +170,7 @@ class boss_razorscale_controller : public CreatureScript
         {
             boss_razorscale_controllerAI(Creature* creature) : BossAI(creature, DATA_RAZORSCALE_CONTROL)
             {
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void Reset()
@@ -353,9 +353,10 @@ class boss_razorscale : public CreatureScript
                     controller->AI()->DoAction(ACTION_REMOVE_HARPOON);
                     controller->AI()->DoAction(ACTION_PLACE_BROKEN_HARPOON);
                 }
-                summons.DoAction(NPC_MOLE_MACHINE_TRIGGER, ACTION_DESPAWN_ADDS);
+                EntryCheckPredicate pred(NPC_MOLE_MACHINE_TRIGGER);
+                summons.DoAction(ACTION_DESPAWN_ADDS, pred);
                 _Reset();
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
                 PermaGround = false;
@@ -453,7 +454,7 @@ class boss_razorscale : public CreatureScript
                             case EVENT_FLIGHT:
                                 phase = PHASE_FLIGHT;
                                 events.SetPhase(PHASE_FLIGHT);
-                                me->SetFlying(true);
+                                me->SetCanFly(true);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->RemoveAllAuras();
                                 me->SetReactState(REACT_PASSIVE);
@@ -465,7 +466,7 @@ class boss_razorscale : public CreatureScript
                                 ++FlyCount;
                                 return;
                             case EVENT_LAND:
-                                me->SetFlying(false);
+                                me->SetCanFly(false);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                                 if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXPEDITION_COMMANDER) : 0))
@@ -559,7 +560,7 @@ class boss_razorscale : public CreatureScript
                 me->MonsterTextEmote(EMOTE_PERMA, 0, true);
                 phase = PHASE_PERMAGROUND;
                 events.SetPhase(PHASE_PERMAGROUND);
-                me->SetFlying(false);
+                me->SetCanFly(false);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAurasDueToSpell(SPELL_HARPOON_TRIGGER);
@@ -850,7 +851,7 @@ class npc_devouring_flame : public CreatureScript
             npc_devouring_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void Reset()
@@ -1041,7 +1042,7 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 Unit* caster = GetCaster();
                 uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
-                WorldLocation const* summonLocation = GetTargetDest();
+                WorldLocation const* summonLocation = GetExplTargetDest();
                 if (!caster || !summonLocation)
                     return;
 

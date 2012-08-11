@@ -227,13 +227,13 @@ class ArenaAreaCheck
 {
     public:
         ArenaAreaCheck(bool shouldBeIn): __shouldBeIn(shouldBeIn) {}        
-        bool operator() (const Unit* unit)
+        bool operator() (const WorldObject* unit)
         {
             return __shouldBeIn ? __IsInArena(unit) : !__IsInArena(unit);
         }
     private:
         bool __shouldBeIn;
-        bool __IsInArena(const Unit* who)
+        bool __IsInArena(const WorldObject* who)
         {
             return (who->GetPositionX() < POS_X_ARENA && who->GetPositionY() > POS_Y_ARENA);    // TODO: Check if this is ok, end positions ? 
         }
@@ -257,7 +257,8 @@ class npc_thorim_controller : public CreatureScript
         {
             npc_thorim_controllerAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
-                me->SetFlying(true);
+
+                me->SetCanFly(true);
                 me->SetVisible(false);
                 instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
@@ -424,7 +425,7 @@ class boss_thorim : public CreatureScript
                 gotEncounterFinished = true;
                 DoScriptText(SAY_DEATH, me);
                 me->setFaction(35);
-                me->ForcedDespawn(7000);
+                me->DespawnOrUnsummon(7000);
 
                 if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_THORIM_CTRL)))
                     ctrl->DespawnOrUnsummon();
@@ -1523,35 +1524,35 @@ class spell_stormhammer_targeting : public SpellScriptLoader
         {
             PrepareSpellScript(spell_stormhammer_targeting_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 _target = NULL;
-                unitList.remove_if(ArenaAreaCheck(false));
+                targets.remove_if(ArenaAreaCheck(false));
 
-                if (unitList.empty())
+                if (targets.empty())
                     return;
 
-                _target = Trinity::Containers::SelectRandomContainerElement(unitList);
-                SetTarget(unitList);
+                _target = Trinity::Containers::SelectRandomContainerElement(targets);
+                SetTarget(targets);
             }
 
-            void SetTarget(std::list<Unit*>& unitList)
+            void SetTarget(std::list<WorldObject*>& targets)
             {
-                unitList.clear();
+                targets.clear();
 
                 if (_target)
-                    unitList.push_back(_target);
+                    targets.push_back(_target);
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_stormhammer_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_stormhammer_targeting_SpellScript::SetTarget, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             private:
-                Unit* _target;
+                WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const

@@ -37,13 +37,13 @@ set(scripts_STAT_SRCS
 )
 
 if(SCRIPTS)
-  include(../../../../trinity_sd2/trinity/scripts/Custom/CMakeLists.txt)
-  include(../../../../trinity_sd2/trinity/scripts/World/CMakeLists.txt)
+  include(Custom/CMakeLists.txt)
+  include(World/CMakeLists.txt)
   include(OutdoorPvP/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
   include(Kalimdor/CMakeLists.txt)
-  include(../../../../trinity_sd2/trinity/scripts/Outland/CMakeLists.txt)
-  include(../../../../trinity_sd2/trinity/scripts/Northrend/CMakeLists.txt)
+  include(Outland/CMakeLists.txt)
+  include(Northrend/CMakeLists.txt)
 endif()
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")

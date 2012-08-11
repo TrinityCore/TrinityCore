@@ -972,9 +972,9 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
 class BombTargetSelector : public std::unary_function<Unit *, bool>
 {
 public:
-    BombTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
+    BombTargetSelector(Creature* me, const WorldObject* victim) : _me(me), _victim(victim) {}
 
-    bool operator() (Unit* target)
+    bool operator() (WorldObject* target)
     {
         /* 
             Decision rule:
@@ -989,7 +989,7 @@ public:
     }
 
     Creature* _me;
-    Unit const* _victim;
+    WorldObject const* _victim;
 };
 
 class spell_xt002_gravity_bomb_aura_target : public SpellScriptLoader
@@ -1007,32 +1007,32 @@ class spell_xt002_gravity_bomb_aura_target : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(BombTargetSelector(GetCaster()->ToCreature(), GetCaster()->getVictim()));
+                targets.remove_if(BombTargetSelector(GetCaster()->ToCreature(), GetCaster()->getVictim()));
 
-                if (unitList.empty())
+                if (targets.empty())
                     return;
 
-                _target = Trinity::Containers::SelectRandomContainerElement(unitList);
-                unitList.clear();
-                unitList.push_back(_target);
+                _target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(_target);
             }
 
-            void SetTarget(std::list<Unit*>& unitList)
+            void SetTarget(std::list<WorldObject*>& targets)
             {
-                unitList.clear();
+                targets.clear();
                 if (_target)
-                    unitList.push_back(_target);
+                    targets.push_back(_target);
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_xt002_gravity_bomb_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_xt002_gravity_bomb_targeting_SpellScript::SetTarget, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_gravity_bomb_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_gravity_bomb_targeting_SpellScript::SetTarget, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
             }
 
-            Unit* _target;
+            WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const
@@ -1148,15 +1148,15 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
         {
             PrepareSpellScript(spell_xt002_tympanic_tantrum_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if (PlayerOrPetCheck());
+                targets.remove_if (PlayerOrPetCheck());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

@@ -267,7 +267,7 @@ class boss_mimiron : public CreatureScript
                     return;
 
                 for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-                    (*iter)->ForcedDespawn();
+                    (*iter)->DespawnOrUnsummon();
             }
 
             void Reset()
@@ -381,7 +381,7 @@ class boss_mimiron : public CreatureScript
                     instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, NPC_LEVIATHAN_MKII, 1);
                 }
                 _JustDied();
-                me->ForcedDespawn(5000);
+                me->DespawnOrUnsummon(5000);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -530,7 +530,7 @@ class boss_mimiron : public CreatureScript
                                     if (Creature* VX_001 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VX_001)))
                                         if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
                                         {
-                                            AerialUnit->SetFlying(false);
+                                            AerialUnit->SetCanFly(false);
                                             AerialUnit->EnterVehicle(VX_001, 3);
                                             DoScriptText(SAY_V07TRON_ACTIVATE, me);
                                         }
@@ -1153,7 +1153,7 @@ class npc_proximity_mine : public CreatureScript
                         {
                             DoCastAOE(SPELL_EXPLOSION);
                             boomLocked = true;
-                            me->ForcedDespawn(1000);
+                            me->DespawnOrUnsummon(1000);
                         }                           
             }
 
@@ -1164,7 +1164,7 @@ class npc_proximity_mine : public CreatureScript
                     if (!boomLocked)
                     {
                         DoCastAOE(SPELL_EXPLOSION);
-                        me->ForcedDespawn(200);
+                        me->DespawnOrUnsummon(200);
                         boomLocked = true;
                     }                    
                 }
@@ -1577,7 +1577,7 @@ class npc_rocket_strike : public CreatureScript
                 {
                    
                     DoCast(me, SPELL_ROCKET_STRIKE_AURA);
-                    me->ForcedDespawn(10000);
+                    me->DespawnOrUnsummon(10000);
                 }                
             }
 
@@ -1677,7 +1677,7 @@ class boss_aerial_unit : public CreatureScript
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetVisible(false);
                 me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
-                me->SetFlying(true);
+                me->SetCanFly(true);
                 phase = PHASE_IDLE;
                 events.SetPhase(PHASE_IDLE);
                 summons.DespawnAll();
@@ -1752,7 +1752,7 @@ class boss_aerial_unit : public CreatureScript
                             Position destination;
                             me->GetPosition(&destination);
                             destination.m_positionZ = 368.965f;
-                            me->GetMotionMaster()->MoveLand(1, destination, 5.0f);  // Check if MoveLand is ok here, a flying unit should have a landing animation, but... just 4 the case
+                            me->GetMotionMaster()->MoveLand(1, destination);  // Check if MoveLand is ok here, a flying unit should have a landing animation, but... just 4 the case
                             events.DelayEvents(20000);
                             events.ScheduleEvent(EVENT_REACTIVATE_AERIAL, 20000, 0, PHASE_AERIAL_SOLO__GLOBAL_3);
                         }
@@ -1817,7 +1817,7 @@ class boss_aerial_unit : public CreatureScript
                             Position destination;
                             me->GetPosition(&destination);
                             destination.m_positionZ = 380.04f;
-                            me->GetMotionMaster()->MoveTakeoff(1, destination, 5.0f); // Check if MoveTakeoff is ok here, a flying unit should have a landing animation, but... just 4 the case
+                            me->GetMotionMaster()->MoveTakeoff(1, destination); // Check if MoveTakeoff is ok here, a flying unit should have a landing animation, but... just 4 the case
                             me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         case EVENT_SUMMON_JUNK_BOT:
@@ -1912,7 +1912,7 @@ class npc_magnetic_core : public CreatureScript
             npc_magnetic_coreAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                me->ForcedDespawn(21000);
+                me->DespawnOrUnsummon(21000);
                 if (Creature* AerialUnit = me->FindNearestCreature(NPC_AERIAL_COMMAND_UNIT, 100.0f, true))
                 {
                     AerialUnit->AI()->DoAction(DO_DISABLE_AERIAL); // Causes the NPC to land
@@ -2083,7 +2083,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 {
                     _despawn = true;
                     DoCast(me, SPELL_BOOM_BOT, true);
-                    me->ForcedDespawn(1500);
+                    me->DespawnOrUnsummon(1500);
                 }
             }
 
@@ -2158,7 +2158,7 @@ class npc_mimiron_flame_trigger : public CreatureScript
                     case SPELL_FROST_BOMB_EXPLOSION_25:
                     case SPELL_WATER_SPRAY:
                         flameTimer = 1000;
-                        me->ForcedDespawn(500);
+                        me->DespawnOrUnsummon(500);
                         break;
                     default:
                         break;
@@ -2241,7 +2241,7 @@ class npc_mimiron_flame_spread : public CreatureScript
                     case SPELL_WATER_SPRAY:
                         if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
                             mimiron->AI()->DoAction(DO_DECREASE_FLAME_COUNT);
-                        me->ForcedDespawn(500);
+                        me->DespawnOrUnsummon(500);
                         break;
                     default:
                         break;
@@ -2251,7 +2251,7 @@ class npc_mimiron_flame_spread : public CreatureScript
             void UpdateAI(uint32 const /*diff*/)
             {
                 if (instance && instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
             }
 
             private:

@@ -559,7 +559,7 @@ public:
         {
             PreventHitDefaultEffect(effIndex);
             Unit* caster = GetCaster();
-            Unit* target = GetTargetUnit();
+            Unit* target = GetHitUnit();
             if (caster && target)
             {
                 uint32 id = uint32(caster->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? SPELL_STATIC_DISRUPTION_CHECKED_10 : SPELL_STATIC_DISRUPTION_CHECKED_25);
@@ -825,7 +825,7 @@ class mob_lightning_elemental : public CreatureScript
                 if (me->IsWithinMeleeRange(me->getVictim()) && !castDone)
                 {
                     me->CastSpell(me, SPELL_LIGHTNING_BLAST, true);
-                    me->ForcedDespawn(500);
+                    me->DespawnOrUnsummon(500);
                     castDone = true;
                 }
             }
@@ -913,7 +913,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 couldNotDoThat = true;
                 me->RemoveAllAuras();
                 me->RemoveLootMode(LOOT_MODE_DEFAULT);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                 me->SendMovementFlagUpdate();
                 me->SetSpeed(MOVE_RUN, 1.42857f);
 
@@ -1084,7 +1084,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                             me->SendMovementFlagUpdate();
 
                             me->GetMotionMaster()->Initialize();
@@ -1128,13 +1128,13 @@ class boss_stormcaller_brundir : public CreatureScript
                             break;
                         case EVENT_LIGHTNING_TENDRILS_GROUND:
                             me->SetSpeed(MOVE_RUN, 1.42857f);
-                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                             me->SendMovementFlagUpdate();
                             me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS);
                             me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
-                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                             me->SendMovementFlagUpdate();
                             DoStartMovement(me->getVictim());
                             me->getThreatManager().resetAllAggro();
@@ -1249,7 +1249,7 @@ const uint32 AssemblyMembers[] =
 
 struct IsNoAssemblyMember 
 {
-    bool operator()(const Unit* target) const
+    bool operator()(const WorldObject* target) const
     {
         if (const Creature* creature = target->ToCreature())
         {
@@ -1281,16 +1281,16 @@ class spell_supercharge : public SpellScriptLoader
         {
             PrepareSpellScript(spell_supercharge_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(IsNoAssemblyMember());
+                targets.remove_if(IsNoAssemblyMember());
             }
 
             void Register()
             {              
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_supercharge_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_supercharge_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_supercharge_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);                          
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_supercharge_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_supercharge_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_supercharge_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);                          
             }
         };
 
