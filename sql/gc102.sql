@@ -77,6 +77,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_flame_leviathan_overload_device
 UPDATE `creature_template` SET `ScriptName`='npc_flame_leviathan_safety_container' WHERE `entry`=33218; 
 UPDATE `creature_template` SET `ScriptName`='npc_liquid_pyrite' WHERE `entry`=33189;
 UPDATE `creature_template` SET `ScriptName`='npc_freya_ward_of_life' WHERE `entry`=34275;
+UPDATE `creature_template` SET `ScriptName`='npc_runeforged_sentry' WHERE `entry`=34234;
 -- Part 1.1: Mimirons Inferno Bunny - it should walk around.
 DELETE FROM `waypoints` WHERE `entry`=33370;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
@@ -497,7 +498,7 @@ INSERT INTO `script_texts` VALUES
 (33436, -1603342, 'Bad news sire.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15538, 0, 0, 0, 'Garona KingLlaneVision_Say1'),
 (33436, -1603343, 'The clans are united under Blackhand in this assault. They will stand together until Stormwind has fallen.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15539, 0, 0, 0, 'Garona KingLlaneVision_Say2');
 
--- Various things
+-- Various things'
 -- Update mechanic immunity flags.
 UPDATE `creature_template` SET `mechanic_immune_mask`=650853247, `flags_extra`=1 WHERE `entry` IN 
 (
@@ -550,7 +551,7 @@ UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_enslaved_fire_elem
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_guardian' WHERE `entry`=33822;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_slayer' WHERE `entry`=33823;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_shadowblade' WHERE `entry`=33824;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_molten_colossus' WHERE `entry`=34069;  
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_molten_colossus' WHERE `entry`=34069;
 
 DELETE FROM `spell_script_names` WHERE `spell_id`=63059;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63059, 'spell_pollinate');
@@ -567,3 +568,32 @@ DELETE FROM `spell_group` WHERE `id`=64381;
 DELETE FROM `spell_group_stack_rules` WHERE `group_id`=64381;
 INSERT INTO `spell_group` (`id`, `spell_id`) VALUES (64381, 64381);
 INSERT INTO `spell_group_stack_rules` (`group_id`, `stack_rule`) VALUES (64381, 1);
+
+-- CUSTOM
+-- Superheated winds invisibility
+UPDATE creature_template SET modelid1 = 0 WHERE entry = 34194;
+
+-- Magma Rager
+UPDATE creature_template SET AIName='SmartAI' WHERE entry IN (34086, 34085);
+DELETE FROM smart_scripts WHERE entryorguid = 34086;
+INSERT INTO smart_scripts (entryorguid, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, target_type, comment) VALUES 
+(34086, 31, 5000, 10000, 5000, 10000, 11, 5, 'Magma Rager - Cast Fire Blast');
+
+-- Forge Construct
+DELETE FROM smart_scripts WHERE entryorguid = 34085;
+INSERT INTO smart_scripts (entryorguid, event_type, event_flags, action_type, action_param1, target_type, comment) VALUES
+(34085, 4, 30, 11, 64719, 2, 'Forge Construct - Cast Charge');
+INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, target_type, comment) VALUES
+(34085, 1, 0, 7, 5000, 15000, 5000, 15000, 11, 64720, 2, 'Forge Construct - Cast Flame Emission'),
+(34085, 2, 0, 25, 5000, 15000, 5000, 15000, 11, 64720, 2, 'Forge Construct - Cast Flame Emission');
+
+-- making some objects be spawned in all versions of Ulduar
+UPDATE gameobject SET spawnMask = 15 WHERE guid IN (35446, 35393, 35413, 35417, 55630, 34041, 54961, 54971, 55043, 55194, 35381, 35462, 42047, 42076, 42520, 42543, 42649, 42868, 42916, 42918, 42919, 42958, 43112, 43115, 44885, 45021, 45090, 45094, 45096, 45097, 45116, 4784597, 4784598,
+45175, 45209, 48905, 50363, 55002, 55692, 55702, 127, 55734, 55862, 55926, 55965, 34155, 281, 35467, 35497, 35516, 35517, 42960, 43113, 43114, 44883, 34057, 45225, 45229, 45230, 45500, 56130, 56244, 56245, 56295, 56296, 56301, 56312, 56351, 56359, 56372, 56411, 54995, 55078, 56422, 56424, 56426, 
+289, 35524, 56107, 56125, 42867, 42879, 55974, 55647, 285) OR id IN (194569, 189973, 190170, 190171, 191019, 194905, 194907) AND map = 603;
+
+-- disabling movement of Ironwork Cannon
+UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 33264;
+
+-- enlarging hitbox of bosses
+UPDATE creature_model_info SET bounding_radius = 1.085, combat_reach = 10.5 WHERE modelid IN (28787, 29185, 28611, 28324, 28344, 28381, 28651, 28777, 28548, 28817);

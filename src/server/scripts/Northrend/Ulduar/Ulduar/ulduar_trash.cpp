@@ -47,6 +47,7 @@ UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_guardian'
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_slayer' WHERE `entry`=33823;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_shadowblade' WHERE `entry`=33824;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_molten_colossus' WHERE `entry`=34069;   
+UPDATE `creature_template` SET `ScriptName`='npc_runeforged_sentry' WHERE `entry`=34234;
 
 DELETE FROM `spell_script_names` WHERE `spell_id`=63059;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63059, 'spell_pollinate');
@@ -191,6 +192,9 @@ class npc_steelforged_defender : public CreatureScript
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 event = events.ExecuteEvent())
                 {
@@ -359,6 +363,85 @@ class npc_molten_colossus : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_molten_colossusAI(creature);
+        }
+};
+
+class npc_runeforged_sentry : public CreatureScript
+{
+    private:
+        enum MyEvents
+        {
+            EVENT_FLAMING_RUNE         = 1,
+            EVENT_LAVA_BURST,
+            EVENT_RUNED_FLAME_JETS,
+        };
+        enum Spells
+        {
+            SPELL_FLAMING_RUNE      = 64852,
+            SPELL_LAVA_BURST        = 64870,
+            SPELL_RUNED_FLAME_JETS  = 64847,
+        };
+    public:
+        npc_runeforged_sentry () : CreatureScript("npc_runeforged_sentry") {}
+
+        struct npc_runeforged_sentryAI: public ScriptedAI
+        {
+            npc_runeforged_sentryAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                events.Reset();
+
+                events.ScheduleEvent(EVENT_FLAMING_RUNE, 10000);
+                events.ScheduleEvent(EVENT_LAVA_BURST, urand(10000, 15000));
+                events.ScheduleEvent(EVENT_RUNED_FLAME_JETS, urand(15000, 20000));
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
+                        me->SetRespawnTime(604800); // Once the levi died, we will not spawn again
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 event = events.ExecuteEvent())
+                {
+                    switch (event)
+                    {
+                        case EVENT_FLAMING_RUNE:
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_FLAMING_RUNE);
+                            events.ScheduleEvent(EVENT_FLAMING_RUNE, 10000);
+                            break;
+                        case EVENT_LAVA_BURST:
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_LAVA_BURST);
+                            events.ScheduleEvent(EVENT_LAVA_BURST, urand(10000, 15000));
+                            break;
+                        case EVENT_RUNED_FLAME_JETS:
+                            DoCastVictim(SPELL_RUNED_FLAME_JETS);
+                            events.ScheduleEvent(EVENT_RUNED_FLAME_JETS, urand(15000, 20000));
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_runeforged_sentryAI(creature);
         }
 };
 
@@ -1919,6 +2002,7 @@ void AddSC_ulduar_trash()
     new npc_steelforged_defender();
     new npc_ironwork_cannon();
     new npc_molten_colossus();
+    new npc_runeforged_sentry();
 
     // OS
 
