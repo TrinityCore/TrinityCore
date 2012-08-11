@@ -1065,7 +1065,7 @@ static const uint32 achievIdForDungeon[][4] =
 
 // Helper function to avoid having to specialize template for a 800 line long function
 template <typename T> static bool IsGuild() { return false; }
-template<> static bool IsGuild<Guild>() { return true; }
+template<> bool IsGuild<Guild>() { return true; }
 
 /**
  * this function will be called whenever the user might have done a criteria relevant action
