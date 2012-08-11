@@ -30,11 +30,11 @@ void InitOpcodes()
 {
 #define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                                                  \
     if (opcode == 0)                                                                                                \
-        sLog->outError(LOG_FILTER_NETWORKIO, "Opcode %s got value 0", #opcode);                                                           \
+        sLog->outError(LOG_FILTER_NETWORKIO, "Opcode %s got value 0", #opcode);                                     \
     if (opcode < NUM_OPCODE_HANDLERS) {                                                                             \
         if (opcodeTable[opcode] != NULL)                                                                            \
         {                                                                                                           \
-            sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)",                                   \
+            sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)",             \
                 opcodeTable[opcode]->name, #opcode, opcode);                                                        \
         }                                                                                                           \
         else opcodeTable[opcode] = new OpcodeHandler(#opcode, #opcode##"_COMPRESSED", status, processing, handler); \
