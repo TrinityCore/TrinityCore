@@ -33,7 +33,8 @@ namespace Movement
     class MoveSplineFlag
     {
     public:
-        enum eFlags{
+        enum eFlags
+        {
             None                = 0x00000000,
                                                         // x00-x07 used as animation Ids storage in pair with Animation flag
             Unknown0            = 0x00000008,           // NOT VERIFIED
@@ -73,7 +74,7 @@ namespace Movement
             // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
             Mask_No_Monster_Move = Mask_Final_Facing | Mask_Animations | Done,
             // Unused, not suported flags
-            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown0|FallingSlow|Unknown2|Unknown3|Unknown4|SmoothGroundPath|Unknown6|Unknown7|Unknown8|Unknown9,
+            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown0|Unknown2|Unknown3|Unknown4|Unknown6|Unknown7|Unknown8|Unknown9,
         };
 
         inline uint32& raw() { return (uint32&)*this; }

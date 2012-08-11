@@ -60,12 +60,10 @@ namespace Movement
     {
         MoveSpline& move_spline = *unit.movespline;
 
-        bool transport = false;
         Location real_position(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZMinusOffset(), unit.GetOrientation());
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
         if (unit.GetTransGUID())
         {
-            transport = true;
             real_position.x = unit.GetTransOffsetX();
             real_position.y = unit.GetTransOffsetY();
             real_position.z = unit.GetTransOffsetZ();
@@ -102,18 +100,45 @@ namespace Movement
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
 
-        unit.m_movementInfo.SetMovementFlags((MovementFlags)moveFlags);
+        unit.m_movementInfo.SetMovementFlags(moveFlags);
         move_spline.Initialize(args);
 
-        WorldPacket data(!transport ? SMSG_MONSTER_MOVE : SMSG_MONSTER_MOVE_TRANSPORT, 64);
+        WorldPacket data(SMSG_MONSTER_MOVE, 64);
         data.append(unit.GetPackGUID());
-        if (transport)
+        if (unit.GetTransGUID())
         {
+            data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
             data.appendPackGUID(unit.GetTransGUID());
             data << int8(unit.GetTransSeat());
         }
 
         PacketBuilder::WriteMonsterMove(move_spline, data);
+        unit.SendMessageToSet(&data, true);
+    }
+
+    void MoveSplineInit::Stop()
+    {
+        MoveSpline& move_spline = *unit.movespline;
+
+        // No need to stop if we are not moving
+        if (move_spline.Finalized())
+            return;
+
+        Location loc = move_spline.ComputePosition();
+        args.flags = MoveSplineFlag::Done;
+        unit.m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
+        move_spline.Initialize(args);
+
+        WorldPacket data(SMSG_MONSTER_MOVE, 64);
+        data.append(unit.GetPackGUID());
+        if (unit.GetTransGUID())
+        {
+            data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
+            data.appendPackGUID(unit.GetTransGUID());
+            data << int8(unit.GetTransSeat());
+        }
+
+        PacketBuilder::WriteStopMovement(loc, args.splineId, data);
         unit.SendMessageToSet(&data, true);
     }
 

@@ -376,12 +376,13 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
     init.Launch();
 }
 
+enum MovementIntervals
+{
+    POSITION_UPDATE_DELAY = 400,
+};
+
 void Unit::UpdateSplineMovement(uint32 t_diff)
 {
-    enum{
-        POSITION_UPDATE_DELAY = 400,
-    };
-
     if (movespline->Finalized())
         return;
 
@@ -393,30 +394,32 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
     m_movesplineTimer.Update(t_diff);
     if (m_movesplineTimer.Passed() || arrived)
+        UpdateSplinePosition();
+}
+
+void Unit::UpdateSplinePosition()
+{
+    m_movesplineTimer.Reset(POSITION_UPDATE_DELAY);
+    Movement::Location loc = movespline->ComputePosition();
+    if (GetTransGUID())
     {
-        m_movesplineTimer.Reset(POSITION_UPDATE_DELAY);
-        Movement::Location loc = movespline->ComputePosition();
-
-        if (GetTransGUID())
+        Position& pos = m_movementInfo.t_pos;
+        pos.m_positionX = loc.x;
+        pos.m_positionY = loc.y;
+        pos.m_positionZ = loc.z;
+        pos.m_orientation = loc.orientation;
+        if (Unit* vehicle = GetVehicleBase())
         {
-            Position& pos = m_movementInfo.t_pos;
-            pos.m_positionX = loc.x;
-            pos.m_positionY = loc.y;
-            pos.m_positionZ = loc.z;
-            pos.m_orientation = loc.orientation;
-            if (Unit* vehicle = GetVehicleBase())
-            {
-                loc.x += vehicle->GetPositionX();
-                loc.y += vehicle->GetPositionY();
-                loc.z += vehicle->GetPositionZMinusOffset();
-                loc.orientation = vehicle->GetOrientation();
-            }
-            else if (Transport* trans = GetTransport())
-                trans->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
+            loc.x += vehicle->GetPositionX();
+            loc.y += vehicle->GetPositionY();
+            loc.z += vehicle->GetPositionZMinusOffset();
+            loc.orientation = vehicle->GetOrientation();
         }
-
-        UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
+        else if (Transport* trans = GetTransport())
+            trans->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
     }
+
+    UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
 }
 
 void Unit::DisableSpline()
@@ -15180,14 +15183,13 @@ void Unit::StopMoving()
 {
     ClearUnitState(UNIT_STATE_MOVING);
 
-    // not need send any packets if not in world
-    if (!IsInWorld())
+    // not need send any packets if not in world or not moving
+    if (!IsInWorld() || movespline->Finalized())
         return;
 
-    Movement::MoveSplineInit init(*this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
-    init.SetFacing(GetOrientation());
-    init.Launch();
+    // Update position using old spline
+    UpdateSplinePosition();
+    Movement::MoveSplineInit(*this).Stop();
 }
 
 void Unit::SendMovementFlagUpdate()
