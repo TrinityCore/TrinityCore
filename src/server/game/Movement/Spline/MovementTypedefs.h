@@ -54,7 +54,7 @@ namespace Movement
     class counter
     {
     public:
-        counter() { init();}
+        counter() { init(); }
 
         void Increase()
         {
@@ -64,8 +64,8 @@ namespace Movement
                 ++m_counter;
         }
 
-        T NewId() { Increase(); return m_counter;}
-        T getCurrent() const { return m_counter;}
+        T NewId() { Increase(); return m_counter; }
+        T getCurrent() const { return m_counter; }
 
     private:
         void init() { m_counter = 0; }
@@ -76,6 +76,7 @@ namespace Movement
 
     extern double gravity;
     extern float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity);
+    extern UInt32Counter splineIdGen;
 }
 
 #endif // TRINITYSERVER_TYPEDEFS_H
