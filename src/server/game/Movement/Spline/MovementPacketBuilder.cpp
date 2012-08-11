@@ -88,6 +88,14 @@ namespace Movement
         }
     }
 
+    void PacketBuilder::WriteStopMovement(Vector3 const& pos, uint32 splineId, ByteBuffer& data)
+    {
+        data << uint8(0);                                       // sets/unsets MOVEMENTFLAG2_UNK7 (0x40)
+        data << pos;
+        data << splineId;
+        data << uint8(MonsterMoveStop);
+    }
+
     void WriteLinearPath(const Spline<int32>& spline, ByteBuffer& data)
     {
         uint32 last_idx = spline.getPointCount() - 3;
