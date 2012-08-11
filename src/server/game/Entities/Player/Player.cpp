@@ -7204,9 +7204,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
     WorldPacket data(SMSG_PVP_CREDIT, 4+8+4);
-    data << honor;
-    data << victim_guid;
-    data << victim_rank;
+    data << uint32(honor);
+    data << uint64(victim_guid);
+    data << uint32(victim_rank);
 
     GetSession()->SendPacket(&data);
 
