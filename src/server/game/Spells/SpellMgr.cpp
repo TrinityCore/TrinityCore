@@ -2670,11 +2670,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_POWER_BURN:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
                     break;
-                case SPELL_AURA_MOUNTED:
-                case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
-                case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_SCALABLE;
-                    break;
             }
 
             switch (spellInfo->Effects[j].Effect)
