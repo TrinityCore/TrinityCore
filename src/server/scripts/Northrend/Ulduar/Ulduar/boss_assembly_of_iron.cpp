@@ -264,26 +264,21 @@ void RespawnEncounter(InstanceScript* instance, Creature* me)
 
 void ResetEncounter(InstanceScript* instance, Creature* me)
 {
-    uint64 steelbreaker = instance->GetData64(BOSS_STEELBREAKER);
-    uint64 brundir = instance->GetData64(BOSS_BRUNDIR);
-    uint64 molgeim = instance->GetData64(BOSS_MOLGEIM);
+    for (uint8 i = 0; i < 3; ++i)
+    {
+        uint64 guid = instance->GetData64(BOSS_STEELBREAKER + i);
+        if (!guid)
+            continue;
 
-    // Note: We must _not_ call EnterEvadeMode for ourself, since this was already done
-
-    if (me->GetGUID() != steelbreaker)
-        if (Creature* boss = ObjectAccessor::GetCreature(*me, steelbreaker))
-            if (boss->isAlive() && boss->AI())
-                boss->AI()->EnterEvadeMode();
-
-    if (me->GetGUID() != brundir)
-        if (Creature* boss = ObjectAccessor::GetCreature(*me, brundir))
-            if (boss->isAlive() && boss->AI())
-                boss->AI()->EnterEvadeMode();
-
-    if (me->GetGUID() != molgeim)
-        if (Creature* boss = ObjectAccessor::GetCreature(*me, molgeim))
-            if (boss->isAlive() && boss->AI())
-                boss->AI()->EnterEvadeMode();
+        if (Creature* boss = ObjectAccessor::GetCreature(*me, guid))
+        {
+            if (!boss->isAlive())
+            {
+                boss->Respawn();
+                boss->GetMotionMaster()->MoveTargetedHome();
+            }
+        }
+    }
 
     instance->HandleGameObject(instance->GetData64(GO_KOLOGARN_DOOR), false);
 }
