@@ -56,6 +56,12 @@ UPDATE gameobject SET spawnMask = 15 WHERE guid = 151192;
 UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask | 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192 | 65536 | 131072 | 524288 | 4194304 | 8388608 | 67108864 | 536870912 
 	WHERE entry IN (34796, 35438, 35439, 35440, 34799, 35514, 35515, 35516, 35144, 35511, 35512, 35513, 34797, 35447, 35448, 35449, 34780, 35216, 35268, 35269, 36066, 35347, 35348, 35349, 34497, 35350, 35351, 35352, 34564, 34566, 35615, 35616);
 
+-- adding Teleport locations to Trial of the Crusader/champion for GMs
+DELETE FROM game_tele WHERE name LIKE '%TrialOfTheCrusader%' OR name LIKE '%TrialOfTheChampion%';
+INSERT INTO game_tele (position_x, position_y, position_z, orientation, map, name) VALUES
+(8515.63, 714.174, 558.248, 1.57298, 571, 'TrialOfTheCrusader'),
+(8588.42, 791.888, 558.236, 3.23819, 571, 'TrialOfTheChampion');
+
 -- -------------------------
 -- ULDUAR ------------------
 -- -------------------------
@@ -332,11 +338,6 @@ UPDATE `creature_template` SET ScriptName='npc_proximity_mine' WHERE entry=34362
 DELETE FROM `creature_model_info` WHERE `modelid`=28831;
 INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`) VALUES
 (28831, 0.5, 7, 2, 0);
--- Some stuff for VX001 "riding" MKII
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (33432,33651);
-INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`quest_start_active`,`quest_end`,`cast_flags`,`aura_required`,`aura_forbidden`,`user_type`) VALUES
-(33432,46598,0,0,0,1,0,0,0), -- Leviatan MKII - Ride Vehicle Hardcoded
-(33651,46598,0,0,0,1,0,0,0); -- VX 001 - Ride Vehicle Hardcoded
 
 -- VX-001
 UPDATE `creature_template` SET `mechanic_immune_mask`=650854235, `flags_extra`=1, `vehicleid`=371, `ScriptName`='boss_vx_001' WHERE `entry`=33651;
