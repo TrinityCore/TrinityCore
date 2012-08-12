@@ -19,18 +19,14 @@
 /* ScriptData
 SDName: Tanaris
 SD%Complete: 80
-SDComment: Quest support: 648, 1560, 2954, 4005, 10277, 10279(Special flight path). Noggenfogger vendor
+SDComment: Quest support: 648, 10277, 10279(Special flight path).
 SDCategory: Tanaris
 EndScriptData */
 
 /* ContentData
-mob_aquementas
 npc_custodian_of_time
-npc_marin_noggenfogger
 npc_steward_of_time
-npc_stone_watcher_of_norgannon
 npc_OOX17
-npc_tooga
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -38,111 +34,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
-
-/*######
-## mob_aquementas
-######*/
-
-enum Aquementas
-{
-    AGGRO_YELL_AQUE     = -1000350,
-
-    SPELL_AQUA_JET      = 13586,
-    SPELL_FROST_SHOCK   = 15089
-};
-
-class mob_aquementas : public CreatureScript
-{
-public:
-    mob_aquementas() : CreatureScript("mob_aquementas") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_aquementasAI (creature);
-    }
-
-    struct mob_aquementasAI : public ScriptedAI
-    {
-        mob_aquementasAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 SendItemTimer;
-        uint32 SwitchFactionTimer;
-        bool isFriendly;
-
-        uint32 FrostShockTimer;
-        uint32 AquaJetTimer;
-
-        void Reset()
-        {
-            SendItemTimer = 0;
-            SwitchFactionTimer = 10000;
-            me->setFaction(35);
-            isFriendly = true;
-
-            AquaJetTimer = 5000;
-            FrostShockTimer = 1000;
-        }
-
-        void SendItem(Unit* receiver)
-        {
-            if (CAST_PLR(receiver)->HasItemCount(11169, 1, false) &&
-                CAST_PLR(receiver)->HasItemCount(11172, 11, false) &&
-                CAST_PLR(receiver)->HasItemCount(11173, 1, false) &&
-                !CAST_PLR(receiver)->HasItemCount(11522, 1, true))
-            {
-                ItemPosCountVec dest;
-                uint8 msg = CAST_PLR(receiver)->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
-                if (msg == EQUIP_ERR_OK)
-                    CAST_PLR(receiver)->StoreNewItem(dest, 11522, 1, true);
-            }
-        }
-
-        void EnterCombat(Unit* who)
-        {
-            DoScriptText(AGGRO_YELL_AQUE, me, who);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (isFriendly)
-            {
-                if (SwitchFactionTimer <= diff)
-                {
-                    me->setFaction(91);
-                    isFriendly = false;
-                } else SwitchFactionTimer -= diff;
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            if (!isFriendly)
-            {
-                if (SendItemTimer <= diff)
-                {
-                    if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
-                        SendItem(me->getVictim());
-                    SendItemTimer = 5000;
-                } else SendItemTimer -= diff;
-            }
-
-            if (FrostShockTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_FROST_SHOCK);
-                FrostShockTimer = 15000;
-            } else FrostShockTimer -= diff;
-
-            if (AquaJetTimer <= diff)
-            {
-                DoCast(me, SPELL_AQUA_JET);
-                AquaJetTimer = 15000;
-            } else AquaJetTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
 
 /*######
 ## npc_custodian_of_time
@@ -277,39 +168,6 @@ public:
 };
 
 /*######
-## npc_marin_noggenfogger
-######*/
-
-class npc_marin_noggenfogger : public CreatureScript
-{
-public:
-    npc_marin_noggenfogger() : CreatureScript("npc_marin_noggenfogger") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->isVendor() && player->GetQuestRewardStatus(2662))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*######
 ## npc_steward_of_time
 ######*/
 
@@ -349,70 +207,6 @@ public:
         }
         else
             player->SEND_GOSSIP_MENU(9977, creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*######
-## npc_stone_watcher_of_norgannon
-######*/
-
-#define GOSSIP_ITEM_NORGANNON_1     "What function do you serve?"
-#define GOSSIP_ITEM_NORGANNON_2     "What are the Plates of Uldum?"
-#define GOSSIP_ITEM_NORGANNON_3     "Where are the Plates of Uldum?"
-#define GOSSIP_ITEM_NORGANNON_4     "Excuse me? We've been \"reschedueled for visitations\"? What does that mean?!"
-#define GOSSIP_ITEM_NORGANNON_5     "So, what's inside Uldum?"
-#define GOSSIP_ITEM_NORGANNON_6     "I will return when i have the Plates of Uldum."
-
-class npc_stone_watcher_of_norgannon : public CreatureScript
-{
-public:
-    npc_stone_watcher_of_norgannon() : CreatureScript("npc_stone_watcher_of_norgannon") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                player->SEND_GOSSIP_MENU(1675, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(1676, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(1677, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                player->SEND_GOSSIP_MENU(1678, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(1679, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(2954);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(2954) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(1674, creature->GetGUID());
 
         return true;
     }
@@ -511,176 +305,9 @@ public:
     };
 };
 
-/*####
-# npc_tooga
-####*/
-
-enum Tooga
-{
-    SAY_TOOG_THIRST             = -1000391,
-    SAY_TOOG_WORRIED            = -1000392,
-    SAY_TOOG_POST_1             = -1000393,
-    SAY_TORT_POST_2             = -1000394,
-    SAY_TOOG_POST_3             = -1000395,
-    SAY_TORT_POST_4             = -1000396,
-    SAY_TOOG_POST_5             = -1000397,
-    SAY_TORT_POST_6             = -1000398,
-
-    QUEST_TOOGA                 = 1560,
-    NPC_TORTA                   = 6015,
-
-    POINT_ID_TO_WATER           = 1,
-    FACTION_TOOG_ESCORTEE       = 113
-};
-
-Position const ToWaterLoc = {-7032.664551f, -4906.199219f, -1.606446f, 0.0f};
-
-class npc_tooga : public CreatureScript
-{
-public:
-    npc_tooga() : CreatureScript("npc_tooga") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
-    {
-        if (quest->GetQuestId() == QUEST_TOOGA)
-        {
-            if (npc_toogaAI* pToogaAI = CAST_AI(npc_tooga::npc_toogaAI, creature->AI()))
-                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_toogaAI(creature);
-    }
-
-    struct npc_toogaAI : public FollowerAI
-    {
-        npc_toogaAI(Creature* creature) : FollowerAI(creature) { }
-
-        uint32 CheckSpeechTimer;
-        uint32 PostEventTimer;
-        uint32 PhasePostEvent;
-
-        uint64 TortaGUID;
-
-        void Reset()
-        {
-            CheckSpeechTimer = 2500;
-            PostEventTimer = 1000;
-            PhasePostEvent = 0;
-
-            TortaGUID = 0;
-        }
-
-        void MoveInLineOfSight(Unit* who)
-        {
-            FollowerAI::MoveInLineOfSight(who);
-
-            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && who->GetEntry() == NPC_TORTA)
-            {
-                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
-                {
-                    Player* player = GetLeaderForFollower();
-                    if (player && player->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
-                        player->GroupEventHappens(QUEST_TOOGA, me);
-
-                    TortaGUID = who->GetGUID();
-                    SetFollowComplete(true);
-                }
-            }
-        }
-
-        void MovementInform(uint32 MotionType, uint32 PointId)
-        {
-            FollowerAI::MovementInform(MotionType, PointId);
-
-            if (MotionType != POINT_MOTION_TYPE)
-                return;
-
-            if (PointId == POINT_ID_TO_WATER)
-                SetFollowComplete();
-        }
-
-        void UpdateFollowerAI(const uint32 Diff)
-        {
-            if (!UpdateVictim())
-            {
-                //we are doing the post-event, or...
-                if (HasFollowState(STATE_FOLLOW_POSTEVENT))
-                {
-                    if (PostEventTimer <= Diff)
-                    {
-                        PostEventTimer = 5000;
-
-                        Unit* pTorta = Unit::GetUnit(*me, TortaGUID);
-                        if (!pTorta || !pTorta->isAlive())
-                        {
-                            //something happened, so just complete
-                            SetFollowComplete();
-                            return;
-                        }
-
-                        switch (PhasePostEvent)
-                        {
-                            case 1:
-                                DoScriptText(SAY_TOOG_POST_1, me);
-                                break;
-                            case 2:
-                                DoScriptText(SAY_TORT_POST_2, pTorta);
-                                break;
-                            case 3:
-                                DoScriptText(SAY_TOOG_POST_3, me);
-                                break;
-                            case 4:
-                                DoScriptText(SAY_TORT_POST_4, pTorta);
-                                break;
-                            case 5:
-                                DoScriptText(SAY_TOOG_POST_5, me);
-                                break;
-                            case 6:
-                                DoScriptText(SAY_TORT_POST_6, pTorta);
-                                me->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, ToWaterLoc);
-                                break;
-                        }
-
-                        ++PhasePostEvent;
-                    }
-                    else
-                        PostEventTimer -= Diff;
-                }
-                //...we are doing regular speech check
-                else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
-                {
-                    if (CheckSpeechTimer <= Diff)
-                    {
-                        CheckSpeechTimer = 5000;
-
-                        if (urand(0, 9) > 8)
-                            DoScriptText(RAND(SAY_TOOG_THIRST, SAY_TOOG_WORRIED), me);
-                    }
-                    else
-                        CheckSpeechTimer -= Diff;
-                }
-
-                return;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
-
 void AddSC_tanaris()
 {
-    new mob_aquementas();
     new npc_custodian_of_time();
-    new npc_marin_noggenfogger();
     new npc_steward_of_time();
-    new npc_stone_watcher_of_norgannon();
     new npc_OOX17();
-    new npc_tooga();
 }
