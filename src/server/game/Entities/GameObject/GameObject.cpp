@@ -138,9 +138,8 @@ void GameObject::AddToWorld()
         bool toggledState = GetGOData() ? GetGOData()->go_state == GO_STATE_READY : false;
         if (m_model)
             GetMap()->Insert(*m_model);
-        if (startOpen ^ toggledState)
-            EnableCollision(false);
 
+        EnableCollision(startOpen ^ toggledState);
         WorldObject::AddToWorld();
     }
 }
@@ -1923,7 +1922,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
 
         // Use the current go state
-        if (GetGoState() == GO_STATE_ACTIVE)
+        if (GetGoState() != GO_STATE_ACTIVE)
             startOpen = !startOpen;
 
         if (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)
