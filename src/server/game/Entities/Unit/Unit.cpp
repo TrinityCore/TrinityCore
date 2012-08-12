@@ -988,12 +988,11 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
             // Spell weapon based damage CAN BE crit & blocked at same time
             if (blocked)
             {
-                damageInfo->blocked = victim->GetShieldBlockValue();
                 // double blocked amount if block is critical
+                uint32 value = victim->GetBlockPercent();
                 if (victim->isBlockCritical())
-                    damageInfo->blocked += damageInfo->blocked;
-                if (damage < int32(damageInfo->blocked))
-                    damageInfo->blocked = uint32(damage);
+                    value *= 2; // double blocked percent
+                damageInfo->blocked = CalculatePctN(damage, value);
                 damage -= damageInfo->blocked;
             }
 
@@ -1189,19 +1188,9 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         case MELEE_HIT_BLOCK:
             damageInfo->TargetState = VICTIMSTATE_HIT;
             damageInfo->HitInfo    |= HITINFO_BLOCK;
-            damageInfo->procEx     |= PROC_EX_BLOCK;
-            damageInfo->blocked_amount = damageInfo->target->GetShieldBlockValue();
-            // double blocked amount if block is critical
-            if (damageInfo->target->isBlockCritical())
-                damageInfo->blocked_amount+=damageInfo->blocked_amount;
-            if (damageInfo->blocked_amount >= damageInfo->damage)
-            {
-                damageInfo->TargetState = VICTIMSTATE_BLOCKS;
-                damageInfo->blocked_amount = damageInfo->damage;
-                damageInfo->procEx |= PROC_EX_FULL_BLOCK;
-            }
-            else
-                damageInfo->procEx  |= PROC_EX_NORMAL_HIT;
+            damageInfo->procEx     |= PROC_EX_BLOCK | PROC_EX_NORMAL_HIT;
+            // 30% damage blocked, double blocked amount if block is critical
+            damageInfo->blocked_amount = CalculatePctN(damageInfo->damage, damageInfo->target->isBlockCritical() ? damageInfo->target->GetBlockPercent() * 2 : damageInfo->target->GetBlockPercent());
             damageInfo->damage      -= damageInfo->blocked_amount;
             damageInfo->cleanDamage += damageInfo->blocked_amount;
             break;
@@ -1916,7 +1905,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
 
     // Miss chance based on melee
     //float miss_chance = MeleeMissChanceCalc(victim, attType);
-    float miss_chance = MeleeSpellMissChance(victim, attType, int32(GetWeaponSkillValue(attType, victim)) - int32(GetMaxSkillValueForLevel(this)), 0);
+    float miss_chance = MeleeSpellMissChance(victim, attType, 0);
 
     // Critical hit chance
     float crit_chance = GetUnitCriticalChance(attType, victim);
@@ -2187,9 +2176,7 @@ bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttac
             victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK)
                 return false;
 
-        float blockChance = victim->GetUnitBlockChance();
-        blockChance += (int32(GetWeaponSkillValue(attackType)) - int32(victim->GetMaxSkillValueForLevel())) * 0.04f;
-        if (roll_chance_f(blockChance))
+        if (roll_chance_f(victim->GetUnitBlockChance()))
             return true;
     }
     return false;
@@ -2237,19 +2224,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
         attType = RANGED_ATTACK;
 
-    int32 attackerWeaponSkill;
-    // skill value for these spells (for example judgements) is 5* level
-    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED && !spell->IsRangedWeaponSpell())
-        attackerWeaponSkill = getLevel() * 5;
-    // bonus from skills is 0.04% per skill Diff
-    else
-        attackerWeaponSkill = int32(GetWeaponSkillValue(attType, victim));
-
-    int32 skillDiff = attackerWeaponSkill - int32(victim->GetMaxSkillValueForLevel(this));
-
     uint32 roll = urand (0, 10000);
 
-    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, skillDiff, spell->Id) * 100.0f);
+    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, spell->Id) * 100.0f);
     // Roll miss
     uint32 tmp = missChance;
     if (roll < tmp)
@@ -2349,7 +2326,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (canDodge)
     {
         // Roll dodge
-        int32 dodgeChance = int32(victim->GetUnitDodgeChance() * 100.0f) - skillDiff * 4;
+        int32 dodgeChance = int32(victim->GetUnitDodgeChance() * 100.0f);
         // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
         dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
         dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
@@ -2368,7 +2345,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (canParry)
     {
         // Roll parry
-        int32 parryChance = int32(victim->GetUnitParryChance() * 100.0f)  - skillDiff * 4;
+        int32 parryChance = int32(victim->GetUnitParryChance() * 100.0f);
         // Reduce parry chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
             parryChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
@@ -2384,7 +2361,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canBlock)
     {
-        int32 blockChance = int32(victim->GetUnitBlockChance() * 100.0f) - skillDiff * 4;
+        int32 blockChance = int32(victim->GetUnitBlockChance() * 100.0f);
         if (blockChance < 0)
             blockChance = 0;
         tmp += blockChance;
@@ -5854,14 +5831,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
 
                 target = this;
-                break;
-            }
-            // Damage Shield
-            if (dummySpell->SpellIconID == 3214)
-            {
-                triggered_spell_id = 59653;
-                // % of amount blocked
-                basepoints0 = CalculatePctN(int32(GetShieldBlockValue()), triggerAmount);
                 break;
             }
             // Glyph of Blocking
@@ -17012,21 +16981,13 @@ void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool 
 
 // Melee based spells can be miss, parry or dodge on this step
 // Crit or block - determined on damage calculation phase! (and can be both in some time)
-float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const
+float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, uint32 spellId) const
 {
     //calculate miss chance
     float missChance = victim->GetUnitMissChance(attType);
 
     if (!spellId && haveOffhandWeapon())
         missChance += 19;
-
-    // bonus from skills is 0.04%
-    //miss_chance -= skillDiff * 0.04f;
-    int32 diff = -skillDiff;
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        missChance += diff > 0 ? diff * 0.04f : diff * 0.02f;
-    else
-        missChance += diff > 10 ? 1 + (diff - 10) * 0.4f : diff * 0.1f;
 
     // Calculate hit chance
     float hitChance = 100.0f;

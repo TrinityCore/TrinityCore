@@ -3270,7 +3270,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     SetFloatValue(PLAYER_PARRY_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_BLOCK_PERCENTAGE, 0.0f);
-    SetUInt32Value(PLAYER_SHIELD_BLOCK, 0);
+    
+    // Static 30% damage blocked
+    SetUInt32Value(PLAYER_SHIELD_BLOCK, 30);
 
     // Dodge percentage
     SetFloatValue(PLAYER_DODGE_PERCENTAGE, 0.0f);
@@ -5673,7 +5675,6 @@ void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, floa
         case CRIT_PERCENTAGE:              UpdateCritPercentage(BASE_ATTACK);                          break;
         case RANGED_CRIT_PERCENTAGE:       UpdateCritPercentage(RANGED_ATTACK);                        break;
         case OFFHAND_CRIT_PERCENTAGE:      UpdateCritPercentage(OFF_ATTACK);                           break;
-        case SHIELD_BLOCK_VALUE:           UpdateShieldBlockValue();                                   break;
         default: break;
     }
 }
@@ -5704,15 +5705,6 @@ float Player::GetTotalBaseModValue(BaseModGroup modGroup) const
         return 0.0f;
 
     return m_auraBaseMod[modGroup][FLAT_MOD] * m_auraBaseMod[modGroup][PCT_MOD];
-}
-
-uint32 Player::GetShieldBlockValue() const
-{
-    float value = (m_auraBaseMod[SHIELD_BLOCK_VALUE][FLAT_MOD] + GetStat(STAT_STRENGTH) * 0.5f - 10)*m_auraBaseMod[SHIELD_BLOCK_VALUE][PCT_MOD];
-
-    value = (value < 0) ? 0 : value;
-
-    return uint32(value);
 }
 
 float Player::GetMeleeCritFromAgility()

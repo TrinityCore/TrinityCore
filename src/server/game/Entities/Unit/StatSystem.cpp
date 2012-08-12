@@ -70,9 +70,6 @@ bool Player::UpdateStats(Stats stat)
 
     switch (stat)
     {
-        case STAT_STRENGTH:
-            UpdateShieldBlockValue();
-            break;
         case STAT_AGILITY:
             UpdateArmor();
             UpdateAllCritPercentages();
@@ -171,7 +168,6 @@ bool Player::UpdateAllStats()
     UpdateAllCritPercentages();
     UpdateAllSpellCritChances();
     UpdateDefenseBonusesMod();
-    UpdateShieldBlockValue();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
     UpdateExpertise(BASE_ATTACK);
@@ -413,11 +409,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Player::UpdateShieldBlockValue()
-{
-    SetUInt32Value(PLAYER_SHIELD_BLOCK, GetShieldBlockValue());
-}
-
 void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage)
 {
     UnitMods unitMod;
@@ -519,8 +510,6 @@ void Player::UpdateBlockPercentage()
     {
         // Base value
         value = 5.0f;
-        // Modify value from defense skill
-        value += (int32(GetDefenseSkillValue()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
         // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
         value += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
         // Increase from rating
