@@ -1699,6 +1699,11 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
     float dx = x - GetPositionX();
     float dy = y - GetPositionY();
     float dz = z - GetPositionZ();
+
+    // return true if the 2 compared objects are on top of each other
+    if (dx == dy == dz == 0)
+        return true;
+
     float dist = sqrt(dx*dx + dy*dy);
     float sinB = dx / dist;
     float cosB = dy / dist;
