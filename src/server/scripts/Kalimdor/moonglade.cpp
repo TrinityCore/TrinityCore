@@ -296,7 +296,10 @@ public:
     struct npc_clintar_spiritAI : public npc_escortAI
     {
     public:
-        npc_clintar_spiritAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_clintar_spiritAI(Creature* creature) : npc_escortAI(creature)
+        {
+            PlayerGUID = 0;
+        }
 
         uint8 Step;
         uint32 CurrWP;
