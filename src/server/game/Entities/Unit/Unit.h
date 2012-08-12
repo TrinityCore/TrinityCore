@@ -1455,7 +1455,7 @@ class Unit : public WorldObject
 
         void ApplyResilience(const Unit* victim, float * crit, int32 * damage, bool isCrit, CombatRating type) const;
 
-        float MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const;
+        float MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, uint32 spellId) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false);
@@ -1477,21 +1477,8 @@ class Unit : public WorldObject
             return true;
         }
 
-        virtual uint32 GetShieldBlockValue() const =0;
-        uint32 GetShieldBlockValue(uint32 soft_cap, uint32 hard_cap) const
-        {
-            uint32 value = GetShieldBlockValue();
-            if (value >= hard_cap)
-            {
-                value = (soft_cap + hard_cap) / 2;
-            }
-            else if (value > soft_cap)
-            {
-                value = soft_cap + ((value - soft_cap) / 2);
-            }
-
-            return value;
-        }
+        virtual uint32 GetBlockPercent() { return 30; }
+        
         uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         uint32 GetDefenseSkillValue(Unit const* target = NULL) const;
         uint32 GetWeaponSkillValue(WeaponAttackType attType, Unit const* target = NULL) const;
