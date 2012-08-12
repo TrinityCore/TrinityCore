@@ -2103,6 +2103,8 @@ void Player::SendTeleportPacket(Position &oldPos)
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+    orientation = MapManager::NormalizeOrientation(orientation);
+
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         sLog->outError(LOG_FILTER_MAPS, "TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).",
@@ -16699,7 +16701,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     // init saved position, and fix it later if problematic
     uint32 transGUID = uint32(fields[31].GetUInt32());
-    Relocate(fields[12].GetFloat(), fields[13].GetFloat(), fields[14].GetFloat(), fields[16].GetFloat());
+
+    // used orientation 0-2pi range. Check for safe.
+    float orientation = MapManager::NormalizeOrientation(fields[16].GetFloat());
+    Relocate(fields[12].GetFloat(), fields[13].GetFloat(), fields[14].GetFloat(), orientation);
+
     uint32 mapId = fields[15].GetUInt16();
     uint32 instanceId = fields[54].GetUInt32();
 
