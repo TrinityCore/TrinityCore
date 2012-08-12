@@ -570,8 +570,8 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES (64381, 64381);
 INSERT INTO `spell_group_stack_rules` (`group_id`, `stack_rule`) VALUES (64381, 1);
 
 -- CUSTOM
--- Superheated winds invisibility
-UPDATE creature_template SET modelid1 = 0 WHERE entry = 34194;
+-- Superheated winds, Razorscale controller and Razorscale Devouring Flame Stalker invisibility
+UPDATE creature_template SET modelid1 = 0 WHERE entry IN (34194, 34188, 34189, 33233);
 
 -- Magma Rager
 UPDATE creature_template SET AIName='SmartAI' WHERE entry IN (34086, 34085);
@@ -597,3 +597,16 @@ UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 33264;
 
 -- enlarging hitbox of bosses
 UPDATE creature_model_info SET bounding_radius = 1.085, combat_reach = 10.5 WHERE modelid IN (28787, 29185, 28611, 28324, 28344, 28381, 28651, 28777, 28548, 28817);
+
+-- adding weapons to Expedition Trappers and Expedition Engineers
+UPDATE creature_template SET equipment_id = 1762 WHERE entry = 34257;
+UPDATE creature_template SET equipment_id = 361 WHERE entry = 34256;
+
+-- updating Razorscale Controller positions and making them not selectable
+DELETE FROM creature WHERE guid BETWEEN 48304 AND 48310;
+INSERT INTO creature (guid, id, map, spawnMask, position_x, position_y, position_z) VALUES
+(48304, 33233, 603, 2, 560.133, -143.035, 393.823),
+(48306, 33233, 603, 3, 588.673, -136.835, 391.517),
+(48307, 33233, 603, 2, 603.931, -142.889, 391.517),
+(48308, 33233, 603, 3, 572.654, -139.375, 391.517);
+UPDATE creature_template SET unit_flags = unit_flags | 33554432 WHERE entry = 33233;
