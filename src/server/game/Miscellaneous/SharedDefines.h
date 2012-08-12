@@ -850,7 +850,12 @@ enum SpellEffects
     SPELL_EFFECT_175                                = 175,  // Unused (4.2.2)
     SPELL_EFFECT_176                                = 176,  // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,
-    TOTAL_SPELL_EFFECTS                             = 178,
+    SPELL_EFFECT_178                                = 178,
+    SPELL_EFFECT_179                                = 179,
+    SPELL_EFFECT_180                                = 180,
+    SPELL_EFFECT_181                                = 181,
+    SPELL_EFFECT_182                                = 182,
+    TOTAL_SPELL_EFFECTS                             = 183,
 };
 
 enum SpellCastResult
