@@ -219,8 +219,6 @@ public:
         }
 
         InstanceScript* instance;
-
-        Creature* pMemory;
         uint64 MemoryGUID;
 
         bool bHealth;
