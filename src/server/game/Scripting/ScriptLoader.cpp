@@ -334,7 +334,6 @@ void AddSC_ashenvale();
 void AddSC_azshara();
 void AddSC_azuremyst_isle();
 void AddSC_bloodmyst_isle();
-void AddSC_boss_azuregos();
 void AddSC_darkshore();
 void AddSC_desolace();
 void AddSC_durotar();
@@ -959,7 +958,6 @@ void AddKalimdorScripts()
     AddSC_azshara();
     AddSC_azuremyst_isle();
     AddSC_bloodmyst_isle();
-    AddSC_boss_azuregos();
     AddSC_darkshore();
     AddSC_desolace();
     AddSC_durotar();

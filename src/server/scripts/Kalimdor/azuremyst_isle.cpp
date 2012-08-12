@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Azuremyst_Isle
 SD%Complete: 75
-SDComment: Quest support: 9283, 9537, 9582, 9554, 9531, ? (special flight path, proper model for mount missing). Injured Draenei cosmetic only, 9582.
+SDComment: Quest support: 9283, 9537, 9582, 9554, ? (special flight path, proper model for mount missing). Injured Draenei cosmetic only, 9582.
 SDCategory: Azuremyst Isle
 EndScriptData */
 
@@ -28,7 +28,6 @@ npc_draenei_survivor
 npc_engineer_spark_overgrind
 npc_injured_draenei
 npc_magwin
-npc_geezle
 go_ravager_cage
 npc_death_ravager
 EndContentData */
@@ -407,166 +406,6 @@ public:
 
 };
 
-/*######
-## npc_geezle
-######*/
-
-enum Geezle
-{
-    QUEST_TREES_COMPANY = 9531,
-
-    SPELL_TREE_DISGUISE = 30298,
-
-    GEEZLE_SAY_1    = -1000629,
-    SPARK_SAY_2     = -1000630,
-    SPARK_SAY_3     = -1000631,
-    GEEZLE_SAY_4    = -1000632,
-    SPARK_SAY_5     = -1000633,
-    SPARK_SAY_6     = -1000634,
-    GEEZLE_SAY_7    = -1000635,
-
-    EMOTE_SPARK     = -1000636,
-
-    MOB_SPARK       = 17243,
-    GO_NAGA_FLAG    = 181694
-};
-
-Position const SparkPos = {-5029.91f, -11291.79f, 8.096f, 0.0f};
-
-class npc_geezle : public CreatureScript
-{
-public:
-    npc_geezle() : CreatureScript("npc_geezle") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_geezleAI(creature);
-    }
-
-    struct npc_geezleAI : public ScriptedAI
-    {
-        npc_geezleAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint64 SparkGUID;
-
-        uint8 Step;
-        uint32 SayTimer;
-
-        bool EventStarted;
-
-        void Reset()
-        {
-            SparkGUID = 0;
-            Step = 0;
-            StartEvent();
-        }
-
-        void EnterCombat(Unit* /*who*/){}
-
-        void StartEvent()
-        {
-            Step = 0;
-            EventStarted = true;
-            if (Creature* Spark = me->SummonCreature(MOB_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
-            {
-                SparkGUID = Spark->GetGUID();
-                Spark->setActive(true);
-                Spark->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            }
-            SayTimer = 8000;
-        }
-
-        uint32 NextStep(uint8 Step)
-        {
-            Creature* Spark = Unit::GetCreature(*me, SparkGUID);
-
-            switch (Step)
-            {
-                case 0:
-                    if (Spark)
-                        Spark->GetMotionMaster()->MovePoint(0, -5080.70f, -11253.61f, 0.56f);
-                    me->GetMotionMaster()->MovePoint(0, -5092.26f, -11252, 0.71f);
-                    return 9000; // NPCs are walking up to fire
-                case 1:
-                    DespawnNagaFlag(true);
-                    DoScriptText(EMOTE_SPARK, Spark);
-                    return 1000;
-                case 2:
-                    DoScriptText(GEEZLE_SAY_1, me, Spark);
-                    if (Spark)
-                    {
-                        Spark->SetInFront(me);
-                        me->SetInFront(Spark);
-                    }
-                    return 5000;
-                case 3: DoScriptText(SPARK_SAY_2, Spark); return 7000;
-                case 4: DoScriptText(SPARK_SAY_3, Spark); return 8000;
-                case 5: DoScriptText(GEEZLE_SAY_4, me, Spark); return 8000;
-                case 6: DoScriptText(SPARK_SAY_5, Spark); return 9000;
-                case 7: DoScriptText(SPARK_SAY_6, Spark); return 8000;
-                case 8: DoScriptText(GEEZLE_SAY_7, me, Spark); return 2000;
-                case 9:
-                    me->GetMotionMaster()->MoveTargetedHome();
-                    if (Spark)
-                        Spark->GetMotionMaster()->MovePoint(0, SparkPos);
-                    CompleteQuest();
-                    return 9000;
-                case 10:
-                    if (Spark)
-                        Spark->DisappearAndDie();
-                    DespawnNagaFlag(false);
-                    me->DisappearAndDie();
-                default: return 99999999;
-            }
-        }
-
-        // will complete Tree's company quest for all nearby players that are disguised as trees
-        void CompleteQuest()
-        {
-            float radius = 50.0f;
-            std::list<Player*> players;
-            Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
-            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            me->VisitNearbyWorldObject(radius, searcher);
-
-            for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))
-                    (*itr)->KilledMonsterCredit(MOB_SPARK, 0);
-        }
-
-        void DespawnNagaFlag(bool despawn)
-        {
-            std::list<GameObject*> FlagList;
-            me->GetGameObjectListWithEntryInGrid(FlagList, GO_NAGA_FLAG, 100.0f);
-
-            if (!FlagList.empty())
-            {
-                for (std::list<GameObject*>::const_iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
-                {
-                    if (despawn)
-                        (*itr)->SetLootState(GO_JUST_DEACTIVATED);
-                    else
-                        (*itr)->Respawn();
-                }
-            }
-            else
-                sLog->outError(LOG_FILTER_TSCR, "SD2 ERROR: FlagList is empty!");
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (SayTimer <= diff)
-            {
-                if (EventStarted)
-                    SayTimer = NextStep(Step++);
-            }
-            else
-                SayTimer -= diff;
-        }
-    };
-
-};
-
 enum RavegerCage
 {
     NPC_DEATH_RAVAGER       = 17556,
@@ -762,7 +601,6 @@ void AddSC_azuremyst_isle()
     new npc_engineer_spark_overgrind();
     new npc_injured_draenei();
     new npc_magwin();
-    new npc_geezle();
     new npc_death_ravager();
     new go_ravager_cage();
     new npc_stillpine_capitive();
