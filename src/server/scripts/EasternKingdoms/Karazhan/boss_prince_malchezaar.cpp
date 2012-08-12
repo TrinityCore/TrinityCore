@@ -187,6 +187,7 @@ public:
         boss_malchezaarAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            memset(axes, 0, sizeof(axes));
         }
 
         InstanceScript* instance;
@@ -218,7 +219,10 @@ public:
             positions.clear();
 
             for (uint8 i = 0; i < 5; ++i)
+            {
                 enfeeble_targets[i] = 0;
+                enfeeble_health[i] = 0;
+            }
 
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
