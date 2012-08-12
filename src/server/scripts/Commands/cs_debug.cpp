@@ -948,8 +948,19 @@ public:
         if (!*args)
             return false;
 
+        char* m = strtok((char*)args, " ");
+        char* p = strtok(NULL, " ");
+        char* t = strtok(NULL, " ");
+
+        if (!m || !p || !t)
+            return false;
+
+        uint16 phaseID = (uint32)atoi(p);
+        uint16 mapID = (uint32)atoi(m);
+        uint16 terrainSwap = (uint32)atoi(t);
+
         uint32 PhaseShift = atoi(args);
-        handler->GetSession()->SendSetPhaseShift(PhaseShift);
+        handler->GetSession()->SendSetPhaseShift(phaseID, mapID, terrainSwap);
         return true;
     }
 
