@@ -610,3 +610,6 @@ INSERT INTO creature (guid, id, map, spawnMask, position_x, position_y, position
 (48307, 33233, 603, 2, 603.931, -142.889, 391.517),
 (48308, 33233, 603, 3, 572.654, -139.375, 391.517);
 UPDATE creature_template SET unit_flags = unit_flags | 33554432 WHERE entry = 33233;
+
+-- small Emote to Say correction
+UPDATE script_texts SET type = 3 WHERE entry = -1603266;

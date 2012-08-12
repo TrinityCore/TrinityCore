@@ -30,7 +30,7 @@ enum Says
     SAY_AGGRO_2                                  = -1603263,
     SAY_AGGRO_3                                  = -1603264,
     SAY_TURRETS                                  = -1603265,
-    EMOTE_HARPOON                                = -1603266,
+    SAY_HARPOON                                  = -1603266,
     EMOTE_BREATH                                 = -1603267,
     EMOTE_PERMA                                  = -1603268,
 };
@@ -241,10 +241,10 @@ class boss_razorscale_controller : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
+                    DoScriptText(SAY_HARPOON, me);
                     switch (eventId)
                     {
                         case EVENT_BUILD_HARPOON_1:
-                            DoScriptText(EMOTE_HARPOON, me);
                             if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, 0.0f, 0.0f, 0.0f, 0.0f, uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f)) //only nearest broken harpoon
@@ -254,7 +254,6 @@ class boss_razorscale_controller : public CreatureScript
                             }
                             return;
                         case EVENT_BUILD_HARPOON_2:
-                            DoScriptText(EMOTE_HARPOON, me);
                             if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, 0, 0, 0, 0, uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
@@ -263,7 +262,6 @@ class boss_razorscale_controller : public CreatureScript
                             }
                             return;
                         case EVENT_BUILD_HARPOON_3:
-                            DoScriptText(EMOTE_HARPOON, me);
                             if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, 0, 0, 0, 0, uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
@@ -273,7 +271,6 @@ class boss_razorscale_controller : public CreatureScript
                             }
                             return;
                         case EVENT_BUILD_HARPOON_4:
-                            DoScriptText(EMOTE_HARPOON, me);
                             if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, 0, 0, 0, 0, uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
