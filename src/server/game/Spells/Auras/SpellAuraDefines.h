@@ -422,7 +422,15 @@ enum AuraType
     SPELL_AURA_360                                          = 360,
     SPELL_AURA_361                                          = 361,
     SPELL_AURA_362                                          = 362,
-    TOTAL_AURAS                                             = 363   // 4.2.2
+    SPELL_AURA_363                                          = 363,
+    SPELL_AURA_364                                          = 364,
+    SPELL_AURA_365                                          = 365,
+    SPELL_AURA_366                                          = 366,
+    SPELL_AURA_367                                          = 367,
+    SPELL_AURA_368                                          = 368,
+    SPELL_AURA_369                                          = 369,
+    SPELL_AURA_370                                          = 370,
+    TOTAL_AURAS                                             = 371   // 4.3.4
 };
 
 enum AuraObjectType
