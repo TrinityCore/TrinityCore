@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,6 +19,10 @@
 
 #ifndef TRINITYSERVER_PACKET_BUILDER_H
 #define TRINITYSERVER_PACKET_BUILDER_H
+
+#include "Define.h" // for uint32
+#include "G3D/Vector3.h"
+using G3D::Vector3;
 
 class ByteBuffer;
 class WorldPacket;
