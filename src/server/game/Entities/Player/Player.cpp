@@ -17059,7 +17059,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // set value, including drunk invisibility detection
     // calculate sobering. after 15 minutes logged out, the player will be sober again
     uint8 newDrunkValue = 0;
-    if (time_diff < GetDrunkValue() * 9)
+    if (time_diff < uint32(GetDrunkValue()) * 9)
         newDrunkValue = GetDrunkValue() - time_diff / 9;
 
     SetDrunkValue(newDrunkValue);
