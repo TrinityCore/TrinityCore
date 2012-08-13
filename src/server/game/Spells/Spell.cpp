@@ -3368,7 +3368,7 @@ void Spell::handle_immediate()
     // Remove used for cast item if need (it can be already NULL after TakeReagents call
     TakeCastItem();
 
-    // handle ammo consumption for Hunter's volley spell
+    // handle ammo consumption for thrown weapons
     if (m_spellInfo->IsRangedWeaponSpell() && m_spellInfo->IsChanneled())
         TakeAmmo();
 
@@ -4430,8 +4430,7 @@ void Spell::TakeAmmo()
             else
             {
                 // decrease items amount for stackable throw weapon
-                uint32 count = 1;
-                m_caster->ToPlayer()->DestroyItemCount(pItem, count, true);
+                m_caster->ToPlayer()->DestroyItemCount(pItem, 1, true);
             }
         }
     }
