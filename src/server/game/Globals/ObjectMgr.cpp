@@ -3550,6 +3550,12 @@ void ObjectMgr::LoadQuests()
             }
         }
 
+        if (qinfo->MinLevel == uint32(-1))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Quest %u should be disabled because `MinLevel` = -1", qinfo->GetQuestId());
+            // no changes needed, sending -1 in SMSG_QUEST_QUERY_RESPONSE is valid
+        }
+
         // client quest log visual (area case)
         if (qinfo->ZoneOrSort > 0)
         {
