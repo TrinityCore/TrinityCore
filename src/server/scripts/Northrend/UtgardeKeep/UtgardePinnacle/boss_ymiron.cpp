@@ -121,6 +121,9 @@ public:
                 m_uiActiveOrder[i] = m_uiActiveOrder[r];
                 m_uiActiveOrder[r] = temp;
             }
+
+            m_uiActivedCreatureGUID = 0;
+            m_uiOrbGUID = 0;
         }
 
         bool m_bIsWalking;
