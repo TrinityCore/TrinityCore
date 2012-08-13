@@ -418,8 +418,13 @@ enum UnitMods
     UNIT_MOD_RAGE,
     UNIT_MOD_FOCUS,
     UNIT_MOD_ENERGY,
+    UNIT_MOD_UNUSED,                                        // Old UNIT_MOD_HAPPINESS
     UNIT_MOD_RUNE,
     UNIT_MOD_RUNIC_POWER,
+    UNIT_MOD_SOUL_SHARDS,
+    UNIT_MOD_ECLIPSE,
+    UNIT_MOD_HOLY_POWER,
+    UNIT_MOD_ALTERNATIVE,
     UNIT_MOD_ARMOR,                                         // UNIT_MOD_ARMOR..UNIT_MOD_RESISTANCE_ARCANE must be in existed order, it's accessed by index values of SpellSchools enum.
     UNIT_MOD_RESISTANCE_HOLY,
     UNIT_MOD_RESISTANCE_FIRE,
@@ -439,7 +444,7 @@ enum UnitMods
     UNIT_MOD_RESISTANCE_START = UNIT_MOD_ARMOR,
     UNIT_MOD_RESISTANCE_END = UNIT_MOD_RESISTANCE_ARCANE + 1,
     UNIT_MOD_POWER_START = UNIT_MOD_MANA,
-    UNIT_MOD_POWER_END = UNIT_MOD_RUNIC_POWER + 1
+    UNIT_MOD_POWER_END = UNIT_MOD_ALTERNATIVE + 1
 };
 
 enum BaseModGroup
