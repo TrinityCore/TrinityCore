@@ -104,6 +104,7 @@ public:
                 if (me->GetEntry() == MOB_HORSEMEN[i])
                     id = Horsemen(i);
             caster = (id == HORSEMEN_LADY || id == HORSEMEN_SIR);
+            encounterActionReset = false;
         }
 
         Horsemen id;
