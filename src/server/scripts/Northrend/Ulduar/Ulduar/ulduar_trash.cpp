@@ -36,8 +36,6 @@ UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_natures_blade' WHE
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_guardian_of_life' WHERE `entry`=33528; 
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_storm_tempered_keeper' WHERE `entry` IN (33699, 33722); 
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_charged_sphere' WHERE `entry`=33715;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_dark_rune_thunderer' WHERE `entry`=33754; 
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_dark_rune_ravager' WHERE `entry`=33755; 
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_faceless_horror' WHERE `entry`=33772; 
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_adherent' WHERE `entry`=33818; 
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_frost_mage' WHERE `entry`=33819;  
@@ -631,121 +629,6 @@ class npc_charged_sphere : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_charged_sphereAI(creature);
-        }
-};
-
-/************************************************************************/
-/*                      Inner Sanctuary - Thorim                        */
-/************************************************************************/
-
-class npc_dark_rune_thunderer : public CreatureScript
-{
-    private:
-        enum MyEvents
-        {
-            EVENT_LIGHTNING_BRAND = 1
-        };
-        enum Spells
-        {
-            SPELL_LIGHTNING_BRAND_10 = 63612,
-            SPELL_LIGHTNING_BRAND_25 = 63673
-        };
-    public:
-        npc_dark_rune_thunderer () : CreatureScript("npc_dark_rune_thunderer") {}
-
-        struct npc_dark_rune_thundererAI: public ScriptedAI
-        {
-            npc_dark_rune_thundererAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                events.Reset();
-                events.ScheduleEvent(EVENT_LIGHTNING_BRAND, 3*IN_MILLISECONDS);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 event = events.ExecuteEvent())
-                {
-                    switch (event)
-                    {
-                        case EVENT_LIGHTNING_BRAND:
-                            DoCastVictim( RAID_MODE(SPELL_LIGHTNING_BRAND_10, SPELL_LIGHTNING_BRAND_25));
-                            events.ScheduleEvent(EVENT_LIGHTNING_BRAND, urand(2*IN_MILLISECONDS, 3*IN_MILLISECONDS));
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            private:
-                EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_dark_rune_thundererAI(creature);
-        }
-};
-
-class npc_dark_rune_ravager : public CreatureScript
-{
-    private:
-        enum MyEvents
-        {
-            EVENT_RAVAGE_ARMOR = 1
-        };
-        enum Spells
-        {
-            SPELL_RAVAGE_ARMOR = 63615,
-        };
-    public:
-        npc_dark_rune_ravager () : CreatureScript("npc_dark_rune_ravager") {}
-
-        struct npc_dark_rune_ravagerAI: public ScriptedAI
-        {
-            npc_dark_rune_ravagerAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                events.Reset();
-                events.ScheduleEvent(EVENT_RAVAGE_ARMOR, 2*IN_MILLISECONDS);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 event = events.ExecuteEvent())
-                {
-                    switch (event)
-                    {
-                    case EVENT_RAVAGE_ARMOR:
-                        DoCastVictim( SPELL_RAVAGE_ARMOR);
-                        events.ScheduleEvent(EVENT_RAVAGE_ARMOR, 2*IN_MILLISECONDS);
-                        break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            private:
-                EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_dark_rune_ravagerAI(creature);
         }
 };
 
@@ -2004,15 +1887,9 @@ void AddSC_ulduar_trash()
     new npc_molten_colossus();
     new npc_runeforged_sentry();
 
-    // OS
-
     // IS
     new npc_storm_tempered_keeper();
     new npc_charged_sphere();
-
-    // IS - Thorim
-    new npc_dark_rune_thunderer();
-    new npc_dark_rune_ravager();
 
     // IS - Vezax
     new npc_faceless_horror();
