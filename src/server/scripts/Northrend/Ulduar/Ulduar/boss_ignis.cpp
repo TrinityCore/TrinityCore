@@ -305,8 +305,7 @@ class boss_ignis : public CreatureScript
                         case EVENT_GRAB_POT:
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, slagPotGUID))
                             {
-                                slagPotTarget->EnterVehicle(me, 0);
-                                slagPotTarget->ClearUnitState(UNIT_STATE_ONVEHICLE);    // Hack, see LK - target should be healable
+                                slagPotTarget->EnterVehicle(me, 1);
                                 events.ScheduleEvent(EVENT_CHANGE_POT, 1000);
                             }
                             break;
