@@ -350,8 +350,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (Player* plrMover = mover->ToPlayer())
-        spellId = plrMover->GetSpellForCast(spellId);
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -379,6 +377,27 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             //cheater? kick? ban?
             recvPacket.rfinish(); // prevent spam at ignore packet
             return;
+        }
+    }
+
+    Unit::AuraEffectList swaps = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+    Unit::AuraEffectList const& swaps2 = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
+    if (!swaps2.empty())
+        swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
+
+    if (!swaps.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator itr = swaps.begin(); itr != swaps.end(); ++itr)
+        {
+            if ((*itr)->IsAffectingSpell(spellInfo))
+            {
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo((*itr)->GetAmount()))
+                {
+                    spellInfo = newInfo;
+                    spellId = newInfo->Id;
+                }
+                break;
+            }
         }
     }
 
