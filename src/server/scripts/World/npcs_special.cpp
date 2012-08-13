@@ -1297,7 +1297,7 @@ public:
             case GOSSIP_OPTION_LEARNDUALSPEC:
                 if (player->GetSpecsCount() == 1 && !(player->getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
                 {
-                    if (!player->HasEnoughMoney(UI64LIT(10000000)))
+                    if (!player->HasEnoughMoney(uint64(10000000)))
                     {
                         player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
                         player->PlayerTalkClass->SendCloseGossip();
@@ -1305,7 +1305,7 @@ public:
                     }
                     else
                     {
-                        player->ModifyMoney(SI64LIT(-10000000));
+                        player->ModifyMoney(int64(-10000000));
 
                         // Cast spells that teach dual spec
                         // Both are also ImplicitTarget self and must be cast by player

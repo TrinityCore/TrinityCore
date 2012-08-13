@@ -1529,7 +1529,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             itemTransmogrifier = player->GetItemByGuid(itemGuids[i]);
             if (!itemTransmogrifier)
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (guid: "UI64FMTD").", player->GetGUIDLow(), player->GetName(), itemGuids[i]);
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUIDLow(), player->GetName(), GUID_LOPART(itemGuids[i]));
                 return;
             }
         }
