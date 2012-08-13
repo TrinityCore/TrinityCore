@@ -572,18 +572,19 @@ INSERT INTO `spell_group_stack_rules` (`group_id`, `stack_rule`) VALUES (64381, 
 UPDATE creature_template SET modelid1 = 0 WHERE entry IN (34194, 34188, 34189, 33233);
 
 -- Magma Rager
-UPDATE creature_template SET AIName='SmartAI' WHERE entry IN (34086, 34085);
+UPDATE creature_template SET AIName='SmartAI' WHERE entry = 34086;
 DELETE FROM smart_scripts WHERE entryorguid = 34086;
 INSERT INTO smart_scripts (entryorguid, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, target_type, comment) VALUES 
-(34086, 31, 5000, 10000, 5000, 10000, 11, 5, 'Magma Rager - Cast Fire Blast');
+(34086, 6, 5000, 10000, 5000, 10000, 11, 5, 'Magma Rager - Cast Fire Blast');
 
 -- Forge Construct
+UPDATE creature_template SET AIName='SmartAI' WHERE entry = 34085;
 DELETE FROM smart_scripts WHERE entryorguid = 34085;
 INSERT INTO smart_scripts (entryorguid, event_type, event_flags, action_type, action_param1, target_type, comment) VALUES
-(34085, 4, 30, 11, 64719, 2, 'Forge Construct - Cast Charge');
+(34085, 4, 6, 11, 64719, 2, 'Forge Construct - Cast Charge');
 INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, target_type, comment) VALUES
-(34085, 1, 0, 7, 5000, 15000, 5000, 15000, 11, 64720, 2, 'Forge Construct - Cast Flame Emission'),
-(34085, 2, 0, 25, 5000, 15000, 5000, 15000, 11, 64720, 2, 'Forge Construct - Cast Flame Emission');
+(34085, 1, 0, 2, 5000, 15000, 5000, 15000, 11, 64720, 2, 'Forge Construct - Cast Flame Emission'),
+(34085, 2, 0, 4, 5000, 15000, 5000, 15000, 11, 64721, 2, 'Forge Construct - Cast Flame Emission');
 
 -- making some objects be spawned in all versions of Ulduar
 UPDATE gameobject SET spawnMask = 15 WHERE guid IN (35446, 35393, 35413, 35417, 55630, 34041, 54961, 54971, 55043, 55194, 35381, 35462, 42047, 42076, 42520, 42543, 42649, 42868, 42916, 42918, 42919, 42958, 43112, 43115, 44885, 45021, 45090, 45094, 45096, 45097, 45116, 4784597, 4784598,
@@ -684,8 +685,8 @@ INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param
 -- Dark Rune Ravager
 UPDATE creature_template SET ScriptName = '', AIName = 'SmartAI' WHERE entry = 33755;
 DELETE FROM smart_scripts WHERE entryorguid = 33755;
-INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, target_type, comment) VALUES
-(33755, 0, 0, 6, 2000, 2000, 2000, 2000, 11, 63615, 2, 'Dark Rune Ravager - Cast Ravage Armor');
+INSERT INTO smart_scripts (entryorguid, event_type, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, target_type, comment) VALUES
+(33755, 0, 6, 2000, 2000, 2000, 2000, 11, 63615, 2, 'Dark Rune Ravager - Cast Ravage Armor');
 
 -- Dark Rune Thunderer
 UPDATE creature_template SET ScriptName = '', AIName = 'SmartAI' WHERE entry = 33754;
@@ -705,8 +706,8 @@ INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param
 -- Clockwork Mechanic
 UPDATE creature_template SET AIName = 'SmartAI' WHERE entry = 34184;
 DELETE FROM smart_scripts WHERE entryorguid = 34184;
-INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, target_type, comment) VALUES
-(34184, 0, 2, 6, 0, 50, 20000, 30000, 11, 64966, 1, 'Clockwork Mechanic - Cast Ice Turret');
+INSERT INTO smart_scripts (entryorguid, event_type, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, target_type, comment) VALUES
+(34184, 2, 6, 0, 50, 20000, 30000, 11, 64966, 1, 'Clockwork Mechanic - Cast Ice Turret');
 
 -- Ice Turret (spawned by Clockwork Mechanics)
 UPDATE creature_template SET unit_flags = unit_flags | 4, AIName = 'SmartAI' WHERE entry = 34224;
@@ -728,8 +729,8 @@ INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param
 -- Winter Jormungar
 UPDATE creature_template SET AIName = 'SmartAI' WHERE entry = 34137;
 DELETE FROM smart_scripts WHERE entryorguid = 34137;
-INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, target_type, comment) VALUES
-(34137, 0, 0, 6, 5000, 10000, 5000, 10000, 11, 64638, 2, 'Winter Jormungar - Cast Acidic Bite');
+INSERT INTO smart_scripts (entryorguid, event_type, event_flags, event_param1, event_param2, event_param3, event_param4, action_type, action_param1, target_type, comment) VALUES
+(34137, 0, 6, 5000, 10000, 5000, 10000, 11, 64638, 2, 'Winter Jormungar - Cast Acidic Bite');
 
 -- Winter Revenant
 UPDATE creature_template SET AIName = 'SmartAI' WHERE entry = 34134;
