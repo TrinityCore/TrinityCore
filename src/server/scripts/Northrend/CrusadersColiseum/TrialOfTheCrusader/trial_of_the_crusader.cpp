@@ -803,7 +803,7 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 6005:
                             if (Creature* tirionFordring = Unit::GetCreature((*me), instance->GetData64(NPC_TIRION_FORDRING)))
-                                tirionFordring->AI()->Talk(NPC_TIRION_FORDRING);
+                                tirionFordring->AI()->Talk(SAY_STAGE_4_06);
                             m_uiUpdateTimer = 20000;
                             instance->SetData(TYPE_EVENT, 6010);
                             break;
