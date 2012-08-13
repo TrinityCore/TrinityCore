@@ -5556,6 +5556,19 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 69384;
                     break;
                 }
+                case 47020: // Enter vehicle XT-002 (Scrapbot)
+                {
+                    if (GetTypeId() != TYPEID_UNIT)
+                        return false;
+
+                    Unit* vehicleBase = GetVehicleBase();
+                    if (!vehicleBase)
+                        return false;
+
+                    // Todo: Check if this amount is blizzlike
+                    vehicleBase->ModifyHealth(int32(vehicleBase->CountPctFromMaxHealth(1)));
+                    break;
+                }
             }
             break;
         }
@@ -5607,7 +5620,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 break;
             }
 
-            // Hot Streak
+            // Hot Streak & Improved Hot Streak
             if (dummySpell->SpellIconID == 2999)
             {
                 if (effIndex != 0)
@@ -5615,12 +5628,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 AuraEffect* counter = triggeredByAura->GetBase()->GetEffect(EFFECT_1);
                 if (!counter)
                     return true;
-
+                
                 // Count spell criticals in a row in second aura
                 if (procEx & PROC_EX_CRITICAL_HIT)
                 {
                     counter->SetAmount(counter->GetAmount() * 2);
-                    if (counter->GetAmount() < 100) // not enough
+                    if (counter->GetAmount() < 100 && dummySpell->Id != 44445) // not enough or Hot Streak spell
                         return true;
                     // Crititcal counted -> roll chance
                     if (roll_chance_i(triggerAmount))
@@ -5628,20 +5641,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 counter->SetAmount(25);
                 return true;
-            }
-            // Burnout
-            if (dummySpell->SpellIconID == 2998)
-            {
-                if (!procSpell)
-                    return false;
-
-                int32 cost = int32(procSpell->ManaCost + CalculatePctU(GetCreateMana(), procSpell->ManaCostPercentage));
-                basepoints0 = CalculatePctN(cost, triggerAmount);
-                if (basepoints0 <= 0)
-                    return false;
-                triggered_spell_id = 44450;
-                target = this;
-                break;
             }
             // Incanter's Regalia set (add trigger chance to Mana Shield)
             if (dummySpell->SpellFamilyFlags[0] & 0x8000)
@@ -5676,21 +5675,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 11119:
                 case 11120:
                 case 12846:
-                case 12847:
-                case 12848:
                 {
-                    switch (dummySpell->Id)
-                    {
-                        case 11119: basepoints0 = int32(0.04f * damage); break;
-                        case 11120: basepoints0 = int32(0.08f * damage); break;
-                        case 12846: basepoints0 = int32(0.12f * damage); break;
-                        case 12847: basepoints0 = int32(0.16f * damage); break;
-                        case 12848: basepoints0 = int32(0.20f * damage); break;
-                        default:
-                            sLog->outError(LOG_FILTER_UNITS, "Unit::HandleDummyAuraProc: non handled spell id: %u (IG)", dummySpell->Id);
-                            return false;
-                    }
-
+                    basepoints0 = CalculatePctN(damage, triggerAmount);
                     triggered_spell_id = 12654;
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     break;
@@ -5733,19 +5719,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 64413;
                     break;
                 }
-                case 47020: // Enter vehicle XT-002 (Scrapbot)
-                {
-                    if (GetTypeId() != TYPEID_UNIT)
-                        return false;
-
-                    Unit* vehicleBase = GetVehicleBase();
-                    if (!vehicleBase)
-                        return false;
-
-                    // Todo: Check if this amount is blizzlike
-                    vehicleBase->ModifyHealth(int32(vehicleBase->CountPctFromMaxHealth(1)));
-                    break;
-                }
             }
             break;
         }
@@ -5768,14 +5741,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     RemoveAura(dummySpell->Id);
                     return false;
-                }
-                // Improved Spell Reflection
-                case 59088:
-                case 59089:
-                {
-                    triggered_spell_id = 59725;
-                    target = this;
-                    break;
                 }
             }
 
@@ -5810,12 +5775,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
 
                 target = this;
-                break;
-            }
-            // Glyph of Blocking
-            if (dummySpell->Id == 58375)
-            {
-                triggered_spell_id = 58374;
                 break;
             }
             // Glyph of Sunder Armor
@@ -5894,19 +5853,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
-                // Siphon Life
-                case 63108:
-                {
-                    if (!damage)
-                        break;
-                    // Glyph of Siphon Life
-                    if (HasAura(56216))
-                        triggerAmount += triggerAmount / 4;
-                    triggered_spell_id = 63106;
-                    target = this;
-                    basepoints0 = CalculatePctN(int32(damage), triggerAmount);
-                    break;
-                }
                 // Glyph of Shadowflame
                 case 63310:
                 {
@@ -5926,41 +5872,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Soul Leech
                 case 30293:
                 case 30295:
-                case 30296:
                 {
-                    // Improved Soul Leech
-                    AuraEffectList const& SoulLeechAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-                    for (Unit::AuraEffectList::const_iterator i = SoulLeechAuras.begin(); i != SoulLeechAuras.end(); ++i)
-                    {
-                        if ((*i)->GetId() == 54117 || (*i)->GetId() == 54118)
-                        {
-                            if ((*i)->GetEffIndex() != 0)
-                                continue;
-                            basepoints0 = int32((*i)->GetAmount());
-                            target = GetGuardianPet();
-                            if (target)
-                            {
-                                // regen mana for pet
-                                CastCustomSpell(target, 54607, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
-                            }
-                            // regen mana for caster
-                            CastCustomSpell(this, 59117, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
-                            // Get second aura of spell for replenishment effect on party
-                            if (AuraEffect const* aurEff = (*i)->GetBase()->GetEffect(EFFECT_1))
-                            {
-                                // Replenishment - roll chance
-                                if (roll_chance_i(aurEff->GetAmount()))
-                                {
-                                    CastSpell(this, 57669, true, castItem, triggeredByAura);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    // health
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount);
                     target = this;
                     triggered_spell_id = 30294;
+                    // Replenishment
+                    CastSpell(this, 57669, true, castItem, triggeredByAura);
                     break;
                 }
                 // Shadowflame (Voidheart Raiment set bonus)
@@ -6015,7 +5932,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (triggeredByAura->GetCasterGUID() != victim->GetGUID())
                     return false;
 
-                // Energize 0.25% of max. mana
+                // Energize 1% of max. mana
                 victim->CastSpell(victim, 57669, true, castItem, triggeredByAura);
                 return true;                                // no hidden cooldown
             }
@@ -6040,8 +5957,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Body and Soul
             if (dummySpell->SpellIconID == 2218)
             {
-                // Proc only from Abolish desease on self cast
-                if (procSpell->Id != 552 || victim != this || !roll_chance_i(triggerAmount))
+                // Proc only from Cure Disease on self cast
+                if (procSpell->Id != 528 || victim != this || !roll_chance_i(triggerAmount))
                     return false;
                 triggered_spell_id = 64136;
                 target = this;
@@ -6056,9 +5973,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     // heal amount
-                    int32 total = CalculatePctN(int32(damage), triggerAmount);
-                    int32 team = total / 5;
-                    int32 self = total - team;
+                    int32 self = CalculatePctN(int32(damage), triggerAmount);
+                    int32 team = CalculatePctN(int32(damage), triggerAmount / 2);
                     CastCustomSpell(this, 15290, &team, &self, NULL, true, castItem, triggeredByAura);
                     return true;                                // no hidden cooldown
                 }
@@ -6086,25 +6002,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!GoPoH)
                         return false;
 
-                    int EffIndex = 0;
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
-                    {
-                        if (GoPoH->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
-                        {
-                            EffIndex = i;
-                            break;
-                        }
-                    }
-                    int32 tickcount = GoPoH->GetMaxDuration() / GoPoH->Effects[EffIndex].Amplitude;
-                    if (!tickcount)
-                        return false;
-
+                    int32 tickcount = GoPoH->GetMaxDuration() / GoPoH->Effects[EFFECT_0].Amplitude;
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount) / tickcount;
                     break;
                 }
-                // Improved Shadowform
-                case 47570:
+                // Phantasm
                 case 47569:
+                case 47570:
                 {
                     if (!roll_chance_i(triggerAmount))
                         return false;
@@ -6115,9 +6019,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Glyph of Dispel Magic
                 case 55677:
                 {
-                    // Dispel Magic shares spellfamilyflag with abolish disease
-                    if (procSpell->SpellIconID != 74)
-                        return false;
                     if (!target || !target->IsFriendlyTo(this))
                         return false;
 
@@ -6177,8 +6078,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (procSpell->SpellIconID != 62)
                         return false;
 
-                    int32 mana_perc = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcValue();
-                    basepoints0 = int32(CalculatePctN(GetCreatePowers(POWER_MANA), mana_perc) / 10);
+                    basepoints0 = int32(CalculatePctN(GetCreatePowers(POWER_MANA), triggerAmount) / 10);
                     triggered_spell_id = 54833;
                     target = this;
                     break;
@@ -6189,7 +6089,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 54846;
                     break;
                 }
-                // Glyph of Shred
+                // Glyph of Bloodletting
                 case 54815:
                 {
                     if (!target)
@@ -6198,15 +6098,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // try to find spell Rip on the target
                     if (AuraEffect const* AurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00800000, 0x0, 0x0, GetGUID()))
                     {
-                        // Rip's max duration, note: spells which modifies Rip's duration also counted like Glyph of Rip
+                        // Rip's max duration, note: spells which modifies Rip's duration also counted
                         uint32 CountMin = AurEff->GetBase()->GetMaxDuration();
 
                         // just Rip's max duration without other spells
                         uint32 CountMax = AurEff->GetSpellInfo()->GetMaxDuration();
 
                         // add possible auras' and Glyph of Shred's max duration
-                        CountMax += 3 * triggerAmount * IN_MILLISECONDS;      // Glyph of Shred               -> +6 seconds
-                        CountMax += HasAura(54818) ? 4 * IN_MILLISECONDS : 0; // Glyph of Rip                 -> +4 seconds
+                        CountMax += 3 * triggerAmount * IN_MILLISECONDS;      // Glyph of Bloodletting        -> +6 seconds
                         CountMax += HasAura(60141) ? 4 * IN_MILLISECONDS : 0; // Rip Duration/Lacerate Damage -> +4 seconds
 
                         // if min < max -> that means caster didn't cast 3 shred yet
@@ -6221,19 +6120,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // if not found Rip
                     return false;
                 }
-                // Glyph of Rake
-                case 54821:
-                {
-                    if (procSpell->SpellVisual[0] == 750 && procSpell->Effects[1].ApplyAuraName == 3)
-                    {
-                        if (target && target->GetTypeId() == TYPEID_UNIT)
-                        {
-                            triggered_spell_id = 54820;
-                            break;
-                        }
-                    }
-                    return false;
-                }
                 // Leader of the Pack
                 case 24932:
                 {
@@ -6242,13 +6128,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
                     target = this;
                     triggered_spell_id = 34299;
-                    if (triggeredByAura->GetCasterGUID() != GetGUID())
-                        break;
-                    int32 basepoints1 = triggerAmount * 2;
-                    // Improved Leader of the Pack
-                    // Check cooldown of heal spell cooldown
-                    if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->HasSpellCooldown(34299))
-                        CastCustomSpell(this, 60889, &basepoints1, 0, 0, true, 0, triggeredByAura);
+                    // Regenerate 4% mana
+                    int32 mana = CalculatePctN(GetCreateMana(), triggerAmount);
+                    CastCustomSpell(this, 68285, &mana, NULL, NULL, true, castItem, triggeredByAura);
                     break;
                 }
                 // Healing Touch (Dreamwalker Raiment set)
@@ -6258,15 +6140,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     basepoints0 = int32(CalculatePctN(procSpell->ManaCost, 30));
                     target = this;
                     triggered_spell_id = 28742;
-                    break;
-                }
-                // Glyph of Rejuvenation
-                case 54754:
-                {
-                    if (!victim || !victim->HealthBelowPct(uint32(triggerAmount)))
-                        return false;
-                    basepoints0 = CalculatePctN(int32(damage), triggerAmount);
-                    triggered_spell_id = 54755;
                     break;
                 }
                 // Healing Touch Refund (Idol of Longevity trinket)
