@@ -30,7 +30,7 @@ enum LogFilterType
     LOG_FILTER_PETS,
     LOG_FILTER_VEHICLES,
     LOG_FILTER_TSCR,                                       // C++ AI, instance scripts, etc.
-    LOG_FILTER_DATABASE_AI,                                // SmartAI, EventAI, Creature* * AI
+    LOG_FILTER_DATABASE_AI,                                // SmartAI, Creature* * AI
     LOG_FILTER_MAPSCRIPTS,
     LOG_FILTER_NETWORKIO,
     LOG_FILTER_SPELLS_AURAS,

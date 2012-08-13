@@ -28,7 +28,7 @@
 #include "Spell.h"
 
 // Checks if object meets the condition
-// Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
+// Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: SmartAI)
 bool Condition::Meets(ConditionSourceInfo& sourceInfo)
 {
     ASSERT(ConditionTarget < MAX_CONDITION_TARGETS);
