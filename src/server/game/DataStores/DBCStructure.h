@@ -1425,7 +1425,7 @@ struct MapEntry
     uint32  addon;                                          // 16       m_expansionID
     uint32 unk_time;                                        // 17       m_raidOffset
     //uint32 maxPlayers;                                    // 18       m_maxPlayers
-    //uint32 unk400;                                        // 19 new 4.0.0, mapid, related to phasing
+    int32 rootPhaseMap;                                     // 19 new 4.0.0, mapid, related to phasing
 
     // Helpers
     uint32 Expansion() const { return addon; }

@@ -882,6 +882,10 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
     return mapid;
 }
 
+/*
+Used only for calculate xp gain by content lvl.
+Calculation on Gilneas and group maps of LostIslands calculated as CONTENT_1_60.
+*/
 ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
 {
     mapid = GetVirtualMapForMapAndZone(mapid, zoneId);
@@ -892,7 +896,18 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
     if (!mapEntry)
         return CONTENT_1_60;
 
-    return ContentLevels(mapEntry->Expansion());
+    // no need enum all maps from phasing
+    if (mapEntry->rootPhaseMap >= 0)
+        mapid = mapEntry->rootPhaseMap;
+
+    switch (mapid)
+    {
+        case 648:   //LostIslands
+        case 654:   //Gilneas
+            return CONTENT_1_60;
+        default:
+            return ContentLevels(mapEntry->Expansion());
+    }
 }
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
