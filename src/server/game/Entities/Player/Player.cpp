@@ -10499,31 +10499,6 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
     return EQUIP_ERR_OK;
 }
 
-bool Player::HasItemTotemCategory(uint32 TotemCategory) const
-{
-    Item* pItem;
-    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-    {
-        pItem = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (pItem && IsTotemCategoryCompatiableWith(pItem->GetTemplate()->TotemCategory, TotemCategory))
-            return true;
-    }
-
-    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-    {
-        if (Bag* pBag = GetBagByPos(i))
-        {
-            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
-            {
-                pItem = GetUseableItemByPos(i, j);
-                if (pItem && IsTotemCategoryCompatiableWith(pItem->GetTemplate()->TotemCategory, TotemCategory))
-                    return true;
-            }
-        }
-    }
-    return false;
-}
-
 InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec &dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const
 {
     Item* pItem2 = GetItemByPos(bag, slot);
