@@ -4430,7 +4430,7 @@ void Spell::TakeAmmo()
             else
             {
                 // decrease items amount for stackable throw weapon
-                m_caster->ToPlayer()->DestroyItemCount(pItem, 1, true);
+				m_caster->ToPlayer()->DestroyItemCount(pItem->GetTemplate()->ItemId, 1, true);
             }
         }
     }
