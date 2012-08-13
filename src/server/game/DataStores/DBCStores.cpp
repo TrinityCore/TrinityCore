@@ -897,7 +897,7 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
         return CONTENT_1_60;
 
     // no need enum all maps from phasing
-    if(mapEntry->rootPhaseMap >= 0)
+    if (mapEntry->rootPhaseMap >= 0)
         mapid = mapEntry->rootPhaseMap;
 
     switch(mapid)
