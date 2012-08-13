@@ -4039,23 +4039,21 @@ void ObjectMgr::LoadQuests()
 
         for (uint8 j = 0; j < QUEST_REWARD_CURRENCY_COUNT; ++j)
         {
-            uint32 currency = qinfo->RewardCurrencyId[j];
-            if (currency)
+            if (qinfo->RewardCurrencyId[j])
             {
                 if (qinfo->RewardCurrencyCount[j] == 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardCurrencyId%d` = %u but `RewardCurrencyCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, currency, j+1);
+                        qinfo->GetQuestId(), j+1, qinfo->RewardCurrencyId[j], j+1);
                     // no changes, quest can't be done for this requirement
                 }
 
-                /* TODO: Re-enable once currency dbc getters are implemented
-                if (!sObjectMgr->GetCurrency(currency))
+                if (!sCurrencyTypesStore.LookupEntry(qinfo->RewardCurrencyId[j]))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardCurrencyId%d` = %u but currency with entry %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, currency, currency);
+                        qinfo->GetQuestId(), j+1, qinfo->RewardCurrencyId[j], qinfo->RewardCurrencyId[j]);
                     qinfo->RewardCurrencyCount[j] = 0;             // prevent incorrect work of quest
-                }*/
+                }
             }
             else if (qinfo->RewardCurrencyCount[j] > 0)
             {
@@ -4067,23 +4065,21 @@ void ObjectMgr::LoadQuests()
 
         for (uint8 j = 0; j < QUEST_REQUIRED_CURRENCY_COUNT; ++j)
         {
-            uint32 currency = qinfo->RequiredCurrencyId[j];
-            if (currency)
+            if (qinfo->RequiredCurrencyId[j])
             {
                 if (qinfo->RequiredCurrencyCount[j] == 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredCurrencyId%d` = %u but `RequiredCurrencyCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, currency, j+1);
+                        qinfo->GetQuestId(), j+1, qinfo->RequiredCurrencyId[j], j+1);
                     // no changes, quest can't be done for this requirement
                 }
 
-                /* TODO: Re-enable once currency dbc getters are implemented
-                if (!sObjectMgr->GetCurrency(currency))
+                if (!sCurrencyTypesStore.LookupEntry(qinfo->RequiredCurrencyId[j]))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredCurrencyId%d` = %u but currency with entry %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, currency, currency);
+                        qinfo->GetQuestId(), j+1, qinfo->RequiredCurrencyId[j], qinfo->RequiredCurrencyId[j]);
                     qinfo->RequiredCurrencyCount[j] = 0;             // prevent incorrect work of quest
-                }*/
+                }
             }
             else if (qinfo->RequiredCurrencyCount[j] > 0)
             {
