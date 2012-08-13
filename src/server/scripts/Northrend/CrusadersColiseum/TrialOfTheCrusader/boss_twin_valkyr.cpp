@@ -40,17 +40,15 @@ EndScriptData */
 
 enum Yells
 {
-    SAY_AGGRO           = -1649040,
-    SAY_DEATH           = -1649041,
-    SAY_BERSERK         = -1649042,
-    EMOTE_SHIELD        = -1649043,
-    SAY_SHIELD          = -1649044,
-    SAY_KILL1           = -1649045,
-    SAY_KILL2           = -1649046,
-    EMOTE_LIGHT_VORTEX  = -1649047,
-    SAY_LIGHT_VORTEX    = -1649048,
-    EMOTE_DARK_VORTEX   = -1649049,
-    SAY_DARK_VORTEX     = -1649050,
+    SAY_AGGRO               = 0,
+    SAY_NIGHT               = 1,
+    SAY_LIGHT               = 2,
+    EMOTE_VORTEX            = 3,
+    EMOTE_TWINK_PACT        = 4,
+    SAY_TWINK_PACT          = 5,
+    SAY_KILL_PLAYER         = 6,
+    SAY_BERSERK             = 7,
+    SAY_DEATH               = 8,
 };
 
 enum Equipment
@@ -167,7 +165,6 @@ struct boss_twin_baseAI : public ScriptedAI
     uint32 m_uiTouchTimer;
     uint32 m_uiBerserkTimer;
 
-    int32 m_uiVortexSay;
     int32 m_uiVortexEmote;
     uint32 m_uiSisterNpcId;
     uint32 m_uiMyEmphatySpellId;
@@ -179,7 +176,8 @@ struct boss_twin_baseAI : public ScriptedAI
     uint32 m_uiSpikeSpellId;
     uint32 m_uiTouchSpellId;
 
-    void Reset() {
+    void Reset()
+    {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->ModifyAuraState(m_uiAuraState, true);
@@ -224,7 +222,7 @@ struct boss_twin_baseAI : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
+            Talk(SAY_KILL_PLAYER);
             if (instance)
                 instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
         }
@@ -336,8 +334,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 {
                     if (Creature* pSister = GetSister())
                         pSister->AI()->DoAction(ACTION_VORTEX);
-                    DoScriptText(m_uiVortexEmote, me);
-                    DoScriptText(m_uiVortexSay, me);
+                    Talk(m_uiVortexEmote);
                     DoCastAOE(m_uiVortexSpellId);
                     m_uiStage = 0;
                     m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
@@ -348,8 +345,8 @@ struct boss_twin_baseAI : public ScriptedAI
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
-                    DoScriptText(EMOTE_SHIELD, me);
-                    DoScriptText(SAY_SHIELD, me);
+                    Talk(EMOTE_TWINK_PACT);
+                    Talk(SAY_TWINK_PACT);
                     if (Creature* pSister = GetSister())
                     {
                         pSister->AI()->DoAction(ACTION_PACT);
@@ -426,8 +423,7 @@ public:
             m_uiStage = 0;
             m_uiWeapon = EQUIP_MAIN_1;
             m_uiAuraState = AURA_STATE_UNKNOWN22;
-            m_uiVortexEmote = EMOTE_LIGHT_VORTEX;
-            m_uiVortexSay = SAY_LIGHT_VORTEX;
+            m_uiVortexEmote = EMOTE_VORTEX;
             m_uiSisterNpcId = NPC_DARKBANE;
             m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
             m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
@@ -496,8 +492,7 @@ public:
             m_uiStage = 1;
             m_uiWeapon = EQUIP_MAIN_2;
             m_uiAuraState = AURA_STATE_UNKNOWN19;
-            m_uiVortexEmote = EMOTE_DARK_VORTEX;
-            m_uiVortexSay = SAY_DARK_VORTEX;
+            m_uiVortexEmote = EMOTE_VORTEX;
             m_uiSisterNpcId = NPC_LIGHTBANE;
             m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
             m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
