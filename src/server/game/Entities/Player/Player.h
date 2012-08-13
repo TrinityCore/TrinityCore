@@ -2316,6 +2316,11 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
+
+        uint32 m_selectedGobject;
+        uint32 GetSelectedGobject() { return m_selectedGobject; }
+        void SetSelectedGobject(uint32 gobId) { m_selectedGobject = gobId; }
+
         // currently visible objects at player client
         typedef std::set<uint64> ClientGUIDs;
         ClientGUIDs m_clientGUIDs;

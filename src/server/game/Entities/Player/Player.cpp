@@ -859,6 +859,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_SeasonalQuestChanged = false;
 
     SetPendingBind(0, 0);
+
+    m_selectedGobject = 0;
 }
 
 Player::~Player()

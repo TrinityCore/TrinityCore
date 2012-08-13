@@ -55,6 +55,7 @@ public:
             { "info",           SEC_GAMEMASTER,     false, &HandleGameObjectInfoCommand,      "", NULL },
             { "move",           SEC_GAMEMASTER,     false, &HandleGameObjectMoveCommand,      "", NULL },
             { "near",           SEC_GAMEMASTER,     false, &HandleGameObjectNearCommand,      "", NULL },
+            { "select",         SEC_GAMEMASTER,     false, &HandleGameObjectSelectCommand,    "", NULL },
             { "target",         SEC_GAMEMASTER,     false, &HandleGameObjectTargetCommand,    "", NULL },
             { "turn",           SEC_GAMEMASTER,     false, &HandleGameObjectTurnCommand,      "", NULL },
             { "add",            SEC_GAMEMASTER,     false, NULL,            "", gobjectAddCommandTable },
@@ -71,14 +72,12 @@ public:
 
     static bool HandleGameObjectActivateCommand(ChatHandler* handler, char const* args)
     {
-        if (!*args)
-            return false;
-
+        // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
         char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
+        if (!id && !args)
             return false;
 
-        uint32 guidLow = atoi(id);
+        uint32 guidLow = (args) ? handler->GetSession()->GetPlayer()->GetSelectedGobject() : atoi(id);
         if (!guidLow)
             return false;
 
@@ -333,10 +332,10 @@ public:
     {
         // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
         char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
+        if (!id && !args)
             return false;
 
-        uint32 guidLow = atoi(id);
+        uint32 guidLow = (args) ? handler->GetSession()->GetPlayer()->GetSelectedGobject() : atoi(id);
         if (!guidLow)
             return false;
 
@@ -379,12 +378,12 @@ public:
     //turn selected object
     static bool HandleGameObjectTurnCommand(ChatHandler* handler, char const* args)
     {
-        // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+        // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
         char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
+        if (!id && !args)
             return false;
 
-        uint32 guidLow = atoi(id);
+        uint32 guidLow = (args) ? handler->GetSession()->GetPlayer()->GetSelectedGobject() : atoi(id);
         if (!guidLow)
             return false;
 
@@ -430,10 +429,10 @@ public:
     {
         // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
         char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
+        if (!id && !args)
             return false;
 
-        uint32 guidLow = atoi(id);
+        uint32 guidLow = (args) ? handler->GetSession()->GetPlayer()->GetSelectedGobject() : atoi(id);
         if (!guidLow)
             return false;
 
@@ -493,12 +492,12 @@ public:
     //set phasemask for selected object
     static bool HandleGameObjectSetPhaseCommand(ChatHandler* handler, char const* args)
     {
-        // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+        // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
         char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
+        if (!id && !args)
             return false;
 
-        uint32 guidLow = atoi(id);
+        uint32 guidLow = (args) ? handler->GetSession()->GetPlayer()->GetSelectedGobject() : atoi(id);
         if (!guidLow)
             return false;
 
@@ -574,6 +573,46 @@ public:
         return true;
     }
 
+    static bool HandleGameObjectSelectCommand(ChatHandler* handler, const char* args)
+    {      
+        uint32 entry = 0;
+        std::string name;
+        uint32 guid = 0;
+        WorldObject* obj = handler->getSelectedObject();
+        Player* player = handler->GetSession()->GetPlayer();
+
+        if (player->GetSelection())
+        {
+            handler->SendSysMessage("You can't have an NPC or player selected while using this command.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!obj)
+        {
+            handler->SendSysMessage("No objects in range!");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        float distance = player->GetDistance(obj);
+            
+        if (obj->GetTypeId() != TYPEID_GAMEOBJECT)
+            return false;
+
+        GameObjectTemplate const* goInfo = obj->ToGameObject()->GetGOInfo();
+
+        if (!goInfo)
+            return false;
+
+        name = goInfo->name;
+        guid = obj->ToGameObject()->GetGUIDLow();
+
+        handler->PSendSysMessage("Selected GameObject [ %s ] (guid: %u) which is %f feet away from you.", name.c_str(), guid, distance);
+        handler->GetSession()->GetPlayer()->SetSelectedGobject(guid);
+        return true;
+    }
+
     //show info of gameobject
     static bool HandleGameObjectInfoCommand(ChatHandler* handler, char const* args)
     {
@@ -615,12 +654,12 @@ public:
 
     static bool HandleGameObjectSetStateCommand(ChatHandler* handler, char const* args)
     {
-        // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+        // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
         char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
+        if (!id && !args)
             return false;
 
-        uint32 guidLow = atoi(id);
+        uint32 guidLow = (args) ? handler->GetSession()->GetPlayer()->GetSelectedGobject() : atoi(id);
         if (!guidLow)
             return false;
 
