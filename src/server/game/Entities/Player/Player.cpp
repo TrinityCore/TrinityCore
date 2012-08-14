@@ -195,12 +195,12 @@ void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, bool all)
     data << uint32(TaxiMaskSize);
     if (all)
     {
-        for (uint8 i=0; i< TaxiMaskSize; i++)
+        for (uint8 i = 0; i < TaxiMaskSize; ++i)
             data << uint8(sTaxiNodesMask[i]);              // all existed nodes
     }
     else
     {
-        for (uint8 i=0; i < TaxiMaskSize; i++)
+        for (uint8 i = 0; i < TaxiMaskSize; ++i)
             data << uint8(m_taximask[i]);                  // known nodes
     }
 }
@@ -269,7 +269,7 @@ uint32 PlayerTaxi::GetCurrentTaxiPath() const
 std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
 {
     for (uint8 i = 0; i < TaxiMaskSize; ++i)
-        ss << taxi.m_taximask[i] << ' ';
+        ss << uint32(taxi.m_taximask[i]) << ' ';
     return ss;
 }
 
@@ -3270,7 +3270,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     SetFloatValue(PLAYER_PARRY_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_BLOCK_PERCENTAGE, 0.0f);
-    
+
     // Static 30% damage blocked
     SetUInt32Value(PLAYER_SHIELD_BLOCK, 30);
 

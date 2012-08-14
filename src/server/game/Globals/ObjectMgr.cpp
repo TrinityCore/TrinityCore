@@ -5484,8 +5484,8 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         if (!node || node->map_id != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
             continue;
 
-        uint8  field   = (uint8)((i - 1) / 32);
-        uint32 submask = 1<<((i-1)%32);
+        uint8  field   = (uint8)((i - 1) / 8);
+        uint32 submask = 1 << ((i-1) % 8);
 
         // skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
@@ -6804,7 +6804,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
 
     _repSpilloverTemplateStore.clear();                      // for reload case
 
-    uint32 count = 0; //                                0         1        2       3        4       5       6         7        8      9        10       11     12        13       14     15       
+    uint32 count = 0; //                                0         1        2       3        4       5       6         7        8      9        10       11     12        13       14     15
     QueryResult result = WorldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4, faction5, rate_5, rank_5 FROM reputation_spillover_template");
 
     if (!result)
