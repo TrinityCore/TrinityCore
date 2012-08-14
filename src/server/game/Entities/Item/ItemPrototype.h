@@ -717,19 +717,6 @@ struct ItemTemplate
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
-    int32 getFeralBonus(int32 extraDPS = 0) const
-    {
-        // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
-        if (Class == ITEM_CLASS_WEAPON && (1 << SubClass) & 0x02A5F3)
-        {
-            int32 bonus = int32((extraDPS + DPS) * 14.0f) - 767;
-            if (bonus < 0)
-                return 0;
-            return bonus;
-        }
-        return 0;
-    }
-
     float GetItemLevelIncludingQuality() const
     {
         float itemLevel = (float)ItemLevel;

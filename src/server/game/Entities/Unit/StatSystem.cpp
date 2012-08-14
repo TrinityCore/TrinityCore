@@ -285,7 +285,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         switch (getClass())
         {
             case CLASS_HUNTER:
-                val2 = level * 2.0f + GetStat(STAT_AGILITY) - 10.0f;
+                val2 = level * 2.0f + GetStat(STAT_AGILITY) * 2.0f - 20.0f;
                 break;
             case CLASS_ROGUE:
                 val2 = level + GetStat(STAT_AGILITY) - 10.0f;
@@ -293,18 +293,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             case CLASS_WARRIOR:
                 val2 = level + GetStat(STAT_AGILITY) - 10.0f;
                 break;
-            case CLASS_DRUID:
-                switch (GetShapeshiftForm())
-                {
-                    case FORM_CAT:
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR:
-                        val2 = 0.0f; break;
-                    default:
-                        val2 = GetStat(STAT_AGILITY) - 10.0f; break;
-                }
-                break;
-            default: val2 = GetStat(STAT_AGILITY) - 10.0f; break;
         }
     }
     else
@@ -321,40 +309,39 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
                 break;
             case CLASS_ROGUE:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
+                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) * 2.0f - 30.0f;
                 break;
             case CLASS_HUNTER:
                 val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
                 break;
             case CLASS_SHAMAN:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
+                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) * 2.0f - 30.0f;
                 break;
             case CLASS_DRUID:
             {
                 switch (GetShapeshiftForm())
                 {
                     case FORM_CAT:
-                        val2 = GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) - 20.0f + m_baseFeralAP;
+                        val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) * 2.0f - 40.0f;
                         break;
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
-                    case FORM_MOONKIN:
-                        val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f + m_baseFeralAP;
+                        val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) * 2.0f - 40.0f;
                         break;
                     default:
-                        val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
+                        val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
                         break;
                 }
                 break;
             }
             case CLASS_MAGE:
-                val2 = GetStat(STAT_STRENGTH) - 10.0f;
+                val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
                 break;
             case CLASS_PRIEST:
-                val2 = GetStat(STAT_STRENGTH) - 10.0f;
+                val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
                 break;
             case CLASS_WARLOCK:
-                val2 = GetStat(STAT_STRENGTH) - 10.0f;
+                val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
                 break;
         }
     }
@@ -439,12 +426,16 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     if (IsInFeralForm())                                    //check if player is druid and in cat or bear forms
     {
-        uint8 lvl = getLevel();
-        if (lvl > 60)
-            lvl = 60;
-
-        weapon_mindamage = lvl*0.85f*att_speed;
-        weapon_maxdamage = lvl*1.25f*att_speed;
+        if (GetShapeshiftForm() == FORM_CAT)
+        {
+            weapon_mindamage = weapon_mindamage / att_speed;
+            weapon_maxdamage = weapon_maxdamage / att_speed;
+        }
+        else if (GetShapeshiftForm() == FORM_BEAR)
+        {
+            weapon_mindamage = weapon_mindamage / att_speed * 2.5f;
+            weapon_maxdamage = weapon_maxdamage / att_speed * 2.5f;
+        }
     }
     else if (!CanUseAttackType(attType))      //check if player not in form but still can't use (disarm case)
     {
@@ -580,43 +571,16 @@ const float m_diminishing_k[MAX_CLASSES] =
     0.9720f   // Druid
 };
 
-float Player::GetMissPercentageFromDefence() const
-{
-    float const miss_cap[MAX_CLASSES] =
-    {
-        16.00f,     // Warrior //correct
-        16.00f,     // Paladin //correct
-        16.00f,     // Hunter  //?
-        16.00f,     // Rogue   //?
-        16.00f,     // Priest  //?
-        16.00f,     // DK      //correct
-        16.00f,     // Shaman  //?
-        16.00f,     // Mage    //?
-        16.00f,     // Warlock //?
-        0.0f,       // ??
-        16.00f      // Druid   //?
-    };
-
-    float diminishing = 0.0f, nondiminishing = 0.0f;
-    // Modify value from defense skill (only bonus from defense rating diminishes)
-    nondiminishing += (GetSkillValue(SKILL_DEFENSE) - GetMaxSkillValueForLevel()) * 0.04f;
-    diminishing += (int32(GetRatingBonusValue(CR_DEFENSE_SKILL))) * 0.04f;
-
-    // apply diminishing formula to diminishing miss chance
-    uint32 pclass = getClass()-1;
-    return nondiminishing + (diminishing * miss_cap[pclass] / (diminishing + miss_cap[pclass] * m_diminishing_k[pclass]));
-}
-
 void Player::UpdateParryPercentage()
 {
     const float parry_cap[MAX_CLASSES] =
     {
-        47.003525f,     // Warrior
-        47.003525f,     // Paladin
+        65.631440f,     // Warrior
+        65.631440f,     // Paladin
         145.560408f,    // Hunter
         145.560408f,    // Rogue
         0.0f,           // Priest
-        47.003525f,     // DK
+        65.631440f,     // DK
         145.560408f,    // Shaman
         0.0f,           // Mage
         0.0f,           // Warlock
@@ -648,12 +612,12 @@ void Player::UpdateDodgePercentage()
 {
     const float dodge_cap[MAX_CLASSES] =
     {
-        88.129021f,     // Warrior
-        88.129021f,     // Paladin
+        65.631440f,     // Warrior
+        65.631440f,     // Paladin
         145.560408f,    // Hunter
         145.560408f,    // Rogue
         150.375940f,    // Priest
-        88.129021f,     // DK
+        65.631440f,     // DK
         145.560408f,    // Shaman
         150.375940f,    // Mage
         150.375940f,    // Warlock
