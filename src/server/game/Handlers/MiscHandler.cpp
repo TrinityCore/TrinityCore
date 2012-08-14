@@ -1724,7 +1724,8 @@ void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)
 //PhaseID from phase.dbc
 void WorldSession::SendSetPhaseShift(uint16 phaseID, uint16 mapID, uint32 unk, uint16 terrain)
 {
-    ObjectGuid guid = _player->GetGUID();
+    //client understand only guids with hi huid data. For plr HiGuid == 0x780
+    ObjectGuid guid = _player->GetGUID()|0x780000000000000;
     WorldPacket data(SMSG_SET_PHASE_SHIFT, 16+4+4+(terrain ? 6 : 4)+(mapID ? 6 : 4)+(terrain ? 6 : 4));
     data.WriteBit(guid[2]);
     data.WriteBit(guid[3]);
