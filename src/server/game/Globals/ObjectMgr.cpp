@@ -6804,8 +6804,8 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
 
     _repSpilloverTemplateStore.clear();                      // for reload case
 
-    uint32 count = 0; //                                0         1        2       3        4       5       6         7        8      9        10       11     12
-    QueryResult result = WorldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4 FROM reputation_spillover_template");
+    uint32 count = 0; //                                0         1        2       3        4       5       6         7        8      9        10       11     12        13       14     15       
+    QueryResult result = WorldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4, faction5, rate_5, rank_5 FROM reputation_spillover_template");
 
     if (!result)
     {
@@ -6834,6 +6834,9 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
         repTemplate.faction[3]          = fields[10].GetUInt16();
         repTemplate.faction_rate[3]     = fields[11].GetFloat();
         repTemplate.faction_rank[3]     = fields[12].GetUInt8();
+        repTemplate.faction[4]          = fields[13].GetUInt16();
+        repTemplate.faction_rate[4]     = fields[14].GetFloat();
+        repTemplate.faction_rank[4]     = fields[15].GetUInt16();
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
 
@@ -6897,6 +6900,12 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
         if (repTemplate.faction[3] && !factionEntry3)
         {
             sLog->outError(LOG_FILTER_SQL, "Faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template`", repTemplate.faction[3]);
+            continue;
+        }
+        FactionEntry const* factionEntry4 = sFactionStore.LookupEntry(repTemplate.faction[4]);
+        if (repTemplate.faction[4] && !factionEntry4)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template`", repTemplate.faction[4]);
             continue;
         }
 
