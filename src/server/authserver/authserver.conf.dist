@@ -149,123 +149,101 @@ LoginDatabase.WorkerThreads = 1
 ###################################################################################################
 #
 #  Logging system options.
-#  Note: As it uses dynamic option naming, all options related to one appender or logger are grouped.
 #
+#  Appender config values: Given a appender "name"
+#    Appender.name
+#        Description: Defines 'where to log'
+#        Format:      Type,LogLevel,Flags,optional1,optional2
 #
-#  Appender config values: Given a appender "name" the following options
-#  can be read:
+#                     Type
+#                         0 - (None)
+#                         1 - (Console)
+#                         2 - (File)
+#                         3 - (DB)
 #
-#    Appender.name.Type
-#        Description: Type of appender. Extra appender config options
-#                     will be read depending on this value
-#        Default:     0 - (None)
-#                     1 - (Console)
-#                     2 - (File)
-#                     3 - (DB)
+#                     LogLevel
+#                         0 - (Disabled)
+#                         1 - (Trace)
+#                         2 - (Debug)
+#                         3 - (Info)
+#                         4 - (Warn)
+#                         5 - (Error)
+#                         6 - (Fatal)
 #
-#    Appender.name.Level
-#        Description: Appender level of logging
-#        Default:     0 - (Disabled)
-#                     1 - (Trace)
-#                     2 - (Debug)
-#                     3 - (Info)
-#                     4 - (Warn)
-#                     5 - (Error)
-#                     6 - (Fatal)
+#                     Flags: Default Console = 6, File = 7, DB = 0
+#                         0 - None
+#                         1 - Prefix Timestamp to the text
+#                         2 - Prefix Log Level to the text
+#                         4 - Prefix Log Filter type to the text
+#                         8 - Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS (Only used with Type = 2)
+#                        16 - Make a backup of existing file before overwrite (Only used with Mode = w)
 #
-#    Appender.name.Colors
-#        Description: Colors for log messages
-#                     (Format: "fatal error warn info debug trace").
-#                     (Only used with Type = 1)
-#        Default: "" - no colors
-#        Colors: 0  - BLACK
-#                1  - RED
-#                2  - GREEN
-#                3  - BROWN
-#                4  - BLUE
-#                5  - MAGENTA
-#                6  - CYAN
-#                7  - GREY
-#                8  - YELLOW
-#                9  - LRED
-#                10 - LGREEN
-#                11 - LBLUE
-#                12 - LMAGENTA
-#                13 - LCYAN
-#                14 - WHITE
-#        Example: "13 11 9 5 3 1"
+#                     Colors (read as optional1 if Type = Console)
+#                         Format: "fatal error warn info debug trace"
+#                         0 - BLACK
+#                         1 - RED
+#                         2 - GREEN
+#                         3 - BROWN
+#                         4 - BLUE
+#                         5 - MAGENTA
+#                         6 - CYAN
+#                         7 - GREY
+#                         8 - YELLOW
+#                         9 - LRED
+#                        10 - LGREEN
+#                        11 - LBLUE
+#                        12 - LMAGENTA
+#                        13 - LCYAN
+#                        14 - WHITE
+#                         Example: "13 11 9 5 3 1"
 #
-#    Appender.name.File
-#        Description: Name of the file
-#                     Allows to use one "%u" to create dynamic files
-#                     (Only used with Type = 2)
+#                     File: Name of the file (read as optional1 if Type = File)
+#                         Allows to use one "%u" to create dynamic files
 #
-#    Appender.name.Mode
-#        Description: Mode to open the file
-#                     (Only used with Type = 2)
-#        Default:     a - (Append)
-#                     w - (Overwrite)
+#                     Mode: Mode to open the file (read as optional2 if Type = File)
+#                          a - (Append)
+#                          w - (Overwrite)
 #
-#    Appender.name.Flags
-#        Description:
-#        Default:     Console = 6, File = 7, DB = 0
-#                     0 - None
-#                     1 - Prefix Timestamp to the text
-#                     2 - Prefix Log Level to the text
-#                     4 - Prefix Log Filter type to the text
-#                     8 - Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS (Only used with Type = 2)
-#                    16 - Make a backup of existing file before overwrite (Only used with Mode = w)
+
+Appender.Console=1,2,6
+Appender.Auth=2,2,7,Auth.log,w
+
+#  Logger config values: Given a logger "name"
+#    Logger.name
+#        Description: Defines 'What to log'
+#        Format:      Type,LogLevel,AppenderList
+#                     Type
+#                         0 - Default. Each type that has no config will
+#                             rely on this one. Core will create this logger
+#                             (disabled) if it's not configured
+#                         7 - Network input/output,
+#                        30 - Authserver
+
+Logger.Root=0,3,Console Auth
+
+#                     LogLevel
+#                         0 - (Disabled)
+#                         1 - (Trace)
+#                         2 - (Debug)
+#                         3 - (Info)
+#                         4 - (Warn)
+#                         5 - (Error)
+#                         6 - (Fatal)
 #
-#  Logger config values: Given a logger "name" the following options
-#  can be read:
-#
-#    Logger.name.Type
-#        Description: Type of logger. Logs anything related to...
-#                     If no logger with type = 0 exists core will create
-#                     it but disabled. Logger with type = 0 is the
-#                     default one, used when there is no other specific
-#                     logger configured for other logger types
-#        Default:     0 - Default. Each type that has no config will
-#                         rely on this one. Core will create this logger
-#                         (disabled) if it's not configured
-#                     7 - Network input/output,
-#                    30 - Authserver
-#
-#    Logger.name.Level
-#        Description: Logger level of logging
-#        Default:     0 - (Disabled)
-#                     1 - (Trace)
-#                     2 - (Debug)
-#                     3 - (Info)
-#                     4 - (Warn)
-#                     5 - (Error)
-#                     6 - (Fatal)
-#
-#    Logger.name.Appenders
-#        Description: List of appenders linked to logger
+#                     AppenderList: List of appenders linked to logger
 #                     (Using spaces as separator).
 #
 #    Appenders
 #        Description: List of Appenders to read from config
 #                     (Using spaces as separator).
-#        Default:     "Console Auth"
+#        Default:     "Console Server"
+
+Appenders=Console Auth
+
 #
 #    Loggers
 #        Description: List of Loggers to read from config
 #                     (Using spaces as separator).
 #        Default:     "root"
 
-Loggers=root
-Appenders=Console Auth
-
-Appender.Console.Type=1
-Appender.Console.Level=2
-
-Appender.Auth.Type=2
-Appender.Auth.Level=2
-Appender.Auth.File=Auth.log
-Appender.Auth.Mode=w
-
-Logger.root.Type=0
-Logger.root.Level=3
-Logger.root.Appenders=Console Auth
+Loggers=Root
