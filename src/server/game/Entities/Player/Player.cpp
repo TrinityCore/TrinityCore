@@ -792,7 +792,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
         m_baseRatingValue[i] = 0;
 
     m_baseSpellPower = 0;
-    m_baseFeralAP = 0;
     m_baseManaRegen = 0;
     m_baseHealthRegen = 0;
     m_spellPenetrationItemMod = 0;
