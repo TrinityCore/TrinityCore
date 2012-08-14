@@ -22218,6 +22218,11 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetZoneAndAreaId(newzone, newarea);
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
+    //init phasing
+    Unit::AuraEffectList const& auraList = GetAuraEffectsByType(SPELL_AURA_PHASE);
+    if (auraList.empty())
+        GetSession()->SendSetPhaseShift(0, GetMapId(), 0);
+
     SendCurrencies();
     SendEquipmentSetList();
     m_achievementMgr.SendAllAchievementData(this);
