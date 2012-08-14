@@ -23892,7 +23892,27 @@ bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
     uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
-    return v_map != 571 || HasSpell(54197); // Cold Weather Flying
+
+    bool canFly = true;
+
+    switch (v_map)
+    {
+        case 0:   // Eastern Kingdoms
+        case 1:   // Kalimdor
+        {
+            canFly = HasSpell(90267);  // Flight Master's License
+            break;
+        }
+        case 571: // Northrend
+        {
+            canFly = HasSpell(54197);  // Cold Wather Flying
+            break;
+        }
+        default:
+            break;
+    }
+
+    return canFly;
 }
 
 void Player::learnSpellHighRank(uint32 spellid)
