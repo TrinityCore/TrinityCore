@@ -4979,22 +4979,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     }
                     break;
                 }
-                case 55198:   // Tidal Force
-                {
-                    target->CastSpell(target, 55166, true, NULL, this);
-                    // set 3 stacks and 3 charges (to make all auras not disappear at once)
-                    Aura* owner_aura = target->GetAura(55166, GetCasterGUID());
-                    if (owner_aura)
-                    {
-                        // This aura lasts 2 sec, need this hack to properly proc spells
-                        // TODO: drop aura charges for ApplySpellMod in ProcDamageAndSpell
-                        GetBase()->SetDuration(owner_aura->GetDuration());
-                        // Make aura be not charged-this prevents removing charge on not crit spells
-                        owner_aura->SetCharges(0);
-                        owner_aura->SetStackAmount(owner_aura->GetSpellInfo()->StackAmount);
-                    }
-                    break;
-                }
                 case 39850:                                     // Rocket Blast
                     if (roll_chance_i(20))                       // backfire stun
                         target->CastSpell(target, 51581, true, NULL, this);

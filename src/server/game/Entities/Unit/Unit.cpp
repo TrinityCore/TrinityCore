@@ -6303,7 +6303,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     // "refresh your Slice and Dice duration to its 5 combo point maximum"
                     // lookup Slice and Dice
-                    if (Aura const* aur = GetAura(5171))
+                    if (Aura* aur = GetAura(5171))
                     {
                         aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
                         return true;
@@ -6599,14 +6599,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
-                // Tidal Force
-                case 55198:
-                {
-                    // Remove aura stack from  caster
-                    RemoveAuraFromStack(55166);
-                    // drop charges
-                    return false;
-                }
                 // Totemic Power (The Earthshatterer set)
                 case 28823:
                 {
@@ -6679,26 +6671,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     // Now amount of extra power stored in 1 effect of Enchant spell
-                    // Get it by item enchant id
-                    uint32 spellId;
-                    switch (castItem->GetEnchantmentId(EnchantmentSlot(TEMP_ENCHANTMENT_SLOT)))
-                    {
-                        case 283: spellId =  8232; break;   // 1 Rank
-                        case 284: spellId =  8235; break;   // 2 Rank
-                        case 525: spellId = 10486; break;   // 3 Rank
-                        case 1669:spellId = 16362; break;   // 4 Rank
-                        case 2636:spellId = 25505; break;   // 5 Rank
-                        case 3785:spellId = 58801; break;   // 6 Rank
-                        case 3786:spellId = 58803; break;   // 7 Rank
-                        case 3787:spellId = 58804; break;   // 8 Rank
-                        default:
-                        {
-                            sLog->outError(LOG_FILTER_UNITS, "Unit::HandleDummyAuraProc: non handled item enchantment (rank?) %u for spell id: %u (Windfury)",
-                                castItem->GetEnchantmentId(EnchantmentSlot(TEMP_ENCHANTMENT_SLOT)), dummySpell->Id);
-                            return false;
-                        }
-                    }
-
+                    uint32 spellId = 8232;
                     SpellInfo const* windfurySpellInfo = sSpellMgr->GetSpellInfo(spellId);
                     if (!windfurySpellInfo)
                     {
@@ -6866,23 +6839,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // if not found Flame Shock
                     return false;
                 }
-                case 63280: // Glyph of Totem of Wrath
-                {
-                    if (procSpell->SpellIconID != 2019)
-                        return false;
-
-                    if (Creature* totem = GetMap()->GetCreature(m_SummonSlot[1]))   // Fire totem summon slot
-                    {
-                        if (SpellInfo const* totemSpell = sSpellMgr->GetSpellInfo(totem->m_spells[0]))
-                        {
-                            int32 bp0 = CalculatePctN(totemSpell->Effects[EFFECT_0].CalcValue(), triggerAmount);
-                            int32 bp1 = CalculatePctN(totemSpell->Effects[EFFECT_1].CalcValue(), triggerAmount);
-                            CastCustomSpell(this, 63283, &bp0, &bp1, NULL, true);
-                            return true;
-                        }
-                    }
-                    return false;
-                }
                 break;
             }
             // Frozen Power
@@ -6908,7 +6864,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 break;
             }
             // Earth Shield
-            if (dummySpell->SpellFamilyFlags[1] & 0x00000400)
+            if (dummySpell->Id == 974)
             {
                 // 3.0.8: Now correctly uses the Shaman's own spell critical strike chance to determine the chance of a critical heal.
                 originalCaster = triggeredByAura->GetCasterGUID();
@@ -6968,109 +6924,19 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 CastCustomSpell(victim, triggered_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
                 return true;
             }
-            // Improved Water Shield
-            if (dummySpell->SpellIconID == 2287)
-            {
-                // Default chance for Healing Wave and Riptide
-                float chance = (float)triggeredByAura->GetAmount();
-
-                if (procSpell->SpellFamilyFlags[0] & 0x80)
-                    // Lesser Healing Wave - 0.6 of default
-                    chance *= 0.6f;
-                else if (procSpell->SpellFamilyFlags[0] & 0x100)
-                    // Chain heal - 0.3 of default
-                    chance *= 0.3f;
-
-                if (!roll_chance_f(chance))
-                    return false;
-
-                // Water Shield
-                if (AuraEffect const* aurEff = GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0, 0x00000020, 0))
-                {
-                    uint32 spell = aurEff->GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                    CastSpell(this, spell, true, castItem, triggeredByAura);
-                    return true;
-                }
-                return false;
-            }
-            // Lightning Overload
-            if (dummySpell->SpellIconID == 2018)            // only this spell has SpellFamily Shaman SpellIconID == 2018 and dummy aura
-            {
-                if (!procSpell || GetTypeId() != TYPEID_PLAYER || !victim)
-                    return false;
-
-                // custom cooldown processing case
-                if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(dummySpell->Id))
-                    return false;
-
-                uint32 spellId = 0;
-                // Every Lightning Bolt and Chain Lightning spell have duplicate vs half damage and zero cost
-                switch (procSpell->Id)
-                {
-                    // Lightning Bolt
-                    case   403: spellId = 45284; break;     // Rank  1
-                    case   529: spellId = 45286; break;     // Rank  2
-                    case   548: spellId = 45287; break;     // Rank  3
-                    case   915: spellId = 45288; break;     // Rank  4
-                    case   943: spellId = 45289; break;     // Rank  5
-                    case  6041: spellId = 45290; break;     // Rank  6
-                    case 10391: spellId = 45291; break;     // Rank  7
-                    case 10392: spellId = 45292; break;     // Rank  8
-                    case 15207: spellId = 45293; break;     // Rank  9
-                    case 15208: spellId = 45294; break;     // Rank 10
-                    case 25448: spellId = 45295; break;     // Rank 11
-                    case 25449: spellId = 45296; break;     // Rank 12
-                    case 49237: spellId = 49239; break;     // Rank 13
-                    case 49238: spellId = 49240; break;     // Rank 14
-                    // Chain Lightning
-                    case   421: spellId = 45297; break;     // Rank  1
-                    case   930: spellId = 45298; break;     // Rank  2
-                    case  2860: spellId = 45299; break;     // Rank  3
-                    case 10605: spellId = 45300; break;     // Rank  4
-                    case 25439: spellId = 45301; break;     // Rank  5
-                    case 25442: spellId = 45302; break;     // Rank  6
-                    case 49270: spellId = 49268; break;     // Rank  7
-                    case 49271: spellId = 49269; break;     // Rank  8
-                    default:
-                        sLog->outError(LOG_FILTER_UNITS, "Unit::HandleDummyAuraProc: non handled spell id: %u (LO)", procSpell->Id);
-                        return false;
-                }
-
-                // Chain Lightning
-                if (procSpell->SpellFamilyFlags[0] & 0x2)
-                {
-                    // Chain lightning has [LightOverload_Proc_Chance] / [Max_Number_of_Targets] chance to proc of each individual target hit.
-                    // A maxed LO would have a 33% / 3 = 11% chance to proc of each target.
-                    // LO chance was already "accounted" at the proc chance roll, now need to divide the chance by [Max_Number_of_Targets]
-                    float chance = 100.0f / procSpell->Effects[effIndex].ChainTarget;
-                    if (!roll_chance_f(chance))
-                        return false;
-
-                    // Remove cooldown (Chain Lightning - has Category Recovery time)
-                    ToPlayer()->RemoveSpellCooldown(spellId);
-                }
-
-                CastSpell(victim, spellId, true, castItem, triggeredByAura);
-
-                if (cooldown && GetTypeId() == TYPEID_PLAYER)
-                    ToPlayer()->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + cooldown);
-
-                return true;
-            }
             // Static Shock
             if (dummySpell->SpellIconID == 3059)
             {
                 // Lightning Shield
                 if (AuraEffect const* aurEff = GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0x400, 0, 0))
                 {
-                    uint32 spell = sSpellMgr->GetSpellWithRank(26364, aurEff->GetSpellInfo()->GetRank());
+                    uint32 spell = 26364;
 
                     // custom cooldown processing case
                     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(spell))
                         ToPlayer()->RemoveSpellCooldown(spell);
-
+                    
                     CastSpell(target, spell, true, castItem, triggeredByAura);
-                    aurEff->GetBase()->DropCharge();
                     return true;
                 }
                 return false;
@@ -7079,21 +6945,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
-            // Blood-Caked Strike - Blood-Caked Blade
+            // Blood-Caked Blade
             if (dummySpell->SpellIconID == 138)
             {
                 if (!target || !target->isAlive())
                     return false;
 
                 triggered_spell_id = dummySpell->Effects[effIndex].TriggerSpell;
-                break;
-            }
-            // Improved Blood Presence
-            if (dummySpell->SpellIconID == 2636)
-            {
-                if (GetTypeId() != TYPEID_PLAYER)
-                    return false;
-                basepoints0 = CalculatePctN(int32(damage), triggerAmount);
                 break;
             }
             // Butchery
@@ -7129,38 +6987,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 else
                     return false;
             }
-            // Mark of Blood
-            if (dummySpell->Id == 49005)
-            {
-                // TODO: need more info (cooldowns/PPM)
-                triggered_spell_id = 61607;
-                break;
-            }
             // Unholy Blight
             if (dummySpell->Id == 49194)
             {
                 basepoints0 = CalculatePctN(int32(damage), triggerAmount);
-                // Glyph of Unholy Blight
-                if (AuraEffect* glyph=GetAuraEffect(63332, 0))
-                    AddPctN(basepoints0, glyph->GetAmount());
-
                 triggered_spell_id = 50536;
                 basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
-                break;
-            }
-            // Vendetta
-            if (dummySpell->SpellFamilyFlags[0] & 0x10000)
-            {
-                basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
-                triggered_spell_id = 50181;
-                target = this;
-                break;
-            }
-            // Necrosis
-            if (dummySpell->SpellIconID == 2709)
-            {
-                basepoints0 = CalculatePctN(int32(damage), triggerAmount);
-                triggered_spell_id = 51460;
                 break;
             }
             // Threat of Thassarian
@@ -7175,45 +7007,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                 switch (procSpell->Id)
                 {
-                    // Obliterate
-                    case 49020: triggered_spell_id = 66198; break;                            // Rank 1
-                    case 51423: triggered_spell_id = 66972; break;                            // Rank 2
-                    case 51424: triggered_spell_id = 66973; break;                            // Rank 3
-                    case 51425: triggered_spell_id = 66974; break;                            // Rank 4
-
-                    // Frost Strike
-                    case 49143: triggered_spell_id = 66196; break;                            // Rank 1
-                    case 51416: triggered_spell_id = 66958; break;                            // Rank 2
-                    case 51417: triggered_spell_id = 66959; break;                            // Rank 3
-                    case 51418: triggered_spell_id = 66960; break;                            // Rank 4
-                    case 51419: triggered_spell_id = 66961; break;                            // Rank 5
-                    case 55268: triggered_spell_id = 66962; break;                            // Rank 6
-
-                    // Plague Strike
-                    case 45462: triggered_spell_id = 66216; break;                            // Rank 1
-                    case 49917: triggered_spell_id = 66988; break;                            // Rank 2
-                    case 49918: triggered_spell_id = 66989; break;                            // Rank 3
-                    case 49919: triggered_spell_id = 66990; break;                            // Rank 4
-                    case 49920: triggered_spell_id = 66991; break;                            // Rank 5
-                    case 49921: triggered_spell_id = 66992; break;                            // Rank 6
-
-                    // Death Strike
-                    case 49998: triggered_spell_id = 66188; break;                            // Rank 1
-                    case 49999: triggered_spell_id = 66950; break;                            // Rank 2
-                    case 45463: triggered_spell_id = 66951; break;                            // Rank 3
-                    case 49923: triggered_spell_id = 66952; break;                            // Rank 4
-                    case 49924: triggered_spell_id = 66953; break;                            // Rank 5
-
-                    // Rune Strike
-                    case 56815: triggered_spell_id = 66217; break;                            // Rank 1
-
-                    // Blood Strike
-                    case 45902: triggered_spell_id = 66215; break;                            // Rank 1
-                    case 49926: triggered_spell_id = 66975; break;                            // Rank 2
-                    case 49927: triggered_spell_id = 66976; break;                            // Rank 3
-                    case 49928: triggered_spell_id = 66977; break;                            // Rank 4
-                    case 49929: triggered_spell_id = 66978; break;                            // Rank 5
-                    case 49930: triggered_spell_id = 66979; break;                            // Rank 6
+                    case 49020: triggered_spell_id = 66198; break; // Obliterate
+                    case 49143: triggered_spell_id = 66196; break; // Frost Strike
+                    case 45462: triggered_spell_id = 66216; break; // Plague Strike
+                    case 49998: triggered_spell_id = 66188; break; // Death Strike
+                    case 56815: triggered_spell_id = 66217; break; // Rune Strike
+                    case 45902: triggered_spell_id = 66215; break; // Blood Strike
                     default:
                         return false;
                 }
@@ -7231,51 +7030,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 triggered_spell_id = 61258;
                 target = this;
                 break;
-            }
-            // Wandering Plague
-            if (dummySpell->SpellIconID == 1614)
-            {
-                if (!roll_chance_f(GetUnitCriticalChance(BASE_ATTACK, victim)))
-                    return false;
-                basepoints0 = CalculatePctN(int32(damage), triggerAmount);
-                triggered_spell_id = 50526;
-                break;
-            }
-            // Sudden Doom
-            if (dummySpell->SpellIconID == 1939 && GetTypeId() == TYPEID_PLAYER)
-            {
-                SpellChainNode const* chain = NULL;
-                // get highest rank of the Death Coil spell
-                PlayerSpellMap const& sp_list = ToPlayer()->GetSpellMap();
-                for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
-                {
-                    // check if shown in spell book
-                    if (!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
-                        continue;
-
-                    SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(itr->first);
-                    if (!spellProto)
-                        continue;
-
-                    if (spellProto->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT
-                        && spellProto->SpellFamilyFlags[0] & 0x2000)
-                    {
-                        SpellChainNode const* newChain = sSpellMgr->GetSpellChainNode(itr->first);
-
-                        // No chain entry or entry lower than found entry
-                        if (!chain || !newChain || (chain->rank < newChain->rank))
-                        {
-                            triggered_spell_id = itr->first;
-                            chain = newChain;
-                        }
-                        else
-                            continue;
-                        // Found spell is last in chain - do not need to look more
-                        // Optimisation for most common case
-                        if (chain && chain->last->Id == itr->first)
-                            break;
-                    }
-                }
             }
             break;
         }
