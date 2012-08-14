@@ -1680,10 +1680,64 @@ void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recv_data*/)
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
-void WorldSession::SendSetPhaseShift(uint32 PhaseShift)
+//PhaseID from phase.dbc
+void WorldSession::SendSetPhaseShift(uint16 phaseID, uint16 mapID, uint32 unk, uint16 terrain)
 {
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 4);
-    data << uint32(PhaseShift);
+    ObjectGuid guid = _player->GetGUID();
+    WorldPacket data(SMSG_SET_PHASE_SHIFT, 16+4+4+(terrain ? 6 : 4)+(mapID ? 6 : 4)+(terrain ? 6 : 4));
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+
+    // unk counter
+    data << uint32(0);  //number of unk counter *2
+    //for(uint32 i = 0; i < count; ++i)
+    //    data << uint16(0);
+
+    data.WriteByteSeq(guid[1]);
+    data << uint32(unk);  //unk
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+
+    // terrain swap
+    if(terrain)
+    {
+        data << uint32(2);   //number of tarrain sap array *2
+        data << uint16(terrain);
+    }else
+        data << uint32(0);
+
+    // Phase mask
+    if(phaseID)
+    {
+        data << uint32(2); // number of phase array *2
+        data << int16(phaseID);
+    }else
+        data << uint32(0);
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+
+    // map counter
+    if(mapID)
+    {
+        data << uint32(2); // number of map array *2
+        data << uint16(mapID);
+    }else
+        data << uint32(0);
+
+    data.WriteByteSeq(guid[5]);
+
     SendPacket(&data);
 }
 
