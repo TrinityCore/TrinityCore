@@ -70,6 +70,7 @@ public:
 
         void Initialize()
         {
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
             uiTrollgore = 0;
             uiNovos = 0;
             uiDred = 0;
