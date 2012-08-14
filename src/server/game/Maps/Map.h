@@ -476,6 +476,9 @@ class Map : public GridRefManager<NGridType>
 
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
+        void SendInitSelf(Player* player);
+
+        void SendInitTransports(Player* player);
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
@@ -484,9 +487,6 @@ class Map : public GridRefManager<NGridType>
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
-        void SendInitSelf(Player* player);
-
-        void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
 
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);

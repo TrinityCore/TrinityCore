@@ -9712,8 +9712,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 bg->FillInitialWorldStates(data);
             break;
         default:
-            data << uint32(0x914) << uint32(0x0);           // 7
-            data << uint32(0x913) << uint32(0x0);           // 8
             data << uint32(0x912) << uint32(0x0);           // 9
             data << uint32(0x915) << uint32(0x0);           // 10
             break;
@@ -22210,15 +22208,22 @@ void Player::SendInitialPacketsBeforeAddToMap()
     m_reputationMgr.SendInitialReputations();
 
     // SMSG_CORPSE_RECLAIM_DELAY
-    // SMSG_INIT_WORLD_STATES
-    // SMSG_SET_PHASE_SHIFT
+    SetMover(this);
+}
+
+void Player::SendInitialPacketsAfterAddToMap()
+{
+    // update zone
+    uint32 newzone, newarea;
+    GetZoneAndAreaId(newzone, newarea);
+    UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
     SendCurrencies();
     SendEquipmentSetList();
     m_achievementMgr.SendAllAchievementData(this);
 
     // SMSG_LOGIN_VERIFY_WORLD
-    data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
+    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
     data << GetMapId();
     data << GetPositionX();
     data << GetPositionY();
@@ -22226,36 +22231,36 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data << GetOrientation();
     GetSession()->SendPacket(&data);
 
-    // SMSG_LOGIN_VERIFY_WORLD
+    // SMSG_LOGIN_SETTIMESPEED
     data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
     data << uint32(secsToTimeBitFields(sWorld->GetGameTime()));
     data << float(0.01666667f);                             // game speed
     data << uint32(0);                                      // added in 3.1.2
     GetSession()->SendPacket(&data);
 
-    GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
-
     // MSG_LIST_STABLED_PETS
     // SMSG_WEEKLY_SPELL_USAGE
     // SMSG_WORLD_SERVER_INFO
+    data.Initialize(SMSG_WORLD_SERVER_INFO, 10);
+    data << uint8(0);
+    data << uint8(0);
+    data << uint32(secsToTimeBitFields(sWorld->GetGameTime()));
+    data << int32(0);
+    GetSession()->SendPacket(&data);
+
+    GetMap()->SendInitSelf(this);
+    GetMap()->SendInitTransports(this);
+
+    CastSpell(this, 836, true);                             // LOGINEFFECT
+
+    GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
+
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
     // SMSG_PET_GUIDS
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 
-    SetMover(this);
-}
-
-void Player::SendInitialPacketsAfterAddToMap()
-{
-    UpdateVisibilityForPlayer();
-
-    // update zone
-    uint32 newzone, newarea;
-    GetZoneAndAreaId(newzone, newarea);
-    UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
-
-    CastSpell(this, 836, true);                             // LOGINEFFECT
+    UpdateObjectVisibility(false);
 
     // set some aura effects that send packet to player client after add player to map
     // SendMessageToSet not send it to player not it map, only for aura that not changed anything at re-apply

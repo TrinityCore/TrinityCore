@@ -400,11 +400,7 @@ bool Map::AddPlayerToMap(Player* player)
     player->SetMap(this);
     player->AddToWorld();
 
-    SendInitSelf(player);
-    SendInitTransports(player);
-
     player->m_clientGUIDs.clear();
-    player->UpdateObjectVisibility(false);
 
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;

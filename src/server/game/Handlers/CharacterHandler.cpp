@@ -837,20 +837,28 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
 
+    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
+    data << pCurrChar->GetMapId();
+    data << pCurrChar->GetPositionX();
+    data << pCurrChar->GetPositionY();
+    data << pCurrChar->GetPositionZ();
+    data << pCurrChar->GetOrientation();
+    SendPacket(&data);
+
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
     bool featureBit4 = true;
-    WorldPacket data(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
+    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
     data << uint8(2);                                       // unknown value
     data << uint32(1);
     data << uint32(1);
-    data << uint32(2);
-    data << uint32(0);
+    data << uint32(41);
+    data << uint32(1623);
     data.WriteBit(1);
     data.WriteBit(1);
-    data.WriteBit(0);
+    data.WriteBit(0);   //Enable friend on BattleNet system
     data.WriteBit(featureBit4);
     data.WriteBit(0);
     data.WriteBit(0);
@@ -858,7 +866,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (featureBit4)
     {
         data << uint32(1);
-        data << uint32(0);
+        data << uint32(0);  //Total played time on account
         data << uint32(10);
         data << uint32(60);
     }
