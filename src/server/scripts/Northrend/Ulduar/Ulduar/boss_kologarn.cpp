@@ -157,11 +157,21 @@ class boss_kologarn : public CreatureScript
             {
                 _Reset();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                 armDied = false;
                 rubbleCount = 0;
                 eyebeamTarget = 0;
                 me->SetReactState(REACT_DEFENSIVE);
                 summons.DespawnAll();
+
+                Creature* leftHand = me->FindNearestCreature(NPC_LEFT_ARM, 20.f);
+                if (leftHand)
+                    leftHand->AI()->Reset();
+
+                Creature* rightHand = me->FindNearestCreature(NPC_RIGHT_ARM, 20.f);
+                if (rightHand)
+                    rightHand->AI()->Reset();
 
                 if (instance)
                     instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
@@ -170,6 +180,7 @@ class boss_kologarn : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
                 events.ScheduleEvent(EVENT_SMASH, 5000);
@@ -516,6 +527,11 @@ class npc_kologarn_arm : public CreatureScript
                 Creature* kologarn = me->GetVehicleCreatureBase();
                 if (kologarn && !kologarn->isInCombat())
                     kologarn->AI()->AttackStart(who);
+            }
+
+            void JustDied(Unit* /*victim*/)
+            {
+                me->DespawnOrUnsummon();
             }
         };
 
