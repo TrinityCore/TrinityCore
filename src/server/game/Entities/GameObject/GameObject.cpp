@@ -166,7 +166,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     ASSERT(map);
     SetMap(map);
 
-    ang = MapManager::NormalizeOrientation(ang);
     Relocate(x, y, z, ang);
     if (!IsPositionValid())
     {
