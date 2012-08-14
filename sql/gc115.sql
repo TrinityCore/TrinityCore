@@ -13,6 +13,11 @@ DELETE FROM spell_script_names WHERE spell_id = 31789;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (31789, 'spell_pal_righteous_defense');
 
+-- impale scriptname
+DELETE FROM spell_script_names WHERE spell_id = 65919;
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(65919, 'spell_gen_impale');
+
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 
