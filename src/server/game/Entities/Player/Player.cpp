@@ -7253,7 +7253,7 @@ void Player::SendCurrencies() const
         if (!entry) // should never happen
             continue;
 
-        uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
+        uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
         uint32 weekCount = itr->second.weekCount / precision;
         uint32 weekCap = _GetCurrencyWeekCap(entry) / precision;
 
@@ -7299,7 +7299,7 @@ void Player::ModifyCurrency(uint32 id, int32 count)
    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
    ASSERT(currency);
 
-   int32 precision = currency->Flags & 0x8 ? 100 : 1;
+   int32 precision = currency->Flags & CURRENCY_FLAG_HIGH_PRECISION ? 100 : 1;
    uint32 oldTotalCount = 0;
    uint32 oldWeekCount = 0;
    PlayerCurrenciesMap::iterator itr = m_currencies.find(id);
