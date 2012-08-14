@@ -1494,6 +1494,23 @@ enum Targets
     TARGET_UNK_DEST_AREA_UNK_107       = 107, // not enough info - only generic spells avalible
     TARGET_GAMEOBJECT_CONE             = 108,
     TARGET_DEST_UNK_110                = 110, // 1 spell
+    TARGET_UNK_111                     = 111,
+    TARGET_UNK_112                     = 112,
+    TARGET_UNK_113                     = 113,
+    TARGET_UNK_114                     = 114,
+    TARGET_UNK_115                     = 115,
+    TARGET_UNK_116                     = 116,
+    TARGET_UNK_117                     = 117,
+    TARGET_UNK_118                     = 118,
+    TARGET_UNK_119                     = 119,
+    TARGET_UNK_120                     = 120,
+    TARGET_UNK_121                     = 121,
+    TARGET_UNK_122                     = 122,
+    TARGET_UNK_123                     = 123,
+    TARGET_UNK_124                     = 124,
+    TARGET_UNK_125                     = 125,
+    TARGET_UNK_126                     = 126,
+    TARGET_UNK_127                     = 127,
     TOTAL_SPELL_TARGETS
 };
 
