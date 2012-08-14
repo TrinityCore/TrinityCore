@@ -296,6 +296,7 @@ class Map : public GridRefManager<NGridType>
 
         time_t GetGridExpiry(void) const { return i_gridExpiry; }
         uint32 GetId(void) const { return i_mapEntry->MapID; }
+        uint32 GetRootPhaseMapId(void) const { return i_mapEntry->rootPhaseMap > 0 ? i_mapEntry->rootPhaseMap : i_mapEntry->MapID; }
 
         static bool ExistMap(uint32 mapid, int gx, int gy);
         static bool ExistVMap(uint32 mapid, int gx, int gy);

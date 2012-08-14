@@ -379,6 +379,8 @@ class Object
         DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return NULL; }
         DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return NULL; }
 
+        uint32 GetRootPhaseMapId() const { ASSERT(m_rootPhaseMap >= 0); return m_rootPhaseMap; }
+        void SetRootPhaseMap(int32 map) { m_rootPhaseMap = map; }
     protected:
         Object();
 
@@ -416,6 +418,7 @@ class Object
 
         bool m_objectUpdated;
 
+        int32 m_rootPhaseMap;
     private:
         bool m_inWorld;
 

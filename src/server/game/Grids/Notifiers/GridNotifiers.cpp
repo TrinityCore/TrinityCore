@@ -215,7 +215,7 @@ void DelayedUnitRelocation::Visit(PlayerMapType &m)
         Cell cell2(pair2);
         //cell.SetNoCreate(); need load cells around viewPoint or player, that's why its commented
 
-        PlayerRelocationNotifier relocate(*player);
+        PlayerRelocationNotifier relocate(*player, i_map.GetRootPhaseMapId());
         TypeContainerVisitor<PlayerRelocationNotifier, WorldTypeMapContainer > c2world_relocation(relocate);
         TypeContainerVisitor<PlayerRelocationNotifier, GridTypeMapContainer >  c2grid_relocation(relocate);
 

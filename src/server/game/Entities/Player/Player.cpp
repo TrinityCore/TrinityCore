@@ -1866,6 +1866,11 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     uint8 level = fields[7].GetUInt8();
     uint32 zone = fields[8].GetUInt16();
     uint32 mapId = uint32(fields[9].GetUInt16());
+
+    if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
+        if (mapEntry->rootPhaseMap >= 0)
+            mapId = mapEntry->rootPhaseMap;
+
     float x = fields[10].GetFloat();
     float y = fields[11].GetFloat();
     float z = fields[12].GetFloat();
@@ -9103,7 +9108,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     // data depends on zoneid/mapid...
     Battleground* bg = GetBattleground();
     uint16 NumberOfFields = 0;
-    uint32 mapid = GetMapId();
+    uint32 mapid = GetRootPhaseMapId();
     OutdoorPvP* pvp = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneid);
     InstanceScript* instance = GetInstanceScript();
 
@@ -16504,7 +16509,7 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, flo
 
 void Player::SetHomebind(WorldLocation const& /*loc*/, uint32 /*area_id*/)
 {
-    m_homebindMapId = GetMapId();
+    m_homebindMapId = GetRootPhaseMapId();
     m_homebindAreaId = GetAreaId();
     m_homebindX = GetPositionX();
     m_homebindY = GetPositionY();
@@ -16923,6 +16928,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     }
 
     SetMap(map);
+    SetRootPhaseMap(map->GetRootPhaseMapId());
     StoreRaidMapDifficulty();
 
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
@@ -21945,7 +21951,7 @@ void Player::UpdateTriggerVisibility()
     if (!IsInWorld())
         return;
 
-    UpdateData udata(GetMapId());
+    UpdateData udata(GetRootPhaseMapId());
     WorldPacket packet;
     for (ClientGUIDs::iterator itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
     {
@@ -22027,7 +22033,7 @@ void Player::UpdateObjectVisibility(bool forced)
 void Player::UpdateVisibilityForPlayer()
 {
     // updates visibility of all objects around point of view for current player
-    Trinity::VisibleNotifier notifier(*this);
+    Trinity::VisibleNotifier notifier(*this, GetRootPhaseMapId());
     m_seer->VisitNearbyObject(GetSightRange(), notifier);
     notifier.SendToSelf();   // send gathered data
 }
@@ -22229,7 +22235,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     // SMSG_LOGIN_VERIFY_WORLD
     WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
-    data << GetMapId();
+    data << GetRootPhaseMapId();
     data << GetPositionX();
     data << GetPositionY();
     data << GetPositionZ();
@@ -22793,7 +22799,7 @@ void Player::UpdateForQuestWorldObjects()
     if (m_clientGUIDs.empty())
         return;
 
-    UpdateData udata(GetMapId());
+    UpdateData udata(GetRootPhaseMapId());
     WorldPacket packet;
     for (ClientGUIDs::iterator itr=m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
     {
