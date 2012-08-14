@@ -749,3 +749,6 @@ INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param
 (34135, 1, 0, 4, 5000, 10000, 10000, 15000, 11, 64655, 2, 'Winter Rumbler - Cast Cone of Cold'),
 (34135, 2, 0, 2, 10000, 20000, 10000, 20000, 11, 64647, 6, 'Winter Rumbler - Cast Snow Blindness'),
 (34135, 3, 0, 4, 10000, 20000, 10000, 20000, 11, 64654, 6, 'Winter Rumbler - Cast Snow Blindness');
+
+-- Nature bomb, Unstable energy model correction
+UPDATE creature_template SET modelid1 = 0 WHERE entry IN (34129, 34153, 33050, 33170, 33395, 33402);

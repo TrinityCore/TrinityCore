@@ -297,7 +297,12 @@ enum Data
 class npc_iron_roots : public CreatureScript
 {
     private:
-        enum { SPELL_DEATH_GRIP = 49560, FACTION_HOSTILE = 14 };
+        enum
+        {
+            SPELL_DEATH_GRIP = 49560,
+            FACTION_HOSTILE = 14
+        };
+
     public:
         npc_iron_roots() : CreatureScript("npc_iron_roots") {}
 
@@ -884,6 +889,7 @@ class boss_elder_brightleaf : public CreatureScript
             EVENT_UNSTABLE_SUN_BEAM                      = 16,
             EVENT_FLUX                                   = 17,
         };
+
     public:
         boss_elder_brightleaf() : CreatureScript("boss_elder_brightleaf") {}
 
@@ -1018,6 +1024,7 @@ class boss_elder_stonebark : public CreatureScript
             EVENT_PETRIFIED_BARK                         = 10,
             EVENT_FISTS_OF_STONE                         = 11,
         };
+
     public:
         boss_elder_stonebark() : CreatureScript("boss_elder_stonebark") {}
 
@@ -1152,7 +1159,8 @@ class boss_elder_ironbranch : public CreatureScript
             EVENT_IMPALE                                 = 12,
             EVENT_IRON_ROOTS                             = 13,
             EVENT_THORN_SWARM                            = 14,
-        };        
+        };
+
     public:
         boss_elder_ironbranch() : CreatureScript("boss_elder_ironbranch") {}
 
@@ -1268,7 +1276,12 @@ class boss_elder_ironbranch : public CreatureScript
 class npc_detonating_lasher : public CreatureScript
 {
     private:
-        enum { EVENT_LASH = 1, EVENT_CHANGE_TARGET };
+        enum
+        {
+            EVENT_LASH = 1,
+            EVENT_CHANGE_TARGET
+        };
+
     public:
         npc_detonating_lasher() : CreatureScript("npc_detonating_lasher") {}
 
@@ -1413,7 +1426,12 @@ class npc_ancient_water_spirit : public CreatureScript
 class npc_storm_lasher : public CreatureScript
 {
     private:
-        enum { EVENT_LIGHTNING_LASH = 1, EVENT_STORMBOLT };
+        enum
+        {
+            EVENT_LIGHTNING_LASH = 1,
+            EVENT_STORMBOLT
+        };
+
     public:
         npc_storm_lasher() : CreatureScript("npc_storm_lasher") {}
 
@@ -1549,7 +1567,12 @@ class npc_snaplasher : public CreatureScript
 class npc_ancient_conservator : public CreatureScript
 {
     private:
-        enum { EVENT_NATURES_FURY = 1, EVENT_HEALTHY_SPORE };
+        enum
+        {
+            EVENT_NATURES_FURY = 1,
+            EVENT_HEALTHY_SPORE
+        };
+
     public:
         npc_ancient_conservator() : CreatureScript("npc_ancient_conservator") {}
 
@@ -1566,10 +1589,10 @@ class npc_ancient_conservator : public CreatureScript
 
             void SummonHealthySpores(uint8 sporesCount)
             {
-                // TODO: Check if this cast works, otherwise, summon them manually.
                 for (uint8 n = 0; n < sporesCount; ++n)
                 {
                     DoCast(SPELL_SUMMON_PERIODIC);
+                    DoCast(SPELL_SPORE_SUMMON_NW);
                     DoCast(SPELL_SPORE_SUMMON_NE);
                     DoCast(SPELL_SPORE_SUMMON_SE);
                     DoCast(SPELL_SPORE_SUMMON_SW);
@@ -1583,7 +1606,7 @@ class npc_ancient_conservator : public CreatureScript
                     if (InstanceScript* instance = me->GetInstanceScript())
                         if (Creature* freya = me->GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                             freya->AI()->SetGUID(me->GetGUID(), ACTION_ELEMENTAL_DEAD);
-                        me->DespawnOrUnsummon(1);
+                    me->DespawnOrUnsummon(1);
                 }
             }
 
@@ -1646,26 +1669,12 @@ class npc_sun_beam : public CreatureScript
 
             void Reset()
             {
-                _unstableEnergyTimer = 1000;
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetDisplayId(MODEL_INVISIBLE);
                 me->DespawnOrUnsummon(12000);
                 DoCast(me, SPELL_FREYA_UNSTABLE_ENERGY_VISUAL, true); // visual
             }
-
-            void UpdateAI(uint32 const diff)    // hm... behavior correct ?
-            {
-                if (_unstableEnergyTimer <= diff)
-                {
-                    DoCast(SPELL_FREYA_UNSTABLE_ENERGY);
-                }
-                else
-                    _unstableEnergyTimer -= diff;
-            }
-
-            private:
-                uint32 _unstableEnergyTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1698,9 +1707,11 @@ class npc_healthy_spore : public CreatureScript
             void UpdateAI(uint32 const diff)
             {
                 if (InstanceScript* inst = me->GetInstanceScript())
+                {
                     if (inst->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                         me->DisappearAndDie();
-                else 
+                }
+                else
                     me->DisappearAndDie();
 
                 if (lifeTimer <= diff)
@@ -1842,12 +1853,14 @@ class npc_unstable_sun_beam : public CreatureScript
                 if (target)
                     if (Creature* c = target->ToCreature())
                         if (c->GetEntry() == NPC_ELDER_BRIGHTLEAF)
+                        {
                             if (me->IsWithinDist2d(c, 4))
                                 if (!c->HasAura(SPELL_PHOTOSYNTHESIS))                  // Simulates something like "move aura photosynthesis from elder to me"
                                     me->AddAura(SPELL_PHOTOSYNTHESIS, c);
                             else
                                 if (c->HasAura(SPELL_PHOTOSYNTHESIS))
                                     c->RemoveAurasDueToSpell(SPELL_PHOTOSYNTHESIS);
+                        }
             }
 
             void UpdateAI(uint32 const diff)
