@@ -673,7 +673,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
     uint64 vendorguid, bagGuid;
     uint32 item, slot, count;
-    uint8 itemType; // 1 = item, 2 = currency (not implemented)
+    uint8 itemType; // 1 = item, 2 = currency
     uint8 bagSlot;
 
     recvData >> vendorguid >> itemType >> item >> slot >> count >> bagGuid >> bagSlot;
@@ -684,13 +684,20 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
     else
         return; // cheating
 
-    Item* bagItem = _player->GetItemByGuid(bagGuid);
+    if (itemType == ITEM_VENDOR_TYPE_ITEM)
+    {
+        Item* bagItem = _player->GetItemByGuid(bagGuid);
 
-    uint8 bag = NULL_BAG;
-    if (bagItem && bagItem->IsBag())
-        bag = bagItem->GetSlot();
+        uint8 bag = NULL_BAG;
+        if (bagItem && bagItem->IsBag())
+            bag = bagItem->GetSlot();
 
-    GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagSlot);
+        GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagSlot);
+    }
+    else if (itemType == ITEM_VENDOR_TYPE_CURRENCY)
+        GetPlayer()->BuyCurrencyFromVendorSlot(vendorguid, slot, item, count);
+    else
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
 }
 
 void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
@@ -744,52 +751,86 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         VendorItem const* vendorItem = vendorItems->GetItem(slot);
         if (!vendorItem) continue;
 
-        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
-        if (!itemTemplate) continue;
-
-        if (!_player->isGameMaster()) // ignore conditions if GM on
+        if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
         {
-            // Respect allowed class
-            if (!(itemTemplate->AllowableClass & _player->getClassMask()))
-                continue;
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
+            if (!itemTemplate) continue;
 
-            // Do not sell BOP items
-            if (itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
-                continue;
+            if (!_player->isGameMaster()) // ignore conditions if GM on
+            {
+                // Respect allowed class
+                if (!(itemTemplate->AllowableClass & _player->getClassMask()))
+                    continue;
 
-            // Only display items in vendor lists for the team the player is on
-            if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
-                (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
-                continue;
+                // Do not sell BOP items
+                if (itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                    continue;
 
-            // Items sold out are not displayed in list
+                // Only display items in vendor lists for the team the player is on
+                if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
+                    (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                    continue;
+
+                // Items sold out are not displayed in list
+                uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
+                if (leftInStock == 0)
+                    continue;
+            }
+
+            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
             uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
-            if (leftInStock == 0)
-                continue;
+
+            itemsData << uint32(count++ + 1);        // client expects counting to start at 1
+            itemsData << uint32(itemTemplate->MaxDurability);
+
+            if (vendorItem->ExtendedCost != 0)
+            {
+                enablers.push_back(0);
+                itemsData << uint32(vendorItem->ExtendedCost);
+            }
+            else
+                enablers.push_back(1);
+            enablers.push_back(1);                 // unk bit
+
+            itemsData << uint32(vendorItem->item);
+            itemsData << uint32(vendorItem->Type);     // 1 is items, 2 is currency
+            itemsData << uint32(price);
+            itemsData << uint32(itemTemplate->DisplayInfoID);
+            // if (!unk "enabler") data << uint32(something);
+            itemsData << int32(leftInStock);
+            itemsData << uint32(itemTemplate->BuyCount);
         }
-
-        int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
-        uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
-
-        itemsData << uint32(count++ + 1);        // client expects counting to start at 1
-        itemsData << uint32(itemTemplate->MaxDurability);
-
-        if (vendorItem->ExtendedCost != 0)
+        else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
         {
-            enablers.push_back(0);
-            itemsData << uint32(vendorItem->ExtendedCost);
-        }
-        else
-            enablers.push_back(1);
-        enablers.push_back(1);                 // unk bit
+            CurrencyTypesEntry const* currencyTemplate = sCurrencyTypesStore.LookupEntry(vendorItem->item);
 
-        itemsData << uint32(vendorItem->item);
-        itemsData << uint32(1);                // 1 is items, 2 is currency (FIXME: currency isn't implemented)
-        itemsData << uint32(price);
-        itemsData << uint32(itemTemplate->DisplayInfoID);
-        // if (!unk "enabler") data << uint32(something);
-        itemsData << int32(leftInStock);
-        itemsData << uint32(itemTemplate->BuyCount);
+            if (!currencyTemplate) continue;
+
+            if (vendorItem->ExtendedCost == 0) continue; // there's no price defined for currencies, only extendedcost is used
+
+            uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
+
+            itemsData << uint32(count++ + 1);        // client expects counting to start at 1
+            itemsData << uint32(0);                  // max durability
+
+            if (vendorItem->ExtendedCost != 0)
+            {
+                enablers.push_back(0);
+                itemsData << uint32(vendorItem->ExtendedCost);
+            }
+            else
+                enablers.push_back(1);
+            enablers.push_back(1);                    // unk bit
+
+            itemsData << uint32(vendorItem->item);
+            itemsData << uint32(vendorItem->Type);    // 1 is items, 2 is currency
+            itemsData << uint32(0);                   // price, only seen currency types that have Extended cost
+            itemsData << uint32(0);                   // displayId
+            // if (!unk "enabler") data << uint32(something);
+            itemsData << int32(-1);
+            itemsData << uint32(vendorItem->maxcount * precision);
+        }
+        // else error
     }
 
     uint8* guidBytes = (uint8*)&vendorGuid;

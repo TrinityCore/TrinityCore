@@ -1483,7 +1483,7 @@ class Unit : public WorldObject
         }
 
         virtual uint32 GetBlockPercent() { return 30; }
-        
+
         uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         uint32 GetDefenseSkillValue(Unit const* target = NULL) const;
         uint32 GetWeaponSkillValue(WeaponAttackType attType, Unit const* target = NULL) const;

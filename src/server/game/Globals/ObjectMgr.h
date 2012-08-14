@@ -622,7 +622,7 @@ class ObjectMgr
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
-        int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32> *skip_vendors);
+        int LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32> *skip_vendors);
 
         void LoadGameObjectTemplate();
         void AddGameobjectInfo(GameObjectTemplate* goinfo);
@@ -1075,15 +1075,15 @@ class ObjectMgr
 
         VendorItemData const* GetNpcVendorItemList(uint32 entry) const
         {
-            CacheVendorItemContainer::const_iterator  iter = _cacheVendorItemStore.find(entry);
+            CacheVendorItemContainer::const_iterator iter = _cacheVendorItemStore.find(entry);
             if (iter == _cacheVendorItemStore.end())
                 return NULL;
 
             return &iter->second;
         }
-        void AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist = true); // for event
-        bool RemoveVendorItem(uint32 entry, uint32 item, bool persist = true); // for event
-        bool IsVendorItemValid(uint32 vendor_entry, uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* player = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
+        void AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist = true); // for event
+        bool RemoveVendorItem(uint32 entry, uint32 item, uint8 type, bool persist = true); // for event
+        bool IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type, Player* player = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
         ScriptNameContainer &GetScriptNames() { return _scriptNamesStore; }

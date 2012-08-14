@@ -85,6 +85,7 @@ struct NPCVendorEntry
     int32  maxcount;                                        // 0 for infinite
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+    uint8 Type;                                             // 1 item, 2 currency
 };
 
 class Player;

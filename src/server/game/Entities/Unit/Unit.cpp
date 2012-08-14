@@ -5628,7 +5628,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 AuraEffect* counter = triggeredByAura->GetBase()->GetEffect(EFFECT_1);
                 if (!counter)
                     return true;
-                
+
                 // Count spell criticals in a row in second aura
                 if (procEx & PROC_EX_CRITICAL_HIT)
                 {
@@ -6935,7 +6935,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // custom cooldown processing case
                     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(spell))
                         ToPlayer()->RemoveSpellCooldown(spell);
-                    
+
                     CastSpell(target, spell, true, castItem, triggeredByAura);
                     return true;
                 }
