@@ -112,6 +112,7 @@ class boss_auriaya : public CreatureScript
         EVENT_TERRIFYING_SCREECH,     
         EVENT_SUMMON_SWARMING_GUARDIAN, 
         EVENT_ACTIVATE_DEFENDER, 
+        EVENT_RESPAWN_DEFENDER,
         EVENT_BERSERK, 
     };
 
@@ -154,7 +155,7 @@ class boss_auriaya : public CreatureScript
                 events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(20000, 30000));
                 events.ScheduleEvent(EVENT_ACTIVATE_DEFENDER, urand(40000, 55000));
                 events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(45000, 55000));
-                events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS); 
+                events.ScheduleEvent(EVENT_BERSERK, 600000);
             }
 
             void KilledUnit(Unit* /*who*/)
@@ -219,6 +220,7 @@ class boss_auriaya : public CreatureScript
                             break;
                         }
                         me->SummonCreature(NPC_SEEPING_TRIGGER, *summon);
+                        events.ScheduleEvent(EVENT_RESPAWN_DEFENDER, 30000);
                         break;
                     case NPC_SANCTUM_SENTRY:
                         SetData(DATA_CRAZY_CAT_LADY, 0);
@@ -227,17 +229,6 @@ class boss_auriaya : public CreatureScript
                         break;
                 }
                 summons.Despawn(summon);
-            }
-
-            void DoAction(const int32 id)
-            {
-                switch (id)
-                {
-                    case ACTION_RESPAWN_DEFENDER:
-                        if (defenderLives > 0)
-                            me->SummonCreature(NPC_FERAL_DEFENDER, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000); // 30 secs equal the automated respawn time (due to script)                            
-                        break;
-                }
             }
 
             void JustDied(Unit* /*who*/)
@@ -261,31 +252,70 @@ class boss_auriaya : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SONIC_SCREECH:
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                            {
+                                events.ScheduleEvent(EVENT_SONIC_SCREECH, 1000);
+                                break;
+                            }
                             DoCast(SPELL_SONIC_SCREECH);
                             events.ScheduleEvent(EVENT_SONIC_SCREECH, urand(40000, 60000));
                             break;
                         case EVENT_TERRIFYING_SCREECH:
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                            {
+                                events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, 1000);
+                                break;
+                            }
                             DoScriptText(EMOTE_FEAR, me);
                             DoCast(SPELL_TERRIFYING_SCREECH);
                             events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(20000, 30000));
                             break;
                         case EVENT_SENTINEL_BLAST:
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                            {
+                                events.ScheduleEvent(EVENT_SENTINEL_BLAST, 1000);
+                                break;
+                            }
                             DoCastAOE(SPELL_SENTINEL_BLAST);
                             events.ScheduleEvent(EVENT_SENTINEL_BLAST, urand(25000, 35000));
                             break;
                         case EVENT_ACTIVATE_DEFENDER:
-                            // TODO: Check if this works correctly. Otherwise, we will summon those directly.
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                            {
+                                events.ScheduleEvent(EVENT_ACTIVATE_DEFENDER, 1000);
+                                break;
+                            }
                             DoScriptText(EMOTE_DEFENDER, me);
                             DoCast(SPELL_DEFENDER_TRIGGER);
-                            if (Creature* trigger = me->FindNearestCreature(NPC_FERAL_DEFENDER_TRIGGER, 50.0f, true))
+                            if (Creature* trigger = me->FindNearestCreature(NPC_FERAL_DEFENDER_TRIGGER, 50.0f))
                                 DoCast(trigger, SPELL_ACTIVATE_DEFENDER, true);
                             break;
+                        case EVENT_RESPAWN_DEFENDER:
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                            {
+                                events.ScheduleEvent(EVENT_RESPAWN_DEFENDER, 1000);
+                                break;
+                            }
+                            if (defenderLives > 0)
+                                if (Creature* corpse = me->FindNearestCreature(NPC_FERAL_DEFENDER, 50.0f, false))
+                                    me->SummonCreature(NPC_FERAL_DEFENDER, *corpse, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 31000);
+                            break;
                         case EVENT_SUMMON_SWARMING_GUARDIAN:
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                            {
+                                events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, 1000);
+                                break;
+                            }
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_SUMMON_SWARMING_GUARDIAN);
                             events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(30000, 45000));
                             break;
                         case EVENT_BERSERK:
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                            {
+                                events.ScheduleEvent(EVENT_BERSERK, 1000);
+                                break;
+                            }
                             DoCast(me, SPELL_BERSERK, true);
                             DoScriptText(SAY_BERSERK, me);
                             break;
@@ -478,16 +508,9 @@ class npc_feral_defender : public CreatureScript
             void JustDied(Unit* /*who*/)
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
+                // corpse has to be summoned when EVENT_RESPAWN_DEFENDER happens
+                me->DespawnOrUnsummon(31000);
                 // Moved other behavior to SummonedCreatureDies
-            }
-
-            void CorpseRemoved(uint32& /*respawnDelay*/)
-            {
-                if (instance)
-                    if (uint64 auriID = instance->GetData64(BOSS_AURIAYA))
-                        if (Creature* auriaya = ObjectAccessor::GetCreature(*me, auriID))
-                            if (auriaya->IsAIEnabled)
-                                auriaya->AI()->DoAction(ACTION_RESPAWN_DEFENDER);
             }
 
             private:
