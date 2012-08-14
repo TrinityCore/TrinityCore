@@ -1857,8 +1857,10 @@ class npc_unstable_sun_beam : public CreatureScript
                         if (c->GetEntry() == NPC_ELDER_BRIGHTLEAF)
                         {
                             if (me->IsWithinDist2d(c, 4))
+                            {
                                 if (!c->HasAura(SPELL_PHOTOSYNTHESIS))                  // Simulates something like "move aura photosynthesis from elder to me"
                                     me->AddAura(SPELL_PHOTOSYNTHESIS, c);
+                            }
                             else
                                 if (c->HasAura(SPELL_PHOTOSYNTHESIS))
                                     c->RemoveAurasDueToSpell(SPELL_PHOTOSYNTHESIS);
