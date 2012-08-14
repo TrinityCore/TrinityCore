@@ -1758,8 +1758,10 @@ class npc_eonars_gift : public CreatureScript
             void UpdateAI(uint32 const diff)
             {
                 if (InstanceScript* inst = me->GetInstanceScript())
+                {
                     if (inst->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                         me->DisappearAndDie();
+                }
                 else 
                     me->DisappearAndDie();
                 
