@@ -1120,7 +1120,7 @@ struct GtRegenMPPerSptEntry
 struct GtSpellScalingEntry
 {
     float value;
-}
+};
 
 struct GtOCTBaseHPByClassEntry
 {
