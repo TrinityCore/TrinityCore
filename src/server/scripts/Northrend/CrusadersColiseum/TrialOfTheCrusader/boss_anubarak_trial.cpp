@@ -37,15 +37,17 @@ EndScriptData */
 
 enum Yells
 {
-    SAY_INTRO               = -1649055,
-    SAY_AGGRO               = -1649056,
-    SAY_KILL1               = -1649057,
-    SAY_KILL2               = -1649058,
-    SAY_DEATH               = -1649059,
-    EMOTE_SPIKE             = -1649060,
-    SAY_BURROWER            = -1649061,
-    EMOTE_LEECHING_SWARM    = -1649062,
-    SAY_LEECHING_SWARM      = -1649063,
+    SAY_INTRO               = 0,
+    SAY_AGGRO               = 1,
+    EMOTE_SUBMERGE          = 2,
+    EMOTE_BURROWER          = 3,
+    SAY_EMERGE              = 4,
+    SAY_LEECHING_SWARM      = 5,
+    EMOTE_LEECHING_SWARM    = 6,
+    SAY_KILL_PLAYER         = 7,
+    SAY_DEATH               = 8,
+
+    EMOTE_SPIKE             = 0,
 };
 
 enum Summons
@@ -195,7 +197,7 @@ public:
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
-                DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
+                Talk(SAY_KILL_PLAYER);
                 if (instance)
                     instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
@@ -321,7 +323,7 @@ public:
                     DoCast(me, SPELL_SUBMERGE_ANUBARAK);
                     DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    DoScriptText(SAY_BURROWER, me);
+                    Talk(EMOTE_BURROWER);
                     m_uiScarabSummoned = 0;
                     m_uiSummonScarabTimer = 4*IN_MILLISECONDS;
                     m_uiStage = 2;
@@ -669,6 +671,7 @@ public:
         {
             m_uiTargetGUID = who->GetGUID();
             DoCast(who, SPELL_MARK);
+            Talk(EMOTE_SPIKE, who->GetGUID());
             me->SetSpeed(MOVE_RUN, 0.5f);
             m_uiSpeed = 0;
             m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;

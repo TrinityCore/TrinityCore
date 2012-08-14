@@ -101,6 +101,7 @@ public:
         boss_ingvar_the_plundererAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            bIsUndead = false;
         }
 
         InstanceScript* instance;
