@@ -251,8 +251,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (62042, 'spel
 
 -- Charge Orb - implicit targeting only a special npc.
 DELETE FROM `conditions` WHERE SourceEntry = 62016;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES (13, 0, 62016, 0, 0, 18, 0, 33378, 0, 0, 0, 0, '', NULL);
-UPDATE `creature_template` SET `unit_flags`=33685508 WHERE `entry`=33378;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
+(13, 1, 62016, 31, 3, 33378, 'Lightning Shock');
 
 -- Pre-phase adds: Register scripts.
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`&~32768,`dynamicflags`=0,`ScriptName`='npc_thorim_pre_phase_add' WHERE `entry` IN (32885,32883,32908,32907,32882,32886);
