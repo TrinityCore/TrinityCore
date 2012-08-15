@@ -162,6 +162,7 @@ enum eCreature
 {
     NPC_BARRENT                 = 34816,
     NPC_TIRION                  = 34996,
+    NPC_TIRION_FORDRING         = 36095,
     NPC_FIZZLEBANG              = 35458,
     NPC_GARROSH                 = 34995,
     NPC_VARIAN                  = 34990,
