@@ -181,12 +181,18 @@ void Log::CreateLoggerFromConfig(const char* name)
     options.append(name);
     options = ConfigMgr::GetStringDefault(options.c_str(), "");
 
+    if (options.empty())
+    {
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Missing config option Logger.%s\n", name);
+        return;
+    }
+
     Tokens tokens(options, ',');
     Tokens::iterator iter = tokens.begin();
 
     if (tokens.size() != 3)
     {
-        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong configuration for logger %s. Config line: %s\n", name, options.c_str());
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong config option Logger.%s=%s\n", name, options.c_str());
         return;
     }
 
@@ -467,15 +473,15 @@ void Log::SetRealmID(uint32 id)
 
 void Log::Close()
 {
+    delete worker;
+    worker = NULL;
+    loggers.clear();
     for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
     {
         delete it->second;
         it->second = NULL;
     }
     appenders.clear();
-    loggers.clear();
-    delete worker;
-    worker = NULL;
 }
 
 void Log::LoadFromConfig()
