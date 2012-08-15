@@ -239,7 +239,7 @@ Lets trace how system will log two different messages:
     Console will discard msg as Log Level is not higher or equal to this
     appender
     Server will write to file
-    "2012-08-15 INFO [CHARACTER ] Guild 1 Player Name Logged in"
+    "2012-08-15 INFO [CHARACTER ] Player Name Logged in"
 
 EXAMPLE 3
 As a dev, i may be interested in logging just a particular part of the core
@@ -272,5 +272,3 @@ why this system is better than previous one?
  affected by IO operations
 - Lets us select "What to log" and "Where to log" on the fly. You can log to a
  dozen of files without having to change a single line of code
-
- 
