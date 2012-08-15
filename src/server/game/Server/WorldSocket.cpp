@@ -194,7 +194,7 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
         pkt = &buff;
     }
 
-    sLog->outOpCode(uint32(pkt->GetOpcode()), LookupOpcodeName(pkt->GetOpcode()), true);
+    sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s 0x%.4X (%u)", LookupOpcodeName(pkt->GetOpcode()), uint32(pkt->GetOpcode()), uint32(pkt->GetOpcode()));
 
     sScriptMgr->OnPacketSend(this, *pkt);
 
@@ -719,7 +719,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
         sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", data.c_str());
     }
 
-    sLog->outOpCode(uint32(Opcodes(opcode)), LookupOpcodeName(Opcodes(opcode)), false);
+    sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s 0x%.4X (%u)", LookupOpcodeName(Opcodes(opcode)), uint32(Opcodes(opcode)), uint32(Opcodes(opcode)));
 
     try
     {
