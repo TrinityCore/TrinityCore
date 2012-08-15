@@ -719,11 +719,15 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     sScriptMgr->OnPlayerDelete(guid);
     sWorld->DeleteCharaceterNameData(GUID_LOPART(guid));
 
-    if (sLog->ShouldLog(LOG_FILTER_CHARACTER, LOG_LEVEL_DEBUG)) // optimize GetPlayerDump call
+    if (sLog->ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO)) // optimize GetPlayerDump call
     {
         std::string dump;
         if (PlayerDumpWriter().GetDump(GUID_LOPART(guid), dump))
-            sLog->outDebug(LOG_FILTER_CHARACTER, dump.c_str(), GetAccountId(), GUID_LOPART(guid), name.c_str());
+        {
+            std::ostringstream ss;
+            ss << GetAccountId() << '_' << name.c_str();
+            sLog->outCharDump(ss.str().c_str(), dump.c_str(), GetAccountId(), GUID_LOPART(guid), name.c_str());
+        }
     }
 
     Player::DeleteFromDB(guid, GetAccountId());

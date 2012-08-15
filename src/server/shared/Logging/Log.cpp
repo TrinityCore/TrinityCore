@@ -449,6 +449,23 @@ void Log::outFatal(LogFilterType filter, const char * str, ...)
     va_end(ap);
 }
 
+void Log::outCharDump(const char* param, const char * str, ...)
+{
+    if (!str || !ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO))
+        return;
+
+    va_list ap;
+    va_start(ap, str);
+    char text[MAX_QUERY_LEN];
+    vsnprintf(text, MAX_QUERY_LEN, str, ap);
+    va_end(ap);
+
+    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_PLAYER_DUMP, text);
+    msg->param1 = param;
+
+    write(msg);
+}
+
 void Log::outCommand(uint32 account, const char * str, ...)
 {
     if (!str || !ShouldLog(LOG_FILTER_GMCOMMAND, LOG_LEVEL_INFO))
@@ -461,7 +478,10 @@ void Log::outCommand(uint32 account, const char * str, ...)
     va_end(ap);
 
     LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_GMCOMMAND, text);
-    msg->param1 = account;
+
+    std::ostringstream ss;
+    ss << account;
+    msg->param1 = ss.str();
 
     write(msg);
 }
