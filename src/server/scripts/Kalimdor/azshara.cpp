@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Azshara
 SD%Complete: 0
-SDComment: Quest support:  
+SDComment: Quest support:
 SDCategory: Azshara
 EndScriptData */
 

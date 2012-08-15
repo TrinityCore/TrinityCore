@@ -6836,7 +6836,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
         repTemplate.faction_rank[3]     = fields[12].GetUInt8();
         repTemplate.faction[4]          = fields[13].GetUInt16();
         repTemplate.faction_rate[4]     = fields[14].GetFloat();
-        repTemplate.faction_rank[4]     = fields[15].GetUInt16();
+        repTemplate.faction_rank[4]     = fields[15].GetUInt8();
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
 
