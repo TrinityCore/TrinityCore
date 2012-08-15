@@ -80,7 +80,9 @@ class boss_akilzon : public CreatureScript
             boss_akilzonAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
+                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
             }
+
             InstanceScript* instance;
 
             uint64 BirdGUIDs[8];
