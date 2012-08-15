@@ -2627,19 +2627,25 @@ PlayerDump.DisallowOverwrite = 1
 #                          w - (Overwrite)
 #
 
-Appender.Console=1,2,6
-Appender.Server=2,2,7,Server.log,w
-Appender.GM=2,2,7,GM_%s.log
-Appender.SQL=2,2,7,SQL.log
-Appender.DBErrors=2,2,7,DBErrors.log
-Appender.Char=2,2,7,Char.log,w
-Appender.CharDump=2,2,0,chardumps/%s.log
-Appender.RA=2,2,7,RA.log
-Appender.Arenas=2,2,7,Arena.log
+Appender.Console=1,5,0
+Appender.Server=2,2,0,Server.log,w
+Appender.GM=2,2,0,GM.log
+Appender.DBErrors=2,2,0,DBErrors.log
+Appender.Char=2,2,0,Char.log,w
+Appender.RA=2,2,0,RA.log
+Appender.Warden=2,2,0,Warden.log
+Appender.Chat=2,2,0,Chat.log
+Appender.CharDump=2,2,0,%s.log
+Appender.Arenas=2,2,0,Arena.log
 Appender.SQLDev=2,2,0,SQLDev.log
-Appender.SQLDriver=2,2,7,SQLDriver.log
-Appender.Warden=2,2,7,Warden.log
-Appender.Chat=2,2,7,Chat.log
+Appender.SQLDriver=2,2,0,SQLDriver.log
+
+#    Appenders
+#        Description: List of Appenders to read from config
+#                     (Using spaces as separator).
+#        Default:     "Console Server GM DBErrors Char RA Warden Chat"
+
+Appenders=Console Server GM DBErrors Char RA Warden Chat
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -2692,49 +2698,7 @@ Appender.Chat=2,2,7,Chat.log
 #                        38 - Player Dump
 #                        39 - Battlefield
 #                        40 - Server Loading
-
-Logger.Root=0,3,Console Server
-Logger.Units=1,5,Console Server
-Logger.Pets=2,5,Console Server
-Logger.Vehicles=3,5,Console Server
-Logger.TCSR=4,5,Console Server
-Logger.AI=5,5,Console Server
-Logger.MapScripts=6,5,Console Server
-Logger.NetWork=7,5,Console Server
-Logger.Spells=8,5,Console Server
-Logger.Achievements=9,5,Console Server
-Logger.Conditions=10,5,Console Server
-Logger.Pool=11,5,Console Server
-Logger.AuctionHouse=12,5,Console Server
-Logger.Battlegrounds=13,5,Console Server
-Logger.OutdoorPvP=14,5,Console Server
-Logger.ChatSystem=15,5,Console Server
-Logger.LFG=16,5,Console Server
-Logger.Maps=17,5,Console Server
-Logger.Player=18,5,Console Server
-Logger.PlayerLoading=19,5,Console Server
-Logger.PlayerItems=20,5,Console Server
-Logger.PlayerSkills=21,5,Console Server
-Logger.PlayerChat=22,3,Chat
-Logger.Loot=23,5,Console Server
-Logger.Guilds=24,5,Console Server
-Logger.Transports=25,5,Console Server
-Logger.SQL=26,5,Console Server DBErrors
-Logger.GM=27,3,Console Server GM
-Logger.RA=28,3,RA
-Logger.Warden=29,3,Warden
-Logger.Authserver=30,5,Console Server
-Logger.Worldserver=31,5,Console Server
-Logger.GameEvents=32,5,Console Server
-Logger.Calendar=33,5,Console Server
-Logger.Character=34,3,Char
-Logger.Arenas=35,3,Arenas
-Logger.SQLDriver=36,5,SQLDriver
-Logger.SQLDev=37,3,SQLDev
-Logger.CharDump=38,3,CharDump
-Logger.Battlefield=39,5,Console Server
-Logger.Load=40,3,Console Server
-
+#                        41 - Opcodes (just id and name sent / received)
 #                     LogLevel
 #                         0 - (Disabled)
 #                         1 - (Trace)
@@ -2747,17 +2711,25 @@ Logger.Load=40,3,Console Server
 #                     AppenderList: List of appenders linked to logger
 #                     (Using spaces as separator).
 #
-#    Appenders
-#        Description: List of Appenders to read from config
-#                     (Using spaces as separator).
-#        Default:     "Console Server"
 
-Appenders=Console Server GM Char Arenas Warden DBErrors CharDump
+Logger.Root=0,3,Console Server
+Logger.Chat=22,3,Chat
+Logger.DBErrors=26,5,Console Server DBErrors
+Logger.GM=27,3,Console Server GM
+Logger.RA=28,3,RA
+Logger.Warden=29,3,Warden
+Logger.Character=34,3,Char
+Logger.Arenas=35,3,Arenas
+Logger.SQLDriver=36,5,SQLDriver
+Logger.SQLDev=37,3,SQLDev
+Logger.CharDump=38,3,CharDump
+Logger.Load=40,3,Console Server
 
 #
 #    Loggers
 #        Description: List of Loggers to read from config
 #                     (Using spaces as separator).
-#        Default:     "root"
+#        Default:     "Root Chat DBErrors GM RA Warden Character Load"
 
-Loggers=Root GM Character Arenas Warden SQL Load
+Loggers=Root Chat DBErrors GM RA Warden Character Load
+
