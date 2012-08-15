@@ -1722,7 +1722,7 @@ void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)
 }
 
 //PhaseID from phase.dbc
-void WorldSession::SendSetPhaseShift(uint16 phaseID, uint16 mapID, uint32 unk, uint16 terrain)
+void WorldSession::SendSetPhaseShift(uint16 mapID, uint16 phaseID, uint16 terrain /*=0*/)
 {
     ObjectGuid guid = _player->GetGUID();
     WorldPacket data(SMSG_SET_PHASE_SHIFT, 16+4+4+(terrain ? 6 : 4)+(mapID ? 6 : 4)+(terrain ? 6 : 4));
@@ -1746,12 +1746,12 @@ void WorldSession::SendSetPhaseShift(uint16 phaseID, uint16 mapID, uint32 unk, u
     //    data << uint16(0);
 
     data.WriteByteSeq(guid[1]);
-    data << uint32(unk);  //unk
+    data << uint32(0);  //unk. At first logining in Gilneas == 8
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[6]);
 
     // terrain swap
-    if(terrain)
+    if (terrain)
     {
         data << uint32(2);   //number of tarrain sap array *2
         data << uint16(terrain);
@@ -1759,7 +1759,7 @@ void WorldSession::SendSetPhaseShift(uint16 phaseID, uint16 mapID, uint32 unk, u
         data << uint32(0);
 
     // Phase mask
-    if(phaseID)
+    if (phaseID)
     {
         data << uint32(2); // number of phase array *2
         data << int16(phaseID);
@@ -1770,7 +1770,7 @@ void WorldSession::SendSetPhaseShift(uint16 phaseID, uint16 mapID, uint32 unk, u
     data.WriteByteSeq(guid[0]);
 
     // map counter
-    if(mapID)
+    if (mapID)
     {
         data << uint32(2); // number of map array *2
         data << uint16(mapID);

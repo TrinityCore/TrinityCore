@@ -1803,7 +1803,9 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
             newPhase = 0xFFFFFFFF;
 
         player->SetPhaseMask(newPhase, false);
-        player->GetSession()->SendSetPhaseShift(GetMiscValueB(), player->GetMapId(), 0);
+
+        // MiscValueB == PhaseID from phase.dbc
+        player->GetSession()->SendSetPhaseShift(player->GetMapId(), GetMiscValueB());
     }
     else
     {
