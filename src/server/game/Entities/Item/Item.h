@@ -320,8 +320,7 @@ class Item : public Object
         bool hasInvolvedQuest(uint32 /*quest_id*/) const { return false; }
         bool HasStats() const;
         bool IsPotion() const { return GetTemplate()->IsPotion(); }
-        bool IsWeaponVellum() const { return GetTemplate()->IsWeaponVellum(); }
-        bool IsArmorVellum() const { return GetTemplate()->IsArmorVellum(); }
+        bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
 
