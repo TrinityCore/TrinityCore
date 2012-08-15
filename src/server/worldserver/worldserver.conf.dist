@@ -2735,7 +2735,6 @@ Logger.CharDump=38,5,CharDump
 Logger.Battlefield=39,3,Console Server
 Logger.Opcodes=40,2,Console Server
 
-
 #                     LogLevel
 #                         0 - (Disabled)
 #                         1 - (Trace)

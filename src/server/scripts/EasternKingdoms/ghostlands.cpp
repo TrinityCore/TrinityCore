@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Ghostlands
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Ghostlands
 EndScriptData */
 

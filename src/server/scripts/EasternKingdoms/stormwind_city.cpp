@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Stormwind_City
 SD%Complete: 0
-SDComment: 
+SDComment:
 SDCategory: Stormwind City
 EndScriptData */
 

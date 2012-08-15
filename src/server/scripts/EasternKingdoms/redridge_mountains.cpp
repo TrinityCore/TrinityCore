@@ -18,7 +18,7 @@
 /* Script Data Start
 SDName: Redridge Mountains
 SD%Complete: 0
-SDComment: 
+SDComment:
 Script Data End */
 
 #include "ScriptMgr.h"
