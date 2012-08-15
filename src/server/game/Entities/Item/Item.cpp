@@ -211,6 +211,10 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                     if (!(pProto->BagFamily & BAG_FAMILY_MASK_INSCRIPTION_SUPP))
                         return false;
                     return true;
+                case ITEM_SUBCLASS_TACKLE_CONTAINER:
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_FISHING_SUPP))
+                        return false;
+                    return true;
                 default:
                     return false;
             }
@@ -854,8 +858,8 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
         // Special case - accept vellum for armor/weapon requirements
-        if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->IsArmorVellum())
-            ||(spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->IsWeaponVellum()))
+        if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR ||
+            spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON) && proto->IsVellum())
             if (spellInfo->IsAbilityOfSkillType(SKILL_ENCHANTING)) // only for enchanting spells
                 return true;
 
