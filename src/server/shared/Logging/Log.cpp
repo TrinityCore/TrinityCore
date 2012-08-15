@@ -486,14 +486,6 @@ void Log::outCommand(uint32 account, const char * str, ...)
     write(msg);
 }
 
-void Log::outOpCode(uint32 op, const char* name, bool smsg)
-{
-    if (!ShouldLog(LOG_FILTER_OPCODES, LOG_LEVEL_DEBUG))
-        return;
-
-    outInfo(LOG_FILTER_OPCODES, "%s: %s 0x%.4X (%u)", smsg ? "S->C" : "C->S", name, op, op);
-}
-
 void Log::SetRealmID(uint32 id)
 {
     realm = id;

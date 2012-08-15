@@ -98,7 +98,7 @@ void Appender::write(LogMessage& message)
             message.prefix.push_back(' ');
 
         char text[MAX_QUERY_LEN];
-        snprintf(text, MAX_QUERY_LEN, "[%-15s]", Appender::getLogFilterTypeString(message.type));
+        snprintf(text, MAX_QUERY_LEN, "[%s]", Appender::getLogFilterTypeString(message.type));
         message.prefix.append(text);
     }
 
@@ -172,13 +172,13 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
         case LOG_FILTER_PLAYER:
             return "PLAYER";
         case LOG_FILTER_PLAYER_LOADING:
-            return "PLAYER_LOADING";
+            return "PLAYER LOADING";
         case LOG_FILTER_PLAYER_ITEMS:
-            return "PLAYER_ITEMS";
+            return "PLAYER ITEMS";
         case LOG_FILTER_PLAYER_SKILLS:
-            return "PLAYER_SKILLS";
+            return "PLAYER SKILLS";
         case LOG_FILTER_PLAYER_CHATLOG:
-            return "PLAYER_CHATLOG";
+            return "PLAYER CHATLOG";
         case LOG_FILTER_LOOT:
             return "LOOT";
         case LOG_FILTER_GUILD:
@@ -209,8 +209,14 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "SQL DRIVER";
         case LOG_FILTER_SQL_DEV:
             return "SQL DEV";
+        case LOG_FILTER_PLAYER_DUMP:
+            return "PLAYER DUMP";
+        case LOG_FILTER_BATTLEFIELD:
+            return "BATTLEFIELD";
+        case LOG_FILTER_SERVER_LOADING:
+            return "SERVER LOADING";
         case LOG_FILTER_OPCODES:
-            return "OPCODES";
+            return "OPCODE";
         default:
             break;
     }
