@@ -80,7 +80,9 @@ class boss_akilzon : public CreatureScript
             boss_akilzonAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
+                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
             }
+
             InstanceScript* instance;
 
             uint64 BirdGUIDs[8];
@@ -116,8 +118,7 @@ class boss_akilzon : public CreatureScript
                 CloudGUID = 0;
                 CycloneGUID = 0;
                 DespawnSummons();
-                for (uint8 i = 0; i < 8; ++i)
-                    BirdGUIDs[i] = 0;
+                memset(BirdGUIDs, 0, sizeof(BirdGUIDs));
 
                 StormCount = 0;
                 StormSequenceTimer = 0;
