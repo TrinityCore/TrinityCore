@@ -109,7 +109,7 @@ void Log::CreateAppenderFromConfig(const char* name)
 
     if (++iter != tokens.end())
         flags = AppenderFlags(atoi(*iter));
-        
+
     switch (type)
     {
         case APPENDER_CONSOLE:
