@@ -26,8 +26,8 @@ Quest::Quest(Field* questRecord)
     Id = questRecord[0].GetUInt32();
     Method = questRecord[1].GetUInt8();
     Level = questRecord[2].GetInt16();
-    MinLevel = uint32(questRecord[3].GetInt8());
-    MaxLevel = questRecord[4].GetUInt8();
+    MinLevel = uint32(questRecord[3].GetInt16());
+    MaxLevel = uint32(questRecord[4].GetInt16());
     ZoneOrSort = questRecord[5].GetInt16();
     Type = questRecord[6].GetUInt16();
     SuggestedPlayers = questRecord[7].GetUInt8();
