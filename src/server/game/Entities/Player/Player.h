@@ -2610,6 +2610,8 @@ class Player : public Unit, public GridObject<Player>
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;
+        uint32 m_holyPowerRegenTimerCount;
+        uint32 m_focusRegenTimerCount;
         float m_powerFraction[MAX_POWERS];
         uint32 m_contestedPvPTimer;
 
