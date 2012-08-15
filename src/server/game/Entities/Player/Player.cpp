@@ -669,6 +669,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_regenTimer = 0;
     m_regenTimerCount = 0;
+    m_holyPowerRegenTimerCount = 0;
+    m_focusRegenTimerCount = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = 0;
@@ -956,6 +958,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);               // fix cast time showed in spell tooltip on client
     SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_HASTE, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);            // default for players in 3.0.3
 
                                                             // -1 is default value
@@ -2483,8 +2487,13 @@ void Player::RegenerateAll()
 
     m_regenTimerCount += m_regenTimer;
 
+    if (getClass() == CLASS_PALADIN)
+        m_holyPowerRegenTimerCount += m_regenTimer;
+
+    if (getClass() == CLASS_HUNTER)
+        m_focusRegenTimerCount += m_regenTimer;
+
     Regenerate(POWER_ENERGY);
-    Regenerate(POWER_FOCUS);
     Regenerate(POWER_MANA);
 
     // Runes act as cooldowns, and they don't need to send any data
@@ -2507,6 +2516,12 @@ void Player::RegenerateAll()
         }
     }
 
+    if (m_focusRegenTimerCount >= 1000 && getClass() == CLASS_HUNTER)
+    {
+        Regenerate(POWER_FOCUS);
+        m_focusRegenTimerCount -= 1000;
+    }
+
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
@@ -2522,6 +2537,12 @@ void Player::RegenerateAll()
             Regenerate(POWER_RUNIC_POWER);
 
         m_regenTimerCount -= 2000;
+    }
+    
+    if (m_holyPowerRegenTimerCount >= 10000 && getClass() == CLASS_PALADIN)
+    {
+        Regenerate(POWER_HOLY_POWER);
+        m_holyPowerRegenTimerCount -= 10000;
     }
 
     m_regenTimer = 0;
@@ -2541,6 +2562,11 @@ void Player::Regenerate(Powers power)
 
     float addvalue = 0.0f;
 
+    // Powers now benefit from haste.
+    float rangedHaste = GetFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE);
+    float meleeHaste = GetFloatValue(PLAYER_FIELD_MOD_HASTE);
+    float spellHaste = GetFloatValue(UNIT_MOD_CAST_SPEED);
+
     switch (power)
     {
         case POWER_MANA:
@@ -2548,26 +2574,26 @@ void Player::Regenerate(Powers power)
             bool recentCast = IsUnderLastManaUseEffect();
             float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
-            if (getLevel() < 15)
-                ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA) * (2.066f - (getLevel() * 0.066f));
-
             if (recentCast) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * 0.001f * m_regenTimer;
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePctF(0.001f, spellHaste));
             else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * ManaIncreaseRate * 0.001f * m_regenTimer;
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePctF(0.001f, spellHaste));
         }
         break;
-        case POWER_RAGE:                                    // Regenerate rage
+        case POWER_RAGE:                                                // Regenerate rage
         {
             if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
                 float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += -25 * RageDecreaseRate;               // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
+                addvalue += -25 * RageDecreaseRate / meleeHaste;                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
             }
         }
         break;
-        case POWER_ENERGY:                                  // Regenerate energy (rogue)
-            addvalue += 0.01f * m_regenTimer * sWorld->getRate(RATE_POWER_ENERGY);
+        case POWER_FOCUS:
+            addvalue += (6.0f + CalculatePctF(6.0f, rangedHaste)) * sWorld->getRate(RATE_POWER_FOCUS);
+            break;
+        case POWER_ENERGY:                                              // Regenerate energy (rogue)
+            addvalue += ((0.01f * m_regenTimer) + CalculatePctF(0.01f, meleeHaste)) * sWorld->getRate(RATE_POWER_ENERGY);
             break;
         case POWER_RUNIC_POWER:
         {
@@ -2578,9 +2604,12 @@ void Player::Regenerate(Powers power)
             }
         }
         break;
-        case POWER_FOCUS:
-            addvalue += 4.0f * m_modAttackSpeedPct[RANGED_ATTACK] * sWorld->getRate(RATE_POWER_FOCUS);
-            break;
+        case POWER_HOLY_POWER:                                          // Regenerate holy power
+        {
+            if (!isInCombat())
+                addvalue += -1.0f;      // remove 1 each 10 sec
+        }
+        break;
         case POWER_RUNES:
         case POWER_HEALTH:
             break;
@@ -3209,6 +3238,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     // set default cast time multiplier
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
     SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_HASTE, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_RANGED_HASTE, 1.0f);
 
     // reset size before reapply auras
     SetObjectScale(1.0f);
