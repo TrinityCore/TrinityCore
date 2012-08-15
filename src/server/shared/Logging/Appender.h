@@ -63,10 +63,13 @@ enum LogFilterType
     LOG_FILTER_ARENAS,
     LOG_FILTER_SQL_DRIVER,
     LOG_FILTER_SQL_DEV,
-    LOG_FILTER_OPCODES
+    LOG_FILTER_PLAYER_DUMP,
+    LOG_FILTER_BATTLEFIELD,
+    LOG_FILTER_OPCODES,
 };
 
-const uint8 MaxLogFilter = uint8(LOG_FILTER_SQL_DEV) + 1;
+const uint8 MaxLogFilter = uint8(LOG_FILTER_OPCODES) + 1;
+
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
 enum LogLevel
@@ -106,7 +109,6 @@ struct LogMessage
         : level(_level)
         , type(_type)
         , text(_text)
-        , param1(0)
     {
         mtime = time(NULL);
     }
@@ -118,7 +120,7 @@ struct LogMessage
     LogFilterType type;
     std::string text;
     std::string prefix;
-    uint32 param1;
+    std::string param1;
     time_t mtime;
 };
 

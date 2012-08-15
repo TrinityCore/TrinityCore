@@ -2592,7 +2592,7 @@ PlayerDump.DisallowOverwrite = 1
 #                         5 - (Error)
 #                         6 - (Fatal)
 #
-#                     Flags: Default Console = 6, File = 7, DB = 0
+#                     Flags:
 #                         0 - None
 #                         1 - Prefix Timestamp to the text
 #                         2 - Prefix Log Level to the text
@@ -2629,13 +2629,14 @@ PlayerDump.DisallowOverwrite = 1
 
 Appender.Console=1,2,6
 Appender.Server=2,2,7,Server.log,w
-Appender.GM=2,2,7,GM.log
+Appender.GM=2,2,7,GM_%s.log
 Appender.SQL=2,2,7,SQL.log
 Appender.DBErrors=2,2,7,DBErrors.log
 Appender.Char=2,2,7,Char.log,w
+Appender.CharDump=2,2,0,chardumps/%s.log
 Appender.RA=2,2,7,RA.log
 Appender.Arenas=2,2,7,Arena.log
-Appender.SQLDev=2,2,7,SQLDev.log
+Appender.SQLDev=2,2,0,SQLDev.log
 Appender.SQLDriver=2,2,7,SQLDriver.log
 Appender.Warden=2,2,7,Warden.log
 Appender.Chat=2,2,7,Chat.log
@@ -2684,13 +2685,15 @@ Appender.Chat=2,2,7,Chat.log
 #                        31 - Worldserver
 #                        32 - Game Events
 #                        33 - Calendar
-#                        34 - Character (Exclusive to log login, logout, create, rename, delete actions)
+#                        34 - Character (Exclusive to log login, logout, create, rename)
 #                        35 - Arenas
 #                        36 - SQL Driver
 #                        37 - SQL Dev
-#                        38 - Opcodes
+#                        38 - Player Dump
+#                        39 - Battlefield
+#                        40 - Opcodes
 
-Logger.Root=0,5,Console Server
+Logger.Root=0,3,Console Server
 Logger.Units=1,3,Console Server
 Logger.Pets=2,3,Console Server
 Logger.Vehicles=3,3,Console Server
@@ -2716,7 +2719,7 @@ Logger.PlayerChat=22,3,Chat
 Logger.Loot=23,3,Console Server
 Logger.Guilds=24,3,Console Server
 Logger.Transports=25,3,Console Server
-Logger.SQL=26,2,Console Server SQL
+Logger.SQL=26,2,Console Server DBErrors
 Logger.GM=27,3,Console Server GM
 Logger.RA=28,3,RA
 Logger.Warden=29,3,Warden
@@ -2728,7 +2731,10 @@ Logger.Character=34,3,Char
 Logger.Arenas=35,3,Arenas
 Logger.SQLDriver=36,5,SQLDriver
 Logger.SQLDev=37,3,SQLDev
-Logger.Opcodes=38,2,Console Server
+Logger.CharDump=38,5,CharDump
+Logger.Battlefield=39,3,Console Server
+Logger.Opcodes=40,2,Console Server
+
 
 #                     LogLevel
 #                         0 - (Disabled)
@@ -2747,7 +2753,7 @@ Logger.Opcodes=38,2,Console Server
 #                     (Using spaces as separator).
 #        Default:     "Console Server"
 
-Appenders=Console Server
+Appenders=Console Server GM Char Arenas Warden DBErrors CharDump
 
 #
 #    Loggers
@@ -2755,4 +2761,4 @@ Appenders=Console Server
 #                     (Using spaces as separator).
 #        Default:     "root"
 
-Loggers=Root Opcodes NetWork SQL
+Loggers=Root GM Character Arenas Warden SQL

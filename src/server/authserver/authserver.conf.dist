@@ -170,7 +170,7 @@ LoginDatabase.WorkerThreads = 1
 #                         5 - (Error)
 #                         6 - (Fatal)
 #
-#                     Flags: Default Console = 6, File = 7, DB = 0
+#                     Flags:
 #                         0 - None
 #                         1 - Prefix Timestamp to the text
 #                         2 - Prefix Log Level to the text
