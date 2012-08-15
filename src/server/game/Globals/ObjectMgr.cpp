@@ -3550,9 +3550,9 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->MinLevel == uint32(-1))
+        if (qinfo->MinLevel == uint32(-1) || qinfo->MinLevel > DEFAULT_MAX_LEVEL)
         {
-            sLog->outError(LOG_FILTER_SQL, "Quest %u should be disabled because `MinLevel` = -1", qinfo->GetQuestId());
+            sLog->outError(LOG_FILTER_SQL, "Quest %u should be disabled because `MinLevel` = %i", qinfo->GetQuestId(), int32(qinfo->MinLevel));
             // no changes needed, sending -1 in SMSG_QUEST_QUERY_RESPONSE is valid
         }
 
