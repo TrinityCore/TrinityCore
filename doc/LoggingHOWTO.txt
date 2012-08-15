@@ -23,7 +23,7 @@ For example, sLog->outInfo(...) is a logging request of level INFO.
 
 A logging request is said to be enabled if its level is higher than or equal to
 the level of its logger. Otherwise, the request is said to be disabled. A logger
-without an assigned level will inherit one from the hierarchy 
+without an assigned level will inherit one from the hierarchy
 
 Example
 Logger Name        Assigned Level      Inherited Level
@@ -72,16 +72,16 @@ Its a list of elements separated by comma where each element has its own meaning
         4 - (Warn)
         5 - (Error)
         6 - (Fatal)
-	Flags: Define some extra modifications to do to logging message
+    Flags: Define some extra modifications to do to logging message
         1 - Prefix Timestamp to the text
         2 - Prefix Log Level to the text
         4 - Prefix Log Filter type to the text
         8 - Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS
-		    (Only used with Type = 2)
+            (Only used with Type = 2)
        16 - Make a backup of existing file before overwrite
-	        (Only used with Mode = w)
+            (Only used with Mode = w)
 
-Depending on the type, elements optional1 and optional2 will take different 
+Depending on the type, elements optional1 and optional2 will take different
 
     Colors (read as optional1 if Type = Console)
         Format: "fatal error warn info debug trace"
@@ -111,22 +111,22 @@ Depending on the type, elements optional1 and optional2 will take different
 
 Example:
     Appender.Console1=1,2,6
-	
-	Creates new appender to log to console any message with log level DEBUG
-	or higher and prefixes log type and level to the message.
-	
-	Appender.Console2=1,5,1,13 11 9 5 3 1
-	
-	Creates new appender to log to console any message with log level ERROR
-	or higher and prefixes timestamp to the message using colored text.
-	
-	Appender.File=2,2,7,Auth.log,w
-	
-	Creates new appender to log to file "Auth.log" any message with log level
-	DEBUG or higher and prefixes timestamp, type and level to message
-	
+
+    Creates new appender to log to console any message with log level DEBUG
+    or higher and prefixes log type and level to the message.
+
+    Appender.Console2=1,5,1,13 11 9 5 3 1
+
+    Creates new appender to log to console any message with log level ERROR
+    or higher and prefixes timestamp to the message using colored text.
+
+    Appender.File=2,2,7,Auth.log,w
+
+    Creates new appender to log to file "Auth.log" any message with log level
+    DEBUG or higher and prefixes timestamp, type and level to message
+
 In the example, having two different loggers to log to console is perfectly
-legal but redundant. 
+legal but redundant.
 
 Once we have the list of loggers to read, system will try to configure a new
 logger from its config line. Logger config line follows the format:
@@ -188,7 +188,7 @@ Its a list of elements separated by comma where each element has its own meaning
         6 - (Fatal)
     AppenderList: List of appenders linked to logger
     (Using spaces as separator).
-	
+
 --- EXAMPLES ---
 
 EXAMPLE 1
@@ -198,23 +198,23 @@ logs for this server run. File should prefix timestamp, type and log level to
 the messages. Console should prefix type and log level.
 
     Appenders=Console Server
-	Loggers=Root
+    Loggers=Root
     Appender.Console=1,5,6
     Appender.Server=2,5,7,Server.log,w
     Logger.Root=0,5,Console Server
 
 Lets trace how system will log two different messages:
     1) sLog->outError(LOG_FILTER_GUILD, "Guild 1 created");
-	System will try to find logger of type GUILD, as no logger is configured
-	for GUILD it will use Root logger. As message Log Level is equal or higher
-	than the Log level of logger the message is sent to the Appenders
-	configured in the Logger. "Console" and "Server".
-	Console will write: "ERROR [GUILD     ] Guild 1 created"
-	Server will write to file "2012-08-15 ERROR [GUILD     ] Guild 1 created"
-	
+    System will try to find logger of type GUILD, as no logger is configured
+    for GUILD it will use Root logger. As message Log Level is equal or higher
+    than the Log level of logger the message is sent to the Appenders
+    configured in the Logger. "Console" and "Server".
+    Console will write: "ERROR [GUILD     ] Guild 1 created"
+    Server will write to file "2012-08-15 ERROR [GUILD     ] Guild 1 created"
+
     2) sLog->outInfo(LOG_FILTER_CHARACTER, "Player Name Logged in");
-	System will try to find logger of type CHARACTER, as no logger is
-	configured for CHARACTER it will use Root logger. As message Log Level is
+    System will try to find logger of type CHARACTER, as no logger is
+    configured for CHARACTER it will use Root logger. As message Log Level is
     not equal or higher than the Log level of logger the message its discarted.
 
 EXAMPLE 2
@@ -223,23 +223,23 @@ Same example that above, but now i want to see all messages of level INFO on
 file and server file should add timestamp on creation.
 
     Appenders=Console Server
-	Loggers=Root
+    Loggers=Root
     Appender.Console=1,5,6
     Appender.Server=2,4,15,Server.log
     Logger.Root=0,4,Console Server
 
 Lets trace how system will log two different messages:
     1) sLog->outError(LOG_FILTER_GUILD, "Guild 1 created");
-	Performs exactly as example 1.
+    Performs exactly as example 1.
     2) sLog->outInfo(LOG_FILTER_CHARACTER, "Player Name Logged in");
-	System will try to find logger of type CHARACTER, as no logger is
-	configured for CHARACTER it will use Root logger. As message Log Level is
+    System will try to find logger of type CHARACTER, as no logger is
+    configured for CHARACTER it will use Root logger. As message Log Level is
     equal or higher than the Log level of logger the message is sent to the
-	Appenders configured in the Logger. "Console" and "Server".
+    Appenders configured in the Logger. "Console" and "Server".
     Console will discard msg as Log Level is not higher or equal to this
-	appender
-	Server will write to file
-	"2012-08-15 INFO [CHARACTER ] Guild 1 Player Name Logged in"
+    appender
+    Server will write to file
+    "2012-08-15 INFO [CHARACTER ] Guild 1 Player Name Logged in"
 
 EXAMPLE 3
 As a dev, i may be interested in logging just a particular part of the core
@@ -249,11 +249,11 @@ so i want SQLDEV to be logged to file without prefixes. All other messages
 should only be logged to console, GUILD to TRACE and CHARACTER to INFO
 
     Appenders=Console SQLDev
-	Loggers=Guild Characters SQLDev
+    Loggers=Guild Characters SQLDev
     Appender.Console=1,1
     Appender.SQLDev=2,2,0,SQLDev.log
     Logger.Guild=24,1,Console
-	Logger.Characters=34,3,Console
+    Logger.Characters=34,3,Console
     Logger.SQLDev=37,3,SQLDev
 
 With this config, any message logger with a Log type different to GUILD,
