@@ -48,7 +48,7 @@ void WaypointMgr::Load()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
 
         return;
     }

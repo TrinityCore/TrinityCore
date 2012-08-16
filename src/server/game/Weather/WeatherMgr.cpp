@@ -93,7 +93,7 @@ void LoadWeatherData()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
 
         return;
     }
