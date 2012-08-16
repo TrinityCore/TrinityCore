@@ -6443,6 +6443,12 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
                     if (pAbility->skillId == id)
                         removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+
+            // Clear profession lines
+            if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1) == id)
+                SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1, 0);
+            else if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1) == id)
+                SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1, 0);
         }
     }
     else if (newVal)                                        //add
@@ -6455,14 +6461,22 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 
             if (!GetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset))
             {
-                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(id);
-                if (!pSkill)
+                SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
+                if (!skillEntry)
                 {
                     sLog->outError(LOG_FILTER_GENERAL, "Skill not found in SkillLineStore: skill #%u", id);
                     return;
                 }
 
                 SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, id);
+                if (skillEntry->categoryId == SKILL_CATEGORY_PROFESSION)
+                {
+                    if (!GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1))
+                        SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1, id);
+                    else if (!GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1))
+                        SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1, id);
+                }
+
                 SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, step);
                 SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, newVal);
                 SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, maxVal);
