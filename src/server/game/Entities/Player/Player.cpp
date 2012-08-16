@@ -17157,6 +17157,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     for (; loadedPowers < MAX_STORED_POWERS; ++loadedPowers)
         SetUInt32Value(UNIT_FIELD_POWER1 + loadedPowers, 0);
 
+    SetPower(POWER_ECLIPSE, 0);
+
     // must be after loading spells and talents
     Tokens talentTrees(fields[26].GetString(), ' ', MAX_TALENT_SPECS);
     for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
@@ -18657,12 +18659,7 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
             {
-                // Eclipse Power isnt saved.
-                if (i == POWER_ECLIPSE)
-                    continue;
-
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER1 + storedPowers));
-
                 if (++storedPowers >= MAX_STORED_POWERS)
                     break;
             }
@@ -18784,12 +18781,7 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
             {
-                // Eclipse Power isnt saved.
-                if (i == POWER_ECLIPSE)
-                    continue;
-
-                stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER1 + storedPowers));
-
+                stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER1 + storedPowers));   
                 if (++storedPowers >= MAX_STORED_POWERS)
                     break;
             }
