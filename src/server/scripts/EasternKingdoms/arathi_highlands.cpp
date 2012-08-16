@@ -47,7 +47,7 @@ enum eEnums
     SAY_PROGRESS_7      = 7,
     EMOTE_PROGRESS_8    = 8,
     SAY_PROGRESS_9      = 9,
-    
+
     EVENT_SAY_3         = 1,
     EVENT_SAY_6         = 2,
     EVENT_SAY_8         = 3,
@@ -112,9 +112,9 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 Player* player = GetPlayerForEscort();
                 if (!player)
                     return;
-                    
+
                 events.Update(diff);
-                
+
                 while (uint32 event = events.ExecuteEvent())
                 {
                     switch (event)
@@ -135,7 +135,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 }
                 npc_escortAI::UpdateAI(diff);
             }
-            
+
             EventMap events;
         };
 

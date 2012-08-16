@@ -363,7 +363,7 @@ bool SpellEffectInfo::IsAura() const
 
 bool SpellEffectInfo::IsAura(AuraType aura) const
 {
-    return IsAura() && ApplyAuraName == aura;
+    return IsAura() && AuraType(ApplyAuraName) == aura;
 }
 
 bool SpellEffectInfo::IsTargetingArea() const
@@ -1486,17 +1486,27 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     }
 
     // aura limitations
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    if (player)
     {
-        if (!Effects[i].IsAura())
-            continue;
-        switch (Effects[i].ApplyAuraName)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
-            case SPELL_AURA_FLY:
+            if (!Effects[i].IsAura())
+                continue;
+
+            switch (Effects[i].ApplyAuraName)
             {
-                if (player && !player->IsKnowHowFlyIn(map_id, zone_id))
-                    return SPELL_FAILED_INCORRECT_AREA;
+                case SPELL_AURA_FLY:
+                {
+                    if (!player->IsKnowHowFlyIn(map_id, zone_id))
+                        return SPELL_FAILED_INCORRECT_AREA;
+                    break;
+                }
+                case SPELL_AURA_MOUNTED:
+                {
+                    if (Effects[i].MiscValueB && !player->GetMountCapability(Effects[i].MiscValueB))
+                        return SPELL_FAILED_NOT_HERE;
+                    break;
+                }
             }
         }
     }

@@ -241,7 +241,8 @@ enum BAG_FAMILY_MASK
     BAG_FAMILY_MASK_SOULBOUND_EQUIPMENT       = 0x00000800,
     BAG_FAMILY_MASK_VANITY_PETS               = 0x00001000,
     BAG_FAMILY_MASK_CURRENCY_TOKENS           = 0x00002000,
-    BAG_FAMILY_MASK_QUEST_ITEMS               = 0x00004000
+    BAG_FAMILY_MASK_QUEST_ITEMS               = 0x00004000,
+    BAG_FAMILY_MASK_FISHING_SUPP              = 0x00008000,
 };
 
 enum SocketColor
@@ -250,8 +251,8 @@ enum SocketColor
     SOCKET_COLOR_RED                            = 2,
     SOCKET_COLOR_YELLOW                         = 4,
     SOCKET_COLOR_BLUE                           = 8,
-    // 16, Hydraulic, not used
-    SOCKET_COLOR_COGWHEEL                       = 32
+    SOCKET_COLOR_HYDRAULIC                      = 16, // not used
+    SOCKET_COLOR_COGWHEEL                       = 32,
 };
 
 #define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE | SOCKET_COLOR_COGWHEEL)
@@ -445,11 +446,10 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_TRADE_GOODS_OTHER             = 11,
     ITEM_SUBCLASS_ENCHANTING                    = 12,
     ITEM_SUBCLASS_MATERIAL                      = 13,
-    ITEM_SUBCLASS_ITEM_ENCHANTMENT              = 14,
-    ITEM_SUBCLASS_WEAPON_ENCHANTMENT            = 15  // OBSOLETE
+    ITEM_SUBCLASS_ENCHANTMENT                   = 14,
 };
 
-#define MAX_ITEM_SUBCLASS_TRADE_GOODS             16
+#define MAX_ITEM_SUBCLASS_TRADE_GOODS             15
 
 enum ItemSubclassGeneric
 {
@@ -478,10 +478,11 @@ enum ItemSubclassRecipe
 
 enum ItemSubclassMoney
 {
-    ITEM_SUBCLASS_MONEY                         = 0  // OBSOLETE
+    ITEM_SUBCLASS_MONEY                         = 0,  // OBSOLETE
+    ITEM_SUBCLASS_MONEY_UNK_7                   = 7,  // OBSOLETE, 1 item (41749)
 };
 
-#define MAX_ITEM_SUBCLASS_MONEY                   1
+#define MAX_ITEM_SUBCLASS_MONEY                   8
 
 enum ItemSubclassQuiver
 {
@@ -495,10 +496,12 @@ enum ItemSubclassQuiver
 
 enum ItemSubclassQuest
 {
-    ITEM_SUBCLASS_QUEST                         = 0
+    ITEM_SUBCLASS_QUEST                         = 0,
+    ITEM_SUBCLASS_QUEST_UNK3                    = 3, // 1 item (33604)
+    ITEM_SUBCLASS_QUEST_UNK8                    = 8, // 2 items (37445, 49700)
 };
 
-#define MAX_ITEM_SUBCLASS_QUEST                   1
+#define MAX_ITEM_SUBCLASS_QUEST                   9
 
 enum ItemSubclassKey
 {
@@ -522,10 +525,11 @@ enum ItemSubclassJunk
     ITEM_SUBCLASS_JUNK_PET                      = 2,
     ITEM_SUBCLASS_JUNK_HOLIDAY                  = 3,
     ITEM_SUBCLASS_JUNK_OTHER                    = 4,
-    ITEM_SUBCLASS_JUNK_MOUNT                    = 5
+    ITEM_SUBCLASS_JUNK_MOUNT                    = 5,
+    ITEM_SUBCLASS_JUNK_UNK12                    = 12, // 1 item (37677)
 };
 
-#define MAX_ITEM_SUBCLASS_JUNK                    6
+#define MAX_ITEM_SUBCLASS_JUNK                    13
 
 enum ItemSubclassGlyph
 {
@@ -741,8 +745,7 @@ struct ItemTemplate
     }
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
-    bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
-    bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ITEM_ENCHANTMENT; }
+    bool IsVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_PROTO_FLAG_CONJURED); }
 
     bool IsRangedWeapon() const

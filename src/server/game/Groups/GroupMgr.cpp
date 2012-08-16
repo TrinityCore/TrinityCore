@@ -125,7 +125,7 @@ void GroupMgr::LoadGroups()
             ", g.icon7, g.icon8, g.groupType, g.difficulty, g.raiddifficulty, g.guid, lfg.dungeon, lfg.state FROM groups g LEFT JOIN lfg_data lfg ON lfg.guid = g.guid ORDER BY g.guid ASC");
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 group definitions. DB table `groups` is empty!");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group definitions. DB table `groups` is empty!");
 
             return;
         }
@@ -151,7 +151,7 @@ void GroupMgr::LoadGroups()
         }
         while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u group definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u group definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     }
 
@@ -169,7 +169,7 @@ void GroupMgr::LoadGroups()
         QueryResult result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 group members. DB table `group_member` is empty!");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group members. DB table `group_member` is empty!");
 
             return;
         }
@@ -190,7 +190,7 @@ void GroupMgr::LoadGroups()
         }
         while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u group members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u group members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     }
 
@@ -203,7 +203,7 @@ void GroupMgr::LoadGroups()
             "LEFT JOIN character_instance ci LEFT JOIN groups g ON g.leaderGuid = ci.guid ON ci.instance = gi.instance AND ci.permanent = 1 GROUP BY gi.instance ORDER BY gi.guid");
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
 
             return;
         }
@@ -235,7 +235,7 @@ void GroupMgr::LoadGroups()
         }
         while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     }
 }

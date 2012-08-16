@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Burning_Steppes
 SD%Complete: 0
-SDComment: 
+SDComment:
 SDCategory: Burning Steppes
 EndScriptData */
 
@@ -31,5 +31,5 @@ EndScriptData */
 
 void AddSC_burning_steppes()
 {
-    
+
 }

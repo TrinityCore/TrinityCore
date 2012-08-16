@@ -181,12 +181,18 @@ void Log::CreateLoggerFromConfig(const char* name)
     options.append(name);
     options = ConfigMgr::GetStringDefault(options.c_str(), "");
 
+    if (options.empty())
+    {
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Missing config option Logger.%s\n", name);
+        return;
+    }
+
     Tokens tokens(options, ',');
     Tokens::iterator iter = tokens.begin();
 
     if (tokens.size() != 3)
     {
-        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong configuration for logger %s. Config line: %s\n", name, options.c_str());
+        fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong config option Logger.%s=%s\n", name, options.c_str());
         return;
     }
 
@@ -443,6 +449,23 @@ void Log::outFatal(LogFilterType filter, const char * str, ...)
     va_end(ap);
 }
 
+void Log::outCharDump(const char* param, const char * str, ...)
+{
+    if (!str || !ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO))
+        return;
+
+    va_list ap;
+    va_start(ap, str);
+    char text[MAX_QUERY_LEN];
+    vsnprintf(text, MAX_QUERY_LEN, str, ap);
+    va_end(ap);
+
+    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_PLAYER_DUMP, text);
+    msg->param1 = param;
+
+    write(msg);
+}
+
 void Log::outCommand(uint32 account, const char * str, ...)
 {
     if (!str || !ShouldLog(LOG_FILTER_GMCOMMAND, LOG_LEVEL_INFO))
@@ -455,17 +478,12 @@ void Log::outCommand(uint32 account, const char * str, ...)
     va_end(ap);
 
     LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_GMCOMMAND, text);
-    msg->param1 = account;
+
+    std::ostringstream ss;
+    ss << account;
+    msg->param1 = ss.str();
 
     write(msg);
-}
-
-void Log::outOpCode(uint32 op, const char* name, bool smsg)
-{
-    if (!ShouldLog(LOG_FILTER_OPCODES, LOG_LEVEL_DEBUG))
-        return;
-
-    outInfo(LOG_FILTER_OPCODES, "%s: %s 0x%.4X (%u)", smsg ? "S->C" : "C->S", name, op, op);
 }
 
 void Log::SetRealmID(uint32 id)
@@ -475,15 +493,15 @@ void Log::SetRealmID(uint32 id)
 
 void Log::Close()
 {
+    delete worker;
+    worker = NULL;
+    loggers.clear();
     for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
     {
         delete it->second;
         it->second = NULL;
     }
     appenders.clear();
-    loggers.clear();
-    delete worker;
-    worker = NULL;
 }
 
 void Log::LoadFromConfig()
