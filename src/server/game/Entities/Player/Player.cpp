@@ -5910,6 +5910,8 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
             float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(BASE_ATTACK, RatingChange, apply);
             ApplyAttackTimePercentMod(OFF_ATTACK, RatingChange, apply);
+            if (getClass() == CLASS_DEATH_KNIGHT)
+                UpdateAllRunesRegen();
             break;
         }
         case CR_HASTE_RANGED:
@@ -23766,6 +23768,7 @@ uint32 Player::GetRuneBaseCooldown(uint8 index)
 {
     uint8 rune = GetBaseRune(index);
     uint32 cooldown = RUNE_BASE_COOLDOWN;
+    float hastePct = 0.0f;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
@@ -23773,6 +23776,22 @@ uint32 Player::GetRuneBaseCooldown(uint8 index)
         if ((*i)->GetMiscValue() == POWER_RUNES && (*i)->GetMiscValueB() == rune)
             cooldown = cooldown*(100-(*i)->GetAmount())/100;
     }
+
+    // Runes cooldown are now affected by player's haste from equipment ...
+    hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
+
+    // ... and some auras.
+    AuraEffectList const& meleeHasteAura;
+
+    meleeHasteAura = GetAuraEffectsByType(SPELL_AURA_MOD_MELEE_HASTE);
+    for (AuraEffectList::const_iterator i = meleeHasteAura.begin();i != meleeHasteAura.end(); ++i)
+        hastePct += (*i)->GetAmount();
+
+    meleeHasteAura = GetAuraEffectsByType(SPELL_AURA_319);
+    for (AuraEffectList::const_iterator i = meleeHasteAura.begin();i != meleeHasteAura.end(); ++i)
+        hastePct += (*i)->GetAmount();
+
+    cooldown *=  1.0f - (hastePct / 100.0f);
 
     return cooldown;
 }
@@ -23866,8 +23885,8 @@ void Player::InitRunes()
         m_runes->SetRuneState(i);
     }
 
-    for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
-        SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+        SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);                  // set a base regen timer equal to 10 sec
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
