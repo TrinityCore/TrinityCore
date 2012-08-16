@@ -553,6 +553,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
     uint8 slotId;
 
     recvPacket >> slotId;
+    recvPacket.read_skip<uint64>(); // Unk
 
     ++slotId;
     if (slotId >= MAX_TOTEM_SLOT)

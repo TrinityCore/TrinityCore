@@ -1304,7 +1304,6 @@ class Player : public Unit, public GridObject<Player>
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
         InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true) const;
         InventoryResult CanUseItem(Item* pItem, bool not_loading = true) const;
-        bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
         InventoryResult CanUseAmmo(uint32 item) const;
         InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
