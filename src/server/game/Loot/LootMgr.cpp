@@ -1454,7 +1454,7 @@ bool LootTemplate::isReference(uint32 id)
 
 void LoadLootTemplates_Creature()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading creature loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading creature loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1481,16 +1481,14 @@ void LoadLootTemplates_Creature()
     LootTemplates_Creature.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u creature loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 creature loot templates. DB table `creature_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Disenchant()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading disenchanting loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading disenchanting loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1517,15 +1515,14 @@ void LoadLootTemplates_Disenchant()
     LootTemplates_Disenchant.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u disenchanting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disenchanting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 disenchanting loot templates. DB table `disenchant_loot_template` is empty");
-
 }
 
 void LoadLootTemplates_Fishing()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading fishing loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading fishing loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1542,16 +1539,14 @@ void LoadLootTemplates_Fishing()
     LootTemplates_Fishing.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u fishing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u fishing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 fishing loot templates. DB table `fishing_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Gameobject()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading gameobject loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading gameobject loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1578,16 +1573,14 @@ void LoadLootTemplates_Gameobject()
     LootTemplates_Gameobject.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u gameobject loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gameobject loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 gameobject loot templates. DB table `gameobject_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Item()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading item loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading item loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1604,16 +1597,14 @@ void LoadLootTemplates_Item()
     LootTemplates_Item.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u item loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 item loot templates. DB table `item_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Milling()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading milling loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading milling loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1635,16 +1626,14 @@ void LoadLootTemplates_Milling()
     LootTemplates_Milling.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u milling loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u milling loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 milling loot templates. DB table `milling_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Pickpocketing()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading pickpocketing loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pickpocketing loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1671,16 +1660,14 @@ void LoadLootTemplates_Pickpocketing()
     LootTemplates_Pickpocketing.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u pickpocketing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pickpocketing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 pickpocketing loot templates. DB table `pickpocketing_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Prospecting()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading prospecting loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading prospecting loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1702,16 +1689,14 @@ void LoadLootTemplates_Prospecting()
     LootTemplates_Prospecting.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Mail()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading mail loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading mail loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1728,16 +1713,14 @@ void LoadLootTemplates_Mail()
     LootTemplates_Mail.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u mail loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u mail loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Skinning()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading skinning loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading skinning loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1764,16 +1747,14 @@ void LoadLootTemplates_Skinning()
     LootTemplates_Skinning.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u skinning loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u skinning loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 skinning loot templates. DB table `skinning_loot_template` is empty");
-
-
 }
 
 void LoadLootTemplates_Spell()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading spell loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1808,15 +1789,14 @@ void LoadLootTemplates_Spell()
     LootTemplates_Spell.ReportUnusedIds(lootIdSet);
 
     if (count)
-        sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded %u spell loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
-
 }
 
 void LoadLootTemplates_Reference()
 {
-    sLog->outInfo(LOG_FILTER_LOOT, "Loading reference loot templates...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading reference loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1839,6 +1819,5 @@ void LoadLootTemplates_Reference()
     // output error for any still listed ids (not referenced from any loot table)
     LootTemplates_Reference.ReportUnusedIds(lootIdSet);
 
-    sLog->outInfo(LOG_FILTER_LOOT, ">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
