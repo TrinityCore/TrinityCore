@@ -53,7 +53,6 @@ class Log
         void outWarn(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
         void outError(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
         void outFatal(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outOpCode(uint32 op, const char* name, bool smsg);
 
         void EnableDBAppenders();
         void outCommand(uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);
