@@ -2213,7 +2213,9 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
     if ((itemTemplate.Flags & (ITEM_PROTO_FLAG_CONJURED | ITEM_PROTO_FLAG_UNK6)) ||
         itemTemplate.Bonding == BIND_QUEST_ITEM || itemTemplate.Area || itemTemplate.Map ||
         itemTemplate.Stackable > 1 ||
-        !(itemTemplate.SellPrice || sItemCurrencyCostStore.LookupEntry(itemTemplate.ItemId)))
+        itemTemplate.Quality < ITEM_QUALITY_UNCOMMON || itemTemplate.Quality > ITEM_QUALITY_EPIC ||
+        !(itemTemplate.Class == ITEM_CLASS_ARMOR || itemTemplate.Class == ITEM_CLASS_WEAPON) ||
+        !(Item::GetSpecialPrice(&itemTemplate) || sItemCurrencyCostStore.LookupEntry(itemTemplate.ItemId)))
         return;
 
     for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
@@ -2227,15 +2229,14 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
             disenchant->MinItemLevel <= itemTemplate.ItemLevel &&
             disenchant->MaxItemLevel >= itemTemplate.ItemLevel)
         {
-            // extra check for epics in range 90 - 99
-            if (disenchant->MinItemLevel < 90)
+            if (disenchant->Id == 60 || disenchant->Id == 61)   // epic item disenchant ilvl range 66-99 (classic)
             {
                 if (itemTemplate.RequiredLevel > 60 || itemTemplate.RequiredSkillRank > 300)
-                    continue;
+                    continue;                                   // skip to epic item disenchant ilvl range 90-199 (TBC)
             }
-            else
+            else if (disenchant->Id == 66 || disenchant->Id == 67)  // epic item disenchant ilvl range 90-199 (TBC)
             {
-                if (itemTemplate.RequiredLevel <= 60 || itemTemplate.RequiredSkillRank <= 300)
+                if (itemTemplate.RequiredLevel <= 60 || (itemTemplate.RequiredSkill && itemTemplate.RequiredSkillRank <= 300))
                     continue;
             }
 

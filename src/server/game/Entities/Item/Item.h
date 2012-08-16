@@ -349,7 +349,8 @@ class Item : public Object
         bool CanBeTransmogrified() const;
         bool CanTransmogrify() const;
         static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
-        uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const;
+        static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
+        uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
         uint32 GetVisibleEntry() const
         {
@@ -358,7 +359,7 @@ class Item : public Object
             return GetEntry();
         }
 
-        uint32 GetSellPrice(bool& success) const;
+        static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
         int32 GetReforgableStat(ItemModType statType) const;
 
