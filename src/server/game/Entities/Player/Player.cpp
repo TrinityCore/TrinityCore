@@ -23781,14 +23781,12 @@ uint32 Player::GetRuneBaseCooldown(uint8 index)
     hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
 
     // ... and some auras.
-    AuraEffectList const& meleeHasteAura;
-
-    meleeHasteAura = GetAuraEffectsByType(SPELL_AURA_MOD_MELEE_HASTE);
+    AuraEffectList const& meleeHasteAura = GetAuraEffectsByType(SPELL_AURA_MOD_MELEE_HASTE);
     for (AuraEffectList::const_iterator i = meleeHasteAura.begin();i != meleeHasteAura.end(); ++i)
         hastePct += (*i)->GetAmount();
 
-    meleeHasteAura = GetAuraEffectsByType(SPELL_AURA_319);
-    for (AuraEffectList::const_iterator i = meleeHasteAura.begin();i != meleeHasteAura.end(); ++i)
+    AuraEffectList const& meleeHasteAura2 = GetAuraEffectsByType(SPELL_AURA_319);
+    for (AuraEffectList::const_iterator i = meleeHasteAura2.begin();i != meleeHasteAura2.end(); ++i)
         hastePct += (*i)->GetAmount();
 
     cooldown *=  1.0f - (hastePct / 100.0f);
