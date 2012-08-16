@@ -156,14 +156,8 @@ class npc_announcer_toc10 : public CreatureScript
                 if ((!_GossipMessage[i].state && instanceScript->GetData(_GossipMessage[i].encounter) != DONE)
                     || (_GossipMessage[i].state && instanceScript->GetData(_GossipMessage[i].encounter) == DONE))
                 {
-                    if (player->isGameMaster() || player->GetGroup())
-                    {
-                        if(player->isGameMaster() || player->GetGroup()->GetLeaderGUID() == player->GetGUID())
-                        {
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
-                            break;
-                        }
-                    }
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
+                    break;
                 }
             }
 
