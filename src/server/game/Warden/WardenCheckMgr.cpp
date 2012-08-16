@@ -52,7 +52,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_WARDEN, ">> Loaded 0 Warden checks. DB table `warden_checks` is empty!");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Warden checks. DB table `warden_checks` is empty!");
 
         return;
     }
@@ -164,7 +164,7 @@ void WardenCheckMgr::LoadWardenOverrides()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_WARDEN, ">> Loaded 0 Warden action overrides. DB table `warden_action` is empty!");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Warden action overrides. DB table `warden_action` is empty!");
 
         return;
     }

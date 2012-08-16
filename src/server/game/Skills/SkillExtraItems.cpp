@@ -60,7 +60,7 @@ void LoadSkillExtraItemTable()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
 
         return;
     }
