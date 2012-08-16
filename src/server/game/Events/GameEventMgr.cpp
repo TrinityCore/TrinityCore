@@ -260,11 +260,11 @@ void GameEventMgr::LoadFromDB()
         }
         while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Saves Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Saves Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -273,7 +273,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 game event saves in game events. DB table `game_event_save` is empty.");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 game event saves in game events. DB table `game_event_save` is empty.");
 
         }
         else
@@ -306,12 +306,12 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u game event saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game event saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Prerequisite Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Prerequisite Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -319,7 +319,7 @@ void GameEventMgr::LoadFromDB()
         QueryResult result = WorldDatabase.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 game event prerequisites in game events. DB table `game_event_prerequisite` is empty.");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 game event prerequisites in game events. DB table `game_event_prerequisite` is empty.");
 
         }
         else
@@ -357,12 +357,12 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u game event prerequisites in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game event prerequisites in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Creature Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Creature Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -372,7 +372,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 creatures in game events. DB table `game_event_creature` is empty");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creatures in game events. DB table `game_event_creature` is empty");
 
         }
         else
@@ -400,12 +400,12 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u creatures in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creatures in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event GO Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event GO Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -415,7 +415,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 gameobjects in game events. DB table `game_event_gameobject` is empty.");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 gameobjects in game events. DB table `game_event_gameobject` is empty.");
 
         }
         else
@@ -443,12 +443,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u gameobjects in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gameobjects in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Model/Equipment Change Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Model/Equipment Change Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -458,8 +457,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");
         }
         else
         {
@@ -500,12 +498,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u model/equipment changes in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u model/equipment changes in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Quest Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Quest Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -514,8 +511,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 quests additions in game events. DB table `game_event_creature_quest` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 quests additions in game events. DB table `game_event_creature_quest` is empty.");
         }
         else
         {
@@ -541,12 +537,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event GO Quest Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event GO Quest Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -555,8 +550,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 go quests additions in game events. DB table `game_event_gameobject_quest` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 go quests additions in game events. DB table `game_event_gameobject_quest` is empty.");
         }
         else
         {
@@ -582,12 +576,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Quest Condition Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Quest Condition Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -596,8 +589,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 quest event conditions in game events. DB table `game_event_quest_condition` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 quest event conditions in game events. DB table `game_event_quest_condition` is empty.");
         }
         else
         {
@@ -625,12 +617,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u quest event conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest event conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Condition Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Condition Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -639,8 +630,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
         }
         else
         {
@@ -667,12 +657,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Condition Save Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Condition Save Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -681,8 +670,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 condition saves in game events. DB table `game_event_condition_save` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 condition saves in game events. DB table `game_event_condition_save` is empty.");
         }
         else
         {
@@ -715,12 +703,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u condition saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u condition saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event NPCflag Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event NPCflag Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -729,8 +716,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 npcflags in game events. DB table `game_event_npcflag` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 npcflags in game events. DB table `game_event_npcflag` is empty.");
         }
         else
         {
@@ -755,12 +741,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u npcflags in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u npcflags in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Seasonal Quest Relations...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Seasonal Quest Relations...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -769,8 +754,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 seasonal quests additions in game events. DB table `game_event_seasonal_questrelation` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 seasonal quests additions in game events. DB table `game_event_seasonal_questrelation` is empty.");
         }
         else
         {
@@ -799,12 +783,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Vendor Additions Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Vendor Additions Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -813,8 +796,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
         }
         else
         {
@@ -865,12 +847,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u vendor additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u vendor additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Battleground Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Battleground Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -879,8 +860,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 battleground holidays in game events. DB table `game_event_condition` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battleground holidays in game events. DB table `game_event_condition` is empty.");
         }
         else
         {
@@ -903,12 +883,11 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u battleground holidays in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battleground holidays in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
-    sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Loading Game Event Pool Data...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Pool Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -918,8 +897,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
         }
         else
         {
@@ -952,8 +930,7 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_GAMEEVENTS, ">> Loaded %u pools for game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pools for game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 }

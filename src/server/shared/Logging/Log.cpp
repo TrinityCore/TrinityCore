@@ -114,9 +114,6 @@ void Log::CreateAppenderFromConfig(const char* name)
     {
         case APPENDER_CONSOLE:
         {
-            if (flags == APPENDER_FLAGS_NONE)
-                flags = AppenderFlags(APPENDER_FLAGS_PREFIX_LOGLEVEL | APPENDER_FLAGS_PREFIX_LOGFILTERTYPE);
-
             AppenderConsole* appender = new AppenderConsole(NextAppenderId(), name, level, flags);
             appenders[appender->getId()] = appender;
             if (++iter != tokens.end())
@@ -134,9 +131,6 @@ void Log::CreateAppenderFromConfig(const char* name)
                 fprintf(stderr, "Log::CreateAppenderFromConfig: Missing file name for appender %s\n", name);
                 return;
             }
-
-            if (flags == APPENDER_FLAGS_NONE)
-                flags = AppenderFlags(APPENDER_FLAGS_PREFIX_LOGLEVEL | APPENDER_FLAGS_PREFIX_LOGFILTERTYPE | APPENDER_FLAGS_PREFIX_TIMESTAMP);
 
             filename = *iter;
 
