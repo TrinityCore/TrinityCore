@@ -1319,9 +1319,8 @@ bool Item::HasStats() const
 }
 
 // used by mail items, transmog cost, stationeryinfo and others
-uint32 Item::GetSellPrice(bool& normalSellPrice) const
+uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
 {
-    ItemTemplate const* proto = GetTemplate();
     normalSellPrice = true;
 
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
@@ -1444,9 +1443,8 @@ uint32 Item::GetSellPrice(bool& normalSellPrice) const
     }
 }
 
-uint32 Item::GetSpecialPrice(uint32 minimumPrice) const
+uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 10000*/)
 {
-    ItemTemplate const* proto = GetTemplate();
     uint32 cost = 0;
 
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
@@ -1454,7 +1452,7 @@ uint32 Item::GetSpecialPrice(uint32 minimumPrice) const
     else
     {
         bool normalPrice;
-        cost = GetSellPrice(normalPrice);
+        cost = Item::GetSellPrice(proto, normalPrice);
 
         if (!normalPrice)
         {

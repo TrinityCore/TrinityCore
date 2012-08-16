@@ -1288,7 +1288,7 @@ struct ItemDisenchantLootEntry
 {
     uint32 Id;
     uint32 ItemClass;
-    int32 Unk;
+    int32 ItemSubClass;
     uint32 ItemQuality;
     uint32 MinItemLevel;
     uint32 MaxItemLevel;
