@@ -420,7 +420,7 @@ void ThreatManager::doAddThreat(Unit* victim, float threat)
         Unit* redirectTarget = victim->GetMisdirectionTarget();
         if (redirectTarget)
             if (Aura* glyphAura = redirectTarget->GetAura(63326)) // Glyph of Vigilance
-                reducedThreadPercent += glyphAura->GetSpellInfo()->Effects[0].CalcValue();
+                reducedThreadPercent += glyphAura->GetSpellInfo()->Effects[0].CalcValue(glyphAura->GetCaster());
 
         float reducedThreat = threat * reducedThreadPercent / 100.0f;
         threat -= reducedThreat;

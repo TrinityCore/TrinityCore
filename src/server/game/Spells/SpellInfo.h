@@ -249,6 +249,9 @@ public:
     uint32    TriggerSpell;
     flag96    SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
+    float     ScalingMultiplier;
+    float     DeltaScalingMultiplier;
+    float     ComboScalingMultiplier;
 
     SpellEffectInfo() {}
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex);

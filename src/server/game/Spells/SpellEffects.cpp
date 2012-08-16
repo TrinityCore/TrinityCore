@@ -608,7 +608,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                     // TODO: should this be put on taken but not done?
                     if (found)
-                        damage += m_spellInfo->Effects[EFFECT_1].CalcValue();
+                        damage += m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
 
                     if (Player* caster = m_caster->ToPlayer())
                     {
@@ -2566,7 +2566,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     // Devour Magic
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
     {
-        int32 heal_amount = m_spellInfo->Effects[EFFECT_1].CalcValue();
+        int32 heal_amount = m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
         m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
         // Glyph of Felhunter
         if (Unit* owner = m_caster->GetOwner())
@@ -3324,7 +3324,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Blood Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x400000)
             {
-                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 2.0f;
+                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 2.0f;
                 // Death Knight T8 Melee 4P Bonus
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPctF(bonusPct, aurEff->GetAmount());
@@ -3341,7 +3341,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             {
                 // Glyph of Death Strike
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
-                    if (uint32 runic = std::min<uint32>(m_caster->GetPower(POWER_RUNIC_POWER), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()))
+                    if (uint32 runic = std::min<uint32>(m_caster->GetPower(POWER_RUNIC_POWER), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster)))
                         AddPctN(totalDamagePercentMod, runic);
                 break;
             }
@@ -3355,7 +3355,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (roll_chance_i(aurEff->GetAmount()))
                         consumeDiseases = false;
 
-                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2.0f;
+                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2.0f;
                 // Death Knight T8 Melee 4P Bonus
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPctF(bonusPct, aurEff->GetAmount());
@@ -3371,7 +3371,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Heart Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x1000000)
             {
-                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue() * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
+                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
                 // Death Knight T8 Melee 4P Bonus
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPctF(bonusPct, aurEff->GetAmount());

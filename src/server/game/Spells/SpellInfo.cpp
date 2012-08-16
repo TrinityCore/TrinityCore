@@ -320,6 +320,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex)
 {
     SpellEffectEntry const* _effect = spellEntry->GetSpellEffect(effIndex);
+    SpellScalingEntry const* scaling = spellInfo->GetSpellScaling();
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;
@@ -344,6 +345,9 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag96(0);
     ImplicitTargetConditions = NULL;
+    ScalingMultiplier = scaling ? scaling->Multiplier[effIndex] : 0.0f;
+    DeltaScalingMultiplier = scaling ? scaling->RandomMultiplier[effIndex] : 0.0f;
+    ComboScalingMultiplier = scaling ? scaling->OtherMultiplier[effIndex] : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -406,33 +410,58 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
-    int32 randomPoints = int32(DieSides);
+    float comboDamage = PointsPerComboPoint;
+    SpellScalingEntry const* scaling = _spellInfo->GetSpellScaling();
 
     // base amount modification based on spell lvl vs caster lvl
-    if (caster)
+    if (scaling)
     {
-        int32 level = int32(caster->getLevel());
-        if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
-            level = int32(_spellInfo->MaxLevel);
-        else if (level < int32(_spellInfo->BaseLevel))
-            level = int32(_spellInfo->BaseLevel);
-        level -= int32(_spellInfo->SpellLevel);
-        basePoints += int32(level * basePointsPerLevel);
+        if (caster)
+        {
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((scaling->playerClass != -1 ? caster->getClass() : 11) * 100 + caster->getLevel() - 1))
+            {
+                float preciseBasePoints = ScalingMultiplier * gtScaling->value;
+                comboDamage = ComboScalingMultiplier * gtScaling->value;
+                if (DeltaScalingMultiplier)
+                {
+                    float delta = DeltaScalingMultiplier * ScalingMultiplier * gtScaling->value * 0.5f;
+                    preciseBasePoints += frand(-delta, delta);
+                }
+
+                basePoints = int32(preciseBasePoints);
+            }
+        }
     }
-
-    // roll in a range <1;EffectDieSides> as of patch 3.3.3
-    switch (randomPoints)
+    else
     {
-        case 0: break;
-        case 1: basePoints += 1; break;                     // range 1..1
-        default:
-            // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
-            int32 randvalue = (randomPoints >= 1)
-                ? irand(1, randomPoints)
-                : irand(randomPoints, 1);
+        if (caster)
+        {
+            int32 level = int32(caster->getLevel());
+            if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
+                level = int32(_spellInfo->MaxLevel);
+            else if (level < int32(_spellInfo->BaseLevel))
+                level = int32(_spellInfo->BaseLevel);
+            level -= int32(_spellInfo->SpellLevel);
+            basePoints += int32(level * basePointsPerLevel);
+        }
 
-            basePoints += randvalue;
-            break;
+        // roll in a range <1;EffectDieSides> as of patch 3.3.3
+        int32 randomPoints = int32(DieSides);
+        switch (randomPoints)
+        {
+            case 0: break;
+            case 1: basePoints += 1; break;                     // range 1..1
+            default:
+            {
+                // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
+                int32 randvalue = (randomPoints >= 1)
+                    ? irand(1, randomPoints)
+                    : irand(randomPoints, 1);
+
+                basePoints += randvalue;
+                break;
+            }
+        }
     }
 
     float value = float(basePoints);
@@ -441,15 +470,14 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     if (caster)
     {
         // bonus amount from combo points
-        if (caster->m_movedPlayer)
+        if (caster->m_movedPlayer && comboDamage)
             if (uint8 comboPoints = caster->m_movedPlayer->GetComboPoints())
-                if (float comboDamage = PointsPerComboPoint)
-                    value += comboDamage* comboPoints;
+                value += comboDamage * comboPoints;
 
         value = caster->ApplyEffectModifiers(_spellInfo, _effIndex, value);
 
         // amount multiplication based on caster's level
-        if (!basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
+        if (!_spellInfo->GetSpellScaling() && !basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
                 Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
                 Effect != SPELL_EFFECT_KNOCK_BACK &&
                 Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
@@ -2044,11 +2072,24 @@ int32 SpellInfo::GetMaxDuration() const
 
 uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
 {
-    // not all spells have cast time index and this is all is pasiive abilities
-    if (!CastTimeEntry)
-        return 0;
+    int32 castTime = 0;
 
-    int32 castTime = CastTimeEntry->CastTime;
+    // not all spells have cast time index and this is all is pasiive abilities
+    SpellScalingEntry const* scaling = GetSpellScaling();
+    if (scaling && caster)
+    {
+        if (scaling->castTimeMax > 0)
+        {
+            castTime = scaling->castTimeMax;
+            if (scaling->castScalingMaxLevel > caster->getLevel())
+                castTime = scaling->castTimeMin + (caster->getLevel() - 1) * (scaling->castTimeMax - scaling->castTimeMin) / (scaling->castScalingMaxLevel - 1);
+        }
+    }
+    else if (CastTimeEntry)
+        castTime = CastTimeEntry->CastTime;
+
+    if (!castTime)
+        return 0;
 
     if (caster)
         caster->ModSpellCastTime(this, castTime, spell);
