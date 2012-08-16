@@ -217,7 +217,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    Talk(EMOTE_INCINERATE);
+                    Talk(EMOTE_INCINERATE, target->GetGUID());
                     Talk(SAY_INCINERATE);
                     DoCast(target, SPELL_INCINERATE_FLESH);
                 }
@@ -234,7 +234,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    Talk(EMOTE_LEGION_FLAME);
+                    Talk(EMOTE_LEGION_FLAME, target->GetGUID());
                     DoCast(target, SPELL_LEGION_FLAME);
                 }
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;

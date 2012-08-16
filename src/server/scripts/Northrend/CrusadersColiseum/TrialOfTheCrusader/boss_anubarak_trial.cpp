@@ -242,7 +242,7 @@ public:
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
-                    Talk(EMOTE_SPIKE);
+                    Talk(EMOTE_SPIKE, target->GetGUID());
                     break;
             }
             Summons.Summon(summoned);

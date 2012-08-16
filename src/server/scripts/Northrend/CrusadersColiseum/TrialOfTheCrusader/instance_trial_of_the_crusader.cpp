@@ -254,6 +254,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         // Cleanup Jaraxxus
                         if (Creature* jaraxxus = instance->GetCreature(JaraxxusGUID))
                             jaraxxus->DespawnOrUnsummon();
+                        if (Creature* fizzlebang = instance->GetCreature(FizzlebangGUID))
+                            fizzlebang->DespawnOrUnsummon();
                         switch (data)
                         {
                             case IN_PROGRESS:
