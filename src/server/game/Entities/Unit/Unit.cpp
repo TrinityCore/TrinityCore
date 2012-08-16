@@ -4978,6 +4978,127 @@ bool Unit::HandleSpellCritChanceAuraProc(Unit* victim, uint32 /*damage*/, AuraEf
     return true;
 }
 
+bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
+{
+    // Get triggered aura spell info
+    SpellInfo const* auraSpellInfo = triggeredByAura->GetSpellInfo();
+
+    // Get effect index used for the proc
+    uint32 effIndex = triggeredByAura->GetEffIndex();
+
+    // Power amount required to proc the spell
+    int32 powerAmountRequired = triggeredByAura->GetAmount();
+    // Power type required to proc
+    Powers powerRequired = Powers(auraSpellInfo->Effects[triggeredByAura->GetEffIndex()].MiscValue);
+
+    // Set trigger spell id, target, custom basepoints
+    uint32 trigger_spell_id = auraSpellInfo->Effects[triggeredByAura->GetEffIndex()].TriggerSpell;
+
+    Unit*  target = NULL;
+    int32  basepoints0 = 0;
+
+    Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
+        ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
+
+    /* Try handle unknown trigger spells or with invalid power amount or misc value
+    if (sSpellMgr->GetSpellInfo(trigger_spell_id) == NULL || powerAmountRequired == NULL || powerRequired >= MAX_POWER)
+    {
+        switch (auraSpellInfo->SpellFamilyName)
+        {
+            case SPELLFAMILY_GENERIC:
+            {
+                break;
+            }
+        }
+    }*/
+
+    // All ok. Check current trigger spell
+    SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(trigger_spell_id);
+    if (triggerEntry == NULL)
+    {
+        // Not cast unknown spell
+        // sLog->outError("Unit::HandleAuraProcOnPowerAmount: Spell %u have 0 in EffectTriggered[%d], not handled custom case?", auraSpellInfo->Id, triggeredByAura->GetEffIndex());
+        return false;
+    }
+
+    // not allow proc extra attack spell at extra attack
+    if (m_extraAttacks && triggerEntry->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+        return false;
+
+    if (powerRequired == NULL || powerAmountRequired == NULL)
+    {
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Unit::HandleAuraProcOnPowerAmount: Spell %u have 0 powerAmountRequired in EffectAmount[%d] or 0 powerRequired in EffectMiscValue, not handled custom case?", auraSpellInfo->Id, triggeredByAura->GetEffIndex());
+        return false;
+    }
+
+    if (GetPower(powerRequired) != powerAmountRequired)
+        return false;
+
+    // Custom requirements (not listed in procEx) Warning! damage dealing after this
+    // Custom triggered spells
+    switch (auraSpellInfo->SpellFamilyName)
+    {
+        case SPELLFAMILY_DRUID:
+        {
+            // Eclipse Mastery Driver Passive
+            if (auraSpellInfo->Id == 79577)
+            {
+                uint32 solarEclipseMarker = 67483;
+                uint32 lunarEclipseMarker = 67484;
+
+                switch(effIndex)
+                {
+                    case 0:
+                    {
+                        // Do not proc if proc spell isnt starfire and starsurge
+                        if (procSpell->Id != 2912 && procSpell->Id != 78674)
+                            return false;
+
+                        if (HasAura(solarEclipseMarker))
+                        {
+                            RemoveAurasDueToSpell(solarEclipseMarker);
+                            CastSpell(this,lunarEclipseMarker,true);
+                        }
+                        break;
+                    }
+                    case 1:
+                    {
+                        // Do not proc if proc spell isnt wrath and starsurge
+                        if (procSpell->Id != 5176 && procSpell->Id != 78674)
+                            return false;
+
+                        if (HasAura(lunarEclipseMarker))
+                        {
+                            RemoveAurasDueToSpell(lunarEclipseMarker);
+                            CastSpell(this,solarEclipseMarker,true);
+                        }
+
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))
+        return false;
+
+    // try detect target manually if not set
+    if (target == NULL)
+        target = !(procFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)) && triggerEntry && triggerEntry->IsPositive() ? this : victim;
+
+    if (basepoints0)
+        CastCustomSpell(target, trigger_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
+    else
+        CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
+
+    if (cooldown && GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->AddSpellCooldown(trigger_spell_id, 0, time(NULL) + cooldown);
+
+    return true;
+}
+
 //victim may be NULL
 bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
 {
@@ -6218,26 +6339,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return true;
                 }
             }
-            // Eclipse
-            if (dummySpell->SpellIconID == 2856 && GetTypeId() == TYPEID_PLAYER)
-            {
-                if (!procSpell || effIndex != 0)
-                    return false;
-
-                bool isWrathSpell = (procSpell->SpellFamilyFlags[0] & 1);
-
-                if (!roll_chance_f(dummySpell->ProcChance * (isWrathSpell ? 0.6f : 1.0f)))
-                    return false;
-
-                target = this;
-                if (target->HasAura(isWrathSpell ? 48517 : 48518))
-                    return false;
-
-                triggered_spell_id = isWrathSpell ? 48518 : 48517;
-                break;
-            }
             // Living Seed
-            else if (dummySpell->SpellIconID == 2860)
+            if (dummySpell->SpellIconID == 2860)
             {
                 triggered_spell_id = 48504;
                 basepoints0 = CalculatePctN(int32(damage), triggerAmount);
@@ -9639,7 +9742,7 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, uint32 damage, Pow
     SendMessageToSet(&data, true);
 }
 
-void Unit::EnergizeBySpell(Unit* victim, uint32 spellID, uint32 damage, Powers powerType)
+void Unit::EnergizeBySpell(Unit* victim, uint32 spellID, int32 damage, Powers powerType)
 {
     SendEnergizeSpellLog(victim, spellID, damage, powerType);
     // needs to be called after sending spell log
@@ -11732,9 +11835,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     int32 curPower = (int32)GetPower(power);
 
     int32 val = dVal + curPower;
-    if (val <= 0)
+    if (val <= GetMinPower(power))
     {
-        SetPower(power, 0);
+        SetPower(power, GetMinPower(power));
         return -curPower;
     }
 
@@ -13315,7 +13418,7 @@ void Unit::SetPower(Powers power, int32 val)
     if (maxPower < val)
         val = maxPower;
 
-    SetStatInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
+    SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
 
     if (IsInWorld())
     {
@@ -13351,7 +13454,7 @@ void Unit::SetMaxPower(Powers power, int32 val)
         return;
 
     int32 cur_power = GetPower(power);
-    SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex, val);
+    SetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex, val);
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)
@@ -13808,6 +13911,7 @@ bool InitTriggerAuraData()
         isNonTriggerAura[i] = false;
         isAlwaysTriggeredAura[i] = false;
     }
+    isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
     isTriggerAura[SPELL_AURA_MOD_THREAT] = true;
@@ -14092,6 +14196,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     {
                         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: casting spell id %u (triggered by %s dummy aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                         if (HandleDummyAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
+                            takeCharges = true;
+                        break;
+                    }
+                    case SPELL_AURA_PROC_ON_POWER_AMOUNT:
+                    {
+                        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
+                        if (HandleAuraProcOnPowerAmount(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
                         break;
                     }
