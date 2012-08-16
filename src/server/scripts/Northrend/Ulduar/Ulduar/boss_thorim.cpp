@@ -250,6 +250,7 @@ class npc_thorim_controller : public CreatureScript
         {
             EVENT_CHECK_PLAYER_IN_RANGE = 1,
         };
+
     public:
         npc_thorim_controller() : CreatureScript("npc_thorim_controller") {}
         
@@ -257,7 +258,6 @@ class npc_thorim_controller : public CreatureScript
         {
             npc_thorim_controllerAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
-
                 me->SetCanFly(true);
                 me->SetVisible(false);
                 instance = creature->GetInstanceScript();
@@ -271,7 +271,6 @@ class npc_thorim_controller : public CreatureScript
                 if (!gotActivated)
                 {
                     instance->HandleGameObject(instance->GetData64(GO_THORIM_LIGHTNING_FIELD), true); // Open the entrance door.
-                    instance->HandleGameObject(instance->GetData64(GO_THORIM_DARK_IRON_PROTCULLIS), false); // Close the up-way door.   
                     events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1000);  
                 }                            
             }
@@ -299,7 +298,6 @@ class npc_thorim_controller : public CreatureScript
                     if (Creature* thorim = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_THORIM)))
                         thorim->AI()->SetGUID(attackTarget, ACTION_PREPHASE_ADDS_DIED);
                     instance->HandleGameObject(instance->GetData64(GO_THORIM_LIGHTNING_FIELD), false); // Close the entrance door.
-                    instance->HandleGameObject(instance->GetData64(GO_THORIM_DARK_IRON_PROTCULLIS), true); // Open the up-way door.    
                 }
             }
 
@@ -307,6 +305,7 @@ class npc_thorim_controller : public CreatureScript
             {
                 if (instance->GetBossState(BOSS_THORIM) == DONE)
                     return;
+
                 events.Update(diff);
                 // MoveInLineOfSight does not seem to work here, so...
                 while (uint32 event = events.ExecuteEvent())
@@ -317,9 +316,9 @@ class npc_thorim_controller : public CreatureScript
                             if (!gotActivated)
                             {
                                 Player* player = 0;
-                                Trinity::AnyPlayerInObjectRangeCheck u_check(me, 30.0f, true);
+                                Trinity::AnyPlayerInObjectRangeCheck u_check(me, 70.0f, true);
                                 Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, u_check);
-                                me->VisitNearbyObject(30.0f, searcher);
+                                me->VisitNearbyObject(70.0f, searcher);
                                 if (player)
                                     if (!player->isGameMaster())
                                     {                                        
@@ -360,6 +359,7 @@ class boss_thorim : public CreatureScript
             PHASE_1,
             PHASE_2
         };
+
     public:
         boss_thorim() : CreatureScript("boss_thorim") {}        
 
@@ -374,6 +374,7 @@ class boss_thorim : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 gotEncounterFinished = gotEncounterFinished || (instance->GetBossState(BOSS_THORIM) == DONE);
                 if (gotEncounterFinished) // May be called during fight if Thorim gets outfight... hm, should _not_ happen regularly
                 {
@@ -383,8 +384,6 @@ class boss_thorim : public CreatureScript
 
                 if (gotAddsWiped)
                     DoScriptText(SAY_WIPE, me);
-
-                _Reset();
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
@@ -446,8 +445,8 @@ class boss_thorim : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                DoScriptText(SAY_AGGRO_1, me);
                 _EnterCombat();
+                DoScriptText(SAY_AGGRO_1, me);
 
                 // Spawn Thunder Orbs
                 for (uint8 n = 0; n < 7; n++)
@@ -624,7 +623,6 @@ class boss_thorim : public CreatureScript
                             gotAddsWiped = true;
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             events.Reset();
-                            EnterCombat(ObjectAccessor::GetUnit(*me, guid));
                             DoZoneInCombat();
                         }
                         break;
@@ -760,7 +758,12 @@ const uint32 PrePhaseAddSpells_Secondary[2][6] =
 class PrePhaseAddHelper
 {
     private:
-        enum ManCnt { In10Man = 0, In25Man };
+        enum ManCnt
+        {
+            In10Man = 0,
+            In25Man
+        };
+
     public:
         enum Index
         {
@@ -801,7 +804,13 @@ class PrePhaseAddHelper
 class npc_thorim_pre_phase_add : public CreatureScript
 {
     private:
-        enum { EVENT_PRIMARY_SKILL = 1, EVENT_SECONDARY_SKILL, EVENT_CHECK_PLAYER_IN_RANGE };
+        enum
+        {
+            EVENT_PRIMARY_SKILL = 1,
+            EVENT_SECONDARY_SKILL,
+            EVENT_CHECK_PLAYER_IN_RANGE
+        };
+
     public:
         npc_thorim_pre_phase_add() : CreatureScript("npc_thorim_pre_phase_add") {}        
 
@@ -810,7 +819,6 @@ class npc_thorim_pre_phase_add : public CreatureScript
             npc_thorim_pre_phaseAI(Creature *pCreature) : ScriptedAI(pCreature), myHelper(GetDifficulty())
             {
                 pInstance = pCreature->GetInstanceScript();
-                me->setFaction(14);
                 me->SetReactState(REACT_AGGRESSIVE);
                 myIndex = myHelper[me->GetEntry()];
                 amIHealer = HealerCheck(true)(me);
@@ -971,7 +979,12 @@ const uint32 ArenaAddSpells_Secondary[2][7] =
 class ArenaPhaseAddHelper
 {
     private:
-        enum ManCnt { In10Man = 0, In25Man };
+        enum ManCnt
+        {
+            In10Man = 0,
+            In25Man
+        };
+
     public:
         enum Index
         {
@@ -1012,7 +1025,13 @@ class ArenaPhaseAddHelper
 class npc_thorim_arena_phase_add : public CreatureScript
 {
     private:
-        enum { EVENT_PRIMARY_SKILL = 1, EVENT_SECONDARY_SKILL, EVENT_CHARGE };
+        enum
+        {
+            EVENT_PRIMARY_SKILL = 1,
+            EVENT_SECONDARY_SKILL,
+            EVENT_CHARGE
+        };
+
     public:
         npc_thorim_arena_phase_add() : CreatureScript("npc_thorim_arena_phase_add") {}
 
@@ -1021,7 +1040,6 @@ class npc_thorim_arena_phase_add : public CreatureScript
             npc_thorim_arena_phaseAI(Creature* creature) : ScriptedAI(creature), myHelper(GetDifficulty())
             {
                 _instance = creature->GetInstanceScript();
-                me->setFaction(14);
                 myIndex = myHelper[me->GetEntry()];
                 IsInArena = ArenaAreaCheck(false)(me);
                 amIhealer = HealerCheck(true)(me);
@@ -1146,7 +1164,15 @@ SummonLocation colossusAddLocations[]=
 class npc_runic_colossus : public CreatureScript
 {
     private:
-        enum { EVENT_BARRIER = 1, EVENT_SMASH, EVENT_CHARGE, EVENT_RUNIC_SMASH };
+        enum
+        {
+            EVENT_BARRIER = 1,
+            EVENT_SMASH,
+            EVENT_SMASH_WAVE,
+            EVENT_CHARGE,
+            EVENT_RUNIC_SMASH
+        };
+
     public:
         npc_runic_colossus() : CreatureScript("npc_runic_colossus") {}
 
@@ -1161,13 +1187,6 @@ class npc_runic_colossus : public CreatureScript
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_BARRIER, urand(12000, 15000));
-                events.ScheduleEvent(EVENT_SMASH, urand (15000, 18000));
-                events.ScheduleEvent(EVENT_CHARGE, urand (20000, 24000));                
-
-                RunicSmashPhase = 0;
-                Side = 0;
-
                 me->setActive(false);
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1201,33 +1220,41 @@ class npc_runic_colossus : public CreatureScript
                 {
                     case ACTION_DOSCHEDULE_RUNIC_SMASH:
                         events.ScheduleEvent(EVENT_RUNIC_SMASH, 1000);
-                        RunicSmashPhase = 1;
                         break;
                 }
             }
 
-            void DoRunicSmash()
+            void DoRunicSmash(bool side)
             {
                 for (uint8 i = 0; i < 9; i++)
-                    if (Creature* bunny = me->SummonCreature(NPC_THORIM_GOLEM_RH_BUNNY, Side ? 2236.0f : 2219.0f, i * 10 - 380.0f, 412.2f, 0, TEMPSUMMON_TIMED_DESPAWN, 5000))
+                    if (Creature* bunny = me->SummonCreature(NPC_THORIM_GOLEM_RH_BUNNY, side ? 2236.0f : 2219.0f, i * 10 - 380.0f, 412.2f, 0, TEMPSUMMON_TIMED_DESPAWN, 5000))
                         bunny->AI()->SetData(1, (i + 1)* 200);
 
                 for (uint8 i = 0; i < 9; i++)
-                    if (Creature* bunny = me->SummonCreature(NPC_THORIM_GOLEM_LH_BUNNY, Side ? 2246.0f : 2209.0f, i * 10 - 380.0f, 412.2f, 0, TEMPSUMMON_TIMED_DESPAWN, 5000))
+                    if (Creature* bunny = me->SummonCreature(NPC_THORIM_GOLEM_LH_BUNNY, side ? 2246.0f : 2209.0f, i * 10 - 380.0f, 412.2f, 0, TEMPSUMMON_TIMED_DESPAWN, 5000))
                         bunny->AI()->SetData(1, (i + 1)* 200);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                RunicSmashPhase = 0;
+                events.ScheduleEvent(EVENT_BARRIER, urand(12000, 15000));
+                events.ScheduleEvent(EVENT_SMASH, urand (15000, 18000));
+                events.ScheduleEvent(EVENT_CHARGE, urand (20000, 24000));
+
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                if (instance->GetBossState(BOSS_THORIM) != IN_PROGRESS)
                     return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 while (uint32 event = events.ExecuteEvent())
                 {
                     switch (event)
@@ -1251,18 +1278,21 @@ class npc_runic_colossus : public CreatureScript
                                 events.ScheduleEvent(EVENT_CHARGE, 2000);
                             break;
                         case EVENT_RUNIC_SMASH:
-                            Side = urand(0, 1);
-                            if (RunicSmashPhase == 1)
-                            {
-                                DoCast(me, RAND(SPELL_RUNIC_SMASH_LEFT, SPELL_RUNIC_SMASH_RIGHT));
-                                RunicSmashPhase = 2;
-                            }
-                            else if (RunicSmashPhase == 2)
-                            {
-                                RunicSmashPhase = 1;
-                                DoRunicSmash();
-                            }
-                            events.ScheduleEvent(EVENT_RUNIC_SMASH, 1000);                                                       
+                            if (UpdateVictim())
+                                break;
+
+                            side = urand(0, 1);
+                            if (side == 0)
+                                DoCast(me, SPELL_RUNIC_SMASH_RIGHT);
+                            else
+                                DoCast(me, SPELL_RUNIC_SMASH_LEFT);
+
+                            events.ScheduleEvent(EVENT_SMASH_WAVE, 5500);
+                            events.ScheduleEvent(EVENT_RUNIC_SMASH, 8000);
+                            break;
+                        case EVENT_SMASH_WAVE:
+                            if (!UpdateVictim())
+                                DoRunicSmash(side);
                             break;
                     }
                 }
@@ -1274,8 +1304,7 @@ class npc_runic_colossus : public CreatureScript
                 SummonList summons;
                 EventMap events;
 
-                uint8 Side;
-                uint8 RunicSmashPhase;
+                bool side;
                 uint32 BarrierTimer;
                 uint32 SmashTimer;
                 uint32 ChargeTimer;
@@ -1350,7 +1379,12 @@ SummonLocation giantAddLocations[]=
 class npc_ancient_rune_giant : public CreatureScript
 {
     private:
-        enum { EVENT_STOMP = 1, EVENT_DETONATION };
+        enum
+        {
+            EVENT_STOMP = 1,
+            EVENT_DETONATION
+        };
+
     public:
         npc_ancient_rune_giant() : CreatureScript("npc_ancient_rune_giant") {}        
 
@@ -1361,7 +1395,7 @@ class npc_ancient_rune_giant : public CreatureScript
                 instance = creature->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            }            
+            }
 
             void Reset()
             {
@@ -1442,7 +1476,14 @@ class npc_ancient_rune_giant : public CreatureScript
 class npc_sif : public CreatureScript
 {
     private:
-        enum { EVENT_FROSTBOLT = 1, EVENT_FROSTBOLT_VOLLEY, EVENT_BLIZZARD, EVENT_FROSTNOVA };
+        enum
+        {
+            EVENT_FROSTBOLT = 1,
+            EVENT_FROSTBOLT_VOLLEY,
+            EVENT_BLIZZARD,
+            EVENT_FROSTNOVA
+        };
+
         enum SifSpells
         {
             SPELL_FROSTBOLT_VOLLEY = 62580,
@@ -1450,6 +1491,7 @@ class npc_sif : public CreatureScript
             SPELL_BLIZZARD         = 62576,
             SPELL_FROSTBOLT        = 69274
         };
+
     public:
         npc_sif() : CreatureScript("npc_sif") {}        
 

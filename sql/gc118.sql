@@ -757,3 +757,6 @@ INSERT INTO smart_scripts (entryorguid, id, event_type, event_flags, event_param
 
 -- Nature bomb, Unstable energy model correction
 UPDATE creature_template SET modelid1 = 0 WHERE entry IN (34129, 34153, 33050, 33170, 33395, 33402);
+
+-- Thorims trap bunny shouldnt be able to move
+UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 33054;
