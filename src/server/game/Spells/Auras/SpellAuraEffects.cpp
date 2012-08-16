@@ -381,7 +381,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //325 SPELL_AURA_325
     &AuraEffect::HandleNULL,                                      //326 SPELL_AURA_326
     &AuraEffect::HandleNULL,                                      //327 SPELL_AURA_327
-    &AuraEffect::HandleNULL,                                      //328 SPELL_AURA_328
+    &AuraEffect::HandleNoImmediateEffect,                         //328 SPELL_AURA_PROC_ON_POWER_AMOUNT implemented in Unit::HandleAuraProcOnPowerAmount
     &AuraEffect::HandleNULL,                                      //329 SPELL_AURA_MOD_RUNE_REGEN_SPEED
     &AuraEffect::HandleNULL,                                      //330 SPELL_AURA_CAST_WHILE_WALKING
     &AuraEffect::HandleNULL,                                      //331 SPELL_AURA_331
