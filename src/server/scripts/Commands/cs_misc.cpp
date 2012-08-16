@@ -1505,7 +1505,7 @@ public:
 
         if (!target->GetSkillValue(skill))
         {
-            handler->PSendSysMessage(LANG_SET_SKILL_ERROR, tNameLink.c_str(), skill, skillLine->name[handler->GetSessionDbcLocale()]);
+            handler->PSendSysMessage(LANG_SET_SKILL_ERROR, tNameLink.c_str(), skill, skillLine->name);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1516,7 +1516,7 @@ public:
             return false;
 
         target->SetSkill(skill, target->GetSkillStep(skill), level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name[handler->GetSessionDbcLocale()], tNameLink.c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name, tNameLink.c_str(), level, max);
 
         return true;
     }
@@ -1754,7 +1754,6 @@ public:
         handler->PSendSysMessage(LANG_PINFO_LEVEL, raceStr.c_str(), ClassStr.c_str(), timeStr.c_str(), level, gold, silv, copp);
 
         // Add map, zone, subzone and phase to output
-        int locale = handler->GetSessionDbcLocale();
         std::string areaName = "<unknown>";
         std::string zoneName = "";
 
@@ -1763,22 +1762,22 @@ public:
         AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
         if (area)
         {
-            areaName = area->area_name[locale];
+            areaName = area->area_name;
 
             AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
             if (zone)
-                zoneName = zone->area_name[locale];
+                zoneName = zone->area_name;
         }
 
         if (target)
         {
             if (!zoneName.empty())
-                handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name[locale], zoneName.c_str(), areaName.c_str(), phase);
+                handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, zoneName.c_str(), areaName.c_str(), phase);
             else
-                handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name[locale], areaName.c_str(), "<unknown>", phase);
+                handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, areaName.c_str(), "<unknown>", phase);
         }
         else
-           handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name[locale], areaName.c_str());
+           handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name, areaName.c_str());
 
         return true;
     }
