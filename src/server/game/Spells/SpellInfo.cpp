@@ -418,7 +418,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     {
         if (caster)
         {
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((scaling->playerClass != -1 ? caster->getClass() : 11) * 100 + caster->getLevel() - 1))
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((scaling->playerClass != -1 ? scaling->playerClass - 1 : 11) * 100 + caster->getLevel() - 1))
             {
                 float preciseBasePoints = ScalingMultiplier * gtScaling->value;
                 comboDamage = ComboScalingMultiplier * gtScaling->value;
