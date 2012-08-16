@@ -84,8 +84,7 @@ void FormationMgr::LoadCreatureFormations()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
         return;
     }
 
@@ -136,8 +135,7 @@ void FormationMgr::LoadCreatureFormations()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_UNITS, ">> Loaded %u creatures in formations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creatures in formations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void CreatureGroup::AddMember(Creature* member)

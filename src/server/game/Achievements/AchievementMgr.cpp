@@ -2201,8 +2201,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
     if (sAchievementCriteriaStore.GetNumRows() == 0)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 achievement criteria.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 achievement criteria.");
         return;
     }
 
@@ -2219,8 +2218,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
             m_AchievementCriteriasByTimedType[criteria->timedType].push_back(criteria);
     }
 
-    sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded %lu achievement criteria in %u ms", (unsigned long)m_AchievementCriteriasByType->size(), GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu achievement criteria in %u ms", (unsigned long)m_AchievementCriteriasByType->size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadAchievementReferenceList()
@@ -2229,8 +2227,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
     if (sAchievementStore.GetNumRows() == 0)
     {
-        sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded 0 achievement references.");
-
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 achievement references.");
         return;
     }
 
@@ -2250,8 +2247,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
     if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(4539))
         const_cast<AchievementEntry*>(achievement)->mapID = 631;    // Correct map requirement (currently has Ulduar)
 
-    sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded %u achievement references in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement references in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
@@ -2264,8 +2260,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
-
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
         return;
     }
 
@@ -2396,8 +2391,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             sLog->outError(LOG_FILTER_SQL, "Table `achievement_criteria_data` does not have expected data for criteria (Entry: %u Type: %u) for achievement %u.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 
-    sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded %u additional achievement criteria data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional achievement criteria data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
@@ -2408,8 +2402,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
-
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
         return;
     }
 
@@ -2436,8 +2429,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             m_allCompletedAchievements.insert(achievementId);
     } while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadRewards()
@@ -2451,8 +2443,7 @@ void AchievementGlobalMgr::LoadRewards()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
         return;
     }
 
@@ -2543,8 +2534,7 @@ void AchievementGlobalMgr::LoadRewards()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded %u achievement rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadRewardLocales()
@@ -2559,8 +2549,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded 0 achievement reward locale strings.  DB table `locales_achievement_reward` is empty");
-
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 achievement reward locale strings.  DB table `locales_achievement_reward` is empty");
         return;
     }
 
@@ -2586,6 +2575,5 @@ void AchievementGlobalMgr::LoadRewardLocales()
         }
     } while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, ">> Loaded %lu achievement reward locale strings in %u ms", (unsigned long)m_achievementRewardLocales.size(), GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu achievement reward locale strings in %u ms", (unsigned long)m_achievementRewardLocales.size(), GetMSTimeDiffToNow(oldMSTime));
 }
