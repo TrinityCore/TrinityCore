@@ -31,6 +31,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "trial_of_the_crusader.h"
+#include "Group.h"
 
 enum eYells
 {
@@ -155,8 +156,14 @@ class npc_announcer_toc10 : public CreatureScript
                 if ((!_GossipMessage[i].state && instanceScript->GetData(_GossipMessage[i].encounter) != DONE)
                     || (_GossipMessage[i].state && instanceScript->GetData(_GossipMessage[i].encounter) == DONE))
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
-                    break;
+                    if (player->isGameMaster() || player->GetGroup())
+                    {
+                        if(player->isGameMaster() || player->GetGroup()->GetLeaderGUID() == player->GetGUID())
+                        {
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -789,7 +796,7 @@ class npc_tirion_toc : public CreatureScript
                         case 5005:
                             m_uiUpdateTimer = 8000;
                             instance->SetData(TYPE_EVENT, 5010);
-                            me->SummonCreature(NPC_LICH_KING_1, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5);
+                            me->SummonCreature(NPC_LICH_KING_1, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5);
                             break;
                         case 5020:
                             Talk(SAY_STAGE_4_03);
