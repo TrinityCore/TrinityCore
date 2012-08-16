@@ -164,7 +164,7 @@ class ScriptObject
     protected:
 
         ScriptObject(const char* name)
-            : _name(std::string(name))
+            : _name(name)
         {
         }
 

@@ -2620,14 +2620,14 @@ PlayerDump.DisallowOverwrite = 1
 #                         Example: "13 11 9 5 3 1"
 #
 #                     File: Name of the file (read as optional1 if Type = File)
-#                         Allows to use one "%u" to create dynamic files
+#                         Allows to use one "%s" to create dynamic files
 #
 #                     Mode: Mode to open the file (read as optional2 if Type = File)
 #                          a - (Append)
 #                          w - (Overwrite)
 #
 
-Appender.Console=1,5,0
+Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,0,GM.log
 Appender.DBErrors=2,2,0,DBErrors.log
@@ -2712,12 +2712,13 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                     (Using spaces as separator).
 #
 
-Logger.Root=0,3,Console Server
+Logger.Root=0,5,Console Server
 Logger.Chat=22,3,Chat
 Logger.DBErrors=26,5,Console Server DBErrors
 Logger.GM=27,3,Console Server GM
 Logger.RA=28,3,RA
 Logger.Warden=29,3,Warden
+Logger.WorldServer=31,3,Console Server
 Logger.Character=34,3,Char
 Logger.Arenas=35,3,Arenas
 Logger.SQLDriver=36,5,SQLDriver
@@ -2731,4 +2732,4 @@ Logger.Load=40,3,Console Server
 #                     (Using spaces as separator).
 #        Default:     "Root Chat DBErrors GM RA Warden Character Load"
 
-Loggers=Root Chat DBErrors GM RA Warden Character Load
+Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer

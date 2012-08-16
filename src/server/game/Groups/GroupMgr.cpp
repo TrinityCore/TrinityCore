@@ -126,7 +126,6 @@ void GroupMgr::LoadGroups()
         if (!result)
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group definitions. DB table `groups` is empty!");
-
             return;
         }
 
@@ -152,10 +151,9 @@ void GroupMgr::LoadGroups()
         while (result->NextRow());
 
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u group definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
     }
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Group members...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Group members...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -170,7 +168,6 @@ void GroupMgr::LoadGroups()
         if (!result)
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group members. DB table `group_member` is empty!");
-
             return;
         }
 
@@ -191,10 +188,9 @@ void GroupMgr::LoadGroups()
         while (result->NextRow());
 
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u group members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
     }
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Group instance saves...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Group instance saves...");
     {
         uint32 oldMSTime = getMSTime();
         //                                                   0           1        2              3             4             5            6
@@ -204,7 +200,6 @@ void GroupMgr::LoadGroups()
         if (!result)
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
-
             return;
         }
 
@@ -236,6 +231,5 @@ void GroupMgr::LoadGroups()
         while (result->NextRow());
 
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
     }
 }

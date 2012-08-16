@@ -198,7 +198,7 @@ LoginDatabase.WorkerThreads = 1
 #                         Example: "13 11 9 5 3 1"
 #
 #                     File: Name of the file (read as optional1 if Type = File)
-#                         Allows to use one "%u" to create dynamic files
+#                         Allows to use one "%s" to create dynamic files
 #
 #                     Mode: Mode to open the file (read as optional2 if Type = File)
 #                          a - (Append)
@@ -207,19 +207,6 @@ LoginDatabase.WorkerThreads = 1
 
 Appender.Console=1,2,6
 Appender.Auth=2,2,7,Auth.log,w
-
-#  Logger config values: Given a logger "name"
-#    Logger.name
-#        Description: Defines 'What to log'
-#        Format:      Type,LogLevel,AppenderList
-#                     Type
-#                         0 - Default. Each type that has no config will
-#                             rely on this one. Core will create this logger
-#                             (disabled) if it's not configured
-#                         7 - Network input/output,
-#                        30 - Authserver
-
-Logger.Root=0,3,Console Auth
 
 #                     LogLevel
 #                         0 - (Disabled)
@@ -239,6 +226,19 @@ Logger.Root=0,3,Console Auth
 #        Default:     "Console Server"
 
 Appenders=Console Auth
+
+#  Logger config values: Given a logger "name"
+#    Logger.name
+#        Description: Defines 'What to log'
+#        Format:      Type,LogLevel,AppenderList
+#                     Type
+#                         0 - Default. Each type that has no config will
+#                             rely on this one. Core will create this logger
+#                             (disabled) if it's not configured
+#                         7 - Network input/output,
+#                        30 - Authserver
+
+Logger.Root=0,3,Console Auth
 
 #
 #    Loggers
