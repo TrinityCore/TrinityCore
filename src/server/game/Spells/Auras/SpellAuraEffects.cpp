@@ -6613,7 +6613,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     }
 
     // don't regen when permanent aura target has full power
-    if (GetBase()->IsPermanent() && uint32(target->GetPower(powerType)) == target->GetMaxPower(powerType))
+    if (GetBase()->IsPermanent() && target->GetPower(powerType) == target->GetMaxPower(powerType))
         return;
 
     // ignore negative values (can be result apply spellmods to aura damage
@@ -6644,7 +6644,7 @@ void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) cons
     }
 
     // don't regen when permanent aura target has full power
-    if (GetBase()->IsPermanent() && uint32(target->GetPower(powerType)) == target->GetMaxPower(powerType))
+    if (GetBase()->IsPermanent() && target->GetPower(powerType) == target->GetMaxPower(powerType))
         return;
 
     // ignore negative values (can be result apply spellmods to aura damage

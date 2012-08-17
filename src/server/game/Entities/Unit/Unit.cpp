@@ -5701,7 +5701,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return false;
 
                 // mana reward
-                basepoints0 = CalculatePctN(int32(GetMaxPower(POWER_MANA)), triggerAmount);
+                basepoints0 = CalculatePctN(GetMaxPower(POWER_MANA), triggerAmount);
                 target = this;
                 triggered_spell_id = 29442;
                 break;
@@ -11440,7 +11440,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     if (dVal == 0)
         return 0;
 
-    int32 curPower = (int32)GetPower(power);
+    int32 curPower = GetPower(power);
 
     int32 val = dVal + curPower;
     if (val <= GetMinPower(power))
@@ -11449,7 +11449,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
         return -curPower;
     }
 
-    int32 maxPower = (int32)GetMaxPower(power);
+    int32 maxPower = GetMaxPower(power);
 
     if (val < maxPower)
     {
@@ -11471,7 +11471,7 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
     float amount = (float)GetMaxPower(power);
     ApplyPercentModFloatVar(amount, pct, apply);
 
-    return ModifyPower(power, (int32)amount - (int32)GetMaxPower(power));
+    return ModifyPower(power, (int32)amount - GetMaxPower(power));
 }
 
 bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
@@ -13007,13 +13007,13 @@ int32 Unit::GetPower(Powers power) const
     return GetUInt32Value(UNIT_FIELD_POWER1 + powerIndex);
 }
 
-uint32 Unit::GetMaxPower(Powers power) const
+int32 Unit::GetMaxPower(Powers power) const
 {
     uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return 0;
 
-    return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
+    return GetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
 }
 
 void Unit::SetPower(Powers power, int32 val)
