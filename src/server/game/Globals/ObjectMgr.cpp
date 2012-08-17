@@ -231,9 +231,9 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 }
 
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
-    _itemTextId(1), _mailId(1), _hiPetNumber(1), _hiCharGuid(1),
+    _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiMoTransGuid(1), _voidItemId(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiMoTransGuid(1)
 {}
 
 ObjectMgr::~ObjectMgr()
@@ -8259,7 +8259,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         return false;
     }
 
-    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
+    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS) // FIXME: GetItemCount range 0...255 MAX_VENDOR_ITEMS = 300
     {
         if (player)
             ChatHandler(player).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);

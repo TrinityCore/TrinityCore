@@ -575,6 +575,8 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             prefix = recvData.ReadString(prefixLen);
             break;
         }
+        default:
+            break;
     }
 
     // Logging enabled?
