@@ -577,10 +577,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         for (AuraEffectList::iterator i = vCopyDamageCopy.begin(); i != vCopyDamageCopy.end(); ++i)
         {
             // Check if aura was removed during iteration - we don't need to work on such auras
-            AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(victim->GetGUID());
-            if (!aurApp)
+            if (!((*i)->GetBase()->IsAppliedOnTarget(victim->GetGUID())))
                 continue;
-
             // check damage school mask
             if (((*i)->GetMiscValue() & damageSchoolMask) == 0)
                 continue;
