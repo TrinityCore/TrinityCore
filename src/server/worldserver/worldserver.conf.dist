@@ -2261,6 +2261,15 @@ Arena.ArenaStartPersonalRating = 0
 Arena.ArenaStartMatchmakerRating = 1500
 
 #
+#    ArenaLog.ExtendedInfo
+#        Description: Include extended info to ArenaLogFile for each player after rated arena
+#                     matches (guid, name, team, IP, healing/damage done, killing blows).
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+ArenaLog.ExtendedInfo = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
