@@ -879,6 +879,7 @@ class ObjectMgr
         PageText const* GetPageText(uint32 pageEntry);
 
         void LoadPlayerInfo();
+        void LoadGuildInfo();
         void LoadPetLevelInfo();
         void LoadExplorationBaseXP();
         void LoadPetNames();
@@ -907,6 +908,8 @@ class ObjectMgr
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
+
+        uint32 GetXPForGuildLevel(uint8 level) const;
 
         int32 GetFishingBaseSkillLevel(uint32 entry) const
         {
@@ -1238,6 +1241,9 @@ class ObjectMgr
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]
         PlayerXPperLevel _playerXPperLevel;
+
+        typedef std::vector<uint64> GuildXPperLevel; // [level]
+        GuildXPperLevel _GuildXPperLevel;
 
         typedef std::map<uint32, uint32> BaseXPContainer;          // [area level][base xp]
         BaseXPContainer _baseXPTable;

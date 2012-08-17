@@ -154,6 +154,7 @@ const char SpellShapeshiftEntryfmt[]="nixixx";
 const char SpellShapeshiftFormfmt[]="nxxiixiiixxiiiiiiiixx";
 const char StableSlotPricesfmt[] = "ni";
 const char SummonPropertiesfmt[] = "niiiii";
+const char GuildPerksfmt[] = "nii";
 const char TalentEntryfmt[]="niiiiiiiiixxixxxxxx";
 const char TalentTabEntryfmt[]="nxxiiixxxxx";
 const char TalentTreePrimarySpellsfmt[]="diix";

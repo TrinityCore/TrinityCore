@@ -391,7 +391,7 @@ enum PlayerFlags
     PLAYER_FLAGS_NO_XP_GAIN        = 0x02000000,
     PLAYER_FLAGS_UNK26             = 0x04000000,
     PLAYER_FLAGS_UNK27             = 0x08000000,
-    PLAYER_FLAGS_UNK28             = 0x10000000,
+    PLAYER_FLAGS_GUILD_ADVANCEMENT = 0x10000000,
     PLAYER_FLAGS_VOID_UNLOCKED     = 0x20000000,                // void storage
     PLAYER_FLAGS_UNK30             = 0x40000000,
     PLAYER_FLAGS_UNK31             = 0x80000000,

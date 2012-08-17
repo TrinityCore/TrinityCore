@@ -27,6 +27,35 @@
 
 class Item;
 
+#define GUILD_MAX_LEVEL 25
+#define PLAYER_REP_CAP  4375
+#define GUILD_REP       1168
+#define BASE_XP_CAP     7807000
+
+enum GuildNews
+{
+    GUILD_NEWS_GUILD_ACHIEVEMENT      = 0,
+    GUILD_NEWS_PLAYER_ACHIEVEMENT     = 1,
+    GUILD_NEWS_DUNGEON_ENCOUNTER      = 2, // Todo Implement
+    GUILD_NEWS_ITEM_LOOTED            = 3,
+    GUILD_NEWS_ITEM_CRAFTED           = 4,
+    GUILD_NEWS_ITEM_PURCHASED         = 5,
+    GUILD_NEWS_LEVEL_UP               = 6,
+    GUILD_NEW_CREATED                 = 7
+};
+
+struct GuildNewsStruct
+{
+    uint32 id;
+    GuildNews eventType;
+    time_t date;
+    uint64 playerGuid;
+    uint32 flags;
+    uint32 data0;
+};
+
+typedef std::list<GuildNewsStruct> GuildNewsLogList;
+
 enum GuildMisc
 {
     GUILD_BANK_MAX_TABS                 = 8,                    // send by client for money log also
@@ -272,7 +301,7 @@ typedef std::set <uint8> SlotIds;
 
 class Guild
 {
-private:
+public:
     // Class representing guild member
     class Member
     {
@@ -323,7 +352,26 @@ private:
         void ResetMoneyTime();
 
         inline Player* FindPlayer() const { return ObjectAccessor::FindPlayer(m_guid); }
-
+        uint32 GetReputationWeeklyGained() { return m_weeklyRepGained; }
+        void SetReputationWeeklyGained(uint32 rep) { m_weeklyRepGained = rep; }
+        void SendWeeklyReputation();
+        void ResetWeekly();
+        uint64 GetWeeklyActivity() { return m_weeklyActivity; }
+        void IncreaseActivity(uint64 value) { m_weeklyActivity += value; m_totalActivity += value; CharacterDatabase.PExecute("UPDATE guild_member SET weeklyActivity = " UI64FMTD ", totalActivity = " UI64FMTD " WHERE guid = %i", m_weeklyActivity, m_totalActivity, GetGUID()); }
+        uint64 GetTotalActivity() { return m_totalActivity; }
+        uint32 GetRemainingWeeklyReputation() { return PLAYER_REP_CAP - m_weeklyRepGained; }
+        void SendReputationCapUpdate();
+        void SendInitialXPData();
+        uint32 GetAchievementPoints() { return m_achievementPoints; }
+        int32 GetGuildReputation() { return m_guildReputation; }
+        uint32 GetProfessionSkillId(uint32 index) {return m_professionSkillId[index]; }
+        uint32 GetProfessionLevel(uint32 index) {return m_professionLevel[index]; }
+        uint32 GetProfessionRank(uint32 index) {return m_professionRank[index]; }
+        void SetAchievementPoints(uint32 points) { m_achievementPoints = points; CharacterDatabase.PExecute("UPDATE guild_member SET AchievementPoints = %i WHERE guid = %u", points, m_guid); }
+        void SetGuildReputation(uint32 rep) { m_guildReputation = rep; CharacterDatabase.PExecute("UPDATE guild_member SET GuildReputation = %u WHERE guid = %u", rep, m_guid); }
+        void SetProfessionSkillId(uint32 index, uint32 skillId) { m_professionSkillId[index] = skillId; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionSkillId%u = %u WHERE guid = %u", index, skillId, m_guid);}
+        void SetProfessionLevel(uint32 index, uint32 level) { m_professionLevel[index] = level; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionLevel%u = %u WHERE guid = %u", index, level, m_guid);}
+        void SetProfessionRank(uint32 index, uint32 rank) { m_professionRank[index] = rank; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionRank%u = %u WHERE guid = %u", index, rank, m_guid);}
     private:
         uint32 m_guildId;
         // Fields from characters table
@@ -334,6 +382,14 @@ private:
         uint8  m_class;
         uint64 m_logoutTime;
         uint32 m_accountId;
+        uint32 m_weeklyRepGained;
+        uint64 m_weeklyActivity;
+        uint64 m_totalActivity;
+        uint32 m_achievementPoints;
+        int32 m_guildReputation;
+        uint32 m_professionSkillId[2];
+        uint32 m_professionLevel[2];
+        uint32 m_professionRank[2];
         // Fields from guild_member table
         uint32 m_rankId;
         std::string m_publicNote;
@@ -342,6 +398,7 @@ private:
         RemainingValue m_bankRemaining[GUILD_BANK_MAX_TABS + 1];
     };
 
+private:
     // Base class for event entries
     class LogEntry
     {
@@ -500,10 +557,30 @@ private:
 
         void WritePacket(WorldPacket& data) const;
         void WriteSlotPacket(WorldPacket& data, uint8 slotId) const;
+        void WriteSlotEnchantementPacket(WorldPacket& data) const
+        {
+            uint32 enchCount = 0;
+            for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
+                if (Item* pItem = GetItem(slotId))
+                    for (uint32 i = PERM_ENCHANTMENT_SLOT; i < MAX_ENCHANTMENT_SLOT; ++i)
+                        if (uint32 enchId = pItem->GetEnchantmentId(EnchantmentSlot(i)))
+                            ++enchCount;
+            data.WriteBits(enchCount, 24);
+        }
+
+        void WriteInfoLenPacket(WorldPacket& data) const
+        {
+            data.WriteBits(m_icon.size(), 9);
+            data.WriteBits(m_name.size(), 7);
+        }
+
         void WriteInfoPacket(WorldPacket& data) const
         {
-            data << m_name;
-            data << m_icon;
+            if (m_icon.size())
+                data.WriteString(m_icon);
+            data << m_tabId;
+            if (m_name.size())
+                data.WriteString(m_name);
         }
 
         void SetInfo(const std::string& name, const std::string& icon);
@@ -521,6 +598,20 @@ private:
         std::string m_name;
         std::string m_icon;
         std::string m_text;
+    };
+
+    class GuildNewsLog
+    {
+    public:
+        GuildNewsLog(Guild* guild) : m_guild(guild) { }
+
+        void LoadFromDB(PreparedQueryResult result);
+        void BuildNewsData(WorldPacket& data);
+        void New(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data0);
+        Guild * GetGuild() const {return m_guild;};
+    protected:
+        Guild* m_guild;
+        GuildNewsLogList m_newsLog;
     };
 
     // Movement data
@@ -633,6 +724,8 @@ public:
 
     // Handle client commands
     void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
+    void HandleRosterUpdate(std::list<Member*> members);
+    void HandleRosterUpdate(Member* member);
     void HandleQuery(WorldSession* session);
     void HandleGuildRanks(WorldSession* session);
     void HandleSetMOTD(WorldSession* session, const std::string& motd);
@@ -700,6 +793,16 @@ public:
     void DeleteMember(uint64 guid, bool isDisbanding = false, bool isKicked = false);
     bool ChangeMemberRank(uint64 guid, uint8 newRank);
     bool IsMember(uint64 guid);
+    void AwardXP(Player* player, uint64 xp);
+    void LevelUp();
+    void ResetDailyXp();
+    void ResetWeeklyMembers();
+    void SendGuildXPUpdate();
+    void SendMaxCapUpdate();
+    uint64 GetDailyXPLimit() { return m_xpDailyCap; };
+    uint64 GetTodayXP() { return m_xpToday; };
+    uint32 GetLevel() const { return m_level; }
+    uint64 GetXP() { return m_xp; };
 
     // Bank
     void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
@@ -711,8 +814,19 @@ public:
     AchievementMgr<Guild>& GetAchievementMgr() { return m_achievementMgr; }
     AchievementMgr<Guild> const& GetAchievementMgr() const { return m_achievementMgr; }
 
-    uint32 GetLevel() const { return m_level; }
+    GuildNewsLog& GetNewsLog() { return m_newsLog; };
 
+    inline const Member* GetMember(uint64 guid) const
+    {
+        Members::const_iterator itr = m_members.find(GUID_LOPART(guid));
+        return itr != m_members.end() ? itr->second : NULL;
+    }
+
+    inline Member* GetMember(uint64 guid)
+    {
+        Members::iterator itr = m_members.find(GUID_LOPART(guid));
+        return itr != m_members.end() ? itr->second : NULL;
+    }
 protected:
     uint32 m_id;
     std::string m_name;
@@ -736,6 +850,11 @@ protected:
     AchievementMgr<Guild> m_achievementMgr;
 
     uint32 m_level;
+    uint64 m_xp;
+    uint64 m_xpToday;
+    uint64 m_xpDailyCap;
+
+    GuildNewsLog m_newsLog;
 
 private:
     inline uint32 _GetRanksSize() const { return uint32(m_ranks.size()); }
@@ -748,16 +867,6 @@ private:
     inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
     inline const BankTab* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
 
-    inline const Member* GetMember(uint64 guid) const
-    {
-        Members::const_iterator itr = m_members.find(GUID_LOPART(guid));
-        return itr != m_members.end() ? itr->second : NULL;
-    }
-    inline Member* GetMember(uint64 guid)
-    {
-        Members::iterator itr = m_members.find(GUID_LOPART(guid));
-        return itr != m_members.end() ? itr->second : NULL;
-    }
     inline Member* GetMember(WorldSession* session, const std::string& name)
     {
         for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)

@@ -2070,6 +2070,13 @@ struct SummonPropertiesEntry
     uint32  Flags;                                          // 5
 };
 
+struct GuildPerksEntry
+{
+    uint32 Id;
+    uint32 Level;
+    uint32 SpellId;
+};
+
 #define MAX_TALENT_RANK 5
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
 #define MAX_TALENT_TABS 3

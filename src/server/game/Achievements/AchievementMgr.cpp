@@ -2255,6 +2255,16 @@ void AchievementMgr<T>::RemoveTimedAchievement(AchievementCriteriaTimedTypes typ
         m_timedAchievements.erase(timedIter);
     }
 }
+template<class T>
+uint32 AchievementMgr<T>::GetAchievementPoints()
+{
+    uint32 points = 0;
+    for (CompletedAchievementMap::iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
+        if (AchievementEntry const* pAchievement = sAchievementStore.LookupEntry(itr->first))
+            points += pAchievement->points;
+
+    return points;
+}
 
 template<class T>
 void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
@@ -2268,12 +2278,19 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* achievement
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
         return;
 
+    if (Guild* guild = sGuildMgr->GetGuildById(referencePlayer->GetGuildId()))
+        guild->GetNewsLog().New(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), 0, referencePlayer->GetGUID(), achievement->ID);
+
     if (!GetOwner()->GetSession()->PlayerLoading())
         SendAchievementEarned(achievement);
 
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
     ca.date = time(NULL);
     ca.changed = true;
+
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(referencePlayer->GetGuildId()))
+        if (Guild::Member* member = guild->GetMember(referencePlayer->GetGUID()))
+            member->SetAchievementPoints(GetAchievementPoints());
 
     // don't insert for ACHIEVEMENT_FLAG_REALM_FIRST_KILL since otherwise only the first group member would reach that achievement
     // TODO: where do set this instead?
@@ -2338,6 +2355,9 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* achievement
 template<>
 void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
 {
+    if (Guild* guild = sGuildMgr->GetGuildById(referencePlayer->GetGuildId()))
+        guild->GetNewsLog().New(GUILD_NEWS_GUILD_ACHIEVEMENT, time(NULL), 0, 0x0, achievement->ID);
+
     sLog->outInfo(LOG_FILTER_GENERAL, "AchievementMgr<Guild>::CompletedAchievement(%u)", achievement->ID);
 
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
