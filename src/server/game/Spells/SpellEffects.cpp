@@ -3065,55 +3065,16 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         }
         case SPELLFAMILY_ROGUE:
         {
-            // Fan of Knives, Hemorrhage, Ghostly Strike
-            if ((m_spellInfo->SpellFamilyFlags[1] & 0x40000)
-                || (m_spellInfo->SpellFamilyFlags[0] & 0x6000000))
+            // Hemorrhage
+            if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
             {
-                // Hemorrhage
-                if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
-                {
-                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                        m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-                }
+                if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
                 // 50% more damage with daggers
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
                         if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
                             totalDamagePercentMod *= 1.5f;
-            }
-            // Mutilate (for each hand)
-            else if (m_spellInfo->SpellFamilyFlags[1] & 0x6)
-            {
-                bool found = false;
-                // fast check
-                if (unitTarget->HasAuraState(AURA_STATE_DEADLY_POISON, m_spellInfo, m_caster))
-                    found = true;
-                // full aura scan
-                else
-                {
-                    Unit::AuraApplicationMap const& auras = unitTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                    {
-                        if (itr->second->GetBase()->GetSpellInfo()->Dispel == DISPEL_POISON)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (found)
-                    totalDamagePercentMod *= 1.2f;          // 120% if poisoned
-            }
-            break;
-        }
-        case SPELLFAMILY_PALADIN:
-        {
-            // Seal of Command Unleashed
-            if (m_spellInfo->Id == 20467)
-            {
-                spell_bonus += int32(0.08f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-                spell_bonus += int32(0.13f * m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()));
             }
             break;
         }
@@ -3145,19 +3106,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         {
             // Kill Shot - bonus damage from Ranged Attack Power
             if (m_spellInfo->SpellFamilyFlags[1] & 0x800000)
-                spell_bonus += int32(0.4f * m_caster->GetTotalAttackPowerValue(RANGED_ATTACK));
+                spell_bonus += int32(0.45f * m_caster->GetTotalAttackPowerValue(RANGED_ATTACK));
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
-            // Plague Strike
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x1)
-            {
-                // Glyph of Plague Strike
-                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(58657, EFFECT_0))
-                    AddPctN(totalDamagePercentMod, aurEff->GetAmount());
-                break;
-            }
             // Blood Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x400000)
             {
@@ -3166,33 +3119,22 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPctF(bonusPct, aurEff->GetAmount());
                 AddPctF(totalDamagePercentMod, bonusPct);
-
-                // Glyph of Blood Strike
-                if (m_caster->GetAuraEffect(59332, EFFECT_0))
-                    if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                       AddPctN(totalDamagePercentMod, 20);
                 break;
             }
             // Death Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x10)
             {
                 // Glyph of Death Strike
+                // 2% more damage per 5 runic power, up to a maximum of 40%
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
-                    if (uint32 runic = std::min<uint32>(m_caster->GetPower(POWER_RUNIC_POWER), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster)))
+                    if (uint32 runic = std::min<uint32>(uint32(m_caster->GetPower(POWER_RUNIC_POWER) / 2.5f), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster)))
                         AddPctN(totalDamagePercentMod, runic);
                 break;
             }
             // Obliterate (12.5% more damage per disease)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x20000)
             {
-                bool consumeDiseases = true;
-                // Annihilation
-                if (AuraEffect const* aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2710, EFFECT_0))
-                    // Do not consume diseases if roll sucesses
-                    if (roll_chance_i(aurEff->GetAmount()))
-                        consumeDiseases = false;
-
-                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2.0f;
+                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), false) / 2.0f;
                 // Death Knight T8 Melee 4P Bonus
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPctF(bonusPct, aurEff->GetAmount());
