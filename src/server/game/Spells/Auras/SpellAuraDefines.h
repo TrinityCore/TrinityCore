@@ -276,7 +276,7 @@ enum AuraType
     SPELL_AURA_214                                          = 214,
     SPELL_AURA_ARENA_PREPARATION                            = 215,
     SPELL_AURA_HASTE_SPELLS                                 = 216,
-    SPELL_AURA_MOD_MELEE_HASTE_2                            = 217,  // NYI
+    SPELL_AURA_MOD_MELEE_HASTE_2                            = 217,
     SPELL_AURA_HASTE_RANGED                                 = 218,
     SPELL_AURA_MOD_MANA_REGEN_FROM_STAT                     = 219,
     SPELL_AURA_MOD_RATING_FROM_STAT                         = 220,
@@ -378,7 +378,7 @@ enum AuraType
     SPELL_AURA_PERIODIC_HASTE                               = 316,
     SPELL_AURA_MOD_SPELL_POWER_PCT                          = 317,
     SPELL_AURA_MASTERY                                      = 318,
-    SPELL_AURA_319                                          = 319,  // (melee?) attack speed
+    SPELL_AURA_MOD_MELEE_HASTE_3                            = 319,
     SPELL_AURA_MOD_RANGED_ATTACK_SPEED                      = 320,  // NYI
     SPELL_AURA_321                                          = 321,
     SPELL_AURA_INTERFERE_TARGETTING                         = 322,  // NYI
@@ -401,7 +401,7 @@ enum AuraType
     SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE                   = 339,  // NYI
     SPELL_AURA_340                                          = 340,
     SPELL_AURA_341                                          = 341,  // cooldown decrease
-    SPELL_AURA_MOD_TIME_BETWEEN_ATTACKS                     = 342,  // (attack speed) NYI
+    SPELL_AURA_MOD_MELEE_RANGED_HASTE_2                     = 342,
     SPELL_AURA_343                                          = 343,
     SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,
     SPELL_AURA_BYPASS_ARMOR_FOR_CASTER                      = 345,
