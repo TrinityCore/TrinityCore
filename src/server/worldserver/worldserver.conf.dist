@@ -404,6 +404,15 @@ PersistentCharacterCleanFlags = 0
 PidFile = ""
 
 #
+#    PacketLogFile
+#        Description: Binary packet logging file for the world server.
+#                     Filename extension must be .bin to be parsable with WowPacketParser.
+#        Example:     "World.bin" - (Enabled)
+#        Default:     ""          - (Disabled)
+
+PacketLogFile = ""
+
+#
 #    ChatLogs.Channel
 #        Description: Log custom channel chat.
 #        Default:     0 - (Disabled)
