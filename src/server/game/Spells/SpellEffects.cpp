@@ -1400,22 +1400,6 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth, HEAL, unitTarget);
         }
-        // Nourish
-        else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x2000000)
-        {
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
-
-            // Glyph of Nourish
-            if (AuraEffect const* aurEff = m_caster->GetAuraEffect(62971, 0))
-            {
-                Unit::AuraEffectList const& Periodic = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
-                for (Unit::AuraEffectList::const_iterator i = Periodic.begin(); i != Periodic.end(); ++i)
-                {
-                    if (m_caster->GetGUID() == (*i)->GetCasterGUID())
-                        AddPctN(addhealth, aurEff->GetAmount());
-                }
-            }
-        }
         // Death Pact - return pct of max health to caster
         else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
             addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, int32(caster->CountPctFromMaxHealth(damage)), HEAL);
@@ -1735,12 +1719,9 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
             level_multiplier = 4;
             break;
         case 31930:                                         // Judgements of the Wise
-        case 63375:                                         // Improved Stormstrike
+        case 63375:                                         // Primal Wisdom
         case 68082:                                         // Glyph of Seal of Command
             damage = int32(CalculatePctN(unitTarget->GetCreateMana(), damage));
-            break;
-        case 48542:                                         // Revitalize
-            damage = int32(CalculatePctN(unitTarget->GetMaxPower(power), damage));
             break;
         case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
         {
@@ -1749,9 +1730,6 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
                     AddPctN(damage, 25);
             break;
         }
-        case 71132:                                         // Glyph of Shadow Word: Pain
-            damage = int32(CalculatePctN(unitTarget->GetCreateMana(), 1));  // set 1 as value, missing in dbc
-            break;
         default:
             break;
     }
@@ -3078,18 +3056,9 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
                 if (Aura* aur = unitTarget->GetAura(58567, m_caster->GetGUID()))
                 {
-                    // 58388 - Glyph of Devastate dummy aura.
-                    if (int32 num = (needCast ? 0 : 1) + (m_caster->HasAura(58388) ? 1 : 0))
+                    if (int32 num = (needCast ? 0 : 1))
                         aur->ModStackAmount(num);
                     fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(2, unitTarget);
-                }
-            }
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x8000000) // Mocking Blow
-            {
-                if (unitTarget->IsImmunedToSpellEffect(m_spellInfo,EFFECT_1) || unitTarget->GetTypeId() == TYPEID_PLAYER)
-                {
-                    m_damage = 0;
-                    return;
                 }
             }
             break;
