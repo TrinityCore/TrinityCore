@@ -453,17 +453,20 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
 
             uint32 splitPct;
             int32 remainingAmount;
+            Unit* caster;
 
             bool Load()
             {
-                remainingAmount = GetCaster()->GetMaxHealth();
+                caster = GetCaster();
+                if (!caster)
+                    return false;
+                remainingAmount = caster->GetMaxHealth();
                 splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
                 return true;
             }
 
             void Split(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & splitAmount)
             {
-                splitAmount = CalculatePctN(dmgInfo.GetDamage(), splitPct);
                 remainingAmount -= splitAmount;
 
                 if (remainingAmount <= 0)
@@ -496,17 +499,22 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
 
             uint32 splitPct, groupSize, minHpPct;
             int32 remainingAmount;
+            Unit* caster;
 
             bool Load()
             {
-                if (GetCaster()->ToPlayer()->GetGroup())
-                    groupSize = GetCaster()->ToPlayer()->GetGroup()->GetMembersCount();
+                caster = GetCaster();
+                if (!caster)
+                    return false;
+
+                if (caster->ToPlayer()->GetGroup())
+                    groupSize = caster->ToPlayer()->GetGroup()->GetMembersCount();
                 else
                     groupSize = 1;
 
-                remainingAmount = (GetCaster()->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster())) * groupSize);
-                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+                remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
+                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster);
+                minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
 
                 return true;
             }

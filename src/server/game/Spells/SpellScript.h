@@ -546,7 +546,7 @@ class AuraScript : public _SpellScript
         {
             public:
                 EffectSplitHandler(AuraEffectSplitFnType _pEffectHandlerScript, uint8 _effIndex);
-                void Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount);
+                void Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & splitAmount);
             private:
                 AuraEffectSplitFnType pEffectHandlerScript;
         };
