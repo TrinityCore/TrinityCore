@@ -411,24 +411,32 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
     float comboDamage = PointsPerComboPoint;
-    SpellScalingEntry const* scaling = _spellInfo->GetSpellScaling();
 
     // base amount modification based on spell lvl vs caster lvl
-    if (scaling)
+    if (ScalingMultiplier != 0.0f)
     {
         if (caster)
         {
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((scaling->playerClass != -1 ? scaling->playerClass - 1 : 11) * 100 + caster->getLevel() - 1))
+            SpellScalingEntry const* scaling = _spellInfo->GetSpellScaling();   // must exist, otherwise ScalingMultiplier == 0.0f
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((scaling->playerClass != -1 ? scaling->playerClass - 1 : MAX_CLASSES - 1) * 100 + caster->getLevel() - 1))
             {
-                float preciseBasePoints = ScalingMultiplier * gtScaling->value;
-                comboDamage = ComboScalingMultiplier * gtScaling->value;
+                float multiplier = gtScaling->value;
+                if (scaling->castTimeMax > 0 && scaling->castScalingMaxLevel > caster->getLevel())
+                    multiplier *= float(scaling->castTimeMin + (caster->getLevel() - 1) * (scaling->castTimeMax - scaling->castTimeMin) / (scaling->castScalingMaxLevel - 1)) / float(scaling->castTimeMax);
+                if (scaling->CoefLevelBase > caster->getLevel())
+                    multiplier *= (1.0f - scaling->CoefBase) * (float)(caster->getLevel() - 1) / (float)(scaling->CoefLevelBase - 1) + scaling->CoefBase;
+
+                float preciseBasePoints = ScalingMultiplier * multiplier;
                 if (DeltaScalingMultiplier)
                 {
-                    float delta = DeltaScalingMultiplier * ScalingMultiplier * gtScaling->value * 0.5f;
+                    float delta = DeltaScalingMultiplier * ScalingMultiplier * multiplier * 0.5f;
                     preciseBasePoints += frand(-delta, delta);
                 }
 
                 basePoints = int32(preciseBasePoints);
+
+                if (ComboScalingMultiplier)
+                    comboDamage = ComboScalingMultiplier * multiplier;
             }
         }
     }
