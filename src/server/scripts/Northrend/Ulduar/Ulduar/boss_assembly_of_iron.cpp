@@ -345,7 +345,8 @@ class boss_steelbreaker : public CreatureScript
                 DoCast(me, SPELL_HIGH_VOLTAGE);
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
-                DoAction(ACTION_UPDATEPHASE);
+                if (phase == 0)
+                    DoAction(ACTION_UPDATEPHASE);
             }
 
             uint32 GetData(uint32 type)
@@ -366,8 +367,6 @@ class boss_steelbreaker : public CreatureScript
                     case ACTION_UPDATEPHASE:
                         phase++;
                         events.SetPhase(phase);                                                
-                        if (phase >= 2)
-                            events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30000);
                         if (phase >= 3)
                         {
                             me->ResetLootMode();
@@ -379,6 +378,8 @@ class boss_steelbreaker : public CreatureScript
                                 nextSchedule = urand(20000, 30000);
                             events.RescheduleEvent(EVENT_OVERWHELMING_POWER, nextSchedule);
                         }
+                        else if (phase >= 2)
+                            events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30000);
                         break;
                 }
             }
@@ -636,7 +637,8 @@ class boss_runemaster_molgeim : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 30000);
                 events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20000);
-                DoAction(ACTION_UPDATEPHASE);
+                if (phase == 0)
+                    DoAction(ACTION_UPDATEPHASE);
             }
 
             uint32 GetData(uint32 type)
@@ -653,13 +655,13 @@ class boss_runemaster_molgeim : public CreatureScript
                     case ACTION_UPDATEPHASE:
                         phase++;
                         events.SetPhase(phase); 
-                        if (phase >= 2)
-                            events.RescheduleEvent(EVENT_RUNE_OF_DEATH, 30000);
                         if (phase >= 3)
                         {
                             me->ResetLootMode();
                             events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000, 30000));
                         }
+                        else if (phase >= 2)
+                            events.RescheduleEvent(EVENT_RUNE_OF_DEATH, 30000);
                         break;
                 }
             }
@@ -799,6 +801,7 @@ class mob_lightning_elemental : public CreatureScript
         {
             mob_lightning_elementalAI(Creature* creature) : ScriptedAI(creature)
             {
+                instance = creature->GetInstanceScript();
                 me->SetInCombatWithZone();
             }
 
@@ -823,9 +826,13 @@ class mob_lightning_elemental : public CreatureScript
                     me->DespawnOrUnsummon(500);
                     castDone = true;
                 }
+
+                if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
             }
 
         private:
+            InstanceScript* instance;
             bool castDone;
         };
 
@@ -929,7 +936,8 @@ class boss_stormcaller_brundir : public CreatureScript
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4000);
                 events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
                 events.ScheduleEvent(EVENT_THREAT_WIPE, 10000);
-                DoAction(ACTION_UPDATEPHASE);
+                if (phase == 0)
+                    DoAction(ACTION_UPDATEPHASE);
             }
 
             uint32 GetData(uint32 type)
@@ -968,8 +976,6 @@ class boss_stormcaller_brundir : public CreatureScript
                         // Change internal phase. Note that the events should _only_ be scheduled if they are not.
                         phase++;
                         events.SetPhase(phase);
-                        if (phase >= 2)
-                            events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 25000));
                         if (phase >= 3)
                         {
                             me->ResetLootMode();
@@ -977,6 +983,8 @@ class boss_stormcaller_brundir : public CreatureScript
                             DoCast(me, SPELL_STORMSHIELD);
                             events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS_START, urand(30000, 40000));
                         }
+                        else if (phase >= 2)
+                            events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 25000));
                         break;
                 }
             }

@@ -1612,8 +1612,7 @@ class npc_ancient_conservator : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                // TODO: fix this one, might somehow cause crit error ?
-                DoCast(who, SPELL_CONSERVATOR_GRIP, true);
+                DoCast(who, SPELL_CONSERVATOR_GRIP);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1622,6 +1621,9 @@ class npc_ancient_conservator : public CreatureScript
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 event = events.ExecuteEvent())
                 {

@@ -2594,6 +2594,34 @@ class spell_shield_generator : public SpellScriptLoader
         }
 };
 
+class spell_leviathan_tower_buff : public SpellScriptLoader
+{
+    public:
+        spell_leviathan_tower_buff() : SpellScriptLoader("spell_leviathan_tower_buff") { }
+
+        class spell_leviathan_tower_buff_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_leviathan_tower_buff_AuraScript);
+
+            bool CheckAreaTarget(Unit* target)
+            {
+                if (target->GetEntry() == 33113)
+                    return true;
+                else
+                    return false;
+            }
+            void Register()
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_leviathan_tower_buff_AuraScript::CheckAreaTarget);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_leviathan_tower_buff_AuraScript();
+        }
+};
+
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();                     // 10: 33113, 25: 34003 ; difficulty entry settled properly
@@ -2648,4 +2676,5 @@ void AddSC_boss_flame_leviathan()
     new spell_freyas_ward_summon();                 // 62907
     new spell_leviathan_flame_vents_triggered();    // 63847
     new spell_shield_generator();                   // 64677
+    new spell_leviathan_tower_buff();               // 64482, 65075, 65076, 65077
 }

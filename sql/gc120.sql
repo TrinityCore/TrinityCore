@@ -18,6 +18,14 @@ DELETE FROM spell_script_names WHERE spell_id = 65919;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (65919, 'spell_gen_impale');
 
+-- leviathan tower buffs
+DELETE FROM spell_script_names WHERE spell_id IN (64482, 65075, 65076, 65077);
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(64482, 'spell_leviathan_tower_buff'),
+(65075, 'spell_leviathan_tower_buff'),
+(65076, 'spell_leviathan_tower_buff'),
+(65077, 'spell_leviathan_tower_buff');
+
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 
