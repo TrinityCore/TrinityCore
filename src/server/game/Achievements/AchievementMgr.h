@@ -333,6 +333,8 @@ class AchievementGlobalMgr
                 case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:        // NYI
                 case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:  // NYI
                     return true;
+                default:
+                    break;
             }
 
             return false;

@@ -1867,7 +1867,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     float y = fields[11].GetFloat();
     float z = fields[12].GetFloat();
     uint32 guildId = fields[13].GetUInt32();
-    ObjectGuid guildGuid = MAKE_NEW_GUID(guildId, 0, guildId ? HIGHGUID_GUILD : 0);
+    ObjectGuid guildGuid = MAKE_NEW_GUID(guildId, 0, guildId ? uint32(HIGHGUID_GUILD) : 0);
     uint32 playerFlags = fields[14].GetUInt32();
     uint32 atLoginFlags = fields[15].GetUInt16();
     Tokens equipment(fields[19].GetString(), ' ');
@@ -7394,7 +7394,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
     // if we change total, we must change week
     ASSERT(((newTotalCount-oldTotalCount) != 0) == ((newWeekCount-oldWeekCount) != 0));
 
-    if (newTotalCount != oldTotalCount)
+    if (uint32(newTotalCount) != oldTotalCount)
     {
         if (itr->second.state != PLAYERCURRENCY_NEW)
             itr->second.state = PLAYERCURRENCY_CHANGED;
@@ -17584,25 +17584,25 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
         if (!itemId)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: %u, entry: %u).", GetGUIDLow(), GetName(), itemId, itemEntry);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: " UI64FMTD ", entry: %u).", GetGUIDLow(), GetName(), itemId, itemEntry);
             continue;
         }
 
         if (!sObjectMgr->GetItemTemplate(itemEntry))
         {
-            sLog->outError(LOG_FILTER_GENERAL, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: %u, entry: %u).", GetGUIDLow(), GetName(), itemId, itemEntry);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: " UI64FMTD ", entry: %u).", GetGUIDLow(), GetName(), itemId, itemEntry);
             continue;
         }
 
-        if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+        if (slot >= VOID_STORAGE_MAX_SLOT)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: %u, entry: %u, slot: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, slot);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: " UI64FMTD ", entry: %u, slot: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, slot);
             continue;
         }
 
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
         {
-            sLog->outError(LOG_FILTER_GENERAL, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: %u, entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, creatorGuid);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, creatorGuid);
             creatorGuid = 0;
         }
 
@@ -25710,7 +25710,7 @@ uint8 Player::GetNextVoidStorageFreeSlot() const
         if (!_voidStorageItems[i]) // unused item
             return i;
 
-    return -1;
+    return VOID_STORAGE_MAX_SLOT;
 }
 
 uint8 Player::GetNumOfVoidStorageFreeSlots() const
@@ -25726,9 +25726,9 @@ uint8 Player::GetNumOfVoidStorageFreeSlots() const
 
 uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
 {
-    uint8 slot = GetNextVoidStorageFreeSlot();
+    int8 slot = GetNextVoidStorageFreeSlot();
 
-    if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+    if (slot >= VOID_STORAGE_MAX_SLOT)
     {
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
         return -1;
@@ -25741,7 +25741,7 @@ uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
 
 void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
 {
-    if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+    if (slot >= VOID_STORAGE_MAX_SLOT)
     {
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
         return;
@@ -25749,7 +25749,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
 
     if (_voidStorageItems[slot])
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Player::AddVoidStorageItemAtSlot - Player (GUID: %u, name: %s) tried to add an item to an used slot (item id: %u, entry: %u, slot: %u).", GetGUIDLow(), GetName(), _voidStorageItems[slot]->ItemId, _voidStorageItems[slot]->ItemEntry, slot);
+        sLog->outError(LOG_FILTER_GENERAL, "Player::AddVoidStorageItemAtSlot - Player (GUID: %u, name: %s) tried to add an item to an used slot (item id: " UI64FMTD ", entry: %u, slot: %u).", GetGUIDLow(), GetName(), _voidStorageItems[slot]->ItemId, _voidStorageItems[slot]->ItemEntry, slot);
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
         return;
     }
@@ -25760,7 +25760,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
 
 void Player::DeleteVoidStorageItem(uint8 slot)
 {
-    if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+    if (slot >= VOID_STORAGE_MAX_SLOT)
     {
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
         return;
@@ -25772,7 +25772,7 @@ void Player::DeleteVoidStorageItem(uint8 slot)
 
 bool Player::SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot)
 {
-    if (oldSlot < 0 || oldSlot > VOID_STORAGE_MAX_SLOT || newSlot < 0 || newSlot > VOID_STORAGE_MAX_SLOT || oldSlot == newSlot)
+    if (oldSlot >= VOID_STORAGE_MAX_SLOT || newSlot >= VOID_STORAGE_MAX_SLOT || oldSlot == newSlot)
         return false;
 
     std::swap(_voidStorageItems[newSlot], _voidStorageItems[oldSlot]);
@@ -25781,7 +25781,7 @@ bool Player::SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot)
 
 VoidStorageItem* Player::GetVoidStorageItem(uint8 slot) const
 {
-    if (slot < 0 || slot > VOID_STORAGE_MAX_SLOT)
+    if (slot >= VOID_STORAGE_MAX_SLOT)
     {
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
         return NULL;

@@ -48,7 +48,7 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     {
         if (TalentTabEntry const* talentTabEntry = sTalentTabStore.LookupEntry(_player->GetPrimaryTalentTree(_player->GetActiveSpec())))
         {
-            if (talentTabEntry->tabpage != tabPage)
+            if (talentTabEntry->tabpage != uint32(tabPage))
             {
                 recvPacket.rfinish();
                 return;

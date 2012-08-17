@@ -1551,7 +1551,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     data << uint32(m_emblemInfo.GetBackgroundColor());
     data << uint32(m_emblemInfo.GetColor());
 
-    ObjectGuid oldGuildGuid = MAKE_NEW_GUID(pInvitee->GetGuildId(), 0, pInvitee->GetGuildId() ? HIGHGUID_GUILD : 0);
+    ObjectGuid oldGuildGuid = MAKE_NEW_GUID(pInvitee->GetGuildId(), 0, pInvitee->GetGuildId() ? uint32(HIGHGUID_GUILD) : 0);
     ObjectGuid newGuildGuid = GetGUID();
 
     data.WriteBit(newGuildGuid[3]);
@@ -1814,7 +1814,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
     if (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog->outCommand(player->GetSession()->GetAccountId(),
-            "GM %s (Account: %u) deposit money (Amount: " UI64FMTD ") to guild bank (Guild ID %u)",
+            "GM %s (Account: %u) deposit money (Amount: %u) to guild bank (Guild ID %u)",
             player->GetName(), player->GetSession()->GetAccountId(), amount, m_id);
     }
     // Log guild bank event
