@@ -10469,12 +10469,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
                 if (victim->HealthBelowPct(50))
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
                 break;
-            case 7798: // Glyph of Regrowth
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x40, 0, 0))
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
-                break;
-            }
             case 8477: // Nourish Heal Boost
             {
                 int32 stepPercent = (*i)->GetAmount();
@@ -10492,12 +10486,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
                     modPercent += stepPercent * aura->GetStackAmount();
                 }
                 AddPctN(DoneTotalMod, modPercent);
-                break;
-            }
-            case 7871: // Glyph of Lesser Healing Wave
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0, 0x00000400, 0, GetGUID()))
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
                 break;
             }
             default:
@@ -10551,21 +10539,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             coeff /= 100.0f;
         }
 
-        // Earthliving - 0.45% of normal hot coeff
-        if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)
-            factorMod *= 0.45f;
-
         DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
-    }
-
-    // Gift of the Naaru
-    if (spellProto->SpellFamilyFlags[2] & 0x80000000 && spellProto->SpellIconID == 329)
-    {
-        int32 apBonus = int32(std::max(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAttackPowerValue(RANGED_ATTACK)));
-        if (apBonus > DoneAdvertisedBenefit)
-            DoneTotal += int32(apBonus * 0.22f); // 22% of AP per tick
-        else
-            DoneTotal += int32(DoneAdvertisedBenefit * 0.377f); // 37.7% of BH per tick
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -10664,10 +10638,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
             coeff /= 100.0f;
         }
-
-        // Earthliving - 0.45% of normal hot coeff
-        if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)
-            factorMod *= 0.45f;
 
         TakenTotal += int32(TakenAdvertisedBenefit * coeff * factorMod);
     }
