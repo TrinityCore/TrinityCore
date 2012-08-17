@@ -5579,8 +5579,9 @@ SpellCastResult Spell::CheckCasterAuras() const
     bool usableInStun = m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED;
 
     // Glyph of Pain Suppression
+    // Allow Pain Suppression and Guardian Spirit to be cast while stunned
     // there is no other way to handle it
-    if (m_spellInfo->Id == 33206 && !m_caster->HasAura(63248))
+    if ((m_spellInfo->Id == 33206 || m_spellInfo->Id == 47788) && !m_caster->HasAura(63248))
         usableInStun = false;
 
     // Check whether the cast should be prevented by any state you might have.
