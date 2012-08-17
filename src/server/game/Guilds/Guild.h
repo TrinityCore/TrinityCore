@@ -352,26 +352,26 @@ public:
         void ResetMoneyTime();
 
         inline Player* FindPlayer() const { return ObjectAccessor::FindPlayer(m_guid); }
-        uint32 GetReputationWeeklyGained() { return m_weeklyRepGained; }
+        uint32 GetReputationWeeklyGained() const { return m_weeklyRepGained; }
         void SetReputationWeeklyGained(uint32 rep) { m_weeklyRepGained = rep; }
         void SendWeeklyReputation();
         void ResetWeekly();
-        uint64 GetWeeklyActivity() { return m_weeklyActivity; }
+        uint64 GetWeeklyActivity() const { return m_weeklyActivity; }
         void IncreaseActivity(uint64 value) { m_weeklyActivity += value; m_totalActivity += value; CharacterDatabase.PExecute("UPDATE guild_member SET weeklyActivity = " UI64FMTD ", totalActivity = " UI64FMTD " WHERE guid = %i", m_weeklyActivity, m_totalActivity, GetGUID()); }
-        uint64 GetTotalActivity() { return m_totalActivity; }
-        uint32 GetRemainingWeeklyReputation() { return PLAYER_REP_CAP - m_weeklyRepGained; }
+        uint64 GetTotalActivity() const { return m_totalActivity; }
+        uint32 GetRemainingWeeklyReputation() const { return PLAYER_REP_CAP - m_weeklyRepGained; }
         void SendReputationCapUpdate();
         void SendInitialXPData();
-        uint32 GetAchievementPoints() { return m_achievementPoints; }
-        int32 GetGuildReputation() { return m_guildReputation; }
-        uint32 GetProfessionSkillId(uint32 index) {return m_professionSkillId[index]; }
-        uint32 GetProfessionLevel(uint32 index) {return m_professionLevel[index]; }
-        uint32 GetProfessionRank(uint32 index) {return m_professionRank[index]; }
+        uint32 GetAchievementPoints() const { return m_achievementPoints; }
+        int32 GetGuildReputation() const { return m_guildReputation; }
+        uint32 GetProfessionSkillId(uint32 index) const { return m_professionSkillId[index]; }
+        uint32 GetProfessionLevel(uint32 index) const { return m_professionLevel[index]; }
+        uint32 GetProfessionRank(uint32 index) const { return m_professionRank[index]; }
         void SetAchievementPoints(uint32 points) { m_achievementPoints = points; CharacterDatabase.PExecute("UPDATE guild_member SET AchievementPoints = %i WHERE guid = %u", points, m_guid); }
         void SetGuildReputation(uint32 rep) { m_guildReputation = rep; CharacterDatabase.PExecute("UPDATE guild_member SET GuildReputation = %u WHERE guid = %u", rep, m_guid); }
-        void SetProfessionSkillId(uint32 index, uint32 skillId) { m_professionSkillId[index] = skillId; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionSkillId%u = %u WHERE guid = %u", index, skillId, m_guid);}
-        void SetProfessionLevel(uint32 index, uint32 level) { m_professionLevel[index] = level; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionLevel%u = %u WHERE guid = %u", index, level, m_guid);}
-        void SetProfessionRank(uint32 index, uint32 rank) { m_professionRank[index] = rank; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionRank%u = %u WHERE guid = %u", index, rank, m_guid);}
+        void SetProfessionSkillId(uint32 index, uint32 skillId) { m_professionSkillId[index] = skillId; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionSkillId%u = %u WHERE guid = %u", index, skillId, m_guid); }
+        void SetProfessionLevel(uint32 index, uint32 level) { m_professionLevel[index] = level; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionLevel%u = %u WHERE guid = %u", index, level, m_guid); }
+        void SetProfessionRank(uint32 index, uint32 rank) { m_professionRank[index] = rank; CharacterDatabase.PExecute("UPDATE guild_member SET ProfessionRank%u = %u WHERE guid = %u", index, rank, m_guid); }
     private:
         uint32 m_guildId;
         // Fields from characters table

@@ -11,7 +11,7 @@ CREATE TABLE `guild_news_log` (
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 
-ALTER TABLE guild_member ADD weeklyRepGained INT(10) DEFAULT '0' AFTER offnote;
+ALTER TABLE guild_member ADD weeklyRepGained INT(11) DEFAULT '0' AFTER offnote;
 ALTER TABLE guild_member ADD weeklyActivity BIGINT(20) unsigned DEFAULT '0' AFTER weeklyRep;
 ALTER TABLE guild_member ADD totalActivity BIGINT(20) unsigned DEFAULT '0' AFTER weeklyActivity;
 
@@ -19,7 +19,7 @@ ALTER TABLE guild_member ADD BankResetTimeTab6 INT(10) unsigned DEFAULT '0' AFTE
 ALTER TABLE guild_member ADD BankRemSlotsTab6 INT(10) unsigned DEFAULT '0' AFTER BankResetTimeTab6;
 ALTER TABLE guild_member ADD BankResetTimeTab7 INT(10) unsigned DEFAULT '0' AFTER BankRemSlotsTab6;
 ALTER TABLE guild_member ADD BankRemSlotsTab7 INT(10) unsigned DEFAULT '0' AFTER BankResetTimeTab7;
-ALTER TABLE guild_member ADD GuildReputation INT(10) DEFAULT '0' AFTER BankRemSlotsTab7;
+ALTER TABLE guild_member ADD GuildReputation INT(11) DEFAULT '0' AFTER BankRemSlotsTab7;
 ALTER TABLE guild_member ADD AchievementPoints INT(10) unsigned DEFAULT '0' AFTER GuildReputation;
 ALTER TABLE guild_member ADD ProfessionSkillId0 INT(10) unsigned DEFAULT '0' AFTER AchievementPoints;
 ALTER TABLE guild_member ADD ProfessionLevel0 INT(10) unsigned DEFAULT '0' AFTER ProfessionSkillId0;

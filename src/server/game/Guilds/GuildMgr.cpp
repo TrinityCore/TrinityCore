@@ -442,7 +442,6 @@ void GuildMgr::LoadGuilds()
     }
 }
 
-
 void WorldSession::HandleGuildRequestMaxXP(WorldPacket& recvPacket)
 {
     recvPacket.rfinish();

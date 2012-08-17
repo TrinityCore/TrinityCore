@@ -554,7 +554,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellShapeshiftFormStore,    dbcPath, "SpellShapeshiftForm.dbc");//14545
     //LoadDBC(availableDbcLocales, bad_dbc_files, sStableSlotPricesStore,       dbcPath, "StableSlotPrices.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSummonPropertiesStore,       dbcPath, "SummonProperties.dbc");//14545
-    LoadDBC(availableDbcLocales, bad_dbc_files, sGuildPerksStore,          dbcPath, "GuildPerkSpells.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGuildPerksStore,             dbcPath, "GuildPerkSpells.dbc");//15595
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//14545
 

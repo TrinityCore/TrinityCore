@@ -2850,9 +2850,9 @@ void ObjectMgr::LoadGuildInfo()
 {
     sLog->outInfo(LOG_FILTER_GUILD, "Loading Guild XP Data...");
     {
-        _GuildXPperLevel.resize(GUILD_MAX_LEVEL);
+        _GuildXPPerLevel.resize(GUILD_MAX_LEVEL);
         for (uint8 level = 0; level < GUILD_MAX_LEVEL; ++level)
-            _GuildXPperLevel[level] = 0;
+            _GuildXPPerLevel[level] = 0;
 
         //                                                 0    1
         QueryResult result  = WorldDatabase.Query("SELECT lvl, xp_for_next_level FROM guild_xp_for_level");
@@ -2887,7 +2887,7 @@ void ObjectMgr::LoadGuildInfo()
                 }
 
                 //PlayerXPperLevel
-                _GuildXPperLevel[level] = xp;
+                _GuildXPPerLevel[level] = xp;
 
                 ++count;
             }
@@ -2900,10 +2900,10 @@ void ObjectMgr::LoadGuildInfo()
 
     for (uint8 level = 1; level < GUILD_MAX_LEVEL; ++level)
     {
-        if (_GuildXPperLevel[level] == 0)
+        if (_GuildXPPerLevel[level] == 0)
         {
             sLog->outError(LOG_FILTER_GUILD, "GUILD Level %i does not have XP for level data. Using data of level [%i] + 100.", level + 1, level);
-            _GuildXPperLevel[level] = _GuildXPperLevel[level-1]+100;
+            _GuildXPPerLevel[level] = _GuildXPPerLevel[level-1]+100;
         }
     }
 }
@@ -6542,8 +6542,8 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level) const
 
 uint32 ObjectMgr::GetXPForGuildLevel(uint8 level) const
 {
-    if (level < _GuildXPperLevel.size())
-        return _GuildXPperLevel[level];
+    if (level < _GuildXPPerLevel.size())
+        return _GuildXPPerLevel[level];
     return 0;
 }
 

@@ -6406,7 +6406,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             {
                 if (skill->categoryId == SKILL_CATEGORY_PROFESSION)
                 {
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 2; ++i)
                     {
                         if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + i) != member->GetProfessionSkillId(i))
                         {
@@ -15037,7 +15037,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     uint32 XP = rewarded ? 0 : uint32(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->AwardXP(this, uint64(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST)/4));
+        guild->AwardXP(this, uint64(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * 0.25f));
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);

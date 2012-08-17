@@ -1242,8 +1242,8 @@ class ObjectMgr
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]
         PlayerXPperLevel _playerXPperLevel;
 
-        typedef std::vector<uint64> GuildXPperLevel; // [level]
-        GuildXPperLevel _GuildXPperLevel;
+        typedef std::vector<uint64> GuildXPPerLevel; // [level]
+        GuildXPPerLevel _GuildXPPerLevel;
 
         typedef std::map<uint32, uint32> BaseXPContainer;          // [area level][base xp]
         BaseXPContainer _baseXPTable;

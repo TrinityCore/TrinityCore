@@ -42,7 +42,7 @@ public:
 
     uint32 GenerateGuildId();
     void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
-    GuildContainer GetGuildStore() {return GuildStore; }
+    GuildContainer GetGuildStore() { return GuildStore; }
 
 protected:
     uint32 NextGuildId;

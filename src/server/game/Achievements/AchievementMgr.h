@@ -239,7 +239,7 @@ class AchievementMgr
         void SendAllAchievementData(Player* receiver) const;
         void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
         bool HasAchieved(uint32 achievementId) const;
-        uint32 GetAchievementPoints();
+        uint32 GetAchievementPoints() const;
         T* GetOwner() const { return _owner; }
 
         void UpdateTimedAchievements(uint32 timeDiff);

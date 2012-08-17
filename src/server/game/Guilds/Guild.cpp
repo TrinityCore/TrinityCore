@@ -1087,7 +1087,7 @@ bool Guild::Create(Player* pLeader, const std::string& name)
     m_xpDailyCap = BASE_XP_CAP;
     m_xpToday = 0;
 
-    GetNewsLog().New(GUILD_NEW_CREATED, time(NULL), pLeader->GetGUID(), 0x0, 0);
+    GetNewsLog().New(GUILD_NEW_CREATED, time(NULL), pLeader->GetGUID(), 0, 0);
 
     sLog->outDebug(LOG_FILTER_GUILD, "GUILD: creating guild [%s] for leader %s (%u)",
         name.c_str(), pLeader->GetName(), GUID_LOPART(m_leaderGuid));
@@ -1284,11 +1284,11 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_ROSTER)");
 
     WorldPacket data2(SMSG_GUILD_XP, 8*5);
-    data2 << uint64(0);
-    data2 << uint64(sObjectMgr->GetXPForGuildLevel(m_level + 1) - m_xp);
-    data2 << uint64(m_xpToday);
-    data2 << uint64(0);
-    data2 << uint64(m_xp);
+    data2 << uint64(0);                                                     // Member Today XP
+    data2 << uint64(sObjectMgr->GetXPForGuildLevel(m_level + 1) - m_xp);    // Remaining XP for next Level
+    data2 << uint64(m_xpToday);                                             // Remaining Member Weekly XP
+    data2 << uint64(0);                                                     // Current Guild XP
+    data2 << uint64(m_xp);                                                  // Today Guild XP
     if (session)
         session->SendPacket(&data2);
     else
@@ -3159,18 +3159,16 @@ void Guild::AwardXP(Player* player, uint64 xp)
         SendGuildXPUpdate();
         SendMaxCapUpdate();
     }
-
-
 }
 
 void Guild::SendGuildXPUpdate()
 {
     WorldPacket data(SMSG_GUILD_XP, 8*5);
-    data << uint64(0);
-    data << uint64(sObjectMgr->GetXPForGuildLevel(m_level + 1) - m_xp);
-    data << uint64(m_xpToday);
-    data << uint64(0);
-    data << uint64(m_xp);
+    data << uint64(0);                                                    // Member Today XP
+    data << uint64(sObjectMgr->GetXPForGuildLevel(m_level + 1) - m_xp);   // Remaining XP for next Level
+    data << uint64(m_xpToday);                                            // Remaining Member Weekly XP
+    data << uint64(0);                                                    // Current Guild XP
+    data << uint64(m_xp);                                                 // Today Guild XP
     BroadcastPacket(&data);
 }
 
@@ -3193,7 +3191,7 @@ void Guild::LevelUp()
     if (const GuildPerksEntry* perk = sGuildPerksStore.LookupEntry(m_level-1))
         spellId = perk->SpellId;
 
-    GetNewsLog().New(GUILD_NEWS_LEVEL_UP, time(NULL), 0x0, 0x0, m_level);
+    GetNewsLog().New(GUILD_NEWS_LEVEL_UP, time(NULL), 0, 0, m_level);
 
     CharacterDatabase.PExecute("UPDATE guild set level = %u WHERE guildid = %u", m_level, GetId());
 
@@ -3212,7 +3210,7 @@ void Guild::LevelUp()
 
 void Guild::ResetDailyXp()
 {
-    m_xpToday    = 0;
+    m_xpToday = 0;
     SendMaxCapUpdate();
     SendGuildXPUpdate();
 }
@@ -3250,51 +3248,53 @@ void Guild::GuildNewsLog::New(GuildNews eventType, time_t date, uint64 playerGui
     log.flags = flags;
     log.date = date;
 
-     m_newsLog.push_back(log);
+    m_newsLog.push_back(log);
 
-     PreparedStatement * stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_GUILD_NEWS);
-     stmt->setUInt32(0, GetGuild()->GetId());
-     stmt->setUInt32(1, log.id);
-     stmt->setUInt32(2, log.eventType);
-     stmt->setUInt64(3, log.playerGuid);
-     stmt->setUInt32(4, log.data0);
-     stmt->setUInt32(5, log.flags);
-     stmt->setUInt32(6, uint32(log.date));
+    PreparedStatement * stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_GUILD_NEWS);
+    stmt->setUInt32(0, GetGuild()->GetId());
+    stmt->setUInt32(1, log.id);
+    stmt->setUInt32(2, log.eventType);
+    stmt->setUInt64(3, log.playerGuid);
+    stmt->setUInt32(4, log.data0);
+    stmt->setUInt32(5, log.flags);
+    stmt->setUInt32(6, uint32(log.date));
 
     CharacterDatabase.Execute(stmt);
 
     WorldPacket data(SMSG_GUILD_NEWS_UPDATE);
-        data.WriteBits(1, 21);
-        data.WriteBits(0, 26); // Not yet implemented used for guild achievements
-        ObjectGuid guid = log.playerGuid;
+    data.WriteBits(1, 21);
+    data.WriteBits(0, 26); // Not yet implemented used for guild achievements
+    ObjectGuid guid = log.playerGuid;
 
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[5]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[2]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[2]);
 
-        data.WriteByteSeq(guid[5]);
+    data.FlushBits();
 
-        data << uint32(log.flags);
+    data.WriteByteSeq(guid[5]);
 
-        data << uint32(log.data0);
-        data << uint32(0);
+    data << uint32(log.flags);
 
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[1]);
+    data << uint32(log.data0);
+    data << uint32(0);
 
-        data << uint32(log.id);
-        data << uint32(log.eventType);
-        data << uint32(secsToTimeBitFields(log.date));
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+
+    data << uint32(log.id);
+    data << uint32(log.eventType);
+    data << uint32(secsToTimeBitFields(log.date));
 
     GetGuild()->BroadcastPacket(&data);
 }
@@ -3336,6 +3336,8 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
         data.WriteBit(guid[1]);
         data.WriteBit(guid[2]);
     }
+
+    data.FlushBits();
 
     for (GuildNewsLogList::const_iterator it = m_newsLog.begin(); it != m_newsLog.end(); it++)
     {
@@ -3396,6 +3398,8 @@ void Guild::HandleRosterUpdate(std::list<Guild::Member*> members)
         data.WriteBit(0); // Has Authenticator
         data.WriteBits((*itr)->GetOfficerNote().length(), 8);
     }
+
+    data.FlushBits();
 
     for (std::list<Guild::Member*>::const_iterator itr = members.begin(); itr != members.end(); ++itr)
     {
