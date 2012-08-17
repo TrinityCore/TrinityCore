@@ -112,7 +112,7 @@ class boss_moam : public CreatureScript
 
                 events.Update(diff);
 
-                if (uint32(me->GetPower(POWER_MANA)) == me->GetMaxPower(POWER_MANA))
+                if (me->GetPower(POWER_MANA) == me->GetMaxPower(POWER_MANA))
                 {
                     if (_isStonePhase)
                         DoAction(ACTION_STONE_PHASE_END);

@@ -5874,7 +5874,7 @@ SpellCastResult Spell::CheckItems()
                     }
 
                     Powers power = Powers(m_spellInfo->Effects[i].MiscValue);
-                    if (uint32(m_targets.GetUnitTarget()->GetPower(power)) == m_targets.GetUnitTarget()->GetMaxPower(power))
+                    if (m_targets.GetUnitTarget()->GetPower(power) == m_targets.GetUnitTarget()->GetMaxPower(power))
                     {
                         failReason = SPELL_FAILED_ALREADY_AT_FULL_POWER;
                         continue;

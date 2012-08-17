@@ -406,7 +406,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     case 72444:
                     case 72445:
                     case 72446:
-                        if (uint32(me->GetPower(POWER_ENERGY)) != me->GetMaxPower(POWER_ENERGY))
+                        if (me->GetPower(POWER_ENERGY) != me->GetMaxPower(POWER_ENERGY))
                             target->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, me, true);
                         break;
                     default:
@@ -1039,7 +1039,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                if (GetUnitOwner()->getPowerType() == POWER_ENERGY && uint32(GetUnitOwner()->GetPower(POWER_ENERGY)) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
+                if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
                     if (Creature* saurfang = GetUnitOwner()->ToCreature())
                         saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
             }
@@ -1131,7 +1131,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);  // make this the default handler
-                if (uint32(GetCaster()->GetPower(POWER_ENERGY)) != GetCaster()->GetMaxPower(POWER_ENERGY))
+                if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
                     GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, GetCaster(), true);
             }
 
@@ -1166,7 +1166,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);  // make this the default handler
-                if (uint32(GetCaster()->GetPower(POWER_ENERGY)) != GetCaster()->GetMaxPower(POWER_ENERGY))
+                if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
                     GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 2, GetCaster(), true);
             }
 

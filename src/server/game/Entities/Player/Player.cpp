@@ -2384,7 +2384,7 @@ void Player::ProcessDelayedOperations()
         else
             SetFullHealth();
 
-        if (GetMaxPower(POWER_MANA) > m_resurrectMana)
+        if (uint32(GetMaxPower(POWER_MANA)) > m_resurrectMana)
             SetPower(POWER_MANA, m_resurrectMana);
         else
             SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
@@ -23174,7 +23174,7 @@ void Player::ResurectUsingRequestData()
     else
         SetFullHealth();
 
-    if (GetMaxPower(POWER_MANA) > m_resurrectMana)
+    if (uint32(GetMaxPower(POWER_MANA)) > m_resurrectMana)
         SetPower(POWER_MANA, m_resurrectMana);
     else
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
