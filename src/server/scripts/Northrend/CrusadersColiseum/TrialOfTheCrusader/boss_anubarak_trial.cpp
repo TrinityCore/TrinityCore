@@ -780,6 +780,34 @@ public:
     };
 };
 
+class spell_impale : public SpellScriptLoader
+{
+    public:
+        spell_impale() : SpellScriptLoader("spell_impale") { }
+
+        class spell_impale_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_impale_SpellScript);
+
+            void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                if (target && target->HasAura(SPELL_PERMAFROST))
+                    SetHitDamage(0);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_impale_SpellScript::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_impale_SpellScript();
+        }
+};
+
 void AddSC_boss_anubarak_trial()
 {
     new boss_anubarak_trial();
@@ -787,4 +815,6 @@ void AddSC_boss_anubarak_trial()
     new mob_nerubian_burrower();
     new mob_anubarak_spike();
     new mob_frost_sphere();
+
+    new spell_impale();
 }

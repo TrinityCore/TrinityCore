@@ -3081,34 +3081,6 @@ enum Spells
     SPELL_PERMAFROST = 66193,
 };
 
-class spell_gen_impale : public SpellScriptLoader
-{
-    public:
-        spell_gen_impale() : SpellScriptLoader("spell_gen_impale") { }
-
-        class spell_gen_impale_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_impale_SpellScript);
-
-            void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-            {
-                Unit* target = GetHitUnit();
-                if (target->HasAura(SPELL_PERMAFROST))
-                    SetHitDamage(0);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_impale_SpellScript::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_gen_impale_SpellScript();
-        }
-};
-
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3181,5 +3153,4 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mount("spell_blazing_hippogryph", 0, 0, 0, SPELL_BLAZING_HIPPOGRYPH_150, SPELL_BLAZING_HIPPOGRYPH_280);
     new spell_gen_mount("spell_celestial_steed", 0, SPELL_CELESTIAL_STEED_60, SPELL_CELESTIAL_STEED_100, SPELL_CELESTIAL_STEED_150, SPELL_CELESTIAL_STEED_280, SPELL_CELESTIAL_STEED_310);
     new spell_gen_mount("spell_x53_touring_rocket", 0, 0, 0, SPELL_X53_TOURING_ROCKET_150, SPELL_X53_TOURING_ROCKET_280, SPELL_X53_TOURING_ROCKET_310);
-    new spell_gen_impale();
 }
