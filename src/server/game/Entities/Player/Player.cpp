@@ -21102,12 +21102,29 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
             return false;
         }
 
-        // item base price
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
             if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], (iece->RequiredItemCount[i] * count)))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
+                return false;
+            }
+        }
+
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        {
+            CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
+            if (!entry)
+            {
+                SendBuyError(BUY_ERR_CANT_FIND_ITEM, NULL, currency, 0);
+                return false;
+            }
+
+            uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
+
+            if (iece->RequiredCurrency[i] && HasCurrency(iece->RequiredCurrency[i], (iece->RequiredCurrencyCount[i] * count) / precision))
+            {
+                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // error not verified for currencies
                 return false;
             }
         }
@@ -21205,12 +21222,29 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             return false;
         }
 
-        // item base price
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
             if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], (iece->RequiredItemCount[i] * count)))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
+                return false;
+            }
+        }
+
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        {
+            CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
+            if (!entry)
+            {
+                SendBuyError(BUY_ERR_CANT_FIND_ITEM, NULL, currency, 0);
+                return false;
+            }
+
+            uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
+
+            if (iece->RequiredCurrency[i] && HasCurrency(iece->RequiredCurrency[i], (iece->RequiredCurrencyCount[i] * count) / precision))
+            {
+                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // error not verified for currencies
                 return false;
             }
         }
