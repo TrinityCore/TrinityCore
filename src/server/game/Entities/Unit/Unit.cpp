@@ -10552,80 +10552,13 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (victim->HasAuraState(AuraStateType((*i)->GetMiscValue())))
             AddPctN(DoneTotalMod, (*i)->GetAmount());
 
+    // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
+    if (spellProto)
+        AddPctN(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
+        
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner() ? GetOwner() : this;
-    AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
-    {
-        if (!(*i)->IsAffectingSpell(spellProto))
-            continue;
-
-        switch ((*i)->GetMiscValue())
-        {
-            // Tundra Stalker
-            // Merciless Combat
-            case 7277:
-            {
-                // Merciless Combat
-                if ((*i)->GetSpellInfo()->SpellIconID == 2656)
-                {
-                    if (!victim->HealthAbovePct(35))
-                        AddPctN(DoneTotalMod, (*i)->GetAmount());
-                }
-                // Tundra Stalker
-                else
-                {
-                    // Frost Fever (target debuff)
-                    if (victim->HasAura(55095))
-                        AddPctN(DoneTotalMod, (*i)->GetAmount());
-                }
-                break;
-            }
-            // Rage of Rivendare
-            case 7293:
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0, 0x02000000, 0))
-                    AddPctF(DoneTotalMod, (*i)->GetSpellInfo()->GetRank() * 2.0f);
-                break;
-            }
-            // Marked for Death
-            case 7598:
-            case 7599:
-            case 7600:
-            case 7601:
-            case 7602:
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_MOD_STALKED, SPELLFAMILY_HUNTER, 0x400, 0, 0))
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
-                break;
-            }
-            // Dirty Deeds
-            case 6427:
-            case 6428:
-            {
-                if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
-                {
-                    // effect 0 has expected value but in negative state
-                    int32 bonus = -(*i)->GetBase()->GetEffect(0)->GetAmount();
-                    AddPctN(DoneTotalMod, bonus);
-                }
-                break;
-            }
-        }
-    }
-
-    // Custom scripted damage
-    if (spellProto)
-        switch (spellProto->SpellFamilyName)
-        {
-            case SPELLFAMILY_DEATHKNIGHT:
-                // Glacier Rot
-                if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
-                    if (AuraEffect* aurEff = GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 196, 0))
-                        if (victim->GetDiseasesByCaster(owner->GetGUID()) > 0)
-                            AddPctN(DoneTotalMod, aurEff->GetAmount());
-            break;
-        }
+    // AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
 
     float tmpDamage = float(int32(pdamage) + DoneFlatBenefit) * DoneTotalMod;
 
