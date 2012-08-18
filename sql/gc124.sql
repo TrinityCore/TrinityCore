@@ -16,7 +16,7 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 -- impale scriptname
 DELETE FROM spell_script_names WHERE spell_id = 65919;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
-(65919, 'spell_gen_impale');
+(65919, 'spell_impale');
 
 -- leviathan tower buffs
 DELETE FROM spell_script_names WHERE spell_id IN (64482, 65075, 65076, 65077);
