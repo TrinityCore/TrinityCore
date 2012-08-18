@@ -225,18 +225,25 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina()
 {
+    // Taken from PaperDollFrame.lua - 4.3.4.15595
     gtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((getClass() - 1) * GT_MAX_LEVEL + getLevel() - 1);
-    return GetStat(STAT_STAMINA) * hpBase->ratio;
+    
+    float stamina = GetStat(STAT_STAMINA);
+    float baseStam = std::min(20, stamina);
+    float moreStam = stamina - baseStam;
+    
+    return baseStam + moreStam * hpBase->ratio;
 }
 
 float Player::GetManaBonusFromIntellect()
 {
+    // Taken from PaperDollFrame.lua - 4.3.4.15595
     float intellect = GetStat(STAT_INTELLECT);
 
-    float baseInt = intellect < 20 ? intellect : 20;
+    float baseInt = std::min(20, intellect);
     float moreInt = intellect - baseInt;
 
-    return baseInt + (moreInt*15.0f);
+    return baseInt + (moreInt * 15.0f);
 }
 
 void Player::UpdateMaxHealth()
