@@ -2699,7 +2699,7 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
+        addvalue = HealthIncreaseRate;
         if (!isInCombat())
         {
             AuraEffectList const& mModHealthRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
@@ -5862,26 +5862,6 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
             break;
     }
     return 0.0f;
-}
-
-float Player::OCTRegenHPPerSpirit()
-{
-    /*
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
-
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-    */
-
-    // Formula from PaperDollFrame script
-    float spirit = GetStat(STAT_SPIRIT);
-    float baseSpirit = spirit;
-    if (baseSpirit > 50)
-        baseSpirit = 50;
-    float moreSpirit = spirit - baseSpirit;
-    float regen = baseSpirit + moreSpirit;
-    return regen;
 }
 
 float Player::OCTRegenMPPerSpirit()
