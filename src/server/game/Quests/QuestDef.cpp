@@ -61,7 +61,7 @@ Quest::Quest(Field* questRecord)
     SourceItemIdCount = questRecord[35].GetUInt8();
     SourceSpellid = questRecord[36].GetUInt32();
     Flags = questRecord[37].GetUInt32();
-    uint32 SpecialFlags = questRecord[38].GetUInt8();
+    SpecialFlags = questRecord[38].GetUInt8();
     MinimapTargetMark = questRecord[39].GetUInt8();
     RewardTitleId = questRecord[40].GetUInt8();
     RequiredPlayerKills = questRecord[41].GetUInt8();
@@ -171,8 +171,7 @@ Quest::Quest(Field* questRecord)
 
     // int32 WDBVerified = questRecord[174].GetInt32();
 
-    Flags |= SpecialFlags << 20;
-    if (Flags & QUEST_TRINITY_FLAGS_AUTO_ACCEPT)
+    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 
     m_reqItemsCount = 0;
@@ -182,27 +181,27 @@ Quest::Quest(Field* questRecord)
     m_rewCurrencyCount = 0;
     m_reqCurrencyCount = 0;
 
-    for (int i=0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         if (RequiredItemId[i])
             ++m_reqItemsCount;
 
-    for (int i=0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         if (RequiredNpcOrGo[i])
             ++m_reqNpcOrGoCount;
 
-    for (int i=0; i < QUEST_REWARDS_COUNT; ++i)
+    for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         if (RewardItemId[i])
             ++m_rewItemsCount;
 
-    for (int i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         if (RewardChoiceItemId[i])
             ++m_rewChoiceItemsCount;
 
-    for (int i=0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+    for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         if (RewardCurrencyId[i])
             ++m_rewCurrencyCount;
 
-    for (int i=0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
+    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
         if (RequiredCurrencyId[i])
             ++m_reqCurrencyCount;
 
