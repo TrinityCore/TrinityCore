@@ -244,10 +244,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175  unused
     &Spell::EffectNULL,                                     //176 SPELL_EFFECT_176
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
-    &Spell::EffectNULL,                                     //178 SPELL_EFFECT_178
+    &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
     &Spell::EffectNULL,                                     //179 SPELL_EFFECT_179
-    &Spell::EffectNULL,                                     //180 SPELL_EFFECT_180
-    &Spell::EffectNULL,                                     //181 SPELL_EFFECT_181
+    &Spell::EffectUnused,                                   //180 SPELL_EFFECT_180 unused
+    &Spell::EffectUnused,                                   //181 SPELL_EFFECT_181 unused
     &Spell::EffectNULL,                                     //182 SPELL_EFFECT_182
 };
 
