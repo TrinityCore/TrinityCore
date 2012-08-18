@@ -768,3 +768,14 @@ UPDATE creature_template SET modelid1 = 0 WHERE entry IN (34129, 34153, 33050, 3
 
 -- Thorims trap bunny shouldnt be able to move
 UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 33054;
+
+-- spawning Keeper images
+DELETE FROM creature WHERE id IN (33241, 33242, 33244, 33213);
+INSERT INTO creature (id, map, spawnMask, position_x, position_y, position_z, orientation, curhealth) VALUES
+(33241, 603, 3, 1939.06, 42.3925, 411.356, 5.25215, 14433075),
+(33213, 603, 3, 1939.64, -90.9194, 411.356, 0.940322, 14433075),
+(33244, 603, 3, 2037.32, 25.9017, 411.358, 3.81488, 14433075),
+(33242, 603, 3, 2037.03, -73.8742, 411.355, 2.35011, 14433075);
+
+-- correcting respawn timer of Enslaved Fire Elemental
+UPDATE creature SET spawntimesecs = 604800 WHERE id = 33838;

@@ -176,13 +176,18 @@ enum UlduarNPCs // TODO: Check if we also need the heroic-entries for the boss-N
     NPC_VX_001                   = 33651,
     NPC_AERIAL_COMMAND_UNIT      = 33670,
 
+    NPC_MIMIRON_IMAGE            = 33412,
+
     // Freya's Keepers
     NPC_IRONBRANCH               = 32913,
     NPC_BRIGHTLEAF               = 32915,
     NPC_STONEBARK                = 32914,
 
+    NPC_FREYA_IMAGE              = 33410,
+
     // Thorim
     NPC_THORIM_CTRL              = 32879,
+    NPC_THORIM_IMAGE             = 33413,
     // Thorim_PrePhaseAddEntries
     NPC_JORMUNGAR_BEHEMOTH       = 32882,
     NPC_MERCENARY_CAPTAIN_A      = 32908,
@@ -208,6 +213,8 @@ enum UlduarNPCs // TODO: Check if we also need the heroic-entries for the boss-N
     NPC_BATTLE_PRIEST_GINA       = 33330,
     NPC_FIELD_MEDIC_PENNY        = 32897,
     NPC_FIELD_MEDIC_JESSI        = 33326,
+
+    NPC_HODIR_IMAGE              = 33411,
 
     // Freya's trash NPCs
     NPC_CORRUPTED_SERVITOR       = 33354,

@@ -1184,10 +1184,14 @@ class npc_faceless_horror : public CreatureScript
 
             void Reset()
             {
-                DoCast(me, SPELL_VOID_WAVE);
                 events.Reset();
                 events.ScheduleEvent(EVENT_DEATH_GRIP, urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(6*IN_MILLISECONDS, 12*IN_MILLISECONDS));
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                DoCast(me, SPELL_VOID_WAVE);
             }
 
             void UpdateAI(uint32 const diff)

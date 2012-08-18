@@ -299,14 +299,14 @@ class boss_hodir : public CreatureScript
         {
             boss_hodirAI(Creature* creature) : BossAI(creature, BOSS_HODIR)
             {
-                me->SetReactState(REACT_PASSIVE);
+                me->SetReactState(REACT_DEFENSIVE);
                 gotEncounterFinished = false;
             }            
 
             void Reset()
             {
                 _Reset();
-                me->SetReactState(REACT_PASSIVE);
+                me->SetReactState(REACT_DEFENSIVE);
                 gotEncounterFinished = gotEncounterFinished || (instance->GetBossState(BOSS_HODIR) == DONE);
 
                 // Note: NPC translation alliance -> horde is performed by OnCreatureCreate (instance-script)

@@ -425,6 +425,10 @@ class boss_thorim : public CreatureScript
                 DoScriptText(SAY_DEATH, me);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(7000);
+                me->RemoveAllAuras();
+                me->RemoveAllAttackers();
+                me->AttackStop();
+                me->CombatStop(true);
 
                 if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_THORIM_CTRL)))
                     ctrl->DespawnOrUnsummon();
