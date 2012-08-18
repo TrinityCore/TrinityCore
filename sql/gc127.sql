@@ -50,6 +50,18 @@ INSERT INTO waypoint_data (id, point, position_x, position_y, position_z, move_f
 (34497, 2, 585.5, 170, 395.14, 1),
 (34497, 3, 585, 169, 395.14, 1);
 
+-- Dark / Light essence removing
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (-67222, -67223, -67224, -65686, -67176, -67177, -67178, -65684);
+INSERT INTO spell_linked_spell (spell_trigger, spell_effect, type, comment) VALUES
+(-67222, -67511, 0, 'Light Essence 25M'),
+(-67223, -67512, 0, 'Light Essence 10M H'),
+(-67224, -67513, 0, 'Light Essence 25M H'),
+(-65686, -65811, 0, 'Light Essence 10M'),
+(-67176, -67179, 0, 'Dark Essence 25M'),
+(-67177, -67180, 0, 'Dark Essence 10M H'),
+(-67178, -67181, 0, 'Dark Essence 25M H'),
+(-65684, -65827, 0, 'Dark Essence 10M');
+
 -- removing infernal model of nerubian burrower
 UPDATE creature_template SET modelid1 = 0 WHERE entry = 34862;
 

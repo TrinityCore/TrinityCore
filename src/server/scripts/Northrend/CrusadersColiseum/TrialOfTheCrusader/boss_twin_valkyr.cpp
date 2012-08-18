@@ -433,6 +433,7 @@ public:
             m_uiTwinPactSpellId = SPELL_LIGHT_TWIN_PACT;
             m_uiTouchSpellId = SPELL_LIGHT_TOUCH;
             m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
+            me->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
 
             if (instance)
             {
@@ -502,6 +503,7 @@ public:
             m_uiTwinPactSpellId = SPELL_DARK_TWIN_PACT;
             m_uiTouchSpellId = SPELL_DARK_TOUCH;
             m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
+            me->ModifyAuraState(AURA_STATE_UNKNOWN19, true);
         }
     };
 
@@ -525,10 +527,10 @@ class mob_essence_of_twin : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case NPC_LIGHT_ESSENCE:
-                        spellReturned = data == ESSENCE_REMOVE? SPELL_DARK_ESSENCE_HELPER : SPELL_LIGHT_ESSENCE_HELPER;
+                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_DARK_ESSENCE_HELPER : SPELL_LIGHT_ESSENCE_HELPER;
                         break;
                     case NPC_DARK_ESSENCE:
-                        spellReturned = data == ESSENCE_REMOVE? SPELL_LIGHT_ESSENCE_HELPER : SPELL_DARK_ESSENCE_HELPER;
+                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_LIGHT_ESSENCE_HELPER : SPELL_DARK_ESSENCE_HELPER;
                         break;
                     default:
                         break;
