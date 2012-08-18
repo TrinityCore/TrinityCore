@@ -1060,14 +1060,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
         {
             // Other special target selection goes here
             if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-            {
-                Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
-                for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                    if ((*j)->IsAffectingSpell(m_spellInfo))
-                        maxTargets += (*j)->GetAmount();
-
                 Trinity::Containers::RandomResizeList(targets, maxTargets);
-            }
 
             // for compability with older code - add only unit and go targets
             // TODO: remove this
@@ -1347,14 +1340,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
         // Other special target selection goes here
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-        {
-            Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
-            for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                if ((*j)->IsAffectingSpell(m_spellInfo))
-                    maxTargets += (*j)->GetAmount();
-
             Trinity::Containers::RandomResizeList(unitTargets, maxTargets);
-        }
 
         for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
             AddUnitTarget(*itr, effMask, false);
@@ -1363,14 +1349,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     if (!gObjTargets.empty())
     {
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-        {
-            Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
-            for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                if ((*j)->IsAffectingSpell(m_spellInfo))
-                    maxTargets += (*j)->GetAmount();
-
             Trinity::Containers::RandomResizeList(gObjTargets, maxTargets);
-        }
 
         for (std::list<GameObject*>::iterator itr = gObjTargets.begin(); itr != gObjTargets.end(); ++itr)
             AddGOTarget(*itr, effMask);
@@ -2719,8 +2698,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
                             m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
                     }
-                    // and duration of auras affected by SPELL_AURA_PERIODIC_HASTE
-                    else if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, aurSpellInfo) || m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+                    else if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
                         duration = int32(duration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
 
                     if (duration != m_spellAura->GetMaxDuration())
