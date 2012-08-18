@@ -25113,7 +25113,7 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
         if (spec >= GetSpecsCount())
             continue;
 
-        for (uint8 i = 0; i < 6; ++i)
+        for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             _talentMgr->SpecInfo[spec].Glyphs[i] = fields[i + 1].GetUInt16();
     }
     while (result->NextRow());
