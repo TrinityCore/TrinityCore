@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,71 +15,65 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Grilek
-SD%Complete: 100
-SDComment:
-SDCategory: Zul'Gurub
-EndScriptData */
-
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SPELL_AVARTAR                24646                  //The Enrage Spell
-#define SPELL_GROUNDTREMOR            6524
+enum Yells
+{
+};
+
+enum Spells
+{
+};
+
+enum Events
+{
+};
 
 class boss_grilek : public CreatureScript
 {
     public:
         boss_grilek() : CreatureScript("boss_grilek") { }
 
-        struct boss_grilekAI : public ScriptedAI
+        struct boss_grilekAI : public BossAI
         {
-            boss_grilekAI(Creature* creature) : ScriptedAI(creature) { }
-
-            uint32 Avartar_Timer;
-            uint32 GroundTremor_Timer;
+            boss_grilekAI(Creature* creature) : BossAI(creature, DATA_GRILEK)
+            {
+            }
 
             void Reset()
             {
-                Avartar_Timer = urand(15000, 25000);
-                GroundTremor_Timer = urand(8000, 16000);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void JustDied(Unit* /*killer*/)
             {
-                //Return since we have no target
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
                 if (!UpdateVictim())
                     return;
 
-                //Avartar_Timer
-                if (Avartar_Timer <= diff)
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+                /*
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-
-                    DoCast(me, SPELL_AVARTAR);
-                    Unit* target = NULL;
-
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-
-                    if (DoGetThreat(me->getVictim()))
-                        DoModifyThreatPercent(me->getVictim(), -50);
-                    if (target)
-                        AttackStart(target);
-
-                    Avartar_Timer = urand(25000, 35000);
-                } else Avartar_Timer -= diff;
-
-                //GroundTremor_Timer
-                if (GroundTremor_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_GROUNDTREMOR);
-                    GroundTremor_Timer = urand(12000, 16000);
-                } else GroundTremor_Timer -= diff;
+                    switch (eventId)
+                    {
+                        default:
+                            break;
+                    }
+                }
+                */
 
                 DoMeleeAttackIfReady();
             }
@@ -96,4 +89,3 @@ void AddSC_boss_grilek()
 {
     new boss_grilek();
 }
-

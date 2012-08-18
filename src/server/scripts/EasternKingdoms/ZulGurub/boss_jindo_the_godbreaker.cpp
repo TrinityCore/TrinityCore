@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
@@ -32,21 +32,18 @@ enum Events
 {
 };
 
-class boss_mandokir : public CreatureScript
+class boss_jindo_the_godbreaker : public CreatureScript
 {
     public:
+        boss_jindo_the_godbreaker() : CreatureScript("boss_jindo_the_godbreaker") { }
 
-        boss_mandokir() : CreatureScript("boss_mandokir") { }
-
-        struct boss_mandokirAI : public BossAI
+        struct boss_jindo_the_godbreakerAI : public BossAI
         {
-            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) { }
-
-            void Reset()
+            boss_jindo_the_godbreakerAI(Creature* creature) : BossAI(creature, DATA_JINDO)
             {
             }
 
-            void KilledUnit(Unit* victim)
+            void Reset()
             {
             }
 
@@ -67,7 +64,7 @@ class boss_mandokir : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-            /*
+                /*
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -76,7 +73,7 @@ class boss_mandokir : public CreatureScript
                             break;
                     }
                 }
-            */
+                */
 
                 DoMeleeAttackIfReady();
             }
@@ -84,11 +81,11 @@ class boss_mandokir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_mandokirAI(creature);
+            return new boss_jindo_the_godbreakerAI(creature);
         }
 };
 
-void AddSC_boss_mandokir()
+void AddSC_boss_jindo_the_godbreaker()
 {
-    new boss_mandokir();
+    new boss_jindo_the_godbreaker();
 }
