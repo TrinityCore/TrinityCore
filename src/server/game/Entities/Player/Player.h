@@ -1955,7 +1955,6 @@ class Player : public Unit, public GridObject<Player>
         float GetMeleeCritFromAgility();
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing);
         float GetSpellCritFromIntellect();
-        float OCTRegenHPPerSpirit();
         float OCTRegenMPPerSpirit();
         float GetRatingMultiplier(CombatRating cr) const;
         float GetRatingBonusValue(CombatRating cr) const;
