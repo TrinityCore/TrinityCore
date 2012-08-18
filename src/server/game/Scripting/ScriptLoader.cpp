@@ -841,16 +841,16 @@ void AddEasternKingdomsScripts()
     AddSC_boss_zuljin();
     AddSC_instance_zulaman();
     AddSC_zulaman();
-	AddSC_boss_grilek();                    // Zul'Gurub
-	AddSC_boss_hazzarah();
-	AddSC_boss_jindo_the_godbreaker();
-	AddSC_boss_kilnara();
-	AddSC_boss_mandokir();
-	AddSC_boss_renataki();
-	AddSC_boss_venoxis();
-	AddSC_boss_wushoolay();
-	AddSC_boss_zanzil();
-	AddSC_instance_zulgurub();
+    AddSC_boss_grilek();                    // Zul'Gurub
+    AddSC_boss_hazzarah();
+    AddSC_boss_jindo_the_godbreaker();
+    AddSC_boss_kilnara();
+    AddSC_boss_mandokir();
+    AddSC_boss_renataki();
+    AddSC_boss_venoxis();
+    AddSC_boss_wushoolay();
+    AddSC_boss_zanzil();
+    AddSC_instance_zulgurub();
 
     //AddSC_alterac_mountains();
     AddSC_arathi_highlands();
