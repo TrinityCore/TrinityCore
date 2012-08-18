@@ -1144,7 +1144,7 @@ class ObjectMgr
                     if (itr->Timestamp > ret)
                         ret = itr->Timestamp;
 
-            return ret;
+            return ret ? ret : time(NULL);
         }
 
     private:
