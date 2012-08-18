@@ -21113,18 +21113,21 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
+            if (!iece->RequiredCurrency[i])
+                continue;
+
             CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
             if (!entry)
             {
-                SendBuyError(BUY_ERR_CANT_FIND_ITEM, NULL, currency, 0);
+                SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, currency, 0); // Find correct error
                 return false;
             }
 
             uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
 
-            if (iece->RequiredCurrency[i] && HasCurrency(iece->RequiredCurrency[i], (iece->RequiredCurrencyCount[i] * count) / precision))
+            if (HasCurrency(iece->RequiredCurrency[i], (iece->RequiredCurrencyCount[i] * count) / precision))
             {
-                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // error not verified for currencies
+                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // Find correct error
                 return false;
             }
         }
@@ -21233,16 +21236,19 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
+            if (!iece->RequiredCurrency[i])
+                continue;
+
             CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
             if (!entry)
             {
-                SendBuyError(BUY_ERR_CANT_FIND_ITEM, NULL, currency, 0);
+                SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
                 return false;
             }
 
             uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
 
-            if (iece->RequiredCurrency[i] && HasCurrency(iece->RequiredCurrency[i], (iece->RequiredCurrencyCount[i] * count) / precision))
+            if (HasCurrency(iece->RequiredCurrency[i], (iece->RequiredCurrencyCount[i] * count) / precision))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // error not verified for currencies
                 return false;
