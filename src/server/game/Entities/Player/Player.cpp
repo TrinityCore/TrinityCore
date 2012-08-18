@@ -25081,7 +25081,7 @@ void Player::SetMap(Map* map)
 
 void Player::_LoadGlyphs(PreparedQueryResult result)
 {
-    // SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6 from character_glyphs WHERE guid = '%u'
+    // SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6, glyph7, glyph8, glyph9 FROM character_glyphs WHERE guid = '%u'
     if (!result)
         return;
 
