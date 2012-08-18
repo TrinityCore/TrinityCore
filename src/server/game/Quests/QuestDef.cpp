@@ -60,7 +60,7 @@ Quest::Quest(Field* questRecord)
     SourceItemIdCount = questRecord[35].GetUInt8();
     SourceSpellid = questRecord[36].GetUInt32();
     Flags = questRecord[37].GetUInt32();
-    uint32 SpecialFlags = questRecord[38].GetUInt8();
+    SpecialFlags = questRecord[38].GetUInt8();
     RewardTitleId = questRecord[39].GetUInt8();
     RequiredPlayerKills = questRecord[40].GetUInt8();
     RewardTalents = questRecord[41].GetUInt8();
@@ -139,30 +139,29 @@ Quest::Quest(Field* questRecord)
 
     //int32 WDBVerified = questRecord[140].GetInt32();
 
-    Flags |= SpecialFlags << 20;
-    if (Flags & QUEST_TRINITY_FLAGS_AUTO_ACCEPT)
+    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 
-    m_reqitemscount = 0;
-    m_reqCreatureOrGOcount = 0;
-    m_rewitemscount = 0;
-    m_rewchoiceitemscount = 0;
+    _reqItemsCount = 0;
+    _reqCreatureOrGOcount = 0;
+    _rewItemsCount = 0;
+    _rewChoiceItemsCount = 0;
 
-    for (int i=0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         if (RequiredItemId[i])
-            ++m_reqitemscount;
+            ++_reqItemsCount;
 
-    for (int i=0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         if (RequiredNpcOrGo[i])
-            ++m_reqCreatureOrGOcount;
+            ++_reqCreatureOrGOcount;
 
-    for (int i=0; i < QUEST_REWARDS_COUNT; ++i)
+    for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         if (RewardItemId[i])
-            ++m_rewitemscount;
+            ++_rewItemsCount;
 
-    for (int i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         if (RewardChoiceItemId[i])
-            ++m_rewchoiceitemscount;
+            ++_rewChoiceItemsCount;
 }
 
 uint32 Quest::XPValue(Player* player) const
