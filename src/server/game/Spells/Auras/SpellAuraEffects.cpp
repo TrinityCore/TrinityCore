@@ -881,14 +881,8 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool create, bool load)
                     caster->ModSpellCastTime(m_spellInfo, m_amplitude);
             }
             // and periodic time of auras affected by SPELL_AURA_PERIODIC_HASTE on player who have haste
-            else if ((caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION) && caster->GetFloatValue(UNIT_MOD_CAST_SPEED) != 1.0f)
-            {
-                // Calculate number of ticks we must have
-                float ticks = GetBase()->GetDuration() / (m_amplitude / (1.0f + (1.0f - caster->GetFloatValue(UNIT_MOD_CAST_SPEED))));
-                ticks = 0.5f + (float)(int)ticks; // round
-
-                m_amplitude = GetBase()->GetDuration() / int32(ticks);
-            }
+            else if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+                m_amplitude = int32(m_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
         }
     }
 
