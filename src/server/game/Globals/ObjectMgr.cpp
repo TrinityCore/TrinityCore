@@ -2564,7 +2564,6 @@ void ObjectMgr::LoadItemTemplateAddon()
             ++count;
         } while (result->NextRow());
     }
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item addon templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -2593,7 +2592,6 @@ void ObjectMgr::LoadItemScriptNames()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item script names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
-
 ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
 {
     ItemTemplateContainer::const_iterator itr = _itemTemplateStore.find(entry);
@@ -8610,7 +8608,6 @@ void ObjectMgr::LoadHotfixData()
         info.Entry = fields[0].GetUInt32();
         info.Type = fields[1].GetUInt32();
         info.Timestamp = fields[2].GetUInt64();
-
         _hotfixData.push_back(info);
         ++count;
     }

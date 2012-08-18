@@ -398,7 +398,6 @@ void GuildMgr::LoadGuilds()
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_ACHIEVEMENT);
             stmt->setUInt32(0, itr->first);
             achievementResult = CharacterDatabase.Query(stmt);
-
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_ACHIEVEMENT_CRITERIA);
             stmt->setUInt32(0, itr->first);
             criteriaResult = CharacterDatabase.Query(stmt);
