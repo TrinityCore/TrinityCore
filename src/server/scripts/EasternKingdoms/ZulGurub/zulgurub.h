@@ -19,20 +19,49 @@
 #ifndef DEF_ZULGURUB_H
 #define DEF_ZULGURUB_H
 
+#define ZGScriptName "instance_zulgurub"
+
+uint32 const EncounterCount = 5;
+
 enum DataTypes
 {
-    MAX_ENCOUNTERS          = 8,
+    DATA_VENOXIS            = 0,
+    DATA_MANDOKIR           = 1,
+    DATA_KILNARA            = 2,
+    DATA_ZANZIL             = 3,
+    DATA_JINDO              = 4,
 
-    DATA_ARLOKK             = 1,
-    DATA_JEKLIK             = 2,
-    DATA_VENOXIS            = 3,
-    DATA_MARLI              = 4,
-    DATA_OHGAN              = 5,
-    DATA_THEKAL             = 6,
-    DATA_ZATH               = 7,
-    DATA_LORKHAN            = 8,
-    DATA_JINDO              = 10,
+    // Cache of Madness
+    DATA_HAZZARAH           = 5,
+    DATA_RENATAKI           = 6,
+    DATA_WUSHOOLAY          = 7,
+    DATA_GRILEK             = 8,
 };
+
+enum CreatureIds
+{
+    NPC_VENOXIS             = 52155,
+    NPC_MANDOKIR            = 52151,
+    NPC_KILNARA             = 52059,
+    NPC_ZANZIL              = 52053,
+    NPC_JINDO               = 52148,
+
+    // Cache of Madness
+    NPC_HAZZARAH            = 52271,
+    NPC_RENATAKI            = 52269,
+    NPC_WUSHOOLAY           = 52286,
+    NPC_GRILEK              = 52258,
+};
+
+template<class AI>
+CreatureAI* GetZulGurubCitadelAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ZGScriptName))
+                return new AI(creature);
+    return NULL;
+}
 
 #endif
 
