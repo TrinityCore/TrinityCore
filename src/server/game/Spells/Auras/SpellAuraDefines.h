@@ -200,7 +200,7 @@ enum AuraType
     SPELL_AURA_MOD_MELEE_HASTE                              = 138,
     SPELL_AURA_FORCE_REACTION                               = 139,
     SPELL_AURA_MOD_RANGED_HASTE                             = 140,
-    SPELL_AURA_MOD_RANGED_AMMO_HASTE                        = 141,
+    SPELL_AURA_141                                          = 141, // old SPELL_AURA_MOD_RANGED_AMMO_HASTE, unused now
     SPELL_AURA_MOD_BASE_RESISTANCE_PCT                      = 142,
     SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE                     = 143,
     SPELL_AURA_SAFE_FALL                                    = 144,
@@ -237,7 +237,7 @@ enum AuraType
     SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT            = 175,
     SPELL_AURA_SPIRIT_OF_REDEMPTION                         = 176,
     SPELL_AURA_AOE_CHARM                                    = 177,
-    SPELL_AURA_MOD_DEBUFF_RESISTANCE                        = 178,
+    SPELL_AURA_178                                          = 178, // old SPELL_AURA_MOD_DEBUFF_RESISTANCE, unused
     SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE               = 179,
     SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS                 = 180,
     SPELL_AURA_181                                          = 181,  // old SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS - possible flat spell crit damage versus
@@ -296,7 +296,7 @@ enum AuraType
     SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK              = 234,
     SPELL_AURA_MOD_DISPEL_RESIST                            = 235,
     SPELL_AURA_CONTROL_VEHICLE                              = 236,
-    SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER             = 237,
+    SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER             = 237, 
     SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER            = 238,
     SPELL_AURA_MOD_SCALE_2                                  = 239,
     SPELL_AURA_MOD_EXPERTISE                                = 240,
@@ -318,7 +318,7 @@ enum AuraType
     SPELL_AURA_NO_REAGENT_USE                               = 256,
     SPELL_AURA_MOD_TARGET_RESIST_BY_SPELL_CLASS             = 257,
     SPELL_AURA_258                                          = 258,
-    SPELL_AURA_MOD_HOT_PCT                                  = 259,
+    SPELL_AURA_259                                          = 259, // old SPELL_AURA_MOD_HOT_PCT, unused 4.3.4
     SPELL_AURA_SCREEN_EFFECT                                = 260,
     SPELL_AURA_PHASE                                        = 261,
     SPELL_AURA_ABILITY_IGNORE_AURASTATE                     = 262,
@@ -333,7 +333,7 @@ enum AuraType
     SPELL_AURA_MOD_DAMAGE_FROM_CASTER                       = 271,
     SPELL_AURA_IGNORE_MELEE_RESET                           = 272,
     SPELL_AURA_X_RAY                                        = 273,
-    SPELL_AURA_ABILITY_CONSUME_NO_AMMO                      = 274,
+    SPELL_AURA_274                                          = 274, // old SPELL_AURA_ABILITY_CONSUME_NO_AMMO, unused now
     SPELL_AURA_MOD_IGNORE_SHAPESHIFT                        = 275,
     SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC                 = 276,
     SPELL_AURA_MOD_MAX_AFFECTED_TARGETS                     = 277,
