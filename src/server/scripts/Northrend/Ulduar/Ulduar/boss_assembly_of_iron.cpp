@@ -292,24 +292,15 @@ void StartEncounter(InstanceScript* instance, Creature* caller)
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_STEELBREAKER)))
         if (boss->isAlive() && caller->GetGUID()!=boss->GetGUID()) // Avoid redundant calls
-        {
             boss->SetInCombatWithZone();
-            boss->AI()->EnterCombat(caller->getVictim());
-        }
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_BRUNDIR)))
         if (boss->isAlive() && caller->GetGUID()!=boss->GetGUID()) // Avoid redundant calls
-        {
             boss->SetInCombatWithZone();
-            boss->AI()->EnterCombat(caller->getVictim());
-        }
 
     if (Creature* boss = ObjectAccessor::GetCreature(*caller, instance->GetData64(BOSS_MOLGEIM)))
         if (boss->isAlive() && caller->GetGUID()!=boss->GetGUID()) // Avoid redundant calls
-        {
             boss->SetInCombatWithZone();
-            boss->AI()->EnterCombat(caller->getVictim());
-        }
 }
 
 /************************************************************************/
@@ -340,13 +331,12 @@ class boss_steelbreaker : public CreatureScript
             {
                 me->setActive(true);
                 StartEncounter(instance, me);
-                DoScriptText(SAY_STEELBREAKER_AGGRO, me);
                 DoZoneInCombat();
                 DoCast(me, SPELL_HIGH_VOLTAGE);
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
-                if (phase == 0)
-                    DoAction(ACTION_UPDATEPHASE);
+                DoScriptText(SAY_STEELBREAKER_AGGRO, me);
+                DoAction(ACTION_UPDATEPHASE);
             }
 
             uint32 GetData(uint32 type)
@@ -632,13 +622,12 @@ class boss_runemaster_molgeim : public CreatureScript
             {
                 me->setActive(true);
                 StartEncounter(instance, me);
-                DoScriptText(SAY_MOLGEIM_AGGRO, me);
                 DoZoneInCombat();                
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 30000);
                 events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20000);
-                if (phase == 0)
-                    DoAction(ACTION_UPDATEPHASE);
+                DoScriptText(SAY_MOLGEIM_AGGRO, me);
+                DoAction(ACTION_UPDATEPHASE);
             }
 
             uint32 GetData(uint32 type)
@@ -929,15 +918,13 @@ class boss_stormcaller_brundir : public CreatureScript
             {
                 me->setActive(true);
                 StartEncounter(instance, me);
-                DoScriptText(SAY_BRUNDIR_AGGRO, me);
                 DoZoneInCombat();                
-                events.ScheduleEvent(EVENT_MOVE_POSITION, 1000);
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4000);
-                events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
+                events.ScheduleEvent(EVENT_OVERLOAD, urand(40000, 80000));
                 events.ScheduleEvent(EVENT_THREAT_WIPE, 10000);
-                if (phase == 0)
-                    DoAction(ACTION_UPDATEPHASE);
+                DoScriptText(SAY_BRUNDIR_AGGRO, me);
+                DoAction(ACTION_UPDATEPHASE);
             }
 
             uint32 GetData(uint32 type)
@@ -1021,8 +1008,6 @@ class boss_stormcaller_brundir : public CreatureScript
                 if (spell->Id == SPELL_SUPERCHARGE)
                 {
                     me->SetHealth(me->GetMaxHealth());
-                    events.RescheduleEvent(EVENT_CHAIN_LIGHTNING, urand(7000, 12000));
-                    events.RescheduleEvent(EVENT_OVERLOAD, urand(40000, 50000));
                     superChargedCnt++;
                     DoAction(ACTION_UPDATEPHASE);
                     // Crazy hack, but since - whyever - stacking does not work automatically when the casts are fired from different NPCs...
@@ -1053,16 +1038,13 @@ class boss_stormcaller_brundir : public CreatureScript
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(7000, 10000));
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(5000, 7000));
                             break;
-                        case EVENT_OVERLOAD:    // TODO: Check if this applies temporary interupt-immunity (as intended)
-                            if (!me->HasUnitState(UNIT_STATE_STUNNED))
-                            {
-                                me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
-                                DoScriptText(SAY_BRUNDIR_SPECIAL, me);
-                                DoCast(SPELL_OVERLOAD);
-                            }                            
-                            events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
+                        case EVENT_OVERLOAD:
+                            me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
+                            DoScriptText(SAY_BRUNDIR_SPECIAL, me);
+                            DoCast(SPELL_OVERLOAD);
+                            events.ScheduleEvent(EVENT_OVERLOAD, urand(40000, 80000));
                             break;
                         case EVENT_LIGHTNING_WHIRL:
                             DoCast(SPELL_LIGHTNING_WHIRL);
@@ -1094,7 +1076,8 @@ class boss_stormcaller_brundir : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_FLY, me->GetPositionX(), me->GetPositionY(), FINAL_FLIGHT_Z);
                             events.DelayEvents(37000);  // Flight phase is 35 seconds, +2 as buffer
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_NEW_TARGET, 2500);
-                            events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_ENDFLIGHT, 32500);                            
+                            events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_ENDFLIGHT, 32500);
+                            events.ScheduleEvent(EVENT_MOVE_POSITION, 1000);
                             break;
                         case EVENT_LIGHTNING_TENDRILS_FLIGHT_NEW_TARGET:
                             events.CancelEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_UPDATE_TARGET);
@@ -1142,6 +1125,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             DoStartMovement(me->getVictim());
                             me->getThreatManager().resetAllAggro();
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_START, urand(40000, 80000));
+                            events.CancelEvent(EVENT_MOVE_POSITION);
                             break;
                         case EVENT_MOVE_POSITION:
                             if (me->IsWithinMeleeRange(me->getVictim()))
