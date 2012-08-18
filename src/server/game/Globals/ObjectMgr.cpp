@@ -4143,48 +4143,20 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->QuestGiverPortrait)
-        {
-            if (!sObjectMgr->GetCreatureTemplate(qinfo->QuestGiverPortrait))
-            {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `QuestGiverPortrait` = %u but creature with entry %u does not exist, quest can't be done.",
-                    qinfo->GetQuestId(), qinfo->QuestGiverPortrait, qinfo->QuestGiverPortrait);
-                qinfo->QuestGiverPortrait = 0;
-            }
-        }
-
-        if (qinfo->QuestTurnInPortrait)
-        {
-            if (!sObjectMgr->GetCreatureTemplate(qinfo->QuestTurnInPortrait))
-            {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `QuestTurnInPortrait` = %u but creature with entry %u does not exist, quest can't be done.",
-                    qinfo->GetQuestId(), qinfo->QuestTurnInPortrait, qinfo->QuestTurnInPortrait);
-                qinfo->QuestTurnInPortrait = 0;
-            }
-        }
-
-
-
         // fill additional data stores
         if (qinfo->PrevQuestId)
         {
             if (_questTemplates.find(abs(qinfo->GetPrevQuestId())) == _questTemplates.end())
-            {
                 sLog->outError(LOG_FILTER_SQL, "Quest %d has PrevQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->GetPrevQuestId());
-            }
             else
-            {
                 qinfo->prevQuests.push_back(qinfo->PrevQuestId);
-            }
         }
 
         if (qinfo->NextQuestId)
         {
             QuestMap::iterator qNextItr = _questTemplates.find(abs(qinfo->GetNextQuestId()));
             if (qNextItr == _questTemplates.end())
-            {
                 sLog->outError(LOG_FILTER_SQL, "Quest %d has NextQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->GetNextQuestId());
-            }
             else
             {
                 int32 signedQuestId = qinfo->NextQuestId < 0 ? -int32(qinfo->GetQuestId()) : int32(qinfo->GetQuestId());
