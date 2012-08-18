@@ -335,7 +335,7 @@ enum AuraType
     SPELL_AURA_X_RAY                                        = 273,
     SPELL_AURA_ABILITY_CONSUME_NO_AMMO                      = 274,
     SPELL_AURA_MOD_IGNORE_SHAPESHIFT                        = 275,
-    SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC                 = 276,  // NYI
+    SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC                 = 276,
     SPELL_AURA_MOD_MAX_AFFECTED_TARGETS                     = 277,
     SPELL_AURA_MOD_DISARM_RANGED                            = 278,
     SPELL_AURA_INITIALIZE_IMAGES                            = 279,
@@ -371,7 +371,7 @@ enum AuraType
     SPELL_AURA_309                                          = 309,
     SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE            = 310,
     SPELL_AURA_311                                          = 311,
-    SPELL_AURA_312                                          = 312,
+    SPELL_AURA_312                                          = 312, // puts the caster in stealth?
     SPELL_AURA_313                                          = 313,
     SPELL_AURA_PREVENT_RESURRECTION                         = 314,
     SPELL_AURA_UNDERWATER_WALKING                           = 315,
@@ -379,7 +379,7 @@ enum AuraType
     SPELL_AURA_MOD_SPELL_POWER_PCT                          = 317,
     SPELL_AURA_MASTERY                                      = 318,
     SPELL_AURA_MOD_MELEE_HASTE_3                            = 319,
-    SPELL_AURA_MOD_RANGED_ATTACK_SPEED                      = 320,  // NYI
+    SPELL_AURA_MOD_RANGED_HASTE_2                           = 320,
     SPELL_AURA_321                                          = 321,
     SPELL_AURA_INTERFERE_TARGETTING                         = 322,  // NYI
     SPELL_AURA_323                                          = 323,
@@ -391,8 +391,8 @@ enum AuraType
     SPELL_AURA_MOD_RUNE_REGEN_SPEED                         = 329,  // NYI
     SPELL_AURA_CAST_WHILE_WALKING                           = 330,  // NYI
     SPELL_AURA_331                                          = 331,
-    SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS                    = 332,  // NYI
-    SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2                  = 333,  // NYI
+    SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS                    = 332,
+    SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2                  = 333,
     SPELL_AURA_334                                          = 334,
     SPELL_AURA_335                                          = 335,
     SPELL_AURA_MOD_FLYING_RESTRICTIONS                      = 336,  // NYI

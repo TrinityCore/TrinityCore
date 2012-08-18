@@ -9449,6 +9449,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         if (victim->HasAuraState(AuraStateType((*i)->GetMiscValue())))
             AddPctN(DoneTotalMod, (*i)->GetAmount());
 
+    // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
+    AddPctN(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
+    
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner() ? GetOwner() : this;
     AuraEffectList const& mOverrideClassScript= owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);

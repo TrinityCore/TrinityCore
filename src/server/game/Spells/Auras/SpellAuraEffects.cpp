@@ -373,7 +373,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //317 SPELL_AURA_MOD_SPELL_POWER_PCT
     &AuraEffect::HandleNULL,                                      //318 SPELL_AURA_MASTERY
     &AuraEffect::HandleModMeleeSpeedPct,                          //319 SPELL_AURA_MOD_MELEE_HASTE_3
-    &AuraEffect::HandleNULL,                                      //320 SPELL_AURA_MOD_RANGED_ATTACK_SPEED
+    &AuraEffect::HandleAuraModRangedHaste,                        //320 SPELL_AURA_MOD_RANGED_HASTE_2
     &AuraEffect::HandleNULL,                                      //321 SPELL_AURA_321
     &AuraEffect::HandleNULL,                                      //322 SPELL_AURA_INTERFERE_TARGETTING
     &AuraEffect::HandleNULL,                                      //323 SPELL_AURA_323
@@ -4522,6 +4522,7 @@ void AuraEffect::HandleAuraModRangedHaste(AuraApplication const* aurApp, uint8 m
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
+    //! ToDo: Haste auras with the same handler _CAN'T_ stack together
     Unit* target = aurApp->GetTarget();
 
     target->ApplyAttackTimePercentMod(RANGED_ATTACK, (float)GetAmount(), apply);
