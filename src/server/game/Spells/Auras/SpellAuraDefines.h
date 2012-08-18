@@ -296,7 +296,7 @@ enum AuraType
     SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK              = 234,
     SPELL_AURA_MOD_DISPEL_RESIST                            = 235,
     SPELL_AURA_CONTROL_VEHICLE                              = 236,
-    SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER             = 237, 
+    SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER             = 237,
     SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER            = 238,
     SPELL_AURA_MOD_SCALE_2                                  = 239,
     SPELL_AURA_MOD_EXPERTISE                                = 240,
