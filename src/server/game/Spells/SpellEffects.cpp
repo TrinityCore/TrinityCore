@@ -6053,7 +6053,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
         loc.m_positionX   = st->target_X;
         loc.m_positionY   = st->target_Y;
         loc.m_positionZ   = st->target_Z;
-        loc.m_orientation = st->target_Orientation;
+        loc.SetOrientation(st->target_Orientation);
         area_id = player->GetAreaId();
     }
     else
