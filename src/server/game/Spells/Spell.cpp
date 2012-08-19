@@ -4024,7 +4024,6 @@ void Spell::SendSpellGo()
             data << float(0);
         }
     }
-    WorldLocation const* loc =  m_targets.GetDstPos();
 
     if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
     {
