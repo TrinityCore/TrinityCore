@@ -23805,18 +23805,15 @@ void Player::UpdateCharmedAI()
     }
 }
 
-uint32 Player::GetRuneBaseCooldown(uint8 index)
+uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 {
-    uint8 rune = GetBaseRune(index);
-    uint32 cooldown = RUNE_BASE_COOLDOWN;
+    float cooldown = RUNE_BASE_COOLDOWN;
     float hastePct = 0.0f;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
-    {
-        if ((*i)->GetMiscValue() == POWER_RUNES && (*i)->GetMiscValueB() == rune)
-            cooldown = cooldown*(100-(*i)->GetAmount())/100;
-    }
+        if ((*i)->GetMiscValue() == POWER_RUNES && (*i)->GetMiscValueB() == runeType)
+            cooldown *= 1.0f - (*i)->GetAmount() / 100.0f;
 
     // Runes cooldown are now affected by player's haste from equipment ...
     hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
@@ -23920,7 +23917,7 @@ void Player::InitRunes()
         m_runes->SetRuneState(i);
     }
 
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
         SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);                  // set a base regen timer equal to 10 sec
 }
 
