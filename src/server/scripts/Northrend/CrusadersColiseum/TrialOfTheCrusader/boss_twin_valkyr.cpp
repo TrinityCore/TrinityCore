@@ -89,7 +89,7 @@ enum BossSpells
     SPELL_TWIN_EMPATHY_DARK     = 66132,
     SPELL_UNLEASHED_DARK        = 65808,
 
-    SPELL_CONTROLLER_PERIODIC    = 66149,
+    SPELL_CONTROLLER_PERIODIC   = 66149,
     SPELL_POWER_TWINS           = 65879,
     SPELL_BERSERK               = 64238,
     SPELL_POWERING_UP           = 67590,
@@ -103,6 +103,9 @@ enum BossSpells
 
 #define SPELL_UNLEASHED_DARK_HELPER RAID_MODE<uint32>(65808, 67172, 67173, 67174)
 #define SPELL_UNLEASHED_LIGHT_HELPER RAID_MODE<uint32>(65795, 67238, 67239, 67240)
+
+#define SPELL_DARK_VORTEX_HELPER RAID_MODE<uint32>(66059, 67155, 67156, 67157)
+#define SPELL_LIGHT_VORTEX_HELPER RAID_MODE<uint32>(66048, 67203, 67204, 67205)
 
 enum Actions
 {
@@ -580,13 +583,13 @@ struct mob_unleashed_ballAI : public ScriptedAI
 
     void Reset()
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->SetDisableGravity(true);
         me->SetCanFly(true);
         SetCombatMovement(false);
         MoveToNextPoint();
-        m_uiRangeCheckTimer = IN_MILLISECONDS;
+        m_uiRangeCheckTimer = 500;
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -624,13 +627,13 @@ public:
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (me->SelectNearestPlayer(2.0f))
+                if (me->SelectNearestPlayer(3.0f))
                     {
-                        DoCastAOE(SPELL_UNLEASHED_DARK);
+                        DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(1000);
                     }
-                m_uiRangeCheckTimer = IN_MILLISECONDS;
+                m_uiRangeCheckTimer = 500;
             }
             else m_uiRangeCheckTimer -= uiDiff;
         }
@@ -640,7 +643,21 @@ public:
             if (spell->Id == SPELL_UNLEASHED_DARK_HELPER)
             {
                 if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
-                    who->CastSpell(who, SPELL_POWERING_UP, true);
+                {
+                    // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
+                    Aura* pAura = who->GetAura(SPELL_POWERING_UP_HELPER);
+                    if (pAura)
+                    {
+                        pAura->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                        who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
+                    }
+                    else
+                    {
+                        who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
+                        if (Aura* pTemp = who->GetAura(SPELL_POWERING_UP_HELPER))
+                            pTemp->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                    }
+                }
             }
         }
     };
@@ -665,13 +682,13 @@ public:
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (me->SelectNearestPlayer(2.0f))
+                if (me->SelectNearestPlayer(3.0f))
                     {
-                        DoCastAOE(SPELL_UNLEASHED_LIGHT);
+                        DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(1000);
                     }
-                m_uiRangeCheckTimer = IN_MILLISECONDS;
+                m_uiRangeCheckTimer = 500;
             }
             else m_uiRangeCheckTimer -= uiDiff;
         }
@@ -681,7 +698,21 @@ public:
             if (spell->Id == SPELL_UNLEASHED_LIGHT_HELPER)
             {
                 if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
-                    who->CastSpell(who, SPELL_POWERING_UP, true);
+                {
+                    // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
+                    Aura* pAura = who->GetAura(SPELL_POWERING_UP_HELPER);
+                    if (pAura)
+                    {
+                        pAura->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                        who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
+                    }
+                    else
+                    {
+                        who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
+                        if (Aura* pTemp = who->GetAura(SPELL_POWERING_UP_HELPER))
+                            pTemp->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                    }
+                }
             }
         }
     };
@@ -722,17 +753,34 @@ class spell_powering_up : public SpellScriptLoader
     public:
         spell_powering_up() : SpellScriptLoader("spell_powering_up") { }
 
-        class spell_powering_up_AuraScript : public AuraScript
+        class spell_powering_up_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_powering_up_AuraScript);
+            public:
+                PrepareSpellScript(spell_powering_up_SpellScript)
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            uint32 spellId;
+            uint32 poweringUp;
+
+            bool Load()
             {
-                if (Unit* target = GetTarget())
+                spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SURGE_OF_SPEED, GetCaster());
+                if (!sSpellMgr->GetSpellInfo(spellId))
+                    return false;
+
+                poweringUp = sSpellMgr->GetSpellIdForDifficulty(SPELL_POWERING_UP, GetCaster());
+                if (!sSpellMgr->GetSpellInfo(poweringUp))
+                    return false;
+
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
                 {
-                    if (Aura* pAura = target->GetAura(GetId()))
+                    if (Aura* pAura = target->GetAura(poweringUp))
                     {
-                        if (pAura->GetStackAmount() == 100)
+                        if (pAura->GetStackAmount() >= 100)
                         {
                             if (target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1))
                                 target->CastSpell(target, SPELL_EMPOWERED_DARK, true);
@@ -740,43 +788,10 @@ class spell_powering_up : public SpellScriptLoader
                             if (target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1))
                                 target->CastSpell(target, SPELL_EMPOWERED_LIGHT, true);
 
-                            target->RemoveAurasDueToSpell(GetId());
+                            target->RemoveAurasDueToSpell(poweringUp);
                         }
                     }
                 }
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_powering_up_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_powering_up_AuraScript();
-        }
-
-        class spell_powering_up_SpellScript : public SpellScript
-        {
-            public:
-                PrepareSpellScript(spell_powering_up_SpellScript)
-
-            uint32 spellId;
-
-            bool Load()
-            {
-                spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SURGE_OF_SPEED, GetCaster());
-                if (!sSpellMgr->GetSpellInfo(spellId))
-                    return false;
-                return true;
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetExplTargetUnit())
-                    if (urand(0, 99) < 15)
-                        target->CastSpell(target, spellId, true);
             }
 
             void Register()
@@ -810,10 +825,17 @@ class spell_valkyr_essences : public SpellScriptLoader
                 return true;
             }
 
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & /*absorbAmount*/)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & /*absorbAmount*/)
             {
-                if (urand(0, 99) < 5)
-                    GetTarget()->CastSpell(GetTarget(), spellId, true);
+                if (Unit* owner = GetUnitOwner())
+                {
+                    if ((dmgInfo.GetSchoolMask() == SPELL_SCHOOL_MASK_SHADOW && owner->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1)) ||    // dark damage
+                        (dmgInfo.GetSchoolMask() == SPELL_SCHOOL_MASK_FIRE && owner->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1)))        // light damage
+                    {
+                        if (urand(0, 99) < 5)
+                            GetTarget()->CastSpell(GetTarget(), spellId, true);
+                    }
+                }
             }
 
             void Register()
@@ -874,6 +896,69 @@ class spell_power_of_the_twins : public SpellScriptLoader
         }
 };
 
+class spell_twin_vortex : public SpellScriptLoader
+{
+    public:
+        spell_twin_vortex() : SpellScriptLoader("spell_twin_vortex") {}
+
+        class spell_twin_vortex_SpellScript : public SpellScript
+        {
+            public:
+                PrepareSpellScript(spell_twin_vortex_SpellScript);
+
+            uint32 vortexId;
+            uint32 poweringUp;
+
+            bool Load()
+            {
+                vortexId = sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_VORTEX, GetCaster());
+                if (!sSpellMgr->GetSpellInfo(vortexId))
+                    return false;
+
+                poweringUp = sSpellMgr->GetSpellIdForDifficulty(SPELL_POWERING_UP, GetCaster());
+                if (!sSpellMgr->GetSpellInfo(poweringUp))
+                    return false;
+
+                return true;
+            }
+
+            void HandleDealDamage(SpellEffIndex effIndex)
+            {
+                uint32 buffValue = uint32(GetSpellInfo()->Effects[effIndex].CalcValue()) * 0.001 - 1;
+
+                if (Unit* target = GetHitUnit())
+                {
+                    if ((GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_SHADOW && target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1)) || // dark damage
+                        (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_FIRE && target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1)))   // light damage
+                    {
+                        Aura* pAura = target->GetAura(poweringUp);
+                        if (pAura)
+                        {
+                            pAura->ModStackAmount(buffValue);
+                            target->CastSpell(target, poweringUp, true);
+                        }
+                        else
+                        {
+                            target->CastSpell(target, poweringUp, true);
+                            if (Aura* pTemp = target->GetAura(poweringUp))
+                                pTemp->ModStackAmount(buffValue);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_twin_vortex_SpellScript::HandleDealDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_twin_vortex_SpellScript();
+        }
+};
+
 void AddSC_boss_twin_valkyr()
 {
     new boss_fjola();
@@ -885,4 +970,5 @@ void AddSC_boss_twin_valkyr()
     new spell_powering_up();
     new spell_valkyr_essences();
     new spell_power_of_the_twins();
+    new spell_twin_vortex();
 }

@@ -62,6 +62,19 @@ INSERT INTO spell_linked_spell (spell_trigger, spell_effect, type, comment) VALU
 (-67178, -67181, 0, 'Dark Essence 25M H'),
 (-65684, -65827, 0, 'Dark Essence 10M');
 
+-- Dark / Light Vortex scriptname
+DELETE FROM spell_script_names WHERE spell_id IN (66059, 67155, 67156, 67157, 66048, 67203, 67204, 67205);
+INSERT INTO spell_script_names VALUES
+(66059, 'spell_twin_vortex'),
+(67155, 'spell_twin_vortex'),
+(67156, 'spell_twin_vortex'),
+(67157, 'spell_twin_vortex'),
+(66048, 'spell_twin_vortex'),
+(67203, 'spell_twin_vortex'),
+(67204, 'spell_twin_vortex'),
+(67205, 'spell_twin_vortex');
+
+
 -- removing infernal model of nerubian burrower
 UPDATE creature_template SET modelid1 = 0 WHERE entry = 34862;
 
