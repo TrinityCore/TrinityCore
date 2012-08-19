@@ -74,7 +74,6 @@ INSERT INTO spell_script_names VALUES
 (67204, 'spell_twin_vortex'),
 (67205, 'spell_twin_vortex');
 
-
 -- removing infernal model of nerubian burrower
 UPDATE creature_template SET modelid1 = 0 WHERE entry = 34862;
 
