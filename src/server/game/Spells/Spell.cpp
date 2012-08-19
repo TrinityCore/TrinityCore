@@ -4010,6 +4010,19 @@ void Spell::SendSpellGo()
     if (m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION)
     {
         data << uint8(0);
+
+        WorldLocation const* loc =  m_targets.GetDstPos();
+        if(loc)
+        {
+            data << float(loc->m_positionX);
+            data << float(loc->m_positionY);
+            data << float(loc->m_positionZ);
+        }else
+        {
+            data << float(0);
+            data << float(0);
+            data << float(0);
+        }
     }
 
     if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
