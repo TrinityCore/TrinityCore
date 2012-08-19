@@ -16203,6 +16203,21 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
             }
             break;
         }
+        case RACE_GOBLIN:
+        {
+            switch (totemType)
+            {
+                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                    return 30783;
+                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                    return 30782;
+                case SUMMON_TYPE_TOTEM_WATER:   // water
+                    return 30784;
+                case SUMMON_TYPE_TOTEM_AIR:     // air
+                    return 30781;
+            }
+            break;
+        }
     }
     return 0;
 }
