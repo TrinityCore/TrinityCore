@@ -563,7 +563,7 @@ bool Battlefield::AddOrSetPlayerToCorrectBfGroup(Player* player)
     else if (group->IsMember(player->GetGUID()))
     {
         uint8 subgroup = group->GetMemberGroup(player->GetGUID());
-        player->SetBattlegroundOrBattlefieldRaid(group, subgroup);
+        player->SetBattlegroundRaid(group, subgroup);
     }
     else
         group->AddMember(player);

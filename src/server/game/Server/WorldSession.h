@@ -933,6 +933,7 @@ class WorldSession
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
+        void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
 
     private:
         void InitializeQueryCallbackParameters();
