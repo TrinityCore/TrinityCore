@@ -26,6 +26,16 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (65076, 'spell_leviathan_tower_buff'),
 (65077, 'spell_leviathan_tower_buff');
 
+-- Mark of the faceless scriptname
+DELETE FROM spell_script_names WHERE spell_id = 63276;
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(63276, 'spell_mark_of_the_faceless');
+
+-- Raise dead scriptname
+DELETE FROM spell_script_names WHERE spell_id = 46584;
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(46584, 'spell_dk_raise_dead');
+
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 
