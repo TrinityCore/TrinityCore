@@ -22,14 +22,16 @@
 #include "ObjectMgr.h"
 #include "Vehicle.h"
 #include "GameObjectAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."
 #define GOSSIP_HELLO_DEMO3  "Build siege engine."
 #define GOSSIP_HELLO_DEMO4  "I cannot build more!"
 
-enum eWGqueuenpctext
+enum WGqueuenpctext
 {
     WG_NPCQUEUE_TEXT_H_NOWAR            = 14775,
     WG_NPCQUEUE_TEXT_H_QUEUE            = 14790,
@@ -99,7 +101,8 @@ enum QuestIds
 
 uint8 const MAX_WINTERGRASP_VEHICLES = 4;
 
-uint32 const vehiclesList[MAX_WINTERGRASP_VEHICLES] = {
+uint32 const vehiclesList[MAX_WINTERGRASP_VEHICLES] =
+{
     NPC_WINTERGRASP_CATAPULT,
     NPC_WINTERGRASP_DEMOLISHER,
     NPC_WINTERGRASP_SIEGE_ENGINE_ALLIANCE,
@@ -136,7 +139,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender */ , uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender */, uint32 action)
         {
             player->CLOSE_GOSSIP_MENU();
 
