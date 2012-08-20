@@ -407,7 +407,7 @@ void Unit::UpdateSplinePosition()
         pos.m_positionX = loc.x;
         pos.m_positionY = loc.y;
         pos.m_positionZ = loc.z;
-        pos.m_orientation = loc.orientation;
+        pos.SetOrientation(loc.orientation);
         if (Unit* vehicle = GetVehicleBase())
         {
             loc.x += vehicle->GetPositionX();
@@ -16722,7 +16722,6 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         return false;
     }
 
-    orientation = MapManager::NormalizeOrientation(orientation);
     bool turn = (GetOrientation() != orientation);
     bool relocated = (teleport || GetPositionX() != x || GetPositionY() != y || GetPositionZ() != z);
 
