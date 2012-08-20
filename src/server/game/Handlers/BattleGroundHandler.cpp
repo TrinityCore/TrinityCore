@@ -34,6 +34,8 @@
 #include "Opcodes.h"
 #include "DisableMgr.h"
 #include "Group.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recvData)
 {
@@ -577,6 +579,9 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recvData)
 
     if (bg)
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
+
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
+        bf->SendAreaSpiritHealerQueryOpcode(_player,guid);
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recvData)
@@ -597,7 +602,11 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recvData)
 
     if (bg)
         bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
+
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
+        bf->AddPlayerToResurrectQueue(guid, _player->GetGUID());
 }
+
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
 {

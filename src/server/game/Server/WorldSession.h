@@ -128,6 +128,16 @@ enum PartyResult
     ERR_PARTY_LFG_TELEPORT_IN_COMBAT    = 30
 };
 
+
+enum BFLeaveReason
+{
+    BF_LEAVE_REASON_CLOSE     = 0x00000001,
+    //BF_LEAVE_REASON_UNK1      = 0x00000002, (not used)
+    //BF_LEAVE_REASON_UNK2      = 0x00000004, (not used)
+    BF_LEAVE_REASON_EXITED    = 0x00000008,
+    BF_LEAVE_REASON_LOW_LEVEL = 0x00000010,
+};
+
 enum ChatRestrictionType
 {
     ERR_CHAT_RESTRICTED = 0,
@@ -798,7 +808,16 @@ class WorldSession
         void HandleResetInstancesOpcode(WorldPacket& recvData);
         void HandleHearthAndResurrect(WorldPacket& recvData);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
-        void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
+
+        // Battlefield
+        void SendBfInvitePlayerToWar(uint32 BattleId,uint32 ZoneId,uint32 time);
+        void SendBfInvitePlayerToQueue(uint32 BattleId);
+        void SendBfQueueInviteResponse(uint32 BattleId,uint32 ZoneId, bool CanQueue = true, bool Full = false);
+        void SendBfEntered(uint32 BattleId);
+        void SendBfLeaveMessage(uint32 BattleId, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
+        void HandleBfQueueInviteResponse(WorldPacket &recv_data);
+        void HandleBfEntryInviteResponse(WorldPacket &recv_data);
+        void HandleBfExitRequest(WorldPacket &recv_data);
 
         // Looking for Dungeon/Raid
         void HandleLfgSetCommentOpcode(WorldPacket& recvData);
@@ -944,6 +963,7 @@ class WorldSession
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleRequestHotfix(WorldPacket& recvPacket);
+        void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPacket& recvPacket);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         int32 HandleEnableNagleAlgorithm();

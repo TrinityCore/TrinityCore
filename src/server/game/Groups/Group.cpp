@@ -59,7 +59,7 @@ Loot* Roll::getLoot()
 
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
 m_dungeonDifficulty(DUNGEON_DIFFICULTY_NORMAL), m_raidDifficulty(RAID_DIFFICULTY_10MAN_NORMAL),
-m_bgGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
+m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
 m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
@@ -2196,6 +2196,11 @@ bool Group::isBGGroup() const
     return m_bgGroup != NULL;
 }
 
+bool Group::isBFGroup() const
+{
+    return m_bfGroup != NULL;
+}
+
 bool Group::IsCreated() const
 {
     return GetMembersCount() > 0;
@@ -2295,6 +2300,11 @@ uint8 Group::GetMemberGroup(uint64 guid) const
 void Group::SetBattlegroundGroup(Battleground* bg)
 {
     m_bgGroup = bg;
+}
+
+void Group::SetBattlefieldGroup(Battlefield *bg)
+{
+    m_bfGroup = bg;
 }
 
 void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)

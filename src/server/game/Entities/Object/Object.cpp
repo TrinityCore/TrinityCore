@@ -49,6 +49,8 @@
 #include "DynamicTree.h"
 #include "Unit.h"
 #include "Group.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -2483,7 +2485,12 @@ void WorldObject::SetZoneScript()
         if (map->IsDungeon())
             m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
         else if (!map->IsBattlegroundOrArena())
-            m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+        {
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+                m_zoneScript = bf;
+            else
+                m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+        }
     }
 }
 
