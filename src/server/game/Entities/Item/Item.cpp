@@ -838,15 +838,15 @@ InventoryResult Item::CanBeMergedPartlyWith(ItemTemplate const* proto) const
 {
     // not allow merge looting currently items
     if (m_lootGenerated)
-        return EQUIP_ERR_ALREADY_LOOTED;
+        return EQUIP_ERR_LOOT_GONE;
 
     // check item type
     if (GetEntry() != proto->ItemId)
-        return EQUIP_ERR_ITEM_CANT_STACK;
+        return EQUIP_ERR_CANT_STACK;
 
     // check free space (full stacks can't be target of merge
     if (GetCount() >= proto->GetMaxStackSize())
-        return EQUIP_ERR_ITEM_CANT_STACK;
+        return EQUIP_ERR_CANT_STACK;
 
     return EQUIP_ERR_OK;
 }

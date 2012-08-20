@@ -361,7 +361,7 @@ void ProcessUnlearnAction(Player* player, Creature* creature, uint32 spellId, ui
             player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, 0, 0);
     }
     else
-        player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, NULL, NULL);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, NULL, NULL);
     player->CLOSE_GOSSIP_MENU();
 }
 
