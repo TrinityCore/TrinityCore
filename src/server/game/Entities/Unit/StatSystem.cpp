@@ -699,7 +699,8 @@ void Player::UpdateManaRegen()
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, CalculatePctN(combat_regen, modManaRegenInterrupt));
 
     // SpiritRegen(SPI,INT,LEVEL) = (0.001 + (SPI x sqrt(INT) x BASE_REGEN[LEVEL])) x 5
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen * GetStat(STAT_INTELLECT));
+    float sqint = sqrt(GetStat(STAT_INTELLECT));
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 0.001f + power_regen * sqint);
 }
 
 void Player::UpdateRuneRegen(RuneType rune)
