@@ -444,21 +444,24 @@ struct Position
     float m_positionX;
     float m_positionY;
     float m_positionZ;
+// Better to limit access to m_orientation field, but this will be hard to achieve with many scripts using array initialization for this structure
+//private:
     float m_orientation;
+//public:
 
     void Relocate(float x, float y)
         { m_positionX = x; m_positionY = y;}
     void Relocate(float x, float y, float z)
         { m_positionX = x; m_positionY = y; m_positionZ = z; }
     void Relocate(float x, float y, float z, float orientation)
-        { m_positionX = x; m_positionY = y; m_positionZ = z; m_orientation = orientation; }
+        { m_positionX = x; m_positionY = y; m_positionZ = z; SetOrientation(orientation); }
     void Relocate(const Position &pos)
-        { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; m_orientation = pos.m_orientation; }
+        { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; SetOrientation(pos.m_orientation); }
     void Relocate(const Position* pos)
-        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; m_orientation = pos->m_orientation; }
+        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation); }
     void RelocateOffset(const Position &offset);
     void SetOrientation(float orientation)
-        { m_orientation = orientation; }
+    { m_orientation = NormalizeOrientation(orientation); }
 
     float GetPositionX() const { return m_positionX; }
     float GetPositionY() const { return m_positionY; }
@@ -525,6 +528,21 @@ struct Position
     bool HasInArc(float arcangle, const Position* pos) const;
     bool HasInLine(WorldObject const* target, float width) const;
     std::string ToString() const;
+
+    // modulos a radian orientation to the range of 0..2PI
+    static float NormalizeOrientation(float o)
+    {
+        // fmod only supports positive numbers. Thus we have
+        // to emulate negative numbers
+        if (o < 0)
+        {
+            float mod = o *-1;
+            mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
+            mod = -mod + 2.0f * static_cast<float>(M_PI);
+            return mod;
+        }
+        return fmod(o, 2.0f * static_cast<float>(M_PI));
+    }
 };
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
