@@ -55,7 +55,7 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 
     if (!_player->IsValidPos(dstbag, dstslot, false))       // can be autostore pos
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
     }
 
@@ -82,7 +82,7 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket & recvData)
 
     if (!_player->IsValidPos(INVENTORY_SLOT_BAG_0, dstslot, true))
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
     }
 
@@ -134,7 +134,7 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
 
     if (!_player->IsValidPos(dstbag, dstslot, true))
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
     }
 
@@ -265,7 +265,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
 
     if (pItem->GetTemplate()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
     {
-        _player->SendEquipError(EQUIP_ERR_CANT_DROP_SOULBOUND, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_DROP_BOUND_ITEM, NULL, NULL);
         return;
     }
 
@@ -885,7 +885,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
 
     if (!_player->IsValidPos(dstbag, NULL_SLOT, false))      // can be autostore pos
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
     }
 
@@ -914,7 +914,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
     if (dest.size() == 1 && dest[0].pos == src)
     {
         // just remove grey item state
-        _player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+        _player->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, pItem, NULL);
         return;
     }
 
@@ -997,7 +997,7 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
 
     if (dest.size() == 1 && dest[0].pos == pItem->GetPos())
     {
-        _player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, pItem, NULL);
         return;
     }
 
@@ -1102,44 +1102,44 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 
     if (item == gift)                                          // not possable with pacjket from real client
     {
-        _player->SendEquipError(EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_WRAP_WRAPPED, item, NULL);
         return;
     }
 
     if (item->IsEquipped())
     {
-        _player->SendEquipError(EQUIP_ERR_EQUIPPED_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_WRAP_EQUIPPED, item, NULL);
         return;
     }
 
     if (item->GetUInt64Value(ITEM_FIELD_GIFTCREATOR))        // HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
     {
-        _player->SendEquipError(EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_WRAP_WRAPPED, item, NULL);
         return;
     }
 
     if (item->IsBag())
     {
-        _player->SendEquipError(EQUIP_ERR_BAGS_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_WRAP_BAGS, item, NULL);
         return;
     }
 
     if (item->IsSoulBound())
     {
-        _player->SendEquipError(EQUIP_ERR_BOUND_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_WRAP_BOUND, item, NULL);
         return;
     }
 
     if (item->GetMaxStackCount() != 1)
     {
-        _player->SendEquipError(EQUIP_ERR_STACKABLE_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_WRAP_STACKABLE, item, NULL);
         return;
     }
 
     // maybe not correct check  (it is better than nothing)
-    if (item->GetTemplate()->MaxCount>0)
+    if (item->GetTemplate()->MaxCount > 0)
     {
-        _player->SendEquipError(EQUIP_ERR_UNIQUE_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_WRAP_UNIQUE, item, NULL);
         return;
     }
 
