@@ -9732,6 +9732,27 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4131) << uint32(0);              // 10 WORLDSTATE_CRATES_REVEALED
             }
             break;
+        // Twin Peaks
+        case 5031:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TP)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0x62d) << uint32(0x0);       //  7 1581 alliance flag captures
+                data << uint32(0x62e) << uint32(0x0);       //  8 1582 horde flag captures
+                data << uint32(0x609) << uint32(0x0);       //  9 1545 unk
+                data << uint32(0x60a) << uint32(0x0);       // 10 1546 unk
+                data << uint32(0x60b) << uint32(0x2);       // 11 1547 unk
+                data << uint32(0x641) << uint32(0x3);       // 12 1601 unk
+                data << uint32(0x922) << uint32(0x1);       // 13 2338 horde (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+                data << uint32(0x923) << uint32(0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+            }
+            break;
+        // Battle for Gilneas
+        case 5449:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_BFG)
+                bg->FillInitialWorldStates(data);
+            break;
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
             data << uint32(0x913) << uint32(0x0);           // 8
