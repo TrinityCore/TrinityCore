@@ -541,7 +541,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if ((m_uiSubmergeTimer <= uiDiff) && HealthBelowPct(80))
+            if (m_uiSubmergeTimer <= uiDiff)
             {
                 if (me->HasAura(SPELL_SUBMERGE_EFFECT))
                 {
