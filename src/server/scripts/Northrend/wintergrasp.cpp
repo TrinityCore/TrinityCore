@@ -21,6 +21,7 @@
 #include "WorldSession.h"
 #include "ObjectMgr.h"
 #include "Vehicle.h"
+#include "GameObjectAI.h"
 
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."
@@ -323,7 +324,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
               uint32 _checkTimer;
         };
 
-        GameObjectAI* GetAI(GameObject* go) const
+        GameObjectAI* GetGameObjectAI(GameObject* go) const
         {
             return new go_wg_vehicle_teleporterAI(go);
         }
