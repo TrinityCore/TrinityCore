@@ -74,6 +74,8 @@
 #include "InstanceScript.h"
 #include <cmath>
 #include "AccountMgr.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 

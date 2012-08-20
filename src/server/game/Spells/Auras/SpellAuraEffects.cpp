@@ -36,6 +36,8 @@
 #include "CellImpl.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 class Aura;
 //
