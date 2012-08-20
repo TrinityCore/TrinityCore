@@ -25,6 +25,7 @@
 #include "WorldPacket.h"
 #include "GameObject.h"
 #include "Battleground.h"
+#include "ObjectAccessor.h"
 
 enum BattlefieldTypes
 {
