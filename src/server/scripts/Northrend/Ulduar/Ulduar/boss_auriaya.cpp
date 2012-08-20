@@ -252,73 +252,38 @@ class boss_auriaya : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SONIC_SCREECH:
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                            {
-                                events.ScheduleEvent(EVENT_SONIC_SCREECH, 1000);
-                                break;
-                            }
                             DoCast(SPELL_SONIC_SCREECH);
                             events.ScheduleEvent(EVENT_SONIC_SCREECH, urand(40000, 60000));
-                            break;
+                            return;
                         case EVENT_TERRIFYING_SCREECH:
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                            {
-                                events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, 1000);
-                                break;
-                            }
                             DoScriptText(EMOTE_FEAR, me);
                             DoCast(SPELL_TERRIFYING_SCREECH);
                             events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(20000, 30000));
-                            break;
+                            return;
                         case EVENT_SENTINEL_BLAST:
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                            {
-                                events.ScheduleEvent(EVENT_SENTINEL_BLAST, 1000);
-                                break;
-                            }
                             DoCastAOE(SPELL_SENTINEL_BLAST);
                             events.ScheduleEvent(EVENT_SENTINEL_BLAST, urand(25000, 35000));
-                            break;
+                            return;
                         case EVENT_ACTIVATE_DEFENDER:
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                            {
-                                events.ScheduleEvent(EVENT_ACTIVATE_DEFENDER, 1000);
-                                break;
-                            }
                             DoScriptText(EMOTE_DEFENDER, me);
                             DoCast(SPELL_DEFENDER_TRIGGER);
                             if (Creature* trigger = me->FindNearestCreature(NPC_FERAL_DEFENDER_TRIGGER, 50.0f))
                                 DoCast(trigger, SPELL_ACTIVATE_DEFENDER, true);
-                            break;
+                            return;
                         case EVENT_RESPAWN_DEFENDER:
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                            {
-                                events.ScheduleEvent(EVENT_RESPAWN_DEFENDER, 1000);
-                                break;
-                            }
                             if (defenderLives > 0)
                                 if (Creature* corpse = me->FindNearestCreature(NPC_FERAL_DEFENDER, 50.0f, false))
                                     me->SummonCreature(NPC_FERAL_DEFENDER, *corpse, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 31000);
-                            break;
+                            return;
                         case EVENT_SUMMON_SWARMING_GUARDIAN:
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                            {
-                                events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, 1000);
-                                break;
-                            }
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_SUMMON_SWARMING_GUARDIAN);
                             events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(30000, 45000));
-                            break;
+                            return;
                         case EVENT_BERSERK:
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                            {
-                                events.ScheduleEvent(EVENT_BERSERK, 1000);
-                                break;
-                            }
                             DoCast(me, SPELL_BERSERK, true);
                             DoScriptText(SAY_BERSERK, me);
-                            break;
+                            return;
                     }
                 }
 
