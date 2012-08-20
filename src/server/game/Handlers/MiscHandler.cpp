@@ -52,6 +52,8 @@
 #include "Group.h"
 #include "AccountMgr.h"
 #include "Spell.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -1729,6 +1731,12 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
 {
     if (_player->isInFlight())
         return;
+
+    if(Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
+    {
+        // bf->PlayerAskToLeave(_player); FIXME
+        return;
+    }
 
     AreaTableEntry const* atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
     if (!atEntry || !(atEntry->flags & AREA_FLAG_WINTERGRASP_2))

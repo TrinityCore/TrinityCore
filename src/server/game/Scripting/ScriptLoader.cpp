@@ -501,6 +501,7 @@ void AddSC_howling_fjord();
 void AddSC_icecrown();
 void AddSC_sholazar_basin();
 void AddSC_storm_peaks();
+void AddSC_wintergrasp();
 void AddSC_zuldrak();
 void AddSC_crystalsong_forest();
 void AddSC_isle_of_conquest();
@@ -1211,6 +1212,7 @@ void AddNorthrendScripts()
     AddSC_icecrown();
     AddSC_sholazar_basin();
     AddSC_storm_peaks();
+    AddSC_wintergrasp();
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
