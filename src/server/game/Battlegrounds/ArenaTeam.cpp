@@ -343,7 +343,7 @@ void ArenaTeam::Disband(WorldSession* session)
     // Broadcast update
     if (session)
     {
-        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName(), GetName(), "");
+        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName().c_str(), GetName(), "");
 
         if (Player* player = session->GetPlayer())
             sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());

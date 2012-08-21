@@ -205,8 +205,8 @@ LoginDatabase.WorkerThreads = 1
 #                          w - (Overwrite)
 #
 
-Appender.Console=1,2,6
-Appender.Auth=2,2,7,Auth.log,w
+Appender.Console=1,2,0
+Appender.Auth=2,2,0,Auth.log,w
 
 #                     LogLevel
 #                         0 - (Disabled)
