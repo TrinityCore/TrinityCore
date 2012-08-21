@@ -47,6 +47,7 @@ void AddSC_SmartSCripts();
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
 void AddSC_ban_commandscript();
+void AddSC_bf_commandscript();
 void AddSC_cast_commandscript();
 void AddSC_character_commandscript();
 void AddSC_debug_commandscript();
@@ -662,6 +663,7 @@ void AddCommandScripts()
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
     AddSC_ban_commandscript();
+    AddSC_bf_commandscript();
     AddSC_cast_commandscript();
     AddSC_character_commandscript();
     AddSC_debug_commandscript();
