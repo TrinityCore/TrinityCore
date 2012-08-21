@@ -23,7 +23,7 @@
 class AppenderFile: public Appender
 {
     public:
-        AppenderFile(uint8 _id, std::string const& _name, LogLevel level, const char* filename, const char* logDir, const char* mode, bool backup);
+        AppenderFile(uint8 _id, std::string const& _name, LogLevel level, const char* filename, const char* logDir, const char* mode, AppenderFlags flags);
         ~AppenderFile();
         FILE* OpenFile(std::string const& _name, std::string const& _mode, bool _backup);
 

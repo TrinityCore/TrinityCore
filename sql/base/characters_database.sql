@@ -1177,7 +1177,7 @@ CREATE TABLE `characters` (
   `chosenTitle` int(10) unsigned NOT NULL DEFAULT '0',
   `knownCurrencies` bigint(20) unsigned NOT NULL DEFAULT '0',
   `watchedFaction` int(10) unsigned NOT NULL DEFAULT '0',
-  `drunk` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `drunk` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `health` int(10) unsigned NOT NULL DEFAULT '0',
   `power1` int(10) unsigned NOT NULL DEFAULT '0',
   `power2` int(10) unsigned NOT NULL DEFAULT '0',

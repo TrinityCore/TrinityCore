@@ -926,7 +926,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
 }
 

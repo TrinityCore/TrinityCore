@@ -137,10 +137,9 @@ void GameObject::AddToWorld()
         // The state can be changed after GameObject::Create but before GameObject::AddToWorld
         bool toggledState = GetGOData() ? GetGOData()->go_state == GO_STATE_READY : false;
         if (m_model)
-            GetMap()->Insert(*m_model);
-        if (startOpen ^ toggledState)
-            EnableCollision(false);
+            GetMap()->InsertGameObjectModel(*m_model);
 
+        EnableCollision(startOpen ^ toggledState);
         WorldObject::AddToWorld();
     }
 }
@@ -155,8 +154,8 @@ void GameObject::RemoveFromWorld()
 
         RemoveFromOwner();
         if (m_model)
-            if (GetMap()->Contains(*m_model))
-                GetMap()->Remove(*m_model);
+            if (GetMap()->ContainsGameObjectModel(*m_model))
+                GetMap()->RemoveGameObjectModel(*m_model);
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -1923,7 +1922,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
 
         // Use the current go state
-        if (GetGoState() == GO_STATE_ACTIVE)
+        if (GetGoState() != GO_STATE_ACTIVE)
             startOpen = !startOpen;
 
         if (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)
@@ -1972,8 +1971,8 @@ void GameObject::EnableCollision(bool enable)
     if (!m_model)
         return;
 
-    /*if (enable && !GetMap()->Contains(*m_model))
-        GetMap()->Insert(*m_model);*/
+    /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
+        GetMap()->InsertGameObjectModel(*m_model);*/
 
     m_model->enable(enable ? GetPhaseMask() : 0);
 }
@@ -1983,12 +1982,12 @@ void GameObject::UpdateModel()
     if (!IsInWorld())
         return;
     if (m_model)
-        if (GetMap()->Contains(*m_model))
-            GetMap()->Remove(*m_model);
+        if (GetMap()->ContainsGameObjectModel(*m_model))
+            GetMap()->RemoveGameObjectModel(*m_model);
     delete m_model;
     m_model = GameObjectModel::Create(*this);
     if (m_model)
-        GetMap()->Insert(*m_model);
+        GetMap()->InsertGameObjectModel(*m_model);
 }
 
 Player* GameObject::GetLootRecipient() const

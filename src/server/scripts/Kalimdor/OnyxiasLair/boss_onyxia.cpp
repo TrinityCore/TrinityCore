@@ -35,11 +35,14 @@ EndScriptData */
 
 enum Yells
 {
-    SAY_AGGRO                   = -1249000,
-    SAY_KILL                    = -1249001,
-    SAY_PHASE_2_TRANS           = -1249002,
-    SAY_PHASE_3_TRANS           = -1249003,
-    EMOTE_BREATH                = -1249004,
+    // Say
+    SAY_AGGRO                   = 0,
+    SAY_KILL                    = 1,
+    SAY_PHASE_2_TRANS           = 2,
+    SAY_PHASE_3_TRANS           = 3,
+
+    // Emote
+    EMOTE_BREATH                = 4,
 };
 
 enum Spells
@@ -184,7 +187,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             me->SetInCombatWithZone();
 
             if (instance)
@@ -227,7 +230,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(SAY_KILL, me);
+            Talk(SAY_KILL);
         }
 
         void SpellHit(Unit* /*pCaster*/, const SpellInfo* Spell)
@@ -269,7 +272,7 @@ public:
                         me->SetCanFly(true);
                         me->GetMotionMaster()->MovePoint(11, Phase2Location.GetPositionX(), Phase2Location.GetPositionY(), Phase2Location.GetPositionZ()+25);
                         me->SetSpeed(MOVE_FLIGHT, 1.0f);
-                        DoScriptText(SAY_PHASE_2_TRANS, me);
+                        Talk(SAY_PHASE_2_TRANS);
                         if (instance)
                             instance->SetData(DATA_ONYXIA_PHASE, Phase);
                         WhelpTimer = 5000;
@@ -416,7 +419,7 @@ public:
                     Phase = PHASE_END;
                     if (instance)
                         instance->SetData(DATA_ONYXIA_PHASE, Phase);
-                    DoScriptText(SAY_PHASE_3_TRANS, me);
+                    Talk(SAY_PHASE_3_TRANS);
 
                     SetCombatMovement(true);
                     me->SetCanFly(false);
@@ -432,7 +435,7 @@ public:
                         if (me->IsNonMeleeSpellCasted(false))
                             me->InterruptNonMeleeSpells(false);
 
-                        DoScriptText(EMOTE_BREATH, me);
+                        Talk(EMOTE_BREATH);
                         DoCast(me, PointData->SpellId);
                         DeepBreathTimer = 70000;
                     }
