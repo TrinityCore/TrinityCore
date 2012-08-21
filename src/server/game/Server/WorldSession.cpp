@@ -163,16 +163,29 @@ WorldSession::~WorldSession()
     delete _compressionStream;
 }
 
-void WorldSession::SizeError(WorldPacket const& packet, uint32 size) const
-{
-    sLog->outError(LOG_FILTER_GENERAL, "Client (account %u) send packet %s (%u) with size " SIZEFMTD " but expected %u (attempt to crash server?), skipped",
-        GetAccountId(), LookupOpcodeName(packet.GetOpcode()), packet.GetOpcode(), packet.size(), size);
-}
-
 /// Get the player name
-char const* WorldSession::GetPlayerName() const
-{
-    return GetPlayer() ? GetPlayer()->GetName() : "<none>";
+std::string WorldSession::GetPlayerName(bool simple /* = true */) const
+ {
+    std::string name = "[Player: ";
+    uint32 guidLow = 0;
+
+    if (Player* player = GetPlayer())
+    {
+        name.append(player->GetName());
+        guidLow = player->GetGUIDLow();
+    }
+    else
+        name.append("<none>");
+
+    if (!simple)
+    {
+        std::ostringstream ss;
+        ss << " (Guid: " << guidLow << ", Account: " << GetAccountId() << ")";
+        name.append(ss.str());
+    }
+
+    name.append("]");
+    return name;
 }
 
 /// Get player guid if available. Use for logging purposes only
@@ -249,16 +262,15 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION (account: %u, guidlow: %u, char: %s): received unexpected opcode %s (0x%.4X, status: %s) %s",
-        GetAccountId(), m_GUIDLow, _player ? _player->GetName() : "<none>",
-        LookupOpcodeName(packet->GetOpcode()), packet->GetOpcode(), status, reason);
+    sLog->outError(LOG_FILTER_OPCODES, "Received unexpected opcode %s Status: %s Reason: %s from %s",
+        GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), status, reason, GetPlayerName(false).c_str());
 }
 
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: opcode %s (0x%.4X) have unprocessed tail data (read stop at %u from %u)",
-        LookupOpcodeName(packet->GetOpcode()), packet->GetOpcode(), uint32(packet->rpos()), uint32(packet->wpos()));
+    sLog->outError(LOG_FILTER_OPCODES, "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
+        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerName(false).c_str());
     packet->print_storage();
 }
 
@@ -290,6 +302,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             _recvQueue.next(packet, updater))
     {
         const OpcodeHandler* opHandle = opcodeTable[packet->GetOpcode()];
+
         try
         {
             switch (opHandle->status)
@@ -309,8 +322,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             deletePacket = false;
                             QueuePacket(packet);
                             //! Log
-                            sLog->outDebug(LOG_FILTER_NETWORKIO, "Re-enqueueing packet with opcode %s (0x%.4X) with with status STATUS_LOGGEDIN. "
-                                "Player is currently not in world yet.", opHandle->name, packet->GetOpcode());
+                                sLog->outDebug(LOG_FILTER_NETWORKIO, "Re-enqueueing packet with opcode %s with with status STATUS_LOGGEDIN. "
+                                    "Player is currently not in world yet.", GetOpcodeNameForLogging(packet->GetOpcode()).c_str());
                         }
                     }
                     else if (_player->IsInWorld())
@@ -367,14 +380,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnprocessedTail(packet);
                     break;
                 case STATUS_NEVER:
-                    sLog->outError(LOG_FILTER_NETWORKIO, "SESSION (account: %u, guidlow: %u, char: %s): received not allowed opcode %s (0x%.4X)",
-                        GetAccountId(), m_GUIDLow, _player ? _player->GetName() : "<none>",
-                        LookupOpcodeName(packet->GetOpcode()), packet->GetOpcode());
+                        sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
+                            , GetPlayerName(false).c_str());
                     break;
                 case STATUS_UNHANDLED:
-                    sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION (account: %u, guidlow: %u, char: %s): received not handled opcode %s (0x%.4X)",
-                        GetAccountId(), m_GUIDLow, _player ? _player->GetName() : "<none>",
-                        LookupOpcodeName(packet->GetOpcode()), packet->GetOpcode());
+                        sLog->outDebug(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
+                            , GetPlayerName(false).c_str());
                     break;
             }
         }
@@ -382,11 +393,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
                     packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
-            if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE))
-            {
-                sLog->outTrace(LOG_FILTER_NETWORKIO, "Dumping error causing packet:");
-                packet->hexlike();
-            }
+            packet->hexlike();
         }
 
         if (deletePacket)
@@ -648,30 +655,26 @@ const char *WorldSession::GetTrinityString(int32 entry) const
 
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_GENERAL, "SESSION: received unhandled opcode %s (0x%.4X)",
-        LookupOpcodeName(recvPacket.GetOpcode()),
-        recvPacket.GetOpcode());
+    sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s"
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_GENERAL, "SESSION: received opcode %s (0x%.4X) that must be processed in WorldSocket::OnRead",
-        LookupOpcodeName(recvPacket.GetOpcode()),
-        recvPacket.GetOpcode());
+    sLog->outError(LOG_FILTER_OPCODES, "Received opcode %s that must be processed in WorldSocket::OnRead from %s"
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_GENERAL, "SESSION: received server-side opcode %s (0x%.4X)",
-        LookupOpcodeName(recvPacket.GetOpcode()),
-        recvPacket.GetOpcode());
+    sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s"
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_GENERAL, "SESSION: received deprecated opcode %s (0x%.4X)",
-        LookupOpcodeName(recvPacket.GetOpcode()),
-        recvPacket.GetOpcode());
+    sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s"
+        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)

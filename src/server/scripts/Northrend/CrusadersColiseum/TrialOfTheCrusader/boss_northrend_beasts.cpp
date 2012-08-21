@@ -905,6 +905,8 @@ public:
                     if (m_uiMassiveCrashTimer <= diff)
                     {
                         me->GetMotionMaster()->MoveJump(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 10.0f, 20.0f); // 1: Middle of the room
+                        SetCombatMovement(false);
+                        me->AttackStop();
                         m_uiStage = 7; //Invalid (Do nothing more than move)
                         m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
                     } else m_uiMassiveCrashTimer -= diff;
@@ -913,22 +915,28 @@ public:
                     break;
                 case 1:
                     DoCastAOE(SPELL_MASSIVE_CRASH);
+                    me->StopMoving();
+                    me->AttackStop();
                     m_uiStage = 2;
                     break;
                 case 2:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     {
+                        me->StopMoving();
+                        me->AttackStop();
                         m_uiTrampleTargetGUID = target->GetGUID();
                         me->SetTarget(m_uiTrampleTargetGUID);
                         m_bTrampleCasted = false;
-                        SetCombatMovement(false);
-                        me->GetMotionMaster()->MoveIdle();
+                        //SetCombatMovement(false);
+                        //me->GetMotionMaster()->MoveIdle();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         m_uiTrampleTimer = 4*IN_MILLISECONDS;
                         m_uiStage = 3;
                     } else m_uiStage = 6;
                     break;
                 case 3:
+                    me->StopMoving();
+                    me->AttackStop();
                     if (m_uiTrampleTimer <= diff)
                     {
                         if (Unit* target = Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
@@ -941,12 +949,14 @@ public:
                             me->GetMotionMaster()->MoveJump(2*me->GetPositionX()-m_fTrampleTargetX,
                                 2*me->GetPositionY()-m_fTrampleTargetY,
                                 me->GetPositionZ(),
-                                10.0f, 20.0f); // 2: Hop Backwards
+                                20.0f, 30.0f); // 2: Hop Backwards
                             m_uiStage = 7; //Invalid (Do nothing more than move)
                         } else m_uiStage = 6;
                     } else m_uiTrampleTimer -= diff;
                     break;
                 case 4:
+                    me->StopMoving();
+                    me->AttackStop();
                     Talk(EMOTE_TRAMPLE_START, m_uiTrampleTargetGUID);
                     me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
                     me->SetTarget(0);
