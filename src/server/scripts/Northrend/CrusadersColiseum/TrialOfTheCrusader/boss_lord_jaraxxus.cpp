@@ -161,7 +161,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             Summons.DespawnAll();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             if (instance)
                 instance->SetData(TYPE_JARAXXUS, DONE);
         }
@@ -176,7 +176,7 @@ public:
             me->SetInCombatWithZone();
             if (instance)
                 instance->SetData(TYPE_JARAXXUS, IN_PROGRESS);
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -186,8 +186,8 @@ public:
 
             if (m_uiSummonInfernalEruptionTimer <= uiDiff)
             {
-                DoScriptText(EMOTE_INFERNAL_ERUPTION, me);
-                DoScriptText(SAY_INFERNAL_ERUPTION, me);
+                Talk(EMOTE_INFERNAL_ERUPTION);
+                Talk(SAY_INFERNAL_ERUPTION);
                 DoCast(SPELL_INFERNAL_ERUPTION);
                 m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonInfernalEruptionTimer -= uiDiff;
@@ -217,8 +217,8 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    DoScriptText(EMOTE_INCINERATE, me, target);
-                    DoScriptText(SAY_INCINERATE, me);
+                    Talk(EMOTE_INCINERATE, target->GetGUID());
+                    Talk(SAY_INCINERATE);
                     DoCast(target, SPELL_INCINERATE_FLESH);
                 }
                 m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
@@ -234,7 +234,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    DoScriptText(EMOTE_LEGION_FLAME, me, target);
+                    Talk(EMOTE_LEGION_FLAME, target->GetGUID());
                     DoCast(target, SPELL_LEGION_FLAME);
                 }
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
