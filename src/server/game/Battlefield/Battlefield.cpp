@@ -263,7 +263,7 @@ void Battlefield::InvitePlayerToWar(Player* player)
     {
         if (m_PlayersWillBeKick[player->GetTeamId()].count(player->GetGUID()) == 0)
             m_PlayersWillBeKick[player->GetTeamId()][player->GetGUID()] = time(NULL) + 10;
-            return;
+        return;
     }
 
     // Check if player is not already in war
