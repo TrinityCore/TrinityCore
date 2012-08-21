@@ -31,8 +31,8 @@ std::string LogMessage::getTimeStr()
     return getTimeStr(mtime);
 }
 
-Appender::Appender(uint8 _id, std::string const& _name, AppenderType _type /* = APPENDER_NONE*/, LogLevel _level /* = LOG_LEVEL_DISABLED */):
-id(_id), name(_name), type(_type), level(_level)
+Appender::Appender(uint8 _id, std::string const& _name, AppenderType _type /* = APPENDER_NONE*/, LogLevel _level /* = LOG_LEVEL_DISABLED */, AppenderFlags _flags /* = APPENDER_FLAGS_NONE */):
+id(_id), name(_name), type(_type), level(_level), flags(_flags)
 {
 }
 
@@ -60,6 +60,11 @@ LogLevel Appender::getLogLevel() const
     return level;
 }
 
+AppenderFlags Appender::getFlags() const
+{
+    return flags;
+}
+
 void Appender::setLogLevel(LogLevel _level)
 {
     level = _level;
@@ -67,9 +72,40 @@ void Appender::setLogLevel(LogLevel _level)
 
 void Appender::write(LogMessage& message)
 {
-    if (level && level <= message.level)
-        _write(message);
-    //else fprintf(stderr, "Appender::write: Appender %s, Level %s. Msg %s Level %s Type %s WRONG LEVEL MASK\n", getName().c_str(), getLogLevelString(level), message.text.c_str(), getLogLevelString(message.level), getLogFilterTypeString(message.type)); // DEBUG - RemoveMe
+    if (!level || level > message.level)
+    {
+        //fprintf(stderr, "Appender::write: Appender %s, Level %s. Msg %s Level %s Type %s WRONG LEVEL MASK\n", getName().c_str(), getLogLevelString(level), message.text.c_str(), getLogLevelString(message.level), getLogFilterTypeString(message.type)); // DEBUG - RemoveMe
+        return;
+    }
+
+    message.prefix.clear();
+    if (flags & APPENDER_FLAGS_PREFIX_TIMESTAMP)
+        message.prefix.append(message.getTimeStr().c_str());
+
+    if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
+    {
+        if (!message.prefix.empty())
+            message.prefix.push_back(' ');
+
+        char text[MAX_QUERY_LEN];
+        snprintf(text, MAX_QUERY_LEN, "%-5s", Appender::getLogLevelString(message.level));
+        message.prefix.append(text);
+    }
+
+    if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
+    {
+        if (!message.prefix.empty())
+            message.prefix.push_back(' ');
+
+        char text[MAX_QUERY_LEN];
+        snprintf(text, MAX_QUERY_LEN, "[%s]", Appender::getLogFilterTypeString(message.type));
+        message.prefix.append(text);
+    }
+
+    if (!message.prefix.empty())
+        message.prefix.push_back(' ');
+
+    _write(message);
 }
 
 const char* Appender::getLogLevelString(LogLevel level)
@@ -136,13 +172,13 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
         case LOG_FILTER_PLAYER:
             return "PLAYER";
         case LOG_FILTER_PLAYER_LOADING:
-            return "PLAYER_LOADING";
+            return "PLAYER LOADING";
         case LOG_FILTER_PLAYER_ITEMS:
-            return "PLAYER_ITEMS";
+            return "PLAYER ITEMS";
         case LOG_FILTER_PLAYER_SKILLS:
-            return "PLAYER_SKILLS";
+            return "PLAYER SKILLS";
         case LOG_FILTER_PLAYER_CHATLOG:
-            return "PLAYER_CHATLOG";
+            return "PLAYER CHATLOG";
         case LOG_FILTER_LOOT:
             return "LOOT";
         case LOG_FILTER_GUILD:
@@ -163,6 +199,24 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "WORLDSERVER";
         case LOG_FILTER_GAMEEVENTS:
             return "GAMEEVENTS";
+        case LOG_FILTER_CALENDAR:
+            return "CALENDAR";
+        case LOG_FILTER_CHARACTER:
+            return "CHARACTER";
+        case LOG_FILTER_ARENAS:
+            return "ARENAS";
+        case LOG_FILTER_SQL_DRIVER:
+            return "SQL DRIVER";
+        case LOG_FILTER_SQL_DEV:
+            return "SQL DEV";
+        case LOG_FILTER_PLAYER_DUMP:
+            return "PLAYER DUMP";
+        case LOG_FILTER_BATTLEFIELD:
+            return "BATTLEFIELD";
+        case LOG_FILTER_SERVER_LOADING:
+            return "SERVER LOADING";
+        case LOG_FILTER_OPCODES:
+            return "OPCODE";
         default:
             break;
     }

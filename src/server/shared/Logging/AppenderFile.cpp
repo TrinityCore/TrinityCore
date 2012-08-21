@@ -18,16 +18,16 @@
 #include "AppenderFile.h"
 #include "Common.h"
 
-AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* _filename, const char* _logDir, const char* _mode, bool _backup)
-    : Appender(id, name, APPENDER_FILE, level)
+AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* _filename, const char* _logDir, const char* _mode, AppenderFlags _flags)
+    : Appender(id, name, APPENDER_FILE, level, _flags)
     , filename(_filename)
     , logDir(_logDir)
     , mode(_mode)
-    , backup(_backup)
 {
-    dynamicName = std::string::npos != filename.find("%u");
-    if (!dynamicName)
-        logfile = OpenFile(_filename, _mode, _backup);
+    dynamicName = std::string::npos != filename.find("%s");
+    backup = _flags & APPENDER_FLAGS_MAKE_FILE_BACKUP;
+
+    logfile = !dynamicName ? OpenFile(_filename, _mode, backup) : NULL;
 }
 
 AppenderFile::~AppenderFile()
@@ -44,18 +44,20 @@ void AppenderFile::_write(LogMessage& message)
     if (dynamicName)
     {
         char namebuf[TRINITY_PATH_MAX];
-        snprintf(namebuf, TRINITY_PATH_MAX, filename.c_str(), message.param1);
+        snprintf(namebuf, TRINITY_PATH_MAX, filename.c_str(), message.param1.c_str());
         logfile = OpenFile(namebuf, mode, backup);
     }
 
     if (logfile)
     {
-        fprintf(logfile, "%s %-5s [%-15s] %s", message.getTimeStr().c_str(), Appender::getLogLevelString(message.level), Appender::getLogFilterTypeString(message.type), message.text.c_str());
-
+        fprintf(logfile, "%s%s", message.prefix.c_str(), message.text.c_str());
         fflush(logfile);
 
         if (dynamicName)
+        {
             fclose(logfile);
+            logfile = NULL;
+        }
     }
 }
 

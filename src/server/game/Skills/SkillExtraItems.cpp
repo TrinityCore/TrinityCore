@@ -110,7 +110,7 @@ void LoadSkillExtraItemTable()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u spell specialization definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell specialization definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
 }
 

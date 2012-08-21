@@ -171,6 +171,7 @@ public:
             summonTraveler_Timer = 90000;
             banish_Timer = 17000;
             HelpYell = false;
+            sumportals = false;
             destroyPortals();
 
             if (instance)
