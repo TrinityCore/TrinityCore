@@ -4636,8 +4636,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: %u Effect : %u", m_spellInfo->Id, eff);
 
-    // we do not need DamageMultiplier here.
-    damage = CalculateDamage(i, NULL);
+    damage = CalculateDamage(i, unitTarget);
 
     bool preventDefault = CallScriptEffectHandlers((SpellEffIndex)i, mode);
 
