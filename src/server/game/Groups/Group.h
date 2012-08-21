@@ -244,7 +244,7 @@ class Group
         void ConvertToRaid();
 
         void SetBattlegroundGroup(Battleground* bg);
-        void SetBattlefieldGroup(Battlefield *bf);
+        void SetBattlefieldGroup(Battlefield* bf);
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(uint64 guid, uint8 group);

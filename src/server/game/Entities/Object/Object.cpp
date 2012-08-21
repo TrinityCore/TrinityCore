@@ -2335,7 +2335,12 @@ void WorldObject::SetZoneScript()
             if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
                 m_zoneScript = bf;
             else
-                m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+            {
+                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+                    m_zoneScript = bf;
+                else
+                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+            }
         }
     }
 }
