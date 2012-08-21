@@ -700,28 +700,40 @@ void BattlegroundWS::Reset()
     //call parent's class reset
     Battleground::Reset();
 
-    m_FlagKeepers[BG_TEAM_ALLIANCE]     = 0;
-    m_FlagKeepers[BG_TEAM_HORDE]        = 0;
-    m_DroppedFlagGUID[BG_TEAM_ALLIANCE] = 0;
-    m_DroppedFlagGUID[BG_TEAM_HORDE]    = 0;
-    _flagState[BG_TEAM_ALLIANCE]       = BG_WS_FLAG_STATE_ON_BASE;
-    _flagState[BG_TEAM_HORDE]          = BG_WS_FLAG_STATE_ON_BASE;
-    m_TeamScores[BG_TEAM_ALLIANCE]      = 0;
-    m_TeamScores[BG_TEAM_HORDE]         = 0;
-    bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
-    m_ReputationCapture = (isBGWeekend) ? 45 : 35;
-    m_HonorWinKills = (isBGWeekend) ? 3 : 1;
-    m_HonorEndKills = (isBGWeekend) ? 4 : 2;
-    // For WorldState
-    _minutesElapsed                    = 0;
-    _lastFlagCaptureTeam               = 0;
+    m_FlagKeepers[BG_TEAM_ALLIANCE] = 0;
+    m_FlagKeepers[BG_TEAM_HORDE] = 0;
 
-    /* Spirit nodes is static at this BG and then not required deleting at BG reset.
-    if (BgCreatures[WS_SPIRIT_MAIN_ALLIANCE])
-        DelCreature(WS_SPIRIT_MAIN_ALLIANCE);
-    if (BgCreatures[WS_SPIRIT_MAIN_HORDE])
-        DelCreature(WS_SPIRIT_MAIN_HORDE);
-    */
+    m_DroppedFlagGUID[BG_TEAM_ALLIANCE] = 0;
+    m_DroppedFlagGUID[BG_TEAM_HORDE] = 0;
+
+    _flagState[BG_TEAM_ALLIANCE] = BG_WS_FLAG_STATE_ON_BASE;
+    _flagState[BG_TEAM_HORDE] = BG_WS_FLAG_STATE_ON_BASE;
+
+    m_TeamScores[BG_TEAM_ALLIANCE] = 0;
+    m_TeamScores[BG_TEAM_HORDE] = 0;
+
+    if (sBattlegroundMgr->IsBGWeekend(GetTypeID()))
+    {
+        m_ReputationCapture = 45;
+        m_HonorWinKills = 3;
+        m_HonorEndKills = 4;
+    }
+    else
+    {
+        m_ReputationCapture = 35;
+        m_HonorWinKills = 1;
+        m_HonorEndKills = 2;
+    }
+    _minutesElapsed = 0;
+    _lastFlagCaptureTeam = 0;
+    _bothFlagsKept = false;
+    _flagDebuffState = 0;
+    _flagSpellForceTimer = 0;
+    _lastFlagCaptureTeam = 0;
+    _flagsDropTimer[BG_TEAM_ALLIANCE] = 0;
+    _flagsDropTimer[BG_TEAM_HORDE] = 0;
+    _flagsTimer[BG_TEAM_ALLIANCE] = 0;
+    _flagsTimer[BG_TEAM_HORDE] = 0;
 }
 
 void BattlegroundWS::EndBattleground(uint32 winner)

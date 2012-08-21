@@ -40,6 +40,7 @@ class Log
         ~Log();
 
     public:
+        void LoadFromConfig();
         void Close();
         bool ShouldLog(LogFilterType type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
@@ -55,6 +56,7 @@ class Log
 
         void EnableDBAppenders();
         void outCommand(uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);
+        void outCharDump(const char* param, const char* str, ...) ATTR_PRINTF(3, 4);
         static std::string GetTimestampStr();
 
         void SetRealmID(uint32 id);

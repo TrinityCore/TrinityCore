@@ -42,6 +42,7 @@
 #include "WorldSession.h"
 #include "WorldSocketMgr.h"
 #include "Log.h"
+#include "PacketLog.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 
@@ -159,30 +160,8 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
         return -1;
 
     // Dump outgoing packet.
-    if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE))
-    {
-        char buff[250];
-        snprintf(buff, 250, "SERVER:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
-                     uint32(get_handle()),
-                     uint32(pct.size()),
-                     LookupOpcodeName (pct.GetOpcode()),
-                     pct.GetOpcode());
-
-        std::string data(buff);
-        uint32 p = 0;
-        while (p < pct.size())
-        {
-            for (uint32 j = 0; j < 16 && p < pct.size(); j++)
-            {
-                snprintf(buff, 250, "%.2X ", const_cast<WorldPacket&>(pct)[p++]);
-                data.append(buff);
-            }
-            data.append("\n");
-        }
-
-        data.append("\n");
-        sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", data.c_str());
-    }
+    if (sPacketLog->CanLogPacket())
+        sPacketLog->LogPacket(pct, SERVER_TO_CLIENT);
 
     // Create a copy of the original packet; this is to avoid issues if a hook modifies it.
     sScriptMgr->OnPacketSend(this, WorldPacket(pct));
@@ -691,30 +670,9 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     if (closing_)
         return -1;
 
-    if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE))
-    {
-        char buff[250];
-        snprintf(buff, 250, "CLIENT:\nSOCKET: %u\nLENGTH: %u\nOPCODE: %s (0x%.4X)\nDATA:\n",
-                     uint32(get_handle()),
-                     uint32(new_pct->size()),
-                     LookupOpcodeName (new_pct->GetOpcode()),
-                     new_pct->GetOpcode());
-
-        std::string data(buff);
-        uint32 p = 0;
-        while (p < new_pct->size())
-        {
-            for (uint32 j = 0; j < 16 && p < new_pct->size(); j++)
-            {
-                snprintf(buff, 250, "%.2X ", const_cast<WorldPacket&>(*new_pct)[p++]);
-                data.append(buff);
-            }
-            data.append("\n");
-        }
-
-        data.append("\n");
-        sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", data.c_str());
-    }
+    // Dump received packet.
+    if (sPacketLog->CanLogPacket())
+        sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
     try
     {
