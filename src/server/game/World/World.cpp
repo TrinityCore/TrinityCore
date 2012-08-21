@@ -2724,6 +2724,12 @@ void World::InitRandomBGResetTime()
 
 void World::ResetDailyQuests()
 {
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "Guild XP Limit reset for all guilds.");
+    CharacterDatabase.Execute("UPDATE guild SET today_xp = 0");
+    for (GuildMgr::GuildContainer::const_iterator guild = sGuildMgr->GetGuildStore().begin(); guild != sGuildMgr->GetGuildStore().end(); guild++)
+        guild->second->ResetDailyXp();
+
     sLog->outInfo(LOG_FILTER_GENERAL, "Daily quests reset for all characters.");
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY);
@@ -2758,6 +2764,10 @@ void World::SetPlayerSecurityLimit(AccountTypes _sec)
 
 void World::ResetWeeklyQuests()
 {
+    CharacterDatabase.Execute("UPDATE guild_member SET weeklyRepGained = 0, weeklyActivity = 0");
+    for (GuildMgr::GuildContainer::const_iterator guild = sGuildMgr->GetGuildStore().begin(); guild != sGuildMgr->GetGuildStore().end(); guild++)
+        guild->second->ResetWeeklyMembers();
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
 

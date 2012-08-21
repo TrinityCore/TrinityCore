@@ -110,8 +110,8 @@ void GuildMgr::LoadGuilds()
 
                                                      //          0          1       2             3              4              5              6
         QueryResult result = CharacterDatabase.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, "
-                                                     //   7                  8       9       10            11           12
-                                                     "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, COUNT(gbt.guildid) "
+                                                     //   7                  8       9       10            11        12     13        14         15
+                                                     "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, g.xp, g.Level, g.Today_xp, COUNT(gbt.guildid) "
                                                      "FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
 
         if (!result)
@@ -184,14 +184,16 @@ void GuildMgr::LoadGuilds()
         // Delete orphaned guild member entries before loading the valid ones
         CharacterDatabase.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
 
-                                                     //          0        1        2     3      4        5                   6
-        QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, rank, pnote, offnote, BankResetTimeMoney, BankRemMoney, "
-                                                     //   7                  8                 9                  10                11                 12
+                                                     //          0        1        2     3      4               5              6             7                  8                     9
+        QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, rank, pnote, offnote, weeklyRepGained , weeklyActivity, totalActivity, BankResetTimeMoney, BankRemMoney, "
+                                                     //     10                  11                12                 13                14                15
                                                      "BankResetTimeTab0, BankRemSlotsTab0, BankResetTimeTab1, BankRemSlotsTab1, BankResetTimeTab2, BankRemSlotsTab2, "
-                                                     //   13                 14                15                 16                17                 18
+                                                     //      16              17                 18                  19                20                  21
                                                      "BankResetTimeTab3, BankRemSlotsTab3, BankResetTimeTab4, BankRemSlotsTab4, BankResetTimeTab5, BankRemSlotsTab5, "
-                                                     //   19      20       21       22      23         24
-                                                     "c.name, c.level, c.class, c.zone, c.account, c.logout_time "
+                                                     //    22                    23               24                  25             26                   27              28
+                                                     "BankResetTimeTab6, BankRemSlotsTab6, BankResetTimeTab7 , BankRemSlotsTab7, GuildReputation, AchievementPoints, ProfessionSkillId0, "
+                                                     //   29                   30              31                   32                33           34     35        36       37     38         39
+                                                     "ProfessionLevel0, ProfessionRank0, ProfessionSkillId1, ProfessionLevel1, ProfessionRank1, c.name, c.level, c.class, c.zone, c.account, c.logout_time "
                                                      "FROM guild_member gm LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");
 
         if (!result)
@@ -406,7 +408,18 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 10. Validate loaded guild data
+    // 10 Load guild News
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Guild News");
+    {
+        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_NEWS);
+            stmt->setInt32(0, itr->first);
+            itr->second->GetNewsLog().LoadFromDB(CharacterDatabase.Query(stmt));
+        }
+    }
+
+    // 11. Validate loaded guild data
     sLog->outInfo(LOG_FILTER_GENERAL, "Validating data of loaded guilds...");
     {
         uint32 oldMSTime = getMSTime();
@@ -425,5 +438,17 @@ void GuildMgr::LoadGuilds()
         }
 
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    }
+}
+
+void WorldSession::HandleGuildRequestMaxXP(WorldPacket& recvPacket)
+{
+    recvPacket.rfinish();
+
+    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+    {
+        WorldPacket data(SMSG_GUILD_MAX_DAILY_XP, 8);
+        data << uint64(guild->GetDailyXPLimit() - guild->GetXP());
+        SendPacket(&data);
     }
 }

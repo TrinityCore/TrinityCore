@@ -6385,6 +6385,35 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
     uint16 currVal;
     SkillStatusMap::iterator itr = mSkillStatus.find(id);
 
+    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
+    {
+        if (Guild::Member* member = guild->GetMember(GetGUID()))
+        {
+            if (SkillLineEntry const* skill = sSkillLineStore.LookupEntry(id))
+            {
+                if (skill->categoryId == SKILL_CATEGORY_PROFESSION)
+                {
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + i) != member->GetProfessionSkillId(i))
+                        {
+                            member->SetProfessionSkillId(i, id);
+                            member->SetProfessionLevel(i, newVal);
+                            member->SetProfessionRank(i, step);
+                        }
+                        else
+                        {
+                            if (newVal != member->GetProfessionLevel(i))
+                                member->SetProfessionLevel(i, newVal);
+                            if (step != member->GetProfessionRank(i))
+                                member->SetProfessionRank(i, step);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     //has skill
     if (itr != mSkillStatus.end() && itr->second.uState != SKILL_DELETED)
     {
@@ -15019,6 +15048,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // Not give XP in case already completed once repeatable quest
     uint32 XP = rewarded ? 0 : uint32(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
 
+    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
+        guild->AwardXP(this, uint64(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * 0.25f));
+
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
     for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
@@ -21322,6 +21354,11 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         return false;
     }
 
+    if (crItem->maxcount != 0)
+        if (pProto->Quality > ITEM_QUALITY_RARE)
+            if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
+                guild->GetNewsLog().New(GUILD_NEWS_ITEM_PURCHASED, time(NULL), GetGUID(), 0x0 , item);
+
     return crItem->maxcount != 0;
 }
 
@@ -24055,6 +24092,11 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         --loot->unlootedCount;
 
         SendNewItem(newitem, uint32(item->count), false, false, true);
+
+        if (sObjectMgr->GetItemTemplate(item->itemid)->Quality > ITEM_QUALITY_RARE)
+            if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
+                guild->GetNewsLog().New(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0x0 , item->itemid);
+
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);

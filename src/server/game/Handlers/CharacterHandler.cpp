@@ -924,7 +924,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetInGuild(fields[0].GetUInt32());
         pCurrChar->SetRank(fields[1].GetUInt8());
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
+        {
             pCurrChar->SetUInt32Value(PLAYER_GUILDLEVEL, guild->GetLevel());
+            pCurrChar->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GUILD_ADVANCEMENT);
+            for (int i = 0; i < (int)guild->GetLevel() - 1; ++i)
+                if (const GuildPerksEntry* perk = sGuildPerksStore.LookupEntry(i))
+                    pCurrChar->learnSpell(perk->SpellId, true);
+        }
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {

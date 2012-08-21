@@ -33,6 +33,7 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Group.h"
+#include "GuildMgr.h"
 #include "UpdateData.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
@@ -1563,6 +1564,10 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     {
         // create the new item and store it
         Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
+
+        if (pProto->Quality > ITEM_QUALITY_RARE)
+            if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+                guild->GetNewsLog().New(GUILD_NEWS_ITEM_CRAFTED, time(NULL), player->GetGUID(), 0x0 , pProto->ItemId);
 
         // was it successful? return error if not
         if (!pItem)

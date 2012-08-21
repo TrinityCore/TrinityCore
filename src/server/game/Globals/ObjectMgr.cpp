@@ -2844,6 +2844,68 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
     }
 }
 
+void ObjectMgr::LoadGuildInfo()
+{
+    sLog->outInfo(LOG_FILTER_GUILD, "Loading Guild XP Data...");
+    {
+        _GuildXPPerLevel.resize(GUILD_MAX_LEVEL);
+        for (uint8 level = 0; level < GUILD_MAX_LEVEL; ++level)
+            _GuildXPPerLevel[level] = 0;
+
+        //                                                 0    1
+        QueryResult result  = WorldDatabase.Query("SELECT lvl, xp_for_next_level FROM guild_xp_for_level");
+
+        uint32 count = 0;
+
+        if (!result)
+        {
+            sLog->outInfo(LOG_FILTER_GUILD,"");
+            sLog->outInfo(LOG_FILTER_GUILD, ">> Loaded %u xp for guild level definitions", count);
+            sLog->outError(LOG_FILTER_GUILD, "Error loading `guild_xp_for_level` table or empty table.");
+        }
+        else
+        {
+            do
+            {
+                Field* fields = result->Fetch();
+
+                uint32 level = fields[0].GetUInt32();
+                uint32 xp    = fields[1].GetUInt64();
+
+                if (level >= GUILD_MAX_LEVEL)
+                {
+                    if (level > STRONG_MAX_LEVEL)        // hardcoded level maximum
+                        sLog->outError(LOG_FILTER_GUILD, "Wrong (> %u) level %u in `guild_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL, level);
+                    else
+                    {
+                        sLog->outError(LOG_FILTER_GUILD, "Unused (> MaxLevel in worldserver.conf) level %u in `guild_xp_for_levels` table, ignoring.", level);
+                        ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
+                    }
+                    continue;
+                }
+
+                //PlayerXPperLevel
+                _GuildXPPerLevel[level] = xp;
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outError(LOG_FILTER_GUILD, "");
+            sLog->outInfo(LOG_FILTER_GUILD, ">> Loaded %u xp for guild level definitions", count);
+        }
+    }
+
+    for (uint8 level = 1; level < GUILD_MAX_LEVEL; ++level)
+    {
+        if (_GuildXPPerLevel[level] == 0)
+        {
+            sLog->outError(LOG_FILTER_GUILD, "GUILD Level %i does not have XP for level data. Using data of level [%i] + 100.", level + 1, level);
+            _GuildXPPerLevel[level] = _GuildXPPerLevel[level-1]+100;
+        }
+    }
+}
+
 void ObjectMgr::LoadPlayerInfo()
 {
     // Load playercreate
@@ -6445,6 +6507,13 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level) const
 {
     if (level < _playerXPperLevel.size())
         return _playerXPperLevel[level];
+    return 0;
+}
+
+uint32 ObjectMgr::GetXPForGuildLevel(uint8 level) const
+{
+    if (level < _GuildXPPerLevel.size())
+        return _GuildXPPerLevel[level];
     return 0;
 }
 

@@ -168,6 +168,7 @@ public:
 
     static bool HandleGuildRankCommand(ChatHandler* handler, char const* args)
     {
+        sGuildMgr->GetGuildById(1)->SendGuildXPUpdate();
         char* nameStr;
         char* rankStr;
         handler->extractOptFirstArg((char*)args, &nameStr, &rankStr);
