@@ -280,7 +280,7 @@ void Battlefield::InitStalker(uint32 entry, float x, float y, float z, float o)
     if (Creature* creature = SpawnCreature(entry, x, y, z, o, TEAM_NEUTRAL))
         StalkerGuid = creature->GetGUID();
     else
-        sLog->outError(LOG_FILTER_GENERAL, "Battlefield::InitStalker: could not spawn Stalker (Creature entry %u), zone messeges will be un-available", entry);
+        sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::InitStalker: could not spawn Stalker (Creature entry %u), zone messeges will be un-available", entry);
 }
 
 void Battlefield::KickAfkPlayers()
@@ -563,7 +563,7 @@ bool Battlefield::AddOrSetPlayerToCorrectBfGroup(Player* player)
     else if (group->IsMember(player->GetGUID()))
     {
         uint8 subgroup = group->GetMemberGroup(player->GetGUID());
-        player->SetBattlegroundRaid(group, subgroup);
+        player->SetBattlegroundOrBattlefieldRaid(group, subgroup);
     }
     else
         group->AddMember(player);
@@ -587,10 +587,10 @@ BfGraveyard* Battlefield::GetGraveyardById(uint32 id)
         if (m_GraveyardList[id])
             return m_GraveyardList[id];
         else
-            sLog->outError(LOG_FILTER_GENERAL, "Battlefield::GetGraveyardById Id:%u not existed", id);
+            sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::GetGraveyardById Id:%u not existed", id);
     }
     else
-        sLog->outError(LOG_FILTER_GENERAL, "Battlefield::GetGraveyardById Id:%u cant be found", id);
+        sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::GetGraveyardById Id:%u cant be found", id);
 
     return NULL;
 }
@@ -684,7 +684,7 @@ void BfGraveyard::SetSpirit(Creature* spirit, TeamId team)
 {
     if (!spirit)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "BfGraveyard::SetSpirit: Invalid Spirit.");
+        sLog->outError(LOG_FILTER_BATTLEFIELD, "BfGraveyard::SetSpirit: Invalid Spirit.");
         return;
     }
 
@@ -798,14 +798,14 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
     Map* map = const_cast < Map * >(sMapMgr->CreateBaseMap(m_MapId));
     if (!map)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Battlefield::SpawnCreature: Can't create creature entry: %u map not found", entry);
+        sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::SpawnCreature: Can't create creature entry: %u map not found", entry);
         return 0;
     }
 
     Creature* creature = new Creature;
     if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, team, x, y, z, o))
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
+        sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
         delete creature;
         return NULL;
     }
@@ -1066,7 +1066,7 @@ bool BfCapturePoint::Update(uint32 diff)
 
     if (m_OldState != m_State)
     {
-        //sLog->outError(LOG_FILTER_GENERAL, "%u->%u", m_OldState, m_State);
+        //sLog->outError(LOG_FILTER_BATTLEFIELD, "%u->%u", m_OldState, m_State);
         if (oldTeam != m_team)
             ChangeTeam(oldTeam);
         return true;

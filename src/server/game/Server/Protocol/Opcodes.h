@@ -1466,5 +1466,14 @@ inline const char* LookupOpcodeName(Opcodes id)
 
     return "INVALID OPCODE";
 }
+
+inline std::string GetOpcodeNameForLogging(Opcodes id)
+{
+    uint32 opcode = uint32(id);
+    std::ostringstream ss;
+    ss << '[' << LookupOpcodeName(id) << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
+    return ss.str().c_str();
+}
+
 #endif
 /// @}
