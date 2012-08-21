@@ -2800,6 +2800,7 @@ Logger.SQLDriver=36,5,SQLDriver
 Logger.SQLDev=37,3,SQLDev
 Logger.CharDump=38,3,CharDump
 Logger.Load=40,3,Console Server
+Logger.Opcodes=41,6,Console Server
 
 #
 #    Loggers
@@ -2807,5 +2808,5 @@ Logger.Load=40,3,Console Server
 #                     (Using spaces as separator).
 #        Default:     "Root Chat DBErrors GM RA Warden Character Load"
 
-Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer
+Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 
