@@ -789,7 +789,7 @@ class npc_tirion_toc : public CreatureScript
                         case 5005:
                             m_uiUpdateTimer = 8000;
                             instance->SetData(TYPE_EVENT, 5010);
-                            me->SummonCreature(NPC_LICH_KING_1, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5);
+                            me->SummonCreature(NPC_LICH_KING_1, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5);
                             break;
                         case 5020:
                             Talk(SAY_STAGE_4_03);
