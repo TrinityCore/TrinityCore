@@ -151,7 +151,7 @@ enum WintergraspAreaIds
 class BfGraveyardWG : public BfGraveyard
 {
     public:
-        BfGraveyardWG(BattlefieldWG *Bf);
+        BfGraveyardWG(BattlefieldWG* Bf);
 
         void SetTextId(uint32 textid) { m_GossipTextId = textid; }
         uint32 GetTextId() { return m_GossipTextId; }
@@ -841,7 +841,8 @@ struct WintergraspTowerData
 uint8 const WG_MAX_ATTACKTOWERS = 3;
 // 192414 : 0 in sql, 1 in header
 // 192278 : 0 in sql, 3 in header
-const WintergraspTowerData AttackTowers[WG_MAX_ATTACKTOWERS] = {
+const WintergraspTowerData AttackTowers[WG_MAX_ATTACKTOWERS] =
+{
     // West tower
     {
         190356,
