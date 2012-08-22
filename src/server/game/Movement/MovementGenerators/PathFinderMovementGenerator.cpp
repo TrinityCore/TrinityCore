@@ -180,14 +180,32 @@ void PathFinderMovementGenerator::BuildPolyPath(const Vector3 &startPos, const V
     dtPolyRef endPoly = getPolyByLocation(endPoint, &distToEndPoly);
 
     // we have a hole in our mesh
-    // make shortcut path and mark it as NOPATH ( with flying exception )
+    // make shortcut path and mark it as NOPATH ( with flying and swimming exception )
     // its up to caller how he will use this info
     if (startPoly == INVALID_POLYREF || endPoly == INVALID_POLYREF)
     {
         sLog->outDebug(LOG_FILTER_MAPS, "++ BuildPolyPath :: (startPoly == 0 || endPoly == 0)\n");
         BuildShortcut();
-        m_type = (m_sourceUnit->GetTypeId() == TYPEID_UNIT && ((Creature*)m_sourceUnit)->CanFly())
-                    ? PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH) : PATHFIND_NOPATH;
+        bool path = m_sourceUnit->GetTypeId() == TYPEID_UNIT && m_sourceUnit->ToCreature()->CanFly();
+
+        bool waterPath = m_sourceUnit->GetTypeId() == TYPEID_UNIT && m_sourceUnit->ToCreature()->canSwim();
+        if (waterPath)
+        {
+            // Check both start and end points, if they're both in water, then we can *safely* let the creature move
+            for (int i = 0; i < m_pathPoints.size(); ++i)
+            {
+                LiquidData data;
+                m_sourceUnit->GetBaseMap()->getLiquidStatus(m_pathPoints[i].x, m_pathPoints[i].y, m_pathPoints[i].z, MAP_ALL_LIQUIDS, &data);
+                // One of the points is not in the water, cancel movement.
+                if (data.type_flags == MAP_LIQUID_TYPE_NO_WATER)
+                {
+                    waterPath = false;
+                    break;
+                }
+            }
+        }
+
+        m_type = (path || waterPath) ? PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH) : PATHFIND_NOPATH;
         return;
     }
 
