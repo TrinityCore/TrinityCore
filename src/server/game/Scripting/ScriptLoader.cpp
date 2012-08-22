@@ -26,6 +26,8 @@ void AddSC_example_misc();
 void AddSC_example_commandscript();
 //Hunter Pet Vendor
 void AddSC_npc_hunterpetvendor();
+//Transmogrification
+void AddSC_NPC_Transmogrify();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1275,6 +1277,8 @@ void AddCustomScripts()
     /* This is where custom scripts should be added. */
     //Hunter Pet Vendor
     AddSC_npc_hunterpetvendor();
+    //Transmogrification
+    AddSC_NPC_Transmogrify();
 
 #endif
 }

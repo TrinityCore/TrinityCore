@@ -11,6 +11,8 @@
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Custom/hunterpet_vendor.cpp
+  Custom/Transmogrification.cpp
+  Custom/Transmogrification.h
 )
 
 message("  -> Prepared: Custom")
