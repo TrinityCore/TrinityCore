@@ -282,7 +282,7 @@ void Group::ConvertToGroup()
         m_subGroupsCounts = NULL;
     }
 
-    if (!isBGGroup())
+    if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
@@ -496,7 +496,11 @@ bool Group::AddMember(Player* player)
                         UpdateData newData(player->GetMapId());
                         WorldPacket newDataPacket;
                         player->BuildValuesUpdateBlockForPlayer(&newData, member);
-                        member->SendDirectMessage(&newDataPacket);
+                        if (newData.HasData())
+                        {
+                            newData.BuildPacket(&newDataPacket);
+                            member->SendDirectMessage(&newDataPacket);
+                        }
                     }
                 }
             }
