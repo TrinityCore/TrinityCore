@@ -854,6 +854,13 @@ bool GameObject::IsDynTransport() const
     return gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && !gInfo->transport.pause);
 }
 
+bool GameObject::IsDestructibleBuilding() const
+{
+    GameObjectTemplate const* gInfo = GetGOInfo();
+    if (!gInfo) return false;
+    return gInfo->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING;
+}
+
 Unit* GameObject::GetOwner() const
 {
     return ObjectAccessor::GetUnit(*this, GetOwnerGUID());
@@ -870,7 +877,7 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
     if (WorldObject::IsAlwaysVisibleFor(seer))
         return true;
 
-    if (IsTransport())
+    if (IsTransport() || IsDestructibleBuilding())
         return true;
 
     if (!seer)

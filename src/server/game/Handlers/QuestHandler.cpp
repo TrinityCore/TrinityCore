@@ -122,7 +122,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
 
     // no or incorrect quest giver
     if (!object || (object->GetTypeId() != TYPEID_PLAYER && !object->hasQuest(questId)) ||
-        (object->GetTypeId() == TYPEID_PLAYER && !object->ToPlayer()->CanShareQuest(questId)))
+        (object->GetTypeId() == TYPEID_PLAYER && object != _player && !object->ToPlayer()->CanShareQuest(questId)))
     {
         _player->PlayerTalkClass->SendCloseGossip();
         _player->SetDivider(0);
@@ -582,7 +582,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
                     continue;
                 }
 
-                player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, _player->GetGUID(), true);
+                player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true);
                 player->SetDivider(_player->GetGUID());
             }
         }

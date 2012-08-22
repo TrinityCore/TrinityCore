@@ -207,7 +207,7 @@ public:
         {
             if (!m_bIntro)
             {
-                DoScriptText(SAY_INTRO, me);
+                Talk(SAY_INTRO);
                 m_bIntro = false;
             }
         }
@@ -225,7 +225,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             Summons.DespawnAll();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             if (instance)
                 instance->SetData(TYPE_ANUBARAK, DONE);
         }
@@ -242,7 +242,7 @@ public:
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
-                    DoScriptText(EMOTE_SPIKE, me, target);
+                    Talk(EMOTE_SPIKE, target->GetGUID());
                     break;
             }
             Summons.Summon(summoned);
@@ -260,7 +260,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetInCombatWithZone();
             if (instance)
@@ -405,8 +405,8 @@ public:
             {
                 m_bReachedPhase3 = true;
                 DoCastAOE(SPELL_LEECHING_SWARM);
-                DoScriptText(EMOTE_LEECHING_SWARM, me);
-                DoScriptText(SAY_LEECHING_SWARM, me);
+                Talk(EMOTE_LEECHING_SWARM);
+                Talk(SAY_LEECHING_SWARM);
             }
 
             if (m_uiBerserkTimer <= uiDiff && !me->HasAura(SPELL_BERSERK))
