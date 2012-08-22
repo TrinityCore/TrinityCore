@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[20] --> Now priest is energized for each Power Word: Shield that is absorbed or dispelled.
 [19] --> [ICC] Big Changes:
                Blood Prince Council:
                 - Shadow prison should only hit player.
