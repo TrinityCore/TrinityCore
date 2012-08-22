@@ -63,3 +63,29 @@ INSERT INTO `spell_proc_event` (entry, procFlags) VALUES
    DELETE FROM `spell_proc_event` WHERE `entry` = 69762;
    INSERT INTO `spell_proc_event` (entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown) VALUES
    (69762, 0, 0, 0, 0, 0, 81920, 0, 0, 0, 1);
+
+-- Project Astranaar!
+
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 6087; // Astranaar Sentinel (79)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3894; // Pelturas Whitemoon (124)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3959; // Nantar (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3961; // Malyinn (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3915; // Dagri (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3888; // Korra (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3691; // Raene Wolfhunter (124)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3969; // Fahran Silentblade (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 6738; // Inkeeper Kimlya (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 10052; // Maluressian (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3967; // Aayandia Floralwind (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 11137; // Xaiander (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3962; // Haljan Oakheart (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3954; // Dalria (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3996; // Faldreas GoethShael (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 17106; // Vindicator Palanaar (1638)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 4079; // Sentinel Thenysil (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3952; // Aeolynn (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3953; // Tandaan Lightmane (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3958; // Lardan (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3970; // Llana (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3845; // Sindrell Swiftfire (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 4267; // Daelyshia (80)

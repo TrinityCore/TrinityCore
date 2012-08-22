@@ -7552,7 +7552,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     if (zone->flags & AREA_FLAG_CAPITAL)                     // Is in a capital city
     {
-        if (!pvpInfo.inHostileArea || zone->IsSanctuary())
+        if (!pvpInfo.inHostileArea || zone->IsSanctuary() || newArea == 415)
         {
             SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
             SetRestType(REST_TYPE_IN_CITY);
