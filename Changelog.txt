@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[18] --> [ICC] Hack for ice tomb's gameobject.
 [17] --> [ICC] Modify teleport to LK!
 [16] --> Final fix of Hammer of the Righteous dmg during Avenging Wrath.
 [15] --> Fix Dancing Rune Weapon.
