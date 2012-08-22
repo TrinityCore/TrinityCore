@@ -9,6 +9,28 @@
 #                                                                                          #
 ############################################################################################
 
+[19] --> [ICC] Big Changes:
+               Blood Prince Council:
+                - Shadow prison should only hit player.
+                - Try to relocate dark nucleus position if spawned out of LoS.
+                - Dark nucleus now should follow current target.
+                - Properly clear Kinetic Bomb MotionMaster before given new one.
+               Professor Putricide:
+                - Changed ooze target searching intervals & change amount of stacks.
+                - Ooze change target if current target died before explosion.
+               Rotface:
+                - Make Rotface facing ooze stalker in beginning on casting, instead of after finished.
+                - Slime spray now damaging correct target (in front of Rotface when casting).
+                - Add immunity.
+               Sindragosa:
+                - Will continue using Icy Grip / Blistering Cold in phase three.
+               Lich King:
+                - Interrupt Spellcasts when entering Outro.
+                - Target needs to be healable.
+               Valithria Dreamwalker:
+                - Fix double spawning of portals after wipe.
+               Crok Scourgebane:
+                - Improve resetting of Crok, so event will run better under bad conditions.
 [18] --> [ICC] Hack for ice tomb's gameobject.
 [17] --> [ICC] Modify teleport to LK!
 [16] --> Final fix of Hammer of the Righteous dmg during Avenging Wrath.

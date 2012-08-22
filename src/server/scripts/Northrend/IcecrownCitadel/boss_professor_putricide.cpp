@@ -295,7 +295,7 @@ class boss_professor_putricide : public CreatureScript
                         // no possible aura seen in sniff adding the aurastate
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
                         summon->CastSpell(summon, SPELL_GASEOUS_BLOAT_PROC, true);
-                        summon->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, summon, false);
+                        summon->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 5, summon, false);
                         summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                         summon->SetReactState(REACT_PASSIVE);
                         return;
@@ -717,19 +717,23 @@ class npc_volatile_ooze : public CreatureScript
             void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
             {
                 if (!_newTargetSelectTimer && spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_OOZE_ERUPTION, me))
-                    _newTargetSelectTimer = 1000;
+                    _newTargetSelectTimer = 2000;
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_TEAR_GAS_CREATURE)
-                    _newTargetSelectTimer = 1000;
+                    _newTargetSelectTimer = 2000;
             }
 
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() && !_newTargetSelectTimer)
+                {
+                    if (!me->HasUnitState(UNIT_STATE_CASTING))
+                        _newTargetSelectTimer = 1000;
                     return;
+                }
 
                 if (!_newTargetSelectTimer)
                     return;
@@ -771,19 +775,23 @@ class npc_gas_cloud : public CreatureScript
             void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
             {
                 if (!_newTargetSelectTimer && spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_EXPUNGED_GAS, me))
-                    _newTargetSelectTimer = 1000;
+                    _newTargetSelectTimer = 2000;
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_TEAR_GAS_CREATURE)
-                    _newTargetSelectTimer = 1000;
+                    _newTargetSelectTimer = 2000;
             }
 
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() && !_newTargetSelectTimer)
+                {
+                    if (!me->HasUnitState(UNIT_STATE_CASTING))
+                        _newTargetSelectTimer = 1000;
                     return;
+                }
 
                 DoMeleeAttackIfReady();
 
@@ -796,7 +804,7 @@ class npc_gas_cloud : public CreatureScript
                 if (_newTargetSelectTimer <= diff)
                 {
                     _newTargetSelectTimer = 0;
-                    me->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, me, false);
+                    me->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 5, me, false);
                 }
                 else
                     _newTargetSelectTimer -= diff;
@@ -828,7 +836,7 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
                 {
                     target->RemoveAuraFromStack(GetSpellInfo()->Id, GetCasterGUID());
                     if (!target->HasAura(GetId()))
-                        caster->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, caster, false);
+                        caster->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 5, caster, false);
                 }
             }
 

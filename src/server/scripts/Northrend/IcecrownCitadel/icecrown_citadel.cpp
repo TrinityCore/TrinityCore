@@ -951,8 +951,15 @@ class npc_crok_scourgebane : public CreatureScript
                 _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(7500, 12500));
                 _events.ScheduleEvent(EVENT_DEATH_STRIKE, urand(25000, 30000));
                 me->SetReactState(REACT_DEFENSIVE);
+                _isEventActive = false;
+
+                if (_instance)
+                    _isEventDone = _instance->GetBossState(DATA_SISTER_SVALNA) == DONE;
+
                 _didUnderTenPercentText = false;
                 _wipeCheckTimer = 1000;
+                _aliveTrash.clear();
+                _currentWPid = 0;
             }
 
             void DoAction(int32 const action)
