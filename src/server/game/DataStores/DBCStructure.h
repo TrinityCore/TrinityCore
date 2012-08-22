@@ -1131,6 +1131,14 @@ struct GtOCTBaseMPByClassEntry
 {
     float ratio;
 };
+
+struct GuildPerkSpellsEntry
+{
+    //uint32 Id;
+    uint32 Level;
+    uint32 SpellId;
+};
+
 /* no used
 struct HolidayDescriptionsEntry
 {

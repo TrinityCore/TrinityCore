@@ -79,6 +79,7 @@ const char GtRegenMPPerSptfmt[]="xf";
 const char GtSpellScalingfmt[]="df";
 const char GtOCTBaseHPByClassfmt[]="df";
 const char GtOCTBaseMPByClassfmt[]="df";
+const char GuildPerkSpellsfmt[]="dii";
 const char Holidaysfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
 const char ImportPriceArmorfmt[]="nffff";
 const char ImportPriceQualityfmt[]="nf";

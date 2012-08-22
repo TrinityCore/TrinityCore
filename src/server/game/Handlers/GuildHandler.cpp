@@ -116,14 +116,6 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
     GetPlayer()->SetInGuild(0);
 }
 
-void WorldSession::HandleGuildInfoOpcode(WorldPacket& /*recvPacket*/)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INFO");
-
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->SendInfo(this);
-}
-
 void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ROSTER");

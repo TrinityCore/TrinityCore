@@ -1219,7 +1219,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         memberData << uint32(player ? player->GetZoneId() : member->GetZone());
         memberData << uint64(0);                                    // Total activity
         memberData.WriteByteSeq(guid[7]);
-        memberData << uint32(0);                                   // Remaining guild week Rep
+        memberData << uint32(member->GetRemainingWeeklyReputation());// Remaining guild week Rep
 
         if (pubNoteLength)
             memberData.WriteString(member->GetPublicNote());
@@ -1250,9 +1250,9 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         data.WriteString(m_info);
 
     data.WriteString(m_motd);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
+    data << uint32(m_accountsNumber);
+    data << uint32(GUILD_REPUATATION_WEEKLY_CAP);
+    data << uint32(secsToTimeBitFields(m_createdDate));
     data << uint32(0);
 
     if (session)
@@ -1305,7 +1305,7 @@ void Guild::HandleQuery(WorldSession* session)
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
 }
 
-void Guild::HandleGuildRanks(WorldSession* session)
+void Guild::HandleGuildRanks(WorldSession* session) const
 {
     // perhaps move to guild.cpp.....
     ByteBuffer rankData(100);
@@ -1315,7 +1315,7 @@ void Guild::HandleGuildRanks(WorldSession* session)
 
     for (uint8 i = 0; i < _GetRanksSize(); i++)
     {
-        RankInfo* rankInfo = GetRankInfo(i);
+        RankInfo const* rankInfo = GetRankInfo(i);
         if (!rankInfo)
             continue;
 
@@ -1918,18 +1918,6 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Send data to client
-void Guild::SendInfo(WorldSession* session) const
-{
-    WorldPacket data(SMSG_GUILD_INFO, m_name.size() + 4 + 4 + 4);
-    data << m_name;
-    data << secsToTimeBitFields(m_createdDate);     // 3.x (prev. year + month + day)
-    data << uint32(m_members.size());               // Number of members
-    data << m_accountsNumber;                       // Number of accounts
-
-    session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_INFO)");
-}
-
 void Guild::SendEventLog(WorldSession* session) const
 {
     WorldPacket data(MSG_GUILD_EVENT_LOG_QUERY, 1 + m_eventLog->GetSize() * (1 + 8 + 4));
@@ -2016,6 +2004,17 @@ void Guild::SendMoneyInfo(WorldSession* session) const
 
 void Guild::SendLoginInfo(WorldSession* session) const
 {
+    /*
+        Login sequence:
+          SMSG_GUILD_EVENT - GE_MOTD
+          SMSG_GUILD_RANK
+          SMSG_GUILD_EVENT - GE_SIGNED_ON
+          -- learn perks
+          SMSG_GUILD_REPUTATION_WEEKLY_CAP
+          SMSG_GUILD_ACHIEVEMENT_DATA
+          SMSG_GUILD_MEMBER_DAILY_RESET // bank withdrawal reset
+    */
+
     WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + m_motd.size() + 1);
     data << uint8(GE_MOTD);
     data << uint8(1);
@@ -2023,9 +2022,39 @@ void Guild::SendLoginInfo(WorldSession* session) const
     session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent guild MOTD (SMSG_GUILD_EVENT)");
 
-    SendBankTabsInfo(session);
+    HandleGuildRanks(session);
 
     _BroadcastEvent(GE_SIGNED_ON, session->GetPlayer()->GetGUID(), session->GetPlayer()->GetName());
+
+    // Send to self separately, player is not in world yet and is not found by _BroadcastEvent
+    data.Initialize(SMSG_GUILD_EVENT, 1 + 1 + strlen(session->GetPlayer()->GetName()) + 8);
+    data << uint8(GE_SIGNED_ON);
+    data << uint8(1);
+    data << session->GetPlayer()->GetName();
+    data << uint64(session->GetPlayer()->GetGUID());
+    session->SendPacket(&data);
+
+    for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
+        if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
+            if (entry->Level >= GetLevel())
+                session->GetPlayer()->learnSpell(entry->SpellId, false);
+
+    SendGuildReputationWeeklyCap(session);
+
+    GetAchievementMgr().SendAllAchievementData(session->GetPlayer());
+
+    data.Initialize(SMSG_GUILD_MEMBER_DAILY_RESET, 0);  // tells the client to request bank withdrawal limit
+    session->SendPacket(&data);
+}
+
+void Guild::SendGuildReputationWeeklyCap(WorldSession* session) const
+{
+    if (Member const* member = GetMember(session->GetPlayer()->GetGUID()))
+    {
+        WorldPacket data(SMSG_GUILD_REPUTATION_WEEKLY_CAP, 4);
+        data << uint32(member->GetRemainingWeeklyReputation());
+        session->SendPacket(&data);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
