@@ -2132,3 +2132,43 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     data.WriteString(*name);
     SendPacket(&data);
 }
+
+void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
+{
+    uint32 charactersCount = recvData.ReadBits(10);
+
+    ObjectGuid guids[charactersCount];
+    uint8 positions[charactersCount];
+
+    for (uint8 i = 0; i < charactersCount; ++i)
+    {
+        guids[i][1] = recvData.ReadBit();
+        guids[i][4] = recvData.ReadBit();
+        guids[i][5] = recvData.ReadBit();
+        guids[i][3] = recvData.ReadBit();
+        guids[i][0] = recvData.ReadBit();
+        guids[i][7] = recvData.ReadBit();
+        guids[i][6] = recvData.ReadBit();
+        guids[i][2] = recvData.ReadBit();
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    for (uint8 i = 0; i < charactersCount; ++i)
+    {
+        recvData.ReadByteSeq(guids[i][6]);
+        recvData.ReadByteSeq(guids[i][5]);
+        recvData.ReadByteSeq(guids[i][1]);
+        recvData.ReadByteSeq(guids[i][4]);
+        recvData.ReadByteSeq(guids[i][0]);
+        recvData.ReadByteSeq(guids[i][3]);
+
+        recvData >> positions[i];
+        position[i] /= 10;
+
+        recvData.ReadByteSeq(guids[i][2]);
+        recvData.ReadByteSeq(guids[i][7]);
+
+        trans->PAppend("UPDATE characters SET slot = '%u' WHERE guid = '%u'", positions[i], uint64(guids[i]));
+    }
+    CharacterDatabase.CommitTransaction(trans);
+}
