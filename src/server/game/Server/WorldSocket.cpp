@@ -727,14 +727,14 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
                 if (!m_Session)
                 {
-                    sLog->outError(LOG_FILTER_NETWORKIO, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+                    sLog->outError(LOG_FILTER_OPCODES, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
                     return -1;
                 }
 
                 if (!opcodeTable[opcode])
                 {
-                    sLog->outError(LOG_FILTER_NETWORKIO, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                    return -1;
+                    sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode()).c_str(), m_Session->GetPlayerName(false).c_str());
+                    return 0;
                 }
 
                 // Our Idle timer will reset on any non PING opcodes.
@@ -752,7 +752,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     }
     catch (ByteBufferException &)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet (opcode: %u) from client %s, accountid=%i. Disconnected client.",
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s, accountid=%i. Disconnected client.",
                        opcodeName, GetRemoteAddress().c_str(), m_Session ? int32(m_Session->GetAccountId()) : -1);
         new_pct->hexlike();
         return -1;
