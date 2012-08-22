@@ -443,6 +443,8 @@ void PathFinderMovementGenerator::BuildPointPath(const float *startPoint, const 
     for (uint32 i = 0; i < pointCount; ++i)
         m_pathPoints[i] = Vector3(pathPoints[i*VERTEX_SIZE+2], pathPoints[i*VERTEX_SIZE], pathPoints[i*VERTEX_SIZE+1]);
 
+    NormalizePath();
+    
     // first point is always our current location - we need the next one
     setActualEndPosition(m_pathPoints[pointCount-1]);
 
@@ -469,6 +471,12 @@ void PathFinderMovementGenerator::BuildPointPath(const float *startPoint, const 
     sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::BuildPointPath path type %d size %d poly-size %d\n", m_type, pointCount, m_polyLength);
 }
 
+void PathFinderMovementGenerator::NormalizePath()
+{
+    for (uint32 i = 0; i < m_pathPoints.size(); ++i)
+        m_sourceUnit->UpdateAllowedPositionZ(m_pathPoints[i].x, m_pathPoints[i].y, m_pathPoints[i].z);
+}
+
 void PathFinderMovementGenerator::BuildShortcut()
 {
     sLog->outDebug(LOG_FILTER_MAPS, "++ BuildShortcut :: making shortcut\n");
@@ -482,6 +490,8 @@ void PathFinderMovementGenerator::BuildShortcut()
     m_pathPoints[0] = getStartPosition();
     m_pathPoints[1] = getActualEndPosition();
 
+    NormalizePath();
+    
     m_type = PATHFIND_SHORTCUT;
 }
 

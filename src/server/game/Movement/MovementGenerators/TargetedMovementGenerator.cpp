@@ -79,11 +79,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     owner.AddUnitState(UNIT_STATE_CHASE);
 
     Movement::MoveSplineInit init(owner);
-    if (!i_target->IsInWater())
-        init.MovebyPath(i_path->getPath());
-    else
-        init.MoveTo(i_target->GetPositionX(), i_target->GetPositionY(), i_target->GetPositionZ(), false, false);
-
+    init.MovebyPath(i_path->getPath());
     init.SetWalk(((D*)this)->EnableWalking());
     init.Launch();
 }
@@ -128,6 +124,9 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
         D::_clearUnitStateMove(owner);
         return true;
     }
+    
+    if (owner.GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor((const Creature*)&owner))
+        return false;
 
     // prevent movement while casting spells with cast time or channel time
     if (owner.HasUnitState(UNIT_STATE_CASTING))
