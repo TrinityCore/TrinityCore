@@ -731,7 +731,8 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                     return -1;
                 }
 
-                if (!opcodeTable[opcode])
+                OpcodeHandler* handler = opcodeTable[opcode];
+                if (!handler || handler->status == STATUS_UNHANDLED)
                 {
                     sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode()).c_str(), m_Session->GetPlayerName(false).c_str());
                     return 0;
@@ -743,7 +744,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 
                 // OK, give the packet to WorldSession
                 aptr.release();
-                // WARNINIG here we call it with locks held.
+                // WARNING here we call it with locks held.
                 // Its possible to cause deadlock if QueuePacket calls back
                 m_Session->QueuePacket(new_pct);
                 return 0;

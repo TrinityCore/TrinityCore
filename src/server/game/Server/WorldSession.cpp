@@ -200,17 +200,23 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     if (!m_Socket)
         return;
 
-    if (packet->GetOpcode() == NULL_OPCODE || packet->GetOpcode() == UNKNOWN_OPCODE)
+    if (packet->GetOpcode() == NULL_OPCODE)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Prevented sending of %s", packet->GetOpcode() == NULL_OPCODE ? "NULL_OPCODE" : "UNKNOWN_OPCODE");
+        sLog->outError(LOG_FILTER_OPCODES, "Prevented sending of NULL_OPCODE to %s", GetPlayerName(false).c_str());
+        return;
+    }
+    else if (packet->GetOpcode() == UNKNOWN_OPCODE)
+    {
+        sLog->outError(LOG_FILTER_OPCODES, "Prevented sending of UNKNOWN_OPCODE to %s", GetPlayerName(false).c_str());
         return;
     }
 
     if (!forced)
     {
-        if (!opcodeTable[packet->GetOpcode()])
+        OpcodeHandler* handler = opcodeTable[packet->GetOpcode()];
+        if (!handler || handler->status == STATUS_UNHANDLED)
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Prevented sending disabled opcode %d (hex 0x%04X)", packet->GetOpcode(), packet->GetOpcode());
+            sLog->outError(LOG_FILTER_OPCODES, "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerName(false).c_str());
             return;
         }
     }
