@@ -28,6 +28,13 @@ INSERT INTO spell_proc_event (entry, SchoolMask, SpellFamilyName, SpellFamilyMas
 INSERT INTO `spell_proc_event` (entry, procFlags) VALUES
 ('49028','69652');
 
+-- Fix Lifebloom.
+DELETE FROM spell_bonus_data WHERE entry = 33778;
+DELETE FROM spell_bonus_data WHERE entry = 33763;
+INSERT INTO spell_bonus_data (entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus, comment) VALUES
+(33778, 0, 0, 0, 0, 'Druid - Lifebloom final heal'),
+(33763, 0.516, 0.0952, 0, 0, 'Druid - Lifebloom HoT(rank 1)');
+
 -- ICC fixs...
 
    -- update immunity
@@ -89,3 +96,4 @@ INSERT INTO `spell_proc_event` (entry, procFlags) VALUES
    UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3970; -- Llana (80)
    UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3845; -- Sindrell Swiftfire (80)
    UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 4267; -- Daelyshia (80)
+   UPDATE gameobject_template SET faction = 0 WHERE entry = 142117; -- Astranaar mailbox
