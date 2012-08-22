@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[17] --> [ICC] Modify teleport to LK!
 [16] --> Final fix of Hammer of the Righteous dmg during Avenging Wrath.
 [15] --> Fix Dancing Rune Weapon.
 [14] --> Elemental focus(shaman talent) correct proc.
