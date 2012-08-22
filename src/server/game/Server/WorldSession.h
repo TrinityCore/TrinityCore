@@ -422,6 +422,7 @@ class WorldSession
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recvData);
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
+        void HandleReorderCharacters(WorldPacket& recvData);
 
 
         // played time
