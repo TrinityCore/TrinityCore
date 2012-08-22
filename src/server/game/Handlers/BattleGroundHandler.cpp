@@ -559,46 +559,6 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
     }
 }
 
-void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
-
-    Battleground* bg = _player->GetBattleground();
-
-    uint64 guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-    if (!unit)
-        return;
-
-    if (!unit->isSpiritService())                            // it's not spirit service
-        return;
-
-    if (bg)
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
-}
-
-void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
-
-    Battleground* bg = _player->GetBattleground();
-
-    uint64 guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-    if (!unit)
-        return;
-
-    if (!unit->isSpiritService())                            // it's not spirit service
-        return;
-
-    if (bg)
-        bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
-}
-
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");

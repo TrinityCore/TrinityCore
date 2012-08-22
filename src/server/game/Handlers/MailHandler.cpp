@@ -259,7 +259,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         if (item->IsBoundAccountWide() && item->IsSoulBound() && player->GetSession()->GetAccountId() != rc_account)
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_ARTEFACTS_ONLY_FOR_OWN_CHARACTERS);
+            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_NOT_SAME_ACCOUNT);
             return;
         }
 
@@ -277,7 +277,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         if (item->IsNotEmptyBag())
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS);
+            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_DESTROY_NONEMPTY_BAG);
             return;
         }
 
@@ -305,7 +305,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
                 if (!AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail item: %s (Entry: %u Count: %u) to player: %s (Account: %u)",
-                        GetPlayerName(), GetAccountId(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(), receiver.c_str(), rc_account);
+                        GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(), receiver.c_str(), rc_account);
                 }
 
                 item->SetNotRefundable(GetPlayer()); // makes the item no longer refundable
@@ -325,7 +325,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         if (money > 0 && !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
         {
             sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail money: " UI64FMTD " to player: %s (Account: %u)",
-                GetPlayerName(), GetAccountId(), money, receiver.c_str(), rc_account);
+                GetPlayerName().c_str(), GetAccountId(), money, receiver.c_str(), rc_account);
         }
     }
 
@@ -520,7 +520,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receive mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
-                    GetPlayerName(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
+                    GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receive)
                 sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);

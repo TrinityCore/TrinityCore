@@ -756,11 +756,28 @@ void Aura::RefreshDuration()
 void Aura::RefreshTimers()
 {
     m_maxDuration = CalcMaxDuration();
+    bool resetPeriodic = true;
+    if (m_spellInfo->AttributesEx8 & SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER)
+    {
+        int32 minAmplitude = m_maxDuration;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (AuraEffect const* eff = GetEffect(i))
+                if (int32 ampl = eff->GetAmplitude())
+                    minAmplitude = std::min(ampl, minAmplitude);
+
+        // If only one tick remaining, roll it over into new duration
+        if (GetDuration() <= minAmplitude)
+        {
+            m_maxDuration += GetDuration();
+            resetPeriodic = false;
+        }
+    }
+
     RefreshDuration();
     Unit* caster = GetCaster();
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (HasEffect(i))
-            GetEffect(i)->CalculatePeriodic(caster, false, false);
+            GetEffect(i)->CalculatePeriodic(caster, resetPeriodic, false);
 }
 
 void Aura::SetCharges(uint8 charges)
@@ -774,14 +791,14 @@ void Aura::SetCharges(uint8 charges)
 
 uint8 Aura::CalcMaxCharges(Unit* caster) const
 {
-    uint8 maxProcCharges = m_spellInfo->ProcCharges;
+    uint32 maxProcCharges = m_spellInfo->ProcCharges;
     if (SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId()))
         maxProcCharges = procEntry->charges;
 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, maxProcCharges);
-    return maxProcCharges;
+    return uint8(maxProcCharges);
 }
 
 bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)

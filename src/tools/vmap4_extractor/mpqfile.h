@@ -11,6 +11,7 @@
 #include <vector>
 #include <iostream>
 #include <deque>
+#include "StormLib.h"
 
 #ifdef _WIN32
 #include <Windows.h>    // mainly only HANDLE definition is required

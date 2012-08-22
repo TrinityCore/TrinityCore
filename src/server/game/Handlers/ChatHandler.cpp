@@ -110,7 +110,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             type = CHAT_MSG_RAID_WARNING;
             break;
         default:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleMessagechatOpcode : Unknown chat opcode (%u)", recvData.GetOpcode());
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleMessagechatOpcode : Unknown chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
             return;
     }
@@ -535,7 +535,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             type = CHAT_MSG_WHISPER;
             break;
         default:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
             recvData.hexlike();
             return;
     }

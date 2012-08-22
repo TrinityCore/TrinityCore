@@ -764,13 +764,13 @@ bool Guild::PlayerMoveItemData::InitItem()
         // Anti-WPE protection. Do not move non-empty bags to bank.
         if (m_pItem->IsNotEmptyBag())
         {
-            m_pPlayer->SendEquipError(EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, m_pItem);
+            m_pPlayer->SendEquipError(EQUIP_ERR_DESTROY_NONEMPTY_BAG, m_pItem);
             m_pItem = NULL;
         }
         // Bound items cannot be put into bank.
         else if (!m_pItem->CanBeTraded())
         {
-            m_pPlayer->SendEquipError(EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, m_pItem);
+            m_pPlayer->SendEquipError(EQUIP_ERR_CANT_SWAP, m_pItem);
             m_pItem = NULL;
         }
     }
@@ -989,11 +989,11 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
     uint32 count = pItem->GetCount();
     // Soulbound items cannot be moved
     if (pItem->IsSoulBound())
-        return EQUIP_ERR_CANT_DROP_SOULBOUND;
+        return EQUIP_ERR_DROP_BOUND_ITEM;
 
     // Make sure destination bank tab exists
     if (m_container >= m_pGuild->_GetPurchasedTabsSize())
-        return EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG;
+        return EQUIP_ERR_WRONG_BAG_TYPE;
 
     // Slot explicitely specified. Check it.
     if (m_slotId != NULL_SLOT)
@@ -1004,7 +1004,7 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
             pItemDest = NULL;
 
         if (!_ReserveSpace(m_slotId, pItem, pItemDest, count))
-            return EQUIP_ERR_ITEM_CANT_STACK;
+            return EQUIP_ERR_CANT_STACK;
 
         if (count == 0)
             return EQUIP_ERR_OK;

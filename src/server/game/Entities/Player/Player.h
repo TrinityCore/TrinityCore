@@ -987,7 +987,7 @@ class TradeData
     public:                                                 // constructors
         TradeData(Player* player, Player* trader) :
             m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0) {}
+            m_money(0), m_spell(0), m_spellCastItem(0) { memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64)); }
 
         Player* GetTrader() const { return m_trader; }
         TradeData* GetTraderData() const;
@@ -1828,7 +1828,7 @@ class Player : public Unit, public GridObject<Player>
         ActionButton* addActionButton(uint8 button, uint32 action, uint8 type);
         void removeActionButton(uint8 button);
         ActionButton const* GetActionButton(uint8 button);
-        void SendInitialActionButtons() const { SendActionButtons(1); }
+        void SendInitialActionButtons() const { SendActionButtons(0); }
         void SendActionButtons(uint32 state) const;
         bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type);
 
@@ -2484,9 +2484,9 @@ class Player : public Unit, public GridObject<Player>
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup() const;
 
-        // Battleground Group System
-        void SetBattlegroundRaid(Group* group, int8 subgroup = -1);
-        void RemoveFromBattlegroundRaid();
+        // Battleground / Battlefield Group System
+        void SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup = -1);
+        void RemoveFromBattlegroundOrBattlefieldRaid();
         Group* GetOriginalGroup() { return m_originalGroup.getTarget(); }
         GroupReference& GetOriginalGroupRef() { return m_originalGroup; }
         uint8 GetOriginalSubGroup() const { return m_originalGroup.getSubGroup(); }
@@ -2508,7 +2508,8 @@ class Player : public Unit, public GridObject<Player>
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->runes[index].BaseRune); }
         RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->runes[index].CurrentRune); }
         uint32 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
-        uint32 GetRuneBaseCooldown(uint8 index);
+        uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(GetBaseRune(index)); }
+        uint32 GetRuneTypeBaseCooldown(RuneType runeType) const;
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
         RuneType GetLastUsedRune() { return m_runes->lastUsedRune; }
         void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }

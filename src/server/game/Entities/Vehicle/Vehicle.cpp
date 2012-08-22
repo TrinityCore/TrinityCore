@@ -346,7 +346,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     unit->m_movementInfo.t_pos.m_positionX = veSeat->m_attachmentOffsetX;
     unit->m_movementInfo.t_pos.m_positionY = veSeat->m_attachmentOffsetY;
     unit->m_movementInfo.t_pos.m_positionZ = veSeat->m_attachmentOffsetZ;
-    unit->m_movementInfo.t_pos.m_orientation = 0;
+    unit->m_movementInfo.t_pos.SetOrientation(0);
     unit->m_movementInfo.t_time = 0; // 1 for player
     unit->m_movementInfo.t_seat = seat->first;
     unit->m_movementInfo.t_guid = _me->GetGUID();
@@ -448,7 +448,7 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
             float px = x + passenger->m_movementInfo.t_pos.m_positionX;
             float py = y + passenger->m_movementInfo.t_pos.m_positionY;
             float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
-            float po = ang + passenger->m_movementInfo.t_pos.m_orientation;
+            float po = ang + passenger->m_movementInfo.t_pos.GetOrientation();
 
             passenger->UpdatePosition(px, py, pz, po);
         }

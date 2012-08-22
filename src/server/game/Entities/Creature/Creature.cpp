@@ -249,7 +249,6 @@ void Creature::RemoveCorpse(bool setSpawnTime)
 
     float x, y, z, o;
     GetRespawnPosition(x, y, z, &o);
-    o = MapManager::NormalizeOrientation(o);
     SetHomePosition(x, y, z, o);
     GetMap()->CreatureRelocation(this, x, y, z, o);
 }
@@ -2465,7 +2464,6 @@ void Creature::SetPosition(float x, float y, float z, float o)
         return;
     }
 
-    o = MapManager::NormalizeOrientation(o);
     GetMap()->CreatureRelocation(ToCreature(), x, y, z, o);
     if (IsVehicle())
         GetVehicleKit()->RelocatePassengers(x, y, z, o);

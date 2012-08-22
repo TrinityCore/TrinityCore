@@ -49,6 +49,8 @@
 #include "DynamicTree.h"
 #include "Unit.h"
 #include "Group.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -1664,7 +1666,7 @@ void Position::RelocateOffset(const Position & offset)
     m_positionX = GetPositionX() + (offset.GetPositionX() * cos(GetOrientation()) + offset.GetPositionY() * sin(GetOrientation() + M_PI));
     m_positionY = GetPositionY() + (offset.GetPositionY() * cos(GetOrientation()) + offset.GetPositionX() * sin(GetOrientation()));
     m_positionZ = GetPositionZ() + offset.GetPositionZ();
-    m_orientation = GetOrientation() + offset.GetOrientation();
+    SetOrientation(GetOrientation() + offset.GetOrientation());
 }
 
 void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset) const
@@ -1675,7 +1677,7 @@ void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset
     retOffset.m_positionX = dx * cos(GetOrientation()) + dy * sin(GetOrientation());
     retOffset.m_positionY = dy * cos(GetOrientation()) - dx * sin(GetOrientation());
     retOffset.m_positionZ = endPos.GetPositionZ() - GetPositionZ();
-    retOffset.m_orientation = endPos.GetOrientation() - GetOrientation();
+    retOffset.SetOrientation(endPos.GetOrientation() - GetOrientation());
 }
 
 float Position::GetAngle(const Position* obj) const
@@ -1723,13 +1725,13 @@ bool Position::HasInArc(float arc, const Position* obj) const
         return true;
 
     // move arc to range 0.. 2*pi
-    arc = MapManager::NormalizeOrientation(arc);
+    arc = NormalizeOrientation(arc);
 
     float angle = GetAngle(obj);
     angle -= m_orientation;
 
     // move angle to range -pi ... +pi
-    angle = MapManager::NormalizeOrientation(angle);
+    angle = NormalizeOrientation(angle);
     if (angle > M_PI)
         angle -= 2.0f*M_PI;
 
@@ -2483,7 +2485,17 @@ void WorldObject::SetZoneScript()
         if (map->IsDungeon())
             m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
         else if (!map->IsBattlegroundOrArena())
-            m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+        {
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+                m_zoneScript = bf;
+            else
+            {
+                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+                    m_zoneScript = bf;
+                else
+                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+            }
+        }
     }
 }
 
@@ -2916,7 +2928,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)
 {
-    angle += m_orientation;
+    angle += GetOrientation();
     float destx, desty, destz, ground, floor;
     destx = pos.m_positionX + dist * cos(angle);
     desty = pos.m_positionY + dist * sin(angle);
@@ -2956,12 +2968,12 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     Trinity::NormalizeMapCoord(pos.m_positionX);
     Trinity::NormalizeMapCoord(pos.m_positionY);
     UpdateGroundPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-    pos.m_orientation = m_orientation;
+    pos.SetOrientation(GetOrientation());
 }
 
 void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float angle)
 {
-    angle += m_orientation;
+    angle += GetOrientation();
     float destx, desty, destz, ground, floor;
     pos.m_positionZ += 2.0f;
     destx = pos.m_positionX + dist * cos(angle);
@@ -3024,7 +3036,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     Trinity::NormalizeMapCoord(pos.m_positionX);
     Trinity::NormalizeMapCoord(pos.m_positionY);
     UpdateAllowedPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-    pos.m_orientation = m_orientation;
+    pos.SetOrientation(GetOrientation());
 }
 
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)

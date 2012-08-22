@@ -678,7 +678,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
 
 void Transport::UpdatePosition(MovementInfo* mi)
 {
-    float transport_o = mi->pos.m_orientation - mi->t_pos.m_orientation;
+    float transport_o = mi->pos.GetOrientation() - mi->t_pos.GetOrientation();
     float transport_x = mi->pos.m_positionX - (mi->t_pos.m_positionX * cos(transport_o) - mi->t_pos.m_positionY*sin(transport_o));
     float transport_y = mi->pos.m_positionY - (mi->t_pos.m_positionY * cos(transport_o) + mi->t_pos.m_positionX*sin(transport_o));
     float transport_z = mi->pos.m_positionZ - mi->t_pos.m_positionZ;
@@ -707,7 +707,7 @@ void Transport::UpdateNPCPositions()
 void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
 {
     float inx = x, iny = y, inz = z, ino = o;
-    o = MapManager::NormalizeOrientation(GetOrientation() + ino);
+    o = GetOrientation() + ino;
     x = GetPositionX() + (inx * cos(GetOrientation()) + iny * sin(GetOrientation() + M_PI));
     y = GetPositionY() + (iny * cos(GetOrientation()) + inx * sin(GetOrientation()));
     z = GetPositionZ() + inz;
@@ -716,7 +716,7 @@ void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& 
 //! This method transforms supplied global coordinates into local offsets
 void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
 {
-    o = MapManager::NormalizeOrientation(o - GetOrientation());
+    o = o - GetOrientation();
     z -= GetPositionZ();
     y -= GetPositionY();    // y = searchedY * cos(o) + searchedX * sin(o)
     x -= GetPositionX();    // x = searchedX * cos(o) + searchedY * sin(o + pi)

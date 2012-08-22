@@ -406,7 +406,7 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* /*target*/) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
@@ -417,14 +417,18 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     {
         if (caster)
         {
+            uint32 level = caster->getLevel();
+            if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+                level = target->getLevel();
+
             SpellScalingEntry const* scaling = _spellInfo->GetSpellScaling();   // must exist, otherwise ScalingMultiplier == 0.0f
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((scaling->playerClass != -1 ? scaling->playerClass - 1 : MAX_CLASSES - 1) * 100 + caster->getLevel() - 1))
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((scaling->playerClass != -1 ? scaling->playerClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
             {
                 float multiplier = gtScaling->value;
-                if (scaling->castTimeMax > 0 && scaling->castScalingMaxLevel > caster->getLevel())
-                    multiplier *= float(scaling->castTimeMin + (caster->getLevel() - 1) * (scaling->castTimeMax - scaling->castTimeMin) / (scaling->castScalingMaxLevel - 1)) / float(scaling->castTimeMax);
-                if (scaling->CoefLevelBase > caster->getLevel())
-                    multiplier *= (1.0f - scaling->CoefBase) * (float)(caster->getLevel() - 1) / (float)(scaling->CoefLevelBase - 1) + scaling->CoefBase;
+                if (scaling->castTimeMax > 0 && scaling->castScalingMaxLevel > level)
+                    multiplier *= float(scaling->castTimeMin + (level - 1) * (scaling->castTimeMax - scaling->castTimeMin) / (scaling->castScalingMaxLevel - 1)) / float(scaling->castTimeMax);
+                if (scaling->CoefLevelBase > level)
+                    multiplier *= (1.0f - scaling->CoefBase) * (float)(level - 1) / (float)(scaling->CoefLevelBase - 1) + scaling->CoefBase;
 
                 float preciseBasePoints = ScalingMultiplier * multiplier;
                 if (DeltaScalingMultiplier)
@@ -2257,7 +2261,8 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
         if (IsPositiveEffect(i) &&
             (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
-            Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID))
+            Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+            !Effects[i].ScalingMultiplier)
         {
             needRankSelection = true;
             break;

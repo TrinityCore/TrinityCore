@@ -30,6 +30,7 @@
     #define mkdir _mkdir
 #else
     #include <sys/stat.h>
+    #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
 #undef min
@@ -475,9 +476,9 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
     bool hasInputPathParam = false;
-    bool preciseVectorData = false;
+    preciseVectorData = false;
 
-    for(int i=1; i< argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
         if(strcmp("-s",argv[i]) == 0)
         {
@@ -551,7 +552,7 @@ int main(int argc, char ** argv)
     const char *versionString = "V4.00 2012_02";
 
     // Use command line arguments, when some
-    if(!processArgv(argc, argv, versionString))
+    if (!processArgv(argc, argv, versionString))
         return 1;
 
     // some simple check if working dir is dirty
@@ -573,7 +574,7 @@ int main(int argc, char ** argv)
     printf("Extract %s. Beginning work ....\n",versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
-    if(mkdir(szWorkDirWmo
+    if (mkdir(szWorkDirWmo
 #ifdef __linux__
                     , 0711
 #endif
@@ -601,15 +602,15 @@ int main(int argc, char ** argv)
     ReadLiquidTypeTableDBC();
 
     // extract data
-    if(success)
+    if (success)
         success = ExtractWmo();
 
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     //map.dbc
-    if(success)
+    if (success)
     {
         DBCFile * dbc = new DBCFile(LocaleMpq, "DBFilesClient\\Map.dbc");
-        if(!dbc->open())
+        if (!dbc->open())
         {
             delete dbc;
             printf("FATAL ERROR: Map.dbc not found in data file.\n");
@@ -617,7 +618,7 @@ int main(int argc, char ** argv)
         }
         map_count=dbc->getRecordCount ();
         map_ids=new map_id[map_count];
-        for(unsigned int x=0;x<map_count;++x)
+        for (unsigned int x=0;x<map_count;++x)
         {
             map_ids[x].id=dbc->getRecord (x).getUInt(0);
             strcpy(map_ids[x].name,dbc->getRecord(x).getString(1));
@@ -637,7 +638,7 @@ int main(int argc, char ** argv)
     SFileCloseArchive(WorldMpq);
 
     printf("\n");
-    if(!success)
+    if (!success)
     {
         printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n",versionString, preciseVectorData);
         getchar();

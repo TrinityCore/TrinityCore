@@ -137,7 +137,7 @@ void GameObject::AddToWorld()
         // The state can be changed after GameObject::Create but before GameObject::AddToWorld
         bool toggledState = GetGOData() ? GetGOData()->go_state == GO_STATE_READY : false;
         if (m_model)
-            GetMap()->Insert(*m_model);
+            GetMap()->InsertGameObjectModel(*m_model);
 
         EnableCollision(startOpen ^ toggledState);
         WorldObject::AddToWorld();
@@ -154,8 +154,8 @@ void GameObject::RemoveFromWorld()
 
         RemoveFromOwner();
         if (m_model)
-            if (GetMap()->Contains(*m_model))
-                GetMap()->Remove(*m_model);
+            if (GetMap()->ContainsGameObjectModel(*m_model))
+                GetMap()->RemoveGameObjectModel(*m_model);
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -166,7 +166,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     ASSERT(map);
     SetMap(map);
 
-    ang = MapManager::NormalizeOrientation(ang);
     Relocate(x, y, z, ang);
     if (!IsPositionValid())
     {
@@ -856,6 +855,13 @@ bool GameObject::IsDynTransport() const
     return gInfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && !gInfo->transport.pause);
 }
 
+bool GameObject::IsDestructibleBuilding() const
+{
+    GameObjectTemplate const* gInfo = GetGOInfo();
+    if (!gInfo) return false;
+    return gInfo->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING;
+}
+
 Unit* GameObject::GetOwner() const
 {
     return ObjectAccessor::GetUnit(*this, GetOwnerGUID());
@@ -872,7 +878,7 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
     if (WorldObject::IsAlwaysVisibleFor(seer))
         return true;
 
-    if (IsTransport())
+    if (IsTransport() || IsDestructibleBuilding())
         return true;
 
     if (!seer)
@@ -1973,8 +1979,8 @@ void GameObject::EnableCollision(bool enable)
     if (!m_model)
         return;
 
-    /*if (enable && !GetMap()->Contains(*m_model))
-        GetMap()->Insert(*m_model);*/
+    /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
+        GetMap()->InsertGameObjectModel(*m_model);*/
 
     m_model->enable(enable ? GetPhaseMask() : 0);
 }
@@ -1984,12 +1990,12 @@ void GameObject::UpdateModel()
     if (!IsInWorld())
         return;
     if (m_model)
-        if (GetMap()->Contains(*m_model))
-            GetMap()->Remove(*m_model);
+        if (GetMap()->ContainsGameObjectModel(*m_model))
+            GetMap()->RemoveGameObjectModel(*m_model);
     delete m_model;
     m_model = GameObjectModel::Create(*this);
     if (m_model)
-        GetMap()->Insert(*m_model);
+        GetMap()->InsertGameObjectModel(*m_model);
 }
 
 Player* GameObject::GetLootRecipient() const

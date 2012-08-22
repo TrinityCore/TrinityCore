@@ -107,7 +107,7 @@ public:
             return false;
         }
 
-        switch (sWorld->BanCharacter(name, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName() : ""))
+        switch (sWorld->BanCharacter(name, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : ""))
         {
             case BAN_SUCCESS:
             {
@@ -183,7 +183,7 @@ public:
                 break;
         }
 
-        switch (sWorld->BanAccount(mode, nameOrIP, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName() : ""))
+        switch (sWorld->BanAccount(mode, nameOrIP, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : ""))
         {
             case BAN_SUCCESS:
                 if (atoi(durationStr) > 0)

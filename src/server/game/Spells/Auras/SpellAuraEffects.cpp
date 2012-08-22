@@ -36,6 +36,8 @@
 #include "CellImpl.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 class Aura;
 //
@@ -469,7 +471,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 {
     int32 amount;
     // default amount calculation
-    amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, NULL);
+    amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit());
 
     // check item enchant aura cast
     if (!amount && caster)
@@ -730,7 +732,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     return amount;
 }
 
-void AuraEffect::CalculatePeriodic(Unit* caster, bool create, bool load)
+void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
 {
     m_amplitude = m_spellInfo->Effects[m_effIndex].Amplitude;
 
@@ -799,9 +801,6 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool create, bool load)
         // reset periodic timer on aura create or on reapply when aura isn't dot
         // possibly we should not reset periodic timers only when aura is triggered by proc
         // or maybe there's a spell attribute somewhere
-        bool resetPeriodicTimer = create
-            || ((GetAuraType() != SPELL_AURA_PERIODIC_DAMAGE) && (GetAuraType() != SPELL_AURA_PERIODIC_DAMAGE_PERCENT));
-
         if (resetPeriodicTimer)
         {
             m_periodicTimer = 0;
@@ -1314,11 +1313,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId2 = 21178;
             HotWSpellId = 24899;
             break;
-        case FORM_DIREBEAR:
-            spellId = 9635;
-            spellId2 = 21178;
-            HotWSpellId = 24899;
-            break;
         case FORM_BATTLESTANCE:
             spellId = 21156;
             break;
@@ -1480,7 +1474,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         target->CastCustomSpell(target, 48420, &bp, NULL, NULL, true);
                     }
                 break;
-                case FORM_DIREBEAR:
                 case FORM_BEAR:
                     // Master Shapeshifter - Bear
                     if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
@@ -1861,7 +1854,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             break;
 
         case FORM_BEAR:                                     // 0x05
-        case FORM_DIREBEAR:                                 // 0x08
 
         case FORM_BATTLESTANCE:                             // 0x11
         case FORM_DEFENSIVESTANCE:                          // 0x12
@@ -1911,7 +1903,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_TRAVEL:
             case FORM_AQUA:
             case FORM_BEAR:
-            case FORM_DIREBEAR:
             case FORM_FLIGHT_EPIC:
             case FORM_FLIGHT:
             case FORM_MOONKIN:
@@ -1949,7 +1940,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             {
                 case FORM_CAT:
                 case FORM_BEAR:
-                case FORM_DIREBEAR:
                 {
                     // get furor proc chance
                     int32 FurorChance = 0;
@@ -1966,7 +1956,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                         }
                         break;
                         case FORM_BEAR:
-                        case FORM_DIREBEAR:
                         if (irand(0, 99) < FurorChance)
                             target->CastSpell(target, 17057, true);
                         default:
@@ -2010,7 +1999,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         {
             // Nordrassil Harness - bonus
             case FORM_BEAR:
-            case FORM_DIREBEAR:
             case FORM_CAT:
                 if (AuraEffect* dummy = target->GetAuraEffect(37315, 0))
                     target->CastSpell(target, 37316, true, NULL, dummy);
@@ -4932,8 +4920,12 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         case 2584: // Waiting to Resurrect
                             // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                             if (target->GetTypeId() == TYPEID_PLAYER)
+                            {
                                 if (Battleground* bg = target->ToPlayer()->GetBattleground())
                                     bg->RemovePlayerFromResurrectQueue(target->GetGUID());
+                                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(target->GetZoneId()))
+                                    bf->RemovePlayerFromResurrectQueue(target->GetGUID());
+                            }
                             break;
                         case 36730:                                     // Flame Strike
                         {
@@ -4970,6 +4962,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
                             break;
                         case 58600: // Restricted Flight Area
+                        case 58730: // Restricted Flight Area
                             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                                 target->CastSpell(target, 58601, true);
                             break;
