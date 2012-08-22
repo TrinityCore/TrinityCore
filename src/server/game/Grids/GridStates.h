@@ -32,7 +32,7 @@ class GridState
         {
             if (i_Magic != MAGIC_TESTVAL)
             {
-                sLog->outError("!!! GridState: Magic value gone !!!");
+                sLog->outError(LOG_FILTER_GENERAL, "!!! GridState: Magic value gone !!!");
                 return false;
             }
             return true;
@@ -40,6 +40,7 @@ class GridState
         void setMagic() { i_Magic = MAGIC_TESTVAL; }
         unsigned int i_Magic;
 #endif
+        virtual ~GridState() {};
         virtual void Update(Map &, NGridType&, GridInfo &, const uint32 t_diff) const = 0;
 };
 

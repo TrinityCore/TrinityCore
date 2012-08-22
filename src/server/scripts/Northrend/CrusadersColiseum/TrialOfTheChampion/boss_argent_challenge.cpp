@@ -22,7 +22,9 @@ SDComment: AI for Argent Soldiers are not implemented. AI from bosses need more 
 SDCategory: Trial of the Champion
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "trial_of_the_champion.h"
 #include "ScriptedEscortAI.h"
 
@@ -60,9 +62,9 @@ class OrientationCheck : public std::unary_function<Unit*, bool>
 {
     public:
         explicit OrientationCheck(Unit* _caster) : caster(_caster) { }
-        bool operator() (Unit* unit)
+        bool operator()(WorldObject* object)
         {
-            return !unit->isInFront(caster, 2.5f) || !unit->IsWithinDist(caster, 40.0f);
+            return !object->isInFront(caster, 2.5f) || !object->IsWithinDist(caster, 40.0f);
         }
 
     private:
@@ -76,15 +78,16 @@ class spell_eadric_radiance : public SpellScriptLoader
         class spell_eadric_radiance_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_eadric_radiance_SpellScript);
-            void FilterTargets(std::list<Unit*>& unitList)
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                unitList.remove_if (OrientationCheck(GetCaster()));
+                unitList.remove_if(OrientationCheck(GetCaster()));
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -216,8 +219,6 @@ public:
         }
 
         InstanceScript* instance;
-
-        Creature* pMemory;
         uint64 MemoryGUID;
 
         bool bHealth;

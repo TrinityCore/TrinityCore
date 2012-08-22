@@ -351,7 +351,7 @@ bool SpellEffectInfo::IsEffect() const
 
 bool SpellEffectInfo::IsEffect(SpellEffects effectName) const
 {
-    return Effect == effectName;
+    return Effect == uint32(effectName);
 }
 
 bool SpellEffectInfo::IsAura() const
@@ -450,6 +450,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         if (!basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
                 Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
                 Effect != SPELL_EFFECT_KNOCK_BACK &&
+                Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
                 ApplyAuraName != SPELL_AURA_MOD_SPEED_ALWAYS &&
                 ApplyAuraName != SPELL_AURA_MOD_SPEED_NOT_STACK &&
                 ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
@@ -1261,7 +1262,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
         if (!shapeInfo)
         {
-            sLog->outError("GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
+            sLog->outError(LOG_FILTER_SPELLS_AURAS, "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
             return SPELL_CAST_OK;
         }
         actAsShifted = !(shapeInfo->flags1 & 1);            // shapeshift acts as normal form for spells
@@ -1735,6 +1736,7 @@ AuraStateType SpellInfo::GetAuraState() const
     switch (Id)
     {
         case 71465: // Divine Surge
+        case 50241: // Evasive Charges
             return AURA_STATE_UNKNOWN22;
         default:
             break;
@@ -1972,6 +1974,33 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
     return (castTime > 0) ? uint32(castTime) : 0;
 }
 
+uint32 SpellInfo::GetMaxTicks() const
+{
+    int32 DotDuration = GetDuration();
+    if (DotDuration == 0)
+        return 1;
+
+    // 200% limit
+    if (DotDuration > 30000)
+        DotDuration = 30000;
+
+    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
+    {
+        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+            switch (Effects[x].ApplyAuraName)
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_LEECH:
+                    if (Effects[x].Amplitude != 0)
+                        return DotDuration / Effects[x].Amplitude;
+                    break;
+            }
+    }
+
+    return 6;
+}
+
 uint32 SpellInfo::GetRecoveryTime() const
 {
     return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
@@ -1988,7 +2017,7 @@ uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) 
         // Else drain all power
         if (PowerType < MAX_POWERS)
             return caster->GetPower(Powers(PowerType));
-        sLog->outError("SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
         return 0;
     }
 
@@ -2017,7 +2046,7 @@ uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) 
                 sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
                 break;
             default:
-                sLog->outError("CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
+                sLog->outError(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
                 return 0;
         }
     }
@@ -2176,14 +2205,15 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_GENERIC:
             switch (Id)
             {
+                case 29214: // Wrath of the Plaguebringer
                 case 34700: // Allergic Reaction
+                case 54836: // Wrath of the Plaguebringer
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
-                case 62532: // Conservator's Grip
                     return false;
+                case 30877: // Tag Murloc
                 case 61716: // Rabbit Costume
                 case 61734: // Noblegarden Bunny
-                case 30877: // Tag Murloc
                 case 62344: // Fists of Stone
                     return true;
                 default:
@@ -2269,6 +2299,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELL_EFFECT_HEAL_PCT:
         case SPELL_EFFECT_ENERGIZE_PCT:
             return true;
+        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+            return false;
 
             // non-positive aura use
         case SPELL_EFFECT_APPLY_AURA:

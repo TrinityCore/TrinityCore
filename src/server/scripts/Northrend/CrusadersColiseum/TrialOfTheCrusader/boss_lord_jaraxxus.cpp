@@ -30,21 +30,24 @@ EndScriptData */
 // Redone summon's scripts in SAI
 // Add immunities to the boss and summons
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells
 {
-    SAY_INTRO               = -1649030,
-    SAY_AGGRO               = -1649031,
-    SAY_DEATH               = -1649032,
-    EMOTE_INCINERATE        = -1649033,
-    SAY_INCINERATE          = -1649034,
-    EMOTE_LEGION_FLAME      = -1649035,
-    EMOTE_NETHER_PORTAL     = -1649036,
-    SAY_NETHER_PORTAL       = -1649037,
-    EMOTE_INFERNAL_ERUPTION = -1649038,
-    SAY_INFERNAL_ERUPTION   = -1649039,
+    SAY_INTRO               = 0,
+    SAY_AGGRO               = 1,
+    EMOTE_LEGION_FLAME      = 2,
+    EMOTE_NETHER_PORTAL     = 3,
+    SAY_MISTRESS_OF_PAIN    = 4,
+    EMOTE_INCINERATE        = 5,
+    SAY_INCINERATE          = 6,
+    EMOTE_INFERNAL_ERUPTION = 7,
+    SAY_INFERNAL_ERUPTION   = 8,
+    SAY_KILL_PLAYER         = 9,
+    SAY_DEATH               = 10,
+    SAY_BERSERK             = 11,
 };
 
 enum Equipment
@@ -158,7 +161,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             Summons.DespawnAll();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             if (instance)
                 instance->SetData(TYPE_JARAXXUS, DONE);
         }
@@ -173,7 +176,7 @@ public:
             me->SetInCombatWithZone();
             if (instance)
                 instance->SetData(TYPE_JARAXXUS, IN_PROGRESS);
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -183,16 +186,16 @@ public:
 
             if (m_uiSummonInfernalEruptionTimer <= uiDiff)
             {
-                DoScriptText(EMOTE_INFERNAL_ERUPTION, me);
-                DoScriptText(SAY_INFERNAL_ERUPTION, me);
+                Talk(EMOTE_INFERNAL_ERUPTION);
+                Talk(SAY_INFERNAL_ERUPTION);
                 DoCast(SPELL_INFERNAL_ERUPTION);
                 m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonInfernalEruptionTimer -= uiDiff;
 
             if (m_uiSummonNetherPortalTimer <= uiDiff)
             {
-                DoScriptText(EMOTE_NETHER_PORTAL, me);
-                DoScriptText(SAY_NETHER_PORTAL, me);
+                Talk(EMOTE_NETHER_PORTAL);
+                Talk(SAY_MISTRESS_OF_PAIN);
                 DoCast(SPELL_NETHER_PORTAL);
                 m_uiSummonNetherPortalTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonNetherPortalTimer -= uiDiff;
@@ -214,8 +217,8 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    DoScriptText(EMOTE_INCINERATE, me, target);
-                    DoScriptText(SAY_INCINERATE, me);
+                    Talk(EMOTE_INCINERATE, target->GetGUID());
+                    Talk(SAY_INCINERATE);
                     DoCast(target, SPELL_INCINERATE_FLESH);
                 }
                 m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
@@ -231,7 +234,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
-                    DoScriptText(EMOTE_LEGION_FLAME, me, target);
+                    Talk(EMOTE_LEGION_FLAME, target->GetGUID());
                     DoCast(target, SPELL_LEGION_FLAME);
                 }
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
@@ -515,36 +518,6 @@ public:
 
 };
 
-class spell_spinning_pain_spike : public SpellScriptLoader
-{
-    public:
-        spell_spinning_pain_spike() : SpellScriptLoader("spell_spinning_pain_spike") {}
-
-        class spell_spinning_pain_spike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_spinning_pain_spike_SpellScript);
-
-            void HandleScript(SpellEffIndex /*eff*/)
-            {
-                Unit* target = GetHitUnit();
-                if (!target)
-                    return;
-
-                if (target->isAlive())
-                    SetHitDamage(target->CountPctFromMaxHealth(50));
-            }
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_spinning_pain_spike_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_spinning_pain_spike_SpellScript();
-        }
-};
-
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -553,5 +526,4 @@ void AddSC_boss_jaraxxus()
     new mob_fel_infernal();
     new mob_nether_portal();
     new mob_mistress_of_pain();
-    new spell_spinning_pain_spike();
 }

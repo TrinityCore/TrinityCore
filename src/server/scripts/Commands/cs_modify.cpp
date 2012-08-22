@@ -33,6 +33,16 @@ public:
 
     ChatCommand* GetCommands() const
     {
+        static ChatCommand modifyspeedCommandTable[] =
+        {
+            { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
+            { "all",            SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
+            { "walk",           SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
+            { "backwalk",       SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
+            { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
+            { "",               SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
+            { NULL,             0,                  false, NULL,                              "", NULL }
+        };
         static ChatCommand modifyCommandTable[] =
         {
             { "hp",             SEC_MODERATOR,      false, &HandleModifyHPCommand,            "", NULL },
@@ -41,29 +51,26 @@ public:
             { "runicpower",     SEC_MODERATOR,      false, &HandleModifyRunicPowerCommand,    "", NULL },
             { "energy",         SEC_MODERATOR,      false, &HandleModifyEnergyCommand,        "", NULL },
             { "money",          SEC_MODERATOR,      false, &HandleModifyMoneyCommand,         "", NULL },
-            { "speed",          SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
-            { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
             { "scale",          SEC_MODERATOR,      false, &HandleModifyScaleCommand,         "", NULL },
             { "bit",            SEC_MODERATOR,      false, &HandleModifyBitCommand,           "", NULL },
-            { "bwalk",          SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
-            { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
-            { "aspeed",         SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
             { "faction",        SEC_MODERATOR,      false, &HandleModifyFactionCommand,       "", NULL },
             { "spell",          SEC_MODERATOR,      false, &HandleModifySpellCommand,         "", NULL },
-            { "tp",             SEC_MODERATOR,      false, &HandleModifyTalentCommand,        "", NULL },
+            { "talentpoints",   SEC_MODERATOR,      false, &HandleModifyTalentCommand,        "", NULL },
             { "mount",          SEC_MODERATOR,      false, &HandleModifyMountCommand,         "", NULL },
             { "honor",          SEC_MODERATOR,      false, &HandleModifyHonorCommand,         "", NULL },
-            { "rep",            SEC_GAMEMASTER,     false, &HandleModifyRepCommand,           "", NULL },
-            { "arena",          SEC_MODERATOR,      false, &HandleModifyArenaCommand,         "", NULL },
+            { "reputation",     SEC_GAMEMASTER,     false, &HandleModifyRepCommand,           "", NULL },
+            { "arenapoints",    SEC_MODERATOR,      false, &HandleModifyArenaCommand,         "", NULL },
             { "drunk",          SEC_MODERATOR,      false, &HandleModifyDrunkCommand,         "", NULL },
             { "standstate",     SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    "", NULL },
-            { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,         "", NULL },
             { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
             { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
+            { "speed",          SEC_MODERATOR,      false, NULL,           "", modifyspeedCommandTable },
             { NULL,             0,                  false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
         {
+            { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,          "", NULL },
+            { "demorph",        SEC_GAMEMASTER,     false, &HandleDeMorphCommand,              "", NULL },
             { "modify",         SEC_MODERATOR,      false, NULL,                 "", modifyCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
@@ -191,7 +198,7 @@ public:
         target->SetMaxPower(POWER_ENERGY, energym);
         target->SetPower(POWER_ENERGY, energy);
 
-        sLog->outDetail(handler->GetTrinityString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
+        sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
 
         return true;
     }
@@ -711,7 +718,7 @@ public:
                 (ChatHandler(player)).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
         }
 
-        target->SetFloatValue(OBJECT_FIELD_SCALE_X, Scale);
+        target->SetObjectScale(Scale);
 
         return true;
     }
@@ -1003,7 +1010,7 @@ public:
         {
             int32 newmoney = int32(moneyuser) + addmoney;
 
-            sLog->outDetail(handler->GetTrinityString(LANG_CURRENT_MONEY), moneyuser, addmoney, newmoney);
+            sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_CURRENT_MONEY), moneyuser, addmoney, newmoney);
             if (newmoney <= 0)
             {
                 handler->PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, handler->GetNameLink(target).c_str());
@@ -1035,7 +1042,7 @@ public:
                 target->ModifyMoney(addmoney);
         }
 
-        sLog->outDetail(handler->GetTrinityString(LANG_NEW_MONEY), moneyuser, addmoney, target->GetMoney());
+        sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_NEW_MONEY), moneyuser, addmoney, target->GetMoney());
 
         return true;
     }
@@ -1123,20 +1130,15 @@ public:
 
     static bool HandleModifyDrunkCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)    return false;
+        if (!*args)
+            return false;
 
-        uint32 drunklevel = (uint32)atoi(args);
+        uint8 drunklevel = (uint8)atoi(args);
         if (drunklevel > 100)
             drunklevel = 100;
 
-        uint16 drunkMod = drunklevel * 0xFFFF / 100;
-
-        Player* target = handler->getSelectedPlayer();
-        if (!target)
-            target = handler->GetSession()->GetPlayer();
-
-        if (target)
-            target->SetDrunkValue(drunkMod);
+        if (Player* target = handler->getSelectedPlayer())
+            target->SetDrunkValue(drunklevel);
 
         return true;
     }
@@ -1234,7 +1236,7 @@ public:
             return false;
         }
 
-        target->GetReputationMgr().SetReputation(factionEntry, amount);
+        target->GetReputationMgr().SetOneFactionReputation(factionEntry, amount, false);
         handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[handler->GetSessionDbcLocale()], factionId,
             handler->GetNameLink(target).c_str(), target->GetReputationMgr().GetReputation(factionEntry));
         return true;
@@ -1373,6 +1375,21 @@ public:
 
         if (handler->needReportToTarget(target))
             (ChatHandler(target)).PSendSysMessage(LANG_YOUR_GENDER_CHANGED, gender_full, handler->GetNameLink().c_str());
+
+        return true;
+    }
+//demorph player or unit
+    static bool HandleDeMorphCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        Unit* target = handler->getSelectedUnit();
+        if (!target)
+            target = handler->GetSession()->GetPlayer();
+
+        // check online security
+        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+            return false;
+
+        target->DeMorph();
 
         return true;
     }

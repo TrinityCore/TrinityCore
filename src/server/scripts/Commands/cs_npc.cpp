@@ -28,6 +28,7 @@ EndScriptData */
 #include "Transport.h"
 #include "CreatureGroups.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
+#include "CreatureAI.h"
 
 class npc_commandscript : public CommandScript
 {
@@ -73,6 +74,7 @@ public:
             { "phase",          SEC_GAMEMASTER,     false, &HandleNpcSetPhaseCommand,          "", NULL },
             { "spawndist",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnDistCommand,      "", NULL },
             { "spawntime",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnTimeCommand,      "", NULL },
+            { "data",           SEC_ADMINISTRATOR,  false, &HandleNpcSetDataCommand,           "", NULL },
             //{ TODO: fix or remove these commands
             { "name",           SEC_GAMEMASTER,     false, &HandleNpcSetNameCommand,           "", NULL },
             { "subname",        SEC_GAMEMASTER,     false, &HandleNpcSetSubNameCommand,        "", NULL },
@@ -524,6 +526,39 @@ public:
         return true;
     }
 
+    //set data of creature for testing scripting
+    static bool HandleNpcSetDataCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        char* arg1 = strtok((char*)args, " ");
+        char* arg2 = strtok((char*)NULL, "");
+
+        if (!arg1 || !arg2)
+            return false;
+
+        uint32 data_1 = (uint32)atoi(arg1);
+        uint32 data_2 = (uint32)atoi(arg2);
+
+        if (!data_1 || !data_2)
+            return false;
+
+        Creature* creature = handler->getSelectedCreature();
+
+        if (!creature)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        creature->AI()->SetData(data_1, data_2);
+        std::string AIorScript = creature->GetAIName() != "" ? "AI type: " + creature->GetAIName() : (creature->GetScriptName() != "" ? "Script Name: " + creature->GetScriptName() : "No AI or Script Name Set");
+        handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID(), creature->GetEntry(), creature->GetName(), data_1, data_2, AIorScript.c_str());
+        return true;
+    }
+
     //npc follow handling
     static bool HandleNpcFollowCommand(ChatHandler* handler, const char* /*args*/)
     {
@@ -769,7 +804,7 @@ public:
 
         if (dontdel_str)
         {
-            //sLog->outError("DEBUG: All 3 params are set");
+            //sLog->outError(LOG_FILTER_GENERAL, "DEBUG: All 3 params are set");
 
             // All 3 params are set
             // GUID
@@ -777,7 +812,7 @@ public:
             // doNotDEL
             if (stricmp(dontdel_str, "NODEL") == 0)
             {
-                //sLog->outError("DEBUG: doNotDelete = true;");
+                //sLog->outError(LOG_FILTER_GENERAL, "DEBUG: doNotDelete = true;");
                 doNotDelete = true;
             }
         }
@@ -786,10 +821,10 @@ public:
             // Only 2 params - but maybe NODEL is set
             if (type_str)
             {
-                sLog->outError("DEBUG: Only 2 params ");
+                sLog->outError(LOG_FILTER_GENERAL, "DEBUG: Only 2 params ");
                 if (stricmp(type_str, "NODEL") == 0)
                 {
-                    //sLog->outError("DEBUG: type_str, NODEL ");
+                    //sLog->outError(LOG_FILTER_GENERAL, "DEBUG: type_str, NODEL ");
                     doNotDelete = true;
                     type_str = NULL;
                 }

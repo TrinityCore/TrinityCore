@@ -27,7 +27,9 @@ EndScriptData */
 npc_deathly_usher
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_deathly_usher

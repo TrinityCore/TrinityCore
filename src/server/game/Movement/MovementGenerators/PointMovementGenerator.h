@@ -36,6 +36,8 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 
         void MovementInform(T &);
 
+        void unitSpeedChanged() { i_recalculateSpeed = true; }
+
         MovementGeneratorType GetMovementGeneratorType() { return POINT_MOTION_TYPE; }
 
         bool GetDestination(float& x, float& y, float& z) const { x=i_x; y=i_y; z=i_z; return true; }
@@ -44,6 +46,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         float i_x, i_y, i_z;
         float speed;
         bool m_generatePath;
+        bool i_recalculateSpeed;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>

@@ -440,6 +440,8 @@ public:
     int32 GetDuration() const;
     int32 GetMaxDuration() const;
 
+    uint32 GetMaxTicks() const;
+
     uint32 CalcCastTime(Unit* caster = NULL, Spell* spell = NULL) const;
     uint32 GetRecoveryTime() const;
 

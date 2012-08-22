@@ -33,15 +33,19 @@ go_ravager_cage
 npc_death_ravager
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include <cmath>
+#include "ScriptedGossip.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
 
 /*######
 ## npc_draenei_survivor
 ######*/
 
-enum eEnums
+enum draeneiSurvivor
 {
     SAY_HEAL1           = -1000176,
     SAY_HEAL2           = -1000177,
@@ -175,7 +179,7 @@ public:
 ## npc_engineer_spark_overgrind
 ######*/
 
-enum eOvergrind
+enum Overgrind
 {
     SAY_TEXT        = -1000184,
     SAY_EMOTE       = -1000185,
@@ -235,15 +239,15 @@ public:
         uint32 NormFaction;
         uint32 NpcFlags;
 
-        uint32 Dynamite_Timer;
-        uint32 Emote_Timer;
+        uint32 DynamiteTimer;
+        uint32 EmoteTimer;
 
         bool IsTreeEvent;
 
         void Reset()
         {
-            Dynamite_Timer = 8000;
-            Emote_Timer = urand(120000, 150000);
+            DynamiteTimer = 8000;
+            EmoteTimer = urand(120000, 150000);
 
             me->setFaction(NormFaction);
             me->SetUInt32Value(UNIT_NPC_FLAGS, NpcFlags);
@@ -260,12 +264,12 @@ public:
         {
             if (!me->isInCombat() && !IsTreeEvent)
             {
-                if (Emote_Timer <= diff)
+                if (EmoteTimer <= diff)
                 {
                     DoScriptText(SAY_TEXT, me);
                     DoScriptText(SAY_EMOTE, me);
-                    Emote_Timer = urand(120000, 150000);
-                } else Emote_Timer -= diff;
+                    EmoteTimer = urand(120000, 150000);
+                } else EmoteTimer -= diff;
             }
             else if (IsTreeEvent)
                 return;
@@ -273,11 +277,11 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (Dynamite_Timer <= diff)
+            if (DynamiteTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_DYNAMITE);
-                Dynamite_Timer = 8000;
-            } else Dynamite_Timer -= diff;
+                DynamiteTimer = 8000;
+            } else DynamiteTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -307,7 +311,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
             me->SetHealth(me->CountPctFromMaxHealth(15));
-            switch (rand()%2)
+            switch (urand(0, 1))
             {
                 case 0:
                     me->SetStandState(UNIT_STAND_STATE_SIT);
@@ -321,14 +325,9 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void MoveInLineOfSight(Unit* /*who*/)
-        {
-        }
+        void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 /*diff*/)
-        {
-        }
-
+        void UpdateAI(const uint32 /*diff*/) {}
     };
 
 };
@@ -337,7 +336,7 @@ public:
 ## npc_magwin
 ######*/
 
-enum eMagwin
+enum Magwin
 {
     SAY_START                   = -1000111,
     SAY_AGGRO                   = -1000112,
@@ -376,26 +375,25 @@ public:
 
         void WaypointReached(uint32 waypointId)
         {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
+            if (Player* player = GetPlayerForEscort())
             {
-                case 0:
-                    DoScriptText(SAY_START, me, player);
-                    break;
-                case 17:
-                    DoScriptText(SAY_PROGRESS, me, player);
-                    break;
-                case 28:
-                    DoScriptText(SAY_END1, me, player);
-                    break;
-                case 29:
-                    DoScriptText(EMOTE_HUG, me, player);
-                    DoScriptText(SAY_END2, me, player);
-                    player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
-                    break;
+                switch (waypointId)
+                {
+                    case 0:
+                        DoScriptText(SAY_START, me, player);
+                        break;
+                    case 17:
+                        DoScriptText(SAY_PROGRESS, me, player);
+                        break;
+                    case 28:
+                        DoScriptText(SAY_END1, me, player);
+                        break;
+                    case 29:
+                        DoScriptText(EMOTE_HUG, me, player);
+                        DoScriptText(SAY_END2, me, player);
+                        player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
+                        break;
+                }
             }
         }
 
@@ -404,7 +402,7 @@ public:
             DoScriptText(SAY_AGGRO, me, who);
         }
 
-        void Reset() { }
+        void Reset() {}
     };
 
 };
@@ -413,7 +411,7 @@ public:
 ## npc_geezle
 ######*/
 
-enum eGeezle
+enum Geezle
 {
     QUEST_TREES_COMPANY = 9531,
 
@@ -433,7 +431,7 @@ enum eGeezle
     GO_NAGA_FLAG    = 181694
 };
 
-static float SparkPos[3] = {-5029.91f, -11291.79f, 8.096f};
+Position const SparkPos = {-5029.91f, -11291.79f, 8.096f, 0.0f};
 
 class npc_geezle : public CreatureScript
 {
@@ -451,7 +449,7 @@ public:
 
         uint64 SparkGUID;
 
-        uint32 Step;
+        uint8 Step;
         uint32 SayTimer;
 
         bool EventStarted;
@@ -469,8 +467,7 @@ public:
         {
             Step = 0;
             EventStarted = true;
-            Creature* Spark = me->SummonCreature(MOB_SPARK, SparkPos[0], SparkPos[1], SparkPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
-            if (Spark)
+            if (Creature* Spark = me->SummonCreature(MOB_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
             {
                 SparkGUID = Spark->GetGUID();
                 Spark->setActive(true);
@@ -479,47 +476,47 @@ public:
             SayTimer = 8000;
         }
 
-        uint32 NextStep(uint32 Step)
+        uint32 NextStep(uint8 Step)
         {
             Creature* Spark = Unit::GetCreature(*me, SparkGUID);
 
             switch (Step)
             {
-            case 0:
-                if (Spark)
-                    Spark->GetMotionMaster()->MovePoint(0, -5080.70f, -11253.61f, 0.56f);
-                me->GetMotionMaster()->MovePoint(0, -5092.26f, -11252, 0.71f);
-                return 9000; // NPCs are walking up to fire
-            case 1:
-                DespawnNagaFlag(true);
-                DoScriptText(EMOTE_SPARK, Spark);
-                return 1000;
-            case 2:
-                DoScriptText(GEEZLE_SAY_1, me, Spark);
-                if (Spark)
-                {
-                    Spark->SetInFront(me);
-                    me->SetInFront(Spark);
-                }
-                return 5000;
-            case 3: DoScriptText(SPARK_SAY_2, Spark); return 7000;
-            case 4: DoScriptText(SPARK_SAY_3, Spark); return 8000;
-            case 5: DoScriptText(GEEZLE_SAY_4, me, Spark); return 8000;
-            case 6: DoScriptText(SPARK_SAY_5, Spark); return 9000;
-            case 7: DoScriptText(SPARK_SAY_6, Spark); return 8000;
-            case 8: DoScriptText(GEEZLE_SAY_7, me, Spark); return 2000;
-            case 9:
-                me->GetMotionMaster()->MoveTargetedHome();
-                if (Spark)
-                    Spark->GetMotionMaster()->MovePoint(0, SparkPos[0], SparkPos[1], SparkPos[2]);
-                CompleteQuest();
-                return 9000;
-            case 10:
-                if (Spark)
-                    Spark->DisappearAndDie();
-                DespawnNagaFlag(false);
-                me->DisappearAndDie();
-            default: return 99999999;
+                case 0:
+                    if (Spark)
+                        Spark->GetMotionMaster()->MovePoint(0, -5080.70f, -11253.61f, 0.56f);
+                    me->GetMotionMaster()->MovePoint(0, -5092.26f, -11252, 0.71f);
+                    return 9000; // NPCs are walking up to fire
+                case 1:
+                    DespawnNagaFlag(true);
+                    DoScriptText(EMOTE_SPARK, Spark);
+                    return 1000;
+                case 2:
+                    DoScriptText(GEEZLE_SAY_1, me, Spark);
+                    if (Spark)
+                    {
+                        Spark->SetInFront(me);
+                        me->SetInFront(Spark);
+                    }
+                    return 5000;
+                case 3: DoScriptText(SPARK_SAY_2, Spark); return 7000;
+                case 4: DoScriptText(SPARK_SAY_3, Spark); return 8000;
+                case 5: DoScriptText(GEEZLE_SAY_4, me, Spark); return 8000;
+                case 6: DoScriptText(SPARK_SAY_5, Spark); return 9000;
+                case 7: DoScriptText(SPARK_SAY_6, Spark); return 8000;
+                case 8: DoScriptText(GEEZLE_SAY_7, me, Spark); return 2000;
+                case 9:
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    if (Spark)
+                        Spark->GetMotionMaster()->MovePoint(0, SparkPos);
+                    CompleteQuest();
+                    return 9000;
+                case 10:
+                    if (Spark)
+                        Spark->DisappearAndDie();
+                    DespawnNagaFlag(false);
+                    me->DisappearAndDie();
+                default: return 99999999;
             }
         }
 
@@ -533,13 +530,8 @@ public:
             me->VisitNearbyWorldObject(radius, searcher);
 
             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE
-                    &&(*itr)->HasAura(SPELL_TREE_DISGUISE))
-                {
+                if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))
                     (*itr)->KilledMonsterCredit(MOB_SPARK, 0);
-                }
-            }
         }
 
         void DespawnNagaFlag(bool despawn)
@@ -552,13 +544,13 @@ public:
                 for (std::list<GameObject*>::const_iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
                 {
                     if (despawn)
-                    {
                         (*itr)->SetLootState(GO_JUST_DEACTIVATED);
-                    }
                     else
                         (*itr)->Respawn();
                 }
-            } else sLog->outError("SD2 ERROR: FlagList is empty!");
+            }
+            else
+                sLog->outError(LOG_FILTER_TSCR, "SD2 ERROR: FlagList is empty!");
         }
 
         void UpdateAI(const uint32 diff)
@@ -566,16 +558,16 @@ public:
             if (SayTimer <= diff)
             {
                 if (EventStarted)
-                {
                     SayTimer = NextStep(Step++);
-                }
-            } else SayTimer -= diff;
+            }
+            else
+                SayTimer -= diff;
         }
     };
 
 };
 
-enum eRavegerCage
+enum RavegerCage
 {
     NPC_DEATH_RAVAGER       = 17556,
 

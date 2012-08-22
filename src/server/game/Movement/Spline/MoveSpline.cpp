@@ -153,7 +153,7 @@ void MoveSpline::init_spline(const MoveSplineInitArgs& args)
     // TODO: what to do in such cases? problem is in input data (all points are at same coords)
     if (spline.length() < minimal_duration)
     {
-        sLog->outError("MoveSpline::init_spline: zero length spline, wrong input data?");
+        sLog->outError(LOG_FILTER_GENERAL, "MoveSpline::init_spline: zero length spline, wrong input data?");
         spline.set_length(spline.last(), spline.isCyclic() ? 1000 : 1);
     }
     point_Idx = spline.first();
@@ -199,11 +199,11 @@ bool MoveSplineInitArgs::Validate() const
 #define CHECK(exp) \
     if (!(exp))\
     {\
-        sLog->outError("MoveSplineInitArgs::Validate: expression '%s' failed", #exp);\
+        sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::Validate: expression '%s' failed", #exp);\
         return false;\
     }
     CHECK(path.size() > 1);
-    CHECK(velocity > 0.f);
+    CHECK(velocity > 0.1f);
     CHECK(time_perc >= 0.f && time_perc <= 1.f);
     //CHECK(_checkPathBounds());
     return true;
@@ -226,7 +226,7 @@ bool MoveSplineInitArgs::_checkPathBounds() const
             offset = path[i] - middle;
             if (fabs(offset.x) >= MAX_OFFSET || fabs(offset.y) >= MAX_OFFSET || fabs(offset.z) >= MAX_OFFSET)
             {
-                sLog->outError("MoveSplineInitArgs::_checkPathBounds check failed");
+                sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::_checkPathBounds check failed");
                 return false;
             }
         }

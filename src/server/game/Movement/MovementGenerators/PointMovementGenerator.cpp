@@ -33,6 +33,7 @@ void PointMovementGenerator<T>::Initialize(T &unit)
         unit.StopMoving();
 
     unit.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+    i_recalculateSpeed = false;
     Movement::MoveSplineInit init(unit);
     init.MoveTo(i_x, i_y, i_z, m_generatePath);
     if (speed > 0.0f)
@@ -53,6 +54,17 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 & /*diff*/)
     }
 
     unit.AddUnitState(UNIT_STATE_ROAMING_MOVE);
+
+    if (i_recalculateSpeed && !unit.movespline->Finalized())
+    {
+        i_recalculateSpeed = false;
+        Movement::MoveSplineInit init(unit);
+        init.MoveTo(i_x, i_y, i_z);
+        if (speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
+            init.SetVelocity(speed);
+        init.Launch();
+    }
+
     return !unit.movespline->Finalized();
 }
 
@@ -82,11 +94,6 @@ void PointMovementGenerator<T>::MovementInform(T & /*unit*/)
 
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature &unit)
 {
-    //if (id == EVENT_FALL_GROUND)
-    //{
-    //    unit.setDeathState(JUST_DIED);
-    //    unit.SetFlying(true);
-    //}
     if (unit.AI())
         unit.AI()->MovementInform(POINT_MOTION_TYPE, id);
 }

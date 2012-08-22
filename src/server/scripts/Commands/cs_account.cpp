@@ -38,7 +38,7 @@ public:
             { "addon",          SEC_ADMINISTRATOR,  true,  &HandleAccountSetAddonCommand,     "", NULL },
             { "gmlevel",        SEC_CONSOLE,        true,  &HandleAccountSetGmLevelCommand,   "", NULL },
             { "password",       SEC_CONSOLE,        true,  &HandleAccountSetPasswordCommand,  "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
         };
         static ChatCommand accountCommandTable[] =
         {
@@ -50,12 +50,12 @@ public:
             { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
             { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,     "", NULL },
             { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
             { "account",        SEC_PLAYER,         true,  NULL,     "", accountCommandTable  },
-            { NULL,             0,                  false, NULL,                     "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                     "", NULL }
         };
         return commandTable;
     }
@@ -110,7 +110,11 @@ public:
             case AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
-                    sLog->outChar("Account: %d (IP: %s) Character:[%s] (GUID: %u) Change Password.", handler->GetSession()->GetAccountId(),handler->GetSession()->GetRemoteAddress().c_str(), handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUIDLow());
+                {
+                    sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (GUID: %u) Change Password."
+                        , handler->GetSession()->GetAccountId(),handler->GetSession()->GetRemoteAddress().c_str()
+                        , handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUIDLow());
+                }
                 break;
             case AOR_NAME_TOO_LONG:
                 handler->SendSysMessage(LANG_ACCOUNT_TOO_LONG);
@@ -232,8 +236,8 @@ public:
             }
             else
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_ERROR, name.c_str());
-
-        } while (result->NextRow());
+        }
+        while (result->NextRow());
 
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
         return true;
@@ -377,7 +381,6 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-
         }
 
         // Let set addon state only for lesser (strong) security level
@@ -535,8 +538,8 @@ public:
 
         ///- Get the command line arguments
         char* account = strtok((char*)args, " ");
-        char* password =  strtok(NULL, " ");
-        char* passwordConfirmation =  strtok(NULL, " ");
+        char* password = strtok(NULL, " ");
+        char* passwordConfirmation = strtok(NULL, " ");
 
         if (!account || !password || !passwordConfirmation)
             return false;
@@ -589,7 +592,6 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
         }
-
         return true;
     }
 };

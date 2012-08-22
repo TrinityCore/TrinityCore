@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Maraudon
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -46,15 +47,15 @@ public:
     {
         boss_landslideAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 KnockAway_Timer;
-        uint32 Trample_Timer;
-        uint32 Landslide_Timer;
+        uint32 KnockAwayTimer;
+        uint32 TrampleTimer;
+        uint32 LandslideTimer;
 
         void Reset()
         {
-            KnockAway_Timer = 8000;
-            Trample_Timer = 2000;
-            Landslide_Timer = 0;
+            KnockAwayTimer = 8000;
+            TrampleTimer = 2000;
+            LandslideTimer = 0;
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -66,32 +67,32 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //KnockAway_Timer
-            if (KnockAway_Timer <= diff)
+            //KnockAwayTimer
+            if (KnockAwayTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKAWAY);
-                KnockAway_Timer = 15000;
+                DoCastVictim(SPELL_KNOCKAWAY);
+                KnockAwayTimer = 15000;
             }
-            else KnockAway_Timer -= diff;
+            else KnockAwayTimer -= diff;
 
-            //Trample_Timer
-            if (Trample_Timer <= diff)
+            //TrampleTimer
+            if (TrampleTimer <= diff)
             {
                 DoCast(me, SPELL_TRAMPLE);
-                Trample_Timer = 8000;
+                TrampleTimer = 8000;
             }
-            else Trample_Timer -= diff;
+            else TrampleTimer -= diff;
 
             //Landslide
             if (HealthBelowPct(50))
             {
-                if (Landslide_Timer <= diff)
+                if (LandslideTimer <= diff)
                 {
                     me->InterruptNonMeleeSpells(false);
                     DoCast(me, SPELL_LANDSLIDE);
-                    Landslide_Timer = 60000;
+                    LandslideTimer = 60000;
                 }
-                else Landslide_Timer -= diff;
+                else LandslideTimer -= diff;
             }
 
             DoMeleeAttackIfReady();

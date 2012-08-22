@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 #define SAY_MIDNIGHT_KILL           -1532000
 #define SAY_APPEAR1                 -1532001
@@ -79,6 +80,12 @@ public:
 
         void Reset()
         {
+            ResetTimer = 0;
+        }
+
+        void EnterEvadeMode()
+        {
+            ScriptedAI::EnterEvadeMode();
             ResetTimer = 2000;
         }
 
@@ -185,7 +192,7 @@ public:
                                 pAttumen->GetMotionMaster()->MoveChase(pAttumen->getVictim());
                                 pAttumen->SetTarget(pAttumen->getVictim()->GetGUID());
                             }
-                            pAttumen->SetFloatValue(OBJECT_FIELD_SCALE_X, 1);
+                            pAttumen->SetObjectScale(1);
                         }
                     } else Mount_Timer -= diff;
                 }
@@ -244,8 +251,8 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
             Midnight = 0;
             me->SetVisible(false);
             me->Kill(me);
-        }
-    } else ResetTimer -= diff;
+        } else ResetTimer -= diff;
+    }
 
     //Return since we have no target
     if (!UpdateVictim())

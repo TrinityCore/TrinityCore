@@ -342,13 +342,52 @@ public:
     }
 };
 
+class spell_mage_living_bomb : public SpellScriptLoader
+{
+    public:
+        spell_mage_living_bomb() : SpellScriptLoader("spell_mage_living_bomb") { }
+
+        class spell_mage_living_bomb_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_living_bomb_AuraScript);
+
+            bool Validate(SpellInfo const* spell)
+            {
+                if (!sSpellMgr->GetSpellInfo(uint32(spell->Effects[EFFECT_1].CalcValue())))
+                    return false;
+                return true;
+            }
+
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL && removeMode != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_living_bomb_AuraScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
-    new spell_mage_blast_wave;
-    new spell_mage_cold_snap;
+    new spell_mage_blast_wave();
+    new spell_mage_cold_snap();
     new spell_mage_frost_warding_trigger();
     new spell_mage_incanters_absorbtion_absorb();
     new spell_mage_incanters_absorbtion_manashield();
-    new spell_mage_polymorph_cast_visual;
-    new spell_mage_summon_water_elemental;
+    new spell_mage_polymorph_cast_visual();
+    new spell_mage_summon_water_elemental();
+    new spell_mage_living_bomb();
 }

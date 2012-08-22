@@ -29,7 +29,9 @@ npc_thrall
 npc_tyrande_whisperwind
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "hyjalAI.h"
 
 #define GOSSIP_ITEM_BEGIN_ALLY      "My companions and I are with you, Lady Proudmoore."
@@ -69,7 +71,7 @@ public:
                 break;
              case GOSSIP_ACTION_INFO_DEF:
                 ai->Debug = !ai->Debug;
-                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: HyjalAI - Debug mode has been toggled");
+                sLog->outDebug(LOG_FILTER_TSCR, "HyjalAI - Debug mode has been toggled");
                 break;
         }
         return true;
@@ -146,7 +148,7 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF:
                 ai->Debug = !ai->Debug;
-                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: HyjalAI - Debug mode has been toggled");
+                sLog->outDebug(LOG_FILTER_TSCR, "HyjalAI - Debug mode has been toggled");
                 break;
         }
         return true;
@@ -226,7 +228,6 @@ public:
                          player->SendNewItem(item, 1, true, false, true);
                 }
                 player->SEND_GOSSIP_MENU(907, creature->GetGUID());
-                CAST_AI(hyjalAI, creature->AI());
         }
         return true;
     }

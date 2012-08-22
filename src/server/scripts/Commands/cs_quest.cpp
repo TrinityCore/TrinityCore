@@ -38,6 +38,7 @@ public:
             { "add",            SEC_ADMINISTRATOR,  false, &HandleQuestAdd,                    "", NULL },
             { "complete",       SEC_ADMINISTRATOR,  false, &HandleQuestComplete,               "", NULL },
             { "remove",         SEC_ADMINISTRATOR,  false, &HandleQuestRemove,                 "", NULL },
+            { "reward",         SEC_ADMINISTRATOR,  false, &HandleQuestReward,                 "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -77,7 +78,7 @@ public:
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
         ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
-        ItemTemplateContainer::const_iterator result = find_if (itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
+        ItemTemplateContainer::const_iterator result = find_if(itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
 
         if (result != itc->end())
         {
@@ -242,6 +243,38 @@ public:
             player->ModifyMoney(-ReqOrRewMoney);
 
         player->CompleteQuest(entry);
+        return true;
+    }
+
+    static bool HandleQuestReward(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->getSelectedPlayer();
+        if (!player)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // .quest reward #entry
+        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
+        char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
+        if (!cId)
+            return false;
+
+        uint32 entry = atol(cId);
+
+        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
+
+        // If player doesn't have the quest
+        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        player->RewardQuest(quest, 0, player);
         return true;
     }
 };

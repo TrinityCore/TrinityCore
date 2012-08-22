@@ -354,7 +354,7 @@ class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
     public:
         StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) {}
 
-        bool operator() (Unit* target)
+        bool operator()(WorldObject* target)
         {
             if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
                 return true;
@@ -385,10 +385,10 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargetsInitial(std::list<Unit*>& unitList)
+            void FilterTargetsInitial(std::list<WorldObject*>& unitList)
             {
                 // Remove "main tank" and non-player targets
-                unitList.remove_if (StoneGripTargetSelector(GetCaster()->ToCreature(), GetCaster()->getVictim()));
+                unitList.remove_if(StoneGripTargetSelector(GetCaster()->ToCreature(), GetCaster()->getVictim()));
                 // Maximum affected targets per difficulty mode
                 uint32 maxTargets = 1;
                 if (GetSpellInfo()->Id == 63981)
@@ -397,7 +397,7 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
                 // Return a random amount of targets based on maxTargets
                 while (maxTargets < unitList.size())
                 {
-                    std::list<Unit*>::iterator itr = unitList.begin();
+                    std::list<WorldObject*>::iterator itr = unitList.begin();
                     advance(itr, urand(0, unitList.size()-1));
                     unitList.erase(itr);
                 }
@@ -406,20 +406,20 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
                 m_unitList = unitList;
             }
 
-            void FillTargetsSubsequential(std::list<Unit*>& unitList)
+            void FillTargetsSubsequential(std::list<WorldObject*>& unitList)
             {
                 unitList = m_unitList;
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_ulduar_stone_grip_cast_target_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ulduar_stone_grip_cast_target_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             // Shared between effects
-            std::list<Unit*> m_unitList;
+            std::list<WorldObject*> m_unitList;
         };
 
         SpellScript* GetSpellScript() const
@@ -598,14 +598,14 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
         {
             PrepareSpellScript(spell_kologarn_stone_shout_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                unitList.remove_if (PlayerOrPetCheck());
+                unitList.remove_if(PlayerOrPetCheck());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_kologarn_stone_shout_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kologarn_stone_shout_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

@@ -68,6 +68,7 @@ enum LfgTeleportError
     LFG_TELEPORTERROR_OK                         = 0,      // Internal use
     LFG_TELEPORTERROR_PLAYER_DEAD                = 1,
     LFG_TELEPORTERROR_FALLING                    = 2,
+    LFG_TELEPORTERROR_DONT_REPORT                = 3,
     LFG_TELEPORTERROR_FATIGUE                    = 4,
     LFG_TELEPORTERROR_INVALID_LOCATION           = 6
 };

@@ -22,10 +22,10 @@ Comment: All learn related commands
 Category: commandscripts
 EndScriptData */
 
+#include "Chat.h"
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
-#include "Chat.h"
 #include "SpellInfo.h"
 
 class learn_commandscript : public CommandScript
@@ -37,35 +37,36 @@ public:
     {
         static ChatCommand learnAllMyCommandTable[] =
         {
-            { "class",          SEC_ADMINISTRATOR,  false, &HandleLearnAllMyClassCommand,      "", NULL },
-            { "pettalents",     SEC_ADMINISTRATOR,  false, &HandleLearnAllMyPetTalentsCommand, "", NULL },
-            { "spells",         SEC_ADMINISTRATOR,  false, &HandleLearnAllMySpellsCommand,     "", NULL },
-            { "talents",        SEC_ADMINISTRATOR,  false, &HandleLearnAllMyTalentsCommand,    "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "class",          SEC_ADMINISTRATOR,  false, &HandleLearnAllMyClassCommand,       "", NULL },
+            { "pettalents",     SEC_ADMINISTRATOR,  false, &HandleLearnAllMyPetTalentsCommand,  "", NULL },
+            { "spells",         SEC_ADMINISTRATOR,  false, &HandleLearnAllMySpellsCommand,      "", NULL },
+            { "talents",        SEC_ADMINISTRATOR,  false, &HandleLearnAllMyTalentsCommand,     "", NULL },
+            { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand learnAllCommandTable[] =
         {
-            { "my",             SEC_ADMINISTRATOR,  false, NULL,            "",  learnAllMyCommandTable },
-            { "gm",             SEC_GAMEMASTER,     false, &HandleLearnAllGMCommand,           "", NULL },
-            { "crafts",         SEC_GAMEMASTER,     false, &HandleLearnAllCraftsCommand,       "", NULL },
-            { "default",        SEC_MODERATOR,      false, &HandleLearnAllDefaultCommand,      "", NULL },
-            { "lang",           SEC_MODERATOR,      false, &HandleLearnAllLangCommand,         "", NULL },
-            { "recipes",        SEC_GAMEMASTER,     false, &HandleLearnAllRecipesCommand,      "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "my",             SEC_ADMINISTRATOR,  false, NULL,                                "",  learnAllMyCommandTable },
+            { "gm",             SEC_GAMEMASTER,     false, &HandleLearnAllGMCommand,            "", NULL },
+            { "crafts",         SEC_GAMEMASTER,     false, &HandleLearnAllCraftsCommand,        "", NULL },
+            { "default",        SEC_MODERATOR,      false, &HandleLearnAllDefaultCommand,       "", NULL },
+            { "lang",           SEC_MODERATOR,      false, &HandleLearnAllLangCommand,          "", NULL },
+            { "recipes",        SEC_GAMEMASTER,     false, &HandleLearnAllRecipesCommand,       "", NULL },
+            { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand learnCommandTable[] =
         {
-            { "all",            SEC_ADMINISTRATOR,  false, NULL,              "",  learnAllCommandTable },
-            { "",               SEC_ADMINISTRATOR,  false, &HandleLearnCommand,                "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "all",            SEC_ADMINISTRATOR,  false, NULL,                                "",  learnAllCommandTable },
+            { "",               SEC_ADMINISTRATOR,  false, &HandleLearnCommand,                 "", NULL },
+            { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "learn",          SEC_MODERATOR,      false, NULL,                  "", learnCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "learn",          SEC_MODERATOR,      false, NULL,                                "", learnCommandTable },
+            { "unlearn",        SEC_ADMINISTRATOR,  false, &HandleUnLearnCommand,               "", NULL },
+            { NULL,             0,                  false, NULL,                                "", NULL }
         };
         return commandTable;
     }
@@ -465,6 +466,41 @@ public:
 
             player->learnSpell(skillLine->spellId, false);
         }
+    }
+
+    static bool HandleUnLearnCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
+        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
+        if (!spellId)
+            return false;
+
+        char const* allStr = strtok(NULL, " ");
+        bool allRanks = allStr ? (strncmp(allStr, "all", strlen(allStr)) == 0) : false;
+
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (allRanks)
+            spellId = sSpellMgr->GetFirstSpellInChain (spellId);
+
+        if (target->HasSpell(spellId))
+            target->removeSpell(spellId, false, !allRanks);
+        else
+            handler->SendSysMessage(LANG_FORGET_SPELL);
+
+        if (GetTalentSpellCost(spellId))
+            target->SendTalentsInfoData(false);
+
+        return true;
     }
 };
 

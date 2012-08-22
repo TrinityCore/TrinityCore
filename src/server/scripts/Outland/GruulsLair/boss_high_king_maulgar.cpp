@@ -23,7 +23,8 @@ SDComment: Correct timers, after whirlwind melee attack bug, prayer of healing
 SDCategory: Gruul's Lair
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "gruuls_lair.h"
 
 #define SAY_AGGRO               -1565000

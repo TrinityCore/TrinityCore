@@ -350,7 +350,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->spellid[s]);
                             if (!spellInfo)
                             {
-                                sLog->outError("Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName(), player->GetGUIDLow(), enchant->spellid[s]);
+                                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName(), player->GetGUIDLow(), enchant->spellid[s]);
                                 continue;
                             }
 
@@ -386,6 +386,34 @@ class spell_rog_deadly_poison : public SpellScriptLoader
         }
 };
 
+class spell_rog_shadowstep : public SpellScriptLoader
+{
+    public:
+        spell_rog_shadowstep() : SpellScriptLoader("spell_rog_shadowstep") { }
+
+        class spell_rog_shadowstep_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_shadowstep_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (GetCaster()->HasUnitState(UNIT_STATE_ROOT))
+                    return SPELL_FAILED_ROOTED;
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_rog_shadowstep_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_shadowstep_SpellScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_cheat_death();
@@ -394,4 +422,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_prey_on_the_weak();
     new spell_rog_shiv();
     new spell_rog_deadly_poison();
+    new spell_rog_shadowstep();
 }

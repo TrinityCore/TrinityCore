@@ -29,8 +29,9 @@ npc_kyle_frenzied
 npc_plains_vision
 EndContentData */
 
-#include "ScriptPCH.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 /*######
 # npc_skorn_whitecloud
@@ -71,7 +72,7 @@ public:
 # npc_kyle_frenzied
 ######*/
 
-enum eKyleFrenzied
+enum KyleFrenzied
 {
     //emote signed for 7780 but propably thats wrong id.
     EMOTE_SEE_LUNCH         = -1000340,
@@ -98,30 +99,30 @@ public:
     {
         npc_kyle_frenziedAI(Creature* creature) : ScriptedAI(creature) {}
 
-        bool bEvent;
-        bool m_bIsMovingToLunch;
-        uint64 uiPlayerGUID;
-        uint32 uiEventTimer;
-        uint8 uiEventPhase;
+        bool EventActive;
+        bool IsMovingToLunch;
+        uint64 PlayerGUID;
+        uint32 EventTimer;
+        uint8 EventPhase;
 
         void Reset()
         {
-            bEvent = false;
-            m_bIsMovingToLunch = false;
-            uiPlayerGUID = 0;
-            uiEventTimer = 5000;
-            uiEventPhase = 0;
+            EventActive = false;
+            IsMovingToLunch = false;
+            PlayerGUID = 0;
+            EventTimer = 5000;
+            EventPhase = 0;
 
             if (me->GetEntry() == NPC_KYLE_FRIENDLY)
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell)
+        void SpellHit(Unit* Caster, SpellInfo const* Spell)
         {
-            if (!me->getVictim() && !bEvent && pSpell->Id == SPELL_LUNCH)
+            if (!me->getVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
             {
-                if (pCaster->GetTypeId() == TYPEID_PLAYER)
-                    uiPlayerGUID = pCaster->GetGUID();
+                if (Caster->GetTypeId() == TYPEID_PLAYER)
+                    PlayerGUID = Caster->GetGUID();
 
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
                 {
@@ -130,41 +131,41 @@ public:
                     me->StopMoving();
                 }
 
-                bEvent = true;
+                EventActive = true;
                 DoScriptText(EMOTE_SEE_LUNCH, me);
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
             }
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 Type, uint32 PointId)
         {
-            if (uiType != POINT_MOTION_TYPE || !bEvent)
+            if (Type != POINT_MOTION_TYPE || !EventActive)
                 return;
 
-            if (uiPointId == POINT_ID)
-                m_bIsMovingToLunch = false;
+            if (PointId == POINT_ID)
+                IsMovingToLunch = false;
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (bEvent)
+            if (EventActive)
             {
-                if (m_bIsMovingToLunch)
+                if (IsMovingToLunch)
                     return;
 
-                if (uiEventTimer <= diff)
+                if (EventTimer <= diff)
                 {
-                    uiEventTimer = 5000;
-                    ++uiEventPhase;
+                    EventTimer = 5000;
+                    ++EventPhase;
 
-                    switch (uiEventPhase)
+                    switch (EventPhase)
                     {
                         case 1:
-                            if (Unit* unit = Unit::GetUnit(*me, uiPlayerGUID))
+                            if (Unit* unit = Unit::GetUnit(*me, PlayerGUID))
                             {
                                 if (GameObject* go = unit->GetGameObject(SPELL_LUNCH))
                                 {
-                                    m_bIsMovingToLunch = true;
+                                    IsMovingToLunch = true;
                                     me->GetMotionMaster()->MovePoint(POINT_ID, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
                                 }
                             }
@@ -174,13 +175,13 @@ public:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             break;
                         case 3:
-                            if (Player* unit = Unit::GetPlayer(*me, uiPlayerGUID))
+                            if (Player* unit = Unit::GetPlayer(*me, PlayerGUID))
                                 unit->TalkedToCreature(me->GetEntry(), me->GetGUID());
 
                             me->UpdateEntry(NPC_KYLE_FRIENDLY);
                             break;
                         case 4:
-                            uiEventTimer = 30000;
+                            EventTimer = 30000;
                             DoScriptText(EMOTE_DANCE, me);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCESPECIAL);
                             break;
@@ -192,7 +193,7 @@ public:
                     }
                 }
                 else
-                    uiEventTimer -= diff;
+                    EventTimer -= diff;
             }
         }
     };
@@ -203,58 +204,58 @@ public:
 # npc_plains_vision
 ######*/
 
-float wp_plain_vision[50][3] =
+Position const wpPlainVision[50] =
 {
-    {-2226.32f,  -408.095f,   -9.36235f},
-    {-2203.04f,  -437.212f,   -5.72498f},
-    {-2163.91f,  -457.851f,   -7.09049f},
-    {-2123.87f,  -448.137f,   -9.29591f},
-    {-2104.66f,  -427.166f,   -6.49513f},
-    {-2101.48f,  -422.826f,   -5.3567f},
-    {-2097.56f,  -417.083f,   -7.16716f},
-    {-2084.87f,  -398.626f,   -9.88973f},
-    {-2072.71f,  -382.324f,   -10.2488f},
-    {-2054.05f,  -356.728f,   -6.22468f},
-    {-2051.8f,   -353.645f,   -5.35791f},
-    {-2049.08f,  -349.912f,   -6.15723f},
-    {-2030.6f,   -310.724f,   -9.59302f},
-    {-2002.15f,  -249.308f,   -10.8124f},
-    {-1972.85f,  -195.811f,   -10.6316f},
-    {-1940.93f,  -147.652f,   -11.7055f},
-    {-1888.06f,  -81.943f,    -11.4404f},
-    {-1837.05f,  -34.0109f,   -12.258f},
-    {-1796.12f,  -14.6462f,   -10.3581f},
-    {-1732.61f,  -4.27746f,   -10.0213f},
-    {-1688.94f,  -0.829945f,  -11.7103f},
-    {-1681.32f,  13.0313f,    -9.48056f},
-    {-1677.04f,  36.8349f,    -7.10318f},
-    {-1675.2f,   68.559f,     -8.95384f},
-    {-1676.57f,  89.023f,     -9.65104f},
-    {-1678.16f,  110.939f,    -10.1782f},
-    {-1677.86f,  128.681f,    -5.73869f},
-    {-1675.27f,  144.324f,    -3.47916f},
-    {-1671.7f,   163.169f,    -1.23098f},
-    {-1666.61f,  181.584f,    5.26145f},
-    {-1661.51f,  196.154f,    8.95252f},
-    {-1655.47f,  210.811f,    8.38727f},
-    {-1647.07f,  226.947f,    5.27755f},
-    {-1621.65f,  232.91f,     2.69579f},
-    {-1600.23f,  237.641f,    2.98539f},
-    {-1576.07f,  242.546f,    4.66541f},
-    {-1554.57f,  248.494f,    6.60377f},
-    {-1547.53f,  259.302f,    10.6741f},
-    {-1541.7f,   269.847f,    16.4418f},
-    {-1539.83f,  278.989f,    21.0597f},
-    {-1540.16f,  290.219f,    27.8247f},
-    {-1538.99f,  298.983f,    34.0032f},
-    {-1540.38f,  307.337f,    41.3557f},
-    {-1536.61f,  314.884f,    48.0179f},
-    {-1532.42f,  323.277f,    55.6667f},
-    {-1528.77f,  329.774f,    61.1525f},
-    {-1525.65f,  333.18f,     63.2161f},
-    {-1517.01f,  350.713f,    62.4286f},
-    {-1511.39f,  362.537f,    62.4539f},
-    {-1508.68f,  366.822f,    62.733f}
+    {-2226.32f,  -408.095f,   -9.36235f, 0.0f},
+    {-2203.04f,  -437.212f,   -5.72498f, 0.0f},
+    {-2163.91f,  -457.851f,   -7.09049f, 0.0f},
+    {-2123.87f,  -448.137f,   -9.29591f, 0.0f},
+    {-2104.66f,  -427.166f,   -6.49513f, 0.0f},
+    {-2101.48f,  -422.826f,   -5.3567f, 0.0f},
+    {-2097.56f,  -417.083f,   -7.16716f, 0.0f},
+    {-2084.87f,  -398.626f,   -9.88973f, 0.0f},
+    {-2072.71f,  -382.324f,   -10.2488f, 0.0f},
+    {-2054.05f,  -356.728f,   -6.22468f, 0.0f},
+    {-2051.8f,   -353.645f,   -5.35791f, 0.0f},
+    {-2049.08f,  -349.912f,   -6.15723f, 0.0f},
+    {-2030.6f,   -310.724f,   -9.59302f, 0.0f},
+    {-2002.15f,  -249.308f,   -10.8124f, 0.0f},
+    {-1972.85f,  -195.811f,   -10.6316f, 0.0f},
+    {-1940.93f,  -147.652f,   -11.7055f, 0.0f},
+    {-1888.06f,  -81.943f,    -11.4404f, 0.0f},
+    {-1837.05f,  -34.0109f,   -12.258f, 0.0f},
+    {-1796.12f,  -14.6462f,   -10.3581f, 0.0f},
+    {-1732.61f,  -4.27746f,   -10.0213f, 0.0f},
+    {-1688.94f,  -0.829945f,  -11.7103f, 0.0f},
+    {-1681.32f,  13.0313f,    -9.48056f, 0.0f},
+    {-1677.04f,  36.8349f,    -7.10318f, 0.0f},
+    {-1675.2f,   68.559f,     -8.95384f, 0.0f},
+    {-1676.57f,  89.023f,     -9.65104f, 0.0f},
+    {-1678.16f,  110.939f,    -10.1782f, 0.0f},
+    {-1677.86f,  128.681f,    -5.73869f, 0.0f},
+    {-1675.27f,  144.324f,    -3.47916f, 0.0f},
+    {-1671.7f,   163.169f,    -1.23098f, 0.0f},
+    {-1666.61f,  181.584f,    5.26145f, 0.0f},
+    {-1661.51f,  196.154f,    8.95252f, 0.0f},
+    {-1655.47f,  210.811f,    8.38727f, 0.0f},
+    {-1647.07f,  226.947f,    5.27755f, 0.0f},
+    {-1621.65f,  232.91f,     2.69579f, 0.0f},
+    {-1600.23f,  237.641f,    2.98539f, 0.0f},
+    {-1576.07f,  242.546f,    4.66541f, 0.0f},
+    {-1554.57f,  248.494f,    6.60377f, 0.0f},
+    {-1547.53f,  259.302f,    10.6741f, 0.0f},
+    {-1541.7f,   269.847f,    16.4418f, 0.0f},
+    {-1539.83f,  278.989f,    21.0597f, 0.0f},
+    {-1540.16f,  290.219f,    27.8247f, 0.0f},
+    {-1538.99f,  298.983f,    34.0032f, 0.0f},
+    {-1540.38f,  307.337f,    41.3557f, 0.0f},
+    {-1536.61f,  314.884f,    48.0179f, 0.0f},
+    {-1532.42f,  323.277f,    55.6667f, 0.0f},
+    {-1528.77f,  329.774f,    61.1525f, 0.0f},
+    {-1525.65f,  333.18f,     63.2161f, 0.0f},
+    {-1517.01f,  350.713f,    62.4286f, 0.0f},
+    {-1511.39f,  362.537f,    62.4539f, 0.0f},
+    {-1508.68f,  366.822f,    62.733f, 0.0f}
 };
 
 class npc_plains_vision : public CreatureScript
@@ -305,7 +306,7 @@ public:
         {
             if (newWaypoint)
             {
-                me->GetMotionMaster()->MovePoint(WayPointId, wp_plain_vision[WayPointId][0], wp_plain_vision[WayPointId][1], wp_plain_vision[WayPointId][2]);
+                me->GetMotionMaster()->MovePoint(WayPointId, wpPlainVision[WayPointId]);
                 newWaypoint = false;
             }
         }

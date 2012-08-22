@@ -23,7 +23,9 @@ SDComment:
 SDCategory: Maraudon
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+
 enum Spells
 {
     SPELL_TOXICVOLLEY           = 21687,
@@ -44,24 +46,22 @@ public:
     {
         boss_noxxionAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 ToxicVolley_Timer;
-        uint32 Uppercut_Timer;
-        uint32 Adds_Timer;
-        uint32 Invisible_Timer;
+        uint32 ToxicVolleyTimer;
+        uint32 UppercutTimer;
+        uint32 AddsTimer;
+        uint32 InvisibleTimer;
         bool Invisible;
 
         void Reset()
         {
-            ToxicVolley_Timer = 7000;
-            Uppercut_Timer = 16000;
-            Adds_Timer = 19000;
-            Invisible_Timer = 15000;                            //Too much too low?
+            ToxicVolleyTimer = 7000;
+            UppercutTimer = 16000;
+            AddsTimer = 19000;
+            InvisibleTimer = 15000;                            //Too much too low?
             Invisible = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void SummonAdds(Unit* victim)
         {
@@ -71,7 +71,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (Invisible && Invisible_Timer <= diff)
+            if (Invisible && InvisibleTimer <= diff)
             {
                 //Become visible again
                 me->setFaction(14);
@@ -83,7 +83,7 @@ public:
             }
             else if (Invisible)
             {
-                Invisible_Timer -= diff;
+                InvisibleTimer -= diff;
                 //Do nothing while invisible
                 return;
             }
@@ -92,24 +92,24 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //ToxicVolley_Timer
-            if (ToxicVolley_Timer <= diff)
+            //ToxicVolleyTimer
+            if (ToxicVolleyTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TOXICVOLLEY);
-                ToxicVolley_Timer = 9000;
+                DoCastVictim(SPELL_TOXICVOLLEY);
+                ToxicVolleyTimer = 9000;
             }
-            else ToxicVolley_Timer -= diff;
+            else ToxicVolleyTimer -= diff;
 
-            //Uppercut_Timer
-            if (Uppercut_Timer <= diff)
+            //UppercutTimer
+            if (UppercutTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_UPPERCUT);
-                Uppercut_Timer = 12000;
+                DoCastVictim(SPELL_UPPERCUT);
+                UppercutTimer = 12000;
             }
-            else Uppercut_Timer -= diff;
+            else UppercutTimer -= diff;
 
-            //Adds_Timer
-            if (!Invisible && Adds_Timer <= diff)
+            //AddsTimer
+            if (!Invisible && AddsTimer <= diff)
             {
                 //Interrupt any spell casting
                 //me->m_canMove = true;
@@ -124,11 +124,11 @@ public:
                 SummonAdds(me->getVictim());
                 SummonAdds(me->getVictim());
                 Invisible = true;
-                Invisible_Timer = 15000;
+                InvisibleTimer = 15000;
 
-                Adds_Timer = 40000;
+                AddsTimer = 40000;
             }
-            else Adds_Timer -= diff;
+            else AddsTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

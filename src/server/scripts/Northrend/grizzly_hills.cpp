@@ -16,7 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -599,100 +600,99 @@ enum eSmokeEmOut
     QUEST_SMOKE_EM_OUT_H                         = 12324,
     SPELL_SMOKE_BOMB                             = 49075,
     SPELL_CHOP                                   = 43410,
-    NPC_VENTURE_CO_STABLES_KC                    = 27568,
+    SPELL_VENTURE_STRAGGLER_CREDIT               = 49093,
 };
 
 class npc_venture_co_straggler : public CreatureScript
 {
-public:
-    npc_venture_co_straggler() : CreatureScript("npc_venture_co_straggler") { }
+    public:
+        npc_venture_co_straggler() : CreatureScript("npc_venture_co_straggler") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_venture_co_stragglerAI(creature);
-    }
-
-    struct npc_venture_co_stragglerAI : public ScriptedAI
-    {
-        npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint64 uiPlayerGUID;
-        uint32 uiRunAwayTimer;
-        uint32 uiTimer;
-        uint32 uiChopTimer;
-
-        void Reset()
+        struct npc_venture_co_stragglerAI : public ScriptedAI
         {
-            uiPlayerGUID = 0;
-            uiTimer = 0;
-            uiChopTimer = urand(10000, 12500);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetReactState(REACT_AGGRESSIVE);
-        }
+            npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (uiRunAwayTimer <= uiDiff)
+            uint64 uiPlayerGUID;
+            uint32 uiRunAwayTimer;
+            uint32 uiTimer;
+            uint32 uiChopTimer;
+
+            void Reset()
             {
-                if (Player* player = Unit::GetPlayer(*me, uiPlayerGUID))
+                uiPlayerGUID = 0;
+                uiTimer = 0;
+                uiRunAwayTimer = 0;
+                uiChopTimer = urand(10000, 12500);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetReactState(REACT_AGGRESSIVE);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (uiPlayerGUID && uiRunAwayTimer <= uiDiff)
                 {
-                    switch (uiTimer)
+                    if (Player* player = Unit::GetPlayer(*me, uiPlayerGUID))
                     {
-                        case 0:
-                            if (player->GetQuestStatus(QUEST_SMOKE_EM_OUT_A) == QUEST_STATUS_INCOMPLETE ||
-                                player->GetQuestStatus(QUEST_SMOKE_EM_OUT_H) == QUEST_STATUS_INCOMPLETE)
-                                player->KilledMonsterCredit(NPC_VENTURE_CO_STABLES_KC, 0);
-                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()+7, me->GetPositionZ());
-                            uiRunAwayTimer = 2500;
-                            ++uiTimer;
-                            break;
-                        case 1:
-                            DoScriptText(RAND(SAY_SEO1, SAY_SEO2, SAY_SEO3, SAY_SEO4, SAY_SEO5), me);
-                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()-5, me->GetPositionZ());
-                            uiRunAwayTimer = 2500;
-                            ++uiTimer;
-                            break;
-                        case 2:
-                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-5, me->GetPositionY()-5, me->GetPositionZ());
-                            uiRunAwayTimer = 2500;
-                            ++uiTimer;
-                            break;
-                        case 3:
-                            me->DisappearAndDie();
-                            uiTimer = 0;
-                            break;
+                        switch (uiTimer)
+                        {
+                            case 0:
+                                DoCast(player, SPELL_VENTURE_STRAGGLER_CREDIT);
+                                me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()+7, me->GetPositionZ());
+                                uiRunAwayTimer = 2500;
+                                ++uiTimer;
+                                break;
+                            case 1:
+                                DoScriptText(RAND(SAY_SEO1, SAY_SEO2, SAY_SEO3, SAY_SEO4, SAY_SEO5), me);
+                                me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()-5, me->GetPositionZ());
+                                uiRunAwayTimer = 2500;
+                                ++uiTimer;
+                                break;
+                            case 2:
+                                me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-5, me->GetPositionY()-5, me->GetPositionZ());
+                                uiRunAwayTimer = 2500;
+                                ++uiTimer;
+                                break;
+                            case 3:
+                                me->DisappearAndDie();
+                                uiTimer = 0;
+                                break;
+                        }
                     }
                 }
+                else if (uiRunAwayTimer)
+                    uiRunAwayTimer -= uiDiff;
+
+                if (!UpdateVictim())
+                    return;
+
+                if (uiChopTimer <= uiDiff)
+                {
+                    DoCast(me->getVictim(), SPELL_CHOP);
+                    uiChopTimer = urand(10000, 12000);
+                }
+                else
+                    uiChopTimer -= uiDiff;
+
+                DoMeleeAttackIfReady();
             }
-            else
-                uiRunAwayTimer -= uiDiff;
 
-            if (!UpdateVictim())
-                return;
-
-            if (uiChopTimer <= uiDiff)
+            void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                DoCast(me->getVictim(), SPELL_CHOP);
-                uiChopTimer = urand(10000, 12000);
+                if (spell->Id == SPELL_SMOKE_BOMB && caster->GetTypeId() == TYPEID_PLAYER)
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetReactState(REACT_PASSIVE);
+                    me->CombatStop(false);
+                    uiPlayerGUID = caster->GetGUID();
+                    uiRunAwayTimer = 3500;
+                }
             }
-            else
-                uiChopTimer -= uiDiff;
+        };
 
-            DoMeleeAttackIfReady();
-        }
-
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
+        CreatureAI* GetAI(Creature* creature) const
         {
-            if (pCaster && pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_SMOKE_BOMB)
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                me->SetReactState(REACT_PASSIVE);
-                me->CombatStop(false);
-                uiPlayerGUID = pCaster->GetGUID();
-                uiRunAwayTimer = 3500;
-            }
+            return new npc_venture_co_stragglerAI(creature);
         }
-    };
 };
 
 void AddSC_grizzly_hills()

@@ -68,7 +68,7 @@ void RealmList::UpdateIfNeed()
 
 void RealmList::UpdateRealms(bool init)
 {
-    sLog->outDetail("Updating Realm List...");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "Updating Realm List...");
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -93,7 +93,7 @@ void RealmList::UpdateRealms(bool init)
             UpdateRealm(realmId, name, address, port, icon, flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
             if (init)
-                sLog->outString("Added realm \"%s\".", fields[1].GetCString());
+                sLog->outInfo(LOG_FILTER_AUTHSERVER, "Added realm \"%s\".", fields[1].GetCString());
         }
         while (result->NextRow());
     }
