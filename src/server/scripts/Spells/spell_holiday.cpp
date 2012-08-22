@@ -20,7 +20,12 @@
  * Scriptnames in this file should be prefixed with "spell_#holidayname_".
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
+#include "CellImpl.h"
 
 // 45102 Romantic Picnic
 enum SpellsPicnic

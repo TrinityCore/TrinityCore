@@ -144,11 +144,24 @@ void GmTicket::SendResponse(WorldSession* session) const
     data << uint32(1);          // responseID
     data << uint32(_id);        // ticketID
     data << _message.c_str();
-    data << _response.c_str();
-    // 3 null strings (unused)
-    data << uint8(0);
-    data << uint8(0);
-    data << uint8(0);
+
+    size_t len = _response.size();
+    char const* s = _response.c_str();
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (len)
+        {
+            size_t writeLen = std::min<size_t>(len, 3999);
+            data.append(s, writeLen);
+
+            len -= writeLen;
+            s += writeLen;
+        }
+
+        data << uint8(0);
+    }
+
     session->SendPacket(&data);
 }
 
@@ -250,8 +263,8 @@ void TicketMgr::LoadTickets()
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
-        sLog->outString(">> Loaded 0 GM tickets. DB table `gm_tickets` is empty!");
-        sLog->outString();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 GM tickets. DB table `gm_tickets` is empty!");
+
         return;
     }
 
@@ -277,8 +290,8 @@ void TicketMgr::LoadTickets()
         ++count;
     } while (result->NextRow());
 
-    sLog->outString(">> Loaded %u GM tickets in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GM tickets in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
 }
 
 void TicketMgr::LoadSurveys()
@@ -290,8 +303,8 @@ void TicketMgr::LoadSurveys()
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyId) FROM gm_surveys"))
         _lastSurveyId = (*result)[0].GetUInt32();
 
-    sLog->outString(">> Loaded GM Survey count from database in %u ms", GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded GM Survey count from database in %u ms", GetMSTimeDiffToNow(oldMSTime));
+
 }
 
 void TicketMgr::AddTicket(GmTicket* ticket)
@@ -371,17 +384,7 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
 
         // we've got the easy stuff done by now.
         // Now we need to go through the client logic for displaying various levels of ticket load
-        if (ticket)
-            ticket->WritePacket(data);
-        else
-        {
-            // we can't actually get any numbers here...
-            data << float(0);
-            data << float(0);
-            data << float(1);
-            data << uint8(0);
-            data << uint8(0);
-        }
+        ticket->WritePacket(data);
     }
     session->SendPacket(&data);
 }

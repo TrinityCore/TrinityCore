@@ -59,8 +59,8 @@ void LoadDisables()
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 disables. DB table `disables` is empty!");
-        sLog->outString();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 disables. DB table `disables` is empty!");
+
         return;
     }
 
@@ -71,7 +71,7 @@ void LoadDisables()
         DisableType type = DisableType(fields[0].GetUInt32());
         if (type >= MAX_DISABLE_TYPES)
         {
-            sLog->outErrorDb("Invalid type %u specified in `disables` table, skipped.", type);
+            sLog->outError(LOG_FILTER_SQL, "Invalid type %u specified in `disables` table, skipped.", type);
             continue;
         }
 
@@ -88,13 +88,13 @@ void LoadDisables()
             case DISABLE_TYPE_SPELL:
                 if (!(sSpellMgr->GetSpellInfo(entry) || flags & SPELL_DISABLE_DEPRECATED_SPELL))
                 {
-                    sLog->outErrorDb("Spell entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Spell entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
 
                 if (!flags || flags > MAX_SPELL_DISABLE_TYPE)
                 {
-                    sLog->outErrorDb("Disable flags for spell %u are invalid, skipped.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Disable flags for spell %u are invalid, skipped.", entry);
                     continue;
                 }
 
@@ -121,7 +121,7 @@ void LoadDisables()
                 MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
                 if (!mapEntry)
                 {
-                    sLog->outErrorDb("Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
                 bool isFlagInvalid = false;
@@ -142,12 +142,12 @@ void LoadDisables()
                         break;
                     case MAP_BATTLEGROUND:
                     case MAP_ARENA:
-                        sLog->outErrorDb("Battleground map %u specified to be disabled in map case, skipped.", entry);
+                        sLog->outError(LOG_FILTER_SQL, "Battleground map %u specified to be disabled in map case, skipped.", entry);
                         continue;
                 }
                 if (isFlagInvalid)
                 {
-                    sLog->outErrorDb("Disable flags for map %u are invalid, skipped.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Disable flags for map %u are invalid, skipped.", entry);
                     continue;
                 }
                 break;
@@ -155,64 +155,64 @@ void LoadDisables()
             case DISABLE_TYPE_BATTLEGROUND:
                 if (!sBattlemasterListStore.LookupEntry(entry))
                 {
-                    sLog->outErrorDb("Battleground entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Battleground entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
                 if (flags)
-                    sLog->outErrorDb("Disable flags specified for battleground %u, useless data.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Disable flags specified for battleground %u, useless data.", entry);
                 break;
             case DISABLE_TYPE_OUTDOORPVP:
                 if (entry > MAX_OUTDOORPVP_TYPES)
                 {
-                    sLog->outErrorDb("OutdoorPvPTypes value %u from `disables` is invalid, skipped.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "OutdoorPvPTypes value %u from `disables` is invalid, skipped.", entry);
                     continue;
                 }
                 if (flags)
-                    sLog->outErrorDb("Disable flags specified for outdoor PvP %u, useless data.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Disable flags specified for outdoor PvP %u, useless data.", entry);
                 break;
             case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
                 if (!sAchievementCriteriaStore.LookupEntry(entry))
                 {
-                    sLog->outErrorDb("Achievement Criteria entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Achievement Criteria entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
                 if (flags)
-                    sLog->outErrorDb("Disable flags specified for Achievement Criteria %u, useless data.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Disable flags specified for Achievement Criteria %u, useless data.", entry);
                 break;
             case DISABLE_TYPE_VMAP:
             {
                 MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
                 if (!mapEntry)
                 {
-                    sLog->outErrorDb("Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    sLog->outError(LOG_FILTER_SQL, "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
                 switch (mapEntry->map_type)
                 {
                     case MAP_COMMON:
                         if (flags & VMAP_DISABLE_AREAFLAG)
-                            sLog->outString("Areaflag disabled for world map %u.", entry);
+                            sLog->outInfo(LOG_FILTER_GENERAL, "Areaflag disabled for world map %u.", entry);
                         if (flags & VMAP_DISABLE_LIQUIDSTATUS)
-                            sLog->outString("Liquid status disabled for world map %u.", entry);
+                            sLog->outInfo(LOG_FILTER_GENERAL, "Liquid status disabled for world map %u.", entry);
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
                         if (flags & VMAP_DISABLE_HEIGHT)
-                            sLog->outString("Height disabled for instance map %u.", entry);
+                            sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for instance map %u.", entry);
                         if (flags & VMAP_DISABLE_LOS)
-                            sLog->outString("LoS disabled for instance map %u.", entry);
+                            sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for instance map %u.", entry);
                         break;
                     case MAP_BATTLEGROUND:
                         if (flags & VMAP_DISABLE_HEIGHT)
-                            sLog->outString("Height disabled for battleground map %u.", entry);
+                            sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for battleground map %u.", entry);
                         if (flags & VMAP_DISABLE_LOS)
-                            sLog->outString("LoS disabled for battleground map %u.", entry);
+                            sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for battleground map %u.", entry);
                         break;
                     case MAP_ARENA:
                         if (flags & VMAP_DISABLE_HEIGHT)
-                            sLog->outString("Height disabled for arena map %u.", entry);
+                            sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for arena map %u.", entry);
                         if (flags & VMAP_DISABLE_LOS)
-                            sLog->outString("LoS disabled for arena map %u.", entry);
+                            sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for arena map %u.", entry);
                         break;
                     default:
                         break;
@@ -228,8 +228,8 @@ void LoadDisables()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
+
 }
 
 void CheckQuestDisables()
@@ -239,8 +239,8 @@ void CheckQuestDisables()
     uint32 count = m_DisableMap[DISABLE_TYPE_QUEST].size();
     if (!count)
     {
-        sLog->outString(">> Checked 0 quest disables.");
-        sLog->outString();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Checked 0 quest disables.");
+
         return;
     }
 
@@ -250,17 +250,17 @@ void CheckQuestDisables()
         const uint32 entry = itr->first;
         if (!sObjectMgr->GetQuestTemplate(entry))
         {
-            sLog->outErrorDb("Quest entry %u from `disables` doesn't exist, skipped.", entry);
+            sLog->outError(LOG_FILTER_SQL, "Quest entry %u from `disables` doesn't exist, skipped.", entry);
             m_DisableMap[DISABLE_TYPE_QUEST].erase(itr++);
             continue;
         }
         if (itr->second.flags)
-            sLog->outErrorDb("Disable flags specified for quest %u, useless data.", entry);
+            sLog->outError(LOG_FILTER_SQL, "Disable flags specified for quest %u, useless data.", entry);
         ++itr;
     }
 
-    sLog->outString(">> Checked %u quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Checked %u quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
 }
 
 bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)

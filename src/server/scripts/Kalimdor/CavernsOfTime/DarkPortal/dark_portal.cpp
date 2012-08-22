@@ -29,7 +29,9 @@ npc_time_rift
 npc_saat
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "dark_portal.h"
 
 #define SAY_ENTER               -1269020                    //where does this belong?
@@ -324,7 +326,7 @@ public:
             uint32 entry = 0;
 
             entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
+            sLog->outDebug(LOG_FILTER_TSCR, "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
 
             ++mRiftWaveCount;
 
@@ -349,7 +351,7 @@ public:
             if (me->IsNonMeleeSpellCasted(false))
                 return;
 
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_time_rift: not casting anylonger, i need to die.");
+            sLog->outDebug(LOG_FILTER_TSCR, "npc_time_rift: not casting anylonger, i need to die.");
             me->setDeathState(JUST_DIED);
 
             if (instance->GetData(TYPE_RIFT) == IN_PROGRESS)

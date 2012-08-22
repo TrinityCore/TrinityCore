@@ -192,6 +192,13 @@ enum ItemFlagsExtra
     ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED      = 0x00000100
 };
 
+enum ItemFlagsCustom
+{
+    ITEM_FLAGS_CU_DURATION_REAL_TIME    = 0x0001,   // Item duration will tick even if player is offline
+    ITEM_FLAGS_CU_IGNORE_QUEST_STATUS   = 0x0002,   // No quest status will be checked when this item drops
+    ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004,   // Item will always follow group/master/need before greed looting rules
+};
+
 enum BAG_FAMILY_MASK
 {
     BAG_FAMILY_MASK_NONE                      = 0x00000000,
@@ -644,7 +651,7 @@ struct ItemTemplate
     uint32 GemProperties;                                   // id from GemProperties.dbc
     uint32 RequiredDisenchantSkill;
     float  ArmorDamageModifier;
-    int32  Duration;                                        // negative = realtime, positive = ingame time
+    uint32 Duration;
     uint32 ItemLimitCategory;                               // id from ItemLimitCategory.dbc
     uint32 HolidayId;                                       // id from Holidays.dbc
     uint32 ScriptId;
@@ -652,6 +659,7 @@ struct ItemTemplate
     uint32 FoodType;
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
+    uint32 FlagsCu;
 
     // helpers
     bool CanChangeEquipStateInCombat() const
@@ -673,6 +681,8 @@ struct ItemTemplate
 
         return false;
     }
+
+    bool IsCurrencyToken() const { return BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS; }
 
     uint32 GetMaxStackSize() const
     {

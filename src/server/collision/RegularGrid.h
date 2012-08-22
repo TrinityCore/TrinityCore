@@ -176,7 +176,7 @@ public:
             }
             if (cell == last_cell)
                 break;
-            if(tMaxX < tMaxY)
+            if (tMaxX < tMaxY)
             {
                 tMaxX += tDeltaX;
                 cell.x += stepX;

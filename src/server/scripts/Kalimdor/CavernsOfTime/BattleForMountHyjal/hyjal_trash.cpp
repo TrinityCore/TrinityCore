@@ -15,16 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
 #include "hyjalAI.h"
 
-#define SPELL_METEOR 33814 //infernal visual
-#define SPELL_IMMOLATION 37059
-#define SPELL_FLAME_BUFFET 31724
-#define NPC_TRIGGER  21987 //World Trigger (Tiny)
-#define MODEL_INVIS  11686 //invisible model
+enum Spells
+{
+    SPELL_METEOR            = 33814, //infernal visual
+    SPELL_IMMOLATION        = 37059,
+    SPELL_FLAME_BUFFET      = 31724,
+    NPC_TRIGGER             = 21987, //World Trigger (Tiny)
+    MODEL_INVIS             = 11686, //invisible model
+    SPELL_DISEASE_CLOUD     = 31607,
+    SPELL_KNOCKDOWN         = 31610,
+    SPELL_FRENZY            = 31540,
+    SPELL_RAISE_DEAD_1      = 31617,
+    SPELL_RAISE_DEAD_2      = 31624,
+    SPELL_RAISE_DEAD_3      = 31625,
+    SPELL_SHADOW_BOLT       = 31627,
+    SPELL_BANSHEE_CURSE     = 31651,
+    SPELL_BANSHEE_WAIL      = 38183,
+    SPELL_ANTI_MAGIC_SHELL  = 31662,
+    SPELL_WEB               = 28991,
+    SPELL_MANA_BURN         = 31729,
+    SPELL_FROST_BREATH      = 31688,
+    SPELL_GARGOYLE_STRIKE   = 31664,
+    SPELL_EXPLODING_SHOT    = 7896,
+};
 
 float HordeWPs[8][3]=//basic waypoints from spawn to leader
 {
@@ -522,9 +541,6 @@ public:
     }
 };
 
-#define SPELL_DISEASE_CLOUD 31607
-#define SPELL_KNOCKDOWN 31610
-
 class mob_abomination : public CreatureScript
 {
 public:
@@ -622,8 +638,6 @@ public:
     };
 
 };
-
-#define SPELL_FRENZY 31540
 
 class mob_ghoul : public CreatureScript
 {
@@ -726,11 +740,6 @@ public:
     };
 
 };
-
-#define SPELL_RAISE_DEAD_1 31617
-#define SPELL_RAISE_DEAD_2 31624
-#define SPELL_RAISE_DEAD_3 31625
-#define SPELL_SHADOW_BOLT 31627
 
 class mob_necromancer : public CreatureScript
 {
@@ -859,10 +868,6 @@ public:
 
 };
 
-#define SPELL_BANSHEE_CURSE 31651
-#define SPELL_BANSHEE_WAIL 38183
-#define SPELL_ANTI_MAGIC_SHELL 31662
-
 class mob_banshee : public CreatureScript
 {
 public:
@@ -966,8 +971,6 @@ public:
 
 };
 
-#define SPELL_WEB 28991
-
 class mob_crypt_fiend : public CreatureScript
 {
 public:
@@ -1058,8 +1061,6 @@ public:
 
 };
 
-#define SPELL_MANA_BURN 31729
-
 class mob_fel_stalker : public CreatureScript
 {
 public:
@@ -1149,8 +1150,6 @@ public:
     };
 
 };
-
-#define SPELL_FROST_BREATH 31688
 
 class mob_frost_wyrm : public CreatureScript
 {
@@ -1263,8 +1262,6 @@ public:
     };
 
 };
-
-#define SPELL_GARGOYLE_STRIKE 31664
 
 class mob_gargoyle : public CreatureScript
 {
@@ -1401,8 +1398,6 @@ public:
     };
 
 };
-
-#define SPELL_EXPLODING_SHOT 7896
 
 class alliance_rifleman : public CreatureScript
 {

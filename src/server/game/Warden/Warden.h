@@ -107,7 +107,7 @@ class Warden
 
     public:
         Warden();
-        ~Warden();
+        virtual ~Warden();
 
         virtual void Init(WorldSession* session, BigNumber* k) = 0;
         virtual ClientWardenModule* GetModuleForClient() = 0;

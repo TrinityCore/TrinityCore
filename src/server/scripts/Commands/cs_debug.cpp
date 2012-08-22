@@ -95,6 +95,7 @@ public:
         static ChatCommand commandTable[] =
         {
             { "debug",          SEC_MODERATOR,      true,  NULL,                  "", debugCommandTable },
+            { "wpgps",          SEC_ADMINISTRATOR,  false, &HandleWPGPSCommand,                "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
         };
         return commandTable;
@@ -409,7 +410,7 @@ public:
             }
             else
             {
-                sLog->outError("Sending opcode that has unknown type '%s'", type.c_str());
+                sLog->outError(LOG_FILTER_GENERAL, "Sending opcode that has unknown type '%s'", type.c_str());
                 break;
             }
         }
@@ -1317,6 +1318,16 @@ public:
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
         }
 
+        return true;
+    }
+
+    static bool HandleWPGPSCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+
+        sLog->outInfo(LOG_FILTER_SQL_DEV, "(@PATH, XX, %.3f, %.3f, %.5f, 0,0, 0,100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+
+        handler->PSendSysMessage("Waypoint SQL written to SQL Developer log");
         return true;
     }
 };

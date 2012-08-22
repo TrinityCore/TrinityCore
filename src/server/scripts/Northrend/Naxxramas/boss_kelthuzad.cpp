@@ -23,7 +23,10 @@ SDComment: VERIFY SCRIPT
 SDCategory: Naxxramas
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "naxxramas.h"
 
 enum Yells
@@ -86,6 +89,7 @@ enum Spells
     SPELL_SHADOW_FISURE                                    = 27810,
     SPELL_VOID_BLAST                                       = 27812,
     SPELL_MANA_DETONATION                                  = 27819,
+    SPELL_MANA_DETONATION_DAMAGE                           = 27820,
     SPELL_FROST_BLAST                                      = 27808,
     SPELL_CHAINS_OF_KELTHUZAD                              = 28410, //28408 script effect
     SPELL_KELTHUZAD_CHANNEL                                = 29423,
@@ -299,7 +303,7 @@ public:
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
-                    charmed->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                    charmed->SetObjectScale((*itr).second);
             }
 
             chained.clear();
@@ -347,7 +351,7 @@ public:
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* player = Unit::GetPlayer(*me, (*itr).first))
-                    player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                    player->SetObjectScale((*itr).second);
             }
             chained.clear();
         }
@@ -512,7 +516,7 @@ public:
                                     DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
                                     float scale = target->GetFloatValue(OBJECT_FIELD_SCALE_X);
                                     chained.insert(std::make_pair(target->GetGUID(), scale));
-                                    target->SetFloatValue(OBJECT_FIELD_SCALE_X, scale * 2);
+                                    target->SetObjectScale(scale * 2);
                                     events.ScheduleEvent(EVENT_CHAINED_SPELL, 2000); //core has 2000ms to set unit flag charm
                                 }
                             }
@@ -530,7 +534,7 @@ public:
                                 {
                                     if (!player->isCharmed())
                                     {
-                                        player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                                        player->SetObjectScale((*itr).second);
                                         std::map<uint64, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);
@@ -773,6 +777,46 @@ class npc_kelthuzad_abomination : public CreatureScript
         }
 };
 
+class spell_kelthuzad_detonate_mana : public SpellScriptLoader
+{
+    public:
+        spell_kelthuzad_detonate_mana() : SpellScriptLoader("spell_kelthuzad_detonate_mana") { }
+
+        class spell_kelthuzad_detonate_mana_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_kelthuzad_detonate_mana_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MANA_DETONATION_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+
+                Unit* target = GetTarget();
+                if (int32 mana = int32(target->GetMaxPower(POWER_MANA) / 10))
+                {
+                    mana = target->ModifyPower(POWER_MANA, -mana);
+                    target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, NULL, aurEff);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_detonate_mana_AuraScript::HandleScript, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_kelthuzad_detonate_mana_AuraScript();
+        }
+};
+
 class achievement_just_cant_get_enough : public AchievementCriteriaScript
 {
    public:
@@ -796,5 +840,6 @@ void AddSC_boss_kelthuzad()
     new boss_kelthuzad();
     new at_kelthuzad_center();
     new npc_kelthuzad_abomination();
+    new spell_kelthuzad_detonate_mana();
     new achievement_just_cant_get_enough();
 }

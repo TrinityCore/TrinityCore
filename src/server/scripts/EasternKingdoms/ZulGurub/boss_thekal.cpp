@@ -23,7 +23,8 @@ SDComment: Almost finished.
 SDCategory: Zul'Gurub
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "zulgurub.h"
 
 #define SAY_AGGRO               -1309009
@@ -197,7 +198,7 @@ class boss_thekal : public CreatureScript
                         if (Resurrect_Timer <= diff)
                         {
                             DoCast(me, SPELL_TIGER_FORM);
-                            me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
+                            me->SetObjectScale(2.00f);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetFullHealth();

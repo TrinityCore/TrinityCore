@@ -23,10 +23,8 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
-void HomeMovementGenerator<Creature>::Initialize(Creature & owner)
+void HomeMovementGenerator<Creature>::Initialize(Creature& owner)
 {
-    owner.SetWalk(false);
-    owner.AddUnitState(UNIT_STATE_EVADE);
     _setTargetLocation(owner);
 }
 

@@ -26,6 +26,8 @@
 #include "QueryResult.h"
 #include "SharedDefines.h"
 #include "Player.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 class Creature;
 class GroupReference;
@@ -205,6 +207,7 @@ class Group
         bool isLFGGroup()  const;
         bool isRaidGroup() const;
         bool isBGGroup()   const;
+        bool isBFGroup()   const;
         bool IsCreated()   const;
         uint64 GetLeaderGUID() const;
         uint64 GetGUID() const;
@@ -230,15 +233,18 @@ class Group
         bool SameSubGroup(Player const* member1, Player const* member2) const;
         bool HasFreeSlotSubGroup(uint8 subgroup) const;
 
-        MemberSlotList const& GetMemberSlots() const;
-        GroupReference* GetFirstMember();
-        uint32 GetMembersCount() const;
+        MemberSlotList const& GetMemberSlots() const { return m_memberSlots; }
+        GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
+        GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
+        uint32 GetMembersCount() const { return m_memberSlots.size(); }
+
         uint8 GetMemberGroup(uint64 guid) const;
 
         void ConvertToLFG();
         void ConvertToRaid();
 
         void SetBattlegroundGroup(Battleground* bg);
+        void SetBattlefieldGroup(Battlefield* bf);
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(uint64 guid, uint8 group);
@@ -276,14 +282,14 @@ class Group
         void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
         void SendLootRoll(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootRollWon(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
-        void SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r);
+        void SendLootAllPassed(Roll const& roll);
         void SendLooter(Creature* creature, Player* pLooter);
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);
         void NeedBeforeGreed(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(uint64 Guid);
-        void CountTheRoll(Rolls::iterator roll, uint32 NumberOfPlayers);
-        void CountRollVote(uint64 playerGUID, uint64 Guid, uint32 NumberOfPlayers, uint8 Choise);
+        void CountTheRoll(Rolls::iterator roll);
+        void CountRollVote(uint64 playerGUID, uint64 Guid, uint8 Choise);
         void EndRoll(Loot* loot);
 
         // related to disenchant rolls
@@ -322,6 +328,7 @@ class Group
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Battleground*       m_bgGroup;
+        Battlefield*        m_bfGroup;
         uint64              m_targetIcons[TARGETICONCOUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;

@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "karazhan.h"
 
 #define SAY_AGGRO           -1532011
@@ -74,8 +75,8 @@ public:
     {
         boss_moroesAI(Creature* creature) : ScriptedAI(creature)
         {
-            for (uint8 i = 0; i < 4; ++i)
-                AddId[i] = 0;
+            memset(AddId, 0, sizeof(AddId));
+            memset(AddGUID, 0, sizeof(AddGUID));
 
             instance = creature->GetInstanceScript();
         }
@@ -104,10 +105,8 @@ public:
 
             Enrage = false;
             InVanish = false;
-            if (me->GetHealth() > 0)
-            {
+            if (me->GetHealth())
                 SpawnAdds();
-            }
 
             if (instance)
                 instance->SetData(TYPE_MOROES, NOT_STARTED);
@@ -192,10 +191,9 @@ public:
         bool isAddlistEmpty()
         {
             for (uint8 i = 0; i < 4; ++i)
-            {
                 if (AddId[i] == 0)
                     return true;
-            }
+
             return false;
         }
 
@@ -340,17 +338,10 @@ struct boss_moroes_guestAI : public ScriptedAI
         if (!instance)
             return;
 
-        uint64 MoroesGUID = instance->GetData64(DATA_MOROES);
-        Creature* Moroes = (Unit::GetCreature((*me), MoroesGUID));
-        if (Moroes)
-        {
+        if (Creature* Moroes = Unit::GetCreature(*me, instance->GetData64(DATA_MOROES)))
             for (uint8 i = 0; i < 4; ++i)
-            {
-                uint64 GUID = CAST_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i];
-                if (GUID)
+                if (uint64 GUID = CAST_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i])
                     GuestGUID[i] = GUID;
-            }
-        }
     }
 
     Unit* SelectGuestTarget()

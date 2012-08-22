@@ -43,8 +43,8 @@ void WardenMac::Init(WorldSession *pClient, BigNumber *K)
     _session = pClient;
     // Generate Warden Key
     SHA1Randx WK(K->AsByteArray(), K->GetNumBytes());
-    WK.generate(_inputKey, 16);
-    WK.generate(_outputKey, 16);
+    WK.Generate(_inputKey, 16);
+    WK.Generate(_outputKey, 16);
     /*
     Seed: 4D808D2C77D905C41A6380EC08586AFE (0x05 packet)
     Hash: <?> (0x04 packet)
@@ -152,9 +152,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
     // Verify key
     if (memcmp(buff.contents() + 1, sha1.GetDigest(), 20) != 0)
     {
-        sLog->outDebug(LOG_FILTER_WARDEN, "Request hash reply: failed");
-        sLog->outWarden("WARDEN: Player %s (guid: %u, account: %u) failed hash reply. Action: %s",
-            _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), Penalty().c_str());
+        sLog->outWarn(LOG_FILTER_WARDEN, "%s failed hash reply. Action: %s", _session->GetPlayerName(false).c_str(), Penalty().c_str());
         return;
     }
 
@@ -222,7 +220,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
     //    return;
     //}
 
-    bool found = false;
+    //bool found = false;
 
     std::string str = "Test string!";
 
@@ -238,7 +236,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
     if (memcmp(sha1Hash, sha1.GetDigest(), 20))
     {
         sLog->outDebug(LOG_FILTER_WARDEN, "Handle data failed: SHA1 hash is wrong!");
-        found = true;
+        //found = true;
     }
 
     MD5_CTX ctx;
@@ -253,7 +251,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
     if (memcmp(ourMD5Hash, theirsMD5Hash, 16))
     {
         sLog->outDebug(LOG_FILTER_WARDEN, "Handle data failed: MD5 hash is wrong!");
-        found = true;
+        //found = true;
     }
 
     _session->KickPlayer();

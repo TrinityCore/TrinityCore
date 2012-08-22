@@ -33,7 +33,13 @@ go_legion_obelisk
 go_thunderspike
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Cell.h"
+#include "CellImpl.h"
 
 //Support for quest: You're Fired! (10821)
 bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
@@ -651,7 +657,7 @@ class npc_simon_bunny : public CreatureScript
             {
                 _events.Update(diff);
 
-                switch(_events.ExecuteEvent())
+                switch (_events.ExecuteEvent())
                 {
                     case EVENT_SIMON_PERIODIC_PLAYER_CHECK:
                         if (!CheckPlayer())
@@ -774,7 +780,7 @@ class npc_simon_bunny : public CreatureScript
                 colorSequence.clear();
                 playableSequence.clear();
                 playerSequence.clear();
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, large ? 2.0f : 1.0f);
+                me->SetObjectScale(large ? 2.0f : 1.0f);
 
                 std::list<WorldObject*> ClusterList;
                 Trinity::AllWorldObjectsInRange objects(me, searchDistance);
@@ -855,7 +861,7 @@ class npc_simon_bunny : public CreatureScript
                 if (GameObject* relic = me->FindNearestGameObject(large ? GO_APEXIS_MONUMENT : GO_APEXIS_RELIC, searchDistance))
                     relic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
-                me->ForcedDespawn(1000);
+                me->DespawnOrUnsummon(1000);
             }
 
             /*

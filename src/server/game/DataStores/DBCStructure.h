@@ -1052,7 +1052,7 @@ struct GtRegenMPPerSptEntry
 /* no used
 struct HolidayDescriptionsEntry
 {
-    uint32 ID;                                              // 0, this is NOT holiday id
+    uint32 ID;                                              // 0, m_holidayDescriptionID
     //char*     name[16]                                    // 1-16 m_name_lang
                                                             // 17 name flags
 };
@@ -1061,7 +1061,7 @@ struct HolidayDescriptionsEntry
 /* no used
 struct HolidayNamesEntry
 {
-    uint32 ID;                                              // 0, this is NOT holiday id
+    uint32 ID;                                              // 0, m_holidayNameID
     //char*     name[16]                                    // 1-16 m_name_lang
     // 17 name flags
 };
@@ -1203,7 +1203,7 @@ struct LFGDungeonEntry
     uint32  recmaxlevel;                                    // 22
     int32   map;                                            // 23
     uint32  difficulty;                                     // 24
-    //uint32  flags;                                        // 25
+    //uint32  flags;                                        // 25 (flags & 4) = IsHoliday
     uint32  type;                                           // 26
     //uint32  unk;                                          // 27
     //char*   iconname;                                     // 28

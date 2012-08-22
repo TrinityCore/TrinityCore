@@ -23,8 +23,10 @@ SDComment: Quest support: 3520, 2767, Special vendor Gregan Brewspewer
 SDCategory: Feralas
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_gregan_brewspewer
@@ -68,7 +70,7 @@ public:
 ## npc_oox22fe
 ######*/
 
-enum eOOX
+enum OOX
 {
     //signed for 7806
     SAY_OOX_START           = -1000287,

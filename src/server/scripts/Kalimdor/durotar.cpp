@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Vehicle.h"
+#include "SpellScript.h"
 
 /*######
 ##Quest 5441: Lazy Peons
@@ -50,15 +52,15 @@ public:
     {
         npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 uiPlayerGUID;
+        uint64 PlayerGUID;
 
-        uint32 m_uiRebuffTimer;
+        uint32 RebuffTimer;
         bool work;
 
         void Reset()
         {
-            uiPlayerGUID = 0;
-            m_uiRebuffTimer = 0;
+            PlayerGUID = 0;
+            RebuffTimer = 0;
             work = false;
         }
 
@@ -81,17 +83,17 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 Diff)
         {
             if (work == true)
                 me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
-            if (m_uiRebuffTimer <= uiDiff)
+            if (RebuffTimer <= Diff)
             {
                 DoCast(me, SPELL_BUFF_SLEEP);
-                m_uiRebuffTimer = 300000;                 //Rebuff agian in 5 minutes
+                RebuffTimer = 300000;                 //Rebuff agian in 5 minutes
             }
             else
-                m_uiRebuffTimer -= uiDiff;
+                RebuffTimer -= Diff;
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();
@@ -264,7 +266,7 @@ class npc_tiger_matriarch : public CreatureScript
                     vehSummoner->RemoveAurasDueToSpell(SPELL_SPIRIT_OF_THE_TIGER_RIDER);
                     vehSummoner->RemoveAurasDueToSpell(SPELL_SUMMON_ZENTABRA_TRIGGER);
                 }
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
 
             void DamageTaken(Unit* attacker, uint32& damage)
@@ -287,7 +289,7 @@ class npc_tiger_matriarch : public CreatureScript
                         vehSummoner->RemoveAurasDueToSpell(SPELL_SUMMON_ZENTABRA_TRIGGER);
                     }
 
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 }
             }
 

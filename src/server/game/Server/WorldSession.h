@@ -125,6 +125,16 @@ enum PartyResult
     ERR_PARTY_LFG_TELEPORT_IN_COMBAT    = 30
 };
 
+
+enum BFLeaveReason
+{
+    BF_LEAVE_REASON_CLOSE     = 0x00000001,
+    //BF_LEAVE_REASON_UNK1      = 0x00000002, (not used)
+    //BF_LEAVE_REASON_UNK2      = 0x00000004, (not used)
+    BF_LEAVE_REASON_EXITED    = 0x00000008,
+    BF_LEAVE_REASON_LOW_LEVEL = 0x00000010,
+};
+
 enum ChatRestrictionType
 {
     ERR_CHAT_RESTRICTED = 0,
@@ -221,8 +231,7 @@ class WorldSession
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
-
-        void SizeError(WorldPacket const& packet, uint32 size) const;
+        bool PlayerRecentlyLoggedOut() const { return m_playerRecentlyLogout; }
 
         void ReadAddonsInfo(WorldPacket& data);
         void SendAddonsInfo();
@@ -245,7 +254,7 @@ class WorldSession
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
-        char const* GetPlayerName() const;
+        std::string GetPlayerName(bool simple = true) const;
         uint32 GetGuidLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() { return m_Address; }
@@ -322,7 +331,7 @@ class WorldSession
         void LoadTutorialsData();
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
-        uint32 GetTutorialInt(uint8 index) { return m_Tutorials[index]; }
+        uint32 GetTutorialInt(uint8 index) const { return m_Tutorials[index]; }
         void SetTutorialInt(uint8 index, uint32 value)
         {
             if (m_Tutorials[index] != value)
@@ -389,13 +398,13 @@ class WorldSession
         }
 
         // Recruit-A-Friend Handling
-        uint32 GetRecruiterId() { return recruiterId; }
-        bool IsARecruiter() { return isRecruiter; }
+        uint32 GetRecruiterId() const { return recruiterId; }
+        bool IsARecruiter() const { return isRecruiter; }
 
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
-        void Handle_EarlyProccess(WorldPacket& recvPacket);// just mark packets processed in WorldSocket::OnRead
+        void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
         void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
@@ -786,6 +795,16 @@ class WorldSession
         void HandleHearthAndResurrect(WorldPacket& recv_data);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
 
+        // Battlefield
+        void SendBfInvitePlayerToWar(uint32 BattleId,uint32 ZoneId,uint32 time);
+        void SendBfInvitePlayerToQueue(uint32 BattleId);
+        void SendBfQueueInviteResponse(uint32 BattleId,uint32 ZoneId, bool CanQueue = true, bool Full = false);
+        void SendBfEntered(uint32 BattleId);
+        void SendBfLeaveMessage(uint32 BattleId, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
+        void HandleBfQueueInviteResponse(WorldPacket &recv_data);
+        void HandleBfEntryInviteResponse(WorldPacket &recv_data);
+        void HandleBfExitRequest(WorldPacket &recv_data);
+
         // Looking for Dungeon/Raid
         void HandleLfgSetCommentOpcode(WorldPacket& recv_data);
         void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recv_data);
@@ -912,6 +931,7 @@ class WorldSession
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
+        void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
 
     private:
         void InitializeQueryCallbackParameters();
