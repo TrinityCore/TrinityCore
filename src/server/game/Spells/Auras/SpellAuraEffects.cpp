@@ -2219,6 +2219,10 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     case 42365:
                         target->SetDisplayId(21723);
                         break;
+                    // Gnomeregan Pride
+                    case 75531:
+                        target->SetDisplayId(31654);
+                        break;
                     // Dread Corsair
                     case 50517:
                     // Corsair Costume
