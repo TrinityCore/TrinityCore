@@ -4,6 +4,7 @@
 #include <deque>
 #include <set>
 #include <cstdlib>
+#include <unistd.h>
 
 #ifdef _WIN32
 #include "direct.h"
