@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[12] --> Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power.
 [11] --> Add Passive Anticheat System.
 [10] --> Fix Grounding Totem.
 [9] --> Add PvP-Ranks System.
