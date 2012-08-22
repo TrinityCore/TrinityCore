@@ -677,8 +677,8 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
-    char const* opcodeName = GetOpcodeNameForLogging(opcode).c_str();
-    sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName);
+    std::string opcodeName = GetOpcodeNameForLogging(opcode);
+    sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
 
     try
     {
@@ -701,14 +701,14 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 return 0;
             case CMSG_LOG_DISCONNECT:
                 new_pct->rfinish(); // contains uint32 disconnectReason;
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName);
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             // not an opcode, client sends string "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER" without opcode
             // first 4 bytes become the opcode (2 dropped)
             case MSG_VERIFY_CONNECTIVITY:
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName);
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 std::string str;
                 *new_pct >> str;
@@ -718,7 +718,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
             }
             case CMSG_ENABLE_NAGLE:
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName);
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
             }
@@ -754,7 +754,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     catch (ByteBufferException &)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s, accountid=%i. Disconnected client.",
-                       opcodeName, GetRemoteAddress().c_str(), m_Session ? int32(m_Session->GetAccountId()) : -1);
+                       opcodeName.c_str(), GetRemoteAddress().c_str(), m_Session ? int32(m_Session->GetAccountId()) : -1);
         new_pct->hexlike();
         return -1;
     }
