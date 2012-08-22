@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[10] --> Fix Grounding Totem.
 [9] --> Add PvP-Ranks System.
 [8] --> Implemented Crowd Control Delay.
 [7] --> Fix Slice and Dice and Honor Among Thieves.
