@@ -251,6 +251,7 @@ public:
     uint32    TriggerSpell;
     flag96    SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
+    // SpellScalingEntry
     float     ScalingMultiplier;
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
@@ -383,15 +384,12 @@ public:
     uint32 SpellTargetRestrictionsId;
     uint32 SpellTotemsId;
     // SpellScalingEntry
-    int32  castTimeMin;
-    int32  castTimeMax;
-    uint32 castScalingMaxLevel;
-    uint32 playerClass;
-    float  Multiplier[3];
-    float  RandomMultiplier[3];
-    float  OtherMultiplier[3];
+    int32  CastTimeMin;
+    int32  CastTimeMax;
+    int32  CastTimeMaxLevel;
+    int32  ScalingClass;
     float  CoefBase;
-    uint32 CoefLevelBase;
+    int32  CoefLevelBase;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;

@@ -2006,16 +2006,16 @@ typedef std::map<uint32, SpellReagent> SpellReagentMap;
 // SpellScaling.dbc
 struct SpellScalingEntry
 {
-    //uint32    Id;                                           // 0        m_ID
-    int32     castTimeMin;                                  // 1
-    int32     castTimeMax;                                  // 2
-    uint32    castScalingMaxLevel;                          // 3
-    uint32    playerClass;                                  // 4        (index * 100) + charLevel => gtSpellScaling.dbc
+    //uint32    Id;                                         // 0        m_ID
+    int32     CastTimeMin;                                  // 1
+    int32     CastTimeMax;                                  // 2
+    int32     CastTimeMaxLevel;                             // 3
+    int32     ScalingClass;                                 // 4        (index * 100) + charLevel - 1 => gtSpellScaling.dbc
     float     Multiplier[3];                                // 5-7
     float     RandomMultiplier[3];                          // 8-10
     float     OtherMultiplier[3];                           // 11-13
     float     CoefBase;                                     // 14        some coefficient, mostly 1.0f
-    uint32    CoefLevelBase;                                // 15        some level
+    int32     CoefLevelBase;                                // 15        some level
 };
 
 struct SpellDurationEntry
