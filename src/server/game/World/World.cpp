@@ -77,7 +77,6 @@
 #include "WardenCheckMgr.h"
 #include "Warden.h"
 #include "CalendarMgr.h"
-#include "OutdoorPvPWG.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1210,23 +1209,6 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_AUTOBROADCAST] = ConfigMgr::GetBoolDefault("AutoBroadcast.On", false);
     m_int_configs[CONFIG_AUTOBROADCAST_CENTER] = ConfigMgr::GetIntDefault("AutoBroadcast.Center", 0);
     m_int_configs[CONFIG_AUTOBROADCAST_INTERVAL] = ConfigMgr::GetIntDefault("AutoBroadcast.Timer", 60000);
-
-    //Wintergrasp
-    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED]         = ConfigMgr::GetBoolDefault("OutdoorPvP.Wintergrasp.Enabled", true);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.SaveState.Period", 10000);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME]       = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.StartTime", 30);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME]      = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.BattleTime", 30);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL]         = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Interval", 150);
-    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR]    = ConfigMgr::GetBoolDefault("OutdoorPvP.Wintergrasp.CustomHonorRewards", false);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE]       = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleWin", 3000);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE]      = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleLose", 1250);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER]    = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamageTower", 750);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER]  = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower", 750);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding", 750);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING]  = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding", 1500);
-    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE]  = ConfigMgr::GetBoolDefault("OutdoorPvP.Wintergrasp.Antifarm.Enable", false);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK]  = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Atk", 5);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF]  = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Def", 5);
 
     // Management for channels with flag CHANNEL_DBC_FLAG_CITY_ONLY.
     m_bool_configs[CONFIG_CHANNEL_ON_CITY_ONLY_FLAG]  = ConfigMgr::GetBoolDefault("Channel.CityOnlyFlag", true);
@@ -2942,32 +2924,6 @@ void World::ProcessQueryCallbacks()
             lResult.get(result);
             _UpdateRealmCharCount(result);
             lResult.cancel();
-        }
-    }
-}
-
-void World::SendWintergraspState()
-{
-    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
-
-    if (!pvpWG)
-        return;
-
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-    {
-        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
-            continue;
-
-        if (pvpWG->isWarTime()) // "Battle in progress"
-        {
-            itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
-        } 
-        else // Time to next battle
-        {
-            pvpWG->SendInitWorldStatesTo(itr->second->GetPlayer());
-            itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
-            // Hide unneeded info which in center of screen
-            itr->second->GetPlayer()->SendInitWorldStates(itr->second->GetPlayer()->GetZoneId(), itr->second->GetPlayer()->GetAreaId());
         }
     }
 }

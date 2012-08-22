@@ -130,13 +130,6 @@ class ChatHandler
         static bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcmd);
         bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd, char const* subcmd);
-        //Wintergrasp
-        bool HandleWintergraspStatusCommand(const char *args);
-        bool HandleWintergraspStartCommand(const char *args);
-        bool HandleWintergraspStopCommand(const char *args);
-        bool HandleWintergraspEnableCommand(const char *args);
-        bool HandleWintergraspSwitchTeamCommand(const char *args);
-        bool HandleWintergraspTimerCommand(const char *args);
 
     private:
         WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
