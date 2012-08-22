@@ -72,7 +72,7 @@ enum GuildRankRights
     GR_RIGHT_WITHDRAW_REPAIR    = 0x00040000,                   // withdraw for repair
     GR_RIGHT_WITHDRAW_GOLD      = 0x00080000,                   // withdraw gold
     GR_RIGHT_CREATE_GUILD_EVENT = 0x00100000,                   // wotlk
-    GR_RIGHT_ALL                = 0x001DF1FF
+    GR_RIGHT_ALL                = 0x00DDFFBF
 };
 
 enum GuildCommandType
@@ -224,6 +224,8 @@ enum GuildMemberFlags
     GUILDMEMBER_STATUS_MOBILE    = 0x0008, // remote chat from mobile app
 };
 
+#define GUILD_REPUATATION_WEEKLY_CAP 4375
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Emblem info
 class EmblemInfo
@@ -323,6 +325,8 @@ private:
         void ResetMoneyTime();
 
         inline Player* FindPlayer() const { return ObjectAccessor::FindPlayer(m_guid); }
+
+        uint32 GetRemainingWeeklyReputation() const { return 0; }
 
     private:
         uint32 m_guildId;
@@ -634,7 +638,7 @@ public:
     // Handle client commands
     void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
     void HandleQuery(WorldSession* session);
-    void HandleGuildRanks(WorldSession* session);
+    void HandleGuildRanks(WorldSession* session) const;
     void HandleSetMOTD(WorldSession* session, const std::string& motd);
     void HandleSetInfo(WorldSession* session, const std::string& info);
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
@@ -658,7 +662,6 @@ public:
     void HandleGuildPartyRequest(WorldSession* session);
 
     // Send info to client
-    void SendInfo(WorldSession* session) const;
     void SendEventLog(WorldSession* session) const;
     void SendBankLog(WorldSession* session, uint8 tabId) const;
     void SendBankTabsInfo(WorldSession* session) const;
@@ -667,6 +670,7 @@ public:
     void SendPermissions(WorldSession* session) const;
     void SendMoneyInfo(WorldSession* session) const;
     void SendLoginInfo(WorldSession* session) const;
+    void SendGuildReputationWeeklyCap(WorldSession* session) const;
 
     // Load from DB
     bool LoadFromDB(Field* fields);

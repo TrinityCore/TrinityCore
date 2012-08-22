@@ -121,8 +121,9 @@ extern DBCStorage <GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingSca
 extern DBCStorage <gtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore;
 extern DBCStorage <GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;
 extern DBCStorage <GtSpellScalingEntry>          sGtSpellScalingStore;
-extern DBCStorage <GtOCTBaseHPByClassEntry>        sGtOCTBaseHPByClassStore;
-extern DBCStorage <GtOCTBaseMPByClassEntry>        sGtOCTBaseMPByClassStore;
+extern DBCStorage <GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;
+extern DBCStorage <GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore;
+extern DBCStorage <GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
 extern DBCStorage <HolidaysEntry>                sHolidaysStore;
 extern DBCStorage <ImportPriceArmorEntry>        sImportPriceArmorStore;
 extern DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore;

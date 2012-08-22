@@ -939,7 +939,6 @@ enum Opcodes
     SMSG_GUILD_EVENT                                  = 0x0705,
     SMSG_GUILD_EVENT_LOG_QUERY                        = 0x10B2,
     SMSG_GUILD_FLAGGED_FOR_RENAME                     = 0x30B6,
-    SMSG_GUILD_INFO                                   = 0x0000,
     SMSG_GUILD_INVITE                                 = 0x14A2,
     SMSG_GUILD_INVITE_CANCEL                          = 0x0606,
     SMSG_GUILD_KNOWN_RECIPES                          = 0x0000,
