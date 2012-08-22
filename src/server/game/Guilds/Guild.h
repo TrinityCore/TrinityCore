@@ -224,7 +224,7 @@ enum GuildMemberFlags
     GUILDMEMBER_STATUS_MOBILE    = 0x0008, // remote chat from mobile app
 };
 
-#define GUILD_REPUATATION_WEEKLY_CAP 4375
+#define GUILD_REPUTATION_WEEKLY_CAP 4375
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Emblem info

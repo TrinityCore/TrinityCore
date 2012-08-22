@@ -1251,7 +1251,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
 
     data.WriteString(m_motd);
     data << uint32(m_accountsNumber);
-    data << uint32(GUILD_REPUATATION_WEEKLY_CAP);
+    data << uint32(GUILD_REPUTATION_WEEKLY_CAP);
     data << uint32(secsToTimeBitFields(m_createdDate));
     data << uint32(0);
 
