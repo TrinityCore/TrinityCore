@@ -1267,11 +1267,11 @@ class npc_runic_colossus : public CreatureScript
                             me->MonsterTextEmote(EMOTE_BARRIER, 0, true);
                             DoCast(me, SPELL_RUNIC_BARRIER);
                             events.ScheduleEvent(EVENT_BARRIER, urand(35000, 45000));
-                            break;
+                            return;
                         case EVENT_SMASH:
                             DoCast(me, SPELL_SMASH);
                             events.ScheduleEvent(EVENT_SMASH, urand(15000, 18000));
-                            break;
+                            return;
                         case EVENT_CHARGE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -8.0f, true))
                             {
@@ -1280,7 +1280,7 @@ class npc_runic_colossus : public CreatureScript
                             }
                             else
                                 events.ScheduleEvent(EVENT_CHARGE, 2000);
-                            break;
+                            return;
                         case EVENT_RUNIC_SMASH:
                             if (UpdateVictim())
                                 break;
@@ -1293,11 +1293,11 @@ class npc_runic_colossus : public CreatureScript
 
                             events.ScheduleEvent(EVENT_SMASH_WAVE, 5500);
                             events.ScheduleEvent(EVENT_RUNIC_SMASH, 8000);
-                            break;
+                            return;
                         case EVENT_SMASH_WAVE:
                             if (!UpdateVictim())
                                 DoRunicSmash(side);
-                            break;
+                            return;
                     }
                 }
                 DoMeleeAttackIfReady();
@@ -1450,7 +1450,7 @@ class npc_ancient_rune_giant : public CreatureScript
                         case EVENT_STOMP:
                             DoCast(me, SPELL_STOMP);
                             events.ScheduleEvent(EVENT_STOMP, urand(10000, 12000));
-                            break;
+                            return;
                         case EVENT_DETONATION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                             {
@@ -1459,7 +1459,7 @@ class npc_ancient_rune_giant : public CreatureScript
                             }
                             else
                                 events.ScheduleEvent(EVENT_DETONATION, urand(2000, 3000));
-                            break;
+                            return;
                     }
                 }
                 DoMeleeAttackIfReady();
@@ -1527,7 +1527,7 @@ class npc_sif : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                                 DoCast(target, SPELL_FROSTBOLT);
                             events.ScheduleEvent(EVENT_FROSTBOLT, 4000);
-                            break;
+                            return;
                         case EVENT_FROSTBOLT_VOLLEY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                             {
@@ -1538,15 +1538,15 @@ class npc_sif : public CreatureScript
                             }
                             else
                                 events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, urand(1500, 2000));
-                            break;
+                            return;
                         case EVENT_BLIZZARD:
                             DoCast(me, SPELL_BLIZZARD, true);
                             events.ScheduleEvent(EVENT_BLIZZARD, 45000);
-                            break;
+                            return;
                         case EVENT_FROSTNOVA:
                             DoCastAOE(SPELL_FROSTNOVA, true);
                             events.ScheduleEvent(EVENT_FROSTNOVA, urand(20000, 25000));
-                            break;
+                            return;
                     }
                 }
             }

@@ -290,7 +290,7 @@ class boss_ignis : public CreatureScript
                             DoCast(me, SPELL_FLAME_JETS);
                             events.DelayEvents(5000);   // Cast time
                             events.ScheduleEvent(EVENT_JET, urand(35000, 40000));
-                            break;
+                            return;
                         case EVENT_SLAG_POT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             {
@@ -301,14 +301,14 @@ class boss_ignis : public CreatureScript
                                 events.ScheduleEvent(EVENT_GRAB_POT, 500);
                             }
                             events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000));
-                            break;
+                            return;
                         case EVENT_GRAB_POT:
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, slagPotGUID))
                             {
                                 slagPotTarget->EnterVehicle(me, 1);
                                 events.ScheduleEvent(EVENT_CHANGE_POT, 1000);
                             }
-                            break;
+                            return;
                         case EVENT_CHANGE_POT:
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, slagPotGUID))
                             {
@@ -317,21 +317,21 @@ class boss_ignis : public CreatureScript
                                 DoCast(slagPotTarget, SPELL_SLAG_POT);                                                                
                                 events.ScheduleEvent(EVENT_END_POT, 10000);
                             }
-                            break;
+                            return;
                         case EVENT_END_POT:
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, slagPotGUID))
                             {
                                 slagPotTarget->ExitVehicle();
                                 slagPotGUID = 0;
                             }
-                            break;
+                            return;
                         case EVENT_SCORCH:
                             DoScriptText(RAND(SAY_SCORCH_1, SAY_SCORCH_2), me);
                             if (Unit* target = me->getVictim())
                                 me->SummonCreature(NPC_GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
                             DoCast(SPELL_SCORCH);
                             events.ScheduleEvent(EVENT_SCORCH, 25000);
-                            break;
+                            return;
                         case EVENT_CONSTRUCT:
                             DoScriptText(SAY_SUMMON, me);
 
@@ -351,11 +351,11 @@ class boss_ignis : public CreatureScript
                                 }
                             }                           
                             events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));
-                            break;
+                            return;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);
                             DoScriptText(SAY_BERSERK, me);
-                            break;
+                            return;
                     }
                 }
 

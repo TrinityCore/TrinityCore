@@ -485,17 +485,17 @@ class boss_steelbreaker : public CreatureScript
                         case EVENT_ENRAGE:
                             DoScriptText(SAY_STEELBREAKER_BERSERK, me);
                             DoCast(SPELL_BERSERK);
-                            break;
+                            return;
                         case EVENT_FUSION_PUNCH:
                             if (me->IsWithinMeleeRange(me->getVictim()))
                                 DoCastVictim(SPELL_FUSION_PUNCH);
                             events.ScheduleEvent(EVENT_FUSION_PUNCH, urand(13000, 22000));
-                            break;
+                            return;
                         case EVENT_STATIC_DISRUPTION:
                             if (Unit* target = GetDisruptionTarget())
                                 DoCast(target, SPELL_STATIC_DISRUPTION);
                             events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(20000, 25000));
-                            break;
+                            return;
                         case EVENT_OVERWHELMING_POWER:
                             if (me->getVictim() && !me->getVictim()->HasAura(SPELL_OVERWHELMING_POWER))
                             {
@@ -505,7 +505,7 @@ class boss_steelbreaker : public CreatureScript
                             }
                             else
                                 events.ScheduleEvent(EVENT_OVERWHELMING_POWER, 2000);                                                       
-                            break;
+                            return;
                     }
                 }
 
@@ -1034,22 +1034,22 @@ class boss_stormcaller_brundir : public CreatureScript
                         case EVENT_ENRAGE:
                             DoScriptText(SAY_BRUNDIR_BERSERK, me);
                             DoCast(SPELL_BERSERK);
-                            break;
+                            return;
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(5000, 7000));
-                            break;
+                            return;
                         case EVENT_OVERLOAD:
                             me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
                             DoScriptText(SAY_BRUNDIR_SPECIAL, me);
                             DoCast(SPELL_OVERLOAD);
                             events.ScheduleEvent(EVENT_OVERLOAD, urand(40000, 80000));
-                            break;
+                            return;
                         case EVENT_LIGHTNING_WHIRL:
                             DoCast(SPELL_LIGHTNING_WHIRL);
                             events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 20000));
-                            break;
+                            return;
                         case EVENT_THREAT_WIPE:
                             DoResetThreat();
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -1058,7 +1058,7 @@ class boss_stormcaller_brundir : public CreatureScript
                                 me->GetMotionMaster()->MovePoint(POINT_CHASE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                             }
                             events.ScheduleEvent(EVENT_THREAT_WIPE, 10000);
-                            break;
+                            return;
                         case EVENT_LIGHTNING_TENDRILS_START:
                             me->SetSpeed(MOVE_RUN, 0.7f);
                             DoScriptText(SAY_BRUNDIR_FLIGHT, me);
@@ -1078,7 +1078,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_NEW_TARGET, 2500);
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_ENDFLIGHT, 32500);
                             events.ScheduleEvent(EVENT_MOVE_POSITION, 1000);
-                            break;
+                            return;
                         case EVENT_LIGHTNING_TENDRILS_FLIGHT_NEW_TARGET:
                             events.CancelEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_UPDATE_TARGET);
                             tendrilTarget = 0;  
@@ -1089,7 +1089,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             }
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_NEW_TARGET, 6000);
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_UPDATE_TARGET, 250);
-                            break;
+                            return;
                         case EVENT_LIGHTNING_TENDRILS_FLIGHT_UPDATE_TARGET:
                             if (Player* player = ObjectAccessor::GetPlayer(*me, tendrilTarget))
                             {
@@ -1099,19 +1099,19 @@ class boss_stormcaller_brundir : public CreatureScript
                                 me->GetMotionMaster()->MovePoint(POINT_FLY, player->GetPositionX(), player->GetPositionY(), FINAL_FLIGHT_Z);
                             }
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_UPDATE_TARGET, 250);
-                            break;
+                            return;
                         case EVENT_LIGHTNING_TENDRILS_ENDFLIGHT:
                             events.CancelEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_NEW_TARGET);
                             events.CancelEvent(EVENT_LIGHTNING_TENDRILS_FLIGHT_UPDATE_TARGET);
                             me->GetMotionMaster()->Initialize();
                             me->GetMotionMaster()->MovePoint(POINT_FLY, 1586.920166f, 119.848984f, FINAL_FLIGHT_Z);                            
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_LAND, 4000);
-                            break;
+                            return;
                         case EVENT_LIGHTNING_TENDRILS_LAND:
                             me->GetMotionMaster()->Initialize();
                             me->GetMotionMaster()->MovePoint(POINT_LAND, me->GetPositionX(), me->GetPositionY(), FLOOR_Z);
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_GROUND, 2500);
-                            break;
+                            return;
                         case EVENT_LIGHTNING_TENDRILS_GROUND:
                             me->SetSpeed(MOVE_RUN, 1.42857f);
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
@@ -1126,7 +1126,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             me->getThreatManager().resetAllAggro();
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS_START, urand(40000, 80000));
                             events.CancelEvent(EVENT_MOVE_POSITION);
-                            break;
+                            return;
                         case EVENT_MOVE_POSITION:
                             if (me->IsWithinMeleeRange(me->getVictim()))
                             {
@@ -1139,7 +1139,7 @@ class boss_stormcaller_brundir : public CreatureScript
                                         me->GetMotionMaster()->MovePoint(0, trigger->GetPositionX(), trigger->GetPositionY(), FLOOR_Z);
                             }
                             events.ScheduleEvent(EVENT_MOVE_POSITION, urand(7500, 10000));
-                            break;
+                            return;
                         default:
                             break;
                     }

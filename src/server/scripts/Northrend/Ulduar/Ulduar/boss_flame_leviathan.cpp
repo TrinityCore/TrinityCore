@@ -524,25 +524,25 @@ class boss_flame_leviathan : public CreatureScript
                             DoScriptText(RAND(SAY_TARGET_1, SAY_TARGET_2, SAY_TARGET_3), me);
                             DoCast(SPELL_PURSUED);  // Will select target in spellscript
                             events.ScheduleEvent(EVENT_PURSUE, 35*IN_MILLISECONDS);         // Note: Spell-cooldown is 35 seconds
-                            break;
+                            return;
                         case EVENT_MISSILE:
                             DoCast(me, SPELL_MISSILE_BARRAGE, true);
                             events.ScheduleEvent(EVENT_MISSILE, 2*IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_VENT:
                             DoCastAOE(SPELL_FLAME_VENTS);
                             events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_SPEED:
                             DoCastAOE(SPELL_GATHERING_SPEED);
                             events.ScheduleEvent(EVENT_SPEED, 15*IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_SUMMON:
                             if (summons.size() < 15)
                                 if (Creature* lift = DoSummonFlyer(NPC_MECHANOLIFT, me, 30.0f, 50.0f, 0))
                                     lift->GetMotionMaster()->MoveRandom(100);
                             events.ScheduleEvent(EVENT_SUMMON, 2*IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_SHUTDOWN:
                             DoScriptText(RAND(SAY_OVERLOAD_1, SAY_OVERLOAD_2, SAY_OVERLOAD_3), me);
                             me->StopMoving();
@@ -553,12 +553,12 @@ class boss_flame_leviathan : public CreatureScript
                             Shutout = false;
                             events.ScheduleEvent(EVENT_REPAIR, 4*IN_MILLISECONDS);
                             events.DelayEvents(20 * IN_MILLISECONDS, 0);
-                            break;
+                            return;
                         case EVENT_REPAIR:
                             me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
                             me->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                             events.ScheduleEvent(EVENT_SHUTDOWN, 150*IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_THORIMS_HAMMER: // Tower of Storms
                             for (uint8 i = 0; i < RAID_MODE(7, 15); i++)
                             {
@@ -569,11 +569,11 @@ class boss_flame_leviathan : public CreatureScript
                                     thorimBeacon->GetMotionMaster()->MoveRandom(100);
                             }
                             DoScriptText(SAY_TOWER_STORM, me);
-                            break;
+                            return;
                         case EVENT_MIMIRONS_INFERNO: // Tower of Flames
                             me->SummonCreature(NPC_MIMIRON_BEACON, InfernoStart);
                             DoScriptText(SAY_TOWER_FLAME, me);
-                            break;
+                            return;
                         case EVENT_HODIRS_FURY:      // Tower of Frost
                             for (uint8 i = 0; i < 7; i++)   // TODO: Check where this "7" comes from
                             {
@@ -581,7 +581,7 @@ class boss_flame_leviathan : public CreatureScript
                                     hodir->GetMotionMaster()->MoveRandom(100);
                             }
                             DoScriptText(SAY_TOWER_FROST, me);
-                            break;
+                            return;
                         case EVENT_FREYAS_WARD:    // Tower of Nature
                             DoScriptText(SAY_TOWER_NATURE, me);
                             for (int32 i = 0; i < 4; i++)   // TODO: Check where this "4" comes from
@@ -589,7 +589,7 @@ class boss_flame_leviathan : public CreatureScript
 
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_FREYAS_WARD);
-                            break;
+                            return;
                     }
                 }
 

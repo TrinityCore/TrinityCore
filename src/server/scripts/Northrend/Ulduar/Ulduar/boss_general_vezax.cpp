@@ -151,30 +151,30 @@ class boss_general_vezax : public CreatureScript
                             if (Unit* target = CheckPlayersInRange(RAID_MODE(4, 9), 15.0f, 50.0f))
                                 DoCast(target, SPELL_SHADOW_CRASH);
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 12000));
-                            break;
+                            return;
                         case EVENT_SEARING_FLAMES:
                             DoCastAOE(SPELL_SEARING_FLAMES);
                             events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14000, 17500));
-                            break;
+                            return;
                         case EVENT_MARK_OF_THE_FACELESS:
                             if (Unit* target = CheckPlayersInRange(RAID_MODE(4, 9), 15.0f, 50.0f))
                                 DoCast(target, SPELL_MARK_OF_THE_FACELESS);                                
                             events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));  
-                            break;
+                            return;
                         case EVENT_SURGE_OF_DARKNESS:
                             DoScriptText(EMOTE_SURGE_OF_DARKNESS, me);
                             DoScriptText(SAY_SURGE_OF_DARKNESS, me);
                             DoCast(me, SPELL_SURGE_OF_DARKNESS);
                             events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, urand(50000, 70000));
-                            break;
+                            return;
                         case EVENT_SUMMON_SARONITE_VAPOR:
                             DoCast(me, SPELL_SUMMON_SARONITE_VAPORS, true);   // Spells summons 33488 in a random place in 40 meters                            
                             events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, urand(30000, 35000));
-                            break;
+                            return;
                         case EVENT_BERSERK:
                             DoScriptText(SAY_BERSERK, me);
                             DoCast(me, SPELL_BERSERK);
-                            break;
+                            return;
                     }
                 }
 

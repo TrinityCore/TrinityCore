@@ -563,12 +563,12 @@ class boss_freya : public CreatureScript
                         case EVENT_ENRAGE:
                             DoScriptText(SAY_BERSERK, me);
                             DoCast(me, SPELL_BERSERK);
-                            break;
+                            return;
                         case EVENT_SUNBEAM:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_SUNBEAM);
                             events.ScheduleEvent(EVENT_SUNBEAM, urand(10000, 15000));
-                            break;
+                            return;
                         case EVENT_NATURE_BOMB:
                         {
                             // On every player
@@ -579,13 +579,13 @@ class boss_freya : public CreatureScript
                             for (std::list<Player*>::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                                 (*itr)->CastSpell(*itr, SPELL_SUMMON_NATURE_BOMB, true);
                             events.ScheduleEvent(EVENT_NATURE_BOMB, urand(10000, 12000));
-                            break;
+                            return;
                         }
                         case EVENT_UNSTABLE_ENERGY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_FREYA_UNSTABLE_SUNBEAM, true);
                             events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, urand(15000, 20000));
-                            break;
+                            return;
                         case EVENT_WAVE:
                             if (Aura * aura = me->GetAura(SPELL_ATTUNED_TO_NATURE)) // This is change to phase 2: All stacks are down! On first visit, this prevents the event from being performed.
                                 if (aura->GetStackAmount() > 0)
@@ -593,20 +593,20 @@ class boss_freya : public CreatureScript
                                     SpawnWave();
                                     events.ScheduleEvent(EVENT_WAVE, WAVE_TIME);
                                 }                            
-                            break;
+                            return;
                         case EVENT_EONAR_GIFT:
                             DoCast(me, SPELL_SUMMON_EONAR_GIFT);
                             events.ScheduleEvent(EVENT_EONAR_GIFT, urand(40000, 50000));
-                            break;
+                            return;
                         case EVENT_STRENGTHENED_IRON_ROOTS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_ROOTS_FREYA))
                                 target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be casted by Target self
                             events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, urand(12000, 20000));
-                            break;
+                            return;
                         case EVENT_GROUND_TREMOR:
                             DoCastAOE(SPELL_FREYA_GROUND_TREMOR);
                             events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(25000, 28000));
-                            break;
+                            return;
                     }
                 }
 
@@ -957,7 +957,7 @@ class boss_elder_brightleaf : public CreatureScript
                         case EVENT_UNSTABLE_SUN_BEAM:
                             me->CastSpell(me, SPELL_UNSTABLE_SUN_BEAM_SUMMON, true);
                             events.ScheduleEvent(EVENT_UNSTABLE_SUN_BEAM, urand(10000, 15000));
-                            break;
+                            return;
                         case EVENT_SOLAR_FLARE:
                         {
                             uint8 stackAmount = 0;
@@ -965,7 +965,7 @@ class boss_elder_brightleaf : public CreatureScript
                                 stackAmount = me->GetAura(SPELL_FLUX_AURA)->GetStackAmount();
                             me->CastCustomSpell(SPELL_SOLAR_FLARE, SPELLVALUE_MAX_TARGETS, stackAmount, me, false);
                             events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 10000));
-                            break;
+                            return;
                         }
                         case EVENT_FLUX:
                             me->RemoveAurasDueToSpell(SPELL_FLUX_AURA);
@@ -978,7 +978,7 @@ class boss_elder_brightleaf : public CreatureScript
                                 Flux->SetStackAmount(urand(1, 8));
                             me->AddAura(RAND(SPELL_FLUX_PLUS, SPELL_FLUX_MINUS), me);
                             events.ScheduleEvent(EVENT_FLUX, 7500);
-                            break;
+                            return;
                     }
                 }
 
@@ -1105,16 +1105,16 @@ class boss_elder_stonebark : public CreatureScript
                         case EVENT_PETRIFIED_BARK:
                             DoCast(me, SPELL_PETRIFIED_BARK);
                             events.ScheduleEvent(EVENT_PETRIFIED_BARK, urand(30000, 50000));
-                            break;
+                            return;
                         case EVENT_FISTS_OF_STONE:
                             DoCastVictim(SPELL_FISTS_OF_STONE);
                             events.ScheduleEvent(EVENT_FISTS_OF_STONE, urand(20000, 30000));
-                            break;
+                            return;
                         case EVENT_GROUND_TREMOR:
                             if (!me->HasAura(SPELL_FISTS_OF_STONE))
                                 DoCastVictim(SPELL_GROUND_TREMOR);
                             events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(10000, 20000));
-                            break;
+                            return;
                     }
                 }
 
@@ -1227,16 +1227,16 @@ class boss_elder_ironbranch : public CreatureScript
                         case EVENT_IMPALE:
                             DoCastVictim(SPELL_IMPALE);
                             events.ScheduleEvent(EVENT_IMPALE, urand(15000, 25000));
-                            break;
+                            return;
                         case EVENT_IRON_ROOTS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_IRON_ROOTS))
                                 target->CastSpell(target, SPELL_IRON_ROOTS, true);
                             events.ScheduleEvent(EVENT_IRON_ROOTS, urand(10000, 20000));
-                            break;
+                            return;
                         case EVENT_THORN_SWARM:
                             DoCastVictim(SPELL_THORN_SWARM);
                             events.ScheduleEvent(EVENT_THORN_SWARM, urand(8000, 13000));
-                            break;
+                            return;
                     }
                 }
 
@@ -1329,7 +1329,7 @@ class npc_detonating_lasher : public CreatureScript
                         case EVENT_LASH:
                             DoCast(SPELL_FLAME_LASH);
                             events.ScheduleEvent(EVENT_LASH, urand(5000, 10000));
-                            break;
+                            return;
                         case EVENT_CHANGE_TARGET:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             {
@@ -1338,7 +1338,7 @@ class npc_detonating_lasher : public CreatureScript
                                 me->AI()->AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_CHANGE_TARGET, urand(5000, 10000));
-                            break;
+                            return;
                     }
                 }
                 DoMeleeAttackIfReady();
@@ -1483,12 +1483,12 @@ class npc_storm_lasher : public CreatureScript
                         case EVENT_LIGHTNING_LASH:
                             DoCast(SPELL_LIGHTNING_LASH);
                             events.ScheduleEvent(EVENT_LIGHTNING_LASH, urand(7000, 14000));
-                            break;
+                            return;
                         case EVENT_STORMBOLT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_STORMBOLT);
                             events.ScheduleEvent(EVENT_STORMBOLT, urand(8000, 12000));
-                            break;
+                            return;
                     }
                 }
 
@@ -1632,13 +1632,13 @@ class npc_ancient_conservator : public CreatureScript
                         case EVENT_HEALTHY_SPORE:
                             SummonHealthySpores(1);
                             events.ScheduleEvent(EVENT_HEALTHY_SPORE, urand(15000, 17500));
-                            break;
+                            return;
                         case EVENT_NATURES_FURY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_NATURES_FURY))
                                 DoCast(target, SPELL_NATURES_FURY);
                             me->AddAura(SPELL_CONSERVATOR_GRIP, me);
                             events.ScheduleEvent(EVENT_NATURES_FURY, 5000);
-                            break;
+                            return;
                     }
                 }
                 DoMeleeAttackIfReady();

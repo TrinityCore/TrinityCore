@@ -410,7 +410,7 @@ class boss_kologarn : public CreatureScript
                             if (!me->IsWithinMeleeRange(me->getVictim()))
                                 DoCast(SPELL_PETRIFY_BREATH);
                             events.ScheduleEvent(EVENT_MELEE_CHECK, 1 * IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_SWEEP:           // Cast for left arm
                             if (haveLeftArm)
                             {
@@ -421,7 +421,7 @@ class boss_kologarn : public CreatureScript
                                 }  
                             }                            
                             events.ScheduleEvent(EVENT_SWEEP, 25 * IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_STONE_GRIP:      // Cast for right arm                        
                             if (haveRightArm)
                             {
@@ -430,32 +430,32 @@ class boss_kologarn : public CreatureScript
                                 DoScriptText(SAY_GRAB_PLAYER, me);
                             }
                             events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);                        
-                            break;
+                            return;
                         case EVENT_SMASH:
                             if (haveLeftArm && haveRightArm)
                                 DoCastVictim(SPELL_TWO_ARM_SMASH);
                             else if (haveLeftArm || haveRightArm)
                                 DoCastVictim(SPELL_ONE_ARM_SMASH);
                             events.ScheduleEvent(EVENT_SMASH, 15 * IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_STONE_SHOUT:
                             DoCast(SPELL_STONE_SHOUT);
                             events.ScheduleEvent(EVENT_STONE_SHOUT, 2 * IN_MILLISECONDS);
-                            break;
+                            return;
                         case EVENT_ENRAGE:
                             DoCast(SPELL_BERSERK);
                             DoScriptText(SAY_BERSERK, me);
-                            break;
+                            return;
                         case EVENT_RESPAWN_LEFT_ARM:
                             RespawnArm(NPC_LEFT_ARM);
                             me->MonsterTextEmote(EMOTE_LEFT, 0, true);
                             events.CancelEvent(EVENT_RESPAWN_LEFT_ARM);
-                            break;
+                            return;
                         case EVENT_RESPAWN_RIGHT_ARM:
                             RespawnArm(NPC_RIGHT_ARM);
                             me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
                             events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);
-                            break;                        
+                            return;
                         case EVENT_FOCUSED_EYEBEAM:
                             if (Player* eyebeamTargetUnit = GetEyeBeamTarget())
                             {
@@ -468,7 +468,7 @@ class boss_kologarn : public CreatureScript
                                 */
                             }
                             events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
-                            break;
+                            return;
                     }
                 }
 
