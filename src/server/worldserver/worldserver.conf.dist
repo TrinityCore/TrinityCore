@@ -2767,3 +2767,22 @@ Logger.Load=40,3,Console Server
 
 Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer
 
+###################################################################################################################
+# PVP RANK / TITLE SYSTEM
+#
+# PvPRank.Rate.ExtraHonor
+# Rate of honor bonus for killing higher pvp ranked players
+# Default: 1 - 10% more honor per rank difference
+# 2 - 20%
+# 0 - off
+#
+# PvPRank.HKPerRank
+# Honor Kills needed for each rank, use "," between values.
+# Whole string must be enclosed with " "
+# Always specify 14 values, for 14 ranks
+# Default: "10,50,100,200,450,1000,2000,3000,4500,7500,10500,15000,30000,50000"
+#
+###################################################################################################################
+
+PvPRank.Rate.ExtraHonor = 0
+PvPRank.HKPerRank = "10,50,100,200,450,1000,2000,3000,4500,7500,10500,15000,30000,50000"
