@@ -74,6 +74,7 @@ namespace MMAP
 
             // builds all mmap tiles for the specified map id (ignores skip settings)
             void buildMap(uint32 mapID);
+            void buildMeshFromFile(char* name);
 
             // builds an mmap tile for the specified map and its mesh
             void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
