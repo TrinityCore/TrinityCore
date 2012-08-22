@@ -104,9 +104,6 @@ enum BossSpells
 #define SPELL_UNLEASHED_DARK_HELPER RAID_MODE<uint32>(65808, 67172, 67173, 67174)
 #define SPELL_UNLEASHED_LIGHT_HELPER RAID_MODE<uint32>(65795, 67238, 67239, 67240)
 
-#define SPELL_DARK_VORTEX_HELPER RAID_MODE<uint32>(66059, 67155, 67156, 67157)
-#define SPELL_LIGHT_VORTEX_HELPER RAID_MODE<uint32>(66048, 67203, 67204, 67205)
-
 enum Actions
 {
     ACTION_VORTEX,
@@ -331,7 +328,7 @@ struct boss_twin_baseAI : public ScriptedAI
         switch (m_uiStage)
         {
             case 0:
-                break;
+                return;
             case 1: // Vortex
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
@@ -344,7 +341,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
-                break;
+                return;
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
@@ -362,7 +359,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
-                break;
+                return;
             default:
                 break;
         }

@@ -1005,7 +1005,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                                 if (SelectPlayerTargetInRange(me, 500.0f))  // If anyone survived this, try again :)
                                     events.ScheduleEvent(EVENT_ENRAGE, 1000);
                             }
-                            break;
+                            return;
                         case EVENT_DESCENT_TO_MADNESS_BEGIN:
                             if (Creature* yogg = ObjectAccessor::GetCreature(*me, guidYogg))
                             {
@@ -1014,10 +1014,10 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                             }
                             events.ScheduleEvent(EVENT_DESCENT_TO_MADNESS_BEGIN, 90000, 0, PHASE_BRAIN);    
                             events.ScheduleEvent(EVENT_DESCENT_TO_MADNESS_END, 60000, 0, PHASE_BRAIN); // End of cast SPELL_INDUCE_MADNESS
-                            break;
+                            return;
                         case EVENT_DESCENT_TO_MADNESS_END:
                             OnRemove_ShatteredIllusions(false);                        
-                            break;
+                            return;
                     }
                 }
 
@@ -1723,7 +1723,7 @@ class boss_sara : public CreatureScript
                         case EVENT_RANDOM_YELL:
                             SaraRandomYell();
                             events.ScheduleEvent(EVENT_RANDOM_YELL, urand(40000, 60000));
-                            break;
+                            return;
                         
                         // Events in PHASE_SARA
                         case EVENT_SUMMON_GUARDIAN:                    
@@ -1732,7 +1732,7 @@ class boss_sara : public CreatureScript
                                     target->CastSpell(target, SPELL_SUMMON_GUARDIAN, true);
                                 events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, 15000, 0, PHASE_SARA);                            
                             }                      
-                            break;
+                            return;
                         case EVENT_SARAHS_HELP:
                             switch (urand(0,2))
                             {
@@ -1753,7 +1753,7 @@ class boss_sara : public CreatureScript
                                     break;
                             }
                             events.ScheduleEvent(EVENT_SARAHS_HELP, urand(5000, 6000), 0, PHASE_SARA);
-                            break;
+                            return;
 
                         // events in PHASE_BRAIN
                         case EVENT_SPEAKING:
@@ -1796,18 +1796,18 @@ class boss_sara : public CreatureScript
                                 if (SpeakingPhase < 4)
                                     events.ScheduleEvent(EVENT_SPEAKING, nextEventTime);
                             }
-                            break;
+                            return;
                         case EVENT_EVTSPEAKING:
                             if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))                                
                                 events.RescheduleEvent(EVENT_EVTSPEAKING, DoEventSpeaking(static_cast<BrainEventPhase>(ctrl->AI()->GetData(DATA_PORTAL_PHASE)), EventSpeakingPhase), 0, PHASE_BRAIN);
                             EventSpeakingPhase++;
-                            break;
+                            return;
                         case EVENT_PSYCHOSIS:
                             if (Player* target = SelectPlayerTargetInRange(me, 500.0f))
                                 if (!IsPlayerInBrainRoom(target))
                                     DoCast(target, SPELL_PSYCHOSIS, false);
                             events.ScheduleEvent(EVENT_PSYCHOSIS, 5000, 0, PHASE_BRAIN);
-                            break;
+                            return;
                         case EVENT_MINDSPELL:
                             if (!me->IsNonMeleeSpellCasted(false))
                             {
@@ -1827,7 +1827,7 @@ class boss_sara : public CreatureScript
                             }
                             else
                                 events.ScheduleEvent(EVENT_MINDSPELL, 3000, 0, PHASE_BRAIN);
-                            break;                                                                     
+                            return;
                     }
                 }
 
@@ -2115,15 +2115,15 @@ class npc_yogg_saron_tentacle : public CreatureScript
                         case CRUSHER_TENTACLE:
                             if(!me->HasAura(SPELL_DIMISH_POWER))
                                 DoCast(SPELL_DIMISH_POWER);
-                            break;
+                            return;
                         case CORRUPTOR_TENTACLE:
                             if(Unit* target = SelectPlayerTargetInRange(me, 500.0f))
                                 DoCast(target, RAND(SPELL_DRAINING_POISON, SPELL_BLACK_PLAGUE, SPELL_APATHY, SPELL_CURSE_OF_DOOM), false);
-                            break;
+                            return;
                         case CONSTRICTOR_TENTACLE:
                             if (Unit* target =  SelectPlayerTargetInRange(me, 50.0f))
                                 target->CastSpell(me, SPELL_LUNGE, true);
-                            break;
+                            return;
                     }
                     tentacleSpellTimer = urand(5000, 7000);
                 }
@@ -2493,7 +2493,7 @@ class boss_yogg_saron : public CreatureScript
                                         }
                                 }
                             events.ScheduleEvent(EVENT_SANITY_CHECK, 1000); 
-                            break;
+                            return;
                         case EVENT_TENTACLE:
                             if (urand(0, 1) == 0)
                             {
@@ -2510,7 +2510,7 @@ class boss_yogg_saron : public CreatureScript
                                     events.ScheduleEvent(EVENT_TENTACLE, urand(2000, 5000), 0, PHASE_BRAIN);  
                             else
                                 events.ScheduleEvent(EVENT_TENTACLE, urand(3500, 7500), 0, PHASE_BRAIN);
-                            break;
+                            return;
                         case EVENT_TENTACLE_1:
                             me->CastSpell(me, SPELL_SUMMON_CRUSHER_TENTACLE, true);
                             if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))
@@ -2520,25 +2520,25 @@ class boss_yogg_saron : public CreatureScript
                                     events.ScheduleEvent(EVENT_TENTACLE_1, urand(10000, 15000), 0, PHASE_BRAIN);  
                             else
                                 events.ScheduleEvent(EVENT_TENTACLE_1, urand(20000, 27500), 0, PHASE_BRAIN);
-                            break; 
+                            return;
                         case EVENT_SUMMON_GUARDIAN_YOGG:
                             me->CastSpell(me, SPELL_SUMMON_IMMORTAL_GUARDIAN, true);
                             events.ScheduleEvent(EVENT_SUMMON_GUARDIAN_YOGG, 15000, 0, PHASE_YOGG);                                                   
-                            break;
+                            return;
                         case EVENT_LUNATIC_GAZE:
                             DoScriptText(SAY_LUNCATIC_GLAZE, me, 0);
                             me->CastSpell(me, SPELL_LUNATIC_GAZE, me);
                             events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12000, 0, PHASE_YOGG);                                
-                            break;
+                            return;
                         case EVENT_DEAFENING_ROAR:
                             DoScriptText(SAY_DEAFENING_ROAR, me, 0);
                             me->CastSpell(me, SPELL_DEAFENING_ROAR, false);
                             events.ScheduleEvent(EVENT_DEAFENING_ROAR, 60000, 0, PHASE_YOGG);
-                            break;
+                            return;
                         case EVENT_SHADOW_BEACON:
                             me->CastSpell(me, SPELL_SHADOW_BEACON, false);
                             events.ScheduleEvent(EVENT_SHADOW_BEACON, 3000, 0, PHASE_YOGG);
-                            break;
+                            return;
                     }
                 }
             }

@@ -323,7 +323,7 @@ public:
                         m_uiStage = 1;
                         m_uiSubmergeTimer = 60*IN_MILLISECONDS;
                     } else m_uiSubmergeTimer -= uiDiff;
-                    break;
+                    return;
                 case 1:
                     DoCast(me, SPELL_SUBMERGE_ANUBARAK);
                     DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
@@ -332,7 +332,7 @@ public:
                     m_uiScarabSummoned = 0;
                     m_uiSummonScarabTimer = 4*IN_MILLISECONDS;
                     m_uiStage = 2;
-                    break;
+                    return;
                 case 2:
                     if (m_uiPursuingSpikeTimer <= uiDiff)
                     {
@@ -368,7 +368,7 @@ public:
                         m_uiStage = 3;
                         m_uiSubmergeTimer = 80*IN_MILLISECONDS;
                     } else m_uiSubmergeTimer -= uiDiff;
-                    break;
+                    return;
                 case 3:
                     m_uiStage = 0;
                     DoCast(SPELL_SPIKE_TELE);
@@ -379,7 +379,7 @@ public:
                     m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
                     m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
                     m_uiSummonScarabTimer = 2*IN_MILLISECONDS;
-                    break;
+                    return;
             }
 
             if (!IsHeroic())
@@ -711,19 +711,19 @@ public:
                                 Talk(EMOTE_SPIKE, target2->GetGUID());
                             }
                             m_PhaseSwitchTimer = 7000;
-                            break;
+                            return;
 
                         case PHASE_IMPALE_NORMAL:
                             DoCast(me, SPELL_SPIKE_SPEED2);
                             m_Phase = PHASE_IMPALE_MIDDLE;
                             m_PhaseSwitchTimer = 7000;
-                            break;
+                            return;
 
                         case PHASE_IMPALE_MIDDLE:
                             DoCast(me, SPELL_SPIKE_SPEED3);
                             m_Phase = PHASE_IMPALE_FAST;
                             m_PhaseSwitchTimer = 0;
-                            break;
+                            return;
                     }
                 } else m_PhaseSwitchTimer -= uiDiff;
             }

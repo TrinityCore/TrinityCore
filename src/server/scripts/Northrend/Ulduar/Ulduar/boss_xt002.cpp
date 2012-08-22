@@ -313,7 +313,7 @@ class boss_xt002 : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING)) // Still channeling, do nothing
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -325,33 +325,33 @@ class boss_xt002 : public CreatureScript
                                 DoCast(target, SPELL_SEARING_LIGHT);
 
                             events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT, 0, PHASE_ONE);
-                            break;
+                            return;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_GRAVITY_BOMB);
 
                             events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ONE);
-                            break;
+                            return;
                         case EVENT_TYMPANIC_TANTRUM:
                             DoScriptText(SAY_TYMPANIC_TANTRUM, me);
                             me->MonsterTextEmote(EMOTE_TYMPANIC, 0, true);
                             DoCast(SPELL_TYMPANIC_TANTRUM);
                             events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX), 0, PHASE_ONE);
-                            break;
+                            return;
                         case EVENT_DISPOSE_HEART:
                             SetPhaseOne();
-                            break;
+                            return;
                         case EVENT_ENRAGE:
                             DoScriptText(SAY_BERSERK, me);
                             DoCast(me, SPELL_ENRAGE);
-                            break;
+                            return;
                         case EVENT_ENTER_HARD_MODE:
                             me->SetFullHealth();
                             DoCast(me, SPELL_HEARTBREAK, true);
                             me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                             hardMode = true;
                             SetPhaseOne();
-                            break;
+                            return;
                         case EVENT_SPAWN_ADDS:
                             DoScriptText(SAY_SUMMON, me);
 
@@ -373,7 +373,7 @@ class boss_xt002 : public CreatureScript
                                 me->SummonCreature(NPC_XE321_BOOMBOT, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
                             events.ScheduleEvent(EVENT_SPAWN_ADDS, 12*IN_MILLISECONDS, 0, PHASE_TWO);
-                            break;
+                            return;
                     }
                 }
 
@@ -660,17 +660,17 @@ class mob_pummeller : public CreatureScript
                             case EVENT_ARCING_SMASH:
                                 DoCast(me->getVictim(), SPELL_ARCING_SMASH);
                                 events.ScheduleEvent(EVENT_ARCING_SMASH, TIMER_ARCING_SMASH);
-                                break;
+                                return;
 
                             case EVENT_TRAMPLE:
                                 DoCast(me->getVictim(), SPELL_TRAMPLE);
                                 events.ScheduleEvent(EVENT_TRAMPLE, TIMER_TRAMPLE);
-                                break;
+                                return;
 
                             case EVENT_UPPERCUT:
                                 DoCast(me->getVictim(), SPELL_UPPERCUT);
                                 events.ScheduleEvent(EVENT_UPPERCUT, TIMER_UPPERCUT);
-                                break;
+                                return;
                         }                        
                     }
                 }

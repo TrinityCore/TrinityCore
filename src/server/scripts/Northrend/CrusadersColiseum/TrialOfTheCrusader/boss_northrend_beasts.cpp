@@ -562,7 +562,7 @@ struct boss_jormungarAI : public ScriptedAI
                 DoCast(me, SPELL_SUBMERGE_0);
                 me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
                 stage = STAGE_WAIT_EMERGE_1;
-                break;
+                return;
 
             case STAGE_WAIT_EMERGE_1:
                 if (submergeTimer <= diff)
@@ -570,7 +570,7 @@ struct boss_jormungarAI : public ScriptedAI
                     stage = STAGE_EMERGE_1;
                     submergeTimer = 50*IN_MILLISECONDS;
                 } else submergeTimer -= diff;
-                break;
+                return;
             case STAGE_EMERGE_1:
                 me->SetDisplayId(modelStationary);
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
@@ -580,7 +580,7 @@ struct boss_jormungarAI : public ScriptedAI
                 SetCombatMovement(false);
                 me->GetMotionMaster()->MoveIdle();
                 stage = STAGE_STATIONARY;
-                break;
+                return;
 
             case STAGE_STATIONARY:
                 if (sprayTimer <= diff)
@@ -606,14 +606,14 @@ struct boss_jormungarAI : public ScriptedAI
                 me->GetMotionMaster()->MoveIdle();
                 me->GetMotionMaster()->Clear();
                 DoSpellAttackIfReady(spitSpell);
-                break;
+                return;
 
             case STAGE_SUBMERGE_2:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 DoCast(me, SPELL_SUBMERGE_0);
                 me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
                 stage = STAGE_WAIT_EMERGE_2;
-                break;
+                return;
 
             case STAGE_WAIT_EMERGE_2:
                 if (submergeTimer <= diff)
@@ -621,7 +621,7 @@ struct boss_jormungarAI : public ScriptedAI
                     stage = STAGE_EMERGE_2;
                     submergeTimer = 45*IN_MILLISECONDS;
                 } else submergeTimer -= diff;
-                break;
+                return;
 
             case STAGE_EMERGE_2:
                 me->SetDisplayId(modelMobile);
@@ -632,7 +632,7 @@ struct boss_jormungarAI : public ScriptedAI
                 SetCombatMovement(true);
                 me->GetMotionMaster()->MoveChase(me->getVictim());
                 stage = STAGE_MOBILE;
-                break;
+                return;
         }
     }
 

@@ -390,12 +390,12 @@ class boss_hodir : public CreatureScript
                         case EVENT_FREEZE:
                             DoCastAOE(SPELL_FREEZE);
                             events.ScheduleEvent(EVENT_FREEZE, urand(30000, 45000));
-                            break;
+                            return;
                         case EVENT_ICICLE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_ICICLE);
                             events.ScheduleEvent(EVENT_ICICLE, RAID_MODE(5500, 3500));
-                            break;
+                            return;
                         case EVENT_FLASH_FREEZE:
                             DoScriptText(SAY_FLASH_FREEZE, me);
                             DoScriptText(EMOTE_FREEZE, me);
@@ -404,7 +404,7 @@ class boss_hodir : public CreatureScript
                                     target->CastSpell(target, SPELL_ICICLE_SNOWDRIFT, true);
                             DoCast(SPELL_FLASH_FREEZE);
                             events.ScheduleEvent(EVENT_FLASH_FREEZE_EFFECT, 500);
-                            break;
+                            return;
                         case EVENT_FLASH_FREEZE_EFFECT:
                         {
                             std::list<Creature*> IcicleSnowdriftList;
@@ -414,25 +414,25 @@ class boss_hodir : public CreatureScript
                             FlashFreeze();
                             events.CancelEvent(EVENT_FLASH_FREEZE_EFFECT);
                             events.ScheduleEvent(EVENT_FLASH_FREEZE, urand(25000, 35000));
-                            break;
+                            return;
                         }
                         case EVENT_BLOWS:
                             DoScriptText(SAY_STALACTITE, me);
                             DoScriptText(EMOTE_BLOWS, me);
                             DoCast(me, SPELL_FROZEN_BLOWS);
                             events.ScheduleEvent(EVENT_BLOWS, urand(60000, 65000));
-                            break;
+                            return;
                         case EVENT_RARE_CACHE:
                             DoScriptText(SAY_HARD_MODE_FAILED, me);
                             iCouldSayThatThisCacheWasRare = false;
                             instance->SetData(DATA_HODIR_RARE_CACHE, 0);
                             events.CancelEvent(EVENT_RARE_CACHE);
-                            break;
+                            return;
                         case EVENT_BERSERK:
                             DoScriptText(SAY_BERSERK, me);
                             DoCast(me, SPELL_BERSERK, true);
                             events.CancelEvent(EVENT_BERSERK);
-                            break;
+                            return;
                     }
                 }
 
@@ -637,7 +637,7 @@ class npc_hodir_priest : public CreatureScript
                         case EVENT_HEAL:
                             DoCastAOE(SPELL_GREATER_HEAL);
                             events.ScheduleEvent(EVENT_HEAL, urand(7500, 10000));
-                            break;
+                            return;
                         case EVENT_DISPEL_MAGIC:
                         {
                             std::list<Unit*> allies;
@@ -649,7 +649,7 @@ class npc_hodir_priest : public CreatureScript
                                 if ((*itr)->HasAura(SPELL_FREEZE))
                                     DoCast(*itr, SPELL_DISPEL_MAGIC, true);
                             events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000, 20000));
-                            break;
+                            return;
                         }
                         default:
                             break;
@@ -882,12 +882,12 @@ class npc_hodir_mage : public CreatureScript
                             // The fire is gets positioned at a random coordinate.
                             DoCast(me, SPELL_CONJURE_FIRE, true);
                             events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(15000, 20000));
-                            break;
+                            return;
                         case EVENT_MELT_ICE:
                             if (Creature* FlashFreeze = me->FindNearestCreature(NPC_FLASH_FREEZE, 50.0f, true))
                                 DoCast(FlashFreeze, SPELL_MELT_ICE, true);
                             events.ScheduleEvent(EVENT_MELT_ICE, urand(10000, 15000));
-                            break;
+                            return;
                     }
                 }
 
