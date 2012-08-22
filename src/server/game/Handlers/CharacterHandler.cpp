@@ -2137,8 +2137,8 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
 {
     uint32 charactersCount = recvData.ReadBits(10);
 
-    ObjectGuid guids[charactersCount];
-    uint8 positions[charactersCount];
+    std::vector<ObjectGuid> guids(charactersCount);
+    uint8 position;
 
     for (uint8 i = 0; i < charactersCount; ++i)
     {
@@ -2162,13 +2162,16 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
         recvData.ReadByteSeq(guids[i][0]);
         recvData.ReadByteSeq(guids[i][3]);
 
-        recvData >> positions[i];
-        positions[i] /= 10;
+        recvData >> position;
 
         recvData.ReadByteSeq(guids[i][2]);
         recvData.ReadByteSeq(guids[i][7]);
 
-        trans->PAppend("UPDATE characters SET slot = '%u' WHERE guid = '%u'", positions[i], uint64(guids[i]));
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
+        stmt->setUInt8(0, position);
+        stmt->setUInt32(1, GUID_LOPART(guids[i]));
+        trans->Append(stmt);
     }
+
     CharacterDatabase.CommitTransaction(trans);
 }
