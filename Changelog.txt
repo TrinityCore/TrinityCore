@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[13] --> Fix no combo points after Mind Control.
 [12] --> Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power.
 [11] --> Add Passive Anticheat System.
 [10] --> Fix Grounding Totem.
