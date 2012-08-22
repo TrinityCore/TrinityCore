@@ -97,7 +97,7 @@ class instance_zulgurub : public InstanceMapScript
                    default:
                       break;
                 }
-            
+
                 return true;
             }
 
