@@ -2940,6 +2940,14 @@ void SpellMgr::LoadDbcDataCorrections()
             case 30657: // Quake
                 spellInfo->EffectTriggerSpell[0] = 30571;
                 break;
+            case 1543: // Flare
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS;
+                spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_10_YARDS;
+                spellInfo->speed = 100;
+                break;
+            case 49575: // Death Grip
+                 spellInfo->EffectMiscValueB[0] = 1;
+                break;
             case 30541: // Blaze (needs conditions entry)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->EffectImplicitTargetB[0] = 0;

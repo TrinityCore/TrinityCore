@@ -9,5 +9,6 @@
 #                                                                                          #
 ############################################################################################
 
+[3] --> Fix Flare and Death Grip.
 [2] --> Misc small changes.
 [1] --> Implement progressive MMR search range.
