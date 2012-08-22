@@ -113,7 +113,10 @@ public:
         std::string uptime          = secsToTimeString(sWorld->GetUptime());
         uint32 updateTime           = sWorld->GetUpdateTime();
 
-        handler->SendSysMessage(_FULLVERSION);
+        //handler->SendSysMessage(_FULLVERSION);
+        handler->PSendSysMessage("Core: BlizzNetCore");
+        handler->PSendSysMessage("Rev: XX.08.2012");
+        handler->PSendSysMessage("Sponsors: http://BlizzNet.PL");
         handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
         handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
         handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());

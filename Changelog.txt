@@ -9,4 +9,5 @@
 #                                                                                          #
 ############################################################################################
 
-[1] Implement progressive MMR search range.
+[2] --> Misc small changes.
+[1] --> Implement progressive MMR search range.

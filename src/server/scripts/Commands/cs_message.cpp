@@ -47,6 +47,7 @@ public:
         {
             { "channel",        SEC_ADMINISTRATOR,  true,   NULL,                               "", channelCommandTable  },
             { "nameannounce",   SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
+            { "msg",            SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
             { "gmnameannounce", SEC_MODERATOR,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
             { "announce",       SEC_MODERATOR,      true,   &HandleAnnounceCommand,             "", NULL },
             { "gmannounce",     SEC_MODERATOR,      true,   &HandleGMAnnounceCommand,           "", NULL },
