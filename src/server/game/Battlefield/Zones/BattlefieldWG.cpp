@@ -523,13 +523,13 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
             case NPC_WINTERGRASP_CATAPULT:
             case NPC_WINTERGRASP_DEMOLISHER:
             {
-                if (!creature->GetCreatorGUID() || !sObjectAccessor->FindPlayer(creature->GetCreatorGUID()))
+                if (!creature->ToTempSummon()->GetSummonerGUID() || !sObjectAccessor->FindPlayer(creature->ToTempSummon()->GetSummonerGUID()))
                 {
                     creature->setDeathState(DEAD);
                     creature->RemoveFromWorld();
                     return;
                 }
-                Player* creator = sObjectAccessor->FindPlayer(creature->GetCreatorGUID());
+                Player* creator = sObjectAccessor->FindPlayer(creature->ToTempSummon()->GetSummonerGUID());
                 TeamId team = creator->GetTeamId();
 
                 if (team == TEAM_HORDE)
@@ -554,7 +554,7 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, 1);
-                        creature->AddAura(SPELL_ALLIANCE_FLAG,creature);
+                        creature->AddAura(SPELL_ALLIANCE_FLAG, creature);
                         creature->setFaction(creator->getFaction());
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
@@ -699,10 +699,10 @@ bool BattlefieldWG::FindAndRemoveVehicleFromList(Unit* vehicle)
         if (m_vehicles[itr].find(vehicle->GetGUID()) != m_vehicles[itr].end())
         {
             m_vehicles[itr].erase(vehicle->GetGUID());
-            if (itr == WintergraspFaction[TEAM_HORDE])
-                UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H,-1);
+            if (itr == TEAM_HORDE)
+                UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H, -1);
             else
-                UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A,-1);
+                UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, -1);
             return true;
         }
     }
