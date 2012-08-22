@@ -84,10 +84,10 @@ namespace Movement
          */
         void MovebyPath(const PointsArray& path, int32 pointId = 0);
 
-        /* Initializes simple A to B mition, A is current unit's position, B is destination
+        /* Initializes simple A to B motion, A is current unit's position, B is destination
          */
-        void MoveTo(const Vector3& destination, bool generatePath = false, bool forceDestination = false);
-        void MoveTo(float x, float y, float z, bool generatePath = false, bool forceDestination = false);
+        void MoveTo(const Vector3& destination, bool generatePath = true, bool forceDestination = false);
+        void MoveTo(float x, float y, float z, bool generatePath = true, bool forceDestination = false);
 
         /* Sets Id of fisrt point of the path. When N-th path point will be done ILisener will notify that pointId + N done
          * Needed for waypoint movement where path splitten into parts

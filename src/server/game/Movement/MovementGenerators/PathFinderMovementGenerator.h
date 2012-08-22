@@ -98,6 +98,8 @@ class PathFinderMovementGenerator
         void setStartPosition(Vector3 point) { m_startPosition = point; }
         void setEndPosition(Vector3 point) { m_actualEndPosition = point; m_endPosition = point; }
         void setActualEndPosition(Vector3 point) { m_actualEndPosition = point; }
+        
+        void NormalizePath();
 
         void clear()
         {
