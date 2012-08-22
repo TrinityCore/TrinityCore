@@ -24,6 +24,7 @@
 #include "LoginDatabase.h"
 
 #include "DetourNavMeshBuilder.h"
+#include "DetourNavMesh.h"
 #include "DetourCommon.h"
 
 // These make the linker happy.
@@ -205,6 +206,56 @@ namespace MMAP
         maxY = 32 - bmin[2] / GRID_SIZE;
         minX = 32 - bmax[0] / GRID_SIZE;
         minY = 32 - bmax[2] / GRID_SIZE;
+    }
+    
+    void MapBuilder::buildMeshFromFile(char* name)
+    {
+        FILE* file = fopen(name, "rb");
+        if (!file)
+            return;
+
+        printf("Building mesh from file\n");
+        int tileX, tileY, mapId;
+        fread(&mapId, sizeof(int), 1, file);
+        fread(&tileX, sizeof(int), 1, file);
+        fread(&tileY, sizeof(int), 1, file);
+        
+        dtNavMesh* navMesh = NULL;
+        buildNavMesh(mapId, navMesh);
+        if (!navMesh)
+        {
+            printf("Failed creating navmesh!              \n");
+            fclose(file);
+            return;
+        }
+
+
+        int verticesCount, indicesCount;
+        fread(&verticesCount, sizeof(int), 1, file);
+        fread(&indicesCount, sizeof(int), 1, file);
+
+        float* verts = new float[verticesCount];
+        int* inds = new int[indicesCount];
+        
+        fread(verts, sizeof(float), verticesCount, file);
+        fread(inds, sizeof(int), indicesCount, file);
+
+        MeshData data;
+
+        for (int i = 0; i < verticesCount; ++i)
+            data.solidVerts.append(verts[i]);
+
+        for (int i = 0; i < indicesCount; ++i)
+            data.solidTris.append(inds[i]);
+
+        TerrainBuilder::cleanVertices(data.solidVerts, data.solidTris);
+        // get bounds of current tile
+        float bmin[3], bmax[3];
+        getTileBounds(tileX, tileY, data.solidVerts.getCArray(), data.solidVerts.size() / 3, bmin, bmax);
+
+        // build navmesh tile
+        buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
+        fclose(file);
     }
 
     /**************************************************************************/
@@ -451,29 +502,38 @@ namespace MMAP
         Tile* tiles = new Tile[TILES_PER_MAP * TILES_PER_MAP];
 
         // Initialize per tile config.
-        rcConfig tileCfg;
-        memcpy(&tileCfg, &config, sizeof(rcConfig));
+        rcConfig tileCfg = config;
         tileCfg.width = config.tileSize + config.borderSize*2;
         tileCfg.height = config.tileSize + config.borderSize*2;
 
+        // merge per tile poly and detail meshes
+        rcPolyMesh** pmmerge = new rcPolyMesh*[TILES_PER_MAP * TILES_PER_MAP];
+        if (!pmmerge)
+        {
+            printf("%s alloc pmmerge FIALED!          \r", tileString);
+            return;
+        }
+
+        rcPolyMeshDetail** dmmerge = new rcPolyMeshDetail*[TILES_PER_MAP * TILES_PER_MAP];
+        if (!dmmerge)
+        {
+            printf("%s alloc dmmerge FIALED!          \r", tileString);
+            return;
+        }
+
+        int nmerge = 0;
         // build all tiles
         for (int y = 0; y < TILES_PER_MAP; ++y)
         {
             for (int x = 0; x < TILES_PER_MAP; ++x)
             {
-                Tile& tile = tiles[x + y*TILES_PER_MAP];
+                Tile& tile = tiles[x + y * TILES_PER_MAP];
 
                 // Calculate the per tile bounding box.
                 tileCfg.bmin[0] = config.bmin[0] + (x*config.tileSize - config.borderSize)*config.cs;
                 tileCfg.bmin[2] = config.bmin[2] + (y*config.tileSize - config.borderSize)*config.cs;
                 tileCfg.bmax[0] = config.bmin[0] + ((x+1)*config.tileSize + config.borderSize)*config.cs;
                 tileCfg.bmax[2] = config.bmin[2] + ((y+1)*config.tileSize + config.borderSize)*config.cs;
-
-                float tbmin[2], tbmax[2];
-                tbmin[0] = tileCfg.bmin[0];
-                tbmin[1] = tileCfg.bmin[2];
-                tbmax[0] = tileCfg.bmax[0];
-                tbmax[1] = tileCfg.bmax[2];
 
                 // build heightfield
                 tile.solid = rcAllocHeightfield();
@@ -488,7 +548,7 @@ namespace MMAP
                 memset(triFlags, NAV_GROUND, tTriCount*sizeof(unsigned char));
                 rcClearUnwalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags);
                 rcRasterizeTriangles(m_rcContext, tVerts, tVertCount, tTris, triFlags, tTriCount, *tile.solid, config.walkableClimb);
-                delete [] triFlags;
+                delete[] triFlags;
 
                 rcFilterLowHangingWalkableObstacles(m_rcContext, config.walkableClimb, *tile.solid);
                 rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
@@ -554,30 +614,7 @@ namespace MMAP
                 tile.chf = NULL;
                 rcFreeContourSet(tile.cset);
                 tile.cset = NULL;
-            }
-        }
-
-        // merge per tile poly and detail meshes
-        rcPolyMesh** pmmerge = new rcPolyMesh*[TILES_PER_MAP * TILES_PER_MAP];
-        if (!pmmerge)
-        {
-            printf("%s alloc pmmerge FIALED!          \r", tileString);
-            return;
-        }
-
-        rcPolyMeshDetail** dmmerge = new rcPolyMeshDetail*[TILES_PER_MAP * TILES_PER_MAP];
-        if (!dmmerge)
-        {
-            printf("%s alloc dmmerge FIALED!          \r", tileString);
-            return;
-        }
-
-        int nmerge = 0;
-        for (int y = 0; y < TILES_PER_MAP; ++y)
-        {
-            for (int x = 0; x < TILES_PER_MAP; ++x)
-            {
-                Tile& tile = tiles[x + y*TILES_PER_MAP];
+                
                 if (tile.pmesh)
                 {
                     pmmerge[nmerge] = tile.pmesh;

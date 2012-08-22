@@ -70,7 +70,8 @@ bool handleArgs(int argc, char** argv,
                bool &debugOutput,
                bool &silent,
                bool &bigBaseUnit,
-               char* &offMeshInputPath)
+               char* &offMeshInputPath,
+               char* &file)
 {
     char* param = NULL;
     for (int i = 1; i < argc; ++i)
@@ -86,6 +87,13 @@ bool handleArgs(int argc, char** argv,
                 maxAngle = maxangle;
             else
                 printf("invalid option for '--maxAngle', using default\n");
+        }
+        else if (strcmp(argv[i], "--file") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+            file = param;
         }
         else if (strcmp(argv[i], "--tile") == 0)
         {
@@ -235,11 +243,12 @@ int main(int argc, char** argv)
          silent = false,
          bigBaseUnit = false;
     char* offMeshInputPath = NULL;
+    char* file = NULL;
 
     bool validParam = handleArgs(argc, argv, mapnum,
                                  tileX, tileY, maxAngle,
                                  skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
-                                 debugOutput, silent, bigBaseUnit, offMeshInputPath);
+                                 debugOutput, silent, bigBaseUnit, offMeshInputPath, file);
 
     if (!validParam)
         return silent ? -1 : finish("You have specified invalid parameters", -1);
@@ -262,7 +271,9 @@ int main(int argc, char** argv)
     MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, offMeshInputPath);
 
-    if (tileX > -1 && tileY > -1 && mapnum >= 0)
+    if (file)
+        builder.buildMeshFromFile(file);
+    else if (tileX > -1 && tileY > -1 && mapnum >= 0)
         builder.buildSingleTile(mapnum, tileX, tileY);
     else if (mapnum >= 0)
         builder.buildMap(uint32(mapnum));
