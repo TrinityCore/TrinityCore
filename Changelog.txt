@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[5] --> Insert change in Replace.
 [4] --> Fix Gnomeregan Pride.
 [3] --> Fix Flare and Death Grip.
 [2] --> Misc small changes.
