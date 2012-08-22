@@ -2786,3 +2786,38 @@ Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer
 
 PvPRank.Rate.ExtraHonor = 0
 PvPRank.HKPerRank = "10,50,100,200,450,1000,2000,3000,4500,7500,10500,15000,30000,50000"
+
+###################################################################################################################
+# Passive Anticheat System!
+#
+#     Anticheat.Enable
+#        Description: Enables or disables the Anticheat System functionality
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+#
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+#
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+#
+###################################################################################################################
+
+Anticheat.Enable = 1
+Anticheat.ReportsForIngameWarnings = 70
+Anticheat.DetectionsEnabled = 31
+Anticheat.MaxReportsForDailyReport = 70

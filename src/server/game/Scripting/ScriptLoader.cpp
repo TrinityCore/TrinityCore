@@ -16,6 +16,7 @@
  */
 
 #include "ScriptLoader.h"
+#include "AnticheatMgr.h"
 
 //examples
 void AddSC_example_creature();
@@ -46,6 +47,7 @@ void AddSC_holiday_spell_scripts();
 void AddSC_SmartSCripts();
 
 //Commands
+void AddSC_anticheat_commandscript();
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
 void AddSC_ban_commandscript();
@@ -623,6 +625,7 @@ void AddScripts()
     AddSpellScripts();
     AddSC_SmartSCripts();
     AddCommandScripts();
+    sAnticheatMgr->StartScripts();
 #ifdef SCRIPTS
     AddWorldScripts();
     AddEasternKingdomsScripts();
@@ -665,6 +668,7 @@ void AddSpellScripts()
 
 void AddCommandScripts()
 {
+    AddSC_anticheat_commandscript();
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
     AddSC_ban_commandscript();
