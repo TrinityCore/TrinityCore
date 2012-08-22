@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "blackfathom_deeps.h"
 
 enum Spells
@@ -42,14 +43,14 @@ public:
         }
 
         uint32 poisonCloudTimer;
-        bool bIsEnraged;
+        bool IsEnraged;
 
         InstanceScript* instance;
 
         void Reset()
         {
             poisonCloudTimer = urand(5000, 9000);
-            bIsEnraged = false;
+            IsEnraged = false;
             if (instance)
                 instance->SetData(TYPE_AKU_MAI, NOT_STARTED);
         }
@@ -77,10 +78,10 @@ public:
                 poisonCloudTimer = urand(25000, 50000);
             } else poisonCloudTimer -= diff;
 
-            if (!bIsEnraged && HealthBelowPct(30))
+            if (!IsEnraged && HealthBelowPct(30))
             {
                 DoCast(me, SPELL_FRENZIED_RAGE);
-                bIsEnraged = true;
+                IsEnraged = true;
             }
 
             DoMeleeAttackIfReady();

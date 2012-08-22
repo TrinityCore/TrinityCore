@@ -77,7 +77,7 @@ void MapManager::checkAndCorrectGridStatesArray()
     {
         if (i_GridStates[i] != si_GridStates[i])
         {
-            sLog->outError("MapManager::checkGridStates(), GridState: si_GridStates is currupt !!!");
+            sLog->outError(LOG_FILTER_MAPS, "MapManager::checkGridStates(), GridState: si_GridStates is currupt !!!");
             ok = false;
             si_GridStates[i] = i_GridStates[i];
         }
@@ -110,6 +110,7 @@ Map* MapManager::CreateBaseMap(uint32 id)
         else
         {
             map = new Map(id, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
+            map->LoadRespawnTimes();
         }
         i_maps[id] = map;
     }
@@ -410,7 +411,7 @@ uint32 MapManager::GenerateInstanceId()
 
     if (newInstanceId == _nextInstanceId)
     {
-        sLog->outError("Instance ID overflow!! Can't continue, shutting down server. ");
+        sLog->outError(LOG_FILTER_MAPS, "Instance ID overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
 

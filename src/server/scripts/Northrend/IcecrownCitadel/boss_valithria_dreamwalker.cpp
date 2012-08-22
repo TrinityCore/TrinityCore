@@ -262,7 +262,7 @@ class ValithriaDespawner : public BasicEvent
 
             if (CreatureData const* data = creature->GetCreatureData())
                 creature->SetPosition(data->posX, data->posY, data->posZ, data->orientation);
-            creature->ForcedDespawn();
+            creature->DespawnOrUnsummon();
 
             creature->SetCorpseDelay(corpseDelay);
             creature->SetRespawnDelay(respawnDelay);
@@ -1013,11 +1013,8 @@ class npc_dream_portal : public CreatureScript
             {
             }
 
-            void DoAction(int32 const action)
+            void OnSpellClick(Unit* /*clicker*/)
             {
-                if (action != EVENT_SPELLCLICK)
-                    return;
-
                 _used = true;
                 me->DespawnOrUnsummon();
             }
@@ -1087,7 +1084,7 @@ class npc_dream_cloud : public CreatureScript
                             me->GetMotionMaster()->MoveIdle();
                             // must use originalCaster the same for all clouds to allow stacking
                             me->CastSpell(me, EMERALD_VIGOR, false, NULL, NULL, _instance->GetData64(DATA_VALITHRIA_DREAMWALKER));
-                            me->ForcedDespawn(100);
+                            me->DespawnOrUnsummon(100);
                             break;
                         default:
                             break;
@@ -1190,13 +1187,13 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
                 return true;
             }
 
-            void FilterTargets(std::list<Unit*>& targets)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if (Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 if (targets.empty())
                     return;
 
-                Unit* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -1212,7 +1209,7 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_dreamwalker_summoner_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dreamwalker_summoner_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 OnEffectHitTarget += SpellEffectFn(spell_dreamwalker_summoner_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
         };
@@ -1241,7 +1238,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
                 std::list<Creature*> summoners;
                 GetCreatureListWithEntryInGrid(summoners, caster, NPC_WORLD_TRIGGER, 100.0f);
-                summoners.remove_if (Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
+                summoners.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 Trinity::Containers::RandomResizeList(summoners, 2);
                 if (summoners.empty())
                     return;

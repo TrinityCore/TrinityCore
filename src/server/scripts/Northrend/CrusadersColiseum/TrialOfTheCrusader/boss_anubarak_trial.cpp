@@ -31,20 +31,23 @@ EndScriptData */
 // Scarab   - Kill credit isn't crediting?
 // FrostSph - often they are casting Permafrost a little above the ground
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells
 {
-    SAY_INTRO               = -1649055,
-    SAY_AGGRO               = -1649056,
-    SAY_KILL1               = -1649057,
-    SAY_KILL2               = -1649058,
-    SAY_DEATH               = -1649059,
-    EMOTE_SPIKE             = -1649060,
-    SAY_BURROWER            = -1649061,
-    EMOTE_LEECHING_SWARM    = -1649062,
-    SAY_LEECHING_SWARM      = -1649063,
+    SAY_INTRO               = 0,
+    SAY_AGGRO               = 1,
+    EMOTE_SUBMERGE          = 2,
+    EMOTE_BURROWER          = 3,
+    SAY_EMERGE              = 4,
+    SAY_LEECHING_SWARM      = 5,
+    EMOTE_LEECHING_SWARM    = 6,
+    SAY_KILL_PLAYER         = 7,
+    SAY_DEATH               = 8,
+
+    EMOTE_SPIKE             = 0,
 };
 
 enum Summons
@@ -104,7 +107,7 @@ enum BossSpells
     SPELL_SPIKE_TELE        = 66170,
 };
 
-#define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193, 67856, 67855, 67857)
+#define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193, 67855, 67856, 67857)
 
 enum SummonActions
 {
@@ -194,7 +197,7 @@ public:
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
-                DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
+                Talk(SAY_KILL_PLAYER);
                 if (instance)
                     instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
@@ -204,7 +207,7 @@ public:
         {
             if (!m_bIntro)
             {
-                DoScriptText(SAY_INTRO, me);
+                Talk(SAY_INTRO);
                 m_bIntro = false;
             }
         }
@@ -222,7 +225,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             Summons.DespawnAll();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             if (instance)
                 instance->SetData(TYPE_ANUBARAK, DONE);
         }
@@ -239,7 +242,7 @@ public:
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
-                    DoScriptText(EMOTE_SPIKE, me, target);
+                    Talk(EMOTE_SPIKE, target->GetGUID());
                     break;
             }
             Summons.Summon(summoned);
@@ -257,7 +260,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetInCombatWithZone();
             if (instance)
@@ -320,7 +323,7 @@ public:
                     DoCast(me, SPELL_SUBMERGE_ANUBARAK);
                     DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    DoScriptText(SAY_BURROWER, me);
+                    Talk(EMOTE_BURROWER);
                     m_uiScarabSummoned = 0;
                     m_uiSummonScarabTimer = 4*IN_MILLISECONDS;
                     m_uiStage = 2;
@@ -402,8 +405,8 @@ public:
             {
                 m_bReachedPhase3 = true;
                 DoCastAOE(SPELL_LEECHING_SWARM);
-                DoScriptText(EMOTE_LEECHING_SWARM, me);
-                DoScriptText(SAY_LEECHING_SWARM, me);
+                Talk(EMOTE_LEECHING_SWARM);
+                Talk(SAY_LEECHING_SWARM);
             }
 
             if (m_uiBerserkTimer <= uiDiff && !me->HasAura(SPELL_BERSERK))
@@ -615,7 +618,7 @@ class mob_frost_sphere : public CreatureScript
                         me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                         DoCast(SPELL_PERMAFROST_VISUAL);
                         DoCast(SPELL_PERMAFROST);
-                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                        me->SetObjectScale(2.0f);
                         break;
                 }
             }
@@ -659,10 +662,16 @@ public:
             m_uiTargetGUID = 0;
         }
 
+        bool CanAIAttack(Unit const* victim) const
+        {
+            return victim->GetTypeId() == TYPEID_PLAYER;
+        }
+
         void EnterCombat(Unit* who)
         {
             m_uiTargetGUID = who->GetGUID();
             DoCast(who, SPELL_MARK);
+            Talk(EMOTE_SPIKE, who->GetGUID());
             me->SetSpeed(MOVE_RUN, 0.5f);
             m_uiSpeed = 0;
             m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;

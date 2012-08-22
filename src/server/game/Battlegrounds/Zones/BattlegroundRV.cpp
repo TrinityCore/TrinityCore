@@ -130,7 +130,7 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
 
     if (!killer)
     {
-        sLog->outError("BattlegroundRV: Killer player not found");
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundRV: Killer player not found");
         return;
     }
 
@@ -162,7 +162,7 @@ void BattlegroundRV::HandleAreaTrigger(Player* Source, uint32 Trigger)
         case 5474:
             break;
         default:
-            sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
             Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
@@ -214,7 +214,7 @@ bool BattlegroundRV::SetupBattleground()
 
 )
     {
-        sLog->outErrorDb("BatteGroundRV: Failed to spawn some object!");
+        sLog->outError(LOG_FILTER_SQL, "BatteGroundRV: Failed to spawn some object!");
         return false;
     }
     return true;
@@ -245,6 +245,6 @@ void BattlegroundRV::TogglePillarCollision()
                     gob->SendUpdateToPlayer(player);
         }
     }
-    
+
     SetPillarCollision(!apply);
 }

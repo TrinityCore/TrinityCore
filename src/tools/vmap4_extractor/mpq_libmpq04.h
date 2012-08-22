@@ -24,7 +24,7 @@ public:
     void close();
 
     void GetFileListTo(vector<string>& filelist) {
-        uint32 filenum;
+        uint32_t filenum;
         if(libmpq__file_number(mpq_a, "(listfile)", &filenum)) return;
         libmpq__off_t size, transferred;
         libmpq__file_unpacked_size(mpq_a, filenum, &size);
@@ -60,8 +60,8 @@ class MPQFile
     libmpq__off_t pointer,size;
 
     // disable copying
-    MPQFile(const MPQFile &f) {}
-    void operator=(const MPQFile &f) {}
+    MPQFile(const MPQFile& /*f*/) {}
+    void operator=(const MPQFile& /*f*/) {}
 
 public:
     MPQFile(const char* filename);    // filenames are not case sensitive

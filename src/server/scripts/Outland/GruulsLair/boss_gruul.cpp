@@ -19,11 +19,13 @@
 /* ScriptData
 SDName: Boss_Gruul
 SD%Complete: 60
-SDComment: Ground Slam need further development (knock back effect and shatter effect must be added to the core)
+SDComment: Ground Slam need further development (knock back effect must be added to the core)
 SDCategory: Gruul's Lair
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "gruuls_lair.h"
 
 enum eEnums
@@ -144,12 +146,7 @@ public:
             //this part should be in the core
             if (pSpell->Id == SPELL_SHATTER)
             {
-                //this spell must have custom handling in the core, dealing damage based on distance
-                target->CastSpell(target, SPELL_SHATTER_EFFECT, true);
-
-                if (target->HasAura(SPELL_STONED))
-                    target->RemoveAurasDueToSpell(SPELL_STONED);
-
+                // todo: use eventmap to kill this stuff
                 //clear this, if we are still performing
                 if (m_bPerformingGroundSlam)
                 {
@@ -258,7 +255,83 @@ public:
 
 };
 
+class spell_gruul_shatter : public SpellScriptLoader
+{
+    public:
+        spell_gruul_shatter() : SpellScriptLoader("spell_gruul_shatter") { }
+
+        class spell_gruul_shatter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gruul_shatter_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_STONED))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHATTER_EFFECT))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    target->RemoveAurasDueToSpell(SPELL_STONED);
+                    target->CastSpell((Unit*)NULL, SPELL_SHATTER_EFFECT, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gruul_shatter_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gruul_shatter_SpellScript();
+        }
+};
+
+class spell_gruul_shatter_effect : public SpellScriptLoader
+{
+    public:
+        spell_gruul_shatter_effect() : SpellScriptLoader("spell_gruul_shatter_effect") { }
+
+        class spell_gruul_shatter_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gruul_shatter_effect_SpellScript);
+
+            void CalculateDamage()
+            {
+                if (!GetHitUnit())
+                    return;
+
+                float radius = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(GetCaster());
+                if (!radius)
+                    return;
+
+                float distance = GetCaster()->GetDistance2d(GetHitUnit());
+                if (distance > 1.0f)
+                    SetHitDamage(int32(GetHitDamage() * ((radius - distance) / radius)));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gruul_shatter_effect_SpellScript::CalculateDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gruul_shatter_effect_SpellScript();
+        }
+};
+
 void AddSC_boss_gruul()
 {
     new boss_gruul();
+    new spell_gruul_shatter();
+    new spell_gruul_shatter_effect();
 }

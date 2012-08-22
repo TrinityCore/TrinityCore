@@ -41,7 +41,7 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature &creature)
     if (!i_path)
     {
         // No movement found for entry
-        sLog->outErrorDb("WaypointMovementGenerator::LoadPath: creature %s (Entry: %u GUID: %u) doesn't have waypoint path id: %u", creature.GetName(), creature.GetEntry(), creature.GetGUIDLow(), path_id);
+        sLog->outError(LOG_FILTER_SQL, "WaypointMovementGenerator::LoadPath: creature %s (Entry: %u GUID: %u) doesn't have waypoint path id: %u", creature.GetName(), creature.GetEntry(), creature.GetGUIDLow(), path_id);
         return;
     }
 
@@ -107,7 +107,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature &creature)
         i_currentNode = (i_currentNode+1) % i_path->size();
     }
 
-    const WaypointData *node = i_path->at(i_currentNode);
+    WaypointData const* node = i_path->at(i_currentNode);
 
     m_isArrivalDone = false;
 
@@ -116,7 +116,8 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature &creature)
     Movement::MoveSplineInit init(creature);
     init.MoveTo(node->x, node->y, node->z);
 
-    if (node->orientation != 100 && node->delay != 0)
+    //! Accepts angles such as 0.00001 and -0.00001, 0 must be ignored, default value in waypoint table
+    if (node->orientation && node->delay)
         init.SetFacing(node->orientation);
 
     init.SetWalk(!node->run);
@@ -313,9 +314,9 @@ void FlightPathMovementGenerator::PreloadEndGrid()
     // Load the grid
     if (endMap)
     {
-        sLog->outDetail("Preloading rid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, (uint32)(i_path->size()-1));
+        sLog->outInfo(LOG_FILTER_GENERAL, "Preloading rid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, (uint32)(i_path->size()-1));
         endMap->LoadGrid(_endGridX, _endGridY);
     }
     else
-        sLog->outDetail("Unable to determine map to preload flightmaster grid");
+        sLog->outInfo(LOG_FILTER_GENERAL, "Unable to determine map to preload flightmaster grid");
 }

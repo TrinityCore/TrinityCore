@@ -28,7 +28,9 @@ npc_braug_dimspirit
 npc_kaya_flathoof
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -90,7 +92,7 @@ public:
 ## npc_kaya_flathoof
 ######*/
 
-enum eKaya
+enum Kaya
 {
     FACTION_ESCORTEE_H          = 775,
 

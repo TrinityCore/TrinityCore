@@ -194,13 +194,13 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     const MapEntry* entry = sMapStore.LookupEntry(GetId());
     if (!entry)
     {
-        sLog->outError("CreateInstance: no entry for map %d", GetId());
+        sLog->outError(LOG_FILTER_MAPS, "CreateInstance: no entry for map %d", GetId());
         ASSERT(false);
     }
     const InstanceTemplate* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
-        sLog->outError("CreateInstance: no instance template for map %d", GetId());
+        sLog->outError(LOG_FILTER_MAPS, "CreateInstance: no instance template for map %d", GetId());
         ASSERT(false);
     }
 
@@ -211,6 +211,8 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
 
     InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon());
+
+    map->LoadRespawnTimes();
 
     bool load_data = save != NULL;
     map->CreateInstanceData(load_data);

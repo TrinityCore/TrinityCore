@@ -1248,8 +1248,8 @@ enum Opcodes
     SMSG_CALENDAR_CLEAR_PENDING_ACTION              = 0x4BB,
     SMSG_EQUIPMENT_SET_LIST                         = 0x4BC, // equipment manager list?
     CMSG_EQUIPMENT_SET_SAVE                         = 0x4BD,
-    CMSG_UPDATE_PROJECTILE_POSITION                 = 0x4BE, // uint64 caster, uint32 spellId, uint8 castId, vector3 position
-    SMSG_SET_PROJECTILE_POSITION                    = 0x4BF, // uint64 caster, uint8 castId, vector3 position
+    CMSG_UPDATE_PROJECTILE_POSITION                 = 0x4BE,
+    SMSG_SET_PROJECTILE_POSITION                    = 0x4BF,
     SMSG_TALENTS_INFO                               = 0x4C0,
     CMSG_LEARN_PREVIEW_TALENTS                      = 0x4C1,
     CMSG_LEARN_PREVIEW_TALENTS_PET                  = 0x4C2,
@@ -1354,7 +1354,7 @@ enum SessionStatus
     STATUS_AUTHED = 0,                                      // Player authenticated (_player == NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
     STATUS_LOGGEDIN,                                        // Player in game (_player != NULL, m_GUID == _player->GetGUID(), inWorld())
     STATUS_TRANSFER,                                        // Player transferring to another map (_player != NULL, m_GUID == _player->GetGUID(), !inWorld())
-    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player!= NULL or _player == NULL && m_playerRecentlyLogout, m_GUID store last _player guid)
+    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player != NULL or _player == NULL && m_playerRecentlyLogout && m_playerLogout, m_GUID store last _player guid)
     STATUS_NEVER,                                           // Opcode not accepted from client (deprecated or server side only)
     STATUS_UNHANDLED,                                       // Opcode not handled yet
 };
@@ -1385,5 +1385,13 @@ inline const char* LookupOpcodeName(uint16 id)
         return "Received unknown opcode, it's more than max!";
     return opcodeTable[id].name;
 }
+
+inline std::string GetOpcodeNameForLogging(uint16 opcode)
+{
+    std::ostringstream ss;
+    ss << '[' << LookupOpcodeName(opcode) << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
+    return ss.str().c_str();
+}
+
 #endif
 /// @}

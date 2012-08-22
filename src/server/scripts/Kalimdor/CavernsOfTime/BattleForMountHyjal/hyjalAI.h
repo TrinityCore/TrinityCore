@@ -24,43 +24,49 @@
 
 #define HYJAL_AI_MAX_SPELLS 3
 
-// Trash Mobs summoned in waves
-#define NECROMANCER         17899//done
-#define ABOMINATION         17898//done
-#define GHOUL               17895//done
-#define BANSHEE             17905//done
-#define CRYPT_FIEND         17897//done
-#define GARGOYLE            17906//done
-#define FROST_WYRM          17907//done
-#define GIANT_INFERNAL      17908//done
-#define FEL_STALKER         17916//done
+enum CreaturesIds
+{
+    // Trash Mobs summoned in waves
+    NECROMANCER         = 17899,
+    ABOMINATION         = 17898,
+    GHOUL               = 17895,
+    BANSHEE             = 17905,
+    CRYPT_FIEND         = 17897,
+    GARGOYLE            = 17906,
+    FROST_WYRM          = 17907,
+    GIANT_INFERNAL      = 17908,
+    FEL_STALKER         = 17916,
 
-#define JAINA               17772
-#define THRALL              17852
-#define TYRANDE             17948
+    JAINA               = 17772,
+    THRALL              = 17852,
+    TYRANDE             = 17948,
 
-#define ANCIENT_VEIN        185557
-#define FLAMEOBJECT         182592
+    ANCIENT_VEIN        = 185557,
+    FLAMEOBJECT         = 182592,
 
-// Bosses summoned after every 8 waves
-#define RAGE_WINTERCHILL    17767
-#define ANETHERON           17808
-#define KAZROGAL            17888
-#define AZGALOR             17842
-#define ARCHIMONDE          17968
+    // Bosses summoned after every 8 waves
+    RAGE_WINTERCHILL    = 17767,
+    ANETHERON           = 17808,
+    KAZROGAL            = 17888,
+    AZGALOR             = 17842,
+    ARCHIMONDE          = 17968,
+};
 
-#define SPELL_TELEPORT_VISUAL     41232
-#define SPELL_MASS_TELEPORT       16807
+enum SpellIds
+{
+    SPELL_TELEPORT_VISUAL     = 41232,
+    SPELL_MASS_TELEPORT       = 16807,
 
-//Spells for Jaina
-#define SPELL_BRILLIANCE_AURA     31260                     // The database must handle this spell via creature_addon(it should, but is removed in evade..)
-#define SPELL_BLIZZARD            31266
-#define SPELL_PYROBLAST           31263
-#define SPELL_SUMMON_ELEMENTALS   31264
+    //Spells for Jaina
+    SPELL_BRILLIANCE_AURA     = 31260,   // The database must handle this spell via creature_addon(it should, but is removed in evade..)
+    SPELL_BLIZZARD            = 31266,
+    SPELL_PYROBLAST           = 31263,
+    SPELL_SUMMON_ELEMENTALS   = 31264,
 
-//Thrall spells
-#define SPELL_CHAIN_LIGHTNING     31330
-#define SPELL_SUMMON_DIRE_WOLF    31331
+    //Thrall spells
+    SPELL_CHAIN_LIGHTNING     = 31330,
+    SPELL_SUMMON_DIRE_WOLF    = 31331,
+};
 
 struct Wave
 {

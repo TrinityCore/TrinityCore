@@ -120,6 +120,6 @@ struct npc_escortAI : public ScriptedAI
         bool DespawnAtEnd;
         bool DespawnAtFar;
         bool ScriptWP;
+        bool HasImmuneToNPCFlags;
 };
 #endif
-

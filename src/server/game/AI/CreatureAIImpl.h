@@ -326,11 +326,15 @@ class EventMap : private std::map<uint32, uint32>
 
         uint32 GetPhaseMask() const { return (_phase >> 24) & 0xFF; }
 
+        bool Empty() const { return empty(); }
+
         // Sets event phase, must be in range 1 - 8
         void SetPhase(uint32 phase)
         {
             if (phase && phase < 8)
                 _phase = (1 << (phase + 24));
+            else if (!phase)
+                _phase = 0;
         }
 
         // Creates new event entry in map with given id, time, group if given (1 - 8) and phase if given (1 - 8)
@@ -604,6 +608,7 @@ inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
 
 inline void UnitAI::DoCastVictim(uint32 spellId, bool triggered)
 {
+    // Why don't we check for casting unit_state and existing target as we do in DoCast(.. ?
     me->CastSpell(me->getVictim(), spellId, triggered);
 }
 

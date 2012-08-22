@@ -23,7 +23,8 @@ SDComment: SQL, weapon scripts, mind control, need correct spells(interruptible/
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "the_eye.h"
 #include "WorldPacket.h"
 
@@ -365,7 +366,7 @@ class boss_kaelthas : public CreatureScript
 
                 if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
                 {
-                    sLog->outError("TSCR: Kael'Thas One or more advisors missing, Skipping Phases 1-3");
+                    sLog->outError(LOG_FILTER_TSCR, "Kael'Thas One or more advisors missing, Skipping Phases 1-3");
 
                     DoScriptText(SAY_PHASE4_INTRO2, me);
 
@@ -693,7 +694,7 @@ class boss_kaelthas : public CreatureScript
                                 Advisor = Unit::GetCreature((*me), m_auiAdvisorGuid[i]);
 
                                 if (!Advisor)
-                                    sLog->outError("SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
+                                    sLog->outError(LOG_FILTER_TSCR, "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                                 else
                                     CAST_AI(advisorbase_ai, Advisor->AI())->Revive(target);
                             }

@@ -43,8 +43,8 @@ void WardenCheckMgr::LoadWardenChecks()
     // Check if Warden is enabled by config before loading anything
     if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
     {
-        sLog->outString(">> Warden disabled, loading checks skipped.");
-        sLog->outString();
+        sLog->outInfo(LOG_FILTER_WARDEN, ">> Warden disabled, loading checks skipped.");
+
         return;
     }
 
@@ -52,8 +52,8 @@ void WardenCheckMgr::LoadWardenChecks()
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 Warden checks. DB table `warden_checks` is empty!");
-        sLog->outString();
+        sLog->outInfo(LOG_FILTER_WARDEN, ">> Loaded 0 Warden checks. DB table `warden_checks` is empty!");
+
         return;
     }
 
@@ -63,8 +63,8 @@ void WardenCheckMgr::LoadWardenChecks()
 
     CheckStore.resize(maxCheckId + 1);
 
-    //                                    0    1     2     3        4       5      6
-    result = WorldDatabase.Query("SELECT id, type, data, result, address, length, str FROM warden_checks ORDER BY id ASC");
+    //                                    0    1     2     3        4       5      6      7
+    result = WorldDatabase.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
 
     uint32 count = 0;
     do
@@ -78,9 +78,11 @@ void WardenCheckMgr::LoadWardenChecks()
         uint32 address          = fields[4].GetUInt32();
         uint8 length            = fields[5].GetUInt8();
         std::string str         = fields[6].GetString();
+        std::string comment     = fields[7].GetString();
 
         WardenCheck* wardenCheck = new WardenCheck();
         wardenCheck->Type = checkType;
+        wardenCheck->CheckId = id;
 
         // Initialize action with default action from config
         wardenCheck->Action = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));
@@ -119,7 +121,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
         if (checkType == MPQ_CHECK || checkType == MEM_CHECK)
         {
-            WardenCheckResult *wr = new WardenCheckResult();
+            WardenCheckResult* wr = new WardenCheckResult();
             wr->Result.SetHexStr(checkResult.c_str());
             int len = checkResult.size() / 2;
             if (wr->Result.GetNumBytes() < len)
@@ -134,23 +136,36 @@ void WardenCheckMgr::LoadWardenChecks()
             CheckResultStore[id] = wr;
         }
 
+        if (comment.empty())
+            wardenCheck->Comment = "Undocumented Check";
+        else
+            wardenCheck->Comment = comment;
+
         ++count;
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u warden checks.", count);
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_WARDEN, ">> Loaded %u warden checks.", count);
+
 }
 
 void WardenCheckMgr::LoadWardenOverrides()
 {
+    // Check if Warden is enabled by config before loading anything
+    if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+    {
+        sLog->outInfo(LOG_FILTER_WARDEN, ">> Warden disabled, loading check overrides skipped.");
+
+        return;
+    }
+
     //                                                      0        1
     QueryResult result = CharacterDatabase.Query("SELECT wardenId, action FROM warden_action");
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 Warden action overrides. DB table `warden_action` is empty!");
-        sLog->outString();
+        sLog->outInfo(LOG_FILTER_WARDEN, ">> Loaded 0 Warden action overrides. DB table `warden_action` is empty!");
+
         return;
     }
 
@@ -167,10 +182,10 @@ void WardenCheckMgr::LoadWardenOverrides()
 
         // Check if action value is in range (0-2, see WardenActions enum)
         if (action > WARDEN_ACTION_BAN)
-            sLog->outError("Warden check override action out of range (ID: %u, action: %u)", checkId, action);
+            sLog->outError(LOG_FILTER_WARDEN, "Warden check override action out of range (ID: %u, action: %u)", checkId, action);
         // Check if check actually exists before accessing the CheckStore vector
         else if (checkId > CheckStore.size())
-            sLog->outError("Warden check action override for non-existing check (ID: %u, action: %u), skipped", checkId, action);
+            sLog->outError(LOG_FILTER_WARDEN, "Warden check action override for non-existing check (ID: %u, action: %u), skipped", checkId, action);
         else
         {
             CheckStore[checkId]->Action = WardenActions(action);
@@ -179,8 +194,8 @@ void WardenCheckMgr::LoadWardenOverrides()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u warden action overrides.", count);
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_WARDEN, ">> Loaded %u warden action overrides.", count);
+
 }
 
 WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)

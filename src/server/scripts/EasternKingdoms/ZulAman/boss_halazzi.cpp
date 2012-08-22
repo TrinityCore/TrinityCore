@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "zulaman.h"
 //#include "spell.h"
 
@@ -108,6 +109,7 @@ class boss_halazzi : public CreatureScript
                 if (instance)
                     instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
 
+                LynxGUID = 0;
                 TransformCount = 0;
                 BerserkTimer = 600000;
                 CheckTimer = 1000;

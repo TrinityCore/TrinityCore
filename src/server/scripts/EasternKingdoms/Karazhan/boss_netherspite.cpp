@@ -23,7 +23,8 @@ SDComment: Not sure about timing and portals placing
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "karazhan.h"
 
 #define EMOTE_PHASE_PORTAL          -1532089

@@ -20,7 +20,7 @@
 ----- Opcodes Not Used yet -----
 
 SMSG_CALENDAR_CLEAR_PENDING_ACTION SendCalendarClearPendingAction()
-SMSG_CALENDAR_RAID_LOCKOUT_UPDATED SendCalendarRaidLockoutUpdated(InstanceSave const* save) <--- Structure unknown, using LOCKOUT_ADDED
+SMSG_CALENDAR_RAID_LOCKOUT_UPDATED SendCalendarRaidLockoutUpdated(InstanceSave const* save)
 
 ----- Opcodes without Sniffs -----
 SMSG_CALENDAR_FILTER_GUILD              [ for (... uint32(count) { packguid(???), uint8(???) } ]
@@ -73,8 +73,12 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         }
         else
         {
-            sLog->outError("SMSG_CALENDAR_SEND_CALENDAR: No Invite found with id [" UI64FMTD "]", *it);
-            data << uint64(0) << uint64(0) << uint8(0) << uint8(0);
+            sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Invite found with id [" UI64FMTD "]", *it);
+            data << uint64(0);
+            data << uint64(0);
+            data << uint8(0);
+            data << uint8(0);
+            data << uint8(0);
             data.appendPackGUID(0);
         }
     }
@@ -95,9 +99,13 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         }
         else
         {
-            sLog->outError("SMSG_CALENDAR_SEND_CALENDAR: No Event found with id [" UI64FMTD "]", *it);
-            data << uint64(0) << uint8(0) << uint32(0)
-                 << uint32(0) << uint32(0) << uint32(0);
+            sLog->outError(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR: No Event found with id [" UI64FMTD "]", *it);
+            data << uint64(0);
+            data << uint8(0);
+            data << uint32(0);
+            data << uint32(0);
+            data << uint32(0);
+            data << uint32(0);
             data.appendPackGUID(0);
         }
     }
@@ -243,7 +251,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 
         if (inviteCount != 1 || invitee != guid)
         {
-            sLog->outError("HandleCalendarAddEvent: [" UI64FMTD
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleCalendarAddEvent: [" UI64FMTD
                  "]: More than one invite (%d) or Invitee  [" UI64FMTD
                  "] differs", guid, inviteCount, invitee);
             return;
@@ -635,7 +643,7 @@ void WorldSession::SendCalendarEvent(CalendarEvent const& calendarEvent, Calenda
             data << uint8(0) << uint8(0) << uint8(0) << uint8(0)
                 << uint64(0) << uint32(0) << uint8(0);
 
-            sLog->outError("SendCalendarEvent: No Invite found with id [" UI64FMTD "]", *it);
+            sLog->outError(LOG_FILTER_NETWORKIO, "SendCalendarEvent: No Invite found with id [" UI64FMTD "]", *it);
         }
     }
     SendPacket(&data);
@@ -835,26 +843,6 @@ void WorldSession::SendCalendarClearPendingAction()
     SendPacket(&data);
 }
 
-void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
-{
-    if (!save)
-        return;
-
-    uint64 guid = _player->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_RAID_LOCKOUT_UPDATED [" UI64FMTD
-        "] Map: %u, Difficulty %u", guid, save->GetMapId(), save->GetDifficulty());
-
-    time_t cur_time = time_t(time(NULL));
-
-    WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_UPDATED, 4 + 4 + 4 + 4 + 8);
-    data << secsToTimeBitFields(cur_time);
-    data << uint32(save->GetMapId());
-    data << uint32(save->GetDifficulty());
-    data << uint32(save->GetResetTime() - cur_time);
-    data << uint64(save->GetInstanceId());
-    SendPacket(&data);
-}
-
 void WorldSession::SendCalendarCommandResult(CalendarError err, char const* param /*= NULL*/)
 {
     uint64 guid = _player->GetGUID();
@@ -896,5 +884,25 @@ void WorldSession::SendCalendarRaidLockout(InstanceSave const* save, bool add)
     data << uint32(save->GetDifficulty());
     data << uint32(save->GetResetTime() - currTime);
     data << uint64(save->GetInstanceId());
+    SendPacket(&data);
+}
+
+void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
+{
+    if (!save)
+        return;
+
+    uint64 guid = _player->GetGUID();
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_RAID_LOCKOUT_UPDATED [" UI64FMTD
+        "] Map: %u, Difficulty %u", guid, save->GetMapId(), save->GetDifficulty());
+
+    time_t cur_time = time_t(time(NULL));
+
+    WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_UPDATED, 4 + 4 + 4 + 4 + 8);
+    data << secsToTimeBitFields(cur_time);
+    data << uint32(save->GetMapId());
+    data << uint32(save->GetDifficulty());
+    data << uint32(0); // Amount of seconds that has changed to the reset time
+    data << uint32(save->GetResetTime() - cur_time);
     SendPacket(&data);
 }

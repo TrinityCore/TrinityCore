@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Mechanar
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "mechanar.h"
 
 #define MAX_ENCOUNTER      1

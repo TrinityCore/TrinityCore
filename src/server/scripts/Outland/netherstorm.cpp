@@ -32,7 +32,9 @@ npc_maxx_a_million
 go_captain_tyralius_prison
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -496,7 +498,7 @@ public:
                 return true;
             }
 
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: npc_commander_dawnforge event already in progress, need to wait.");
+            sLog->outDebug(LOG_FILTER_TSCR, "npc_commander_dawnforge event already in progress, need to wait.");
             return false;
         }
 
@@ -777,10 +779,10 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
-        {
-            DoCast(me, SPELL_DE_MATERIALIZE);
-        }
+        //void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
+        //{
+        //    DoCast(me, SPELL_DE_MATERIALIZE);
+        //}
 
         void UpdateAI(const uint32 diff)
         {
@@ -1057,7 +1059,7 @@ class go_captain_tyralius_prison : public GameObjectScript
                 player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
 
                 tyralius->AI()->Talk(SAY_FREE);
-                tyralius->ForcedDespawn(8000);
+                tyralius->DespawnOrUnsummon(8000);
             }
             return true;
         }

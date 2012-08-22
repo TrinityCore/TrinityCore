@@ -22,7 +22,10 @@ SDComment:
 SDCategory: Utgarde Keep
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "utgarde_keep.h"
 
 enum KelsethEncounter
