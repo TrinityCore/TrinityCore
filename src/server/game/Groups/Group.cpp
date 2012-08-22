@@ -465,7 +465,11 @@ bool Group::AddMember(Player* player)
                         UpdateData newData;
                         WorldPacket newDataPacket;
                         player->BuildValuesUpdateBlockForPlayer(&newData, member);
-                        member->SendDirectMessage(&newDataPacket);
+                        if (newData.HasData())
+                        {
+                            newData.BuildPacket(&newDataPacket);
+                            member->SendDirectMessage(&newDataPacket);
+                        }
                     }
                 }
             }
