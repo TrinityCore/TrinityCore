@@ -159,9 +159,12 @@ namespace MMAP
             }
 
             // hole data
-            memset(holes, 0, fheader.holesSize);
-            fseek(mapFile, fheader.holesOffset, SEEK_SET);
-            fread(holes, fheader.holesSize, 1, mapFile);
+            if (fheader.holesSize != 0)
+            {
+                memset(holes, 0, fheader.holesSize);
+                fseek(mapFile, fheader.holesOffset, SEEK_SET);
+                fread(holes, fheader.holesSize, 1, mapFile);
+            }
 
             int count = meshData.solidVerts.size() / 3;
             float xoffset = (float(tileX)-32)*GRID_SIZE;
@@ -379,7 +382,7 @@ namespace MMAP
                 }
 
                 // if there is a hole here, don't use the terrain
-                if (useTerrain)
+                if (useTerrain && fheader.holesSize != 0)
                     useTerrain = !isHole(i, holes);
 
                 // we use only one terrain kind per quad - pick higher one

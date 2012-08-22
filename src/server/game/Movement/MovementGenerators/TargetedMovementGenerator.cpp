@@ -125,9 +125,6 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
         return true;
     }
     
-    if (owner.GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor((const Creature*)&owner))
-        return false;
-
     // prevent movement while casting spells with cast time or channel time
     if (owner.HasUnitState(UNIT_STATE_CASTING))
     {
