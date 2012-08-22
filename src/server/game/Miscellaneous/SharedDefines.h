@@ -437,7 +437,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK13                            = 0x00002000, // 13
     SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS        = 0x00004000, // 14 doesn't break auras by damage from these spells
     SPELL_ATTR4_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR4_NOT_USABLE_IN_ARENA              = 0x00010000, // 16
+    SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG  = 0x00010000, // 16 Cannot be used in both Arenas or Rated Battlegrounds
     SPELL_ATTR4_USABLE_IN_ARENA                  = 0x00020000, // 17
     SPELL_ATTR4_AREA_TARGET_CHAIN                = 0x00040000, // 18 (NYI)hits area targets one after another instead of all at once
     SPELL_ATTR4_UNK19                            = 0x00080000, // 19 proc dalayed, after damage or don't proc on absorb?
@@ -597,6 +597,78 @@ enum SpellAttr8
     SPELL_ATTR8_MASTERY                          = 0x20000000, // 29
     SPELL_ATTR8_UNK30                            = 0x40000000, // 30
     SPELL_ATTR8_UNK31                            = 0x80000000  // 31
+};
+
+enum SpellAttr9
+{
+    SPELL_ATTR9_UNK0                             = 0x00000001, // 0
+    SPELL_ATTR9_UNK1                             = 0x00000002, // 1
+    SPELL_ATTR9_UNK2                             = 0x00000004, // 2
+    SPELL_ATTR9_UNK3                             = 0x00000008, // 3
+    SPELL_ATTR9_UNK4                             = 0x00000010, // 4
+    SPELL_ATTR9_UNK5                             = 0x00000020, // 5
+    SPELL_ATTR9_UNK6                             = 0x00000040, // 6
+    SPELL_ATTR9_UNK7                             = 0x00000080, // 7
+    SPELL_ATTR9_UNK8                             = 0x00000100, // 8
+    SPELL_ATTR9_NOT_USABLE_IN_ARENA              = 0x00000200, // 9 Cannot be used in arenas
+    SPELL_ATTR9_UNK10                            = 0x00000400, // 10
+    SPELL_ATTR9_UNK11                            = 0x00000800, // 11
+    SPELL_ATTR9_UNK12                            = 0x00001000, // 12
+    SPELL_ATTR9_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS    = 0x00004000, // 14 Can be used in Rated Battlegrounds
+    SPELL_ATTR9_UNK15                            = 0x00008000, // 15
+    SPELL_ATTR9_UNK16                            = 0x00010000, // 16
+    SPELL_ATTR9_UNK17                            = 0x00020000, // 17
+    SPELL_ATTR9_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR9_UNK19                            = 0x00080000, // 19
+    SPELL_ATTR9_UNK20                            = 0x00100000, // 20
+    SPELL_ATTR9_UNK21                            = 0x00200000, // 21
+    SPELL_ATTR9_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR9_UNK23                            = 0x00800000, // 23
+    SPELL_ATTR9_UNK24                            = 0x01000000, // 24
+    SPELL_ATTR9_UNK25                            = 0x02000000, // 25
+    SPELL_ATTR9_UNK26                            = 0x04000000, // 26
+    SPELL_ATTR9_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR9_UNK28                            = 0x10000000, // 28
+    SPELL_ATTR9_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR9_UNK30                            = 0x40000000, // 30
+    SPELL_ATTR9_UNK31                            = 0x80000000  // 31
+};
+
+enum SpellAttr10
+{
+    SPELL_ATTR10_UNK0                             = 0x00000001, // 0
+    SPELL_ATTR10_UNK1                             = 0x00000002, // 1
+    SPELL_ATTR10_UNK2                             = 0x00000004, // 2
+    SPELL_ATTR10_UNK3                             = 0x00000008, // 3
+    SPELL_ATTR10_UNK4                             = 0x00000010, // 4
+    SPELL_ATTR10_UNK5                             = 0x00000020, // 5
+    SPELL_ATTR10_UNK6                             = 0x00000040, // 6
+    SPELL_ATTR10_UNK7                             = 0x00000080, // 7
+    SPELL_ATTR10_UNK8                             = 0x00000100, // 8
+    SPELL_ATTR10_UNK9                             = 0x00000200, // 9
+    SPELL_ATTR10_UNK10                            = 0x00000400, // 10
+    SPELL_ATTR10_UNK11                            = 0x00000800, // 11
+    SPELL_ATTR10_UNK12                            = 0x00001000, // 12
+    SPELL_ATTR10_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR10_UNK14                            = 0x00004000, // 14
+    SPELL_ATTR10_UNK15                            = 0x00008000, // 15
+    SPELL_ATTR10_UNK16                            = 0x00010000, // 16
+    SPELL_ATTR10_UNK17                            = 0x00020000, // 17
+    SPELL_ATTR10_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR10_UNK19                            = 0x00080000, // 19
+    SPELL_ATTR10_UNK20                            = 0x00100000, // 20
+    SPELL_ATTR10_UNK21                            = 0x00200000, // 21
+    SPELL_ATTR10_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR10_UNK23                            = 0x00800000, // 23
+    SPELL_ATTR10_UNK24                            = 0x01000000, // 24
+    SPELL_ATTR10_UNK25                            = 0x02000000, // 25
+    SPELL_ATTR10_UNK26                            = 0x04000000, // 26
+    SPELL_ATTR10_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR10_UNK28                            = 0x10000000, // 28
+    SPELL_ATTR10_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR10_UNK30                            = 0x40000000, // 30
+    SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
 
 #define MIN_TALENT_SPEC         0

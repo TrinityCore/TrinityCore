@@ -4889,14 +4889,14 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!m_caster->ToPlayer()->InBattleground())
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
 
-    // do not allow spells to be cast in arenas
-    // - with greater than 10 min CD without SPELL_ATTR4_USABLE_IN_ARENA flag
-    // - with SPELL_ATTR4_NOT_USABLE_IN_ARENA flag
-    if ((m_spellInfo->AttributesEx4 & SPELL_ATTR4_NOT_USABLE_IN_ARENA) ||
-        (m_spellInfo->GetRecoveryTime() > 10 * MINUTE * IN_MILLISECONDS && !(m_spellInfo->AttributesEx4 & SPELL_ATTR4_USABLE_IN_ARENA)))
-        if (MapEntry const* mapEntry = sMapStore.LookupEntry(m_caster->GetMapId()))
-            if (mapEntry->IsBattleArena())
-                return SPELL_FAILED_NOT_IN_ARENA;
+    // do not allow spells to be cast in arenas or rated battlegrounds
+    if (Player * player = m_caster->ToPlayer())
+        if (player->InArena()/* || player->InRatedBattleGround() NYI*/)
+        {
+            SpellCastResult castResult = CheckArenaAndRatedBattlegroundCastRules();
+            if (castResult != SPELL_CAST_OK)
+                return castResult;
+        }
 
     // zone check
     if (m_caster->GetTypeId() == TYPEID_UNIT || !m_caster->ToPlayer()->isGameMaster())
@@ -5653,6 +5653,37 @@ SpellCastResult Spell::CheckCasterAuras() const
         else
             return prevented_reason;
     }
+    return SPELL_CAST_OK;
+}
+
+SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
+{
+    bool isRatedBattleground = false; // NYI
+    bool isArena = !isRatedBattleground;
+
+    // check USABLE attributes
+    // USABLE takes precedence over NOT_USABLE
+    if (isRatedBattleground && m_spellInfo->AttributesEx9 & SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS)
+        return SPELL_CAST_OK;
+
+    if (isArena && m_spellInfo->AttributesEx4 & SPELL_ATTR4_USABLE_IN_ARENA)
+        return SPELL_CAST_OK;
+
+    // check NOT_USABLE attributes
+    if (m_spellInfo->AttributesEx4 & SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG)
+        return isArena ? SPELL_FAILED_NOT_IN_ARENA : SPELL_FAILED_NOT_IN_RATED_BATTLEGROUND;
+
+    if (isArena && m_spellInfo->AttributesEx9 & SPELL_ATTR9_NOT_USABLE_IN_ARENA)
+            return SPELL_FAILED_NOT_IN_ARENA;
+
+    // check cooldowns
+    uint32 spellCooldown = m_spellInfo->GetRecoveryTime();
+    if (isArena && spellCooldown > 10 * MINUTE * IN_MILLISECONDS) // not sure if still needed
+        return SPELL_FAILED_NOT_IN_ARENA;
+
+    if (isRatedBattleground && spellCooldown > 15 * MINUTE * IN_MILLISECONDS)
+        return SPELL_FAILED_NOT_IN_RATED_BATTLEGROUND;
+
     return SPELL_CAST_OK;
 }
 

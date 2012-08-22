@@ -766,6 +766,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     AttributesEx6 = spellEntry->AttributesEx6;
     AttributesEx7 = spellEntry->AttributesEx7;
     AttributesEx8 = spellEntry->AttributesEx8;
+    AttributesEx9 = spellEntry->AttributesEx9;
+    AttributesEx10 = spellEntry->AttributesEx10;
     AttributesCu = 0;
     CastTimeEntry = spellEntry->CastingTimeIndex ? sSpellCastTimesStore.LookupEntry(spellEntry->CastingTimeIndex) : NULL;
     DurationEntry = spellEntry->DurationIndex ? sSpellDurationStore.LookupEntry(spellEntry->DurationIndex) : NULL;
