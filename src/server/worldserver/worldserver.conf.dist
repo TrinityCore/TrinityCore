@@ -20,12 +20,12 @@
 #    SERVER RATES
 #    AUTO BROADCAST
 #    BATTLEGROUND CONFIG
+#    BATTLEFIELD CONFIG
 #    ARENA CONFIG
 #    NETWORK CONFIG
 #    CONSOLE AND REMOTE ACCESS
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
-#    WINTERGRASP BATTLE CONFIGURATION
 #
 ###################################################################################################
 
@@ -2193,6 +2193,62 @@ Battleground.Random.ResetHour = 6
 ###################################################################################################
 
 ###################################################################################################
+# BATTLEFIELD CONFIG
+#
+#     Wintergrasp.Enable
+#         Description: Enable the Wintergrasp battlefield.
+#         Default:     0 - (Disabled)
+#                      1 - (Enabled, Experimental as of still being in development)
+
+Wintergrasp.Enable = 0
+
+#
+#     Wintergrasp.PlayerMax
+#         Description: Maximum number of players allowed in Wintergrasp.
+#         Default:     100
+
+Wintergrasp.PlayerMax = 100
+
+#
+#     Wintergrasp.PlayerMin
+#         Description: Minimum number of players required for Wintergrasp.
+#         Default:     0
+
+Wintergrasp.PlayerMin = 0
+
+#
+#     Wintergrasp.PlayerMinLvl
+#         Description: Required character level for the Wintergrasp battle.
+#         Default:     77
+
+Wintergrasp.PlayerMinLvl = 77
+
+#
+#     Wintergrasp.BattleTimer
+#         Description: Time (in minutes) for the Wintergrasp battle to last.
+#         Default:     30
+
+Wintergrasp.BattleTimer = 30
+
+#
+#     Wintergrasp.NoBattleTimer
+#         Description: Time (in minutes) between Wintergrasp battles.
+#         Default:     150
+
+Wintergrasp.NoBattleTimer = 150
+
+#
+#     Wintergrasp.CrashRestartTimer
+#         Description: Time (in minutes) to delay the restart of Wintergrasp if the world server
+#                      crashed during a running battle.
+#         Default:     10
+
+Wintergrasp.CrashRestartTimer = 10
+
+#
+###################################################################################################
+
+###################################################################################################
 # ARENA CONFIG
 #
 #    Arena.MaxRatingDifference
@@ -2670,118 +2726,6 @@ Anticheat.MaxReportsForDailyReport = 70
 ###################################################################################################
 
 ###################################################################################################
-#   OutdoorPvP.Wintergrasp.Enabled
-#       Determines whether the Wintergrasp battle is enabled or not.
-#       Default: 1 = Enable
-#                0 = Disable
-
-OutdoorPvP.Wintergrasp.Enabled = 1
-#
-#   OutdoorPvP.Wintergrasp.SaveState.Period
-#      Interval (in milliseconds) of Save Wintergrasp State Data to restore it after crash/shutdown/restart
-#      Default (60000 milliseconds)
-#      Warning:  Do not set it less 1 second!
-
-OutdoorPvP.Wintergrasp.SaveState.Period = 60000
-
-#   OutdoorPvP.Wintergrasp.StartTime
-#       The start time of the first battle after server starts (in minutes)
-#       Default: 30
-
-OutdoorPvP.Wintergrasp.StartTime = 30
-
-#   OutdoorPvP.Wintergrasp.BattleTime
-#       Time limit of a battle (in minutes)
-#       Default: 30
-
-OutdoorPvP.Wintergrasp.BattleTime = 30
-
-#   OutdoorPvP.Wintergrasp.Interval
-#       Interval between battles (in minutes)
-#       Default: 150
-
-OutdoorPvP.Wintergrasp.Interval = 150
-
-#   OutdoorPvP.Wintergrasp.CustomHonorRewards
-#       Defines whether custom honor rewards should be given to player
-#        for partaking in the Wintergrasp Battle.
-#        Default: 0 = Disable
-#                 1 = Enable
-
-OutdoorPvP.Wintergrasp.CustomHonorRewards = 0
-
-#   OutdoorPvP.Wintergrasp.CustomHonorBattleWin
-#       Defines the amount of honor points that should be given to the
-#        team winning the Wintergrasp Battle.
-#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
-#       Default: 3000
-
-OutdoorPvP.Wintergrasp.CustomHonorBattleWin = 3000
-
-#   OutdoorPvP.Wintergrasp.CustomHonorBattleLose
-#       Defines the amount of honor points that should be given to the
-#        team losing the Wintergrasp Battle.
-#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
-#       Default: 1250
-
-OutdoorPvP.Wintergrasp.CustomHonorBattleLose = 1250
-
-#   OutdoorPvP.Wintergrasp.CustomHonorDamageTower
-#       Defines the amount of honor points that should be given to the
-#        team for damaging a tower.
-#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
-#       Default: 750
-
-OutdoorPvP.Wintergrasp.CustomHonorDamageTower = 750
-
-#   OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower
-#       Defines the amount of honor points that should be given to the
-#        team for destroying a tower.
-#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
-#       Default: 750
-
-OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower = 750
-
-#   OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding
-#       Defines the amount of honor points that should be given to the
-#        team for damaged buildings after the battle.
-#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
-#       Default: 750
-
-OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding = 750
-
-#   OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding
-#      Defines the amount of honor points that should be given to the
-#        team for intact buildings after the battle.
-#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
-#       Default: 1500
-
-OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding = 1500
-
-#   OutdoorPvP.Wintergrasp.Antifarm.Enable
-#		Enable or Disable antifarm system
-#       Prevents start WG battle event if there are too low players (see options bellow)
-#       Default: 0 - Disabled
-#                1 - Enabled
-
-OutdoorPvP.Wintergrasp.Antifarm.Enable = 0
-
-#   OutdoorPvP.Wintergrasp.Antifarm.Atk
-#		Min count of attackers for antifarm
-#              (Default: 5)
-
-OutdoorPvP.Wintergrasp.Antifarm.Atk = 5
-
-#   OutdoorPvP.Wintergrasp.Antifarm.Def
-#		Min count of defenders for antifarm
-#              (Default: 5)
-
-OutdoorPvP.Wintergrasp.Antifarm.Def = 5
-
-#
-###################################################################################################
-
-###################################################################################################
 #
 #  Logging system options.
 #
@@ -2846,7 +2790,7 @@ Appender.GM=2,2,0,GM.log
 Appender.DBErrors=2,2,0,DBErrors.log
 Appender.Char=2,2,0,Char.log,w
 Appender.RA=2,2,0,RA.log
-Appender.Warden=2,2,0,Warden.log
+Appender.Warden=2,4,0,Warden.log
 Appender.Chat=2,2,0,Chat.log
 Appender.CharDump=2,2,0,%s.log
 Appender.Arenas=2,2,0,Arena.log
@@ -2930,7 +2874,7 @@ Logger.Chat=22,3,Chat
 Logger.DBErrors=26,5,Console Server DBErrors
 Logger.GM=27,3,Console Server GM
 Logger.RA=28,3,RA
-Logger.Warden=29,3,Warden
+Logger.Warden=29,4,Warden
 Logger.WorldServer=31,3,Console Server
 Logger.Character=34,3,Char
 Logger.Arenas=35,3,Arenas
@@ -2938,6 +2882,7 @@ Logger.SQLDriver=36,5,SQLDriver
 Logger.SQLDev=37,3,SQLDev
 Logger.CharDump=38,3,CharDump
 Logger.Load=40,3,Console Server
+Logger.Opcodes=41,6,Console Server
 
 #
 #    Loggers
@@ -2945,5 +2890,5 @@ Logger.Load=40,3,Console Server
 #                     (Using spaces as separator).
 #        Default:     "Root Chat DBErrors GM RA Warden Character Load"
 
-Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer
+Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 
