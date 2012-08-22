@@ -417,18 +417,17 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     {
         if (caster)
         {
-            uint32 level = caster->getLevel();
+            int32 level = caster->getLevel();
             if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
                 level = target->getLevel();
 
-            SpellScalingEntry const* scaling = _spellInfo->GetSpellScaling();   // must exist, otherwise ScalingMultiplier == 0.0f
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((scaling->playerClass != -1 ? scaling->playerClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
             {
                 float multiplier = gtScaling->value;
-                if (scaling->castTimeMax > 0 && scaling->castScalingMaxLevel > level)
-                    multiplier *= float(scaling->castTimeMin + (level - 1) * (scaling->castTimeMax - scaling->castTimeMin) / (scaling->castScalingMaxLevel - 1)) / float(scaling->castTimeMax);
-                if (scaling->CoefLevelBase > level)
-                    multiplier *= (1.0f - scaling->CoefBase) * (float)(level - 1) / (float)(scaling->CoefLevelBase - 1) + scaling->CoefBase;
+                if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > level)
+                    multiplier *= float(_spellInfo->CastTimeMin + (level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
+                if (_spellInfo->CoefLevelBase > level)
+                    multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
 
                 float preciseBasePoints = ScalingMultiplier * multiplier;
                 if (DeltaScalingMultiplier)
@@ -804,16 +803,10 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
 
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = GetSpellScaling();
-    castTimeMin = _scaling ? _scaling->castTimeMin : 0;
-    castTimeMax = _scaling ?_scaling->castTimeMax : 0;
-    castScalingMaxLevel = _scaling ? _scaling->castScalingMaxLevel : 0;
-    playerClass = _scaling ? _scaling->playerClass : 0;
-    for (uint8 i = 0; i < 3; ++i)
-    {
-        Multiplier[i] = _scaling ? _scaling->Multiplier[i] : 0;
-        RandomMultiplier[i] = _scaling ? _scaling->RandomMultiplier[i] : 0;
-        OtherMultiplier[i] = _scaling ? _scaling->OtherMultiplier[i] : 0;
-    }
+    CastTimeMin = _scaling ? _scaling->CastTimeMin : 0;
+    CastTimeMax = _scaling ?_scaling->CastTimeMax : 0;
+    CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
+    ScalingClass = _scaling ? _scaling->ScalingClass : 0;
     CoefBase = _scaling ? _scaling->CoefBase : 0;
     CoefLevelBase = _scaling ? _scaling->CoefLevelBase : 0;
 
@@ -2092,15 +2085,11 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
     int32 castTime = 0;
 
     // not all spells have cast time index and this is all is pasiive abilities
-    SpellScalingEntry const* scaling = GetSpellScaling();
-    if (scaling && caster)
+    if (caster && CastTimeMax > 0)
     {
-        if (scaling->castTimeMax > 0)
-        {
-            castTime = scaling->castTimeMax;
-            if (scaling->castScalingMaxLevel > caster->getLevel())
-                castTime = scaling->castTimeMin + (caster->getLevel() - 1) * (scaling->castTimeMax - scaling->castTimeMin) / (scaling->castScalingMaxLevel - 1);
-        }
+        castTime = CastTimeMax;
+        if (CastTimeMaxLevel > int32(caster->getLevel()))
+            castTime = CastTimeMin + int32(caster->getLevel() - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
     }
     else if (CastTimeEntry)
         castTime = CastTimeEntry->CastTime;
