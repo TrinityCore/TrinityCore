@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[24] --> Add Updated external mail.
 [23] --> Add script Transmogrification.
 [22] --> Fix Lifebloom.
 [21] --> Project Astranaar.

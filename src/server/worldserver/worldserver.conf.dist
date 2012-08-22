@@ -2907,5 +2907,19 @@ Transmogrification.AllowLegendary = 0
 Transmogrification.AllowArtifact = 0
 Transmogrification.AllowHeirloom = 1
 
+###################################################################################################################
+# Updated external mail!
 #
-###################################################################################################
+# ExternalMail
+#       Enable external mail delivery from mail_external table.
+#       Default: 0 (disabled)
+#                1 (enabled)
+#
+# ExternalMailInterval
+#       Mail delivery delay time for item sending from mail_external table, in minutes.
+#       Default: 1 minute
+#
+###################################################################################################################
+
+ExternalMail = 1
+ExternalMailInterval = 1
