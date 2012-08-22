@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[15] --> Fix Dancing Rune Weapon.
 [14] --> Elemental focus(shaman talent) correct proc.
 [13] --> Fix no combo points after Mind Control.
 [12] --> Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power.
