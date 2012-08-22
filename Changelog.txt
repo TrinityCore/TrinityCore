@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[6] --> Add script hunterpet vendor.
 [5] --> Insert change in Replace.
 [4] --> Fix Gnomeregan Pride.
 [3] --> Fix Flare and Death Grip.
