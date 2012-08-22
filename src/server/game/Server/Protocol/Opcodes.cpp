@@ -16,30 +16,41 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** \file
-    \ingroup u2w
-*/
-
 #include "Opcodes.h"
 #include "WorldSession.h"
 
 OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS] = { };
 
+template<bool isInValidRange, bool isNonZero>
+inline void ValidateAndSetOpcode(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
+{
+    if (opcodeTable[opcode] != NULL)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[opcode]->name, name, opcode);
+        return;
+    }
+
+    opcodeTable[opcode] = new OpcodeHandler(name, status, processing, handler);
+}
+
+template<>
+void ValidateAndSetOpcode<false, true>(uint16 opcode, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+{
+    sLog->outError(LOG_FILTER_NETWORKIO, "Tried to set handler for an invalid opcode %d", opcode);
+}
+
+template<>
+void ValidateAndSetOpcode<false, false>(uint16 /*opcode*/, char const* name, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+{
+    sLog->outError(LOG_FILTER_NETWORKIO, "Opcode %s got value 0", name);
+}
+
+#define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                                      \
+    ValidateAndSetOpcode<(opcode < NUM_OPCODE_HANDLERS), (opcode != 0)>(opcode, #opcode, status, processing, handler);
+
 /// Correspondence between opcodes and their names
 void InitOpcodes()
 {
-#define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                                                  \
-    if (opcode == 0)                                                                                                \
-        sLog->outError(LOG_FILTER_NETWORKIO, "Opcode %s got value 0", #opcode);                                     \
-    if (opcode < NUM_OPCODE_HANDLERS) {                                                                             \
-        if (opcodeTable[opcode] != NULL)                                                                            \
-        {                                                                                                           \
-            sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)",             \
-                opcodeTable[opcode]->name, #opcode, opcode);                                                        \
-        }                                                                                                           \
-        else opcodeTable[opcode] = new OpcodeHandler(#opcode, #opcode "_COMPRESSED", status, processing, handler);  \
-    }
-
     memset(opcodeTable, 0, sizeof(opcodeTable));
 
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_LEVEL_GRANT,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptGrantLevel          );

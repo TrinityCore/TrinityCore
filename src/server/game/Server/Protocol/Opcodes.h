@@ -1431,11 +1431,10 @@ typedef void(WorldSession::*pOpcodeHandler)(WorldPacket& recvPacket);
 struct OpcodeHandler
 {
     OpcodeHandler() {}
-    OpcodeHandler(char const* _name, char const* _compressedName, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
-        : name(_name), compressedName(_compressedName), status(_status), packetProcessing(_processing), handler(_handler) {}
+    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
+        : name(_name), status(_status), packetProcessing(_processing), handler(_handler) {}
 
     char const* name;
-    char const* compressedName;
     SessionStatus status;
     PacketProcessing packetProcessing;
     pOpcodeHandler handler;
@@ -1445,26 +1444,28 @@ extern OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS];
 void InitOpcodes();
 
 /// Lookup opcode name for human understandable logging
-inline const char* LookupOpcodeName(Opcodes id)
-{
-    if (id < UNKNOWN_OPCODE)
-    {
-        bool isCompressed = uint32(id) & COMPRESSED_OPCODE_MASK;
-        if (OpcodeHandler* handler = opcodeTable[uint32(id) & 0x7FFF])
-            return isCompressed ? handler->compressedName : handler->name;
-
-        return "UNKNOWN OPCODE";
-    }
-
-    return "INVALID OPCODE";
-}
-
 inline std::string GetOpcodeNameForLogging(Opcodes id)
 {
     uint32 opcode = uint32(id);
     std::ostringstream ss;
-    ss << '[' << LookupOpcodeName(id) << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
-    return ss.str().c_str();
+    ss << '[';
+
+    if (id < UNKNOWN_OPCODE)
+    {
+        if (OpcodeHandler* handler = opcodeTable[uint32(id) & 0x7FFF])
+        {
+            ss << handler->name;
+            if (opcode & COMPRESSED_OPCODE_MASK)
+                ss << "_COMPRESSED";
+        }
+        else
+            ss << "UNKNOWN OPCODE";
+    }
+    else
+        ss << "INVALID OPCODE";
+
+    ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
+    return ss.str();
 }
 
 #endif
