@@ -8,6 +8,11 @@ build*/
 .hg/
 *.kdev*
 *.bak
+branch_*
+merge_*
+push_*
+update_*
+commit
 *.patch
 *.diff
 *.REMOTE.*
