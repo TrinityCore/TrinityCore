@@ -2690,10 +2690,6 @@ void Player::RegenerateHealth()
         return;
 
     float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
-
-    if (getLevel() < 15)
-        HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (getLevel() * 0.066f));
-
     float addvalue = 0.0f;
 
     // polymorphed case
@@ -2705,6 +2701,11 @@ void Player::RegenerateHealth()
         addvalue = HealthIncreaseRate;
         if (!isInCombat())
         {
+            if (getLevel() < 15)
+                addvalue = (0.20f*((float)GetMaxHealth())/getLevel()*HealthIncreaseRate);
+            else
+                addvalue = 0.015f*((float)GetMaxHealth())*HealthIncreaseRate;
+
             AuraEffectList const& mModHealthRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
             for (AuraEffectList::const_iterator i = mModHealthRegenPct.begin(); i != mModHealthRegenPct.end(); ++i)
                 AddPctN(addvalue, (*i)->GetAmount());
