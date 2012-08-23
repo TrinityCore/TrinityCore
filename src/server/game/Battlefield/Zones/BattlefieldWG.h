@@ -1192,11 +1192,14 @@ struct BfWGGameObjectBuilding
         }
 
         // Rebuild gameobject
-        m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+        if (m_Build->IsDestructibleBuilding())
+        {
+            m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
 
-        // Update worldstate
-        m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
-        m_WG->SendUpdateWorldState(m_WorldState, m_State);
+            // Update worldstate
+            m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
+            m_WG->SendUpdateWorldState(m_WorldState, m_State);
+        }
         UpdateCreatureAndGo();
         m_Build->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_Team]);
     }
