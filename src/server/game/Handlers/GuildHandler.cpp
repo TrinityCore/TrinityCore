@@ -433,7 +433,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
         if (Guild* guild = _GetPlayerGuild(this))
-            guild->SendBankTabsInfo(this);
+            guild->SendBankList(this, 0, true, true);
         else
             Guild::SendCommandResult(this, GUILD_UNK1, ERR_GUILD_PLAYER_NOT_IN_GUILD);
     }
@@ -455,7 +455,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
-            guild->SendBankTabData(this, tabId);
+            guild->SendBankList(this, tabId, true, false);
 }
 
 void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recvData)
