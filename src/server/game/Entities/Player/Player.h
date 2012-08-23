@@ -983,7 +983,7 @@ class TradeData
     public:                                                 // constructors
         TradeData(Player* player, Player* trader) :
             m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0) {}
+            m_money(0), m_spell(0), m_spellCastItem(0) { memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64)); }
 
         Player* GetTrader() const { return m_trader; }
         TradeData* GetTraderData() const;
@@ -2419,9 +2419,9 @@ class Player : public Unit, public GridObject<Player>
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup() const;
 
-        // Battleground Group System
-        void SetBattlegroundRaid(Group* group, int8 subgroup = -1);
-        void RemoveFromBattlegroundRaid();
+        // Battleground / Battlefield Group System
+        void SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup = -1);
+        void RemoveFromBattlegroundOrBattlefieldRaid();
         Group* GetOriginalGroup() { return m_originalGroup.getTarget(); }
         GroupReference& GetOriginalGroupRef() { return m_originalGroup; }
         uint8 GetOriginalSubGroup() const { return m_originalGroup.getSubGroup(); }
