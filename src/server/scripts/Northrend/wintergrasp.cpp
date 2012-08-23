@@ -585,4 +585,5 @@ void AddSC_wintergrasp()
     new spell_wintergrasp_force_building();
     new spell_wintergrasp_grab_passenger();
     new achievement_wg_didnt_stand_a_chance();
+    new spell_wintergrasp_defender_teleport();
 }
