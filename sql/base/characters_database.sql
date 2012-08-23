@@ -1815,6 +1815,10 @@ CREATE TABLE `guild_member` (
   `BankRemSlotsTab4` int(10) unsigned NOT NULL DEFAULT '0',
   `BankResetTimeTab5` int(10) unsigned NOT NULL DEFAULT '0',
   `BankRemSlotsTab5` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankResetTimeTab6` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemSlotsTab6` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankResetTimeTab7` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemSlotsTab7` int(10) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `guid_key` (`guid`),
   KEY `guildid_key` (`guildid`),
   KEY `guildid_rank_key` (`guildid`,`rank`)
