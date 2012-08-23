@@ -73,17 +73,17 @@ void WorldSession::SendAuctionHello(uint64 guid, Creature* unit)
 }
 
 //call this method when player bids, creates, or deletes auction
-void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 Action, uint32 ErrorCode, uint32 bidError)
+void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action, uint32 errorCode, uint32 bidError)
 {
     WorldPacket data(SMSG_AUCTION_COMMAND_RESULT);
     data << uint32(auction ? auction->Id : 0);
-    data << uint32(Action);
-    data << uint32(ErrorCode);
+    data << uint32(action);
+    data << uint32(errorCode);
 
-    switch (ErrorCode)
+    switch (errorCode)
     {
         case ERR_AUCTION_OK:
-            if (Action == AUCTION_PLACE_BID)
+            if (action == AUCTION_PLACE_BID)
                 data << uint64(auction->bid ? auction->GetAuctionOutBid() : 0);
             break;
         case ERR_AUCTION_INVENTORY:
