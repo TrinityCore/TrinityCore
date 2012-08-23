@@ -502,17 +502,13 @@ private:
         bool LoadItemFromDB(Field* fields);
         void Delete(SQLTransaction& trans, bool removeItemsFromDB = false);
 
-        void WritePacket(WorldPacket& data) const;
-        void WriteSlotPacket(WorldPacket& data, uint8 slotId) const;
-        void WriteInfoPacket(WorldPacket& data) const
-        {
-            data << m_name;
-            data << m_icon;
-        }
-
         void SetInfo(const std::string& name, const std::string& icon);
         void SetText(const std::string& text);
         void SendText(const Guild* guild, WorldSession* session) const;
+
+        std::string const& GetName() const { return m_name; }
+        std::string const& GetIcon() const { return m_icon; }
+        std::string const& GetText() const { return m_text; }
 
         inline Item* GetItem(uint8 slotId) const { return slotId < GUILD_BANK_MAX_SLOTS ?  m_items[slotId] : NULL; }
         bool SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem);
@@ -664,8 +660,7 @@ public:
     // Send info to client
     void SendEventLog(WorldSession* session) const;
     void SendBankLog(WorldSession* session, uint8 tabId) const;
-    void SendBankTabsInfo(WorldSession* session) const;
-    void SendBankTabData(WorldSession* session, uint8 tabId) const;
+    void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const;
     void SendBankTabText(WorldSession* session, uint8 tabId) const;
     void SendPermissions(WorldSession* session) const;
     void SendMoneyInfo(WorldSession* session) const;
@@ -814,8 +809,6 @@ private:
     void _MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount);
     bool _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
 
-    void _SendBankContent(WorldSession* session, uint8 tabId) const;
-    void _SendBankMoneyUpdate(WorldSession* session) const;
     void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
 

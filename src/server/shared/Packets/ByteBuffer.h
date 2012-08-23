@@ -456,7 +456,8 @@ class ByteBuffer
         //! without null-terminating the string
         void WriteString(std::string const& str)
         {
-            append(str.c_str(), str.length());
+            if (size_t len = str.length())
+                append(str.c_str(), len);
         }
 
         const uint8 *contents() const { return &_storage[0]; }
