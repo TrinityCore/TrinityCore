@@ -296,7 +296,9 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void Reset()
             {
-                me->SetHealth(_spawnHealth);
+                _events.Reset();
+                //me->SetHealth(_spawnHealth);
+                me->SetHealth(me->GetMaxHealth() / 2);
                 me->SetReactState(REACT_PASSIVE);
                 me->LoadCreaturesAddon(true);
                 // immune to percent heals
@@ -331,6 +333,13 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void HealReceived(Unit* healer, uint32& heal)
             {
+                // Do not receive heal while encounter not in progress
+                if (_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) != IN_PROGRESS)
+                {
+                    heal = 0;
+                    return;
+                }
+
                 if (!me->hasLootRecipient())
                     me->SetLootRecipient(healer);
 
@@ -602,6 +611,7 @@ class npc_the_lich_king_controller : public CreatureScript
                 _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20000);
                 _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30000);
                 me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void JustReachedHome()
@@ -682,9 +692,12 @@ class npc_risen_archmage : public CreatureScript
             {
             }
 
-            bool CanAIAttack(Unit const* target) const
+            bool CanAIAttack(Unit const* target) //const
             {
-                return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
+                if(_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED || _instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == FAIL)
+                    return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
+                if(_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == IN_PROGRESS)
+                    return true;
             }
 
             void Reset()
@@ -699,7 +712,7 @@ class npc_risen_archmage : public CreatureScript
             void EnterCombat(Unit* /*target*/)
             {
                 me->FinishSpell(CURRENT_CHANNELED_SPELL, false);
-                if (me->GetDBTableGUIDLow() && _canCallEnterCombat)
+                if (me->GetDBTableGUIDLow() && _canCallEnterCombat && _instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
                 {
                     std::list<Creature*> archmages;
                     RisenArchmageCheck check;
