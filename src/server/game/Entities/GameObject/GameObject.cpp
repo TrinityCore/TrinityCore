@@ -1952,7 +1952,7 @@ void GameObject::SetGoState(GOState state)
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
 
         if (state != GO_STATE_READY)
-            startOpen = !startOpen
+            startOpen = !startOpen;
 
         EnableCollision(startOpen);
     }
