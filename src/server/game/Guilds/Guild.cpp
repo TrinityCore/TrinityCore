@@ -575,12 +575,12 @@ bool Guild::Member::LoadFromDB(Field* fields)
         m_bankRemaining[i].value                    = fields[8 + i * 2].GetUInt32();
     }
 
-    SetStats(fields[19].GetString(),
-             fields[20].GetUInt8(),                         // characters.level
-             fields[21].GetUInt8(),                         // characters.class
-             fields[22].GetUInt16(),                        // characters.zone
-             fields[23].GetUInt32());                       // characters.account
-    m_logoutTime    = fields[24].GetUInt32();               // characters.logout_time
+    SetStats(fields[23].GetString(),
+             fields[24].GetUInt8(),                         // characters.level
+             fields[25].GetUInt8(),                         // characters.class
+             fields[26].GetUInt16(),                        // characters.zone
+             fields[27].GetUInt32());                       // characters.account
+    m_logoutTime    = fields[28].GetUInt32();               // characters.logout_time
 
     if (!CheckStats())
         return false;
