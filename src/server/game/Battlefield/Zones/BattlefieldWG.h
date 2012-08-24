@@ -29,7 +29,7 @@
 uint32 const VehNumWorldState[2]        = { 3680, 3490 };
 uint32 const MaxVehNumWorldState[2]     = { 3681, 3491 };
 uint32 const ClockWorldState[2]         = { 3781, 4354 };
-uint32 const WintergraspFaction[3]      = { 1, 2, 35 };
+uint32 const WintergraspFaction[3]      = { 1732, 1735, 35 };
 float const WintergraspStalkerPos[4]    = { 0, 0, 0, 0 };
 
 class BattlefieldWG;
