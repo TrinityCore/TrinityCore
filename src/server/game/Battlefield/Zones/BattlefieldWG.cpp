@@ -538,7 +538,6 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H, 1);
                         creature->AddAura(SPELL_HORDE_FLAG, creature);
-                        creature->setFaction(creator->getFaction());
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }
@@ -555,7 +554,6 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, 1);
                         creature->AddAura(SPELL_ALLIANCE_FLAG, creature);
-                        creature->setFaction(creator->getFaction());
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }
