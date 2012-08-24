@@ -836,7 +836,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     else
         map.holesOffset = map.heightMapOffset + map.heightMapSize;
 
-    memset(holes, 0, map.holesSize);
+    memset(holes, 0, sizeof(holes));
     bool hasHoles = false;
 
     for (int i = 0; i < ADT_CELLS_PER_GRID; ++i)
