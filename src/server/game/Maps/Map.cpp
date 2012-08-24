@@ -126,10 +126,10 @@ void Map::LoadMMap(int gx, int gy)
     // DONT CHANGE "gy" and "gx" - Its necessary !
     bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gy, gx);
     
-    if (result)
-        sLog->outDetail("MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+    if (mmapLoadResult)
+        sLog->outInfo(LOG_FILTER_MAPS, "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
     else
-        sLog->outDetail("Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        sLog->outInfo(LOG_FILTER_MAPS, "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 }
 
 void Map::LoadVMap(int gx, int gy)

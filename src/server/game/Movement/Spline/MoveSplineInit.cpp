@@ -79,7 +79,7 @@ namespace Movement
 
         // should i do the things that user should do? - no.
         if (args.path.empty())
-            return;
+            return 0;
 
         // corrent first vertex
         args.path[0] = real_position;
@@ -148,12 +148,21 @@ namespace Movement
         args.flags.EnableFacingAngle();
     }
 
-    void MoveSplineInit::MoveTo(Vector3 const& dest)
+    void MoveSplineInit::MoveTo(const Vector3& dest, bool generatePath, bool forceDestination)
     {
-        args.path_Idx_offset = 0;
-        args.path.resize(2);
-        TransportPathTransform transform(unit, args.TransformForTransport);
-        args.path[1] = transform(dest);
+        if (generatePath)
+        {
+            PathFinderMovementGenerator path(&unit);
+            path.calculate(dest.x, dest.y, dest.z, forceDestination);
+            MovebyPath(path.getPath());
+        }
+        else
+        {
+            args.path_Idx_offset = 0;
+            args.path.resize(2);
+            TransportPathTransform transform(unit, args.TransformForTransport);
+            args.path[1] = transform(dest);
+        }
     }
 
     Vector3 TransportPathTransform::operator()(Vector3 input)
