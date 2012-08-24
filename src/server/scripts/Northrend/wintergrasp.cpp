@@ -307,15 +307,13 @@ class go_wg_vehicle_teleporter : public GameObjectScript
             {
                 if (_checkTimer <= diff)
                 {
-                    // Tabulation madness in the hole!
-                    for (uint8 i = 0; i < MAX_WINTERGRASP_VEHICLES; i++)
-                        if (Creature* vehicleCreature = go->FindNearestCreature(vehiclesList[i], 3.0f, true))
-                            if (!vehicleCreature->HasAura(SPELL_VEHICLE_TELEPORT))
-                                if (Vehicle* vehicle = vehicleCreature->GetVehicle())
-                                    if (Unit* passenger = vehicle->GetPassenger(0))
-                                        if (go->GetUInt32Value(GAMEOBJECT_FACTION) == passenger->getFaction())
-                                            if (Creature* teleportTrigger = vehicleCreature->FindNearestCreature(NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC, 100.0f, true))
-                                                teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
+                    if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
+                        // Tabulation madness in the hole!
+                        for (uint8 i = 0; i < MAX_WINTERGRASP_VEHICLES; i++)
+                            if (Creature* vehicleCreature = go->FindNearestCreature(vehiclesList[i], 3.0f, true))
+                                if (!vehicleCreature->HasAura(SPELL_VEHICLE_TELEPORT) && vehicleCreature->getFaction() == WintergraspFaction[wg->GetDefenderTeam()])
+                                    if (Creature* teleportTrigger = vehicleCreature->FindNearestCreature(NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC, 100.0f, true))
+                                        teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
 
                     _checkTimer = 1000;
                 }
@@ -547,6 +545,36 @@ public:
     }
 };
 
+class spell_wintergrasp_defender_teleport : public SpellScriptLoader
+{
+public:
+    spell_wintergrasp_defender_teleport() : SpellScriptLoader("spell_wintergrasp_defender_teleport") { }
+
+    class spell_wintergrasp_defender_teleport_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_wintergrasp_defender_teleport_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
+                if (Player* target = GetExplTargetUnit()->ToPlayer())
+                    if (target->GetTeamId() != wg->GetDefenderTeam())
+                        return SPELL_FAILED_BAD_TARGETS;
+            return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_wintergrasp_defender_teleport_SpellScript::CheckCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_wintergrasp_defender_teleport_SpellScript();
+    }
+};
+
 void AddSC_wintergrasp()
 {
     new npc_wg_queue();
@@ -557,4 +585,5 @@ void AddSC_wintergrasp()
     new spell_wintergrasp_force_building();
     new spell_wintergrasp_grab_passenger();
     new achievement_wg_didnt_stand_a_chance();
+    new spell_wintergrasp_defender_teleport();
 }
