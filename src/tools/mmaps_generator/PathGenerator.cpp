@@ -71,7 +71,8 @@ bool handleArgs(int argc, char** argv,
                bool &silent,
                bool &bigBaseUnit,
                char* &offMeshInputPath,
-               char* &file)
+               char* &file,
+               int& threads)
 {
     char* param = NULL;
     for (int i = 1; i < argc; ++i)
@@ -87,6 +88,14 @@ bool handleArgs(int argc, char** argv,
                 maxAngle = maxangle;
             else
                 printf("invalid option for '--maxAngle', using default\n");
+        }
+        else if (strcmp(argv[i], "--threads") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+            threads = atoi(param);
+            printf("Using %i threads to extract mmaps\n", threads);
         }
         else if (strcmp(argv[i], "--file") == 0)
         {
@@ -232,7 +241,7 @@ int finish(const char* message, int returnValue)
 
 int main(int argc, char** argv)
 {
-    int mapnum = -1;
+    int threads = 3, mapnum = -1;
     float maxAngle = 60.0f;
     int tileX = -1, tileY = -1;
     bool skipLiquid = false,
@@ -248,7 +257,7 @@ int main(int argc, char** argv)
     bool validParam = handleArgs(argc, argv, mapnum,
                                  tileX, tileY, maxAngle,
                                  skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
-                                 debugOutput, silent, bigBaseUnit, offMeshInputPath, file);
+                                 debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
 
     if (!validParam)
         return silent ? -1 : finish("You have specified invalid parameters", -1);
@@ -278,7 +287,7 @@ int main(int argc, char** argv)
     else if (mapnum >= 0)
         builder.buildMap(uint32(mapnum));
     else
-        builder.buildAllMaps();
+        builder.buildAllMaps(threads);
 
     return silent ? 1 : finish("Movemap build is complete!", 1);
 }
