@@ -29,7 +29,7 @@
 uint32 const VehNumWorldState[2]        = { 3680, 3490 };
 uint32 const MaxVehNumWorldState[2]     = { 3681, 3491 };
 uint32 const ClockWorldState[2]         = { 3781, 4354 };
-uint32 const WintergraspFaction[3]      = { 1, 2, 35 };
+uint32 const WintergraspFaction[3]      = { 1732, 1735, 35 };
 float const WintergraspStalkerPos[4]    = { 0, 0, 0, 0 };
 
 class BattlefieldWG;
@@ -1473,17 +1473,17 @@ struct BfWGGameObjectBuilding
 
                         switch (m_Build->GetEntry())
                         {
-                        case 190221:
-                        case 190373:
-                        case 190377:
-                        case 190378:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_4:
                             {
                                 creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
                                 break;
                             }
-                        case 190356:
-                        case 190357:
-                        case 190358:
+                            case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                            case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                            case GO_WINTERGRASP_FLAMEWATCH_TOWER:
                             {
                                 creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
                                 break;
@@ -1509,17 +1509,17 @@ struct BfWGGameObjectBuilding
 
                         switch (m_Build->GetEntry())
                         {
-                        case 190221:
-                        case 190373:
-                        case 190377:
-                        case 190378:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_4:
                             {
                                 creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
                                 break;
                             }
-                        case 190356:
-                        case 190357:
-                        case 190358:
+                            case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                            case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                            case GO_WINTERGRASP_FLAMEWATCH_TOWER:
                             {
                                 creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
                                 break;
