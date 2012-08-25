@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[27] --> Fix player on transports.
 [26] --> Fix Pick Lock.
 [25] --> Fix pet not returning on target death by other player.
 [24] --> Add Updated external mail.
