@@ -254,7 +254,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void JustDied(Unit* /*killer*/)
     {
-        DoScriptText(SAY_DEATH, me);
+        Talk(SAY_DEATH);
         if (instance)
         {
             if (Creature* pSister = GetSister())
@@ -296,7 +296,7 @@ struct boss_twin_baseAI : public ScriptedAI
             instance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
         }
 
-        DoScriptText(SAY_AGGRO, me);
+        Talk(SAY_AGGRO);
         DoCast(me, m_uiSurgeSpellId);
     }
 
@@ -384,7 +384,7 @@ struct boss_twin_baseAI : public ScriptedAI
         if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
         {
             DoCast(me, SPELL_BERSERK);
-            DoScriptText(SAY_BERSERK, me);
+            Talk(SAY_BERSERK);
             m_bIsBerserk = true;
         }
         else
