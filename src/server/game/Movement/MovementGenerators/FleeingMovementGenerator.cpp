@@ -45,7 +45,7 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
 
     PathFinderMovementGenerator path(&owner);
     path.setPathLengthLimit(30.0f);
-    path.calculate(x, y, z);
+    path.CalculatePath(x, y, z);
     if (path.getPathType() & PATHFIND_NOPATH)
     {
         i_nextCheckTime.Reset(urand(1000, 1500));
