@@ -294,7 +294,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildMap(uint32 mapID)
     {
-        printf("Building map %03u:\n", mapID);
+        printf("[Thread %i] Building map %03u:\n", ACE_Thread::self(), mapID);
 
         set<uint32>* tiles = getTileList(mapID);
 
@@ -340,7 +340,7 @@ namespace MMAP
 
         dtFreeNavMesh(navMesh);
 
-        printf("Complete!                               \n\n");
+        printf("[Map %i] Complete!\n", mapID);
     }
 
     /**************************************************************************/
