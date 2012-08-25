@@ -18,6 +18,7 @@
 
 #include "PathCommon.h"
 #include "MapBuilder.h"
+#include "Timer.h"
 
 using namespace MMAP;
 
@@ -280,6 +281,7 @@ int main(int argc, char** argv)
     MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, offMeshInputPath);
 
+    uint32 start = getMSTime();
     if (file)
         builder.buildMeshFromFile(file);
     else if (tileX > -1 && tileY > -1 && mapnum >= 0)
@@ -289,5 +291,7 @@ int main(int argc, char** argv)
     else
         builder.buildAllMaps(threads);
 
-    return silent ? 1 : finish("Movemap build is complete!", 1);
+    if (!silent)
+        printf("Finished. MMAPS were built in %u ms!", GetMSTimeDiffToNow(start));
+    return 1;
 }
