@@ -623,6 +623,8 @@ public:
     bool Create(Player* pLeader, const std::string& name);
     void Disband();
 
+    void SaveToDB();
+
     // Getters
     uint32 GetId() const { return m_id; }
     uint64 GetGUID() const { return MAKE_NEW_GUID(m_id, 0, HIGHGUID_GUILD); }

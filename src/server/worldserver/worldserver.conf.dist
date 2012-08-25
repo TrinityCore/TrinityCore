@@ -392,6 +392,14 @@ CleanCharacterDB = 0
 PersistentCharacterCleanFlags = 0
 
 #
+#    GuildSaveInterval
+#        Description: Time (in minutes) between guild experience saves
+#        Default:     15
+#
+
+GuildSaveInterval = 15
+
+#
 ###################################################################################################
 
 ###################################################################################################

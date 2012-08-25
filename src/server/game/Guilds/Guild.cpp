@@ -1119,6 +1119,15 @@ void Guild::Disband()
     sGuildMgr->RemoveGuild(m_id);
 }
 
+void Guild::SaveToDB()
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    m_achievementMgr.SaveToDB(trans);
+
+    CharacterDatabase.CommitTransaction(trans);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // HANDLE CLIENT COMMANDS
 void Guild::HandleRoster(WorldSession* session /*= NULL*/)
@@ -1833,6 +1842,8 @@ void Guild::HandleMemberLogout(WorldSession* session)
         member->UpdateLogoutTime();
     }
     _BroadcastEvent(GE_SIGNED_OFF, player->GetGUID(), player->GetName());
+
+    SaveToDB();
 }
 
 void Guild::HandleDisband(WorldSession* session)
