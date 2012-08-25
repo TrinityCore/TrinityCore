@@ -43,6 +43,9 @@ class MovementGenerator
         virtual MovementGeneratorType GetMovementGeneratorType() = 0;
 
         virtual void unitSpeedChanged() { }
+
+        // used by Evade code for select point to evade with expected restart default movement
+        virtual bool GetResetPosition(Unit &, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
 };
 
 template<class T, class D>

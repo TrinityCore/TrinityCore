@@ -56,7 +56,7 @@ namespace Movement
         return MOVE_RUN;
     }
 
-    void MoveSplineInit::Launch()
+    int32 MoveSplineInit::Launch()
     {
         MoveSpline& move_spline = *unit.movespline;
 
@@ -73,13 +73,13 @@ namespace Movement
         }
 
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
-        // this also allows calculate spline position and update map position in much greater intervals
+        // this also allows CalculatePath spline position and update map position in much greater intervals
         if (!move_spline.Finalized())
             real_position = move_spline.ComputePosition();
 
         // should i do the things that user should do? - no.
         if (args.path.empty())
-            return;
+            return 0;
 
         // corrent first vertex
         args.path[0] = real_position;
@@ -97,7 +97,7 @@ namespace Movement
             args.velocity = unit.GetSpeed(SelectSpeedType(moveFlags));
 
         if (!args.Validate())
-            return;
+            return 0;
 
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
@@ -115,6 +115,8 @@ namespace Movement
 
         PacketBuilder::WriteMonsterMove(move_spline, data);
         unit.SendMessageToSet(&data,true);
+
+        return move_spline.Duration();
     }
 
     MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)
@@ -146,12 +148,21 @@ namespace Movement
         args.flags.EnableFacingAngle();
     }
 
-    void MoveSplineInit::MoveTo(Vector3 const& dest)
+    void MoveSplineInit::MoveTo(const Vector3& dest, bool generatePath, bool forceDestination)
     {
-        args.path_Idx_offset = 0;
-        args.path.resize(2);
-        TransportPathTransform transform(unit, args.TransformForTransport);
-        args.path[1] = transform(dest);
+        if (generatePath)
+        {
+            PathFinderMovementGenerator path(&unit);
+            path.CalculatePath(dest.x, dest.y, dest.z, forceDestination);
+            MovebyPath(path.getPath());
+        }
+        else
+        {
+            args.path_Idx_offset = 0;
+            args.path.resize(2);
+            TransportPathTransform transform(unit, args.TransformForTransport);
+            args.path[1] = transform(dest);
+        }
     }
 
     Vector3 TransportPathTransform::operator()(Vector3 input)

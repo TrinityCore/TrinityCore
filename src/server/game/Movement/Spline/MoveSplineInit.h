@@ -20,6 +20,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
+#include "PathFinderMovementGenerator.h"
 
 class Unit;
 
@@ -56,7 +57,7 @@ namespace Movement
 
         /*  Final pass of initialization that launches spline movement.
          */
-        void Launch();
+        int32 Launch();
 
         /* Adds movement by parabolic trajectory
          * @param amplitude  - the maximum height of parabola, value could be negative and positive
@@ -83,10 +84,10 @@ namespace Movement
          */
         void MovebyPath(const PointsArray& path, int32 pointId = 0);
 
-        /* Initializes simple A to B mition, A is current unit's position, B is destination
+        /* Initializes simple A to B motion, A is current unit's position, B is destination
          */
-        void MoveTo(const Vector3& destination);
-        void MoveTo(float x, float y, float z);
+        void MoveTo(const Vector3& destination, bool generatePath = true, bool forceDestination = false);
+        void MoveTo(float x, float y, float z, bool generatePath = true, bool forceDestination = false);
 
         /* Sets Id of fisrt point of the path. When N-th path point will be done ILisener will notify that pointId + N done
          * Needed for waypoint movement where path splitten into parts
@@ -158,10 +159,10 @@ namespace Movement
         std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
     }
 
-    inline void MoveSplineInit::MoveTo(float x, float y, float z)
+    inline void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
     {
         Vector3 v(x, y, z);
-        MoveTo(v);
+        MoveTo(v, generatePath, forceDestination);
     }
 
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)
