@@ -50,7 +50,7 @@ PathFinderMovementGenerator::~PathFinderMovementGenerator()
     sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::~PathFinderMovementGenerator() for %u \n", m_sourceUnit->GetGUIDLow());
 }
 
-bool PathFinderMovementGenerator::calculate(float destX, float destY, float destZ, bool forceDest)
+bool PathFinderMovementGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
 {
     if (!Trinity::IsValidMapCoord(destX, destY, destZ) ||
         !Trinity::IsValidMapCoord(m_sourceUnit->GetPositionX(), m_sourceUnit->GetPositionY(), m_sourceUnit->GetPositionZ()))
@@ -67,7 +67,7 @@ bool PathFinderMovementGenerator::calculate(float destX, float destY, float dest
 
     m_forceDestination = forceDest;
 
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::calculate() for %u \n", m_sourceUnit->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::CalculatePath() for %u \n", m_sourceUnit->GetGUIDLow());
 
     // make sure navMesh works - we can run on map w/o mmap
     // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
@@ -88,7 +88,7 @@ bool PathFinderMovementGenerator::calculate(float destX, float destY, float dest
     {
         // our target is not moving - we just coming closer
         // we are moving on precalculated path - enjoy the ride
-        sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::calculate:: precalculated path\n");
+        sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::CalculatePath:: precalculated path\n");
 
         m_pathPoints.erase(m_pathPoints.begin());
         return false;

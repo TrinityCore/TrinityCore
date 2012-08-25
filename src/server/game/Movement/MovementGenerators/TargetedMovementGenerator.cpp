@@ -69,7 +69,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     // allow pets following their master to cheat while generating paths
     bool forceDest = (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->isPet()
                         && owner.HasUnitState(UNIT_STATE_FOLLOW));
-    i_path->calculate(x, y, z, forceDest);
+    i_path->CalculatePath(x, y, z, forceDest);
     if (i_path->getPathType() & PATHFIND_NOPATH)
         return;
 
