@@ -21,7 +21,6 @@
 #include "CreatureAI.h"
 #include "ObjectMgr.h"
 #include "TemporarySummon.h"
-#include "Totem.h"
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
@@ -196,12 +195,7 @@ void TempSummon::InitStats(uint32 duration)
             {
                 Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
                 if (oldSummon && oldSummon->isSummon())
-                {
-                    if (oldSummon->isTotem())
-                        oldSummon->ToTotem()->UnSummon();
-                    else
-                        oldSummon->ToTempSummon()->UnSummon();
-                }
+                    oldSummon->ToTempSummon()->UnSummon();
             }
             owner->m_SummonSlot[slot] = GetGUID();
         }

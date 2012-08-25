@@ -96,7 +96,7 @@ void Totem::InitSummon()
         CastSpell(this, GetSpell(1), true);
 }
 
-void Totem::UnSummon()
+void Totem::UnSummon(uint32 msTime)
 {
     CombatStop();
     RemoveAurasDueToSpell(GetSpell(), GetGUID());
