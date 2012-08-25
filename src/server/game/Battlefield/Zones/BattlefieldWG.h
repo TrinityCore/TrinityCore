@@ -273,6 +273,7 @@ class WintergraspCapturePoint : public BfCapturePoint
 class BattlefieldWG : public Battlefield
 {
     public:
+        ~BattlefieldWG();
         /**
          * \brief Called when the battle start
          * - Spawn relic and turret
