@@ -170,9 +170,45 @@ public:
     }
 };
 
+/*######
+## wyrmrest_defender
+######*/
+
+#define GOSSIP_FLY "We need to get into the fight. Are you ready?"
+
+enum Spells
+{
+SPELL_WYRMREST_DEFENDER_MOUNT = 49256
+};
+
+class npc_wyrmrest_defender : public CreatureScript
+{
+         public:
+                         npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
+                        
+                         bool OnGossipHello(Player* player, Creature* creature)
+                         {
+                                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                                         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+                         return true;
+                         }
+                        
+                         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+                         {
+                                         player->PlayerTalkClass->ClearMenus();
+                                         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+                                         {
+                                                         player->CLOSE_GOSSIP_MENU();
+                                                         player->CastSpell(creature, SPELL_WYRMREST_DEFENDER_MOUNT, true);
+                                         }
+                         return true;
+                         }
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
     new spell_q12096_q12092_dummy;
     new spell_q12096_q12092_bark;
+    new npc_wyrmrest_defender;
 }
