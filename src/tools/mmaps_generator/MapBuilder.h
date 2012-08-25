@@ -134,14 +134,20 @@ namespace MMAP
         MapBuilder* _builder;
         uint32 _mapId;
     public:
-        BuilderThread(MapBuilder* builder, uint32 mapId) : _builder(builder), _mapId(mapId) {}
+        BuilderThread(MapBuilder* builder) : _builder(builder), Free(true) {}
+
+        void SetMapId(uint32 mapId) { _mapId = mapId; }
 
         int svc()
         {
+            Free = false;
             if (_builder)
                 _builder->buildMap(_mapId);
+            Free = true;
             return 0;
         }
+
+        bool Free;
     };
 }
 
