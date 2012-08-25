@@ -9138,9 +9138,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 2918:
             NumberOfFields = 8;
             break;
-        case 139:
-            NumberOfFields = 41;
-            break;
         case 1377:
             NumberOfFields = 15;
             break;
@@ -9227,46 +9224,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 1537:                                          // Ironforge
         case 2257:                                          // Deeprun Tram
         case 3703:                                          // Shattrath City
-            break;
-        case 139:                                           // Eastern Plaguelands
-            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_EP)
-                pvp->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(0x97a) << uint32(0x0); // 10 2426
-                data << uint32(0x917) << uint32(0x0); // 11 2327
-                data << uint32(0x918) << uint32(0x0); // 12 2328
-                data << uint32(0x97b) << uint32(0x32); // 13 2427
-                data << uint32(0x97c) << uint32(0x32); // 14 2428
-                data << uint32(0x933) << uint32(0x1); // 15 2355
-                data << uint32(0x946) << uint32(0x0); // 16 2374
-                data << uint32(0x947) << uint32(0x0); // 17 2375
-                data << uint32(0x948) << uint32(0x0); // 18 2376
-                data << uint32(0x949) << uint32(0x0); // 19 2377
-                data << uint32(0x94a) << uint32(0x0); // 20 2378
-                data << uint32(0x94b) << uint32(0x0); // 21 2379
-                data << uint32(0x932) << uint32(0x0); // 22 2354
-                data << uint32(0x934) << uint32(0x0); // 23 2356
-                data << uint32(0x935) << uint32(0x0); // 24 2357
-                data << uint32(0x936) << uint32(0x0); // 25 2358
-                data << uint32(0x937) << uint32(0x0); // 26 2359
-                data << uint32(0x938) << uint32(0x0); // 27 2360
-                data << uint32(0x939) << uint32(0x1); // 28 2361
-                data << uint32(0x930) << uint32(0x1); // 29 2352
-                data << uint32(0x93a) << uint32(0x0); // 30 2362
-                data << uint32(0x93b) << uint32(0x0); // 31 2363
-                data << uint32(0x93c) << uint32(0x0); // 32 2364
-                data << uint32(0x93d) << uint32(0x0); // 33 2365
-                data << uint32(0x944) << uint32(0x0); // 34 2372
-                data << uint32(0x945) << uint32(0x0); // 35 2373
-                data << uint32(0x931) << uint32(0x1); // 36 2353
-                data << uint32(0x93e) << uint32(0x0); // 37 2366
-                data << uint32(0x931) << uint32(0x1); // 38 2367 ??  grey horde not in dbc! send for consistency's sake, and to match field count
-                data << uint32(0x940) << uint32(0x0); // 39 2368
-                data << uint32(0x941) << uint32(0x0); // 7 2369
-                data << uint32(0x942) << uint32(0x0); // 8 2370
-                data << uint32(0x943) << uint32(0x0); // 9 2371
-            }
             break;
         case 1377:                                          // Silithus
             if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_SI)
