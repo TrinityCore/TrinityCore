@@ -160,30 +160,46 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildAllMaps(int threads)
     {
-        int running = 0;
+        std::vector<BuilderThread*> _threads;
+        
+        for (int i = 0; i < threads; ++i)
+            _threads.push_back(new BuilderThread(this));
+
         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
         {
-            uint32 mapID = (*it).first;
+            uint32 mapID = it->first;
             if (!shouldSkipMap(mapID))
             {
                 if (threads > 1)
                 {
-                    BuilderThread* thread = new BuilderThread(this, mapID);
-                    thread->activate();
-                    ++running;
-                    // Do not allow more than {threads} threads running at the same time
-                    if (running == threads)
+                    bool next = false;
+                    while (!next)
                     {
-                        // Wait for previous threads to finish
-                        ACE_Thread_Manager::instance()->wait();
-                        // Reset the number of running threads
-                        running = 0;
+                        for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
+                        {
+                            if ((*_th)->Free)
+                            {
+                                printf("Thread is free for map %03i\n", mapID);
+                                (*_th)->SetMapId(mapID);
+                                (*_th)->activate();
+                                next = true;
+                                break;
+                            }
+                        }
+                        // Wait for 20 seconds
+                        ACE_OS::sleep(ACE_Time_Value (0, 20000));
                     }
                 }
                 else
                     buildMap(mapID);
             }
         }
+        // Wait for all threads to finish before closing down
+        ACE_Thread_Manager::instance()->wait();
+
+        // Free memory
+        for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
+            delete *_th;
     }
 
     /**************************************************************************/
@@ -311,34 +327,34 @@ namespace MMAP
                     tiles->insert(StaticMapTree::packTileID(i, j));
         }
 
-        if (!tiles->size())
-            return;
-
-        // build navMesh
-        dtNavMesh* navMesh = NULL;
-        buildNavMesh(mapID, navMesh);
-        if (!navMesh)
+        if (!tiles->empty())
         {
-            printf("Failed creating navmesh!              \n");
-            return;
+            // build navMesh
+            dtNavMesh* navMesh = NULL;
+            buildNavMesh(mapID, navMesh);
+            if (!navMesh)
+            {
+                printf("Failed creating navmesh!              \n");
+                return;
+            }
+
+            // now start building mmtiles for each tile
+            printf("[Map %i] We have %u tiles.                          \n", mapID, (unsigned int)tiles->size());
+            for (set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
+            {
+                uint32 tileX, tileY;
+
+                // unpack tile coords
+                StaticMapTree::unpackTileID((*it), tileX, tileY);
+
+                if (shouldSkipTile(mapID, tileX, tileY))
+                    continue;
+
+                buildTile(mapID, tileX, tileY, navMesh);
+            }
+
+            dtFreeNavMesh(navMesh);
         }
-
-        // now start building mmtiles for each tile
-        printf("[Map %i] We have %u tiles.                          \n", mapID, (unsigned int)tiles->size());
-        for (set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
-        {
-            uint32 tileX, tileY;
-
-            // unpack tile coords
-            StaticMapTree::unpackTileID((*it), tileX, tileY);
-
-            if (shouldSkipTile(mapID, tileX, tileY))
-                continue;
-
-            buildTile(mapID, tileX, tileY, navMesh);
-        }
-
-        dtFreeNavMesh(navMesh);
 
         printf("[Map %i] Complete!\n", mapID);
     }
