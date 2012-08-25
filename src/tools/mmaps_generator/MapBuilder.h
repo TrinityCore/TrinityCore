@@ -32,6 +32,8 @@
 #include "Recast.h"
 #include "DetourNavMesh.h"
 
+#include "ace/Task.h"
+
 using namespace std;
 using namespace VMAP;
 
@@ -80,7 +82,7 @@ namespace MMAP
             void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
 
             // builds list of maps, then builds all of mmap tiles (based on the skip settings)
-            void buildAllMaps();
+            void buildAllMaps(int threads);
 
         private:
             // detect maps and tiles
@@ -124,6 +126,22 @@ namespace MMAP
 
             // build performance - not really used for now
             rcContext* m_rcContext;
+    };
+
+    class BuilderThread : public ACE_Task<ACE_MT_SYNCH>
+    {
+    private:
+        MapBuilder* _builder;
+        uint32 _mapId;
+    public:
+        BuilderThread(MapBuilder* builder, uint32 mapId) : _builder(builder), _mapId(mapId) {}
+
+        int svc()
+        {
+            if (_builder)
+                _builder->buildMap(_mapId);
+            return 0;
+        }
     };
 }
 
