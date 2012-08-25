@@ -40,6 +40,8 @@ public:
     void AddGuild(Guild* guild);
     void RemoveGuild(uint32 guildId);
 
+    void SaveGuilds();
+
     uint32 GenerateGuildId();
     void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
 
