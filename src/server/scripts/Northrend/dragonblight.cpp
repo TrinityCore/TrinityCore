@@ -178,7 +178,7 @@ public:
 
 enum Spells
 {
-SPELL_WYRMREST_DEFENDER_MOUNT = 49256
+SPELL_CHARACTER_SCRIPT = 49213
 };
 
 class npc_wyrmrest_defender : public CreatureScript
@@ -199,7 +199,7 @@ class npc_wyrmrest_defender : public CreatureScript
                                          if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
                                          {
                                                          player->CLOSE_GOSSIP_MENU();
-                                                         player->CastSpell(creature, SPELL_WYRMREST_DEFENDER_MOUNT, true);
+                                                         player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
                                          }
                          return true;
                          }
