@@ -7598,13 +7598,9 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     {
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
         if (GetSession() && group->isLFGGroup() && sLFGMgr->IsTeleported(GetGUID()))
-        {
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
                 if (Player* member = itr->getSource())
                     GetSession()->SendNameQueryOpcode(member->GetGUID());
-            }
-        }
     }
 
     m_zoneUpdateId    = newZone;
