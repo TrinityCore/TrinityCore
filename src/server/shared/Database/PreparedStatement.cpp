@@ -445,6 +445,7 @@ bool PreparedStatementTask::Execute()
         PreparedResultSet* result = m_conn->Query(m_stmt);
         if (!result || !result->GetRowCount())
         {
+            delete result;
             m_result.set(PreparedQueryResult(NULL));
             return false;
         }
