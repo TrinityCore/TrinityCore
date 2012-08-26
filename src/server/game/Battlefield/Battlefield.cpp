@@ -133,7 +133,7 @@ bool Battlefield::Update(uint32 diff)
         m_Timer -= diff;
 
     // Invite players a few minutes before the battle's beginning
-    if (!m_StartGrouping && m_Timer <= m_StartGroupingTimer)
+    if (!IsWarTime() && !m_StartGrouping && m_Timer <= m_StartGroupingTimer)
     {
         m_StartGrouping = true;
         InvitePlayersInZoneToQueue();
