@@ -170,9 +170,48 @@ public:
     }
 };
 
+/*######
+## wyrmrest_defender
+######*/
+
+enum Spells
+{
+    SPELL_CHARACTER_SCRIPT       = 49213
+};
+
+#define GOSSIP_ITEM_1      "We need to get into the fight. Are you ready?"
+
+class npc_wyrmrest_defender : public CreatureScript
+{
+    public:
+        npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
+                        
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+                         
+            return true;
+        }
+                        
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        {
+            player->PlayerTalkClass->ClearMenus();
+            if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+                //Makes player cast trigger spell for 49207 on self
+                player->CastSpell(creature, SPELL_CHARACTER_SCRIPT, true);
+            }
+                
+            return true;
+        }
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
     new spell_q12096_q12092_dummy;
     new spell_q12096_q12092_bark;
+    new npc_wyrmrest_defender;
 }
