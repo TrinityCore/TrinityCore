@@ -194,12 +194,13 @@ namespace MMAP
                     buildMap(mapID);
             }
         }
-        // Wait for all threads to finish before closing down
-        ACE_Thread_Manager::instance()->wait();
 
         // Free memory
         for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
+        {
+            _th->wait();
             delete *_th;
+        }
     }
 
     /**************************************************************************/
