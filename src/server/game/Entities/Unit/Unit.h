@@ -2228,9 +2228,10 @@ class Unit : public WorldObject
                 SetUInt64Value(UNIT_FIELD_TARGET, 0);
         }
 
+        void SendGravityDisable();
+
         // Movement info
         Movement::MoveSpline * movespline;
-
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -2327,7 +2328,6 @@ class Unit : public WorldObject
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
 
     protected:
-        void SendGravityDisable(uint32 value);
         void SendMoveRoot(uint32 value);
         void SendMoveUnroot(uint32 value);
         void SetFeared(bool apply);

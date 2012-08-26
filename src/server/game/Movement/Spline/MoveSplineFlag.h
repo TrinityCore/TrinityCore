@@ -109,8 +109,8 @@ namespace Movement
         void EnableFacingPoint() { raw() = (raw() & ~Mask_Final_Facing) | Final_Point; }
         void EnableFacingAngle() { raw() = (raw() & ~Mask_Final_Facing) | Final_Angle; }
         void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }
-        void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
-        void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
+        void EnableTransportEnter() { raw() = (raw() & ~(TransportExit | SmoothGroundPath)) | TransportEnter; }
+        void EnableTransportExit() { raw() = (raw() & ~(TransportEnter | SmoothGroundPath)) | TransportExit; }
 
         uint8 animId             : 3;
         bool unknown0            : 1;

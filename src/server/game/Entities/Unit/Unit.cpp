@@ -14980,7 +14980,7 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
 }
 
-void Unit::SendGravityDisable(uint32 value)
+void Unit::SendGravityDisable()
 {
     Player* player = ToPlayer();
     if(!player)
@@ -15002,7 +15002,7 @@ void Unit::SendGravityDisable(uint32 value)
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[0]);
 
-    data << int32(value);
+    data << int32(++m_rootTimes);
 
     data.WriteByteSeq(guid[5]);
     data.WriteByteSeq(guid[1]);
@@ -15125,11 +15125,7 @@ void Unit::SetRooted(bool apply)
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         if (GetTypeId() == TYPEID_PLAYER)
-        {
-            SendGravityDisable(m_rootTimes);
-            m_rootTimes++;
             SendMoveRoot(m_rootTimes);
-        }
         else
         {
             ObjectGuid guid = GetGUID();
