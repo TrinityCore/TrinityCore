@@ -769,4 +769,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_misdirection_proc();
     new spell_hun_disengage();
     new spell_hun_tame_beast();
+    new spell_hun_ancient_hysteria();
 }
