@@ -19,7 +19,7 @@
 #include "Creature.h"
 #include "MapManager.h"
 #include "ConfusedMovementGenerator.h"
-#include "PathFinderMovementGenerator.h"
+#include "PathGenerator.h"
 #include "VMapFactory.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
@@ -76,7 +76,7 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 
             unit.UpdateAllowedPositionZ(x, y, z);
 
-            PathFinderMovementGenerator path(&unit);
+            PathGenerator path(&unit);
             path.setPathLengthLimit(30.0f);
             path.CalculatePath(x, y, z);
             if (path.getPathType() & PATHFIND_NOPATH)

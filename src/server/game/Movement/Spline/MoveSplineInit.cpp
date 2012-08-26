@@ -152,7 +152,7 @@ namespace Movement
     {
         if (generatePath)
         {
-            PathFinderMovementGenerator path(&unit);
+            PathGenerator path(&unit);
             path.CalculatePath(dest.x, dest.y, dest.z, forceDestination);
             MovebyPath(path.getPath());
         }

@@ -20,7 +20,7 @@
 #include "CreatureAI.h"
 #include "MapManager.h"
 #include "FleeingMovementGenerator.h"
-#include "PathFinderMovementGenerator.h"
+#include "PathGenerator.h"
 #include "ObjectAccessor.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
@@ -43,7 +43,7 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
 
     owner.AddUnitState(UNIT_STATE_FLEEING_MOVE);
 
-    PathFinderMovementGenerator path(&owner);
+    PathGenerator path(&owner);
     path.setPathLengthLimit(30.0f);
     path.CalculatePath(x, y, z);
     if (path.getPathType() & PATHFIND_NOPATH)
