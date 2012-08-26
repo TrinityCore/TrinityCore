@@ -117,7 +117,7 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FLAG_PET_MAX_POWER     = 0x00040000,       // uint16 (power value)
     GROUP_UPDATE_FLAG_PET_AURAS         = 0x00080000,       // [see GROUP_UPDATE_FLAG_AURAS]
     GROUP_UPDATE_FLAG_VEHICLE_SEAT      = 0x00100000,       // int32 (vehicle seat id)
-    GROUP_UPDATE_FLAG_PHASE             = 0x00200000,       // int32 (unk), uint32 (length), if length > 0, string (size 2*length), else cstring 
+    GROUP_UPDATE_FLAG_PHASE             = 0x00200000,       // int32 (unk), uint32 (phase count), for (count) uint16(phaseId)
 
     GROUP_UPDATE_PET = GROUP_UPDATE_FLAG_PET_GUID | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID |
                        GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_POWER_TYPE |
