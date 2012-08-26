@@ -367,8 +367,8 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     else
         setFaction(cInfo->faction_A);
 
-    uint32 npcflag, unit_flags, dynamicflags;
-    ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, dynamicflags, data);
+    uint32 npcflag, unit_flags, unit_flags2, dynamicflags;
+    ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, unit_flags2, dynamicflags, data);
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
         SetUInt32Value(UNIT_NPC_FLAGS, npcflag | sGameEventMgr->GetNPCFlag(this));
