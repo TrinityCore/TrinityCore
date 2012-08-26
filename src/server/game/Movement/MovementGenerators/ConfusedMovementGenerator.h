@@ -28,10 +28,10 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
     public:
         explicit ConfusedMovementGenerator() : i_nextMoveTime(0) {}
 
-        void Initialize(T &);
-        void Finalize(T &);
-        void Reset(T &);
-        bool Update(T &, const uint32 &);
+        void Initialize(T*);
+        void Finalize(T*);
+        void Reset(T*);
+        bool Update(T*, const uint32&);
 
         MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
     private:
