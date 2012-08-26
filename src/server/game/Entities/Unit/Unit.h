@@ -2228,6 +2228,7 @@ class Unit : public WorldObject
                 SetUInt64Value(UNIT_FIELD_TARGET, 0);
         }
 
+        void SendGravityEnable();
         void SendGravityDisable();
 
         // Movement info

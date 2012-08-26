@@ -14980,6 +14980,39 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
 }
 
+void Unit::SendGravityEnable()
+{
+    Player* player = ToPlayer();
+    if(!player)
+        return;
+
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_MOVE_GRAVITY_ENABLE, 1 + 8 + 4);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[3]);
+
+    data << int32(++m_rootTimes);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[2]);
+
+    player->GetSession()->SendPacket(&data);
+}
+
 void Unit::SendGravityDisable()
 {
     Player* player = ToPlayer();
@@ -16601,6 +16634,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     Vehicle* vehicle = m_vehicle;
     m_vehicle = NULL;
 
+    SendGravityEnable();                       // SMSG_MOVE_GRAVITY_ENABLE
     SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
     Position pos;
