@@ -471,10 +471,7 @@ class spell_pri_shadowform : public SpellScriptLoader
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTarget()->HasAura(PRIEST_GLYPH_OF_SHADOW))
-                    GetTarget()->CastSpell(GetTarget(), PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH, true);
-                else
-                    GetTarget()->CastSpell(GetTarget(), PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH, true);
+                GetTarget()->CastSpell(GetTarget(), GetTarget()->HasAura(PRIEST_GLYPH_OF_SHADOW) ? PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH : PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH, true);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
