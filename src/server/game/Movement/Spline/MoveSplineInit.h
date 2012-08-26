@@ -20,7 +20,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
-#include "PathFinderMovementGenerator.h"
+#include "PathGenerator.h"
 
 class Unit;
 
