@@ -116,6 +116,12 @@ PreparedQueryResult SQLQueryHolder::GetPreparedResult(size_t index)
 
 void SQLQueryHolder::SetResult(size_t index, ResultSet* result)
 {
+    if (result && !result->GetRowCount())
+    {
+        delete result;
+        result = NULL;
+    }
+
     /// store the result in the holder
     if (index < m_queries.size())
         m_queries[index].second.qresult = result;
@@ -123,6 +129,12 @@ void SQLQueryHolder::SetResult(size_t index, ResultSet* result)
 
 void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
 {
+    if (result && !result->GetRowCount())
+    {
+        delete result;
+        result = NULL;
+    }
+
     /// store the result in the holder
     if (index < m_queries.size())
         m_queries[index].second.presult = result;
