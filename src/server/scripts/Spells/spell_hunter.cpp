@@ -44,6 +44,14 @@ enum HunterSpells
     HUNTER_SPELL_CHIMERA_SHOT_VIPER              = 53358,
     HUNTER_SPELL_CHIMERA_SHOT_SCORPID            = 53359,
     HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET         = 61669,
+    HUNTER_SPELL_ANCIENT_HYSTERIA                = 90355,
+    
+    
+    // Required for Ancient Hysteria
+    SPELL_SHAMAN_SATED                           = 57724,
+    SPELL_MAGE_TEMPORAL_DISPLACEMENT             = 80354,
+    SPELL_SHAMAN_EXHAUSTION                      = 57723,
+    SPELL_HUNTER_INSANITY                        = 95809,
 };
 
 // 13161 Aspect of the Beast
@@ -92,6 +100,52 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_hun_aspect_of_the_beast_AuraScript();
+        }
+};
+
+// 90355 Ancient Hysteria
+class spell_hun_ancient_hysteria: public SpellScriptLoader
+{
+    public:
+        spell_hun_ancient_hysteria) : SpellScriptLoader("spell_hun_ancient_hysteria") { }
+
+        class spell_hun_ancient_hysteria_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_ancient_hysteria_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_ANCIENT_HYSTERIA))
+                    return false;
+                return true;
+            }
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_INSANITY));
+            }
+
+            void ApplyDebuff()
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(target, SHAMAN_SPELL_SATED, true);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+                AfterHit += SpellHitFn(spell_sha_bloodlust_SpellScript::ApplyDebuff);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_ancient_hysteria_SpellScript();
         }
 };
 
