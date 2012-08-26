@@ -39,6 +39,9 @@ enum PriestSpells
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT       = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING           = 2874,
     PRIEST_SHADOW_WORD_DEATH                    = 32409,
+    PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH      = 107903,
+    PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH         = 107904,
+    PRIEST_GLYPH_OF_SHADOW                      = 107906,
 };
 
 // Guardian Spirit
@@ -449,6 +452,49 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
         }
 };
 
+class spell_pri_shadowform : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadowform() : SpellScriptLoader("spell_pri_shadowform") { }
+
+        class spell_pri_shadowform_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_shadowform_AuraScript);
+
+            bool Validate(SpellInfo const* /*entry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH) ||
+                    !sSpellMgr->GetSpellInfo(PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTarget()->HasAura(PRIEST_GLYPH_OF_SHADOW))
+                    GetTarget()->CastSpell(GetTarget(), PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH, true);
+                else
+                    GetTarget()->CastSpell(GetTarget(), PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH, true);
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(GetTarget()->HasAura(PRIEST_GLYPH_OF_SHADOW) ? PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH : PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_pri_shadowform_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_shadowform_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_shadowform_AuraScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
@@ -461,4 +507,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_touch();
     new spell_priest_renew();
     new spell_pri_shadow_word_death();
+    new spell_pri_shadowform();
 }
