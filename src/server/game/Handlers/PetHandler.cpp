@@ -177,29 +177,14 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
                     break;
                 case COMMAND_ATTACK:                        //spellid=1792  //ATTACK
                 {
-                    // Can't attack if owner is pacified
-                    if (_player->HasAuraType(SPELL_AURA_MOD_PACIFY))
-                    {
-                        //pet->SendPetCastFail(spellid, SPELL_FAILED_PACIFIED);
-                        //TODO: Send proper error message to client
-                        return;
-                    }
+    				Unit* TargetUnit = ObjectAccessor::GetUnit(*_player, guid2);
 
-                    // only place where pet can be player
-                    Unit* TargetUnit = ObjectAccessor::GetUnit(*_player, guid2);
-                    if (!TargetUnit)
+					if (!TargetUnit)
                         return;
 
-                    if (Unit* owner = pet->GetOwner())
-                        if (!owner->IsValidAttackTarget(TargetUnit))
-                            return;
-
-                    // Not let attack through obstructions
-                    if (sWorld->getBoolConfig(CONFIG_PET_LOS))
-                    {
-                        if (!pet->IsWithinLOSInMap(TargetUnit))
-                            return;
-                    }
+					if (Unit* owner = pet->GetOwner())
+						if (!owner->IsValidAttackTarget(TargetUnit))
+							return;
 
                     pet->ClearUnitState(UNIT_STATE_FOLLOW);
                     // This is true if pet has no target or has target but targets differs.
