@@ -14980,6 +14980,39 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
 }
 
+void Unit::SendGravityDisable(uint32 value)
+{
+    Player* player = ToPlayer();
+    if(!player)
+        return;
+
+    ObjectGuid guid = GetGUID();
+    WorldPacket data(SMSG_MOVE_GRAVITY_DISABLE, 1 + 8 + 4);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[0]);
+
+    data << int32(value);
+
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
+
+    player->GetSession()->SendPacket(&data);
+}
+
 void Unit::SendMoveRoot(uint32 value)
 {
     ObjectGuid guid = GetGUID();
@@ -15092,7 +15125,11 @@ void Unit::SetRooted(bool apply)
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         if (GetTypeId() == TYPEID_PLAYER)
+        {
+            SendGravityDisable(m_rootTimes);
+            m_rootTimes++;
             SendMoveRoot(m_rootTimes);
+        }
         else
         {
             ObjectGuid guid = GetGUID();

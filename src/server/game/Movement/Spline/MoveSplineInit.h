@@ -142,6 +142,7 @@ namespace Movement
         /* Disables transport coordinate transformations for cases where raw offsets are available
         */
         void DisableTransportPathTransformations();
+        void DisableSmoothGroundPath();
     protected:
 
         MoveSplineInitArgs args;
@@ -195,5 +196,6 @@ namespace Movement
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
+    inline void MoveSplineInit::DisableSmoothGroundPath() { args.flags.smoothGroundPath = false; }
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H
