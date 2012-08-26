@@ -1167,6 +1167,16 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                     return spellId == 56617;
             }
             break;
+        case 57940: // Essence of Wintergrasp - Northrend
+        case 58045: // Essence of Wintergrasp - Wintergrasp
+        {
+            if (!player)
+                return false;
+            
+            if (Battlefield* battlefieldWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
+                return battlefieldWG->IsEnabled() && (player->GetTeamId() == battlefieldWG->GetDefenderTeam()) && !battlefieldWG->IsWarTime();
+            break;
+        }
     }
 
     return true;
