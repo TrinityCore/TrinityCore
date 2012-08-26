@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "PathFinderMovementGenerator.h"
+#include "PathGenerator.h"
 #include "Map.h"
 #include "Creature.h"
 #include "MMapFactory.h"
@@ -26,13 +26,13 @@
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
 
-////////////////// PathFinderMovementGenerator //////////////////
-PathFinderMovementGenerator::PathFinderMovementGenerator(const Unit* owner) :
+////////////////// PathGenerator //////////////////
+PathGenerator::PathGenerator(const Unit* owner) :
     m_polyLength(0), m_type(PATHFIND_BLANK),
     m_useStraightPath(false), m_forceDestination(false), m_pointPathLimit(MAX_POINT_PATH_LENGTH),
     m_sourceUnit(owner), m_navMesh(NULL), m_navMeshQuery(NULL)
 {
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::PathFinderMovementGenerator for %u \n", m_sourceUnit->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::PathGenerator for %u \n", m_sourceUnit->GetGUIDLow());
 
     uint32 mapId = m_sourceUnit->GetMapId();
     if (MMAP::MMapFactory::IsPathfindingEnabled(mapId))
@@ -45,12 +45,12 @@ PathFinderMovementGenerator::PathFinderMovementGenerator(const Unit* owner) :
     createFilter();
 }
 
-PathFinderMovementGenerator::~PathFinderMovementGenerator()
+PathGenerator::~PathGenerator()
 {
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::~PathFinderMovementGenerator() for %u \n", m_sourceUnit->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::~PathGenerator() for %u \n", m_sourceUnit->GetGUIDLow());
 }
 
-bool PathFinderMovementGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
+bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
 {
     if (!Trinity::IsValidMapCoord(destX, destY, destZ) ||
         !Trinity::IsValidMapCoord(m_sourceUnit->GetPositionX(), m_sourceUnit->GetPositionY(), m_sourceUnit->GetPositionZ()))
@@ -67,7 +67,7 @@ bool PathFinderMovementGenerator::CalculatePath(float destX, float destY, float 
 
     m_forceDestination = forceDest;
 
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::CalculatePath() for %u \n", m_sourceUnit->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::CalculatePath() for %u \n", m_sourceUnit->GetGUIDLow());
 
     // make sure navMesh works - we can run on map w/o mmap
     // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
@@ -88,7 +88,7 @@ bool PathFinderMovementGenerator::CalculatePath(float destX, float destY, float 
     {
         // our target is not moving - we just coming closer
         // we are moving on precalculated path - enjoy the ride
-        sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::CalculatePath:: precalculated path\n");
+        sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::CalculatePath:: precalculated path\n");
 
         m_pathPoints.erase(m_pathPoints.begin());
         return false;
@@ -101,7 +101,7 @@ bool PathFinderMovementGenerator::CalculatePath(float destX, float destY, float 
     }
 }
 
-dtPolyRef PathFinderMovementGenerator::getPathPolyByPosition(const dtPolyRef *polyPath, uint32 polyPathSize, const float* point, float *distance) const
+dtPolyRef PathGenerator::getPathPolyByPosition(const dtPolyRef *polyPath, uint32 polyPathSize, const float* point, float *distance) const
 {
     if (!polyPath || !polyPathSize)
         return INVALID_POLYREF;
@@ -134,7 +134,7 @@ dtPolyRef PathFinderMovementGenerator::getPathPolyByPosition(const dtPolyRef *po
     return (minDist2d < 3.0f) ? nearestPoly : INVALID_POLYREF;
 }
 
-dtPolyRef PathFinderMovementGenerator::getPolyByLocation(const float* point, float *distance) const
+dtPolyRef PathGenerator::getPolyByLocation(const float* point, float *distance) const
 {
     // first we check the current path
     // if the current path doesn't contain the current poly,
@@ -168,7 +168,7 @@ dtPolyRef PathFinderMovementGenerator::getPolyByLocation(const float* point, flo
     return INVALID_POLYREF;
 }
 
-void PathFinderMovementGenerator::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos)
+void PathGenerator::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos)
 {
     // *** getting start/end poly logic ***
 
@@ -416,7 +416,7 @@ void PathFinderMovementGenerator::BuildPolyPath(const Vector3 &startPos, const V
     BuildPointPath(startPoint, endPoint);
 }
 
-void PathFinderMovementGenerator::BuildPointPath(const float *startPoint, const float *endPoint)
+void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoint)
 {
     float pathPoints[MAX_POINT_PATH_LENGTH*VERTEX_SIZE];
     uint32 pointCount = 0;
@@ -451,7 +451,7 @@ void PathFinderMovementGenerator::BuildPointPath(const float *startPoint, const 
         // only happens if pass bad data to findStraightPath or navmesh is broken
         // single point paths can be generated here
         // TODO : check the exact cases
-        sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::BuildPointPath FAILED! path sized %d returned\n", pointCount);
+        sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath FAILED! path sized %d returned\n", pointCount);
         BuildShortcut();
         m_type = PATHFIND_NOPATH;
         return;
@@ -486,16 +486,16 @@ void PathFinderMovementGenerator::BuildPointPath(const float *startPoint, const 
         m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
     }
 
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::BuildPointPath path type %d size %d poly-size %d\n", m_type, pointCount, m_polyLength);
+    sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", m_type, pointCount, m_polyLength);
 }
 
-void PathFinderMovementGenerator::NormalizePath()
+void PathGenerator::NormalizePath()
 {
     for (uint32 i = 0; i < m_pathPoints.size(); ++i)
         m_sourceUnit->UpdateAllowedPositionZ(m_pathPoints[i].x, m_pathPoints[i].y, m_pathPoints[i].z);
 }
 
-void PathFinderMovementGenerator::BuildShortcut()
+void PathGenerator::BuildShortcut()
 {
     sLog->outDebug(LOG_FILTER_MAPS, "++ BuildShortcut :: making shortcut\n");
 
@@ -513,7 +513,7 @@ void PathFinderMovementGenerator::BuildShortcut()
     m_type = PATHFIND_SHORTCUT;
 }
 
-void PathFinderMovementGenerator::createFilter()
+void PathGenerator::createFilter()
 {
     uint16 includeFlags = 0;
     uint16 excludeFlags = 0;
@@ -540,7 +540,7 @@ void PathFinderMovementGenerator::createFilter()
     updateFilter();
 }
 
-void PathFinderMovementGenerator::updateFilter()
+void PathGenerator::updateFilter()
 {
     // allow creatures to cheat and use different movement types if they are moved
     // forcefully into terrain they can't normally move in
@@ -555,7 +555,7 @@ void PathFinderMovementGenerator::updateFilter()
     }
 }
 
-NavTerrain PathFinderMovementGenerator::getNavTerrain(float x, float y, float z)
+NavTerrain PathGenerator::getNavTerrain(float x, float y, float z)
 {
     LiquidData data;
     m_sourceUnit->GetBaseMap()->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &data);
@@ -574,7 +574,7 @@ NavTerrain PathFinderMovementGenerator::getNavTerrain(float x, float y, float z)
     }
 }
 
-bool PathFinderMovementGenerator::HaveTile(const Vector3 &p) const
+bool PathGenerator::HaveTile(const Vector3 &p) const
 {
     int tx, ty;
     float point[VERTEX_SIZE] = {p.y, p.z, p.x};
@@ -583,7 +583,7 @@ bool PathFinderMovementGenerator::HaveTile(const Vector3 &p) const
     return (m_navMesh->getTileAt(tx, ty) != NULL);
 }
 
-uint32 PathFinderMovementGenerator::fixupCorridor(dtPolyRef* path, uint32 npath, uint32 maxPath,
+uint32 PathGenerator::fixupCorridor(dtPolyRef* path, uint32 npath, uint32 maxPath,
                                const dtPolyRef* visited, uint32 nvisited)
 {
     int32 furthestPath = -1;
@@ -629,7 +629,7 @@ uint32 PathFinderMovementGenerator::fixupCorridor(dtPolyRef* path, uint32 npath,
     return req+size;
 }
 
-bool PathFinderMovementGenerator::getSteerTarget(const float* startPos, const float* endPos,
+bool PathGenerator::getSteerTarget(const float* startPos, const float* endPos,
                               float minTargetDist, const dtPolyRef* path, uint32 pathSize,
                               float* steerPos, unsigned char& steerPosFlag, dtPolyRef& steerPosRef)
 {
@@ -666,7 +666,7 @@ bool PathFinderMovementGenerator::getSteerTarget(const float* startPos, const fl
     return true;
 }
 
-dtStatus PathFinderMovementGenerator::findSmoothPath(const float* startPos, const float* endPos,
+dtStatus PathGenerator::findSmoothPath(const float* startPos, const float* endPos,
                                      const dtPolyRef* polyPath, uint32 polyPathSize,
                                      float* smoothPath, int* smoothPathSize, uint32 maxSmoothPathSize)
 {
@@ -788,7 +788,7 @@ dtStatus PathFinderMovementGenerator::findSmoothPath(const float* startPos, cons
     return nsmoothPath < MAX_POINT_PATH_LENGTH ? DT_SUCCESS : DT_FAILURE;
 }
 
-bool PathFinderMovementGenerator::inRangeYZX(const float* v1, const float* v2, float r, float h) const
+bool PathGenerator::inRangeYZX(const float* v1, const float* v2, float r, float h) const
 {
     const float dx = v2[0] - v1[0];
     const float dy = v2[1] - v1[1]; // elevation
@@ -796,13 +796,13 @@ bool PathFinderMovementGenerator::inRangeYZX(const float* v1, const float* v2, f
     return (dx*dx + dz*dz) < r*r && fabsf(dy) < h;
 }
 
-bool PathFinderMovementGenerator::inRange(const Vector3 &p1, const Vector3 &p2, float r, float h) const
+bool PathGenerator::inRange(const Vector3 &p1, const Vector3 &p2, float r, float h) const
 {
     Vector3 d = p1-p2;
     return (d.x*d.x + d.y*d.y) < r*r && fabsf(d.z) < h;
 }
 
-float PathFinderMovementGenerator::dist3DSqr(const Vector3 &p1, const Vector3 &p2) const
+float PathGenerator::dist3DSqr(const Vector3 &p1, const Vector3 &p2) const
 {
     return (p1-p2).squaredLength();
 }

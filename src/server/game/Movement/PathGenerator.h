@@ -51,11 +51,11 @@ enum PathType
     PATHFIND_NOT_USING_PATH = 0x0010    // used when we are either flying/swiming or on map w/o mmaps
 };
 
-class PathFinderMovementGenerator
+class PathGenerator
 {
     public:
-        PathFinderMovementGenerator(Unit const* owner);
-        ~PathFinderMovementGenerator();
+        PathGenerator(Unit const* owner);
+        ~PathGenerator();
 
         // Calculate the path from owner to given destination
         // return: true if new path was calculated, false otherwise (no change needed)

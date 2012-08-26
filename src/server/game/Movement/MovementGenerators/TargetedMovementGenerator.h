@@ -23,7 +23,7 @@
 #include "FollowerReference.h"
 #include "Timer.h"
 #include "Unit.h"
-#include "PathFinderMovementGenerator.h"
+#include "PathGenerator.h"
 
 class TargetedMovementGeneratorBase
 {
@@ -61,7 +61,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         float i_angle;
         bool i_recalculateTravel : 1;
         bool i_targetReached : 1;
-        PathFinderMovementGenerator* i_path;
+        PathGenerator* i_path;
 };
 
 template<class T>
