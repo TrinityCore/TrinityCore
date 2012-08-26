@@ -31,34 +31,34 @@
 #endif
 
 template<class T>
-void ConfusedMovementGenerator<T>::Initialize(T &unit)
+void ConfusedMovementGenerator<T>::Initialize(T* unit)
 {
-    unit.GetPosition(i_x, i_y, i_z);
-    unit.StopMoving();
-    unit.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
+    unit->GetPosition(i_x, i_y, i_z);
+    unit->StopMoving();
+    unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+    unit->AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<class T>
-void ConfusedMovementGenerator<T>::Reset(T &unit)
+void ConfusedMovementGenerator<T>::Reset(T* unit)
 {
     i_nextMoveTime.Reset(0);
-    unit.StopMoving();
-    unit.AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
+    unit->StopMoving();
+    unit->AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<class T>
-bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
+bool ConfusedMovementGenerator<T>::Update(T* unit, const uint32& diff)
 {
-    if (unit.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    if (unit->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return true;
 
     if (i_nextMoveTime.Passed())
     {
         // currently moving, update location
-        unit.AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+        unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
-        if (unit.movespline->Finalized())
+        if (unit->movespline->Finalized())
             i_nextMoveTime.Reset(urand(800, 1500));
     }
     else
@@ -68,15 +68,15 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
         if (i_nextMoveTime.Passed())
         {
             // start moving
-            unit.AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+            unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
             float x = i_x + 10.0f*((float)rand_norm() - 0.5f);
             float y = i_y + 10.0f*((float)rand_norm() - 0.5f);
             float z = i_z;
 
-            unit.UpdateAllowedPositionZ(x, y, z);
+            unit->UpdateAllowedPositionZ(x, y, z);
 
-            PathGenerator path(&unit);
+            PathGenerator path(unit);
             path.setPathLengthLimit(30.0f);
             path.CalculatePath(x, y, z);
             if (path.getPathType() & PATHFIND_NOPATH)
@@ -96,26 +96,26 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 }
 
 template<>
-void ConfusedMovementGenerator<Player>::Finalize(Player &unit)
+void ConfusedMovementGenerator<Player>::Finalize(Player* unit)
 {
-    unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
-    unit.StopMoving();
+    unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+    unit->ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
+    unit->StopMoving();
 }
 
 template<>
-void ConfusedMovementGenerator<Creature>::Finalize(Creature &unit)
+void ConfusedMovementGenerator<Creature>::Finalize(Creature* unit)
 {
-    unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
-    if (unit.getVictim())
-        unit.SetTarget(unit.getVictim()->GetGUID());
+    unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+    unit->ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
+    if (unit->getVictim())
+        unit->SetTarget(unit->getVictim()->GetGUID());
 }
 
-template void ConfusedMovementGenerator<Player>::Initialize(Player &player);
-template void ConfusedMovementGenerator<Creature>::Initialize(Creature &creature);
-template void ConfusedMovementGenerator<Player>::Reset(Player &player);
-template void ConfusedMovementGenerator<Creature>::Reset(Creature &creature);
-template bool ConfusedMovementGenerator<Player>::Update(Player &player, const uint32 &diff);
-template bool ConfusedMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff);
+template void ConfusedMovementGenerator<Player>::Initialize(Player*);
+template void ConfusedMovementGenerator<Creature>::Initialize(Creature*);
+template void ConfusedMovementGenerator<Player>::Reset(Player*);
+template void ConfusedMovementGenerator<Creature>::Reset(Creature*);
+template bool ConfusedMovementGenerator<Player>::Update(Player*, const uint32&);
+template bool ConfusedMovementGenerator<Creature>::Update(Creature*, const uint32&);
 
