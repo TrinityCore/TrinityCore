@@ -130,6 +130,7 @@ enum Spells
     SPELL_IMPALING_SPEAR            = 71443,
     SPELL_AETHER_SHIELD             = 71463,
     SPELL_HURL_SPEAR                = 71466,
+    SPELL_DIVINE_SURGE              = 71465,
 
     // Captain Arnath
     SPELL_DOMINATE_MIND             = 14515,
@@ -284,6 +285,8 @@ enum MovementPoints
 {
     POINT_LAND  = 1,
 };
+
+const Position SvalnaLandPos = {4356.71f, 2484.33f, 358.5f, 1.571f};
 
 class FrostwingVrykulSearcher
 {
@@ -772,6 +775,7 @@ class boss_sister_svalna : public CreatureScript
                 events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9000);
                 events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(40000, 50000));
                 events.ScheduleEvent(EVENT_AETHER_SHIELD, urand(100000, 110000));
+                DoCast(SPELL_DIVINE_SURGE);
             }
 
             void KilledUnit(Unit* victim)
@@ -803,8 +807,7 @@ class boss_sister_svalna : public CreatureScript
             {
                 _JustReachedHome();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetDisableGravity(false);
-                me->SetHover(false);
+                me->SetCanFly(false);
             }
 
             void DoAction(int32 const action)
@@ -817,7 +820,7 @@ class boss_sister_svalna : public CreatureScript
                     case ACTION_START_GAUNTLET:
                         me->setActive(true);
                         _isEventInProgress = true;
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
                         events.ScheduleEvent(EVENT_SVALNA_START, 25000);
                         break;
                     case ACTION_RESURRECT_CAPTAINS:
@@ -846,14 +849,16 @@ class boss_sister_svalna : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (type != EFFECT_MOTION_TYPE || id != POINT_LAND)
+                if (type != POINT_MOTION_TYPE || id != POINT_LAND)
                     return;
 
                 _isEventInProgress = false;
                 me->setActive(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
                 me->SetDisableGravity(false);
                 me->SetHover(false);
+                me->SendMovementFlagUpdate();
+                DoZoneInCombat(me, 150.0f);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
@@ -1117,7 +1122,7 @@ class npc_crok_scourgebane : public CreatureScript
                     }
                 }
 
-                if (HealthBelowPct(10))
+                if (HealthBelowPct(10) || damage >= me->GetHealth())
                 {
                     if (!_didUnderTenPercentText)
                     {
@@ -1279,8 +1284,11 @@ struct npc_argent_captainAI : public ScriptedAI
 
         void EnterEvadeMode()
         {
+            if (IsUndead)
+                me->DespawnOrUnsummon();
+
             // not yet following
-            if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE || IsUndead)
+            if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE)
             {
                 ScriptedAI::EnterEvadeMode();
                 return;
@@ -1327,6 +1335,8 @@ struct npc_argent_captainAI : public ScriptedAI
                 Talk(SAY_CAPTAIN_RESURRECTED);
                 me->UpdateEntry(newEntry, instance->GetData(DATA_TEAM_IN_INSTANCE), me->GetCreatureData());
                 DoCast(me, SPELL_UNDEATH, true);
+                me->SetReactState(REACT_AGGRESSIVE);
+                DoZoneInCombat(me, 150.0f);
             }
         }
 
@@ -1986,13 +1996,8 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                Position pos;
-                caster->GetPosition(&pos);
-                caster->GetNearPosition(pos, 5.0f, 0.0f);
-                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
-                //pos.m_positionZ += 0.05f;
-                caster->SetHomePosition(pos);
-                caster->GetMotionMaster()->MoveLand(POINT_LAND, pos);
+                caster->SetHomePosition(SvalnaLandPos);
+                caster->GetMotionMaster()->MovePoint(POINT_LAND, SvalnaLandPos);
             }
 
             void Register()

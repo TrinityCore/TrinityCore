@@ -1244,10 +1244,7 @@ class npc_kinetic_bomb : public CreatureScript
                 else if (action == ACTION_KINETIC_BOMB_JUMP)
                 {
                     if (!me->HasAura(SPELL_KINETIC_BOMB_KNOCKBACK))
-                    {
-                        me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), 0);
-                    }
+                    me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), 0);
                     _events.RescheduleEvent(EVENT_CONTINUE_FALLING, 3000);
                 }
             }
@@ -1265,7 +1262,6 @@ class npc_kinetic_bomb : public CreatureScript
                             me->DespawnOrUnsummon(5000);
                             break;
                         case EVENT_CONTINUE_FALLING:
-                            me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveCharge(_x, _y, _groundZ, me->GetSpeed(MOVE_WALK), POINT_KINETIC_BOMB_IMPACT);
                             break;
                         default:
@@ -1296,7 +1292,7 @@ class npc_dark_nucleus : public CreatureScript
         {
             npc_dark_nucleusAI(Creature* creature) : ScriptedAI(creature)
             {
-                //_lockedTarget = false;
+                _lockedTarget = false;
                 _targetAuraCheck = 0;
             }
 
@@ -1359,7 +1355,7 @@ class npc_dark_nucleus : public CreatureScript
 
         private:
             uint32 _targetAuraCheck;
-            //bool _lockedTarget;
+            bool _lockedTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const
