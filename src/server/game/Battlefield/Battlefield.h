@@ -35,7 +35,7 @@ enum BattlefieldTypes
 
 enum BattlefieldIDs
 {
-    BATTLEFIELD_BATTLEID_WG                      = 1,       // Wintergrasp battle 
+    BATTLEFIELD_BATTLEID_WG                      = 1,       // Wintergrasp battle
 };
 
 enum BattlefieldObjectiveStates
