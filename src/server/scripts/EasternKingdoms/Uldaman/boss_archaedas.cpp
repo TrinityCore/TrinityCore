@@ -95,14 +95,17 @@ class boss_archaedas : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void ActivateMinion(uint64 uiGuid, bool bFlag)
+            void ActivateMinion(uint64 uiGuid, bool flag)
             {
-                Unit* pMinion = Unit::GetUnit(*me, uiGuid);
+                Unit* minion = Unit::GetUnit(*me, uiGuid);
 
-                if (pMinion && pMinion->isAlive())
+                if (minion && minion->isAlive())
                 {
-                    DoCast(pMinion, SPELL_AWAKEN_VAULT_WALKER, bFlag);
-                    pMinion->CastSpell(pMinion, SPELL_ARCHAEDAS_AWAKEN, true);
+                    DoCast(minion, SPELL_AWAKEN_VAULT_WALKER, flag);
+                    minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
+                    minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    minion->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
+                    minion->setFaction(14);
                 }
             }
 
