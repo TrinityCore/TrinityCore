@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef __TRINITY_ACHIEVEMENTMGR_H
 #define __TRINITY_ACHIEVEMENTMGR_H
 
@@ -67,6 +68,7 @@ enum AchievementCriteriaDataType
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               22 // maximum value in AchievementCriteriaDataType enum
 class Player;
 class Unit;
+class WorldPacket;
 
 struct AchievementCriteriaData
 {
@@ -217,10 +219,6 @@ struct CompletedAchievementData
 typedef UNORDERED_MAP<uint32, CriteriaProgress> CriteriaProgressMap;
 typedef UNORDERED_MAP<uint32, CompletedAchievementData> CompletedAchievementMap;
 
-class Unit;
-class Player;
-class WorldPacket;
-
 template<class T>
 class AchievementMgr
 {
@@ -232,8 +230,8 @@ class AchievementMgr
         static void DeleteFromDB(uint32 lowguid);
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
         void SaveToDB(SQLTransaction& trans);
-        void ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 = 0, uint32 miscvalue2 = 0, bool evenIfCriteriaComplete = false);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL, Player* referencePlayer = NULL);
+        void ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, bool evenIfCriteriaComplete = false);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit const* unit = NULL, Player* referencePlayer = NULL);
         void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
         void CheckAllAchievementCriteria(Player* referencePlayer);
         void SendAllAchievementData(Player* receiver) const;
@@ -255,8 +253,12 @@ class AchievementMgr
         void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer);
         bool IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedAchievement(AchievementEntry const* entry);
-        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, Unit* unit, Player* referencePlayer);
+        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer);
         void SendPacket(WorldPacket* data) const;
+
+        bool ConditionsSatisfied(AchievementCriteriaEntry const *criteria, Player* referencePlayer) const;
+        bool RequirementsSatisfied(AchievementCriteriaEntry const *criteria, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
+        bool AdditionalRequirementsSatisfied(AchievementCriteriaEntry const* criteria, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
 
         T* _owner;
         CriteriaProgressMap m_criteriaProgress;
@@ -272,6 +274,9 @@ class AchievementGlobalMgr
         ~AchievementGlobalMgr() {}
 
     public:
+        static char const* GetCriteriaTypeString(AchievementCriteriaTypes type);
+        static char const* GetCriteriaTypeString(uint32 type);
+
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type, bool guild = false) const
         {
             return guild ? m_GuildAchievementCriteriasByType[type] : m_AchievementCriteriasByType[type];
@@ -346,6 +351,8 @@ class AchievementGlobalMgr
         void LoadCompletedAchievements();
         void LoadRewards();
         void LoadRewardLocales();
+        AchievementEntry const* GetAchievement(uint32 achievementId) const;
+        AchievementCriteriaEntry const* GetAchievementCriteria(uint32 achievementId) const;
     private:
         AchievementCriteriaDataMap m_criteriaDataMap;
 
