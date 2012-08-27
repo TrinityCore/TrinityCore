@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[31] --> Fix crash script Chat Censure.
 [30] --> Add script Chat Censure.
 [29] --> [Gundrak] Changes:
                     - Fix Drakkari Elemental.

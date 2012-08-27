@@ -40,7 +40,7 @@ void CheckMessage(Player* player, std::string& msg, uint32 lang, Player* /*recei
     std::string lower = msg;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
  
-    uint8 cheksSize = 10;
+    uint8 cheksSize = 11;
     std::string checks[cheksSize];
     checks[0] ="http://";
     checks[1] =".com";
