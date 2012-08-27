@@ -39,6 +39,12 @@ enum WGVehicles
     NPC_WG_CATAPULT                     = 27881,
 };
 
+BattlefieldWG::~BattlefieldWG()
+{
+    for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
+        delete *itr;
+}
+
 bool BattlefieldWG::SetupBattlefield()
 {
     InitStalker(BATTLEFIELD_WG_NPC_STALKER, WintergraspStalkerPos[0], WintergraspStalkerPos[1], WintergraspStalkerPos[2], WintergraspStalkerPos[3]);
@@ -538,7 +544,6 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H, 1);
                         creature->AddAura(SPELL_HORDE_FLAG, creature);
-                        creature->setFaction(WintergraspFaction[team]);
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }
@@ -555,7 +560,6 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, 1);
                         creature->AddAura(SPELL_ALLIANCE_FLAG, creature);
-                        creature->setFaction(WintergraspFaction[team]);
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }

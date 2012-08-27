@@ -119,8 +119,6 @@ class npc_wg_demolisher_engineer : public CreatureScript
             if (creature->isQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
-            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
-
             if (canBuild(creature))
             {
                 if (player->HasAura(SPELL_CORPORAL))
@@ -142,8 +140,6 @@ class npc_wg_demolisher_engineer : public CreatureScript
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
             player->CLOSE_GOSSIP_MENU();
-
-            Battlefield* wintergrasp= sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
 
             if (canBuild(creature))
             {
@@ -169,9 +165,9 @@ class npc_wg_demolisher_engineer : public CreatureScript
         bool canBuild(Creature* creature)
         {
             Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
-
             if (!wintergrasp)
                 return false;
+
             switch (creature->GetEntry())
             {
                 case NPC_GOBLIN_MECHANIC:
@@ -207,7 +203,7 @@ class npc_wg_spirit_guide : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* /*creature*/ , uint32 /*sender */ , uint32 action)
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
         {
             player->CLOSE_GOSSIP_MENU();
 
@@ -324,7 +320,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
               uint32 _checkTimer;
         };
 
-        GameObjectAI* GetGameObjectAI(GameObject* go) const
+        GameObjectAI* GetAI(GameObject* go) const
         {
             return new go_wg_vehicle_teleporterAI(go);
         }
