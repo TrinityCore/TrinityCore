@@ -198,7 +198,7 @@ namespace MMAP
         // Free memory
         for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
         {
-            _th->wait();
+            (*_th)->wait();
             delete *_th;
         }
     }
