@@ -29,7 +29,7 @@
 uint32 const VehNumWorldState[2]        = { 3680, 3490 };
 uint32 const MaxVehNumWorldState[2]     = { 3681, 3491 };
 uint32 const ClockWorldState[2]         = { 3781, 4354 };
-uint32 const WintergraspFaction[3]      = { 1, 2, 35 };
+uint32 const WintergraspFaction[3]      = { 1732, 1735, 35 };
 float const WintergraspStalkerPos[4]    = { 0, 0, 0, 0 };
 
 class BattlefieldWG;
@@ -273,6 +273,7 @@ class WintergraspCapturePoint : public BfCapturePoint
 class BattlefieldWG : public Battlefield
 {
     public:
+        ~BattlefieldWG();
         /**
          * \brief Called when the battle start
          * - Spawn relic and turret
@@ -539,6 +540,10 @@ enum WintergraspGameObject
     GO_WINTERGRASP_SHADOWSIGHT_TOWER             = 190356,
     GO_WINTERGRASP_WINTER_S_EDGE_TOWER           = 190357,
     GO_WINTERGRASP_FLAMEWATCH_TOWER              = 190358,
+
+    GO_WINTERGRASP_FORTRESS_GATE                 = 190375,
+    GO_WINTERGRASP_VAULT_GATE                    = 191810,
+
 };
 
 struct WintergraspObjectPositionData
@@ -609,10 +614,10 @@ const WintergraspBuildingSpawnData WGGameObjectBuilding[WG_MAX_OBJ] =
     { 190358, 3706, 4459.1f, 1944.33f, 434.991f, -2.00276f, BATTLEFIELD_WG_OBJECTTYPE_TOWER, BATTLEFIELD_WG_TEXT_TOWER_NAME_E },
 
     // Door of forteress (Not spawned in db)
-    { 190375, 3763, 5162.99f, 2841.23f, 410.162f, -3.13286f, BATTLEFIELD_WG_OBJECTTYPE_DOOR, 0 },
+    { GO_WINTERGRASP_FORTRESS_GATE, 3763, 5162.99f, 2841.23f, 410.162f, -3.13286f, BATTLEFIELD_WG_OBJECTTYPE_DOOR, 0 },
 
     // Last door (Not spawned in db)
-    { 191810, 3773, 5397.11f, 2841.54f, 425.899f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST, 0 },
+    { GO_WINTERGRASP_VAULT_GATE, 3773, 5397.11f, 2841.54f, 425.899f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST, 0 },
 };
 
 
@@ -1473,17 +1478,17 @@ struct BfWGGameObjectBuilding
 
                         switch (m_Build->GetEntry())
                         {
-                        case 190221:
-                        case 190373:
-                        case 190377:
-                        case 190378:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_4:
                             {
                                 creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
                                 break;
                             }
-                        case 190356:
-                        case 190357:
-                        case 190358:
+                            case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                            case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                            case GO_WINTERGRASP_FLAMEWATCH_TOWER:
                             {
                                 creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
                                 break;
@@ -1509,17 +1514,17 @@ struct BfWGGameObjectBuilding
 
                         switch (m_Build->GetEntry())
                         {
-                        case 190221:
-                        case 190373:
-                        case 190377:
-                        case 190378:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                            case GO_WINTERGRASP_FORTRESS_TOWER_4:
                             {
                                 creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
                                 break;
                             }
-                        case 190356:
-                        case 190357:
-                        case 190358:
+                            case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                            case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                            case GO_WINTERGRASP_FLAMEWATCH_TOWER:
                             {
                                 creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
                                 break;
