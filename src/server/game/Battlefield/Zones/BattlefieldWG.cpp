@@ -176,10 +176,10 @@ bool BattlefieldWG::SetupBattlefield()
     for (uint8 i = 0; i < WG_MAX_OBJ; i++)
     {
         GameObject* go = SpawnGameObject(WGGameObjectBuilding[i].entry, WGGameObjectBuilding[i].x, WGGameObjectBuilding[i].y, WGGameObjectBuilding[i].z, WGGameObjectBuilding[i].o);
-        if (!m_IsEnabled && go->GetGOData()->id == GO_WINTERGRASP_VAULT_GATE)
-            go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
         BfWGGameObjectBuilding* b = new BfWGGameObjectBuilding(this);
         b->Init(go, WGGameObjectBuilding[i].type, WGGameObjectBuilding[i].WorldState, WGGameObjectBuilding[i].nameId);
+        if (!m_IsEnabled && go->GetGOData()->id == GO_WINTERGRASP_VAULT_GATE)
+            go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
         BuildingsInZone.insert(b);
     }
 
