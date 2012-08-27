@@ -1261,7 +1261,7 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(caster, SPELL_SUMMON_WYRMREST_DEFENDER, true);
+                GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WYRMREST_DEFENDER, true);
             }
 
             void Register()
