@@ -44,6 +44,12 @@ typedef std::set<WGWorkshop*> Workshop;
 typedef std::set<Group*> GroupSet;
 //typedef std::set<WintergraspCapturePoint *> CapturePointSet; unused ?
 
+enum WintergrastData
+{
+    BATTLEFIELD_WG_ZONEID                        = 4197,             // Wintergrasp
+    BATTLEFIELD_WG_MAPID                         = 571,              // Northrend
+};
+
 enum WintergraspSpells
 {
     // Wartime auras
@@ -435,7 +441,6 @@ class BattlefieldWG : public Battlefield
         GameObject* m_titansRelic;
 };
 
-uint32 const NORTHREND_WINTERGRASP  = 4197;
 uint8 const WG_MAX_OBJ              = 32;
 uint8 const WG_KEEPGAMEOBJECT_MAX   = 44;
 uint8 const WG_MAX_TURRET           = 15;
@@ -540,6 +545,12 @@ enum WintergraspGameObject
     GO_WINTERGRASP_SHADOWSIGHT_TOWER             = 190356,
     GO_WINTERGRASP_WINTER_S_EDGE_TOWER           = 190357,
     GO_WINTERGRASP_FLAMEWATCH_TOWER              = 190358,
+
+    GO_WINTERGRASP_FORTRESS_GATE                 = 190375,
+    GO_WINTERGRASP_VAULT_GATE                    = 191810,
+
+    GO_WINTERGRASP_KEEP_COLLISION_WALL           = 194323,
+
 };
 
 struct WintergraspObjectPositionData
@@ -610,10 +621,10 @@ const WintergraspBuildingSpawnData WGGameObjectBuilding[WG_MAX_OBJ] =
     { 190358, 3706, 4459.1f, 1944.33f, 434.991f, -2.00276f, BATTLEFIELD_WG_OBJECTTYPE_TOWER, BATTLEFIELD_WG_TEXT_TOWER_NAME_E },
 
     // Door of forteress (Not spawned in db)
-    { 190375, 3763, 5162.99f, 2841.23f, 410.162f, -3.13286f, BATTLEFIELD_WG_OBJECTTYPE_DOOR, 0 },
+    { GO_WINTERGRASP_FORTRESS_GATE, 3763, 5162.99f, 2841.23f, 410.162f, -3.13286f, BATTLEFIELD_WG_OBJECTTYPE_DOOR, 0 },
 
     // Last door (Not spawned in db)
-    { 191810, 3773, 5397.11f, 2841.54f, 425.899f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST, 0 },
+    { GO_WINTERGRASP_VAULT_GATE, 3773, 5397.11f, 2841.54f, 425.899f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST, 0 },
 };
 
 
@@ -1196,6 +1207,9 @@ struct BfWGGameObjectBuilding
         if (m_Build->IsDestructibleBuilding())
         {
             m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+            if (m_Build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
+                if (GameObject* go = m_Build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 10.0f))
+                    go->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
 
             // Update worldstate
             m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
@@ -1251,6 +1265,8 @@ struct BfWGGameObjectBuilding
                 m_WG->UpdatedDestroyedTowerCount(TeamId(m_Team));
                 break;
             case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
+                if (GameObject* go = m_Build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 10.0f))
+                    go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                 m_WG->SetRelicInteractible(true);
                 if (m_WG->GetRelic())
                     m_WG->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
@@ -1404,7 +1420,7 @@ struct BfWGGameObjectBuilding
             {
                 Position towerCannonPos;
                 TowerCannon[towerid].TurretTop[i].GetPosition(&towerCannonPos);
-                if (Creature *turret = m_WG->SpawnCreature(28366, towerCannonPos, TeamId(0)))
+                if (Creature* turret = m_WG->SpawnCreature(28366, towerCannonPos, TeamId(0)))
                 {
                     m_TurretTopList.insert(turret->GetGUID());
                     switch (go->GetEntry())
@@ -1644,9 +1660,9 @@ struct WintergraspWorkshopData
     // Spawning Associate gameobject and store them
     void AddGameObject(WintergraspObjectPositionData obj)
     {
-        if (GameObject *gameobject = m_WG->SpawnGameObject(obj.entryHorde, obj.x, obj.y, obj.z, obj.o))
+        if (GameObject* gameobject = m_WG->SpawnGameObject(obj.entryHorde, obj.x, obj.y, obj.z, obj.o))
             m_GameObjectOnPoint[TEAM_HORDE].insert(gameobject);
-        if (GameObject *gameobject = m_WG->SpawnGameObject(obj.entryAlliance, obj.x, obj.y, obj.z, obj.o))
+        if (GameObject* gameobject = m_WG->SpawnGameObject(obj.entryAlliance, obj.x, obj.y, obj.z, obj.o))
             m_GameObjectOnPoint[TEAM_ALLIANCE].insert(gameobject);
     }
 

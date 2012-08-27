@@ -1261,9 +1261,9 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Player* caster = GetCaster()->ToPlayer();
-                caster->CastSpell(caster, SPELL_SUMMON_WYRMREST_DEFENDER, true);
+                GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WYRMREST_DEFENDER, true);
             }
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12372_cast_from_gossip_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
