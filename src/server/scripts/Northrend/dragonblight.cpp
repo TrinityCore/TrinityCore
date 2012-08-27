@@ -185,15 +185,15 @@ class npc_wyrmrest_defender : public CreatureScript
 {
     public:
         npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
-                        
+
         bool OnGossipHello(Player* player, Creature* creature)
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                         
+
             return true;
         }
-                        
+
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
         {
             player->PlayerTalkClass->ClearMenus();
@@ -203,7 +203,7 @@ class npc_wyrmrest_defender : public CreatureScript
                 //Makes player cast trigger spell for 49207 on self
                 player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
             }
-                
+
             return true;
         }
 };
