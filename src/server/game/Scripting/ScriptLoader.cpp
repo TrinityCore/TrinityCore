@@ -28,6 +28,8 @@ void AddSC_example_commandscript();
 void AddSC_npc_hunterpetvendor();
 //Transmogrification
 void AddSC_NPC_Transmogrify();
+//Chat Censure
+void AddSC_System_Censure();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1283,6 +1285,8 @@ void AddCustomScripts()
     AddSC_npc_hunterpetvendor();
     //Transmogrification
     AddSC_NPC_Transmogrify();
+    //Chat Censure
+    AddSC_System_Censure();
 
 #endif
 }

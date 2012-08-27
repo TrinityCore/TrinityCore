@@ -9,6 +9,7 @@
 #                                                                                          #
 ############################################################################################
 
+[30] --> Add script Chat Censure.
 [29] --> [Gundrak] Changes:
                     - Fix Drakkari Elemental.
                    by Thainification.
