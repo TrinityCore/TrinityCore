@@ -260,14 +260,9 @@ void Log::ReadLoggersFromConfig()
     }
     while (ss);
 
-    LoggerMap::const_iterator it = loggers.begin();
-
-    while (it != loggers.end() && it->first)
-      ++it;
-
     // root logger must exist. Marking as disabled as its not configured
-    if (it == loggers.end())
-        loggers[0].Create("root", LOG_FILTER_GENERAL, LOG_LEVEL_DISABLED);
+    if (loggers.find(LOG_FILTER_GENERAL) == loggers.end())
+        loggers[LOG_FILTER_GENERAL].Create("root", LOG_FILTER_GENERAL, LOG_LEVEL_DISABLED);
 }
 
 void Log::EnableDBAppenders()
@@ -349,10 +344,7 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
 
 bool Log::ShouldLog(LogFilterType type, LogLevel level) const
 {
-    LoggerMap::const_iterator it = loggers.begin();
-    while (it != loggers.end() && it->second.getType() != type)
-        ++it;
-
+    LoggerMap::const_iterator it = loggers.find(type);
     if (it != loggers.end())
     {
         LogLevel loggerLevel = it->second.getLogLevel();
