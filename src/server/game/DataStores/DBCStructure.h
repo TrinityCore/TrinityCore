@@ -67,8 +67,8 @@ struct AchievementCategoryEntry
 struct AchievementCriteriaEntry
 {
     uint32  ID;                                             // 0
-    uint32  referredAchievement;                            // 1
-    uint32  requiredType;                                   // 2
+    uint32  achievement;                                    // 1
+    uint32  type;                                           // 2
     union
     {
         // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE          = 0
