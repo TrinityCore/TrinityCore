@@ -1200,6 +1200,9 @@ struct BfWGGameObjectBuilding
         if (m_Build->IsDestructibleBuilding())
         {
             m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+            if (m_Build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
+                if (GameObject * go = m_Build->FindNearestGameObject(194323, 10.0f))
+                    go->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
 
             // Update worldstate
             m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
@@ -1255,6 +1258,8 @@ struct BfWGGameObjectBuilding
                 m_WG->UpdatedDestroyedTowerCount(TeamId(m_Team));
                 break;
             case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
+                if (GameObject* go = m_Build->FindNearestGameObject(194323, 10.0f))
+                    go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                 m_WG->SetRelicInteractible(true);
                 if (m_WG->GetRelic())
                     m_WG->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
