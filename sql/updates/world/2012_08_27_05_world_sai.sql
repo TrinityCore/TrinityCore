@@ -51,6 +51,6 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (@NPC_SALRAND,1,0,'Who dares interrupt my work!? Show yourself, coward!',14,0,100,0,0,0,'Inquisitor Salrand to Beryl Point InvisMan'),
 (@NPC_SALRAND,2,0,'I''ve destroyed the key! Your cherished archmage belongs to Malygos!',12,0,100,0,0,0,'Inquisitor Salrand');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=@SPELL_DETONATOR;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=@SPELL_THROW_DETONATOR;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(13,1,@SPELL_DETONATOR,0,0,31,0,3,@NPC_BERYL_INVISMAN,0,0,0,'','Throw Beryl Shield Detonator target npc');
+(13,1,@SPELL_THROW_DETONATOR,0,0,31,0,3,@NPC_BERYL_INVISMAN,0,0,0,'','Throw Beryl Shield Detonator target npc');
