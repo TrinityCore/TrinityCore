@@ -9,6 +9,9 @@
 #                                                                                          #
 ############################################################################################
 
+[29] --> [Gundrak] Changes:
+                    - Fix Drakkari Elemental.
+                   by Thainification.
 [28] --> [ICC] Changes:
                 - Dark nucleus lose aggro without a reason.
                 - Svalna & Crok: add spell Divine Surge, try to fix position problem, misc...
