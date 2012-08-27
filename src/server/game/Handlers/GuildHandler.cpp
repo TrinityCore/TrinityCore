@@ -397,7 +397,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_EVENT_LOG_QUERY)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_EVENT_LOG_QUERY)");
 
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SendEventLog(this);
@@ -613,7 +613,7 @@ void WorldSession::HandleGuildBankLogQuery(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_BANK_LOG_QUERY)");
 
-    uint8 tabId;
+    uint32 tabId;
     recvData >> tabId;
 
     if (Guild* guild = _GetPlayerGuild(this))
@@ -622,7 +622,7 @@ void WorldSession::HandleGuildBankLogQuery(WorldPacket & recvData)
 
 void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_QUERY_GUILD_BANK_TEXT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_QUERY_TEXT");
 
     uint8 tabId;
     recvData >> tabId;
@@ -635,11 +635,11 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_GUILD_BANK_TEXT");
 
-    uint8 tabId;
+    uint32 tabId;
     recvData >> tabId;
 
-    std::string text;
-    recvData >> text;
+    uint32 textLen = recvData.ReadBits(14);
+    std::string text = recvData.ReadString(textLen);
 
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SetBankTabText(tabId, text);
