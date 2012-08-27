@@ -754,16 +754,14 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
         {
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
-            if (!itemTemplate) continue;
+            if (!itemTemplate)
+                continue;
 
+            uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
             if (!_player->isGameMaster()) // ignore conditions if GM on
             {
                 // Respect allowed class
-                if (!(itemTemplate->AllowableClass & _player->getClassMask()))
-                    continue;
-
-                // Do not sell BOP items
-                if (itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
                     continue;
 
                 // Only display items in vendor lists for the team the player is on
@@ -772,13 +770,11 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
                     continue;
 
                 // Items sold out are not displayed in list
-                uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
                 if (leftInStock == 0)
                     continue;
             }
 
             int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
-            uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
 
             itemsData << uint32(count++ + 1);        // client expects counting to start at 1
             itemsData << uint32(itemTemplate->MaxDurability);
@@ -803,10 +799,11 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
         {
             CurrencyTypesEntry const* currencyTemplate = sCurrencyTypesStore.LookupEntry(vendorItem->item);
+            if (!currencyTemplate)
+                continue;
 
-            if (!currencyTemplate) continue;
-
-            if (vendorItem->ExtendedCost == 0) continue; // there's no price defined for currencies, only extendedcost is used
+            if (vendorItem->ExtendedCost == 0)
+                continue; // there's no price defined for currencies, only extendedcost is used
 
             uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
 
@@ -820,6 +817,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             }
             else
                 enablers.push_back(1);
+
             enablers.push_back(1);                    // unk bit
 
             itemsData << uint32(vendorItem->item);
@@ -833,40 +831,40 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         // else error
     }
 
-    uint8* guidBytes = (uint8*)&vendorGuid;
+    ObjectGuid guid = vendorGuid;
 
     WorldPacket data(SMSG_LIST_INVENTORY, 12 + itemsData.size());
 
-    data.WriteBit(guidBytes[1]);
-    data.WriteBit(guidBytes[0]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[0]);
 
     data.WriteBits(count, 21); // item count
 
-    data.WriteBit(guidBytes[3]);
-    data.WriteBit(guidBytes[6]);
-    data.WriteBit(guidBytes[5]);
-    data.WriteBit(guidBytes[2]);
-    data.WriteBit(guidBytes[7]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[7]);
 
     for (std::vector<bool>::const_iterator itr = enablers.begin(); itr != enablers.end(); ++itr)
         data.WriteBit(*itr);
 
-    data.WriteBit(guidBytes[4]);
+    data.WriteBit(guid[4]);
 
     data.FlushBits();
     data.append(itemsData);
 
-    data.WriteByteSeq(guidBytes[5]);
-    data.WriteByteSeq(guidBytes[4]);
-    data.WriteByteSeq(guidBytes[1]);
-    data.WriteByteSeq(guidBytes[0]);
-    data.WriteByteSeq(guidBytes[6]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[6]);
 
     data << uint8(count == 0); // unk byte, item count 0: 1, item count != 0: 0 or some "random" value below 300
 
-    data.WriteByteSeq(guidBytes[2]);
-    data.WriteByteSeq(guidBytes[3]);
-    data.WriteByteSeq(guidBytes[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[7]);
 
     SendPacket(&data);
 }
