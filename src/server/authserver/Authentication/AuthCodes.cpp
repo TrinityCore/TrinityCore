@@ -16,6 +16,7 @@
  */
 
 #include "AuthCodes.h"
+#include <cstddef>
 
 namespace AuthHelper
 {

@@ -15127,8 +15127,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     }
 
     // honor reward
-    if (uint32 honor = quest->CalculateHonorGain(getLevel()))
-        RewardHonor(NULL, 0, honor);
+    if (quest->GetRewHonorAddition())
+        ModifyHonorPoints(quest->GetRewHonorAddition());
+    if (quest->GetRewHonorMultiplier())
+        ModifyHonorPoints(Trinity::Honor::hk_honor_at_level(getLevel(), quest->GetRewHonorMultiplier()));
 
     // title reward
     if (quest->GetCharTitleId())
