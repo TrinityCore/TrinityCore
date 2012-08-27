@@ -79,16 +79,16 @@ public:
 
 enum StrengthenAncientsMisc
 {
-    SAY_WALKER_FRIENDLY = 0,
-    SAY_WALKER_ENEMY = 1,
-    SAY_LOTHALOR = 0,
+    SAY_WALKER_FRIENDLY         = 0,
+    SAY_WALKER_ENEMY            = 1,
+    SAY_LOTHALOR                = 0,
 
-    SPELL_CREATE_ITEM_BARK = 47550,
-    SPELL_CONFUSED = 47044,
+    SPELL_CREATE_ITEM_BARK      = 47550,
+    SPELL_CONFUSED              = 47044,
 
-    NPC_LOTHALOR = 26321,
+    NPC_LOTHALOR                = 26321,
 
-    FACTION_WALKER_ENEMY = 14,
+    FACTION_WALKER_ENEMY        = 14,
 };
 
 class spell_q12096_q12092_dummy : public SpellScriptLoader // Strengthen the Ancients: On Interact Dummy to Woodlands Walker
@@ -185,25 +185,25 @@ class npc_wyrmrest_defender : public CreatureScript
 {
     public:
         npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
-                        
+
         bool OnGossipHello(Player* player, Creature* creature)
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-                         
+
             return true;
         }
-                        
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
-            if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            if (action == GOSSIP_ACTION_INFO_DEF+1)
             {
                 player->CLOSE_GOSSIP_MENU();
-                //Makes player cast trigger spell for 49207 on self
+                // Makes player cast trigger spell for 49207 on self
                 player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
             }
-                
+
             return true;
         }
 };

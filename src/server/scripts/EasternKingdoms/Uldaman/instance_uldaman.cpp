@@ -202,6 +202,9 @@ class instance_uldaman : public InstanceMapScript
                         continue;
                     archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
                     target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN, true);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    target->setFaction(14);
                     return;        // only want the first one we find
                 }
             }
