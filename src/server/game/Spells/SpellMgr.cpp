@@ -1160,7 +1160,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
 
                 // team that controls the workshop in the specified area
                 uint32 team = bf->GetData(newArea);
-                
+
                 if (team == TEAM_HORDE)
                     return spellId == 56618;
                 else if (team == TEAM_ALLIANCE)
@@ -1172,7 +1172,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
         {
             if (!player)
                 return false;
-            
+
             if (Battlefield* battlefieldWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
                 return battlefieldWG->IsEnabled() && (player->GetTeamId() == battlefieldWG->GetDefenderTeam()) && !battlefieldWG->IsWarTime();
             break;
