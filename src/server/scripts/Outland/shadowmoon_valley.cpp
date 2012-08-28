@@ -1868,6 +1868,104 @@ public:
     };
 };
 
+enum eIWasALotOfThings
+{
+    SPELL_WHISTLE               = 36652,
+    NPC_BOAR_ENTRY              = 21195,
+    GO_SHADOWMOON_TUBER_MOUND   = 184701,
+    GO_SHADOWMOON_TUBER         = 184691,
+    POINT_TUBER                 = 1,
+    TYPE_BOAR                   = 1,
+    DATA_BOAR                   = 1
+};
+class npc_shadowmoon_tuber_node : public CreatureScript
+{
+public:
+    npc_shadowmoon_tuber_node() : CreatureScript("npc_shadowmoon_tuber_node") {}
+
+    struct npc_shadowmoon_tuber_nodeAI : public ScriptedAI
+    {
+        npc_shadowmoon_tuber_nodeAI(Creature* creature) : ScriptedAI(creature) {}
+
+        bool tapped;
+        uint64 chestGUID;
+        uint64 tuberGUID;
+        uint32 resetTimer;
+
+        void Reset()
+        {
+            tapped = false;
+            chestGUID = 0;
+            tuberGUID = 0;
+            resetTimer = 30000;
+        }
+
+        void SetData(uint32 id, uint32 data)
+        {
+            if (id == TYPE_BOAR && data == DATA_BOAR)
+            {
+                if (GameObject* chest = me->SummonGameObject(GO_SHADOWMOON_TUBER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                {
+                    chestGUID = chest->GetGUID();
+                    chest->SetOwnerGUID(me->GetGUID());
+                }
+
+                if (GameObject* tuber = me->FindNearestGameObject(GO_SHADOWMOON_TUBER_MOUND, 5.0f))
+                {
+                    tuberGUID = tuber->GetGUID();
+                    tuber->SetPhaseMask(2, true);
+                }
+            }
+        }
+        void SpellHit(Unit* caster, const SpellInfo* spell)
+        {
+            if (!caster)
+                return;
+            if (!tapped && spell->Id == SPELL_WHISTLE)
+            {
+                if (Creature* boar = me->FindNearestCreature(NPC_BOAR_ENTRY, 30.0f))
+                {
+                    tapped = true;
+                    boar->SetWalk(false);
+                    boar->GetMotionMaster()->MovePoint(POINT_TUBER,me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (tapped)
+            {
+                if (resetTimer <= diff)
+                {
+                    if (chestGUID)
+                    {
+                        if (GameObject* chest = GameObject::GetGameObject(*me, chestGUID))
+                        {
+                            chest->Delete();
+                        }
+                    }
+                    if (tuberGUID)
+                    {
+                        if (GameObject* tuber = GameObject::GetGameObject(*me, tuberGUID))
+                        {
+                            tuber->SetPhaseMask(1, true);
+                        }
+                    }
+                    Reset();
+                }
+                else
+                    resetTimer -= diff;
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_shadowmoon_tuber_nodeAI(creature);
+    }
+};
+
 /*#####
 #
 ######*/
@@ -1889,4 +1987,5 @@ void AddSC_shadowmoon_valley()
     new mob_illidari_spawn();
     new mob_torloth_the_magnificent();
     new npc_enraged_spirit();
+	new npc_shadowmoon_tuber_node();
 }
