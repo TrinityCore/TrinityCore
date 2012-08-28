@@ -1304,12 +1304,12 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
              {
                  OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
              }
-     };
+         };
 
-     SpellScript* GetSpellScript() const
-     {
+         SpellScript* GetSpellScript() const
+         {
          return new spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript();
-     }
+         }
 };
 
 void AddSC_quest_spell_scripts()
