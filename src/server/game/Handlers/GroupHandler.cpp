@@ -988,7 +988,11 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
             {
                 AuraApplication const* aurApp = player->GetVisibleAura(i);
                 if (!aurApp)
-                    continue; // mhmm...
+                {
+                    *data << uint32(0);
+                    *data << uint16(0);
+                    continue;
+                }
 
                 *data << uint32(aurApp->GetBase()->GetId());
                 *data << uint16(aurApp->GetFlags());
@@ -1092,7 +1096,11 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                 {
                     AuraApplication const* aurApp = pet->GetVisibleAura(i);
                     if (!aurApp)
-                        continue; // mhmm...
+                    {
+                        *data << uint32(0);
+                        *data << uint16(0);
+                        continue;
+                    }
 
                     *data << uint32(aurApp->GetBase()->GetId());
                     *data << uint16(aurApp->GetFlags());
@@ -1170,18 +1178,17 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     data << (uint16) player->GetPositionY();                // GROUP_UPDATE_FLAG_POSITION
     data << (uint16) player->GetPositionZ();                // GROUP_UPDATE_FLAG_POSITION
 
-    uint64 auramask = 0;
-    size_t maskPos = data.wpos();
+    // GROUP_UPDATE_FLAG_AURAS
     data << (uint8)  1;
+    uint64 auramask = 0;
     data << (uint64) auramask;                          // placeholder
+    size_t maskPos = data.wpos();
     data << (uint32) MAX_AURAS;                         // count
     for (uint8 i = 0; i < MAX_AURAS; ++i)
     {
-        if (auramask & (uint64(1) << i))
+        if (AuraApplication const* aurApp = player->GetVisibleAura(i))
         {
-            AuraApplication const* aurApp = player->GetVisibleAura(i);
-            if (!aurApp)
-                continue; // mhmm...
+            auramask |= (uint64(1) << i);
 
             data << uint32(aurApp->GetBase()->GetId());
             data << uint16(aurApp->GetFlags());
@@ -1212,18 +1219,17 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
         data << (uint16) pet->GetPower(petpowertype);       // GROUP_UPDATE_FLAG_PET_CUR_POWER
         data << (uint16) pet->GetMaxPower(petpowertype);    // GROUP_UPDATE_FLAG_PET_MAX_POWER
 
-        uint64 petauramask = 0;
-        size_t petMaskPos = data.wpos();
+        // GROUP_UPDATE_FLAG_PET_AURAS
         data << (uint8)  1;
+        uint64 petauramask = 0;
         data << (uint64) petauramask;                       // placeholder
+        size_t petMaskPos = data.wpos();
         data << (uint32) MAX_AURAS;                         // count
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
-            if (auramask & (uint64(1) << i))
+            if (AuraApplication const* aurApp = pet->GetVisibleAura(i);)
             {
-                AuraApplication const* aurApp = pet->GetVisibleAura(i);
-                if (!aurApp)
-                    continue; // mhmm...
+                petauramask |= (uint64(1) << i);
 
                 data << uint32(aurApp->GetBase()->GetId());
                 data << uint16(aurApp->GetFlags());
