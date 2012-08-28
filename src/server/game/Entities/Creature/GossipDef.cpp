@@ -417,8 +417,8 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << int32(quest->GetRewSpellCast());                // casted spell
 
     // rewarded honor points
-    data << Trinity::Honor::hk_honor_at_level(_session->GetPlayer()->getLevel(), quest->GetRewHonorMultiplier());
-    data << float(0);                                       // new reward honor (multipled by ~62 at client side)
+    data << uint32(quest->GetRewHonorAddition());
+    data << float(quest->GetRewHonorMultiplier());
     data << uint32(quest->GetSrcItemId());                  // source item id
     data << uint32(quest->GetFlags() & 0xFFFF);             // quest flags
     data << uint32(quest->GetMinimapTargetMark());          // minimap target mark (skull, etc. missing enum)
