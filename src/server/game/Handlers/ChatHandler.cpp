@@ -132,7 +132,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
     else
     {
         // send in universal language if player in .gmon mode (ignore spell effects)
-        if (sender->isGameMaster())
+        // and allow players interact in chat on specific area
+        if (sender->isGameMaster() || sender->GetAreaId() == sWorld->getIntConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT_AREA))
             lang = LANG_UNIVERSAL;
         else
         {

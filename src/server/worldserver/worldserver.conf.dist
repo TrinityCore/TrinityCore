@@ -2993,3 +2993,15 @@ ExternalMailInterval = 1
 ###################################################################################################################
 
 Armory.Enable = 1
+
+###################################################################################################################
+# Allow Two Side Interaction Chat!
+#
+#      AllowTwoSide.Interaction.Chat.Area
+#              Description: Allow say chat between factions on specific area.
+#              Default:         -1 - (Disabled)
+#              Astranaar:      415 - (Enable location Astranaar)
+#
+###################################################################################################################
+
+AllowTwoSide.Interaction.Chat.Area = 415

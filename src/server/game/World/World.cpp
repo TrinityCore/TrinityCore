@@ -1230,6 +1230,9 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ARMORY_ENABLE] = ConfigMgr::GetBoolDefault("Armory.Enable", true);
     /** World of Warcraft Armory **/
 
+    //Allow Two Side Interaction Chat
+    m_int_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT_AREA] = ConfigMgr::GetIntDefault("AllowTwoSide.Interaction.Chat.Area", -1);
+
     // call ScriptMgr if we're reloading the configuration
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = ConfigMgr::GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMax", 100);
