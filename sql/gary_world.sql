@@ -96,6 +96,7 @@ INSERT INTO spell_bonus_data (entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_b
    UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3970; -- Llana (80)
    UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3845; -- Sindrell Swiftfire (80)
    UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 4267; -- Daelyshia (80)
+   UPDATE creature_template SET faction_A = 35, faction_H = 35 WHERE entry = 3892;
    UPDATE gameobject_template SET faction = 0 WHERE entry = 142117; -- Astranaar mailbox
 
 -- Transmogrification.
