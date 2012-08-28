@@ -43,6 +43,9 @@ enum KelsethEncounter
     NPC_FROSTTOMB                            = 23965,
     NPC_SKELETON                             = 23970,
 
+    NPC_RUNEMAGE                             = 23960,
+    NPC_STRATEGIST                           = 23956,
+
     SAY_START_COMBAT = 1,
     SAY_SUMMON_SKELETONS,
     SAY_FROST_TOMB,
@@ -118,10 +121,7 @@ public:
 
     struct boss_kelesethAI : public BossAI
     {
-        boss_kelesethAI(Creature* creature) : BossAI(creature, DATA_PRINCEKELESETH_EVENT)
-        {
-            creature->SetReactState(REACT_DEFENSIVE);
-        }
+        boss_kelesethAI(Creature* creature) : BossAI(creature, DATA_PRINCEKELESETH_EVENT){}
 
         void Reset()
         {
@@ -137,11 +137,36 @@ public:
             onTheRocks = true;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* who)
         {
             me->SetInCombatWithZone();
             instance->SetData(DATA_PRINCEKELESETH_EVENT, IN_PROGRESS);
             Talk(SAY_START_COMBAT);
+
+            if (!who)
+                return;
+
+            std::list<Creature*> runemages;
+            me->GetCreatureListWithEntryInGrid(runemages, NPC_RUNEMAGE, 60.0f);
+            if (!runemages.empty())
+            {
+                for (std::list<Creature*>::iterator itr = runemages.begin(); itr != runemages.end(); ++itr)
+                {
+                    if ((*itr)->isAlive() && (*itr)->IsWithinLOSInMap(me))
+                        (*itr)->AI()->AttackStart(who);
+                }
+            }
+
+            std::list<Creature*> strategists;
+            me->GetCreatureListWithEntryInGrid(strategists, NPC_STRATEGIST, 60.0f);
+            if (!strategists.empty())
+            {
+                for (std::list<Creature*>::iterator itr = strategists.begin(); itr != strategists.end(); ++itr)
+                {
+                    if ((*itr)->isAlive() && (*itr)->IsWithinLOSInMap(me))
+                        (*itr)->AI()->AttackStart(who);
+                }
+            }
         }
 
         void JustDied(Unit* /*killer*/)
@@ -165,10 +190,20 @@ public:
             return 0;
         }
 
-        void ExecuteEvent(uint32 const eventId)
+        void UpdateAI(uint32 const diff)
         {
-            switch (eventId)
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
+                switch (eventId)
+                {
                 case EVENT_SUMMON_SKELETONS:
                     Talk(SAY_SUMMON_SKELETONS);
                     SummonSkeletons();
@@ -189,7 +224,10 @@ public:
                     }
                     events.ScheduleEvent(EVENT_FROST_TOMB, urand(14,19)*IN_MILLISECONDS);
                     break;
+                }
             }
+
+            DoMeleeAttackIfReady();
         }
 
         void SummonSkeletons()
@@ -222,7 +260,6 @@ public:
             events.Reset();
             events.ScheduleEvent(EVENT_DECREPIFY, urand(4,6)*IN_MILLISECONDS);
 
-            DoCast(SPELL_BONE_ARMOR);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
@@ -275,6 +312,13 @@ public:
                         break;
                     case EVENT_SHADOW_FISSURE:
                         DoCast(me, SPELL_SHADOW_FISSURE, true);
+                        if (TempSummon* temp = me->ToTempSummon())
+                        {
+                            if (Unit* summoner = temp->GetSummoner())
+                            {
+                                DoCast(summoner, SPELL_BONE_ARMOR);
+                            }
+                        }
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
                         me->GetMotionMaster()->MoveChase(me->getVictim());

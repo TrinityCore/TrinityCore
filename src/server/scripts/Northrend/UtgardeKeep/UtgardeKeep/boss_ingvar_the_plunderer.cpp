@@ -83,7 +83,7 @@ enum Spells
     SPELL_WOE_STRIKE                            = 42730,
 
     ENTRY_THROW_TARGET                          = 23996,
-    SPELL_SHADOW_AXE_SUMMON                     = 42749
+    SPELL_SHADOW_AXE_SUMMON                     = 42748
 };
 
 class boss_ingvar_the_plunderer : public CreatureScript
@@ -108,8 +108,10 @@ public:
 
         bool bIsUndead;
         bool bEventInProgress;
+        bool justTransformed;
 
         uint32 uiSpawnResTimer;
+        uint32 afterTransformTimer;
 
         void Reset()
         {
@@ -130,12 +132,9 @@ public:
             events.ScheduleEvent(EVENT_ENRAGE, urand(7,14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
             events.ScheduleEvent(EVENT_SMASH, urand(12,17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
 
-            events.ScheduleEvent(EVENT_DARK_SMASH, urand(14,22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-            events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18,21)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-            events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10,14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-            events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-
             uiSpawnResTimer = 3000;
+            afterTransformTimer = 2000;
+            justTransformed = false;
 
             if (instance)
                 instance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
@@ -158,7 +157,12 @@ public:
 
                 bEventInProgress = true;
                 bIsUndead = true;
+
                 events.SetPhase(PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_DARK_SMASH, urand(14,18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18,22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10,14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
 
                 DoScriptText(YELL_DEAD_1, me);
             }
@@ -173,20 +177,21 @@ public:
         {
             bIsUndead = true;
             bEventInProgress = false;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->UpdateEntry(MOB_INGVAR_UNDEAD);
-            me->SetInCombatWith(me->getVictim());
-            me->GetMotionMaster()->MoveChase(me->getVictim());
+            justTransformed = true;
 
             DoScriptText(YELL_AGGRO_2, me);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(YELL_AGGRO_1, me);
+            if (!bIsUndead)
+                DoScriptText(YELL_AGGRO_1, me);
 
             if (instance)
                 instance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
+
+            me->SetInCombatWithZone();
         }
 
         void JustDied(Unit* /*killer*/)
@@ -211,7 +216,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim())
+            if (!UpdateVictim() && !justTransformed)
                 return;
 
             if (bEventInProgress)
@@ -225,6 +230,21 @@ public:
                         uiSpawnResTimer = 0;
                     } else uiSpawnResTimer -= diff;
                 }
+
+                return;
+            }
+
+            if (justTransformed)
+            {
+                if (afterTransformTimer <= diff)
+                {
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetInCombatWithZone();
+                    me->GetMotionMaster()->MoveChase(me->getVictim());
+                    justTransformed = false;
+                    afterTransformTimer = 2000;
+                } else
+                    afterTransformTimer -= diff;
 
                 return;
             }
@@ -245,7 +265,7 @@ public:
                         break;
                     case EVENT_STAGGERING_ROAR:
                         DoCast(me, SPELL_STAGGERING_ROAR);
-                        events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18,21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                        events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18,22)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
                     case EVENT_ENRAGE:
                         DoCast(me, SPELL_ENRAGE);
@@ -253,16 +273,16 @@ public:
                         break;
                     case EVENT_SMASH:
                         DoCastVictim(SPELL_SMASH);
-                        events.ScheduleEvent(EVENT_SMASH, urand(12,17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                        events.ScheduleEvent(EVENT_SMASH, urand(12,16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
                     // PHASE TWO
                     case EVENT_DARK_SMASH:
                         DoCastVictim(SPELL_DARK_SMASH);
-                        events.ScheduleEvent(EVENT_DARK_SMASH, urand(14,22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                        events.ScheduleEvent(EVENT_DARK_SMASH, urand(12,16)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                         break;
                     case EVENT_DREADFUL_ROAR:
                         DoCast(me, SPELL_DREADFUL_ROAR);
-                        events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18,21)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                        events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18,22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                         break;
                     case EVENT_WOE_STRIKE:
                         DoCastVictim(SPELL_WOE_STRIKE);
@@ -271,8 +291,7 @@ public:
                     case EVENT_SHADOW_AXE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
                         {
-                            me->SummonCreature(ENTRY_THROW_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
-                            DoCast(me, SPELL_SHADOW_AXE_SUMMON);
+                            DoCast(target, SPELL_SHADOW_AXE_SUMMON);
                         }
                         events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                         break;
@@ -430,32 +449,34 @@ public:
         {
         }
 
-        uint32 uiDespawnTimer;
-
         void Reset()
         {
-            Unit* target = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
-            if (target)
+            if (Creature* target = me->FindNearestCreature(ENTRY_THROW_TARGET, 50.0f))
             {
-                DoCast(me, SPELL_SHADOW_AXE_DAMAGE);
                 float x, y, z;
                 target->GetPosition(x, y, z);
-                me->GetMotionMaster()->MovePoint(0, x, y, z);
+                me->GetMotionMaster()->MoveCharge(x, y, z, 42.0f, 28);
+                target->DisappearAndDie();
             }
-            uiDespawnTimer = 7000;
-        }
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit* /*who*/) {}
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (uiDespawnTimer <= diff)
+            else
             {
-                me->DealDamage(me, me->GetHealth());
-                me->RemoveCorpse();
-                uiDespawnTimer = 0;
-            } else uiDespawnTimer -= diff;
+                me->DisappearAndDie();
+            }
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type == POINT_MOTION_TYPE && id == 28)
+            {
+                DoCast(me, SPELL_SHADOW_AXE_DAMAGE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                if (TempSummon* summon = me->ToTempSummon())
+                {
+                    summon->UnSummon(10000);
+                }
+                else
+                    me->DisappearAndDie();
+            }
         }
     };
 };
