@@ -15127,10 +15127,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     }
 
     // honor reward
-    if (quest->GetRewHonorAddition())
-        ModifyHonorPoints(quest->GetRewHonorAddition());
-    if (quest->GetRewHonorMultiplier())
-        ModifyHonorPoints(Trinity::Honor::hk_honor_at_level(getLevel(), quest->GetRewHonorMultiplier()));
+    if (uint32 honor = quest->CalculateHonorGain(getLevel()))
+        RewardHonor(NULL, 0, honor);
 
     // title reward
     if (quest->GetCharTitleId())
@@ -16376,7 +16374,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         data << uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
-    data << 10 * Trinity::Honor::hk_honor_at_level(getLevel(), quest->GetRewHonorMultiplier());
+    data << uint32(10 * quest->CalculateHonorGain(GetQuestLevel(quest)));
     data << uint32(quest->GetBonusTalents());              // bonus talents
     data << uint32(quest->GetRewArenaPoints());
     GetSession()->SendPacket(&data);
