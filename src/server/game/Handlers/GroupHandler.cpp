@@ -1155,18 +1155,14 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     data << uint8(0);                                       // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
     data.append(player->GetPackGUID());
 
-    uint32 mask1 = GROUP_UPDATE_FLAG_STATUS | GROUP_UPDATE_FLAG_CUR_HP | GROUP_UPDATE_FLAG_MAX_HP |
-        GROUP_UPDATE_FLAG_POWER_TYPE | GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER |
-        GROUP_UPDATE_FLAG_LEVEL | GROUP_UPDATE_FLAG_ZONE | GROUP_UPDATE_FLAG_POSITION |
-        GROUP_UPDATE_FLAG_AURAS | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_AURAS |
-        GROUP_UPDATE_FLAG_PHASE;
+    uint32 mask1 = GROUP_UPDATE_FULL;
 
-    if (pet)
-        mask1 = 0x7FEFFEFF; // full mask & ~(GROUP_UPDATE_FLAG_VEHICLE_SEAT | GROUP_UPDATE_FLAG_UNK) (for hunters and other classes with pets)
+    if (!pet)
+        mask1 &= ~GROUP_UPDATE_PET;
 
     Powers powerType = player->getPowerType();
     data << (uint32) mask1;                                 // group update mask
-    data << (uint16) MEMBER_STATUS_ONLINE;                  // member's online status
+    data << (uint16) MEMBER_STATUS_ONLINE;                  // member's online status, GROUP_UPDATE_FLAG_STATUS
     data << (uint32) player->GetHealth();                   // GROUP_UPDATE_FLAG_CUR_HP
     data << (uint32) player->GetMaxHealth();                // GROUP_UPDATE_FLAG_MAX_HP
     data << (uint8)  powerType;                             // GROUP_UPDATE_FLAG_POWER_TYPE
@@ -1227,7 +1223,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
         data << (uint32) MAX_AURAS;                         // count
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
-            if (AuraApplication const* aurApp = pet->GetVisibleAura(i);)
+            if (AuraApplication const* aurApp = pet->GetVisibleAura(i))
             {
                 petauramask |= (uint64(1) << i);
 
