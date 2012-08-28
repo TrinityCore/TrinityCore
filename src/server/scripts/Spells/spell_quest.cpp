@@ -1278,7 +1278,7 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
 
 // http://www.wowhead.com/quest=12372 Defending Wyrmrest Temple
 // 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
-enum eQuest12372Data
+enum Quest12372Data
 {
     NPC_WYRMREST_TEMPLE_CREDIT       = 27698,
 };
@@ -1294,16 +1294,14 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
              
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-               if (GetHitCreature())
-               {
-               if (Unit* caster = GetOriginalCaster())
-                   if (Vehicle* vehicle = caster->GetVehicleKit())
-                       if (Unit* passenger = vehicle->GetPassenger(0))
-                           if (Player* player = passenger->ToPlayer())
-                               player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
-               }
-            } 
-	    
+                if (GetHitCreature())
+                    if (Unit* caster = GetOriginalCaster())
+                        if (Vehicle* vehicle = caster->GetVehicleKit())
+                            if (Unit* passenger = vehicle->GetPassenger(0))
+                                if (Player* player = passenger->ToPlayer())
+                                    player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
+            }
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
