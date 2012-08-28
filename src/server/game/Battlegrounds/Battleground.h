@@ -133,12 +133,12 @@ enum BattlegroundBuffObjects
 
 enum BattlegroundRandomRewards
 {
-    BG_REWARD_WINNER_HONOR_FIRST    = 30,
-    BG_REWARD_WINNER_ARENA_FIRST    = 25,
-    BG_REWARD_WINNER_HONOR_LAST     = 15,
-    BG_REWARD_WINNER_ARENA_LAST     = 0,
-    BG_REWARD_LOSER_HONOR_FIRST    = 5,
-    BG_REWARD_LOSER_HONOR_LAST     = 5
+    BG_REWARD_WINNER_HONOR_FIRST    = 270,
+    BG_REWARD_WINNER_CONQUEST_FIRST = 100,
+    BG_REWARD_WINNER_HONOR_LAST     = 135,
+    BG_REWARD_WINNER_CONQUEST_LAST  = 50,
+    BG_REWARD_LOSER_HONOR_FIRST     = 45,
+    BG_REWARD_LOSER_HONOR_LAST      = 35
 };
 
 const uint32 Buff_Entries[3] = { BG_OBJECTID_SPEEDBUFF_ENTRY, BG_OBJECTID_REGENBUFF_ENTRY, BG_OBJECTID_BERSERKERBUFF_ENTRY };
@@ -342,6 +342,7 @@ class Battleground
         /* Battleground */
         // Get methods:
         char const* GetName() const         { return m_Name; }
+        uint64 GetGUID() { return m_Guid; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
         BattlegroundBracketId GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
@@ -635,6 +636,7 @@ class Battleground
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;
+        uint64 m_Guid;
 
         /* Pre- and post-update hooks */
 

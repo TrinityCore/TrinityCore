@@ -48,6 +48,7 @@ class BattlefieldMgr
     // return assigned battlefield
     Battlefield *GetBattlefieldToZoneId(uint32 zoneid);
     Battlefield *GetBattlefieldByBattleId(uint32 battleid);
+    Battlefield *GetBattlefieldByGUID(uint64 guid);
 
     ZoneScript *GetZoneScript(uint32 zoneId);
 
