@@ -2981,3 +2981,15 @@ Transmogrification.AllowHeirloom = 1
 
 ExternalMail = 1
 ExternalMailInterval = 1
+
+###################################################################################################################
+# Armory!
+#
+#    Armory.Enable
+#        Description: Activates the WowArmory.
+#        Default:     0 - (Disable)
+#                     1 - (Enable)
+#
+###################################################################################################################
+
+Armory.Enable = 1
