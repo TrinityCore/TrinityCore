@@ -194,7 +194,7 @@ class Quest
         int32  GetZoneOrSort() const { return ZoneOrSort; }
         uint32 GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
-        uint32 GetQuestLevel() const { return Level; }
+        int32  GetQuestLevel() const { return Level; }
         uint32 GetType() const { return Type; }
         uint32 GetRequiredClasses() const { return RequiredClasses; }
         uint32 GetRequiredRaces() const { return RequiredRaces; }
@@ -257,6 +257,7 @@ class Quest
         bool   IsRaidQuest() const { return Type == QUEST_TYPE_RAID || Type == QUEST_TYPE_RAID_10 || Type == QUEST_TYPE_RAID_25; }
         bool   IsAllowedInRaid() const;
         bool   IsDFQuest() const { return Flags & QUEST_TRINITY_FLAGS_DF_QUEST; }
+        uint32 CalculateHonorGain(uint8 level) const;
 
         // multiple values
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
