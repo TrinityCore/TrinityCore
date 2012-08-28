@@ -18,6 +18,8 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "utgarde_keep.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 uint32 entry_search[3] =
 {
@@ -164,7 +166,82 @@ public:
     };
 };
 
+enum TickingTimeBomb 
+{
+    SPELL_TICKING_TIME_BOMB_EXPLODE = 59687
+};
+class spell_ticking_time_bomb : public SpellScriptLoader
+{
+    public:
+        spell_ticking_time_bomb() : SpellScriptLoader("spell_ticking_time_bomb") { }
+
+        class spell_ticking_time_bomb_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ticking_time_bomb_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                return (bool) sSpellMgr->GetSpellInfo(SPELL_TICKING_TIME_BOMB_EXPLODE);
+            }
+
+            void HandleOnEffectRemove(AuraEffect const* /* aurEff */, AuraEffectHandleModes /* mode */)
+            {
+                if (GetCaster() == GetTarget())
+                {
+                    GetTarget()->CastSpell(GetTarget(), SPELL_TICKING_TIME_BOMB_EXPLODE, true);
+                }                
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_ticking_time_bomb_AuraScript::HandleOnEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ticking_time_bomb_AuraScript();
+        }
+};
+
+enum Fixate
+{
+    SPELL_FIXATE_TRIGGER = 40415
+};
+class spell_fixate : public SpellScriptLoader
+{
+    public:
+        spell_fixate() : SpellScriptLoader("spell_fixate") { }
+
+        class spell_fixate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_fixate_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                return (bool) sSpellMgr->GetSpellInfo(SPELL_FIXATE_TRIGGER);
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                // The unit has to cast the taunt on hisself, but we need the original caster for SPELL_AURA_MOD_TAUNT
+                GetCaster()->CastSpell(GetCaster(), SPELL_FIXATE_TRIGGER, true, 0, 0, GetHitUnit()->GetGUID());
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_fixate_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_fixate_SpellScript();
+        }
+};
 void AddSC_utgarde_keep()
 {
     new npc_dragonflayer_forge_master();
+    new spell_ticking_time_bomb();
+    new spell_fixate();
 }
