@@ -1620,6 +1620,9 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             itemTransmogrified->SetNotRefundable(player);
             itemTransmogrified->ClearSoulboundTradeable(player);
 
+            if (itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_USE)
+                itemTransmogrifier->SetBinding(true);
+
             itemTransmogrifier->SetOwnerGUID(player->GetGUID());
             itemTransmogrifier->SetNotRefundable(player);
             itemTransmogrifier->ClearSoulboundTradeable(player);
