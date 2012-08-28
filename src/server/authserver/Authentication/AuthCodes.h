@@ -65,12 +65,28 @@ enum LoginResult
     LOGIN_LOCKED_ENFORCED                        = 0x10,
 };
 
-#define TRINITYCORE_ACCEPTED_CLIENT_BUILD        {15595, 12340, 0}  // accept one Cataclysm and one Wrath of the Lich King build
+enum ExpansionFlags
+{
+    POST_BC_EXP_FLAG                            = 0x2,
+    PRE_BC_EXP_FLAG                             = 0x1,
+    NO_VALID_EXP_FLAG                           = 0x0
+};
 
+struct RealmBuildInfo
+{
+    int Build;
+    int MajorVersion;
+    int MinorVersion;
+    int BugfixVersion;
+    int HotfixVersion;
+};
 
 namespace AuthHelper
 {
+    RealmBuildInfo const* GetBuildInfo(int build);
     bool IsAcceptedClientBuild(int build);
+    bool IsPostBCAcceptedClientBuild(int build);
+    bool IsPreBCAcceptedClientBuild(int build);
 };
 
 #endif
