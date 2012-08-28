@@ -1295,21 +1295,24 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
              void HandleDummy(SpellEffIndex /*effIndex*/)
              {
                 if (GetHitCreature())
-                {
-                     GetOriginalCaster()->GetVehicleKit()->GetPassenger(0)->ToPlayer()->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
-                }
-             }
-
-             void Register()
+    			{
+                if (Unit* caster = GetOriginalCaster())
+                    if (Vehicle* vkit = caster->GetVehicleKit())
+                        if (Unit* passenger = vkit->GetPassenger(0))
+                            if (Player* player = passenger->ToPlayer())
+                                player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
+				}
+			 } 
+			 void Register()
              {
                  OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
              }
-         };
+          };
 
-         SpellScript* GetSpellScript() const
-         {
-         return new spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript();
-         }
+          SpellScript* GetSpellScript() const
+          {
+              return new spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript();
+          }
 };
 
 void AddSC_quest_spell_scripts()
