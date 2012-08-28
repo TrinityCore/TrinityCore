@@ -118,6 +118,15 @@ Battlefield *BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleid)
     return NULL;
 }
 
+Battlefield* BattlefieldMgr::GetBattlefieldByGUID(uint64 guid)
+{
+    for (BattlefieldSet::iterator itr = m_BattlefieldSet.begin(); itr != m_BattlefieldSet.end(); ++itr)
+        if ((*itr)->GetGUID() == guid)
+            return (*itr);
+
+    return NULL;
+}
+
 void BattlefieldMgr::Update(uint32 diff)
 {
     m_UpdateTimer += diff;
