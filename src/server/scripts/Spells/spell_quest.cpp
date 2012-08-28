@@ -1286,33 +1286,33 @@ enum eQuest12372Data
 class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoader
 {
     public:
-         spell_q12372_destabilize_azure_dragonshrine_dummy() : SpellScriptLoader("spell_q12372_destabilize_azure_dragonshrine_dummy") { }
+        spell_q12372_destabilize_azure_dragonshrine_dummy() : SpellScriptLoader("spell_q12372_destabilize_azure_dragonshrine_dummy") { }
 
-         class spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript : public SpellScript
-         {
-             PrepareSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript);
+        class spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript);
              
-             void HandleDummy(SpellEffIndex /*effIndex*/)
-             {
-                if (GetHitCreature())
-    			{
-                if (Unit* caster = GetOriginalCaster())
-                    if (Vehicle* vkit = caster->GetVehicleKit())
-                        if (Unit* passenger = vkit->GetPassenger(0))
-                            if (Player* player = passenger->ToPlayer())
-                                player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
-				}
-			 } 
-			 void Register()
-             {
-                 OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-             }
-          };
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+               if (GetHitCreature())
+               {
+               if (Unit* caster = GetOriginalCaster())
+                   if (Vehicle* vkit = caster->GetVehicleKit())
+                       if (Unit* passenger = vkit->GetPassenger(0))
+                           if (Player* player = passenger->ToPlayer())
+                               player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
+               }
+            } 
+			void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
 
-          SpellScript* GetSpellScript() const
-          {
-              return new spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript();
-          }
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript();
+        }
 };
 
 void AddSC_quest_spell_scripts()
