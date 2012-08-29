@@ -1182,8 +1182,8 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     // GROUP_UPDATE_FLAG_AURAS
     data << uint8(1);
     uint64 auramask = 0;
-    data << uint64(auramask);                          // placeholder
     size_t maskPos = data.wpos();
+    data << uint64(auramask);                          // placeholder
     data << uint32(MAX_AURAS);                         // count
     for (uint8 i = 0; i < MAX_AURAS; ++i)
     {
