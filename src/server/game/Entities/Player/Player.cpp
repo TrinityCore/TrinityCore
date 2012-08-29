@@ -7518,8 +7518,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             if (GetRestType() == REST_TYPE_IN_TAVERN)        // Still inside a tavern or has recently left
             {
                 // Remove rest state if we have recently left a tavern.
-                // Why is 40 yd hardcoded?
-                if (GetMapId() != GetInnPosMapId() || GetExactDist(GetInnPosX(), GetInnPosY(), GetInnPosZ()) > 40.0f)
+                if (GetMapId() != GetInnPosMapId() || GetExactDist(GetInnPosX(), GetInnPosY(), GetInnPosZ()) > 1.0f)
                 {
                     RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
                     SetRestType(REST_TYPE_NO);
@@ -16386,7 +16385,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         data << uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
-    data << 10 * Trinity::Honor::hk_honor_at_level(getLevel(), quest->GetRewHonorMultiplier());
+    data << uint32(10 * quest->CalculateHonorGain(GetQuestLevel(quest)));
     data << uint32(quest->GetBonusTalents());              // bonus talents
     data << uint32(quest->GetRewArenaPoints());
     GetSession()->SendPacket(&data);

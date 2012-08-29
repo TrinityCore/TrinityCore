@@ -25,12 +25,6 @@
 #include "SpellAuras.h"
 #include "Vehicle.h"
 
-enum WintergrastData
-{
-    BATTLEFIELD_WG_ZONEID                        = 4197,             // Wintergrasp
-    BATTLEFIELD_WG_MAPID                         = 571,              // Northrend
-};
-
 enum WGVehicles
 {
     NPC_WG_SEIGE_ENGINE_ALLIANCE        = 28312,
@@ -38,6 +32,12 @@ enum WGVehicles
     NPC_WG_DEMOLISHER                   = 28094,
     NPC_WG_CATAPULT                     = 27881,
 };
+
+BattlefieldWG::~BattlefieldWG()
+{
+    for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
+        delete *itr;
+}
 
 bool BattlefieldWG::SetupBattlefield()
 {
@@ -172,6 +172,8 @@ bool BattlefieldWG::SetupBattlefield()
         GameObject* go = SpawnGameObject(WGGameObjectBuilding[i].entry, WGGameObjectBuilding[i].x, WGGameObjectBuilding[i].y, WGGameObjectBuilding[i].z, WGGameObjectBuilding[i].o);
         BfWGGameObjectBuilding* b = new BfWGGameObjectBuilding(this);
         b->Init(go, WGGameObjectBuilding[i].type, WGGameObjectBuilding[i].WorldState, WGGameObjectBuilding[i].nameId);
+        if (!IsEnabled() && go->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
+            go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
         BuildingsInZone.insert(b);
     }
 
@@ -538,7 +540,6 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H, 1);
                         creature->AddAura(SPELL_HORDE_FLAG, creature);
-                        creature->setFaction(creator->getFaction());
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }
@@ -555,7 +556,6 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
                     {
                         UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, 1);
                         creature->AddAura(SPELL_ALLIANCE_FLAG, creature);
-                        creature->setFaction(creator->getFaction());
                         m_vehicles[team].insert(creature->GetGUID());
                         UpdateVehicleCountWG();
                     }
