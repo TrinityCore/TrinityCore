@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "blood_furnace.h"
+#include "CreatureAI.h"
 
 #define ENTRY_SEWER1                 181823
 #define ENTRY_SEWER2                 181766
