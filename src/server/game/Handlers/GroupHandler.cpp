@@ -1223,8 +1223,8 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
         // GROUP_UPDATE_FLAG_PET_AURAS
         data << uint8(1);
         uint64 petauramask = 0;
-        data << uint64(petauramask);                       // placeholder
         size_t petMaskPos = data.wpos();
+        data << uint64(petauramask);                       // placeholder
         data << uint32(MAX_AURAS);                         // count
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
