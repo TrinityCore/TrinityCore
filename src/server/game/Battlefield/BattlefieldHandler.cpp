@@ -21,6 +21,7 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Object.h"
 
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
