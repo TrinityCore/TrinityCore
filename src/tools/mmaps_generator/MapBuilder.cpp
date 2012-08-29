@@ -179,7 +179,6 @@ namespace MMAP
                         {
                             if ((*_th)->Free)
                             {
-                                printf("Thread is free for map %03i\n", mapID);
                                 (*_th)->SetMapId(mapID);
                                 (*_th)->activate();
                                 next = true;
@@ -335,7 +334,7 @@ namespace MMAP
             buildNavMesh(mapID, navMesh);
             if (!navMesh)
             {
-                printf("Failed creating navmesh!              \n");
+                printf("[Map %i] Failed creating navmesh!\n", mapID);
                 return;
             }
 
@@ -363,7 +362,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        printf("Building map %03u, tile [%02u,%02u]\n", mapID, tileX, tileY);
+        printf("[Map %i] Building tile [%02u,%02u]\n", mapID, tileX, tileY);
 
         MeshData meshData;
 
