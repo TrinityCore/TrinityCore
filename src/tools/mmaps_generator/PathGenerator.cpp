@@ -292,6 +292,6 @@ int main(int argc, char** argv)
         builder.buildAllMaps(threads);
 
     if (!silent)
-        printf("Finished. MMAPS were built in %u ms!", GetMSTimeDiffToNow(start));
+        printf("Finished. MMAPS were built in %u ms!\n", GetMSTimeDiffToNow(start));
     return 1;
 }
