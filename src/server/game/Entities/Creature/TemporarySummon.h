@@ -29,7 +29,7 @@ class TempSummon : public Creature
         void Update(uint32 time);
         virtual void InitStats(uint32 lifetime);
         virtual void InitSummon();
-        void UnSummon(uint32 msTime = 0);
+        virtual void UnSummon(uint32 msTime = 0);
         void RemoveFromWorld();
         void SetTempSummonType(TempSummonType type);
         void SaveToDB(uint32 /*mapid*/, uint8 /*spawnMask*/, uint32 /*phaseMask*/) {}
