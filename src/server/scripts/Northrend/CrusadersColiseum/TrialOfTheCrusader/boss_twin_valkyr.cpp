@@ -328,7 +328,7 @@ struct boss_twin_baseAI : public ScriptedAI
         switch (m_uiStage)
         {
             case 0:
-                return;
+                break;
             case 1: // Vortex
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
@@ -341,7 +341,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
-                return;
+                break;
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
@@ -359,7 +359,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
-                return;
+                break;
             default:
                 break;
         }
