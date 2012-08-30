@@ -1158,9 +1158,9 @@ class Player : public Unit, public GridObject<Player>
 
         void InitStatsForLevel(bool reapplyMods = false);
 
-        uint32 GetCommandStatus(uint32 command) const { return activeCheats & command; }
-        void SetCommandStatusOn(uint32 command) { activeCheats |= command;}
-        void SetCommandStatusOff(uint32 command) { activeCheats &= ~command;}
+        bool GetCommandStatus(uint32 command) const { return _activeCheats & command; }
+        void SetCommandStatusOn(uint32 command) { _activeCheats |= command;}
+        void SetCommandStatusOff(uint32 command) { _activeCheats &= ~command;}
 
         // Played Time Stuff
         time_t m_logintime;
