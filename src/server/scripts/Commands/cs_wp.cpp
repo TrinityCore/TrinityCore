@@ -642,19 +642,13 @@ public:
         {
             handler->PSendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff%u|r", pathid);
 
-            // wpCreature
-            Creature* wpCreature = NULL;
-
             if (wpGuid != 0)
-            {
-                wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT));
-                if (wpCreature)
+                if (Creature* wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT)))
                 {
                     wpCreature->CombatStop();
                     wpCreature->DeleteFromDB();
                     wpCreature->AddObjectToRemoveList();
                 }
-            }
 
             PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_WAYPOINT_DATA);
 
@@ -681,15 +675,12 @@ public:
             Player* chr = handler->GetSession()->GetPlayer();
             Map* map = chr->GetMap();
             {
-                // wpCreature
-                Creature* wpCreature = NULL;
                 // What to do:
                 // Move the visual spawnpoint
                 // Respawn the owner of the waypoints
                 if (wpGuid != 0)
                 {
-                    wpCreature = map->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT));
-                    if (wpCreature)
+                    if (Creature* wpCreature = map->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT)))
                     {
                         wpCreature->CombatStop();
                         wpCreature->DeleteFromDB();
