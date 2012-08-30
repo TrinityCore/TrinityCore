@@ -510,6 +510,20 @@ typedef std::set<uint32> RewardedQuestSet;
 //               quest,  keep
 typedef std::map<uint32, bool> QuestStatusSaveMap;
 
+enum OrphanEntries
+{
+    //NPC entries
+    ORPHAN_ORACLE           = 33533,
+    ORPHAN_WOLVAR           = 33532,
+    ORPHAN_BLOOD_ELF        = 22817,
+    ORPHAN_DRAENEI          = 22818,
+    ORPHAN_HUMAN            = 14305,
+    ORPHAN_ORCISH           = 14444,
+
+    //Aura for having any orphan
+    SPELL_ORPHAN_OUT        = 58818,
+};
+
 enum QuestSlotOffsets
 {
     QUEST_ID_OFFSET     = 0,
@@ -1375,6 +1389,8 @@ class Player : public Unit, public GridObject<Player>
 
         int32 GetQuestLevel(Quest const* quest) const { return quest && (quest->GetQuestLevel() > 0) ? quest->GetQuestLevel() : getLevel(); }
 
+        void AreaExploredWithOrphan(uint32 quest, uint32 orphan = 0);
+        void GroupEventHappensWithOrphan(uint32 quest, WorldObject const* eventobject, uint32 orphan = 0);
         void PrepareQuestMenu(uint64 guid);
         void SendPreparedQuest(uint64 guid);
         bool IsActiveQuest(uint32 quest_id) const;

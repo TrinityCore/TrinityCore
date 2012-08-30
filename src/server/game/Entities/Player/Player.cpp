@@ -14518,6 +14518,59 @@ uint32 Player::GetDefaultGossipMenuForSource(WorldObject* source)
 /***                    QUEST SYSTEM                   ***/
 /*********************************************************/
 
+void Player::AreaExploredWithOrphan(uint32 quest, uint32 orphan)
+{
+    //Method for childrens week to complete areaexplored quests with check on orphan for single players
+    if(orphan)
+    {
+        std::list<Creature*> MinionList;
+        GetAllMinionsByEntry(MinionList,orphan);
+        if(!MinionList.empty())
+        {
+            AreaExploredOrEventHappens(quest);
+        }
+    }
+    else if (HasAura(SPELL_ORPHAN_OUT))
+    {
+        AreaExploredOrEventHappens(quest);
+    }
+}
+void Player::GroupEventHappensWithOrphan(uint32 quest, WorldObject const* eventobject, uint32 orphan)
+{
+    //Method for childrens week to complete areaexplored quests with check on orphan
+    //If player has group, every member in range with defined orphan out will get areaexplored for the quest
+    //Else the same function for single players will be called
+    if (Group* group = GetGroup())
+    {
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            if (Player* groupie = itr->getSource())
+            {
+                if (groupie->IsAtGroupRewardDistance(eventobject) && !groupie->GetCorpse())
+                {
+                    if (orphan)
+                    {
+                        std::list<Creature*> MinionList;
+                        groupie->GetAllMinionsByEntry(MinionList,orphan);
+                        if (!MinionList.empty())
+                        {
+                            groupie->AreaExploredOrEventHappens(quest);
+                        }
+                    } 
+                    else if (groupie->HasAura(SPELL_ORPHAN_OUT))
+                    {
+                        groupie->AreaExploredOrEventHappens(quest);
+                    }
+                }
+            }
+        }
+    } 
+    else
+    {
+        AreaExploredWithOrphan(quest,orphan);
+    }
+}
+
 void Player::PrepareQuestMenu(uint64 guid)
 {
     QuestRelationBounds objectQR;
