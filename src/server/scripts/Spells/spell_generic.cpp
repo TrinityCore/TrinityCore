@@ -1911,16 +1911,18 @@ class spell_gen_break_shield: public SpellScriptLoader
                         Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
                         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                         {
-                            Aura* aura = itr->second->GetBase();
-                            SpellInfo const* auraInfo = aura->GetSpellInfo();
-                            if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                            if (Aura* aura = itr->second->GetBase())
                             {
-                                aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                                // Remove dummys from rider (Necessary for updating visual shields)
-                                if (Unit* rider = target->GetCharmer())
-                                    if (Aura* defend = rider->GetAura(aura->GetId()))
-                                        defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                                break;
+                                SpellInfo const* auraInfo = aura->GetSpellInfo();
+                                if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                                {
+                                    aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                    // Remove dummys from rider (Necessary for updating visual shields)
+                                    if (Unit* rider = target->GetCharmer())
+                                        if (Aura* defend = rider->GetAura(aura->GetId()))
+                                            defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                    break;
+                                }
                             }
                         }
                         break;
@@ -2039,16 +2041,18 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                         Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
                         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                         {
-                            Aura* aura = itr->second->GetBase();
-                            SpellInfo const* auraInfo = aura->GetSpellInfo();
-                            if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                            if (Aura* aura = itr->second->GetBase())
                             {
-                                aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                                // Remove dummys from rider (Necessary for updating visual shields)
-                                if (Unit* rider = target->GetCharmer())
-                                    if (Aura* defend = rider->GetAura(aura->GetId()))
-                                        defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                                break;
+                                SpellInfo const* auraInfo = aura->GetSpellInfo();
+                                if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                                {
+                                    aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                    // Remove dummys from rider (Necessary for updating visual shields)
+                                    if (Unit* rider = target->GetCharmer())
+                                        if (Aura* defend = rider->GetAura(aura->GetId()))
+                                            defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                    break;
+                                }
                             }
                         }
                         break;
