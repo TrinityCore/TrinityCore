@@ -39,5 +39,9 @@
 #define DATA_PRISON_CELL6               18
 #define DATA_PRISON_CELL7               19
 #define DATA_PRISON_CELL8               20
+#define DATA_BROGGOK_LEVER              21
+#define ACTION_ACTIVATE_BROGGOK         22
+#define ACTION_RESET_BROGGOK            23
+#define ACTION_PREPARE_BROGGOK          24
 #endif
 

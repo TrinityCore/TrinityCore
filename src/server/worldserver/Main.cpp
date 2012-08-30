@@ -81,7 +81,7 @@ extern int main(int argc, char **argv)
         {
             if (++c >= argc)
             {
-                sLog->outError(LOG_FILTER_WORLDSERVER, "Runtime-Error: -c option requires an input argument");
+                printf("Runtime-Error: -c option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
@@ -97,25 +97,25 @@ extern int main(int argc, char **argv)
         {
             if (++c >= argc)
             {
-                sLog->outError(LOG_FILTER_WORLDSERVER, "Runtime-Error: -s option requires an input argument");
+                printf("Runtime-Error: -s option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
             if (strcmp(argv[c], "install") == 0)
             {
                 if (WinServiceInstall())
-                    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Installing service");
+                    printf("Installing service");
                 return 1;
             }
             else if (strcmp(argv[c], "uninstall") == 0)
             {
                 if (WinServiceUninstall())
-                    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Uninstalling service");
+                    printf("Uninstalling service");
                 return 1;
             }
             else
             {
-                sLog->outError(LOG_FILTER_WORLDSERVER, "Runtime-Error: unsupported option %s", argv[c]);
+                printf("Runtime-Error: unsupported option %s", argv[c]);
                 usage(argv[0]);
                 return 1;
             }
@@ -131,8 +131,8 @@ extern int main(int argc, char **argv)
 
     if (!ConfigMgr::Load(cfg_file))
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Invalid or missing configuration file : %s", cfg_file);
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Verify that the file exists and has \'[worldserver]' written in the top of the file!");
+        printf("Invalid or missing configuration file : %s", cfg_file);
+        printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!");
         return 1;
     }
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);

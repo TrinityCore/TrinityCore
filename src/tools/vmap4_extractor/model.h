@@ -21,12 +21,9 @@
 
 #include "loadlib/loadlib.h"
 #include "vec3d.h"
-//#include "mpq.h"
 #include "modelheaders.h"
 #include <vector>
 
-class Model;
-class WMOInstance;
 class MPQFile;
 
 Vec3D fixCoordSystem(Vec3D v);
@@ -35,18 +32,14 @@ class Model
 {
 public:
     ModelHeader header;
-    uint32 offsBB_vertices, offsBB_indices;
-    Vec3D *BB_vertices, *vertices;
-    uint16 *BB_indices, *indices;
-    size_t nIndices;
+    Vec3D* vertices;
+    uint16* indices;
 
     bool open();
-    bool ConvertToVMAPModel(const char * outfilename);
+    bool ConvertToVMAPModel(char const* outfilename);
 
-    bool ok;
-
-    Model(std::string &filename);
-    ~Model() {_unload();}
+    Model(std::string& filename);
+    ~Model() { _unload(); }
 
 private:
     void _unload()
@@ -56,22 +49,22 @@ private:
         vertices = NULL;
         indices = NULL;
     }
+
     std::string filename;
-    char outfilename;
 };
 
 class ModelInstance
 {
 public:
-    Model *model;
+    Model* model;
 
     uint32 id;
     Vec3D pos, rot;
     unsigned int d1, scale;
-    float w,sc;
+    float w, sc;
 
-    ModelInstance() {}
-    ModelInstance(MPQFile &f,const char* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile);
+    ModelInstance() : model(NULL), d1(0), scale(0), w(0.0f), sc(0.0f), id(0) {}
+    ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
 
 };
 

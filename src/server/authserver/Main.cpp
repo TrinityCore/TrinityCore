@@ -80,7 +80,7 @@ extern int main(int argc, char **argv)
         {
             if (++c >= argc)
             {
-                sLog->outError(LOG_FILTER_AUTHSERVER, "Runtime-Error: -c option requires an input argument");
+                printf("Runtime-Error: -c option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
@@ -92,8 +92,8 @@ extern int main(int argc, char **argv)
 
     if (!ConfigMgr::Load(cfg_file))
     {
-        sLog->outError(LOG_FILTER_AUTHSERVER, "Invalid or missing configuration file : %s", cfg_file);
-        sLog->outError(LOG_FILTER_AUTHSERVER, "Verify that the file exists and has \'[authserver]\' written in the top of the file!");
+        printf("Invalid or missing configuration file : %s", cfg_file);
+        printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!");
         return 1;
     }
 
