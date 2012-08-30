@@ -1084,10 +1084,12 @@ WintergraspCapturePoint::WintergraspCapturePoint(BattlefieldWG* battlefield, Tea
 {
     m_Bf = battlefield;
     m_team = teamInControl;
+    m_Workshop = NULL;
 }
 
 void WintergraspCapturePoint::ChangeTeam(TeamId /*oldTeam*/)
 {
+    ASSERT(m_Workshop);
     m_Workshop->GiveControlTo(m_team, false);
 }
 
