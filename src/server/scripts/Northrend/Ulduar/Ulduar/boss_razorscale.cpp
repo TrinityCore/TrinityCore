@@ -922,6 +922,8 @@ class npc_darkrune_watcher : public CreatureScript
                     me->DespawnOrUnsummon();
                     return;
                 }
+
+                events.Update(Diff);
                 
                 while (uint32 event = events.ExecuteEvent())
                 {
@@ -930,11 +932,11 @@ class npc_darkrune_watcher : public CreatureScript
                         case EVENT_CHAIN_LIGHTNING:                            
                             DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(10000, 15000));
-                            break;
+                            return;
                         case EVENT_LIGHTNING_BOLT:
                             DoCastVictim(SPELL_LIGHTNING_BOLT);
                             events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(5000, 7000));
-                            break;
+                            return;
                     }
                 }
 
@@ -1039,6 +1041,8 @@ class npc_darkrune_sentinel : public CreatureScript
                     me->DespawnOrUnsummon();
                     return;
                 }
+
+                events.Update(Diff);
                 
                 while (uint32 event = events.ExecuteEvent())
                 {
@@ -1047,15 +1051,15 @@ class npc_darkrune_sentinel : public CreatureScript
                         case EVENT_HEROIC_STRIKE:
                             DoCast(me->getVictim(), SPELL_HEROIC_STRIKE);
                             events.ScheduleEvent(EVENT_HEROIC_STRIKE, urand(4000, 6000));
-                            break;
+                            return;
                         case EVENT_WHIRLWIND:
                             DoCast(me, SPELL_WHIRLWIND);
                             events.ScheduleEvent(EVENT_WHIRLWIND, urand(15000, 20000));
-                            break;
+                            return;
                         case EVENT_BATTLE_SHOUT:
                             DoCast(me, SPELL_BATTLE_SHOUT);
                             events.ScheduleEvent(EVENT_BATTLE_SHOUT, urand(25000, 35000)); // Spell duration 25 secs
-                            break;
+                            return;
                     }
                 }
 
