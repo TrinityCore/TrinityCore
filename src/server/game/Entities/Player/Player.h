@@ -901,9 +901,9 @@ enum PlayerCommandStates
     CHEAT_GOD       = 0x01,
     CHEAT_CASTTIME  = 0x02,
     CHEAT_COOLDOWN  = 0x04,
-    CHEAT_FLY       = 0x10,
-    CHEAT_POWER     = 0x20,
-    CHEAT_WATERWALK = 0x40
+    CHEAT_FLY       = 0x08,
+    CHEAT_POWER     = 0x10,
+    CHEAT_WATERWALK = 0x20
 };
 
 class PlayerTaxi
@@ -1158,10 +1158,9 @@ class Player : public Unit, public GridObject<Player>
 
         void InitStatsForLevel(bool reapplyMods = false);
 
-        uint32 activeCheats;
-        uint32 GetCommandStatus(uint32 command) {return activeCheats & command; }
-        void SetCommandStatusOn(uint32 command) {activeCheats |= command;}
-        void SetCommandStatusOff(uint32 command) {activeCheats &= ~command;}
+        uint32 GetCommandStatus(uint32 command) const { return activeCheats & command; }
+        void SetCommandStatusOn(uint32 command) { activeCheats |= command;}
+        void SetCommandStatusOff(uint32 command) { activeCheats &= ~command;}
 
         // Played Time Stuff
         time_t m_logintime;
@@ -2869,6 +2868,8 @@ class Player : public Unit, public GridObject<Player>
         InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
+
+        uint32 _activeCheats;
 };
 
 void AddItemsSetItem(Player*player, Item* item);
