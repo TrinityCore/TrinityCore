@@ -196,7 +196,7 @@ const AuthHandler table[] =
 Patcher PatchesCache;
 
 // Constructor - set the N and g values for SRP6
-AuthSocket::AuthSocket(RealmSocket& socket) : socket_(socket)
+AuthSocket::AuthSocket(RealmSocket& socket) : socket_(socket), pPatch(NULL)
 {
     N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
     g.SetDword(7);
@@ -869,7 +869,7 @@ bool AuthSocket::_HandleRealmList()
             flag &= ~REALM_FLAG_SPECIFYBUILD;
 
         std::string name = i->first;
-        if (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
+        if (buildInfo && (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD))
         {
             std::ostringstream ss;
             ss << name << " (" << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << ')';
@@ -902,10 +902,15 @@ bool AuthSocket::_HandleRealmList()
 
         if (_expversion & POST_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
         {
-            pkt << uint8(buildInfo->MajorVersion);
-            pkt << uint8(buildInfo->MinorVersion);
-            pkt << uint8(buildInfo->BugfixVersion);
-            pkt << uint16(buildInfo->Build);
+            if (buildInfo)
+            {
+                pkt << uint8(buildInfo->MajorVersion);
+                pkt << uint8(buildInfo->MinorVersion);
+                pkt << uint8(buildInfo->BugfixVersion);
+                pkt << uint16(buildInfo->Build);
+            }
+            else
+                pkt << uint8(0) << uint8(0) << uint8(0) << uint16(0);
         }
 
         ++RealmListSize;
@@ -946,7 +951,7 @@ bool AuthSocket::_HandleXferResume()
 {
     sLog->outDebug(LOG_FILTER_AUTHSERVER, "Entering _HandleXferResume");
     // Check packet length and patch existence
-    if (socket().recv_len() < 9 || !pPatch)
+    if (socket().recv_len() < 9 || !pPatch) // FIXME: pPatch is never used
     {
         sLog->outError(LOG_FILTER_AUTHSERVER, "Error while resuming patch transfer (wrong packet)");
         return false;

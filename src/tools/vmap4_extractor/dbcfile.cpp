@@ -23,9 +23,10 @@
 
 #include <cstdio>
 
-DBCFile::DBCFile(const std::string &filename) : filename(filename)
+DBCFile::DBCFile(const std::string& filename):
+    filename(filename), recordSize(0), recordCount(0), fieldCount(0), stringSize(0), data(NULL), stringTable(NULL)
 {
-    data = NULL;
+
 }
 
 bool DBCFile::open()
