@@ -896,6 +896,16 @@ enum PlayerRestState
     REST_STATE_RAF_LINKED                            = 0x06
 };
 
+enum PlayerCommandStates
+{
+    CHEAT_GOD       = 0x01,
+    CHEAT_CASTTIME  = 0x02,
+    CHEAT_COOLDOWN  = 0x04,
+    CHEAT_FLY       = 0x08,
+    CHEAT_POWER     = 0x10,
+    CHEAT_WATERWALK = 0x20
+};
+
 class PlayerTaxi
 {
     public:
@@ -1147,6 +1157,10 @@ class Player : public Unit, public GridObject<Player>
         void GiveLevel(uint8 level);
 
         void InitStatsForLevel(bool reapplyMods = false);
+
+        bool GetCommandStatus(uint32 command) const { return _activeCheats & command; }
+        void SetCommandStatusOn(uint32 command) { _activeCheats |= command;}
+        void SetCommandStatusOff(uint32 command) { _activeCheats &= ~command;}
 
         // Played Time Stuff
         time_t m_logintime;
@@ -2854,6 +2868,8 @@ class Player : public Unit, public GridObject<Player>
         InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
+
+        uint32 _activeCheats;
 };
 
 void AddItemsSetItem(Player*player, Item* item);
