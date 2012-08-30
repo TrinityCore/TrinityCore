@@ -87,7 +87,7 @@ SpellDestination::SpellDestination(WorldObject const& wObj)
 }
 
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0)
+SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
 {
     m_objectTarget = NULL;
     m_itemTarget = NULL;
@@ -96,7 +96,6 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0)
     m_itemTargetGUID   = 0;
     m_itemTargetEntry  = 0;
 
-    m_strTarget = "";
     m_targetMask = 0;
 }
 

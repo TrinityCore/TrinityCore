@@ -25,13 +25,7 @@
 struct AddonInfo
 {
     AddonInfo(const std::string& name, uint8 enabled, uint32 crc, uint8 state, bool crcOrPubKey)
-    {
-        Name = name;
-        Enabled = enabled;
-        CRC = crc;
-        State = state;
-        UsePublicKeyOrCRC = crcOrPubKey;
-    }
+        : Name(name), Enabled(enabled), CRC(crc), State(state), UsePublicKeyOrCRC(crcOrPubKey) {}
 
     std::string Name;
     uint8 Enabled;
