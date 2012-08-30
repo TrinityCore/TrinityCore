@@ -103,7 +103,7 @@ void Log::CreateAppenderFromConfig(const char* name)
     LogLevel level = LogLevel(atoi(*iter));
     if (level > LOG_LEVEL_FATAL)
     {
-        fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level %u for appender %s\n", level, name);
+        fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level %d for appender %s\n", level, name);
         return;
     }
 
@@ -158,7 +158,7 @@ void Log::CreateAppenderFromConfig(const char* name)
             break;
         }
         default:
-            fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown type %u for appender %s\n", type, name);
+            fprintf(stderr, "Log::CreateAppenderFromConfig: Unknown type %d for appender %s\n", type, name);
             break;
     }
 }
