@@ -381,7 +381,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     SetAttackTime(RANGED_ATTACK, cInfo->rangeattacktime);
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-    SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+    SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
 

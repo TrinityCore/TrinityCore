@@ -1916,10 +1916,10 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
 
-    bool corpseCheck = false;
     bool corpseVisibility = false;
     if (distanceCheck)
     {
+        bool corpseCheck = false;
         if (Player const* thisPlayer = ToPlayer())
         {
             if (thisPlayer->isDead() && thisPlayer->GetHealth() > 0 && // Cheap way to check for ghost state

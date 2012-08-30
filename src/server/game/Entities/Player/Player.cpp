@@ -7336,7 +7336,6 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     PlayerCurrenciesMap::const_iterator itr = m_currencies.find(id);
     return itr != m_currencies.end() && itr->second.totalCount >= count;
 }
-
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
 {
     if (!count)
@@ -7378,7 +7377,6 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
         newTotalCount = int32(currency->TotalCap);
         newWeekCount -= delta;
     }
-
     // TODO: fix conquest points
     uint32 weekCap = _GetCurrencyWeekCap(currency);
     if (weekCap && int32(weekCap) < newTotalCount)
@@ -15552,7 +15550,6 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
     {
         uint32 srcItemId = quest->GetSrcItemId();
         ItemTemplate const* item = sObjectMgr->GetItemTemplate(srcItemId);
-        bool destroyItem = true;
 
         if (srcItemId > 0)
         {
@@ -15572,6 +15569,7 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
                 return false;
             }
 
+            bool destroyItem = true;
             for (uint8 n = 0; n < QUEST_ITEM_OBJECTIVES_COUNT; ++n)
                 if (item->StartQuest == questId && srcItemId == quest->RequiredItemId[n])
                     destroyItem = false;
@@ -16990,7 +16988,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     SetUInt64Value(PLAYER_FARSIGHT, 0);
     SetCreatorGUID(0);
 
-    RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVE);
+    RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
 
     // reset some aura modifiers before aura apply
     SetUInt32Value(PLAYER_TRACK_CREATURES, 0);
@@ -17416,8 +17414,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
     {
         uint32 zoneId = GetZoneId();
 
-        std::map<uint64, Bag*> bagMap;                                  // fast guid lookup for bags
-        std::map<uint64, Item*> invalidBagMap;                                  // fast guid lookup for bags
+        std::map<uint32, Bag*> bagMap;                               // fast guid lookup for bags
+        std::map<uint32, Item*> invalidBagMap;                       // fast guid lookup for bags
         std::list<Item*> problematicItems;
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -17476,7 +17474,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 {
                     item->SetSlot(NULL_SLOT);
                     // Item is in the bag, find the bag
-                    std::map<uint64, Bag*>::iterator itr = bagMap.find(bagGuid);
+                    std::map<uint32, Bag*>::iterator itr = bagMap.find(bagGuid);
                     if (itr != bagMap.end())
                     {
                         ItemPosCountVec dest;
@@ -17486,8 +17484,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     }
                     else if (invalidBagMap.find(bagGuid) != invalidBagMap.end())
                     {
-                        std::map<uint64, Item*>::iterator itr = invalidBagMap.find(bagGuid);
-                        if (std::find(problematicItems.begin(),problematicItems.end(),itr->second) != problematicItems.end())
+                        std::map<uint32, Item*>::iterator itr = invalidBagMap.find(bagGuid);
+                        if (std::find(problematicItems.begin(), problematicItems.end(), itr->second) != problematicItems.end())
                             err = EQUIP_ERR_INTERNAL_BAG_ERROR;
                     }
                     else
@@ -17583,7 +17581,6 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
-    PreparedStatement* stmt = NULL;
     Item* item = NULL;
     uint32 itemGuid  = fields[13].GetUInt32();
     uint32 itemEntry = fields[14].GetUInt32();
@@ -17593,6 +17590,8 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
         item = NewItemOrBag(proto);
         if (item->LoadFromDB(itemGuid, GetGUID(), fields, itemEntry))
         {
+            PreparedStatement* stmt = NULL;
+
             // Do not allow to have item limited to another map/zone in alive state
             if (isAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
             {

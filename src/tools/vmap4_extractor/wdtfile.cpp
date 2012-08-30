@@ -80,9 +80,8 @@ bool WDTFile::init(char *map_id, unsigned int mapID)
                 char *p=buf;
                 int q = 0;
                 gWmoInstansName = new string[size];
-                while (p<buf+size)
+                while (p < buf + size)
                 {
-                    string path(p);
                     char* s=wdtGetPlainName(p);
                     fixnamen(s,strlen(s));
                     p=p+strlen(p)+1;
@@ -91,23 +90,20 @@ bool WDTFile::init(char *map_id, unsigned int mapID)
                 delete[] buf;
             }
         }
-        else if (!strcmp(fourcc,"MODF"))
+        else if (!strcmp(fourcc, "MODF"))
         {
             // global wmo instance data
             if (size)
             {
                 gnWMO = (int)size / 64;
-                string gWMO_mapname;
-                string fake_mapname;
-                fake_mapname = "65 65 ";
-                //gWMO_mapname = fake_mapname + filename;
-                gWMO_mapname = fake_mapname + std::string(map_id);
-                for (int i=0; i<gnWMO; ++i)
+
+                for (int i = 0; i < gnWMO; ++i)
                 {
                     int id;
                     WDT.read(&id, 4);
-                    WMOInstance inst(WDT,gWmoInstansName[id].c_str(),mapID, 65, 65, dirfile);
+                    WMOInstance inst(WDT,gWmoInstansName[id].c_str(), mapID, 65, 65, dirfile);
                 }
+
                 delete[] gWmoInstansName;
             }
         }

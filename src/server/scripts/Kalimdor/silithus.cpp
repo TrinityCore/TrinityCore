@@ -224,6 +224,8 @@ public:
 
 };
 
+                        Unit* mob = NULL;
+                Unit* target = NULL;
 
 /*###
 ## go_wind_stone

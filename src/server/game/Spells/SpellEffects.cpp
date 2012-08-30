@@ -330,10 +330,9 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
-    bool apply_direct_bonus = true;
-
     if (unitTarget && unitTarget->isAlive())
     {
+        bool apply_direct_bonus = true;
         switch (m_spellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
