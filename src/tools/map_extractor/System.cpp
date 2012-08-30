@@ -957,7 +957,7 @@ void ExtractMapsFromMpq(uint32 build)
     printf("Convert map files\n");
     for (uint32 z = 0; z < map_count; ++z)
     {
-        printf("Extract %s (%d/%d)                  \n", map_ids[z].name, z+1, map_count);
+        printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
         sprintf(mpq_map_name, "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
         WDT_file wdt;

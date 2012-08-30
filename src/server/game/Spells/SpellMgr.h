@@ -441,7 +441,7 @@ class PetAura
         typedef UNORDERED_MAP<uint32, uint32> PetAuraMap;
 
     public:
-        PetAura()
+        PetAura() : removeOnChangePet(false), damage(0)
         {
             auras.clear();
         }

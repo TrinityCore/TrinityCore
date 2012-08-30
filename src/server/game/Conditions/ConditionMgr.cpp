@@ -867,7 +867,6 @@ void ConditionMgr::LoadConditions(bool isReload)
                     valid = true;
                     ++count;
                     continue;   // do not add to m_AllocatedMemory to avoid double deleting
-                    break;
                 }
                 case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
                     valid = addToSpellImplicitTargetConditions(cond);

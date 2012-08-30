@@ -75,7 +75,7 @@ void BigNumber::SetRand(int numbits)
     BN_rand(_bn, numbits, 0, 1);
 }
 
-BigNumber BigNumber::operator=(const BigNumber &bn)
+BigNumber& BigNumber::operator=(const BigNumber &bn)
 {
     if (this == &bn)
         return *this;

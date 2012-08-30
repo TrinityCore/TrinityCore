@@ -112,6 +112,7 @@ struct CreatureTemplate
     uint32  rangeattacktime;
     uint32  unit_class;                                     // enum Classes. Note only 4 classes are known for creatures.
     uint32  unit_flags;                                     // enum UnitFlags mask values
+    uint32  unit_flags2;                                    // enum UnitFlags2 mask values
     uint32  dynamicflags;
     uint32  family;                                         // enum CreatureFamily values (optional)
     uint32  trainer_type;

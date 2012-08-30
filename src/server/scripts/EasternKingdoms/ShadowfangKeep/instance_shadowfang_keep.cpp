@@ -240,7 +240,6 @@ public:
                 return;
 
             Creature* pArchmage = instance->GetCreature(uiArchmageArugalGUID);
-            Creature* summon = NULL;
 
             if (!pArchmage || !pArchmage->isAlive())
                 return;
@@ -252,7 +251,8 @@ public:
                     switch (uiPhase)
                     {
                         case 1:
-                            summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
+                        {
+                            Creature* summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             summon->SetReactState(REACT_DEFENSIVE);
                             summon->CastSpell(summon, SPELL_ASHCROMBE_TELEPORT, true);
@@ -260,13 +260,16 @@ public:
                             uiTimer = 2000;
                             uiPhase = 2;
                             break;
+                        }
                         case 2:
+                        {
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             uiPhase = 0;
                             break;
+                        }
 
                     }
                 } else uiTimer -= uiDiff;

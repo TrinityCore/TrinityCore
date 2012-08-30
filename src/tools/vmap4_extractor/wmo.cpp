@@ -31,8 +31,12 @@
 using namespace std;
 extern uint16 *LiqType;
 
-WMORoot::WMORoot(std::string &filename) : filename(filename)
+WMORoot::WMORoot(std::string &filename)
+    : filename(filename), col(0), nTextures(0), nGroups(0), nP(0), nLights(0),
+    nModels(0), nDoodads(0), nDoodadSets(0), RootWMOID(0), liquidType(0)
 {
+    memset(bbcorn1, 0, sizeof(bbcorn1));
+    memset(bbcorn2, 0, sizeof(bbcorn2));
 }
 
 extern HANDLE WorldMpq;
@@ -59,7 +63,7 @@ bool WMORoot::open()
 
         size_t nextpos = f.getPos() + size;
 
-        if (!strcmp(fourcc,"MOHD"))//header
+        if (!strcmp(fourcc,"MOHD")) // header
         {
             f.read(&nTextures, 4);
             f.read(&nGroups, 4);
@@ -70,8 +74,8 @@ bool WMORoot::open()
             f.read(&nDoodadSets, 4);
             f.read(&col, 4);
             f.read(&RootWMOID, 4);
-            f.read(bbcorn1,12);
-            f.read(bbcorn2,12);
+            f.read(bbcorn1, 12);
+            f.read(bbcorn2, 12);
             f.read(&liquidType, 4);
             break;
         }
@@ -122,15 +126,15 @@ bool WMORoot::open()
     return true;
 }
 
-bool WMORoot::ConvertToVMAPRootWmo(FILE *pOutfile)
+bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
 {
     //printf("Convert RootWmo...\n");
 
-    fwrite(szRawVMAPMagic,1,8,pOutfile);
+    fwrite(szRawVMAPMagic, 1, 8, pOutfile);
     unsigned int nVectors = 0;
-    fwrite(&nVectors,sizeof(nVectors),1,pOutfile); // will be filled later
-    fwrite(&nGroups,4,1,pOutfile);
-    fwrite(&RootWMOID,4,1,pOutfile);
+    fwrite(&nVectors,sizeof(nVectors), 1, pOutfile); // will be filled later
+    fwrite(&nGroups, 4, 1, pOutfile);
+    fwrite(&RootWMOID, 4, 1, pOutfile);
     return true;
 }
 
@@ -138,9 +142,13 @@ WMORoot::~WMORoot()
 {
 }
 
-WMOGroup::WMOGroup(std::string &filename) : filename(filename),
-        MOPY(0), MOVI(0), MoviEx(0), MOVT(0), MOBA(0), MobaEx(0), hlq(0), LiquEx(0), LiquBytes(0)
+WMOGroup::WMOGroup(const std::string &filename) :
+    filename(filename), MOPY(0), MOVI(0), MoviEx(0), MOVT(0), MOBA(0), MobaEx(0),
+    hlq(0), LiquEx(0), LiquBytes(0), groupName(0), descGroupName(0), mogpFlags(0),
+    mopy_size(0), moba_size(0), LiquEx_size(0), nVertices(0), nTriangles(0)
 {
+    memset(bbcorn1, 0, sizeof(bbcorn1));
+    memset(bbcorn2, 0, sizeof(bbcorn2));
 }
 
 bool WMOGroup::open()
@@ -239,7 +247,7 @@ bool WMOGroup::open()
     return true;
 }
 
-int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool pPreciseVectorData)
+int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool preciseVectorData)
 {
     fwrite(&mogpFlags,sizeof(uint32),1,output);
     fwrite(&groupWMOID,sizeof(uint32),1,output);
@@ -248,7 +256,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool pPrecis
     fwrite(bbcorn2, sizeof(float), 3, output);
     fwrite(&liquflags,sizeof(uint32),1,output);
     int nColTriangles = 0;
-    if(pPreciseVectorData)
+    if (preciseVectorData)
     {
         char GRP[] = "GRP ";
         fwrite(GRP,1,4,output);
@@ -481,10 +489,9 @@ WMOGroup::~WMOGroup()
     delete [] LiquBytes;
 }
 
-WMOInstance::WMOInstance(MPQFile &f,const char* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile)
+WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
+    : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), d3(0)
 {
-    pos = Vec3D(0,0,0);
-
     float ff[3];
     f.read(&id, 4);
     f.read(ff,12);
