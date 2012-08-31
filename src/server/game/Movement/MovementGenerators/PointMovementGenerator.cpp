@@ -59,7 +59,7 @@ bool PointMovementGenerator<T>::Update(T* unit, const uint32& /*diff*/)
     {
         i_recalculateSpeed = false;
         Movement::MoveSplineInit init(unit);
-        init.MoveTo(i_x, i_y, i_z);
+        init.MoveTo(i_x, i_y, i_z, m_generatePath);
         if (speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
             init.SetVelocity(speed);
         init.Launch();
