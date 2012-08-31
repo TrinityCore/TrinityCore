@@ -824,3 +824,7 @@ INSERT INTO creature (id, map, spawnMask, position_x, position_y, position_z, or
 
 -- correcting respawn timer of Enslaved Fire Elemental
 UPDATE creature SET spawntimesecs = 604800 WHERE id = 33838;
+
+-- correcting Junk bot template
+UPDATE creature_template SET difficulty_entry_1 = 34114 WHERE entry = 33855;
+UPDATE creature_template SET faction_A = 16, faction_H = 16 WHERE entry = 34114;
