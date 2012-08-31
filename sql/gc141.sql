@@ -36,6 +36,11 @@ DELETE FROM spell_script_names WHERE spell_id = 46584;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (46584, 'spell_dk_raise_dead');
 
+-- thorim berserk
+DELETE FROM spell_script_names WHERE spell_id = 62560;
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(62560, 'spell_thorim_berserk');
+
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 
@@ -317,6 +322,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (136816, 0, 0, 0, 1, 0, '40775');
 DELETE FROM `creature` WHERE `id` IN (33140,33141); -- Left- and right-hands are used in RunicSmash().
 UPDATE `creature_template` SET `ScriptName`='npc_runic_smash' WHERE `entry` IN (33140, 33141);
+UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 33725;
 
 -- Caches.
 UPDATE `gameobject_template` SET `flags`=`flags`&~16 WHERE `entry` IN (194312,194313,194314,194315);
