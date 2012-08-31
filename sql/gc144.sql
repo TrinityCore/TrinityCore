@@ -114,6 +114,14 @@ INSERT INTO game_tele (position_x, position_y, position_z, orientation, map, nam
 (8515.63, 714.174, 558.248, 1.57298, 571, 'TrialOfTheCrusader'),
 (8588.42, 791.888, 558.236, 3.23819, 571, 'TrialOfTheChampion');
 
+-- misc fixes for higher boss brackets
+UPDATE creature_template SET dmg_multiplier = 70 WHERE entry IN (35440, 35513, 35516, 35449, 35269, 35352, 35349, 35616);
+UPDATE creature_template SET flags_extra = flags_extra | 1 WHERE entry IN (35438, 35439, 35440, 35511, 35512, 35513, 35514, 35515, 35516);
+UPDATE creature_template SET speed_walk = 2.8, speed_run = 1.71429 WHERE entry IN (35350, 35351, 35352, 35347, 35348, 35349);
+UPDATE creature_template SET speed_walk = 2, speed_run = 1.14286 WHERE entry IN (34566, 35615, 35616);
+UPDATE creature_template SET skinloot = 34797 WHERE entry IN (35447, 35448, 35449);
+UPDATE creature_template SET skinloot = 70214 WHERE entry IN (34566, 35615, 35616);
+
 -- -------------------------
 -- ULDUAR ------------------
 -- -------------------------
