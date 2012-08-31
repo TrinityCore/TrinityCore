@@ -81,7 +81,7 @@ public:
             { "save",               SEC_PLAYER,             false, &HandleSaveCommand,                  "", NULL },
             { "saveall",            SEC_MODERATOR,          true,  &HandleSaveAllCommand,               "", NULL },
             { "kick",               SEC_GAMEMASTER,         true,  &HandleKickPlayerCommand,            "", NULL },
-            { "start",              SEC_PLAYER,             false, &HandleStartCommand,                 "", NULL },
+            { "unstuck",            SEC_PLAYER,             false, &HandleUnstuckCommand,               "", NULL },
             { "linkgrave",          SEC_ADMINISTRATOR,      false, &HandleLinkGraveCommand,             "", NULL },
             { "neargrave",          SEC_ADMINISTRATOR,      false, &HandleNearGraveCommand,             "", NULL },
             { "showarea",           SEC_ADMINISTRATOR,      false, &HandleShowAreaCommand,              "", NULL },
@@ -928,33 +928,64 @@ public:
         return true;
     }
 
-    static bool HandleStartCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        char* playerArg = strtok((char*)args, " ");
+        if (!playerArg)
+            return false;
 
-        if (player->isInFlight())
+        char* teleArgs = strtok(NULL, " ");
+        if (!teleArgs)
+            return false;
+
+        if (!(teleArgs == "inn" || teleArgs == "graveyard" || teleArgs == "startzone"))
+            return false;
+        
+        Player* player = NULL;
+        std::string playerName;
+        if (!handler->extractPlayerTarget((char*)playerArg, &player, NULL, &playerName))
+            return false;
+
+
+        if (player->isInFlight() || player->isInCombat())
         {
-            handler->SendSysMessage(LANG_YOU_IN_FLIGHT);
+            handler->SendSysMessage("You can't do that right now.");
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (player->isInCombat())
+        //Don't allow the player to choose where they teleport to unless they're a GM
+        if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
         {
-            handler->SendSysMessage(LANG_YOU_IN_COMBAT);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+            if (player->isDead() || player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            {
+                // if player is dead and stuck, send ghost to graveyard
+                player->RepopAtGraveyard();
+                return true;
+            }
 
-        if (player->isDead() || player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-        {
-            // if player is dead and stuck, send ghost to graveyard
-            player->RepopAtGraveyard();
+            // cast spell Stuck
+            player->CastSpell(player, 7355, false);
             return true;
         }
 
-        // cast spell Stuck
-        player->CastSpell(player, 7355, false);
+        if (teleArgs == "inn")
+        {
+            player->TeleportTo(player->GetInnPosMapId(), player->GetInnPosX(), player->GetInnPosY(), player->GetInnPosZ(), 0);
+            return true;
+        }
+
+        if (teleArgs == "startzone")
+        {
+            player->TeleportTo(player->GetStartPosition());
+            return true;
+        }
+
+        if (teleArgs == "graveyard")
+        {
+            player->RepopAtGraveyard();
+            return true;
+        }
         return true;
     }
 
