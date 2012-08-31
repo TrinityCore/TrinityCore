@@ -60,7 +60,7 @@ enum Spells
    SPELL_FLAME_SUPPRESSANT_MK                  = 64570,
    SPELL_NAPALM_SHELL_10                       = 63666,
    SPELL_NAPALM_SHELL_25                       = 65026,
-   SPELL_PLASMA_BLAST                          = 62977,
+   SPELL_PLASMA_BLAST                          = 62997,
    SPELL_PROXIMITY_MINES                       = 63027,
    SPELL_SHOCK_BLAST                           = 63631,
    SPELL_EXPLOSION                             = 66351,
