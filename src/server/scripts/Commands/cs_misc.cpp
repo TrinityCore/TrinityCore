@@ -930,63 +930,70 @@ public:
 
     static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
-        char* playerArg = strtok((char*)args, " ");
-        if (!playerArg)
-            return false;
-
-        char* teleArgs = strtok(NULL, " ");
-        if (!teleArgs)
-            return false;
-
-        if (!(teleArgs == "inn" || teleArgs == "graveyard" || teleArgs == "startzone"))
+        //No args required for players
+        if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
+        {
+            Player* player = handler->GetSession()->GetPlayer();
+            if (player->isInFlight() || player->isInCombat())
+            {
+                handler->SendSysMessage(LANG_CANT_DO_NOW);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            
+            //7355: "Stuck"
+            player->CastSpell(player, 7355, false);
+            return true;
+        }
+        
+        if (!*args)
             return false;
         
-        Player* player = NULL;
-        std::string playerName;
-        if (!handler->extractPlayerTarget((char*)playerArg, &player, NULL, &playerName))
+        // 2 arguments:
+        // Player 
+        // inn|graveyard|startzone (optional - default is inn)
+        char* player_str = strtok((char*)args, " ");
+        char* location_str = strtok((char*)NULL, " ");
+
+        if (!player_str)
             return false;
 
+        if (!location_str)
+            location_str = "inn";
+
+        Player* player = NULL;
+        std::string playerName;
+        if (!handler->extractPlayerTarget((char*)player_str, &player, NULL, &playerName))
+            return false;
 
         if (player->isInFlight() || player->isInCombat())
         {
-            handler->SendSysMessage("You can't do that right now.");
+            handler->SendSysMessage(LANG_CANT_DO_NOW);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        //Don't allow the player to choose where they teleport to unless they're a GM
-        if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
-        {
-            if (player->isDead() || player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-            {
-                // if player is dead and stuck, send ghost to graveyard
-                player->RepopAtGraveyard();
-                return true;
-            }
-
-            // cast spell Stuck
-            player->CastSpell(player, 7355, false);
-            return true;
-        }
-
-        if (teleArgs == "inn")
+        if (!stricmp(location_str, "inn"))
         {
             player->TeleportTo(player->GetInnPosMapId(), player->GetInnPosX(), player->GetInnPosY(), player->GetInnPosZ(), 0);
             return true;
         }
 
-        if (teleArgs == "startzone")
+        if (!stricmp(location_str, "graveyard"))
+        {
+            player->RepopAtGraveyard();
+            return true;
+        }
+
+        if (!stricmp(location_str, "startzone"))
         {
             player->TeleportTo(player->GetStartPosition());
             return true;
         }
 
-        if (teleArgs == "graveyard")
-        {
-            player->RepopAtGraveyard();
-            return true;
-        }
-        return true;
+        //Not a supported argument
+        return false;
+
     }
 
     static bool HandleLinkGraveCommand(ChatHandler* handler, char const* args)
