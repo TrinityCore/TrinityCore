@@ -230,13 +230,11 @@ public:
         {
             if (Creature* summoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
             {
-                Player* player = NULL;
                 Unit* target = NULL;
                 if (PlayerGUID)
                 {
-                    player = Unit::GetPlayer(*me, PlayerGUID);
-                    if (player)
-                        target = RAND((Unit*)me, (Unit*)player);
+                    if (Unit* player = Unit::GetPlayer(*me, PlayerGUID)->ToUnit())
+                        target = RAND((Unit*)me, player);
                 } else
                     target = me;
 
