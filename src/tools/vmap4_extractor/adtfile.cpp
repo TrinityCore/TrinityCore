@@ -26,7 +26,7 @@
 #define snprintf _snprintf
 #endif
 
-const char * GetPlainName(const char * FileName)
+char const* GetPlainName(char const* FileName)
 {
     const char * szTemp;
 
@@ -35,7 +35,7 @@ const char * GetPlainName(const char * FileName)
     return FileName;
 }
 
-char * GetPlainName(char * FileName)
+char* GetPlainName(char* FileName)
 {
     char * szTemp;
 
@@ -44,24 +44,21 @@ char * GetPlainName(char * FileName)
     return FileName;
 }
 
-void fixnamen(char *name, size_t len)
+void fixnamen(char* name, size_t len)
 {
-    for (size_t i=0; i<len-3; i++)
+    for (size_t i = 0; i < len-3; i++)
     {
-        if (i>0 && name[i]>='A' && name[i]<='Z' && isalpha(name[i-1]))
-        {
+        if (i > 0 && name[i] >= 'A' && name[i] <= 'Z' && isalpha(name[i-1]))
             name[i] |= 0x20;
-        } else if ((i==0 || !isalpha(name[i-1])) && name[i]>='a' && name[i]<='z')
-        {
+        else if ((i == 0 || !isalpha(name[i-1])) && name[i]>='a' && name[i]<='z')
             name[i] &= ~0x20;
-        }
     }
     //extension in lowercase
-    for(size_t i=len-3; i<len; i++)
+    for (size_t i = len - 3; i < len; i++)
         name[i] |= 0x20;
 }
 
-void fixname2(char *name, size_t len)
+void fixname2(char* name, size_t len)
 {
     for (size_t i=0; i<len-3; i++)
     {
@@ -70,15 +67,15 @@ void fixname2(char *name, size_t len)
     }
 }
 
-char * GetExtension(char * FileName)
+char* GetExtension(char* FileName)
 {
-    char * szTemp;
-    if((szTemp = strrchr(FileName, '.')) != NULL)
+    char* szTemp;
+    if (szTemp = strrchr(FileName, '.'))
         return szTemp;
     return NULL;
 }
 
-ADTFile::ADTFile(char* filename): ADT(filename)
+ADTFile::ADTFile(char* filename): ADT(filename), nWMO(0), nMDX(0), WmoInstansName(NULL), ModelInstansName(NULL)
 {
     Adtfilename.append(filename);
 }
@@ -99,7 +96,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
     xMap = TempMapNumber.substr(TempMapNumber.find("_")+1,(TempMapNumber.find_last_of("_")-1) - (TempMapNumber.find("_")));
     yMap = TempMapNumber.substr(TempMapNumber.find_last_of("_")+1,(TempMapNumber.length()) - (TempMapNumber.find_last_of("_")));
     Adtfilename.erase((Adtfilename.length()-xMap.length()-yMap.length()-2), (xMap.length()+yMap.length()+2));
-    string AdtMapNumber = xMap + ' ' + yMap + ' ' + GetPlainName((char*)Adtfilename.c_str());
+    //string AdtMapNumber = xMap + ' ' + yMap + ' ' + GetPlainName((char*)Adtfilename.c_str());
     //printf("Processing map %s...\n", AdtMapNumber.c_str());
     //printf("MapNumber = %s\n", TempMapNumber.c_str());
     //printf("xMap = %s\n", xMap.c_str());
@@ -159,18 +156,17 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
         {
             if (size)
             {
-                char *buf = new char[size];
+                char* buf = new char[size];
                 ADT.read(buf, size);
-                char *p=buf;
+                char* p=buf;
                 int q = 0;
                 WmoInstansName = new string[size];
                 while (p<buf+size)
                 {
-                    string path(p);
-                    char* s=GetPlainName(p);
-                    fixnamen(s,strlen(s));
-                    fixname2(s,strlen(s));
-                    p=p+strlen(p)+1;
+                    char* s = GetPlainName(p);
+                    fixnamen(s, strlen(s));
+                    fixname2(s, strlen(s));
+                    p += strlen(p) + 1;
                     WmoInstansName[q++] = s;
                 }
                 delete[] buf;

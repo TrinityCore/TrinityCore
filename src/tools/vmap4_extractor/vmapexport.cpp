@@ -159,12 +159,12 @@ bool ExtractSingleWmo(std::string& fname)
 
     int p = 0;
     //Select root wmo files
-    const char * rchr = strrchr(plain_name, '_');
+    char const* rchr = strrchr(plain_name, '_');
     if(rchr != NULL)
     {
         char cpy[4];
-        strncpy((char*)cpy,rchr,4);
-        for (int i=0;i < 4; ++i)
+        strncpy((char*)cpy, rchr, 4);
+        for (int i = 0; i < 4; ++i)
         {
             int m = cpy[i];
             if(isdigit(m))
@@ -200,7 +200,7 @@ bool ExtractSingleWmo(std::string& fname)
             strcpy(temp, fname.c_str());
             temp[fname.length()-4] = 0;
             char groupFileName[1024];
-            sprintf(groupFileName,"%s_%03d.wmo",temp, i);
+            sprintf(groupFileName, "%s_%03u.wmo", temp, i);
             //printf("Trying to open groupfile %s\n",groupFileName);
 
             string s = groupFileName;
