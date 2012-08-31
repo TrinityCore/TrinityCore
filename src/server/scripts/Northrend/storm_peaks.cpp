@@ -195,103 +195,6 @@ public:
 };
 
 /*######
-## npc_victorious_challenger
-######*/
-
-#define GOSSIP_CHALLENGER            "Let's do this, sister."
-
-enum eVictoriousChallenger
-{
-    QUEST_TAKING_ALL_CHALLENGERS    = 12971,
-    QUEST_DEFENDING_YOUR_TITLE      = 13423,
-
-    SPELL_SUNDER_ARMOR              = 11971,
-    SPELL_REND_VC                   = 11977
-};
-
-class npc_victorious_challenger : public CreatureScript
-{
-public:
-    npc_victorious_challenger() : CreatureScript("npc_victorious_challenger") { }
-
-    struct npc_victorious_challengerAI : public ScriptedAI
-    {
-        npc_victorious_challengerAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 SunderArmorTimer;
-        uint32 RendTimer;
-
-        void Reset()
-        {
-            me->RestoreFaction();
-
-            SunderArmorTimer = 10000;
-            RendTimer        = 15000;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (RendTimer < diff)
-            {
-                DoCast(me->getVictim(), SPELL_REND_VC, true);
-                RendTimer = 15000;
-            }else RendTimer -= diff;
-
-            if (SunderArmorTimer < diff)
-            {
-                DoCast(me->getVictim(), SPELL_SUNDER_ARMOR, true);
-                SunderArmorTimer = 10000;
-            }else SunderArmorTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            me->RestoreFaction();
-        }
-
-    };
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_TAKING_ALL_CHALLENGERS) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_DEFENDING_YOUR_TITLE) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHALLENGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        return false;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->setFaction(14);
-            creature->AI()->AttackStart(player);
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_victorious_challengerAI(creature);
-    }
-};
-
-/*######
 ## npc_loklira_crone
 ######*/
 
@@ -753,7 +656,6 @@ void AddSC_storm_peaks()
     new npc_agnetta_tyrsdottar();
     new npc_frostborn_scout();
     new npc_thorim();
-    new npc_victorious_challenger();
     new npc_loklira_crone();
     new npc_injured_goblin();
     new npc_roxi_ramrocket();
