@@ -26119,11 +26119,13 @@ void Player::UpdatePhasing()
     //check auras
     Unit::AuraEffectList const& phases = GetAuraEffectsByType(SPELL_AURA_PHASE);
     if (!phases.empty())
+    {
         for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
         {
             newPhase |= (*itr)->GetMiscValue();
             phaseSet.insert((*itr)->GetMiscValueB());
         }
+    }
 
     //get phase mask, if our mask is the same no need to send data.
     uint32 phaseCount = 0;
@@ -26132,15 +26134,17 @@ void Player::UpdatePhasing()
     uint32 mapID = 0;
     for(ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
     {
+        ++phaseCount;
+
         PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
         if (!phaseTemplate)
         {
-            // not handled template. need support in db.
-            phaseSet.erase(itr++);
+            // not handled template. 
+            // in moste cases phasing perfome by spells and in this cases we just send phaseID with root map data
+            // so no need add for them template.
             continue;
         }
         newPhase |= phaseTemplate->PhaseMask;
-        ++phaseCount;
 
         if (phaseTemplate->terrainSwap)
             ++terrainCount;
@@ -26242,12 +26246,7 @@ void Player::SendPhaseShifting(ApplyPhaseSet &phaseSet, uint32 map, uint32 phase
     {
         data << uint32(phaseCount*2); // number of phase array *2
         for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
-        {
-            PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
-            if (!phaseTemplate)
-                continue;
             data << uint16(*itr);
-        }
     }else
         data << uint32(0);
 

@@ -1789,7 +1789,7 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     if (Player* player = target->ToPlayer())
     {
         // now everything handled in Player::UpdatePhasing()
-        player->SetUpdatePhasing();
+        player->SetUpdatePhasing(true);
     }
     else
     {
