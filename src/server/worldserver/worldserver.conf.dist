@@ -305,10 +305,10 @@ vmap.ignoreSpellIds = "7720"
 #
 #    vmap.petLOS
 #        Description: Check line of sight for pets, to avoid them attacking through walls.
-#        Default:     1 - (Enabled, each pet attack will be checked for line of sight)
+#        Default:     1 - (Enabled, each pet attack will be checked for line of sight - not recommended if mmaps is enabled!)
 #                     0 - (Disabled, somewhat less CPU usage)
 
-vmap.petLOS = 1
+vmap.petLOS = 0
 
 #
 #    vmap.enableIndoorCheck
