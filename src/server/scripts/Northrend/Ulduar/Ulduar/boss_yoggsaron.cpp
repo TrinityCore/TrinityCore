@@ -783,7 +783,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                                 break;
                             default: 
                                 break;
-                        }                        
+                        }
                         me->Kill(me);   // Should call JustDied();
                         break;
                     case ACTION_BRAIN_UNDER_30_PERCENT:
@@ -1711,10 +1711,14 @@ class boss_sara : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (myPhase == PHASE_NONE || me->HasUnitState(UNIT_STATE_CASTING))
+                if (myPhase == PHASE_NONE)
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 while (uint32 event = events.ExecuteEvent())
                 {
                     switch (event)
@@ -2504,20 +2508,24 @@ class boss_yogg_saron : public CreatureScript
                             else
                                 me->CastSpell(me, SPELL_SUMMON_CURRUPTOR_TENTACLE, true);
                             if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))
+                            {
                                 if (ctrl->AI()->GetData(DATA_BRAIN_EVT_CNT) < 4)
                                     events.ScheduleEvent(EVENT_TENTACLE, urand(5000, 10000), 0, PHASE_BRAIN);
                                 else
                                     events.ScheduleEvent(EVENT_TENTACLE, urand(2000, 5000), 0, PHASE_BRAIN);  
+                            }
                             else
                                 events.ScheduleEvent(EVENT_TENTACLE, urand(3500, 7500), 0, PHASE_BRAIN);
                             return;
                         case EVENT_TENTACLE_1:
                             me->CastSpell(me, SPELL_SUMMON_CRUSHER_TENTACLE, true);
                             if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))
+                            {
                                 if (ctrl->AI()->GetData(DATA_BRAIN_EVT_CNT) < 4)
                                     events.ScheduleEvent(EVENT_TENTACLE_1, urand(30000, 40000), 0, PHASE_BRAIN);
                                 else
                                     events.ScheduleEvent(EVENT_TENTACLE_1, urand(10000, 15000), 0, PHASE_BRAIN);  
+                            }
                             else
                                 events.ScheduleEvent(EVENT_TENTACLE_1, urand(20000, 27500), 0, PHASE_BRAIN);
                             return;
