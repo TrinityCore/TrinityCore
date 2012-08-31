@@ -6261,6 +6261,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     SpellPeriodicAuraLogInfo pInfo(this, damage, overkill, absorb, resist, 0.0f, crit);
     target->SendPeriodicAuraLog(&pInfo);
 	
+	//checking for a player using .cheat god
 	if (target->GetTypeId() ==  TYPEID_PLAYER)
 	{
 		if (target->ToPlayer()->GetCommandStatus(CHEAT_GOD))

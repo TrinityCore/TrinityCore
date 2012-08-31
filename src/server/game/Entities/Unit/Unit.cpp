@@ -1029,7 +1029,8 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     }
     else
         damage = 0;
-
+	
+	//check for player using .cheat god
 	if (victim->GetTypeId() == TYPEID_PLAYER)
 	{
 		if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
@@ -1273,7 +1274,8 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     }
     else // Impossible get negative result but....
         damageInfo->damage = 0;
-
+	
+	//check for player using .cheat god
 	if (victim->GetTypeId() == TYPEID_PLAYER)
 	{
 		if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
