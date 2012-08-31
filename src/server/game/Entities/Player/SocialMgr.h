@@ -54,24 +54,12 @@ struct FriendInfo
     uint8 Class;
     std::string Note;
 
-    FriendInfo()
+    FriendInfo() : Status(FRIEND_STATUS_OFFLINE), Flags(0), Area(0), Level(0), Class(0), Note()
     {
-        Status = FRIEND_STATUS_OFFLINE;
-        Flags = 0;
-        Area = 0;
-        Level = 0;
-        Class = 0;
-        Note = "";
     }
 
-    FriendInfo(uint8 flags, const std::string& note)
+    FriendInfo(uint8 flags, const std::string& note) : Status(FRIEND_STATUS_OFFLINE), Flags(flags), Area(0), Level(0), Class(0), Note(note)
     {
-        Status = FRIEND_STATUS_OFFLINE;
-        Flags = flags;
-        Area = 0;
-        Level = 0;
-        Class = 0;
-        Note = note;
     }
 };
 
