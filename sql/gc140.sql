@@ -423,7 +423,6 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 -- Spell stuff
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (63382, 63016, 63027);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63382, 'spell_rapid_burst');
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63016, 'spell_proximity_mines_triggered');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63027, 'spell_proximity_mines');
 
 -- General Vezax
