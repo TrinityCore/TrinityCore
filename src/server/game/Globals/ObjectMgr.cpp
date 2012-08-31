@@ -8650,7 +8650,7 @@ void ObjectMgr::LoadPhaseTemplate()
 
         PhaseTemplate data;
         data.PhaseMask = fields[1].GetUInt32();
-        data.map = fields[2].GetUInt32();
+        data.map = fields[2].GetInt32();
         data.terrainSwap = fields[3].GetUInt32();
         data.unkFirstCounter = fields[4].GetUInt32();
         mPhaseTemplateMap.insert(std::pair<uint32, PhaseTemplate>(phaseID, data));

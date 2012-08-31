@@ -1794,6 +1794,9 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && isAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
+    // perfom delay phase switching
+    UpdatePhasing();
 }
 
 void Player::setDeathState(DeathState s)
@@ -26095,11 +26098,12 @@ void Player::SendMovementSetCollisionHeight(float height)
 // Two steps: check quest requarements and applyed auras
 void Player::UpdatePhasing()
 {
-    if (!m_update_phasing)
+    if (!IsInWorld() || !m_update_phasing)
         return;
 
     m_update_phasing = false;
 
+    uint32 newPhase = 0;
     ApplyPhaseSet phaseSet;     // Use std::Set for privent duble applying
     uint32 zone, area;
     GetZoneAndAreaId(zone, area);
@@ -26116,10 +26120,149 @@ void Player::UpdatePhasing()
     Unit::AuraEffectList const& phases = GetAuraEffectsByType(SPELL_AURA_PHASE);
     if (!phases.empty())
         for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+        {
+            newPhase |= (*itr)->GetMiscValue();
             phaseSet.insert((*itr)->GetMiscValueB());
+        }
 
     //get phase mask, if our mask is the same no need to send data.
-    uint32 newPhase = isGameMaster() ? 0xFFFFFFFF : 0;
+    uint32 phaseCount = 0;
+    uint32 terrainCount = 0;
+    uint32 unkCounter = 0;
+    uint32 mapID = 0;
+    for(ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
+    {
+        PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
+        if (!phaseTemplate)
+        {
+            // not handled template. need support in db.
+            phaseSet.erase(itr++);
+            continue;
+        }
+        newPhase |= phaseTemplate->PhaseMask;
+        ++phaseCount;
 
-    //ToDo:: handle phaseID data and replace PhaseAura handler for plr.
+        if (phaseTemplate->terrainSwap)
+            ++terrainCount;
+
+        if (phaseTemplate->map >= 0)
+            mapID = phaseTemplate->map;
+
+        if (phaseTemplate->unkFirstCounter)
+            ++unkCounter;
+    }
+
+    if (!newPhase)
+        newPhase = PHASEMASK_NORMAL;
+
+    // no need for sending data again
+    if(GetPhaseMask() == newPhase)
+        return;
+
+    // GM-mode have mask 0xFFFFFFFF
+    // should be after check phasing check for perfoming gm mode switching
+    // but sending duta will be perfomed every take/complite quest and could be hurmfull for client
+    // ToDo: more research for it 
+    if (isGameMaster())
+        newPhase = 0xFFFFFFFF;
+
+    SetPhaseMask(newPhase, false);
+
+    //if not defined map in phase template we should send root mapID
+    // For example:
+    // Start location of goblin and worgens has general phaseID's but player storied not in root map, but just on phased
+    // and SMSG_UPDATE_OBJECT we get with phase map id, in this case we send root mapID and set in phase template map == -1
+    // but with hijal we send root map in SMSG_UPDATE_OBJECT but in phasing phase map used, so in template should be phase map.
+    if(!mapID)
+        mapID = GetMapId();
+
+    if(!phaseSet.empty())
+        SendPhaseShifting(phaseSet, mapID, phaseCount, terrainCount, unkCounter);
+
+    if (IsVisible())
+        UpdateObjectVisibility();
+}
+
+// i understand that it not good use so much iterations, but in normal cases it will be just 1-5 switches
+// ToDo: optimize
+void Player::SendPhaseShifting(ApplyPhaseSet &phaseSet, uint32 map, uint32 phaseCount, uint32 terrainCount, uint32 unkCounter)
+{
+    ObjectGuid guid = GetGUID();
+
+    WorldPacket data(SMSG_SET_PHASE_SHIFT, 16+4+4+4+4+4+(unkCounter ? 2*unkCounter : 0)+(map ? 2 : 0)+(phaseCount ? 2*phaseCount : 0)+(terrainCount ? terrainCount*2 : 0));
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
+
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+
+    if(unkCounter)
+    {
+        data << uint32(unkCounter*2);   //number of tarrain sap array *2
+        for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
+        {
+            PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
+            if (!phaseTemplate)
+                continue;
+            if (phaseTemplate->unkFirstCounter)
+                data << uint16(phaseTemplate->unkFirstCounter);
+        }
+    }else
+        data << uint32(0);
+
+    data.WriteByteSeq(guid[1]);
+    data << uint32(0);  //unk. At first logining in Gilneas == 8
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+
+    // terrain swap
+    if (terrainCount)
+    {
+        data << uint32(terrainCount*2);   //number of tarrain array *2
+        for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
+        {
+            PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
+            if (!phaseTemplate)
+                continue;
+            if (phaseTemplate->terrainSwap)
+                data << uint16(phaseTemplate->terrainSwap);
+        }
+    }else
+        data << uint32(0);
+
+    if (phaseCount)
+    {
+        data << uint32(phaseCount*2); // number of phase array *2
+        for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
+        {
+            PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
+            if (!phaseTemplate)
+                continue;
+            data << uint16(*itr);
+        }
+    }else
+        data << uint32(0);
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+
+    // map counter
+    if(map)
+    {
+        data << uint32(2); // number of map array *2
+        data << uint16(map);
+    }else
+        data << uint32(0);
+
+    data.WriteByteSeq(guid[5]);
+
+    GetSession()->SendPacket(&data);
 }

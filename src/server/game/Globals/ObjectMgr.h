@@ -589,7 +589,7 @@ typedef std::vector<HotfixInfo> HotfixData;
 struct PhaseTemplate
 {
     uint32 PhaseMask;
-    uint32 map;
+    int32 map;  // -1 state used for not perfoming map
     uint32 terrainSwap;
     uint32 unkFirstCounter;
 };

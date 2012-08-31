@@ -2942,6 +2942,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         // Phasing
+        void SendPhaseShifting(ApplyPhaseSet &data, uint32 map, uint32 phaseCount, uint32 terrainCount, uint32 unkCounter);
         bool m_update_phasing;
 };
 
