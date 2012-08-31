@@ -539,7 +539,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         victim->GetAI()->DamageTaken(this, damage);
 
     if (IsAIEnabled)
-        GetAI()->DamageDealt(victim, damage, damagetype);
+		GetAI()->DamageDealt(victim, damage, damagetype);
 
     // Signal to pets that their owner was attacked
     if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -582,8 +582,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             uint32 share = CalculatePctN(damage, (*i)->GetAmount());
 
             // TODO: check packets if damage is done by victim, or by attacker of victim
-            DealDamageMods(shareDamageTarget, share, NULL);
-            DealDamage(shareDamageTarget, share, NULL, NODAMAGE, spell->GetSchoolMask(), spell, false);
+			DealDamageMods(shareDamageTarget, share, NULL);
+			DealDamage(shareDamageTarget, share, NULL, NODAMAGE, spell->GetSchoolMask(), spell, false);
         }
     }
 
@@ -688,7 +688,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (health <= damage)
     {
-        sLog->outDebug(LOG_FILTER_UNITS, "DealDamage: victim just died");
+		sLog->outDebug(LOG_FILTER_UNITS, "DealDamage: victim just died");
 
         if (victim->GetTypeId() == TYPEID_PLAYER && victim != this)
         {
@@ -708,7 +708,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (victim->GetTypeId() == TYPEID_PLAYER)
             victim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, damage);
 
-        victim->ModifyHealth(- (int32)damage);
+			victim->ModifyHealth(- (int32)damage);
+        
 
         if (damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
             victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
@@ -1020,7 +1021,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
             break;
     }
 
-    // Calculate absorb resist
+	// Calculate absorb resist
     if (damage > 0)
     {
         CalcAbsorbResist(victim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist, spellInfo);
@@ -1029,7 +1030,18 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     else
         damage = 0;
 
-    damageInfo->damage = damage;
+	if (victim->GetTypeId() == TYPEID_PLAYER)
+	{
+		if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
+		{
+			uint32 sDamage = 0;
+			damageInfo->damage = sDamage;
+		}
+		else
+			damageInfo->damage = damage;
+	}
+	else
+		damageInfo->damage = damage;
 }
 
 void Unit::DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss)
@@ -1261,6 +1273,15 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     }
     else // Impossible get negative result but....
         damageInfo->damage = 0;
+
+	if (victim->GetTypeId() == TYPEID_PLAYER)
+	{
+		if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
+		{
+			uint32 mDamage = 0;
+			damageInfo->damage = mDamage;
+		}
+	}
 }
 
 void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
@@ -12415,7 +12436,7 @@ int32 Unit::ModifyHealth(int32 dVal)
     int32 curHealth = (int32)GetHealth();
 
     int32 val = dVal + curHealth;
-    if (val <= 0)
+	if (val <= 0)
     {
         SetHealth(0);
         return -curHealth;
