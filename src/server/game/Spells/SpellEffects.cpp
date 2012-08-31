@@ -277,6 +277,10 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
+    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+        if (unitTarget->ToPlayer()->GetCommandStatus(CHEAT_GOD))
+            return;
+
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
 
