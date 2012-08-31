@@ -205,10 +205,6 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, const uint32& time_diff)
     if (i_totalFleeTime.Passed())
         return false;
 
-    i_totalFleeTime.Update(time_diff);
-    if (i_totalFleeTime.Passed())
-        return false;
-
     // This calls grant-parent Update method hiden by FleeingMovementGenerator::Update(Creature &, const uint32 &) version
     // This is done instead of casting Unit& to Creature& and call parent method, then we can use Unit directly
     return MovementGeneratorMedium< Creature, FleeingMovementGenerator<Creature> >::Update(owner, time_diff);

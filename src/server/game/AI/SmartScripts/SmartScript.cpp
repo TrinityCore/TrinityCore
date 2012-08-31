@@ -79,6 +79,7 @@ SmartScript::SmartScript()
 {
     go = NULL;
     me = NULL;
+    trigger = NULL;
     mEventPhase = 0;
     mPathId = 0;
     mTargetStorage = new ObjectListMap();
@@ -92,6 +93,7 @@ SmartScript::SmartScript()
     meOrigGUID = 0;
     goOrigGUID = 0;
     mLastInvoker = 0;
+    mScriptType = SMART_SCRIPT_TYPE_CREATURE;
 }
 
 SmartScript::~SmartScript()
@@ -1117,10 +1119,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SUMMON_CREATURE:
         {
-            float x, y, z, o;
             ObjectList* targets = GetTargets(e, unit);
             if (targets)
             {
+                float x, y, z, o;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
                     (*itr)->GetPosition(x, y, z, o);
@@ -1149,10 +1151,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!GetBaseObject())
                 break;
 
-            float x, y, z, o;
             ObjectList* targets = GetTargets(e, unit);
             if (targets)
             {
+                float x, y, z, o;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
                     if (!IsUnit(*itr))
