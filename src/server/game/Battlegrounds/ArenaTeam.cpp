@@ -24,16 +24,9 @@
 #include "ArenaTeamMgr.h"
 
 ArenaTeam::ArenaTeam()
+    : TeamId(0), Type(0), TeamName(), CaptainGuid(0), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
+    BorderStyle(0), BorderColor(0)
 {
-    TeamId            = 0;
-    Type              = 0;
-    TeamName          = "";
-    CaptainGuid       = 0;
-    BackgroundColor   = 0;
-    EmblemStyle       = 0;
-    EmblemColor       = 0;
-    BorderStyle       = 0;
-    BorderColor       = 0;
     Stats.WeekGames   = 0;
     Stats.SeasonGames = 0;
     Stats.Rank        = 0;
@@ -343,7 +336,7 @@ void ArenaTeam::Disband(WorldSession* session)
     // Broadcast update
     if (session)
     {
-        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName().c_str(), GetName(), "");
+        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName(), GetName(), "");
 
         if (Player* player = session->GetPlayer())
             sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());

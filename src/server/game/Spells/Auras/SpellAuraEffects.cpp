@@ -2958,13 +2958,13 @@ void AuraEffect::HandleForceMoveForward(AuraApplication const* aurApp, uint8 mod
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVE);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
             return;
-        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVE);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
     }
 }
 

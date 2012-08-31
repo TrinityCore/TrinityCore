@@ -1291,7 +1291,7 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
         class spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript);
-             
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitCreature())

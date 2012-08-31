@@ -1390,7 +1390,7 @@ inline std::string GetOpcodeNameForLogging(uint16 opcode)
 {
     std::ostringstream ss;
     ss << '[' << LookupOpcodeName(opcode) << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
-    return ss.str().c_str();
+    return ss.str();
 }
 
 #endif

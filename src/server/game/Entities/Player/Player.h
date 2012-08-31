@@ -114,7 +114,7 @@ struct PlayerTalent
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier(Aura* _ownerAura = NULL) : charges(0), ownerAura(_ownerAura) {}
+    SpellModifier(Aura* _ownerAura = NULL) : op(SPELLMOD_DAMAGE), type(SPELLMOD_FLAT), charges(0), value(0), mask(), spellId(0), ownerAura(_ownerAura) {}
     SpellModOp   op   : 8;
     SpellModType type : 8;
     int16 charges     : 16;
