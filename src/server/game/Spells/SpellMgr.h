@@ -485,9 +485,16 @@ class PetAura
 };
 typedef std::map<uint32, PetAura> SpellPetAuraMap;
 
+// ToDo: now it already use for PhaseArea too.
 struct SpellArea
 {
+    SpellArea() : spellId(0), phaseid(0), areaId(0), questStart(0), questEnd(0),
+        auraSpell(0), raceMask(0), gender(GENDER_NONE), questStartCanActive(false), autocast(false) 
+    {
+    }
+
     uint32 spellId;
+    uint32 phaseid;
     uint32 areaId;                                          // zone/subzone/or 0 is not limited to zone
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
     uint32 questEnd;                                        // quest end (quest must not be rewarded for spell apply)
@@ -685,6 +692,10 @@ class SpellMgr
         SpellAreaForAuraMapBounds GetSpellAreaForAuraMapBounds(uint32 spell_id) const;
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
 
+        // Phase area
+        SpellAreaMapBounds GetPhaseAreaMapBounds(uint32 phase_id) const;
+        SpellAreaForAreaMapBounds GetPhaseAreaForAreaMapBounds(uint32 area_id) const;
+
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
@@ -712,6 +723,7 @@ class SpellMgr
         void LoadPetLevelupSpellMap();
         void LoadPetDefaultSpells();
         void LoadSpellAreas();
+        void LoadPhaseAreas();
         void LoadSpellInfoStore();
         void UnloadSpellInfoStore();
         void UnloadSpellInfoImplicitTargetConditionLists();
@@ -743,6 +755,8 @@ class SpellMgr
         SpellAreaForQuestMap       mSpellAreaForQuestEndMap;
         SpellAreaForAuraMap        mSpellAreaForAuraMap;
         SpellAreaForAreaMap        mSpellAreaForAreaMap;
+        SpellAreaMap               mPhaseAreaMap;                 // yes. We use SpellAreaMap as it's need same data.
+        SpellAreaForAreaMap        mPhaseAreaForAreaMap;
         SkillLineAbilityMap        mSkillLineAbilityMap;
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry

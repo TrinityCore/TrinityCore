@@ -847,6 +847,9 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     SetPendingBind(0, 0);
 
+    // phasing
+    m_update_phasing = false;
+
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
 }
 
@@ -7696,6 +7699,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
+
+    m_update_phasing = true;
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -14880,6 +14885,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
                     CastSpell(this, itr->second->spellId, true);
     }
 
+    // at applying phase aura it already will be true, but we set it for non-aura state change
+    m_update_phasing = true;
+
     UpdateForQuestWorldObjects();
 }
 
@@ -15091,6 +15099,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
     }
+
+    // at applying phase aura it already will be true, but we set it for non-aura state change
+    m_update_phasing = true;
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -26079,4 +26090,36 @@ void Player::SendMovementSetCollisionHeight(float height)
     data << float(height);
 
     SendDirectMessage(&data);
+}
+
+// Two steps: check quest requarements and applyed auras
+void Player::UpdatePhasing()
+{
+    if (!m_update_phasing)
+        return;
+
+    m_update_phasing = false;
+
+    ApplyPhaseSet phaseSet;     // Use std::Set for privent duble applying
+    uint32 zone, area;
+    GetZoneAndAreaId(zone, area);
+    
+    // check area dependense
+    SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetPhaseAreaForAreaMapBounds(zone);
+    for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+    {
+        if (itr->second->IsFitToRequirements(this, zone, 0))
+            phaseSet.insert(itr->second->phaseid);
+    }
+
+    //check auras
+    Unit::AuraEffectList const& phases = GetAuraEffectsByType(SPELL_AURA_PHASE);
+    if (!phases.empty())
+        for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+            phaseSet.insert((*itr)->GetMiscValueB());
+
+    //get phase mask, if our mask is the same no need to send data.
+    uint32 newPhase = isGameMaster() ? 0xFFFFFFFF : 0;
+
+    //ToDo:: handle phaseID data and replace PhaseAura handler for plr.
 }

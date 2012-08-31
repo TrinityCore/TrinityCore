@@ -500,6 +500,7 @@ enum AtLoginFlags
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
 typedef std::set<uint32> RewardedQuestSet;
+typedef std::set<uint32> ApplyPhaseSet;
 
 //               quest,  keep
 typedef std::map<uint32, bool> QuestStatusSaveMap;
@@ -1858,6 +1859,9 @@ class Player : public Unit, public GridObject<Player>
             m_contestedPvPTimer = 0;
         }
 
+        void UpdatePhasing();
+        void SetUpdatePhasing(bool state = true) { m_update_phasing = state; }
+
         /** todo: -maybe move UpdateDuelFlag+DuelComplete to independent DuelHandler.. **/
         DuelInfo* duel;
         void UpdateDuelFlag(time_t currTime);
@@ -2936,6 +2940,9 @@ class Player : public Unit, public GridObject<Player>
         InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
         uint32 _pendingBindTimer;
+
+        // Phasing
+        bool m_update_phasing;
 };
 
 void AddItemsSetItem(Player*player, Item* item);
