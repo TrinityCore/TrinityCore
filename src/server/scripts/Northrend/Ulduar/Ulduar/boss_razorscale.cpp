@@ -90,7 +90,7 @@ enum DarkRuneSpells
     SPELL_BATTLE_SHOUT_10                        = 46763,
     SPELL_BATTLE_SHOUT_25                        = 64062,
     SPELL_HEROIC_STRIKE                          = 45026,
-    SPELL_WHIRLWIND                              = 63807,
+    SPELL_WHIRLWIND                              = 63808,
 };
 
 // Macros for access simplification
@@ -923,8 +923,11 @@ class npc_darkrune_watcher : public CreatureScript
                     return;
                 }
 
-                events.Update(Diff);
+                events.Update(diff);
                 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 while (uint32 event = events.ExecuteEvent())
                 {
                     switch (event)
@@ -1042,8 +1045,11 @@ class npc_darkrune_sentinel : public CreatureScript
                     return;
                 }
 
-                events.Update(Diff);
+                events.Update(diff);
                 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 while (uint32 event = events.ExecuteEvent())
                 {
                     switch (event)
@@ -1171,7 +1177,7 @@ class achievement_quick_shave : public AchievementCriteriaScript
 
 void AddSC_boss_razorscale()
 {
-    new boss_razorscale_controller();    
+    new boss_razorscale_controller();
     new boss_razorscale();
     new npc_expedition_commander();
     new npc_mole_machine_trigger();
