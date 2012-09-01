@@ -1253,29 +1253,61 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         data << uint64(guild->GetGUID());
         data << uint32(guild->GetLevel());
         data << uint64(0/*guild->GetXP()*/);
-        data << uint32(0/*guild->GetMembersCount()*/); // number of members
+        data << uint32(guild->GetMembersCount());
     }
     SendPacket(&data);
 }
 
 void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+    guid[1] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
 
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[3]);
     Player* player = ObjectAccessor::FindPlayer(guid);
 
     if (!player)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_INSPECT_HONOR_STATS: No player found from GUID: " UI64FMTD, guid);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT_HONOR_STATS: No player found from GUID: " UI64FMTD, guid);
         return;
     }
 
-    WorldPacket data(SMSG_INSPECT_HONOR_STATS, 4+1+4+8);
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_KILLS));
-    data << uint8(0); // rank
+    ObjectGuid playerGuid = player->GetGUID();
+    WorldPacket data(SMSG_INSPECT_HONOR_STATS, 8+1+4+4);
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[1]);
+    data << uint8(0);                                               // rank
+    data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 1));  // yesterday kills
+    data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 0));  // today kills
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[5]);
     data << uint32(player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-    data << uint64(player->GetGUID());
+    data.WriteByteSeq(playerGuid[7]);
     SendPacket(&data);
 }
 

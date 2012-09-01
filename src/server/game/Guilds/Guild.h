@@ -708,6 +708,7 @@ public:
     void DeleteMember(uint64 guid, bool isDisbanding = false, bool isKicked = false);
     bool ChangeMemberRank(uint64 guid, uint8 newRank);
     bool IsMember(uint64 guid);
+    uint32 GetMembersCount() { return m_members.size(); }
 
     // Bank
     void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);

@@ -236,13 +236,13 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
+void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 {
     uint64 guid;
-    uint32 spellId = 0;
-    int32 unkInt;
+    uint32 spellId;
+    uint32 trainerId;
 
-    recvData >> guid >> unkInt >> spellId;
+    recvData >> guid >> trainerId >> spellId;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
@@ -257,33 +257,48 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (!unit->isCanTrainingOf(_player, true))
+    {
+        SendTrainerService(guid, spellId, 0);
         return;
+    }
 
     // check present spell in trainer spell list
     TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
     if (!trainer_spells)
+    {
+        SendTrainerService(guid, spellId, 0);
         return;
+    }
 
     // not found, cheat?
     TrainerSpell const* trainer_spell = trainer_spells->Find(spellId);
     if (!trainer_spell)
+    {
+        SendTrainerService(guid, spellId, 0);
         return;
+    }
 
     // can't be learn, cheat? Or double learn with lags...
     if (_player->GetTrainerSpellState(trainer_spell) != TRAINER_SPELL_GREEN)
+    {
+        SendTrainerService(guid, spellId, 0);
         return;
+    }
 
     // apply reputation discount
     uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * _player->GetReputationPriceDiscount(unit)));
 
     // check money requirement
     if (!_player->HasEnoughMoney(uint64(nSpellCost)))
+    {
+        SendTrainerService(guid, spellId, 1);
         return;
+    }
 
     _player->ModifyMoney(-int64(nSpellCost));
 
-    unit->SendPlaySpellVisual(179); // 53 SpellCastDirected
-    unit->SendPlaySpellImpact(_player->GetGUID(), 362); // 113 EmoteSalute
+    unit->SendPlaySpellVisualKit(179, 0);       // 53 SpellCastDirected
+    _player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
 
     // learn explicitly or cast explicitly
     if (trainer_spell->IsCastable())
@@ -291,10 +306,15 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
     else
         _player->learnSpell(spellId, false);
 
-    WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, 12);
+    SendTrainerService(guid, spellId, 2);
+}
+
+void WorldSession::SendTrainerService(uint64 guid, uint32 spellId, uint32 result)
+{
+    WorldPacket data(SMSG_TRAINER_SERVICE, 16);
     data << uint64(guid);
-    data << uint32(spellId);                                // should be same as in packet from client
-    data << uint32(0);                                      // "Trainer service", 1 = "Not enough money for trainer service <TS>". 0 = "Trainer service <TS> unavailable"
+    data << uint32(spellId);        // should be same as in packet from client
+    data << uint32(result);         // 2 == Success. 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
     SendPacket(&data);
 }
 
@@ -490,12 +510,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     // send spell for homebinding (3286)
     npc->CastSpell(_player, bindspell, true);
 
-    WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
-    data << uint64(npc->GetGUID());
-    data << uint32(bindspell);
-    data << uint32(0);                                      // "Trainer service", 1 = "Not enough money for trainer service <TS>". 0 = "Trainer service <TS> unavailable"
-    SendPacket(&data);
-
+    SendTrainerService(npc->GetGUID(), bindspell, 2);
     _player->PlayerTalkClass->SendCloseGossip();
 }
 

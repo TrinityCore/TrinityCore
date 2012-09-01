@@ -1579,8 +1579,7 @@ class Unit : public WorldObject
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint8 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
-        void SendPlaySpellVisual(uint32 id);
-        void SendPlaySpellImpact(uint64 guid, uint32 id);
+        void SendPlaySpellVisualKit(uint32 id, uint32 unkParam);
 
         void DeMorph();
 
@@ -2199,10 +2198,14 @@ class Unit : public WorldObject
         virtual bool isBeingLoaded() const { return false;}
         bool IsDuringRemoveFromWorld() const {return m_duringRemoveFromWorld;}
 
-        Pet* ToPet(){ if (isPet()) return reinterpret_cast<Pet*>(this); else return NULL; }
-        Totem* ToTotem(){ if (isTotem()) return reinterpret_cast<Totem*>(this); else return NULL; }
+        Pet* ToPet() { if (isPet()) return reinterpret_cast<Pet*>(this); else return NULL; }
+        Pet const* ToPet() const { if (isPet()) return reinterpret_cast<Pet const*>(this); else return NULL; }
+
+        Totem* ToTotem() { if (isTotem()) return reinterpret_cast<Totem*>(this); else return NULL; }
+        Totem const* ToTotem() const { if (isTotem()) return reinterpret_cast<Totem const*>(this); else return NULL; }
+
         TempSummon* ToTempSummon() { if (isSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
-        const TempSummon* ToTempSummon() const { if (isSummon()) return reinterpret_cast<const TempSummon*>(this); else return NULL; }
+        TempSummon const* ToTempSummon() const { if (isSummon()) return reinterpret_cast<TempSummon const*>(this); else return NULL; }
 
         void SetTarget(uint64 guid)
         {
