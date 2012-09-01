@@ -189,6 +189,32 @@ class ByteBuffer
             put(pos, (uint8 *)&value, sizeof(value));
         }
 
+        /**
+          * @name   PutBits
+          * @brief  Places specified amount of bits of value at specified position in packet
+
+          * @param  pos Position to place the value at, in bits. The entire value must fit in the packet
+          *             It is advised to obtain the position using bitwpos() function.
+
+          * @param  value Data to write.
+          * @param  bitCount Number of bits to store the value on.
+        */
+        template <typename T> void PutBits(size_t pos, T value, uint32 bitCount)
+        {
+            if (pos + bitCount > size() * 8)
+                throw ByteBufferPositionException(false, (pos + bitCount) / 8, size());
+
+            for (int32 i = 0; i < bitCount; ++i)
+            {
+                size_t wp = (pos + i) / 8;
+                size_t bit = (pos + i) % 8;
+                if ((value >> (bitCount - i - 1)) & 1)
+                    _storage[wp] |= 1 << (7 - bit);
+                else
+                    _storage[wp] &= ~(1 << (7 - bit));
+            }
+        }
+
         ByteBuffer &operator<<(uint8 value)
         {
             append<uint8>(value);
@@ -380,6 +406,16 @@ class ByteBuffer
         {
             _wpos = wpos_;
             return _wpos;
+        }
+
+        /// Returns position of last written bit
+        size_t bitwpos() const { return _wpos * 8 + 8 - _bitpos; }
+
+        size_t bitwpos(size_t newPos)
+        {
+            _wpos = newPos / 8;
+            _bitpos = 8 - (newPos % 8);
+            return _wpos * 8 + 8 - _bitpos;
         }
 
         template<typename T>
