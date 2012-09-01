@@ -723,11 +723,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     {
         std::string dump;
         if (PlayerDumpWriter().GetDump(GUID_LOPART(guid), dump))
-        {
-            std::ostringstream ss;
-            ss << GetAccountId() << '_' << name.c_str();
-            sLog->outCharDump(ss.str().c_str(), dump.c_str(), GetAccountId(), GUID_LOPART(guid), name.c_str());
-        }
+            sLog->outCharDump(dump.c_str(), GetAccountId(), GUID_LOPART(guid), name.c_str());
     }
 
     Player::DeleteFromDB(guid, GetAccountId());
