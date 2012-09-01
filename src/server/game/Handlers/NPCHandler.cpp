@@ -258,7 +258,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 
     if (!unit->isCanTrainingOf(_player, true))
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerBuyFailed(guid, spellId, 0);
         return;
     }
 
@@ -266,7 +266,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
     if (!trainer_spells)
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerBuyFailed(guid, spellId, 0);
         return;
     }
 
@@ -274,14 +274,14 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     TrainerSpell const* trainer_spell = trainer_spells->Find(spellId);
     if (!trainer_spell)
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerBuyFailed(guid, spellId, 0);
         return;
     }
 
     // can't be learn, cheat? Or double learn with lags...
     if (_player->GetTrainerSpellState(trainer_spell) != TRAINER_SPELL_GREEN)
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerBuyFailed(guid, spellId, 0);
         return;
     }
 
@@ -291,7 +291,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     // check money requirement
     if (!_player->HasEnoughMoney(uint64(nSpellCost)))
     {
-        SendTrainerService(guid, spellId, 1);
+        SendTrainerBuyFailed(guid, spellId, 1);
         return;
     }
 
@@ -306,15 +306,18 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     else
         _player->learnSpell(spellId, false);
 
-    SendTrainerService(guid, spellId, 2);
+    WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, 12);
+    data << uint64(guid);
+    data << uint32(spellId);
+    SendPacket(&data);
 }
 
-void WorldSession::SendTrainerService(uint64 guid, uint32 spellId, uint32 result)
+void WorldSession::SendTrainerBuyFailed(uint64 guid, uint32 spellId, uint32 reason)
 {
-    WorldPacket data(SMSG_TRAINER_SERVICE, 16);
+    WorldPacket data(SMSG_TRAINER_BUY_FAILED, 16);
     data << uint64(guid);
     data << uint32(spellId);        // should be same as in packet from client
-    data << uint32(result);         // 2 == Success. 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
+    data << uint32(reason);         // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
     SendPacket(&data);
 }
 
@@ -510,7 +513,11 @@ void WorldSession::SendBindPoint(Creature* npc)
     // send spell for homebinding (3286)
     npc->CastSpell(_player, bindspell, true);
 
-    SendTrainerService(npc->GetGUID(), bindspell, 2);
+    WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, 12);
+    data << uint64(npc->GetGUID());
+    data << uint32(bindspell);
+    SendPacket(&data);
+
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
