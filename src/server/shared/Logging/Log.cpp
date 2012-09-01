@@ -446,7 +446,7 @@ void Log::outCharDump(char const* str, uint32 accountId, uint32 guid, char const
 
     LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_PLAYER_DUMP, ss.str());
     ss.clear();
-    ss << accountId << '_' << name;
+    ss << guid << '_' << name;
 
     msg->param1 = ss.str();
 
