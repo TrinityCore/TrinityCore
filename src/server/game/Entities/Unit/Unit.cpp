@@ -15680,7 +15680,7 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[5]);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 }
 
 void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool isCrit, CombatRating type) const
