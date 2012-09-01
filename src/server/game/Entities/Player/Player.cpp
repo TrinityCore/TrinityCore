@@ -22238,11 +22238,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetZoneAndAreaId(newzone, newarea);
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
-    //init phasing
-    Unit::AuraEffectList const& auraList = GetAuraEffectsByType(SPELL_AURA_PHASE);
-    if (auraList.empty())
-        GetSession()->SendSetPhaseShift(GetMapId(), 0);
-
+    UpdatePhasing();
     SendCurrencies();
     SendEquipmentSetList();
     m_achievementMgr.SendAllAchievementData(this);
@@ -26109,10 +26105,10 @@ void Player::UpdatePhasing()
     GetZoneAndAreaId(zone, area);
     
     // check area dependense
-    SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetPhaseAreaForAreaMapBounds(zone);
+    SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetPhaseAreaForAreaMapBounds(area);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
     {
-        if (itr->second->IsFitToRequirements(this, zone, 0))
+        if (itr->second->IsFitToRequirements(this, zone, area))
             phaseSet.insert(itr->second->phaseid);
     }
 
@@ -26203,14 +26199,12 @@ void Player::SendPhaseShifting(ApplyPhaseSet &phaseSet, uint32 map, uint32 phase
     data.WriteBit(guid[0]);
     data.WriteBit(guid[7]);
 
-    data.FlushBits();
-
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[4]);
 
+    data << uint32(unkCounter*2);   //number of tarrain sap array *2
     if(unkCounter)
     {
-        data << uint32(unkCounter*2);   //number of tarrain sap array *2
         for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
         {
             PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
@@ -26219,8 +26213,7 @@ void Player::SendPhaseShifting(ApplyPhaseSet &phaseSet, uint32 map, uint32 phase
             if (phaseTemplate->unkFirstCounter)
                 data << uint16(phaseTemplate->unkFirstCounter);
         }
-    }else
-        data << uint32(0);
+    }
 
     data.WriteByteSeq(guid[1]);
     data << uint32(0);  //unk. At first logining in Gilneas == 8
@@ -26228,9 +26221,9 @@ void Player::SendPhaseShifting(ApplyPhaseSet &phaseSet, uint32 map, uint32 phase
     data.WriteByteSeq(guid[6]);
 
     // terrain swap
+    data << uint32(terrainCount*2);   //number of tarrain array *2
     if (terrainCount)
     {
-        data << uint32(terrainCount*2);   //number of tarrain array *2
         for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
         {
             PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
@@ -26239,16 +26232,14 @@ void Player::SendPhaseShifting(ApplyPhaseSet &phaseSet, uint32 map, uint32 phase
             if (phaseTemplate->terrainSwap)
                 data << uint16(phaseTemplate->terrainSwap);
         }
-    }else
-        data << uint32(0);
+    }
 
+    data << uint32(phaseCount*2); // number of phase array *2
     if (phaseCount)
     {
-        data << uint32(phaseCount*2); // number of phase array *2
         for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
             data << uint16(*itr);
-    }else
-        data << uint32(0);
+    }
 
     data.WriteByteSeq(guid[3]);
     data.WriteByteSeq(guid[0]);
