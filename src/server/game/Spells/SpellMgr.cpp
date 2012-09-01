@@ -1081,6 +1081,16 @@ SpellAreaForAreaMapBounds SpellMgr::GetSpellAreaForAreaMapBounds(uint32 area_id)
     return SpellAreaForAreaMapBounds(mSpellAreaForAreaMap.lower_bound(area_id), mSpellAreaForAreaMap.upper_bound(area_id));
 }
 
+SpellAreaMapBounds SpellMgr::GetPhaseAreaMapBounds(uint32 phase_id) const
+{
+    return SpellAreaMapBounds(mPhaseAreaMap.lower_bound(phase_id), mPhaseAreaMap.upper_bound(phase_id));
+}
+
+SpellAreaForAreaMapBounds SpellMgr::GetPhaseAreaForAreaMapBounds(uint32 area_id) const
+{
+    return SpellAreaForAreaMapBounds(mPhaseAreaForAreaMap.lower_bound(area_id), mPhaseAreaForAreaMap.upper_bound(area_id));
+}
+
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
     if (gender != GENDER_NONE)                   // not in expected gender
@@ -2621,6 +2631,118 @@ void SpellMgr::LoadSpellAreas()
     } while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+// PhaseAuras used for checking in witch player phase is curently player. 
+// in 4.3.0 instead sending phase mask we should send complex data with all lauched phases and now not in all cases uses phase aura spells.
+//
+// At the first i think about integration in spell_area with phasing as we use one structure
+// But where is a loot problems with it and more easeer is to do it by stand alone table
+// I already use spellArea structure but instead spell i add var phase.
+// ToDo: think how we can intergrate phase_area and spell_area tables and maybe port to condition
+void SpellMgr::LoadPhaseAreas()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // cleanup
+    mPhaseAreaMap.clear();
+    mPhaseAreaForAreaMap.clear();
+
+    //                                                  0     1         2              3               4
+    QueryResult result = WorldDatabase.Query("SELECT phase, area, quest_start, quest_start_active, quest_end FROM phase_area");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 phase area requirements. DB table `phase_area` is empty.");
+
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 phase = fields[0].GetUInt32();
+        SpellArea spellArea;
+        spellArea.phaseid             = phase;
+        spellArea.areaId              = fields[1].GetUInt32();
+        spellArea.questStart          = fields[2].GetUInt32();
+        spellArea.questStartCanActive = fields[3].GetBool();
+        spellArea.questEnd            = fields[4].GetUInt32();
+
+        if(!sPhaseStores.LookupEntry(phase))
+        {
+            sLog->outError(LOG_FILTER_SQL, "PhaseID %u listed in `phase_area` does not exist", phase);
+            continue;
+        }
+
+        {
+            bool ok = true;
+            SpellAreaMapBounds sa_bounds = GetPhaseAreaMapBounds(spellArea.phaseid);
+            for (SpellAreaMap::const_iterator itr = sa_bounds.first; itr != sa_bounds.second; ++itr)
+            {
+                if (spellArea.phaseid != itr->second.phaseid)
+                    continue;
+                if (spellArea.areaId != itr->second.areaId)
+                    continue;
+                if (spellArea.questStart != itr->second.questStart)
+                    continue;
+
+                // duplicate by requirements
+                ok =false;
+                break;
+            }
+
+            if (!ok)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Phase %u listed in `phase_area` already listed with similar requirements.", phase);
+                continue;
+            }
+        }
+
+        if (!spellArea.areaId)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Phase %u listed in `phase_area` have wrong area (%u) requirement", phase, spellArea.areaId);
+            continue;
+        }
+
+        if (spellArea.areaId && !GetAreaEntryByAreaID(spellArea.areaId))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Phase %u listed in `phase_area` have wrong area (%u) requirement", phase, spellArea.areaId);
+            continue;
+        }
+
+        if (spellArea.questStart && !sObjectMgr->GetQuestTemplate(spellArea.questStart))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `phase_area` have wrong start quest (%u) requirement", phase, spellArea.questStart);
+            continue;
+        }
+
+        if (spellArea.questEnd)
+        {
+            if (!sObjectMgr->GetQuestTemplate(spellArea.questEnd))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `phase_area` have wrong end quest (%u) requirement", phase, spellArea.questEnd);
+                continue;
+            }
+
+            if (spellArea.questEnd == spellArea.questStart && !spellArea.questStartCanActive)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `phase_area` have quest (%u) requirement for start and end in same time", phase, spellArea.questEnd);
+                continue;
+            }
+        }
+
+        SpellArea const* sa = &mPhaseAreaMap.insert(SpellAreaMap::value_type(phase, spellArea))->second;
+
+        // for search by current zone/subzone at zone/subzone change    
+        mPhaseAreaForAreaMap.insert(SpellAreaForAreaMap::value_type(spellArea.areaId, sa));
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phase area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellInfoStore()

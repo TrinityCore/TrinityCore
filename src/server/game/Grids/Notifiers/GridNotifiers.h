@@ -44,7 +44,7 @@ namespace Trinity
         std::set<Unit*> i_visibleNow;
         Player::ClientGUIDs vis_guids;
 
-        VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) {}
+        VisibleNotifier(Player &player, uint32 mapID) : i_player(player), i_data(mapID), vis_guids(player.m_clientGUIDs) {}
         template<class T> void Visit(GridRefManager<T> &m);
         void SendToSelf(void);
     };
@@ -62,7 +62,7 @@ namespace Trinity
 
     struct PlayerRelocationNotifier : public VisibleNotifier
     {
-        PlayerRelocationNotifier(Player &player) : VisibleNotifier(player) {}
+        PlayerRelocationNotifier(Player &player, uint32 mapID) : VisibleNotifier(player, mapID) {}
 
         template<class T> void Visit(GridRefManager<T> &m) { VisibleNotifier::Visit(m); }
         void Visit(CreatureMapType &);

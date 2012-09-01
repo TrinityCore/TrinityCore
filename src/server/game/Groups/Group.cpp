@@ -473,7 +473,7 @@ bool Group::AddMember(Player* player)
             // Broadcast new player group member fields to rest of the group
             player->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
 
-            UpdateData groupData(player->GetMapId());
+            UpdateData groupData(player->GetRootPhaseMapId());
             WorldPacket groupDataPacket;
 
             // Broadcast group members' fields to player
@@ -493,7 +493,7 @@ bool Group::AddMember(Player* player)
 
                     if (member->HaveAtClient(player))
                     {
-                        UpdateData newData(player->GetMapId());
+                        UpdateData newData(player->GetRootPhaseMapId());
                         WorldPacket newDataPacket;
                         player->BuildValuesUpdateBlockForPlayer(&newData, member);
                         if (newData.HasData())

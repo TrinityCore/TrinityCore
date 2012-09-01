@@ -8687,7 +8687,7 @@ void Unit::SetOwnerGUID(uint64 owner)
 
     SetFieldNotifyFlag(UF_FLAG_OWNER);
 
-    UpdateData udata(GetMapId());
+    UpdateData udata(GetRootPhaseMapId());
     WorldPacket packet;
     BuildValuesUpdateBlockForPlayer(&udata, player);
     udata.BuildPacket(&packet);

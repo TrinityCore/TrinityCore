@@ -945,11 +945,23 @@ public:
 
     static bool HandleDebugSendSetPhaseShiftCommand(ChatHandler* handler, char const* args)
     {
+        // Args: real map ID, PhaseID from phase.dbc, terrainSwap - unk.
+        // terrainSwap in moste cases == 0
         if (!*args)
             return false;
 
-        uint32 PhaseShift = atoi(args);
-        handler->GetSession()->SendSetPhaseShift(PhaseShift);
+        char* m = strtok((char*)args, " ");
+        char* p = strtok(NULL, " ");
+        char* t = strtok(NULL, " ");
+
+        if (!m || !p || !t)
+            return false;
+
+        uint16 mapID = (uint32)atoi(m);
+        uint16 phaseID = (uint32)atoi(p);
+        uint16 terrainSwap = (uint32)atoi(t);
+
+        handler->GetSession()->SendSetPhaseShift(mapID, phaseID, terrainSwap);
         return true;
     }
 

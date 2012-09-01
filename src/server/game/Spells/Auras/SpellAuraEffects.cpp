@@ -1786,27 +1786,20 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
 
     Unit* target = aurApp->GetTarget();
 
-    // no-phase is also phase state so same code for apply and remove
-    uint32 newPhase = 0;
-    Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
-    if (!phases.empty())
-        for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-            newPhase |= (*itr)->GetMiscValue();
-
     if (Player* player = target->ToPlayer())
     {
-        if (!newPhase)
-            newPhase = PHASEMASK_NORMAL;
-
-        // GM-mode have mask 0xFFFFFFFF
-        if (player->isGameMaster())
-            newPhase = 0xFFFFFFFF;
-
-        player->SetPhaseMask(newPhase, false);
-        player->GetSession()->SendSetPhaseShift(newPhase);
+        // now everything handled in Player::UpdatePhasing()
+        player->SetUpdatePhasing(true);
     }
     else
     {
+        // no-phase is also phase state so same code for apply and remove
+        uint32 newPhase = 0;
+        Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
+        if (!phases.empty())
+            for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+                newPhase |= (*itr)->GetMiscValue();
+
         if (!newPhase)
         {
             newPhase = PHASEMASK_NORMAL;
@@ -1816,6 +1809,10 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
         }
 
         target->SetPhaseMask(newPhase, false);
+
+        // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
+        if (target->IsVisible())
+            target->UpdateObjectVisibility();
     }
 
     // call functions which may have additional effects after chainging state of unit
@@ -1826,9 +1823,6 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
         target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
     }
 
-    // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
-    if (target->IsVisible())
-        target->UpdateObjectVisibility();
 }
 
 /**********************/

@@ -398,13 +398,10 @@ bool Map::AddPlayerToMap(Player* player)
     // Check if we are adding to correct map
     ASSERT (player->GetMap() == this);
     player->SetMap(this);
+    player->SetRootPhaseMap(GetRootPhaseMapId());
     player->AddToWorld();
 
-    SendInitSelf(player);
-    SendInitTransports(player);
-
     player->m_clientGUIDs.clear();
-    player->UpdateObjectVisibility(false);
 
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
@@ -453,6 +450,7 @@ bool Map::AddToMap(T *obj)
 
     //Must already be set before AddToMap. Usually during obj->Create.
     //obj->SetMap(this);
+    obj->SetRootPhaseMap(GetRootPhaseMapId());
     obj->AddToWorld();
 
     InitializeObject(obj);
@@ -667,6 +665,8 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     else
         ASSERT(remove); //maybe deleted in logoutplayer when player is not in a map
 
+    player->SetRootPhaseMap(-1);
+
     if (remove)
     {
         DeleteFromWorld(player);
@@ -685,7 +685,9 @@ void Map::RemoveFromMap(T *obj, bool remove)
     obj->UpdateObjectVisibility(true);
     obj->RemoveFromGrid();
 
+    obj->SetRootPhaseMap(-1);
     obj->ResetMap();
+
 
     if (remove)
     {
@@ -1973,7 +1975,7 @@ void Map::UpdateObjectVisibility(WorldObject* obj, Cell cell, CellCoord cellpair
 
 void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellCoord cellpair)
 {
-    Trinity::VisibleNotifier notifier(*player);
+    Trinity::VisibleNotifier notifier(*player, GetRootPhaseMapId());
 
     cell.SetNoCreate();
     TypeContainerVisitor<Trinity::VisibleNotifier, WorldTypeMapContainer > world_notifier(notifier);
@@ -1989,7 +1991,7 @@ void Map::SendInitSelf(Player* player)
 {
     sLog->outInfo(LOG_FILTER_MAPS, "Creating player data for himself %u", player->GetGUIDLow());
 
-    UpdateData data(player->GetMapId());
+    UpdateData data(GetRootPhaseMapId());
 
     // attach to player data current transport data
     if (Transport* transport = player->GetTransport())
@@ -2026,7 +2028,7 @@ void Map::SendInitTransports(Player* player)
     if (tmap.find(player->GetMapId()) == tmap.end())
         return;
 
-    UpdateData transData(player->GetMapId());
+    UpdateData transData(GetRootPhaseMapId());
 
     MapManager::TransportSet& tset = tmap[player->GetMapId()];
 
@@ -2053,7 +2055,7 @@ void Map::SendRemoveTransports(Player* player)
     if (tmap.find(player->GetMapId()) == tmap.end())
         return;
 
-    UpdateData transData(player->GetMapId());
+    UpdateData transData(GetRootPhaseMapId());
 
     MapManager::TransportSet& tset = tmap[player->GetMapId()];
 

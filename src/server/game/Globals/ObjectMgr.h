@@ -586,6 +586,16 @@ struct HotfixInfo
 
 typedef std::vector<HotfixInfo> HotfixData;
 
+struct PhaseTemplate
+{
+    uint32 PhaseMask;
+    int32 map;  // -1 state used for not perfoming map
+    uint32 terrainSwap;
+    uint32 unkFirstCounter;
+};
+
+typedef UNORDERED_MAP<uint32 /*entry*/, PhaseTemplate> PhaseTemplateMap;
+
 class PlayerDumpReader;
 
 class ObjectMgr
@@ -1147,6 +1157,8 @@ class ObjectMgr
             return ret ? ret : time(NULL);
         }
 
+        void LoadPhaseTemplate();
+        PhaseTemplate const* GetPhaseTemplate(uint32 entry);
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1285,6 +1297,8 @@ class ObjectMgr
             GO_TO_CREATURE,         // GO is dependant on creature
         };
         HotfixData _hotfixData;
+
+        PhaseTemplateMap mPhaseTemplateMap;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()
