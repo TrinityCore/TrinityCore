@@ -26,6 +26,7 @@
 #    CONSOLE AND REMOTE ACCESS
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
+#    LOGGING SYSTEM SETTINGS
 #
 ###################################################################################################
 
@@ -2645,7 +2646,7 @@ PlayerDump.DisallowOverwrite = 1
 
 ###################################################################################################
 #
-#  Logging system options.
+#  LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
 #    Appender.name
@@ -2810,3 +2811,5 @@ Logger.Opcodes=41,6,Console Server
 
 Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 
+#
+###################################################################################################
