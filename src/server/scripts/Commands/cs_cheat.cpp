@@ -284,7 +284,7 @@ public:
             return false;
         
         uint32 active = 0, inactive = 0;
-#define print_cheat_status(CheatName, CheatVariable) ChatHandler(chr).PSendSysMessage("|CFF0000FF%s|r: %s", CheatName,\
+#define print_cheat_status(CheatName, CheatVariable) ChatHandler(chr).PSendSysMessage("%s: %s", CheatName,\
 	     CheatVariable ? "|CFFFF0000Active|r" : "|CFF00FF00Inactive|r");  \
 	     if(CheatVariable) \
 	     active++; \
