@@ -2789,7 +2789,7 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #
 
 Logger.Root=0,5,Console Server
-Logger.Chat=22,3,Chat
+Logger.Chat=22,2,Chat
 Logger.DBErrors=26,5,Console Server DBErrors
 Logger.GM=27,3,Console Server GM
 Logger.RA=28,3,RA
