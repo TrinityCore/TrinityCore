@@ -181,7 +181,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
             data.WriteBit(invitedGuid[4]);
 
-            data.WriteBits(strlen(player->GetName()), 7); // Invited name length
+            data.WriteBits(strlen(GetPlayer()->GetName()), 7); // Inviter name length
 
             data.WriteBits(0, 24); // Count 2
 
@@ -212,7 +212,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
             data.WriteByteSeq(invitedGuid[7]);
 
-            data.WriteString(player->GetName()); // invited name
+            data.WriteString(GetPlayer()->GetName()); // inviter name
 
             data << int32(0);
 
@@ -283,7 +283,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
     data.WriteBit(invitedGuid[4]);
 
-    data.WriteBits(strlen(player->GetName()), 7); // Invited name length
+    data.WriteBits(strlen(GetPlayer()->GetName()), 7); // Inviter name length
 
     data.WriteBits(0, 24); // Count 2
 
@@ -314,7 +314,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
     data.WriteByteSeq(invitedGuid[7]);
 
-    data.WriteString(player->GetName());
+    data.WriteString(GetPlayer()->GetName());
 
     data << int32(0);
 
