@@ -242,7 +242,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[5]);
 
     sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:"UI64FMTD" Accepted:%u", guid, accepted);
-
+   
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
         return;
