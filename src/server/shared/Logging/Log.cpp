@@ -435,19 +435,20 @@ void Log::outFatal(LogFilterType filter, const char * str, ...)
     va_end(ap);
 }
 
-void Log::outCharDump(const char* param, const char * str, ...)
+void Log::outCharDump(char const* str, uint32 accountId, uint32 guid, char const* name)
 {
     if (!str || !ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO))
         return;
 
-    va_list ap;
-    va_start(ap, str);
-    char text[MAX_QUERY_LEN];
-    vsnprintf(text, MAX_QUERY_LEN, str, ap);
-    va_end(ap);
+    std::ostringstream ss;
+    ss << "== START DUMP == (account: " << accountId << " guid: " << guid << " name: " << name
+       << ")\n" << str << "\n== END DUMP ==\n";
 
-    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_PLAYER_DUMP, text);
-    msg->param1 = param;
+    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_PLAYER_DUMP, ss.str());
+    ss.clear();
+    ss << accountId << '_' << name;
+
+    msg->param1 = ss.str();
 
     write(msg);
 }
