@@ -43,6 +43,7 @@ public:
             { "waterwalk",      SEC_GAMEMASTER,     false, &HandleWaterWalkCheatCommand,       "", NULL },
             { "taxi",           SEC_GAMEMASTER,     false, &HandleTaxiCheatCommand,            "", NULL },
             { "explore",        SEC_GAMEMASTER,     false, &HandleExploreCheatCommand,         "", NULL },
+            { "status",         SEC_GAMEMASTER,     false, &HandleStatusCheatCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
 
         };
@@ -271,6 +272,36 @@ public:
                 handler->GetSession()->GetPlayer()->SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0);
         }
 
+        return true;
+    }
+    
+    static bool HandleStatusCheatCommand(ChatHandler* handler, const char *args)
+    {
+        Player* chr = handler->getSelectedPlayer();
+        if (!chr)
+            chr = handler->GetSession()->GetPlayer();
+        else if (handler->HasLowerSecurity(chr, 0)) // check online security
+            return false;
+        
+        uint32 active = 0, inactive = 0;
+#define print_cheat_status(CheatName, CheatVariable) ChatHandler(chr).PSendSysMessage("%s: %s", CheatName,\
+	     CheatVariable ? "|CFFFF0000Active|r" : "|CFF00FF00Inactive|r");  \
+	     if(CheatVariable) \
+	     active++; \
+	     else \
+	     inactive++;
+        
+        ChatHandler(chr).PSendSysMessage("Showing cheat status for: %s", handler->GetNameLink(chr).c_str());
+        print_cheat_status("Cooldown", chr->GetCommandStatus(CHEAT_COOLDOWN));
+        print_cheat_status("CastTime", chr->GetCommandStatus(CHEAT_CASTTIME));
+        print_cheat_status("GodMode", chr->GetCommandStatus(CHEAT_GOD));
+        print_cheat_status("Power", chr->GetCommandStatus(CHEAT_POWER));
+        print_cheat_status("WaterWalk", chr->GetCommandStatus(CHEAT_WATERWALK));
+        
+        ChatHandler(chr).PSendSysMessage("%u cheats active, %u inactive.", active, inactive);
+        
+#undef print_cheat_status
+        
         return true;
     }
 };
