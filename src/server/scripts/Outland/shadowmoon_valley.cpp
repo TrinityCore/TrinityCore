@@ -1889,10 +1889,6 @@ public:
     {
         npc_shadowmoon_tuber_nodeAI(Creature* creature) : ScriptedAI(creature) {}
 
-        bool tapped;
-        uint64 tuberGUID;
-        uint32 resetTimer;
-
         void Reset()
         {
             tapped = false;
@@ -1947,6 +1943,10 @@ public:
                     resetTimer -= diff;
             }
         }
+    private:
+        bool tapped;
+        uint64 tuberGUID;
+        uint32 resetTimer;
     };
 
     CreatureAI* GetAI(Creature* creature) const
