@@ -41,6 +41,12 @@ DELETE FROM spell_script_names WHERE spell_id = 62560;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (62560, 'spell_thorim_berserk');
 
+-- Trial of the Crusader shaman heroism/bloodlust
+DELETE FROM spell_script_names WHERE spell_id IN (65983, 65980);
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(65983, 'spell_sha_heroism'),
+(65980, 'spell_sha_bloodlust');
+
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 
@@ -121,6 +127,11 @@ UPDATE creature_template SET speed_walk = 2.8, speed_run = 1.71429 WHERE entry I
 UPDATE creature_template SET speed_walk = 2, speed_run = 1.14286 WHERE entry IN (34566, 35615, 35616);
 UPDATE creature_template SET skinloot = 34797 WHERE entry IN (35447, 35448, 35449);
 UPDATE creature_template SET skinloot = 70214 WHERE entry IN (34566, 35615, 35616);
+
+-- cast Forbearance together with Divine shield
+DELETE FROM spell_linked_spell WHERE spell_trigger = 66010;
+INSERT INTO spell_linked_spell (spell_trigger, spell_effect, type, comment) VALUES
+(66010, 25771, 0, 'Divine Shield - Forbearance');
 
 -- -------------------------
 -- ULDUAR ------------------
