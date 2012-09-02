@@ -7374,23 +7374,19 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
     if (newWeekCount < 0)
         newWeekCount = 0;
 
-    if (currency->TotalCap && int32(currency->TotalCap) < newTotalCount)
-    {
-        int32 delta = newTotalCount - int32(currency->TotalCap);
-        newTotalCount = int32(currency->TotalCap);
-        newWeekCount -= delta;
-    }
     // TODO: fix conquest points
+
+    // if we get more then weekCap just set to limit.
     uint32 weekCap = _GetCurrencyWeekCap(currency);
     if (weekCap && int32(weekCap) < newTotalCount)
-    {
-        int32 delta = newWeekCount - int32(weekCap);
         newWeekCount = int32(weekCap);
-        newTotalCount -= delta;
-    }
 
-    // if we change total, we must change week
-    ASSERT(((newTotalCount-oldTotalCount) != 0) == ((newWeekCount-oldWeekCount) != 0));
+    // if we get more then totalCap set to maximum;
+    if (currency->TotalCap && int32(currency->TotalCap) < newTotalCount)
+    {
+        newTotalCount = int32(currency->TotalCap);
+        newWeekCount = weekCap;
+    }
 
     if (uint32(newTotalCount) != oldTotalCount)
     {
