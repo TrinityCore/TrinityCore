@@ -278,6 +278,9 @@ class achievement_tilted : public AchievementCriteriaScript
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
+            if (!player)
+                return false;
+
             bool checkArea = player->GetAreaId() == AREA_ARGENT_TOURNAMENT_FIELDS ||
                                 player->GetAreaId() == AREA_RING_OF_ASPIRANTS ||
                                 player->GetAreaId() == AREA_RING_OF_ARGENT_VALIANTS ||
@@ -285,7 +288,7 @@ class achievement_tilted : public AchievementCriteriaScript
                                 player->GetAreaId() == AREA_RING_OF_HORDE_VALIANTS ||
                                 player->GetAreaId() == AREA_RING_OF_CHAMPIONS;
 
-            return player && checkArea && player->duel && player->duel->isMounted;
+            return checkArea && player->duel && player->duel->isMounted;
         }
 };
 

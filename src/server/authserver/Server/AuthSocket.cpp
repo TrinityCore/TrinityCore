@@ -869,7 +869,7 @@ bool AuthSocket::_HandleRealmList()
             flag &= ~REALM_FLAG_SPECIFYBUILD;
 
         std::string name = i->first;
-        if (buildInfo && (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD))
+        if (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
         {
             std::ostringstream ss;
             ss << name << " (" << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << ')';
@@ -902,15 +902,10 @@ bool AuthSocket::_HandleRealmList()
 
         if (_expversion & POST_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
         {
-            if (buildInfo)
-            {
-                pkt << uint8(buildInfo->MajorVersion);
-                pkt << uint8(buildInfo->MinorVersion);
-                pkt << uint8(buildInfo->BugfixVersion);
-                pkt << uint16(buildInfo->Build);
-            }
-            else
-                pkt << uint8(0) << uint8(0) << uint8(0) << uint16(0);
+            pkt << uint8(buildInfo->MajorVersion);
+            pkt << uint8(buildInfo->MinorVersion);
+            pkt << uint8(buildInfo->BugfixVersion);
+            pkt << uint16(buildInfo->Build);
         }
 
         ++RealmListSize;
