@@ -191,7 +191,9 @@ class ByteBuffer
 
         /**
           * @name   PutBits
-          * @brief  Places specified amount of bits of value at specified position in packet
+          * @brief  Places specified amount of bits of value at specified position in packet.
+          *         To ensure all bits are correctly written, only call this method after
+          *         bit flush has been performed
 
           * @param  pos Position to place the value at, in bits. The entire value must fit in the packet
           *             It is advised to obtain the position using bitwpos() function.
@@ -201,8 +203,11 @@ class ByteBuffer
         */
         template <typename T> void PutBits(size_t pos, T value, uint32 bitCount)
         {
+            if (!bitCount)
+                throw ByteBufferSourceException((pos + bitCount) / 8, , size(), 0);
+
             if (pos + bitCount > size() * 8)
-                throw ByteBufferPositionException(false, (pos + bitCount) / 8, size());
+                throw ByteBufferPositionException(false, (pos + bitCount) / 8, size(), (bitCount - 1) / 8 + 1);
 
             for (int32 i = 0; i < bitCount; ++i)
             {
