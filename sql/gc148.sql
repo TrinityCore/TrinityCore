@@ -121,12 +121,15 @@ INSERT INTO game_tele (position_x, position_y, position_z, orientation, map, nam
 (8588.42, 791.888, 558.236, 3.23819, 571, 'TrialOfTheChampion');
 
 -- misc fixes for higher boss brackets
-UPDATE creature_template SET dmg_multiplier = 70 WHERE entry IN (35440, 35513, 35516, 35449, 35269, 35352, 35349, 35616);
-UPDATE creature_template SET flags_extra = flags_extra | 1 WHERE entry IN (35438, 35439, 35440, 35511, 35512, 35513, 35514, 35515, 35516);
+UPDATE creature_template SET dmg_multiplier = 70 WHERE entry IN (35440, 35513, 35516, 35449, 35269, 35352, 35349, 35616, 35664, 35670, 35673, 35676, 35682, 35685, 35688, 35691, 35694, 35697, 35701, 35704, 35707, 35710, 35713, 35716, 35720, 35723, 35726, 35730, 35733, 35736, 35739, 35742, 35745, 35748, 35749);
+UPDATE creature_template SET flags_extra = flags_extra | 1 WHERE entry IN (35438, 35439, 35440, 35511, 35512, 35513, 35514, 35515, 35516, 35662, 35663, 35664, 35665, 35666, 35667, 35668, 35669, 35670, 35671, 35672, 35673, 35674, 35675, 35676, 35680, 35681, 35682, 35683, 35684, 35685, 35686, 35687, 35688, 35689, 35690, 35691, 35692, 35693, 35694, 35695, 35696, 35697, 35699, 35700, 35701, 35702, 35703, 35704, 35705, 35706, 35707, 35708, 35709, 35710, 35711, 35712, 35713, 35714, 35715, 35716, 35718, 35719, 35720, 35721, 35722, 35723, 35724, 35725, 35726, 35728, 35729, 35730, 35731, 35732, 35733, 35734, 35735, 35736, 35737, 35738, 35739, 35740, 35741, 35742, 35743, 35744, 35745, 35746, 35747, 35748, 34442, 34443, 35749);
 UPDATE creature_template SET speed_walk = 2.8, speed_run = 1.71429 WHERE entry IN (35350, 35351, 35352, 35347, 35348, 35349);
 UPDATE creature_template SET speed_walk = 2, speed_run = 1.14286 WHERE entry IN (34566, 35615, 35616);
 UPDATE creature_template SET skinloot = 34797 WHERE entry IN (35447, 35448, 35449);
 UPDATE creature_template SET skinloot = 70214 WHERE entry IN (34566, 35615, 35616);
+UPDATE creature_template SET mindmg = 388, maxdmg = 583, attackpower = 146 WHERE entry IN (35711, 35712, 35713);
+UPDATE creature_template SET mindmg = 468, maxdmg = 702, attackpower = 175 WHERE entry IN (35699, 35700, 35701);
+UPDATE creature_template SET dmg_multiplier = 35 WHERE entry IN (34472, 34454);
 
 -- cast Forbearance together with Divine shield
 DELETE FROM spell_linked_spell WHERE spell_trigger = 66010;
