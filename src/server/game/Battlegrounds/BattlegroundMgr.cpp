@@ -325,7 +325,9 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket *data, Battlegro
             data->WriteBit(guidBytes2[2]);
             data->WriteBit(guidBytes1[3]);
             data->WriteBit(guidBytes1[0]);
-            
+
+            data->FlushBits();
+
             data->WriteByteSeq(guidBytes2[4]);
             data->WriteByteSeq(guidBytes2[5]);
             data->WriteByteSeq(guidBytes1[5]);
@@ -457,9 +459,9 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             sLog->outError(LOG_FILTER_BATTLEGROUND, "Player " UI64FMTD " has scoreboard entry for battleground %u but is not in battleground!", itr->first, bg->GetTypeID(true));
             continue;
         }
-        ObjectGuid guid = itr->first;
+        ObjectGuid guid = itr2->first;
         Player* player = ObjectAccessor::FindPlayer(itr2->first);
-        data->WriteBit(1); // Unk 1
+        data->WriteBit(0); // Unk 1
         data->WriteBit(0); // Unk 2
         data->WriteBit(guid[2]);
         data->WriteBit(!isArena); // Unk 3 -- Prolly if (bg)
@@ -471,7 +473,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         data->WriteBit(guid[5]);
         data->WriteBit(guid[1]);
         data->WriteBit(guid[6]);
-        data->WriteBit(0);
+        data->WriteBit(player->GetTeam() == ALLIANCE);
         data->WriteBit(guid[7]);
 
         buff << uint32(itr2->second->HealingDone);             // healing done
@@ -495,9 +497,9 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         // if (unk 2) << uint32() unk
 
         buff.WriteByteSeq(guid[1]);
-        buff.WriteByteSeq(guid[0]);
+        buff.WriteByteSeq(guid[6]);
 
-        buff << int32(0); // unk
+        buff << int32(player->GetPrimaryTalentTree(player->GetActiveSpec()));
 
         switch (bg->GetTypeID(true))                             // Custom values
         {
@@ -607,7 +609,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
         data->WriteBit(guid[4]);
 
-        buff.WriteByteSeq(guid[6]);
+        buff.WriteByteSeq(guid[0]);
         buff.WriteByteSeq(guid[3]);
 
         // if (unk 4) << uint32() unk
@@ -622,7 +624,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
     data->FlushBits();
     data->PutBits<int32>(count_pos, count, 21);              // Number of Players
 
-    if (isArena)                                             // arena TODO : Fix Order on Arena Implementation
+    if (isRated)                                             // arena TODO : Fix Order on Rated Implementation
     {
         // it seems this must be according to BG_WINNER_A/H and _NOT_ BG_TEAM_A/H
         for (int8 i = 1; i >= 0; --i)
@@ -1145,23 +1147,8 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->WriteBit(0);                                      // unk
 
     data->FlushBits();
-    ByteBuffer buff;
-
-    if (Battleground* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId))
-    {
-        // expected bracket entry
-        if (PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgTemplate->GetMapId(), player->getLevel()))
-        {
-            uint32 count = 0;
-            BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
-            for (std::set<uint32>::iterator itr = m_ClientBattlegroundIds[bgTypeId][bracketId].begin(); itr != m_ClientBattlegroundIds[bgTypeId][bracketId].end();++itr)
-            {
-                buff << uint32(*itr);                      // instance id
-                ++count;
-            }
-            data->WriteBits(count, 24);                    // bg instance count 
-        }
-    }
+    size_t count_pos = data->bitwpos();
+    data->WriteBits(0, 24);                                 // placeholder
 
     data->WriteBit(guidBytes[6]);
     data->WriteBit(guidBytes[4]);
@@ -1178,7 +1165,21 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->WriteByteSeq(guidBytes[7]);
     data->WriteByteSeq(guidBytes[5]);
 
-    data->append(buff);
+    if (Battleground* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId))
+    {
+        // expected bracket entry
+        if (PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgTemplate->GetMapId(), player->getLevel()))
+        {
+            uint32 count = 0;
+            BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
+            for (std::set<uint32>::iterator itr = m_ClientBattlegroundIds[bgTypeId][bracketId].begin(); itr != m_ClientBattlegroundIds[bgTypeId][bracketId].end();++itr)
+            {
+                *data << uint32(*itr);                      // instance id
+                ++count;
+            }
+            data->PutBits(count_pos, count, 24);            // bg instance count 
+        }
+    }
 
     data->WriteByteSeq(guidBytes[0]);
     data->WriteByteSeq(guidBytes[2]);

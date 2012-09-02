@@ -789,7 +789,7 @@ class WorldSession
         void HandlePVPLogDataOpcode(WorldPacket& recvData);
         void HandleBattleFieldPortOpcode(WorldPacket& recvData);
         void HandleBattlefieldListOpcode(WorldPacket& recvData);
-        void HandleLeaveBattlefieldOpcode(WorldPacket& recvData);
+        void HandleBattlefieldLeaveOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
         void HandleReportPvPAFK(WorldPacket& recvData);
 
