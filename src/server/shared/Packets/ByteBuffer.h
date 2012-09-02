@@ -204,7 +204,7 @@ class ByteBuffer
         template <typename T> void PutBits(size_t pos, T value, uint32 bitCount)
         {
             if (!bitCount)
-                throw ByteBufferSourceException((pos + bitCount) / 8, , size(), 0);
+                throw ByteBufferSourceException((pos + bitCount) / 8, size(), 0);
 
             if (pos + bitCount > size() * 8)
                 throw ByteBufferPositionException(false, (pos + bitCount) / 8, size(), (bitCount - 1) / 8 + 1);
