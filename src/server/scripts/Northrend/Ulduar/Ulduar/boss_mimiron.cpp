@@ -1451,6 +1451,8 @@ class boss_vx_001 : public CreatureScript
                                 leviathan->CastSpell(leviathan, SPELL_SELF_STUN, true); // temporary
                                 leviathan->SetFacingTo(orient);
                                 me->SetOrientation(orient);
+                                if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                    AerialUnit->SetFacingTo(orient);
                             }
                             direction = RAND(true, false);
                             spinning = true;
