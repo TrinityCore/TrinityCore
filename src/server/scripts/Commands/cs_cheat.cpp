@@ -178,14 +178,14 @@ public:
         if (argstr == "off")
         {
             handler->GetSession()->GetPlayer()->SetCommandStatusOff(CHEAT_WATERWALK);
-            handler->GetSession()->GetPlayer()->SetMovement(MOVE_LAND_WALK);                // OFF
+            handler->GetSession()->GetPlayer()->SendMovementSetWaterWalking(false);         // OFF
             handler->SendSysMessage("Waterwalking is OFF. You can't walk on water.");
             return true;
         }
         else if (argstr == "on")
         {
             handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_WATERWALK);
-            handler->GetSession()->GetPlayer()->SetMovement(MOVE_WATER_WALK);               // ON
+            handler->GetSession()->GetPlayer()->SendMovementSetWaterWalking(true);          // ON
             handler->SendSysMessage("Waterwalking is ON. You can walk on water.");
             return true;
         }
