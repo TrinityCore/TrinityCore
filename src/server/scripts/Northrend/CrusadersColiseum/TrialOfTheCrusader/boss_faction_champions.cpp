@@ -828,6 +828,7 @@ enum ePriestSpells
     SPELL_DISPEL            = 65546,
     SPELL_PSYCHIC_SCREAM    = 65543,
     SPELL_MANA_BURN         = 66100,
+    SPELL_PENANCE           = 66097,
 };
 
 class mob_toc_priest : public CreatureScript
@@ -840,6 +841,7 @@ class mob_toc_priest : public CreatureScript
         EVENT_DISPEL,
         EVENT_PSYCHIC_SCREAM,
         EVENT_MANA_BURN,
+        EVENT_PENANCE,
     };
 
     public:
@@ -858,6 +860,7 @@ class mob_toc_priest : public CreatureScript
                 events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_MANA_BURN, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_PENANCE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
@@ -906,6 +909,11 @@ class mob_toc_priest : public CreatureScript
                                 DoCast(target, SPELL_MANA_BURN);
                             events.ScheduleEvent(EVENT_MANA_BURN, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
+                        case EVENT_PENANCE:
+                            if (Unit* target = DoSelectLowestHpFriendly(40.0f))
+                                DoCast(target, SPELL_PENANCE);
+                            events.ScheduleEvent(EVENT_PENANCE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            return;
                     }
                 }
             }
@@ -945,6 +953,7 @@ class mob_toc_shadow_priest : public CreatureScript
         EVENT_HORROR,
         EVENT_DISPERSION,
         EVENT_DISPEL,
+        EVENT_PSYCHIC_SCREAM,
     };
 
     public:
@@ -964,6 +973,7 @@ class mob_toc_shadow_priest : public CreatureScript
                 events.ScheduleEvent(EVENT_HORROR, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_DISPERSION, urand(20*IN_MILLISECONDS, 40*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 50040, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 DoCast(me, SPELL_SHADOWFORM);
             }
@@ -1003,8 +1013,7 @@ class mob_toc_shadow_priest : public CreatureScript
                             events.ScheduleEvent(EVENT_MIND_BLAST, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         case EVENT_HORROR:
-                            if (EnemiesInRange(10.0f) >= 2)
-                                DoCastAOE(SPELL_HORROR);
+                            DoCastVictim(SPELL_HORROR);
                             events.ScheduleEvent(EVENT_HORROR, urand(15*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
                         case EVENT_DISPERSION:
@@ -1020,6 +1029,11 @@ class mob_toc_shadow_priest : public CreatureScript
                             if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0) : DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_DISPEL);
                             events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            return;
+                        case EVENT_PSYCHIC_SCREAM:
+                            if (EnemiesInRange(10.0f) >= 2)
+                                DoCastAOE(SPELL_PSYCHIC_SCREAM);
+                            events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                     }
                 }
