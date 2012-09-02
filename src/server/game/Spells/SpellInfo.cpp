@@ -2214,6 +2214,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case 54836: // Wrath of the Plaguebringer
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
+                case 63322: // Saronite Vapors
                     return false;
                 case 30877: // Tag Murloc
                 case 61716: // Rabbit Costume

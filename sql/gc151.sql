@@ -47,6 +47,11 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (65983, 'spell_sha_heroism'),
 (65980, 'spell_sha_bloodlust');
 
+-- Saronite Vapors scriptname
+DELETE FROM spell_script_names WHERE spell_id = 63322;
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(63322, 'spell_saronite_vapors');
+
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 

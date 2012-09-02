@@ -573,6 +573,54 @@ public:
     }
 };
 
+enum SaroniteVaporsSpells
+{
+    SPELL_SARONITE_VAPORS_MANA = 63337,
+    SPELL_SARONITE_VAPORS_DAMAGE = 63338,
+};
+
+class spell_saronite_vapors : public SpellScriptLoader // 63278
+{
+public:
+    spell_saronite_vapors() : SpellScriptLoader("spell_saronite_vapors") {}
+
+    class spell_saronite_vapors_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_saronite_vapors_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_MANA) || !sSpellMgr->GetSpellInfo(SPELL_SARONITE_VAPORS_DAMAGE))
+                return false;
+            return true;
+        }
+
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            Unit* caster = GetCaster();
+
+            if (caster && target)
+            {
+                int32 damage = 50 << GetStackAmount();
+                target->CastCustomSpell(target, SPELL_SARONITE_VAPORS_DAMAGE, &damage, 0, 0, true, 0, 0, caster->GetGUID());
+                damage = damage >> 1;
+                target->CastCustomSpell(target, SPELL_SARONITE_VAPORS_MANA, &damage, 0, 0, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_saronite_vapors_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_saronite_vapors_AuraScript();
+    }
+};
+
 /************************************************************************/
 /*                          Achievements                                */
 /************************************************************************/
@@ -618,6 +666,7 @@ void AddSC_boss_general_vezax()
     new spell_aura_of_despair_aura();
     new spell_mark_of_the_faceless_drain();
     new spell_mark_of_the_faceless();
+    new spell_saronite_vapors();
 
     new achievement_shadowdodger("achievement_shadowdodger");       // 10m 10173 (2996)
     new achievement_shadowdodger("achievement_shadowdodger_25");    // 25m 10306 (2997)
