@@ -294,7 +294,6 @@ enum Opcodes
     CMSG_LEARN_PREVIEW_TALENTS                        = 0x2415,
     CMSG_LEARN_PREVIEW_TALENTS_PET                    = 0x6E24,
     CMSG_LEARN_TALENT                                 = 0x0306,
-    CMSG_LEAVE_BATTLEFIELD                            = 0x0000,
     CMSG_LEAVE_CHANNEL                                = 0x2D56,
     CMSG_LFG_GET_PLAYER_INFO                          = 0x0000,
     CMSG_LFG_GET_STATUS                               = 0x2581,
