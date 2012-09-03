@@ -877,7 +877,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
             void MoveInLineOfSight(Unit* target)
             {
                 if (myPhase == PHASE_NONE)
-                {                    
+                {
                     // LoS-distance should be ~30.0f, since the players should be able to talk to the keepers; Combat-reach gets increased in UpdatePhase()
                     if (target && me->GetDistance2d(target) <= 30.0f && target->ToPlayer() && !target->ToPlayer()->isGameMaster() && me->IsWithinLOSInMap(target))
                     {
@@ -3460,6 +3460,7 @@ class npc_keeper_help : public CreatureScript
             if(InstanceScript* instance = creature->GetInstanceScript())
             {
                 uint32 supportFlag = instance->GetData(DATA_KEEPER_SUPPORT_YOGG);
+
                 switch (creature->GetEntry())
                 {
                     // Since the flags are binary, a simple bool check fulfills the requirements - no need to check against the flag again.
@@ -3513,6 +3514,7 @@ class npc_keeper_help : public CreatureScript
                             instance->SetData(DATA_ADD_HELP_FLAG, HODIR_SUPPORT);
                             break;
                     }
+                    instance->SaveToDB();
                 }
 
             return true;
