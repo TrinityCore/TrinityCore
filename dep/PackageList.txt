@@ -6,15 +6,15 @@ ACE (ADAPTIVE Communication Environment)
 
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
-  Version: 1.0.5
+  Version: 1.0.6
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
-  Version: 8.0-Release
+  Version: 8.01-Release
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-  Version: 2.2.5
+  Version: 2.1.0
   
 libMPQ (a library for reading MPQ files)
   https://libmpq.org/
@@ -30,15 +30,15 @@ SFMT (SIMD-oriented Fast Mersenne Twister)
 
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   http://utfcpp.sourceforge.net/
-  Version: 2.3
+  Version: 2.3.2
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
-  Version: 1.2.5
+  Version: 1.2.7
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/
-  Version: 2.8.2
+  Version: 2.8.10
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   http://code.google.com/p/recastnavigation/
