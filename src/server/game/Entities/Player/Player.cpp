@@ -7302,7 +7302,7 @@ void Player::_LoadCurrency(PreparedQueryResult result)
         uint16 currencyID = fields[0].GetUInt16();
 
         CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyID);
-        if(!currencyID)
+        if (!currencyID)
             continue;
 
         PlayerCurrency cur;
@@ -7310,7 +7310,7 @@ void Player::_LoadCurrency(PreparedQueryResult result)
         cur.weekCount = fields[1].GetUInt32();
         cur.totalCount = fields[2].GetUInt32();
 
-        m_currencies.insert(PlayerCurrenciesMap::value_type(currencyID, cur));
+        _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyID, cur));
 
     } while (result->NextRow());
 }
@@ -7318,7 +7318,7 @@ void Player::_LoadCurrency(PreparedQueryResult result)
 void Player::_SaveCurrency(SQLTransaction& trans)
 {
     PreparedStatement* stmt = NULL;
-    for (PlayerCurrenciesMap::iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
+    for (PlayerCurrenciesMap::iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
         CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
         if (!entry) // should never happen
@@ -7352,8 +7352,8 @@ void Player::_SaveCurrency(SQLTransaction& trans)
 
 void Player::SendNewCurrency(uint32 id) const
 {
-    PlayerCurrenciesMap::const_iterator itr = m_currencies.find(id);
-    if (itr == m_currencies.end())
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
         return;
 
     ByteBuffer currencyData;
@@ -7392,10 +7392,10 @@ void Player::SendNewCurrency(uint32 id) const
 void Player::SendCurrencies() const
 {
     ByteBuffer currencyData;
-    WorldPacket packet(SMSG_INIT_CURRENCY, 4 + m_currencies.size()*(5*4 + 1));
-    packet.WriteBits(m_currencies.size(), 23);
+    WorldPacket packet(SMSG_INIT_CURRENCY, 4 + _currencyStorage.size()*(5*4 + 1));
+    packet.WriteBits(_currencyStorage.size(), 23);
 
-    for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
+    for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
         CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
         if (!entry) // should never happen
@@ -7429,14 +7429,14 @@ void Player::SendCurrencies() const
 
 uint32 Player::GetCurrency(uint32 id) const
 {
-    PlayerCurrenciesMap::const_iterator itr = m_currencies.find(id);
-    return itr != m_currencies.end() ? itr->second.totalCount : 0;
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    return itr != _currencyStorage.end() ? itr->second.totalCount : 0;
 }
 
 bool Player::HasCurrency(uint32 id, uint32 count) const
 {
-    PlayerCurrenciesMap::const_iterator itr = m_currencies.find(id);
-    return itr != m_currencies.end() && itr->second.totalCount >= count;
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    return itr != _currencyStorage.end() && itr->second.totalCount >= count;
 }
 
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
@@ -7450,15 +7450,15 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
     int32 precision = currency->Flags & CURRENCY_FLAG_HIGH_PRECISION ? 100 : 1;
     uint32 oldTotalCount = 0;
     uint32 oldWeekCount = 0;
-    PlayerCurrenciesMap::iterator itr = m_currencies.find(id);
-    if (itr == m_currencies.end())
+    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
     {
         PlayerCurrency cur;
         cur.state = PLAYERCURRENCY_NEW;
         cur.totalCount = 0;
         cur.weekCount = 0;
-        m_currencies[id] = cur;
-        itr = m_currencies.find(id);
+        _currencyStorage[id] = cur;
+        itr = _currencyStorage.find(id);
     }
     else
     {
