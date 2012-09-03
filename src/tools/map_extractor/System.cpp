@@ -9,6 +9,7 @@
 #include "direct.h"
 #else
 #include <sys/stat.h>
+#include <unistd.h>
 #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
