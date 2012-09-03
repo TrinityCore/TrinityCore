@@ -282,6 +282,10 @@ bool AABox::culledBy(
     return false;
 }
 
+void AABox::getBounds(Sphere& s) const {
+    s.center = center();
+    s.radius = extent().length() / 2;
+}
 
 bool AABox::intersects(const class Sphere& sphere) const {
     double d = 0; 
