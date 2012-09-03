@@ -52,6 +52,14 @@ DELETE FROM spell_script_names WHERE spell_id = 63322;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (63322, 'spell_saronite_vapors');
 
+-- Trial of the Crusader Death knight Death grip scriptname
+DELETE FROM spell_script_names WHERE spell_id IN (66017, 68753, 68754, 68755);
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(66017, 'spell_faction_champion_death_grip'),
+(68753, 'spell_faction_champion_death_grip'),
+(68754, 'spell_faction_champion_death_grip'),
+(68755, 'spell_faction_champion_death_grip');
+
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 
@@ -135,6 +143,7 @@ UPDATE creature_template SET skinloot = 70214 WHERE entry IN (34566, 35615, 3561
 UPDATE creature_template SET mindmg = 388, maxdmg = 583, attackpower = 146 WHERE entry IN (35711, 35712, 35713);
 UPDATE creature_template SET mindmg = 468, maxdmg = 702, attackpower = 175 WHERE entry IN (35699, 35700, 35701);
 UPDATE creature_template SET dmg_multiplier = 35 WHERE entry IN (34472, 34454);
+UPDATE creature_template SET unit_class = 1 WHERE entry IN (34461, 35743, 35744, 35745);
 
 -- adding Jaraxxus add immunities
 UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask | 1024 | 2048 WHERE entry IN (34815, 35262, 35263, 35264, 34826, 35270, 35271, 35272);
