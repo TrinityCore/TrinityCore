@@ -7350,7 +7350,7 @@ void Player::_SaveCurrency(SQLTransaction& trans)
     }
 }
 
-void SendNewCurrency(uint32 id) const
+void Player::SendNewCurrency(uint32 id) const
 {
     PlayerCurrenciesMap::const_iterator itr = m_currencies.find(id);
     if (itr == m_currencies.end())
