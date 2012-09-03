@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
+#include "CombatAI.h"
 
 /*######
 ## npc_agnetta_tyrsdottar
@@ -313,7 +314,7 @@ public:
             Reset();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (!freed)
                 return;
