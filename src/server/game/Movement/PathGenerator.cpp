@@ -456,6 +456,13 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         m_type = PATHFIND_NOPATH;
         return;
     }
+    else if (pointCount == m_pointPathLimit)
+    {
+        sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath FAILED! path sized %d returned, lower than limit set to %d\n", pointCount, m_pointPathLimit);
+        BuildShortcut();
+        m_type = PATHFIND_SHORT;
+        return;
+    }
 
     m_pathPoints.resize(pointCount);
     for (uint32 i = 0; i < pointCount; ++i)
