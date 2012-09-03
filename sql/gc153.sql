@@ -138,7 +138,7 @@ UPDATE creature_template SET dmg_multiplier = 35 WHERE entry IN (34472, 34454);
 
 -- adding Jaraxxus add immunities
 UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask | 1024 | 2048 WHERE entry IN (34815, 35262, 35263, 35264, 34826, 35270, 35271, 35272);
-UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask | 262144 WHERE entry IN (35263, 35264, 35271, 35272);
+UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask | 262144 WHERE entry IN (35263, 35264);
 
 -- cast Forbearance together with Divine shield
 DELETE FROM spell_linked_spell WHERE spell_trigger = 66010;
