@@ -1413,10 +1413,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // check cooldown
                         if (caster->GetTypeId() == TYPEID_PLAYER)
                         {
-                            if (caster->ToPlayer()->HasSpellCooldown(aura->GetId()))
+                            if (caster->ToPlayer()->HasSpellCooldown(aura->GetId()) && ((float)caster->ToPlayer()->GetSpellCooldownDelay(aura->GetId())) <= 11.5f)
                                 break;
                             // and add if needed
-                            caster->ToPlayer()->AddSpellCooldown(aura->GetId(), 0, uint32(time(NULL) + 12));
+                            if (!caster->ToPlayer()->HasSpellCooldown(aura->GetId()))
+                                caster->ToPlayer()->AddSpellCooldown(aura->GetId(), 0, uint32(time(NULL) + 12));
                         }
                         // effect on caster
                         if (AuraEffect const* aurEff = aura->GetEffect(0))
