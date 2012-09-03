@@ -400,6 +400,12 @@ class boss_mimiron : public CreatureScript
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             }
 
+            void JustDied(Unit* /*victim*/)
+            {
+                // for testing purpose
+                EncounterPostProgress();
+            }
+
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
