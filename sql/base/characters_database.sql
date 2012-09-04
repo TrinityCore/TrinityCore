@@ -515,10 +515,10 @@ DROP TABLE IF EXISTS `character_currency`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_currency` (
-  `guid` int(11) unsigned NOT NULL,
+  `guid` int(10) unsigned NOT NULL,
   `currency` smallint(5) unsigned NOT NULL,
-  `total_count` int(11) unsigned NOT NULL,
-  `week_count` int(11) unsigned NOT NULL,
+  `total_count` int(10) unsigned NOT NULL,
+  `week_count` int(10) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`currency`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
