@@ -1930,7 +1930,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         // Use the current go state
         if ((GetGoState() != GO_STATE_READY && (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)) || state == GO_READY)
             collision = !collision;
-        
+
         EnableCollision(collision);
     }
 }
@@ -1947,7 +1947,7 @@ void GameObject::SetGoState(GOState state)
         // startOpen determines whether we are going to add or remove the LoS on activation
         bool collision = false;
         if (state == GO_STATE_READY)
-            collision = !collision; 
+            collision = !collision;
 
         EnableCollision(collision);
     }
