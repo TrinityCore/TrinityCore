@@ -160,7 +160,7 @@ class go_broggok_lever : public GameObjectScript
     public:
         go_broggok_lever() : GameObjectScript("go_broggok_lever") {}
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
             if (InstanceScript* instance = go->GetInstanceScript())
                 if (instance->GetData(TYPE_BROGGOK_EVENT) != DONE && instance->GetData(TYPE_BROGGOK_EVENT) != IN_PROGRESS)
