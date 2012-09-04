@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
+#include "CombatAI.h"
 
 /*######
 ## npc_agnetta_tyrsdottar
@@ -127,132 +128,6 @@ public:
             break;
         }
 
-        return true;
-    }
-};
-
-/*######
-## npc_thorim
-######*/
-
-#define GOSSIP_HN "Thorim?"
-#define GOSSIP_SN1 "Can you tell me what became of Sif?"
-#define GOSSIP_SN2 "He did more than that, Thorim. He controls Ulduar now."
-#define GOSSIP_SN3 "It needn't end this way."
-
-enum eThorim
-{
-    QUEST_SIBLING_RIVALRY = 13064,
-    NPC_THORIM = 29445,
-    GOSSIP_TEXTID_THORIM1 = 13799,
-    GOSSIP_TEXTID_THORIM2 = 13801,
-    GOSSIP_TEXTID_THORIM3 = 13802,
-    GOSSIP_TEXTID_THORIM4 = 13803
-};
-
-class npc_thorim : public CreatureScript
-{
-public:
-    npc_thorim() : CreatureScript("npc_thorim") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_SIBLING_RIVALRY) == QUEST_STATUS_INCOMPLETE) {
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_HN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_THORIM1, creature->GetGUID());
-            return true;
-        }
-        return false;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_SN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_THORIM2, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_SN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_THORIM3, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(0, GOSSIP_SN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_THORIM4, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->CLOSE_GOSSIP_MENU();
-                player->CompleteQuest(QUEST_SIBLING_RIVALRY);
-                break;
-        }
-        return true;
-    }
-};
-
-/*######
-## npc_loklira_crone
-######*/
-
-#define GOSSIP_LOKLIRACRONE     "Tell me about this proposal"
-#define GOSSIP_LOKLIRACRONE1    "What happened then?"
-#define GOSSIP_LOKLIRACRONE2    "You want me to take part in the Hyldsmeet to end the war?"
-#define GOSSIP_LOKLIRACRONE3    "Very well. I'll take part in this competition."
-
-enum eLokliraCrone
-{
-    QUEST_HYLDSMEET     = 12970,
-
-    GOSSIP_TEXTID_LOK1  = 13778,
-    GOSSIP_TEXTID_LOK2  = 13779,
-    GOSSIP_TEXTID_LOK3  = 13780
-};
-
-class npc_loklira_crone : public CreatureScript
-{
-public:
-    npc_loklira_crone() : CreatureScript("npc_loklira_crone") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_HYLDSMEET) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOKLIRACRONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-        return false;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOKLIRACRONE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LOK1, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOKLIRACRONE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LOK2, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOKLIRACRONE3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LOK3, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->CLOSE_GOSSIP_MENU();
-                player->CompleteQuest(QUEST_HYLDSMEET);
-                break;
-        }
         return true;
     }
 };
@@ -409,14 +284,12 @@ public:
 ## npc_brunnhildar_prisoner
 ######*/
 
-enum brunhildar {
-    NPC_QUEST_GIVER            = 29592,
-
+enum BrunnhildarPrisoner {
     SPELL_ICE_PRISON           = 54894,
-    SPELL_KILL_CREDIT_PRISONER = 55144,
-    SPELL_KILL_CREDIT_DRAKE    = 55143,
-    SPELL_SUMMON_LIBERATED     = 55073,
-    SPELL_ICE_LANCE            = 55046
+    SPELL_ICE_LANCE            = 55046,
+    SPELL_FREE_PRISONER        = 55048,
+    SPELL_RIDE_DRAKE           = 55074,
+    SPELL_SHARD_IMPACT         = 55047
 };
 
 class npc_brunnhildar_prisoner : public CreatureScript
@@ -428,129 +301,169 @@ public:
     {
         npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 drakeGUID;
-        uint16 enter_timer;
-        bool hasEmptySeats;
+        bool freed;
 
         void Reset()
         {
+            freed = false;
             me->CastSpell(me, SPELL_ICE_PRISON, true);
-            enter_timer = 0;
-            drakeGUID = 0;
-            hasEmptySeats = false;
         }
 
-        void UpdateAI(const uint32 diff)
+        void JustRespawned()
         {
-            //TODO: not good script
-            if (!drakeGUID)
-                return;
-
-            Creature* drake = Unit::GetCreature(*me, drakeGUID);
-            if (!drake)
-            {
-                drakeGUID = 0;
-                return;
-            }
-
-            // drake unsummoned, passengers dropped
-            if (!me->IsOnVehicle(drake) && !hasEmptySeats)
-                me->DespawnOrUnsummon(3000);
-
-            if (enter_timer <= 0)
-                return;
-
-            if (enter_timer < diff)
-            {
-                enter_timer = 0;
-                if (hasEmptySeats)
-                    me->JumpTo(drake, 25.0f);
-                else
-                    Reset();
-            }
-            else
-                enter_timer -= diff;
+            Reset();
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void UpdateAI(const uint32 /*diff*/)
         {
-            if (!who || !drakeGUID)
+            if (!freed)
                 return;
 
-            Creature* drake = Unit::GetCreature(*me, drakeGUID);
-            if (!drake)
+            if (!me->HasUnitState(UNIT_STATE_ONVEHICLE))
             {
-                drakeGUID = 0;
-                return;
-            }
-
-            if (!me->IsOnVehicle(drake) && !me->HasAura(SPELL_ICE_PRISON))
-            {
-                if (who->IsVehicle() && me->IsWithinDist(who, 25.0f, true) && who->ToCreature() && who->ToCreature()->GetEntry() == 29709)
-                {
-                    uint8 seat = who->GetVehicleKit()->GetNextEmptySeat(0, true);
-                    if (seat <= 0)
-                        return;
-
-                    me->EnterVehicle(who, seat);
-                    me->SendMovementFlagUpdate();
-                    hasEmptySeats = false;
-                }
-            }
-
-            if (who->ToCreature() && me->IsOnVehicle(drake))
-            {
-                if (who->ToCreature()->GetEntry() == NPC_QUEST_GIVER && me->IsWithinDist(who, 15.0f, false))
-                {
-                    Unit* rider = drake->GetVehicleKit()->GetPassenger(0);
-                    if (!rider)
-                        return;
-
-                    rider->CastSpell(rider, SPELL_KILL_CREDIT_PRISONER, true);
-
-                    me->ExitVehicle();
-                    me->CastSpell(me, SPELL_SUMMON_LIBERATED, true);
-                    me->DespawnOrUnsummon(500);
-
-                    // drake is empty now, deliver credit for drake and despawn him
-                    if (drake->GetVehicleKit()->HasEmptySeat(1) &&
-                        drake->GetVehicleKit()->HasEmptySeat(2) &&
-                        drake->GetVehicleKit()->HasEmptySeat(3))
-                    {
-                        // not working rider->CastSpell(rider, SPELL_KILL_CREDIT_DRAKE, true);
-                        if (rider->ToPlayer())
-                            rider->ToPlayer()->KilledMonsterCredit(29709, 0);
-
-                        drake->DespawnOrUnsummon(0);
-                    }
-                }
+                me->DespawnOrUnsummon();
             }
         }
 
-        void SpellHit(Unit* hitter, const SpellInfo* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (!hitter || !spell)
-                return;
-
             if (spell->Id != SPELL_ICE_LANCE)
                 return;
 
-            me->RemoveAura(SPELL_ICE_PRISON);
-            enter_timer = 500;
-
-            if (hitter->IsVehicle())
-                drakeGUID = hitter->GetGUID();
-            else
-                return;
-
-            if (hitter->GetVehicleKit()->GetNextEmptySeat(0, true))
-                hasEmptySeats = true;
+            if (caster->GetVehicleKit()->GetAvailableSeatCount() != 0)
+            {
+                me->CastSpell(me, SPELL_FREE_PRISONER, true);
+                me->CastSpell(caster, SPELL_RIDE_DRAKE, true);
+                me->CastSpell(me, SPELL_SHARD_IMPACT, true);
+                freed = true;
+            }
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_brunnhildar_prisonerAI(creature);
+    }
+};
+
+/*######
+## npc_freed_protodrake
+######*/
+
+enum FreedProtoDrake
+{
+    AREA_VALLEY_OF_ANCIENT_WINTERS      = 4437,
+    TEXT_EMOTE                          = 0,
+    SPELL_KILL_CREDIT_PRISONER          = 55144,
+    SPELL_SUMMON_LIBERATED              = 55073,
+    SPELL_KILL_CREDIT_DRAKE             = 55143
+};
+
+const Position FreedDrakeWaypoints[16] =
+{
+    {7294.96f, -2418.733f, 823.869f, 0.0f},
+    {7315.984f, -2331.46f, 826.3972f, 0.0f},
+    {7271.826f, -2271.479f, 833.5917f, 0.0f},
+    {7186.253f, -2218.475f, 847.5632f, 0.0f},
+    {7113.195f, -2164.288f, 850.2301f, 0.0f},
+    {7078.018f, -2063.106f, 854.7581f, 0.0f},
+    {7073.221f, -1983.382f, 861.9246f, 0.0f},
+    {7061.455f, -1885.899f, 865.119f, 0.0f},
+    {7033.32f, -1826.775f, 876.2578f, 0.0f},
+    {6999.902f, -1784.012f, 897.4521f, 0.0f},
+    {6954.913f, -1747.043f, 897.4521f, 0.0f},
+    {6933.856f, -1720.698f, 882.2022f, 0.0f},
+    {6932.729f, -1687.306f, 866.1189f, 0.0f},
+    {6952.458f, -1663.802f, 849.8133f, 0.0f},
+    {7002.819f, -1651.681f, 831.397f, 0.0f},
+    {7026.531f, -1649.239f, 828.8406f, 0.0f}
+};
+
+
+class npc_freed_protodrake : public CreatureScript
+{
+public:
+    npc_freed_protodrake() : CreatureScript("npc_freed_protodrake") { }
+
+    struct npc_freed_protodrakeAI : public VehicleAI
+    {
+        npc_freed_protodrakeAI(Creature* creature) : VehicleAI(creature) {}
+
+        bool autoMove;
+        bool wpReached;
+        uint16 CheckTimer;
+        uint16 countWP;
+
+        void Reset()
+        {
+            autoMove = false;
+            wpReached = false;
+            CheckTimer = 5000;
+            countWP = 0;
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            if (id < 15)
+            {
+                ++countWP;
+                wpReached = true;
+            }
+            else
+            // drake reached village
+            {
+                // get player that rides drake (from seat 0)
+                Unit* player = me->GetVehicleKit()->GetPassenger(0);
+                if (player && player->GetTypeId() == TYPEID_PLAYER)
+                {
+                    // for each prisoner on drake,give credit
+                    for (uint8 i = 1; i < 4; ++i)
+                        if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
+                        {
+                            if (prisoner->GetTypeId() != TYPEID_UNIT)
+                                return;
+                            prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
+                            prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
+                            prisoner->ExitVehicle();
+                        }
+                    me->CastSpell(me, SPELL_KILL_CREDIT_DRAKE, true);
+                    player->ExitVehicle();
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!autoMove)
+            {
+                if (CheckTimer < diff)
+                {
+                    CheckTimer = 5000;
+                    if (me->GetAreaId() == AREA_VALLEY_OF_ANCIENT_WINTERS)
+                    {
+                        Talk(TEXT_EMOTE, me->GetVehicleKit()->GetPassenger(0)->GetGUID());
+                        autoMove = true;
+                        wpReached = true;
+                    }
+                }
+                else
+                    CheckTimer -= diff;
+            }
+
+            if (wpReached && autoMove)
+            {
+                wpReached = false;
+                me->GetMotionMaster()->MovePoint(countWP, FreedDrakeWaypoints[countWP]);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_freed_protodrakeAI(creature);
     }
 };
 
@@ -655,11 +568,10 @@ void AddSC_storm_peaks()
 {
     new npc_agnetta_tyrsdottar();
     new npc_frostborn_scout();
-    new npc_thorim();
-    new npc_loklira_crone();
     new npc_injured_goblin();
     new npc_roxi_ramrocket();
     new npc_brunnhildar_prisoner();
+    new npc_freed_protodrake();
     new npc_icefang();
     new npc_hyldsmeet_protodrake();
 }

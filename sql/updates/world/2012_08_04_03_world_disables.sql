@@ -1,4 +1,4 @@
-DELETE FROM `disables` WHERE `sourceType`=1 AND `entry` IN (9754,9755,10215,11522,12445,12731,12923,13541);
+DELETE FROM `disables` WHERE `sourceType`=1 AND `entry` IN (9754,9755,10215,11522,12445,12731,12923,13541,7797,7869,7870,7906,9378,9611,9880,9881,9908,9909,9949,9950,10088,10181,10214,10454,11197,11226,11577,11874,11937,12485,12600,13123,13210,13317,13990);
 INSERT INTO `disables` (`sourceType`,`entry`,`flags`,`params_0`,`params_1`,`comment`) VALUES
 (1,9754,0,'','','Deprecated quest: '), 	
 (1,9755,0,'','','Deprecated quest: '), 	
