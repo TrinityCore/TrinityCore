@@ -2356,7 +2356,7 @@ class Unit : public WorldObject
 
         Spell const* _focusSpell;
         bool _targetLocked; // locks the target during spell cast for proper facing
-        bool _isWalkingBeforeCharm; // Are we walking before we were charmed? 
+        bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
 };
 
 namespace Trinity
