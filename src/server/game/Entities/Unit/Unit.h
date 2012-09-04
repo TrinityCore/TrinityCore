@@ -1606,7 +1606,7 @@ class Unit : public WorldObject
         void MonsterMoveWithSpeed(float x, float y, float z, float speed);
         //void SetFacing(float ori, WorldObject* obj = NULL);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
-        void SendMovementFlagUpdate();
+        void SendMovementFlagUpdate(bool self = false);
 
         /*! These methods send the same packet to the client in apply and unapply case.
             The client-side interpretation of this packet depends on the presence of relevant movementflags
@@ -2356,6 +2356,7 @@ class Unit : public WorldObject
 
         Spell const* _focusSpell;
         bool _targetLocked; // locks the target during spell cast for proper facing
+        bool _isWalkingBeforeCharm; // Are we walking before we were charmed? 
 };
 
 namespace Trinity
