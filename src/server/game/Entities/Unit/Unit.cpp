@@ -9978,8 +9978,8 @@ void Unit::SetCharm(Unit* charm, bool apply)
         if (!charm->AddUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
             sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is being charmed, but it already has a charmer " UI64FMTD "", charm->GetEntry(), charm->GetCharmerGUID());
 
-        m_isWalkingBeforeCharm = charm->IsWalking();
-        if (m_isWalkingBeforeCharm)
+        _isWalkingBeforeCharm = charm->IsWalking();
+        if (_isWalkingBeforeCharm)
         {
             charm->SetWalk(false);
             charm->SendMovementFlagUpdate();
@@ -10017,9 +10017,9 @@ void Unit::SetCharm(Unit* charm, bool apply)
             charm->SetByteValue(UNIT_FIELD_BYTES_2, 1, 0);
         }
         
-        if (charm->IsWalking() != m_isWalkingBeforeCharm)
+        if (charm->IsWalking() != _isWalkingBeforeCharm)
         {
-            charm->SetWalk(m_isWalkingBeforeCharm);
+            charm->SetWalk(_isWalkingBeforeCharm);
             charm->SendMovementFlagUpdate(true); // send packet to self, to update movement state on player.
         }
 
