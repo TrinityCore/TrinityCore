@@ -256,6 +256,7 @@ m_HostileRefManager(this), m_TempSpeed(0.0f), m_AutoRepeatFirstCast(false)
     _focusSpell = NULL;
     _targetLocked = false;
     _lastLiquid = NULL;
+    _isWalkingBeforeCharm = false;
 }
 
 ////////////////////////////////////////////////////////////
