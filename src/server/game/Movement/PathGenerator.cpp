@@ -30,7 +30,7 @@
 PathGenerator::PathGenerator(const Unit* owner) :
     m_polyLength(0), m_type(PATHFIND_BLANK),
     m_useStraightPath(false), m_forceDestination(false), m_pointPathLimit(MAX_POINT_PATH_LENGTH),
-    m_sourceUnit(owner), m_navMesh(NULL), m_navMeshQuery(NULL)
+    m_sourceUnit(owner), m_navMesh(NULL), m_navMeshQuery(NULL), m_endPosition(Vector3::zero())
 {
     sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::PathGenerator for %u \n", m_sourceUnit->GetGUIDLow());
 
@@ -52,16 +52,16 @@ PathGenerator::~PathGenerator()
 
 bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool forceDest)
 {
-    if (!Trinity::IsValidMapCoord(destX, destY, destZ) ||
-        !Trinity::IsValidMapCoord(m_sourceUnit->GetPositionX(), m_sourceUnit->GetPositionY(), m_sourceUnit->GetPositionZ()))
+    float x, y, z;
+    m_sourceUnit->GetPosition(x, y, z);
+
+    if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
         return false;
 
     Vector3 oldDest = getEndPosition();
     Vector3 dest(destX, destY, destZ);
     setEndPosition(dest);
 
-    float x, y, z;
-    m_sourceUnit->GetPosition(x, y, z);
     Vector3 start(x, y, z);
     setStartPosition(start);
 
@@ -84,7 +84,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     // check if destination moved - if not we can optimize something here
     // we are following old, precalculated path?
     float dist = m_sourceUnit->GetObjectSize();
-    if (inRange(oldDest, dest, dist, dist) && m_pathPoints.size() > 2)
+    if (oldDest != Vector3::zero() && inRange(oldDest, dest, dist, dist) && m_pathPoints.size() > 2)
     {
         // our target is not moving - we just coming closer
         // we are moving on precalculated path - enjoy the ride
@@ -192,7 +192,7 @@ void PathGenerator::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos
         if (waterPath)
         {
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
-            for (int i = 0; i < m_pathPoints.size(); ++i)
+            for (uint32 i = 0; i < m_pathPoints.size(); ++i)
             {
                 LiquidData data;
                 m_sourceUnit->GetBaseMap()->getLiquidStatus(m_pathPoints[i].x, m_pathPoints[i].y, m_pathPoints[i].z, MAP_ALL_LIQUIDS, &data);
@@ -277,11 +277,12 @@ void PathGenerator::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos
     // TODO: we can merge it with getPathPolyByPosition() loop
     bool startPolyFound = false;
     bool endPolyFound = false;
-    uint32 pathStartIndex, pathEndIndex;
+    uint32 pathStartIndex = 0;
+    uint32 pathEndIndex = 0;
 
     if (m_polyLength)
     {
-        for (pathStartIndex = 0; pathStartIndex < m_polyLength; ++pathStartIndex)
+        for (; pathStartIndex < m_polyLength; ++pathStartIndex)
         {
             // here to carch few bugs
             ASSERT(m_pathPolyRefs[pathStartIndex] != INVALID_POLYREF);
