@@ -51,7 +51,7 @@ std::string TimeToTimestampStr(time_t t);
 inline uint32 secsToTimeBitFields(time_t secs)
 {
     tm* lt = localtime(&secs);
-    return (lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min;
+    return uint32((lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min);
 }
 
 /* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
@@ -87,22 +87,6 @@ inline bool roll_chance_f(float chance)
 inline bool roll_chance_i(int chance)
 {
     return chance > irand(0, 99);
-}
-
-inline void ApplyModUInt32Var(uint32& var, int32 val, bool apply)
-{
-    int32 cur = var;
-    cur += (apply ? val : -val);
-    if (cur < 0)
-        cur = 0;
-    var = cur;
-}
-
-inline void ApplyModFloatVar(float& var, float  val, bool apply)
-{
-    var += (apply ? val : -val);
-    if (var < 0)
-        var = 0;
 }
 
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)

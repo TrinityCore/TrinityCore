@@ -1223,8 +1223,8 @@ bool GridMap::loadLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
     }
     if (!(header.flags & MAP_LIQUID_NO_HEIGHT))
     {
-        _liquidMap = new float[_liquidWidth*_liquidHeight];
-        if (fread(_liquidMap, sizeof(float), _liquidWidth*_liquidHeight, in) != _liquidWidth*_liquidHeight)
+        _liquidMap = new float[uint32(_liquidWidth) * uint32(_liquidHeight)];
+        if (fread(_liquidMap, sizeof(float), _liquidWidth*_liquidHeight, in) != (uint32(_liquidWidth) * uint32(_liquidHeight)))
             return false;
     }
     return true;
