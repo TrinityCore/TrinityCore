@@ -130,7 +130,7 @@ enum PlayerCurrencyState
    PLAYERCURRENCY_UNCHANGED = 0,
    PLAYERCURRENCY_CHANGED   = 1,
    PLAYERCURRENCY_NEW       = 2,
-   PLAYERCURRENCY_REMOVED   = 3
+   PLAYERCURRENCY_REMOVED   = 3     //not removed just set count == 0
 };
 
 struct PlayerCurrency
@@ -792,6 +792,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES    = 30,
     PLAYER_LOGIN_QUERY_LOADSEASONALQUESTSTATUS  = 31,
     PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE          = 32,
+    PLAYER_LOGIN_QUERY_LOADCURRENCY             = 33,
     MAX_PLAYER_LOGIN_QUERY,
 };
 
@@ -1340,10 +1341,25 @@ class Player : public Unit, public GridObject<Player>
         void AddRefundReference(uint32 it);
         void DeleteRefundReference(uint32 it);
 
+        /// send initialization of new currency for client
+        void SendNewCurrency(uint32 id) const;
+        /// send full data about all currencies to client
         void SendCurrencies() const;
+        /// return count of currency witch has plr
         uint32 GetCurrency(uint32 id) const;
+        /// return presence related currency
         bool HasCurrency(uint32 id, uint32 count) const;
+        /// @todo: not understand why it subtract from total count and for what it used. It should be remove and replaced by ModifyCurrency
         void SetCurrency(uint32 id, uint32 count, bool printLog = true);
+
+        /**
+          * @name   ModifyCurrency
+          * @brief  Change specific currency and send result to client
+
+          * @param  id currency entry from CurrencyTypes.dbc
+          * @param  count integer value for adding/removing curent currency
+          * @param  printLog used on SMSG_UPDATE_CURRENCY
+        */
         void ModifyCurrency(uint32 id, int32 count, bool printLog = true);
 
         void ApplyEquipCooldown(Item* pItem);
@@ -2695,6 +2711,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
+        void _LoadCurrency(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2717,6 +2734,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveTalents(SQLTransaction& trans);
         void _SaveStats(SQLTransaction& trans);
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
+        void _SaveCurrency(SQLTransaction& trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -2748,7 +2766,7 @@ class Player : public Unit, public GridObject<Player>
         Item* m_items[PLAYER_SLOTS_COUNT];
         uint32 m_currentBuybackSlot;
 
-        PlayerCurrenciesMap m_currencies;
+        PlayerCurrenciesMap _currencyStorage;
         uint32 _GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
