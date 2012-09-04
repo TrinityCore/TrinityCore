@@ -522,7 +522,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
     _tprintf(_T("Global Variables\r\n"));
 
     SymEnumSymbols(GetCurrentProcess(),
-        (DWORD64)(DWORD)GetModuleHandle(szFaultingModule),
+        (UINT_PTR)GetModuleHandle(szFaultingModule),
         0, EnumerateSymbolsCallback, 0);
   //  #endif                                                  // X86 Only!
 
