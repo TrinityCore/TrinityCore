@@ -361,7 +361,7 @@ bool SpellEffectInfo::IsAura() const
 
 bool SpellEffectInfo::IsAura(AuraType aura) const
 {
-    return IsAura() && ApplyAuraName == aura;
+    return IsAura() && ApplyAuraName == uint32(aura);
 }
 
 bool SpellEffectInfo::IsTargetingArea() const

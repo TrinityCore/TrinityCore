@@ -37,6 +37,9 @@ BattlefieldWG::~BattlefieldWG()
 {
     for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
         delete *itr;
+
+    for (GameObjectBuilding::const_iterator itr = BuildingsInZone.begin(); itr != BuildingsInZone.end(); ++itr)
+        delete *itr;
 }
 
 bool BattlefieldWG::SetupBattlefield()
