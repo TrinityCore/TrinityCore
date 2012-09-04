@@ -863,8 +863,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
-
-    _isWalkingBeforeCharm = false;
 }
 
 Player::~Player()
