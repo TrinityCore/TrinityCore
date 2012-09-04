@@ -47,11 +47,6 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     path.setPathLengthLimit(30.0f);
     path.CalculatePath(x, y, z);
     if (path.getPathType() & PATHFIND_NOPATH)
-            default:
-                angle = 0.0f;
-                distance = 0.0f;
-                break;
-
     {
         i_nextCheckTime.Reset(urand(1000, 1500));
         return;
