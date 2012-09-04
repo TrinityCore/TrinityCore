@@ -140,7 +140,12 @@ bool FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float 
                 angle = i_cur_angle + static_cast<float>(M_PI);
                 distance /= 2;
                 break;
+            default:
+                angle = 0.0f;
+                distance = 0.0f;
+                break;
         }
+
         temp_x = x + distance * cos(angle);
         temp_y = y + distance * sin(angle);
         Trinity::NormalizeMapCoord(temp_x);
