@@ -399,7 +399,7 @@ public:
             }
             else m_uiHeadCrackTimer -= diff;
 
-            if (instance->GetData(TYPE_NORTHREND_BEASTS) != GORMOK_IN_PROGRESS)
+            if (instance->GetData(TYPE_NORTHREND_BEASTS) == FAIL)
                 me->DespawnOrUnsummon();
 
             DoMeleeAttackIfReady();
