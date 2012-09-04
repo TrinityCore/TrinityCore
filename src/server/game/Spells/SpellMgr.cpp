@@ -305,7 +305,7 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
             break;
     }
 
-    return 10 * IN_MILLISECONDS;
+    return 8 * IN_MILLISECONDS;
 }
 
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
