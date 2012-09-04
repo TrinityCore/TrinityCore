@@ -190,7 +190,7 @@ class npc_wyrmrest_defender : public CreatureScript
         npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
-        {      
+        {
             if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
