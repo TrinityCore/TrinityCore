@@ -133,7 +133,7 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            void OnCreatureDeath(Creature* unit)
+            void OnUnitDeath(Unit* unit)
             {
                 if (unit && unit->GetTypeId() == TYPEID_UNIT && unit->GetEntry() == 17398)
                     PrisonerDied(unit->GetGUID());
