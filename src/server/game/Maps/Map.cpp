@@ -398,7 +398,6 @@ bool Map::AddPlayerToMap(Player* player)
     // Check if we are adding to correct map
     ASSERT (player->GetMap() == this);
     player->SetMap(this);
-    player->SetRootPhaseMap(GetRootPhaseMapId());
     player->AddToWorld();
 
     player->m_clientGUIDs.clear();
@@ -450,7 +449,6 @@ bool Map::AddToMap(T *obj)
 
     //Must already be set before AddToMap. Usually during obj->Create.
     //obj->SetMap(this);
-    obj->SetRootPhaseMap(GetRootPhaseMapId());
     obj->AddToWorld();
 
     InitializeObject(obj);
@@ -665,8 +663,6 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     else
         ASSERT(remove); //maybe deleted in logoutplayer when player is not in a map
 
-    player->SetRootPhaseMap(-1);
-
     if (remove)
     {
         DeleteFromWorld(player);
@@ -684,10 +680,7 @@ void Map::RemoveFromMap(T *obj, bool remove)
 
     obj->UpdateObjectVisibility(true);
     obj->RemoveFromGrid();
-
-    obj->SetRootPhaseMap(-1);
     obj->ResetMap();
-
 
     if (remove)
     {

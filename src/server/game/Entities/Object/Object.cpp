@@ -2343,6 +2343,7 @@ void WorldObject::SetMap(Map* map)
     }
     m_currMap = map;
     m_mapId = map->GetId();
+    m_rootPhaseMap = map->GetRootPhaseMapId();
     m_InstanceId = map->GetInstanceId();
     if (IsWorldObject())
         m_currMap->AddWorldObject(this);
@@ -2355,6 +2356,7 @@ void WorldObject::ResetMap()
     if (IsWorldObject())
         m_currMap->RemoveWorldObject(this);
     m_currMap = NULL;
+    m_rootPhaseMap = -1;
     //maybe not for corpse
     //m_mapId = 0;
     //m_InstanceId = 0;
