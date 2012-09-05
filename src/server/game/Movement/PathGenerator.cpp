@@ -591,8 +591,7 @@ bool PathGenerator::HaveTile(const Vector3 &p) const
     return (m_navMesh->getTileAt(tx, ty) != NULL);
 }
 
-uint32 PathGenerator::fixupCorridor(dtPolyRef* path, uint32 npath, uint32 maxPath,
-                               const dtPolyRef* visited, uint32 nvisited)
+uint32 PathGenerator::fixupCorridor(dtPolyRef* path, uint32 npath, uint32 maxPath, dtPolyRef const* visited, uint32 nvisited)
 {
     int32 furthestPath = -1;
     int32 furthestVisited = -1;
@@ -622,17 +621,17 @@ uint32 PathGenerator::fixupCorridor(dtPolyRef* path, uint32 npath, uint32 maxPat
 
     // Adjust beginning of the buffer to include the visited.
     uint32 req = nvisited - furthestVisited;
-    uint32 orig = uint32(furthestPath+1) < npath ? furthestPath+1 : npath;
-    uint32 size = npath-orig > 0 ? npath-orig : 0;
-    if (req+size > maxPath)
+    uint32 orig = uint32(furthestPath + 1) < npath ? furthestPath + 1 : npath;
+    uint32 size = npath > orig ? npath - orig : 0;
+    if (req + size > maxPath)
         size = maxPath-req;
 
     if (size)
-        memmove(path+req, path+orig, size*sizeof(dtPolyRef));
+        memmove(path + req, path + orig, size * sizeof(dtPolyRef));
 
     // Store visited
     for (uint32 i = 0; i < req; ++i)
-        path[i] = visited[(nvisited-1)-i];
+        path[i] = visited[(nvisited - 1) - i];
 
     return req+size;
 }
