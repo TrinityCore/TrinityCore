@@ -182,7 +182,7 @@ enum CUFBoolOptions
     CUF_UNK_156,
     CUF_UNK_157,
 
-    // Two of the unks is _LOCKED and _SHOWN
+    // The unks is _LOCKED and _SHOWN and _DYNAMIC, unknown order
 
     CUF_BOOL_OPTIONS_COUNT,
 };
@@ -226,9 +226,12 @@ struct CUFProfile
     uint8 SortBy;
     uint8 HealthText;
 
+    // LeftAlign, TopAlight, BottomAllign (unk order)
     uint8 Unk146;
     uint8 Unk147;
     uint8 Unk148;
+
+    // LeftOffset, TopOffset and BottomOffset (unk order)
     uint16 Unk150;
     uint16 Unk152;
     uint16 Unk154;

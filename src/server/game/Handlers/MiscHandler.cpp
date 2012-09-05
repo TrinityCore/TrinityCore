@@ -2051,7 +2051,7 @@ void WorldSession::SendLoadCUFProfiles()
     ByteBuffer byteBuffer(25 * count);
     WorldPacket data(SMSG_LOAD_CUF_PROFILES, 5 * count + 25 * count);
 
-	data.WriteBits(count, 20);
+    data.WriteBits(count, 20);
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
     {
         CUFProfile* profile = player->GetCUFProfile(i);
