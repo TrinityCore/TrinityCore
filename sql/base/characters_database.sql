@@ -516,7 +516,7 @@ DROP TABLE IF EXISTS `character_cuf_profiles`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_cuf_profiles` (
   `guid` int(10) unsigned NOT NULL COMMENT 'Character Guid',
-  `id` tinyint(3) unsigned NOT NULL COMMENT 'Profile Id (0-5)',
+  `id` tinyint(3) unsigned NOT NULL COMMENT 'Profile Id (0-4)',
   `name` varchar(12) NOT NULL COMMENT 'Profile Name',
   `frameHeight` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Profile Frame Height',
   `frameWidth` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Profile Frame Width',

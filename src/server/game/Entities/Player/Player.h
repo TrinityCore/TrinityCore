@@ -182,6 +182,8 @@ enum CUFBoolOptions
     CUF_UNK_156,
     CUF_UNK_157,
 
+    // Two of the unks is _LOCKED and _SHOWN
+
     CUF_BOOL_OPTIONS_COUNT,
 };
 
@@ -233,7 +235,7 @@ struct CUFProfile
 
     std::bitset<CUF_BOOL_OPTIONS_COUNT> BoolOptions;
 
-    // More fields can be added to BoolOptions without changing DB schema (up to 31, currently 24)
+    // More fields can be added to BoolOptions without changing DB schema (up to 32, currently 27)
 };
 
 struct SpellCooldown

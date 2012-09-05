@@ -19294,7 +19294,7 @@ void Player::_SaveCUFProfiles(SQLTransaction& trans)
             stmt->setUInt16(4, _CUFProfiles[i]->FrameWidth);
             stmt->setUInt8(5, _CUFProfiles[i]->SortBy);
             stmt->setUInt8(6, _CUFProfiles[i]->HealthText);
-            stmt->setUInt32(7, _CUFProfiles[i]->BoolOptions.to_ulong()); // 24 of 31 fields used, fits in an int
+            stmt->setUInt32(7, _CUFProfiles[i]->BoolOptions.to_ulong()); // 27 of 32 fields used, fits in an int
             stmt->setUInt8(8, _CUFProfiles[i]->Unk146);
             stmt->setUInt8(9, _CUFProfiles[i]->Unk147);
             stmt->setUInt8(10, _CUFProfiles[i]->Unk148);
