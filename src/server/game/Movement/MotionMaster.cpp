@@ -425,12 +425,12 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id,
 
 void MotionMaster::MoveCharge(PathGenerator path, float speed, uint32 id)
 {
-    Vector3 dest = path.getActualEndPosition();
+    Vector3 dest = path.GetActualEndPosition();
 
     MoveCharge(dest.x, dest.y, dest.z);
     
     Movement::MoveSplineInit init(_owner);
-    init.MovebyPath(path.getPath());
+    init.MovebyPath(path.GetPath());
     init.SetVelocity(speed);
     init.Launch();
 }
