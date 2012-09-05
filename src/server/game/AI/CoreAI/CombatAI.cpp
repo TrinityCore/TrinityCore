@@ -112,7 +112,7 @@ void CombatAI::UpdateAI(const uint32 diff)
 }
 void CombatAI::SpellInterrupted(uint32 spellId, uint32 unTimeMs) 
 {
-    events.RescheduleEvent(spellId, msTime);
+    events.RescheduleEvent(spellId, unTimeMs);
 }
 
 /////////////////
