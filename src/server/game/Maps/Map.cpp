@@ -123,8 +123,7 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
-    // DONT CHANGE "gy" and "gx" - Its necessary !
-    bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gy, gx);
+    bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
     
     if (mmapLoadResult)
         sLog->outInfo(LOG_FILTER_MAPS, "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
@@ -1011,7 +1010,6 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
                 GridMaps[gx][gy]->unloadData();
                 delete GridMaps[gx][gy];
             }
-            // x and y are swapped
             VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gx, gy);
             MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId(), gx, gy);
         }
