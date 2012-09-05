@@ -451,7 +451,7 @@ WorldPacket Battlefield::BuildWarningAnnPacket(std::string msg)
     data << uint32(1);
     data << uint8(0);
     data << uint64(0);
-    data << uint32(msg.length());
+    data << uint32(msg.length() + 1);
     data << msg;
     data << uint8(0);
 
