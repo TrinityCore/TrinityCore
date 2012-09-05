@@ -6928,7 +6928,10 @@ void Spell::InitEffectExecuteData(uint8 effIndex)
 void Spell::CleanupEffectExecuteData()
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        m_effectExecuteData[i] = NULL;
+        if(m_effectExecuteData[i]) {
+            delete m_effectExecuteData[i];
+            m_effectExecuteData[i] = NULL;
+        }
 }
 
 void Spell::CheckEffectExecuteData()
