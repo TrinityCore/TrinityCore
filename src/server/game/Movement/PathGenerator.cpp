@@ -194,10 +194,9 @@ void PathGenerator::BuildPolyPath(const Vector3 &startPos, const Vector3 &endPos
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
             for (uint32 i = 0; i < m_pathPoints.size(); ++i)
             {
-                LiquidData data;
-                m_sourceUnit->GetBaseMap()->getLiquidStatus(m_pathPoints[i].x, m_pathPoints[i].y, m_pathPoints[i].z, MAP_ALL_LIQUIDS, &data);
+                ZLiquidStatus status = m_sourceUnit->GetBaseMap()->getLiquidStatus(m_pathPoints[i].x, m_pathPoints[i].y, m_pathPoints[i].z, MAP_ALL_LIQUIDS, NULL);
                 // One of the points is not in the water, cancel movement.
-                if (data.type_flags == MAP_LIQUID_TYPE_NO_WATER)
+                if (status == LIQUID_MAP_NO_WATER)
                 {
                     waterPath = false;
                     break;
