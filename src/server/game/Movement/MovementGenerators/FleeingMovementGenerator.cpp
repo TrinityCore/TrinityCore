@@ -44,16 +44,16 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
 
     PathGenerator path(owner);
-    path.setPathLengthLimit(30.0f);
+    path.SetPathLengthLimit(30.0f);
     path.CalculatePath(x, y, z);
-    if (path.getPathType() & PATHFIND_NOPATH)
+    if (path.GetPathType() & PATHFIND_NOPATH)
     {
         i_nextCheckTime.Reset(urand(1000, 1500));
         return;
     }
 
     Movement::MoveSplineInit init(owner);
-    init.MovebyPath(path.getPath());
+    init.MovebyPath(path.GetPath());
     init.SetWalk(false);
     int32 traveltime = init.Launch();
     i_nextCheckTime.Reset(traveltime + urand(800, 1500));
