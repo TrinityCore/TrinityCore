@@ -244,7 +244,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
     sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_BATTLEGROUND_PLAYER_POSITIONS Message");
 
@@ -252,39 +252,44 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recv_
     if (!bg)                                                 // can't be received if player not in battleground
         return;
 
-    uint32 count = 0;
-    Player* aplr = NULL;
-    Player* hplr = NULL;
+    uint32 flagCarrierCount = 0;
+    Player* allianceFlagCarrier = NULL;
+    Player* hordeFlagCarrier = NULL;
 
     if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
     {
-        aplr = ObjectAccessor::FindPlayer(guid);
-        if (aplr)
-            ++count;
+        allianceFlagCarrier = ObjectAccessor::FindPlayer(guid);
+        if (allianceFlagCarrier)
+            ++flagCarrierCount;
     }
 
     if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
     {
-        hplr = ObjectAccessor::FindPlayer(guid);
-        if (hplr)
-            ++count;
+        hordeFlagCarrier = ObjectAccessor::FindPlayer(guid);
+        if (hordeFlagCarrier)
+            ++flagCarrierCount;
     }
 
-    WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * count);
-    data << 0;
-    data << count;
-    if (aplr)
+    WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * flagCarrierCount);
+    // Used to send several player positions (found used in AV)
+    data << 0;  // CGBattlefieldInfo__m_numPlayerPositions
+    /*
+    for (CGBattlefieldInfo__m_numPlayerPositions)
+        data << guid << posx << posy;
+    */
+    data << flagCarrierCount;
+    if (allianceFlagCarrier)
     {
-        data << uint64(aplr->GetGUID());
-        data << float(aplr->GetPositionX());
-        data << float(aplr->GetPositionY());
+        data << uint64(allianceFlagCarrier->GetGUID());
+        data << float(allianceFlagCarrier->GetPositionX());
+        data << float(allianceFlagCarrier->GetPositionY());
     }
 
-    if (hplr)
+    if (hordeFlagCarrier)
     {
-        data << uint64(hplr->GetGUID());
-        data << float(hplr->GetPositionX());
-        data << float(hplr->GetPositionY());
+        data << uint64(hordeFlagCarrier->GetGUID());
+        data << float(hordeFlagCarrier->GetPositionX());
+        data << float(hordeFlagCarrier->GetPositionY());
     }
 
     SendPacket(&data);
@@ -457,6 +462,9 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName(), _player->GetGUIDLow(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
             break;
         case 0:                                         // leave queue
+            if (bg->isArena() && bg->GetStatus() != STATUS_WAIT_QUEUE)
+                return;
+
             // if player leaves rated arena match before match start, it is counted as he played but he lost
             if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
             {
