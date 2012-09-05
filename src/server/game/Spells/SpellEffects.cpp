@@ -5139,7 +5139,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-        if (m_preGeneratedPath.getPathType() & PATHFIND_NOPATH)
+        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
         {
             Position pos;
             unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
