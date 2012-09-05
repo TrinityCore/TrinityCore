@@ -731,7 +731,6 @@ void BattlegroundWS::Reset()
     _bothFlagsKept = false;
     _flagDebuffState = 0;
     _flagSpellForceTimer = 0;
-    _lastFlagCaptureTeam = 0;
     _flagsDropTimer[BG_TEAM_ALLIANCE] = 0;
     _flagsDropTimer[BG_TEAM_HORDE] = 0;
     _flagsTimer[BG_TEAM_ALLIANCE] = 0;
