@@ -268,11 +268,9 @@ class npc_thorim_controller : public CreatureScript
 
             void Reset()
             {
-                if (!gotActivated)
-                {
-                    instance->HandleGameObject(instance->GetData64(GO_THORIM_LIGHTNING_FIELD), true); // Open the entrance door.
-                    events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1000);  
-                }                            
+                gotActivated = false;
+                instance->HandleGameObject(instance->GetData64(GO_THORIM_LIGHTNING_FIELD), true); // Open the entrance door.
+                events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1000);
             }
 
             void JustSummoned(Creature* summon)
