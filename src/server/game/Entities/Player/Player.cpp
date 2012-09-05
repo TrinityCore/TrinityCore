@@ -19200,14 +19200,14 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
         if (!_voidStorageItems[i]) // unused item
         {
             // DELETE FROM void_storage WHERE slot = ? AND playerGuid = ?
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_VOID_STORAGE_ITEM_BY_SLOT);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_VOID_STORAGE_ITEM_BY_SLOT);
             stmt->setUInt8(0, i);
             stmt->setUInt32(1, lowGuid);
         }
         else
         {
             // REPLACE INTO character_inventory (itemId, playerGuid, itemEntry, slot, creatorGuid) VALUES (?, ?, ?, ?, ?)
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_VOID_STORAGE_ITEM);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_VOID_STORAGE_ITEM);
             stmt->setUInt64(0, _voidStorageItems[i]->ItemId);
             stmt->setUInt32(1, lowGuid);
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
