@@ -535,7 +535,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName(), _player->GetGUIDLow(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
             break;
         case 0:                                         // leave queue
-            if (bg->GetStatus() != STATUS_WAIT_QUEUE)
+            if (bg->isArena() && bg->GetStatus() != STATUS_WAIT_QUEUE)
                 return;
 
             // if player leaves rated arena match before match start, it is counted as he played but he lost
