@@ -556,19 +556,16 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 
 DELETE FROM `conditions` WHERE SourceEntry IN (64184, 63882, 63886, 64172, 64465, 65209);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 0, 64184, 0, 0, 18, 0, 1, 33288, 0, 0, 0, '', 'Effekt on YoggSaron'), -- Create Val'anyr on Yogg-Saron
-(13, 0, 63882, 0, 0, 18, 0, 1, 33882, 0, 0, 0, '', 'Effekt on Death Orb'), -- Deathray Effekt on Death Orb
-(13, 0, 63886, 0, 0, 18, 0, 1, 33882, 0, 0, 0, '', 'Effekt on Death Orb'),
-(13, 0, 64172, 0, 0, 18, 0, 1, 33988, 0, 0, 0, '', 'Effekt only for Immortal Guardians'), -- Condition because NPCs need this else no hit
-(13, 0, 64465, 0, 0, 18, 0, 1, 33988, 0, 0, 0, '', 'Effekt only for Immortal Guardians'),
-(13, 0, 65209, 0, 0, 18, 0, 1, 33136, 0, 0, 0, '', 'Effekt only for Guardian of YoggSaron'), -- Second Damage Effekt of ShadowNova only on other Guardians or Sara
-(13, 0, 65209, 0, 0, 18, 0, 1, 33134, 0, 0, 0, '', 'Effekt only for Sara');
+(13, 0, 64184, 0, 0, 31, 0, 3, 33288, 0, 0, 0, '', 'Effect on YoggSaron'), -- Create Val'anyr on Yogg-Saron
+(13, 0, 63882, 0, 0, 31, 0, 3, 33882, 0, 0, 0, '', 'Effect on Death Orb'), -- Deathray Effect on Death Orb
+(13, 0, 63886, 0, 0, 31, 0, 3, 33882, 0, 0, 0, '', 'Effect on Death Orb'),
+(13, 0, 64172, 0, 0, 31, 0, 3, 33988, 0, 0, 0, '', 'Effect only for Immortal Guardians'), -- Condition because NPCs need this else no hit
+(13, 0, 64465, 0, 0, 31, 0, 3, 33988, 0, 0, 0, '', 'Effect only for Immortal Guardians');
 
 -- Missing Says Vision
 UPDATE `script_texts` SET `npc_entry`=33134 WHERE `npc_entry`=33288 AND `entry` IN (-1603330,-1603331,-1603332,-1603333);
-UPDATE `script_texts` SET `content_default`='Help me! Please get them off me!' WHERE `npc_entry`=33134 AND `entry`=-1603310;
-UPDATE `script_texts` SET `content_default`='What do you want from me? Leave me alone!' WHERE `npc_entry`=33134 AND `entry`=-1603311;
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1603360 AND -1603342;
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1603319 AND 1603310;
 INSERT INTO `script_texts` VALUES 
 (33535, -1603359, 'It is a weapon like no other. It must be like no other.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15610, 0, 0, 0, 'Malygos DragonSoulVision_Say'),
 (33523, -1603356, 'It is done... All have been given that which must be given. I now seal the Dragon Soul forever...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15631, 0, 0, 0, 'Neltharion DragonSoulVision_Say1'),
@@ -588,7 +585,16 @@ INSERT INTO `script_texts` VALUES
 (33436, -1603344, 'Gul\'dan is bringing up his warlocks by nightfall. Until then, the Blackrock clan will be trying to take the Eastern Wall.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15540, 0, 0, 0, 'Garona KingLlaneVision_Say3'),
 (33288, -1603345, 'A thousand deaths... or one murder.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15762, 0, 0, 0, 'YoggSaron KingLlaneVision_Say1'),
 (33436, -1603342, 'Bad news sire.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15538, 0, 0, 0, 'Garona KingLlaneVision_Say1'),
-(33436, -1603343, 'The clans are united under Blackhand in this assault. They will stand together until Stormwind has fallen.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15539, 0, 0, 0, 'Garona KingLlaneVision_Say2');
+(33436, -1603343, 'The clans are united under Blackhand in this assault. They will stand together until Stormwind has fallen.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15539, 0, 0, 0, 'Garona KingLlaneVision_Say2'),
+(33134, -1603310, 'Aaaaaaaaaaaaaaaaa... Help me!!! Please got to help me!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15771, 1, 0, 0, 'Sara say prefight 1'),
+(33134, -1603311, 'What do you want from me? Leave me alone!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15772, 1, 0, 0, 'Sara say prefight 2'),
+(33134, -1603312, 'The time to strike at the head of the beast will soon be upon us! Focus your anger and hatred on his minions!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15775, 1, 0, 0, 'Sara say aggro 2'),
+(33134, -1603313, 'Yes! YES! Show them no mercy! Give no pause to your attacks!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15773, 1, 0, 0, 'Sara help 1'),
+(33134, -1603314, 'Let hatred and rage guide your blows!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15774, 1, 0, 0, 'Sara help 2'),
+(33134, -1603315, 'Could they have been saved?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15779, 1, 0, 0, 'Sara slay 1'),
+(33134, -1603316, 'Powerless to act...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15778, 1, 0, 0, 'Sara slay 2'),
+(33134, -1603318, 'Tremble, mortals, before the coming of the end!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15777, 1, 0, 0, 'Sara phase 2 yell 1'),
+(33134, -1603319, 'Suffocate upon your own hate!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15776, 1, 0, 0, 'Sara phase 2 yell 2');
 
 -- Various things'
 -- Update mechanic immunity flags.
@@ -868,3 +874,7 @@ UPDATE creature SET spawntimesecs = 604800 WHERE id = 33838;
 -- correcting Junk bot template
 UPDATE creature_template SET difficulty_entry_1 = 34114 WHERE entry = 33855;
 UPDATE creature_template SET faction_A = 16, faction_H = 16 WHERE entry = 34114;
+
+-- deleting prespawned Ominous clouds and changing their models
+DELETE FROM creature WHERE id = 33292;
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry = 33292;

@@ -2103,6 +2103,7 @@ class go_not_push_button : public GameObjectScript
         bool OnGossipHello(Player* player, GameObject* go)
         {
             if (InstanceScript* instance = go->GetInstanceScript())
+            {
                 if ((instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS || instance->GetBossState(BOSS_MIMIRON) != DONE) && player)
                     if (Creature* mimiron = ObjectAccessor::GetCreature((*player), instance->GetData64(BOSS_MIMIRON)))
                     {
@@ -2110,6 +2111,7 @@ class go_not_push_button : public GameObjectScript
                         go->UseDoorOrButton();
                         return true;
                     }
+            }
             return false;
         }
 };

@@ -359,7 +359,7 @@ class boss_thorim : public CreatureScript
         };
 
     public:
-        boss_thorim() : CreatureScript("boss_thorim") {}        
+        boss_thorim() : CreatureScript("boss_thorim") {}
 
         struct boss_thorimAI : public BossAI
         {
