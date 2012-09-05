@@ -686,21 +686,22 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 void Player::UpdateManaRegen()
 {
     // Mana regen from spirit
-    float power_regen = OCTRegenMPPerSpirit();
+    float spirit_regen = OCTRegenMPPerSpirit();
     // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen
-    power_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+    spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+
+    // SpiritRegen(SPI,INT,LEVEL) = (0.001 + (SPI x sqrt(INT) x BASE_REGEN[LEVEL])) x 5
+    if (GetStat(STAT_INTELLECT) > 0.0f)
+        spirit_regen *= sqrt(GetStat(STAT_INTELLECT));
+
+    // CombatRegen = 5% of Base Mana
+    float base_regen = GetCreateMana() * 0.01f + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
 
     // Set regen rate in cast state apply only on spirit based regen
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
-    if (!modManaRegenInterrupt || modManaRegenInterrupt > 100)
-        modManaRegenInterrupt = 100;
-    //From WowWiki: CombatRegen = 5% of Base Mana
-    float combat_regen = GetCreateMana() * 0.01f + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, CalculatePctN(combat_regen, modManaRegenInterrupt));
 
-    // SpiritRegen(SPI,INT,LEVEL) = (0.001 + (SPI x sqrt(INT) x BASE_REGEN[LEVEL])) x 5
-    float sqint = sqrt(GetStat(STAT_INTELLECT));
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 0.001f + power_regen * sqint);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, base_regen + CalculatePctN(spirit_regen, modManaRegenInterrupt));
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 0.001f + spirit_regen + base_regen);
 }
 
 void Player::UpdateRuneRegen(RuneType rune)
