@@ -364,7 +364,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             return sScriptMgr->OnCriteriaCheck(this, const_cast<Player*>(source), const_cast<Unit*>(target));
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             if (source->GetMap()->IsRaid())
-                if (source->GetMap()->Is25ManRaid() != (difficulty.difficulty & RAID_DIFFICULTY_MASK_25MAN))
+                if (source->GetMap()->Is25ManRaid() != ((difficulty.difficulty & RAID_DIFFICULTY_MASK_25MAN) != 0))
                     return false;
             return source->GetMap()->GetSpawnMode() >= difficulty.difficulty;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:

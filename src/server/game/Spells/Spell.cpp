@@ -586,7 +586,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
         && !m_spellInfo->IsPassive() && !m_spellInfo->IsPositive();
 
     CleanupTargetList();
-    CleanupEffectExecuteData();
+    memset(m_effectExecuteData, NULL, MAX_SPELL_EFFECTS * sizeof(ByteBuffer*));
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
@@ -3032,7 +3032,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
-        
+
         // Set casttime to 0 if .cheat casttime is enabled.
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_CASTTIME))
             m_casttime = 0;
@@ -3330,7 +3330,7 @@ void Spell::cast(bool skipCheck)
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
-        
+
         //Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
             m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
@@ -6986,12 +6986,6 @@ void Spell::InitEffectExecuteData(uint8 effIndex)
     }
 }
 
-void Spell::CleanupEffectExecuteData()
-{
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        m_effectExecuteData[i] = NULL;
-}
-
 void Spell::CheckEffectExecuteData()
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -7007,6 +7001,7 @@ void Spell::LoadScripts()
         {
             std::list<SpellScript*>::iterator bitr = itr;
             ++itr;
+            delete (*bitr);
             m_loadedScripts.erase(bitr);
             continue;
         }
