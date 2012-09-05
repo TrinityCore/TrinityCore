@@ -100,8 +100,8 @@ namespace MMAP
         // load this tile :: mmaps/MMMXXYY.mmtile
         uint32 pathLen = sWorld->GetDataPath().length() + strlen("mmaps/%03i%02i%02i.mmtile")+1;
         char *fileName = new char[pathLen];
-        // this change of y and x is needed because of mapbuilder.cpp (x and y are swapped there) so change it here so we dont need to re-extract. All swappes are done in other files. DONT CHANGE THIS!
-        snprintf(fileName, pathLen, (sWorld->GetDataPath()+"mmaps/%03i%02i%02i.mmtile").c_str(), mapId, y, x);
+
+        snprintf(fileName, pathLen, (sWorld->GetDataPath()+"mmaps/%03i%02i%02i.mmtile").c_str(), mapId, x, y);
 
         FILE *file = fopen(fileName, "rb");
         if (!file)
@@ -118,7 +118,7 @@ namespace MMAP
 
         if (fileHeader.mmapMagic != MMAP_MAGIC)
         {
-            sLog->outError(LOG_FILTER_MAPS, "MMAP:loadMap: Bad header in mmap %03u%02i%02i.mmtile", mapId, y, x);
+            sLog->outError(LOG_FILTER_MAPS, "MMAP:loadMap: Bad header in mmap %03u%02i%02i.mmtile", mapId, x, y);
             return false;
         }
 
@@ -135,7 +135,7 @@ namespace MMAP
         size_t result = fread(data, fileHeader.size, 1, file);
         if (!result)
         {
-            sLog->outError(LOG_FILTER_MAPS, "MMAP:loadMap: Bad header or data in mmap %03u%02i%02i.mmtile", mapId, y, x);
+            sLog->outError(LOG_FILTER_MAPS, "MMAP:loadMap: Bad header or data in mmap %03u%02i%02i.mmtile", mapId, x, y);
             fclose(file);
             return false;
         }
@@ -150,12 +150,12 @@ namespace MMAP
         {
             mmap->mmapLoadedTiles.insert(std::pair<uint32, dtTileRef>(packedGridPos, tileRef));
             ++loadedTiles;
-            sLog->outInfo(LOG_FILTER_MAPS, "MMAP:loadMap: Loaded mmtile %03i[%02i,%02i] into %03i[%02i,%02i]", mapId, y, x, mapId, header->x, header->y);
+            sLog->outInfo(LOG_FILTER_MAPS, "MMAP:loadMap: Loaded mmtile %03i[%02i,%02i] into %03i[%02i,%02i]", mapId, x, y, mapId, header->x, header->y);
             return true;
         }
         else
         {
-            sLog->outError(LOG_FILTER_MAPS, "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, y, x);
+            sLog->outError(LOG_FILTER_MAPS, "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, x, y);
             dtFree(data);
             return false;
         }
@@ -169,7 +169,7 @@ namespace MMAP
         if (loadedMMaps.find(mapId) == loadedMMaps.end())
         {
             // file may not exist, therefore not loaded
-            sLog->outDebug(LOG_FILTER_MAPS, "MMAP:unloadMap: Asked to unload not loaded navmesh map. %03u%02i%02i.mmtile", mapId, y, x);
+            sLog->outDebug(LOG_FILTER_MAPS, "MMAP:unloadMap: Asked to unload not loaded navmesh map. %03u%02i%02i.mmtile", mapId, x, y);
             return false;
         }
 
@@ -180,7 +180,7 @@ namespace MMAP
         if (mmap->mmapLoadedTiles.find(packedGridPos) == mmap->mmapLoadedTiles.end())
         {
             // file may not exist, therefore not loaded
-            sLog->outDebug(LOG_FILTER_MAPS, "MMAP:unloadMap: Asked to unload not loaded navmesh tile. %03u%02i%02i.mmtile", mapId, y, x);
+            sLog->outDebug(LOG_FILTER_MAPS, "MMAP:unloadMap: Asked to unload not loaded navmesh tile. %03u%02i%02i.mmtile", mapId, x, y);
             return false;
         }
 
@@ -192,14 +192,14 @@ namespace MMAP
             // this is technically a memory leak
             // if the grid is later reloaded, dtNavMesh::addTile will return error but no extra memory is used
             // we cannot recover from this error - assert out
-            sLog->outError(LOG_FILTER_MAPS, "MMAP:unloadMap: Could not unload %03u%02i%02i.mmtile from navmesh", mapId, y, x);
+            sLog->outError(LOG_FILTER_MAPS, "MMAP:unloadMap: Could not unload %03u%02i%02i.mmtile from navmesh", mapId, x, y);
             ASSERT(false);
         }
         else
         {
             mmap->mmapLoadedTiles.erase(packedGridPos);
             --loadedTiles;
-            sLog->outInfo(LOG_FILTER_MAPS, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, y, x, mapId);
+            sLog->outInfo(LOG_FILTER_MAPS, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, x, y, mapId);
             return true;
         }
 
@@ -222,11 +222,11 @@ namespace MMAP
             uint32 x = (i->first >> 16);
             uint32 y = (i->first & 0x0000FFFF);
             if (DT_SUCCESS != mmap->navMesh->removeTile(i->second, NULL, NULL))
-                sLog->outError(LOG_FILTER_MAPS, "MMAP:unloadMap: Could not unload %03u%02i%02i.mmtile from navmesh", mapId, y, x);
+                sLog->outError(LOG_FILTER_MAPS, "MMAP:unloadMap: Could not unload %03u%02i%02i.mmtile from navmesh", mapId, x, y);
             else
             {
                 --loadedTiles;
-                sLog->outInfo(LOG_FILTER_MAPS, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, y, x, mapId);
+                sLog->outInfo(LOG_FILTER_MAPS, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, x, y, mapId);
             }
         }
 
