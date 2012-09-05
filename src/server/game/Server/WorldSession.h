@@ -968,6 +968,10 @@ class WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         int32 HandleEnableNagleAlgorithm();
 
+        // Compact Unit Frames (4.x)
+        void HandleSaveCUFProfiles(WorldPacket& recvPacket);
+        void SendLoadCUFProfiles();
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();

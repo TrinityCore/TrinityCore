@@ -513,7 +513,7 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SET_ROLES");
-    
+
     uint32 newRole;
     ObjectGuid guid1;                   // Assigner GUID
     ObjectGuid guid2;                   // Target GUID
@@ -539,7 +539,7 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(guid2[5]);
     recvData.ReadByteSeq(guid2[2]);
     recvData.ReadByteSeq(guid2[7]);
-    
+
     WorldPacket data(SMSG_GROUP_SET_ROLE, 24);
 
     data.WriteBit(guid1[1]);
@@ -558,7 +558,7 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     data.WriteBit(guid1[6]);
     data.WriteBit(guid2[1]);
     data.WriteBit(guid1[0]);
-    
+
     data.WriteByteSeq(guid1[7]);
     data.WriteByteSeq(guid2[3]);
     data.WriteByteSeq(guid1[6]);

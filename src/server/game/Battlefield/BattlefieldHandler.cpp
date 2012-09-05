@@ -112,7 +112,7 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 ZoneId, bool Ca
     ObjectGuid guidBytes = guid;
 
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 16);
-    
+
     data.WriteBit(guidBytes[1]);
     data.WriteBit(guidBytes[6]);
     data.WriteBit(guidBytes[5]);
@@ -121,32 +121,32 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid, uint32 ZoneId, bool Ca
     data.WriteBit(guidBytes[0]);
     data.WriteBit(!hasSecondGuid);
     data.WriteBit(guidBytes[4]);
-    
-    // if (hasSecondGuid) 7 3 0 4 2 6 1 5 
-    
+
+    // if (hasSecondGuid) 7 3 0 4 2 6 1 5
+
     data.WriteBit(guidBytes[3]);
     data.WriteBit(guidBytes[2]);
-    
+
     // if (hasSecondGuid) 2 5 3 0 4 6 1 7
 
     data.FlushBits();
 
     data << uint8(CanQueue);  // Accepted
-    
+
     data.WriteByteSeq(guidBytes[1]);
     data.WriteByteSeq(guidBytes[3]);
     data.WriteByteSeq(guidBytes[6]);
     data.WriteByteSeq(guidBytes[7]);
     data.WriteByteSeq(guidBytes[0]);
-    
+
     data << uint8(warmup);
-    
+
     data.WriteByteSeq(guidBytes[2]);
     data.WriteByteSeq(guidBytes[4]);
     data.WriteByteSeq(guidBytes[5]);
-    
+
     data << uint32(ZoneId);
-    
+
     SendPacket(&data);
 }
 
@@ -157,7 +157,7 @@ void WorldSession::SendBfEntered(uint64 guid)
     ObjectGuid guidBytes = guid;
 
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED, 11);
-    
+
     data.WriteBit(0);               // unk
     data.WriteBit(isAFK);           // Clear AFK
     data.WriteBit(guidBytes[1]);
