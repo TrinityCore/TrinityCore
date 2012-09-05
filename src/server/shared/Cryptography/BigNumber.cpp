@@ -164,7 +164,7 @@ uint32 BigNumber::AsDword()
 
 bool BigNumber::isZero() const
 {
-    return BN_is_zero(_bn)!=0;
+    return BN_is_zero(_bn);
 }
 
 uint8 *BigNumber::AsByteArray(int minSize, bool reverse)
