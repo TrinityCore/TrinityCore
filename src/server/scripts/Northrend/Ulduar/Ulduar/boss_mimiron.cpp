@@ -56,11 +56,11 @@ enum Spells
    SPELL_SELF_REPAIR                           = 64383,
 
    // Leviathan MK II
-   SPELL_MINES_SPAWN                           = 63016, /*65347*/
+   SPELL_MINES_SPAWN                           = 65347,
    SPELL_FLAME_SUPPRESSANT_MK                  = 64570,
    SPELL_NAPALM_SHELL_10                       = 63666,
    SPELL_NAPALM_SHELL_25                       = 65026,
-   SPELL_PLASMA_BLAST                          = 62977,
+   SPELL_PLASMA_BLAST                          = 62997,
    SPELL_PROXIMITY_MINES                       = 63027,
    SPELL_SHOCK_BLAST                           = 63631,
    SPELL_EXPLOSION                             = 66351,
@@ -152,7 +152,8 @@ enum Npcs
     NPC_FLAME_SPREAD                            = 34121,
     NPC_FROST_BOMB                              = 34149,
     NPC_MKII_TURRET                             = 34071,
-    NPC_PROXIMITY_MINE                          = 34362
+    NPC_PROXIMITY_MINE                          = 34362,
+    NPC_MIMIRON_FOCUS                           = 33835
 };
 
 // Achievements
@@ -399,6 +400,12 @@ class boss_mimiron : public CreatureScript
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             }
 
+            void JustDied(Unit* /*victim*/)
+            {
+                // for testing purpose
+                EncounterPostProgress();
+            }
+
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
@@ -514,7 +521,7 @@ class boss_mimiron : public CreatureScript
                             case PHASE_VX001_ACTIVATION:
                                 if (instance)
                                     instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_READY);
-                                events.ScheduleEvent(EVENT_STEP_4, 5*IN_MILLISECONDS, 0, PHASE_VX001_ACTIVATION);
+                                events.ScheduleEvent(EVENT_STEP_4, 15*IN_MILLISECONDS, 0, PHASE_VX001_ACTIVATION);
                                 break;
                             case PHASE_AERIAL_ACTIVATION:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
@@ -940,7 +947,7 @@ class boss_leviathan_mk : public CreatureScript
                 }
 
                 events.ScheduleEvent(EVENT_SHOCK_BLAST, 30000, 0, PHASE_LEVIATHAN_SOLO__GLOBAL_1);
-                events.ScheduleEvent(EVENT_PROXIMITY_MINE, 1000, 0, PHASE_LEVIATHAN_SOLO__GLOBAL_1);
+                events.ScheduleEvent(EVENT_PROXIMITY_MINE, 0, 0, PHASE_LEVIATHAN_SOLO__GLOBAL_1);
                 events.ScheduleEvent(EVENT_PLASMA_BLAST, 10000, 0, PHASE_LEVIATHAN_SOLO__GLOBAL_1);
                 if (gotMimironHardMode)
                 {
@@ -1183,37 +1190,6 @@ class npc_proximity_mine : public CreatureScript
         }
 };
 
-class spell_proximity_mines_triggered : public SpellScriptLoader // Spell 63016
-{
-    public:
-        spell_proximity_mines_triggered() : SpellScriptLoader("spell_proximity_mines_triggered") {}
-
-        class spell_proximity_mines_triggered_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_proximity_mines_triggered_SpellScript);
-
-            void HandleDummyTick(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    Position base;
-                    caster->GetRandomNearPosition(base, 15.0f); // wowhead: Mines should land in 15 yards away from caster.
-                    caster->SummonCreature(NPC_PROXIMITY_MINE, base);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHit += SpellEffectFn(spell_proximity_mines_triggered_SpellScript::HandleDummyTick, EFFECT_0, SPELL_EFFECT_SUMMON);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_proximity_mines_triggered_SpellScript();
-        }
-};
-
 class spell_proximity_mines : public SpellScriptLoader // Spell 63027
 {
     public:
@@ -1296,7 +1272,6 @@ class boss_vx_001 : public CreatureScript
                 events.Reset();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_DISABLE_MOVE);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->SetVisible(false);
                 me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
                 phase = PHASE_IDLE;
                 events.SetPhase(phase);
@@ -1342,8 +1317,8 @@ class boss_vx_001 : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                         phase = PHASE_VX001_SOLO__GLOBAL_2;
                         events.SetPhase(phase);
-                        DoZoneInCombat();
                         me->setFaction(14);
+                        me->SetInCombatWithZone();
                         break;
                     case DO_VX001_ASSEMBLED:                                // Reassemble and heal share some stuff, fallthrough is intended                        
                         me->SetHealth( (me->GetMaxHealth() >> 1) );                        
@@ -1482,6 +1457,8 @@ class boss_vx_001 : public CreatureScript
                                 leviathan->CastSpell(leviathan, SPELL_SELF_STUN, true); // temporary
                                 leviathan->SetFacingTo(orient);
                                 me->SetOrientation(orient);
+                                if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                    AerialUnit->SetFacingTo(orient);
                             }
                             direction = RAND(true, false);
                             spinning = true;
@@ -1501,12 +1478,32 @@ class boss_vx_001 : public CreatureScript
                             return;
                         case EVENT_ROCKET_STRIKE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            {
+                                if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                                {
+                                    pTemp->SetDisplayId(11686);
+                                    pTemp->GetMotionMaster()->MoveIdle();
+                                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                    pTemp->CombatStop();
+                                    pTemp->CastSpell(pTemp,SPELL_ROCKET_STRIKE_AURA,true);
+                                }
                                 if (Unit* missile = me->GetVehicleKit()->GetPassenger(5))
                                     missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
+                            }
                             if (phase == PHASE_VX001_ASSEMBLED__GLOBAL_4)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                {
+                                    if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                                    {
+                                        pTemp->SetDisplayId(11686);
+                                        pTemp->GetMotionMaster()->MoveIdle();
+                                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                        pTemp->CombatStop();
+                                        pTemp->CastSpell(pTemp,SPELL_ROCKET_STRIKE_AURA,true);
+                                    }
                                     if (Unit* missile = me->GetVehicleKit()->GetPassenger(6))
                                         missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
+                                }
                             events.RescheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000), 0, phase);
                             return;
                         case EVENT_HEAT_WAVE:
@@ -1553,11 +1550,11 @@ class boss_vx_001 : public CreatureScript
 
 class npc_rocket_strike : public CreatureScript
 {
-    public:
-        npc_rocket_strike() : CreatureScript("npc_rocket_strike") {}
+public:
+    npc_rocket_strike() : CreatureScript("npc_rocket_strike") {}
 
-        struct npc_rocket_strikeAI : public Scripted_NoMovementAI
-        {
+    struct npc_rocket_strikeAI : public Scripted_NoMovementAI
+    {
             npc_rocket_strikeAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
             void InitializeAI()
@@ -1574,20 +1571,19 @@ class npc_rocket_strike : public CreatureScript
             {
                 if (!casted)
                 {
-                   
                     DoCast(me, SPELL_ROCKET_STRIKE_AURA);
                     me->DespawnOrUnsummon(10000);
                 }                
             }
 
-            private:
-                bool casted;
-        };
+    private:
+        bool casted;
+    };
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_rocket_strikeAI(creature);
-        }
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_rocket_strikeAI(creature);
+    }
 };
 
 class spell_rapid_burst : public SpellScriptLoader
@@ -2107,6 +2103,7 @@ class go_not_push_button : public GameObjectScript
         bool OnGossipHello(Player* player, GameObject* go)
         {
             if (InstanceScript* instance = go->GetInstanceScript())
+            {
                 if ((instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS || instance->GetBossState(BOSS_MIMIRON) != DONE) && player)
                     if (Creature* mimiron = ObjectAccessor::GetCreature((*player), instance->GetData64(BOSS_MIMIRON)))
                     {
@@ -2114,6 +2111,7 @@ class go_not_push_button : public GameObjectScript
                         go->UseDoorOrButton();
                         return true;
                     }
+            }
             return false;
         }
 };
@@ -2387,7 +2385,6 @@ void AddSC_boss_mimiron()
     new npc_frost_bomb();
 
     new spell_rapid_burst();    
-    new spell_proximity_mines_triggered();
     new spell_proximity_mines();
     
     new go_not_push_button();

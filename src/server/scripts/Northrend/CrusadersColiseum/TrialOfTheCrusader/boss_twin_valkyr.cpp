@@ -328,7 +328,7 @@ struct boss_twin_baseAI : public ScriptedAI
         switch (m_uiStage)
         {
             case 0:
-                return;
+                break;
             case 1: // Vortex
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
@@ -341,7 +341,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
-                return;
+                break;
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
@@ -359,7 +359,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
-                return;
+                break;
             default:
                 break;
         }
@@ -418,7 +418,6 @@ public:
         InstanceScript* instance;
 
         void Reset() {
-            boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             m_uiStage = 0;
             m_uiWeapon = EQUIP_MAIN_1;
@@ -433,12 +432,12 @@ public:
             m_uiTwinPactSpellId = SPELL_LIGHT_TWIN_PACT;
             m_uiTouchSpellId = SPELL_LIGHT_TOUCH;
             m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
-            me->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
 
             if (instance)
             {
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
             }
+            boss_twin_baseAI::Reset();
         }
 
         void EnterCombat(Unit* who)
@@ -488,7 +487,6 @@ public:
         boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
         void Reset() {
-            boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             m_uiStage = 1;
             m_uiWeapon = EQUIP_MAIN_2;
@@ -503,7 +501,7 @@ public:
             m_uiTwinPactSpellId = SPELL_DARK_TWIN_PACT;
             m_uiTouchSpellId = SPELL_DARK_TOUCH;
             m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
-            me->ModifyAuraState(AURA_STATE_UNKNOWN19, true);
+            boss_twin_baseAI::Reset();
         }
     };
 

@@ -268,11 +268,9 @@ class npc_thorim_controller : public CreatureScript
 
             void Reset()
             {
-                if (!gotActivated)
-                {
-                    instance->HandleGameObject(instance->GetData64(GO_THORIM_LIGHTNING_FIELD), true); // Open the entrance door.
-                    events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1000);  
-                }                            
+                gotActivated = false;
+                instance->HandleGameObject(instance->GetData64(GO_THORIM_LIGHTNING_FIELD), true); // Open the entrance door.
+                events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1000);
             }
 
             void JustSummoned(Creature* summon)
@@ -361,7 +359,7 @@ class boss_thorim : public CreatureScript
         };
 
     public:
-        boss_thorim() : CreatureScript("boss_thorim") {}        
+        boss_thorim() : CreatureScript("boss_thorim") {}
 
         struct boss_thorimAI : public BossAI
         {
@@ -861,6 +859,9 @@ class npc_thorim_pre_phase_add : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                if (!UpdateVictim())
+                    return;
+
                 events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -1062,6 +1063,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
 
             void Reset()
             {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 events.ScheduleEvent(EVENT_PRIMARY_SKILL, urand(3000, 6000));
                 events.ScheduleEvent(EVENT_SECONDARY_SKILL, urand (7000, 9000));
                 if (myIndex == INDEX_DARK_RUNE_CHAMPION)
@@ -1087,7 +1089,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim())
                     return;
 
                 if (me->getVictim() && !isOnSameSide(me->getVictim()))
@@ -1095,6 +1097,11 @@ class npc_thorim_arena_phase_add : public CreatureScript
                     me->getVictim()->getHostileRefManager().deleteReference(me);
                     return;
                 }
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 event = events.ExecuteEvent())
                 {
@@ -1193,7 +1200,7 @@ class npc_runic_colossus : public CreatureScript
             {
                 me->setActive(false);
                 me->GetMotionMaster()->MoveTargetedHome();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
 
                 // Runed Door closed
                 if (instance)
@@ -1246,7 +1253,6 @@ class npc_runic_colossus : public CreatureScript
                 events.ScheduleEvent(EVENT_CHARGE, urand (20000, 24000));
 
                 me->InterruptNonMeleeSpells(true);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1403,11 +1409,11 @@ class npc_ancient_rune_giant : public CreatureScript
 
             void Reset()
             {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 events.ScheduleEvent(EVENT_STOMP, urand(10000, 12000));
                 events.ScheduleEvent(EVENT_DETONATION, 25000);
 
                 me->GetMotionMaster()->MoveTargetedHome();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 // Stone Door closed
                 if (instance)
@@ -1426,9 +1432,9 @@ class npc_ancient_rune_giant : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
-                DoCast(me, SPELL_RUNIC_FORTIFICATION, true);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                // runic fortification causes client crash at wipe, disabled it for now
+                /*me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
+                me->AddAura(SPELL_RUNIC_FORTIFICATION, me);*/
             }
 
             void JustDied(Unit* /*victim*/)
@@ -1440,7 +1446,12 @@ class npc_ancient_rune_giant : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                 
                 while (uint32 event = events.ExecuteEvent())
@@ -1516,7 +1527,12 @@ class npc_sif : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 event = events.ExecuteEvent())
@@ -1607,6 +1623,39 @@ class spell_stormhammer_targeting : public SpellScriptLoader
         }
 };
 
+class spell_thorim_berserk : public SpellScriptLoader
+{
+    public:
+        spell_thorim_berserk() : SpellScriptLoader("spell_thorim_berserk") { }
+
+        class spell_thorim_berserk_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_thorim_berserk_AuraScript);
+
+            bool CheckAreaTarget(Unit* target)
+            {
+                for (uint8 i = 0; i < 7; i++)
+                {
+                    if (target->GetEntry() == ArenaAddEntries[i])
+                        return true;
+                }
+                if (target->GetEntry() == NPC_THORIM || target->GetEntry() == NPC_RUNIC_COLOSSUS || target->GetEntry() == NPC_RUNE_GIANT)
+                    return true;
+
+                return false;
+            }
+            void Register()
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_thorim_berserk_AuraScript::CheckAreaTarget);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_thorim_berserk_AuraScript();
+        }
+};
+
 void AddSC_boss_thorim()
 {
     new boss_thorim();
@@ -1618,6 +1667,7 @@ void AddSC_boss_thorim()
     new npc_ancient_rune_giant();
     new npc_sif();
     new spell_stormhammer_targeting();
+    new spell_thorim_berserk();
 }
 
 #undef SPELL_CHAIN_LIGHTNING

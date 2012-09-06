@@ -774,7 +774,7 @@ void Aura::SetCharges(uint8 charges)
 
 uint8 Aura::CalcMaxCharges(Unit* caster) const
 {
-    uint8 maxProcCharges = m_spellInfo->ProcCharges;
+    uint32 maxProcCharges = m_spellInfo->ProcCharges;
     if (SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId()))
         maxProcCharges = procEntry->charges;
 
@@ -1421,16 +1421,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // check cooldown
                         if (caster->GetTypeId() == TYPEID_PLAYER)
                         {
-                            //if (caster->ToPlayer()->HasSpellCooldown(aura->GetId()))
-                            // break;
-                            //// and add if needed
-                            //caster->ToPlayer()->AddSpellCooldown(aura->GetId(), 0, uint32(time(NULL) + 12));
-
-                            if (caster->ToPlayer()->HasSpellCooldown(aura->GetId()) && caster->ToPlayer()->GetSpellCooldownDelay(aura->GetId()) <= 10)
-                                break;
-                            if (!caster->ToPlayer()->HasSpellCooldown(aura->GetId()))
+                            if (caster->ToPlayer()->HasSpellCooldown(aura->GetId()))
+                            {
+                                // This additional check is needed to add a minimal delay before cooldown in in effect
+                                // to allow all bubbles broken by a single damage source proc mana return
+                                if (caster->ToPlayer()->GetSpellCooldownDelay(aura->GetId()) <= 11)
+                                    break;
+                            }
+                            else // and add if needed
                                 caster->ToPlayer()->AddSpellCooldown(aura->GetId(), 0, uint32(time(NULL) + 12));
                         }
+
                         // effect on caster
                         if (AuraEffect const* aurEff = aura->GetEffect(0))
                         {
@@ -1458,7 +1459,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                     caster->CastCustomSpell(target, 63654, &basepoints0, NULL, NULL, true);
                                     break;
                                 }
-                                case POWER_RAGE:   triggeredSpellId = 63653; break;
+                                case POWER_RAGE: triggeredSpellId = 63653; break;
                                 case POWER_ENERGY: triggeredSpellId = 63655; break;
                                 case POWER_RUNIC_POWER: triggeredSpellId = 63652; break;
                                 default:
@@ -2148,6 +2149,7 @@ void Aura::LoadScripts()
         {
             std::list<AuraScript*>::iterator bitr = itr;
             ++itr;
+            delete (*bitr);
             m_loadedScripts.erase(bitr);
             continue;
         }

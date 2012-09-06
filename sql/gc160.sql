@@ -36,6 +36,30 @@ DELETE FROM spell_script_names WHERE spell_id = 46584;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (46584, 'spell_dk_raise_dead');
 
+-- thorim berserk
+DELETE FROM spell_script_names WHERE spell_id = 62560;
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(62560, 'spell_thorim_berserk');
+
+-- Trial of the Crusader shaman heroism/bloodlust
+DELETE FROM spell_script_names WHERE spell_id IN (65983, 65980);
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(65983, 'spell_sha_heroism'),
+(65980, 'spell_sha_bloodlust');
+
+-- Saronite Vapors scriptname
+DELETE FROM spell_script_names WHERE spell_id = 63322;
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(63322, 'spell_saronite_vapors');
+
+-- Trial of the Crusader Death knight Death grip scriptname
+DELETE FROM spell_script_names WHERE spell_id IN (66017, 68753, 68754, 68755);
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(66017, 'spell_faction_champion_death_grip'),
+(68753, 'spell_faction_champion_death_grip'),
+(68754, 'spell_faction_champion_death_grip'),
+(68755, 'spell_faction_champion_death_grip');
+
 -- making the Four Horsemen chest lootable
 UPDATE gameobject_template SET flags = flags & ~16 WHERE entry = 193426;
 
@@ -108,6 +132,27 @@ DELETE FROM game_tele WHERE name LIKE '%TrialOfTheCrusader%' OR name LIKE '%Tria
 INSERT INTO game_tele (position_x, position_y, position_z, orientation, map, name) VALUES
 (8515.63, 714.174, 558.248, 1.57298, 571, 'TrialOfTheCrusader'),
 (8588.42, 791.888, 558.236, 3.23819, 571, 'TrialOfTheChampion');
+
+-- misc fixes for higher boss brackets
+UPDATE creature_template SET dmg_multiplier = 70 WHERE entry IN (35440, 35513, 35516, 35449, 35269, 35352, 35349, 35616, 35664, 35670, 35673, 35676, 35682, 35685, 35688, 35691, 35694, 35697, 35701, 35704, 35707, 35710, 35713, 35716, 35720, 35723, 35726, 35730, 35733, 35736, 35739, 35742, 35745, 35748, 35749);
+UPDATE creature_template SET flags_extra = flags_extra | 1 WHERE entry IN (35438, 35439, 35440, 35511, 35512, 35513, 35514, 35515, 35516, 35662, 35663, 35664, 35665, 35666, 35667, 35668, 35669, 35670, 35671, 35672, 35673, 35674, 35675, 35676, 35680, 35681, 35682, 35683, 35684, 35685, 35686, 35687, 35688, 35689, 35690, 35691, 35692, 35693, 35694, 35695, 35696, 35697, 35699, 35700, 35701, 35702, 35703, 35704, 35705, 35706, 35707, 35708, 35709, 35710, 35711, 35712, 35713, 35714, 35715, 35716, 35718, 35719, 35720, 35721, 35722, 35723, 35724, 35725, 35726, 35728, 35729, 35730, 35731, 35732, 35733, 35734, 35735, 35736, 35737, 35738, 35739, 35740, 35741, 35742, 35743, 35744, 35745, 35746, 35747, 35748, 34442, 34443, 35749);
+UPDATE creature_template SET speed_walk = 2.8, speed_run = 1.71429 WHERE entry IN (35350, 35351, 35352, 35347, 35348, 35349);
+UPDATE creature_template SET speed_walk = 2, speed_run = 1.14286 WHERE entry IN (34566, 35615, 35616);
+UPDATE creature_template SET skinloot = 34797 WHERE entry IN (35447, 35448, 35449);
+UPDATE creature_template SET skinloot = 70214 WHERE entry IN (34566, 35615, 35616);
+UPDATE creature_template SET mindmg = 388, maxdmg = 583, attackpower = 146 WHERE entry IN (35711, 35712, 35713);
+UPDATE creature_template SET mindmg = 468, maxdmg = 702, attackpower = 175 WHERE entry IN (35699, 35700, 35701);
+UPDATE creature_template SET dmg_multiplier = 35 WHERE entry IN (34472, 34454);
+UPDATE creature_template SET unit_class = 1 WHERE entry IN (34461, 35743, 35744, 35745);
+
+-- adding Jaraxxus add immunities
+UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask | 1024 | 2048 WHERE entry IN (34815, 35262, 35263, 35264, 34826, 35270, 35271, 35272);
+UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask | 262144 WHERE entry IN (35263, 35264);
+
+-- cast Forbearance together with Divine shield
+DELETE FROM spell_linked_spell WHERE spell_trigger = 66010;
+INSERT INTO spell_linked_spell (spell_trigger, spell_effect, type, comment) VALUES
+(66010, 25771, 0, 'Divine Shield - Forbearance');
 
 -- -------------------------
 -- ULDUAR ------------------
@@ -317,6 +362,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (136816, 0, 0, 0, 1, 0, '40775');
 DELETE FROM `creature` WHERE `id` IN (33140,33141); -- Left- and right-hands are used in RunicSmash().
 UPDATE `creature_template` SET `ScriptName`='npc_runic_smash' WHERE `entry` IN (33140, 33141);
+UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 33725;
 
 -- Caches.
 UPDATE `gameobject_template` SET `flags`=`flags`&~16 WHERE `entry` IN (194312,194313,194314,194315);
@@ -423,7 +469,6 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 -- Spell stuff
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (63382, 63016, 63027);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63382, 'spell_rapid_burst');
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63016, 'spell_proximity_mines_triggered');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63027, 'spell_proximity_mines');
 
 -- General Vezax
@@ -509,21 +554,21 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (62702,'spell_keeper_support_aura_targeting'),
 (62650,'spell_keeper_support_aura_targeting');
 
-DELETE FROM `conditions` WHERE SourceEntry IN (64184, 63882, 63886, 64172, 64465, 65209);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 0, 64184, 0, 0, 18, 0, 1, 33288, 0, 0, 0, '', 'Effekt on YoggSaron'), -- Create Val'anyr on Yogg-Saron
-(13, 0, 63882, 0, 0, 18, 0, 1, 33882, 0, 0, 0, '', 'Effekt on Death Orb'), -- Deathray Effekt on Death Orb
-(13, 0, 63886, 0, 0, 18, 0, 1, 33882, 0, 0, 0, '', 'Effekt on Death Orb'),
-(13, 0, 64172, 0, 0, 18, 0, 1, 33988, 0, 0, 0, '', 'Effekt only for Immortal Guardians'), -- Condition because NPCs need this else no hit
-(13, 0, 64465, 0, 0, 18, 0, 1, 33988, 0, 0, 0, '', 'Effekt only for Immortal Guardians'),
-(13, 0, 65209, 0, 0, 18, 0, 1, 33136, 0, 0, 0, '', 'Effekt only for Guardian of YoggSaron'), -- Second Damage Effekt of ShadowNova only on other Guardians or Sara
-(13, 0, 65209, 0, 0, 18, 0, 1, 33134, 0, 0, 0, '', 'Effekt only for Sara');
+DELETE FROM `conditions` WHERE SourceEntry IN (64184, 63882, 63886, 64172, 64465, 65209, 65719, 62714);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES 
+(13, 0, 64184, 31, 3, 33288, 'Effect on YoggSaron'), -- Create Val'anyr on Yogg-Saron
+(13, 0, 63882, 31, 3, 33882, 'Effect on Death Orb'), -- Deathray Effect on Death Orb
+(13, 0, 63886, 31, 3, 33882, 'Effect on Death Orb'),
+(13, 0, 64172, 31, 3, 33988, 'Effect only for Immortal Guardians'), -- Condition because NPCs need this else no hit
+(13, 0, 64465, 31, 3, 33988, 'Effect only for Immortal Guardians'),
+(13, 1, 65719, 31, 3, 33134, 'Spell should hit only Sara'),
+(13, 1, 62714, 31, 3, 33136, 'Effect should hit only Guardians'),
+(13, 2, 62714, 31, 4, 0, 'Effect should hit only Players');
 
 -- Missing Says Vision
 UPDATE `script_texts` SET `npc_entry`=33134 WHERE `npc_entry`=33288 AND `entry` IN (-1603330,-1603331,-1603332,-1603333);
-UPDATE `script_texts` SET `content_default`='Help me! Please get them off me!' WHERE `npc_entry`=33134 AND `entry`=-1603310;
-UPDATE `script_texts` SET `content_default`='What do you want from me? Leave me alone!' WHERE `npc_entry`=33134 AND `entry`=-1603311;
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1603360 AND -1603342;
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1603319 AND 1603310;
 INSERT INTO `script_texts` VALUES 
 (33535, -1603359, 'It is a weapon like no other. It must be like no other.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15610, 0, 0, 0, 'Malygos DragonSoulVision_Say'),
 (33523, -1603356, 'It is done... All have been given that which must be given. I now seal the Dragon Soul forever...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15631, 0, 0, 0, 'Neltharion DragonSoulVision_Say1'),
@@ -543,7 +588,16 @@ INSERT INTO `script_texts` VALUES
 (33436, -1603344, 'Gul\'dan is bringing up his warlocks by nightfall. Until then, the Blackrock clan will be trying to take the Eastern Wall.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15540, 0, 0, 0, 'Garona KingLlaneVision_Say3'),
 (33288, -1603345, 'A thousand deaths... or one murder.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15762, 0, 0, 0, 'YoggSaron KingLlaneVision_Say1'),
 (33436, -1603342, 'Bad news sire.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15538, 0, 0, 0, 'Garona KingLlaneVision_Say1'),
-(33436, -1603343, 'The clans are united under Blackhand in this assault. They will stand together until Stormwind has fallen.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15539, 0, 0, 0, 'Garona KingLlaneVision_Say2');
+(33436, -1603343, 'The clans are united under Blackhand in this assault. They will stand together until Stormwind has fallen.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15539, 0, 0, 0, 'Garona KingLlaneVision_Say2'),
+(33134, -1603310, 'Aaaaaaaaaaaaaaaaa... Help me!!! Please got to help me!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15771, 1, 0, 0, 'Sara say prefight 1'),
+(33134, -1603311, 'What do you want from me? Leave me alone!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15772, 1, 0, 0, 'Sara say prefight 2'),
+(33134, -1603312, 'The time to strike at the head of the beast will soon be upon us! Focus your anger and hatred on his minions!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15775, 1, 0, 0, 'Sara say aggro 2'),
+(33134, -1603313, 'Yes! YES! Show them no mercy! Give no pause to your attacks!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15773, 1, 0, 0, 'Sara help 1'),
+(33134, -1603314, 'Let hatred and rage guide your blows!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15774, 1, 0, 0, 'Sara help 2'),
+(33134, -1603315, 'Could they have been saved?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15779, 1, 0, 0, 'Sara slay 1'),
+(33134, -1603316, 'Powerless to act...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15778, 1, 0, 0, 'Sara slay 2'),
+(33134, -1603318, 'Tremble, mortals, before the coming of the end!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15777, 1, 0, 0, 'Sara phase 2 yell 1'),
+(33134, -1603319, 'Suffocate upon your own hate!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15776, 1, 0, 0, 'Sara phase 2 yell 2');
 
 -- Various things'
 -- Update mechanic immunity flags.
@@ -819,3 +873,11 @@ INSERT INTO creature (id, map, spawnMask, position_x, position_y, position_z, or
 
 -- correcting respawn timer of Enslaved Fire Elemental
 UPDATE creature SET spawntimesecs = 604800 WHERE id = 33838;
+
+-- correcting Junk bot template
+UPDATE creature_template SET difficulty_entry_1 = 34114 WHERE entry = 33855;
+UPDATE creature_template SET faction_A = 16, faction_H = 16 WHERE entry = 34114;
+
+-- deleting prespawned Ominous clouds and changing their models
+DELETE FROM creature WHERE id = 33292;
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry = 33292;

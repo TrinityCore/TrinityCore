@@ -140,7 +140,12 @@ bool FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float 
                 angle = i_cur_angle + static_cast<float>(M_PI);
                 distance /= 2;
                 break;
+            default:
+                angle = 0.0f;
+                distance = 0.0f;
+                break;
         }
+
         temp_x = x + distance * cos(angle);
         temp_y = y + distance * sin(angle);
         Trinity::NormalizeMapCoord(temp_x);
@@ -403,10 +408,6 @@ bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32& time_diff
         owner.ClearUnitState(UNIT_STATE_FLEEING_MOVE);
         return true;
     }
-
-    i_totalFleeTime.Update(time_diff);
-    if (i_totalFleeTime.Passed())
-        return false;
 
     i_totalFleeTime.Update(time_diff);
     if (i_totalFleeTime.Passed())

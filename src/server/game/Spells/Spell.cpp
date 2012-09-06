@@ -87,7 +87,7 @@ SpellDestination::SpellDestination(WorldObject const& wObj)
 }
 
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0)
+SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
 {
     m_objectTarget = NULL;
     m_itemTarget = NULL;
@@ -96,7 +96,6 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0)
     m_itemTargetGUID   = 0;
     m_itemTargetEntry  = 0;
 
-    m_strTarget = "";
     m_targetMask = 0;
 }
 
@@ -2991,7 +2990,13 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
     m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+
+        // Set casttime to 0 if .cheat casttime is enabled.
+        if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_CASTTIME))
+            m_casttime = 0;
+    }
 
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
@@ -3283,7 +3288,13 @@ void Spell::cast(bool skipCheck)
     }
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+
+        //Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
+        if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
+    }
 
     SetExecutedCurrently(false);
 }
@@ -4039,41 +4050,47 @@ void Spell::WriteAmmoToPacket(WorldPacket* data)
     *data << uint32(ammoInventoryType);
 }
 
+/// Writes miss and hit targets for a SMSG_SPELL_GO packet
 void Spell::WriteSpellGoTargets(WorldPacket* data)
 {
     // This function also fill data for channeled spells:
     // m_needAliveTargetMask req for stop channelig if one target die
-    uint32 hit  = m_UniqueGOTargetInfo.size(); // Always hits on GO
-    uint32 miss = 0;
     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
         if ((*ihit).effectMask == 0)                  // No effect apply - all immuned add state
-        {
             // possibly SPELL_MISS_IMMUNE2 for this??
             ihit->missCondition = SPELL_MISS_IMMUNE2;
-            ++miss;
-        }
-        else if ((*ihit).missCondition == SPELL_MISS_NONE)
-            ++hit;
-        else
-            ++miss;
     }
 
-    *data << (uint8)hit;
-    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+    // Hit and miss target counts are both uint8, that limits us to 255 targets for each
+    // sending more than 255 targets crashes the client (since count sent would be wrong)
+    // Spells like 40647 (with a huge radius) can easily reach this limit (spell might need
+    // target conditions but we still need to limit the number of targets sent and keeping
+    // correct count for both hit and miss).
+
+    uint32 hit = 0;
+    size_t hitPos = data->wpos();
+    *data << (uint8)0; // placeholder
+    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && hit <= 255; ++ihit)
     {
         if ((*ihit).missCondition == SPELL_MISS_NONE)       // Add only hits
         {
             *data << uint64(ihit->targetGUID);
             m_channelTargetEffectMask |=ihit->effectMask;
+            ++hit;
         }
     }
 
-    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end(); ++ighit)
+    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && hit <= 255; ++ighit)
+    {
         *data << uint64(ighit->targetGUID);                 // Always hits
+        ++hit;
+    }
 
-    *data << (uint8)miss;
-    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+    uint32 miss = 0;
+    size_t missPos = data->wpos();
+    *data << (uint8)0; // placeholder
+    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && miss <= 255; ++ihit)
     {
         if (ihit->missCondition != SPELL_MISS_NONE)        // Add only miss
         {
@@ -4081,11 +4098,15 @@ void Spell::WriteSpellGoTargets(WorldPacket* data)
             *data << uint8(ihit->missCondition);
             if (ihit->missCondition == SPELL_MISS_REFLECT)
                 *data << uint8(ihit->reflectResult);
+            ++miss;
         }
     }
     // Reset m_needAliveTargetMask for non channeled spell
     if (!m_spellInfo->IsChanneled())
         m_channelTargetEffectMask = 0;
+
+    data->put<uint8>(hitPos, (uint8)hit);
+    data->put<uint8>(missPos, (uint8)miss);
 }
 
 void Spell::SendLogExecute()
@@ -4325,6 +4346,13 @@ void Spell::TakePower()
 {
     if (m_CastItem || m_triggeredByAuraSpell)
         return;
+
+    //Don't take power if the spell is cast while .cheat power is enabled.
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_POWER))
+            return;
+    }
 
     Powers powerType = Powers(m_spellInfo->PowerType);
     bool hit = true;
@@ -7014,6 +7042,7 @@ void Spell::LoadScripts()
         {
             std::list<SpellScript*>::iterator bitr = itr;
             ++itr;
+            delete (*bitr);
             m_loadedScripts.erase(bitr);
             continue;
         }
@@ -7289,6 +7318,10 @@ void Spell::TriggerGlobalCooldown()
     int32 gcd = m_spellInfo->StartRecoveryTime;
     if (!gcd)
         return;
+
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+            return;
 
     // Global cooldown can't leave range 1..1.5 secs
     // There are some spells (mostly not casted directly by player) that have < 1 sec and > 1.5 sec global cooldowns

@@ -1278,7 +1278,7 @@ class instance_ulduar : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "U U " << GetBossSaveData() << GetData(DATA_COLOSSUS) << " " << PlayerDeathFlag << " " << AlgalonCountdown;
+                saveStream << "U U " << GetBossSaveData() << GetData(DATA_COLOSSUS) << " " << SupportKeeperFlag << " " << PlayerDeathFlag << " " << AlgalonCountdown;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -1311,6 +1311,7 @@ class instance_ulduar : public InstanceMapScript
                     }
 
                     loadStream >> ColossusData;
+                    loadStream >> SupportKeeperFlag;
                     loadStream >> PlayerDeathFlag;
                     loadStream >> AlgalonCountdown;
                 }

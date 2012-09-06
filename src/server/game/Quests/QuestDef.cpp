@@ -227,3 +227,24 @@ bool Quest::IsAllowedInRaid() const
 
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_RAID);
 }
+
+uint32 Quest::CalculateHonorGain(uint8 level) const
+{
+    if (level > GT_MAX_LEVEL)
+        level = GT_MAX_LEVEL;
+
+    uint32 honor = 0;
+
+    if (GetRewHonorAddition() > 0 || GetRewHonorMultiplier() > 0.0f)
+    {
+        // values stored from 0.. for 1...
+        TeamContributionPointsEntry const* tc = sTeamContributionPointsStore.LookupEntry(level);
+        if (!tc)
+            return 0;
+
+        honor = uint32(tc->value * GetRewHonorMultiplier() * 0.1f);
+        honor += GetRewHonorAddition();
+    }
+
+    return honor;
+}

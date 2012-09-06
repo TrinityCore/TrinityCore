@@ -222,11 +222,9 @@ public:
                 ItemPosCountVec dest;
                 uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_TEAR_OF_GODDESS, 1);
                 if (msg == EQUIP_ERR_OK)
-                {
-                     Item* item = player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true);
-                     if (item && player)
+                     if (Item* item = player->StoreNewItem(dest, ITEM_TEAR_OF_GODDESS, true))
                          player->SendNewItem(item, 1, true, false, true);
-                }
+
                 player->SEND_GOSSIP_MENU(907, creature->GetGUID());
         }
         return true;

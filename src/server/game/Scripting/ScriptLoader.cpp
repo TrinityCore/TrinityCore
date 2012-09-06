@@ -58,6 +58,7 @@ void AddSC_ban_commandscript();
 void AddSC_bf_commandscript();
 void AddSC_cast_commandscript();
 void AddSC_character_commandscript();
+void AddSC_cheat_commandscript();
 void AddSC_debug_commandscript();
 void AddSC_disable_commandscript();
 void AddSC_event_commandscript();
@@ -334,6 +335,7 @@ void AddSC_bug_trio();
 void AddSC_boss_sartura();
 void AddSC_boss_skeram();
 void AddSC_boss_twinemperors();
+void AddSC_boss_ouro();
 void AddSC_mob_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
 void AddSC_wailing_caverns();                //Wailing caverns
@@ -681,6 +683,7 @@ void AddCommandScripts()
     AddSC_bf_commandscript();
     AddSC_cast_commandscript();
     AddSC_character_commandscript();
+    AddSC_cheat_commandscript();
     AddSC_debug_commandscript();
     AddSC_disable_commandscript();
     AddSC_event_commandscript();
@@ -968,6 +971,7 @@ void AddKalimdorScripts()
     AddSC_boss_sartura();
     AddSC_boss_skeram();
     AddSC_boss_twinemperors();
+    AddSC_boss_ouro();
     AddSC_mob_anubisath_sentinel();
     AddSC_instance_temple_of_ahnqiraj();
     AddSC_wailing_caverns();                //Wailing caverns

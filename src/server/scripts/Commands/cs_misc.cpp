@@ -82,10 +82,8 @@ public:
             { "saveall",            SEC_MODERATOR,          true,  &HandleSaveAllCommand,               "", NULL },
             { "kick",               SEC_GAMEMASTER,         true,  &HandleKickPlayerCommand,            "", NULL },
             { "start",              SEC_PLAYER,             false, &HandleStartCommand,                 "", NULL },
-            { "taxicheat",          SEC_MODERATOR,          false, &HandleTaxiCheatCommand,             "", NULL },
             { "linkgrave",          SEC_ADMINISTRATOR,      false, &HandleLinkGraveCommand,             "", NULL },
             { "neargrave",          SEC_ADMINISTRATOR,      false, &HandleNearGraveCommand,             "", NULL },
-            { "explorecheat",       SEC_ADMINISTRATOR,      false, &HandleExploreCheatCommand,          "", NULL },
             { "showarea",           SEC_ADMINISTRATOR,      false, &HandleShowAreaCommand,              "", NULL },
             { "hidearea",           SEC_ADMINISTRATOR,      false, &HandleHideAreaCommand,              "", NULL },
             { "additem",            SEC_ADMINISTRATOR,      false, &HandleAddItemCommand,               "", NULL },
@@ -106,7 +104,6 @@ public:
             { "combatstop",         SEC_GAMEMASTER,         true,  &HandleCombatStopCommand,            "", NULL },
             { "flusharenapoints",   SEC_ADMINISTRATOR,      false, &HandleFlushArenaPointsCommand,      "", NULL },
             { "repairitems",        SEC_GAMEMASTER,         true,  &HandleRepairitemsCommand,           "", NULL },
-            { "waterwalk",          SEC_GAMEMASTER,         false, &HandleWaterwalkCommand,             "", NULL },
             { "freeze",             SEC_MODERATOR,          false, &HandleFreezeCommand,                "", NULL },
             { "unfreeze",           SEC_MODERATOR,          false, &HandleUnFreezeCommand,              "", NULL },
             { "listfreeze",         SEC_MODERATOR,          false, &HandleListFreezeCommand,            "", NULL },
@@ -960,49 +957,6 @@ public:
         player->CastSpell(player, 7355, false);
         return true;
     }
-    // Enable on\off all taxi paths
-    static bool HandleTaxiCheatCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_USE_BOL);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string argStr = (char*)args;
-
-        Player* chr = handler->getSelectedPlayer();
-
-        if (!chr)
-            chr = handler->GetSession()->GetPlayer();
-        else if (handler->HasLowerSecurity(chr, 0)) // check online security
-            return false;
-
-        if (argStr == "on")
-        {
-            chr->SetTaxiCheater(true);
-            handler->PSendSysMessage(LANG_YOU_GIVE_TAXIS, handler->GetNameLink(chr).c_str());
-            if (handler->needReportToTarget(chr))
-                ChatHandler(chr).PSendSysMessage(LANG_YOURS_TAXIS_ADDED, handler->GetNameLink().c_str());
-            return true;
-        }
-
-        if (argStr == "off")
-        {
-            chr->SetTaxiCheater(false);
-            handler->PSendSysMessage(LANG_YOU_REMOVE_TAXIS, handler->GetNameLink(chr).c_str());
-            if (handler->needReportToTarget(chr))
-                ChatHandler(chr).PSendSysMessage(LANG_YOURS_TAXIS_REMOVED, handler->GetNameLink().c_str());
-
-            return true;
-        }
-
-        handler->SendSysMessage(LANG_USE_BOL);
-        handler->SetSentErrorMessage(true);
-
-        return false;
-    }
 
     static bool HandleLinkGraveCommand(ChatHandler* handler, char const* args)
     {
@@ -1118,45 +1072,6 @@ public:
                 handler->PSendSysMessage(LANG_COMMAND_ZONENOGRAVEYARDS, zone_id);
             else
                 handler->PSendSysMessage(LANG_COMMAND_ZONENOGRAFACTION, zone_id, team_name.c_str());
-        }
-
-        return true;
-    }
-
-    static bool HandleExploreCheatCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        int32 flag = int32(atoi((char*)args));
-
-        Player* playerTarget = handler->getSelectedPlayer();
-        if (!playerTarget)
-        {
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (flag != 0)
-        {
-            handler->PSendSysMessage(LANG_YOU_SET_EXPLORE_ALL, handler->GetNameLink(playerTarget).c_str());
-            if (handler->needReportToTarget(playerTarget))
-                ChatHandler(playerTarget).PSendSysMessage(LANG_YOURS_EXPLORE_SET_ALL, handler->GetNameLink().c_str());
-        }
-        else
-        {
-            handler->PSendSysMessage(LANG_YOU_SET_EXPLORE_NOTHING, handler->GetNameLink(playerTarget).c_str());
-            if (handler->needReportToTarget(playerTarget))
-                ChatHandler(playerTarget).PSendSysMessage(LANG_YOURS_EXPLORE_SET_NOTHING, handler->GetNameLink().c_str());
-        }
-
-        for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
-        {
-            if (flag != 0)
-                handler->GetSession()->GetPlayer()->SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
-            else
-                handler->GetSession()->GetPlayer()->SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0);
         }
 
         return true;
@@ -2191,39 +2106,6 @@ public:
         if (handler->needReportToTarget(target))
             ChatHandler(target).PSendSysMessage(LANG_YOUR_ITEMS_REPAIRED, handler->GetNameLink().c_str());
 
-        return true;
-    }
-
-    static bool HandleWaterwalkCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* player = handler->getSelectedPlayer();
-        if (!player)
-        {
-            handler->PSendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        // check online security
-        if (handler->HasLowerSecurity(player, 0))
-            return false;
-
-        if (strncmp(args, "on", 3) == 0)
-            player->SetMovement(MOVE_WATER_WALK);               // ON
-        else if (strncmp(args, "off", 4) == 0)
-            player->SetMovement(MOVE_LAND_WALK);                // OFF
-        else
-        {
-            handler->SendSysMessage(LANG_USE_BOL);
-            return false;
-        }
-
-        handler->PSendSysMessage(LANG_YOU_SET_WATERWALK, args, handler->GetNameLink(player).c_str());
-        if (handler->needReportToTarget(player))
-            ChatHandler(player).PSendSysMessage(LANG_YOUR_WATERWALK_SET, args, handler->GetNameLink().c_str());
         return true;
     }
 

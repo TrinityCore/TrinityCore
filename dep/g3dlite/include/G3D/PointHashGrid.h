@@ -360,7 +360,7 @@ public:
                      m_arrayIndex(0), m_epoch(0) {}
 
         Iterator(const ThisType* grid) : 
-            m_isEnd(false),
+            m_isEnd(grid->size() == 0),
             m_grid(grid),
             m_tableIterator( grid->m_data.begin() ),
             m_arrayIndex(0),
@@ -385,6 +385,10 @@ public:
                     (m_tableIterator != other.m_tableIterator) || 
                     (m_arrayIndex    != other.m_arrayIndex);
             }
+        }
+
+        bool hasMore() const {
+            return ! m_isEnd;
         }
 
         bool operator==(const Iterator& other) const {

@@ -9,6 +9,7 @@
 #include "direct.h"
 #else
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include "dbcfile.h"
@@ -900,7 +901,7 @@ void ExtractMapsFromMpq(uint32 build)
     printf("Convert map files\n");
     for(uint32 z = 0; z < map_count; ++z)
     {
-        printf("Extract %s (%d/%d)                  \n", map_ids[z].name, z+1, map_count);
+        printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
         sprintf(mpq_map_name, "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
         WDT_file wdt;
@@ -980,13 +981,13 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     }
 
     // extract DBCs
-    int count = 0;
+    uint32 count = 0;
     for (set<string>::iterator iter = dbcfiles.begin(); iter != dbcfiles.end(); ++iter)
     {
         string filename = path;
         filename += (iter->c_str() + strlen("DBFilesClient\\"));
 
-        if(ExtractFile(iter->c_str(), filename))
+        if (ExtractFile(iter->c_str(), filename))
             ++count;
     }
     printf("Extracted %u DBC files\n\n", count);
