@@ -2066,7 +2066,7 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
             _AddCreatureSpellCooldown(unSpellId, curTime + unTimeMs/IN_MILLISECONDS);
         }
     }
-    if(Player *owner = GetOwner())
+
+    if (Player* owner = GetOwner())
         owner->GetSession()->SendPacket(&data);
-    
 }

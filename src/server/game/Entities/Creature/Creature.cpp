@@ -2238,7 +2238,7 @@ void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs
     {
         if (m_spells[i] == 0)
             continue;
-        
+
         uint32 unSpellId = m_spells[i];
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
         if (!spellInfo)
@@ -2257,10 +2257,9 @@ void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetCreatureSpellCooldownDelay(unSpellId) < unTimeMs)
         {
             _AddCreatureSpellCooldown(unSpellId, curTime + unTimeMs/IN_MILLISECONDS);
-            if(UnitAI *ai = GetAI()) 
+            if (UnitAI* ai = GetAI()) 
                 ai->SpellInterrupted(unSpellId, unTimeMs);
         }
-        
     }
 }
 
