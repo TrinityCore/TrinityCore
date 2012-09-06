@@ -256,6 +256,7 @@ m_HostileRefManager(this), m_TempSpeed(0.0f), m_AutoRepeatFirstCast(false)
     _focusSpell = NULL;
     _targetLocked = false;
     _lastLiquid = NULL;
+    _isWalkingBeforeCharm = false;
 }
 
 ////////////////////////////////////////////////////////////
@@ -380,9 +381,7 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
 {
-    enum{
-        POSITION_UPDATE_DELAY = 400,
-    };
+    uint32 const positionUpdateDelay = 400;
 
     if (movespline->Finalized())
         return;
@@ -396,7 +395,7 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
     m_movesplineTimer.Update(t_diff);
     if (m_movesplineTimer.Passed() || arrived)
     {
-        m_movesplineTimer.Reset(POSITION_UPDATE_DELAY);
+        m_movesplineTimer.Reset(positionUpdateDelay);
         Movement::Location loc = movespline->ComputePosition();
 
         if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
@@ -542,12 +541,11 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         GetAI()->DamageDealt(victim, damage, damagetype);
 
     if (victim->GetTypeId() == TYPEID_PLAYER)
+    {
         if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
             return 0;
 
-    // Signal to pets that their owner was attacked
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-    {
+        // Signal to pets that their owner was attacked
         Pet* pet = victim->ToPlayer()->GetPet();
 
         if (pet && pet->isAlive())
@@ -6727,10 +6725,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Judgement of Light
                 case 20185:
                 {
-                        // 2% of base mana
-                        basepoints0 = int32(victim->CountPctFromMaxHealth(2));
-                        victim->CastCustomSpell(victim, 20267, &basepoints0, 0, 0, true, 0, triggeredByAura);
-                        return true;
+                    if (!victim)
+                        return false;
+
+                    // 2% of base mana
+                    basepoints0 = int32(victim->CountPctFromMaxHealth(2));
+                    victim->CastCustomSpell(victim, 20267, &basepoints0, 0, 0, true, 0, triggeredByAura);
+                    return true;
                 }
                 // Judgement of Wisdom
                 case 20186:
@@ -9978,7 +9979,8 @@ void Unit::SetCharm(Unit* charm, bool apply)
         if (!charm->AddUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
             sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is being charmed, but it already has a charmer " UI64FMTD "", charm->GetEntry(), charm->GetCharmerGUID());
 
-        if (charm->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
+        _isWalkingBeforeCharm = charm->IsWalking();
+        if (_isWalkingBeforeCharm)
         {
             charm->SetWalk(false);
             charm->SendMovementFlagUpdate();
@@ -10014,6 +10016,12 @@ void Unit::SetCharm(Unit* charm, bool apply)
             charm->m_ControlledByPlayer = false;
             charm->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             charm->SetByteValue(UNIT_FIELD_BYTES_2, 1, 0);
+        }
+
+        if (charm->IsWalking() != _isWalkingBeforeCharm)
+        {
+            charm->SetWalk(_isWalkingBeforeCharm);
+            charm->SendMovementFlagUpdate(true); // send packet to self, to update movement state on player.
         }
 
         if (charm->GetTypeId() == TYPEID_PLAYER
@@ -10288,6 +10296,10 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellID, uint32 damage, Powers p
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
+        return pdamage;
+
+    // Some spells don't benefit from done mods
+    if (spellProto->AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS)
         return pdamage;
 
     // small exception for Deep Wounds, can't find any general rule
@@ -10691,13 +10703,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
     }
 
-    // Some spells don't benefit from done mods
-    if (spellProto->AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS)
-    {
-        DoneTotal = 0;
-        DoneTotalMod = 1.0f;
-    }
-
     float tmpDamage = (int32(pdamage) + DoneTotal) * DoneTotalMod;
     // apply spellmod to Done damage (flat and pct)
     if (Player* modOwner = GetSpellModOwner())
@@ -11081,9 +11086,12 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage
 
     crit_bonus -= damage;
 
-    // adds additional damage to crit_bonus (from talents)
-    if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
+    if (damage > uint32(crit_bonus))
+    {
+        // adds additional damage to critBonus (from talents)
+        if (Player* modOwner = GetSpellModOwner())
+            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
+    }
 
     crit_bonus += damage;
 
@@ -14763,11 +14771,11 @@ void Unit::StopMoving()
     init.Launch();
 }
 
-void Unit::SendMovementFlagUpdate()
+void Unit::SendMovementFlagUpdate(bool self /* = false */)
 {
     WorldPacket data;
     BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, self);
 }
 
 bool Unit::IsSitState() const
@@ -16144,7 +16152,8 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
     if (Creature* creature = ToCreature())
     {
-        creature->AI()->OnCharmed(false);
+        if (creature->AI())
+            creature->AI()->OnCharmed(false);
 
         if (type != CHARM_TYPE_VEHICLE) // Vehicles' AI is never modified
         {
@@ -17044,6 +17053,7 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
                 sLog->outDebug(LOG_FILTER_VEHICLES, "EnterVehicle: %u leave vehicle %u seat %d and enter %d.", GetEntry(), m_vehicle->GetBase()->GetEntry(), GetTransSeat(), seatId);
                 ChangeSeat(seatId);
             }
+
             return;
         }
         else
@@ -17079,6 +17089,7 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
 
     ASSERT(!m_vehicle);
     m_vehicle = vehicle;
+
     if (!m_vehicle->AddPassenger(this, seatId))
     {
         m_vehicle = NULL;
@@ -17131,9 +17142,11 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     m_vehicle->RemovePassenger(this);
 
+    Player* player = ToPlayer();
+
     // If player is on mouted duel and exits the mount should immediatly lose the duel
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->duel && ToPlayer()->duel->isMounted)
-        ToPlayer()->DuelComplete(DUEL_FLED);
+    if (player && player->duel && player->duel->isMounted)
+        player->DuelComplete(DUEL_FLED);
 
     // This should be done before dismiss, because there may be some aura removal
     Vehicle* vehicle = m_vehicle;
@@ -17150,8 +17163,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     AddUnitState(UNIT_STATE_MOVE);
 
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SetFallInformation(0, GetPositionZ());
+    if (player)
+        player->SetFallInformation(0, GetPositionZ());
     else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
     {
         WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
@@ -17167,7 +17180,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     //GetMotionMaster()->MoveFall();            // Enable this once passenger positions are calculater properly (see above)
 
-    if (Player* player = ToPlayer())
+    if (player)
         player->ResummonPetTemporaryUnSummonedIfAny();
 
     if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))

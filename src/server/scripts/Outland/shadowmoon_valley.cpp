@@ -839,19 +839,10 @@ public:
                     return 1500;
                     break;
                 case 16:
-                    if (player)
-                    {
-                        Illi->CastSpell(player, SPELL_TWO, true);
-                        player->RemoveAurasDueToSpell(SPELL_THREE);
-                        player->RemoveAurasDueToSpell(SPELL_FOUR);
-                        return 5000;
-                    }
-                    else
-                    {
-                        player->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-                        Step = 30;
-                        return 100;
-                    }
+                    Illi->CastSpell(player, SPELL_TWO, true);
+                    player->RemoveAurasDueToSpell(SPELL_THREE);
+                    player->RemoveAurasDueToSpell(SPELL_FOUR);
+                    return 5000;
                     break;
                 case 17:
                     DoScriptText(LORD_ILLIDAN_SAY_5, Illi);
@@ -1871,8 +1862,8 @@ public:
 
 enum ZuluhedChains
 {
-    QUEST_ZULUHED = 10866,
-    NPC_KARYNAKU  = 22112,
+    QUEST_ZULUHED   = 10866,
+    NPC_KARYNAKU    = 22112,
 };
 
 class spell_unlocking_zuluheds_chains : public SpellScriptLoader
@@ -1884,18 +1875,21 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
         {
             PrepareSpellScript(spell_unlocking_zuluheds_chains_SpellScript);
 
-            void HandleOnCast()
+            bool Load()
             {
-                // FIXME: Hackish solution, a better way to reward killcredit should be found
-                if (Unit* caster = GetCaster())
-                    if(Player* player = caster->ToPlayer())
-                        if (player->GetQuestStatus(QUEST_ZULUHED) == QUEST_STATUS_INCOMPLETE)
-                            player->CastedCreatureOrGO(NPC_KARYNAKU, MAKE_NEW_GUID(0, NPC_KARYNAKU, HIGHGUID_UNIT), 0);
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleAfterHit()
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                if (caster->GetQuestStatus(QUEST_ZULUHED) == QUEST_STATUS_INCOMPLETE)
+                    caster->KilledMonsterCredit(NPC_KARYNAKU, 0);
             }
 
             void Register()
             {
-                OnCast += SpellCastFn(spell_unlocking_zuluheds_chains_SpellScript::HandleOnCast);
+                AfterHit += SpellHitFn(spell_unlocking_zuluheds_chains_SpellScript::HandleAfterHit);
             }
         };
 
