@@ -215,7 +215,7 @@ struct CUFProfile
         Unk146      = unk146;
         Unk147      = unk147;
         Unk148      = unk148;
-        Unk150      = Unk150;
+        Unk150      = unk150;
         Unk152      = unk152;
         Unk154      = unk154;
     }

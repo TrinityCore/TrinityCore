@@ -1982,7 +1982,7 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
 
     if (count > MAX_CUF_PROFILES)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "HandleSaveCUFProfiles - %s tried to save more than %i CUF profiles. Hacking attempt?", GetPlayerName(), MAX_CUF_PROFILES);
+        sLog->outError(LOG_FILTER_PLAYER, "HandleSaveCUFProfiles - %s tried to save more than %i CUF profiles. Hacking attempt?", GetPlayerName().c_str(), MAX_CUF_PROFILES);
         recvPacket.rfinish();
         return;
     }
