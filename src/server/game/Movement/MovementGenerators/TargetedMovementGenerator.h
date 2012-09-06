@@ -52,7 +52,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
 
         void unitSpeedChanged() { i_recalculateTravel = true; }
         void UpdateFinalDistance(float fDistance);
-        bool IsReachable() const { return (i_path) ? (i_path->getPathType() & PATHFIND_NORMAL) : true; }
+        bool IsReachable() const { return (i_path) ? (i_path->GetPathType() & PATHFIND_NORMAL) : true; }
     protected:
         void _setTargetLocation(T*);
 
