@@ -80,6 +80,7 @@ enum BossSpells
     SPELL_MISTRESS_KISS               = 67077,
     SPELL_FEL_INFERNO                 = 67047,
     SPELL_FEL_STREAK                  = 66494,
+    SPELL_LORD_HITTIN                 = 66326,  // special effect preventing more specific spells be cast on the same player within 10 seconds
 };
 
 /*######
@@ -181,12 +182,12 @@ public:
                         events.ScheduleEvent(EVENT_FEL_FIREBALL, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                         return;
                     case EVENT_FEL_LIGHTNING:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true, -SPELL_LORD_HITTIN))
                             DoCast(target, SPELL_FEL_LIGHTING);
                         events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                         return;
                     case EVENT_INCINERATE_FLESH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true, -SPELL_LORD_HITTIN))
                         {
                             Talk(EMOTE_INCINERATE, target->GetGUID());
                             Talk(SAY_INCINERATE);
@@ -199,7 +200,7 @@ public:
                         events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
                         return;
                     case EVENT_LEGION_FLAME:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true, -SPELL_LORD_HITTIN))
                         {
                             Talk(EMOTE_LEGION_FLAME, target->GetGUID());
                             DoCast(target, SPELL_LEGION_FLAME);
