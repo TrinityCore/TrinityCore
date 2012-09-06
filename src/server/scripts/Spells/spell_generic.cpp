@@ -907,9 +907,22 @@ class spell_gen_profession_research : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                uint32 spellId = GetSpellInfo()->Id;
+
+                // learn random explicit discovery recipe (if any)
+                if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(spellId, caster->ToPlayer()))
+                    caster->learnSpell(discoveredSpellId, false);
+
+                caster->UpdateCraftSkill(spellId);
+            }
+
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_gen_profession_research_SpellScript::CheckRequirement);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_profession_research_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
