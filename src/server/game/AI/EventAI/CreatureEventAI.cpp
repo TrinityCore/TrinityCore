@@ -1308,13 +1308,17 @@ bool CreatureEventAI::CanCast(Unit* target, SpellInfo const* spell, bool trigger
     //Silenced so we can't cast
     if (!triggered && me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
         return false;
-
+    
     //Check for power
     if (!triggered && me->GetPower((Powers)spell->PowerType) < spell->CalcPowerCost(me, spell->GetSchoolMask()))
         return false;
 
     //Unit is out of range of this spell
     if (!me->IsInRange(target, spell->GetMinRange(false), spell->GetMaxRange(false)))
+        return false;
+    
+    //Spell is on cooldown
+    if (me->HasSpellCooldown(spell->Id))
         return false;
 
     return true;
