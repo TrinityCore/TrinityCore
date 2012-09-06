@@ -554,13 +554,16 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (62702,'spell_keeper_support_aura_targeting'),
 (62650,'spell_keeper_support_aura_targeting');
 
-DELETE FROM `conditions` WHERE SourceEntry IN (64184, 63882, 63886, 64172, 64465, 65209);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
-(13, 0, 64184, 0, 0, 31, 0, 3, 33288, 0, 0, 0, '', 'Effect on YoggSaron'), -- Create Val'anyr on Yogg-Saron
-(13, 0, 63882, 0, 0, 31, 0, 3, 33882, 0, 0, 0, '', 'Effect on Death Orb'), -- Deathray Effect on Death Orb
-(13, 0, 63886, 0, 0, 31, 0, 3, 33882, 0, 0, 0, '', 'Effect on Death Orb'),
-(13, 0, 64172, 0, 0, 31, 0, 3, 33988, 0, 0, 0, '', 'Effect only for Immortal Guardians'), -- Condition because NPCs need this else no hit
-(13, 0, 64465, 0, 0, 31, 0, 3, 33988, 0, 0, 0, '', 'Effect only for Immortal Guardians');
+DELETE FROM `conditions` WHERE SourceEntry IN (64184, 63882, 63886, 64172, 64465, 65209, 65719, 62714);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES 
+(13, 0, 64184, 31, 3, 33288, 'Effect on YoggSaron'), -- Create Val'anyr on Yogg-Saron
+(13, 0, 63882, 31, 3, 33882, 'Effect on Death Orb'), -- Deathray Effect on Death Orb
+(13, 0, 63886, 31, 3, 33882, 'Effect on Death Orb'),
+(13, 0, 64172, 31, 3, 33988, 'Effect only for Immortal Guardians'), -- Condition because NPCs need this else no hit
+(13, 0, 64465, 31, 3, 33988, 'Effect only for Immortal Guardians'),
+(13, 1, 65719, 31, 3, 33134, 'Spell should hit only Sara'),
+(13, 1, 62714, 31, 3, 33136, 'Effect should hit only Guardians'),
+(13, 2, 62714, 31, 4, 0, 'Effect should hit only Players');
 
 -- Missing Says Vision
 UPDATE `script_texts` SET `npc_entry`=33134 WHERE `npc_entry`=33288 AND `entry` IN (-1603330,-1603331,-1603332,-1603333);

@@ -249,7 +249,8 @@ enum Spells
     //  Guardians of Yogg-Saron
     SPELL_DOMINATE_MIND                         = 63042, // Removed by blizz, Needs Sanity Scripting
     SPELL_DARK_VOLLEY                           = 63038, // Needs Sanity Scripting
-    SPELL_SHADOW_NOVA                           = 65209, // On Death
+    SPELL_SHADOW_NOVA                           = 62714, // On Death
+    SPELL_SHADOW_NOVA_SARA                      = 65719, // this Shadow Nova hits only Sara
     //Phase 2:64146
     SPELL_SARA_TRANSFORMATION                   = 65157,
     //  Sara - She spams Psychosis without pause on random raid members unless she casts something else. The other three abilities each have a 30 second cooldown, and are used randomly when available.
@@ -818,6 +819,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_ENRAGE, 900000); 
             }
 
@@ -1531,12 +1533,6 @@ class boss_sara : public CreatureScript
 
             void DamageTaken(Unit* dealer, uint32 &damage)
             {
-                // make sure only Shadow Nova can damage her with constant dmg
-                if (dealer->GetEntry() == NPC_GUARDIAN_OF_YOGG_SARON)
-                    damage = 25000;
-                else
-                    damage = 0;
-
                 if (damage > me->GetHealth())
                     damage = me->GetHealth() - 1;
             }                        
@@ -1575,7 +1571,7 @@ class boss_sara : public CreatureScript
                 if (!spell)
                     return;
 
-                if (spell->Id == SPELL_SHADOW_NOVA)
+                if (spell->Id == SPELL_SHADOW_NOVA_SARA)
                 {
                     if (myPhase != PHASE_SARA)
                         return;
@@ -1607,7 +1603,6 @@ class boss_sara : public CreatureScript
                 {
                     case ACTION_START_SARA:
                         UpdatePhase(PHASE_SARA);
-                        instance->SetBossState(BOSS_YOGGSARON, IN_PROGRESS);
                         break;
                     case ACTION_MADNESS_STARTED:
                         IsEventSpeaking = true;
@@ -1654,7 +1649,6 @@ class boss_sara : public CreatureScript
                         // commented out while testing
                         //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         events.ScheduleEvent(EVENT_SARAHS_HELP, urand(5000, 6000), 0, PHASE_SARA);
-                        me->SetFloatValue(UNIT_FIELD_COMBATREACH, 100.0f);
                         break;
                     case PHASE_BRAIN:
                         me->SetHealth(me->GetMaxHealth());
@@ -1974,6 +1968,7 @@ class npc_guardian_of_yogg_saron : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 DoCast(me, SPELL_SHADOW_NOVA, true);
+                DoCast(me, SPELL_SHADOW_NOVA_SARA, true);
                 me->DespawnOrUnsummon(5000);
             }
 
@@ -2361,7 +2356,8 @@ class boss_yogg_saron : public CreatureScript
                 UsedMindControl = false;
                 myphase = PHASE_NONE;
                 events.ScheduleEvent(EVENT_SANITY_CHECK, 1000);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1);
+                // TODO: make him not selectable when ready
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void JustDied(Unit* killer)
