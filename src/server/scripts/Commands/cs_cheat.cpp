@@ -43,6 +43,7 @@ public:
             { "waterwalk",      SEC_GAMEMASTER,     false, &HandleWaterWalkCheatCommand,       "", NULL },
             { "taxi",           SEC_GAMEMASTER,     false, &HandleTaxiCheatCommand,            "", NULL },
             { "explore",        SEC_GAMEMASTER,     false, &HandleExploreCheatCommand,         "", NULL },
+            { "status",         SEC_GAMEMASTER,     false, &HandleStatusCheatCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
 
         };
@@ -191,6 +192,19 @@ public:
         }
 
         return false;
+    }
+
+    static bool HandleStatusCheatCommand(ChatHandler* handler, const char *args)
+    {            
+            Player* player = handler->GetSession()->GetPlayer();
+        
+            handler->PSendSysMessage("Showing cheat statuses:");
+            handler->PSendSysMessage("Cooldown: %s", player->GetCommandStatus(CHEAT_COOLDOWN) ? "active" : "inactive");
+            handler->PSendSysMessage("CastTime: %s", player->GetCommandStatus(CHEAT_CASTTIME) ? "active" : "inactive");
+            handler->PSendSysMessage("GodMode: %s", player->GetCommandStatus(CHEAT_GOD) ? "active" : "inactive");
+            handler->PSendSysMessage("Power: %s", player->GetCommandStatus(CHEAT_POWER) ? "active" : "inactive");
+            handler->PSendSysMessage("WaterWalk: %s", player->GetCommandStatus(CHEAT_WATERWALK) ? "active" : "inactive");
+            return true;
     }
 
     static bool HandleTaxiCheatCommand(ChatHandler* handler, const char* args)
