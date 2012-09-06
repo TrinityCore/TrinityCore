@@ -25,6 +25,7 @@ DELETE FROM spell_proc_event WHERE entry = 16164;
 INSERT INTO spell_proc_event (entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown) VALUES (16164, 0, 11, 2416967683, 4096, 0, 0, 2, 0, 0, 0);
 
 -- Fix Dancing Rune Weapon.
+DELETE FROM `spell_proc_event` where `entry` = 49028;
 INSERT INTO `spell_proc_event` (entry, procFlags) VALUES
 ('49028','69652');
 
