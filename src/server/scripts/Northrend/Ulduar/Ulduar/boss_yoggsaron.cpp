@@ -565,10 +565,10 @@ bool IsPlayerInBrainRoom(const Player* pPlayer)
     return pPlayer->GetPositionZ() < 300.0f;
 }
 
-class DontLooksDirectlyInGazeCheck : public std::unary_function<WorldObject*, bool>
+class IsNotLookingDirectlyInGaze : public std::unary_function<WorldObject*, bool>
 {
     public:
-        DontLooksDirectlyInGazeCheck(WorldObject* caster) : __caster(caster) {}
+        IsNotLookingDirectlyInGaze(WorldObject* caster) : __caster(caster) {}
 
         bool operator() (WorldObject* unit)
         {
@@ -1265,22 +1265,13 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                         sara->AI()->DoAction(ACTION_APPLY_SHATTERED_ILLUSIONS);
 
                     // search for tentacles manually, they have been summoned by spells
-                    std::list<Creature*> ConstrictorList;
-                    me->GetCreatureListWithEntryInGrid(ConstrictorList, NPC_CONSTRICTOR_TENTACLE, 100.0f);
-                    if (!ConstrictorList.empty())
-                        for (std::list<Creature*>::iterator itr = ConstrictorList.begin(); itr != ConstrictorList.end(); itr++)
-                            me->AddAura(SPELL_SHATTERED_ILLUSIONS, (*itr));
+                    std::list<Creature*> TentacleList;
+                    me->GetCreatureListWithEntryInGrid(TentacleList, NPC_CORRUPTOR_TENTACLE, 100.0f);
+                    me->GetCreatureListWithEntryInGrid(TentacleList, NPC_CRUSHER_TENTACLE, 100.0f);
+                    me->GetCreatureListWithEntryInGrid(TentacleList, NPC_CONSTRICTOR_TENTACLE, 100.0f);
 
-                    std::list<Creature*> CorruptorList;
-                    me->GetCreatureListWithEntryInGrid(CorruptorList, NPC_CORRUPTOR_TENTACLE, 100.0f);
-                    if (!CorruptorList.empty())
-                        for (std::list<Creature*>::iterator itr = CorruptorList.begin(); itr != CorruptorList.end(); itr++)
-                            me->AddAura(SPELL_SHATTERED_ILLUSIONS, (*itr));
-
-                    std::list<Creature*> CrusherList;
-                    me->GetCreatureListWithEntryInGrid(CrusherList, NPC_CRUSHER_TENTACLE, 100.0f);
-                    if (!CrusherList.empty())
-                        for (std::list<Creature*>::iterator itr = CrusherList.begin(); itr != CrusherList.end(); itr++)
+                    if (!TentacleList.empty())
+                        for (std::list<Creature*>::iterator itr = TentacleList.begin(); itr != TentacleList.end(); itr++)
                             me->AddAura(SPELL_SHATTERED_ILLUSIONS, (*itr));
                 }
             }
@@ -1299,22 +1290,13 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                         sara->AI()->DoAction(causedByPhaseChange ? ACTION_REMOVE_SHATTERED_ILLUSIONS_PHASE_CHANGE : ACTION_REMOVE_SHATTERED_ILLUSIONS);
 
                     // search for tentacles manually, they have been summoned by spells
-                    std::list<Creature*> ConstrictorList;
-                    me->GetCreatureListWithEntryInGrid(ConstrictorList, NPC_CONSTRICTOR_TENTACLE, 100.0f);
-                    if (!ConstrictorList.empty())
-                        for (std::list<Creature*>::iterator itr = ConstrictorList.begin(); itr != ConstrictorList.end(); itr++)
-                            (*itr)->RemoveAurasDueToSpell(SPELL_SHATTERED_ILLUSIONS);
+                    std::list<Creature*> TentacleList;
+                    me->GetCreatureListWithEntryInGrid(TentacleList, NPC_CORRUPTOR_TENTACLE, 100.0f);
+                    me->GetCreatureListWithEntryInGrid(TentacleList, NPC_CRUSHER_TENTACLE, 100.0f);
+                    me->GetCreatureListWithEntryInGrid(TentacleList, NPC_CONSTRICTOR_TENTACLE, 100.0f);
 
-                    std::list<Creature*> CorruptorList;
-                    me->GetCreatureListWithEntryInGrid(CorruptorList, NPC_CORRUPTOR_TENTACLE, 100.0f);
-                    if (!CorruptorList.empty())
-                        for (std::list<Creature*>::iterator itr = CorruptorList.begin(); itr != CorruptorList.end(); itr++)
-                            (*itr)->RemoveAurasDueToSpell(SPELL_SHATTERED_ILLUSIONS);
-
-                    std::list<Creature*> CrusherList;
-                    me->GetCreatureListWithEntryInGrid(CrusherList, NPC_CRUSHER_TENTACLE, 100.0f);
-                    if (!CrusherList.empty())
-                        for (std::list<Creature*>::iterator itr = CrusherList.begin(); itr != CrusherList.end(); itr++)
+                    if (!TentacleList.empty())
+                        for (std::list<Creature*>::iterator itr = TentacleList.begin(); itr != TentacleList.end(); itr++)
                             (*itr)->RemoveAurasDueToSpell(SPELL_SHATTERED_ILLUSIONS);
                 }
             }
@@ -3180,7 +3162,7 @@ class spell_lunatic_gaze_targeting : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(DontLooksDirectlyInGazeCheck(GetCaster()));
+                targets.remove_if(IsNotLookingDirectlyInGaze(GetCaster()));
             }
 
             void Register()
