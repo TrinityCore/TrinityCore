@@ -415,8 +415,8 @@ PersistentCharacterCleanFlags = 0
 #
 #    PidFile
 #        Description: World daemon PID file
-#        Example:     "./worldd.pid" - (Enabled)
-#        Default:     ""             - (Disabled)
+#        Example:     "./world.pid" - (Enabled)
+#        Default:     ""            - (Disabled)
 
 PidFile = ""
 

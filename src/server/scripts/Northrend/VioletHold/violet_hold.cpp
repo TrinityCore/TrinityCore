@@ -782,10 +782,13 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void JustDied(Unit* /*killer*/)
     {
-        if (Creature* portal = Unit::GetCreature((*me), instance->GetData64(DATA_TELEPORTATION_PORTAL)))
-            CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedMobDied(me);
         if (instance)
+        {
+            if (Creature* portal = Unit::GetCreature((*me), instance->GetData64(DATA_TELEPORTATION_PORTAL)))
+                CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedMobDied(me);
+
             instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
+        }
     }
 
     void CreatureStartAttackDoor()

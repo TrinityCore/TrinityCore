@@ -583,7 +583,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
         && !m_spellInfo->IsPassive() && !m_spellInfo->IsPositive();
 
     CleanupTargetList();
-    CleanupEffectExecuteData();
+    memset(m_effectExecuteData, NULL, MAX_SPELL_EFFECTS * sizeof(ByteBuffer*));
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
@@ -2526,7 +2526,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
-    if (missInfo != SPELL_MISS_EVADE && m_caster && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
+    if (missInfo != SPELL_MISS_EVADE && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
         m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
 
@@ -5153,6 +5153,10 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!target)
                     return SPELL_FAILED_DONT_REPORT;
 
+                if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    if (!target->isAlive())
+                        return SPELL_FAILED_BAD_TARGETS;
+
                 Position pos;
                 target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
@@ -6941,12 +6945,6 @@ void Spell::InitEffectExecuteData(uint8 effIndex)
         uint32 count = (*m_effectExecuteData[effIndex]).read<uint32>(0);
         (*m_effectExecuteData[effIndex]).put<uint32>(0, ++count);
     }
-}
-
-void Spell::CleanupEffectExecuteData()
-{
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        m_effectExecuteData[i] = NULL;
 }
 
 void Spell::CheckEffectExecuteData()
