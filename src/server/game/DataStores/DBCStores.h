@@ -73,6 +73,8 @@ uint32 GetLiquidFlags(uint32 liquidType);
 PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
 PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
+uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId);
+
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
