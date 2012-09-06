@@ -1955,10 +1955,6 @@ void GameObject::SetGoState(GOState state)
             collision = !collision;
 
         EnableCollision(collision);
-
-        // platform at Mimiron shouldnt be a los obstacle when closed
-        if (this->GetEntry() == 194749)
-            EnableCollision(!startOpen);
     }
 }
 
