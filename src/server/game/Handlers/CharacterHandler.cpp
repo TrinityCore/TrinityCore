@@ -928,12 +928,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetInGuild(fields[0].GetUInt32());
         pCurrChar->SetRank(fields[1].GetUInt8());
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
-            pCurrChar->SetUInt32Value(PLAYER_GUILDLEVEL, guild->GetLevel());
+            pCurrChar->SetGuildLevel(guild->GetLevel());
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
         pCurrChar->SetInGuild(0);
         pCurrChar->SetRank(0);
+        pCurrChar->SetGuildLevel(0);
     }
 
     data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
