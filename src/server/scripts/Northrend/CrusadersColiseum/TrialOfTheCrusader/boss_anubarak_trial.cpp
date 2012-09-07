@@ -115,16 +115,6 @@ enum SummonActions
     ACTION_SCARAB_SUBMERGE,
 };
 
-const Position SphereSpawn[6] =
-{
-    { 786.6439f, 108.2498f, 155.6701f, 0 },
-    { 806.8429f, 150.5902f, 155.6701f, 0 },
-    { 759.1386f, 163.9654f, 155.6701f, 0 },
-    { 744.3701f, 119.5211f, 155.6701f, 0 },
-    { 710.0211f, 120.8152f, 155.6701f, 0 },
-    { 706.6383f, 161.5266f, 155.6701f, 0 },
-};
-
 enum MovementPoints
 {
     POINT_FALL_GROUND           = 1
@@ -159,7 +149,6 @@ public:
 
         SummonList Summons;
         std::list<uint64> m_vBurrowGUID;
-        uint64 m_aSphereGUID[6];
 
         uint32 m_uiFreezeSlashTimer;
         uint32 m_uiPenetratingColdTimer;
@@ -279,8 +268,7 @@ public:
                 me->SummonCreature(NPC_BURROW, AnubarakLoc[i+2]);
             //Spawn Frost Spheres
             for (int i=0; i < 6; i++)
-                if (Unit* summoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
-                    m_aSphereGUID[i] = summoned->GetGUID();
+                SummonFrostSphere();
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -324,7 +312,7 @@ public:
                         m_uiStage = 1;
                         m_uiSubmergeTimer = 60*IN_MILLISECONDS;
                     } else m_uiSubmergeTimer -= uiDiff;
-                    return;
+                    break;
                 case 1:
                     DoCast(me, SPELL_SUBMERGE_ANUBARAK);
                     DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
@@ -333,7 +321,7 @@ public:
                     m_uiScarabSummoned = 0;
                     m_uiSummonScarabTimer = 4*IN_MILLISECONDS;
                     m_uiStage = 2;
-                    return;
+                    break;
                 case 2:
                     if (m_uiPursuingSpikeTimer <= uiDiff)
                     {
@@ -369,7 +357,7 @@ public:
                         m_uiStage = 3;
                         m_uiSubmergeTimer = 80*IN_MILLISECONDS;
                     } else m_uiSubmergeTimer -= uiDiff;
-                    return;
+                    break;
                 case 3:
                     m_uiStage = 0;
                     DoCast(SPELL_SPIKE_TELE);
@@ -380,28 +368,14 @@ public:
                     m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
                     m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
                     m_uiSummonScarabTimer = 2*IN_MILLISECONDS;
-                    return;
+                    break;
             }
 
             if (!IsHeroic())
             {
                 if (m_uiSummonFrostSphereTimer <= uiDiff)
                 {
-                    uint8 startAt = urand(0, 5);
-                    uint8 i = startAt;
-                    do
-                    {
-                        if (Unit* pSphere = Unit::GetCreature(*me, m_aSphereGUID[i]))
-                        {
-                            if (!pSphere->HasAura(SPELL_FROST_SPHERE))
-                            {
-                                if (Creature* summon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
-                                    m_aSphereGUID[i] = summon->GetGUID();
-                                break;
-                            }
-                        }
-                        i = (i+1)%6;
-                    } while (i != startAt);
+                    SummonFrostSphere();
                     m_uiSummonFrostSphereTimer = urand(20, 30)*IN_MILLISECONDS;
                 } else m_uiSummonFrostSphereTimer -= uiDiff;
             }
@@ -420,6 +394,14 @@ public:
             } else m_uiBerserkTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
+        }
+
+        void SummonFrostSphere()
+        {
+            float x = frand(700.f, 780.f);
+            float y = frand(105.f, 165.f);
+            float z = 155.6f;
+            me->SummonCreature(NPC_FROST_SPHERE, x, y, z);
         }
     };
 
@@ -773,7 +755,8 @@ public:
         {
             DoCast(who, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
-            me->getThreatManager().addThreat(who, 100000.f);
+            // make sure the Spine will really follow the one he should
+            me->getThreatManager().addThreat(who, me->getThreatManager().getThreat(me->getVictim()) + 100.f);
             me->GetMotionMaster()->Clear(true);
             me->GetMotionMaster()->MoveChase(who);
             me->TauntApply(who);
@@ -793,7 +776,10 @@ class spell_impale : public SpellScriptLoader
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                if (target && target->HasAura(SPELL_PERMAFROST))
+                uint32 permafrost = sSpellMgr->GetSpellIdForDifficulty(SPELL_PERMAFROST, target);
+
+                // make sure Impale doesnt do damage if we are standing on permafrost
+                if (target && target->HasAura(permafrost))
                     SetHitDamage(0);
             }
 
