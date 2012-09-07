@@ -2034,7 +2034,7 @@ void Pet::SynchronizeLevelWithOwner()
     }
 }
 
-void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs) 
+void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
     WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+m_spells.size()*8);
     data << uint64(GetGUID());
