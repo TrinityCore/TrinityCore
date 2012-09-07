@@ -242,6 +242,10 @@ class UnitAI
         // Called when the unit heals
         virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) {}
 
+        /// Called when a spell is interrupted by Spell::EffectInterruptCast
+        /// Use to reschedule next planned cast of spell.
+        virtual void SpellInterrupted(uint32 /*spellId*/, uint32 /*unTimeMs*/) {}
+
         void AttackStartCaster(Unit* victim, float dist);
 
         void DoAddAuraToAllHostilePlayers(uint32 spellid);
