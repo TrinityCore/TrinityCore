@@ -71,10 +71,10 @@ namespace Movement
             real_position.z = unit.GetTransOffsetZ();
             real_position.orientation = unit.GetTransOffsetO();
         }
-
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
-        if (!move_spline.Finalized())
+        // Don't compute for transport movement. The unit could be in a motion between two transports, thus having transport moveflag but is resulting in regular positions
+        else if (!move_spline.Finalized())
             real_position = move_spline.ComputePosition();
 
         // should i do the things that user should do? - no.
