@@ -800,6 +800,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                             yogg->DespawnOrUnsummon();
                         if (Creature* yoggbrain = ObjectAccessor::GetCreature(*me, guidYoggBrain))
                             yoggbrain->DespawnOrUnsummon();
+                        Reset();
                         break;
                     case ACTION_ACTIVATE_YOGG:
                         if (Creature* yogg = ObjectAccessor::GetCreature(*me, guidYogg))
