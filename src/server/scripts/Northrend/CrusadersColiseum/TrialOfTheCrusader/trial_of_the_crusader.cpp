@@ -608,19 +608,13 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 155:
                             instance->SetData(TYPE_BEASTS, IN_PROGRESS);
+                            // keep the raid in combat for the whole encounter, pauses included
+                            me->SetInCombatWithZone();
                             m_uiUpdateTimer = 5000;
                             instance->SetData(TYPE_EVENT, 160);
                             break;
                         case 200:
                             Talk(SAY_STAGE_0_04);
-                            m_uiUpdateTimer = 8000;
-                            instance->SetData(TYPE_EVENT, 205);
-                            break;
-                        case 205:
-                            m_uiUpdateTimer = 3000;
-                            instance->SetData(TYPE_EVENT, 210);
-                            break;
-                        case 210:
                             if (instance->GetData(TYPE_BEASTS) != DONE)
                             {
                                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
@@ -645,14 +639,6 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 300:
                             Talk(SAY_STAGE_0_05);
-                            m_uiUpdateTimer = 8000;
-                            instance->SetData(TYPE_EVENT, 305);
-                            break;
-                        case 305:
-                            m_uiUpdateTimer = 3000;
-                            instance->SetData(TYPE_EVENT, 310);
-                            break;
-                        case 310:
                             if (instance->GetData(TYPE_BEASTS) != DONE)
                             {
                                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
@@ -671,6 +657,7 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 400:
                             Talk(SAY_STAGE_0_06);
+                            me->getThreatManager().clearReferences();
                             m_uiUpdateTimer = 5000;
                             instance->SetData(TYPE_EVENT, 0);
                             break;
