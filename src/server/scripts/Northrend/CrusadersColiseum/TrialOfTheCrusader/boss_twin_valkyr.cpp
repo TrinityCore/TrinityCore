@@ -325,6 +325,9 @@ struct boss_twin_baseAI : public ScriptedAI
         if (!instance || !UpdateVictim())
             return;
 
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
         switch (m_uiStage)
         {
             case 0:

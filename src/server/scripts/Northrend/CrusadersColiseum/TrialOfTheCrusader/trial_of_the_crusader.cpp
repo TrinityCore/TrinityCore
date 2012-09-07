@@ -695,7 +695,7 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 3001:
                             Talk(SAY_STAGE_2_01);
-                            m_uiUpdateTimer = 12000;
+                            m_uiUpdateTimer = 10000;
                             instance->SetData(TYPE_EVENT, 3051);
                             break;
                         case 3060:
@@ -965,7 +965,7 @@ class npc_varian_toc : public CreatureScript
                             break;
                         case 3051:
                             Talk(SAY_STAGE_2_02a);
-                            m_uiUpdateTimer = 10000;
+                            m_uiUpdateTimer = 17000;
                             instance->SetData(TYPE_EVENT, 3061);
                             break;
                         case 3071:
