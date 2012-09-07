@@ -167,6 +167,7 @@ void MoveSpline::Initialize(const MoveSplineInitArgs& args)
     point_Idx_offset = args.path_Idx_offset;
     initialOrientation = args.initialOrientation;
 
+    onTransport = false;
     time_passed = 0;
     vertical_acceleration = 0.f;
     effect_start_time = 0;
