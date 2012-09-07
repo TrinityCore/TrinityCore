@@ -913,7 +913,7 @@ class spell_gen_profession_research : public SpellScriptLoader
                 uint32 spellId = GetSpellInfo()->Id;
 
                 // learn random explicit discovery recipe (if any)
-                if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(spellId, caster->ToPlayer()))
+                if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(spellId, caster))
                     caster->learnSpell(discoveredSpellId, false);
 
                 caster->UpdateCraftSkill(spellId);
