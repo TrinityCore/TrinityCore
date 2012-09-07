@@ -35,30 +35,28 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner)
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return;
 
+    if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
+        return;
+
     float x, y, z;
-    //! Following block of code deleted by MrSmite in issue 4891
-    //! Code kept for learning and diagnostical purposes
-//
-//     if (i_offset && i_target->IsWithinDistInMap(&owner,2*i_offset))
-//     {
-//         if (!owner.movespline->Finalized())
-//             return;
-//
-//         owner.GetPosition(x, y, z);
-//     }
-//     else
+
     if (!i_offset)
     {
-        if (i_target->IsWithinMeleeRange(owner))
-            return;
+        float dist = 0.0f;
 
-        // to nearest random contact position
-        i_target->GetRandomContactPoint(owner, x, y, z, 0, MELEE_RANGE - 0.5f);
+        if (owner->getVictim() && owner->getVictim()->GetGUID() == i_target->GetGUID())
+            dist = owner->GetFloatValue(UNIT_FIELD_COMBATREACH) + i_target->GetFloatValue(UNIT_FIELD_COMBATREACH) - i_target->GetObjectSize() - owner->GetObjectSize() - 1.0f;
+
+        if (dist < 0.5f)
+            dist = 0.5f;
+
+        if (owner->IsWithinLOSInMap(owner->getVictim()))
+            i_target->GetContactPoint(owner, x, y, z, dist);
+        else
+            i_target->GetPosition(x, y, z);
     }
     else
     {
-        if (i_target->IsWithinDistInMap(owner, i_offset + 1.0f))
-            return;
         // to at i_offset distance from target and i_angle from target facing
         i_target->GetClosePoint(x, y, z, owner->GetObjectSize(), i_offset, i_angle);
     }
@@ -69,8 +67,9 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner)
     // allow pets following their master to cheat while generating paths
     bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->isPet()
                         && owner->HasUnitState(UNIT_STATE_FOLLOW));
-    i_path->CalculatePath(x, y, z, forceDest);
-    if (i_path->GetPathType() & PATHFIND_NOPATH)
+
+    bool result = i_path->CalculatePath(x, y, z, forceDest);
+    if (!result || i_path->GetPathType() & PATHFIND_NOPATH)
         return;
 
     D::_addUnitStateMove(owner);
@@ -117,7 +116,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, const uint32& time_d
         return false;
 
     if (!owner || !owner->isAlive())
-        return true;
+        return false;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
     {
@@ -154,7 +153,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, const uint32& time_d
         else
             targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
 
-        if (targetMoved)
+        if (targetMoved || !owner->IsWithinLOSInMap(owner->getVictim()))
             _setTargetLocation(owner);
     }
 
