@@ -78,8 +78,8 @@ bool ConfusedMovementGenerator<T>::Update(T* unit, const uint32& diff)
 
             PathGenerator path(unit);
             path.SetPathLengthLimit(30.0f);
-            path.CalculatePath(x, y, z);
-            if (path.GetPathType() & PATHFIND_NOPATH)
+            bool result = path.CalculatePath(x, y, z);
+            if (!result || path.GetPathType() & PATHFIND_NOPATH)
             {
                 i_nextMoveTime.Reset(urand(800, 1000));
                 return true;
