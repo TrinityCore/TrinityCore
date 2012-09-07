@@ -108,8 +108,6 @@ class AuraEffect
         uint8 const m_effIndex;
         bool m_canBeRecalculated;
         bool m_isPeriodic;
-    private:
-        bool IsPeriodicTickCrit(Unit* target, Unit const* caster) const;
 
     public:
         // aura effect apply/remove handlers
