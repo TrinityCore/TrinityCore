@@ -84,9 +84,13 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
     unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 
-void WorldSession::HandleUnlearnSkillOpcode(WorldPacket & recv_data)
+void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 {
-    uint32 skill_id;
-    recv_data >> skill_id;
-    GetPlayer()->SetSkill(skill_id, 0, 0, 0);
+    uint32 skillId;
+    recvData >> skillId;
+
+    if (!IsPrimaryProfessionSkill(skillId))
+        return;
+
+    GetPlayer()->SetSkill(skillId, 0, 0, 0);
 }
