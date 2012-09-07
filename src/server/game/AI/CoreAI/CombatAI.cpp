@@ -111,6 +111,11 @@ void CombatAI::UpdateAI(const uint32 diff)
         DoMeleeAttackIfReady();
 }
 
+void CombatAI::SpellInterrupted(uint32 spellId, uint32 unTimeMs)
+{
+    events.RescheduleEvent(spellId, unTimeMs);
+}
+
 /////////////////
 //CasterAI
 /////////////////
