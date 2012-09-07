@@ -1155,18 +1155,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
 bool AuraEffect::IsPeriodicTickCrit(Unit* target, Unit const* caster) const
 {
     ASSERT(caster);
-    Unit::AuraEffectList const& mPeriodicCritAuras= caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
-    for (Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
-    {
-        if ((*itr)->IsAffectingSpell(m_spellInfo) && caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask()))
-            return true;
-    }
-
-    // Rupture - since 3.3.3 can crit
-    if (m_spellInfo->SpellIconID == 500 && m_spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
-        return caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
-
-    return false;
+    return caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
 }
 
 bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
