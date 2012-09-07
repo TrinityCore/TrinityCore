@@ -59,7 +59,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
         return false;
 
     float newDestZ = _sourceUnit->GetBaseMap()->GetHeight(_sourceUnit->GetPhaseMask(), x, y, z, true, MAX_FALL_DISTANCE);
-    if (newDestZ >= INVALID_HEIGHT)
+    if (newDestZ <= INVALID_HEIGHT)
         return false;
 
     Vector3 oldDest = GetEndPosition();
