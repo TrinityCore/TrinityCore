@@ -1317,6 +1317,10 @@ bool CreatureEventAI::CanCast(Unit* target, SpellInfo const* spell, bool trigger
     if (!me->IsInRange(target, spell->GetMinRange(false), spell->GetMaxRange(false)))
         return false;
 
+    //Spell is on cooldown
+    if (me->HasSpellCooldown(spell->Id))
+        return false;
+
     return true;
 }
 
