@@ -774,3 +774,11 @@ void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
         }
     }
 }
+
+void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPakcet)
+{
+    uint8 enable;
+    recvPakcet >> enable;
+
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, enable);
+}
