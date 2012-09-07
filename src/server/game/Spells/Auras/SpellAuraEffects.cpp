@@ -1152,23 +1152,6 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
     GetBase()->CallScriptEffectUpdatePeriodicHandlers(this);
 }
 
-bool AuraEffect::IsPeriodicTickCrit(Unit* target, Unit const* caster) const
-{
-    ASSERT(caster);
-    Unit::AuraEffectList const& mPeriodicCritAuras= caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
-    for (Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
-    {
-        if ((*itr)->IsAffectingSpell(m_spellInfo) && caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask()))
-            return true;
-    }
-
-    // Rupture - since 3.3.3 can crit
-    if (m_spellInfo->SpellIconID == 500 && m_spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
-        return caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
-
-    return false;
-}
-
 bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
 {
     if (!spell)
@@ -6136,7 +6119,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     else
         damage = uint32(target->CountPctFromMaxHealth(damage));
 
-    bool crit = IsPeriodicTickCrit(target, caster);
+    bool crit = caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
 
@@ -6195,7 +6178,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
-    bool crit = IsPeriodicTickCrit(target, caster);
+    bool crit = caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
 
@@ -6335,7 +6318,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
     }
 
-    bool crit = IsPeriodicTickCrit(target, caster);
+    bool crit = caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
     if (crit)
         damage = caster->SpellCriticalHealingBonus(m_spellInfo, damage, target);
 
