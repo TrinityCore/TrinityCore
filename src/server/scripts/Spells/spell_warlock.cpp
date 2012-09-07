@@ -683,25 +683,25 @@ public:
     class spell_warl_health_funnel_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_warl_health_funnel_AuraScript)
+        
         void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (Unit* target = GetTarget())
-            {
-                if (GetCaster()->HasAura(WARLOCK_IMPROVED_HEALTH_FUNNEL_R2))
-                    target->CastSpell(target, WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2, true);
-                else if (GetCaster()->HasAura(WARLOCK_IMPROVED_HEALTH_FUNNEL_R1))
-                    target->CastSpell(target, WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1, true);
-            }
- 
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+                
+            Unit* target = GetTarget();
+            if (caster->HasAura(WARLOCK_IMPROVED_HEALTH_FUNNEL_R2))
+                target->CastSpell(target, WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2, true);
+            else if (caster->HasAura(WARLOCK_IMPROVED_HEALTH_FUNNEL_R1))
+                target->CastSpell(target, WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1, true);
         }
  
         void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (Unit* target = GetTarget())
-            {
-                target->RemoveAurasDueToSpell(WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1);
-                target->RemoveAurasDueToSpell(WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2);
-            }
+            Unit* target = GetTarget();
+            target->RemoveAurasDueToSpell(WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1);
+            target->RemoveAurasDueToSpell(WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2);
         }
  
         void Register()
