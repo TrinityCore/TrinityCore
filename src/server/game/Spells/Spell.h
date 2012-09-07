@@ -616,7 +616,6 @@ class Spell
 
         // spell execution log
         void InitEffectExecuteData(uint8 effIndex);
-        void CleanupEffectExecuteData();
         void CheckEffectExecuteData();
 
         // Scripting system
