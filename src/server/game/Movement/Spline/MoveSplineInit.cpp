@@ -153,16 +153,18 @@ namespace Movement
         if (generatePath)
         {
             PathGenerator path(unit);
-            path.CalculatePath(dest.x, dest.y, dest.z, forceDestination);
-            MovebyPath(path.GetPath());
+            bool result = path.CalculatePath(dest.x, dest.y, dest.z, forceDestination);
+            if (result && path.GetPathType() & ~PATHFIND_NOPATH)
+            {
+                MovebyPath(path.GetPath());
+                return;
+            }
         }
-        else
-        {
-            args.path_Idx_offset = 0;
-            args.path.resize(2);
-            TransportPathTransform transform(unit, args.TransformForTransport);
-            args.path[1] = transform(dest);
-        }
+
+        args.path_Idx_offset = 0;
+        args.path.resize(2);
+        TransportPathTransform transform(unit, args.TransformForTransport);
+        args.path[1] = transform(dest);
     }
 
     Vector3 TransportPathTransform::operator()(Vector3 input)
