@@ -350,10 +350,10 @@ class instance_blood_furnace : public InstanceMapScript
                         ++PrisonerCounter8;
                     }
                     else
-                    	return;
+                        return;
                 }
                 else
-                	return;
+                    return;
 
                 ResetPrisoner(creature);
             }
