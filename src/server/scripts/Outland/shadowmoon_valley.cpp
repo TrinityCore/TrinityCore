@@ -45,6 +45,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Group.h"
+#include "SpellScript.h"
 
 /*#####
 # mob_mature_netherwing_drake
@@ -838,19 +839,10 @@ public:
                     return 1500;
                     break;
                 case 16:
-                    if (player)
-                    {
-                        Illi->CastSpell(player, SPELL_TWO, true);
-                        player->RemoveAurasDueToSpell(SPELL_THREE);
-                        player->RemoveAurasDueToSpell(SPELL_FOUR);
-                        return 5000;
-                    }
-                    else
-                    {
-                        player->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE);
-                        Step = 30;
-                        return 100;
-                    }
+                    Illi->CastSpell(player, SPELL_TWO, true);
+                    player->RemoveAurasDueToSpell(SPELL_THREE);
+                    player->RemoveAurasDueToSpell(SPELL_FOUR);
+                    return 5000;
                     break;
                 case 17:
                     DoScriptText(LORD_ILLIDAN_SAY_5, Illi);
@@ -1868,9 +1860,44 @@ public:
     };
 };
 
-/*#####
-#
-######*/
+enum ZuluhedChains
+{
+    QUEST_ZULUHED   = 10866,
+    NPC_KARYNAKU    = 22112,
+};
+
+class spell_unlocking_zuluheds_chains : public SpellScriptLoader
+{
+    public:
+        spell_unlocking_zuluheds_chains() : SpellScriptLoader("spell_unlocking_zuluheds_chains") { }
+
+        class spell_unlocking_zuluheds_chains_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_unlocking_zuluheds_chains_SpellScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleAfterHit()
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                if (caster->GetQuestStatus(QUEST_ZULUHED) == QUEST_STATUS_INCOMPLETE)
+                    caster->KilledMonsterCredit(NPC_KARYNAKU, 0);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_unlocking_zuluheds_chains_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_unlocking_zuluheds_chains_SpellScript();
+        }
+};
 
 void AddSC_shadowmoon_valley()
 {
@@ -1889,4 +1916,5 @@ void AddSC_shadowmoon_valley()
     new mob_illidari_spawn();
     new mob_torloth_the_magnificent();
     new npc_enraged_spirit();
+    new spell_unlocking_zuluheds_chains();
 }

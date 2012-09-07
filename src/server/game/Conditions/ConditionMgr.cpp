@@ -713,7 +713,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     if (!result)
     {
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 conditions. DB table `conditions` is empty!");
-        
+
         return;
     }
 
@@ -867,7 +867,6 @@ void ConditionMgr::LoadConditions(bool isReload)
                     valid = true;
                     ++count;
                     continue;   // do not add to m_AllocatedMemory to avoid double deleting
-                    break;
                 }
                 case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
                     valid = addToSpellImplicitTargetConditions(cond);
@@ -926,8 +925,8 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
 }
 
 bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot)

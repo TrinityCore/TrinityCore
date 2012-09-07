@@ -180,12 +180,13 @@ class instance_zulaman : public InstanceMapScript
 
             std::string GetSaveData()
             {
+                OUT_SAVE_INST_DATA;
+
                 std::ostringstream ss;
                 ss << "S " << BossKilled << ' ' << ChestLooted << ' ' << QuestMinute;
-                char* data = new char[ss.str().length()+1];
-                strcpy(data, ss.str().c_str());
-                //sLog->outError(LOG_FILTER_TSCR, "Zul'aman saved, %s.", data);
-                return data;
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return ss.str();
             }
 
             void Load(const char* load)

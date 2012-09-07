@@ -44,6 +44,7 @@ bool BasicStatementTask::Execute()
         ResultSet* result = m_conn->Query(m_sql);
         if (!result || !result->GetRowCount())
         {
+            delete result;
             m_result.set(QueryResult(NULL));
             return false;
         }

@@ -75,8 +75,8 @@ public:
     {
         boss_moroesAI(Creature* creature) : ScriptedAI(creature)
         {
-            for (uint8 i = 0; i < 4; ++i)
-                AddId[i] = 0;
+            memset(AddId, 0, sizeof(AddId));
+            memset(AddGUID, 0, sizeof(AddGUID));
 
             instance = creature->GetInstanceScript();
         }
@@ -105,10 +105,8 @@ public:
 
             Enrage = false;
             InVanish = false;
-            if (me->GetHealth() > 0)
-            {
+            if (me->GetHealth())
                 SpawnAdds();
-            }
 
             if (instance)
                 instance->SetData(TYPE_MOROES, NOT_STARTED);
@@ -193,10 +191,9 @@ public:
         bool isAddlistEmpty()
         {
             for (uint8 i = 0; i < 4; ++i)
-            {
                 if (AddId[i] == 0)
                     return true;
-            }
+
             return false;
         }
 
@@ -204,12 +201,11 @@ public:
         {
             for (uint8 i = 0; i < 4; ++i)
             {
-                Creature* Temp = NULL;
                 if (AddGUID[i])
                 {
-                    Temp = Creature::GetCreature((*me), AddGUID[i]);
-                    if (Temp && Temp->isAlive())
-                        Temp->DisappearAndDie();
+                    Creature* temp = Creature::GetCreature((*me), AddGUID[i]);
+                    if (temp && temp->isAlive())
+                        temp->DisappearAndDie();
                 }
             }
         }
@@ -218,14 +214,13 @@ public:
         {
             for (uint8 i = 0; i < 4; ++i)
             {
-                Creature* Temp = NULL;
                 if (AddGUID[i])
                 {
-                    Temp = Creature::GetCreature((*me), AddGUID[i]);
-                    if (Temp && Temp->isAlive())
+                    Creature* temp = Creature::GetCreature((*me), AddGUID[i]);
+                    if (temp && temp->isAlive())
                     {
-                        Temp->AI()->AttackStart(me->getVictim());
-                        DoZoneInCombat(Temp);
+                        temp->AI()->AttackStart(me->getVictim());
+                        DoZoneInCombat(temp);
                     } else
                         EnterEvadeMode();
                 }
@@ -253,13 +248,12 @@ public:
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Creature* Temp = NULL;
                     if (AddGUID[i])
                     {
-                        Temp = Unit::GetCreature((*me), AddGUID[i]);
-                        if (Temp && Temp->isAlive())
-                            if (!Temp->getVictim())
-                                Temp->AI()->AttackStart(me->getVictim());
+                        Creature* temp = Unit::GetCreature((*me), AddGUID[i]);
+                        if (temp && temp->isAlive())
+                            if (!temp->getVictim())
+                                temp->AI()->AttackStart(me->getVictim());
                     }
                 }
                 CheckAdds_Timer = 5000;
@@ -341,17 +335,10 @@ struct boss_moroes_guestAI : public ScriptedAI
         if (!instance)
             return;
 
-        uint64 MoroesGUID = instance->GetData64(DATA_MOROES);
-        Creature* Moroes = (Unit::GetCreature((*me), MoroesGUID));
-        if (Moroes)
-        {
+        if (Creature* Moroes = Unit::GetCreature(*me, instance->GetData64(DATA_MOROES)))
             for (uint8 i = 0; i < 4; ++i)
-            {
-                uint64 GUID = CAST_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i];
-                if (GUID)
+                if (uint64 GUID = CAST_AI(boss_moroes::boss_moroesAI, Moroes->AI())->AddGUID[i])
                     GuestGUID[i] = GUID;
-            }
-        }
     }
 
     Unit* SelectGuestTarget()

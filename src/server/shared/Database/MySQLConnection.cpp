@@ -175,7 +175,7 @@ bool MySQLConnection::Execute(const char* sql)
 
             return false;
         }
-        else 
+        else
             sLog->outDebug(LOG_FILTER_SQL, "[%u ms] SQL: %s", getMSTimeDiff(_s, getMSTime()), sql);
     }
 
@@ -520,7 +520,11 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             ACE_OS::sleep(10);
             std::abort();
             return false;
-
+        case ER_PARSE_ERROR:
+            sLog->outError(LOG_FILTER_SQL, "Error while parsing SQL. Core fix required.");
+            ACE_OS::sleep(10);
+            std::abort();
+            return false;
         default:
             sLog->outError(LOG_FILTER_SQL, "Unhandled MySQL errno %u. Unexpected behaviour possible.", errNo);
             return false;

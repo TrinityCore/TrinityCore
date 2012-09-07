@@ -20,11 +20,13 @@
 #    SERVER RATES
 #    AUTO BROADCAST
 #    BATTLEGROUND CONFIG
+#    BATTLEFIELD CONFIG
 #    ARENA CONFIG
 #    NETWORK CONFIG
 #    CONSOLE AND REMOTE ACCESS
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
+#    LOGGING SYSTEM SETTINGS
 #
 ###################################################################################################
 
@@ -48,7 +50,7 @@
 #
 #    RealmID
 #        Description: ID of the Realm using this config.
-#        Important:   RealmID must match the realmlist inside the realmd database.
+#        Important:   RealmID must match the realmlist inside the auth database.
 #        Default:     1
 
 RealmID = 1
@@ -173,7 +175,7 @@ Compression = 1
 #    PlayerLimit
 #        Description: Maximum number of players in the world. Excluding Mods, GMs and Admins.
 #          Important: If you want to block players and only allow Mods, GMs or Admins to join the
-#                     server, use the DB field "realmd.realmlist.allowedSecurityLevel".
+#                     server, use the DB field "auth.realmlist.allowedSecurityLevel".
 #            Default: 100 - (Enabled)
 #                     1+  - (Enabled)
 #                     0   - (Disabled, No limit)
@@ -398,181 +400,19 @@ PersistentCharacterCleanFlags = 0
 #
 #    PidFile
 #        Description: World daemon PID file
-#        Example:     "./worldd.pid" - (Enabled)
-#        Default:     ""             - (Disabled)
+#        Example:     "./world.pid" - (Enabled)
+#        Default:     ""            - (Disabled)
 
 PidFile = ""
 
 #
-#  Appender config values: Given a appender "name" the following options
-#  can be read:
-#
-#    Appender.name.Type
-#        Description: Type of appender. Extra appender config options
-#                     will be read depending on this value
-#        Default:     0 - (None)
-#                     1 - (Console)
-#                     2 - (File)
-#                     3 - (DB)
-#
-#    Appender.name.Level
-#        Description: Appender level of logging
-#        Default:     0 - (Disabled)
-#                     1 - (Trace)
-#                     2 - (Debug)
-#                     3 - (Info)
-#                     4 - (Warn)
-#                     5 - (Error)
-#                     6 - (Fatal)
-#
-#    Appender.name.Colors
-#        Description: Colors for log messages
-#                     (Format: "fatal error warn info debug trace").
-#                     (Only used with Type = 1)
-#        Default: "" - no colors
-#        Colors: 0  - BLACK
-#                1  - RED
-#                2  - GREEN
-#                3  - BROWN
-#                4  - BLUE
-#                5  - MAGENTA
-#                6  - CYAN
-#                7  - GREY
-#                8  - YELLOW
-#                9  - LRED
-#                10 - LGREEN
-#                11 - LBLUE
-#                12 - LMAGENTA
-#                13 - LCYAN
-#                14 - WHITE
-#        Example: "13 11 9 5 3 1"
-#
-#    Appender.name.File
-#        Description: Name of the file
-#                     Allows to use one "%u" to create dynamic files
-#                     (Only used with Type = 2)
-#
-#    Appender.name.Mode
-#        Description: Mode to open the file
-#                     (Only used with Type = 2)
-#        Default:     a - (Append)
-#                     w - (Overwrite)
-#
-#    Appender.name.Backup
-#        Description: Make a backup of existing file before overwrite
-#                     (Only used with Mode = w)
-#        Default:     0 - false
-#                     1 - true
-#
-#    Appender.name.Timestamp
-#        Description: Append timestamp to the log file name.
-#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
-#                     (Only used with Type = 2)
-#
-#  Logger config values: Given a logger "name" the following options
-#  can be read:
-#
-#    Logger.name.Type
-#        Description: Type of logger. Logs anything related to...
-#                     If no logger with type = 0 exists core will create
-#                     it but disabled. Logger with type = 0 is the
-#                     default one, used when there is no other specific
-#                     logger configured for other logger types
-#        Default:     0 - Default. Each type that has no config will
-#                         rely on this one. Core will create this logger
-#                         (disabled) if it's not configured
-#                     1 - Units that doesn't fit in other categories
-#                     2 - Pets
-#                     3 - Vehicles
-#                     4 - C++ AI, instance scripts, etc.
-#                     5 - DB AI, such as SAI, EAI, CreatureAI
-#                     6 - DB map scripts
-#                     7 - Network input/output, 
-#                         such as packet handlers and netcode logs
-#                     8 - Spellsystem and aurasystem
-#                     9 - Achievement system
-#                    10 - Condition system
-#                    11 - Pool system
-#                    12 - Auction house
-#                    13 - Arena's and battlegrounds
-#                    14 - Outdoor PVP
-#                    15 - Chat system
-#                    16 - LFG system
-#                    17 - Maps, instances (not scripts),
-#                         grids, cells, visibility, etc.
-#                    18 - Player that doesn't fit in other categories.
-#                    19 - Player loading from DB
-#                         (Player::_LoadXXX functions)
-#                    20 - Items
-#                    21 - Player skills (do not confuse with spells)
-#                    22 - Player chat logs
-#                    23 - loot
-#                    24 - guilds
-#                    25 - transports
-#                    26 - SQL. DB errors and SQL Driver
-#                    27 - GM Commands
-#                    28 - Remote Access Commands
-#                    29 - Warden
-#                    30 - Authserver
-#                    31 - Worldserver
-#                    32 - Game Events
-#                    33 - Calendar
-#
-#    Logger.name.Level
-#        Description: Logger level of logging
-#        Default:     0 - (Disabled)
-#                     1 - (Trace)
-#                     2 - (Debug)
-#                     3 - (Info)
-#                     4 - (Warn)
-#                     5 - (Error)
-#                     6 - (Fatal)
-#
-#    Logger.name.Appenders
-#        Description: List of appenders linked to logger
-#                     (Using spaces as separator).
+#    PacketLogFile
+#        Description: Binary packet logging file for the world server.
+#                     Filename extension must be .bin to be parsable with WowPacketParser.
+#        Example:     "World.bin" - (Enabled)
+#        Default:     ""          - (Disabled)
 
-#
-#    Appenders
-#        Description: List of Appenders to read from config
-#                     (Using spaces as separator).
-#        Default:     "Console Server"
-#
-#    Loggers
-#        Description: List of Loggers to read from config
-#                     (Using spaces as separator).
-#        Default:     "root"
-
-Loggers=root GM SQL
-Appenders=Console Server GM SQL
-
-Appender.Console.Type=1
-Appender.Console.Level=2
-
-Appender.Server.Type=2
-Appender.Server.Level=2
-Appender.Server.File=Server.log
-Appender.Server.Mode=w
-
-Appender.GM.Type=2
-Appender.GM.Level=2
-Appender.GM.File=gm_#%u.log
-
-Appender.SQL.Type=2
-Appender.SQL.Level=2
-Appender.SQL.File=SQL.log
-
-Logger.root.Type=0
-Logger.root.Level=3
-Logger.root.Appenders=Console Server
-
-Logger.SQL.Type=26
-Logger.SQL.Level=3
-Logger.SQL.Appenders=Console Server SQL
-
-Logger.GM.Type=27
-Logger.GM.Level=3
-Logger.GM.Appenders=Console Server GM
+PacketLogFile = ""
 
 #
 #    ChatLogs.Channel
@@ -648,6 +488,7 @@ ChatLogs.Addon = 0
 
 ChatLogs.BattleGround = 0
 
+# Extended Logging system configuration moved to end of file (on purpose)
 #
 ###################################################################################################
 
@@ -1319,15 +1160,6 @@ Warden.NumMemChecks = 3
 Warden.NumOtherChecks = 7
 
 #
-#    Warden.LogFile
-#        Description: Client check fails will be logged here.
-#        Default:     ""           - (Disabled)
-#                     "Warden.log" - (Enabled)
-#
-
-Warden.LogFile = ""
-
-#
 #    Warden.ClientResponseDelay
 #        Description: Time (in seconds) before client is getting disconnecting for not responding.
 #        Default:     600 - (10 Minutes)
@@ -1347,7 +1179,7 @@ Warden.ClientCheckHoldOff = 30
 #
 #    Warden.ClientCheckFailAction
 #        Description: Default action being taken if a client check failed. Actions can be
-#                     overwritten for each single check via warden_action table in characters 
+#                     overwritten for each single check via warden_action table in characters
 #                     database.
 #        Default:     0 - (Disabled, Logging only)
 #                     1 - (Kick)
@@ -2110,9 +1942,9 @@ Rate.MoveSpeed = 1
 
 #
 #    Rate.InstanceResetTime
-#        Description: Multiplier for the rate between global raid/heroic instance resets 
-#                     (dbc value). Higher value increases the time between resets, 
-#                     lower value lowers the time, you need clean instance_reset in 
+#        Description: Multiplier for the rate between global raid/heroic instance resets
+#                     (dbc value). Higher value increases the time between resets,
+#                     lower value lowers the time, you need clean instance_reset in
 #                     characters db in order to let new values work.
 #        Default:     1
 
@@ -2354,6 +2186,62 @@ Battleground.Random.ResetHour = 6
 ###################################################################################################
 
 ###################################################################################################
+# BATTLEFIELD CONFIG
+#
+#     Wintergrasp.Enable
+#         Description: Enable the Wintergrasp battlefield.
+#         Default:     0 - (Disabled)
+#                      1 - (Enabled, Experimental as of still being in development)
+
+Wintergrasp.Enable = 0
+
+#
+#     Wintergrasp.PlayerMax
+#         Description: Maximum number of players allowed in Wintergrasp.
+#         Default:     100
+
+Wintergrasp.PlayerMax = 100
+
+#
+#     Wintergrasp.PlayerMin
+#         Description: Minimum number of players required for Wintergrasp.
+#         Default:     0
+
+Wintergrasp.PlayerMin = 0
+
+#
+#     Wintergrasp.PlayerMinLvl
+#         Description: Required character level for the Wintergrasp battle.
+#         Default:     77
+
+Wintergrasp.PlayerMinLvl = 77
+
+#
+#     Wintergrasp.BattleTimer
+#         Description: Time (in minutes) for the Wintergrasp battle to last.
+#         Default:     30
+
+Wintergrasp.BattleTimer = 30
+
+#
+#     Wintergrasp.NoBattleTimer
+#         Description: Time (in minutes) between Wintergrasp battles.
+#         Default:     150
+
+Wintergrasp.NoBattleTimer = 150
+
+#
+#     Wintergrasp.CrashRestartTimer
+#         Description: Time (in minutes) to delay the restart of Wintergrasp if the world server
+#                      crashed during a running battle.
+#         Default:     10
+
+Wintergrasp.CrashRestartTimer = 10
+
+#
+###################################################################################################
+
+###################################################################################################
 # ARENA CONFIG
 #
 #    Arena.MaxRatingDifference
@@ -2438,6 +2326,15 @@ Arena.ArenaStartPersonalRating = 0
 #        Default:     1500
 
 Arena.ArenaStartMatchmakerRating = 1500
+
+#
+#    ArenaLog.ExtendedInfo
+#        Description: Include extended info to ArenaLogFile for each player after rated arena
+#                     matches (guid, name, team, IP, healing/damage done, killing blows).
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+ArenaLog.ExtendedInfo = 0
 
 #
 ###################################################################################################
@@ -2743,6 +2640,176 @@ PlayerDump.DisallowPaths = 1
 #        Default:     1
 
 PlayerDump.DisallowOverwrite = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#  LOGGING SYSTEM SETTINGS
+#
+#  Appender config values: Given a appender "name"
+#    Appender.name
+#        Description: Defines 'where to log'
+#        Format:      Type,LogLevel,Flags,optional1,optional2
+#
+#                     Type
+#                         0 - (None)
+#                         1 - (Console)
+#                         2 - (File)
+#                         3 - (DB)
+#
+#                     LogLevel
+#                         0 - (Disabled)
+#                         1 - (Trace)
+#                         2 - (Debug)
+#                         3 - (Info)
+#                         4 - (Warn)
+#                         5 - (Error)
+#                         6 - (Fatal)
+#
+#                     Flags:
+#                         0 - None
+#                         1 - Prefix Timestamp to the text
+#                         2 - Prefix Log Level to the text
+#                         4 - Prefix Log Filter type to the text
+#                         8 - Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS (Only used with Type = 2)
+#                        16 - Make a backup of existing file before overwrite (Only used with Mode = w)
+#
+#                     Colors (read as optional1 if Type = Console)
+#                         Format: "fatal error warn info debug trace"
+#                         0 - BLACK
+#                         1 - RED
+#                         2 - GREEN
+#                         3 - BROWN
+#                         4 - BLUE
+#                         5 - MAGENTA
+#                         6 - CYAN
+#                         7 - GREY
+#                         8 - YELLOW
+#                         9 - LRED
+#                        10 - LGREEN
+#                        11 - LBLUE
+#                        12 - LMAGENTA
+#                        13 - LCYAN
+#                        14 - WHITE
+#                         Example: "13 11 9 5 3 1"
+#
+#                     File: Name of the file (read as optional1 if Type = File)
+#                         Allows to use one "%s" to create dynamic files
+#
+#                     Mode: Mode to open the file (read as optional2 if Type = File)
+#                          a - (Append)
+#                          w - (Overwrite)
+#
+
+Appender.Console=1,3,0
+Appender.Server=2,2,0,Server.log,w
+Appender.GM=2,2,0,GM.log
+Appender.DBErrors=2,2,0,DBErrors.log
+Appender.Char=2,2,0,Char.log,w
+Appender.RA=2,2,0,RA.log
+Appender.Warden=2,4,0,Warden.log
+Appender.Chat=2,2,0,Chat.log
+Appender.CharDump=2,2,0,%s.log
+Appender.Arenas=2,2,0,Arena.log
+Appender.SQLDev=2,2,0,SQLDev.log
+Appender.SQLDriver=2,2,0,SQLDriver.log
+
+#    Appenders
+#        Description: List of Appenders to read from config
+#                     (Using spaces as separator).
+#        Default:     "Console Server GM DBErrors Char RA Warden Chat"
+
+Appenders=Console Server GM DBErrors Char RA Warden Chat
+
+#  Logger config values: Given a logger "name"
+#    Logger.name
+#        Description: Defines 'What to log'
+#        Format:      Type,LogLevel,AppenderList
+#                     Type
+#                         0 - Default. Each type that has no config will
+#                             rely on this one. Core will create this logger
+#                             (disabled) if it's not configured
+#                         1 - Units that doesn't fit in other categories
+#                         2 - Pets
+#                         3 - Vehicles
+#                         4 - C++ AI, instance scripts, etc.
+#                         5 - DB AI, such as SAI, EAI, CreatureAI
+#                         6 - DB map scripts
+#                         7 - Network input/output,
+#                             such as packet handlers and netcode logs
+#                         8 - Spellsystem and aurasystem
+#                         9 - Achievement system
+#                        10 - Condition system
+#                        11 - Pool system
+#                        12 - Auction house
+#                        13 - Arena's and battlegrounds
+#                        14 - Outdoor PVP
+#                        15 - Chat system
+#                        16 - LFG system
+#                        17 - Maps, instances (not scripts),
+#                             grids, cells, visibility, etc.
+#                        18 - Player that doesn't fit in other categories.
+#                        19 - Player loading from DB
+#                             (Player::_LoadXXX functions)
+#                        20 - Items
+#                        21 - Player skills (do not confuse with spells)
+#                        22 - Player chat logs
+#                        23 - loot
+#                        24 - guilds
+#                        25 - transports
+#                        26 - SQL. DB errors
+#                        27 - GM Commands
+#                        28 - Remote Access Commands
+#                        29 - Warden
+#                        30 - Authserver
+#                        31 - Worldserver
+#                        32 - Game Events
+#                        33 - Calendar
+#                        34 - Character (Exclusive to log login, logout, create, rename)
+#                        35 - Arenas
+#                        36 - SQL Driver
+#                        37 - SQL Dev
+#                        38 - Player Dump
+#                        39 - Battlefield
+#                        40 - Server Loading
+#                        41 - Opcodes (just id and name sent / received)
+#                     LogLevel
+#                         0 - (Disabled)
+#                         1 - (Trace)
+#                         2 - (Debug)
+#                         3 - (Info)
+#                         4 - (Warn)
+#                         5 - (Error)
+#                         6 - (Fatal)
+#
+#                     AppenderList: List of appenders linked to logger
+#                     (Using spaces as separator).
+#
+
+Logger.Root=0,5,Console Server
+Logger.Chat=22,2,Chat
+Logger.DBErrors=26,5,Console Server DBErrors
+Logger.GM=27,3,Console Server GM
+Logger.RA=28,3,RA
+Logger.Warden=29,4,Warden
+Logger.WorldServer=31,3,Console Server
+Logger.Character=34,3,Char
+Logger.Arenas=35,3,Arenas
+Logger.SQLDriver=36,5,SQLDriver
+Logger.SQLDev=37,3,SQLDev
+Logger.CharDump=38,3,CharDump
+Logger.Load=40,3,Console Server
+Logger.Opcodes=41,6,Console Server
+
+#
+#    Loggers
+#        Description: List of Loggers to read from config
+#                     (Using spaces as separator).
+#        Default:     "Root Chat DBErrors GM RA Warden Character Load"
+
+Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 
 #
 ###################################################################################################

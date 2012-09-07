@@ -75,7 +75,7 @@ void BigNumber::SetRand(int numbits)
     BN_rand(_bn, numbits, 0, 1);
 }
 
-BigNumber BigNumber::operator=(const BigNumber &bn)
+BigNumber& BigNumber::operator=(const BigNumber &bn)
 {
     if (this == &bn)
         return *this;
@@ -164,7 +164,7 @@ uint32 BigNumber::AsDword()
 
 bool BigNumber::isZero() const
 {
-    return BN_is_zero(_bn)!=0;
+    return BN_is_zero(_bn);
 }
 
 uint8 *BigNumber::AsByteArray(int minSize, bool reverse)

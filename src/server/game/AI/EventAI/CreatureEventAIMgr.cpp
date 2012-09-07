@@ -43,7 +43,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 additional CreatureEventAI Texts data. DB table `creature_ai_texts` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 additional CreatureEventAI Texts data. DB table `creature_ai_texts` is empty.");
 
         return;
     }
@@ -98,7 +98,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u additional CreatureEventAI Texts data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional CreatureEventAI Texts data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
 }
 
@@ -114,7 +114,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 CreatureEventAI Summon definitions. DB table `creature_ai_summons` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 CreatureEventAI Summon definitions. DB table `creature_ai_summons` is empty.");
 
         return;
     }
@@ -146,7 +146,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u CreatureEventAI summon definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u CreatureEventAI summon definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
 }
 
@@ -167,7 +167,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 CreatureEventAI scripts. DB table `creature_ai_scripts` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 CreatureEventAI scripts. DB table `creature_ai_scripts` is empty.");
 
         return;
     }
@@ -209,7 +209,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Event %u has script for non-existing creature entry (%u), skipping.", i, creature_id);
             continue;
         }
-        
+
         // Only on the first script
         if (cInfo->AIName != "EventAI" && m_CreatureEventAI_Event_Map[creature_id].empty())
             sLog->outError(LOG_FILTER_SQL, "Creature entry %u has EventAI scripts, but its AIName is not 'EventAI' - possible AI-mismatch?", temp.creature_id);
@@ -738,6 +738,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u CreatureEventAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u CreatureEventAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
 }

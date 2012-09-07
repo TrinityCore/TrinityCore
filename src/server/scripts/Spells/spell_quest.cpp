@@ -1245,6 +1245,75 @@ class spell_q12735_song_of_cleansing : public SpellScriptLoader
         }
 };
 
+enum DefendingWyrmrestTemple
+{
+    SPELL_SUMMON_WYRMREST_DEFENDER       = 49207
+};
+
+class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
+{
+    public:
+        spell_q12372_cast_from_gossip_trigger() : SpellScriptLoader("spell_q12372_cast_from_gossip_trigger") { }
+
+        class spell_q12372_cast_from_gossip_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12372_cast_from_gossip_trigger_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WYRMREST_DEFENDER, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12372_cast_from_gossip_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12372_cast_from_gossip_trigger_SpellScript();
+        }
+};
+
+// http://www.wowhead.com/quest=12372 Defending Wyrmrest Temple
+// 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
+enum Quest12372Data
+{
+    NPC_WYRMREST_TEMPLE_CREDIT       = 27698,
+};
+
+class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoader
+{
+    public:
+        spell_q12372_destabilize_azure_dragonshrine_dummy() : SpellScriptLoader("spell_q12372_destabilize_azure_dragonshrine_dummy") { }
+
+        class spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetHitCreature())
+                    if (Unit* caster = GetOriginalCaster())
+                        if (Vehicle* vehicle = caster->GetVehicleKit())
+                            if (Unit* passenger = vehicle->GetPassenger(0))
+                                if (Player* player = passenger->ToPlayer())
+                                    player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1274,4 +1343,6 @@ void AddSC_quest_spell_scripts()
     new spell_q12277_wintergarde_mine_explosion();
     new spell_q12066_bunny_kill_credit();
     new spell_q12735_song_of_cleansing();
+    new spell_q12372_cast_from_gossip_trigger();
+    new spell_q12372_destabilize_azure_dragonshrine_dummy();
 }

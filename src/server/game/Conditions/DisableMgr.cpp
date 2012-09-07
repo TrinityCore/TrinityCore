@@ -59,8 +59,8 @@ void LoadDisables()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded 0 disables. DB table `disables` is empty!");
-        
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 disables. DB table `disables` is empty!");
+
         return;
     }
 
@@ -228,8 +228,8 @@ void LoadDisables()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
-    
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
+
 }
 
 void CheckQuestDisables()
@@ -239,8 +239,8 @@ void CheckQuestDisables()
     uint32 count = m_DisableMap[DISABLE_TYPE_QUEST].size();
     if (!count)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, ">> Checked 0 quest disables.");
-        
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Checked 0 quest disables.");
+
         return;
     }
 
@@ -259,8 +259,8 @@ void CheckQuestDisables()
         ++itr;
     }
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Checked %u quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Checked %u quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
 }
 
 bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)
