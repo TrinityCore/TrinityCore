@@ -409,7 +409,7 @@ bool AuthSocket::_HandleLogonChallenge()
                 PreparedQueryResult banresult = LoginDatabase.Query(stmt);
                 if (banresult)
                 {
-                    if ((*banresult)[0].GetUInt64() == (*banresult)[1].GetUInt64())
+                    if ((*banresult)[0].GetUInt32() == (*banresult)[1].GetUInt32())
                     {
                         pkt << uint8(WOW_FAIL_BANNED);
                         sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' [AuthChallenge] Banned account %s tried to login!", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str ());
