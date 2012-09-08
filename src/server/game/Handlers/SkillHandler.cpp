@@ -108,5 +108,9 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 {
     uint32 skillId;
     recvData >> skillId;
+
+    if (!IsPrimaryProfessionSkill(skillId))
+        return;
+
     GetPlayer()->SetSkill(skillId, 0, 0, 0);
 }
