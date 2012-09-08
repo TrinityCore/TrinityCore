@@ -1963,7 +1963,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             else
                 sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is not using SMART_TARGET_SELF or SMART_TARGET_POSITION, skipping");
 
-           delete targets;
            break;
         }
         default:
