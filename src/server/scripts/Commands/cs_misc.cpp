@@ -940,15 +940,15 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             //7355: "Stuck"
             player->CastSpell(player, 7355, false);
             return true;
         }
-        
+
         if (!*args)
             return false;
-        
+
         char* player_str = strtok((char*)args, " ");
         if (!player_str)
             return false;

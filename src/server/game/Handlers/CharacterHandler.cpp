@@ -1312,7 +1312,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recv_data)
     if (!go)
     {
         WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
-        data << uint32(2);                                
+        data << uint32(2);
         SendPacket(&data);
         return;
     }
@@ -1320,7 +1320,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recv_data)
     if (_player->getStandState() != UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight)
     {
         WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
-        data << uint32(2);                                
+        data << uint32(2);
         SendPacket(&data);
         return;
     }
