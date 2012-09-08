@@ -23,7 +23,7 @@
 #include "ObjectMgr.h"
 #include "AccountMgr.h"
 
-#define DUMP_TABLE_COUNT 27
+#define DUMP_TABLE_COUNT 29
 struct DumpTable
 {
     char const* name;
@@ -38,6 +38,8 @@ static DumpTable dumpTables[DUMP_TABLE_COUNT] =
     { "character_achievement_progress",   DTT_CHAR_TABLE },
     { "character_action",                 DTT_CHAR_TABLE },
     { "character_aura",                   DTT_CHAR_TABLE },
+    { "character_currency",               DTT_CHAR_TABLE },
+    { "character_cuf_profiles",           DTT_CHAR_TABLE },
     { "character_declinedname",           DTT_CHAR_TABLE },
     { "character_equipmentsets",          DTT_EQSET_TABLE},
     { "character_gifts",                  DTT_ITEM_GIFT  },
@@ -319,13 +321,13 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
                     break;
                 case DTT_CHARACTER:
                 {
-                    if (result->GetFieldCount() <= 68)          // avoid crashes on next check
+                    if (result->GetFieldCount() <= 64)          // avoid crashes on next check
                     {
                         sLog->outFatal(LOG_FILTER_GENERAL, "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
                         return false;
                     }
 
-                    if (result->Fetch()[68].GetUInt32())        // characters.deleteInfos_Account - if filled error
+                    if (result->Fetch()[64].GetUInt32())        // characters.deleteInfos_Account - if filled error
                         return false;
                     break;
                 }
@@ -544,18 +546,18 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
                     if (result)
-                        if (!changenth(line, 37, "1"))       // characters.at_login set to "rename on login"
+                        if (!changenth(line, 38, "1"))       // characters.at_login set to "rename on login"
                             ROLLBACK(DUMP_FILE_BROKEN);
                 }
                 else if (!changenth(line, 3, name.c_str())) // characters.name
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 const char null[5] = "NULL";
-                if (!changenth(line, 69, null))             // characters.deleteInfos_Account
+                if (!changenth(line, 63, null))             // characters.deleteInfos_Account
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changenth(line, 70, null))             // characters.deleteInfos_Name
+                if (!changenth(line, 64, null))             // characters.deleteInfos_Name
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changenth(line, 71, null))             // characters.deleteDate
+                if (!changenth(line, 65, null))             // characters.deleteDate
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
