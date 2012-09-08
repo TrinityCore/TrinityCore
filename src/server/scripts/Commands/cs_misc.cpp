@@ -988,7 +988,6 @@ public:
         }
 
         //Not a supported argument
-        sLog->outError(LOG_FILTER_GENERAL, "DEBUG: not a supported argument. Args were: %s", args);
         return false;
 
     }
