@@ -3293,7 +3293,7 @@ void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
         return;
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         GuildNewStruct log;
         uint32 id = fields[0].GetInt32();
         log.eventType = GuildNews(fields[1].GetInt32());
@@ -3305,6 +3305,7 @@ void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
     }
     while (result->NextRow());
 }
+
 void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewStruct& guildNew, WorldPacket& data)
 {
     data.Initialize(SMSG_GUILD_NEWS_UPDATE);
