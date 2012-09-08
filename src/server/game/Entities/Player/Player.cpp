@@ -7913,6 +7913,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -val, apply);
                 m_spellPenetrationItemMod += apply ? val : -val;
                 break;
+            case ITEM_MOD_BLOCK_VALUE:
+                HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(val), apply);
+                break;
             // deprecated item mods
             case ITEM_MOD_SPELL_HEALING_DONE:
             case ITEM_MOD_SPELL_DAMAGE_DONE:
