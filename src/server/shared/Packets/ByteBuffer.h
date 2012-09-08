@@ -209,7 +209,7 @@ class ByteBuffer
             if (pos + bitCount > size() * 8)
                 throw ByteBufferPositionException(false, (pos + bitCount) / 8, size(), (bitCount - 1) / 8 + 1);
 
-            for (int32 i = 0; i < bitCount; ++i)
+            for (uint32 i = 0; i < bitCount; ++i)
             {
                 size_t wp = (pos + i) / 8;
                 size_t bit = (pos + i) % 8;
