@@ -225,6 +225,37 @@ enum GuildMemberFlags
     GUILDMEMBER_STATUS_MOBILE    = 0x0008, // remote chat from mobile app
 };
 
+enum GuildNews
+{
+    GUILD_NEWS_GUILD_ACHIEVEMENT      = 0,
+    GUILD_NEWS_PLAYER_ACHIEVEMENT     = 1,
+    GUILD_NEWS_DUNGEON_ENCOUNTER      = 2, // Todo Implement
+    GUILD_NEWS_ITEM_LOOTED            = 3,
+    GUILD_NEWS_ITEM_CRAFTED           = 4,
+    GUILD_NEWS_ITEM_PURCHASED         = 5,
+    GUILD_NEWS_LEVEL_UP               = 6,
+};
+
+struct GuildNewStruct
+{
+    GuildNews eventType;
+    time_t date;
+    uint64 playerGuid;
+    uint32 flags;
+    uint32 data0;
+};
+
+
+struct GuildReward
+{
+    uint32 entry;
+    uint8 standing;
+    int32 racemask;
+    uint64 price;
+    uint32 achievementId;
+};
+
+typedef std::map<uint32, GuildNewStruct> GuildNewsLogList;
 #define GUILD_EXPERIENCE_UNCAPPED_LEVEL 20  ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,6 +376,29 @@ private:
         std::string m_officerNote;
 
         RemainingValue m_bankRemaining[GUILD_BANK_MAX_TABS + 1];
+    };
+
+    // News Log class
+    class GuildNewsLog
+    {
+    public:
+        GuildNewsLog(Guild* guild) : _guild(guild) { }
+
+        void LoadFromDB(PreparedQueryResult result);
+        void BuildNewsData(WorldPacket& data);
+        void BuildNewsData(uint32 id, GuildNewStruct& guildNew, WorldPacket& data);
+        void New(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data0);
+        GuildNewStruct* GetNewById(uint32 id)
+        {
+            if (_newsLog.find(id) != _newsLog.end())
+                    return &_newsLog.find(id)->second;
+                else
+                    return NULL;
+        }
+        Guild * GetGuild() const {return _guild;};
+    protected:
+        Guild* _guild;
+        GuildNewsLogList _newsLog;
     };
 
     // Base class for event entries
@@ -727,6 +781,7 @@ public:
     uint64 GetExperience() const { return _experience; }
     uint64 GetTodayExperience() const { return _todayExperience; }
     void ResetDailyExperience();
+    GuildNewsLog& GetNewsLog() { return _newsLog; };
 
 protected:
     uint32 m_id;
@@ -749,6 +804,7 @@ protected:
     LogHolder* m_bankEventLog[GUILD_BANK_MAX_TABS + 1];
 
     AchievementMgr<Guild> m_achievementMgr;
+    GuildNewsLog _newsLog;
 
     uint32 _level;
     uint64 _experience;
