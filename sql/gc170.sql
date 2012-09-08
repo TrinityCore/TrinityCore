@@ -26,11 +26,6 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (65076, 'spell_leviathan_tower_buff'),
 (65077, 'spell_leviathan_tower_buff');
 
--- Mark of the faceless scriptname
-DELETE FROM spell_script_names WHERE spell_id = 63276;
-INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
-(63276, 'spell_mark_of_the_faceless');
-
 -- Raise dead scriptname
 DELETE FROM spell_script_names WHERE spell_id = 46584;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
@@ -513,7 +508,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63027, 'spel
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (62692, 63276, 63278);
 INSERT INTO `spell_script_names` VALUES 
 (62692,'spell_aura_of_despair_aura'),
-(63276,'spell_mark_of_the_faceless_aura'),
+(63276,'spell_mark_of_the_faceless'),
 (63278,'spell_mark_of_the_faceless_drain');
 
 -- Update saronite animus entry. TODO: Check if its health-modifier is ok.

@@ -105,6 +105,7 @@ class instance_ulduar : public InstanceMapScript
             // Hodir
             uint64 HodirGUID;
             uint64 HodirImageGUID;
+            uint64 HodirInDoorGUID;
             uint64 HodirIceDoorGUID;
             uint64 HodirStoneDoorGUID;
             uint64 HodirEntranceDoorGUID;
@@ -229,6 +230,7 @@ class instance_ulduar : public InstanceMapScript
                 // Hodir
                 HodirGUID               = 0;
                 HodirImageGUID          = 0;
+                HodirInDoorGUID         = 0;
                 HodirIceDoorGUID        = 0;
                 HodirStoneDoorGUID      = 0;
                 HodirEntranceDoorGUID   = 0;
@@ -801,6 +803,9 @@ class instance_ulduar : public InstanceMapScript
                         if (GetBossState(BOSS_HODIR) == DONE)
                             HandleGameObject(HodirIceDoorGUID, true);
                         break;
+                    case GO_HODIR_IN_DOOR_STONE:
+                        HodirInDoorGUID = gameObject->GetGUID();
+                        break;
 
                     // Freya related
                     case GO_FREYA_CHEST_HERO:
@@ -1031,6 +1036,7 @@ class instance_ulduar : public InstanceMapScript
                         {
                             HandleGameObject(HodirIceDoorGUID, true);
                             HandleGameObject(HodirStoneDoorGUID, true);
+                            HandleGameObject(HodirInDoorGUID, true);
                             if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
                                 if (GetData(DATA_HODIR_RARE_CACHE))
                                     HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -1228,6 +1234,7 @@ class instance_ulduar : public InstanceMapScript
 
                     // Hodir
                     case NPC_HODIR_IMAGE:           return HodirImageGUID;
+                    case GO_HODIR_IN_DOOR_STONE:    return HodirInDoorGUID;
 
                     // Thorim
                     case GO_THORIM_DARK_IRON_PROTCULLIS: return ThorimDarkIronPortCullisGUID;

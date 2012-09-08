@@ -308,6 +308,7 @@ class boss_hodir : public CreatureScript
                 _Reset();
                 me->SetReactState(REACT_DEFENSIVE);
                 gotEncounterFinished = gotEncounterFinished || (instance->GetBossState(BOSS_HODIR) == DONE);
+                instance->HandleGameObject(instance->GetData64(GO_HODIR_IN_DOOR_STONE), true);
 
                 // Note: NPC translation alliance -> horde is performed by OnCreatureCreate (instance-script)
                 for (uint8 n = 0; n < FRIENDS_COUNT; ++n)
@@ -326,6 +327,7 @@ class boss_hodir : public CreatureScript
                 cheeseTheFreeze = true;
                 iHaveTheCoolestFriends = true;
                 iCouldSayThatThisCacheWasRare = true;
+                instance->HandleGameObject(instance->GetData64(GO_HODIR_IN_DOOR_STONE), false);
 
                 events.ScheduleEvent(EVENT_ICICLE, 2000);
                 events.ScheduleEvent(EVENT_FREEZE, 25000);
