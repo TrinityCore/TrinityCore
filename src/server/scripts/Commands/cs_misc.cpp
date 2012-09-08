@@ -81,7 +81,7 @@ public:
             { "save",               SEC_PLAYER,             false, &HandleSaveCommand,                  "", NULL },
             { "saveall",            SEC_MODERATOR,          true,  &HandleSaveAllCommand,               "", NULL },
             { "kick",               SEC_GAMEMASTER,         true,  &HandleKickPlayerCommand,            "", NULL },
-            { "start",              SEC_PLAYER,             false, &HandleStartCommand,                 "", NULL },
+            { "unstuck",            SEC_PLAYER,             true,  &HandleUnstuckCommand,               "", NULL },
             { "linkgrave",          SEC_ADMINISTRATOR,      false, &HandleLinkGraveCommand,             "", NULL },
             { "neargrave",          SEC_ADMINISTRATOR,      false, &HandleNearGraveCommand,             "", NULL },
             { "showarea",           SEC_ADMINISTRATOR,      false, &HandleShowAreaCommand,              "", NULL },
@@ -928,34 +928,69 @@ public:
         return true;
     }
 
-    static bool HandleStartCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
-        Player* player = handler->GetSession()->GetPlayer();
-
-        if (player->isInFlight())
+        //No args required for players
+        if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
         {
-            handler->SendSysMessage(LANG_YOU_IN_FLIGHT);
+            Player* player = handler->GetSession()->GetPlayer();
+            if (player->isInFlight() || player->isInCombat())
+            {
+                handler->SendSysMessage(LANG_CANT_DO_NOW);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            
+            //7355: "Stuck"
+            player->CastSpell(player, 7355, false);
+            return true;
+        }
+        
+        if (!*args)
+            return false;
+        
+        char* player_str = strtok((char*)args, " ");
+        if (!player_str)
+            return false;
+
+        char* location_str = strtok(NULL, "");
+        if (!location_str)
+            location_str = "inn";
+
+        Player* player = NULL;
+        std::string playerName;
+        if (!handler->extractPlayerTarget((char*)player_str, &player, NULL, &playerName))
+            return false;
+
+        if (player->isInFlight() || player->isInCombat())
+        {
+            handler->SendSysMessage(LANG_CANT_DO_NOW);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (player->isInCombat())
+        if (!stricmp(location_str, "inn"))
         {
-            handler->SendSysMessage(LANG_YOU_IN_COMBAT);
-            handler->SetSentErrorMessage(true);
-            return false;
+            player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation());
+            return true;
         }
 
-        if (player->isDead() || player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        if (!stricmp(location_str, "graveyard"))
         {
-            // if player is dead and stuck, send ghost to graveyard
             player->RepopAtGraveyard();
             return true;
         }
 
-        // cast spell Stuck
-        player->CastSpell(player, 7355, false);
-        return true;
+        if (!stricmp(location_str, "startzone"))
+        {
+            player->TeleportTo(player->GetStartPosition());
+            return true;
+        }
+
+        //Not a supported argument
+        sLog->outError(LOG_FILTER_GENERAL, "DEBUG: not a supported argument. Args were: %s", args);
+        return false;
+
     }
 
     static bool HandleLinkGraveCommand(ChatHandler* handler, char const* args)
