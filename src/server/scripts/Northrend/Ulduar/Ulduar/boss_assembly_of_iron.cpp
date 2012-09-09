@@ -327,7 +327,7 @@ class boss_steelbreaker : public CreatureScript
                 RespawnEncounter(instance, me);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->setActive(true);
                 StartEncounter(instance, me);
@@ -618,7 +618,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 RespawnEncounter(instance, me);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->setActive(true);
                 StartEncounter(instance, me);
@@ -914,7 +914,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 RespawnEncounter(instance, me);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->setActive(true);
                 StartEncounter(instance, me);

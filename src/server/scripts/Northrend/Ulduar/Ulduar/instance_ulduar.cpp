@@ -313,7 +313,7 @@ class instance_ulduar : public InstanceMapScript
                 packet << static_cast<uint32>(WORLD_STATE_ALGALON_DESPAWN_TIMER) << static_cast<uint32>(std::min<uint32>(AlgalonCountdown, 60)); // cast to uint32 required since std::min returns const uint32&
             }            
 
-            void OnPlayerEnter(Player* player)
+            void OnPlayerEnter(Player* /*player*/)
             {
                 if (!TeamInInstance)
                     TeamInInstance = GetMajorityTeam();

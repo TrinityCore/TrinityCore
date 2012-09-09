@@ -1139,14 +1139,14 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                         {
                             switch (i)
                             {
-                            case 0:
-                            case 1: entry = NPC_RUBY_CONSORT; break;
-                            case 2:
-                            case 3: entry = NPC_AZURE_CONSORT; break;
-                            case 4:
-                            case 5: entry = NPC_OBSIDIAN_CONSORT; break;
-                            case 6:
-                            case 7: entry = NPC_EMERALD_CONSORT; break;
+                                case 0:
+                                case 1: entry = NPC_RUBY_CONSORT; break;
+                                case 2:
+                                case 3: entry = NPC_AZURE_CONSORT; break;
+                                case 4:
+                                case 5: entry = NPC_OBSIDIAN_CONSORT; break;
+                                case 6:
+                                case 7: entry = NPC_EMERALD_CONSORT; break;
                             }
                             if (Creature* summon = DoSummon(entry, DragonSoulTentacleLocation[i], 60000, TEMPSUMMON_TIMED_DESPAWN))
                                 guidEventTentacles.Summon(summon);
@@ -1527,7 +1527,7 @@ class boss_sara : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* dealer, uint32 &damage)
+            void DamageTaken(Unit* /*dealer*/, uint32 &damage)
             {
                 if (damage > me->GetHealth())
                     damage = me->GetHealth() - 1;
@@ -1915,7 +1915,7 @@ class npc_ominous_cloud : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(25.0f);
             }
 
-            void UpdateAI(const uint32 diff) {}
+            void UpdateAI(const uint32 /*diff*/) {}
 
             private:
                 InstanceScript* instance;
@@ -2347,7 +2347,7 @@ class boss_yogg_saron : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))
                     ctrl->AI()->DoAction(ACTION_YOGGSARON_KILLED);
@@ -2710,7 +2710,7 @@ class npc_support_keeper : public CreatureScript
                 instance = c->GetInstanceScript();
             }            
 
-            void AttackStart(Unit *attacker) {}
+            void AttackStart(Unit* /*attacker*/) {}
 
             void Reset()
             {
@@ -3482,7 +3482,7 @@ class npc_keeper_help : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
             player->CLOSE_GOSSIP_MENU();
 
@@ -3522,9 +3522,9 @@ class npc_keeper_help : public CreatureScript
                 me->setFaction(FACTION_FRIENDLY_ALL);
             }            
 
-            void AttackStart(Unit *who) {} // Should be overwritten, but has no effect
+            void AttackStart(Unit* /*who*/) {} // Should be overwritten, but has no effect
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if(instance)
                     me->SetVisible( (instance->GetBossState(Entry_2_ID(me->GetEntry())) == DONE) && (instance->GetBossState(BOSS_YOGGSARON) != IN_PROGRESS) );

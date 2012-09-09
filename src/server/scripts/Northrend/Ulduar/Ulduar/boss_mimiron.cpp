@@ -1984,7 +1984,8 @@ class npc_emergency_bot : public CreatureScript
                 me->setFaction(14);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_DEATH_GRIP, true);
-                me->SetReactState(REACT_PASSIVE);                
+                me->SetReactState(REACT_PASSIVE);
+                Reset();
             }
 
             void Reset()
@@ -2022,14 +2023,15 @@ class npc_mimiron_bomb_bot : public CreatureScript
     public:
         npc_mimiron_bomb_bot() : CreatureScript("npc_mimiron_bomb_bot") {}
 
-        struct mob_mimiron_bomb_botAI : public ScriptedAI
+        struct npc_mimiron_bomb_botAI : public ScriptedAI
         {
-            mob_mimiron_bomb_botAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_mimiron_bomb_botAI(Creature* creature) : ScriptedAI(creature) {}
 
             void InitializeAI()
             {
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+                Reset();
             }
 
             Unit* SelectPlayerTargetInRange(float range)
@@ -2043,7 +2045,8 @@ class npc_mimiron_bomb_bot : public CreatureScript
 
             void Reset()
             {
-                _despawn = false;
+                despawn = false;
+
                 if (Unit* target = SelectPlayerTargetInRange(500.0f))
                 {
                     me->AddThreat(target, std::numeric_limits<float>::max());
@@ -2060,7 +2063,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                     if (spell->Id == SPELL_BOOM_BOT || spell->Id == SPELL_BOOM_BOT_PERIODIC)
                         if (InstanceScript* instance = me->GetInstanceScript())
                             if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
-                                mimiron->AI()->DoAction(DATA_AVOIDED_BOOM_BOT_EXPLOSION);                            
+                                mimiron->AI()->DoAction(DATA_AVOIDED_BOOM_BOT_EXPLOSION);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -2068,26 +2071,27 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 DoCast(me, SPELL_BOOM_BOT, true);
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                if (!_despawn && me->IsWithinMeleeRange(me->getVictim()))
+                if (!despawn && me->IsWithinMeleeRange(me->getVictim()))
                 {
-                    _despawn = true;
-                    DoCast(me, SPELL_BOOM_BOT, true);
+                    despawn = true;
+                    // TODO: spell doesnt work for some reason
+                    me->CastSpell(me, SPELL_BOOM_BOT, true);
                     me->DespawnOrUnsummon(1500);
                 }
             }
 
             private:
-                bool _despawn;
+                bool despawn;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_mimiron_bomb_botAI(creature);
+            return new npc_mimiron_bomb_botAI(creature);
         }
 };
 
@@ -2131,11 +2135,12 @@ class npc_mimiron_flame_trigger : public CreatureScript
 
             void InitializeAI()
             {
-                instance = me->GetInstanceScript();                
+                instance = me->GetInstanceScript();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);                
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+                Reset();
             }
 
             void Reset()
@@ -2218,7 +2223,8 @@ class npc_mimiron_flame_spread : public CreatureScript
             {
                 instance = me->GetInstanceScript();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE);
-                me->SetReactState(REACT_PASSIVE);                
+                me->SetReactState(REACT_PASSIVE);
+                Reset();
             }
 
             void Reset()
