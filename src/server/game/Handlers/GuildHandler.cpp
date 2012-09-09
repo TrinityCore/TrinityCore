@@ -824,16 +824,16 @@ void WorldSession::HandleGuildQueryNewsOpcode(WorldPacket& recvPacket)
 void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 {
     uint32 newId;
-    bool unk;
+    bool sticky;
     ObjectGuid guid;
 
-    recvPacket >> newId;
+    recvPacket >> id;
 
-    unk = recvPacket.ReadBit();
     guid[2] = recvPacket.ReadBit();
     guid[4] = recvPacket.ReadBit();
     guid[3] = recvPacket.ReadBit();
     guid[0] = recvPacket.ReadBit();
+    sticky = recvPacket.ReadBit();
     guid[6] = recvPacket.ReadBit();
     guid[7] = recvPacket.ReadBit();
     guid[1] = recvPacket.ReadBit();
@@ -850,11 +850,15 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
-        if (GuildNewsEntry* guildNew = guild->GetNewsLog().GetNewById(newId))
+        if (GuildNewsEntry* newsEntry = guild->GetNewsLog().GetNewById(id))
         {
-            guildNew->Flags ^= 1;
+            if (sticky)
+                newsEntry->Flags |= 1;
+            else
+                newsEntry->Flags &= ~1;
+
             WorldPacket data;
-            guild->GetNewsLog().BuildNewsData(newId, *guildNew, data);
+            guild->GetNewsLog().BuildNewsData(id, *newsEntry, data);
             SendPacket(&data);
         }
     }
