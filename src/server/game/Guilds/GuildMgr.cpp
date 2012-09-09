@@ -433,8 +433,18 @@ void GuildMgr::LoadGuilds()
             itr->second->GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
         }
     }
+    // 10. Loading Guild news
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Guild News");
+    {
+        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); itr++)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_NEWS);
+            stmt->setInt32(0, itr->first);
+            itr->second->GetNewsLog().LoadFromDB(CharacterDatabase.Query(stmt));
+        }
+    }
 
-    // 10. Validate loaded guild data
+    // 11. Validate loaded guild data
     sLog->outInfo(LOG_FILTER_GENERAL, "Validating data of loaded guilds...");
     {
         uint32 oldMSTime = getMSTime();
@@ -507,5 +517,50 @@ void GuildMgr::LoadGuildXpForLevel()
 
 void GuildMgr::LoadGuildRewards()
 {
-    /// @TODO: Implement
+    uint32 oldMSTime = getMSTime();
+
+    //                                                 0     1         2         3      4     
+    QueryResult result  = WorldDatabase.Query("SELECT entry, standing, racemask, price, achievement FROM guild_rewards");
+
+    if (!result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild reward definitions. DB table `guild_rewards` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        GuildReward reward;
+        Field* fields = result->Fetch();
+        reward.Entry         = fields[0].GetUInt32();
+        reward.Standing      = fields[1].GetUInt8();
+        reward.Racemask      = fields[2].GetInt32();
+        reward.Price         = fields[3].GetUInt64();
+        reward.AchievementId = fields[4].GetUInt32();
+
+        if (!sObjectMgr->GetItemTemplate(reward.Entry))
+        {
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards constains not existing item entry %u", reward.Entry);
+            continue;
+        }
+
+        if (reward.AchievementId != 0 && (!sAchievementStore.LookupEntry(reward.AchievementId)))
+        {
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards constains not existing achievement entry %u", reward.AchievementId);
+            continue;
+        }
+
+        if (reward.Standing >= MAX_REPUTATION_RANK)
+        {
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards contains wrong reputation standing %u, max is %u", uint32(reward.Standing), MAX_REPUTATION_RANK - 1);
+            continue;
+        }
+
+        GuildRewards.push_back(reward);
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild reward definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }

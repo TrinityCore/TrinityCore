@@ -1061,7 +1061,7 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 ///////////////////////////////////////////////////////////////////////////////
 // Guild
 Guild::Guild() : m_id(0), m_leaderGuid(0), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(NULL),
-    m_achievementMgr(this), _level(1), _experience(0), _todayExperience(0)
+    m_achievementMgr(this), _level(1), _experience(0), _todayExperience(0), _newsLog(this)
 {
     memset(&m_bankEventLog, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(LogHolder*));
 }
@@ -3234,6 +3234,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
         }
     }
 
+    GetNewsLog().AddNewEvent(GUILD_NEWS_LEVEL_UP, time(NULL), 0, 0, _level);
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, NULL, source);
 }
 
@@ -3257,4 +3258,130 @@ void Guild::ResetDailyExperience()
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (Player* player = itr->second->FindPlayer())
             SendGuildXP(player->GetSession());
+}
+
+void Guild::GuildNewsLog::AddNewEvent(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data)
+{
+    uint32 id = _newsLog.size();
+    GuildNewsEntry& log = _newsLog[id];
+    log.EventType = eventType;
+    log.PlayerGuid = playerGuid;
+    log.Data = data;
+    log.Flags = flags;
+    log.Date = date;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_GUILD_NEWS);
+    stmt->setUInt32(0, GetGuild()->GetId());
+    stmt->setUInt32(1, id);
+    stmt->setUInt32(2, log.EventType);
+    stmt->setUInt64(3, log.PlayerGuid);
+    stmt->setUInt32(4, log.Data);
+    stmt->setUInt32(5, log.Flags);
+    stmt->setUInt32(6, uint32(log.Date));
+    CharacterDatabase.Execute(stmt);
+
+    WorldPacket pData;
+    BuildNewsData(id, log, pData);
+    GetGuild()->BroadcastPacket(&pData);
+}
+
+void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
+{
+    if (!result)
+        return;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 id = fields[0].GetInt32();
+        GuildNewsEntry& log = _newsLog[id];
+        log.EventType = GuildNews(fields[1].GetInt32());
+        log.PlayerGuid = fields[2].GetInt64();
+        log.Data = fields[3].GetInt32();
+        log.Flags = fields[4].GetInt32();
+        log.Date = time_t(fields[5].GetInt32());
+    }
+    while (result->NextRow());
+}
+
+void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, WorldPacket& data)
+{
+    data.Initialize(SMSG_GUILD_NEWS_UPDATE);
+    data.WriteBits(1, 21);
+
+    data.WriteBits(0, 26);  // Other Guids NYI
+    ObjectGuid guid = guildNew.PlayerGuid;
+
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[2]);
+
+    data.FlushBits();
+
+    data.WriteByteSeq(guid[5]);
+
+    data << uint32(guildNew.Flags);   // 1 sticky
+    data << uint32(guildNew.Data);
+    data << uint32(0);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[1]);
+
+    data << uint32(id);
+    data << uint32(guildNew.EventType);
+    data << uint32(secsToTimeBitFields(guildNew.Date));
+}
+
+void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
+{
+    data.Initialize(SMSG_GUILD_NEWS_UPDATE);
+    data.WriteBits(_newsLog.size(), 21);
+
+    for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); it++)
+    {
+        data.WriteBits(0, 26); // Not yet implemented used for guild achievements
+        ObjectGuid guid = it->second.PlayerGuid;
+
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[2]);
+    }
+
+    data.FlushBits();
+
+    for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); it++)
+    {
+        ObjectGuid guid = it->second.PlayerGuid;
+        data.WriteByteSeq(guid[5]);
+
+        data << uint32(it->second.Flags);   // 1 sticky
+        data << uint32(it->second.Data);
+        data << uint32(0);
+
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[1]);
+
+        data << uint32(it->first);
+        data << uint32(it->second.EventType);
+        data << uint32(secsToTimeBitFields(it->second.Date));
+    }
 }
