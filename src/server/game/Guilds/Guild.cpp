@@ -3263,7 +3263,7 @@ void Guild::ResetDailyExperience()
 void Guild::GuildNewsLog::AddNewEvent(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data)
 {
     uint32 id = _newsLog.size();
-    GuildNewsStruct& log = _newsLog[id];
+    GuildNewsEntry& log = _newsLog[id];
     log.EventType = eventType;
     log.PlayerGuid = playerGuid;
     log.Data = data;
@@ -3293,7 +3293,7 @@ void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
     {
         Field* fields = result->Fetch();
         uint32 id = fields[0].GetInt32();
-        GuildNewsStruct& log = _newsLog[id];
+        GuildNewsEntry& log = _newsLog[id];
         log.EventType = GuildNews(fields[1].GetInt32());
         log.PlayerGuid = fields[2].GetInt64();
         log.Data = fields[3].GetInt32();
@@ -3303,7 +3303,7 @@ void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
     while (result->NextRow());
 }
 
-void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsStruct& guildNew, WorldPacket& data)
+void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, WorldPacket& data)
 {
     data.Initialize(SMSG_GUILD_NEWS_UPDATE);
     data.WriteBits(1, 21);

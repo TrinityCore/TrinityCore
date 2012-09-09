@@ -789,7 +789,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
-        const std::vector<GuildReward> &rewards = sGuildMgr->GetGuildRewards();
+        std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
         WorldPacket data(SMSG_GUILD_REWARDS_LIST, (3 + rewards.size() * (4 + 4 + 4 +8 + 4 +4)));
         data.WriteBits(rewards.size(), 21);
@@ -850,7 +850,7 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
-        if (GuildNewsStruct* guildNew = guild->GetNewsLog().GetNewById(newId))
+        if (GuildNewsEntry* guildNew = guild->GetNewsLog().GetNewById(newId))
         {
             guildNew->Flags ^= 1;
             WorldPacket data;
