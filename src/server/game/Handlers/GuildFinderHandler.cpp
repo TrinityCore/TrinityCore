@@ -351,14 +351,13 @@ void WorldSession::HandleGuildFinderPostRequest(WorldPacket& /*recvPacket*/)
 
     LFGuildSettings settings = sGuildFinderMgr->GetGuildSettings(player->GetGuildId());
 
-    /// Client does not seem to receive correct data as only the comment is correctly displayed.
     WorldPacket data(SMSG_LF_GUILD_POST_UPDATED, 35);
     data.WriteBit(isGuildMaster); // Guessed
 
     if (isGuildMaster)
     {
-        data.WriteBits(settings.GetComment().size(), 11);
         data.WriteBit(settings.IsListed());
+        data.WriteBits(settings.GetComment().size(), 11);
         data << uint32(settings.GetLevel());
         data.WriteString(settings.GetComment());
         data << uint32(0); // Unk Int32
