@@ -584,12 +584,19 @@ NavTerrain PathGenerator::GetNavTerrain(float x, float y, float z)
     }
 }
 
-bool PathGenerator::HaveTile(Vector3 const& p) const
+bool PathGenerator::HaveTile(const Vector3& p) const
 {
-    int tx, ty;
+    int tx = -1, ty = -1;
     float point[VERTEX_SIZE] = {p.y, p.z, p.x};
 
     _navMesh->calcTileLoc(point, &tx, &ty);
+
+    /// Workaround
+    /// For some reason, often the tx and ty variables wont get a valid value
+    /// Use this check to prevent getting negative tile coords and crashing on getTileAt
+    if (tx < 0 || ty < 0)
+        return false;
+
     return (_navMesh->getTileAt(tx, ty) != NULL);
 }
 
