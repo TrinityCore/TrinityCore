@@ -160,17 +160,9 @@ namespace Movement
     {
         if (_transformForTransport)
         {
-            if (Unit* vehicle = _owner.GetVehicleBase())
-            {
-                input.x -= vehicle->GetPositionX();
-                input.y -= vehicle->GetPositionY();
-                input.z -= vehicle->GetPositionZMinusOffset();
-            }
-            else if (Transport* transport = _owner.GetTransport())
-            {
-                float unused = 0.0f;
+            float unused = 0.0f;
+            if (TransportBase* transport = _owner.GetDirectTransport())
                 transport->CalculatePassengerOffset(input.x, input.y, input.z, unused);
-            }
         }
 
         return input;
