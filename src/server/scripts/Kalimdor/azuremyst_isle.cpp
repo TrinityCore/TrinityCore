@@ -549,8 +549,8 @@ public:
                         (*itr)->Respawn();
                 }
             }
-            else 
-                sLog->outError("SD2 ERROR: FlagList is empty!");
+            else
+                sLog->outError(LOG_FILTER_TSCR, "SD2 ERROR: FlagList is empty!");
         }
 
         void UpdateAI(const uint32 diff)
@@ -560,7 +560,7 @@ public:
                 if (EventStarted)
                     SayTimer = NextStep(Step++);
             }
-            else 
+            else
                 SayTimer -= diff;
         }
     };

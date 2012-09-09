@@ -53,8 +53,8 @@ const Position ToCCommonLoc[]=
     {563.833008f, 195.244995f, 394.585561f, 0}, //  5 - Center
     {573.5f, 180.5f, 395.14f, 0},               //  6 Move 0 Right
     {553.5f, 180.5f, 395.14f, 0},               //  7 Move 0 Left
-    {585.5f, 170.0f, 395.14f, 0},               //  8 Move 1 Right
-    {545.5f, 170.0f, 395.14f, 0},               //  9 Move 1 Left
+    {573.0f, 170.0f, 395.14f, 0},               //  8 Move 1 Right
+    {555.5f, 170.0f, 395.14f, 0},               //  9 Move 1 Left
     {563.8f, 216.1f, 395.1f, 0},                // 10 Behind the door
 
     {575.042358f, 195.260727f, 395.137146f, 0}, // 5
@@ -162,6 +162,7 @@ enum eCreature
 {
     NPC_BARRENT                 = 34816,
     NPC_TIRION                  = 34996,
+    NPC_TIRION_FORDRING         = 36095,
     NPC_FIZZLEBANG              = 35458,
     NPC_GARROSH                 = 34995,
     NPC_VARIAN                  = 34990,

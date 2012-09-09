@@ -23,7 +23,8 @@ SDComment: Everything seems to work, still need some checking
 SDCategory: Wailing Caverns
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "wailing_caverns.h"
 
 #define MAX_ENCOUNTER   9

@@ -86,7 +86,8 @@ enum TrinityStrings
     LANG_CONNECTED_PLAYERS              = 60,
     LANG_ACCOUNT_ADDON                  = 61,
     LANG_IMPROPER_VALUE                 = 62,
-    // Room for more level 0              63-99 not used
+    LANG_CANT_DO_NOW                    = 63,
+    // Room for more level 0              64-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
@@ -957,7 +958,10 @@ enum TrinityStrings
     LANG_COMMAND_LOOKUP_MAX_RESULTS     = 5029,
     LANG_FLEE                           = 5030,
     LANG_NPCINFO_AIINFO                 = 5031,
-    // Room for more Trinity strings      5032-9999
+    LANG_COMMAND_NO_BATTLEGROUND_FOUND  = 5032,
+    LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND = 5033,
+    LANG_COMMAND_NO_OUTDOOR_PVP_FORUND  = 5034,
+    // Room for more Trinity strings      5035-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

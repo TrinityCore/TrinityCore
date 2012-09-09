@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Hellfire Ramparts
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "hellfire_ramparts.h"
 
 class instance_ramparts : public InstanceMapScript
@@ -66,7 +67,7 @@ class instance_ramparts : public InstanceMapScript
 
             void SetData(uint32 uiType, uint32 uiData)
             {
-                sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
+                sLog->outDebug(LOG_FILTER_TSCR, "Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
 
                 switch (uiType)
                 {

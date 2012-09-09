@@ -28,7 +28,8 @@ npc_mikhail
 npc_tapoke_slim_jahn
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -59,12 +60,12 @@ public:
     {
         npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature) { }
 
-        bool m_bFriendSummoned;
+        bool IsFriendSummoned;
 
         void Reset()
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                m_bFriendSummoned = false;
+                IsFriendSummoned = false;
         }
 
         void WaypointReached(uint32 waypointId)
@@ -82,14 +83,12 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            Player* player = GetPlayerForEscort();
-
-            if (HasEscortState(STATE_ESCORT_ESCORTING) && !m_bFriendSummoned && player)
+            if (HasEscortState(STATE_ESCORT_ESCORTING) && !IsFriendSummoned && GetPlayerForEscort())
             {
                 for (uint8 i = 0; i < 3; ++i)
                     DoCast(me, SPELL_CALL_FRIENDS, true);
 
-                m_bFriendSummoned = true;
+                IsFriendSummoned = true;
             }
         }
 

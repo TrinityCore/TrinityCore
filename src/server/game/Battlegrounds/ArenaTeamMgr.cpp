@@ -81,7 +81,7 @@ uint32 ArenaTeamMgr::GenerateArenaTeamId()
 {
     if (NextArenaTeamId >= 0xFFFFFFFE)
     {
-        sLog->outError("Arena team ids overflow!! Can't continue, shutting down server. ");
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "Arena team ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
     return NextArenaTeamId++;
@@ -101,8 +101,7 @@ void ArenaTeamMgr::LoadArenaTeams()
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 arena teams. DB table `arena_team` is empty!");
-        sLog->outString();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 arena teams. DB table `arena_team` is empty!");
         return;
     }
 
@@ -132,8 +131,7 @@ void ArenaTeamMgr::LoadArenaTeams()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u arena teams in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u arena teams in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ArenaTeamMgr::DistributeArenaPoints()

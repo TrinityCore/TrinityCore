@@ -86,7 +86,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
-        sLog->outError("Battleground: invalid bgtype (%u) received. possible cheater? player guid %u", bgTypeId_, _player->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: invalid bgtype (%u) received. possible cheater? player guid %u", bgTypeId_, _player->GetGUIDLow());
         return;
     }
 
@@ -244,7 +244,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
     sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_BATTLEGROUND_PLAYER_POSITIONS Message");
 
@@ -252,39 +252,44 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recv_
     if (!bg)                                                 // can't be received if player not in battleground
         return;
 
-    uint32 count = 0;
-    Player* aplr = NULL;
-    Player* hplr = NULL;
+    uint32 flagCarrierCount = 0;
+    Player* allianceFlagCarrier = NULL;
+    Player* hordeFlagCarrier = NULL;
 
     if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
     {
-        aplr = ObjectAccessor::FindPlayer(guid);
-        if (aplr)
-            ++count;
+        allianceFlagCarrier = ObjectAccessor::FindPlayer(guid);
+        if (allianceFlagCarrier)
+            ++flagCarrierCount;
     }
 
     if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
     {
-        hplr = ObjectAccessor::FindPlayer(guid);
-        if (hplr)
-            ++count;
+        hordeFlagCarrier = ObjectAccessor::FindPlayer(guid);
+        if (hordeFlagCarrier)
+            ++flagCarrierCount;
     }
 
-    WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * count);
-    data << 0;
-    data << count;
-    if (aplr)
+    WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * flagCarrierCount);
+    // Used to send several player positions (found used in AV)
+    data << 0;  // CGBattlefieldInfo__m_numPlayerPositions
+    /*
+    for (CGBattlefieldInfo__m_numPlayerPositions)
+        data << guid << posx << posy;
+    */
+    data << flagCarrierCount;
+    if (allianceFlagCarrier)
     {
-        data << uint64(aplr->GetGUID());
-        data << float(aplr->GetPositionX());
-        data << float(aplr->GetPositionY());
+        data << uint64(allianceFlagCarrier->GetGUID());
+        data << float(allianceFlagCarrier->GetPositionX());
+        data << float(allianceFlagCarrier->GetPositionY());
     }
 
-    if (hplr)
+    if (hordeFlagCarrier)
     {
-        data << uint64(hplr->GetGUID());
-        data << float(hplr->GetPositionX());
-        data << float(hplr->GetPositionY());
+        data << uint64(hordeFlagCarrier->GetGUID());
+        data << float(hordeFlagCarrier->GetPositionX());
+        data << float(hordeFlagCarrier->GetPositionY());
     }
 
     SendPacket(&data);
@@ -366,13 +371,13 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
     GroupQueueInfo ginfo;
     if (!bgQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
     {
-        sLog->outError("BattlegroundHandler: itrplayerstatus not found.");
+        sLog->outError(LOG_FILTER_NETWORKIO, "BattlegroundHandler: itrplayerstatus not found.");
         return;
     }
     // if action == 1, then instanceId is required
     if (!ginfo.IsInvitedToBGInstanceGUID && action == 1)
     {
-        sLog->outError("BattlegroundHandler: instance not found.");
+        sLog->outError(LOG_FILTER_NETWORKIO, "BattlegroundHandler: instance not found.");
         return;
     }
 
@@ -383,7 +388,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
         bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
     if (!bg)
     {
-        sLog->outError("BattlegroundHandler: bg_template not found for type id %u.", bgTypeId);
+        sLog->outError(LOG_FILTER_NETWORKIO, "BattlegroundHandler: bg_template not found for type id %u.", bgTypeId);
         return;
     }
 
@@ -408,7 +413,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
         //if player don't match battleground max level, then do not allow him to enter! (this might happen when player leveled up during his waiting in queue
         if (_player->getLevel() > bg->GetMaxLevel())
         {
-            sLog->outError("Battleground: Player %s (%u) has level (%u) higher than maxlevel (%u) of battleground (%u)! Do not port him to battleground!",
+            sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: Player %s (%u) has level (%u) higher than maxlevel (%u) of battleground (%u)! Do not port him to battleground!",
                 _player->GetName(), _player->GetGUIDLow(), _player->getLevel(), bg->GetMaxLevel(), bg->GetTypeID());
             action = 0;
         }
@@ -457,6 +462,9 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName(), _player->GetGUIDLow(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
             break;
         case 0:                                         // leave queue
+            if (bg->isArena() && bg->GetStatus() != STATUS_WAIT_QUEUE)
+                return;
+
             // if player leaves rated arena match before match start, it is counted as he played but he lost
             if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
             {
@@ -478,7 +486,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) left queue for bgtype %u, queue type %u.", _player->GetName(), _player->GetGUIDLow(), bg->GetTypeID(), bgQueueTypeId);
             break;
         default:
-            sLog->outError("Battleground port: unknown action %u", action);
+            sLog->outError(LOG_FILTER_NETWORKIO, "Battleground port: unknown action %u", action);
             break;
     }
 }
@@ -565,46 +573,6 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recv_data*/)
     }
 }
 
-void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
-
-    Battleground* bg = _player->GetBattleground();
-
-    uint64 guid;
-    recv_data >> guid;
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-    if (!unit)
-        return;
-
-    if (!unit->isSpiritService())                            // it's not spirit service
-        return;
-
-    if (bg)
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
-}
-
-void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
-
-    Battleground* bg = _player->GetBattleground();
-
-    uint64 guid;
-    recv_data >> guid;
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-    if (!unit)
-        return;
-
-    if (!unit->isSpiritService())                            // it's not spirit service
-        return;
-
-    if (bg)
-        bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
-}
-
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
@@ -644,7 +612,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
             arenatype = ARENA_TYPE_5v5;
             break;
         default:
-            sLog->outError("Unknown arena slot %u at HandleBattlemasterJoinArena()", arenaslot);
+            sLog->outError(LOG_FILTER_NETWORKIO, "Unknown arena slot %u at HandleBattlemasterJoinArena()", arenaslot);
             return;
     }
 
@@ -652,7 +620,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
     if (!bg)
     {
-        sLog->outError("Battleground: template bg (all arenas) not found");
+        sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: template bg (all arenas) not found");
         return;
     }
 

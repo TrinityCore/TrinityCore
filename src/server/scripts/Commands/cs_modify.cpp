@@ -198,7 +198,7 @@ public:
         target->SetMaxPower(POWER_ENERGY, energym);
         target->SetPower(POWER_ENERGY, energy);
 
-        sLog->outDetail(handler->GetTrinityString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
+        sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
 
         return true;
     }
@@ -1010,7 +1010,7 @@ public:
         {
             int32 newmoney = int32(moneyuser) + addmoney;
 
-            sLog->outDetail(handler->GetTrinityString(LANG_CURRENT_MONEY), moneyuser, addmoney, newmoney);
+            sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_CURRENT_MONEY), moneyuser, addmoney, newmoney);
             if (newmoney <= 0)
             {
                 handler->PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, handler->GetNameLink(target).c_str());
@@ -1042,7 +1042,7 @@ public:
                 target->ModifyMoney(addmoney);
         }
 
-        sLog->outDetail(handler->GetTrinityString(LANG_NEW_MONEY), moneyuser, addmoney, target->GetMoney());
+        sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_NEW_MONEY), moneyuser, addmoney, target->GetMoney());
 
         return true;
     }
@@ -1130,20 +1130,15 @@ public:
 
     static bool HandleModifyDrunkCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)    return false;
+        if (!*args)
+            return false;
 
-        uint32 drunklevel = (uint32)atoi(args);
+        uint8 drunklevel = (uint8)atoi(args);
         if (drunklevel > 100)
             drunklevel = 100;
 
-        uint16 drunkMod = drunklevel * 0xFFFF / 100;
-
-        Player* target = handler->getSelectedPlayer();
-        if (!target)
-            target = handler->GetSession()->GetPlayer();
-
-        if (target)
-            target->SetDrunkValue(drunkMod);
+        if (Player* target = handler->getSelectedPlayer())
+            target->SetDrunkValue(drunklevel);
 
         return true;
     }

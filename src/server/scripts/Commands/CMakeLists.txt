@@ -12,9 +12,13 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Commands/cs_account.cpp
   Commands/cs_achievement.cpp
+  Commands/cs_ban.cpp
+  Commands/cs_bf.cpp
   Commands/cs_cast.cpp
   Commands/cs_character.cpp
+  Commands/cs_cheat.cpp
   Commands/cs_debug.cpp
+  Commands/cs_disable.cpp
   Commands/cs_event.cpp
   Commands/cs_gm.cpp
   Commands/cs_go.cpp
@@ -25,6 +29,7 @@ set(scripts_STAT_SRCS
   Commands/cs_learn.cpp
   Commands/cs_list.cpp
   Commands/cs_lookup.cpp
+  Commands/cs_message.cpp
   Commands/cs_misc.cpp
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
@@ -32,13 +37,13 @@ set(scripts_STAT_SRCS
   Commands/cs_reload.cpp
   Commands/cs_reset.cpp
   Commands/cs_tele.cpp
+  Commands/cs_ticket.cpp
   Commands/cs_server.cpp
   Commands/cs_titles.cpp
   Commands/cs_wp.cpp
 #  Commands/cs_pdump.cpp
 #  Commands/cs_channel.cpp
 #  Commands/cs_pet.cpp
-#  Commands/cs_ticket.cpp
 #  Commands/cs_aura.cpp
 #  Commands/cs_unaura.cpp
 #  Commands/cs_nameannounce.cpp
@@ -65,10 +70,6 @@ set(scripts_STAT_SRCS
 #  Commands/cs_save.cpp
 #  Commands/cs_saveall.cpp
 #  Commands/cs_kick.cpp
-#  Commands/cs_ban.cpp
-#  Commands/cs_unban.cpp
-#  Commands/cs_baninfo.cpp
-#  Commands/cs_banlist.cpp
 #  Commands/cs_start.cpp
 #  Commands/cs_taxicheat.cpp
 #  Commands/cs_linkgrave.cpp

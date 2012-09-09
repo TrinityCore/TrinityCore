@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Razorfen Kraul
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2
@@ -63,7 +64,7 @@ public:
                         return player;
                 }
             }
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
+            sLog->outDebug(LOG_FILTER_TSCR, "Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
             return NULL;
         }
 

@@ -33,7 +33,7 @@ public:
     ChatCommand* GetCommands() const
     {
         static ChatCommand castCommandTable[] =
-        {   
+        {
             { "back",           SEC_ADMINISTRATOR,  false, &HandleCastBackCommand,              "", NULL },
             { "dist",           SEC_ADMINISTRATOR,  false, &HandleCastDistCommand,              "", NULL },
             { "self",           SEC_ADMINISTRATOR,  false, &HandleCastSelfCommand,              "", NULL },

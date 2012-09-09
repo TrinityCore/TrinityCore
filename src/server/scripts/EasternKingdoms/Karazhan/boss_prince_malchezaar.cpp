@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "karazhan.h"
 
 #define SAY_AGGRO           -1532091
@@ -186,6 +187,7 @@ public:
         boss_malchezaarAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            memset(axes, 0, sizeof(axes));
         }
 
         InstanceScript* instance;
@@ -217,7 +219,10 @@ public:
             positions.clear();
 
             for (uint8 i = 0; i < 5; ++i)
+            {
                 enfeeble_targets[i] = 0;
+                enfeeble_health[i] = 0;
+            }
 
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
@@ -228,7 +233,7 @@ public:
             SWPainTimer = 20000;
             AmplifyDamageTimer = 5000;
             Cleave_Timer = 8000;
-            InfernalTimer = 45000;
+            InfernalTimer = 40000;
             InfernalCleanupTimer = 47000;
             AxesTargetSwitchTimer = urand(7500, 20000);
             SunderArmorTimer = urand(5000, 10000);

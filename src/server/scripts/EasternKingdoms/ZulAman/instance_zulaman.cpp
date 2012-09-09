@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "zulaman.h"
 
 #define MAX_ENCOUNTER     6
@@ -179,12 +180,13 @@ class instance_zulaman : public InstanceMapScript
 
             std::string GetSaveData()
             {
+                OUT_SAVE_INST_DATA;
+
                 std::ostringstream ss;
                 ss << "S " << BossKilled << ' ' << ChestLooted << ' ' << QuestMinute;
-                char* data = new char[ss.str().length()+1];
-                strcpy(data, ss.str().c_str());
-                //sLog->outError("TSCR: Zul'aman saved, %s.", data);
-                return data;
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return ss.str();
             }
 
             void Load(const char* load)
@@ -193,17 +195,17 @@ class instance_zulaman : public InstanceMapScript
                     return;
 
                 std::istringstream ss(load);
-                //sLog->outError("TSCR: Zul'aman loaded, %s.", ss.str().c_str());
+                //sLog->outError(LOG_FILTER_TSCR, "Zul'aman loaded, %s.", ss.str().c_str());
                 char dataHead; // S
                 uint16 data1, data2, data3;
                 ss >> dataHead >> data1 >> data2 >> data3;
-                //sLog->outError("TSCR: Zul'aman loaded, %d %d %d.", data1, data2, data3);
+                //sLog->outError(LOG_FILTER_TSCR, "Zul'aman loaded, %d %d %d.", data1, data2, data3);
                 if (dataHead == 'S')
                 {
                     BossKilled = data1;
                     ChestLooted = data2;
                     QuestMinute = data3;
-                } else sLog->outError("TSCR: Zul'aman: corrupted save data.");
+                } else sLog->outError(LOG_FILTER_TSCR, "Zul'aman: corrupted save data.");
             }
 
             void SetData(uint32 type, uint32 data)

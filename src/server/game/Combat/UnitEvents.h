@@ -77,7 +77,6 @@ class UnitBaseEvent
         bool matchesTypeMask(uint32 pMask) const { return iType & pMask; }
 
         void setType(uint32 pType) { iType = pType; }
-
 };
 
 //==============================================================
@@ -124,8 +123,8 @@ class ThreatManagerEvent : public ThreatRefStatusChangeEvent
     private:
         ThreatContainer* iThreatContainer;
     public:
-        ThreatManagerEvent(uint32 pType) : ThreatRefStatusChangeEvent(pType) {}
-        ThreatManagerEvent(uint32 pType, HostileReference* pHostileReference) : ThreatRefStatusChangeEvent(pType, pHostileReference) {}
+        ThreatManagerEvent(uint32 pType) : ThreatRefStatusChangeEvent(pType), iThreatContainer(NULL) {}
+        ThreatManagerEvent(uint32 pType, HostileReference* pHostileReference) : ThreatRefStatusChangeEvent(pType, pHostileReference), iThreatContainer(NULL) {}
 
         void setThreatContainer(ThreatContainer* pThreatContainer) { iThreatContainer = pThreatContainer; }
 
@@ -134,4 +133,3 @@ class ThreatManagerEvent : public ThreatRefStatusChangeEvent
 
 //==============================================================
 #endif
-

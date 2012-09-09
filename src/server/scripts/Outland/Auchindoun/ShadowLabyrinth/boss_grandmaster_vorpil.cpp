@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 
 #define SAY_INTRO                       -1555028
@@ -170,6 +171,7 @@ public:
             summonTraveler_Timer = 90000;
             banish_Timer = 17000;
             HelpYell = false;
+            sumportals = false;
             destroyPortals();
 
             if (instance)

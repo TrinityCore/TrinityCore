@@ -26,8 +26,7 @@
 #include "GossipDef.h"
 #include "World.h"
 
-Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES)
-, m_type(type)
+Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {
     m_objectType |= TYPEMASK_CORPSE;
     m_objectTypeId = TYPEID_CORPSE;
@@ -39,6 +38,7 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES)
     m_time = time(NULL);
 
     lootForBody = false;
+    lootRecipient = NULL;
 }
 
 Corpse::~Corpse()
@@ -78,7 +78,7 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
     if (!IsPositionValid())
     {
-        sLog->outError("Corpse (guidlow %d, owner %s) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+        sLog->outError(LOG_FILTER_PLAYER, "Corpse (guidlow %d, owner %s) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
             guidlow, owner->GetName(), owner->GetPositionX(), owner->GetPositionY());
         return false;
     }
@@ -134,7 +134,7 @@ void Corpse::DeleteBonesFromWorld()
 
     if (!corpse)
     {
-        sLog->outError("Bones %u not found in world.", GetGUIDLow());
+        sLog->outError(LOG_FILTER_PLAYER, "Bones %u not found in world.", GetGUIDLow());
         return;
     }
 
@@ -194,7 +194,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 
     if (!IsPositionValid())
     {
-        sLog->outError("Corpse (guid: %u, owner: %u) is not created, given coordinates are not valid (X: %f, Y: %f, Z: %f)",
+        sLog->outError(LOG_FILTER_PLAYER, "Corpse (guid: %u, owner: %u) is not created, given coordinates are not valid (X: %f, Y: %f, Z: %f)",
             GetGUIDLow(), GUID_LOPART(GetOwnerGUID()), posX, posY, posZ);
         return false;
     }

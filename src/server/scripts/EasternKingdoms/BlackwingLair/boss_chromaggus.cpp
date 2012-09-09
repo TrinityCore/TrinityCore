@@ -23,7 +23,8 @@ SDComment: Chromatic Mutation disabled due to lack of core support
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum Emotes
 {
@@ -242,11 +243,9 @@ public:
                 std::list<HostileReference*> threatlist = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                 {
-                    Unit* unit;
                     if ((*i) && (*i)->getSource())
                     {
-                        unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                        if (unit)
+                        if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                         {
                             //Cast affliction
                             DoCast(unit, RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,

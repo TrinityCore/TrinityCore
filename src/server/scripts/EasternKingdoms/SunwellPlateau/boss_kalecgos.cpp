@@ -23,7 +23,8 @@ SDComment:
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 
 enum Yells
@@ -269,7 +270,7 @@ public:
                         }
                         else
                         {
-                            sLog->outError("TSCR: Didn't find Shathrowar. Kalecgos event reseted.");
+                            sLog->outError(LOG_FILTER_TSCR, "Didn't find Shathrowar. Kalecgos event reseted.");
                             EnterEvadeMode();
                             return;
                         }

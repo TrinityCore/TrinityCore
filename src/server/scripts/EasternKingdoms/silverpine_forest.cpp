@@ -28,7 +28,8 @@ npc_deathstalker_erland
 pyrewood_ambush
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 
 /*######
@@ -229,13 +230,11 @@ public:
         {
             if (Creature* summoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
             {
-                Player* player = NULL;
                 Unit* target = NULL;
                 if (PlayerGUID)
                 {
-                    player = Unit::GetPlayer(*me, PlayerGUID);
-                    if (player)
-                        target = RAND((Unit*)me, (Unit*)player);
+                    if (Unit* player = Unit::GetPlayer(*me, PlayerGUID)->ToUnit())
+                        target = RAND((Unit*)me, player);
                 } else
                     target = me;
 
@@ -258,7 +257,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            //sLog->outString("DEBUG: p(%i) k(%i) d(%u) W(%i)", Phase, KillCount, diff, WaitTimer);
+            //sLog->outInfo(LOG_FILTER_TSCR, "DEBUG: p(%i) k(%i) d(%u) W(%i)", Phase, KillCount, diff, WaitTimer);
 
             if (!QuestInProgress)
                 return;

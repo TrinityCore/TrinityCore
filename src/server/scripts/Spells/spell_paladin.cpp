@@ -531,6 +531,41 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         }
 };
 
+class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
+{
+    public:
+        spell_pal_exorcism_and_holy_wrath_damage() : SpellScriptLoader("spell_pal_exorcism_and_holy_wrath_damage") { }
+
+        class spell_pal_exorcism_and_holy_wrath_damage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_exorcism_and_holy_wrath_damage_AuraScript);
+
+            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
+            {
+                if (!spellMod)
+                {
+                    spellMod = new SpellModifier(aurEff->GetBase());
+                    spellMod->op = SPELLMOD_DAMAGE;
+                    spellMod->type = SPELLMOD_FLAT;
+                    spellMod->spellId = GetId();
+                    spellMod->mask[1] = 0x200002;
+                }
+
+                spellMod->value = aurEff->GetAmount();
+            }
+
+            void Register()
+            {
+                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_pal_exorcism_and_holy_wrath_damage_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_exorcism_and_holy_wrath_damage_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -543,4 +578,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm_dummy();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
+    new spell_pal_exorcism_and_holy_wrath_damage();
 }

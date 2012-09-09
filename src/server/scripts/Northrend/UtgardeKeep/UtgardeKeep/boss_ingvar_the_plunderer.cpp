@@ -22,7 +22,8 @@ SDComment: Some Problems with Annhylde Movement, Blizzlike Timers (just shadow a
 SDCategory: Udgarde Keep
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "utgarde_keep.h"
 
 enum Yells
@@ -100,6 +101,7 @@ public:
         boss_ingvar_the_plundererAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            bIsUndead = false;
         }
 
         InstanceScript* instance;

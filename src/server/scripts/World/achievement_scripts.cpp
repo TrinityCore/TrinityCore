@@ -235,30 +235,6 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
         }
 };
 
-class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
-{
-public:
-    achievement_wg_didnt_stand_a_chance() : AchievementCriteriaScript("achievement_wg_didnt_stand_a_chance") { }
-
-    bool OnCheck(Player* source, Unit* target)
-    {
-        if (!target)
-            return false;
-
-        if (Player* victim = target->ToPlayer())
-        {
-            if (!victim->IsMounted())
-                return false;
-
-            if (Vehicle* vehicle = source->GetVehicle())
-                if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
-                    return true;
-        }
-
-        return false;
-    }
-};
-
 class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
 {
     public:
@@ -302,6 +278,9 @@ class achievement_tilted : public AchievementCriteriaScript
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
+            if (!player)
+                return false;
+
             bool checkArea = player->GetAreaId() == AREA_ARGENT_TOURNAMENT_FIELDS ||
                                 player->GetAreaId() == AREA_RING_OF_ASPIRANTS ||
                                 player->GetAreaId() == AREA_RING_OF_ARGENT_VALIANTS ||
@@ -309,7 +288,7 @@ class achievement_tilted : public AchievementCriteriaScript
                                 player->GetAreaId() == AREA_RING_OF_HORDE_VALIANTS ||
                                 player->GetAreaId() == AREA_RING_OF_CHAMPIONS;
 
-            return player && checkArea && player->duel && player->duel->isMounted;
+            return checkArea && player->duel && player->duel->isMounted;
         }
 };
 
@@ -344,7 +323,6 @@ void AddSC_achievement_scripts()
     new achievement_bg_ic_mowed_down();
     new achievement_bg_sa_artillery();
     new achievement_sickly_gazelle();
-    new achievement_wg_didnt_stand_a_chance();
     new achievement_everything_counts();
     new achievement_bg_av_perfection();
     new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);

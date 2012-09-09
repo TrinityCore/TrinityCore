@@ -29,7 +29,8 @@ boss_exarch_maladaar
 mob_avatar_of_martyred
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 #define SPELL_MOONFIRE          37328
 #define SPELL_FIREBALL          37329

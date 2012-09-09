@@ -37,6 +37,8 @@ enum PriestSpells
     PRIEST_SPELL_VAMPIRIC_TOUCH_DISPEL          = 64085,
     PRIEST_SPELL_EMPOWERED_RENEW                = 63544,
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT       = 3021,
+    PRIEST_ICON_ID_PAIN_AND_SUFFERING           = 2874,
+    PRIEST_SHADOW_WORD_DEATH                    = 32409,
 };
 
 // Guardian Spirit
@@ -311,7 +313,7 @@ public:
         {
             if (Unit* caster = GetOriginalCaster())
             {
-                if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_T9_HEALING_2_PIECE,EFFECT_0))
+                if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_T9_HEALING_2_PIECE, EFFECT_0))
                 {
                     int32 heal = GetHitHeal();
                     AddPctN(heal, aurEff->GetAmount());
@@ -415,6 +417,38 @@ class spell_priest_renew : public SpellScriptLoader
         }
 };
 
+class spell_pri_shadow_word_death : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadow_word_death() : SpellScriptLoader("spell_pri_shadow_word_death") { }
+
+        class spell_pri_shadow_word_death_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_shadow_word_death_SpellScript);
+
+            void HandleDamage()
+            {
+                int32 damage = GetHitDamage();
+
+                // Pain and Suffering reduces damage
+                if (AuraEffect* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
+                    AddPctN(damage, aurEff->GetAmount());
+
+                GetCaster()->CastCustomSpell(GetCaster(), PRIEST_SHADOW_WORD_DEATH, &damage, 0, 0, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_shadow_word_death_SpellScript::HandleDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_shadow_word_death_SpellScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
@@ -426,4 +460,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_vampiric_touch();
     new spell_priest_renew();
+    new spell_pri_shadow_word_death();
 }
