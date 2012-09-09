@@ -234,9 +234,9 @@ class spell_warr_execute : public SpellScriptLoader
                         int32 ragesave = aurEff->GetSpellInfo()->Effects[EFFECT_0].CalcValue() * 10;
                         newRage = std::max(newRage, ragesave);
                     }
-                    
+
                     caster->SetPower(POWER_RAGE, uint32(newRage));
-                    
+
                     /// Formula taken from the DBC: "${10+$AP*0.437*$m1/100}"
                     int32 baseDamage = int32(10 + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.437f * GetEffectValue() / 100.0f);
                     /// Formula taken from the DBC: "${$ap*0.874*$m1/100-1} = 20 rage"

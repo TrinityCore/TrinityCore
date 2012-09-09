@@ -436,7 +436,7 @@ void GuildMgr::LoadGuilds()
     // 10. Loading Guild news
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Guild News");
     {
-        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); itr++)
+        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_NEWS);
             stmt->setInt32(0, itr->first);
@@ -474,7 +474,7 @@ void GuildMgr::LoadGuildXpForLevel()
     for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL); ++level)
         GuildXPperLevel[level] = 0;
 
-    //                                                 0    1
+    //                                                 0         1
     QueryResult result  = WorldDatabase.Query("SELECT lvl, xp_for_next_level FROM guild_xp_for_level");
 
     if (!result)
@@ -500,6 +500,7 @@ void GuildMgr::LoadGuildXpForLevel()
 
         GuildXPperLevel[level] = requiredXP;
         ++count;
+
     } while (result->NextRow());
 
     // fill level gaps
@@ -519,7 +520,7 @@ void GuildMgr::LoadGuildRewards()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0     1         2         3      4     
+    //                                                 0     1         2         3      4
     QueryResult result  = WorldDatabase.Query("SELECT entry, standing, racemask, price, achievement FROM guild_rewards");
 
     if (!result)

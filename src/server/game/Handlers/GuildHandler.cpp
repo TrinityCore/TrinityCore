@@ -791,7 +791,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
     {
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
-        WorldPacket data(SMSG_GUILD_REWARDS_LIST, (3 + rewards.size() * (4 + 4 + 4 +8 + 4 +4)));
+        WorldPacket data(SMSG_GUILD_REWARDS_LIST, 3 + rewards.size() * (4 + 4 + 4 + 8 + 4 + 4));
         data.WriteBits(rewards.size(), 21);
         data.FlushBits();
 
@@ -823,11 +823,11 @@ void WorldSession::HandleGuildQueryNewsOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 {
-    uint32 newId;
+    uint32 newsId;
     bool sticky;
     ObjectGuid guid;
 
-    recvPacket >> id;
+    recvPacket >> newsId;
 
     guid[2] = recvPacket.ReadBit();
     guid[4] = recvPacket.ReadBit();
@@ -850,7 +850,7 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
-        if (GuildNewsEntry* newsEntry = guild->GetNewsLog().GetNewById(id))
+        if (GuildNewsEntry* newsEntry = guild->GetNewsLog().GetNewsById(newsId))
         {
             if (sticky)
                 newsEntry->Flags |= 1;
@@ -858,7 +858,7 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
                 newsEntry->Flags &= ~1;
 
             WorldPacket data;
-            guild->GetNewsLog().BuildNewsData(id, *newsEntry, data);
+            guild->GetNewsLog().BuildNewsData(newsId, *newsEntry, data);
             SendPacket(&data);
         }
     }

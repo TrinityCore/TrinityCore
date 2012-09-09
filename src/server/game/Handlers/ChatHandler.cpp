@@ -767,7 +767,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
     guid[0] = recvData.ReadBit();
     guid[1] = recvData.ReadBit();
     guid[3] = recvData.ReadBit();
-    
+
     recvData.ReadByteSeq(guid[0]);
     recvData.ReadByteSeq(guid[6]);
     recvData.ReadByteSeq(guid[5]);
