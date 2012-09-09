@@ -1898,6 +1898,34 @@ LOCK TABLES `guild_member` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `guild_news_log`
+--
+
+DROP TABLE IF EXISTS `guild_news_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `guild_news_log` (
+  `guild` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL,
+  `eventType` int(10) unsigned NOT NULL,
+  `playerGuid` bigint(20) unsigned NOT NULL,
+  `data` int(10) unsigned NOT NULL,
+  `flags` int(10) unsigned NOT NULL,
+  `date` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guild`,`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `guild_news_log`
+--
+
+LOCK TABLES `guild_news_log` WRITE;
+/*!40000 ALTER TABLE `guild_news_log` DISABLE KEYS */;
+/*!40000 ALTER TABLE `guild_news_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `guild_rank`
 --
 
@@ -2419,4 +2447,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-09-08 15:27:29
+-- Dump completed on 2012-09-10  0:40:44
