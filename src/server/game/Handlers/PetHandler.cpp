@@ -32,7 +32,7 @@
 #include "Group.h"
 #include "SpellInfo.h"
 
-void WorldSession::HandleDismissCritter(WorldPacket &recvData)
+void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
