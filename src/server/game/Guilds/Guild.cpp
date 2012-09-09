@@ -3263,6 +3263,7 @@ void Guild::ResetDailyExperience()
 void Guild::GuildNewsLog::AddNewEvent(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data)
 {
     uint32 id = _newsLog.size();
+
     GuildNewsEntry& log = _newsLog[id];
     log.EventType = eventType;
     log.PlayerGuid = playerGuid;
@@ -3280,9 +3281,9 @@ void Guild::GuildNewsLog::AddNewEvent(GuildNews eventType, time_t date, uint64 p
     stmt->setUInt32(6, uint32(log.Date));
     CharacterDatabase.Execute(stmt);
 
-    WorldPacket pData;
-    BuildNewsData(id, log, pData);
-    GetGuild()->BroadcastPacket(&pData);
+    WorldPacket packet;
+    BuildNewsData(id, log, packet);
+    GetGuild()->BroadcastPacket(&packet);
 }
 
 void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
@@ -3305,10 +3306,10 @@ void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
 
 void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, WorldPacket& data)
 {
-    data.Initialize(SMSG_GUILD_NEWS_UPDATE);
-    data.WriteBits(1, 21);
+    data.Initialize(SMSG_GUILD_NEWS_UPDATE, 7 + 32);
+    data.WriteBits(1, 21); // size, we are only sending 1 news here
 
-    data.WriteBits(0, 26);  // Other Guids NYI
+    data.WriteBits(0, 26); // Not yet implemented used for guild achievements
     ObjectGuid guid = guildNew.PlayerGuid;
 
     data.WriteBit(guid[7]);
@@ -3326,7 +3327,7 @@ void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, Wor
 
     data << uint32(guildNew.Flags);   // 1 sticky
     data << uint32(guildNew.Data);
-    data << uint32(0);
+    data << uint32(0);                // always 0
 
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[6]);
@@ -3343,7 +3344,7 @@ void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, Wor
 
 void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
 {
-    data.Initialize(SMSG_GUILD_NEWS_UPDATE);
+    data.Initialize(SMSG_GUILD_NEWS_UPDATE, (21 + _newsLog.size() * (26 + 8)) / 8 + (8 + 6 * 4) * _newsLog.size());
     data.WriteBits(_newsLog.size(), 21);
 
     for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); it++)

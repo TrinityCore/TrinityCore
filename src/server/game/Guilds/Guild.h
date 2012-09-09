@@ -230,7 +230,7 @@ enum GuildNews
 {
     GUILD_NEWS_GUILD_ACHIEVEMENT      = 0,
     GUILD_NEWS_PLAYER_ACHIEVEMENT     = 1,
-    GUILD_NEWS_DUNGEON_ENCOUNTER      = 2, // Todo Implement
+    GUILD_NEWS_DUNGEON_ENCOUNTER      = 2, // @todo Implement
     GUILD_NEWS_ITEM_LOOTED            = 3,
     GUILD_NEWS_ITEM_CRAFTED           = 4,
     GUILD_NEWS_ITEM_PURCHASED         = 5,
@@ -249,15 +249,16 @@ struct GuildNewsEntry
 struct GuildReward
 {
     uint32 Entry;
-    uint8 Standing;
     int32 Racemask;
     uint64 Price;
     uint32 AchievementId;
+    uint8 Standing;
 };
 
 uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
 
 typedef std::map<uint32, GuildNewsEntry> GuildNewsLogMap;
+
 #define GUILD_EXPERIENCE_UNCAPPED_LEVEL 20  ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -390,7 +391,7 @@ private:
         void BuildNewsData(WorldPacket& data);
         void BuildNewsData(uint32 id, GuildNewsEntry& guildNew, WorldPacket& data);
         void AddNewEvent(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data);
-        GuildNewsEntry* GetNewById(uint32 id)
+        GuildNewsEntry* GetNewsById(uint32 id)
         {
              GuildNewsLogMap::iterator itr = _newsLog.find(id);
              if (itr != _newsLog.end())
