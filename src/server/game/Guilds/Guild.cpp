@@ -3272,7 +3272,7 @@ void Guild::GuildNewsLog::New(GuildNews eventType, time_t date, uint64 playerGui
 
     _newsLog.insert(std::make_pair<uint32, GuildNewStruct>(id, log));
 
-    PreparedStatement * stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_GUILD_NEWS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_GUILD_NEWS);
     stmt->setUInt32(0, GetGuild()->GetId());
     stmt->setUInt32(1, id);
     stmt->setUInt32(2, log.eventType);

@@ -245,7 +245,6 @@ struct GuildNewStruct
     uint32 data0;
 };
 
-
 struct GuildReward
 {
     uint32 entry;
