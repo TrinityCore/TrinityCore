@@ -109,6 +109,9 @@ UPDATE creature_template SET modelid1 = 0 WHERE entry = 34862;
 -- removing infernal model of submerged anub'arak
 UPDATE creature_template SET modelid2 = 0 WHERE entry = 34660;
 
+-- removing infernal model from firebomb bunny
+UPDATE creature_template SET modelid1 = 11686 WHERE entry = 34854;
+
 -- correcting hitbox of Anub'Arak
 UPDATE creature_model_info SET bounding_radius = 1.085, combat_reach = 10.5 WHERE modelid = 29268;
 
