@@ -447,7 +447,7 @@ class npc_muglash : public CreatureScript
                     DoScriptText(SAY_MUG_START1, creature);
                     creature->setFaction(113);
 
-                    pEscortAI->Start(true, true, player->GetGUID());
+                    pEscortAI->Start(true, false, player->GetGUID());
                 }
             }
             return true;
