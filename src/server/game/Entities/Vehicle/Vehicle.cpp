@@ -439,19 +439,20 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
     ASSERT(_me->GetMap());
 
-    // not sure that absolute position calculation is correct, it must depend on vehicle orientation and pitch angle
+    // not sure that absolute position calculation is correct, it must depend on vehicle pitch angle
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
+    {
         if (Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.Passenger))
         {
             ASSERT(passenger->IsInWorld());
 
-            float px = x + passenger->m_movementInfo.t_pos.m_positionX;
-            float py = y + passenger->m_movementInfo.t_pos.m_positionY;
-            float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
-            float po = ang + passenger->m_movementInfo.t_pos.GetOrientation();
+            float px, py, pz, po;
+            passenger->m_movementInfo.t_pos.GetPosition(px, py, pz, po);
+            CalculatePassengerPosition(px, py, pz, po);
 
             passenger->UpdatePosition(px, py, pz, po);
         }
+    }
 }
 
 void Vehicle::Dismiss()
@@ -509,4 +510,24 @@ uint8 Vehicle::GetAvailableSeatCount() const
             ++ret;
 
     return ret;
+}
+
+void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
+{
+    float inx = x, iny = y, inz = z, ino = o;
+    o = GetBase()->GetOrientation() + ino;
+    x = GetBase()->GetPositionX() + inx * cos(GetBase()->GetOrientation()) - iny * sin(GetBase()->GetOrientation());
+    y = GetBase()->GetPositionY() + iny * cos(GetBase()->GetOrientation()) + inx * sin(GetBase()->GetOrientation());
+    z = GetBase()->GetPositionZ() + inz;
+}
+
+void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
+{
+    o -= GetBase()->GetOrientation();
+    z -= GetBase()->GetPositionZ();
+    y -= GetBase()->GetPositionY();    // y = searchedY * cos(o) + searchedX * sin(o)
+    x -= GetBase()->GetPositionX();    // x = searchedX * cos(o) + searchedY * sin(o + pi)
+    float inx = x, iny = y;
+    y = (iny - inx * tan(GetBase()->GetOrientation())) / (cos(GetBase()->GetOrientation()) + sin(GetBase()->GetOrientation()) * tan(GetBase()->GetOrientation()));
+    x = (inx + iny * tan(GetBase()->GetOrientation())) / (cos(GetBase()->GetOrientation()) + sin(GetBase()->GetOrientation()) * tan(GetBase()->GetOrientation()));
 }

@@ -233,7 +233,7 @@ public:
             SWPainTimer = 20000;
             AmplifyDamageTimer = 5000;
             Cleave_Timer = 8000;
-            InfernalTimer = 45000;
+            InfernalTimer = 40000;
             InfernalCleanupTimer = 47000;
             AxesTargetSwitchTimer = urand(7500, 20000);
             SunderArmorTimer = urand(5000, 10000);
