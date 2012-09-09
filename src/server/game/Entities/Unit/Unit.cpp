@@ -406,15 +406,8 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
             pos.m_positionZ = loc.z;
             pos.m_orientation = loc.orientation;
 
-            if (Unit* vehicle = GetVehicleBase())
-            {
-                loc.x += vehicle->GetPositionX();
-                loc.y += vehicle->GetPositionY();
-                loc.z += vehicle->GetPositionZMinusOffset();
-                loc.orientation = vehicle->GetOrientation();
-            }
-            else if (Transport* trans = GetTransport())
-                trans->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
+            if (TransportBase* transport = GetDirectTransport())
+                transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
         }
 
         UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
@@ -11263,16 +11256,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
     }
 
-    // Gift of the Naaru
-    if (spellProto->SpellFamilyFlags[2] & 0x80000000 && spellProto->SpellIconID == 329)
-    {
-        int32 apBonus = int32(std::max(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAttackPowerValue(RANGED_ATTACK)));
-        if (apBonus > DoneAdvertisedBenefit)
-            DoneTotal += int32(apBonus * 0.22f); // 22% of AP per tick
-        else
-            DoneTotal += int32(DoneAdvertisedBenefit * 0.377f); // 37.7% of BH per tick
-    }
-
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         switch (spellProto->Effects[i].ApplyAuraName)
@@ -16297,6 +16280,13 @@ uint64 Unit::GetTransGUID() const
         return GetTransport()->GetGUID();
 
     return 0;
+}
+
+TransportBase* Unit::GetDirectTransport() const
+{
+    if (Vehicle* veh = GetVehicle())
+        return veh;
+    return GetTransport();
 }
 
 bool Unit::IsInPartyWith(Unit const* unit) const
