@@ -2560,6 +2560,15 @@ GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
     return go;
 }
 
+GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float range) const
+{
+    GameObject* go = NULL;
+    Trinity::NearestGameObjectTypeInObjectRangeCheck checker(*this, type, range);
+    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectTypeInObjectRangeCheck> searcher(this, go, checker);
+    VisitNearbyGridObject(range, searcher);
+    return go;
+}
+
 Player* WorldObject::FindNearestPlayer(float range, bool alive)
 {
   Player* player = NULL;
