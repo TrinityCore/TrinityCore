@@ -52,7 +52,7 @@ public:
     void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
 
     uint32 GetXPForGuildLevel(uint8 level) const;
-    std::vector<GuildReward> &GetGuildRewards() { return GuildRewards; };
+    std::vector<GuildReward> const& GetGuildRewards() const { return GuildRewards; }
 
 protected:
     uint32 NextGuildId;

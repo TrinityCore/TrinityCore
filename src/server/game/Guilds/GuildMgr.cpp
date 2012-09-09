@@ -534,27 +534,27 @@ void GuildMgr::LoadGuildRewards()
     {
         GuildReward reward;
         Field* fields = result->Fetch();
-        reward.entry         = fields[0].GetUInt32();
-        reward.standing      = fields[1].GetUInt8();
-        reward.racemask      = fields[2].GetInt32();
-        reward.price         = fields[3].GetUInt64();
-        reward.achievementId = fields[4].GetUInt32();
+        reward.Entry         = fields[0].GetUInt32();
+        reward.Standing      = fields[1].GetUInt8();
+        reward.Racemask      = fields[2].GetInt32();
+        reward.Price         = fields[3].GetUInt64();
+        reward.AchievementId = fields[4].GetUInt32();
 
-        if (!sObjectMgr->GetItemTemplate(reward.entry))
+        if (!sObjectMgr->GetItemTemplate(reward.Entry))
         {
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards constains not existing item entry %u", reward.entry);
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards constains not existing item entry %u", reward.Entry);
             continue;
         }
 
-        if ((!sAchievementStore.LookupEntry(reward.achievementId)) && reward.achievementId != 0)
+        if (reward.AchievementId != 0 && (!sAchievementStore.LookupEntry(reward.AchievementId)))
         {
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards constains not existing achievement entry %u", reward.achievementId);
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards constains not existing achievement entry %u", reward.AchievementId);
             continue;
         }
 
-        if (reward.standing >= MAX_REPUTATION_RANK)
+        if (reward.Standing >= MAX_REPUTATION_RANK)
         {
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards contains wrong reputation standing %u, max is %u", uint32(reward.standing), MAX_REPUTATION_RANK - 1);
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards contains wrong reputation standing %u, max is %u", uint32(reward.Standing), MAX_REPUTATION_RANK - 1);
             continue;
         }
 

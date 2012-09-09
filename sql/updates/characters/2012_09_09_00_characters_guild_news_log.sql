@@ -4,7 +4,7 @@ CREATE TABLE `guild_news_log` (
   `id` int(10) unsigned NOT NULL,
   `eventType` int(10) unsigned NOT NULL,
   `playerGuid` bigint(20) unsigned NOT NULL,
-  `data0` int(10) unsigned NOT NULL,
+  `data` int(10) unsigned NOT NULL,
   `flags` int(10) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guild`,`id`)

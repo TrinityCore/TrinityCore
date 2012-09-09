@@ -24,6 +24,7 @@
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "DBCStore.h"
 
 class Item;
 
@@ -236,25 +237,27 @@ enum GuildNews
     GUILD_NEWS_LEVEL_UP               = 6,
 };
 
-struct GuildNewStruct
+struct GuildNewsStruct
 {
-    GuildNews eventType;
-    time_t date;
-    uint64 playerGuid;
-    uint32 flags;
-    uint32 data0;
+    GuildNews EventType;
+    time_t Date;
+    uint64 PlayerGuid;
+    uint32 Flags;
+    uint32 Data;
 };
 
 struct GuildReward
 {
-    uint32 entry;
-    uint8 standing;
-    int32 racemask;
-    uint64 price;
-    uint32 achievementId;
+    uint32 Entry;
+    uint8 Standing;
+    int32 Racemask;
+    uint64 Price;
+    uint32 AchievementId;
 };
 
-typedef std::map<uint32, GuildNewStruct> GuildNewsLogList;
+uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
+
+typedef std::map<uint32, GuildNewsStruct> GuildNewsLogMap;
 #define GUILD_EXPERIENCE_UNCAPPED_LEVEL 20  ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -385,19 +388,20 @@ private:
 
         void LoadFromDB(PreparedQueryResult result);
         void BuildNewsData(WorldPacket& data);
-        void BuildNewsData(uint32 id, GuildNewStruct& guildNew, WorldPacket& data);
-        void New(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data0);
-        GuildNewStruct* GetNewById(uint32 id)
+        void BuildNewsData(uint32 id, GuildNewsStruct& guildNew, WorldPacket& data);
+        void AddNewEvent(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data);
+        GuildNewsStruct* GetNewById(uint32 id)
         {
-            if (_newsLog.find(id) != _newsLog.end())
-                    return &_newsLog.find(id)->second;
-                else
-                    return NULL;
+             GuildNewsLogMap::iterator itr = _newsLog.find(id);
+             if (itr != _newsLog.end())
+                     return &itr->second;
+             return NULL;
         }
-        Guild * GetGuild() const {return _guild;};
+        Guild * GetGuild() const {return _guild;}
+
     protected:
         Guild* _guild;
-        GuildNewsLogList _newsLog;
+        GuildNewsLogMap _newsLog;
     };
 
     // Base class for event entries
@@ -780,7 +784,7 @@ public:
     uint64 GetExperience() const { return _experience; }
     uint64 GetTodayExperience() const { return _todayExperience; }
     void ResetDailyExperience();
-    GuildNewsLog& GetNewsLog() { return _newsLog; };
+    GuildNewsLog& GetNewsLog() { return _newsLog; }
 
 protected:
     uint32 m_id;

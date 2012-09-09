@@ -1569,9 +1569,9 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         // create the new item and store it
         Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
 
-        if (pProto->Quality > ITEM_QUALITY_RARE)
+        if ((pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]) || pProto->Quality > ITEM_QUALITY_EPIC)
             if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
-                guild->GetNewsLog().New(GUILD_NEWS_ITEM_CRAFTED, time(NULL), player->GetGUID(), 0, pProto->ItemId);
+                guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_CRAFTED, time(NULL), player->GetGUID(), 0, pProto->ItemId);
 
         // was it successful? return error if not
         if (!pItem)
