@@ -47,6 +47,7 @@ enum WarlockSpells
     WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2  = 60956,
 };
 
+/// Updated 4.3.4
 class spell_warl_banish : public SpellScriptLoader
 {
 public:
@@ -64,11 +65,13 @@ public:
 
         void HandleBanish()
         {
+            /// Casting Banish on a banished target will cancel the effect
+            /// Check if the target already has Banish, if so, do nothing.
             if (Unit* target = GetHitUnit())
             {
                 if (target->GetAuraEffect(SPELL_AURA_SCHOOL_IMMUNITY, SPELLFAMILY_WARLOCK, 0, 0x08000000, 0))
                 {
-                    //No need to remove old aura since its removed due to not stack by current Banish aura
+                    // No need to remove old aura since its removed due to not stack by current Banish aura
                     PreventHitDefaultEffect(EFFECT_0);
                     PreventHitDefaultEffect(EFFECT_1);
                     PreventHitDefaultEffect(EFFECT_2);
@@ -99,6 +102,7 @@ public:
 };
 
 // 47193 Demonic Empowerment
+/// Updated 4.3.4
 class spell_warl_demonic_empowerment : public SpellScriptLoader
 {
     public:
@@ -132,7 +136,6 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
                             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
                             int32 hp = int32(targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0)));
                             targetCreature->CastCustomSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, &hp, NULL, NULL, true);
-                            //unitTarget->CastSpell(unitTarget, 54441, true);
                             break;
                         }
                         case CREATURE_FAMILY_FELGUARD:
@@ -161,7 +164,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
         }
 };
 
-// 6201 Create Healthstone (and ranks)
+// 6201 Create Healthstone
 class spell_warl_create_healthstone : public SpellScriptLoader
 {
     public:
@@ -268,34 +271,6 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
         {
             return new spell_warl_everlasting_affliction_SpellScript();
         }
-};
-
-// 18541 Ritual of Doom Effect
-class spell_warl_ritual_of_doom_effect : public SpellScriptLoader
-{
-public:
-    spell_warl_ritual_of_doom_effect() : SpellScriptLoader("spell_warl_ritual_of_doom_effect") { }
-
-    class spell_warl_ritual_of_doom_effect_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_ritual_of_doom_effect_SpellScript);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            caster->CastSpell(caster, GetEffectValue(), true);
-        }
-
-        void Register()
-        {
-            OnEffectHit += SpellEffectFn(spell_warl_ritual_of_doom_effect_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_ritual_of_doom_effect_SpellScript();
-    }
 };
 
 class spell_warl_seed_of_corruption : public SpellScriptLoader
@@ -723,7 +698,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_empowerment();
     new spell_warl_create_healthstone();
     new spell_warl_everlasting_affliction();
-    new spell_warl_ritual_of_doom_effect();
     new spell_warl_seed_of_corruption();
     new spell_warl_soulshatter();
     new spell_warl_life_tap();
