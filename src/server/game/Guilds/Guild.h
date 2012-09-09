@@ -394,10 +394,10 @@ private:
         {
              GuildNewsLogMap::iterator itr = _newsLog.find(id);
              if (itr != _newsLog.end())
-                     return &itr->second;
+                 return &itr->second;
              return NULL;
         }
-        Guild* GetGuild() const {return _guild; }
+        Guild* GetGuild() const { return _guild; }
 
     private:
         Guild* _guild;
