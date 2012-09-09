@@ -192,8 +192,73 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket *data, Battlegro
     {
         case STATUS_NONE:
         {
-            //data->Initialize(SMSG_BATTLEFIELD_STATUS_FAILED);
-            sLog->outDebug(LOG_FILTER_NETWORKIO, ">>>>> STATUS_NONE");
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_FAILED);
+            ObjectGuid unkGuid1 = 0; // Not seen packets
+            ObjectGuid unkGuid2 = 0; // Not seen packets
+
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_FAILED);
+
+            data->WriteBit(guidBytes2[3]);
+            data->WriteBit(unkGuid2[3]);
+            data->WriteBit(unkGuid1[3]);
+            data->WriteBit(unkGuid2[0]);
+            data->WriteBit(guidBytes2[6]);
+            data->WriteBit(unkGuid1[5]);
+            data->WriteBit(unkGuid1[6]);
+            data->WriteBit(unkGuid1[4]);
+
+            data->WriteBit(unkGuid1[2]);
+            data->WriteBit(unkGuid2[1]);
+            data->WriteBit(guidBytes2[1]);
+            data->WriteBit(unkGuid2[5]);
+            data->WriteBit(unkGuid2[6]);
+            data->WriteBit(unkGuid1[1]);
+            data->WriteBit(guidBytes2[7]);
+            data->WriteBit(unkGuid2[4]);
+
+            data->WriteBit(guidBytes2[2]);
+            data->WriteBit(guidBytes2[5]);
+            data->WriteBit(unkGuid2[7]);
+            data->WriteBit(guidBytes2[4]);
+            data->WriteBit(guidBytes2[0]);
+            data->WriteBit(unkGuid1[0]);
+            data->WriteBit(unkGuid2[2]);
+            data->WriteBit(unkGuid1[7]);
+
+            data->WriteByteSeq(guidBytes2[1]);
+
+            *data << uint32(bg->GetStatus());
+            *data << uint32(QueueSlot);
+
+            data->WriteByteSeq(unkGuid1[6]);
+            data->WriteByteSeq(unkGuid1[3]);
+            data->WriteByteSeq(unkGuid1[7]);
+            data->WriteByteSeq(unkGuid1[4]);
+            data->WriteByteSeq(guidBytes2[0]);
+            data->WriteByteSeq(unkGuid1[5]);
+            data->WriteByteSeq(guidBytes2[7]);
+            data->WriteByteSeq(guidBytes2[6]);
+            data->WriteByteSeq(guidBytes2[2]);
+            data->WriteByteSeq(unkGuid2[6]);
+            data->WriteByteSeq(unkGuid2[3]);
+            data->WriteByteSeq(unkGuid1[1]);
+            data->WriteByteSeq(guidBytes2[3]);
+            data->WriteByteSeq(unkGuid2[0]);
+            data->WriteByteSeq(unkGuid2[1]);
+            data->WriteByteSeq(unkGuid2[4]);
+            data->WriteByteSeq(unkGuid1[0]);
+            data->WriteByteSeq(guidBytes2[5]);
+            data->WriteByteSeq(unkGuid2[7]);
+            data->WriteByteSeq(guidBytes2[4]);
+            data->WriteByteSeq(unkGuid1[2]);
+
+            *data << uint32(bg->GetTypeID());
+
+            data->WriteByteSeq(unkGuid2[2]);
+
+            *data << uint32(time(NULL));
+
+            data->WriteByteSeq(unkGuid2[5]);
             break;
         }
         case STATUS_WAIT_QUEUE:
@@ -288,7 +353,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket *data, Battlegro
             data->WriteByteSeq(guidBytes2[6]);
             data->WriteByteSeq(guidBytes2[5]);
             data->WriteByteSeq(guidBytes2[7]);
-            data->WriteByteSeq(guidBytes2[0]);
+            data->WriteByteSeq(guidBytes2[2]);
             data->WriteByteSeq(guidBytes1[0]);
             data->WriteByteSeq(guidBytes1[7]);
             data->WriteByteSeq(guidBytes2[4]);
