@@ -1,4 +1,4 @@
--- Gabe der Naaru
+-- Gift of the Naaru
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_gen_gift_of_naaru';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (28880,'spell_gen_gift_of_naaru'), -- SPELLFAMILY_WARRIOR
