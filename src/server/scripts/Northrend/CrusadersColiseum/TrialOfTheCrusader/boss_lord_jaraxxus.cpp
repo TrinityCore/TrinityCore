@@ -321,7 +321,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 const diff) {}
+        void UpdateAI(uint32 const /*diff*/) {}
     };
 
 };
@@ -433,7 +433,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 const diff) {}
+        void UpdateAI(uint32 const /*diff*/) {}
     };
 
 };
