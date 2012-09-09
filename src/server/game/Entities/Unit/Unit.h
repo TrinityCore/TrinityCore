@@ -1042,7 +1042,8 @@ enum CommandStates
     COMMAND_STAY    = 0,
     COMMAND_FOLLOW  = 1,
     COMMAND_ATTACK  = 2,
-    COMMAND_ABANDON = 3
+    COMMAND_ABANDON = 3,
+    COMMAND_MOVE_TO = 4
 };
 
 #define UNIT_ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
