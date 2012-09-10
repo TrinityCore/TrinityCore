@@ -23,6 +23,7 @@
 #include "Spell.h"
 #include "icecrown_citadel.h"
 #include "Vehicle.h"
+#include "GridNotifiers.h"
 
 enum ScriptTexts
 {
