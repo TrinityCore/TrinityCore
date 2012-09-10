@@ -17325,7 +17325,7 @@ void Unit::UpdateOrientation(float orientation)
 {
     SetOrientation(orientation);
     if (IsVehicle())
-        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), GetPositionZ(), orientation);
+        GetVehicleKit()->RelocatePassengers();
 }
 
 //! Only server-side height update, does not broadcast to client
@@ -17333,7 +17333,7 @@ void Unit::UpdateHeight(float newZ)
 {
     Relocate(GetPositionX(), GetPositionY(), newZ);
     if (IsVehicle())
-        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), newZ, GetOrientation());
+        GetVehicleKit()->RelocatePassengers();
 }
 
 void Unit::SendThreatListUpdate()
