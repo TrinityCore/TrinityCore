@@ -615,7 +615,7 @@ class boss_thorim : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(uint64 /*guid*/, int32 data)
             {
                 switch (data)
                 {

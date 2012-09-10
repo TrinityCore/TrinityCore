@@ -406,15 +406,9 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
             pos.m_positionY = loc.y;
             pos.m_positionZ = loc.z;
             pos.m_orientation = loc.orientation;
-            if (Unit* vehicle = GetVehicleBase())
-            {
-                loc.x += vehicle->GetPositionX();
-                loc.y += vehicle->GetPositionY();
-                loc.z += vehicle->GetPositionZMinusOffset();
-                loc.orientation = vehicle->GetOrientation();
-            }
-            else if (Transport* trans = GetTransport())
-                trans->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
+
+            if (TransportBase* transport = GetDirectTransport())
+                transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
         }
 
         UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
@@ -882,17 +876,24 @@ void Unit::CastCustomSpell(Unit* target, uint32 spellId, int32 const* bp0, int32
         values.AddSpellMod(SPELLVALUE_BASE_POINT1, *bp1);
     if (bp2)
         values.AddSpellMod(SPELLVALUE_BASE_POINT2, *bp2);
-    CastCustomSpell(spellId, values, target, triggered, castItem, triggeredByAura, originalCaster);
+    CastCustomSpell(spellId, values, target, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
 void Unit::CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* target, bool triggered, Item* castItem, AuraEffect const* triggeredByAura, uint64 originalCaster)
 {
     CustomSpellValues values;
     values.AddSpellMod(mod, value);
-    CastCustomSpell(spellId, values, target, triggered, castItem, triggeredByAura, originalCaster);
+    CastCustomSpell(spellId, values, target, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const& value, Unit* victim, bool triggered, Item* castItem, AuraEffect const* triggeredByAura, uint64 originalCaster)
+void Unit::CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* target, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, uint64 originalCaster)
+{
+    CustomSpellValues values;
+    values.AddSpellMod(mod, value);
+    CastCustomSpell(spellId, values, target, triggerFlags, castItem, triggeredByAura, originalCaster);
+}
+
+void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const& value, Unit* victim, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, uint64 originalCaster)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -903,7 +904,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const& value, Unit*
     SpellCastTargets targets;
     targets.SetUnitTarget(victim);
 
-    CastSpell(targets, spellInfo, &value, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+    CastSpell(targets, spellInfo, &value, triggerFlags, castItem, triggeredByAura, originalCaster);
 }
 
 void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem, AuraEffect const* triggeredByAura, uint64 originalCaster)
@@ -4357,11 +4358,16 @@ uint32 Unit::GetDoTsByCaster(uint64 casterGUID) const
 
 int32 Unit::GetTotalAuraModifier(AuraType auratype) const
 {
+    std::map<SpellGroup, int32> SameEffectSpellGroup;
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-        modifier += (*i)->GetAmount();
+        if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+            modifier += (*i)->GetAmount();
+
+    for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+        modifier += itr->second;
 
     return modifier;
 }
@@ -4405,14 +4411,19 @@ int32 Unit::GetMaxNegativeAuraModifier(AuraType auratype) const
 
 int32 Unit::GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const
 {
+    std::map<SpellGroup, int32> SameEffectSpellGroup;
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
+
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-    {
-        if ((*i)->GetMiscValue()& misc_mask)
-            modifier += (*i)->GetAmount();
-    }
+        if ((*i)->GetMiscValue() & misc_mask)
+            if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+                modifier += (*i)->GetAmount();
+
+    for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+        modifier += itr->second;
+
     return modifier;
 }
 
@@ -6724,34 +6735,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 CastCustomSpell(target, triggered_spell_id, &basepoints0, &basepoints0, NULL, true, castItem, triggeredByAura);
                 return true;
             }
-            // Sacred Shield
-            if (dummySpell->SpellFamilyFlags[1] & 0x80000)
-            {
-                if (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
-                {
-                    if (procSpell->SpellFamilyName == SPELLFAMILY_PALADIN && (procSpell->SpellFamilyFlags[0] & 0x40000000))
-                    {
-                        basepoints0 = damage / 12;
-
-                        if (basepoints0)
-                            CastCustomSpell(this, 66922, &basepoints0, NULL, NULL, true, 0, triggeredByAura, victim->GetGUID());
-
-                        return true;
-                    }
-                    else
-                        return false;
-                }
-                else if (damage > 0)
-                    triggered_spell_id = 58597;
-
-                // Item - Paladin T8 Holy 4P Bonus
-                if (Unit* caster = triggeredByAura->GetCaster())
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(64895, 0))
-                        cooldown = aurEff->GetAmount();
-
-                target = this;
-                break;
-            }
             // Righteous Vengeance
             if (dummySpell->SpellIconID == 3025)
             {
@@ -6772,6 +6755,23 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
+                // Sacred Shield
+                case 53601:
+                {
+                    if (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
+                        return false;
+
+                    if (damage > 0)
+                        triggered_spell_id = 58597;
+
+                    // Item - Paladin T8 Holy 4P Bonus
+                    if (Unit* caster = triggeredByAura->GetCaster())
+                        if (AuraEffect const* aurEff = caster->GetAuraEffect(64895, 0))
+                            cooldown = aurEff->GetAmount();
+
+                    target = this;
+                    break;
+                }
                 // Heart of the Crusader
                 case 20335: // rank 1
                     triggered_spell_id = 21183;
@@ -6788,7 +6788,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!victim)
                         return false;
 
-                    // 2% of base mana
+                    // 2% of maximum health
                     basepoints0 = int32(victim->CountPctFromMaxHealth(2));
                     victim->CastCustomSpell(victim, 20267, &basepoints0, 0, 0, true, 0, triggeredByAura);
                     return true;
@@ -11336,16 +11336,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
     }
 
-    // Gift of the Naaru
-    if (spellProto->SpellFamilyFlags[2] & 0x80000000 && spellProto->SpellIconID == 329)
-    {
-        int32 apBonus = int32(std::max(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAttackPowerValue(RANGED_ATTACK)));
-        if (apBonus > DoneAdvertisedBenefit)
-            DoneTotal += int32(apBonus * 0.22f); // 22% of AP per tick
-        else
-            DoneTotal += int32(DoneAdvertisedBenefit * 0.377f); // 37.7% of BH per tick
-    }
-
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         switch (spellProto->Effects[i].ApplyAuraName)
@@ -13316,13 +13306,13 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
                 }
                 break;
             case SPELLFAMILY_PALADIN:
-                if (spellProto->SpellFamilyFlags[0] & 0x00000002)
+                if (spellProto->SpellFamilyFlags[0] & 0x00000002 && spellProto->SpellIconID == 298)
                 {
                     // Glyph of Blessing of Might
                     if (AuraEffect* aurEff = GetAuraEffect(57958, 0))
                         duration += aurEff->GetAmount() * MINUTE * IN_MILLISECONDS;
                 }
-                else if (spellProto->SpellFamilyFlags[0] & 0x00010000)
+                else if (spellProto->SpellFamilyFlags[0] & 0x00010000 && spellProto->SpellIconID == 306)
                 {
                     // Glyph of Blessing of Wisdom
                     if (AuraEffect* aurEff = GetAuraEffect(57979, 0))
@@ -16394,6 +16384,13 @@ uint64 Unit::GetTransGUID() const
     return 0;
 }
 
+TransportBase* Unit::GetDirectTransport() const
+{
+    if (Vehicle* veh = GetVehicle())
+        return veh;
+    return GetTransport();
+}
+
 bool Unit::IsInPartyWith(Unit const* unit) const
 {
     if (this == unit)
@@ -17070,19 +17067,20 @@ void Unit::JumpTo(WorldObject* obj, float speedZ)
 
 bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 {
+    bool result = false;
     uint32 spellClickEntry = GetVehicleKit() ? GetVehicleKit()->GetCreatureEntry() : GetEntry();
     SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(spellClickEntry);
     for (SpellClickInfoContainer::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
     {
         //! First check simple relations from clicker to clickee
         if (!itr->second.IsFitToRequirements(clicker, this))
-            return false;
+            continue;
 
         //! Check database conditions
         ConditionList conds = sConditionMgr->GetConditionsForSpellClickEvent(spellClickEntry, itr->second.spellId);
         ConditionSourceInfo info = ConditionSourceInfo(clicker, this);
         if (!sConditionMgr->IsObjectMeetToConditions(info, conds))
-            return false;
+            continue;
 
         Unit* caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
         Unit* target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
@@ -17108,11 +17106,11 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             if (!valid)
             {
                 sLog->outError(LOG_FILTER_SQL, "Spell %u specified in npc_spellclick_spells is not a valid vehicle enter aura!", itr->second.spellId);
-                return false;
+                continue;
             }
 
             if (IsInMap(caster))
-                caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1, target, false, NULL, NULL, origCasterGUID);
+                caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1, target, GetVehicleKit() ? TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE : TRIGGERED_NONE, NULL, NULL, origCasterGUID);
             else    // This can happen during Player::_LoadAuras
             {
                 int32 bp0 = seatId;
@@ -17122,22 +17120,27 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
         else
         {
             if (IsInMap(caster))
-                caster->CastSpell(target, spellEntry, false, NULL, NULL, origCasterGUID);
+                caster->CastSpell(target, spellEntry, GetVehicleKit() ? TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE : TRIGGERED_NONE, NULL, NULL, origCasterGUID);
             else
                 Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, NULL, NULL, origCasterGUID);
         }
+
+        result = true;
     }
 
-    Creature* creature = ToCreature();
-    if (creature && creature->IsAIEnabled)
-        creature->AI()->OnSpellClick(clicker);
+    if (result)
+    {
+        Creature* creature = ToCreature();
+        if (creature && creature->IsAIEnabled)
+            creature->AI()->OnSpellClick(clicker);
+    }
 
-    return true;
+    return result;
 }
 
 void Unit::EnterVehicle(Unit* base, int8 seatId)
 {
-    CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId+1, base, false);
+    CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId+1, base, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
 }
 
 void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp)

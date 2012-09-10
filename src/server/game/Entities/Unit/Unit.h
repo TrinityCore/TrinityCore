@@ -339,6 +339,7 @@ class UnitAI;
 class Totem;
 class Transport;
 class Vehicle;
+class TransportBase;
 
 typedef std::list<Unit*> UnitList;
 typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
@@ -1568,13 +1569,14 @@ class Unit : public WorldObject
         void CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(Unit* victim, uint32 spellId, bool triggered, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem= NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem= NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item* castItem= NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* Victim = NULL, bool triggered = true, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit* Victim = NULL, bool triggered = true, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castItem = NULL, AuraEffect* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(Unit* victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* victim, bool triggered, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* victim = NULL, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
+        void CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit* victim = NULL, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint8 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
@@ -2168,6 +2170,8 @@ class Unit : public WorldObject
         uint32 GetTransTime()   const { return m_movementInfo.t_time; }
         int8 GetTransSeat()     const { return m_movementInfo.t_seat; }
         uint64 GetTransGUID()   const;
+        /// Returns the transport this unit is on directly (if on vehicle and transport, return vehicle)
+        TransportBase* GetDirectTransport() const;
 
         bool m_ControlledByPlayer;
 

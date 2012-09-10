@@ -212,7 +212,7 @@ class boss_general_vezax : public CreatureScript
                 DoZoneInCombat(summoned);
             }
 
-            void SummonedCreatureDies(Creature* summon, Unit* killer)
+            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
             {
                 switch (summon->GetEntry())
                 {

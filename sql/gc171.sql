@@ -26,11 +26,6 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (65076, 'spell_leviathan_tower_buff'),
 (65077, 'spell_leviathan_tower_buff');
 
--- Mark of the faceless scriptname
-DELETE FROM spell_script_names WHERE spell_id = 63276;
-INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
-(63276, 'spell_mark_of_the_faceless');
-
 -- Raise dead scriptname
 DELETE FROM spell_script_names WHERE spell_id = 46584;
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
@@ -114,6 +109,9 @@ UPDATE creature_template SET modelid1 = 0 WHERE entry = 34862;
 -- removing infernal model of submerged anub'arak
 UPDATE creature_template SET modelid2 = 0 WHERE entry = 34660;
 
+-- removing infernal model from firebomb bunny
+UPDATE creature_template SET modelid1 = 11686 WHERE entry = 34854;
+
 -- correcting hitbox of Anub'Arak
 UPDATE creature_model_info SET bounding_radius = 1.085, combat_reach = 10.5 WHERE modelid = 29268;
 
@@ -154,6 +152,42 @@ DELETE FROM spell_linked_spell WHERE spell_trigger = 66010;
 INSERT INTO spell_linked_spell (spell_trigger, spell_effect, type, comment) VALUES
 (66010, 25771, 0, 'Divine Shield - Forbearance');
 
+-- add taunt immunity to toc10/25 faction champions
+UPDATE creature_template SET flags_extra = flags_extra | 256 WHERE entry IN
+(34445,35705,35706,35707,
+34459,35686,35687,35688,
+34447,35683,35684,35685,
+34455,35680,35681,35682,
+34453,35718,35719,35720,
+34458,35692,35693,35694,
+34454,35711,35712,35713,
+34448,35724,35725,35726,
+34441,34442,34443,35749,
+34450,35695,35696,35697,
+35610,35774,35775,35776,
+35465,36301,36302,36303,
+34451,35671,35672,35673,
+34449,35689,35690,35691,
+34444,35740,35741,35742,
+34456,35708,35709,35710,
+34460,35702,35703,35704,
+34461,35743,35744,35745,
+34463,35734,35735,35736,
+34465,35746,35747,35748,
+34466,35665,35666,35667,
+34467,35662,35663,35664,
+34468,35721,35722,35723,
+34469,35714,35715,35716,
+34470,35728,35729,35730,
+34473,35674,35675,35676,
+34474,35731,35732,35733,
+34475,35737,35738,35739);
+
+-- ToC warlock pet db corrections
+UPDATE creature_template SET minlevel = 80, maxlevel = 80, exp = 2, faction_A = 16, faction_H = 16, mindmg = 417, maxdmg = 582, attackpower = 608, unit_class = 2, dynamicflags = 8, minrangedmg = 341, maxrangedmg = 506, rangedattackpower = 80 WHERE entry IN (36301, 36302, 36303);
+UPDATE creature_template SET faction_A = 16, faction_H = 16, difficulty_entry_1 = 36301, difficulty_entry_2 = 36302, difficulty_entry_3 = 36303 WHERE entry = 35465;
+UPDATE creature_template SET name = "Zhaagrym (1)" WHERE entry = 36301;
+
 -- -------------------------
 -- ULDUAR ------------------
 -- -------------------------
@@ -170,6 +204,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_flame_leviathan_safety_containe
 UPDATE `creature_template` SET `ScriptName`='npc_liquid_pyrite' WHERE `entry`=33189;
 UPDATE `creature_template` SET `ScriptName`='npc_freya_ward_of_life' WHERE `entry`=34275;
 UPDATE `creature_template` SET `ScriptName`='npc_runeforged_sentry' WHERE `entry`=34234;
+
 -- Part 1.1: Mimirons Inferno Bunny - it should walk around.
 DELETE FROM `waypoints` WHERE `entry`=33370;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
@@ -476,7 +511,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63027, 'spel
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (62692, 63276, 63278);
 INSERT INTO `spell_script_names` VALUES 
 (62692,'spell_aura_of_despair_aura'),
-(63276,'spell_mark_of_the_faceless_aura'),
+(63276,'spell_mark_of_the_faceless'),
 (63278,'spell_mark_of_the_faceless_drain');
 
 -- Update saronite animus entry. TODO: Check if its health-modifier is ok.

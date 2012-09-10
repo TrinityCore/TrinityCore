@@ -86,7 +86,8 @@ enum TrinityStrings
     LANG_CONNECTED_PLAYERS              = 60,
     LANG_ACCOUNT_ADDON                  = 61,
     LANG_IMPROPER_VALUE                 = 62,
-    // Room for more level 0              63-99 not used
+    LANG_CANT_DO_NOW                    = 63,
+    // Room for more level 0              64-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,

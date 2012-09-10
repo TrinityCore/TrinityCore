@@ -2575,7 +2575,7 @@ class spell_shield_generator : public SpellScriptLoader
                 return true;
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* siege = caster->GetVehicleBase())
