@@ -108,4 +108,4 @@ DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=14 AND `SourceGroup`=8
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14,8433,10291,0,0,15,0,128,0,0,1,0,'','Show gossip text if player is not a mage'),
 (14,8433,10292,0,0,15,0,128,0,0,0,0,'','Show gossip text if player is a mage'),
-(14,12670,12549,0,0,15,0,256,0,1,0,0,'','Show gossip text if player is not a Warlock');
+(14,12670,12549,0,0,15,0,256,0,0,1,0,'','Show gossip text if player is not a Warlock');
