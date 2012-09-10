@@ -704,17 +704,15 @@ void Transport::UpdateNPCPositions()
     }
 }
 
-//! This method transforms supplied transport offsets into global coordinates
 void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
 {
     float inx = x, iny = y, inz = z, ino = o;
     o = GetOrientation() + ino;
-    x = GetPositionX() + (inx * cos(GetOrientation()) + iny * sin(GetOrientation() + M_PI));
-    y = GetPositionY() + (iny * cos(GetOrientation()) + inx * sin(GetOrientation()));
+    x = GetPositionX() + inx * cos(GetOrientation()) - iny * sin(GetOrientation());
+    y = GetPositionY() + iny * cos(GetOrientation()) + inx * sin(GetOrientation());
     z = GetPositionZ() + inz;
 }
 
-//! This method transforms supplied global coordinates into local offsets
 void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
 {
     o -= GetOrientation();
@@ -722,6 +720,6 @@ void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
     y -= GetPositionY();    // y = searchedY * cos(o) + searchedX * sin(o)
     x -= GetPositionX();    // x = searchedX * cos(o) + searchedY * sin(o + pi)
     float inx = x, iny = y;
-    y = (iny - inx * tan(GetOrientation())) / (cos(GetOrientation()) - sin(GetOrientation() + M_PI) * tan(GetOrientation()));
-    x = (inx - iny * sin(GetOrientation() + M_PI) / cos(GetOrientation())) / (cos(GetOrientation()) - tan(GetOrientation()) * sin(GetOrientation() + M_PI));
+    y = (iny - inx * tan(GetOrientation())) / (cos(GetOrientation()) + sin(GetOrientation()) * tan(GetOrientation()));
+    x = (inx + iny * tan(GetOrientation())) / (cos(GetOrientation()) + sin(GetOrientation()) * tan(GetOrientation()));
 }
