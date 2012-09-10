@@ -225,6 +225,12 @@ class GuildFinderMgr
         void AddMembershipRequest(uint32 guildGuid, MembershipRequest const& request);
 
         /**
+         * @brief Removes all membership request from a player.
+         * @param playerId The player's database guid whose application shall be deleted.
+         */
+        void RemoveAllMembershipRequestsFromPlayer(uint32 playerId);
+
+        /**
          * @brief Removes a membership request to a guild.
          * @param playerId The player's database guid whose application shall be deleted.
          * @param guildId  The guild's database guid

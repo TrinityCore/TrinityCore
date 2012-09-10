@@ -137,6 +137,34 @@ void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest co
         SendApplicantListUpdate(*guild);
 }
 
+void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(uint32 playerId)
+{
+    for (MembershipRequestStore::iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
+    {
+        std::vector<MembershipRequest>::iterator itr2 = itr->second.begin();
+        for(; itr2 != itr->second.end(); ++itr2)
+            if (itr2->GetPlayerGUID() == playerId)
+                break;
+
+        if (itr2 == itr->second.end())
+            return;
+
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
+        stmt->setUInt32(0, itr2->GetGuildId());
+        stmt->setUInt32(1, itr2->GetPlayerGUID());
+        trans->Append(stmt);
+
+        CharacterDatabase.CommitTransaction(trans);
+        itr->second.erase(itr2);
+
+        // Notify the guild master and officers the list changed
+        if (Guild* guild = sGuildMgr->GetGuildById(itr->first))
+            SendApplicantListUpdate(*guild);
+    }
+}
+
 void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
 {
     std::vector<MembershipRequest>::iterator itr = _membershipRequests[guildId].begin();
@@ -150,8 +178,8 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
-    stmt->setUInt32(0, (*itr).GetGuildId());
-    stmt->setUInt32(1, (*itr).GetPlayerGUID());
+    stmt->setUInt32(0, itr->GetGuildId());
+    stmt->setUInt32(1, itr->GetPlayerGUID());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -271,7 +299,7 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_GUILD_SETTINGS);
-        stmt->setUInt32(0, (*itr).GetGuildId());
+        stmt->setUInt32(0, itr->GetGuildId());
         trans->Append(stmt);
             
         CharacterDatabase.CommitTransaction(trans);
