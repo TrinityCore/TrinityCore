@@ -45,8 +45,6 @@ class Log
         bool ShouldLog(LogFilterType type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
 
-        void log(LogFilterType f, LogLevel level, char const* str, ...) ATTR_PRINTF(4,5);
-
         void outTrace(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
         void outDebug(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
         void outInfo(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);

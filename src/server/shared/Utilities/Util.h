@@ -459,7 +459,7 @@ public:
                 return 0;
         }
         return 0;
-    };
+    }
 
     template<class type>
     inline bool operator < (type & right) const
@@ -472,7 +472,7 @@ public:
                 return 0;
         }
         return 0;
-    };
+    }
 
     template<class type>
     inline bool operator != (type & right)
@@ -492,7 +492,7 @@ public:
             || part[2]!=right.part[2])
                 return true;
         return false;
-    };
+    }
 
     template<class type>
     inline bool operator == (type & right)
@@ -502,7 +502,7 @@ public:
             || part[2]!=right.part[2])
                 return false;
         return true;
-    };
+    }
 
     template<class type>
     inline bool operator == (type & right) const
@@ -512,7 +512,7 @@ public:
             || part[2]!=right.part[2])
                 return false;
         return true;
-    };
+    }
 
     template<class type>
     inline void operator = (type & right)
@@ -520,7 +520,7 @@ public:
         part[0]=right.part[0];
         part[1]=right.part[1];
         part[2]=right.part[2];
-    };
+    }
 
     template<class type>
     inline flag96 operator & (type & right)
@@ -528,20 +528,21 @@ public:
         flag96 ret(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
         return
             ret;
-    };
+    }
+
     template<class type>
     inline flag96 operator & (type & right) const
     {
         flag96 ret(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2]);
         return
             ret;
-    };
+    }
 
     template<class type>
     inline void operator &= (type & right)
     {
         *this=*this & right;
-    };
+    }
 
     template<class type>
     inline flag96 operator | (type & right)
@@ -549,7 +550,7 @@ public:
         flag96 ret(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2]);
         return
             ret;
-    };
+    }
 
     template<class type>
     inline flag96 operator | (type & right) const
@@ -557,13 +558,13 @@ public:
         flag96 ret(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2]);
         return
             ret;
-    };
+    }
 
     template<class type>
     inline void operator |= (type & right)
     {
         *this=*this | right;
-    };
+    }
 
     inline void operator ~ ()
     {
@@ -578,7 +579,7 @@ public:
         flag96 ret(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2]);
         return
             ret;
-    };
+    }
 
     template<class type>
     inline flag96 operator ^ (type & right) const
@@ -586,13 +587,13 @@ public:
         flag96 ret(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2]);
         return
             ret;
-    };
+    }
 
     template<class type>
     inline void operator ^= (type & right)
     {
         *this=*this^right;
-    };
+    }
 
     inline operator bool() const
     {
