@@ -41,7 +41,7 @@ public:
             { "cooldown",       SEC_GAMEMASTER,     false, &HandleCoolDownCheatCommand,        "", NULL },
             { "power",          SEC_GAMEMASTER,     false, &HandlePowerCheatCommand,           "", NULL },
             { "waterwalk",      SEC_GAMEMASTER,     false, &HandleWaterWalkCheatCommand,       "", NULL },
-			{ "staus",          SEC_GAMEMASTER,     false, &HandleCheatStatusCommand,          "", NULL },
+            { "staus",          SEC_GAMEMASTER,     false, &HandleCheatStatusCommand,          "", NULL },
             { "taxi",           SEC_GAMEMASTER,     false, &HandleTaxiCheatCommand,            "", NULL },
             { "explore",        SEC_GAMEMASTER,     false, &HandleExploreCheatCommand,         "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
@@ -160,18 +160,18 @@ public:
         return false;
     }
 
-	static bool HandleCheatStatusCommand(ChatHandler* handler, const char* /*args*/)
-	{
-		Player* player = handler->GetSession()->GetPlayer();
+    static bool HandleCheatStatusCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
 
-		handler->SendSysMessage("Status for all Cheat Commands:");
-		handler->PSendSysMessage("God: %s", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-		handler->PSendSysMessage("Cooldown: %s", player->GetCommandStatus(CHEAT_COOLDOWN) ? "Enabled" : "Disabled");
-		handler->PSendSysMessage("Casttime: %s", player->GetCommandStatus(CHEAT_CASTTIME) ? "Enabled" : "Disabled");
-		handler->PSendSysMessage("Power: %s", player->GetCommandStatus(CHEAT_POWER) ? "Enabled" : "Disabled");
-		handler->PSendSysMessage("Waterwalk: %s", player->GetCommandStatus(CHEAT_WATERWALK) ? "Enabled" : "Disabled");
-		return true;
-	}
+        handler->SendSysMessage("Status for all Cheat Commands:");
+        handler->PSendSysMessage("God: %s", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+        handler->PSendSysMessage("Cooldown: %s", player->GetCommandStatus(CHEAT_COOLDOWN) ? "Enabled" : "Disabled");
+        handler->PSendSysMessage("Casttime: %s", player->GetCommandStatus(CHEAT_CASTTIME) ? "Enabled" : "Disabled");
+        handler->PSendSysMessage("Power: %s", player->GetCommandStatus(CHEAT_POWER) ? "Enabled" : "Disabled");
+        handler->PSendSysMessage("Waterwalk: %s", player->GetCommandStatus(CHEAT_WATERWALK) ? "Enabled" : "Disabled");
+        return true;
+    }
 
     static bool HandleWaterWalkCheatCommand(ChatHandler* handler, const char* args)
     {
