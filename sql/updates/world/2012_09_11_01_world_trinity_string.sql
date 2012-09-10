@@ -1,2 +1,3 @@
-INSERT INTO `command` (`name`, `security`, `help`) VALUES
-('unstuck', 0, 'Syntax: .cheat status \n\nShows the cheats you currently have enabled.');
+INSERT INTO `trinity_string` (`entry`, `default_content`) VALUES
+(64, 'Cheat Command Status:'),
+(65, '.Cheat %s: %s');

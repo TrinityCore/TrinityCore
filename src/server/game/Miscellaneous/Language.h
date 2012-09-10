@@ -87,8 +87,8 @@ enum TrinityStrings
     LANG_ACCOUNT_ADDON                  = 61,
     LANG_IMPROPER_VALUE                 = 62,
     LANG_CANT_DO_NOW                    = 63,
-	LANG_CHEAT_STATUS                   = 64,
-	LANG_CHEAT_INDIV                    = 65,
+    LANG_CHEAT_STATUS                   = 64,
+    LANG_CHEAT_INDIV                    = 65,
     // Room for more level 0              66-99 not used
 
     // level 1 chat

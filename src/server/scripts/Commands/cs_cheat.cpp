@@ -166,10 +166,10 @@ public:
 
         handler->SendSysMessage(LANG_CHEAT_STATUS);
         handler->PSendSysMessage(LANG_CHEAT_INDIV, "God", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-		handler->PSendSysMessage(LANG_CHEAT_INDIV, "Cooldown", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-		handler->PSendSysMessage(LANG_CHEAT_INDIV, "Casttime", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-		handler->PSendSysMessage(LANG_CHEAT_INDIV, "Power", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-		handler->PSendSysMessage(LANG_CHEAT_INDIV, "Waterwalk", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+        handler->PSendSysMessage(LANG_CHEAT_INDIV, "Cooldown", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+        handler->PSendSysMessage(LANG_CHEAT_INDIV, "Casttime", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+        handler->PSendSysMessage(LANG_CHEAT_INDIV, "Power", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+        handler->PSendSysMessage(LANG_CHEAT_INDIV, "Waterwalk", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
         return true;
     }
 
