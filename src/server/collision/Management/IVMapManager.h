@@ -35,7 +35,7 @@ namespace VMAP
     {
         VMAP_LOAD_RESULT_ERROR,
         VMAP_LOAD_RESULT_OK,
-        VMAP_LOAD_RESULT_IGNORED,
+        VMAP_LOAD_RESULT_IGNORED
     };
 
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check

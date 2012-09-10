@@ -507,7 +507,7 @@ class DatabaseWorkerPool
         {
             IDX_ASYNC,
             IDX_SYNCH,
-            IDX_SIZE,
+            IDX_SIZE
         };
 
         ACE_Activation_Queue*           _queue;             //! Queue shared by async worker threads.
