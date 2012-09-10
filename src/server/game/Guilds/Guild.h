@@ -787,6 +787,8 @@ public:
     void ResetDailyExperience();
     GuildNewsLog& GetNewsLog() { return _newsLog; }
 
+    EmblemInfo const& GetEmblemInfo() const { return m_emblemInfo; }
+
 protected:
     uint32 m_id;
     std::string m_name;
