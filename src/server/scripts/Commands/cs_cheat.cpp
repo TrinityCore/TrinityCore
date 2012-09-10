@@ -41,7 +41,7 @@ public:
             { "cooldown",       SEC_GAMEMASTER,     false, &HandleCoolDownCheatCommand,        "", NULL },
             { "power",          SEC_GAMEMASTER,     false, &HandlePowerCheatCommand,           "", NULL },
             { "waterwalk",      SEC_GAMEMASTER,     false, &HandleWaterWalkCheatCommand,       "", NULL },
-            { "staus",          SEC_GAMEMASTER,     false, &HandleCheatStatusCommand,          "", NULL },
+            { "status",         SEC_GAMEMASTER,     false, &HandleCheatStatusCommand,          "", NULL },
             { "taxi",           SEC_GAMEMASTER,     false, &HandleTaxiCheatCommand,            "", NULL },
             { "explore",        SEC_GAMEMASTER,     false, &HandleExploreCheatCommand,         "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
@@ -164,12 +164,12 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        handler->SendSysMessage("Status for all Cheat Commands:");
-        handler->PSendSysMessage("God: %s", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-        handler->PSendSysMessage("Cooldown: %s", player->GetCommandStatus(CHEAT_COOLDOWN) ? "Enabled" : "Disabled");
-        handler->PSendSysMessage("Casttime: %s", player->GetCommandStatus(CHEAT_CASTTIME) ? "Enabled" : "Disabled");
-        handler->PSendSysMessage("Power: %s", player->GetCommandStatus(CHEAT_POWER) ? "Enabled" : "Disabled");
-        handler->PSendSysMessage("Waterwalk: %s", player->GetCommandStatus(CHEAT_WATERWALK) ? "Enabled" : "Disabled");
+        handler->SendSysMessage(LANG_CHEAT_STATUS);
+        handler->PSendSysMessage(LANG_CHEAT_INDIV, "God", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+		handler->PSendSysMessage(LANG_CHEAT_INDIV, "Cooldown", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+		handler->PSendSysMessage(LANG_CHEAT_INDIV, "Casttime", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+		handler->PSendSysMessage(LANG_CHEAT_INDIV, "Power", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+		handler->PSendSysMessage(LANG_CHEAT_INDIV, "Waterwalk", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
         return true;
     }
 
