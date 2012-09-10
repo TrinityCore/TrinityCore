@@ -1851,7 +1851,7 @@ void Guild::HandleRemoveRank(WorldSession* session, uint32 rankId)
     }
 }
 
-void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
+void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount, bool cashFlow /*=false*/)
 {
     Player* player = session->GetPlayer();
 
@@ -1872,11 +1872,12 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
             player->GetName(), player->GetSession()->GetAccountId(), amount, m_id);
     }
     // Log guild bank event
-    _LogBankEvent(trans, GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), player->GetGUIDLow(), amount);
+    _LogBankEvent(trans, cashFlow ? GUILD_BANK_LOG_CASH_FLOW_DEPOSIT : GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), player->GetGUIDLow(), amount);
 
     CharacterDatabase.CommitTransaction(trans);
-
-    SendBankList(session, 0, false, false);
+    
+    if (!cashFlow)
+        SendBankList(session, 0, false, false);
 }
 
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool repair)
