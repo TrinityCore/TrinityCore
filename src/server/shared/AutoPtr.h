@@ -48,6 +48,6 @@ namespace Trinity
                 return ACE_Strong_Bound_Ptr<Pointer, Lock>::get() != x;
             }
     };
-};
+}
 
 #endif
