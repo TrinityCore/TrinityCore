@@ -21,92 +21,6 @@
 #include "ulduar.h"
 #include "InstanceScript.h"
 
-/* SQL
--- UPDATE `creature_template` SET `AIName`='', `ScriptName`= WHERE `entry`=;
-
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_steelforged_defender' WHERE `entry`=33236;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_ironwork_cannon' WHERE `entry`=33264;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_corrupted_servitor' WHERE `entry`=33354;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_misguided_nymph' WHERE `entry`=33355;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_guardian_lasher' WHERE `entry`=33430;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_forest_swarmer' WHERE `entry`=33431;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_mangrove_ent' WHERE `entry`=33525;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_ironroot_lasher' WHERE `entry`=33526;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_natures_blade' WHERE `entry`=33527;  
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_guardian_of_life' WHERE `entry`=33528; 
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_storm_tempered_keeper' WHERE `entry` IN (33699, 33722); 
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_charged_sphere' WHERE `entry`=33715;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_faceless_horror' WHERE `entry`=33772; 
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_adherent' WHERE `entry`=33818; 
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_frost_mage' WHERE `entry`=33819;  
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_pyromancer' WHERE `entry`=33820;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_enslaved_fire_elemental' WHERE `entry`=33838;  
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_guardian' WHERE `entry`=33822;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_slayer' WHERE `entry`=33823;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_twilight_shadowblade' WHERE `entry`=33824;
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_molten_colossus' WHERE `entry`=34069;   
-UPDATE `creature_template` SET `ScriptName`='npc_runeforged_sentry' WHERE `entry`=34234;
-
-DELETE FROM `spell_script_names` WHERE `spell_id`=63059;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63059, 'spell_pollinate');
-
-DELETE FROM `spell_linked_spell` WHERE  `spell_trigger`=62317 AND `spell_effect`=57807 AND `type`=1;
-INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES (62317, 57807, 1, 'Twilight Guardian - Link Devastate to Sunder Armor');
-
-  
-*/
-
-// class npc_ : public CreatureScript
-// {
-// private:
-//     enum MyEvents
-//     {
-// 
-//     };
-//     enum Spells
-//     {
-// 
-//     };
-// public:
-//     npc_ () : CreatureScript("") {}
-// 
-//     struct npc_AI: public ScriptedAI
-//     {
-//         npc_AI(Creature* creature) : ScriptedAI(creature) {}
-// 
-//         void Reset()
-//         {
-//             events.Reset();
-//         }
-// 
-//         void UpdateAI(uint32 const diff)
-//         {
-//             if (!UpdateVictim())
-//                 return;
-// 
-//             events.Update(diff);
-// 
-//             while (uint32 event = events.ExecuteEvent())
-//             {
-//                 switch (event)
-//                 {
-// 
-//                 }
-//             }
-// 
-//             DoMeleeAttackIfReady();
-//         }
-// 
-//     private:
-//         EventMap events;
-//     };
-// 
-//     CreatureAI* GetAI(Creature* creature) const
-//     {
-//         return new npc_AI(creature);
-//     }
-// };
-
 /************************************************************************/
 /*                       Predicates                                     */
 /************************************************************************/
@@ -153,14 +67,16 @@ class npc_steelforged_defender : public CreatureScript
         {
             EVENT_HAMSTRING         = 1,
             EVENT_LIGHTNING_BOLT,
-            EVENT_SUNDER_ARMOR,
+            EVENT_SUNDER_ARMOR
         };
+
         enum Spells
         {
             SPELL_HAMSTRING         = 62845,
             SPELL_LIGHTNING_BOLT    = 57780,
-            SPELL_SUNDER_ARMOR      = 50370,
+            SPELL_SUNDER_ARMOR      = 50370
         };
+
     public:
         npc_steelforged_defender () : CreatureScript("npc_steelforged_defender") {}
 
@@ -200,13 +116,13 @@ class npc_steelforged_defender : public CreatureScript
                     {
                         case EVENT_HAMSTRING:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f), SPELL_HAMSTRING);
-                            events.ScheduleEvent(EVENT_HAMSTRING, 10*IN_MILLISECONDS);                          
+                            events.ScheduleEvent(EVENT_HAMSTRING, 10*IN_MILLISECONDS);
                             break;
                         case EVENT_LIGHTNING_BOLT:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f), SPELL_LIGHTNING_BOLT);
                             events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 9*IN_MILLISECONDS);
                             break;
-                        case EVENT_SUNDER_ARMOR:                            
+                        case EVENT_SUNDER_ARMOR:
                             DoCastVictim( SPELL_SUNDER_ARMOR);
                             if (Unit* vic = me->getVictim())
                                 if (Aura* sunder = vic->GetAura(SPELL_SUNDER_ARMOR))
@@ -216,6 +132,8 @@ class npc_steelforged_defender : public CreatureScript
                                         break;
                                     }
                             events.ScheduleEvent(EVENT_SUNDER_ARMOR, 2*IN_MILLISECONDS);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -237,12 +155,14 @@ class npc_ironwork_cannon : public CreatureScript
     private:
         enum MyEvents
         {
-            EVENT_FLAME_CANNON = 1,
+            EVENT_FLAME_CANNON = 1
         };
+
         enum Spells
         {
-            SPELL_FLAME_CANNON = 62395,
+            SPELL_FLAME_CANNON = 62395
         };
+
     public:
         npc_ironwork_cannon () : CreatureScript("npc_ironwork_cannon") {}
 
@@ -257,6 +177,7 @@ class npc_ironwork_cannon : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_FLAME_CANNON, 1200);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
             void UpdateAI(uint32 const diff)
@@ -274,6 +195,8 @@ class npc_ironwork_cannon : public CreatureScript
                             if ( Unit* dest = SelectTarget(SELECT_TARGET_RANDOM, 0, RangeCheck(me, 30.0f, 200.0f)) )
                                 DoCast(dest, SPELL_FLAME_CANNON);
                             events.ScheduleEvent(EVENT_FLAME_CANNON, 1500);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -298,14 +221,16 @@ class npc_molten_colossus : public CreatureScript
         {
             EVENT_EARTHQUAKE = 1,
             EVENT_MAGMA_SPLASH,
-            EVENT_PYROBLAST,
+            EVENT_PYROBLAST
         };
+
         enum Spells
         {
             SPELL_EARTHQUAKE    = 64697,
             SPELL_MAGMA_SPLASH  = 64699,
-            SPELL_PYROBLAST     = 64698,
+            SPELL_PYROBLAST     = 64698
         };
+
     public:
         npc_molten_colossus () : CreatureScript("npc_molten_colossus") {}
 
@@ -348,6 +273,8 @@ class npc_molten_colossus : public CreatureScript
                                 DoCast(target, SPELL_PYROBLAST);
                             events.ScheduleEvent(EVENT_PYROBLAST, urand(6*IN_MILLISECONDS, 9*IN_MILLISECONDS));
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -371,14 +298,16 @@ class npc_runeforged_sentry : public CreatureScript
         {
             EVENT_FLAMING_RUNE         = 1,
             EVENT_LAVA_BURST,
-            EVENT_RUNED_FLAME_JETS,
+            EVENT_RUNED_FLAME_JETS
         };
+
         enum Spells
         {
             SPELL_FLAMING_RUNE      = 64852,
             SPELL_LAVA_BURST        = 64870,
-            SPELL_RUNED_FLAME_JETS  = 64847,
+            SPELL_RUNED_FLAME_JETS  = 64847
         };
+
     public:
         npc_runeforged_sentry () : CreatureScript("npc_runeforged_sentry") {}
 
@@ -428,6 +357,8 @@ class npc_runeforged_sentry : public CreatureScript
                             DoCastVictim(SPELL_RUNED_FLAME_JETS);
                             events.ScheduleEvent(EVENT_RUNED_FLAME_JETS, urand(15000, 20000));
                             break;
+                        default:
+                            break;
                     }
                 }
                 DoMeleeAttackIfReady();
@@ -444,18 +375,13 @@ class npc_runeforged_sentry : public CreatureScript
 };
 
 /************************************************************************/
-/*                          Outer Sanctuary                             */
-/************************************************************************/
-
-
-/************************************************************************/
 /*                          Inner Sanctuary                             */
 /************************************************************************/
 
 enum
 {
     NPC_STORM_TEMPERED_KEEPER_1 = 33699,
-    NPC_STORM_TEMPERED_KEEPER_2 = 33722,
+    NPC_STORM_TEMPERED_KEEPER_2 = 33722
 };
 
 class npc_storm_tempered_keeper : public CreatureScript
@@ -464,19 +390,22 @@ class npc_storm_tempered_keeper : public CreatureScript
         enum MyEvents
         {
             EVENT_FORKED_LIGHTNING          = 1,
-            EVENT_SUMMONS_CHARGED_SPHERE,
+            EVENT_SUMMONS_CHARGED_SPHERE
         };
+
         enum Spells
         {
             SPELL_FORKED_LIGHTNING      = 63527,
             SPELL_SEPARATION_ANXIETY    = 63539,
             SPELL_SUMMON_CHARGED_SPHERE = 63527,    // Summons 33715, script below
-            SPELL_VENGEFUL_SURGE        = 33699,
+            SPELL_VENGEFUL_SURGE        = 33699
         };
+
         enum Misc
         {
-            ACTION_VENGEFUL_SURGE = 1,            
+            ACTION_VENGEFUL_SURGE = 1
         };
+
     public:
         npc_storm_tempered_keeper () : CreatureScript("npc_storm_tempered_keeper") {}
 
@@ -497,6 +426,8 @@ class npc_storm_tempered_keeper : public CreatureScript
                 {
                     case ACTION_VENGEFUL_SURGE:
                         DoCast(SPELL_VENGEFUL_SURGE);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -523,7 +454,7 @@ class npc_storm_tempered_keeper : public CreatureScript
                 GetCreatureListWithEntryInGrid(targets, me, NPC_STORM_TEMPERED_KEEPER_2, 30.0f);
                 targets.sort(Trinity::ObjectDistanceOrderPred(me));
                 if ( !me->IsInRange( (*targets.begin()), 0.0f, 15.0f) )
-                    DoCast(SPELL_SEPARATION_ANXIETY);                
+                    DoCast(SPELL_SEPARATION_ANXIETY);
             }
 
             void UpdateAI(uint32 const diff)
@@ -546,6 +477,8 @@ class npc_storm_tempered_keeper : public CreatureScript
                         case EVENT_SUMMONS_CHARGED_SPHERE:
                             DoCast(SPELL_SUMMON_CHARGED_SPHERE);
                             events.ScheduleEvent(EVENT_SUMMONS_CHARGED_SPHERE, 30*IN_MILLISECONDS);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -571,10 +504,12 @@ class npc_charged_sphere : public CreatureScript
             EVENT_START_DEST_CHASE = 1,
             EVENT_END_DEST_CHASE
         };
+
         enum Spells
         {
-            SPELL_SUPERCHARGED = 63528,
+            SPELL_SUPERCHARGED = 63528
         };
+
     public:
         npc_charged_sphere () : CreatureScript("npc_charged_sphere") {}
 
@@ -616,6 +551,8 @@ class npc_charged_sphere : public CreatureScript
                                 DoCast(dest, SPELL_SUPERCHARGED);
                             me->DespawnOrUnsummon(500);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -642,14 +579,16 @@ class npc_corrupted_servitor : public CreatureScript
         enum MyEvents
         {
             EVENT_VIOLENT_EARTH     = 1,
-            EVENT_PETRIFY_JOINTS,
+            EVENT_PETRIFY_JOINTS
         };
+
         enum Spells
         {
             SPELL_VIOLENT_EARTH     = 63149,
             SPELL_PETRIFY_JOINTS_10 = 63169,
-            SPELL_PETRIFY_JOINTS_25 = 63549,
+            SPELL_PETRIFY_JOINTS_25 = 63549
         };
+
     public:
         npc_corrupted_servitor () : CreatureScript("npc_corrupted_servitor") {}
 
@@ -683,6 +622,8 @@ class npc_corrupted_servitor : public CreatureScript
                             DoCast( SelectTarget(SELECT_TARGET_RANDOM, 0, AuraAppliedCheck<false>(RAID_MODE(SPELL_PETRIFY_JOINTS_10, SPELL_PETRIFY_JOINTS_25))), RAID_MODE(SPELL_PETRIFY_JOINTS_10, SPELL_PETRIFY_JOINTS_25) );
                             events.ScheduleEvent(EVENT_PETRIFY_JOINTS, 5*IN_MILLISECONDS);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -706,8 +647,9 @@ class npc_misguided_nymph : public CreatureScript
         {
             EVENT_BIND_LIFE         = 1,
             EVENT_FROST_SPEAR,
-            EVENT_WINTERS_EMBRACE,
+            EVENT_WINTERS_EMBRACE
         };
+
         enum Spells
         {
             SPELL_BIND_LIFE_10       = 63082,
@@ -715,8 +657,9 @@ class npc_misguided_nymph : public CreatureScript
             SPELL_FROST_SPEAR_10     = 63111,
             SPELL_FROST_SPEAR_25     = 63562,
             SPELL_WINTERS_EMBRACE_10 = 63136,
-            SPELL_WINTERS_EMBRACE_25 = 63564,
+            SPELL_WINTERS_EMBRACE_25 = 63564
         };
+
     public:
         npc_misguided_nymph () : CreatureScript("npc_misguided_nymph") {}
 
@@ -757,6 +700,8 @@ class npc_misguided_nymph : public CreatureScript
                                 DoCast(me, RAID_MODE(SPELL_WINTERS_EMBRACE_10, SPELL_WINTERS_EMBRACE_25));
                             events.ScheduleEvent(EVENT_WINTERS_EMBRACE, 30*IN_MILLISECONDS);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -778,14 +723,16 @@ class npc_guardian_lasher : public CreatureScript
     private:
         enum MyEvents
         {
-            EVENT_GUARDIANS_LASH = 1,
+            EVENT_GUARDIANS_LASH = 1
         };
+
         enum Spells
         {
             SPELL_GUARDIANS_LASH_10     = 63047,
             SPELL_GUARDIANS_LASH_25     = 63550,
             SPELL_GUARDIAN_PHEROMONES   = 63007 
         };
+
     public:
         npc_guardian_lasher () : CreatureScript("npc_guardian_lasher") {}
 
@@ -796,7 +743,7 @@ class npc_guardian_lasher : public CreatureScript
             void Reset()
             {
                 DoCast(SPELL_GUARDIAN_PHEROMONES);
-                events.Reset();                
+                events.Reset();
                 events.ScheduleEvent(EVENT_GUARDIANS_LASH, 2*IN_MILLISECONDS);
             }
 
@@ -817,6 +764,8 @@ class npc_guardian_lasher : public CreatureScript
                         case EVENT_GUARDIANS_LASH:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f), RAID_MODE(SPELL_GUARDIANS_LASH_10, SPELL_GUARDIANS_LASH_25));
                             events.ScheduleEvent(EVENT_GUARDIANS_LASH, 6*IN_MILLISECONDS);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -839,12 +788,14 @@ class npc_forest_swarmer : public CreatureScript
     private:
         enum MyEvents
         {   
-            EVENT_POLLINATE = 1,
+            EVENT_POLLINATE = 1
         };
+
         enum Spells
         {
             SPELL_POLLINATE = 63059 // TODO: Maybe this spell requires a script for target selection, the below is possibly not was is intended.
         };
+
     public:
         npc_forest_swarmer () : CreatureScript("npc_forest_swarmer") {}
 
@@ -869,9 +820,11 @@ class npc_forest_swarmer : public CreatureScript
                 {
                     switch (event)
                     {
-                        case EVENT_POLLINATE:   
+                        case EVENT_POLLINATE:
                             DoCast(SPELL_POLLINATE);    // Targeting is done by spell-script
                             events.ScheduleEvent(EVENT_POLLINATE, 30*IN_MILLISECONDS);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -896,16 +849,18 @@ class npc_mangrove_ent : public CreatureScript
         {
             EVENT_HURRICANE = 1,
             EVENT_NOURISH,
-            EVENT_TRANQUILITY,
+            EVENT_TRANQUILITY
         };
+
         enum Spells
         {
             SPELL_HURRICANE      = 63272,
             SPELL_NOURISH_10     = 63242,
             SPELL_NOURISH_25     = 63556,
             SPELL_TRANQUILITY_10 = 63241,
-            SPELL_TRANQUILITY_25 = 63554,
+            SPELL_TRANQUILITY_25 = 63554
         };
+
     public:
         npc_mangrove_ent () : CreatureScript("npc_mangrove_ent") {}
 
@@ -956,6 +911,8 @@ class npc_mangrove_ent : public CreatureScript
                             DoCast(RAID_MODE(SPELL_TRANQUILITY_10, SPELL_TRANQUILITY_25));
                             events.ScheduleEvent(EVENT_TRANQUILITY, 30*IN_MILLISECONDS);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -979,11 +936,13 @@ class npc_ironroot_lasher : public CreatureScript
         {
             EVENT_IRONROOT_THORNS = 1
         };
+
         enum Spells
         {
             SPELL_IRONROOT_THORNS_10 = 63240,
-            SPELL_IRONROOT_THORNS_25 = 63553,
+            SPELL_IRONROOT_THORNS_25 = 63553
         };
+
     public:
         npc_ironroot_lasher () : CreatureScript("npc_ironroot_lasher") {}
 
@@ -1009,13 +968,17 @@ class npc_ironroot_lasher : public CreatureScript
                     switch (event)
                     {
                         case EVENT_IRONROOT_THORNS:
-                            std::list<Unit*> allies;
-                            Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 40.0f);
-                            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, allies, checker);
-                            me->VisitNearbyObject(40.0f, searcher);
-                            allies.push_back(me->ToUnit());
-                            DoCast( Trinity::Containers::SelectRandomContainerElement(allies), RAID_MODE(SPELL_IRONROOT_THORNS_10, SPELL_IRONROOT_THORNS_25) );
-                            events.ScheduleEvent(EVENT_IRONROOT_THORNS, 2*IN_MILLISECONDS);
+                            {
+                                std::list<Unit*> allies;
+                                Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 40.0f);
+                                Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, allies, checker);
+                                me->VisitNearbyObject(40.0f, searcher);
+                                allies.push_back(me->ToUnit());
+                                DoCast( Trinity::Containers::SelectRandomContainerElement(allies), RAID_MODE(SPELL_IRONROOT_THORNS_10, SPELL_IRONROOT_THORNS_25) );
+                                events.ScheduleEvent(EVENT_IRONROOT_THORNS, 2*IN_MILLISECONDS);
+                                break;
+                            }
+                        default:
                             break;
                     }
                 }
@@ -1040,11 +1003,13 @@ class npc_natures_blade : public CreatureScript
         {
             EVENT_LIVING_TSUNAMI = 1
         };
+
         enum Spells
         {
             SPELL_LIVING_TSUNAMI_10 = 63247,
-            SPELL_LIVING_TSUNAMI_25 = 63568,
+            SPELL_LIVING_TSUNAMI_25 = 63568
         };
+
     public:
         npc_natures_blade () : CreatureScript("npc_natures_blade") {}
 
@@ -1076,7 +1041,9 @@ class npc_natures_blade : public CreatureScript
                                 DoCast( RAID_MODE(SPELL_LIVING_TSUNAMI_10, SPELL_LIVING_TSUNAMI_25) );
                             }
                             events.ScheduleEvent(EVENT_LIVING_TSUNAMI, 3*IN_MILLISECONDS);
-                            break;                        
+                            break;
+                        default:
+                            break;
                     }
                 }
 
@@ -1098,13 +1065,15 @@ class npc_guardian_of_life : public CreatureScript
     private:
         enum MyEvents
         {
-            EVENT_POISON_BREATH = 1,
+            EVENT_POISON_BREATH = 1
         };
+
         enum Spells
         {
             SPELL_POISON_BREATH_10 = 63226,
-            SPELL_POISON_BREATH_25 = 63551,
+            SPELL_POISON_BREATH_25 = 63551
         };
+
     public:
         npc_guardian_of_life () : CreatureScript("npc_guardian_of_life") {}
 
@@ -1137,6 +1106,8 @@ class npc_guardian_of_life : public CreatureScript
                             }
                             events.ScheduleEvent(EVENT_POISON_BREATH, 5*IN_MILLISECONDS);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -1168,6 +1139,7 @@ class npc_faceless_horror : public CreatureScript
             EVENT_VOID_BARRIER_END,
             EVENT_VOID_WAVE
         };
+
         enum Spells
         {
             SPELL_DEATH_GRIP_FH = 64429,
@@ -1175,6 +1147,7 @@ class npc_faceless_horror : public CreatureScript
             SPELL_VOID_BARRIER  = 63710,
             SPELL_VOID_WAVE     = 63703,
         };
+
     public:
         npc_faceless_horror () : CreatureScript("npc_faceless_horror") {}
 
@@ -1234,6 +1207,8 @@ class npc_faceless_horror : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_VOID_BARRIER);
                             events.ScheduleEvent(EVENT_VOID_BARRIER_BEGIN, 10*IN_MILLISECONDS);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -1259,16 +1234,18 @@ class npc_twilight_adherent : public CreatureScript
             EVENT_BLINK,
             EVENT_GREATER_HEAL,
             EVENT_PSYCHIC_SCREAM,
-            EVENT_RENEW,
+            EVENT_RENEW
         };
+
         enum Spells
         {
             SPELL_ARCANE_BURST      = 64663,
             SPELL_BLINK             = 64662,
             SPELL_GREATER_HEAL      = 63760,
             SPELL_PSYCHIC_SCREAM    = 13704,
-            SPELL_RENEW             = 37978,  
+            SPELL_RENEW             = 37978,
         };
+
     public:
         npc_twilight_adherent () : CreatureScript("npc_twilight_adherent") {}
 
@@ -1333,6 +1310,8 @@ class npc_twilight_adherent : public CreatureScript
                                 DoCast(ally, SPELL_RENEW);
                             events.ScheduleEvent(EVENT_RENEW, urand(6*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -1358,16 +1337,18 @@ class npc_twilight_frost_mage : public CreatureScript
             EVENT_BLINK,
             EVENT_FROST_NOVA,
             EVENT_FROSTBOLT,
-            EVENT_FROSTBOLT_VOLLEY,
+            EVENT_FROSTBOLT_VOLLEY
         };
+
         enum Spells
         {
             SPELL_ARCANE_BURST      = 64663,
             SPELL_BLINK             = 64662,
             SPELL_FROST_NOVA        = 63912,
             SPELL_FROSTBOLT         = 63913,
-            SPELL_FROSTBOLT_VOLLEY  = 63758,
+            SPELL_FROSTBOLT_VOLLEY  = 63758
         };
+
     public:
         npc_twilight_frost_mage () : CreatureScript("npc_twilight_frost_mage") {}
 
@@ -1402,7 +1383,7 @@ class npc_twilight_frost_mage : public CreatureScript
                             DoCast(SPELL_ARCANE_BURST); // is paired with blink, so no need to reschedule this
                             break;
                         case EVENT_BLINK:
-                            DoCast( SelectTarget(SELECT_TARGET_FARTHEST, 0, 150.0f), SPELL_BLINK );                            
+                            DoCast( SelectTarget(SELECT_TARGET_FARTHEST, 0, 150.0f), SPELL_BLINK );
                             events.ScheduleEvent(EVENT_ARCANE_BURST, 1*IN_MILLISECONDS);
                             break;
                         case EVENT_FROST_NOVA:
@@ -1416,6 +1397,8 @@ class npc_twilight_frost_mage : public CreatureScript
                         case EVENT_FROSTBOLT_VOLLEY:
                             DoCast(SPELL_FROSTBOLT_VOLLEY);
                             events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -1442,8 +1425,9 @@ class npc_twilight_pyromancer : public CreatureScript
             EVENT_BLINK,
             EVENT_FIREBALL,
             EVENT_FLAME_STRIKE,
-            EVENT_SUMMON_FIRE_ELE,
+            EVENT_SUMMON_FIRE_ELE
         };
+
         enum Spells
         {
             SPELL_ARCANE_BURST      = 64663,
@@ -1452,6 +1436,7 @@ class npc_twilight_pyromancer : public CreatureScript
             SPELL_FLAME_STRIKE      = 63775,
             SPELL_SUMMON_FIRE_ELE   = 63774
         };
+
     public:
         npc_twilight_pyromancer () : CreatureScript("npc_twilight_pyromancer") {}
 
@@ -1468,7 +1453,7 @@ class npc_twilight_pyromancer : public CreatureScript
 
                 events.ScheduleEvent(EVENT_BLINK, urand(8*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FIREBALL, urand(3*IN_MILLISECONDS, 5*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_FLAME_STRIKE, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));                
+                events.ScheduleEvent(EVENT_FLAME_STRIKE, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
             }
 
             void JustSummoned(Creature* summon)
@@ -1516,6 +1501,8 @@ class npc_twilight_pyromancer : public CreatureScript
                             DoCast( SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f), SPELL_FLAME_STRIKE );
                             events.ScheduleEvent(EVENT_FLAME_STRIKE, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -1539,13 +1526,15 @@ class npc_enslaved_fire_elemental : public CreatureScript
         enum MyEvents
         {
             EVENT_FIRE_SHIELD_CHECK = 1,
-            EVENT_BLAST_WAVE,
+            EVENT_BLAST_WAVE
         };
+
         enum Spells
         {
             SPELL_FIRE_SHIELD   = 63778,
             SPELL_BLAST_WAVE    = 38064
         };
+
     public:
         npc_enslaved_fire_elemental () : CreatureScript("npc_enslaved_fire_elemental") {}
 
@@ -1589,6 +1578,8 @@ class npc_enslaved_fire_elemental : public CreatureScript
                             DoCast(SPELL_BLAST_WAVE);
                             events.ScheduleEvent(EVENT_BLAST_WAVE, 6*IN_MILLISECONDS);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -1613,15 +1604,17 @@ class npc_twilight_guardian : public CreatureScript
             EVENT_CONCUSSION_BLOW = 1,
             EVENT_DEVASTATE,
             EVENT_SUNDER_ARMOR,
-            EVENT_THUNDERCLAP,
+            EVENT_THUNDERCLAP
         };
+
         enum Spells
         {
             SPELL_CONCUSSION_BLOW   = 52719,
             SPELL_DEVASTATE         = 62317,
             SPELL_SUNDER_ARMOR      = 57807,
-            SPELL_THUNDERCLAP       = 63757,
+            SPELL_THUNDERCLAP       = 63757
         };
+
     public:
         npc_twilight_guardian () : CreatureScript("npc_twilight_guardian") {}
 
@@ -1655,7 +1648,7 @@ class npc_twilight_guardian : public CreatureScript
                             {
                                 me->AddThreat(target, 1000.0f);
                                 AttackStart(target);
-                            }                                
+                            }
                             events.ScheduleEvent(EVENT_CONCUSSION_BLOW, urand(3*IN_MILLISECONDS, 6*IN_MILLISECONDS));
                             break;
                         case EVENT_DEVASTATE:
@@ -1691,11 +1684,13 @@ class npc_twilight_slayer : public CreatureScript
             EVENT_BLADESTORM = 1,
             EVENT_MORTAL_STRIKE
         };
+
         enum Spells
         {
             SPELL_BLADESTORM = 63784,
-            SPELL_MORTAL_STRIKE = 35054,
+            SPELL_MORTAL_STRIKE = 35054
         };
+
     public:
         npc_twilight_slayer () : CreatureScript("npc_twilight_slayer") {}
 
@@ -1733,6 +1728,8 @@ class npc_twilight_slayer : public CreatureScript
                             DoCastVictim(SPELL_MORTAL_STRIKE);
                             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(4*IN_MILLISECONDS, 6*IN_MILLISECONDS));
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -1757,16 +1754,18 @@ class npc_twilight_shadowblade : public CreatureScript
             EVENT_SHADOWSTEP = 1,
             EVENT_BACKSTAB,
             EVENT_FAN_OF_KNIVES,
-            EVENT_DEADLY_POSION,
+            EVENT_DEADLY_POSION
         };
+
         enum Spells
         {
             SPELL_STEALTH = 30831,
             SPELL_SHADOWSTEP = 36554,
             SPELL_BACKSTAB = 63754,
             SPELL_FAN_OF_KNIVES = 63753,
-            SPELL_DEADLY_POSION = 63755,
+            SPELL_DEADLY_POSION = 63755
         };
+
     public:
         npc_twilight_shadowblade () : CreatureScript("npc_twilight_shadowblade") {}
 
@@ -1814,13 +1813,15 @@ class npc_twilight_shadowblade : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
                                 DoCast(target, SPELL_SHADOWSTEP);
-                                AttackStart(target);                            
+                                AttackStart(target);
                                 events.ScheduleEvent(EVENT_BACKSTAB, 300);
                             }
                             events.ScheduleEvent(EVENT_SHADOWSTEP, urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             break;
-                        case EVENT_BACKSTAB:                            
+                        case EVENT_BACKSTAB:
                             DoCastVictim(SPELL_BACKSTAB);
+                            break;
+                        default:
                             break;
                     }
                 }

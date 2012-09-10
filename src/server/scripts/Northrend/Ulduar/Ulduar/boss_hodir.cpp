@@ -43,7 +43,7 @@ enum HodirYells
     SAY_HARD_MODE_FAILED                         = -1603218,
 
     EMOTE_FREEZE                                 = -1603209,
-    EMOTE_BLOWS                                  = -1603219,
+    EMOTE_BLOWS                                  = -1603219
 };
 
 enum HodirSpells
@@ -90,7 +90,7 @@ enum HodirSpells
     // Priests
     SPELL_SMITE                                  = 61923,
     SPELL_GREATER_HEAL                           = 62809,
-    SPELL_DISPEL_MAGIC                           = 63499,
+    SPELL_DISPEL_MAGIC                           = 63499
 };
 
 #define SPELL_FROZEN_BLOWS RAID_MODE(SPELL_FROZEN_BLOWS_10, SPELL_FROZEN_BLOWS_25)
@@ -104,13 +104,13 @@ enum HodirNPC
     NPC_SNOWPACKED_ICICLE                        = 33174,
     NPC_ICICLE                                   = 33169,
     NPC_ICICLE_SNOWDRIFT                         = 33173,
-    NPC_TOASTY_FIRE                              = 33342,
+    NPC_TOASTY_FIRE                              = 33342
 };
 
 enum HodirGameObjects
 {
     GO_TOASTY_FIRE                               = 194300,
-    GO_SNOWDRIFT                                 = 194173,
+    GO_SNOWDRIFT                                 = 194173
 };
 
 enum HodirEvents
@@ -122,7 +122,7 @@ enum HodirEvents
     EVENT_ICICLE,
     EVENT_BLOWS,
     EVENT_RARE_CACHE,
-    EVENT_BERSERK, 
+    EVENT_BERSERK
 };
 
 enum HodirActions
@@ -160,7 +160,7 @@ uint32 const Entry[8] =
     NPC_FIELD_MEDIC_JESSI,
     NPC_ELLIE_NIGHTFEATHER,
     NPC_ELEMENTALIST_AVUUN,
-    NPC_SISSY_FLAMECUFFS,
+    NPC_SISSY_FLAMECUFFS
 };
 
 class npc_flash_freeze : public CreatureScript
@@ -435,6 +435,8 @@ class boss_hodir : public CreatureScript
                             DoCast(me, SPELL_BERSERK, true);
                             events.CancelEvent(EVENT_BERSERK);
                             return;
+                        default:
+                            return;
                     }
                 }
 
@@ -567,7 +569,7 @@ class npc_snowpacked_icicle : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_PASSIVE);
-            }            
+            }
 
             void Reset()
             {
@@ -599,7 +601,12 @@ class npc_snowpacked_icicle : public CreatureScript
 class npc_hodir_priest : public CreatureScript
 {
     private:
-        enum { EVENT_HEAL = 1, EVENT_DISPEL_MAGIC };
+        enum
+        {
+            EVENT_HEAL = 1,
+            EVENT_DISPEL_MAGIC
+        };
+
     public:
         npc_hodir_priest() : CreatureScript("npc_hodir_priest") {}
 
@@ -681,7 +688,11 @@ class npc_hodir_priest : public CreatureScript
 class npc_hodir_shaman : public CreatureScript
 {
     private:
-        enum { EVENT_STORM_CLOUD = 1 };
+        enum
+        {
+            EVENT_STORM_CLOUD = 1
+        };
+
     public:
         npc_hodir_shaman() : CreatureScript("npc_hodir_shaman") {}
 
@@ -828,7 +839,12 @@ class npc_hodir_druid : public CreatureScript
 class npc_hodir_mage : public CreatureScript
 {
     private:
-        enum { EVENT_CONJURE_FIRE = 1, EVENT_MELT_ICE };
+        enum
+        {
+            EVENT_CONJURE_FIRE = 1,
+            EVENT_MELT_ICE
+        };
+
     public:
         npc_hodir_mage() : CreatureScript("npc_hodir_mage") {}
 
@@ -889,6 +905,8 @@ class npc_hodir_mage : public CreatureScript
                             if (Creature* FlashFreeze = me->FindNearestCreature(NPC_FLASH_FREEZE, 50.0f, true))
                                 DoCast(FlashFreeze, SPELL_MELT_ICE, true);
                             events.ScheduleEvent(EVENT_MELT_ICE, urand(10000, 15000));
+                            return;
+                        default:
                             return;
                     }
                 }

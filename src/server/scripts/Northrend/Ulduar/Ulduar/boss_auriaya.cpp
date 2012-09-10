@@ -49,7 +49,7 @@ enum AuriayaSpells
     SPELL_SAVAGE_POUNCE_25          = 64374,
     SPELL_RIP_FLESH_10              = 64375,
     SPELL_RIP_FLESH_25              = 64667,
-    SPELL_STRENGHT_OF_THE_PACK      = 64369, // Triggers 64381
+    SPELL_STRENGHT_OF_THE_PACK      = 64369  // Triggers 64381
 };
 
 #define SPELL_SENTINEL_BLAST RAID_MODE(SPELL_SENTINEL_BLAST_10, SPELL_SENTINEL_BLAST_25)
@@ -68,7 +68,7 @@ enum AuriayaNPCs
     NPC_SANCTUM_SENTRY                           = 34014,
     NPC_FERAL_DEFENDER                           = 34035,
     NPC_FERAL_DEFENDER_TRIGGER                   = 34096,
-    NPC_SEEPING_TRIGGER                          = 34098,
+    NPC_SEEPING_TRIGGER                          = 34098
 };
 
 enum AuriayaYells
@@ -82,7 +82,7 @@ enum AuriayaYells
 
     // Emotes
     EMOTE_FEAR                                   = -1603055,
-    EMOTE_DEFENDER                               = -1603056,
+    EMOTE_DEFENDER                               = -1603056
 };
 
 enum AuriayaActions
@@ -108,12 +108,12 @@ class boss_auriaya : public CreatureScript
     {
         // Auriaya
         EVENT_SONIC_SCREECH          = 1,
-        EVENT_SENTINEL_BLAST,         
-        EVENT_TERRIFYING_SCREECH,     
-        EVENT_SUMMON_SWARMING_GUARDIAN, 
-        EVENT_ACTIVATE_DEFENDER, 
+        EVENT_SENTINEL_BLAST,
+        EVENT_TERRIFYING_SCREECH,
+        EVENT_SUMMON_SWARMING_GUARDIAN,
+        EVENT_ACTIVATE_DEFENDER,
         EVENT_RESPAWN_DEFENDER,
-        EVENT_BERSERK, 
+        EVENT_BERSERK
     };
 
     public:
@@ -190,7 +190,9 @@ class boss_auriaya : public CreatureScript
                     case DATA_NINE_LIVES:
                         return nineLives ? 1 : 0;
                     case DATA_CRAZY_CAT_LADY:
-                        return crazyCatLady ? 1 : 0;                    
+                        return crazyCatLady ? 1 : 0;
+                    default:
+                        break;
                 }
                 return 0;
             }
@@ -204,6 +206,8 @@ class boss_auriaya : public CreatureScript
                         break;
                     case DATA_CRAZY_CAT_LADY:
                         crazyCatLady = data ? true : false;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -284,6 +288,8 @@ class boss_auriaya : public CreatureScript
                             DoCast(me, SPELL_BERSERK, true);
                             DoScriptText(SAY_BERSERK, me);
                             return;
+                        default:
+                            return;
                     }
                 }
 
@@ -338,7 +344,12 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 class npc_sanctum_sentry : public CreatureScript
 {
     private:
-        enum { EVENT_RIP = 1, EVENT_POUNCE };
+        enum
+        {
+            EVENT_RIP = 1,
+            EVENT_POUNCE
+        };
+
     public:
         npc_sanctum_sentry() : CreatureScript("npc_sanctum_sentry") {}
 
@@ -381,7 +392,7 @@ class npc_sanctum_sentry : public CreatureScript
                             DoCastVictim(SPELL_RIP_FLESH);
                             events.ScheduleEvent(EVENT_RIP, urand(12000, 15000));
                             break;
-                        case EVENT_POUNCE:                            
+                        case EVENT_POUNCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 DoResetThreat();
@@ -414,7 +425,12 @@ class npc_sanctum_sentry : public CreatureScript
 class npc_feral_defender : public CreatureScript
 {
     private:
-        enum { EVENT_FERAL_POUNCE = 1, EVENT_RUSH };
+        enum
+        {
+            EVENT_FERAL_POUNCE = 1,
+            EVENT_RUSH
+        };
+
     public:
         npc_feral_defender() : CreatureScript("npc_feral_defender") {}
 
@@ -462,8 +478,8 @@ class npc_feral_defender : public CreatureScript
                             }
                             events.ScheduleEvent(EVENT_RUSH, urand(10000, 12000));
                             break;
-                    default:
-                        break;
+                        default:
+                            break;
                     }
                 }
 

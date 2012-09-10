@@ -55,7 +55,7 @@ enum Events // Only start > 0 is relevant
     EVENT_UNBALANCING_STRIKE,
     EVENT_CHAIN_LIGHTNING,
     EVENT_TRANSFER_ENERGY,
-    EVENT_RELEASE_LIGHTNING_CHARGE,
+    EVENT_RELEASE_LIGHTNING_CHARGE
 };
 
 enum Yells
@@ -77,15 +77,15 @@ enum Yells
     SAY_END_HARD_1   = -1603284,
     SAY_END_HARD_2   = -1603285,
     SAY_END_HARD_3   = -1603286,
-    SAY_YS_HELP      = -1603287,
+    SAY_YS_HELP      = -1603287
 };
 
 enum Actions
 {
     ACTION_PREPHASE_ADDS_DIED = 1, 
-    ACTION_DOSCHEDULE_RUNIC_SMASH,                      
+    ACTION_DOSCHEDULE_RUNIC_SMASH,
     ACTION_BERSERK,
-    MAX_HARD_MODE_TIME = 3*MINUTE*IN_MILLISECONDS                          
+    MAX_HARD_MODE_TIME = 3*MINUTE*IN_MILLISECONDS
 };
 
 // Achievements
@@ -98,8 +98,8 @@ enum Creatures
     NPC_LIGHTNING_ORB               = 33138,
     NPC_THUNDER_ORB                 = 33378,
     NPC_THORIM_COMBAT_TRIGGER       = 34055,
-    NPC_THORIM_GOLEM_RH_BUNNY       = 33140, // TODO: does some stupid things
-    NPC_THORIM_GOLEM_LH_BUNNY       = 33141, // TODO: does some stupid things
+    NPC_THORIM_GOLEM_RH_BUNNY       = 33140,
+    NPC_THORIM_GOLEM_LH_BUNNY       = 33141
 };
 
 #define SPELL_AURA_OF_CELERITY                  62320
@@ -226,7 +226,7 @@ class HealerCheck
 class ArenaAreaCheck
 {
     public:
-        ArenaAreaCheck(bool shouldBeIn): __shouldBeIn(shouldBeIn) {}        
+        ArenaAreaCheck(bool shouldBeIn): __shouldBeIn(shouldBeIn) {}
         bool operator() (const WorldObject* unit)
         {
             return __shouldBeIn ? __IsInArena(unit) : !__IsInArena(unit);
@@ -248,7 +248,7 @@ class npc_thorim_controller : public CreatureScript
     private:
         enum MyEvents
         {
-            EVENT_CHECK_PLAYER_IN_RANGE = 1,
+            EVENT_CHECK_PLAYER_IN_RANGE = 1
         };
 
     public:
@@ -262,8 +262,9 @@ class npc_thorim_controller : public CreatureScript
                 me->SetVisible(false);
                 instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
                 gotActivated = false;
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void Reset()
@@ -319,14 +320,16 @@ class npc_thorim_controller : public CreatureScript
                                 me->VisitNearbyObject(70.0f, searcher);
                                 if (player)
                                     if (!player->isGameMaster())
-                                    {                                        
+                                    {
                                         for (uint8 i = 0; i < 6; i++)   // Spawn Pre-Phase Adds
                                             me->SummonCreature(preAddLocations[i].entry, preAddLocations[i].pos, TEMPSUMMON_CORPSE_DESPAWN);
-                                        gotActivated = true;                            
+                                        gotActivated = true;
                                     }
                                 if (!gotActivated)
                                     events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1000);
-                            }                            
+                            }
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -398,7 +401,7 @@ class boss_thorim : public CreatureScript
                 // Respawn Mini Bosses
                 for (uint8 i = DATA_RUNIC_COLOSSUS; i <= DATA_RUNE_GIANT; i++)  // TODO: Check if we can move this, it's a little bit crazy.
                     if (Creature* MiniBoss = ObjectAccessor::GetCreature(*me, instance->GetData64(i)))
-                        MiniBoss->Respawn(true);                
+                        MiniBoss->Respawn(true);
                 
                 if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -440,7 +443,10 @@ class boss_thorim : public CreatureScript
                     me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_HARDMODE_10, CACHE_OF_STORMS_HARDMODE_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0.0f, 0.0f, 1.0f, 1.0f, 604800);
                 }
                 else
-                    me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800);
+                {
+                    if (GameObject* go = me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, 604800))
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
 
                 _JustDied();
             }
@@ -452,7 +458,8 @@ class boss_thorim : public CreatureScript
 
                 // Spawn Thunder Orbs
                 for (uint8 n = 0; n < 7; n++)
-                    me->SummonCreature(NPC_THUNDER_ORB, PosOrbs[n], TEMPSUMMON_CORPSE_DESPAWN);
+                    if (Creature* thunderOrb = me->SummonCreature(NPC_THUNDER_ORB, PosOrbs[n], TEMPSUMMON_CORPSE_DESPAWN))
+                        thunderOrb->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 
                 EncounterTime = 0;
                 phase = PHASE_1;
@@ -519,7 +526,7 @@ class boss_thorim : public CreatureScript
                     EnterEvadeMode();
                     return;
                 }
-                                
+
                 EncounterTime += diff;
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -592,6 +599,8 @@ class boss_thorim : public CreatureScript
                             DoCast(me, SPELL_BERSERK_PHASE_2);
                             DoScriptText(SAY_BERSERK, me);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -612,6 +621,8 @@ class boss_thorim : public CreatureScript
                             gotBerserkedAndOrbSummoned = true;
                         }
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -627,6 +638,8 @@ class boss_thorim : public CreatureScript
                             events.Reset();
                             DoZoneInCombat();
                         }
+                        break;
+                    default:
                         break;
                 }
             }
@@ -814,7 +827,7 @@ class npc_thorim_pre_phase_add : public CreatureScript
         };
 
     public:
-        npc_thorim_pre_phase_add() : CreatureScript("npc_thorim_pre_phase_add") {}        
+        npc_thorim_pre_phase_add() : CreatureScript("npc_thorim_pre_phase_add") {}
 
         struct npc_thorim_pre_phaseAI : public ScriptedAI
         {
@@ -824,10 +837,10 @@ class npc_thorim_pre_phase_add : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
                 myIndex = myHelper[me->GetEntry()];
                 amIHealer = HealerCheck(true)(me);
-            }            
+            }
 
             void Reset()
-            {                
+            {
                 events.Reset();
                 events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1*IN_MILLISECONDS);
             }
@@ -882,7 +895,7 @@ class npc_thorim_pre_phase_add : public CreatureScript
                                     if (!player->isGameMaster())
                                         AttackStart(player);
                                 events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1000);
-                            }                            
+                            }
                             break;
                         case EVENT_PRIMARY_SKILL:
                             if (Unit* target = amIHealer ? (me->GetHealthPct() > 40? DoSelectLowestHpFriendly(40) : me) : me->getVictim())
@@ -901,6 +914,8 @@ class npc_thorim_pre_phase_add : public CreatureScript
                             }
                             else
                                 events.ScheduleEvent(EVENT_PRIMARY_SKILL, urand(1000, 2000));
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -955,8 +970,8 @@ enum ArenaAddsSpells
     //SPELL_GREATER_HEAL_10       = 62334,  // Used from previous definition
     //SPELL_GREATER_HEAL_25       = 62442,
     // Some tertiary skills
-    SPELL_RUNIC_MENDING_10      = 62328, 
-    SPELL_RUNIC_MENDING_25      = 62446,
+    SPELL_RUNIC_MENDING_10      = 62328,
+    SPELL_RUNIC_MENDING_25      = 62446
 };
 #define SPELL_RUNIC_MENDING     RAID_MODE(SPELL_RUNIC_MENDING_10, SPELL_RUNIC_MENDING_25)
 enum ArenaAddIndex
@@ -968,7 +983,7 @@ enum ArenaAddIndex
     INDEX_IRON_RING_GUARD,
     INDEX_IRON_HONOR_GUARD,
     INDEX_ARENA_DARK_RUNE_ACOLYTE,
-    INDEX_ARENA_ADD_NONE,
+    INDEX_ARENA_ADD_NONE
 };
 const uint32 ArenaAddSpells_Primary[2][7] = 
 {
@@ -1016,15 +1031,17 @@ class ArenaPhaseAddHelper
         uint32 operator()(ArenaAddIndex myId, Index idx)
         {
             if (myId < INDEX_ARENA_ADD_NONE)
+            {
                 if (idx == INDEX_PRIMARY)
                     return ArenaAddSpells_Primary[diffi][myId];
                 else
                     return ArenaAddSpells_Secondary[diffi][myId];
+            }
             return 0;
         }
 
-    private:    
-        ManCnt diffi;  
+    private:
+        ManCnt diffi;
 };
 
 class npc_thorim_arena_phase_add : public CreatureScript
@@ -1063,7 +1080,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
 
             void Reset()
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 events.ScheduleEvent(EVENT_PRIMARY_SKILL, urand(3000, 6000));
                 events.ScheduleEvent(EVENT_SECONDARY_SKILL, urand (7000, 9000));
                 if (myIndex == INDEX_DARK_RUNE_CHAMPION)
@@ -1134,6 +1151,8 @@ class npc_thorim_arena_phase_add : public CreatureScript
                                 DoCast(target, SPELL_CHARGE);
                             events.ScheduleEvent(EVENT_CHARGE, 12000);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -1200,7 +1219,7 @@ class npc_runic_colossus : public CreatureScript
             {
                 me->setActive(false);
                 me->GetMotionMaster()->MoveTargetedHome();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
                 // Runed Door closed
                 if (instance)
@@ -1231,6 +1250,8 @@ class npc_runic_colossus : public CreatureScript
                 {
                     case ACTION_DOSCHEDULE_RUNIC_SMASH:
                         events.ScheduleEvent(EVENT_RUNIC_SMASH, 1000);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -1304,6 +1325,8 @@ class npc_runic_colossus : public CreatureScript
                             if (!UpdateVictim())
                                 DoRunicSmash(side);
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoMeleeAttackIfReady();
@@ -1338,7 +1361,7 @@ class npc_runic_smash : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisplayId(16925);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);                
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void Reset()
@@ -1396,7 +1419,7 @@ class npc_ancient_rune_giant : public CreatureScript
         };
 
     public:
-        npc_ancient_rune_giant() : CreatureScript("npc_ancient_rune_giant") {}        
+        npc_ancient_rune_giant() : CreatureScript("npc_ancient_rune_giant") {}
 
         struct npc_ancient_rune_giantAI : public ScriptedAI
         {
@@ -1409,7 +1432,7 @@ class npc_ancient_rune_giant : public CreatureScript
 
             void Reset()
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 events.ScheduleEvent(EVENT_STOMP, urand(10000, 12000));
                 events.ScheduleEvent(EVENT_DETONATION, 25000);
 
@@ -1471,11 +1494,13 @@ class npc_ancient_rune_giant : public CreatureScript
                             else
                                 events.ScheduleEvent(EVENT_DETONATION, urand(2000, 3000));
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoMeleeAttackIfReady();
             }
-            
+
             private:
                 InstanceScript* instance;
                 SummonList summons;
@@ -1508,14 +1533,14 @@ class npc_sif : public CreatureScript
         };
 
     public:
-        npc_sif() : CreatureScript("npc_sif") {}        
+        npc_sif() : CreatureScript("npc_sif") {}
 
         struct npc_sifAI : public ScriptedAI
         {
             npc_sifAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
-            }           
+            }
 
             void Reset()
             {
@@ -1562,6 +1587,8 @@ class npc_sif : public CreatureScript
                         case EVENT_FROSTNOVA:
                             DoCastAOE(SPELL_FROSTNOVA, true);
                             events.ScheduleEvent(EVENT_FROSTNOVA, urand(20000, 25000));
+                            return;
+                        default:
                             return;
                     }
                 }

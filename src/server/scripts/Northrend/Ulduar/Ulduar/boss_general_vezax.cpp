@@ -29,7 +29,7 @@ enum VezaxYells
     SAY_SURGE_OF_DARKNESS                        = -1603293,
     SAY_DEATH                                    = -1603294,
     SAY_BERSERK                                  = -1603295,
-    SAY_HARDMODE                                 = -1603296,
+    SAY_HARDMODE                                 = -1603296
 };
 
 enum VezaxEmotes
@@ -37,7 +37,7 @@ enum VezaxEmotes
     EMOTE_VAPORS                                 = -1603289,
     EMOTE_ANIMUS                                 = -1603297,
     EMOTE_BARRIER                                = -1603298,
-    EMOTE_SURGE_OF_DARKNESS                      = -1603299,
+    EMOTE_SURGE_OF_DARKNESS                      = -1603299
 };
 
 enum VezaxSpells
@@ -68,7 +68,7 @@ enum VezaxSpells
     SPELL_SHAMANTIC_RAGE                         = 30823,
 
     // Enrage
-    SPELL_BERSERK                                = 47008,
+    SPELL_BERSERK                                = 47008
 };
 
 enum NPCs
@@ -86,7 +86,7 @@ enum AchievData
 
 enum VezaxActions
 {
-    ACTION_VAPORS_DIE,  // Only used since a saronite vapor does not _really_ die
+    ACTION_VAPORS_DIE   // Only used since a saronite vapor does not _really_ die
 };
 
 /************************************************************************/
@@ -103,14 +103,15 @@ class boss_general_vezax : public CreatureScript
             EVENT_SURGE_OF_DARKNESS,
             EVENT_MARK_OF_THE_FACELESS,
             EVENT_SUMMON_SARONITE_VAPOR,
-            EVENT_BERSERK,
+            EVENT_BERSERK
         };
+
     public:
         boss_general_vezax() : CreatureScript("boss_general_vezax") {}
 
         struct boss_general_vezaxAI : public BossAI
         {
-            boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX) {}            
+            boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX) {}
 
             void Reset()
             {
@@ -158,8 +159,8 @@ class boss_general_vezax : public CreatureScript
                             return;
                         case EVENT_MARK_OF_THE_FACELESS:
                             if (Unit* target = CheckPlayersInRange(RAID_MODE(4, 9), 15.0f, 50.0f))
-                                DoCast(target, SPELL_MARK_OF_THE_FACELESS);                                
-                            events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));  
+                                DoCast(target, SPELL_MARK_OF_THE_FACELESS);
+                            events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));
                             return;
                         case EVENT_SURGE_OF_DARKNESS:
                             DoScriptText(EMOTE_SURGE_OF_DARKNESS, me);
@@ -168,12 +169,14 @@ class boss_general_vezax : public CreatureScript
                             events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, urand(50000, 70000));
                             return;
                         case EVENT_SUMMON_SARONITE_VAPOR:
-                            DoCast(me, SPELL_SUMMON_SARONITE_VAPORS, true);   // Spells summons 33488 in a random place in 40 meters                            
+                            DoCast(me, SPELL_SUMMON_SARONITE_VAPORS, true);   // Spells summons 33488 in a random place in 40 meters
                             events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, urand(30000, 35000));
                             return;
                         case EVENT_BERSERK:
                             DoScriptText(SAY_BERSERK, me);
                             DoCast(me, SPELL_BERSERK);
+                            return;
+                        default:
                             return;
                     }
                 }
@@ -194,7 +197,7 @@ class boss_general_vezax : public CreatureScript
                 {
                     case NPC_SARONITE_VAPOR:
                         if (summons.size() >= 6) // summons include both vapors and saronite animus, but since the animus was not spawned yet...
-                        {                                                                                  
+                        {
                             events.CancelEvent(EVENT_SUMMON_SARONITE_VAPOR);    // Should always be cancelled after six vapors got spawned
                             if (!vaporKilled && notHardModed)                   // If animus was not spawned yet and no vapor got killed yet...
                                 DoCast(SPELL_SUMMON_SARONITE_ANIMUS);
@@ -208,7 +211,9 @@ class boss_general_vezax : public CreatureScript
                         DoCast(SPELL_SARONITE_BARRIER);
                         me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                         break;
-                }                
+                    default:
+                        break;
+                }
                 DoZoneInCombat(summoned);
             }
 
@@ -220,6 +225,8 @@ class boss_general_vezax : public CreatureScript
                         notHardModed = false;
                         me->RemoveAurasDueToSpell(SPELL_SARONITE_BARRIER);
                         events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(7000, 12000));
+                        break;
+                    default:
                         break;
                 }
                 summons.Despawn(summon);
@@ -246,7 +253,9 @@ class boss_general_vezax : public CreatureScript
                         return shadowDodger ? 1 : 0;
                     // Hardmode-condition: !notHardModed <=> Saronite Animus dead; vaporSummonedCount>=6 <=> Saronite Animus summoned; !vaporKilled <=> one or more vapors got killed
                     case DATA_SMELL_OF_SARONITE:
-                        return summons.size()>=6 && !notHardModed && !vaporKilled ? 1 : 0; 
+                        return summons.size()>=6 && !notHardModed && !vaporKilled ? 1 : 0;
+                    default:
+                        break;
                 }
                 return 0;
             }
@@ -257,6 +266,8 @@ class boss_general_vezax : public CreatureScript
                 {   
                     case ACTION_VAPORS_DIE:
                         vaporKilled = true;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -310,8 +321,9 @@ class boss_saronite_animus : public CreatureScript
     private:
         enum MyEvents
         {
-            EVENT_PROFOUND_OF_DARKNESS = 1,
+            EVENT_PROFOUND_OF_DARKNESS = 1
         };
+
     public:
         boss_saronite_animus() : CreatureScript("npc_saronite_animus") {}
 
@@ -370,11 +382,16 @@ class boss_saronite_animus : public CreatureScript
 class npc_saronite_vapors : public CreatureScript
 {
     private:
-        enum { SPELL_DEATH_GRIP = 49560 };
+        enum
+        {
+            SPELL_DEATH_GRIP = 49560
+        };
+
         enum MyEvents
         {
-            EVENT_RANDOM_MOVE = 1,
+            EVENT_RANDOM_MOVE = 1
         };
+
     public:
         npc_saronite_vapors() : CreatureScript("npc_saronite_vapors") {}
 
@@ -516,7 +533,7 @@ public:
 class spell_mark_of_the_faceless : public SpellScriptLoader
 {
     public:
-        spell_mark_of_the_faceless() : SpellScriptLoader("spell_mark_of_the_faceless") {}        
+        spell_mark_of_the_faceless() : SpellScriptLoader("spell_mark_of_the_faceless") {}
 
         class spell_mark_of_the_faceless_AuraScript : public AuraScript
         {
@@ -576,7 +593,7 @@ public:
 enum SaroniteVaporsSpells
 {
     SPELL_SARONITE_VAPORS_MANA = 63337,
-    SPELL_SARONITE_VAPORS_DAMAGE = 63338,
+    SPELL_SARONITE_VAPORS_DAMAGE = 63338
 };
 
 class spell_saronite_vapors : public SpellScriptLoader // 63278
@@ -670,6 +687,6 @@ void AddSC_boss_general_vezax()
 
     new achievement_shadowdodger("achievement_shadowdodger");       // 10m 10173 (2996)
     new achievement_shadowdodger("achievement_shadowdodger_25");    // 25m 10306 (2997)
-    new achievement_i_love_the_smell_of_saronite_in_the_morning("achievement_i_love_the_smell_of_saronite_in_the_morning");     // 10m 10451 (3181) 
+    new achievement_i_love_the_smell_of_saronite_in_the_morning("achievement_i_love_the_smell_of_saronite_in_the_morning");     // 10m 10451 (3181)
     new achievement_i_love_the_smell_of_saronite_in_the_morning("achievement_i_love_the_smell_of_saronite_in_the_morning_25");  // 25m 10462 (3188)
 }

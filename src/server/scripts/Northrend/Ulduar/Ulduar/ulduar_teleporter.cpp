@@ -79,12 +79,12 @@ class ulduar_teleporter : public GameObjectScript
 
             player->CLOSE_GOSSIP_MENU();
 
-            if (player->GetVehicle())    // If player is on vehicle, throw him out - we cannot teleport both (or maybe we can? dunno)                 
+            if (player->GetVehicle())    // If player is on vehicle, throw him out - we cannot teleport both (or maybe we can? dunno)
                 player->ExitVehicle();
 
             if (action > SCRAPYARD)
             {
-                // Drop player from mount - they are only allowed on the outside, up to XT002               
+                // Drop player from mount - they are only allowed on the outside, up to XT002
                 player->Dismount();
                 player->RemoveAurasByType(SPELL_AURA_MOUNTED);
             }

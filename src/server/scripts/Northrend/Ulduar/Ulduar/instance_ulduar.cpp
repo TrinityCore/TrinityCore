@@ -190,7 +190,7 @@ class instance_ulduar : public InstanceMapScript
         public:
             void Initialize()
             {
-                // Pretty please: Use type-safe fill instead of raw memset !   
+                // Pretty please: Use type-safe fill instead of raw memset !
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
 
@@ -205,8 +205,8 @@ class instance_ulduar : public InstanceMapScript
                 // Razorscale
                 RazorscaleGUID          = 0;
                 RazorscaleController    = 0;
-                ExpeditionCommanderGUID = 0;                
-                std::fill(RazorHarpoonGUIDs, RazorHarpoonGUIDs + 4, 0);             
+                ExpeditionCommanderGUID = 0;
+                std::fill(RazorHarpoonGUIDs, RazorHarpoonGUIDs + 4, 0);
 
                 // XT-002
                 XT002GUID       = 0;
@@ -328,7 +328,7 @@ class instance_ulduar : public InstanceMapScript
                         if (i == BOSS_ALGALON)
                             ++AlgalonKillCount; // Something happens to Algalon on player death, thus count them
                         PlayerDeathFlag |= BossId_2_PlayerDiedFlag[i][1];
-                    }                                               
+                    }
                 }  
             }
 
@@ -385,9 +385,9 @@ class instance_ulduar : public InstanceMapScript
             void OnUnitDeath(Unit* unit)
             {
                 if (Player* player = unit->ToPlayer())
-                    __OnPlayerDeath(player);                      
+                    __OnPlayerDeath(player);
                 else if (Creature* creature = unit->ToCreature())
-                    __OnCreatureDeath(creature);                                
+                    __OnCreatureDeath(creature);
             }
 
             bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target = NULL*/, uint32 /*miscvalue1 = 0*/)
@@ -437,6 +437,8 @@ class instance_ulduar : public InstanceMapScript
                     case ACHIEVEMENT_CRITERIA_KILL_WITHOUT_DEATHS_ALGALON_10:
                     case ACHIEVEMENT_CRITERIA_KILL_WITHOUT_DEATHS_ALGALON_25:
                         return !(PlayerDeathFlag & DEAD_ALGALON);
+                    default:
+                        break;
                 }
 
                 // Yogg-Saron
@@ -475,6 +477,8 @@ class instance_ulduar : public InstanceMapScript
 
                             return false;
                         }
+                    default:
+                        break;
                 }
                 return false;
             }
@@ -695,7 +699,9 @@ class instance_ulduar : public InstanceMapScript
                         }
                         else
                             creature->SetVisible(false);
-                        break;                  
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -841,7 +847,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_VEZAX_DOOR:
                         VezaxDoorGUID = gameObject->GetGUID();
                         HandleGameObject(0, false, gameObject);
-                        break;                                       
+                        break;
 
                     // Yogg-Saron related
                     case GO_YOGGSARON_DOOR:
@@ -895,6 +901,8 @@ class instance_ulduar : public InstanceMapScript
                             gameObject->SetGoState(GO_STATE_ACTIVE);
                         }
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -907,6 +915,7 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_XT_002_DOOR:
                         AddDoor(gameObject, false);
+                        break;
                     default:
                         break;
                 }
@@ -930,6 +939,8 @@ class instance_ulduar : public InstanceMapScript
                             break;
                         case EVENT_TOWER_OF_LIFE_DESTROYED:
                             FlameLeviathan->AI()->DoAction(ACTION_TOWER_OF_LIFE_DESTROYED);
+                            break;
+                        default:
                             break;
                     }
             }
@@ -978,6 +989,9 @@ class instance_ulduar : public InstanceMapScript
                         break;
                         break;
                     case BOSS_AURIAYA:
+                        if (state == DONE)
+                            if (GameObject* train = instance->GetGameObject(MimironTrainGUID))
+                                train->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case BOSS_FREYA:
                         if (state == DONE)
@@ -1111,7 +1125,11 @@ class instance_ulduar : public InstanceMapScript
                                 HandleGameObject(AlgalonBridgeVisualGUID, false);
                                 HandleGameObject(AlgalonBridgeDoorGUID, true);
                                 break;
+                            default:
+                                break;
                         }
+                        break;
+                    default:
                         break;
                 }
                 if (GetBossState(BOSS_FREYA) == DONE &&
@@ -1188,14 +1206,14 @@ class instance_ulduar : public InstanceMapScript
             {
                 switch (data)
                 {                    
-                    case BOSS_IGNIS:                return IgnisGUID;                 
+                    case BOSS_IGNIS:                return IgnisGUID;
                     case BOSS_KOLOGARN:             return KologarnGUID;
-                    case BOSS_AURIAYA:              return AuriayaGUID;      
+                    case BOSS_AURIAYA:              return AuriayaGUID;
                     case BOSS_HODIR:                return HodirGUID;
                     case BOSS_THORIM:               return ThorimGUID;
                     case BOSS_FREYA:                return FreyaGUID;
                     case BOSS_VEZAX:                return VezaxGUID;
-                    case BOSS_ALGALON:              return AlgalonGUID;                   
+                    case BOSS_ALGALON:              return AlgalonGUID;
 
                     // Leviathan
                     case BOSS_LEVIATHAN:            return LeviathanGUID;
@@ -1204,7 +1222,7 @@ class instance_ulduar : public InstanceMapScript
 
                     // Razorscale 
                     case BOSS_RAZORSCALE:           return RazorscaleGUID;
-                    case DATA_RAZORSCALE_CONTROL:   return RazorscaleController;  
+                    case DATA_RAZORSCALE_CONTROL:   return RazorscaleController;
                     case DATA_EXPEDITION_COMMANDER: return ExpeditionCommanderGUID;
                     case GO_RAZOR_HARPOON_1:        return RazorHarpoonGUIDs[0];
                     case GO_RAZOR_HARPOON_2:        return RazorHarpoonGUIDs[1];
@@ -1216,7 +1234,7 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_TOY_PILE_0:
                     case DATA_TOY_PILE_1:
                     case DATA_TOY_PILE_2:
-                    case DATA_TOY_PILE_3:           return XTToyPileGUIDs[data - DATA_TOY_PILE_0];            
+                    case DATA_TOY_PILE_3:           return XTToyPileGUIDs[data - DATA_TOY_PILE_0];
 
                     // Assembly of Iron
                     case BOSS_STEELBREAKER:         return AssemblyGUIDs[0];
@@ -1256,6 +1274,7 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_BRAIN_DOOR_1:         return YoggSaronBrainDoor1GUID;
                     case DATA_BRAIN_DOOR_2:         return YoggSaronBrainDoor2GUID;
                     case DATA_BRAIN_DOOR_3:         return YoggSaronBrainDoor3GUID;
+                    default: break;
                 }
 
                 return 0;
@@ -1371,26 +1390,25 @@ public:
         if (!pInstance)
             return false;
 
+        if (pInstance->GetBossState(BOSS_AURIAYA) != DONE)
+            return false;
+            sLog->outError(LOG_FILTER_SQL, "STATE: %u", pInstance->GetData(DATA_CALL_TRAM));
         switch (pGo->GetEntry())
         {
             // Activate
-            case 194437:    // [ok]           
+            case 194437:    // [ok]
             case 194912:
+                sLog->outError(LOG_FILTER_SQL, "BUTTON 1");
                 pInstance->SetData(DATA_CALL_TRAM, 0);
                 break;
             // Call
             case 194438:
             case 194914:    // [ok]
-                pInstance->SetData(DATA_CALL_TRAM, 1);
+                sLog->outError(LOG_FILTER_SQL, "BUTTON 2");
+                pInstance->SetData(DATA_CALL_TRAM, 0);
                 break;
-//             case 194914:    // At sanctuary
-//             case 194437:            
-//                 pInstance->SetData(DATA_CALL_TRAM, 0);
-//                 break;
-//             case 194912:    // At Mimiron        
-//             case 194438:
-//                 pInstance->SetData(DATA_CALL_TRAM, 1);
-//                 break;
+            default:
+                break;
         }
         return true;
     }

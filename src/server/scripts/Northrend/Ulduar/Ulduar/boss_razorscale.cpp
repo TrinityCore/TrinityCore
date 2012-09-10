@@ -32,7 +32,7 @@ enum Says
     SAY_TURRETS                                  = -1603265,
     SAY_HARPOON                                  = -1603266,
     EMOTE_BREATH                                 = -1603267,
-    EMOTE_PERMA                                  = -1603268,
+    EMOTE_PERMA                                  = -1603268
 };
 
 enum Spells
@@ -76,7 +76,7 @@ enum NPC
     NPC_MOLE_MACHINE_TRIGGER                     = 33245,
     NPC_COMMANDER                                = 33210,
     NPC_ENGINEER                                 = 33287,
-    NPC_DEFENDER                                 = 33816,
+    NPC_DEFENDER                                 = 33816
 };
 
 enum DarkRuneSpells
@@ -90,7 +90,7 @@ enum DarkRuneSpells
     SPELL_BATTLE_SHOUT_10                        = 46763,
     SPELL_BATTLE_SHOUT_25                        = 64062,
     SPELL_HEROIC_STRIKE                          = 45026,
-    SPELL_WHIRLWIND                              = 63808,
+    SPELL_WHIRLWIND                              = 63808
 };
 
 // Macros for access simplification
@@ -112,7 +112,7 @@ enum Actions
 enum MovementPoints
 {
     POINT_AIR              = 0,
-    POINT_GROUND           = 1,
+    POINT_GROUND           = 1
 };
 
 #define GROUND_Z                                 391.517f
@@ -125,7 +125,7 @@ const Position PosEngRepair[4] =
     { 589.281f, -129.956f, GROUND_Z, 4.789f },
     { 571.850f, -130.687f, GROUND_Z, 4.252f },
     { 606.567f, -139.369f, GROUND_Z, 4.434f },
-    { 558.565f, -135.265f, GROUND_Z, 5.074f },
+    { 558.565f, -135.265f, GROUND_Z, 5.074f }
 };
 
 const Position PosDefSpawn[4] =
@@ -133,7 +133,7 @@ const Position PosDefSpawn[4] =
     { 600.75f, -104.850f, GROUND_Z, 0 },
     { 596.38f, -110.262f, GROUND_Z, 0 },
     { 566.47f, -103.633f, GROUND_Z, 0 },
-    { 570.41f, -108.791f, GROUND_Z, 0 },
+    { 570.41f, -108.791f, GROUND_Z, 0 }
 };
 
 const Position PosDefCombat[4] =
@@ -141,7 +141,7 @@ const Position PosDefCombat[4] =
     { 614.975f, -155.138f, GROUND_Z, 4.154f },
     { 609.814f, -204.968f, GROUND_Z, 5.385f },
     { 563.531f, -201.557f, GROUND_Z, 4.108f },
-    { 560.231f, -153.677f, GROUND_Z, 5.403f },
+    { 560.231f, -153.677f, GROUND_Z, 5.403f }
 };
 
 const Position PosHarpoon[4] =
@@ -149,7 +149,7 @@ const Position PosHarpoon[4] =
     { 571.901f, -136.554f, GROUND_Z, 0 },
     { 589.450f, -134.888f, GROUND_Z, 0 },
     { 559.119f, -140.505f, GROUND_Z, 0 },
-    { 606.229f, -143.721f, GROUND_Z, 0 },
+    { 606.229f, -143.721f, GROUND_Z, 0 }
 };
 
 const Position RazorFlight = { 588.050f, -251.191f, 470.536f, 1.498f };
@@ -182,6 +182,8 @@ class boss_razorscale_controller : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 DoAction(ACTION_PLACE_BROKEN_HARPOON);
                 DoAction(ACTION_REMOVE_HARPOON);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
@@ -193,6 +195,8 @@ class boss_razorscale_controller : public CreatureScript
                     case SPELL_HARPOON_SHOT_3:
                     case SPELL_HARPOON_SHOT_4:
                         DoCast(SPELL_HARPOON_TRIGGER);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -228,6 +232,8 @@ class boss_razorscale_controller : public CreatureScript
                             Harpoon3->RemoveFromWorld();
                         if (GameObject* Harpoon4 = ObjectAccessor::GetGameObject(*me, instance->GetData64(GO_RAZOR_HARPOON_4)))
                             Harpoon4->RemoveFromWorld();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -277,6 +283,8 @@ class boss_razorscale_controller : public CreatureScript
                                     BrokenHarpoon->RemoveFromWorld();
                                 events.CancelEvent(EVENT_BUILD_HARPOON_4);
                             }
+                            return;
+                        default:
                             return;
                     }
                 }
@@ -328,7 +336,7 @@ class boss_razorscale : public CreatureScript
         EVENT_LAND,
         EVENT_GROUND,
         EVENT_FUSE,
-        EVENT_SUMMON,
+        EVENT_SUMMON
     };
 
     public:
@@ -341,13 +349,7 @@ class boss_razorscale : public CreatureScript
                 // Do not let Razorscale be affected by Battle Shout buff
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_BATTLE_SHOUT, true);
             }
-        private:
-            Phases phase;
-            uint32 EnrageTimer;
-            uint8 FlyCount;
-            uint8 HarpoonCounter;
-            bool PermaGround;
-            bool Enraged;
+
         public:
             void Reset()
             {
@@ -373,7 +375,7 @@ class boss_razorscale : public CreatureScript
                 phase = PHASE_GROUND;
                 events.SetPhase(PHASE_GROUND);
                 FlyCount = 0;
-                EnrageTimer = 15*MINUTE*IN_MILLISECONDS; // 15 minutes 
+                EnrageTimer = 15*MINUTE*IN_MILLISECONDS; // 15 minutes
                 Enraged = false;
                 events.ScheduleEvent(EVENT_FLIGHT, 0, 0, PHASE_GROUND);
             }
@@ -416,6 +418,8 @@ class boss_razorscale : public CreatureScript
                         phase = PHASE_GROUND;
                         events.SetPhase(PHASE_GROUND);
                         events.ScheduleEvent(EVENT_LAND, 0, 0, PHASE_GROUND);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -501,6 +505,8 @@ class boss_razorscale : public CreatureScript
                                     controller->CastSpell(controller, SPELL_FLAMED, true);
                                 events.CancelEvent(EVENT_BUFFET);
                                 return;
+                            default:
+                                return;
                         }
                     }
                 }
@@ -537,6 +543,8 @@ class boss_razorscale : public CreatureScript
                                 DoCast(me->getVictim(), SPELL_FUSEARMOR);
                                 events.ScheduleEvent(EVENT_FUSE, 10000, 0, PHASE_PERMAGROUND);
                                 return;
+                            default:
+                                return;
                         }
                     }
 
@@ -567,6 +575,8 @@ class boss_razorscale : public CreatureScript
                             case EVENT_SUMMON:
                                 SummonMoleMachines();
                                 events.ScheduleEvent(EVENT_SUMMON, 45000, 0, PHASE_FLIGHT);
+                                return;
+                            default:
                                 return;
                         }
                     }
@@ -617,8 +627,17 @@ class boss_razorscale : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoZoneInCombat(me, 150.0f);
                         break;
+                    default:
+                        break;
                 }
             }
+            private:
+                Phases phase;
+                uint32 EnrageTimer;
+                uint8 FlyCount;
+                uint8 HarpoonCounter;
+                bool PermaGround;
+                bool Enraged;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -681,6 +700,8 @@ class npc_expedition_commander : public CreatureScript
                         summons.DespawnAll();
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -739,6 +760,8 @@ class npc_expedition_commander : public CreatureScript
                             Engineer[0]->MonsterYell(SAY_AGGRO_1, LANG_UNIVERSAL, 0);
                             Phase = 6;
                             break;
+                        default:
+                            break;
                     }
                 }
                 else
@@ -754,6 +777,8 @@ class npc_expedition_commander : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF:
                     player->CLOSE_GOSSIP_MENU();
                     CAST_AI(npc_expedition_commanderAI, creature->AI())->Phase = 1;
+                    break;
+                default:
                     break;
             }
             return true;
@@ -844,6 +869,8 @@ class npc_mole_machine_trigger : public CreatureScript
                                 molemachine->Delete();
 
                             me->DisappearAndDie();
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -940,6 +967,8 @@ class npc_darkrune_watcher : public CreatureScript
                             DoCastVictim(SPELL_LIGHTNING_BOLT);
                             events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(5000, 7000));
                             return;
+                        default:
+                            return;
                     }
                 }
 
@@ -1031,7 +1060,7 @@ class npc_darkrune_sentinel : public CreatureScript
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_HEROIC_STRIKE, urand(4000, 8000));                
+                events.ScheduleEvent(EVENT_HEROIC_STRIKE, urand(4000, 8000));
                 if (Is25ManRaid())
                     events.ScheduleEvent(EVENT_WHIRLWIND, urand(5000, 10000));  // Due to wowhead, whirlwind is only scheduled in 25-man-raid
                 events.ScheduleEvent(EVENT_BATTLE_SHOUT, urand(15000, 30000));
@@ -1065,6 +1094,8 @@ class npc_darkrune_sentinel : public CreatureScript
                         case EVENT_BATTLE_SHOUT:
                             DoCast(me, SPELL_BATTLE_SHOUT);
                             events.ScheduleEvent(EVENT_BATTLE_SHOUT, urand(25000, 35000)); // Spell duration 25 secs
+                            return;
+                        default:
                             return;
                     }
                 }
