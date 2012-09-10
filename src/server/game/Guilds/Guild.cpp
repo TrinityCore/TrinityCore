@@ -19,6 +19,7 @@
 #include "DatabaseEnv.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "GuildFinderMgr.h"
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "Config.h"
@@ -1190,6 +1191,9 @@ void Guild::Disband()
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
+
+    sGuildFinderMgr->DeleteGuild(m_id);
+
     sGuildMgr->RemoveGuild(m_id);
 }
 
@@ -1665,6 +1669,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
     {
         _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, player->GetGUIDLow());
         _BroadcastEvent(GE_JOINED, player->GetGUID(), player->GetName());
+        sGuildFinderMgr->RemoveMembershipRequest(player->GetGUIDLow(), GUID_LOPART(this->GetGUID()));
     }
 }
 

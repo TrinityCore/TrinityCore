@@ -1851,6 +1851,44 @@ LOCK TABLES `guild_eventlog` WRITE;
 /*!40000 ALTER TABLE `guild_eventlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
+---
+--- Table structure for table `guild_finder_applicant`
+---
+
+DROP TABLE IF EXISTS `guild_finder_applicant`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `guild_finder_applicant` (
+  `guildId` int(10) unsigned DEFAULT NULL,
+  `playerGuid` int(10) unsigned DEFAULT NULL,
+  `availability` tinyint(3) unsigned DEFAULT '0',
+  `classRole` tinyint(3) unsigned DEFAULT '0',
+  `interests` tinyint(3) unsigned DEFAULT '0',
+  `comment` varchar(255) DEFAULT NULL,
+  `submitTime` int(10) unsigned DEFAULT NULL,
+  UNIQUE KEY `guildId` (`guildId`,`playerGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT="Guild finder membership requests";
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+---
+--- Table structure for table `guild_finder_guild_settings`
+---
+
+DROP TABLE IF EXISTS `guild_finder_guild_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `guild_finder_guild_settings` (
+  `guildId` int(10) unsigned NOT NULL,
+  `availability` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `classRoles` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `interests` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `level` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `listed` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`guildId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT="Guild finder guild-releated settings storage";
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 --
 -- Table structure for table `guild_member`
 --

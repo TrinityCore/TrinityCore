@@ -30,6 +30,7 @@
 #include "Chat.h"
 #include "Group.h"
 #include "Guild.h"
+#include "GuildFinderMgr.h"
 #include "Language.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -685,7 +686,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             std::string IP_str = GetRemoteAddress();
             sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass());
+            sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
 
             newChar.CleanupsBeforeDelete();
             delete createInfo;
@@ -742,7 +743,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recvData)
     std::string IP_str = GetRemoteAddress();
     sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(guid));
     sScriptMgr->OnPlayerDelete(guid);
-    sWorld->DeleteCharaceterNameData(GUID_LOPART(guid));
+    sWorld->DeleteCharacterNameData(GUID_LOPART(guid));
 
     if (sLog->ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO)) // optimize GetPlayerDump call
     {
@@ -751,6 +752,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recvData)
             sLog->outCharDump(dump.c_str(), GetAccountId(), GUID_LOPART(guid), name.c_str());
     }
 
+    sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(guid);
     Player::DeleteFromDB(guid, GetAccountId());
 
     WorldPacket data(SMSG_CHAR_DELETE, 1);
