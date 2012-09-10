@@ -1851,9 +1851,9 @@ LOCK TABLES `guild_eventlog` WRITE;
 /*!40000 ALTER TABLE `guild_eventlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
----
---- Table structure for table `guild_finder_applicant`
----
+--
+-- Table structure for table `guild_finder_applicant`
+--
 
 DROP TABLE IF EXISTS `guild_finder_applicant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1867,12 +1867,21 @@ CREATE TABLE `guild_finder_applicant` (
   `comment` varchar(255) DEFAULT NULL,
   `submitTime` int(10) unsigned DEFAULT NULL,
   UNIQUE KEY `guildId` (`guildId`,`playerGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT="Guild finder membership requests";
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
----
---- Table structure for table `guild_finder_guild_settings`
----
+--
+-- Dumping data for table `guild_finder_applicant`
+--
+
+LOCK TABLES `guild_finder_applicant` WRITE;
+/*!40000 ALTER TABLE `guild_finder_applicant` DISABLE KEYS */;
+/*!40000 ALTER TABLE `guild_finder_applicant` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `guild_finder_guild_settings`
+--
 
 DROP TABLE IF EXISTS `guild_finder_guild_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1886,8 +1895,17 @@ CREATE TABLE `guild_finder_guild_settings` (
   `listed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`guildId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT="Guild finder guild-releated settings storage";
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `guild_finder_guild_settings`
+--
+
+LOCK TABLES `guild_finder_guild_settings` WRITE;
+/*!40000 ALTER TABLE `guild_finder_guild_settings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `guild_finder_guild_settings` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `guild_member`
@@ -2485,4 +2503,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-09-10  0:40:44
+-- Dump completed on 2012-09-10 11:54:51
