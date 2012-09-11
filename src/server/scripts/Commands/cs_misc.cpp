@@ -953,8 +953,8 @@ public:
         if (!player_str)
             return false;
 
-        char* location_str = strtok(NULL, "");
-        if (!location_str)
+        std::string location_str = strtok(NULL, "");
+        if (location_str.empty())
             location_str = "inn";
 
         Player* player = NULL;
@@ -969,19 +969,19 @@ public:
             return false;
         }
 
-        if (!stricmp(location_str, "inn"))
+        if (location_str == "inn")
         {
             player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation());
             return true;
         }
 
-        if (!stricmp(location_str, "graveyard"))
+        if (location_str == "graveyard")
         {
             player->RepopAtGraveyard();
             return true;
         }
 
-        if (!stricmp(location_str, "startzone"))
+        if (location_str == "startzone")
         {
             player->TeleportTo(player->GetStartPosition());
             return true;
