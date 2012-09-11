@@ -57,7 +57,7 @@ enum WeatherState
     WEATHER_STATE_HEAVY_SANDSTORM   = 42,
     WEATHER_STATE_THUNDERS          = 86,
     WEATHER_STATE_BLACKRAIN         = 90,
-    WEATHER_STATE_BLACKSNOW         = 106,
+    WEATHER_STATE_BLACKSNOW         = 106
 };
 
 /// Weather for one zone

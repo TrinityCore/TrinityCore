@@ -63,9 +63,9 @@ namespace Trinity
             std::advance(it, urand(0, container.size() - 1));
             return *it;
         }
-    };
+    }
     //! namespace Containers
-};
+}
 //! namespace Trinity
 
 #endif //! #ifdef TRINITY_CONTAINERS_H

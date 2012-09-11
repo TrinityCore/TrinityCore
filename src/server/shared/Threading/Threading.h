@@ -51,7 +51,7 @@ namespace ACE_Based
         Normal,
         High,
         Highest,
-        Realtime,
+        Realtime
     };
 
 #define MAXPRIORITYNUM (Realtime + 1)

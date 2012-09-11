@@ -27,7 +27,7 @@ enum PetType
 {
     SUMMON_PET              = 0,
     HUNTER_PET              = 1,
-    MAX_PET_TYPE            = 4,
+    MAX_PET_TYPE            = 4
 };
 
 #define MAX_PET_STABLES         4
@@ -61,7 +61,7 @@ enum PetSpellType
 {
     PETSPELL_NORMAL = 0,
     PETSPELL_FAMILY = 1,
-    PETSPELL_TALENT = 2,
+    PETSPELL_TALENT = 2
 };
 
 struct PetSpell
