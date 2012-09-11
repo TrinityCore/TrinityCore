@@ -82,7 +82,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
     uint32 playerLevel = 0; // Raw player level (1-85), do they use MAX_FINDER_LEVEL when on level 85 ?
 
     recvPacket >> classRoles >> availability >> guildInterests >> playerLevel;
-    
+
     if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
         return;
     if (!(availability & ALL_WEEK) || availability > ALL_WEEK)
@@ -180,7 +180,7 @@ void WorldSession::HandleGuildFinderDeclineRecruit(WorldPacket& recvPacket)
 
     ObjectGuid playerGuid;
 
-    playerGuid[1] = recvPacket.ReadBit(); 
+    playerGuid[1] = recvPacket.ReadBit();
     playerGuid[4] = recvPacket.ReadBit();
     playerGuid[5] = recvPacket.ReadBit();
     playerGuid[2] = recvPacket.ReadBit();
@@ -252,7 +252,7 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
 
             bufferData.WriteByteSeq(guildGuid[4]);
             bufferData.WriteByteSeq(guildGuid[1]);
-        
+
             bufferData << uint32(time(NULL) - request.GetSubmitTime()); // Time since application (seconds)
             bufferData << uint32(guildSettings.GetInterests());
         }
@@ -301,9 +301,9 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
         data.WriteBit(playerGuid[6]);
 
         dataBuffer.WriteByteSeq(playerGuid[4]);
-        
+
         dataBuffer << int32(time(NULL) <= request.GetExpiryTime());
-        
+
         dataBuffer.WriteByteSeq(playerGuid[3]);
         dataBuffer.WriteByteSeq(playerGuid[0]);
         dataBuffer.WriteByteSeq(playerGuid[1]);
@@ -376,7 +376,7 @@ void WorldSession::HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket)
 
     ObjectGuid guildGuid;
 
-    guildGuid[0] = recvPacket.ReadBit(); 
+    guildGuid[0] = recvPacket.ReadBit();
     guildGuid[4] = recvPacket.ReadBit();
     guildGuid[3] = recvPacket.ReadBit();
     guildGuid[5] = recvPacket.ReadBit();

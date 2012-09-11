@@ -72,7 +72,7 @@ struct MembershipRequest
         MembershipRequest(uint32 playerGUID, uint32 guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string& comment, time_t submitTime) :
             _playerGUID(playerGUID), _guildId(guildId), _availability(availability), _classRoles(classRoles),
             _interests(interests), _time(submitTime), _comment(comment) {}
-        
+
         MembershipRequest() : _playerGUID(0), _guildId(0), _availability(0), _classRoles(0),
             _interests(0), _time(time(NULL)) {}
 
@@ -239,7 +239,7 @@ class GuildFinderMgr
 
         /// wipes everything related to a guild. Used when that guild is disbanded
         void DeleteGuild(uint32 guildId);
-        
+
         /**
          * @brief Returns a set of membership requests for a guild
          * @param guildGuid The guild's database guid.
@@ -264,7 +264,7 @@ class GuildFinderMgr
 
         /// Counts the amount of pending membership requests, given the player's db guid.
         uint8 CountRequestsFromPlayer(uint32 playerId);
- 
+
         void SendApplicantListUpdate(Guild& guild);
         void SendMembershipRequestListUpdate(Player& player);
 };

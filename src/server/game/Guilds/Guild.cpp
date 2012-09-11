@@ -1875,7 +1875,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount, bool 
     _LogBankEvent(trans, cashFlow ? GUILD_BANK_LOG_CASH_FLOW_DEPOSIT : GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), player->GetGUIDLow(), amount);
 
     CharacterDatabase.CommitTransaction(trans);
-    
+
     if (!cashFlow)
         SendBankList(session, 0, false, false);
 }
