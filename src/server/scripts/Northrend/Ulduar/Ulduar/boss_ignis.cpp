@@ -33,7 +33,7 @@ enum Yells
     SAY_SCORCH_1    = -1603226,
     SAY_SCORCH_2    = -1603227,
     SAY_BERSERK     = -1603228,
-    EMOTE_JETS      = -1603229,
+    EMOTE_JETS      = -1603229
 };
 
 enum Spells
@@ -58,7 +58,7 @@ enum Spells
     SPELL_BRITTLE_25            = 67114,
     SPELL_SHATTER               = 62383,
     SPELL_GROUND                = 62548,
-    SPELL_FREEZE_ANIM           = 63354,
+    SPELL_FREEZE_ANIM           = 63354
 };
 
 #define SPELL_FLAME_JETS RAID_MODE(SPELL_FLAME_JETS_10, SPELL_FLAME_JETS_25)
@@ -74,18 +74,18 @@ enum Events
     EVENT_CHANGE_POT    = 5,
     EVENT_END_POT       = 6,
     EVENT_CONSTRUCT     = 7,
-    EVENT_BERSERK       = 8,
+    EVENT_BERSERK       = 8
 };
 
 enum Actions
 {
-    ACTION_REMOVE_BUFF = 20,
+    ACTION_REMOVE_BUFF = 20
 };
 
 enum Creatures
 {
     NPC_IRON_CONSTRUCT  = 33121,
-    NPC_GROUND_SCORCH   = 33221,
+    NPC_GROUND_SCORCH   = 33221
 };
 
 enum AchievementData
@@ -118,7 +118,7 @@ Position const ConstructSpawnPosition[CONSTRUCT_SPAWN_POINTS] =
     {543.316f, 337.468f, 360.886f, 6.195920f},
     {543.280f, 239.674f, 360.890f, 6.265730f},
     {543.265f, 217.147f, 360.891f, 0.174533f},
-    {543.256f, 224.831f, 360.891f, 0.122173f},
+    {543.256f, 224.831f, 360.891f, 0.122173f}
 };
 
 /* 
@@ -139,8 +139,10 @@ class AchievShatterHelper
                 return; // Nothing to be done
 
             if (gotInformed)                // Check if timer is ok
+            {
                 if (timer <= limit)
                     achievFulfilled = true;
+            }
             else                            // First information, start tracking
             {
                 gotInformed = true;
@@ -201,18 +203,16 @@ class boss_ignis : public CreatureScript
                 shatteredHelper.Reset();
 
                 for (uint8 i = 0; i < CONSTRUCT_SPAWN_POINTS; i++)
-                {
                     if (Creature* construct = me->SummonCreature(NPC_IRON_CONSTRUCT, ConstructSpawnPosition[i]))
                         summons.Summon(construct);
-                }
 
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
-            }            
+            }
 
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                DoScriptText(SAY_AGGRO, me);                
+                DoScriptText(SAY_AGGRO, me);
                 events.ScheduleEvent(EVENT_JET, 30000);
                 events.ScheduleEvent(EVENT_SCORCH, 25000);
                 events.ScheduleEvent(EVENT_SLAG_POT, 35000);
@@ -267,6 +267,9 @@ class boss_ignis : public CreatureScript
                         me->RemoveAuraFromStack(SPELL_STRENGTH);
                         // Shattered Achievement - testing stage
                         shatteredHelper.Inform();
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -314,7 +317,7 @@ class boss_ignis : public CreatureScript
                             {
                                 slagPotTarget->EnterVehicle(me, 1);
                                 slagPotTarget->ClearUnitState(UNIT_STATE_ONVEHICLE);
-                                DoCast(slagPotTarget, SPELL_SLAG_POT);                                                                
+                                DoCast(slagPotTarget, SPELL_SLAG_POT);
                                 events.ScheduleEvent(EVENT_END_POT, 10000);
                             }
                             return;
@@ -337,7 +340,7 @@ class boss_ignis : public CreatureScript
 
                             if (!summons.empty())
                             {
-                                uint64 selectedConstruct = Trinity::Containers::SelectRandomContainerElement(summons);                                
+                                uint64 selectedConstruct = Trinity::Containers::SelectRandomContainerElement(summons);
                                 if (Creature* construct = ObjectAccessor::GetCreature(*me, selectedConstruct))
                                 {
                                     construct->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
@@ -349,12 +352,14 @@ class boss_ignis : public CreatureScript
                                     // Due to Spellworks, this spell requires a given target position.
                                     me->CastSpell(construct->GetPositionX(), construct->GetPositionY(), construct->GetPositionZ(), SPELL_ACTIVATE_CONSTRUCT, true);
                                 }
-                            }                           
+                            }
                             events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));
                             return;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);
                             DoScriptText(SAY_BERSERK, me);
+                            return;
+                        default:
                             return;
                     }
                 }

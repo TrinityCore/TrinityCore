@@ -56,7 +56,7 @@ enum FreyaYells
     SAY_STONEBARK_AGGRO                          = -1603198,
     SAY_STONEBARK_SLAY_1                         = -1603199,
     SAY_STONEBARK_SLAY_2                         = -1603200,
-    SAY_STONEBARK_DEATH                          = -1603201,
+    SAY_STONEBARK_DEATH                          = -1603201
 };
 
 enum Achievements
@@ -76,7 +76,7 @@ enum Achievements
     ACHIEVMENT_CON_SPEED_ATORY_25                = 2981,
 
     ACHIEVMENT_LUMBERJACKED_10                   = 2979,
-    ACHIEVMENT_LUMBERJACKED_25                   = 3118,
+    ACHIEVMENT_LUMBERJACKED_25                   = 3118
 };
 
 enum FreyaSpells
@@ -87,7 +87,7 @@ enum FreyaSpells
     SPELL_TOUCH_OF_EONAR_10                      = 62528,
     SPELL_TOUCH_OF_EONAR_25                      = 62892,
     SPELL_SUNBEAM_10                             = 62623,
-    SPELL_SUNBEAM_25                             = 62872,  
+    SPELL_SUNBEAM_25                             = 62872,
     SPELL_FREYA_GROUND_TREMOR_10                 = 62437,
     SPELL_FREYA_GROUND_TREMOR_25                 = 62859,
     SPELL_ROOTS_FREYA_10                         = 62438,
@@ -95,7 +95,7 @@ enum FreyaSpells
     SPELL_STONEBARK_ESSENCE                      = 62483,
     SPELL_IRONBRANCH_ESSENCE                     = 62484,
     SPELL_BRIGHTLEAF_ESSENCE                     = 62485,
-    SPELL_DRAINED_OF_POWER                       = 62467,   
+    SPELL_DRAINED_OF_POWER                       = 62467,
 
     // Stonebark
     SPELL_FISTS_OF_STONE                         = 62344,
@@ -118,8 +118,8 @@ enum FreyaSpells
     SPELL_FLUX                                   = 62262,
     SPELL_FLUX_PLUS                              = 62251,
     SPELL_FLUX_MINUS                             = 62252,
-    SPELL_SOLAR_FLARE_10                         = 62240, 
-    SPELL_SOLAR_FLARE_25                         = 62920, 
+    SPELL_SOLAR_FLARE_10                         = 62240,
+    SPELL_SOLAR_FLARE_25                         = 62920,
     SPELL_UNSTABLE_SUN_BEAM_SUMMON               = 62207, // Trigger 62221
 
     // Stack Removing of Attuned to Nature
@@ -209,7 +209,7 @@ enum FreyaSpells
     // Attuned To Nature spells
     SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION     = 62524,
     SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION    = 62525,
-    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521,
+    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521
 };
 
 #define SPELL_TOUCH_OF_EONAR RAID_MODE(SPELL_TOUCH_OF_EONAR_10, SPELL_TOUCH_OF_EONAR_25)
@@ -247,19 +247,19 @@ enum FreyaNpcs
     NPC_IRON_ROOTS                               = 33088,
     NPC_STRENGTHENED_IRON_ROOTS                  = 33168,
 
-    GAMEOBJECT_NATURE_BOMB                       = 194902,
+    GAMEOBJECT_NATURE_BOMB                       = 194902
 };
 
 enum FreyaActions
 {
     ACTION_ELDER_DEATH         = 1,
     ACTION_ELDER_FREYA_KILLED,
-    ACTION_ELEMENTAL_DEAD,
+    ACTION_ELEMENTAL_DEAD
 };
 
 enum Models
 {
-    MODEL_INVISIBLE                             = 11686,
+    MODEL_INVISIBLE                             = 11686
 };
 
 const uint32 WaveSpells[3] =
@@ -279,7 +279,7 @@ enum FreyaEvents
     EVENT_STRENGTHENED_IRON_ROOTS                = 5,
     EVENT_GROUND_TREMOR                          = 6,
     EVENT_SUNBEAM                                = 7,
-    EVENT_ENRAGE                                 = 8,    
+    EVENT_ENRAGE                                 = 8
 };
 
 enum Data
@@ -288,7 +288,7 @@ enum Data
     DATA_KNOCK_ON_WOOD,
     DATA_ELEMENTAL_DIED,
     DATA_LASHER_DIED,
-    DATA_TRIO_WAVE_COUNT,
+    DATA_TRIO_WAVE_COUNT
 };
 
 #define WAVE_TIME                                60000 // Normal wave is one minute
@@ -387,10 +387,10 @@ class boss_freya : public CreatureScript
                     me->setFaction(35);
                     return;
                 }
-                _Reset();                
+                _Reset();
                 trioWaveCount = 0;
                 trioWaveController = 0;
-                elderCount = 0;                
+                elderCount = 0;
 
                 for (uint8 i = 0; i < 3; ++i)
                     for (uint8 n = 0; n < 2; ++n)
@@ -448,16 +448,16 @@ class boss_freya : public CreatureScript
                 me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);   // GetDifficulty should return 0 or 1 (numeric)
 
                 DoScriptText(SAY_DEATH, me);
-                me->SetReactState(REACT_PASSIVE);                
+                me->SetReactState(REACT_PASSIVE);
                 me->RemoveAllAuras();
                 me->AttackStop();
                 me->setFaction(35);
                 me->DeleteThreatList();
                 me->CombatStop(true);
-                me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);                            
+                me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
 
                 // getting back to nature achievement
-                attunedToNature = me->GetAuraCount(SPELL_ATTUNED_TO_NATURE);                
+                attunedToNature = me->GetAuraCount(SPELL_ATTUNED_TO_NATURE);
 
                 // achievements credit
                 DoCast(me, SPELL_ACHIEVEMENT_CHECK, true);
@@ -542,6 +542,8 @@ class boss_freya : public CreatureScript
                         return elderCount;
                     case DATA_TRIO_WAVE_COUNT:
                         return trioWaveCount;
+                    default:
+                        break;
                 }
                 return 0;
             }
@@ -592,7 +594,7 @@ class boss_freya : public CreatureScript
                                 {
                                     SpawnWave();
                                     events.ScheduleEvent(EVENT_WAVE, WAVE_TIME);
-                                }                            
+                                }
                             return;
                         case EVENT_EONAR_GIFT:
                             DoCast(me, SPELL_SUMMON_EONAR_GIFT);
@@ -606,6 +608,8 @@ class boss_freya : public CreatureScript
                         case EVENT_GROUND_TREMOR:
                             DoCastAOE(SPELL_FREYA_GROUND_TREMOR);
                             events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(25000, 28000));
+                            return;
+                        default:
                             return;
                     }
                 }
@@ -732,6 +736,8 @@ class boss_freya : public CreatureScript
                         DoScriptText(SAY_SUMMON_CONSERVATOR, me);
                         DoCast(SPELL_SUMMON_ANCIENT_CONSERVATOR);
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -750,6 +756,7 @@ class boss_freya : public CreatureScript
                         break;
                     case NPC_DETONATING_LASHER:
                     case NPC_ANCIENT_CONSERVATOR:
+                        break;
                     default:
                         summons.Summon(summoned);
                         break;
@@ -778,6 +785,8 @@ class boss_freya : public CreatureScript
                         summoned->DespawnOrUnsummon(5000);
                         summons.Despawn(summoned);
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -797,6 +806,8 @@ class boss_freya : public CreatureScript
                     case NPC_ANCIENT_CONSERVATOR:
                         SummonedCreatureDespawn(summoned);  // To avoid duplicated code
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -809,6 +820,8 @@ class boss_freya : public CreatureScript
                         break;
                     case DATA_LASHER_DIED:
                         LasherDead(value);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -853,7 +866,9 @@ class boss_freya : public CreatureScript
                                     break;
                             }
                         }
-                        break;                        
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -887,7 +902,7 @@ class boss_elder_brightleaf : public CreatureScript
         { 
             EVENT_SOLAR_FLARE                            = 15,
             EVENT_UNSTABLE_SUN_BEAM                      = 16,
-            EVENT_FLUX                                   = 17,
+            EVENT_FLUX                                   = 17
         };
 
     public:
@@ -979,6 +994,8 @@ class boss_elder_brightleaf : public CreatureScript
                             me->AddAura(RAND(SPELL_FLUX_PLUS, SPELL_FLUX_MINUS), me);
                             events.ScheduleEvent(EVENT_FLUX, 7500);
                             return;
+                        default:
+                            return;
                     }
                 }
 
@@ -999,6 +1016,8 @@ class boss_elder_brightleaf : public CreatureScript
                     case ACTION_ELDER_FREYA_KILLED:
                         me->DespawnOrUnsummon(10000);
                         _JustDied();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -1022,7 +1041,7 @@ class boss_elder_stonebark : public CreatureScript
         {
             EVENT_GROUND_TREMOR                          = 9,
             EVENT_PETRIFIED_BARK                         = 10,
-            EVENT_FISTS_OF_STONE                         = 11,
+            EVENT_FISTS_OF_STONE                         = 11
         };
 
     public:
@@ -1115,6 +1134,8 @@ class boss_elder_stonebark : public CreatureScript
                                 DoCastVictim(SPELL_GROUND_TREMOR);
                             events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(10000, 20000));
                             return;
+                        default:
+                            return;
                     }
                 }
 
@@ -1135,6 +1156,8 @@ class boss_elder_stonebark : public CreatureScript
                     case ACTION_ELDER_FREYA_KILLED:
                         me->DespawnOrUnsummon(10000);
                         _JustDied();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -1158,7 +1181,7 @@ class boss_elder_ironbranch : public CreatureScript
         {
             EVENT_IMPALE                                 = 12,
             EVENT_IRON_ROOTS                             = 13,
-            EVENT_THORN_SWARM                            = 14,
+            EVENT_THORN_SWARM                            = 14
         };
 
     public:
@@ -1237,6 +1260,8 @@ class boss_elder_ironbranch : public CreatureScript
                             DoCastVictim(SPELL_THORN_SWARM);
                             events.ScheduleEvent(EVENT_THORN_SWARM, urand(8000, 13000));
                             return;
+                        default:
+                            return;
                     }
                 }
 
@@ -1257,6 +1282,8 @@ class boss_elder_ironbranch : public CreatureScript
                     case ACTION_ELDER_FREYA_KILLED:
                         me->DespawnOrUnsummon(10000);
                         _JustDied();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -1338,6 +1365,8 @@ class npc_detonating_lasher : public CreatureScript
                                 me->AI()->AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_CHANGE_TARGET, urand(5000, 10000));
+                            return;
+                        default:
                             return;
                     }
                 }
@@ -1489,6 +1518,8 @@ class npc_storm_lasher : public CreatureScript
                                 DoCast(target, SPELL_STORMBOLT);
                             events.ScheduleEvent(EVENT_STORMBOLT, urand(8000, 12000));
                             return;
+                        default:
+                            return;
                     }
                 }
 
@@ -1639,6 +1670,8 @@ class npc_ancient_conservator : public CreatureScript
                             me->AddAura(SPELL_CONSERVATOR_GRIP, me);
                             events.ScheduleEvent(EVENT_NATURES_FURY, 5000);
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoMeleeAttackIfReady();
@@ -1673,7 +1706,7 @@ class npc_sun_beam : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetDisplayId(MODEL_INVISIBLE);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->DespawnOrUnsummon(12000);
                 DoCast(me, SPELL_FREYA_UNSTABLE_ENERGY_VISUAL, true); // visual
             }
@@ -1694,7 +1727,7 @@ class npc_healthy_spore : public CreatureScript
         {
             npc_healthy_sporeAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);                
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void Reset()
@@ -1802,12 +1835,13 @@ class npc_nature_bomb : public CreatureScript
                 bombTimer = urand(8000, 10000);
                 DoCast(SPELL_OBJECT_BOMB);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void UpdateAI(uint32 const diff)
             {
                 if (GameObject* go = me->FindNearestGameObject(GAMEOBJECT_NATURE_BOMB, 5.0f))
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);                
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 if (bombTimer <= diff)
                 {
@@ -1844,12 +1878,12 @@ class npc_unstable_sun_beam : public CreatureScript
 
             void Reset()
             {
-                me->SetDisplayId(MODEL_INVISIBLE);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 DoCast(me, SPELL_PHOTOSYNTHESIS);
                 DoCast(me, SPELL_UNSTABLE_SUN_BEAM_PERIODIC);
                 despawnTimer = urand(7000, 12000);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void MoveInLineOfSight(Unit* target)
@@ -1937,7 +1971,7 @@ class spell_essence_targeting_ironbranch : public SpellScriptLoader
             }
 
             void Register()
-            {                
+            {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);                         
             }
         };
@@ -1963,9 +1997,9 @@ public:
         }
 
         void Register()
-        {                
+        {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);                         
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
         }
     };
 
@@ -2254,22 +2288,22 @@ void AddSC_boss_freya()
     new achievement_knock_knock_knock_on_wood("achievement_knock_knock_knock_on_wood_25");  // 25m 3187 [10461]
 }
 
-#undef SPELL_TOUCH_OF_EONAR 
-#undef SPELL_SUNBEAM 
-#undef SPELL_FREYA_UNSTABLE_ENERGY 
-#undef SPELL_IRON_ROOTS 
-#undef SPELL_FREYA_GROUND_TREMOR 
-#undef SPELL_LIFEBINDERS_GIFT 
-#undef SPELL_DETONATE 
-#undef SPELL_TIDAL_WAVE 
-#undef SPELL_LIGHTNING_LASH 
-#undef SPELL_STORMBOLT 
-#undef SPELL_HARDENED_BARK 
-#undef SPELL_NATURES_FURY 
-#undef SPELL_SOLAR_FLARE 
-#undef SPELL_UNSTABLE_ENERGY 
-#undef SPELL_IMPALE 
-#undef SPELL_THORN_SWARM 
-#undef SPELL_ROOTS_FREYA 
-#undef SPELL_GROUND_TREMOR 
-#undef SPELL_PETRIFIED_BARK
+#undef SPELL_TOUCH_OF_EONAR
+#undef SPELL_SUNBEAM
+#undef SPELL_FREYA_UNSTABLE_ENERGY
+#undef SPELL_IRON_ROOTS
+#undef SPELL_FREYA_GROUND_TREMOR
+#undef SPELL_LIFEBINDERS_GIFT
+#undef SPELL_DETONATE
+#undef SPELL_TIDAL_WAVE
+#undef SPELL_LIGHTNING_LASH
+#undef SPELL_STORMBOLT
+#undef SPELL_HARDENED_BARK
+#undef SPELL_NATURES_FURY
+#undef SPELL_SOLAR_FLARE
+#undef SPELL_UNSTABLE_ENERGY
+#undef SPELL_IMPALE
+#undef SPELL_THORN_SWARM
+#undef SPELL_ROOTS_FREYA
+#undef SPELL_GROUND_TREMOR
+#undef SPELL_PETRIFIED_BAR

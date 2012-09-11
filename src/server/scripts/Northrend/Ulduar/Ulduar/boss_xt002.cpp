@@ -109,7 +109,7 @@ enum Creatures
     NPC_XT002_HEART                             = 33329,
     NPC_XS013_SCRAPBOT                          = 33343,
     NPC_XM024_PUMMELLER                         = 33344,
-    NPC_XE321_BOOMBOT                           = 33346,
+    NPC_XE321_BOOMBOT                           = 33346
 };
 
 enum Actions
@@ -123,7 +123,7 @@ enum XT002Data
     DATA_TRANSFERED_HEALTH,
     DATA_HARD_MODE,
     DATA_HEALTH_RECOVERED,
-    DATA_GRAVITY_BOMB_CASUALTY,
+    DATA_GRAVITY_BOMB_CASUALTY
 };
 
 enum Yells
@@ -136,7 +136,7 @@ enum Yells
     SAY_SLAY_2                                  = -1603305,
     SAY_BERSERK                                 = -1603306,
     SAY_DEATH                                   = -1603307,
-    SAY_SUMMON                                  = -1603308,
+    SAY_SUMMON                                  = -1603308
 };
 
 #define HEART_VEHICLE_SEAT 0
@@ -184,7 +184,10 @@ class boss_xt002 : public CreatureScript
             EVENT_ENTER_HARD_MODE,
             EVENT_SPAWN_ADDS
         };
-        enum AchievementCredits { ACHIEV_MUST_DECONSTRUCT_FASTER = 21027 };
+        enum AchievementCredits
+        {
+            ACHIEV_MUST_DECONSTRUCT_FASTER = 21027
+        };
         enum Timers
         {
             TIMER_TYMPANIC_TANTRUM_MIN = 32000,
@@ -200,7 +203,7 @@ class boss_xt002 : public CreatureScript
         };
 
     public:
-        boss_xt002() : CreatureScript("boss_xt002") {}        
+        boss_xt002() : CreatureScript("boss_xt002") {}
 
         struct boss_xt002_AI : public BossAI
         {
@@ -258,6 +261,8 @@ class boss_xt002 : public CreatureScript
                     case ACTION_XT002_REACHED:
                         healthRecovered = true;
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -276,7 +281,7 @@ class boss_xt002 : public CreatureScript
             {
                 if (!hardMode && phase == PHASE_ONE && HealthBelowPct(heartPhase)) // Bearbeiten: Phasenwechsel
                     ExposeHeart();
-            }            
+            }
 
             uint32 GetData(uint32 type)
             {
@@ -288,6 +293,8 @@ class boss_xt002 : public CreatureScript
                         return healthRecovered ? 1 : 0;
                     case DATA_GRAVITY_BOMB_CASUALTY:
                         return gravityBombCasualty ? 1 : 0;
+                    default:
+                        break;
                 }
 
                 return 0;
@@ -302,6 +309,8 @@ class boss_xt002 : public CreatureScript
                         break;
                     case DATA_GRAVITY_BOMB_CASUALTY:
                         gravityBombCasualty = (data > 0) ? true : false;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -356,7 +365,7 @@ class boss_xt002 : public CreatureScript
                             DoScriptText(SAY_SUMMON, me);
 
                             // Spawn Pummeller
-                            me->SummonCreature(NPC_XM024_PUMMELLER, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);                         
+                            me->SummonCreature(NPC_XM024_PUMMELLER, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
                             // Spawn 5 Scrapbots
                             for (uint8 n = 0; n < 5; n++)
@@ -373,6 +382,8 @@ class boss_xt002 : public CreatureScript
                                 me->SummonCreature(NPC_XE321_BOOMBOT, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
                             events.ScheduleEvent(EVENT_SPAWN_ADDS, 12*IN_MILLISECONDS, 0, PHASE_TWO);
+                            return;
+                        default:
                             return;
                     }
                 }
@@ -407,9 +418,9 @@ class boss_xt002 : public CreatureScript
                 DoScriptText(SAY_HEART_OPENED, me);
                 me->MonsterTextEmote(EMOTE_HEART, 0, true);
                 me->RemoveAurasDueToSpell(SPELL_TYMPANIC_TANTRUM);
-                me->GetMotionMaster()->MoveIdle();                             
+                me->GetMotionMaster()->MoveIdle();
 
-                DoCast(me, SPELL_SUBMERGE);  // Will make creature untargetable                
+                DoCast(me, SPELL_SUBMERGE);  // Will make creature untargetable
 
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
@@ -436,16 +447,16 @@ class boss_xt002 : public CreatureScript
                 RecalcHeartPhase();
                 // Start "end of phase 2 timer"
                 events.SetPhase(PHASE_TWO);
-                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE, 0, PHASE_TWO);                
+                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE, 0, PHASE_TWO);
                 // Hordeguides: Add-spawn is running in phase 2
-                events.ScheduleEvent(EVENT_SPAWN_ADDS, 12*IN_MILLISECONDS, 0, PHASE_TWO);               
+                events.ScheduleEvent(EVENT_SPAWN_ADDS, 12*IN_MILLISECONDS, 0, PHASE_TWO);
             }
 
             void SetPhaseOne()
             {
                 DoScriptText(SAY_HEART_CLOSED, me);
                 if (me->HasAura(SPELL_SUBMERGE))
-                    me->RemoveAurasDueToSpell(SPELL_SUBMERGE);               
+                    me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                 DoCast(me, SPELL_STAND);
                 // Just for the case this isn't done by the spell above.
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
@@ -504,7 +515,7 @@ class boss_xt002 : public CreatureScript
 class mob_xt002_heart : public CreatureScript
 {
     public:
-        mob_xt002_heart() : CreatureScript("mob_xt002_heart") {}        
+        mob_xt002_heart() : CreatureScript("mob_xt002_heart") {}
 
         struct mob_xt002_heartAI : public Scripted_NoMovementAI
         {
@@ -548,7 +559,7 @@ class mob_xt002_heart : public CreatureScript
 class mob_scrapbot : public CreatureScript
 {
     public:
-        mob_scrapbot() : CreatureScript("mob_scrapbot") {}        
+        mob_scrapbot() : CreatureScript("mob_scrapbot") {}
 
         struct mob_scrapbotAI : public ScriptedAI
         {
@@ -618,11 +629,11 @@ class mob_pummeller : public CreatureScript
             EVENT_ARCING_SMASH = 1, EVENT_TRAMPLE, EVENT_UPPERCUT, // 1,2,3...
             TIMER_ARCING_SMASH = 7000,
             TIMER_TRAMPLE      = 2000,
-            TIMER_UPPERCUT     = 7000, 
+            TIMER_UPPERCUT     = 7000
         };
 
     public:
-        mob_pummeller() : CreatureScript("mob_pummeller") {}        
+        mob_pummeller() : CreatureScript("mob_pummeller") {}
 
         struct mob_pummellerAI : public ScriptedAI
         {
@@ -661,17 +672,17 @@ class mob_pummeller : public CreatureScript
                                 DoCast(me->getVictim(), SPELL_ARCING_SMASH);
                                 events.ScheduleEvent(EVENT_ARCING_SMASH, TIMER_ARCING_SMASH);
                                 return;
-
                             case EVENT_TRAMPLE:
                                 DoCast(me->getVictim(), SPELL_TRAMPLE);
                                 events.ScheduleEvent(EVENT_TRAMPLE, TIMER_TRAMPLE);
                                 return;
-
                             case EVENT_UPPERCUT:
                                 DoCast(me->getVictim(), SPELL_UPPERCUT);
                                 events.ScheduleEvent(EVENT_UPPERCUT, TIMER_UPPERCUT);
                                 return;
-                        }                        
+                            default:
+                                return;
+                        }
                     }
                 }
 
@@ -718,7 +729,7 @@ class BoomEvent : public BasicEvent
 class mob_boombot : public CreatureScript
 {
     public:
-        mob_boombot() : CreatureScript("mob_boombot") {}        
+        mob_boombot() : CreatureScript("mob_boombot") {}
 
         struct mob_boombotAI : public ScriptedAI
         {
@@ -801,7 +812,7 @@ class mob_life_spark : public CreatureScript
     private:
         enum { TIMER_SHOCK = 12000 };
     public:
-        mob_life_spark() : CreatureScript("mob_life_spark") {}        
+        mob_life_spark() : CreatureScript("mob_life_spark") {}
 
         struct mob_life_sparkAI : public ScriptedAI
         {
