@@ -42,13 +42,13 @@ void GuildFinderMgr::LoadGuildSettings()
                                                  "FROM guild_finder_guild_settings gfgs "
                                                  "LEFT JOIN guild_member gm ON gm.guildid=gfgs.guildId "
                                                  "LEFT JOIN characters c ON c.guid = gm.guid LIMIT 1");
-    
+
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild finder guild-related settings. Table `guild_finder_guild_settings` is empty.");
         return;
     }
-    
+
     uint32 count = 0;
     uint32 oldMSTime = getMSTime();
     do
@@ -69,7 +69,7 @@ void GuildFinderMgr::LoadGuildSettings()
 
         LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, interests, level, comment);
         _guildSettings[guildId] = settings;
-        
+
         ++count;
     } while (result->NextRow());
 
@@ -82,13 +82,13 @@ void GuildFinderMgr::LoadMembershipRequests()
     //                                                      0         1           2            3           4         5         6
     QueryResult result = CharacterDatabase.Query("SELECT guildId, playerGuid, availability, classRole, interests, comment, submitTime "
                                                  "FROM guild_finder_applicant");
-    
+
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild finder membership requests. Table `guild_finder_applicant` is empty.");
         return;
     }
-    
+
     uint32 count = 0;
     uint32 oldMSTime = getMSTime();
     do
@@ -101,11 +101,11 @@ void GuildFinderMgr::LoadMembershipRequests()
         uint8  interests    = fields[4].GetUInt8();
         std::string comment = fields[5].GetString();
         uint32 submitTime   = fields[6].GetUInt32();
-        
+
         MembershipRequest request(playerId, guildId, availability, classRoles, interests, comment, time_t(submitTime));
 
         _membershipRequests[guildId].push_back(request);
-        
+
         ++count;
     } while (result->NextRow());
 
@@ -115,7 +115,7 @@ void GuildFinderMgr::LoadMembershipRequests()
 void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest const& request)
 {
     _membershipRequests[guildGuid].push_back(request);
-    
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GUILD_FINDER_APPLICANT);
     stmt->setUInt32(0, request.GetGuildId());
@@ -301,7 +301,7 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_GUILD_SETTINGS);
         stmt->setUInt32(0, itr->GetGuildId());
         trans->Append(stmt);
-            
+
         CharacterDatabase.CommitTransaction(trans);
         _membershipRequests[guildId].erase(itr);
 
