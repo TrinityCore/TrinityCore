@@ -863,15 +863,6 @@ AllFlightPaths = 0
 InstantFlightPaths = 0
 
 #
-#    AlwaysMaxSkillForLevel
-#        Description: Players will automatically gain max skill level when logging in or leveling
-#                     up.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AlwaysMaxSkillForLevel = 0
-
-#
 #    ActivateWeather
 #        Description: Activate the weather system.
 #        Default:     1 - (Enabled)
@@ -1952,19 +1943,13 @@ Rate.InstanceResetTime = 1
 
 #
 #    SkillGain.Crafting
-#    SkillGain.Defense
 #    SkillGain.Gathering
-#    SkillGain.Weapon
 #        Description: Crafting/defense/gathering/weapon skills gain rate.
 #        Default:     1 - (SkillGain.Crafting)
-#                     1 - (SkillGain.Defense)
 #                     1 - (SkillGain.Gathering)
-#                     1 - (SkillGain.Weapon)
 
 SkillGain.Crafting  = 1
-SkillGain.Defense   = 1
 SkillGain.Gathering = 1
-SkillGain.Weapon    = 1
 
 #
 #    SkillChance.Orange
