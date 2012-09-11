@@ -36,7 +36,7 @@ enum MailMessageType
     MAIL_AUCTION        = 2,
     MAIL_CREATURE       = 3,                                // client send CMSG_CREATURE_QUERY on this mailmessagetype
     MAIL_GAMEOBJECT     = 4,                                // client send CMSG_GAMEOBJECT_QUERY on this mailmessagetype
-    MAIL_ITEM           = 5,                                // client send CMSG_ITEM_QUERY on this mailmessagetype
+    MAIL_ITEM           = 5                                 // client send CMSG_ITEM_QUERY on this mailmessagetype
 };
 
 enum MailCheckMask
@@ -46,7 +46,7 @@ enum MailCheckMask
     MAIL_CHECK_MASK_RETURNED    = 0x02,                     /// This mail was returned. Do not allow returning mail back again.
     MAIL_CHECK_MASK_COPIED      = 0x04,                     /// This mail was copied. Do not allow making a copy of items in mail.
     MAIL_CHECK_MASK_COD_PAYMENT = 0x08,
-    MAIL_CHECK_MASK_HAS_BODY    = 0x10,                     /// This mail has body text.
+    MAIL_CHECK_MASK_HAS_BODY    = 0x10                      /// This mail has body text.
 };
 
 // gathered from Stationery.dbc
@@ -58,7 +58,7 @@ enum MailStationery
     MAIL_STATIONERY_AUCTION = 62,
     MAIL_STATIONERY_VAL     = 64,                           // Valentine
     MAIL_STATIONERY_CHR     = 65,                           // Christmas
-    MAIL_STATIONERY_ORP     = 67,                           // Orphan
+    MAIL_STATIONERY_ORP     = 67                            // Orphan
 };
 
 enum MailState
@@ -74,7 +74,7 @@ enum MailShowFlags
     MAIL_SHOW_DELETE  = 0x0002,                             // forced show delete button instead return button
     MAIL_SHOW_AUCTION = 0x0004,                             // from old comment
     MAIL_SHOW_UNK2    = 0x0008,                             // unknown, COD will be shown even without that flag
-    MAIL_SHOW_RETURN  = 0x0010,
+    MAIL_SHOW_RETURN  = 0x0010
 };
 
 class MailSender

@@ -35,7 +35,7 @@ enum GeneralScriptTexts
     EMOTE_GENERIC_FRENZY        = -1000002,
     EMOTE_GENERIC_ENRAGED       = -1000003,
     EMOTE_GENERIC_BERSERK       = -1000004,
-    EMOTE_GENERIC_BERSERK_RAID  = -1000005, // RaidBossEmote version of the previous one
+    EMOTE_GENERIC_BERSERK_RAID  = -1000005 // RaidBossEmote version of the previous one
 };
 
 //Selection method used by SelectTarget
@@ -45,7 +45,7 @@ enum SelectAggroTarget
     SELECT_TARGET_TOPAGGRO,                                 //Selects targes from top aggro to bottom
     SELECT_TARGET_BOTTOMAGGRO,                              //Selects targets from bottom aggro to top
     SELECT_TARGET_NEAREST,
-    SELECT_TARGET_FARTHEST,
+    SELECT_TARGET_FARTHEST
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria

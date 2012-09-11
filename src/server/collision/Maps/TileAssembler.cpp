@@ -54,7 +54,7 @@ namespace VMAP
     //=================================================================
 
     TileAssembler::TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName)
-        : iSrcDir(pSrcDirName), iDestDir(pDestDirName), iCurrentUniqueNameId(0), iFilterMethod(NULL)
+        : iDestDir(pDestDirName), iSrcDir(pSrcDirName), iFilterMethod(NULL), iCurrentUniqueNameId(0)
     {
         //mkdir(iDestDir);
         //init();

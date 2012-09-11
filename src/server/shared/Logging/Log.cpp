@@ -272,19 +272,6 @@ void Log::EnableDBAppenders()
             ((AppenderDB *)it->second)->setEnable(true);
 }
 
-void Log::log(LogFilterType filter, LogLevel level, char const* str, ...)
-{
-    if (!str || !ShouldLog(filter, level))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, level, str, ap);
-
-    va_end(ap);
-}
-
 void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list argptr)
 {
     char text[MAX_QUERY_LEN];
