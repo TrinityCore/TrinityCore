@@ -1455,7 +1455,7 @@ class OpcodeTable
 
         // Prevent copying this structure
         OpcodeTable(OpcodeTable const&);
-        OpcodeTable& operator=(OpcodeTable& const);
+        OpcodeTable& operator=(OpcodeTable const&);
 
         OpcodeHandler* _internalTable[NUM_OPCODE_HANDLERS];
 };
