@@ -35,7 +35,7 @@ template<class T, class Y> class TypeContainerVisitor;
 template<class VISITOR, class TYPE_CONTAINER> void VisitorHelper(VISITOR &v, TYPE_CONTAINER &c)
 {
     v.Visit(c);
-};
+}
 
 // terminate condition for container list
 template<class VISITOR> void VisitorHelper(VISITOR &v, ContainerList<TypeNull> &c)

@@ -23,7 +23,7 @@
 #include "DBCFileLoader.h"
 #include "Errors.h"
 
-DBCFileLoader::DBCFileLoader() : stringTable(NULL), data(NULL), fieldsOffset(NULL)
+DBCFileLoader::DBCFileLoader() : fieldsOffset(NULL), data(NULL), stringTable(NULL)
 {
 }
 
