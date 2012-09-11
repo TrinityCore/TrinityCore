@@ -66,20 +66,20 @@ enum GroupMemberOnlineStatus
     MEMBER_STATUS_PVP_FFA   = 0x0010,                       // Lua_UnitIsPVPFreeForAll
     MEMBER_STATUS_UNK3      = 0x0020,                       // used in calls from Lua_GetPlayerMapPosition/Lua_GetBattlefieldFlagPosition
     MEMBER_STATUS_AFK       = 0x0040,                       // Lua_UnitIsAFK
-    MEMBER_STATUS_DND       = 0x0080,                       // Lua_UnitIsDND
+    MEMBER_STATUS_DND       = 0x0080                        // Lua_UnitIsDND
 };
 
 enum GroupMemberFlags
 {
     MEMBER_FLAG_ASSISTANT   = 0x01,
     MEMBER_FLAG_MAINTANK    = 0x02,
-    MEMBER_FLAG_MAINASSIST  = 0x04,
+    MEMBER_FLAG_MAINASSIST  = 0x04
 };
 
 enum GroupMemberAssignment
 {
     GROUP_ASSIGN_MAINTANK   = 0,
-    GROUP_ASSIGN_MAINASSIST = 1,
+    GROUP_ASSIGN_MAINASSIST = 1
 };
 
 enum GroupType
@@ -89,7 +89,7 @@ enum GroupType
     GROUPTYPE_RAID   = 0x02,
     GROUPTYPE_BGRAID = GROUPTYPE_BG | GROUPTYPE_RAID,       // mask
     GROUPTYPE_UNK1   = 0x04,
-    GROUPTYPE_LFG    = 0x08,
+    GROUPTYPE_LFG    = 0x08
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
 
@@ -125,7 +125,7 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FULL = GROUP_UPDATE_FLAG_STATUS | GROUP_UPDATE_FLAG_CUR_HP | GROUP_UPDATE_FLAG_MAX_HP |
                         GROUP_UPDATE_FLAG_POWER_TYPE | GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER |
                         GROUP_UPDATE_FLAG_LEVEL | GROUP_UPDATE_FLAG_ZONE | GROUP_UPDATE_FLAG_POSITION |
-                        GROUP_UPDATE_FLAG_AURAS | GROUP_UPDATE_PET | GROUP_UPDATE_FLAG_PHASE, // all known flags, except UNK100 and VEHICLE_SEAT
+                        GROUP_UPDATE_FLAG_AURAS | GROUP_UPDATE_PET | GROUP_UPDATE_FLAG_PHASE // all known flags, except UNK100 and VEHICLE_SEAT
 };
 
 class Roll : public LootValidatorRef

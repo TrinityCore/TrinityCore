@@ -52,7 +52,7 @@ class Vehicle : public TransportBase
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
         void RemovePassenger(Unit* passenger);
-        void RelocatePassengers(float x, float y, float z, float ang);
+        void RelocatePassengers();
         void RemoveAllPassengers();
         void Dismiss();
         void TeleportVehicle(float x, float y, float z, float ang);

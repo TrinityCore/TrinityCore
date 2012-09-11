@@ -5556,8 +5556,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team)
 {
     enum DefaultGraveyard
     {
-        HORDE_GRAVEYARD = 10, // Crossroads
-        ALLIANCE_GRAVEYARD = 4, // Westfall
+        HORDE_GRAVEYARD    = 10, // Crossroads
+        ALLIANCE_GRAVEYARD = 4   // Westfall
     };
 
     if (team == HORDE)

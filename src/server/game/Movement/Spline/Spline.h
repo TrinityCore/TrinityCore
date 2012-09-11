@@ -53,7 +53,7 @@ protected:
         // lesser value saves more performance in cost of lover precision
         // minimal value is 1
         // client's value is 20, blizzs use 2-3 steps to compute length
-        STEPS_PER_SEGMENT = 3,
+        STEPS_PER_SEGMENT = 3
     };
     static_assert(STEPS_PER_SEGMENT > 0, "shouldn't be lesser than 1");
 
