@@ -164,12 +164,12 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        handler->SendSysMessage(LANG_CHEAT_STATUS);
-        handler->PSendSysMessage(LANG_CHEAT_INDIV, "God", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-        handler->PSendSysMessage(LANG_CHEAT_INDIV, "Cooldown", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-        handler->PSendSysMessage(LANG_CHEAT_INDIV, "Casttime", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-        handler->PSendSysMessage(LANG_CHEAT_INDIV, "Power", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
-        handler->PSendSysMessage(LANG_CHEAT_INDIV, "Waterwalk", player->GetCommandStatus(CHEAT_GOD) ? "Enabled" : "Disabled");
+        handler->SendSysMessage(LANG_COMMAND_CHEAT_STATUS);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_GOD) ? LANG_COMMAND_CHEAT_GOD_ENABLED : LANG_COMMAND_CHEAT_GOD_DISABLED);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_COOLDOWN) ? LANG_COMMAND_CHEAT_CD_ENABLED : LANG_COMMAND_CHEAT_CD_DISABLED);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_CASTTIME) ? LANG_COMMAND_CHEAT_CT_ENABLED : LANG_COMMAND_CHEAT_CT_DISABLED);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_POWER) ? LANG_COMMAND_CHEAT_POWER_ENABLED : LANG_COMMAND_CHEAT_POWER_DISABLED);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_WATERWALK) ? LANG_COMMAND_CHEAT_WW_ENABLED : LANG_COMMAND_CHEAT_WW_DISABLED);
         return true;
     }
 
