@@ -49,7 +49,7 @@ enum UNIT_EVENT_TYPE
     UEV_THREAT_SET_NEXT_TARGET          = 1<<5,
 
     // A new victim (target) was set. Could be NULL
-    UEV_THREAT_VICTIM_CHANGED           = 1<<6,
+    UEV_THREAT_VICTIM_CHANGED           = 1<<6
 
     // Future use
     //UEV_UNIT_KILLED                   = 1<<7,

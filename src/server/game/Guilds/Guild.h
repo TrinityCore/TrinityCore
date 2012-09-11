@@ -38,7 +38,7 @@ enum GuildMisc
     GUILD_RANK_NONE                     = 0xFF,
     GUILD_WITHDRAW_MONEY_UNLIMITED      = 0xFFFFFFFF,
     GUILD_WITHDRAW_SLOT_UNLIMITED       = 0xFFFFFFFF,
-    GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF,
+    GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF
 };
 
 enum GuildDefaultRanks
@@ -48,7 +48,7 @@ enum GuildDefaultRanks
     GR_OFFICER      = 1,
     GR_VETERAN      = 2,
     GR_MEMBER       = 3,
-    GR_INITIATE     = 4,
+    GR_INITIATE     = 4
     // When promoting member server does: rank--
     // When demoting member server does: rank++
 };
@@ -156,7 +156,7 @@ enum PetitionTurns
 {
     PETITION_TURN_OK                    = 0,
     PETITION_TURN_ALREADY_IN_GUILD      = 2,
-    PETITION_TURN_NEED_MORE_SIGNATURES  = 4,
+    PETITION_TURN_NEED_MORE_SIGNATURES  = 4
     PETITION_TURN_GUILD_PERMISSIONS     = 11,
     PETITION_TURN_GUILD_NAME_INVALID    = 12,
 };
@@ -170,7 +170,7 @@ enum PetitionSigns
     PETITION_SIGN_NOT_SERVER            = 4,
     PETITION_SIGN_FULL                  = 5,
     PETITION_SIGN_ALREADY_SIGNED_OTHER  = 6,
-    PETITION_SIGN_RESTRICTED_ACCOUNT    = 7,
+    PETITION_SIGN_RESTRICTED_ACCOUNT    = 7
 };
 
 enum GuildBankRights
@@ -180,7 +180,7 @@ enum GuildBankRights
     GUILD_BANK_RIGHT_UPDATE_TEXT    = 0x04,
 
     GUILD_BANK_RIGHT_DEPOSIT_ITEM   = GUILD_BANK_RIGHT_VIEW_TAB | GUILD_BANK_RIGHT_PUT_ITEM,
-    GUILD_BANK_RIGHT_FULL           = 0xFF,
+    GUILD_BANK_RIGHT_FULL           = 0xFF
 };
 
 enum GuildBankEventLogTypes
@@ -194,7 +194,7 @@ enum GuildBankEventLogTypes
     GUILD_BANK_LOG_MOVE_ITEM2           = 7,
     GUILD_BANK_LOG_UNK1                 = 8,
     GUILD_BANK_LOG_BUY_SLOT             = 9,
-    GUILD_BANK_LOG_CASH_FLOW_DEPOSIT    = 10,
+    GUILD_BANK_LOG_CASH_FLOW_DEPOSIT    = 10
 };
 
 enum GuildEventLogTypes
@@ -204,7 +204,7 @@ enum GuildEventLogTypes
     GUILD_EVENT_LOG_PROMOTE_PLAYER    = 3,
     GUILD_EVENT_LOG_DEMOTE_PLAYER     = 4,
     GUILD_EVENT_LOG_UNINVITE_PLAYER   = 5,
-    GUILD_EVENT_LOG_LEAVE_GUILD       = 6,
+    GUILD_EVENT_LOG_LEAVE_GUILD       = 6
 };
 
 enum GuildEmblemError

@@ -44,7 +44,7 @@ enum StableResultCode
     STABLE_SUCCESS_STABLE   = 0x08,                         // stable success
     STABLE_SUCCESS_UNSTABLE = 0x09,                         // unstable/swap success
     STABLE_SUCCESS_BUY_SLOT = 0x0A,                         // buy slot success
-    STABLE_ERR_EXOTIC       = 0x0C,                         // "you are unable to control exotic creatures"
+    STABLE_ERR_EXOTIC       = 0x0C                          // "you are unable to control exotic creatures"
 };
 
 void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)

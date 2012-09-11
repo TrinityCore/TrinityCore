@@ -47,7 +47,7 @@ enum SpellInterruptFlags
     SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
     SPELL_INTERRUPT_FLAG_UNK3         = 0x04, // any info?
     SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x08, // interrupt
-    SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10,               // _complete_ interrupt on direct damage
+    SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10  // _complete_ interrupt on direct damage
     //SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
 };
 
@@ -87,7 +87,7 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_DIRECT_DAMAGE       = 0x01000000,   // 24   removed by any direct damage
     AURA_INTERRUPT_FLAG_LANDING             = 0x02000000,   // 25   removed by hitting the ground
 
-    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE),
+    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE)
 };
 
 enum SpellModOp
@@ -134,7 +134,7 @@ enum SpellValueMod
     SPELLVALUE_BASE_POINT2,
     SPELLVALUE_RADIUS_MOD,
     SPELLVALUE_MAX_TARGETS,
-    SPELLVALUE_AURA_STACK,
+    SPELLVALUE_AURA_STACK
 };
 
 typedef std::pair<SpellValueMod, int32>     CustomSpellValueMod;
@@ -254,7 +254,7 @@ enum UnitPVPStateFlags
 enum UnitRename
 {
     UNIT_CAN_BE_RENAMED     = 0x01,
-    UNIT_CAN_BE_ABANDONED   = 0x02,
+    UNIT_CAN_BE_ABANDONED   = 0x02
 };
 
 #define CREATURE_MAX_SPELLS     8
@@ -404,7 +404,7 @@ enum TriggerCastFlags
     TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
     TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00020000,   //! Disallows proc events from triggered spell (default)
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
-    TRIGGERED_FULL_MASK                             = 0xFFFFFFFF,
+    TRIGGERED_FULL_MASK                             = 0xFFFFFFFF
 };
 
 enum UnitMods
@@ -467,11 +467,11 @@ enum BaseModType
 
 enum DeathState
 {
-    ALIVE       = 0,
-    JUST_DIED   = 1,
-    CORPSE      = 2,
-    DEAD        = 3,
-    JUST_RESPAWNED = 4,
+    ALIVE          = 0,
+    JUST_DIED      = 1,
+    CORPSE         = 2,
+    DEAD           = 3,
+    JUST_RESPAWNED = 4
 };
 
 enum UnitState
@@ -641,7 +641,7 @@ enum UnitFlags2
     UNIT_FLAG2_DISABLE_TURN                 = 0x00008000,
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
-    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000    // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
 };
 
 /// Non Player Character flags
@@ -673,7 +673,7 @@ enum NPCFlags
     UNIT_NPC_FLAG_STABLEMASTER          = 0x00400000,       // 100%
     UNIT_NPC_FLAG_GUILD_BANKER          = 0x00800000,       // cause client to send 997 opcode
     UNIT_NPC_FLAG_SPELLCLICK            = 0x01000000,       // cause client to send 1015 opcode (spell click)
-    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x02000000,       // players with mounts that have vehicle data should have it set
+    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x02000000        // players with mounts that have vehicle data should have it set
     UNIT_NPC_FLAG_REFORGER              = 0x08000000,       // reforging
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x10000000,       // transmogrification
     UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000,       // void storage
@@ -732,7 +732,7 @@ enum MovementFlags
 
     //! TODO if needed: add more flags to this masks that are exclusive to players
     MOVEMENTFLAG_MASK_PLAYER_ONLY =
-        MOVEMENTFLAG_FLYING,
+        MOVEMENTFLAG_FLYING
 };
 enum MovementFlags2
 {
@@ -748,7 +748,7 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK10                    = 0x00000100,
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00000200,
     MOVEMENTFLAG2_INTERPOLATED_TURNING     = 0x00000400,
-    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00000800,
+    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00000800
 };
 
 enum UnitTypeMask
@@ -763,7 +763,7 @@ enum UnitTypeMask
     UNIT_MASK_PUPPET                = 0x00000040,
     UNIT_MASK_HUNTER_PET            = 0x00000080,
     UNIT_MASK_CONTROLABLE_GUARDIAN  = 0x00000100,
-    UNIT_MASK_ACCESSORY             = 0x00000200,
+    UNIT_MASK_ACCESSORY             = 0x00000200
 };
 
 namespace Movement{
@@ -777,7 +777,7 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_3             = 2,
     DIMINISHING_LEVEL_IMMUNE        = 3,
     DIMINISHING_LEVEL_4             = 3,
-    DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4,
+    DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 
 struct DiminishingReturn
@@ -1089,7 +1089,7 @@ enum CharmType
     CHARM_TYPE_CHARM,
     CHARM_TYPE_POSSESS,
     CHARM_TYPE_VEHICLE,
-    CHARM_TYPE_CONVERT,
+    CHARM_TYPE_CONVERT
 };
 
 typedef UnitActionBarEntry CharmSpellInfo;
@@ -1099,7 +1099,7 @@ enum ActionBarIndex
     ACTION_BAR_INDEX_START = 0,
     ACTION_BAR_INDEX_PET_SPELL_START = 3,
     ACTION_BAR_INDEX_PET_SPELL_END = 7,
-    ACTION_BAR_INDEX_END = 10,
+    ACTION_BAR_INDEX_END = 10
 };
 
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
@@ -1199,7 +1199,7 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_FIRE  = 63,
     SUMMON_TYPE_TOTEM_EARTH = 81,
     SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR   = 83,
+    SUMMON_TYPE_TOTEM_AIR   = 83
 };
 
 // delay time next attack to prevent client attack animation problems

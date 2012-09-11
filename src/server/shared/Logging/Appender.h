@@ -80,7 +80,7 @@ enum LogLevel
     LOG_LEVEL_INFO                               = 3,
     LOG_LEVEL_WARN                               = 4,
     LOG_LEVEL_ERROR                              = 5,
-    LOG_LEVEL_FATAL                              = 6,
+    LOG_LEVEL_FATAL                              = 6
 };
 
 const uint8 MaxLogLevels = 6;
@@ -90,7 +90,7 @@ enum AppenderType
     APPENDER_NONE,
     APPENDER_CONSOLE,
     APPENDER_FILE,
-    APPENDER_DB,
+    APPENDER_DB
 };
 
 enum AppenderFlags

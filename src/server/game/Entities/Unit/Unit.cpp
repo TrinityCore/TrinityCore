@@ -154,12 +154,25 @@ _hitMask(hitMask), _spell(spell), _damageInfo(damageInfo), _healInfo(healInfo)
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
-Unit::Unit(bool isWorldObject): WorldObject(isWorldObject),
-m_movedPlayer(NULL), m_lastSanctuaryTime(0), IsAIEnabled(false), NeedChangeAI(false),
-m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()), i_AI(NULL),
-i_disabledAI(NULL), m_procDeep(0), m_removedAurasCount(0), i_motionMaster(this),
-m_ThreatManager(this), m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
-m_HostileRefManager(this), m_TempSpeed(0.0f), m_AutoRepeatFirstCast(false)
+Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
+    , m_movedPlayer(NULL)
+    , m_lastSanctuaryTime(0)
+    , m_TempSpeed(0.0f)
+    , IsAIEnabled(false)
+    , NeedChangeAI(false)
+    , m_ControlledByPlayer(false)
+    , movespline(new Movement::MoveSpline())
+    , i_AI(NULL)
+    , i_disabledAI(NULL)
+    , m_AutoRepeatFirstCast(false)
+    , m_procDeep(0)
+    , m_removedAurasCount(0)
+    , i_motionMaster(this)
+    , m_ThreatManager(this)
+    , m_vehicle(NULL)
+    , m_vehicleKit(NULL)
+    , m_unitTypeMask(UNIT_MASK_NONE)
+    , m_HostileRefManager(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -12374,13 +12387,13 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
                 }
                 break;
             case SPELLFAMILY_PALADIN:
-                if (spellProto->SpellFamilyFlags[0] & 0x00000002 && spellProto->SpellIconID == 298)
+                if ((spellProto->SpellFamilyFlags[0] & 0x00000002) && spellProto->SpellIconID == 298)
                 {
                     // Glyph of Blessing of Might
                     if (AuraEffect* aurEff = GetAuraEffect(57958, 0))
                         duration += aurEff->GetAmount() * MINUTE * IN_MILLISECONDS;
                 }
-                else if (spellProto->SpellFamilyFlags[0] & 0x00010000 && spellProto->SpellIconID == 306)
+                else if ((spellProto->SpellFamilyFlags[0] & 0x00010000) && spellProto->SpellIconID == 306)
                 {
                     // Glyph of Blessing of Wisdom
                     if (AuraEffect* aurEff = GetAuraEffect(57979, 0))
@@ -16799,7 +16812,7 @@ void Unit::UpdateOrientation(float orientation)
 {
     SetOrientation(orientation);
     if (IsVehicle())
-        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), GetPositionZ(), orientation);
+        GetVehicleKit()->RelocatePassengers();
 }
 
 //! Only server-side height update, does not broadcast to client
@@ -16807,7 +16820,7 @@ void Unit::UpdateHeight(float newZ)
 {
     Relocate(GetPositionX(), GetPositionY(), newZ);
     if (IsVehicle())
-        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), newZ, GetOrientation());
+        GetVehicleKit()->RelocatePassengers();
 }
 
 void Unit::SendThreatListUpdate()

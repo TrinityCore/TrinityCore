@@ -93,7 +93,7 @@ enum __QuestTradeSkill
     QUEST_TRSKILL_MINING         = 11,
     QUEST_TRSKILL_FISHING        = 12,
     QUEST_TRSKILL_SKINNING       = 13,
-    QUEST_TRSKILL_JEWELCRAFTING  = 14,
+    QUEST_TRSKILL_JEWELCRAFTING  = 14
 };
 
 enum QuestStatus
@@ -169,7 +169,7 @@ enum __QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x100,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_KILL_OR_CAST         = 0x200,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_TIMED                = 0x400,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800    // Internal flag computed only
 };
 
 struct QuestLocale

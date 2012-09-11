@@ -51,7 +51,7 @@ enum MovementGeneratorType
     FOLLOW_MOTION_TYPE    = 14,
     ROTATE_MOTION_TYPE    = 15,
     EFFECT_MOTION_TYPE    = 16,
-    NULL_MOTION_TYPE      = 17,
+    NULL_MOTION_TYPE      = 17
 };
 
 enum MovementSlot
@@ -59,7 +59,7 @@ enum MovementSlot
     MOTION_SLOT_IDLE,
     MOTION_SLOT_ACTIVE,
     MOTION_SLOT_CONTROLLED,
-    MAX_MOTION_SLOT,
+    MAX_MOTION_SLOT
 };
 
 enum MMCleanFlag
@@ -72,7 +72,7 @@ enum MMCleanFlag
 enum RotateDirection
 {
     ROTATE_DIRECTION_LEFT,
-    ROTATE_DIRECTION_RIGHT,
+    ROTATE_DIRECTION_RIGHT
 };
 
 // assume it is 25 yard per 0.6 second

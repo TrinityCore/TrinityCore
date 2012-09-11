@@ -28,7 +28,7 @@ enum SpellEffIndex
 {
     EFFECT_0 = 0,
     EFFECT_1 = 1,
-    EFFECT_2 = 2,
+    EFFECT_2 = 2
 };
 
 // used in script definitions
@@ -129,7 +129,7 @@ enum UnitClass
     UNIT_CLASS_WARRIOR                  = 1,
     UNIT_CLASS_PALADIN                  = 2,
     UNIT_CLASS_ROGUE                    = 4,
-    UNIT_CLASS_MAGE                     = 8,
+    UNIT_CLASS_MAGE                     = 8
 };
 
 #define CLASSMASK_ALL_CREATURES ((1<<(UNIT_CLASS_WARRIOR-1)) | (1<<(UNIT_CLASS_PALADIN-1)) | (1<<(UNIT_CLASS_ROGUE-1)) | (1<<(UNIT_CLASS_MAGE-1)))
@@ -256,7 +256,7 @@ enum ItemQualities
 enum SpellCategory
 {
     SPELL_CATEGORY_FOOD             = 11,
-    SPELL_CATEGORY_DRINK            = 59,
+    SPELL_CATEGORY_DRINK            = 59
 };
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
@@ -692,7 +692,7 @@ enum SpellClickCastFlags
 {
     NPC_CLICK_CAST_CASTER_CLICKER       = 0x01,
     NPC_CLICK_CAST_TARGET_CLICKER       = 0x02,
-    NPC_CLICK_CAST_ORIG_CASTER_OWNER    = 0x04,
+    NPC_CLICK_CAST_ORIG_CASTER_OWNER    = 0x04
 };
 
 enum SheathTypes
@@ -764,7 +764,7 @@ enum TeamId
 {
     TEAM_ALLIANCE = 0,
     TEAM_HORDE,
-    TEAM_NEUTRAL,
+    TEAM_NEUTRAL
 };
 
 enum Team
@@ -776,7 +776,7 @@ enum Team
     //TEAM_HORDE_FORCES        = 892,
     //TEAM_SANCTUARY           = 936,
     //TEAM_OUTLAND             = 980,
-    TEAM_OTHER               = 0,                         // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
+    TEAM_OTHER               = 0                            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
 enum SpellEffects
@@ -1276,7 +1276,7 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_MAX_NUMBER_OF_RECRUITS           = 96, // You already have the max number of recruits.
     SPELL_CUSTOM_ERROR_MAX_NUMBER_OF_VOLUNTEERS         = 97, // You already have the max number of volunteers.
     SPELL_CUSTOM_ERROR_FROSTMOURNE_RENDERED_RESSURECT   = 98, // Frostmourne has rendered you unable to ressurect.
-    SPELL_CUSTOM_ERROR_CANT_MOUNT_WITH_SHAPESHIFT       = 99, // You can't mount while affected by that shapeshift.
+    SPELL_CUSTOM_ERROR_CANT_MOUNT_WITH_SHAPESHIFT       = 99  // You can't mount while affected by that shapeshift.
     SPELL_CUSTOM_ERROR_FAWNS_ALREADY_FOLLOWING          = 100, // Three fawns are already following you!
     SPELL_CUSTOM_ERROR_ALREADY_HAVE_RIVER_BOAT          = 101, // You already have a River Boat.
     SPELL_CUSTOM_ERROR_NO_ACTIVE_ENCHANTMENT            = 102, // You have no active enchantment to unleash.
@@ -1369,7 +1369,7 @@ enum AuraStateType
     //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
     //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
     AURA_STATE_UNKNOWN22                    = 22,           // C  t| varius spells (63884, 50240)
-    AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23,           // C   |
+    AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23            // C   |
 };
 
 #define PER_CASTER_AURA_STATE_MASK (\
@@ -1680,7 +1680,7 @@ enum GameObjectFlags
     GO_FLAG_NODESPAWN       = 0x00000020,                   // never despawn, typically for doors, they just change state
     GO_FLAG_TRIGGERED       = 0x00000040,                   // typically, summoned objects. Triggered by spell or other events
     GO_FLAG_DAMAGED         = 0x00000200,
-    GO_FLAG_DESTROYED       = 0x00000400,
+    GO_FLAG_DESTROYED       = 0x00000400
 };
 
 enum GameObjectDynamicLowFlags
@@ -1688,7 +1688,7 @@ enum GameObjectDynamicLowFlags
     GO_DYNFLAG_LO_ACTIVATE          = 0x01,                 // enables interaction with GO
     GO_DYNFLAG_LO_ANIMATE           = 0x02,                 // possibly more distinct animation of GO
     GO_DYNFLAG_LO_NO_INTERACT       = 0x04,                 // appears to disable interaction (not fully verified)
-    GO_DYNFLAG_LO_SPARKLE           = 0x08,                 // makes GO sparkle
+    GO_DYNFLAG_LO_SPARKLE           = 0x08                  // makes GO sparkle
 };
 
 enum GameObjectDestructibleState
@@ -1696,7 +1696,7 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_INTACT      = 0,
     GO_DESTRUCTIBLE_DAMAGED     = 1,
     GO_DESTRUCTIBLE_DESTROYED   = 2,
-    GO_DESTRUCTIBLE_REBUILDING  = 3,
+    GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
 // EmotesText.dbc
@@ -1953,7 +1953,7 @@ enum TextEmotes
     TEXT_EMOTE_LOOK                 = 449,
     TEXT_EMOTE_OBJECT               = 450,
     TEXT_EMOTE_SWEAT                = 451,
-    TEXT_EMOTE_YW                   = 453,
+    TEXT_EMOTE_YW                   = 453
 };
 
 // Emotes.dbc
@@ -2801,7 +2801,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK28            = 0x10000000,
     CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
     CREATURE_TYPEFLAGS_UNK30            = 0x40000000,
-    CREATURE_TYPEFLAGS_UNK31            = 0x80000000,
+    CREATURE_TYPEFLAGS_UNK31            = 0x80000000
 };
 
 enum CreatureTypeFlags2
@@ -2923,7 +2923,7 @@ enum QuestSort
     QUEST_SORT_JEWELCRAFTING       = 373,
     QUEST_SORT_NOBLEGARDEN         = 374,
     QUEST_SORT_PILGRIMS_BOUNTY     = 375,
-    QUEST_SORT_LOVE_IS_IN_THE_AIR  = 376,
+    QUEST_SORT_LOVE_IS_IN_THE_AIR  = 376
     QUEST_SORT_ARCHAEOLOGY         = 377,
     QUEST_SORT_CHILDRENS_WEEK      = 378,
     QUEST_SORT_FIRELANDS_INVASION  = 379,
@@ -3342,7 +3342,7 @@ enum AiReaction
     AI_REACTION_FRIENDLY = 1,                               // (NOT used in client packet handler)
     AI_REACTION_HOSTILE  = 2,                               // sent on every attack, triggers aggro sound (used in client packet handler)
     AI_REACTION_AFRAID   = 3,                               // seen for polymorph (when AI not in control of self?) (NOT used in client packet handler)
-    AI_REACTION_DESTROY  = 4,                               // used on object destroy (NOT used in client packet handler)
+    AI_REACTION_DESTROY  = 4                                // used on object destroy (NOT used in client packet handler)
 };
 
 // Diminishing Returns Types
@@ -3376,7 +3376,7 @@ enum DiminishingGroup
     DIMINISHING_SLEEP               = 17,
     DIMINISHING_TAUNT               = 18,
     DIMINISHING_LIMITONLY           = 19,
-    DIMINISHING_DRAGONS_BREATH      = 20,
+    DIMINISHING_DRAGONS_BREATH      = 20
 };
 
 enum SummonCategory
@@ -3386,7 +3386,7 @@ enum SummonCategory
     SUMMON_CATEGORY_PET         = 2,
     SUMMON_CATEGORY_PUPPET      = 3,
     SUMMON_CATEGORY_VEHICLE     = 4,
-    SUMMON_CATEGORY_UNK         = 5, // as of patch 3.3.5a only Bone Spike in Icecrown Citadel
+    SUMMON_CATEGORY_UNK         = 5  // as of patch 3.3.5a only Bone Spike in Icecrown Citadel
                                      // uses this category
 };
 
@@ -3403,14 +3403,14 @@ enum SummonType
     SUMMON_TYPE_WILD3       = 8,
     SUMMON_TYPE_VEHICLE     = 9,
     SUMMON_TYPE_VEHICLE2    = 10,
-    SUMMON_TYPE_OBJECT      = 11,
+    SUMMON_TYPE_OBJECT      = 11
     SUMMON_TYPE_UNK12       = 12,
     SUMMON_TYPE_UNK13       = 13,
 };
 
 enum EventId
 {
-    EVENT_CHARGE            = 1003,
+    EVENT_CHARGE            = 1003
 };
 
 enum ResponseCodes
@@ -3602,7 +3602,7 @@ enum MailResponseResult
     MAIL_ERR_MAIL_AND_CHAT_SUSPENDED   = 17,
     MAIL_ERR_TOO_MANY_ATTACHMENTS      = 18,
     MAIL_ERR_MAIL_ATTACHMENT_INVALID   = 19,
-    MAIL_ERR_ITEM_HAS_EXPIRED          = 21,
+    MAIL_ERR_ITEM_HAS_EXPIRED          = 21
 };
 
 enum SpellFamilyNames
@@ -3677,7 +3677,7 @@ enum RemoveMethod
 {
     GROUP_REMOVEMETHOD_DEFAULT = 0,
     GROUP_REMOVEMETHOD_KICK    = 1,
-    GROUP_REMOVEMETHOD_LEAVE   = 2,
+    GROUP_REMOVEMETHOD_LEAVE   = 2
 };
 
 enum ActivateTaxiReply
@@ -3704,7 +3704,7 @@ enum CalendarFlags
     CALENDAR_FLAG_ALL_ALLOWED     = 0x001,
     CALENDAR_FLAG_INVITES_LOCKED  = 0x010,
     CALENDAR_FLAG_WITHOUT_INVITES = 0x040,
-    CALENDAR_FLAG_GUILD_ONLY      = 0x400,
+    CALENDAR_FLAG_GUILD_ONLY      = 0x400
 };
 
 enum CalendarActionData
@@ -3718,21 +3718,21 @@ enum CalendarActionData
     CALENDAR_ACTION_MODIFY_EVENT_INVITE,
     CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE,
     CALENDAR_ACTION_REMOVE_EVENT_INVITE,
-    CALENDAR_ACTION_SIGNUP_TO_EVENT,
+    CALENDAR_ACTION_SIGNUP_TO_EVENT
 };
 
 enum CalendarModerationRank
 {
     CALENDAR_RANK_PLAYER,
     CALENDAR_RANK_MODERATOR,
-    CALENDAR_RANK_OWNER,
+    CALENDAR_RANK_OWNER
 };
 
 enum CalendarSendEventType
 {
     CALENDAR_SENDTYPE_GET,
     CALENDAR_SENDTYPE_ADD,
-    CALENDAR_SENDTYPE_COPY,
+    CALENDAR_SENDTYPE_COPY
 };
 
 enum CalendarEventType
@@ -3741,7 +3741,7 @@ enum CalendarEventType
     CALENDAR_TYPE_DUNGEON,
     CALENDAR_TYPE_PVP,
     CALENDAR_TYPE_MEETING,
-    CALENDAR_TYPE_OTHER,
+    CALENDAR_TYPE_OTHER
 };
 
 enum CalendarInviteStatus
@@ -3755,7 +3755,7 @@ enum CalendarInviteStatus
     CALENDAR_STATUS_CONFIRMED,
     CALENDAR_STATUS_NO_OWNER,
     CALENDAR_STATUS_8,
-    CALENDAR_STATUS_9,
+    CALENDAR_STATUS_9
 };
 
 enum CalendarError

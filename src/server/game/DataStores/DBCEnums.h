@@ -56,7 +56,7 @@ enum AchievementFaction
 {
     ACHIEVEMENT_FACTION_HORDE           = 0,
     ACHIEVEMENT_FACTION_ALLIANCE        = 1,
-    ACHIEVEMENT_FACTION_ANY             = -1,
+    ACHIEVEMENT_FACTION_ANY             = -1
 };
 
 enum AchievementFlags
@@ -95,7 +95,7 @@ enum AchievementCriteriaCondition
     ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
     ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
     ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13,   // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13    // unk
 };
 
 enum AchievementCriteriaAdditionalCondition
@@ -152,7 +152,7 @@ enum AchievementCriteriaFlags
     ACHIEVEMENT_CRITERIA_FLAG_UNK3              = 0x00000004,         // BG related??
     ACHIEVEMENT_CRITERIA_FLAG_UNK4              = 0x00000008,         //
     ACHIEVEMENT_CRITERIA_FLAG_UNK5              = 0x00000010,         // not used
-    ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020,         // Displays counter as money
+    ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020          // Displays counter as money
 };
 
 enum AchievementCriteriaTimedTypes
@@ -165,7 +165,7 @@ enum AchievementCriteriaTimedTypes
     ACHIEVEMENT_TIMED_TYPE_ITEM             = 9,    // Timer is started by using item with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_UNK              = 10,   // Unknown
 
-    ACHIEVEMENT_TIMED_TYPE_MAX,
+    ACHIEVEMENT_TIMED_TYPE_MAX
 };
 
 enum AchievementCriteriaTypes
@@ -347,7 +347,7 @@ enum Difficulty
     RAID_DIFFICULTY_10MAN_NORMAL = 0,
     RAID_DIFFICULTY_25MAN_NORMAL = 1,
     RAID_DIFFICULTY_10MAN_HEROIC = 2,
-    RAID_DIFFICULTY_25MAN_HEROIC = 3,
+    RAID_DIFFICULTY_25MAN_HEROIC = 3
 };
 
 #define RAID_DIFFICULTY_MASK_25MAN 1    // since 25man difficulties are 1 and 3, we can check them like that
@@ -372,14 +372,14 @@ enum SpawnMask
     SPAWNMASK_RAID_25MAN_HEROIC = (1 << RAID_DIFFICULTY_25MAN_HEROIC),
     SPAWNMASK_RAID_HEROIC_ALL   = (SPAWNMASK_RAID_10MAN_HEROIC | SPAWNMASK_RAID_25MAN_HEROIC),
 
-    SPAWNMASK_RAID_ALL          = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL),
+    SPAWNMASK_RAID_ALL          = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL)
 };
 
 enum FactionTemplateFlags
 {
     FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
     FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
-    FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000,
+    FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000
 };
 
 enum FactionMasks
@@ -422,7 +422,7 @@ enum ItemEnchantmentType
 enum ItemLimitCategoryMode
 {
     ITEM_LIMIT_CATEGORY_MODE_HAVE       = 0,                      // limit applied to amount items in inventory/bank
-    ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1,                      // limit applied to amount equipped items (including used gems)
+    ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
 };
 
 enum MountFlags
@@ -490,7 +490,7 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK13           = 0x00001000,          // Lightwell, Jeeves, Gnomish Alarm-o-bot, Build vehicles(wintergrasp)
     SUMMON_PROP_FLAG_UNK14           = 0x00002000,          // Guides, player follows
     SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
-    SUMMON_PROP_FLAG_UNK16           = 0x00008000,          // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
+    SUMMON_PROP_FLAG_UNK16           = 0x00008000           // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
     SUMMON_PROP_FLAG_UNK17           = 0x00010000,
     SUMMON_PROP_FLAG_UNK18           = 0x00020000,
     SUMMON_PROP_FLAG_UNK19           = 0x00040000,
@@ -520,7 +520,7 @@ enum VehicleSeatFlags
     VEHICLE_SEAT_FLAG_HAS_START_WARITING_FOR_VEH_TRANSITION_ANIM_EXIT = 0x10000000,
     VEHICLE_SEAT_FLAG_CAN_CAST                   = 0x20000000,           // Lua_UnitHasVehicleUI
     VEHICLE_SEAT_FLAG_UNK2                       = 0x40000000,           // checked in conjunction with 0x800 in CastSpell2
-    VEHICLE_SEAT_FLAG_ALLOWS_INTERACTION         = 0x80000000,
+    VEHICLE_SEAT_FLAG_ALLOWS_INTERACTION         = 0x80000000
 };
 
 enum VehicleSeatFlagsB
@@ -533,7 +533,7 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3          = 0x00000100,
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x02000000,
     VEHICLE_SEAT_FLAG_B_CAN_SWITCH               = 0x04000000,
-    VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000,           // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
+    VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000            // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
 // CurrencyTypes.dbc

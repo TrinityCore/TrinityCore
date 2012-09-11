@@ -711,7 +711,7 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
 
     player->Relocate(x, y, z, orientation);
     if (player->IsVehicle())
-        player->GetVehicleKit()->RelocatePassengers(x, y, z, orientation);
+        player->GetVehicleKit()->RelocatePassengers();
 
     if (old_cell.DiffGrid(new_cell) || old_cell.DiffCell(new_cell))
     {
@@ -757,7 +757,7 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
     {
         creature->Relocate(x, y, z, ang);
         if (creature->IsVehicle())
-            creature->GetVehicleKit()->RelocatePassengers(x, y, z, ang);
+            creature->GetVehicleKit()->RelocatePassengers();
         creature->UpdateObjectVisibility(false);
         RemoveCreatureFromMoveList(creature);
     }

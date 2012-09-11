@@ -38,7 +38,7 @@ enum BattlegroundSounds
     SOUND_HORDE_WINS                = 8454,
     SOUND_ALLIANCE_WINS             = 8455,
     SOUND_BG_START                  = 3439,
-    SOUND_BG_START_L70ETC           = 11803,
+    SOUND_BG_START_L70ETC           = 11803
 };
 
 enum BattlegroundQuests
@@ -79,7 +79,7 @@ enum BattlegroundMarksCount
 enum BattlegroundCreatures
 {
     BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 13116,           // alliance
-    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117,           // horde
+    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117            // horde
 };
 
 enum BattlegroundSpells
@@ -99,7 +99,7 @@ enum BattlegroundSpells
     SPELL_AURA_PLAYER_INACTIVE      = 43681,                // Inactive
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
     SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
-    SPELL_THE_LAST_STANDING         = 26549,                // Arena achievement related
+    SPELL_THE_LAST_STANDING         = 26549                 // Arena achievement related
 };
 
 enum BattlegroundTimeIntervals
@@ -112,7 +112,7 @@ enum BattlegroundTimeIntervals
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
     RESPAWN_IMMEDIATELY             = 0,                    // secs
-    BUFF_RESPAWN_TIME               = 180,                  // secs
+    BUFF_RESPAWN_TIME               = 180                   // secs
 };
 
 enum BattlegroundStartTimeIntervals
@@ -121,7 +121,7 @@ enum BattlegroundStartTimeIntervals
     BG_START_DELAY_1M               = 60000,                // ms (1 minute)
     BG_START_DELAY_30S              = 30000,                // ms (30 seconds)
     BG_START_DELAY_15S              = 15000,                // ms (15 seconds) Used only in arena
-    BG_START_DELAY_NONE             = 0,                    // ms
+    BG_START_DELAY_NONE             = 0                     // ms
 };
 
 enum BattlegroundBuffObjects
@@ -211,7 +211,7 @@ enum ScoreType
     SCORE_SECONDARY_OBJECTIVES  = 17,
     //SOTA
     SCORE_DESTROYED_DEMOLISHER  = 18,
-    SCORE_DESTROYED_WALL        = 19,
+    SCORE_DESTROYED_WALL        = 19
 };
 
 enum ArenaType
@@ -277,7 +277,7 @@ enum GroupJoinBattlegroundResult
     ERR_BATTLEGROUND_JOIN_FAILED            = -12,          // Join as a group failed (uint64 guid doesn't exist in client cache)
     ERR_LFG_CANT_USE_BATTLEGROUND           = -13,          // You cannot queue for a battleground or arena while using the dungeon system.
     ERR_IN_RANDOM_BG                        = -14,          // Can't do that while in a Random Battleground queue.
-    ERR_IN_NON_RANDOM_BG                    = -15,          // Can't queue for Random Battleground while in another Battleground queue.
+    ERR_IN_NON_RANDOM_BG                    = -15           // Can't queue for Random Battleground while in another Battleground queue.
 };
 
 class BattlegroundScore

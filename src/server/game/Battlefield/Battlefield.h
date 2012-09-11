@@ -29,13 +29,12 @@
 
 enum BattlefieldTypes
 {
-    BATTLEFIELD_WG,                                         // Wintergrasp
-    BATTLEFIELD_TB,                                         // Tol Barad (cataclysm)
+    BATTLEFIELD_WG                                          // Wintergrasp
 };
 
 enum BattlefieldIDs
 {
-    BATTLEFIELD_BATTLEID_WG                      = 1,       // Wintergrasp battle
+    BATTLEFIELD_BATTLEID_WG                      = 1        // Wintergrasp battle
 };
 
 enum BattlefieldObjectiveStates
@@ -46,7 +45,7 @@ enum BattlefieldObjectiveStates
     BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE,
     BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE,
     BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE,
-    BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE,
+    BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE
 };
 
 enum BattlefieldSounds
