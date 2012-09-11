@@ -3459,6 +3459,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 69508: // Slime Spray
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 70530: // Volatile Ooze Beam Protection (Professor Putricide)
+                spellInfo->Effect[0] = SPELL_EFFECT_APPLY_AURA; // for an unknown reason this was SPELL_EFFECT_APPLY_AREA_AURA_RAID
+                break;
             // THIS IS HERE BECAUSE COOLDOWN ON CREATURE PROCS IS NOT IMPLEMENTED
             case 71604: // Mutated Strength (Professor Putricide)
             case 72673: // Mutated Strength (Professor Putricide)

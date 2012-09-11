@@ -49,7 +49,7 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_ENABLE_OBJECTIVE    = 4,
     ENCOUNTER_FRAME_UPDATE_OBJECTIVE    = 5,
     ENCOUNTER_FRAME_DISABLE_OBJECTIVE   = 6,
-    ENCOUNTER_FRAME_UNK7                = 7,    // Seems to have something to do with sorting the encounter units
+    ENCOUNTER_FRAME_UNK7                = 7 // Seems to have something to do with sorting the encounter units
 };
 
 enum EncounterState
@@ -59,7 +59,7 @@ enum EncounterState
     FAIL          = 2,
     DONE          = 3,
     SPECIAL       = 4,
-    TO_BE_DECIDED = 5,
+    TO_BE_DECIDED = 5
 };
 
 enum DoorType
@@ -67,7 +67,7 @@ enum DoorType
     DOOR_TYPE_ROOM          = 0,    // Door can open if encounter is not in progress
     DOOR_TYPE_PASSAGE       = 1,    // Door can open if encounter is done
     DOOR_TYPE_SPAWN_HOLE    = 2,    // Door can open if encounter is in progress, typically used for spawning places
-    MAX_DOOR_TYPES,
+    MAX_DOOR_TYPES
 };
 
 enum BoundaryType
@@ -84,7 +84,7 @@ enum BoundaryType
     BOUNDARY_MAX_X = BOUNDARY_N,
     BOUNDARY_MIN_X = BOUNDARY_S,
     BOUNDARY_MAX_Y = BOUNDARY_W,
-    BOUNDARY_MIN_Y = BOUNDARY_E,
+    BOUNDARY_MIN_Y = BOUNDARY_E
 };
 
 typedef std::map<BoundaryType, float> BossBoundaryMap;

@@ -1070,7 +1070,7 @@ enum TrinityStrings
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
-    LANG_INVALID_REALMID                = 11001,
+    LANG_INVALID_REALMID                = 11001
 
     LANG_REM_TRANSMOGRIFICATIONS_ITEMS  = 11100,
     LANG_ERR_NO_TRANSMOGRIFICATIONS     = 11101,
