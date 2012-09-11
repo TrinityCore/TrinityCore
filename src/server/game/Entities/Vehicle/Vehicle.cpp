@@ -437,7 +437,7 @@ void Vehicle::RemovePassenger(Unit* unit)
 }
 
 //! Must be called after m_base::Relocate
-void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
+void Vehicle::RelocatePassengers()
 {
     ASSERT(_me->GetMap());
 
