@@ -52,11 +52,11 @@ bool MapSessionFilter::Process(WorldPacket* packet)
     OpcodeHandler const* opHandle = opcodeTable[opcode];
 
     //let's check if our opcode can be really processed in Map::Update()
-    if (opHandle->packetProcessing == PROCESS_INPLACE)
+    if (opHandle->ProcessingPlace == PROCESS_INPLACE)
         return true;
 
     //we do not process thread-unsafe packets
-    if (opHandle->packetProcessing == PROCESS_THREADUNSAFE)
+    if (opHandle->ProcessingPlace == PROCESS_THREADUNSAFE)
         return false;
 
     Player* player = m_pSession->GetPlayer();
@@ -74,11 +74,11 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
     Opcodes opcode = DropHighBytes(packet->GetOpcode());
     OpcodeHandler const* opHandle = opcodeTable[opcode];
     //check if packet handler is supposed to be safe
-    if (opHandle->packetProcessing == PROCESS_INPLACE)
+    if (opHandle->ProcessingPlace == PROCESS_INPLACE)
         return true;
 
     //thread-unsafe packets should be processed in World::UpdateSessions()
-    if (opHandle->packetProcessing == PROCESS_THREADUNSAFE)
+    if (opHandle->ProcessingPlace == PROCESS_THREADUNSAFE)
         return true;
 
     //no player attached? -> our client! ^^
@@ -213,8 +213,8 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if (!forced)
     {
-        OpcodeHandler* handler = opcodeTable[packet->GetOpcode()];
-        if (!handler || handler->status == STATUS_UNHANDLED)
+        OpcodeHandler const* handler = opcodeTable[packet->GetOpcode()];
+        if (!handler || handler->Status == STATUS_UNHANDLED)
         {
             sLog->outError(LOG_FILTER_OPCODES, "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerName(false).c_str());
             return;
@@ -307,11 +307,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
     {
-        const OpcodeHandler* opHandle = opcodeTable[packet->GetOpcode()];
+        OpcodeHandler const* opHandle = opcodeTable[packet->GetOpcode()];
 
         try
         {
-            switch (opHandle->status)
+            switch (opHandle->Status)
             {
                 case STATUS_LOGGEDIN:
                     if (!_player)
@@ -335,7 +335,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else if (_player->IsInWorld())
                     {
                         sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
-                        (this->*opHandle->handler)(*packet);
+                        (this->*opHandle->Handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
@@ -349,7 +349,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     {
                         // not expected _player or must checked in packet hanlder
                         sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
-                        (this->*opHandle->handler)(*packet);
+                        (this->*opHandle->Handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
@@ -362,7 +362,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else
                     {
                         sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
-                        (this->*opHandle->handler)(*packet);
+                        (this->*opHandle->Handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
@@ -381,7 +381,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         m_playerRecentlyLogout = false;
 
                     sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
-                    (this->*opHandle->handler)(*packet);
+                    (this->*opHandle->Handler)(*packet);
                     if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                         LogUnprocessedTail(packet);
                     break;

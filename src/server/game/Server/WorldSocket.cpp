@@ -731,8 +731,8 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                     return -1;
                 }
 
-                OpcodeHandler* handler = opcodeTable[opcode];
-                if (!handler || handler->status == STATUS_UNHANDLED)
+                OpcodeHandler const* handler = opcodeTable[opcode];
+                if (!handler || handler->Status == STATUS_UNHANDLED)
                 {
                     sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode()).c_str(), m_Session->GetPlayerName(false).c_str());
                     return 0;

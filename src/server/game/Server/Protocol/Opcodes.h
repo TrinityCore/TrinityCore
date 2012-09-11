@@ -1420,15 +1420,48 @@ struct OpcodeHandler
 {
     OpcodeHandler() {}
     OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
-        : name(_name), status(_status), packetProcessing(_processing), handler(_handler) {}
+        : Name(_name), Status(_status), ProcessingPlace(_processing), Handler(_handler) {}
 
-    char const* name;
-    SessionStatus status;
-    PacketProcessing packetProcessing;
-    pOpcodeHandler handler;
+    char const* Name;
+    SessionStatus Status;
+    PacketProcessing ProcessingPlace;
+    pOpcodeHandler Handler;
 };
 
-extern OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS];
+class OpcodeTable
+{
+    public:
+        OpcodeTable()
+        {
+            memset(_internalTable, 0, sizeof(_internalTable));
+        }
+
+        ~OpcodeTable()
+        {
+            for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+                delete _internalTable[i];
+        }
+
+        void Initialize();
+
+        OpcodeHandler const* operator[](uint32 index) const
+        {
+            return _internalTable[index];
+        }
+
+    private:
+        template<bool isInValidRange, bool isNonZero>
+        void ValidateAndSetOpcode(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler);
+
+        // Prevent copying this structure
+        OpcodeTable(OpcodeTable const&);
+        OpcodeTable& operator=(OpcodeTable& const);
+
+        OpcodeHandler* _internalTable[NUM_OPCODE_HANDLERS];
+};
+
+extern OpcodeTable opcodeTable;
+
 void InitOpcodes();
 
 /// Lookup opcode name for human understandable logging
@@ -1440,9 +1473,9 @@ inline std::string GetOpcodeNameForLogging(Opcodes id)
 
     if (id < UNKNOWN_OPCODE)
     {
-        if (OpcodeHandler* handler = opcodeTable[uint32(id) & 0x7FFF])
+        if (OpcodeHandler const* handler = opcodeTable[uint32(id) & 0x7FFF])
         {
-            ss << handler->name;
+            ss << handler->Name;
             if (opcode & COMPRESSED_OPCODE_MASK)
                 ss << "_COMPRESSED";
         }

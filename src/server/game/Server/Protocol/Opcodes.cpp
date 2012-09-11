@@ -19,45 +19,43 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 
-OpcodeHandler* opcodeTable[NUM_OPCODE_HANDLERS] = { };
+OpcodeTable opcodeTable;
 
 template<bool isInValidRange, bool isNonZero>
-inline void ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+void OpcodeTable::ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
 {
     // if for some reason we are here, that means NUM_OPCODE_HANDLERS == 0 (or your compiler is broken)
 }
 
 template<>
-void ValidateAndSetOpcode<true, true>(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
+void OpcodeTable::ValidateAndSetOpcode<true, true>(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler)
 {
-    if (opcodeTable[opcode] != NULL)
+    if (_internalTable[opcode] != NULL)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[opcode]->name, name, opcode);
+        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
         return;
     }
 
-    opcodeTable[opcode] = new OpcodeHandler(name, status, processing, handler);
+    _internalTable[opcode] = new OpcodeHandler(name, status, processing, handler);
 }
 
 template<>
-void ValidateAndSetOpcode<false, true>(uint16 opcode, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+void OpcodeTable::ValidateAndSetOpcode<false, true>(uint16 opcode, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
 {
     sLog->outError(LOG_FILTER_NETWORKIO, "Tried to set handler for an invalid opcode %d", opcode);
 }
 
 template<>
-void ValidateAndSetOpcode<true, false>(uint16 /*opcode*/, char const* name, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
+void OpcodeTable::ValidateAndSetOpcode<true, false>(uint16 /*opcode*/, char const* name, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/)
 {
     sLog->outError(LOG_FILTER_NETWORKIO, "Opcode %s got value 0", name);
 }
 
+/// Correspondence between opcodes and their names
+void OpcodeTable::Initialize()
+{
 #define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                                      \
     ValidateAndSetOpcode<(opcode < NUM_OPCODE_HANDLERS), (opcode != 0)>(opcode, #opcode, status, processing, handler);
-
-/// Correspondence between opcodes and their names
-void InitOpcodes()
-{
-    memset(opcodeTable, 0, sizeof(opcodeTable));
 
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_LEVEL_GRANT,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptGrantLevel          );
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_TRADE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptTradeOpcode         );
