@@ -5699,17 +5699,6 @@ void Player::LeaveLFGChannel()
     }
 }
 
-void Player::UpdateDefense()
-{
-    uint32 defense_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_DEFENSE);
-
-    if (UpdateSkill(SKILL_DEFENSE, defense_skill_gain))
-    {
-        // update dependent from defense skill part
-        UpdateDefenseBonusesMod();
-    }
-}
-
 void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, float amount, bool apply)
 {
     if (modGroup >= BASEMOD_END || modType >= MOD_END)
@@ -5961,9 +5950,8 @@ void Player::UpdateRating(CombatRating cr)
 
     switch (cr)
     {
-        case CR_WEAPON_SKILL:                               // Implemented in Unit::RollMeleeOutcomeAgainst
+        case CR_WEAPON_SKILL:
         case CR_DEFENSE_SKILL:
-            UpdateDefenseBonusesMod();
             break;
         case CR_DODGE:
             UpdateDodgePercentage();
@@ -6239,70 +6227,6 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
     return false;
 }
 
-void Player::UpdateWeaponSkill(WeaponAttackType attType)
-{
-    // no skill gain in pvp
-    Unit* victim = getVictim();
-    if (victim && victim->GetTypeId() == TYPEID_PLAYER)
-        return;
-
-    if (IsInFeralForm())
-        return;                                             // always maximized SKILL_FERAL_COMBAT in fact
-
-    if (GetShapeshiftForm() == FORM_TREE)
-        return;                                             // use weapon but not skill up
-
-    if (victim && victim->GetTypeId() == TYPEID_UNIT && (victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SKILLGAIN))
-        return;
-
-    uint32 weapon_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_WEAPON);
-
-    Item* tmpitem = GetWeaponForAttack(attType, true);
-    if (!tmpitem && attType == BASE_ATTACK)
-        UpdateSkill(SKILL_UNARMED, weapon_skill_gain);
-    else if (tmpitem && tmpitem->GetTemplate()->SubClass != ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-        UpdateSkill(tmpitem->GetSkill(), weapon_skill_gain);
-
-    UpdateAllCritPercentages();
-}
-
-void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defence)
-{
-    uint8 plevel = getLevel();                              // if defense than victim == attacker
-    uint8 greylevel = Trinity::XP::GetGrayLevel(plevel);
-    uint8 moblevel = victim->getLevelForTarget(this);
-    if (moblevel < greylevel)
-        return;
-
-    if (moblevel > plevel + 5)
-        moblevel = plevel + 5;
-
-    uint8 lvldif = moblevel - greylevel;
-    if (lvldif < 3)
-        lvldif = 3;
-
-    uint32 skilldif = 5 * plevel - (defence ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType));
-    if (skilldif <= 0)
-        return;
-
-    float chance = float(3 * lvldif * skilldif) / plevel;
-    if (!defence)
-        if (getClass() == CLASS_WARRIOR || getClass() == CLASS_ROGUE)
-            chance += chance * 0.02f * GetStat(STAT_INTELLECT);
-
-    chance = chance < 1.0f ? 1.0f : chance;                 //minimum chance to increase skill is 1%
-
-    if (roll_chance_f(chance))
-    {
-        if (defence)
-            UpdateDefense();
-        else
-            UpdateWeaponSkill(attType);
-    }
-    else
-        return;
-}
-
 void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
 {
     SkillStatusMap::const_iterator itr = mSkillStatus.find(skillid);
@@ -6319,10 +6243,7 @@ void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
 
 void Player::UpdateSkillsForLevel()
 {
-    uint16 maxconfskill = sWorld->GetConfigMaxSkillValue();
     uint32 maxSkill = GetMaxSkillValueForLevel();
-
-    bool alwaysMaxSkill = sWorld->getBoolConfig(CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL);
 
     for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
     {
@@ -6346,22 +6267,10 @@ void Player::UpdateSkillsForLevel()
         /// update only level dependent max skill values
         if (max != 1)
         {
-            /// maximize skill always
-            if (alwaysMaxSkill)
-            {
-                SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, maxSkill);
-                SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, maxSkill);
-                if (itr->second.uState != SKILL_NEW)
-                    itr->second.uState = SKILL_CHANGED;
-            }
-
-            else if (max != maxconfskill)                    /// update max skill value if current max skill not maximized
-            {
-                SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, val);
-                SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, maxSkill);
-                if (itr->second.uState != SKILL_NEW)
-                    itr->second.uState = SKILL_CHANGED;
-            }
+            SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, maxSkill);
+            SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, maxSkill);
+            if (itr->second.uState != SKILL_NEW)
+                itr->second.uState = SKILL_CHANGED;
         }
     }
 }
@@ -6389,8 +6298,6 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
             if (itr->second.uState != SKILL_NEW)
                 itr->second.uState = SKILL_CHANGED;
         }
-        if (pskill == SKILL_DEFENSE)
-            UpdateDefenseBonusesMod();
     }
 }
 
@@ -23386,19 +23293,6 @@ bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
         return false;
 
     return pOther->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE);
-}
-
-uint32 Player::GetBaseWeaponSkillValue (WeaponAttackType attType) const
-{
-    Item* item = GetWeaponForAttack(attType, true);
-
-    // unarmed only with base attack
-    if (attType != BASE_ATTACK && !item)
-        return 0;
-
-    // weapon skill or (unarmed for base attack and for fist weapons)
-    uint32  skill = (item && item->GetSkill() != SKILL_FIST_WEAPONS) ? item->GetSkill() : uint32(SKILL_UNARMED);
-    return GetBaseSkillValue(skill);
 }
 
 void Player::ResurectUsingRequestData()
