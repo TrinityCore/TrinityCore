@@ -50,7 +50,7 @@ enum PaladinSpells
 };
 
 // 31850 - Ardent Defender
-class spell_pal_ardent_defender : public SpellScriptLoader
+/*class spell_pal_ardent_defender : public SpellScriptLoader
 {
     public:
         spell_pal_ardent_defender() : SpellScriptLoader("spell_pal_ardent_defender") { }
@@ -73,7 +73,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
                 return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated)
             {
                 // Set absorbtion amount to unlimited
                 amount = -1;
@@ -123,7 +123,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         {
             return new spell_pal_ardent_defender_AuraScript();
         }
-};
+};*/
 
 class spell_pal_blessing_of_faith : public SpellScriptLoader
 {
@@ -568,7 +568,7 @@ class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
 
 void AddSC_paladin_spell_scripts()
 {
-    new spell_pal_ardent_defender();
+    //new spell_pal_ardent_defender();
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_guarded_by_the_light();
