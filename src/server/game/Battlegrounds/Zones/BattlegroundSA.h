@@ -104,7 +104,7 @@ enum BG_SA_WorldStates
     BG_SA_LEFT_GY_HORDE             = 3633,
     BG_SA_CENTER_GY_HORDE           = 3634,
     BG_SA_BONUS_TIMER               = 0xdf3,
-    BG_SA_ENABLE_TIMER              = 3564,
+    BG_SA_ENABLE_TIMER              = 3564
 };
 
 enum npc
@@ -112,7 +112,7 @@ enum npc
     NPC_ANTI_PERSONNAL_CANNON       = 27894,
     NPC_DEMOLISHER_SA               = 28781,
     NPC_RIGGER_SPARKLIGHT           = 29260,
-    NPC_GORGRIL_RIGSPARK            = 29262,
+    NPC_GORGRIL_RIGSPARK            = 29262
 };
 
 enum BG_SA_NPCs
@@ -146,7 +146,7 @@ enum BG_SA_Boat
     BG_SA_BOAT_ONE_A    = 193182,
     BG_SA_BOAT_TWO_H    = 193183,
     BG_SA_BOAT_ONE_H    = 193184,
-    BG_SA_BOAT_TWO_A    = 193185,
+    BG_SA_BOAT_TWO_A    = 193185
 };
 
 uint32 const BG_SA_NpcEntries[BG_SA_MAXNPC] =

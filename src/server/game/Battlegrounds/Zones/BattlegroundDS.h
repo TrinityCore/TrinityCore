@@ -52,14 +52,14 @@ enum BattlegroundDSCreatureTypes
 
 enum BattlegroundDSCreatures
 {
-    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567,
+    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567
 };
 
 enum BattlegroundDSSpells
 {
     BG_DS_SPELL_FLUSH             = 57405, // Visual and target selector for the starting knockback from the pipe
     BG_DS_SPELL_FLUSH_KNOCKBACK   = 61698, // Knockback effect for previous spell (triggered, not need to be casted)
-    BG_DS_SPELL_WATER_SPOUT       = 58873, // Knockback effect of the central waterfall
+    BG_DS_SPELL_WATER_SPOUT       = 58873  // Knockback effect of the central waterfall
 };
 
 enum BattlegroundDSData
@@ -76,7 +76,7 @@ enum BattlegroundDSData
 
     BG_DS_WATERFALL_STATUS_WARNING               = 1, // Water starting to fall, but no LoS Blocking nor movement blocking
     BG_DS_WATERFALL_STATUS_ON                    = 2, // LoS and Movement blocking active
-    BG_DS_WATERFALL_STATUS_OFF                   = 3,
+    BG_DS_WATERFALL_STATUS_OFF                   = 3
 };
 
 class BattlegroundDSScore : public BattlegroundScore

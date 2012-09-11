@@ -28,12 +28,12 @@
 
 enum GameEventState
 {
-    GAMEEVENT_NORMAL = 0,   // standard game events
-    GAMEEVENT_WORLD_INACTIVE = 1,   // not yet started
-    GAMEEVENT_WORLD_CONDITIONS = 2,  // condition matching phase
-    GAMEEVENT_WORLD_NEXTPHASE = 3,   // conditions are met, now 'length' timer to start next event
-    GAMEEVENT_WORLD_FINISHED = 4,    // next events are started, unapply this one
-    GAMEEVENT_INTERNAL = 5, // never handled in update
+    GAMEEVENT_NORMAL           = 0, // standard game events
+    GAMEEVENT_WORLD_INACTIVE   = 1, // not yet started
+    GAMEEVENT_WORLD_CONDITIONS = 2, // condition matching phase
+    GAMEEVENT_WORLD_NEXTPHASE  = 3, // conditions are met, now 'length' timer to start next event
+    GAMEEVENT_WORLD_FINISHED   = 4, // next events are started, unapply this one
+    GAMEEVENT_INTERNAL         = 5  // never handled in update
 };
 
 struct GameEventFinishCondition

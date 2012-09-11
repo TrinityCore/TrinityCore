@@ -47,7 +47,7 @@ typedef std::set<Group*> GroupSet;
 enum WintergrastData
 {
     BATTLEFIELD_WG_ZONEID                        = 4197,             // Wintergrasp
-    BATTLEFIELD_WG_MAPID                         = 571,              // Northrend
+    BATTLEFIELD_WG_MAPID                         = 571               // Northrend
 };
 
 enum WintergraspSpells
@@ -91,7 +91,7 @@ enum WintergraspSpells
     SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT = 56617, // ADDS PHASE 32
 
     SPELL_HORDE_CONTROL_PHASE_SHIFT             = 55773, // ADDS PHASE 64
-    SPELL_ALLIANCE_CONTROL_PHASE_SHIFT          = 55774, // ADDS PHASE 128
+    SPELL_ALLIANCE_CONTROL_PHASE_SHIFT          = 55774  // ADDS PHASE 128
 };
 
 enum WintergraspData
@@ -104,7 +104,7 @@ enum WintergraspData
     BATTLEFIELD_WG_DATA_MAX_VEHICLE_H,
     BATTLEFIELD_WG_DATA_VEHICLE_A,
     BATTLEFIELD_WG_DATA_VEHICLE_H,
-    BATTLEFIELD_WG_DATA_MAX,
+    BATTLEFIELD_WG_DATA_MAX
 };
 
 enum WintergraspAchievements
@@ -124,7 +124,7 @@ enum WintergraspAchievements
     ACHIEVEMENTS_STONE_KEEPER_1000               = 2089, // todo
     ACHIEVEMENTS_WG_RANGER                       = 2199, // todo
     ACHIEVEMENTS_DESTRUCTION_DERBY_H             = 2476, // todo
-    ACHIEVEMENTS_WG_MASTER_H                     = 2776, // todo
+    ACHIEVEMENTS_WG_MASTER_H                     = 2776  // todo
 };
 
 enum WintergraspWorldStates
@@ -136,7 +136,7 @@ enum WintergraspWorldStates
     BATTLEFIELD_WG_WORLD_STATE_ACTIVE            = 3801,
     BATTLEFIELD_WG_WORLD_STATE_DEFENDER          = 3802,
     BATTLEFIELD_WG_WORLD_STATE_ATTACKER          = 3803,
-    BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE   = 3710,
+    BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE   = 3710
 };
 
 enum WintergraspAreaIds
@@ -147,7 +147,7 @@ enum WintergraspAreaIds
     AREA_WESTPARK_WORKSHOP          = 4611,
     AREA_EASTPARK_WORKSHOP          = 4612,
     AREA_WINTERGRASP                = 4197,
-    AREA_THE_CHILLED_QUAGMIRE       = 4589,
+    AREA_THE_CHILLED_QUAGMIRE       = 4589
 };
 
 /*#########################
@@ -174,7 +174,7 @@ enum WGGraveyardId
     BATTLEFIELD_WG_GY_KEEP,
     BATTLEFIELD_WG_GY_HORDE,
     BATTLEFIELD_WG_GY_ALLIANCE,
-    BATTLEFIELD_WG_GRAVEYARD_MAX,
+    BATTLEFIELD_WG_GRAVEYARD_MAX
 };
 
 enum WGGossipText
@@ -185,7 +185,7 @@ enum WGGossipText
     BATTLEFIELD_WG_GOSSIPTEXT_GY_SW              = -1850503,
     BATTLEFIELD_WG_GOSSIPTEXT_GY_KEEP            = -1850500,
     BATTLEFIELD_WG_GOSSIPTEXT_GY_HORDE           = -1850505,
-    BATTLEFIELD_WG_GOSSIPTEXT_GY_ALLIANCE        = -1850506,
+    BATTLEFIELD_WG_GOSSIPTEXT_GY_ALLIANCE        = -1850506
 };
 
 enum WintergraspNpcs
@@ -222,7 +222,7 @@ enum WintergraspNpcs
     NPC_WINTERGRASP_SIEGE_ENGINE_HORDE              = 32627,
     NPC_WINTERGRASP_CATAPULT                        = 27881,
     NPC_WINTERGRASP_DEMOLISHER                      = 28094,
-    NPC_WINTERGRASP_TOWER_CANNON                    = 28366,
+    NPC_WINTERGRASP_TOWER_CANNON                    = 28366
 };
 
 struct BfWGCoordGY
@@ -456,7 +456,7 @@ enum WintergraspGameObjectBuildingType
     BATTLEFIELD_WG_OBJECTTYPE_WALL,
     BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST,
     BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER,
-    BATTLEFIELD_WG_OBJECTTYPE_TOWER,
+    BATTLEFIELD_WG_OBJECTTYPE_TOWER
 };
 
 enum WintergraspGameObjectState
@@ -470,7 +470,7 @@ enum WintergraspGameObjectState
     BATTLEFIELD_WG_OBJECTSTATE_HORDE_DESTROY,
     BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT,
     BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DAMAGE,
-    BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY,
+    BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY
 };
 
 enum WintergraspWorkshopIds
@@ -480,7 +480,7 @@ enum WintergraspWorkshopIds
     BATTLEFIELD_WG_WORKSHOP_SE,
     BATTLEFIELD_WG_WORKSHOP_SW,
     BATTLEFIELD_WG_WORKSHOP_KEEP_WEST,
-    BATTLEFIELD_WG_WORKSHOP_KEEP_EAST,
+    BATTLEFIELD_WG_WORKSHOP_KEEP_EAST
 };
 
 enum WintergraspWorldstates
@@ -497,7 +497,7 @@ enum WintergraspTeamControl
 {
     BATTLEFIELD_WG_TEAM_ALLIANCE,
     BATTLEFIELD_WG_TEAM_HORDE,
-    BATTLEFIELD_WG_TEAM_NEUTRAL,
+    BATTLEFIELD_WG_TEAM_NEUTRAL
 };
 
 // TODO: Handle this with creature_text ?
@@ -525,7 +525,7 @@ enum WintergraspText
     BATTLEFIELD_WG_TEXT_TOWER_NAME_E             = 12070,
     BATTLEFIELD_WG_TEXT_TOWER_NAME_W             = 12071,
     BATTLEFIELD_WG_TEXT_DEFEND_KEEP              = 12068,
-    BATTLEFIELD_WG_TEXT_WIN_KEEP                 = 12072,
+    BATTLEFIELD_WG_TEXT_WIN_KEEP                 = 12072
 };
 
 enum WintergraspGameObject
@@ -549,8 +549,7 @@ enum WintergraspGameObject
     GO_WINTERGRASP_FORTRESS_GATE                 = 190375,
     GO_WINTERGRASP_VAULT_GATE                    = 191810,
 
-    GO_WINTERGRASP_KEEP_COLLISION_WALL           = 194323,
-
+    GO_WINTERGRASP_KEEP_COLLISION_WALL           = 194323
 };
 
 struct WintergraspObjectPositionData
@@ -1133,9 +1132,9 @@ const WGWorkshopData WorkshopsData[WG_MAX_WORKSHOP] =
     // SW
     {BATTLEFIELD_WG_WORKSHOP_SW, WORLDSTATE_WORKSHOP_SW, BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_SW},
     // KEEP WEST - It can't be taken, so it doesn't have a textid
-    {BATTLEFIELD_WG_WORKSHOP_KEEP_WEST, WORLDSTATE_WORKSHOP_K_W, NULL},
+    {BATTLEFIELD_WG_WORKSHOP_KEEP_WEST, WORLDSTATE_WORKSHOP_K_W, 0},
     // KEEP EAST - It can't be taken, so it doesn't have a textid
-    {BATTLEFIELD_WG_WORKSHOP_KEEP_EAST, WORLDSTATE_WORKSHOP_K_E, NULL}
+    {BATTLEFIELD_WG_WORKSHOP_KEEP_EAST, WORLDSTATE_WORKSHOP_K_E, 0}
 };
 
 // ********************************************************************

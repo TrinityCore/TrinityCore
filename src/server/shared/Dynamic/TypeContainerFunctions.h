@@ -36,7 +36,7 @@ namespace Trinity
     template<class SPECIFIC_TYPE> size_t Count(const ContainerMapList<SPECIFIC_TYPE> &elements, SPECIFIC_TYPE* /*fake*/)
     {
         return elements._element.getSize();
-    };
+    }
 
     template<class SPECIFIC_TYPE> size_t Count(const ContainerMapList<TypeNull> &/*elements*/, SPECIFIC_TYPE* /*fake*/)
     {
@@ -64,7 +64,7 @@ namespace Trinity
         //elements._element[hdl] = obj;
         obj->AddToGrid(elements._element);
         return obj;
-    };
+    }
 
     template<class SPECIFIC_TYPE> SPECIFIC_TYPE* Insert(ContainerMapList<TypeNull> &/*elements*/, SPECIFIC_TYPE * /*obj*/)
     {
