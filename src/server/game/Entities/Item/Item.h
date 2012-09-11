@@ -279,7 +279,6 @@ class Item : public Object
         bool IsEquipped() const;
 
         uint32 GetSkill();
-        uint32 GetSpell();
 
         // RandomPropertyId (signed but stored as unsigned)
         int32 GetItemRandomPropertyId() const { return GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID); }
