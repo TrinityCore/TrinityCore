@@ -37,7 +37,7 @@ union SQLElementUnion
 enum SQLElementDataType
 {
     SQL_ELEMENT_RAW,
-    SQL_ELEMENT_PREPARED,
+    SQL_ELEMENT_PREPARED
 };
 
 //- The element

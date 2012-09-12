@@ -46,7 +46,7 @@ enum BattlegroundRVObjectTypes
 
     BG_RV_OBJECT_ELEVATOR_1,
     BG_RV_OBJECT_ELEVATOR_2,
-    BG_RV_OBJECT_MAX,
+    BG_RV_OBJECT_MAX
 };
 
 enum BattlegroundRVObjects
@@ -73,7 +73,7 @@ enum BattlegroundRVObjects
     BG_RV_OBJECT_TYPE_PILAR_1                    = 194583, // axe
     BG_RV_OBJECT_TYPE_PILAR_2                    = 194584, // arena
     BG_RV_OBJECT_TYPE_PILAR_3                    = 194585, // lightning
-    BG_RV_OBJECT_TYPE_PILAR_4                    = 194587, // ivory
+    BG_RV_OBJECT_TYPE_PILAR_4                    = 194587  // ivory
 };
 
 enum BattlegroundRVData
@@ -88,7 +88,7 @@ enum BattlegroundRVData
     BG_RV_FIRST_TIMER                            = 20133,
     BG_RV_WORLD_STATE_A                          = 0xe10,
     BG_RV_WORLD_STATE_H                          = 0xe11,
-    BG_RV_WORLD_STATE                            = 0xe1a,
+    BG_RV_WORLD_STATE                            = 0xe1a
 };
 
 class BattlegroundRVScore : public BattlegroundScore

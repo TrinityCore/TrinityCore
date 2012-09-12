@@ -40,7 +40,7 @@ enum SmartEscortState
 enum SmartEscortVars
 {
     SMART_ESCORT_MAX_PLAYER_DIST        = 50,
-    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2,
+    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
 };
 
 class SmartAI : public CreatureAI

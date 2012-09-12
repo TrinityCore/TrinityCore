@@ -27,7 +27,7 @@ class Unit;
 
 typedef std::set<uint64> GuidSet;
 
-class Vehicle
+class Vehicle : public TransportBase
 {
     public:
         explicit Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
@@ -52,7 +52,7 @@ class Vehicle
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
         void RemovePassenger(Unit* passenger);
-        void RelocatePassengers(float x, float y, float z, float ang);
+        void RelocatePassengers();
         void RemoveAllPassengers();
         void Dismiss();
         void TeleportVehicle(float x, float y, float z, float ang);
@@ -65,6 +65,12 @@ class Vehicle
     private:
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         void InitMovementInfoForBase();
+
+        /// This method transforms supplied transport offsets into global coordinates
+        void CalculatePassengerPosition(float& x, float& y, float& z, float& o);
+
+        /// This method transforms supplied global coordinates into local offsets
+        void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
 
         Unit* _me;
         VehicleEntry const* _vehicleInfo;

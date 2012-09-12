@@ -860,7 +860,7 @@ void GameEventMgr::LoadFromDB()
 
         if (!result)
         {
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battleground holidays in game events. DB table `game_event_condition` is empty.");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battleground holidays in game events. DB table `game_event_battleground_holiday` is empty.");
         }
         else
         {

@@ -44,7 +44,7 @@ enum VehicleFlags
     VEHICLE_FLAG_FULLSPEEDPITCHING               = 0x00000020,           // Sets MOVEFLAG2_FULLSPEEDPITCHING
     VEHICLE_FLAG_CUSTOM_PITCH                    = 0x00000040,           // If set use pitchMin and pitchMax from DBC, otherwise pitchMin = -pi/2, pitchMax = pi/2
     VEHICLE_FLAG_ADJUST_AIM_ANGLE                = 0x00000400,           // Lua_IsVehicleAimAngleAdjustable
-    VEHICLE_FLAG_ADJUST_AIM_POWER                = 0x00000800,           // Lua_IsVehicleAimPowerAdjustable
+    VEHICLE_FLAG_ADJUST_AIM_POWER                = 0x00000800            // Lua_IsVehicleAimPowerAdjustable
 };
 
 enum VehicleSpells
@@ -74,5 +74,15 @@ struct VehicleAccessory
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
 typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryContainer;
 typedef std::map<int8, VehicleSeat> SeatMap;
+
+class TransportBase
+{
+    public:
+        /// This method transforms supplied transport offsets into global coordinates
+        virtual void CalculatePassengerPosition(float& x, float& y, float& z, float& o) = 0;
+
+        /// This method transforms supplied global coordinates into local offsets
+        virtual void CalculatePassengerOffset(float& x, float& y, float& z, float& o) = 0;
+};
 
 #endif
