@@ -228,10 +228,16 @@ class npc_little_ooze : public CreatureScript
 
             void IsSummonedBy(Unit* summoner)
             {
-                DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
-                DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
-                events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
-                me->AddThreat(summoner, 500000.0f);
+                if (summoner->IsAlive())
+                {
+                    DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
+                    DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
+                    events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
+                    me->AddThreat(summoner, 500000.0f);
+                }
+                else
+                    me->DespawnOrUnsummon(3000);
+                break;
             }
 
             void JustDied(Unit* /*killer*/)
