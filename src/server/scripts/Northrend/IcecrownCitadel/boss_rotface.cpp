@@ -228,16 +228,19 @@ class npc_little_ooze : public CreatureScript
 
             void IsSummonedBy(Unit* summoner)
             {
-                if (summoner->IsAlive())
+                if (Creature* rotface = Unit::GetCreature(*me, _instance->GetData64(DATA_ROTFACE)))
                 {
-                    DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
-                    DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
-                    events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
-                    me->AddThreat(summoner, 500000.0f);
+                    if (rotface->IsAlive())
+                    {
+                        DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
+                        DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
+                        events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
+                        me->AddThreat(summoner, 500000.0f);
+                    }
+                    else
+                        me->DespawnOrUnsummon(3000);
+                    break;
                 }
-                else
-                    me->DespawnOrUnsummon(3000);
-                break;
             }
 
             void JustDied(Unit* /*killer*/)
