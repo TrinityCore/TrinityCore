@@ -1489,6 +1489,38 @@ class spell_q11010_q11102_q11023_throw_bomb : public SpellScriptLoader
         }
 };
 
+// http://www.wowhead.com/quest=11008 "Fires Over Skettis"
+// 39844 - Skyguard Blasting Charge
+class spell_q11008_blasting_charge : public SpellScriptLoader
+{
+    public:
+        spell_q11008_blasting_charge() : SpellScriptLoader("spell_q11008_blasting_charge") { }
+
+        class spell_q11008_blasting_charge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q11008_blasting_charge_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                Unit* caster = GetCaster();
+                // This spell will be casted only if caster has one of these auras
+                if (!(caster->HasAuraType(SPELL_AURA_FLY) || caster->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_q11008_blasting_charge_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q11008_blasting_charge_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1525,4 +1557,5 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_aggro_burst();
     new spell_q11010_q11102_q11023_choose_loc();
     new spell_q11010_q11102_q11023_throw_bomb();
+    new spell_q11008_blasting_charge();
 }
