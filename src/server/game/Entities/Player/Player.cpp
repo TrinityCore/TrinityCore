@@ -14454,11 +14454,11 @@ void Player::PrepareQuestMenu(uint64 guid)
         //only for quests which cast teleport spells on player
         Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
         ASSERT(_map);
-        GameObject* pGameObject = _map->GetGameObject(guid);
-        if (pGameObject)
+        GameObject* gameObject = _map->GetGameObject(guid);
+        if (gameObject)
         {
-            objectQR  = sObjectMgr->GetGOQuestRelationBounds(pGameObject->GetEntry());
-            objectQIR = sObjectMgr->GetGOQuestInvolvedRelationBounds(pGameObject->GetEntry());
+            objectQR  = sObjectMgr->GetGOQuestRelationBounds(gameObject->GetEntry());
+            objectQIR = sObjectMgr->GetGOQuestInvolvedRelationBounds(gameObject->GetEntry());
         }
         else
             return;
@@ -14600,24 +14600,40 @@ bool Player::IsActiveQuest(uint32 quest_id) const
 Quest const* Player::GetNextQuest(uint64 guid, Quest const* quest)
 {
     QuestRelationBounds objectQR;
+    uint32 nextQuestID = quest->GetNextQuestInChain();
 
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (creature)
-        objectQR  = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
-    else
+    switch (GUID_HIPART(guid))
     {
-        //we should obtain map pointer from GetMap() in 99% of cases. Special case
-        //only for quests which cast teleport spells on player
-        Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
-        ASSERT(_map);
-        GameObject* pGameObject = _map->GetGameObject(guid);
-        if (pGameObject)
-            objectQR  = sObjectMgr->GetGOQuestRelationBounds(pGameObject->GetEntry());
-        else
+        case HIGHGUID_PLAYER:
+            ASSERT(quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT));
+            return sObjectMgr->GetQuestTemplate(nextQuestID);
+        case HIGHGUID_UNIT:
+        case HIGHGUID_PET:
+        case HIGHGUID_VEHICLE:
+        {
+            if (Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid))
+                objectQR  = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
+            else
+                return NULL;
+            break;
+        }
+        case HIGHGUID_GAMEOBJECT:
+        {
+            //we should obtain map pointer from GetMap() in 99% of cases. Special case
+            //only for quests which cast teleport spells on player
+            Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
+            ASSERT(_map);
+            if (GameObject* gameObject = _map->GetGameObject(guid))
+                objectQR = sObjectMgr->GetGOQuestRelationBounds(gameObject->GetEntry());
+            else
+                return NULL;
+            break;
+        }
+        default:
             return NULL;
     }
 
-    uint32 nextQuestID = quest->GetNextQuestInChain();
+    // for unit and go state
     for (QuestRelations::const_iterator itr = objectQR.first; itr != objectQR.second; ++itr)
     {
         if (itr->second == nextQuestID)
