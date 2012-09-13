@@ -14602,7 +14602,7 @@ Quest const* Player::GetNextQuest(uint64 guid, Quest const* quest)
     QuestRelationBounds objectQR;
     uint32 nextQuestID = quest->GetNextQuestInChain();
 
-    switch(GUID_HIPART(guid))
+    switch (GUID_HIPART(guid))
     {
         case HIGHGUID_PLAYER:
             ASSERT(quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT));
@@ -14611,7 +14611,7 @@ Quest const* Player::GetNextQuest(uint64 guid, Quest const* quest)
         case HIGHGUID_PET:
         case HIGHGUID_VEHICLE:
         {
-            if(Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid))
+            if (Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid))
                 objectQR  = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
             else
                 return NULL;
