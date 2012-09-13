@@ -848,6 +848,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
+    _maxPersonalArenaRate = 0;
 
     memset(_voidStorageItems, NULL, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
     memset(_CUFProfiles, NULL, MAX_CUF_PROFILES * sizeof(CUFProfile*));
@@ -7509,21 +7510,11 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
     {
         //original conquest not have week cap
         case CURRENCY_TYPE_CONQUEST_POINTS:
-        {
-           uint32 rating = GetBestArenaRBGPersonalRating();
-           if (rating <= 1500)
-               rating = 1350; // Default conquest points
-           else if (rating > 3000)
-               rating = 3000;
-
-           // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
-           cap = 1.4326 * (1511.26 / (1 + 1639.28 / exp(0.00412 * rating))) + 850.15;
-           return cap;
-        }
-        /// @Todo: there should be calculation of conquest cap bg/arena
+           return 0;
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
+            return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate);
         case CURRENCY_TYPE_CONQUEST_META_BG:
-            break;
+            return Trinity::Currency::ConquestRatingCalculator(GetRBGPersonalRating());
         case CURRENCY_TYPE_HONOR_POINTS:
         {
             uint32 honorcap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_HONOR_POINTS);
@@ -7580,6 +7571,13 @@ uint8 Player::GetRankFromDB(uint64 guid)
         return result->Fetch()[1].GetUInt8();
 
     return 0;
+}
+
+void  Player::SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value)
+{
+    SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
+    if (type == ARENA_TEAM_PERSONAL_RATING && value > _maxPersonalArenaRate)
+        _maxPersonalArenaRate = value;
 }
 
 uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
@@ -20732,22 +20730,9 @@ void Player::LeaveAllArenaTeams(uint64 guid)
     while (result->NextRow());
 }
 
-uint32 Player::GetBestArenaRBGPersonalRating() const
+uint32 Player::GetRBGPersonalRating() const
 {
-    uint32 bestPersonalRating = 0;
-
-    // todo: Get Personnal Rating from Rated Battlegrounds too
-
-    if (bestPersonalRating < GetArenaPersonalRating(ARENA_TEAM_2v2))
-        bestPersonalRating = GetArenaPersonalRating(ARENA_TEAM_2v2);
-
-    if (bestPersonalRating < GetArenaPersonalRating(ARENA_TEAM_3v3))
-        bestPersonalRating = GetArenaPersonalRating(ARENA_TEAM_3v3);
-
-    if (bestPersonalRating < GetArenaPersonalRating(ARENA_TEAM_5v5))
-        bestPersonalRating = GetArenaPersonalRating(ARENA_TEAM_5v5);
-    
-    return bestPersonalRating;
+    return 0;
 }
 
 void Player::SetRestBonus (float rest_bonus_new)

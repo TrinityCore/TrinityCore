@@ -222,6 +222,20 @@ namespace Trinity
             return rate;
         }
     }
+
+    namespace Currency
+    {
+        inline uint32 ConquestRatingCalculator(uint32 rate)
+        {
+           if (rate <= 1500)
+               rate = 1350; // Default conquest points
+           else if (rate > 3000)
+               rate = 3000;
+
+           // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
+           return 1.4326 * (1511.26 / (1 + 1639.28 / exp(0.00412 * rating))) + 850.15;
+        }
+    }
 }
 
 #endif
