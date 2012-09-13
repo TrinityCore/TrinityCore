@@ -858,6 +858,7 @@ void Battleground::EndBattleground(uint32 winner)
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
 
                 winner_arena_team->MemberWon(player, loser_matchmaker_rating, winner_matchmaker_change);
+                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
             }
             else
             {
@@ -881,11 +882,15 @@ void Battleground::EndBattleground(uint32 winner)
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
             {
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(winner_kills));
-                /*if (CanAwardArenaPoints())
-                    player->ModifyConquestPoints(player->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST);*/
                 if (!player->GetRandomWinner())
+                {
+                    // 100cp awarded for the first rated battleground won each day 
+                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, BG_REWARD_WINNER_CONQUEST_FIRST);
                     player->SetRandomWinner(true);
+                }
             }
+            else // 50cp awarded for each non-rated battleground won 
+                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, BG_REWARD_WINNER_CONQUEST_LAST );
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)
@@ -922,9 +927,6 @@ void Battleground::EndBattleground(uint32 winner)
 
     if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
     {
-        // update arena points only after increasing the player's match count!
-        //obsolete: winner_arena_team->UpdateArenaPointsHelper();
-        //obsolete: loser_arena_team->UpdateArenaPointsHelper();
         // save the stat changes
         winner_arena_team->SaveToDB();
         loser_arena_team->SaveToDB();

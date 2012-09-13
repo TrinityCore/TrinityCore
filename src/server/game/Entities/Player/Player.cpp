@@ -1007,8 +1007,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     InitRunes();
 
     SetUInt32Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
-    SetCurrency(CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_START_HONOR_POINTS));
-    SetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_START_ARENA_POINTS));
+    SetCurrency(CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_HONOR_POINTS));
+    SetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_CONQUEST_POINTS));
 
     // start with every map explored
     if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
@@ -7479,6 +7479,29 @@ uint32 Player::GetCurrencyWeekCap(uint32 id) const
     return _GetCurrencyWeekCap(entry);
 }
 
+void Player::ResetCurrencyWeekCap()
+{
+    for (uint32 arenaSlot = 0; arenaSlot < MAX_ARENA_SLOT; arenaSlot++)
+    {
+        if (uint32 arenaTeamId = GetArenaTeamId(arenaSlot))
+        {
+            ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(arenaTeamId);
+            arenaTeam->FinishWeek();                              // set played this week etc values to 0 in memory, too
+            arenaTeam->SaveToDB();                                // save changes
+            arenaTeam->NotifyStatsChanged();                      // notify the players of the changes
+        }
+    }
+
+    for (PlayerCurrenciesMap::iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
+    {
+        itr->second.weekCount = 0;
+        itr->second.state = PLAYERCURRENCY_CHANGED;
+    }
+
+    WorldPacket data(SMSG_WEEKLY_RESET_CURRENCY, 0);
+    SendDirectMessage(&data);
+}
+
 uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
 {
     uint32 cap = currency->WeekCap;
@@ -7486,21 +7509,31 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
     {
         //original conquest not have week cap
         case CURRENCY_TYPE_CONQUEST_POINTS:
-            return 0;
+        {
+           uint32 rating = GetBestArenaRBGPersonalRating();
+           if (rating <= 1500)
+               rating = 1350; // Default conquest points
+           else if (rating > 3000)
+               rating = 3000;
+
+           // http://www.arenajunkies.com/topic/179536-conquest-point-cap-vs-personal-rating-chart/page__st__60#entry3085246
+           cap = 1.4326 * (1511.26 / (1 + 1639.28 / exp(0.00412 * rating))) + 850.15;
+           return cap;
+        }
         /// @Todo: there should be calculation of conquest cap bg/arena
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
         case CURRENCY_TYPE_CONQUEST_META_BG:
             break;
         case CURRENCY_TYPE_HONOR_POINTS:
         {
-            uint32 honorcap = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
+            uint32 honorcap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_HONOR_POINTS);
             if (honorcap > 0)
                 cap = honorcap;
             break;
         }
         case CURRENCY_TYPE_JUSTICE_POINTS:
         {
-            uint32 justicecap = sWorld->getIntConfig(CONFIG_MAX_JUSTICE_POINTS);
+            uint32 justicecap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS);
             if (justicecap > 0)
                 cap = justicecap;
             break;
@@ -20697,6 +20730,24 @@ void Player::LeaveAllArenaTeams(uint64 guid)
         }
     }
     while (result->NextRow());
+}
+
+uint32 Player::GetBestArenaRBGPersonalRating() const
+{
+    uint32 bestPersonalRating = 0;
+
+    // todo: Get Personnal Rating from Rated Battlegrounds too
+
+    if (bestPersonalRating < GetArenaPersonalRating(ARENA_TEAM_2v2))
+        bestPersonalRating = GetArenaPersonalRating(ARENA_TEAM_2v2);
+
+    if (bestPersonalRating < GetArenaPersonalRating(ARENA_TEAM_3v3))
+        bestPersonalRating = GetArenaPersonalRating(ARENA_TEAM_3v3);
+
+    if (bestPersonalRating < GetArenaPersonalRating(ARENA_TEAM_5v5))
+        bestPersonalRating = GetArenaPersonalRating(ARENA_TEAM_5v5);
+    
+    return bestPersonalRating;
 }
 
 void Player::SetRestBonus (float rest_bonus_new)

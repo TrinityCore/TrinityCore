@@ -1450,6 +1450,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasCurrency(uint32 id, uint32 count) const;
         /// @todo: not understand why it subtract from total count and for what it used. It should be remove and replaced by ModifyCurrency
         void SetCurrency(uint32 id, uint32 count, bool printLog = true);
+        void ResetCurrencyWeekCap();
 
         /**
           * @name   ModifyCurrency
@@ -2042,6 +2043,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
+        uint32 GetBestArenaRBGPersonalRating() const;
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
