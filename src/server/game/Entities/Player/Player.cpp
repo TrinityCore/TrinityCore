@@ -847,7 +847,9 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     SetPendingBind(0, 0);
 
-    _activeCheats = CHEAT_NONE;
+    // phasing
+    m_update_phasing = false;
+    m_phaseChacker = 0;
 
     memset(_voidStorageItems, NULL, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
     memset(_CUFProfiles, NULL, MAX_CUF_PROFILES * sizeof(CUFProfile*));
@@ -1793,6 +1795,9 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && isAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
+    // perfom delay phase switching
+    UpdatePhasing();
 }
 
 void Player::setDeathState(DeathState s)
@@ -7429,7 +7434,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
                 UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
 
             // on new case just set init.
-            if(itr->second.state == PLAYERCURRENCY_NEW)
+            if (itr->second.state == PLAYERCURRENCY_NEW)
             {
                 SendNewCurrency(id);
                 return;
@@ -7734,6 +7739,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
+
+    m_update_phasing = true;
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -9755,8 +9762,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 bg->FillInitialWorldStates(data);
             break;
         default:
-            data << uint32(0x914) << uint32(0x0);           // 7
-            data << uint32(0x913) << uint32(0x0);           // 8
             data << uint32(0x912) << uint32(0x0);           // 9
             data << uint32(0x915) << uint32(0x0);           // 10
             break;
@@ -11411,7 +11416,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
         return EQUIP_ERR_NOT_OWNER;
 
     // Currency tokens are not supposed to be swapped out of their hidden bag
-    if(pItem->IsCurrencyToken())
+    if (pItem->IsCurrencyToken())
     {
         sLog->outError(LOG_FILTER_PLAYER, "Possible hacking attempt: Player %s [guid: %u] tried to move token [guid: %u, entry: %u] out of the currency bag!",
                 GetName(), GetGUIDLow(), pItem->GetGUIDLow(), pProto->ItemId);
@@ -14924,6 +14929,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
                     CastSpell(this, itr->second->spellId, true);
     }
 
+    // at applying phase aura it already will be true, but we set it for non-aura state change
+    m_update_phasing = true;
+
     UpdateForQuestWorldObjects();
 }
 
@@ -15138,6 +15146,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
     }
+
+    // at applying phase aura it already will be true, but we set it for non-aura state change
+    m_update_phasing = true;
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -22325,6 +22336,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data << (uint32) m_homebindAreaId;
     GetSession()->SendPacket(&data);
 
+    ResetTimeSync();
+    SendTimeSync();
+
     // SMSG_SET_PROFICIENCY
     // SMSG_SET_PCT_SPELL_MODIFIER
     // SMSG_SET_FLAT_SPELL_MODIFIER
@@ -22340,15 +22354,55 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendInitialActionButtons();
     m_reputationMgr.SendInitialReputations();
+
+    // SMSG_CORPSE_RECLAIM_DELAY
+    SetMover(this);
+}
+
+void Player::SendInitialPacketsAfterAddToMap()
+{
+    // update zone
+    uint32 newzone, newarea;
+    GetZoneAndAreaId(newzone, newarea);
+    UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
+
+    UpdatePhasing();
+    SendCurrencies();
+    SendEquipmentSetList();
     m_achievementMgr.SendAllAchievementData(this);
 
-    SendEquipmentSetList();
+    // SMSG_LOGIN_VERIFY_WORLD
+    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
+    data << GetMapId();
+    data << GetPositionX();
+    data << GetPositionY();
+    data << GetPositionZ();
+    data << GetOrientation();
+    GetSession()->SendPacket(&data);
 
+    // SMSG_LOGIN_SETTIMESPEED
     data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
     data << uint32(secsToTimeBitFields(sWorld->GetGameTime()));
     data << float(0.01666667f);                             // game speed
     data << uint32(0);                                      // added in 3.1.2
     GetSession()->SendPacket(&data);
+
+    // MSG_LIST_STABLED_PETS
+    // SMSG_WEEKLY_SPELL_USAGE
+    // SMSG_WORLD_SERVER_INFO
+    data.Initialize(SMSG_WORLD_SERVER_INFO, 10);
+    data << uint8(0);
+    data << uint8(0);
+    data << uint32(secsToTimeBitFields(sWorld->GetGameTime()));
+    data << int32(0);
+    GetSession()->SendPacket(&data);
+
+    GetMap()->SendInitSelf(this);
+    GetMap()->SendInitTransports(this);
+
+    Player::GetSession()->SendLoadCUFProfiles();
+
+    CastSpell(this, 836, true);                             // LOGINEFFECT
 
     GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
 
@@ -22357,25 +22411,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 
-    SendCurrencies();
-    SetMover(this);
-}
-
-void Player::SendInitialPacketsAfterAddToMap()
-{
-    UpdateVisibilityForPlayer();
-
-    // update zone
-    uint32 newzone, newarea;
-    GetZoneAndAreaId(newzone, newarea);
-    UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
-
-    ResetTimeSync();
-    SendTimeSync();
-
-    Player::GetSession()->SendLoadCUFProfiles();
-
-    CastSpell(this, 836, true);                             // LOGINEFFECT
+    UpdateObjectVisibility(false);
 
     // set some aura effects that send packet to player client after add player to map
     // SendMessageToSet not send it to player not it map, only for aura that not changed anything at re-apply
@@ -26175,4 +26211,188 @@ void Player::SendMovementSetCollisionHeight(float height)
     data << float(height);
 
     SendDirectMessage(&data);
+}
+
+// Two steps: check quest requarements and applyed auras
+void Player::UpdatePhasing()
+{
+    if (!IsInWorld() || !m_update_phasing)
+        return;
+
+    m_update_phasing = false;
+
+    uint32 newPhase = 0;
+    ApplyPhaseSet phaseSet;     // Use std::Set for privent duble applying
+    uint32 zone, area;
+    GetZoneAndAreaId(zone, area);
+    
+    // check area dependense
+    PhaseTemplateMapBounds saBounds = sObjectMgr->GetPhaseTeamplateBoundsByArea(area);
+    for (PhaseTemplateContainer::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+    {
+        ConditionList conds = sConditionMgr->GetConditionsForPhaseDefinition(area, itr->second.entry);
+        if (sConditionMgr->IsObjectMeetToConditions(this, conds))
+            phaseSet.insert(itr->second.entry);
+    }
+
+    //check auras
+    Unit::AuraEffectList const& phases = GetAuraEffectsByType(SPELL_AURA_PHASE);
+    if (!phases.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+        {
+            // we support phase mask spells, but for sending phaseID we should support it by phase_template
+            newPhase |= (*itr)->GetMiscValue();
+            if (uint32 _phase = (*itr)->GetMiscValueB())
+            {
+                PhaseTemplateMapBounds spBounds = sObjectMgr->GetPhaseTeamplateBoundsByPhaseId(_phase);
+                for (PhaseTemplateContainer::const_iterator itr2 = spBounds.first; itr2 != spBounds.second; ++itr)
+                {
+                    ConditionList conds = sConditionMgr->GetConditionsForPhaseDefinition(area, itr2->second.entry);
+                    if (sConditionMgr->IsObjectMeetToConditions(this, conds))
+                    {
+                        phaseSet.insert(itr2->second.entry);
+                        break;  //do we need multy-entry support per spell? don't think so.
+                    }
+                }
+            }
+        }
+    }
+
+    //get phase mask, if our mask is the same no need to send data.
+    uint32 phaseCount = 0;
+    uint32 terrainCount = 0;
+    uint32 unkCounter = 0;
+    uint32 mapID = 0;
+    uint32 checker = 0;
+    for(ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
+    {
+        PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
+        if (!phaseTemplate)
+        {
+            // not handled template. 
+            // in moste cases phasing perfome by spells and in this cases we just send phaseID with root map data
+            // so no need add for them template.
+            continue;
+        }
+        newPhase |= phaseTemplate->phaseMask;
+        checker += phaseTemplate->entry;
+
+        if (phaseTemplate->terrainSwap)
+            ++terrainCount;
+
+        if (phaseTemplate->map >= 0)
+            mapID = phaseTemplate->map;
+
+        if (phaseTemplate->unkFirstCounter)
+            ++unkCounter;
+
+        if (phaseTemplate->phaseID)
+            ++phaseCount;
+    }
+
+    if (!newPhase)
+        newPhase = PHASEMASK_NORMAL;
+
+    // no need for sending data again. Simple checker. 
+    if (checker == m_phaseChacker)
+        return;
+
+    m_phaseChacker = checker;
+
+    // GM-mode have mask 0xFFFFFFFF
+    // should be after check phasing check for perfoming gm mode switching
+    // but sending duta will be perfomed every take/complite quest and could be hurmfull for client
+    /// @Todo:  more research for it 
+    if (isGameMaster())
+        newPhase = 0xFFFFFFFF;
+
+    SetPhaseMask(newPhase, false);
+
+    if (!phaseSet.empty())
+        SendPhaseShifting(phaseSet, mapID, phaseCount, terrainCount, unkCounter);
+
+    if (IsVisible())
+        UpdateObjectVisibility();
+}
+
+// i understand that it not good use so much iterations, but in normal cases it will be just 1-5 switches
+/// @Todo:  optimize
+void Player::SendPhaseShifting(ApplyPhaseSet &phaseSet, uint32 map, uint32 phaseCount, uint32 terrainCount, uint32 unkCounter)
+{
+    ObjectGuid guid = GetGUID();
+
+    WorldPacket data(SMSG_SET_PHASE_SHIFT, 16+4+4+4+4+4+2*unkCounter+map+2*phaseCount+terrainCount*2);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+
+    data << uint32(unkCounter*2);   //number of tarrain sap array *2
+    if (unkCounter)
+    {
+        for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
+        {
+            PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
+            if (!phaseTemplate)
+                continue;
+            if (phaseTemplate->unkFirstCounter)
+                data << uint16(phaseTemplate->unkFirstCounter);
+        }
+    }
+
+    data.WriteByteSeq(guid[1]);
+    data << uint32(0);  //unk. At first logining in Gilneas == 8
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+
+    // terrain swap
+    data << uint32(terrainCount*2);   //number of tarrain array *2
+    if (terrainCount)
+    {
+        for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
+        {
+            PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
+            if (!phaseTemplate)
+                continue;
+            if (phaseTemplate->terrainSwap)
+                data << uint16(phaseTemplate->terrainSwap);
+        }
+    }
+
+    data << uint32(phaseCount*2); // number of phase array *2
+    if (phaseCount)
+    {
+        for (ApplyPhaseSet::iterator itr = phaseSet.begin(); itr != phaseSet.end(); ++itr)
+        {
+            PhaseTemplate const* phaseTemplate = sObjectMgr->GetPhaseTemplate(*itr);
+            if (!phaseTemplate)
+                continue;
+            if (phaseTemplate->phaseID)
+                data << uint16(phaseTemplate->phaseID);
+        }
+    }
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+
+    // map counter
+    if (map)
+    {
+        data << uint32(2); // number of map array *2
+        data << uint16(map);
+    }
+    else
+        data << uint32(0);
+
+    data.WriteByteSeq(guid[5]);
+
+    GetSession()->SendPacket(&data);
 }

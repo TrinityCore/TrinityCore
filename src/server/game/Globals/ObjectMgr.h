@@ -586,6 +586,22 @@ struct HotfixInfo
 
 typedef std::vector<HotfixInfo> HotfixData;
 
+/// Basic phase template used for store data from phase_template db table
+struct PhaseTemplate
+{
+    uint32 entry;
+    uint32 area;
+    uint32 phaseID;
+    uint32 phaseMask;
+    int32  map;  // -1 state used for not perfoming map
+    uint32 terrainSwap;
+    uint32 unkFirstCounter;
+};
+
+typedef UNORDERED_MAP<uint32 /*entry*/, PhaseTemplate> PhaseTemplateMap;
+typedef std::multimap<uint32 /*phaseID*/, PhaseTemplate> PhaseTemplateContainer;
+typedef std::pair<PhaseTemplateContainer::const_iterator, PhaseTemplateContainer::const_iterator> PhaseTemplateMapBounds;
+
 class PlayerDumpReader;
 
 class ObjectMgr
@@ -1147,6 +1163,15 @@ class ObjectMgr
             return ret ? ret : time(NULL);
         }
 
+        /// Load data from phase_template db table for out new phase system
+        void LoadPhaseTemplate();
+        /// return curent phase template data by template entry
+        PhaseTemplate const* GetPhaseTemplate(uint32 entry);
+        /// return template bounds with phase template by phaseID from phase.dbc
+        PhaseTemplateMapBounds GetPhaseTeamplateBoundsByPhaseId(uint32 phase_id) const;
+        /// return template bounds with phase template by area
+        PhaseTemplateMapBounds GetPhaseTeamplateBoundsByArea(uint32 area) const;
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1285,6 +1310,10 @@ class ObjectMgr
             GO_TO_CREATURE          // GO is dependant on creature
         };
         HotfixData _hotfixData;
+
+        PhaseTemplateMap mPhaseTemplateMap;
+        PhaseTemplateContainer mPhaseTemplateByPhaseIdStore;
+        PhaseTemplateContainer mPhaseTemplateAreaMap;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()

@@ -860,11 +860,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     data << uint8(2);                                       // unknown value
     data << uint32(1);
     data << uint32(1);
-    data << uint32(2);
-    data << uint32(0);
+    data << uint32(41);
+    data << uint32(1623);
     data.WriteBit(1);
     data.WriteBit(1);
-    data.WriteBit(0);
+    data.WriteBit(0);   //Enable friend on BattleNet system
     data.WriteBit(featureBit4);
     data.WriteBit(0);
     data.WriteBit(0);
@@ -872,7 +872,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (featureBit4)
     {
         data << uint32(1);
-        data << uint32(0);
+        data << uint32(0);  //Total played time on account
         data << uint32(10);
         data << uint32(60);
     }

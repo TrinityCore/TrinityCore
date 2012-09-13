@@ -8618,6 +8618,87 @@ void ObjectMgr::LoadHotfixData()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+// in 4.3.0 client get phaseId instead phaseMask. Data with suported phaseId storied on phase.dbc
+// template help us for link phase id with out phaseMask system and prepare and send correct data in SMSG_SET_PHASE_SHIFT
+//
+// This system work with phase_aura so map column there is only for simple check
+void ObjectMgr::LoadPhaseTemplate()
+{
+    //cleanup
+    mPhaseTemplateMap.clear();
+    mPhaseTemplateByPhaseIdStore.clear();
+    mPhaseTemplateAreaMap.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `area`, `phaseId`, `phaseMask`, `map`, `terrainSwap`, `unkFirstCounter` FROM `phase_template`");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 phase_template entries. DB table `phase_template` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        PhaseTemplate data;
+
+        data.entry = fields[0].GetUInt32();
+        data.area  = fields[1].GetUInt32();
+
+        if (!data.area || !GetAreaEntryByAreaID(data.area))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Phase entry %u listed in `phase_template` have wrong area (%u) requirement", data.entry, data.area);
+            continue;
+        }
+
+        data.phaseID = fields[2].GetUInt32();
+
+        // we can have empty phaseid
+        if(data.phaseID && !sPhaseStores.LookupEntry(data.phaseID))
+        {
+            sLog->outError(LOG_FILTER_SQL, "PhaseID %u listed in `phase_template` does not exist", data.phaseID);
+            continue;
+        }
+
+        data.phaseMask = fields[3].GetUInt32();
+        data.map = fields[4].GetInt32();
+        data.terrainSwap = fields[5].GetUInt32();
+        data.unkFirstCounter = fields[6].GetUInt32();
+        mPhaseTemplateMap.insert(std::pair<uint32, PhaseTemplate>(data.entry, data));
+        mPhaseTemplateAreaMap.insert(std::pair<uint32, PhaseTemplate>(data.area, data));
+        if(data.phaseID)
+            mPhaseTemplateByPhaseIdStore.insert(std::pair<uint32, PhaseTemplate>(data.phaseID, data));
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phase templates entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+PhaseTemplate const* ObjectMgr::GetPhaseTemplate(uint32 entry)
+{
+    PhaseTemplateMap::const_iterator itr = mPhaseTemplateMap.find(entry);
+    if (itr != mPhaseTemplateMap.end())
+        return &(itr->second);
+
+    return NULL;
+}
+
+PhaseTemplateMapBounds ObjectMgr::GetPhaseTeamplateBoundsByPhaseId(uint32 phase_id) const
+{
+    return PhaseTemplateMapBounds(mPhaseTemplateByPhaseIdStore.lower_bound(phase_id), mPhaseTemplateByPhaseIdStore.upper_bound(phase_id));
+}
+
+PhaseTemplateMapBounds ObjectMgr::GetPhaseTeamplateBoundsByArea(uint32 area) const
+{
+    return PhaseTemplateMapBounds(mPhaseTemplateAreaMap.lower_bound(area), mPhaseTemplateAreaMap.upper_bound(area));
+}
+
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 {
     GameObjectTemplateContainer::const_iterator itr = _gameObjectTemplateStore.find(entry);
