@@ -837,7 +837,7 @@ void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
 
     /// @Todo: perfome research in this case
     WorldPacket data(SMSG_RATED_BG_STATS, 72);
-    for (int32 i = 0; i < 17; ++i)
+    for (int32 i = 0; i < 18; ++i)
         data << uint32(0);
     SendPacket(&data);
 }
@@ -852,6 +852,7 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
     data.WriteBit(1);
     data.WriteBit(1);
     data.WriteBit(1);
+    data.FlushBits();
     SendPacket(&data);
 }
 
