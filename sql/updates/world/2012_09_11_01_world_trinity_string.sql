@@ -6,7 +6,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
 (360, 'Casttime: Enabled.'),
 (361, 'Casttime: Disabled.'),
 (362, 'Cooldown: Enabled.'),
-(363, 'Cooldown: Disabled,'),
+(363, 'Cooldown: Disabled.'),
 (364, 'Power: Enabled.'),
 (365, 'Power: Disabled.'),
 (366, 'Waterwalk: Enabled.'),
