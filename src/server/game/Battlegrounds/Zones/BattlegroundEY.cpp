@@ -260,7 +260,7 @@ void BattlegroundEY::UpdatePointStatuses()
                         this->EventTeamLostPoint(player, point);
                 }
 
-                /// *Workarround hack fix for Fel Reaver Ruins
+                /// @Workarround hack fix for Fel Reaver Ruins
                 if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())
                     if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
                         if (player->GetDistance2d(2044,1730) < 2)
@@ -273,7 +273,7 @@ void BattlegroundEY::UpdatePointStatuses()
 void BattlegroundEY::UpdateTeamScore(uint32 Team)
 {
     uint32 score = GetTeamScore(Team);
-    /// *Todo there should be some sound played when one team is near victory!! - and define variables
+    /// @Todo there should be some sound played when one team is near victory!! - and define variables
     /*if (!m_IsInformedNearVictory && score >= BG_EY_WARNING_NEAR_VICTORY_SCORE)
     {
         if (Team == ALLIANCE)
