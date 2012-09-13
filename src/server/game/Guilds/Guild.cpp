@@ -1304,7 +1304,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
     data.WriteString(m_motd);
     data << uint32(m_accountsNumber);
     data << uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
-    data << uint32(secsToTimeBitFields(m_createdDate));
+    data.AppendPackedTime(m_createdDate);
     data << uint32(0);
 
     if (session)
@@ -3345,7 +3345,7 @@ void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, Wor
 
     data << uint32(id);
     data << uint32(guildNew.EventType);
-    data << uint32(secsToTimeBitFields(guildNew.Date));
+    data.AppendPackedTime(guildNew.Date);
 }
 
 void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
@@ -3389,6 +3389,6 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
 
         data << uint32(it->first);
         data << uint32(it->second.EventType);
-        data << uint32(secsToTimeBitFields(it->second.Date));
+        data.AppendPackedTime(it->second.Date);
     }
 }

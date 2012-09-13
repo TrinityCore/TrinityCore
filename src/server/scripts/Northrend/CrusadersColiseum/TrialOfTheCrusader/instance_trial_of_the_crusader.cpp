@@ -332,7 +332,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 }
                                 if (tributeChest)
                                     if (Creature* tirion =  instance->GetCreature(TirionGUID))
-                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, 0, 0, 0, 0, 90000000))
+                                        // need proper location.this one is guessed based on videos
+                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 643.814f, 136.027f, 141.295f, 0, 0, 0, 0, 0, 90000000))
                                             chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
                         }
