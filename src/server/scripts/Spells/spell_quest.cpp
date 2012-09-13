@@ -1315,15 +1315,15 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
         }
 };
 
-// http://www.wowhead.com/quest=11010 "Bombing Run", http://www.wowhead.com/quest=11102 "Bombing Run" /druid/ and http://www.wowhead.com/quest=11023 "Bomb Them Again!"
+// "Bombing Run" and "Bomb Them Again!"
 enum Quest11010_11102_11023Data
 {
     // Spell
-    SPELL_FLAK_CANNON_TRIGGER       = 40110,
-    SPELL_CHOOSE_LOC        = 40056,
-    SPELL_AGGRO_CHECK       = 40112,
+    SPELL_FLAK_CANNON_TRIGGER = 40110,
+    SPELL_CHOOSE_LOC          = 40056,
+    SPELL_AGGRO_CHECK         = 40112,
     // NPCs	
-    NPC_FEL_CANNON2       = 23082
+    NPC_FEL_CANNON2           = 23082
 };
 
 // 40113 Knockdown Fel Cannon: The Aggro Check Aura
@@ -1339,10 +1339,8 @@ class spell_q11010_q11102_q11023_aggro_check_aura : public SpellScriptLoader
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
-                {
                     // On trigger proccing
                     target->CastSpell(target, SPELL_AGGRO_CHECK);
-                }
             }
 
             void Register()
@@ -1372,9 +1370,7 @@ class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
                 if (Player* playerTarget = GetHitPlayer())
                     // Check if found player target is on fly mount or using flying form  
                     if (playerTarget->HasAuraType(SPELL_AURA_FLY) || playerTarget->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
-				    {
                         playerTarget->CastSpell(playerTarget, SPELL_FLAK_CANNON_TRIGGER, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
-				    }
             }
 		
             void Register()
@@ -1402,10 +1398,8 @@ class spell_q11010_q11102_q11023_aggro_burst : public SpellScriptLoader
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
-                {
                     // On each tick cast Choose Loc to trigger summon
                     target->CastSpell(target, SPELL_CHOOSE_LOC);
-                }
             }
 
             void Register()
@@ -1434,17 +1428,15 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 // Check for player that is in 65 y range			   
-                std::list<Player*> PlayerList;
+                std::list<Player*> playerList;
                 Trinity::AnyPlayerInObjectRangeCheck checker(caster, 765.0f);
-                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, PlayerList, checker);  
+                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);  
                 caster->VisitNearbyWorldObject(65.0f, searcher);    
-                    for (std::list<Player*>::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+                    for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                     // Check if found player target is on fly mount or using flying form  
                         if ((*itr)->HasAuraType(SPELL_AURA_FLY) || (*itr)->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
-                        {    
                             // Summom Fel Cannon (bunny version) at found player
                             caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
-                        }
             }
      
             void Register()
@@ -1459,51 +1451,21 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
         }
 };
 
-class spell_q11010_q11102_q11023_throw_bomb : public SpellScriptLoader
-{
-    public:
-        spell_q11010_q11102_q11023_throw_bomb() : SpellScriptLoader("spell_q11010_q11102_q11023_throw_bomb") { }
-
-        class spell_q11010_q11102_q11023_throw_bomb_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q11010_q11102_q11023_throw_bomb_SpellScript);
-
-            SpellCastResult CheckRequirement()
-            {
-                Unit* caster = GetCaster();
-                // This spell will be casted only if caster has one of these auras
-                if (!(caster->HasAuraType(SPELL_AURA_FLY) || caster->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)))
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-                return SPELL_CAST_OK;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_q11010_q11102_q11023_throw_bomb_SpellScript::CheckRequirement);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_q11010_q11102_q11023_throw_bomb_SpellScript();
-        }
-};
-
-// http://www.wowhead.com/quest=11008 "Fires Over Skettis"
 // 39844 - Skyguard Blasting Charge
-class spell_q11008_blasting_charge : public SpellScriptLoader
+// 40160 - Throw Bomb
+class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScriptLoader
 {
     public:
-        spell_q11008_blasting_charge() : SpellScriptLoader("spell_q11008_blasting_charge") { }
+        spell_q11010_q11102_q11023_q11008_check_fly_mount() : SpellScriptLoader("spell_q11010_q11102_q11023_q11008_check_fly_mount") { }
 
-        class spell_q11008_blasting_charge_SpellScript : public SpellScript
+        class spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q11008_blasting_charge_SpellScript);
+            PrepareSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript);
 
             SpellCastResult CheckRequirement()
             {
                 Unit* caster = GetCaster();
-                // This spell will be casted only if caster has one of these auras
+                // This spell will be cast only if caster has one of these auras
                 if (!(caster->HasAuraType(SPELL_AURA_FLY) || caster->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 return SPELL_CAST_OK;
@@ -1511,13 +1473,13 @@ class spell_q11008_blasting_charge : public SpellScriptLoader
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_q11008_blasting_charge_SpellScript::CheckRequirement);
+                OnCheckCast += SpellCheckCastFn(spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript::CheckRequirement);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_q11008_blasting_charge_SpellScript();
+            return new spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript();
         }
 };
 
@@ -1556,6 +1518,5 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_aggro_check();
     new spell_q11010_q11102_q11023_aggro_burst();
     new spell_q11010_q11102_q11023_choose_loc();
-    new spell_q11010_q11102_q11023_throw_bomb();
-    new spell_q11008_blasting_charge();
+    new spell_q11010_q11102_q11023_q11008_check_fly_mount();
 }
