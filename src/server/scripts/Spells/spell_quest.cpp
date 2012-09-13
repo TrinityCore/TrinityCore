@@ -26,6 +26,8 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
@@ -1322,7 +1324,7 @@ enum Quest11010_11102_11023Data
     SPELL_FLAK_CANNON_TRIGGER = 40110,
     SPELL_CHOOSE_LOC          = 40056,
     SPELL_AGGRO_CHECK         = 40112,
-    // NPCs	
+    // NPCs
     NPC_FEL_CANNON2           = 23082
 };
 
@@ -1364,21 +1366,21 @@ class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
         class spell_q11010_q11102_q11023_aggro_check_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_q11010_q11102_q11023_aggro_check_SpellScript);
-           		
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Player* playerTarget = GetHitPlayer())
-                    // Check if found player target is on fly mount or using flying form  
+                    // Check if found player target is on fly mount or using flying form
                     if (playerTarget->HasAuraType(SPELL_AURA_FLY) || playerTarget->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
                         playerTarget->CastSpell(playerTarget, SPELL_FLAK_CANNON_TRIGGER, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
             }
-		
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q11010_q11102_q11023_aggro_check_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
-     
+
         SpellScript* GetSpellScript() const
         {
             return new spell_q11010_q11102_q11023_aggro_check_SpellScript();
@@ -1423,28 +1425,28 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
         class spell_q11010_q11102_q11023_choose_loc_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_q11010_q11102_q11023_choose_loc_SpellScript);
-           		
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                // Check for player that is in 65 y range			   
+                // Check for player that is in 65 y range
                 std::list<Player*> playerList;
                 Trinity::AnyPlayerInObjectRangeCheck checker(caster, 765.0f);
-                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);  
-                caster->VisitNearbyWorldObject(65.0f, searcher);    
+                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
+                caster->VisitNearbyWorldObject(65.0f, searcher);
                     for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                    // Check if found player target is on fly mount or using flying form  
+                    // Check if found player target is on fly mount or using flying form
                         if ((*itr)->HasAuraType(SPELL_AURA_FLY) || (*itr)->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
                             // Summom Fel Cannon (bunny version) at found player
                             caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
             }
-     
+
             void Register()
             {
                 OnEffectHit += SpellEffectFn(spell_q11010_q11102_q11023_choose_loc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
-     
+
         SpellScript* GetSpellScript() const
         {
             return new spell_q11010_q11102_q11023_choose_loc_SpellScript();
