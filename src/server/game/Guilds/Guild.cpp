@@ -1717,7 +1717,7 @@ void Guild::SendInfo(WorldSession* session) const
 {
     WorldPacket data(SMSG_GUILD_INFO, m_name.size() + 4 + 4 + 4);
     data << m_name;
-    data << secsToTimeBitFields(m_createdDate);     // 3.x (prev. year + month + day)
+    data.AppendPackedTime(m_createdDate);           // 3.x (prev. year + month + day)
     data << uint32(m_members.size());               // Number of members
     data << m_accountsNumber;                       // Number of accounts
 
