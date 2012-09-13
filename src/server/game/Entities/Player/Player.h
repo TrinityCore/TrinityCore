@@ -3077,6 +3077,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
+        uint32 _ConquestCurrencytotalWeekCap;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

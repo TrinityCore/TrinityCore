@@ -2811,7 +2811,7 @@ void World::ResetDailyQuests()
 
 void World::ResetCurrencyWeekCap()
 {
-    CharacterDatabase.Execute("UPDATE `character_currencies` SET `weekCount` = 0");
+    CharacterDatabase.Execute("UPDATE `character_currency` SET `week_count` = 0");
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())

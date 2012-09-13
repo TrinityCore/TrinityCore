@@ -849,6 +849,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     _activeCheats = CHEAT_NONE;
     _maxPersonalArenaRate = 0;
+    _ConquestCurrencytotalWeekCap = 0;
 
     memset(_voidStorageItems, NULL, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
     memset(_CUFProfiles, NULL, MAX_CUF_PROFILES * sizeof(CUFProfile*));
@@ -7230,6 +7231,14 @@ void Player::_LoadCurrency(PreparedQueryResult result)
 
         _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyID, cur));
 
+        // load total conquest cap. should be after insert.
+        if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
+        {
+            uint32 cap = _GetCurrencyWeekCap(currency);
+            if(cap > _ConquestCurrencytotalWeekCap)
+                _ConquestCurrencytotalWeekCap = cap;
+        }
+
     } while (result->NextRow());
 }
 
@@ -7311,8 +7320,10 @@ void Player::SendCurrencies() const
 {
     ByteBuffer currencyData;
     WorldPacket packet(SMSG_INIT_CURRENCY, 4 + _currencyStorage.size()*(5*4 + 1));
+    size_t count_pos = packet.bitwpos();
     packet.WriteBits(_currencyStorage.size(), 23);
 
+    size_t count = 0;
     for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
         CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
@@ -7340,22 +7351,26 @@ void Player::SendCurrencies() const
         currencyData << uint32(entry->ID);
         if (weekCount)
             currencyData << uint32(weekCount);
+
+        ++count;
     }
 
     packet.FlushBits();
     packet.append(currencyData);
+    packet.PutBits(count_pos, count, 23);
     GetSession()->SendPacket(&packet);
 }
 
 void Player::SendPvpRewards() const
 {
     WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG);
-    packet << uint32(0);    //unk
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
-    packet << uint32(0);    //unk1
-    packet << uint32(0);    //unk2
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
     packet << GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
+    packet << GetCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA);
+    packet << GetCurrency(CURRENCY_TYPE_CONQUEST_META_BG);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG);
     GetSession()->SendPacket(&packet);
 }
 
@@ -7444,6 +7459,9 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
 
             if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
             {
+                //original conquest cap is highest of bg/arena conquest cap.
+                if(weekCap > _ConquestCurrencytotalWeekCap)
+                    _ConquestCurrencytotalWeekCap = weekCap;
                 // count was changed to week limit, now we can modify original points.
                 ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog );
                 return;
@@ -7518,11 +7536,11 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
     {
         //original conquest not have week cap
         case CURRENCY_TYPE_CONQUEST_POINTS:
-           return 0;
+           return _ConquestCurrencytotalWeekCap;
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
             return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate);
         case CURRENCY_TYPE_CONQUEST_META_BG:
-            return Trinity::Currency::ConquestRatingCalculator(GetRBGPersonalRating());
+            return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating());
         case CURRENCY_TYPE_HONOR_POINTS:
         {
             uint32 honorcap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_HONOR_POINTS);

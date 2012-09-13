@@ -873,8 +873,8 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
     data << uint32(0);  //unk1
     data << uint32(0);  //unk2
     data << _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG);
-    data << uint32(0);  //unk1
-    data << uint32(0);  //unk2
+    data << uint32(0);  //unk3
+    data << uint32(0);  //unk4
     data << _player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS);
     SendPacket(&data);
 }
