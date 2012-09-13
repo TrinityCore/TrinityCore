@@ -49,7 +49,7 @@ const char CreatureModelDatafmt[]="nxxxxxxxxxxxxxffxxxxxxxxxxxxxxx";
 const char CreatureFamilyfmt[]="nfifiiiiixsx";
 const char CreatureSpellDatafmt[]="niiiixxxx";
 const char CreatureTypefmt[]="nxx";
-const char CurrencyTypesfmt[]="nxxxxxiiiix";
+const char CurrencyTypesfmt[]="nixxxxiiiix";
 
 const char DestructibleModelDatafmt[]="ixxixxxixxxixxxixxxxxxxx";
 const char DungeonEncounterfmt[]="iiixisxx";

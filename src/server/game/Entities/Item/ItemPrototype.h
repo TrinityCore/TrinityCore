@@ -218,6 +218,13 @@ enum CurrencyFlags
     // ...
 };
 
+enum CurrencyCategory
+{
+    // ...
+    CURRENCY_CATEGORY_META_CONQUEST = 89,
+    // ...
+};
+
 enum ItemVendorType
 {
     ITEM_VENDOR_TYPE_ITEM     = 1,

@@ -7316,7 +7316,9 @@ void Player::SendCurrencies() const
     for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
         CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-        if (!entry) // should never happen
+
+        // not send init meta currencies.
+        if (!entry || entry->Category == CURRENCY_CATEGORY_META_CONQUEST)
             continue;
 
         uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
@@ -7396,9 +7398,9 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
         oldWeekCount = itr->second.weekCount;
     }
 
-    // count can't be more then weekCap.
+    // count can't be more then weekCap if used (weekCap > 0)
     uint32 weekCap = _GetCurrencyWeekCap(currency);
-    if (count > int32(weekCap))
+    if (weekCap && count > int32(weekCap))
         count = weekCap;
 
     int32 newTotalCount = int32(oldTotalCount) + count;
@@ -7411,7 +7413,6 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
 
     ASSERT(weekCap >= oldWeekCount);
 
-    // TODO: fix conquest points
     // if we get more then weekCap just set to limit
     if (weekCap && int32(weekCap) < newWeekCount)
     {
@@ -7440,6 +7441,13 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
         {
             if (count > 0)
                 UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
+
+            if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
+            {
+                // count was changed to week limit, now we can modify original points.
+                ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog );
+                return;
+            }
 
             // on new case just set init.
             if(itr->second.state == PLAYERCURRENCY_NEW)
