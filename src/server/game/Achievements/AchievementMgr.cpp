@@ -2035,7 +2035,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
             continue;
 
         data << uint32(itr->first);
-        data->AppendPackedTime(itr->second.date);
+        data.AppendPackedTime(itr->second.date);
     }
 
     SendPacket(&data);
@@ -2048,7 +2048,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver) const
     data.WriteBits(m_completedAchievements.size(), 23);
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
-        data->AppendPackedTime(itr->second.date);
+        data.AppendPackedTime(itr->second.date);
         data << uint32(itr->first);
     }
 
