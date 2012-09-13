@@ -7365,10 +7365,10 @@ void Player::SendPvpRewards() const
 {
     WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
     packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
-    packet << GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS);
     packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
-    packet << GetCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA);
-    packet << GetCurrency(CURRENCY_TYPE_CONQUEST_META_BG);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_BG);
     packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
     packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG);
     GetSession()->SendPacket(&packet);
@@ -7378,6 +7378,12 @@ uint32 Player::GetCurrency(uint32 id) const
 {
     PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
     return itr != _currencyStorage.end() ? itr->second.totalCount : 0;
+}
+
+uint32 Player::GetCurrencyOnWeek(uint32 id) const
+{
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    return itr != _currencyStorage.end() ? itr->second.weekCount : 0;
 }
 
 bool Player::HasCurrency(uint32 id, uint32 count) const
