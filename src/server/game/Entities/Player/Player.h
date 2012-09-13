@@ -1440,8 +1440,12 @@ class Player : public Unit, public GridObject<Player>
         void SendNewCurrency(uint32 id) const;
         /// send full data about all currencies to client
         void SendCurrencies() const;
+        /// send conquest currency points and their cap week/arena
+        void SendPvpRewards() const;
         /// return count of currency witch has plr
         uint32 GetCurrency(uint32 id) const;
+        /// return week cap by currency id
+        uint32 GetCurrencyWeekCap(uint32 id) const;
         /// return presence related currency
         bool HasCurrency(uint32 id, uint32 count) const;
         /// @todo: not understand why it subtract from total count and for what it used. It should be remove and replaced by ModifyCurrency
@@ -2860,6 +2864,13 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_currentBuybackSlot;
 
         PlayerCurrenciesMap _currencyStorage;
+
+        /**
+          * @name   _GetCurrencyWeekCap
+          * @brief  return week cap for selected currency
+
+          * @param  currency CurrencyTypesEntry witch should get week cap
+        */
         uint32 _GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];

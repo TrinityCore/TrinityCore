@@ -7344,6 +7344,18 @@ void Player::SendCurrencies() const
     GetSession()->SendPacket(&packet);
 }
 
+void Player::SendPvpRewards() const
+{
+    WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG);
+    packet << uint32(0);    //unk
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
+    packet << uint32(0);    //unk1
+    packet << uint32(0);    //unk2
+    packet << GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS);
+    GetSession()->SendPacket(&packet);
+}
+
 uint32 Player::GetCurrency(uint32 id) const
 {
     PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
@@ -7458,42 +7470,52 @@ void Player::SetCurrency(uint32 id, uint32 count, bool printLog /*= true*/)
    ModifyCurrency(id, int32(count) - GetCurrency(id), printLog);
 }
 
+uint32 Player::GetCurrencyWeekCap(uint32 id) const
+{
+    CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
+    if (!entry)
+        return 0;
+
+    return _GetCurrencyWeekCap(entry);
+}
+
 uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
 {
-   uint32 cap = currency->WeekCap;
-   switch (currency->ID)
-   {
-       case CURRENCY_TYPE_CONQUEST_POINTS:
-       {
-           // TODO: implement
-           cap = 0;
-           break;
-       }
-       case CURRENCY_TYPE_HONOR_POINTS:
-       {
-           uint32 honorcap = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
-           if (honorcap > 0)
-               cap = honorcap;
-           break;
-       }
-       case CURRENCY_TYPE_JUSTICE_POINTS:
-       {
-           uint32 justicecap = sWorld->getIntConfig(CONFIG_MAX_JUSTICE_POINTS);
-           if (justicecap > 0)
-               cap = justicecap;
-           break;
-       }
-   }
+    uint32 cap = currency->WeekCap;
+    switch (currency->ID)
+    {
+        //original conquest not have week cap
+        case CURRENCY_TYPE_CONQUEST_POINTS:
+            return 0;
+        /// @Todo: there should be calculation of conquest cap bg/arena
+        case CURRENCY_TYPE_CONQUEST_META_ARENA:
+        case CURRENCY_TYPE_CONQUEST_META_BG:
+            break;
+        case CURRENCY_TYPE_HONOR_POINTS:
+        {
+            uint32 honorcap = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
+            if (honorcap > 0)
+                cap = honorcap;
+            break;
+        }
+        case CURRENCY_TYPE_JUSTICE_POINTS:
+        {
+            uint32 justicecap = sWorld->getIntConfig(CONFIG_MAX_JUSTICE_POINTS);
+            if (justicecap > 0)
+                cap = justicecap;
+            break;
+        }
+    }
 
-   if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
-   {
-       WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-       packet << uint32(cap / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1));
-       packet << uint32(currency->ID);
-       GetSession()->SendPacket(&packet);
-   }
+    if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
+    {
+        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
+        packet << uint32(cap / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1));
+        packet << uint32(currency->ID);
+        GetSession()->SendPacket(&packet);
+    }
 
-   return cap;
+    return cap;
 }
 
 void Player::SetInGuild(uint32 guildId)
