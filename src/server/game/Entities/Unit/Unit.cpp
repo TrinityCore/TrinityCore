@@ -12992,7 +12992,7 @@ Unit* Creature::SelectVictim()
 
         // The last taunt aura caster is alive an we are happy to attack him
         if (caster && caster->isAlive())
-            return getVictim();
+            return caster;
         else if (tauntAuras.size() > 1)
         {
             // We do not have last taunt aura caster but we have more taunt auras,
