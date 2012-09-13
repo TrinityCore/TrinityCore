@@ -338,7 +338,18 @@ enum TrinityStrings
     LANG_TITLE_REMOVE_RES               = 354,
     LANG_TITLE_CURRENT_RES              = 355,
     LANG_CURRENT_TITLE_RESET            = 356,
-    // Room for more level 2              357-399 not used
+    LANG_COMMAND_CHEAT_STATUS           = 357,
+    LANG_COMMAND_CHEAT_GOD_ENABLED      = 358,
+    LANG_COMMAND_CHEAT_GOD_DISABLED     = 359,
+    LANG_COMMAND_CHEAT_CT_ENABLED       = 360,
+    LANG_COMMAND_CHEAT_CT_DISABLED      = 361,
+    LANG_COMMAND_CHEAT_CD_ENABLED       = 362,
+    LANG_COMMAND_CHEAT_CD_DISABLED      = 363,
+    LANG_COMMAND_CHEAT_POWER_ENABLED    = 364,
+    LANG_COMMAND_CHEAT_POWER_DISABLED   = 365,
+    LANG_COMMAND_CHEAT_WW_ENABLED       = 366,
+    LANG_COMMAND_CHEAT_WW_DISABLED      = 367,
+    // Room for more level 2              368-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,

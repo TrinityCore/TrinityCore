@@ -41,6 +41,7 @@ public:
             { "cooldown",       SEC_GAMEMASTER,     false, &HandleCoolDownCheatCommand,        "", NULL },
             { "power",          SEC_GAMEMASTER,     false, &HandlePowerCheatCommand,           "", NULL },
             { "waterwalk",      SEC_GAMEMASTER,     false, &HandleWaterWalkCheatCommand,       "", NULL },
+            { "status",         SEC_GAMEMASTER,     false, &HandleCheatStatusCommand,          "", NULL },
             { "taxi",           SEC_GAMEMASTER,     false, &HandleTaxiCheatCommand,            "", NULL },
             { "explore",        SEC_GAMEMASTER,     false, &HandleExploreCheatCommand,         "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
@@ -157,6 +158,19 @@ public:
         }
 
         return false;
+    }
+
+    static bool HandleCheatStatusCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+
+        handler->SendSysMessage(LANG_COMMAND_CHEAT_STATUS);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_GOD) ? LANG_COMMAND_CHEAT_GOD_ENABLED : LANG_COMMAND_CHEAT_GOD_DISABLED);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_COOLDOWN) ? LANG_COMMAND_CHEAT_CD_ENABLED : LANG_COMMAND_CHEAT_CD_DISABLED);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_CASTTIME) ? LANG_COMMAND_CHEAT_CT_ENABLED : LANG_COMMAND_CHEAT_CT_DISABLED);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_POWER) ? LANG_COMMAND_CHEAT_POWER_ENABLED : LANG_COMMAND_CHEAT_POWER_DISABLED);
+        handler->PSendSysMessage(player->GetCommandStatus(CHEAT_WATERWALK) ? LANG_COMMAND_CHEAT_WW_ENABLED : LANG_COMMAND_CHEAT_WW_DISABLED);
+        return true;
     }
 
     static bool HandleWaterWalkCheatCommand(ChatHandler* handler, const char* args)
