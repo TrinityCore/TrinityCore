@@ -953,13 +953,12 @@ public:
         if (!player_str)
             return false;
 
-        std::string location_str = strtok(NULL, "");
-        if (location_str.empty())
-            location_str = "inn";
+        std::string location_str = "inn";
+        if (char const* loc = strtok(NULL, " "))
+            location_str = loc;
 
         Player* player = NULL;
-        std::string playerName;
-        if (!handler->extractPlayerTarget((char*)player_str, &player, NULL, &playerName))
+        if (!handler->extractPlayerTarget(player_str, &player))
             return false;
 
         if (player->isInFlight() || player->isInCombat())
