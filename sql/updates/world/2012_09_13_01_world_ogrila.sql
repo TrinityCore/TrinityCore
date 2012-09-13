@@ -3,7 +3,6 @@
 -- Based on Warpten Script
 SET @SKYGUARD_BOMB       := 32456;
 SET @Run_Dummy           := 23118;
-SET @Script            := 2311800;
 SET @Explosion_Bunny     := 23119;
 SET @Flak_Cannon         := 23076;
 SET @Flak_Cannon2        := 23082;
@@ -20,15 +19,14 @@ UPDATE `quest_template` SET `RequiredClasses`=1024 WHERE `Id`=11102;
 UPDATE `creature_template` SET `AIName`='SmartAI',`flags_extra`=`flags_extra`|128 WHERE `entry`=@Run_Dummy;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@Run_Dummy;
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@Run_Dummy;
-DELETE FROM `smart_scripts` WHERE `source_type`=9 AND `entryorguid`=@Script;
+DELETE FROM `smart_scripts` WHERE `source_type`=9 AND `entryorguid`=@Run_Dummy*100;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@Run_Dummy,0,0,1,8,0,100,0,@THROW_BOMB,0,1000,1000,33,23118,0,0,0,0,0,16,0,0,0,0,0,0,0, 'Run Target Dummy - On spell Throw Bomb hit - Give kill credit to invoker party'),
+(@Run_Dummy,0,0,1,8,0,100,0,@THROW_BOMB,0,1000,1000,33,@Run_Dummy,0,0,0,0,0,16,0,0,0,0,0,0,0, 'Run Target Dummy - On spell Throw Bomb hit - Give kill credit to invoker party'),
 (@Run_Dummy,0,1,2,61,0,100,0,0,0,0,0,28,@RUN_MARK,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Run Target Dummy - Linked with previous event - Remove auras from hunter mark'),
 (@Run_Dummy,0,2,3,61,0,100,0,0,0,0,0,45,0,1,0,0,0,0,20,@CANNONBALL_STACK,3,0,0,0,0,0, 'Run Target Dummy - Linked with previous event - Data set 0 1 on Cannonball Stack'),
 (@Run_Dummy,0,3,4,61,0,100,0,0,0,0,0,45,0,1,0,0,0,0,19,@Explosion_Bunny,3,0,0,0,0,0, 'Run Target Dummy - Linked with previous event - Data set 0 1 on Explosion Bunny'),
-(@Run_Dummy,0,4,0,61,0,100,0,0,0,0,0,80,@Script,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Run Target Dummy - Linked with previous event - Start script 0'),
--- Script 0
-(@Script,9,0,0,0,0,100,0,29000,29000,0,0,11,@RUN_MARK,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Run Target Dummy - Action 0 - Cast run mark on self');
+(@Run_Dummy,0,4,0,61,0,100,0,0,0,0,0,80,@Run_Dummy*100,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Run Target Dummy - Linked with previous event - Start script 0'),
+(@Run_Dummy*100,9,0,0,0,0,100,0,29000,29000,0,0,11,@RUN_MARK,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Run Target Dummy - Action 0 - Cast run mark on self');
 -- Add SAI for Cannonball Stack
 UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI' WHERE `entry`=@CANNONBALL_STACK;
 DELETE FROM `smart_scripts` WHERE `source_type`=1 AND `entryorguid`=@CANNONBALL_STACK;
@@ -92,26 +90,26 @@ DELETE FROM `spell_area` WHERE `spell`=40200;
 INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_start_active`,`quest_end`,`aura_spell`,`racemask`,`gender`,`autocast`) VALUES
 (40200,3522,0,0,0,@See_Invisibility,0,2,1);
 -- Insert cannonballs spawns /based on sniffs/
-SET @guid := 164235; -- Free slot on trinity clean core marked on 12.09.2012
-DELETE FROM `gameobject` WHERE `guid` IN (@guid+0,@guid+1,@guid+2,@guid+3,@guid+4,@guid+5,@guid+6,@guid+7,@guid+8,@guid+9,@guid+10,@guid+11,@guid+12,@guid+13);
+SET @guid := 14811;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @guid+0 AND @guid+13;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
-(@guid+0,185861,530,1,1,2825.11,7024.05,369.982,5.69617,0,0,0.289313,-0.957235,300,0,1),
-(@guid+1,185861,530,1,1,2938.26,7094.72,369.413,2.78314,0,0,0.983982,0.178267,300,0,1),
-(@guid+2,185861,530,1,1,2924.84,7031.46,367.857,4.26205,0,0,0.847134,-0.53138,300,0,1),
-(@guid+3,185861,530,1,1,2938.02,7015.59,365.75,3.65778,0,0,0.966879,-0.255237,300,0,1),
-(@guid+4,185861,530,1,1,2998.57,7043.55,368.539,5.91266,0,0,0.184206,-0.982888,300,0,1),
-(@guid+5,185861,530,1,1,2982,7054.94,368.32,4.99766,0,0,0.599411,-0.800442,300,0,1),
-(@guid+6,185861,530,1,1,2978.73,6889.19,369.701,0.689745,0,0,0.338077,0.941119,300,0,1),
-(@guid+7,185861,530,1,1,2941.56,6827.17,367.3,4.08109,0,0,0.891683,-0.452661,300,0,1),
-(@guid+8,185861,530,1,1,2953.55,6859.3,369.954,6.14433,0,0,0.0693712,-0.997591,300,0,1),
-(@guid+9,185861,530,1,1,3023.13,6799.74,374.46,1.58666,0,0,0.712695,0.701474,300,0,1),
-(@guid+10,185861,530,1,1,3028.3,6824.84,373.591,5.0275,0,0,0.587401,-0.809296,300,0,1),
-(@guid+11,185861,530,1,1,3022.15,6859.05,369.546,3.44885,0,0,0.988222,-0.153025,300,0,1),
-(@guid+12,185861,530,1,1,3016.28,6876.11,370.188,3.47791,0,0,0.985895,-0.167365,300,0,1),
-(@guid+13,185861,530,1,1,2940.6,7106.65,370.123,0.88561,0,0,0.428475,0.903553,300,0,1);
+(@guid+0,@CANNONBALL_STACK,530,1,1,2825.11,7024.05,369.982,5.69617,0,0,0.289313,-0.957235,300,0,1),
+(@guid+1,@CANNONBALL_STACK,530,1,1,2938.26,7094.72,369.413,2.78314,0,0,0.983982,0.178267,300,0,1),
+(@guid+2,@CANNONBALL_STACK,530,1,1,2924.84,7031.46,367.857,4.26205,0,0,0.847134,-0.53138,300,0,1),
+(@guid+3,@CANNONBALL_STACK,530,1,1,2938.02,7015.59,365.75,3.65778,0,0,0.966879,-0.255237,300,0,1),
+(@guid+4,@CANNONBALL_STACK,530,1,1,2998.57,7043.55,368.539,5.91266,0,0,0.184206,-0.982888,300,0,1),
+(@guid+5,@CANNONBALL_STACK,530,1,1,2982,7054.94,368.32,4.99766,0,0,0.599411,-0.800442,300,0,1),
+(@guid+6,@CANNONBALL_STACK,530,1,1,2978.73,6889.19,369.701,0.689745,0,0,0.338077,0.941119,300,0,1),
+(@guid+7,@CANNONBALL_STACK,530,1,1,2941.56,6827.17,367.3,4.08109,0,0,0.891683,-0.452661,300,0,1),
+(@guid+8,@CANNONBALL_STACK,530,1,1,2953.55,6859.3,369.954,6.14433,0,0,0.0693712,-0.997591,300,0,1),
+(@guid+9,@CANNONBALL_STACK,530,1,1,3023.13,6799.74,374.46,1.58666,0,0,0.712695,0.701474,300,0,1),
+(@guid+10,@CANNONBALL_STACK,530,1,1,3028.3,6824.84,373.591,5.0275,0,0,0.587401,-0.809296,300,0,1),
+(@guid+11,@CANNONBALL_STACK,530,1,1,3022.15,6859.05,369.546,3.44885,0,0,0.988222,-0.153025,300,0,1),
+(@guid+12,@CANNONBALL_STACK,530,1,1,3016.28,6876.11,370.188,3.47791,0,0,0.985895,-0.167365,300,0,1),
+(@guid+13,@CANNONBALL_STACK,530,1,1,2940.6,7106.65,370.123,0.88561,0,0,0.428475,0.903553,300,0,1);
 -- Insert spawns for Fel Flak Cannons, Run Target Dummies and Explosion Bunnies /based on sniffs/
-SET @guid := 209183; -- Free slot on trinity clean core marked on 12.09.2012
-DELETE FROM `creature` WHERE `guid` IN (@guid+0,@guid+1,@guid+2,@guid+3,@guid+4,@guid+5,@guid+6,@guid+7,@guid+8,@guid+9,@guid+10,@guid+11,@guid+12,@guid+13,@guid+14,@guid+15,@guid+16,@guid+17,@guid+18,@guid+19,@guid+20,@guid+21,@guid+22,@guid+23,@guid+24,@guid+25,@guid+26,@guid+27,@guid+28,@guid+29,@guid+30,@guid+31,@guid+32,@guid+33,@guid+34,@guid+35,@guid+36,@guid+37,@guid+38,@guid+39,@guid+40,@guid+41,@guid+42,@guid+43,@guid+44);
+SET @guid := 85656;
+DELETE FROM `creature` WHERE `guid` BETWEEN @guid+0 AND @guid+44;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@guid+0,23118,530,1,1,0,0,2764.71,7024.45,370.203,0,300,0,0,42,0,0,0,33554432,0),
 (@guid+1,23119,530,1,1,0,0,2764.71,7024.45,370.203,0,300,0,0,6986,0,0,0,33554432,0),
