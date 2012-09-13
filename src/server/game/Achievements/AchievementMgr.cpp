@@ -870,7 +870,7 @@ void AchievementMgr<Guild>::Reset()
         data.WriteByteSeq(guid[6]);
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[7]);
-        data << uint32(secsToTimeBitFields(iter->second.date));
+        data.AppendPackedTime(iter->second.date);
         data.WriteByteSeq(guid[4]);
         data.WriteByteSeq(guid[2]);
         SendPacket(&data);
@@ -928,7 +928,7 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
     data.append(GetOwner()->GetPackGUID());
     data << uint32(achievement->ID);
-    data << uint32(secsToTimeBitFields(time(NULL)));
+    data.AppendPackedTime(time(NULL));
     data << uint32(0);  // does not notify player ingame
     GetOwner()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
@@ -949,7 +949,7 @@ void AchievementMgr<Guild>::SendAchievementEarned(AchievementEntry const* achiev
     data.WriteBit(guid[5]);
 
     data.WriteByteSeq(guid[2]);
-    data << uint32(secsToTimeBitFields(time(NULL)));
+    data.AppendPackedTime(time(NULL));
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[1]);
@@ -981,7 +981,7 @@ void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* 
         data << uint32(0);
     else
         data << uint32(timedCompleted ? 0 : 1); // this are some flags, 1 is for keeping the counter at 0 in client
-    data << uint32(secsToTimeBitFields(progress->date));
+    data.AppendPackedTime(progress->date);
     data << uint32(timeElapsed);    // time elapsed in seconds
     data << uint32(0);              // unk
     SendPacket(&data);
@@ -2021,7 +2021,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
         criteriaData.WriteByteSeq(guid[7]);
         criteriaData.WriteByteSeq(counter[7]);
         criteriaData << uint32(0); // timer 1
-        criteriaData << uint32(secsToTimeBitFields(itr->second.date));  // criteria date
+        criteriaData.AppendPackedTime(itr->second.date);  // criteria date
         criteriaData.WriteByteSeq(guid[1]);
     }
 
@@ -2035,7 +2035,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/) const
             continue;
 
         data << uint32(itr->first);
-        data << uint32(secsToTimeBitFields(itr->second.date));
+        data->AppendPackedTime(itr->second.date);
     }
 
     SendPacket(&data);
@@ -2048,7 +2048,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver) const
     data.WriteBits(m_completedAchievements.size(), 23);
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
-        data << uint32(secsToTimeBitFields(itr->second.date));
+        data->AppendPackedTime(itr->second.date);
         data << uint32(itr->first);
     }
 
@@ -2140,7 +2140,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
             continue;
 
         data << uint32(itr->first);
-        data << uint32(secsToTimeBitFields(itr->second.date));
+        data.AppendPackedTime(itr->second.date);
     }
 
     data.WriteByteSeq(guid[7]);
