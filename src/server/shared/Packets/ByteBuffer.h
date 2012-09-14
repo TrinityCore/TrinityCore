@@ -501,6 +501,28 @@ class ByteBuffer
                 append(str.c_str(), len);
         }
 
+        uint32 ReadPackedTime()
+        {
+            uint32 packedDate = read<uint32>();
+            tm lt;
+            memset(&lt, 0, sizeof(lt));
+
+            lt.tm_min = packedDate & 0x3F;
+            lt.tm_hour = (packedDate >> 6) & 0x1F;
+            //lt.tm_wday = (packedDate >> 11) & 7;
+            lt.tm_mday = ((packedDate >> 14) & 0x3F) + 1;
+            lt.tm_mon = (packedDate >> 20) & 0xF;
+            lt.tm_year = ((packedDate >> 24) & 0x1F) + 100;
+
+            return mktime(&lt) + timezone;
+        }
+
+        ByteBuffer& ReadPackedTime(uint32& time)
+        {
+            time = ReadPackedTime();
+            return *this;
+        }
+
         const uint8 *contents() const { return &_storage[0]; }
 
         size_t size() const { return _storage.size(); }
@@ -578,6 +600,12 @@ class ByteBuffer
                 guid >>= 8;
             }
             append(packGUID, size);
+        }
+
+        void AppendPackedTime(time_t time)
+        {
+            tm* lt = localtime(&time);
+            append<uint32>((lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min);
         }
 
         void put(size_t pos, const uint8 *src, size_t cnt)

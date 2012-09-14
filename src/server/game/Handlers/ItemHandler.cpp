@@ -299,7 +299,7 @@ void WorldSession::SendItemDb2Reply(uint32 entry)
     buff << uint32(entry);
     buff << uint32(proto->Class);
     buff << uint32(proto->SubClass);
-    buff << int32(proto->Unk0);
+    buff << int32(proto->SoundOverrideSubclass);
     buff << uint32(proto->Material);
     buff << uint32(proto->DisplayInfoID);
     buff << uint32(proto->InventoryType);
