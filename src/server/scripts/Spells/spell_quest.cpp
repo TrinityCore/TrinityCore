@@ -25,6 +25,9 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
@@ -1314,6 +1317,174 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
         }
 };
 
+// "Bombing Run" and "Bomb Them Again!"
+enum Quest11010_11102_11023Data
+{
+    // Spell
+    SPELL_FLAK_CANNON_TRIGGER = 40110,
+    SPELL_CHOOSE_LOC          = 40056,
+    SPELL_AGGRO_CHECK         = 40112,
+    // NPCs
+    NPC_FEL_CANNON2           = 23082
+};
+
+// 40113 Knockdown Fel Cannon: The Aggro Check Aura
+class spell_q11010_q11102_q11023_aggro_check_aura : public SpellScriptLoader
+{
+    public:
+        spell_q11010_q11102_q11023_aggro_check_aura() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_check_aura") { }
+
+        class spell_q11010_q11102_q11023_aggro_check_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q11010_q11102_q11023_aggro_check_aura_AuraScript);
+
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            {
+                if (Unit* target = GetTarget())
+                    // On trigger proccing
+                    target->CastSpell(target, SPELL_AGGRO_CHECK);
+            }
+
+            void Register()
+            {
+               OnEffectPeriodic += AuraEffectPeriodicFn(spell_q11010_q11102_q11023_aggro_check_aura_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_q11010_q11102_q11023_aggro_check_aura_AuraScript();
+        }
+};
+
+// 40112 Knockdown Fel Cannon: The Aggro Check
+class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
+{
+    public:
+        spell_q11010_q11102_q11023_aggro_check() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_check") { }
+
+        class spell_q11010_q11102_q11023_aggro_check_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q11010_q11102_q11023_aggro_check_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* playerTarget = GetHitPlayer())
+                    // Check if found player target is on fly mount or using flying form
+                    if (playerTarget->HasAuraType(SPELL_AURA_FLY) || playerTarget->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                        playerTarget->CastSpell(playerTarget, SPELL_FLAK_CANNON_TRIGGER, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q11010_q11102_q11023_aggro_check_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q11010_q11102_q11023_aggro_check_SpellScript();
+        }
+};
+
+// 40119 Knockdown Fel Cannon: The Aggro Burst
+class spell_q11010_q11102_q11023_aggro_burst : public SpellScriptLoader
+{
+    public:
+        spell_q11010_q11102_q11023_aggro_burst() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_burst") { }
+
+        class spell_q11010_q11102_q11023_aggro_burst_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q11010_q11102_q11023_aggro_burst_AuraScript);
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                if (Unit* target = GetTarget())
+                    // On each tick cast Choose Loc to trigger summon
+                    target->CastSpell(target, SPELL_CHOOSE_LOC);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q11010_q11102_q11023_aggro_burst_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_q11010_q11102_q11023_aggro_burst_AuraScript();
+        }
+};
+
+// 40056 Knockdown Fel Cannon: Choose Loc
+class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
+{
+    public:
+        spell_q11010_q11102_q11023_choose_loc() : SpellScriptLoader("spell_q11010_q11102_q11023_choose_loc") { }
+
+        class spell_q11010_q11102_q11023_choose_loc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q11010_q11102_q11023_choose_loc_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                // Check for player that is in 65 y range
+                std::list<Player*> playerList;
+                Trinity::AnyPlayerInObjectRangeCheck checker(caster, 765.0f);
+                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
+                caster->VisitNearbyWorldObject(65.0f, searcher);
+                    for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                    // Check if found player target is on fly mount or using flying form
+                        if ((*itr)->HasAuraType(SPELL_AURA_FLY) || (*itr)->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                            // Summom Fel Cannon (bunny version) at found player
+                            caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_q11010_q11102_q11023_choose_loc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q11010_q11102_q11023_choose_loc_SpellScript();
+        }
+};
+
+// 39844 - Skyguard Blasting Charge
+// 40160 - Throw Bomb
+class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScriptLoader
+{
+    public:
+        spell_q11010_q11102_q11023_q11008_check_fly_mount() : SpellScriptLoader("spell_q11010_q11102_q11023_q11008_check_fly_mount") { }
+
+        class spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                Unit* caster = GetCaster();
+                // This spell will be cast only if caster has one of these auras
+                if (!(caster->HasAuraType(SPELL_AURA_FLY) || caster->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1345,4 +1516,9 @@ void AddSC_quest_spell_scripts()
     new spell_q12735_song_of_cleansing();
     new spell_q12372_cast_from_gossip_trigger();
     new spell_q12372_destabilize_azure_dragonshrine_dummy();
+    new spell_q11010_q11102_q11023_aggro_check_aura();
+    new spell_q11010_q11102_q11023_aggro_check();
+    new spell_q11010_q11102_q11023_aggro_burst();
+    new spell_q11010_q11102_q11023_choose_loc();
+    new spell_q11010_q11102_q11023_q11008_check_fly_mount();
 }

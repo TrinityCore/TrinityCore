@@ -129,6 +129,13 @@ const Position AnubarakLoc[]=
     {740.184509f, 193.443390f, 142.117584f, 0},  // 4 - Nerub Spawn
 };
 
+const Position EndSpawnLoc[]=
+{
+    {648.9167f, 131.0208f, 141.6161f, 0}, // 0 - Highlord Tirion Fordring
+    {649.1614f, 142.0399f, 141.3057f ,0}, // 1 - Argent Mage
+    {644.6250f, 149.2743f, 140.6015f ,0}, // 2 - Portal to Dalaran
+};
+
 enum euiWorldStates
 {
     UPDATE_STATE_UI_SHOW            = 4390,
@@ -163,6 +170,7 @@ enum eCreature
     NPC_BARRENT                 = 34816,
     NPC_TIRION                  = 34996,
     NPC_TIRION_FORDRING         = 36095,
+    NPC_ARGENT_MAGE             = 36097,
     NPC_FIZZLEBANG              = 35458,
     NPC_GARROSH                 = 34995,
     NPC_VARIAN                  = 34990,
@@ -245,6 +253,7 @@ enum eGameObject
     GO_MAIN_GATE_DOOR           = 195647,
     GO_EAST_PORTCULLIS          = 195648,
     GO_WEB_DOOR                 = 195485,
+    GO_PORTAL_TO_DALARAN        = 195682,
 };
 
 enum eAchievementData
