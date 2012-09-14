@@ -1778,7 +1778,7 @@ void World::SetInitialWorldSettings()
     InitRandomBGResetTime();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next currency reset time...");
-        InitCurrencyResetTime();
+    InitCurrencyResetTime();
 
     LoadCharacterNameData();
 
@@ -2777,22 +2777,20 @@ void World::InitCurrencyResetTime()
     time_t curTime = time(NULL);
     tm localTm = *localtime(&curTime);
 
-    int week_day_offset = localTm.tm_wday - getIntConfig(CONFIG_CURRENCY_RESET_DAY);
-
+    localTm.tm_wday = getIntConfig(CONFIG_CURRENCY_RESET_DAY);
     localTm.tm_hour = getIntConfig(CONFIG_CURRENCY_RESET_HOUR);
     localTm.tm_min = 0;
     localTm.tm_sec = 0;
 
     // current week reset time
     time_t nextWeekResetTime = mktime(&localTm);
-    nextWeekResetTime -= week_day_offset * DAY;
 
     // next reset time before current moment
     if (curTime >= nextWeekResetTime)
         nextWeekResetTime += getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY;
 
     // normalize reset time
-    m_NextCurrencyReset = m_NextCurrencyReset < curTime ? nextWeekResetTime - getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY : nextWeekResetTime;
+    m_NextCurrencyReset = currencytime < curTime ? nextWeekResetTime - getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY : nextWeekResetTime;
 
     if (!currencytime)
         sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint64(m_NextCurrencyReset));
