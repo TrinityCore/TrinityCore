@@ -2106,7 +2106,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
         criteriaData.WriteByteSeq(counter[4]);
         criteriaData << uint32(0);      // timer 1
         criteriaData.WriteByteSeq(guid[1]);
-        criteriaData << uint32(secsToTimeBitFields(itr->second.date));
+        criteriaData.AppendPackedTime(itr->second.date);
         criteriaData.WriteByteSeq(counter[3]);
         criteriaData.WriteByteSeq(counter[7]);
         criteriaData.WriteByteSeq(guid[5]);
