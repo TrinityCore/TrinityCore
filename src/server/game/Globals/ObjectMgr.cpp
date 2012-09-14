@@ -2173,7 +2173,7 @@ void ObjectMgr::LoadItemTemplates()
 
             if (itemTemplate.SoundOverrideSubclass != dbcitem->SoundOverrideSubclass)
             {
-                sLog->outError(LOG_FILTER_SQL, "Item (Entry: %u) does not have a correct Unk0 (%i), must be %i .", entry, itemTemplate.SoundOverrideSubclass, dbcitem->SoundOverrideSubclass);
+                sLog->outError(LOG_FILTER_SQL, "Item (Entry: %u) does not have a correct SoundOverrideSubclass (%i), must be %i .", entry, itemTemplate.SoundOverrideSubclass, dbcitem->SoundOverrideSubclass);
                 if (enforceDBCAttributes)
                     itemTemplate.SoundOverrideSubclass = dbcitem->SoundOverrideSubclass;
             }
