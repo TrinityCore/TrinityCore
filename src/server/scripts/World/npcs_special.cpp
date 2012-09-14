@@ -1245,9 +1245,9 @@ public:
 ## npc_rogue_trainer
 ######*/
 
-#define GOSSIP_HELLO_ROGUE1 "I wish to unlearn my talents"
-#define GOSSIP_HELLO_ROGUE2 "<Take the letter>"
-#define GOSSIP_HELLO_ROGUE3 "Purchase a Dual Talent Specialization."
+#define GOSSIP_HELLO_ROGUE1 "Quiero olvidar mis talentos."
+#define GOSSIP_HELLO_ROGUE2 "<Llevar la carta>"
+#define GOSSIP_HELLO_ROGUE3 "Comprar una segunda especializaci""\xc3\xb3""n de talentos."
 
 class npc_rogue_trainer : public CreatureScript
 {

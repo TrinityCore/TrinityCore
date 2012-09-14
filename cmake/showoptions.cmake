@@ -1,9 +1,9 @@
 # output generic information about the core and buildtype chosen
 message("")
-message("* TrinityCore rev. hash  : ${rev_hash}")
-message("* TrinityCore rev. date  : ${rev_date}")
+message("* RageSER-Core rev. hash  : ${rev_hash}")
+message("* RageSER-Core rev. date  : ${rev_date}")
 if( UNIX )
-  message("* TrinityCore buildtype  : ${CMAKE_BUILD_TYPE}")
+  message("* RageSER-Core buildtype  : ${CMAKE_BUILD_TYPE}")
 endif()
 message("")
 
