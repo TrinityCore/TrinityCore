@@ -7364,26 +7364,46 @@ void Player::SendCurrencies() const
 void Player::SendPvpRewards() const
 {
     WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_BG);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_BG, true);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG, true);
     GetSession()->SendPacket(&packet);
 }
 
-uint32 Player::GetCurrency(uint32 id) const
+uint32 Player::GetCurrency(uint32 id, bool precision) const
 {
     PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
-    return itr != _currencyStorage.end() ? itr->second.totalCount : 0;
+    if (itr == _currencyStorage.end())
+        return 0;
+
+    if (!precision)
+        return itr->second.totalCount;
+
+    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
+    ASSERT(currency);
+
+    int32 mod = currency->Flags & CURRENCY_FLAG_HIGH_PRECISION ? 100 : 1;
+    return itr->second.totalCount / mod;
 }
 
-uint32 Player::GetCurrencyOnWeek(uint32 id) const
+uint32 Player::GetCurrencyOnWeek(uint32 id, bool precision) const
 {
     PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
-    return itr != _currencyStorage.end() ? itr->second.weekCount : 0;
+    if (itr == _currencyStorage.end())
+        return 0;
+
+    if (!precision)
+        return itr->second.weekCount;
+
+    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
+    ASSERT(currency);
+
+    int32 mod = currency->Flags & CURRENCY_FLAG_HIGH_PRECISION ? 100 : 1;
+    return itr->second.weekCount / mod;
 }
 
 bool Player::HasCurrency(uint32 id, uint32 count) const
@@ -7500,16 +7520,28 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/)
 
 void Player::SetCurrency(uint32 id, uint32 count, bool printLog /*= true*/)
 {
-   ModifyCurrency(id, int32(count) - GetCurrency(id), printLog);
+    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+    {
+        PlayerCurrency cur;
+        cur.state = PLAYERCURRENCY_NEW;
+        cur.totalCount = count;
+        cur.weekCount = 0;
+        _currencyStorage[id] = cur;
+    }
 }
 
-uint32 Player::GetCurrencyWeekCap(uint32 id) const
+uint32 Player::GetCurrencyWeekCap(uint32 id, bool usePrecision) const
 {
     CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
     if (!entry)
         return 0;
 
-    return _GetCurrencyWeekCap(entry);
+    uint32 cap = _GetCurrencyWeekCap(entry);
+    if(usePrecision && entry->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+        cap /= 100;
+
+    return cap;
 }
 
 void Player::ResetCurrencyWeekCap()
@@ -7538,15 +7570,18 @@ void Player::ResetCurrencyWeekCap()
 uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
 {
     uint32 cap = currency->WeekCap;
+
     switch (currency->ID)
     {
         //original conquest not have week cap
         case CURRENCY_TYPE_CONQUEST_POINTS:
            return _ConquestCurrencytotalWeekCap;
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
-            return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate);
+            // should add precision mod = 100
+            return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * 100;
         case CURRENCY_TYPE_CONQUEST_META_BG:
-            return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating());
+            // should add precision mod = 100
+            return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * 100;
         case CURRENCY_TYPE_HONOR_POINTS:
         {
             uint32 honorcap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_HONOR_POINTS);

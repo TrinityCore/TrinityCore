@@ -852,6 +852,7 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
     data.WriteBit(1);
     data.WriteBit(1);
     data.WriteBit(1);
+    data.WriteBit(1);
     data.FlushBits();
     SendPacket(&data);
 }

@@ -2886,10 +2886,10 @@ Currency.ConquestPointsDefaultWeekCap = 1350
 #
 #    Currency.ConquestPointsArenaReward
 #        Amount of conquest points rewarded by winning arenas
-#        Default: 120
+#        Default: 150
 #
 
-Currency.ConquestPointsArenaReward = 120
+Currency.ConquestPointsArenaReward = 150
 
 #
 ###################################################################################################
