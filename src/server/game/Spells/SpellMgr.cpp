@@ -2630,10 +2630,39 @@ void SpellMgr::LoadSpellInfoStore()
     UnloadSpellInfoStore();
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
 
+    // Temporary structure to hold spell effect entries for faster loading
+    struct SpellEffectArray
+    {
+        SpellEffectArray()
+        {
+            effects[0] = NULL;
+            effects[1] = NULL;
+            effects[2] = NULL;
+        }
+
+        SpellEffectEntry const* effects[MAX_SPELL_EFFECTS];
+
+        SpellEffectEntry const*& operator[](int index)
+        {
+            return effects[index];
+        }
+    };
+
+    std::map<uint32, SpellEffectArray> effectsBySpell;
+
+    for (uint32 i = 0; i < sSpellEffectStore.GetNumRows(); ++i)
+    {
+        SpellEffectEntry const* effect = sSpellEffectStore.LookupEntry(i);
+        if (!effect)
+            continue;
+
+        effectsBySpell[effect->EffectSpellId][effect->EffectIndex] = effect;
+    }
+
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
-            mSpellInfoMap[i] = new SpellInfo(spellEntry);
+            mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i].effects);
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));

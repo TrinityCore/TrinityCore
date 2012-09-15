@@ -1750,18 +1750,6 @@ struct SpellTotemsEntry
     uint32    Totem[MAX_SPELL_TOTEMS];                        // 2        m_totem
 };
 
-struct SpellTotem
-{
-    SpellTotem()
-    {
-        totems[0] = NULL;
-        totems[1] = NULL;
-    }
-    SpellTotemsEntry const* totems[MAX_SPELL_TOTEMS];
-};
-
-typedef std::map<uint32, SpellTotem> SpellTotemMap;
-
 // Spell.dbc
 struct SpellEntry
 {
@@ -1812,9 +1800,6 @@ struct SpellEntry
     uint32 SpellTargetRestrictionsId;                       // 45       SpellTargetRestrictions.dbc
     uint32 SpellTotemsId;                                   // 46       SpellTotems.dbc
     //uint32 ResearchProject;                               // 47       ResearchProject.dbc
-
-    // struct access functions
-    SpellEffectEntry const* GetSpellEffect(uint32 eff) const;
 };
 
 // SpellCategories.dbc
@@ -1993,24 +1978,6 @@ struct SpellReagentsEntry
     int32     Reagent[MAX_SPELL_REAGENTS];                  // 54-61    m_reagent
     uint32    ReagentCount[MAX_SPELL_REAGENTS];             // 62-69    m_reagentCount
 };
-
-struct SpellReagent
-{
-    SpellReagent()
-    {
-        reagents[0] = NULL;
-        reagents[1] = NULL;
-        reagents[2] = NULL;
-        reagents[3] = NULL;
-        reagents[4] = NULL;
-        reagents[5] = NULL;
-        reagents[6] = NULL;
-        reagents[7] = NULL;
-    }
-    SpellReagentsEntry const* reagents[MAX_SPELL_REAGENTS];
-};
-
-typedef std::map<uint32, SpellReagent> SpellReagentMap;
 
 // SpellScaling.dbc
 struct SpellScalingEntry
@@ -2402,19 +2369,6 @@ struct TalentSpellPos
 };
 
 typedef std::map<uint32, TalentSpellPos> TalentSpellPosMap;
-
-struct SpellEffect
-{
-    SpellEffect()
-    {
-        effects[0] = NULL;
-        effects[1] = NULL;
-        effects[2] = NULL;
-    }
-    SpellEffectEntry const* effects[3];
-};
-
-typedef std::map<uint32, SpellEffect> SpellEffectMap;
 
 struct TaxiPathBySourceAndDestination
 {
