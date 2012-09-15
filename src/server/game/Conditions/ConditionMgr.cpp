@@ -1854,7 +1854,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         {
             if (cond->ConditionValue1 > SPAWNMASK_RAID_ALL)
             {
-                sLog->outError(LOG_FILTER_SQL, "Map Difficulty condition has non existing map difficulty in value1 (%u), skipped", cond->ConditionValue1);
+                sLog->outError(LOG_FILTER_SQL, "SpawnMask condition has non existing SpawnMask in value1 (%u), skipped", cond->ConditionValue1);
                 return false;
             }
             break;
