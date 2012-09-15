@@ -749,6 +749,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 }
                 break;
             }
+        }
         default:
             break;
     }

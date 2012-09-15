@@ -2623,30 +2623,25 @@ void SpellMgr::LoadSpellAreas()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+// Temporary structure to hold spell effect entries for faster loading
+struct SpellEffectArray
+{
+    SpellEffectArray()
+    {
+        effects[0] = NULL;
+        effects[1] = NULL;
+        effects[2] = NULL;
+    }
+
+    SpellEffectEntry const* effects[MAX_SPELL_EFFECTS];
+};
+
 void SpellMgr::LoadSpellInfoStore()
 {
     uint32 oldMSTime = getMSTime();
 
     UnloadSpellInfoStore();
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
-
-    // Temporary structure to hold spell effect entries for faster loading
-    struct SpellEffectArray
-    {
-        SpellEffectArray()
-        {
-            effects[0] = NULL;
-            effects[1] = NULL;
-            effects[2] = NULL;
-        }
-
-        SpellEffectEntry const* effects[MAX_SPELL_EFFECTS];
-
-        SpellEffectEntry const*& operator[](int index)
-        {
-            return effects[index];
-        }
-    };
 
     std::map<uint32, SpellEffectArray> effectsBySpell;
 
@@ -2656,14 +2651,12 @@ void SpellMgr::LoadSpellInfoStore()
         if (!effect)
             continue;
 
-        effectsBySpell[effect->EffectSpellId][effect->EffectIndex] = effect;
+        effectsBySpell[effect->EffectSpellId].effects[effect->EffectIndex] = effect;
     }
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
-    {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
             mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i].effects);
-    }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
