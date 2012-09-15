@@ -279,16 +279,9 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 condMeets = player->HasTitle(ConditionValue1);
             break;
         }
-        case CONDITION_MAP_DIFFICULTY:
+        case CONDITION_SPAWNMASK:
         {
-            if (Unit* unit = object->ToUnit())
-            {
-                if (unit->GetMap()->IsRaid())
-                    if (unit->GetMap()->Is25ManRaid() != ((ConditionValue1 & RAID_DIFFICULTY_MASK_25MAN) != 0))
-                        return false;
-
-                condMeets = unit->GetMap()->GetSpawnMode() >= ConditionValue1;
-            }
+            condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
             break;
         }
         default:
@@ -442,7 +435,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
         case CONDITION_TITLE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
-        case CONDITION_MAP_DIFFICULTY:
+        case CONDITION_SPAWNMASK:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         default:
@@ -1857,9 +1850,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             break;
         }
-        case CONDITION_MAP_DIFFICULTY:
+        case CONDITION_SPAWNMASK:
         {
-            if (cond->ConditionValue1 >= MAX_DIFFICULTY)
+            if (cond->ConditionValue1 > SPAWNMASK_RAID_ALL)
             {
                 sLog->outError(LOG_FILTER_SQL, "Map Difficulty condition has non existing map difficulty in value1 (%u), skipped", cond->ConditionValue1);
                 return false;
