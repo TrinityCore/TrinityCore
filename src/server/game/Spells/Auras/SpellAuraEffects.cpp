@@ -718,6 +718,37 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(uint32(GetMiscValueB())))
                 amount = mountCapability->Id;
             break;
+        case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
+        {
+            if (caster)
+            {
+                // if Level <= 70 resist = player level
+                int32 resist = caster->getLevel();
+
+                if (resist > 70 && resist < 81)
+                    resist += (resist - 70) * 5;
+                else if (resist > 80)
+                    resist += ((resist-70) * 5 + (resist - 80) * 7);
+
+                switch (GetId())
+                {
+                    case 20043: // Aspect of the Wild
+                    case 8185:  // Elemental Resistance
+                    case 19891: // Resistance Aura
+                    case 79106: // Shadow Protection
+                    case 79107: // Shadow Protection
+                        amount = resist;
+                        break;
+                    case 79060: // Mark of the Wild
+                    case 79061: // Mark of the Wild
+                    case 79062: // Blessing of Kings
+                    case 79063: // Blessing of Kings
+                    case 90363: // Embrace of the Shale Spider
+                        amount = resist / 2;
+                        break;
+                }
+                break;
+            }
         default:
             break;
     }
