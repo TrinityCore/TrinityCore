@@ -267,7 +267,6 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
 
     _focusSpell = NULL;
-    _targetLocked = false;
     _lastLiquid = NULL;
     _isWalkingBeforeCharm = false;
 }
@@ -422,6 +421,9 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
             if (TransportBase* transport = GetDirectTransport())
                 transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
         }
+
+        if (HasUnitState(UNIT_STATE_CANNOT_TURN))
+            loc.orientation = GetOrientation();
 
         UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
     }
@@ -17730,4 +17732,32 @@ void Unit::SendMovementCanFlyChange()
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
+}
+
+void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
+{
+    // already focused
+    if (_focusSpell)
+        return;
+
+    _focusSpell = focusSpell;
+    SetUInt64Value(UNIT_FIELD_TARGET, target);
+    if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
+        AddUnitState(UNIT_STATE_ROTATING);
+}
+
+void Unit::ReleaseFocus(Spell const* focusSpell)
+{
+    // focused to something else
+    if (focusSpell != _focusSpell)
+        return;
+
+    _focusSpell = NULL;
+    if (Unit* victim = getVictim())
+        SetUInt64Value(UNIT_FIELD_TARGET, victim->GetGUID());
+    else
+        SetUInt64Value(UNIT_FIELD_TARGET, 0);
+
+    if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
+        ClearUnitState(UNIT_STATE_ROTATING);
 }
