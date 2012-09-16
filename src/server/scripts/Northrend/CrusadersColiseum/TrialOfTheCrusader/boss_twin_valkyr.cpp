@@ -206,7 +206,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if (uiType != WAYPOINT_MOTION_TYPE)
+        if (uiType != POINT_MOTION_TYPE)
             return;
 
         switch (uiId)
