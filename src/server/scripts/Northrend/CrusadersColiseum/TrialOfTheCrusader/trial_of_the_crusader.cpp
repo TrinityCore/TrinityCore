@@ -120,10 +120,7 @@ class npc_announcer_toc10 : public CreatureScript
         {
             npc_announcer_toc10AI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = creature->GetInstanceScript();
             }
-
-            InstanceScript* instance;
 
             void Reset()
             {
@@ -274,7 +271,7 @@ class boss_lich_king_toc : public CreatureScript
 
             void MovementInform(uint32 uiType, uint32 uiId)
             {
-                if (uiType != POINT_MOTION_TYPE)
+                if (uiType != POINT_MOTION_TYPE || !instance)
                     return;
                 switch (uiId)
                 {
@@ -338,20 +335,18 @@ class boss_lich_king_toc : public CreatureScript
                             if (GameObject* go = instance->instance->GetGameObject(instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                                 go->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                             me->CastSpell(me, 69016, false);
-                            if (instance)
-                            {
-                                instance->SetData(TYPE_LICH_KING, DONE);
-                                Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_ANUBARAK));
-                                if (!temp || !temp->isAlive())
-                                    temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                            instance->SetData(TYPE_LICH_KING, DONE);
+                            Creature* temp = Unit::GetCreature(*me, instance->GetData64(NPC_ANUBARAK));
+                            if (!temp || !temp->isAlive())
+                                temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
-                                instance->SetData(TYPE_EVENT, 0);
-                            }
+                            instance->SetData(TYPE_EVENT, 0);
                             me->DespawnOrUnsummon();
                             m_uiUpdateTimer = 20000;
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
+
                 instance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
             }
         };
