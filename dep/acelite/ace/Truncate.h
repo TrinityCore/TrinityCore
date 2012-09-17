@@ -4,7 +4,7 @@
 /**
  * @file Truncate.h
  *
- * $Id: Truncate.h 83306 2008-10-17 12:19:53Z johnnyw $
+ * $Id: Truncate.h 95761 2012-05-15 18:23:04Z johnnyw $
  *
  * @author Steve Huston  <shuston@riverace.com>
  * @author Ossama Othman <ossama_othman@symantec.com>
@@ -27,10 +27,6 @@
 #include "ace/If_Then_Else.h"
 #include "ace/Numeric_Limits.h"
 
-#if defined (ACE_LACKS_LONGLONG_T)
-# include "ace/Basic_Types.h"
-#endif  /* ACE_LACKS_LONGLONG_T */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 namespace ACE_Utils
@@ -42,30 +38,24 @@ namespace ACE_Utils
   template<> struct Sign_Check<unsigned short> { ACE_STATIC_CONSTANT (bool, is_signed = 0); };
   template<> struct Sign_Check<unsigned int>   { ACE_STATIC_CONSTANT (bool, is_signed = 0); };
   template<> struct Sign_Check<unsigned long>  { ACE_STATIC_CONSTANT (bool, is_signed = 0); };
-#if !(defined(ACE_LACKS_LONGLONG_T) || defined(ACE_LACKS_UNSIGNEDLONGLONG_T))
 # ifdef __GNUC__
   // Silence g++ "-pedantic" warnings regarding use of "long long"
   // type.
   __extension__
 # endif  /* __GNUC__ */
   template<> struct Sign_Check<unsigned long long> { ACE_STATIC_CONSTANT (bool, is_signed = 0); };
-#else
-  template<> struct Sign_Check<ACE_U_LongLong> { ACE_STATIC_CONSTANT (bool, is_signed = 0); };
-#endif  /* !ACE_LACKS_LONGLONG_T */
 
   // Specialize the signed cases.
   template<> struct Sign_Check<signed char>  { ACE_STATIC_CONSTANT (bool, is_signed = 1); };
   template<> struct Sign_Check<signed short> { ACE_STATIC_CONSTANT (bool, is_signed = 1); };
   template<> struct Sign_Check<signed int>   { ACE_STATIC_CONSTANT (bool, is_signed = 1); };
   template<> struct Sign_Check<signed long>  { ACE_STATIC_CONSTANT (bool, is_signed = 1); };
-#ifndef ACE_LACKS_LONGLONG_T
 # ifdef __GNUC__
   // Silence g++ "-pedantic" warnings regarding use of "long long"
   // type.
   __extension__
 # endif  /* __GNUC__ */
   template<> struct Sign_Check<signed long long> { ACE_STATIC_CONSTANT (bool, is_signed = 1); };
-#endif  /* !ACE_LACKS_LONGLONG_T */
 
   // -----------------------------------------------------
 
@@ -110,7 +100,6 @@ namespace ACE_Utils
     unsigned_type operator() (unsigned_type x) { return x; }
   };
 
-#if !(defined(ACE_LACKS_LONGLONG_T) || defined(ACE_LACKS_UNSIGNEDLONGLONG_T))
 # ifdef __GNUC__
   // Silence g++ "-pedantic" warnings regarding use of "long long"
   // type.
@@ -123,15 +112,6 @@ namespace ACE_Utils
 
     unsigned_type operator() (unsigned_type x) { return x; }
   };
-#else
-  template<>
-  struct To_Unsigned<ACE_U_LongLong>
-  {
-    typedef ACE_U_LongLong unsigned_type;
-
-    unsigned_type operator() (unsigned_type x) { return x; }
-  };
-#endif  /* !ACE_LACKS_LONGLONG_T */
 
   // ----------------
 
@@ -183,7 +163,6 @@ namespace ACE_Utils
     }
   };
 
-#if !(defined(ACE_LACKS_LONGLONG_T) || defined(ACE_LACKS_UNSIGNEDLONGLONG_T))
 # ifdef __GNUC__
   // Silence g++ "-pedantic" warnings regarding use of "long long"
   // type.
@@ -200,7 +179,6 @@ namespace ACE_Utils
       return static_cast<unsigned_type> (x);
     }
   };
-#endif  /* !ACE_LACKS_LONGLONG_T */
 
   // -----------------------------------------------------
 
@@ -438,28 +416,6 @@ namespace ACE_Utils
     }
   };
 
-
-#if defined (ACE_LACKS_LONGLONG_T) || defined (ACE_LACKS_UNSIGNEDLONGLONG_T)
-  // Partial specialization for the case where we're casting from
-  // ACE_U_LongLong to a smaller integer.  We assume that we're always
-  // truncating from ACE_U_LongLong to a smaller type.  The partial
-  // specialization above handles the case where both the FROM and TO
-  // types are ACE_U_LongLong.
-  template<typename TO>
-  struct Truncator<ACE_U_LongLong, TO>
-  {
-    TO operator() (ACE_U_LongLong const & val)
-    {
-      // If val less than or equal to ACE_Numeric_Limits<TO>::max(),
-      // val.lo() must be less than or equal to
-      // ACE_Numeric_Limits<TO>::max (), as well.
-      return
-        (val > ACE_Numeric_Limits<TO>::max ()
-         ? ACE_Numeric_Limits<TO>::max ()
-         : static_cast<TO> (val.lo ()));
-    }
-  };
-#endif /* ACE_LACKS_LONGLONG_T || ACE_LACKS_UNSIGNEDLONGLONG_T */
 
   // -----------------------------------------------------
   /**

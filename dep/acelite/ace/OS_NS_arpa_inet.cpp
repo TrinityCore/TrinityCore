@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: OS_NS_arpa_inet.cpp 91781 2010-09-15 12:49:15Z johnnyw $
+// $Id: OS_NS_arpa_inet.cpp 95534 2012-02-17 23:19:33Z mitza $
 
 #include "ace/OS_NS_arpa_inet.h"
 
@@ -34,7 +34,7 @@ ACE_OS::inet_aton (const char *host_name, struct in_addr *addr)
       addr->s_addr = ip_addr;  // Network byte ordered
       return 1;
     }
-#elif defined (ACE_VXWORKS) && (ACE_VXWORKS <= 0x680)
+#elif defined (ACE_VXWORKS) && (ACE_VXWORKS <= 0x690)
   // inet_aton() returns OK (0) on success and ERROR (-1) on failure.
   // Must reset errno first. Refer to WindRiver SPR# 34949, SPR# 36026
   ::errnoSet(0);

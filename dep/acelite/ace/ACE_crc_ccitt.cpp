@@ -1,4 +1,4 @@
-// $Id: ACE_crc_ccitt.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: ACE_crc_ccitt.cpp 96017 2012-08-08 22:18:09Z mitza $
 
 #include "ace/ACE.h"
 
@@ -65,7 +65,7 @@ namespace
   /*****************************************************************/
 }
 
-#define COMPUTE(var, ch) (var) = (crc_table[(var ^ ch) & 0xFF] ^ (var >> 8))
+#define COMPUTE(var, ch) (var) = static_cast<ACE_UINT16> (crc_table[(var ^ ch) & 0xFF] ^ (var >> 8))
 
 // Open versioned namespace, if enabled by the user.
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
@@ -82,13 +82,13 @@ ACE::crc_ccitt (const char *string)
       COMPUTE (crc, *p);
     }
 
-  return ~crc;
+  return static_cast<ACE_UINT16> (~crc);
 }
 
 ACE_UINT16
 ACE::crc_ccitt (const void *buffer, size_t len, ACE_UINT16 crc)
 {
-  crc = ~crc;
+  crc = static_cast<ACE_UINT16> (~crc);
 
   for (const char *p = (const char *) buffer,
                   *e = (const char *) buffer + len;
@@ -98,13 +98,13 @@ ACE::crc_ccitt (const void *buffer, size_t len, ACE_UINT16 crc)
       COMPUTE (crc, *p);
     }
 
-  return ~crc;
+  return static_cast<ACE_UINT16> (~crc);
 }
 
 ACE_UINT16
 ACE::crc_ccitt (const iovec *iov, int len, ACE_UINT16 crc)
 {
-  crc = ~crc;
+  crc = static_cast<ACE_UINT16> (~crc);
 
   for (int i = 0; i < len; ++i)
     {
@@ -115,7 +115,7 @@ ACE::crc_ccitt (const iovec *iov, int len, ACE_UINT16 crc)
         COMPUTE (crc, *p);
     }
 
-  return ~crc;
+  return static_cast<ACE_UINT16> (~crc);
 }
 
 // Close versioned namespace, if enabled by the user.

@@ -1,4 +1,4 @@
-// $Id: OS_NS_Thread.cpp 91693 2010-09-09 12:57:54Z johnnyw $
+// $Id: OS_NS_Thread.cpp 96061 2012-08-16 09:36:07Z mcorino $
 
 #include "ace/OS_NS_Thread.h"
 
@@ -18,7 +18,7 @@
 // This is necessary to work around nasty problems with MVS C++.
 #include "ace/Auto_Ptr.h"
 #include "ace/Thread_Mutex.h"
-#include "ace/Condition_T.h"
+#include "ace/Condition_Thread_Mutex.h"
 #include "ace/Guard_T.h"
 
 extern "C" void
@@ -50,34 +50,18 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 void
 ACE_Thread_ID::to_string (char *thr_string) const
 {
-  char format[128]; // Converted format string
-  char *fp = 0;     // Current format pointer
-  fp = format;
-  *fp++ = '%';   // Copy in the %
-
 #if defined (ACE_WIN32)
-  ACE_OS::strcpy (fp, "u");
-  ACE_OS::sprintf (thr_string,
-                   format,
+  ACE_OS::sprintf (thr_string, "%u",
                    static_cast <unsigned> (this->thread_id_));
 #else
-# if defined (ACE_MVS) || defined (ACE_TANDEM_T1248_PTHREADS)
-                  // MVS's pthread_t is a struct... yuck. So use the ACE 5.0
-                  // code for it.
-                  ACE_OS::strcpy (fp, "u");
-                  ACE_OS::sprintf (thr_string, format, thread_handle_);
-# else
-                  // Yes, this is an ugly C-style cast, but the
-                  // correct C++ cast is different depending on
-                  // whether the t_id is an integral type or a pointer
-                  // type. FreeBSD uses a pointer type, but doesn't
-                  // have a _np function to get an integral type, like
-                  // the OSes above.
-                  ACE_OS::strcpy (fp, "lu");
-                  ACE_OS::sprintf (thr_string,
-                                   format,
-                                   (unsigned long) thread_handle_);
-# endif /* ACE_MVS || ACE_TANDEM_T1248_PTHREADS */
+  // Yes, this is an ugly C-style cast, but the
+  // correct C++ cast is different depending on
+  // whether the t_id is an integral type or a pointer
+  // type. FreeBSD uses a pointer type, but doesn't
+  // have a _np function to get an integral type like
+  // other OSes, so use the bigger hammer.
+  ACE_OS::sprintf (thr_string, "%lu",
+                   (unsigned long) thread_handle_);
 #endif /* ACE_WIN32 */
 }
 
@@ -232,13 +216,7 @@ ACE_TSS_Emulation::next_key (ACE_thread_key_t &key)
        // Loop through all possible keys and check whether a key is free
        for ( ;counter < ACE_TSS_THREAD_KEYS_MAX; counter++)
          {
-            ACE_thread_key_t localkey;
-#  if defined (ACE_HAS_NONSCALAR_THREAD_KEY_T)
-              ACE_OS::memset (&localkey, 0, sizeof (ACE_thread_key_t));
-              ACE_OS::memcpy (&localkey, &counter_, sizeof (u_int));
-#  else
-              localkey = counter;
-#  endif /* ACE_HAS_NONSCALAR_THREAD_KEY_T */
+            ACE_thread_key_t localkey = counter;
             // If the key is not set as used, we can give out this key, if not
             // we have to search further
             if (tss_keys_used_->is_set(localkey) == 0)
@@ -397,20 +375,6 @@ ACE_TSS_Info::ACE_TSS_Info (void)
   ACE_OS_TRACE ("ACE_TSS_Info::ACE_TSS_Info");
 }
 
-# if defined (ACE_HAS_NONSCALAR_THREAD_KEY_T)
-static inline bool operator== (const ACE_thread_key_t &lhs,
-                               const ACE_thread_key_t &rhs)
-{
-  return ! ACE_OS::memcmp (&lhs, &rhs, sizeof (ACE_thread_key_t));
-}
-
-static inline bool operator!= (const ACE_thread_key_t &lhs,
-                               const ACE_thread_key_t &rhs)
-{
-  return ! (lhs == rhs);
-}
-# endif /* ACE_HAS_NONSCALAR_THREAD_KEY_T */
-
 // Check for equality.
 bool
 ACE_TSS_Info::operator== (const ACE_TSS_Info &info) const
@@ -466,9 +430,8 @@ ACE_TSS_Keys::find (const u_int key, u_int &word, u_int &bit)
 int
 ACE_TSS_Keys::test_and_set (const ACE_thread_key_t key)
 {
-  ACE_KEY_INDEX (key_index, key);
   u_int word, bit;
-  find (key_index, word, bit);
+  find (key, word, bit);
 
   if (ACE_BIT_ENABLED (key_bit_words_[word], 1 << bit))
     {
@@ -484,9 +447,8 @@ ACE_TSS_Keys::test_and_set (const ACE_thread_key_t key)
 int
 ACE_TSS_Keys::test_and_clear (const ACE_thread_key_t key)
 {
-  ACE_KEY_INDEX (key_index, key);
   u_int word, bit;
-  find (key_index, word, bit);
+  find (key, word, bit);
 
   if (word < ACE_WORDS && ACE_BIT_ENABLED (key_bit_words_[word], 1 << bit))
     {
@@ -502,9 +464,8 @@ ACE_TSS_Keys::test_and_clear (const ACE_thread_key_t key)
 int
 ACE_TSS_Keys::is_set (const ACE_thread_key_t key) const
 {
-  ACE_KEY_INDEX (key_index, key);
   u_int word, bit;
-  find (key_index, word, bit);
+  find (key, word, bit);
 
   return word < ACE_WORDS ? ACE_BIT_ENABLED (key_bit_words_[word], 1 << bit) : 0;
 }
@@ -627,7 +588,7 @@ private:
   static unsigned int reference_count_;
   static ACE_TSS_Cleanup * instance_;
   static ACE_Thread_Mutex* mutex_;
-  static ACE_Thread_Condition<ACE_Thread_Mutex>* condition_;
+  static ACE_Condition_Thread_Mutex* condition_;
 
 private:
   ACE_TSS_Cleanup * ptr_;
@@ -650,7 +611,7 @@ TSS_Cleanup_Instance::TSS_Cleanup_Instance (Purpose purpose)
   if (mutex_ == 0)
     {
       ACE_NEW (mutex_, ACE_Thread_Mutex ());
-      ACE_NEW (condition_, ACE_Thread_Condition<ACE_Thread_Mutex> (*mutex_));
+      ACE_NEW (condition_, ACE_Condition_Thread_Mutex (*mutex_));
     }
 
   ACE_GUARD (ACE_Thread_Mutex, m, *mutex_);
@@ -750,7 +711,7 @@ TSS_Cleanup_Instance::operator ->()
 unsigned int TSS_Cleanup_Instance::reference_count_ = 0;
 ACE_TSS_Cleanup * TSS_Cleanup_Instance::instance_ = 0;
 ACE_Thread_Mutex* TSS_Cleanup_Instance::mutex_ = 0;
-ACE_Thread_Condition<ACE_Thread_Mutex>* TSS_Cleanup_Instance::condition_ = 0;
+ACE_Condition_Thread_Mutex* TSS_Cleanup_Instance::condition_ = 0;
 
 ACE_TSS_Cleanup::~ACE_TSS_Cleanup (void)
 {
@@ -810,7 +771,7 @@ ACE_TSS_Cleanup::thread_exit (void)
       }
 
     // remove the in_use bit vector last
-    ACE_KEY_INDEX (use_index, this->in_use_);
+    u_int use_index = this->in_use_;
     ACE_TSS_Info & info = this->table_[use_index];
     destructor[d_count] = 0;
     tss_obj[d_count] = 0;
@@ -852,7 +813,7 @@ ACE_TSS_Cleanup::insert (ACE_thread_key_t key,
   ACE_OS_TRACE ("ACE_TSS_Cleanup::insert");
   ACE_TSS_CLEANUP_GUARD
 
-  ACE_KEY_INDEX (key_index, key);
+  u_int key_index = key;
   ACE_ASSERT (key_index < ACE_DEFAULT_THREAD_KEYS);
   if (key_index < ACE_DEFAULT_THREAD_KEYS)
     {
@@ -873,7 +834,7 @@ ACE_TSS_Cleanup::free_key (ACE_thread_key_t key)
 {
   ACE_OS_TRACE ("ACE_TSS_Cleanup::free_key");
   ACE_TSS_CLEANUP_GUARD
-  ACE_KEY_INDEX (key_index, key);
+  u_int key_index = key;
   if (key_index < ACE_DEFAULT_THREAD_KEYS)
     {
       return remove_key (this->table_ [key_index]);
@@ -923,7 +884,7 @@ ACE_TSS_Cleanup::thread_detach_key (ACE_thread_key_t key)
   {
     ACE_TSS_CLEANUP_GUARD
 
-    ACE_KEY_INDEX (key_index, key);
+    u_int key_index = key;
     ACE_ASSERT (key_index < sizeof(this->table_)/sizeof(this->table_[0])
         && this->table_[key_index].key_ == key);
     ACE_TSS_Info &info = this->table_ [key_index];
@@ -979,7 +940,7 @@ ACE_TSS_Cleanup::thread_use_key (ACE_thread_key_t key)
       ACE_TSS_CLEANUP_GUARD
 
       // Retrieve the key's ACE_TSS_Info and increment its thread_count_.
-      ACE_KEY_INDEX (key_index, key);
+      u_int key_index = key;
       ACE_TSS_Info &key_info = this->table_ [key_index];
 
       ACE_ASSERT (key_info.key_in_use ());
@@ -1450,7 +1411,7 @@ ACE_OS::cond_timedwait (ACE_cond_t *cv,
       // Note that we must convert between absolute time (which is
       // passed as a parameter) and relative time (which is what
       // WaitForSingleObjects() expects).
-      ACE_Time_Value relative_time (*timeout - ACE_OS::gettimeofday ());
+      ACE_Time_Value relative_time = timeout->to_relative_time ();
 
       // Watchout for situations where a context switch has caused the
       // current time to be > the timeout.
@@ -1623,7 +1584,7 @@ ACE_OS::cond_timedwait (ACE_cond_t *cv,
   int msec_timeout = 0;
   int result = 0;
 
-  ACE_Time_Value relative_time (*timeout - ACE_OS::gettimeofday ());
+  ACE_Time_Value relative_time = timeout->to_relative_time ();
   // Watchout for situations where a context switch has caused the
   // current time to be > the timeout.
   if (relative_time > ACE_Time_Value::zero)
@@ -1652,7 +1613,7 @@ ACE_OS::cond_timedwait (ACE_cond_t *cv,
       // Note that we must convert between absolute time (which is
       // passed as a parameter) and relative time (which is what
       // WaitForSingleObjects() expects).
-      ACE_Time_Value relative_time (*timeout - ACE_OS::gettimeofday ());
+      ACE_Time_Value relative_time = timeout->to_relative_time ();
 
       // Watchout for situations where a context switch has caused the
       // current time to be > the timeout.
@@ -2184,7 +2145,7 @@ ACE_OS::mutex_lock (ACE_mutex_t *m,
   // Note that we must convert between absolute time (which is passed
   // as a parameter) and relative time (which is what the system call
   // expects).
-  ACE_Time_Value relative_time (timeout - ACE_OS::gettimeofday ());
+  ACE_Time_Value relative_time = timeout.to_relative_time ();
 
   switch (m->type_)
   {
@@ -2218,7 +2179,7 @@ ACE_OS::mutex_lock (ACE_mutex_t *m,
   // Note that we must convert between absolute time (which is passed
   // as a parameter) and relative time (which is what the system call
   // expects).
-  ACE_Time_Value relative_time (timeout - ACE_OS::gettimeofday ());
+  ACE_Time_Value relative_time = timeout.to_relative_time ();
 
   int ticks_per_sec = ::sysClkRateGet ();
 
@@ -3055,7 +3016,7 @@ ACE_OS::event_timedwait (ACE_event_t *event,
         {
           // Time is given in absolute time, we should use
           // gettimeofday() to calculate relative time
-          ACE_Time_Value relative_time (*timeout - ACE_OS::gettimeofday ());
+          ACE_Time_Value relative_time = timeout->to_relative_time ();
 
           // Watchout for situations where a context switch has caused
           // the current time to be > the timeout.  Thanks to Norbert
@@ -3116,7 +3077,7 @@ ACE_OS::event_timedwait (ACE_event_t *event,
           // cond_timewait() expects absolute time, check
           // <use_absolute_time> flag.
           if (use_absolute_time == 0)
-            absolute_timeout += ACE_OS::gettimeofday ();
+            absolute_timeout = timeout->to_absolute_time ();
 
           while (event->eventdata_->is_signaled_ == 0 &&
                  event->eventdata_->auto_event_signaled_ == false)
@@ -3533,7 +3494,7 @@ ACE_OS::sched_params (const ACE_Sched_Params &sched_params,
 #if defined (ACE_HAS_STHREADS)
   return ACE_OS::set_scheduling_params (sched_params, id);
 #elif defined (ACE_HAS_PTHREADS) && \
-      (!defined (ACE_LACKS_SETSCHED) || defined (ACE_TANDEM_T1248_PTHREADS) || \
+      (!defined (ACE_LACKS_SETSCHED) || \
       defined (ACE_HAS_PTHREAD_SCHEDPARAM))
   if (sched_params.quantum () != ACE_Time_Value::zero)
     {
@@ -3552,15 +3513,15 @@ ACE_OS::sched_params (const ACE_Sched_Params &sched_params,
 
   if (sched_params.scope () == ACE_SCOPE_PROCESS)
     {
-# if defined(ACE_TANDEM_T1248_PTHREADS) || defined (ACE_HAS_PTHREAD_SCHEDPARAM)
+# if defined (ACE_HAS_PTHREAD_SCHEDPARAM)
       ACE_UNUSED_ARG (id);
       ACE_NOTSUP_RETURN (-1);
-# else  /* ! ACE_TANDEM_T1248_PTHREADS */
+# else  /* !ACE_HAS_PTHREAD_SCHEDPARAM */
       int result = ::sched_setscheduler (id == ACE_SELF ? 0 : id,
                                          sched_params.policy (),
                                          &param) == -1 ? -1 : 0;
       return result;
-# endif /* ! ACE_TANDEM_T1248_PTHREADS */
+# endif /* !ACE_HAS_PTHREAD_SCHEDPARAM */
     }
   else if (sched_params.scope () == ACE_SCOPE_THREAD)
     {
@@ -3858,12 +3819,14 @@ ACE_OS::thr_create (ACE_THR_FUNC func,
                     ACE_OS_Thread_Adapter (func, args,
                                            (ACE_THR_C_FUNC) ACE_THREAD_ADAPTER_NAME,
                                            ACE_OS_Object_Manager::seh_except_selector(),
-                                           ACE_OS_Object_Manager::seh_except_handler()),
+                                           ACE_OS_Object_Manager::seh_except_handler(),
+                                           flags),
                     -1);
 #else
   ACE_NEW_RETURN (thread_args,
                   ACE_OS_Thread_Adapter (func, args,
-                                         (ACE_THR_C_FUNC) ACE_THREAD_ADAPTER_NAME),
+                                         (ACE_THR_C_FUNC) ACE_THREAD_ADAPTER_NAME,
+                                         flags),
                   -1);
 
 #endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
@@ -3873,9 +3836,8 @@ ACE_OS::thr_create (ACE_THR_FUNC func,
   auto_ptr <ACE_Base_Thread_Adapter> auto_thread_args;
 
   if (thread_adapter == 0)
-    ACE_AUTO_PTR_RESET (auto_thread_args,
-                        thread_args,
-                        ACE_Base_Thread_Adapter);
+    ACE_auto_ptr_reset (auto_thread_args,
+                        thread_args);
 
 #if defined (ACE_HAS_THREADS)
 
@@ -4104,6 +4066,7 @@ ACE_OS::thr_create (ACE_THR_FUNC func,
           }
         }
 
+#       if !defined (ACE_LACKS_SETINHERITSCHED)
       // *** Set scheduling explicit or inherited
       if (ACE_BIT_ENABLED (flags, THR_INHERIT_SCHED)
           || ACE_BIT_ENABLED (flags, THR_EXPLICIT_SCHED))
@@ -4117,6 +4080,7 @@ ACE_OS::thr_create (ACE_THR_FUNC func,
               return -1;
             }
         }
+#       endif /* ACE_LACKS_SETINHERITSCHED */
 #   else /* ACE_LACKS_SETSCHED */
       ACE_UNUSED_ARG (priority);
 #   endif /* ACE_LACKS_SETSCHED */

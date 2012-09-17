@@ -4,7 +4,7 @@
 /**
  *  @file    Thread_Adapter.h
  *
- *  $Id: Thread_Adapter.h 92060 2010-09-27 18:08:48Z johnnyw $
+ *  $Id: Thread_Adapter.h 92682 2010-11-23 23:41:19Z shuston $
  *
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
@@ -56,6 +56,7 @@ public:
                       , ACE_SEH_EXCEPT_HANDLER selector = 0,
                       ACE_SEH_EXCEPT_HANDLER handler = 0
 # endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
+                      , long cancel_flags = 0
                       );
 
   /**

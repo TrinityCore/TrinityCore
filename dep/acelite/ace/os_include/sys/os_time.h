@@ -6,7 +6,7 @@
  *
  *  time types
  *
- *  $Id: os_time.h 85365 2009-05-18 08:27:42Z johnnyw $
+ *  $Id: os_time.h 96090 2012-08-22 06:13:38Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -30,9 +30,13 @@
 #  include /**/ <sys/time.h>
 #endif /* !ACE_LACKS_SYS_TIME_H */
 
-#if defined (ACE_VXWORKS) && (ACE_VXWORKS == 0x620)
-#  include /**/ <time.h> // VxWorks 6.2 defined timeval in time.h
-#endif
+#if defined (ACE_LACKS_CLOCK_REALTIME)
+#  define CLOCK_REALTIME 0
+#endif /* ACE_LACKS_CLOCK_REALTIME */
+
+#if defined (ACE_LACKS_CLOCK_MONOTONIC)
+#  define CLOCK_MONOTONIC 1
+#endif /* ACE_LACKS_CLOCK_MONOTONIC */
 
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus

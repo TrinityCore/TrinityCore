@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// $Id: Atomic_Op.inl 91813 2010-09-17 07:52:52Z johnnyw $
+// $Id: Atomic_Op.inl 95225 2011-12-05 20:25:15Z shuston $
 
 #if defined (ACE_HAS_INTRINSIC_INTERLOCKED)
 # include "ace/os_include/os_intrin.h"
@@ -190,6 +189,22 @@ ACE_Atomic_Op<ACE_Thread_Mutex, long>::operator= (
 }
 
 ACE_INLINE long
+ACE_Atomic_Op<ACE_Thread_Mutex, long>::exchange (long newval)
+{
+#if defined (ACE_HAS_INTRINSIC_INTERLOCKED)
+  return ::_InterlockedExchange (const_cast<long *> (&this->value_), newval);
+#elif defined (WIN32)
+  return ::InterlockedExchange (const_cast<long *> (&this->value_), newval);
+#elif defined (ACE_HAS_VXATOMICLIB)
+  return ::vxAtomicSet (reinterpret_cast <atomic_t*>(const_cast<long *> (&this->value_)), newval);
+#elif defined (ACE_HAS_SOLARIS_ATOMIC_LIB)
+  return ::atomic_swap_ulong (reinterpret_cast<volatile unsigned long*>(&this->value_), newval);
+#else /* WIN32 */
+  return (*exchange_fn_) (&this->value_, newval);
+#endif /* WIN32 */
+}
+
+ACE_INLINE long
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::value (void) const
 {
   return this->value_;
@@ -371,6 +386,22 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::operator= (
   (*exchange_fn_) (reinterpret_cast<volatile long *> (&this->value_), rhs.value_);
 #endif /* WIN32 */
   return *this;
+}
+
+ACE_INLINE unsigned long
+ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::exchange (unsigned long newval)
+{
+#if defined (ACE_HAS_INTRINSIC_INTERLOCKED)
+  return ::_InterlockedExchange (const_cast<long *> (reinterpret_cast<volatile long*> (&this->value_)), newval);
+#elif defined (WIN32)
+  return ::InterlockedExchange (const_cast<long *> (reinterpret_cast<volatile long*> (&this->value_)), newval);
+#elif defined (ACE_HAS_VXATOMICLIB)
+  return ::vxAtomicSet (reinterpret_cast <atomic_t*>(const_cast<long *> (reinterpret_cast<volatile long*> (&this->value_))), newval);
+#elif defined (ACE_HAS_SOLARIS_ATOMIC_LIB)
+  return ::atomic_swap_ulong (&this->value_, newval);
+#else /* WIN32 */
+  return (*exchange_fn_) (reinterpret_cast<volatile long *> (&this->value_), newval);
+#endif /* WIN32 */
 }
 
 ACE_INLINE unsigned long

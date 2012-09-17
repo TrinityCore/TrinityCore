@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Stream.h
  *
- *  $Id: SOCK_Stream.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: SOCK_Stream.h 92956 2010-12-29 16:12:31Z shuston $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -78,7 +78,10 @@ public:
    *                 wait indefinitely or until an error occurs for the
    *                 specified number of bytes to be transferred.
    *                 To avoid any waiting, specify a timeout value with
-   *                 0 seconds.
+   *                 0 seconds. Note that the timeout period restarts on
+   *                 each retried operation issued; therefore, an operation
+   *                 that requires multiples retries may take longer than the
+   *                 specified timeout to complete.
    * @param bytes_transferred If non-0, points to a location which receives
    *                 the total number of bytes transferred before the method
    *                 returns, even if it's less than the number requested.

@@ -4,7 +4,7 @@
 /**
  *  @file    Remote_Tokens.h
  *
- *  $Id: Remote_Tokens.h 92345 2010-10-24 12:39:33Z johnnyw $
+ *  $Id: Remote_Tokens.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Douglas C. Schmidt (schmidt@cs.wustl.edu)
  *  @author Tim Harrison (harrison@cs.wustl.edu)
@@ -42,7 +42,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * distributed token operations.  It is similar to the
  * ACE_Token_Proxy.
  * @todo
- * Distributed sleep_hooks have not been implemented.  <owner_id>
+ * Distributed sleep_hooks have not been implemented. <owner_id>
  * is not implemented.
  */
 class ACE_Export ACE_Remote_Token_Proxy : public ACE_Token_Proxy
