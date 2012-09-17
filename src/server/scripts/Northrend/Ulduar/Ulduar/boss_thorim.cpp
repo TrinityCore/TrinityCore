@@ -1652,6 +1652,51 @@ class spell_stormhammer_targeting : public SpellScriptLoader
         }
 };
 
+class spell_thorim_charge_orb_targeting : public SpellScriptLoader
+{
+    public:
+        spell_thorim_charge_orb_targeting() : SpellScriptLoader("spell_thorim_charge_orb_targeting") {}
+
+        class spell_thorim_charge_orb_targeting_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_thorim_charge_orb_targeting_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                _target = NULL;
+
+                if (targets.empty())
+                    return;
+
+                // Charge Orb should be cast always only on 1 orb
+                _target = Trinity::Containers::SelectRandomContainerElement(targets);
+                SetTarget(targets);
+            }
+
+            void SetTarget(std::list<WorldObject*>& targets)
+            {
+                targets.clear();
+
+                if (_target)
+                    targets.push_back(_target);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_charge_orb_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_charge_orb_targeting_SpellScript::SetTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+
+            private:
+                WorldObject* _target;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_thorim_charge_orb_targeting_SpellScript();
+        }
+};
+
 class spell_thorim_berserk : public SpellScriptLoader
 {
     public:
@@ -1697,6 +1742,7 @@ void AddSC_boss_thorim()
     new npc_sif();
     new spell_stormhammer_targeting();
     new spell_thorim_berserk();
+    new spell_thorim_charge_orb_targeting();
 }
 
 #undef SPELL_CHAIN_LIGHTNING

@@ -226,6 +226,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=62560;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62560, 'spell_thorim_berserk');
 
+-- thorim Charge orb targeting
+DELETE FROM `spell_script_names` WHERE `spell_id`=62016;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62016, 'spell_thorim_charge_orb_targeting');
+
 -- Ignis::Spell::Flame_Jets -> Target filtering.
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (62680, 63472);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
