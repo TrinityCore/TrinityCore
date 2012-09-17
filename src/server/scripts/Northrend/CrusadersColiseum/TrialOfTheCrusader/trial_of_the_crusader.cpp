@@ -120,10 +120,7 @@ class npc_announcer_toc10 : public CreatureScript
         {
             npc_announcer_toc10AI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = creature->GetInstanceScript();
             }
-
-            InstanceScript* instance;
 
             void Reset()
             {
@@ -279,7 +276,7 @@ class boss_lich_king_toc : public CreatureScript
 
             void MovementInform(uint32 uiType, uint32 uiId)
             {
-                if (uiType != POINT_MOTION_TYPE)
+                if (uiType != POINT_MOTION_TYPE || !instance)
                     return;
                 switch (uiId)
                 {
@@ -364,6 +361,7 @@ class boss_lich_king_toc : public CreatureScript
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
+
                 instance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
             }
         };

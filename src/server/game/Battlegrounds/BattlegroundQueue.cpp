@@ -309,7 +309,7 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
     {
         //we must check premade and normal team's queue - because when players from premade are joining bg,
         //they leave groupinfo so we can't use its players size to find out index
-        for (uint32 j = index; j < BG_QUEUE_GROUP_TYPES_COUNT; j += BG_QUEUE_NORMAL_ALLIANCE)
+        for (uint32 j = index; j < BG_QUEUE_GROUP_TYPES_COUNT; j += BG_TEAMS_COUNT)
         {
             for (group_itr_tmp = m_QueuedGroups[bracket_id_tmp][j].begin(); group_itr_tmp != m_QueuedGroups[bracket_id_tmp][j].end(); ++group_itr_tmp)
             {
