@@ -787,12 +787,12 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_CURRENCYTOKEN_SLOT_1+63
     UF_FLAG_PRIVATE,                                        // PLAYER_FARSIGHT
     UF_FLAG_PRIVATE,                                        // PLAYER_FARSIGHT+1
-    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES
-    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+1
-    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES1
-    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES1+1
-    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES2
-    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES2+1
+    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES
+    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+1
+    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES1
+    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES1+1
+    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES2
+    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES2+1
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_CURRENCIES
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_CURRENCIES+1
     UF_FLAG_PRIVATE,                                        // PLAYER_XP
