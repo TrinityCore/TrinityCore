@@ -1970,6 +1970,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!me || me->GetTypeId() != TYPEID_UNIT)
                 break;
             me->setRegeneratingHealth(e.action.setHealthRegen.regenHealth ? true : false);
+            break;
         }
         default:
             sLog->outError(LOG_FILTER_SQL, "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
