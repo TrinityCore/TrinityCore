@@ -481,7 +481,7 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recvData)
     uint64 GoGuid;
     recvData >> GoGuid;
 
-    uint32 money;
+    uint64 money;
     recvData >> money;
 
     if (money)
