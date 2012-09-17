@@ -1,4 +1,4 @@
-// $Id: Object_Manager.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Object_Manager.cpp 93159 2011-01-25 10:52:44Z mcorino $
 
 #include "ace/Object_Manager.h"
 #if !defined (ACE_LACKS_ACE_TOKEN)
@@ -30,13 +30,9 @@
 #include "ace/Null_Mutex.h"
 #include "ace/Mutex.h"
 #include "ace/RW_Thread_Mutex.h"
-#if defined (ACE_DISABLE_WIN32_ERROR_WINDOWS) && \
-    defined (ACE_WIN32) && !defined (ACE_HAS_WINCE) \
-    && (_MSC_VER >= 1400) // VC++ 8.0 and above.
+#if defined (ACE_DISABLE_WIN32_ERROR_WINDOWS) && !defined (ACE_HAS_WINCE)
   #include "ace/OS_NS_stdlib.h"
-#endif // ACE_DISABLE_WIN32_ERROR_WINDOWS && ACE_WIN32 && !ACE_HAS_WINCE && (_MSC_VER >= 1400)
-
-
+#endif // ACE_DISABLE_WIN32_ERROR_WINDOWS
 
 #if ! defined (ACE_APPLICATION_PREALLOCATED_OBJECT_DEFINITIONS)
 # define ACE_APPLICATION_PREALLOCATED_OBJECT_DEFINITIONS
@@ -58,15 +54,13 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 // Note the following fix was derived from that proposed by Jochen Kalmbach
 // http://blog.kalmbachnet.de/?postid=75
-#if defined (ACE_DISABLE_WIN32_ERROR_WINDOWS) && \
-    defined (ACE_WIN32) && !defined (ACE_HAS_WINCE) && \
-    (_MSC_VER >= 1400) && defined (_M_IX86)
+#if defined (ACE_DISABLE_WIN32_ERROR_WINDOWS) && !defined (ACE_HAS_WINCE)
 LPTOP_LEVEL_EXCEPTION_FILTER WINAPI ACEdisableSetUnhandledExceptionFilter (
-  LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter)
+  LPTOP_LEVEL_EXCEPTION_FILTER /*lpTopLevelExceptionFilter*/)
 {
   return 0;
 }
-#endif // ACE_DISABLE_WIN32_ERROR_WINDOWS && ACE_WIN32 && !ACE_HAS_WINCE && (_MSC_VER >= 1400) && _M_IX86
+#endif // ACE_DISABLE_WIN32_ERROR_WINDOWS
 
 // Singleton pointer.
 ACE_Object_Manager *ACE_Object_Manager::instance_ = 0;
@@ -260,14 +254,13 @@ ACE_Object_Manager::init (void)
             }
 #     endif /* ACE_HAS_TSS_EMULATION */
 
-#if defined (ACE_DISABLE_WIN32_ERROR_WINDOWS) && \
-    defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)
-#if defined (_DEBUG) && (defined (_MSC_VER) || defined (__INTEL_COMPILER))
+#if defined (ACE_DISABLE_WIN32_ERROR_WINDOWS) && !defined (ACE_HAS_WINCE)
+#if defined (_DEBUG) && (defined (_MSC_VER) || defined (__INTEL_COMPILER) || defined (__MINGW32__))
           _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_FILE );
           _CrtSetReportFile( _CRT_ERROR, _CRTDBG_FILE_STDERR );
           _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_FILE );
           _CrtSetReportFile( _CRT_ASSERT, _CRTDBG_FILE_STDERR );
-#endif /* _DEBUG && _MSC_VER || __INTEL_COMPILER */
+#endif /* _DEBUG && _MSC_VER || __INTEL_COMPILER || __MINGW32__ */
 
           // The system does not display the critical-error-handler message box
           SetErrorMode(SEM_FAILCRITICALERRORS);
@@ -275,10 +268,10 @@ ACE_Object_Manager::init (void)
           // And this will catch all unhandled exceptions.
           SetUnhandledExceptionFilter (&ACE_UnhandledExceptionFilter);
 
-#  if (_MSC_VER >= 1400) // VC++ 8.0 and above.
+#  if (_MSC_VER >= 1400) // VC++ 8.0 and above
           // And this will stop the abort system call from being treated as a crash
           _set_abort_behavior( 0,  _CALL_REPORTFAULT);
-
+#  endif
   // Note the following fix was derived from that proposed by Jochen Kalmbach
   // http://blog.kalmbachnet.de/?postid=75
   // See also:
@@ -293,18 +286,22 @@ ACE_Object_Manager::init (void)
   // from calling SetUnhandledExceptionFilter() after we have done so above.
   // NOTE this only works for intel based windows builds.
 
+#  if (_MSC_VER >= 1400) \
+      || (__MINGW32_MAJOR_VERSION > 3)  || \
+          ((__MINGW32_MAJOR_VERSION == 3) && \
+           (__MINGW32_MINOR_VERSION >= 15)) // VC++ 8.0 and above || MingW32 >= 3.15
 #    ifdef _M_IX86
           HMODULE hKernel32 = ACE_TEXT_LoadLibrary (ACE_TEXT ("kernel32.dll"));
           if (hKernel32)
             {
               void *pOrgEntry =
-                GetProcAddress (hKernel32, "SetUnhandledExceptionFilter");
+                reinterpret_cast<void*> (GetProcAddress (hKernel32, "SetUnhandledExceptionFilter"));
               if (pOrgEntry)
                 {
                   unsigned char newJump[ 100 ];
                   DWORD dwOrgEntryAddr = reinterpret_cast<DWORD> (pOrgEntry);
                   dwOrgEntryAddr += 5; // add 5 for 5 op-codes for jmp far
-                  void *pNewFunc = &ACEdisableSetUnhandledExceptionFilter;
+                  void *pNewFunc = reinterpret_cast<void*> (&ACEdisableSetUnhandledExceptionFilter);
                   DWORD dwNewEntryAddr = reinterpret_cast<DWORD> (pNewFunc);
                   DWORD dwRelativeAddr = dwNewEntryAddr - dwOrgEntryAddr;
 
@@ -321,7 +318,7 @@ ACE_Object_Manager::init (void)
             }
 #    endif // _M_IX86
 #  endif // (_MSC_VER >= 1400) // VC++ 8.0 and above.
-#endif /* ACE_DISABLE_WIN32_ERROR_WINDOWS && ACE_WIN32 && !ACE_HAS_WINCE */
+#endif /* ACE_DISABLE_WIN32_ERROR_WINDOWS */
 
 
 #     if !defined (ACE_LACKS_ACE_SVCCONF)

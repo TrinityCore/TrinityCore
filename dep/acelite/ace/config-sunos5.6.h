@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-sunos5.6.h 91685 2010-09-09 09:35:14Z johnnyw $
+// $Id: config-sunos5.6.h 93117 2011-01-20 12:11:28Z mcorino $
 
 // The following configuration file is designed to work for SunOS 5.6
 // platforms using the SunC++ 4.x or g++ compilers.
@@ -77,7 +77,6 @@
 
 // SunOS 5.6 and above support mkstemp
 #undef ACE_LACKS_MKSTEMP
-
 
 // SunOS 5.6 has AIO calls.
 #if !defined (ACE_HAS_AIO_CALLS)
