@@ -622,12 +622,6 @@ class npc_tirion_toc : public CreatureScript
                                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                     temp->SetReactState(REACT_PASSIVE);
                                 }
-                                if (Creature* temp = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
-                                {
-                                    temp->SetVisible(true);
-                                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    temp->SetReactState(REACT_PASSIVE);
-                                }
                             }
                             m_uiUpdateTimer = 5000;
                             instance->SetData(TYPE_EVENT, 220);

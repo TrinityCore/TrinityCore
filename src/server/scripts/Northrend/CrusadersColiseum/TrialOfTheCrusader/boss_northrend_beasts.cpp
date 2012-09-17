@@ -23,9 +23,7 @@ SDCategory:
 EndScriptData */
 
 // Known bugs:
-// Gormok - Not implemented as a vehicle
-//        - Snobold Firebomb
-//        - Snobolled (creature at back)
+// Gormok - Snobolled (creature at back)
 // Snakes - miss the 1-hitkill from emerging
 //        - visual changes between mobile and stationary models seems not to work sometimes
 
@@ -101,15 +99,6 @@ enum BossSpells
     SPELL_SUBMERGE_0        = 66948,
     SPELL_ENRAGE            = 68335,
     SPELL_SLIME_POOL_EFFECT = 66882, //In 60s it diameter grows from 10y to 40y (r=r+0.25 per second)
-
-    STAGE_MOBILE            = 0,
-    STAGE_SUBMERGE_1        = 1,
-    STAGE_WAIT_EMERGE_1     = 2,
-    STAGE_EMERGE_1          = 3,
-    STAGE_STATIONARY        = 4,
-    STAGE_SUBMERGE_2        = 5,
-    STAGE_WAIT_EMERGE_2     = 6,
-    STAGE_EMERGE_2          = 7,
 
     //Icehowl
     SPELL_FEROCIOUS_BUTT    = 66770,
@@ -503,6 +492,7 @@ public:
             DoCast(me, SPELL_FIRE_BOMB_DOT, true);
             SetCombatMovement(false);
             me->SetReactState(REACT_PASSIVE);
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         }
 
         void UpdateAI(uint32 const /*diff*/)
@@ -515,6 +505,26 @@ public:
 
 struct boss_jormungarAI : public ScriptedAI
 {
+    enum Phases
+    {
+        PHASE_MOBILE            = 0,
+        PHASE_STATIONARY,
+        PHASE_SUBMERGED
+    };
+
+    enum
+    {
+        EVENT_BITE = 1,
+        EVENT_SPEW,
+        EVENT_SLIME_POOL,
+        EVENT_SPIT,
+        EVENT_SPRAY,
+        EVENT_SWEEP,
+        EVENT_SUBMERGE,
+        EVENT_EMERGE,
+        EVENT_SUMMON_ACIDMAW
+    };
+
     boss_jormungarAI(Creature* creature) : ScriptedAI(creature)
     {
         instanceScript = creature->GetInstanceScript();
@@ -523,12 +533,14 @@ struct boss_jormungarAI : public ScriptedAI
     void Reset()
     {
         enraged = false;
-        biteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        spewTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        slimePoolTimer = 15*IN_MILLISECONDS;
-        spitTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+        /* event groups: 1 - PHASE_STATIONARY
+                         2 - PHASE_MOBILE   */
+        events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 1);
+        events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 1);
+        events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 1);
+        events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 2);
+        events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 2);
+        events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, 2);
     }
 
     void JustDied(Unit* /*killer*/)
@@ -586,113 +598,129 @@ struct boss_jormungarAI : public ScriptedAI
             Talk(EMOTE_ENRAGE);
         }
 
-        switch (stage)
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+
+        switch (phase)
         {
-            case STAGE_MOBILE:
-                if (biteTimer <= diff)
+            case PHASE_SUBMERGED:
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    DoCastVictim(biteSpell);
-                    biteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else biteTimer -= diff;
-
-                if (spewTimer <= diff)
+                    switch (event)
+                    {
+                        case EVENT_EMERGE:
+                            Emerge();
+                            return;
+                    }
+                }
+            case PHASE_MOBILE:
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    DoCastAOE(spewSpell);
-                    spewTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else spewTimer -= diff;
-
-                if (slimePoolTimer <= diff)
-                {
-                    /* Spell summon has only 30s duration */
-                    DoCast(me, SUMMON_SLIME_POOL);
-                    slimePoolTimer = 30*IN_MILLISECONDS;
-                } else slimePoolTimer -= diff;
-
-                if (submergeTimer <= diff && !enraged)
-                {
-                    stage = STAGE_SUBMERGE_1;
-                    submergeTimer = 5*IN_MILLISECONDS;
-                } else submergeTimer -= diff;
-
+                    switch (event)
+                    {
+                        case EVENT_SUBMERGE:
+                            Submerge();
+                            return;
+                        case EVENT_BITE:
+                            DoCastVictim(biteSpell);
+                            events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+                            return;
+                        case EVENT_SPEW:
+                            DoCastAOE(spewSpell);
+                            events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+                            return;
+                        case EVENT_SLIME_POOL:
+                            DoCast(me, SUMMON_SLIME_POOL);
+                            events.ScheduleEvent(EVENT_SLIME_POOL, 30*IN_MILLISECONDS, 0, PHASE_MOBILE);
+                            return;
+                        case EVENT_SUMMON_ACIDMAW:
+                            if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                acidmaw->SetReactState(REACT_AGGRESSIVE);
+                                acidmaw->SetInCombatWithZone();
+                                acidmaw->CastSpell(acidmaw, SPELL_EMERGE_0);
+                            }
+                            return;
+                        default:
+                            return;
+                    }
+                }
                 DoMeleeAttackIfReady();
-                break;
-
-            case STAGE_SUBMERGE_1:
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                DoCast(me, SPELL_SUBMERGE_0);
-                me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
-                stage = STAGE_WAIT_EMERGE_1;
                 return;
-
-            case STAGE_WAIT_EMERGE_1:
-                if (submergeTimer <= diff)
+            case PHASE_STATIONARY:
+            {
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    stage = STAGE_EMERGE_1;
-                    submergeTimer = 50*IN_MILLISECONDS;
-                } else submergeTimer -= diff;
-                return;
-            case STAGE_EMERGE_1:
-                me->SetDisplayId(modelStationary);
-                me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
-                DoCast(me, SPELL_EMERGE_0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                SetCombatMovement(false);
-                me->GetMotionMaster()->MoveIdle();
-                stage = STAGE_STATIONARY;
-                return;
-
-            case STAGE_STATIONARY:
-                if (sprayTimer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, spraySpell);
-                    sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else sprayTimer -= diff;
-
-                if (sweepTimer <= diff)
-                {
-                    DoCastAOE(SPELL_SWEEP_0);
-                    sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else sweepTimer -= diff;
-
-                if (submergeTimer <= diff)
-                {
-                    stage = STAGE_SUBMERGE_2;
-                    submergeTimer = 10*IN_MILLISECONDS;
-                } else submergeTimer -= diff;
-
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->GetMotionMaster()->MoveIdle();
-                me->GetMotionMaster()->Clear();
+                    switch (event)
+                    {
+                        case EVENT_SUBMERGE:
+                            Submerge();
+                            return;
+                        case EVENT_SPRAY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, spraySpell);
+                            events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+                            return;
+                        case EVENT_SWEEP:
+                            DoCastAOE(SPELL_SWEEP_0);
+                            events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+                            return;
+                        default:
+                            return;
+                    }
+                }
                 DoSpellAttackIfReady(spitSpell);
                 return;
+            }
+            default:
+                break;
+        }
+    }
 
-            case STAGE_SUBMERGE_2:
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                DoCast(me, SPELL_SUBMERGE_0);
-                me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
-                stage = STAGE_WAIT_EMERGE_2;
-                return;
 
-            case STAGE_WAIT_EMERGE_2:
-                if (submergeTimer <= diff)
-                {
-                    stage = STAGE_EMERGE_2;
-                    submergeTimer = 45*IN_MILLISECONDS;
-                } else submergeTimer -= diff;
-                return;
+    void Submerge()
+    {
+        DoCast(me, SPELL_SUBMERGE_0);
+        me->RemoveAurasDueToSpell(SPELL_EMERGE_0);
+        me->SetInCombatWithZone();
+        phase = PHASE_SUBMERGED;
+        events.ScheduleEvent(EVENT_EMERGE, 5*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
+        wasMobile = !wasMobile;
+    }
 
-            case STAGE_EMERGE_2:
-                me->SetDisplayId(modelMobile);
-                me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
-                DoCast(me, SPELL_EMERGE_0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                SetCombatMovement(true);
-                me->GetMotionMaster()->MoveChase(me->getVictim());
-                stage = STAGE_MOBILE;
-                return;
+    void Emerge()
+    {
+        DoCast(me, SPELL_EMERGE_0);
+        me->SetDisplayId(modelMobile);
+        me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->GetMotionMaster()->Clear();
+
+        // if the worm was mobile before submerging, make him stationary now
+        if (wasMobile)
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            SetCombatMovement(false);
+            me->SetDisplayId(modelStationary);
+            phase = PHASE_STATIONARY;
+            events.DelayEvents(45*IN_MILLISECONDS, 2);
+            events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_STATIONARY);
+        }
+        else
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            SetCombatMovement(true);
+            me->GetMotionMaster()->MoveChase(me->getVictim());
+            me->SetDisplayId(modelMobile);
+            phase = PHASE_MOBILE;
+            events.DelayEvents(45*IN_MILLISECONDS, 1);
+            events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
         }
     }
 
@@ -708,15 +736,10 @@ struct boss_jormungarAI : public ScriptedAI
     uint32 spitSpell;
     uint32 spraySpell;
 
-    uint32 biteTimer;
-    uint32 spewTimer;
-    uint32 slimePoolTimer;
-    uint32 spitTimer;
-    uint32 sprayTimer;
-    uint32 sweepTimer;
-    uint32 submergeTimer;
-    uint8  stage;
-    bool   enraged;
+    Phases phase;
+    bool enraged;
+    bool wasMobile;
+    EventMap events;
 };
 
 class boss_acidmaw : public CreatureScript
@@ -739,9 +762,8 @@ class boss_acidmaw : public CreatureScript
             modelMobile = MODEL_ACIDMAW_MOBILE;
             otherWormEntry = NPC_DREADSCALE;
 
-            submergeTimer = 500;
-            DoCast(me, SPELL_SUBMERGE_0);
-            stage = STAGE_WAIT_EMERGE_1;
+            Emerge();
+            wasMobile = true;
         }
     };
 
@@ -776,8 +798,10 @@ public:
             modelMobile = MODEL_DREADSCALE_MOBILE;
             otherWormEntry = NPC_ACIDMAW;
 
-            submergeTimer = 45 * IN_MILLISECONDS;
-            stage = STAGE_MOBILE;
+            phase = PHASE_MOBILE;
+            events.ScheduleEvent(EVENT_SUMMON_ACIDMAW, 3*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
+            wasMobile = false;
         }
 
         void MovementInform(uint32 type, uint32 pointId)
@@ -792,13 +816,6 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
-                    if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
-                    {
-                        otherWorm->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                        otherWorm->SetReactState(REACT_AGGRESSIVE);
-                        otherWorm->SetVisible(true);
-                        otherWorm->SetInCombatWithZone();
-                    }
                     break;
             }
         }
@@ -858,7 +875,7 @@ public:
                 DoCast(me, SPELL_SLIME_POOL_EFFECT);
             }
 
-            if (instanceScript->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_IN_PROGRESS)
+            if (instanceScript->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_IN_PROGRESS && instanceScript->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_SPECIAL)
                 me->DespawnOrUnsummon();
         }
     };
