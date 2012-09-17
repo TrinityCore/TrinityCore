@@ -715,8 +715,7 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
             if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
                 if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
                     if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
-                        if (!GetOwner()->HasTitle(titleEntry))
-                            GetOwner()->SetTitle(titleEntry);
+                        GetOwner()->SetTitle(titleEntry);
 
         }
         while (achievementResult->NextRow());

@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_stdlib.h
  *
- *  $Id: OS_NS_stdlib.h 88493 2010-01-12 19:17:42Z olli $
+ *  $Id: OS_NS_stdlib.h 93571 2011-03-17 07:37:11Z olli $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -272,7 +272,7 @@ namespace ACE_OS {
   int rand (void);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int rand_r (ACE_RANDR_TYPE &seed);
+  int rand_r (unsigned int *seed);
 
   extern ACE_Export
   void *realloc (void *, size_t);

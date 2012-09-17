@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Queue.h
  *
- *  $Id: Message_Queue.h 91688 2010-09-09 11:21:50Z johnnyw $
+ *  $Id: Message_Queue.h 96061 2012-08-16 09:36:07Z mcorino $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -26,14 +26,14 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 // Forward decls.
 class ACE_Notification_Strategy;
-template <ACE_SYNCH_DECL> class ACE_Message_Queue_Iterator;
-template <ACE_SYNCH_DECL> class ACE_Message_Queue_Reverse_Iterator;
+template <ACE_SYNCH_DECL, class TIME_POLICY> class ACE_Message_Queue_Iterator;
+template <ACE_SYNCH_DECL, class TIME_POLICY> class ACE_Message_Queue_Reverse_Iterator;
 
 /**
  * @class ACE_Message_Queue_Base
  *
  * @brief Base class for ACE_Message_Queue, which is the central
- * queueing facility for messages in the ACE framework.
+ * queuing facility for messages in the ACE framework.
  *
  * For all the ACE_Time_Value pointer parameters the caller will
  * block until action is possible if @a timeout == 0.  Otherwise, it
@@ -90,7 +90,7 @@ public:
    * that @a timeout uses <{absolute}> time rather than <{relative}>
    * time.  If the @a timeout elapses without receiving a message -1 is
    * returned and @c errno is set to @c EWOULDBLOCK.  If the queue is
-   * deactivated -1 is returned and @c errno is set to <ESHUTDOWN>.
+   * deactivated -1 is returned and @c errno is set to @c ESHUTDOWN.
    * Otherwise, returns -1 on failure, else the number of items still
    * on the queue.
    */
@@ -101,8 +101,8 @@ public:
    * Enqueue a <ACE_Message_Block *> into the tail of the queue.
    * Returns number of items in queue if the call succeeds or -1
    * otherwise.  These calls return -1 when queue is closed,
-   * deactivated (in which case @c errno == <ESHUTDOWN>), when a signal
-   * occurs (in which case @c errno == <EINTR>, or if the time
+   * deactivated (in which case @c errno == @c ESHUTDOWN), when a signal
+   * occurs (in which case @c errno == @c EINTR, or if the time
    * specified in timeout elapses (in which case @c errno ==
    * @c EWOULDBLOCK).
    */
@@ -115,8 +115,8 @@ public:
    * Dequeue and return the <ACE_Message_Block *> at the head of the
    * queue.  Returns number of items in queue if the call succeeds or
    * -1 otherwise.  These calls return -1 when queue is closed,
-   * deactivated (in which case @c errno == <ESHUTDOWN>), when a signal
-   * occurs (in which case @c errno == <EINTR>, or if the time
+   * deactivated (in which case @c errno == @c ESHUTDOWN), when a signal
+   * occurs (in which case @c errno == @c EINTR, or if the time
    * specified in timeout elapses (in which case @c errno ==
    * @c EWOULDBLOCK).
    */

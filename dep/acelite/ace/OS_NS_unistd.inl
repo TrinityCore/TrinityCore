@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_unistd.inl 88515 2010-01-13 08:47:38Z johnnyw $
+// $Id: OS_NS_unistd.inl 96017 2012-08-08 22:18:09Z mitza $
 
 #include "ace/OS_NS_sys_utsname.h"
 #include "ace/OS_NS_string.h"
@@ -23,7 +23,7 @@
 #  include "ace/os_include/os_unistd.h"
 #endif /* ACE_HAS_ACCESS_EMULATION */
 
-#if defined (ACE_VXWORKS) && (((ACE_VXWORKS >= 0x620) && (ACE_VXWORKS <= 0x680)) || defined (ACE_HAS_VXWORKS551_MEDUSA))
+#if defined (ACE_VXWORKS) && (ACE_VXWORKS <= 0x690)
 #  if defined (__RTP__)
 #    include "ace/os_include/os_strings.h"
 #  else
@@ -274,7 +274,7 @@ ACE_OS::execv (const char *path,
 
   ACE_NOTSUP_RETURN (-1);
 #elif defined (ACE_WIN32)
-# if defined (__BORLANDC__) /* VSB */
+# if defined (__BORLANDC__)
   return ::execv (path, argv);
 # elif defined (__MINGW32__)
   return ::_execv (path, (char *const *) argv);
@@ -304,7 +304,7 @@ ACE_OS::execve (const char *path,
 
   ACE_NOTSUP_RETURN (-1);
 #elif defined (ACE_WIN32)
-# if defined (__BORLANDC__) /* VSB */
+# if defined (__BORLANDC__)
   return ::execve (path, argv, envp);
 # elif defined (__MINGW32__)
   return ::_execve (path, (char *const *) argv, (char *const *) envp);
@@ -332,7 +332,7 @@ ACE_OS::execvp (const char *file,
 
   ACE_NOTSUP_RETURN (-1);
 #elif defined (ACE_WIN32)
-# if defined (__BORLANDC__) /* VSB */
+# if defined (__BORLANDC__)
   return ::execvp (file, argv);
 # elif defined (__MINGW32__)
   return ::_execvp (file, (char *const *) argv);
@@ -478,7 +478,7 @@ ACE_OS::getpgid (pid_t pid)
 #if defined (ACE_LACKS_GETPGID)
   ACE_UNUSED_ARG (pid);
   ACE_NOTSUP_RETURN (-1);
-#elif defined (linux) && __GLIBC__ > 1 && __GLIBC_MINOR__ >= 0
+#elif defined (ACE_LINUX) && __GLIBC__ > 1 && __GLIBC_MINOR__ >= 0
   // getpgid() is from SVR4, which appears to be the reason why GLIBC
   // doesn't enable its prototype by default.
   // Rather than create our own extern prototype, just use the one
@@ -763,7 +763,6 @@ ACE_OS::read (ACE_HANDLE handle, void *buf, size_t len,
               ACE_OVERLAPPED *overlapped)
 {
   ACE_OS_TRACE ("ACE_OS::read");
-  overlapped = overlapped;
 #if defined (ACE_WIN32)
   DWORD ok_len;
   DWORD short_len = static_cast<DWORD> (len);
@@ -772,6 +771,7 @@ ACE_OS::read (ACE_HANDLE handle, void *buf, size_t len,
   else
     ACE_FAIL_RETURN (-1);
 #else
+  ACE_UNUSED_ARG (overlapped);
   return ACE_OS::read (handle, buf, len);
 #endif /* ACE_WIN32 */
 }
@@ -955,13 +955,9 @@ ACE_OS::sleep (const ACE_Time_Value &tv)
   // Copy the timeval, because this platform doesn't declare the timeval
   // as a pointer to const.
   timeval tv_copy = tv;
-#  if defined(ACE_TANDEM_T1248_PTHREADS)
-     ACE_OSCALL_RETURN (::spt_select (0, 0, 0, 0, &tv_copy), int, -1);
-#  else
-     //FUZZ: disable check_for_lack_ACE_OS
-     ACE_OSCALL_RETURN (::select (0, 0, 0, 0, &tv_copy), int, -1);
-     //FUZZ: enable check_for_lack_ACE_OS
-#  endif
+  //FUZZ: disable check_for_lack_ACE_OS
+  ACE_OSCALL_RETURN (::select (0, 0, 0, 0, &tv_copy), int, -1);
+  //FUZZ: enable check_for_lack_ACE_OS
 # else  /* ! ACE_HAS_NONCONST_SELECT_TIMEVAL */
   const timeval *tvp = tv;
   //FUZZ: disable check_for_lack_ACE_OS
@@ -1114,7 +1110,11 @@ ACE_OS::ualarm (useconds_t usecs, useconds_t interval)
   return ::ualarm (usecs, interval);
 #elif !defined (ACE_LACKS_UNIX_SIGNALS)
   ACE_UNUSED_ARG (interval);
+# if defined (ACE_VXWORKS) && ACE_VXWORKS >= 0x690 && defined (_WRS_CONFIG_LP64)
+  return ::alarm (static_cast<unsigned int> (usecs * ACE_ONE_SECOND_IN_USECS));
+# else
   return ::alarm (usecs * ACE_ONE_SECOND_IN_USECS);
+#endif
 #else
   ACE_UNUSED_ARG (usecs);
   ACE_UNUSED_ARG (interval);
@@ -1135,7 +1135,11 @@ ACE_OS::ualarm (const ACE_Time_Value &tv,
   return ::ualarm (usecs, interval);
 #elif !defined (ACE_LACKS_UNIX_SIGNALS)
   ACE_UNUSED_ARG (tv_interval);
+# if defined (ACE_VXWORKS) && ACE_VXWORKS >= 0x690 && defined (_WRS_CONFIG_LP64)
+  return ::alarm (static_cast<unsigned int> (tv.sec ()));
+# else
   return ::alarm (tv.sec ());
+# endif
 #else
   ACE_UNUSED_ARG (tv_interval);
   ACE_UNUSED_ARG (tv);
@@ -1209,7 +1213,6 @@ ACE_OS::write (ACE_HANDLE handle,
                ACE_OVERLAPPED *overlapped)
 {
   ACE_OS_TRACE ("ACE_OS::write");
-  overlapped = overlapped;
 #if defined (ACE_WIN32)
   DWORD bytes_written; // This is set to 0 byte WriteFile.
 
@@ -1219,6 +1222,7 @@ ACE_OS::write (ACE_HANDLE handle,
   else
     ACE_FAIL_RETURN (-1);
 #else
+  ACE_UNUSED_ARG (overlapped);
   return ACE_OS::write (handle, buf, nbyte);
 #endif /* ACE_WIN32 */
 }

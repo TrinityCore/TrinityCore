@@ -3,7 +3,7 @@
 /**
  *  @file   config-win32-msvc-7.h
  *
- *  $Id: config-win32-msvc-7.h 91685 2010-09-09 09:35:14Z johnnyw $
+ *  $Id: config-win32-msvc-7.h 93562 2011-03-16 14:13:52Z olli $
  *
  *  @brief  Microsoft Visual C++ 7.0 configuration file.
  *
@@ -47,6 +47,9 @@
 #define ACE_WCSDUP_EQUIVALENT ::_wcsdup
 
 #define ACE_LACKS_STRPTIME
+
+#define ACE_LACKS_STRTOK_R
+#define ACE_LACKS_LOCALTIME_R
 
 #define ACE_HAS_SIG_ATOMIC_T
 #define ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES

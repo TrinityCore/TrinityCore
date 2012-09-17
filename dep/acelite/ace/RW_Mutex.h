@@ -4,7 +4,7 @@
 /**
  *  @file    RW_Mutex.h
  *
- *  $Id: RW_Mutex.h 83934 2008-12-01 13:47:06Z johnnyw $
+ *  $Id: RW_Mutex.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *   Moved from Synch.h.
  *
@@ -92,7 +92,7 @@ public:
 
   /**
    * Note, for interface uniformity with other synchronization
-   * wrappers we include the <tryacquire> method.  This is implemented
+   * wrappers we include the tryacquire() method.  This is implemented
    * as a write-lock to be safe...  Returns -1 on failure.  If we
    * "failed" because someone else already had the lock, @c errno is
    * set to @c EBUSY.
@@ -115,11 +115,11 @@ protected:
   /// Readers/writer lock.
   ACE_rwlock_t lock_;
 
-  /// Keeps track of whether <remove> has been called yet to avoid
-  /// multiple <remove> calls, e.g., explicitly and implicitly in the
-  /// destructor.  This flag isn't protected by a lock, so make sure
+  /// Keeps track of whether remove() has been called yet to avoid
+  /// multiple remove() calls, e.g., explicitly and implicitly in the
+  /// destructor. This flag isn't protected by a lock, so make sure
   /// that you don't have multiple threads simultaneously calling
-  /// <remove> on the same object, which is a bad idea anyway...
+  /// remove() on the same object, which is a bad idea anyway...
   bool removed_;
 
 private:
