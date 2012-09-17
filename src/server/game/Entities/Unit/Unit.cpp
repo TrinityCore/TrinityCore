@@ -6653,24 +6653,33 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Light's Beacon - Beacon of Light
             if (dummySpell->Id == 53651)
             {
-                // Get target of beacon of light
-                if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
+                if (this->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+                // Check Party/Raid Group
+                if (Group *group = this->ToPlayer()->GetGroup())
                 {
-                    // do not proc when target of beacon of light is healed
-                    if (beaconTarget == this)
-                        return false;
-                    // check if it was heal by paladin which casted this beacon of light
-                    if (beaconTarget->GetAura(53563, victim->GetGUID()))
+                    for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
-                        if (beaconTarget->IsWithinLOSInMap(victim))
+                        Player* Member = itr->getSource();
+
+                        // check if it was heal by paladin which casted this beacon of light
+                        if (Aura const * aura = Member->GetAura(53563, victim->GetGUID()))
                         {
-                            basepoints0 = damage;
-                            victim->CastCustomSpell(beaconTarget, 53654, &basepoints0, NULL, NULL, true);
+                            Unit* beaconTarget = Member;
+
+                            // do not proc when target of beacon of light is healed
+                            if (beaconTarget == this)
+                                return false;
+
+                            basepoints0 = int32(damage);
+                            triggered_spell_id = 53652;
+                            victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
                             return true;
                         }
                     }
                 }
-                return false;
+                else
+                    return false;
             }
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
