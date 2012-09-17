@@ -1,11 +1,10 @@
-// $Id: Log_Record.cpp 91764 2010-09-14 13:04:37Z johnnyw $
+// $Id: Log_Record.cpp 92791 2010-12-04 16:25:22Z shuston $
 
 #include "ace/Log_Record.h"
 
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
 #include "ace/OS_NS_stdio.h"
-#include "ace/OS_NS_time.h"
 #include "ace/CDR_Stream.h"
 #include "ace/Auto_Ptr.h"
 #include "ace/Truncate.h"
@@ -214,18 +213,16 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
                             u_long verbose_flag,
                             ACE_TCHAR *verbose_msg)
 {
-  /* 0123456789012345678901234     */
-  /* Oct 18 14:25:36.000 1989<nul> */
-  ACE_TCHAR timestamp[26]; // Only used by VERBOSE and VERBOSE_LITE.
+  /* 012345678901234567890123456     */
+  /* yyyy-mm-dd hh:mm:ss.mmmmmm<nul> */
+  ACE_TCHAR timestamp[27]; // Only used by VERBOSE and VERBOSE_LITE.
 
   // The sprintf format needs to be different for Windows and POSIX
   // in the wide-char case.
 #if defined (ACE_WIN32) || !defined (ACE_USES_WCHAR)
-  const ACE_TCHAR *time_fmt =         ACE_TEXT ("%s.%03ld %s");
   const ACE_TCHAR *verbose_fmt =      ACE_TEXT ("%s@%s@%u@%s@%s");
   const ACE_TCHAR *verbose_lite_fmt = ACE_TEXT ("%s@%s@%s");
 #else
-  const ACE_TCHAR *time_fmt = ACE_TEXT ("%ls.%03ld %ls");
   const ACE_TCHAR *verbose_fmt = ACE_TEXT ("%ls@%ls@%u@%ls@%ls");
   const ACE_TCHAR *verbose_lite_fmt = ACE_TEXT ("%ls@%ls@%ls");
 #endif
@@ -235,23 +232,16 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
       || ACE_BIT_ENABLED (verbose_flag,
                           ACE_Log_Msg::VERBOSE_LITE))
     {
-      time_t const now = this->secs_;
-      ACE_TCHAR ctp[26]; // 26 is a magic number...
-
-      if (ACE_OS::ctime_r (&now, ctp, sizeof ctp / sizeof (ACE_TCHAR)) == 0)
+      ACE_Time_Value reftime (this->secs_, this->usecs_);
+      if (0 == ACE::timestamp (reftime,
+                               timestamp,
+                               sizeof (timestamp) / sizeof (ACE_TCHAR)))
         return -1;
 
-      /* 01234567890123456789012345 */
-      /* Wed Oct 18 14:25:36 1989n0 */
-
-      ctp[19] = '\0'; // NUL-terminate after the time.
-      ctp[24] = '\0'; // NUL-terminate after the date.
-
-      ACE_OS::sprintf (timestamp,
-                       time_fmt,
-                       ctp + 4,
-                       ((long) this->usecs_) / 1000,
-                       ctp + 20);
+      // Historical timestamp in VERBOSE[_LITE] used 3 places for partial sec.
+      // 012345678901234567890123456
+      // 1989-10-18 14:25:36.123<nul>
+      timestamp[23] = '\0';
     }
 
   if (ACE_BIT_ENABLED (verbose_flag,

@@ -1,4 +1,4 @@
-// $Id: Timer_Queue_Adapters.cpp 92285 2010-10-20 16:34:57Z shuston $
+// $Id: Timer_Queue_Adapters.cpp 95368 2011-12-19 13:38:49Z mcorino $
 
 #ifndef ACE_TIMER_QUEUE_ADAPTERS_CPP
 #define ACE_TIMER_QUEUE_ADAPTERS_CPP
@@ -182,6 +182,11 @@ ACE_Thread_Timer_Queue_Adapter<TQ, TYPE>::~ACE_Thread_Timer_Queue_Adapter (void)
       this->timer_queue_ = 0;
       this->delete_timer_queue_ = false;
     }
+  else if (this->timer_queue_)
+    {
+      this->timer_queue_->close ();
+      this->timer_queue_ = 0;
+    }
 }
 
 template<class TQ, class TYPE> ACE_SYNCH_RECURSIVE_MUTEX &
@@ -264,8 +269,10 @@ ACE_Thread_Timer_Queue_Adapter<TQ, TYPE>::svc (void)
         {
           // Compute the remaining time, being careful not to sleep
           // for "negative" amounts of time.
-          ACE_Time_Value const tv_curr = this->timer_queue_->gettimeofday ();
-          ACE_Time_Value const tv_earl = this->timer_queue_->earliest_time ();
+          ACE_Time_Value const tv_curr =
+            this->timer_queue_->gettimeofday ();
+          ACE_Time_Value const tv_earl =
+            this->timer_queue_->earliest_time ();
 
           if (tv_earl > tv_curr)
             {

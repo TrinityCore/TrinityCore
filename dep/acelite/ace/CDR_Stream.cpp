@@ -1,4 +1,4 @@
-// $Id: CDR_Stream.cpp 91373 2010-08-17 07:35:27Z mhengstmengel $
+// $Id: CDR_Stream.cpp 95896 2012-06-18 20:42:07Z hillj $
 
 #include "ace/CDR_Stream.h"
 #include "ace/SString.h"
@@ -723,6 +723,72 @@ ACE_OutputCDR::write_short_placeholder (void)
   return buf;
 }
 
+char *
+ACE_OutputCDR::write_boolean_placeholder (void)
+{
+  char *buf = 0;
+  if (this->adjust (ACE_CDR::OCTET_SIZE, buf) == 0)
+    *reinterpret_cast<ACE_CDR::Boolean*> (buf) = 0;
+  else
+    buf = 0;
+  return buf;
+}
+
+char *
+ACE_OutputCDR::write_char_placeholder (void)
+{
+  char *buf = 0;
+  if (this->adjust (ACE_CDR::OCTET_SIZE, buf) == 0)
+    *reinterpret_cast<ACE_CDR::Char*> (buf) = 0;
+  else
+    buf = 0;
+  return buf;
+}
+
+char *
+ACE_OutputCDR::write_octet_placeholder (void)
+{
+  char *buf = 0;
+  if (this->adjust (ACE_CDR::OCTET_SIZE, buf) == 0)
+    *reinterpret_cast<ACE_CDR::Octet*> (buf) = 0;
+  else
+    buf = 0;
+  return buf;
+}
+
+char *
+ACE_OutputCDR::write_longlong_placeholder (void)
+{
+  char *buf = 0;
+  if (this->adjust (ACE_CDR::LONGLONG_SIZE, buf) == 0)
+    *reinterpret_cast<ACE_CDR::ULongLong*> (buf) = 0;
+  else
+    buf = 0;
+  return buf;
+}
+
+char *
+ACE_OutputCDR::write_float_placeholder (void)
+{
+  char *buf = 0;
+  if (this->adjust (ACE_CDR::LONG_SIZE, buf) == 0)
+    *reinterpret_cast<ACE_CDR::ULong*> (buf) = 0;
+  else
+    buf = 0;
+  return buf;
+}
+
+char *
+ACE_OutputCDR::write_double_placeholder (void)
+{
+  char *buf = 0;
+  if (this->adjust (ACE_CDR::LONGLONG_SIZE, buf) == 0)
+    *reinterpret_cast<ACE_CDR::ULongLong*> (buf) = 0;
+  else
+    buf = 0;
+  return buf;
+}
+
 ACE_CDR::Boolean
 ACE_OutputCDR::replace (ACE_CDR::Long x, char* loc)
 {
@@ -745,6 +811,27 @@ ACE_OutputCDR::replace (ACE_CDR::Long x, char* loc)
   return true;
 }
 
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::ULong x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+#if !defined (ACE_ENABLE_SWAP_ON_WRITE)
+  *reinterpret_cast<ACE_CDR::ULong*> (loc) = x;
+#else
+  if (!this->do_byte_swap_)
+  {
+    *reinterpret_cast<ACE_CDR::ULong *> (loc) = x;
+  }
+  else
+  {
+    ACE_CDR::swap_4 (reinterpret_cast<const char*> (&x), loc);
+  }
+#endif /* ACE_ENABLE_SWAP_ON_WRITE */
+
+  return true;
+}
 
 ACE_CDR::Boolean
 ACE_OutputCDR::replace (ACE_CDR::Short x, char* loc)
@@ -768,6 +855,148 @@ ACE_OutputCDR::replace (ACE_CDR::Short x, char* loc)
   return true;
 }
 
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::UShort x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+#if !defined (ACE_ENABLE_SWAP_ON_WRITE)
+  *reinterpret_cast<ACE_CDR::UShort*> (loc) = x;
+#else
+  if (!this->do_byte_swap_)
+  {
+    *reinterpret_cast<ACE_CDR::UShort *> (loc) = x;
+  }
+  else
+  {
+    ACE_CDR::swap_2 (reinterpret_cast<const char*> (&x), loc);
+  }
+#endif /* ACE_ENABLE_SWAP_ON_WRITE */
+
+  return true;
+}
+
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::Boolean x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+  *reinterpret_cast<ACE_CDR::Boolean*> (loc) = x;
+
+  return true;
+}
+
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::Char x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+  *reinterpret_cast<ACE_CDR::Char*> (loc) = x;
+
+  return true;
+}
+
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::Octet x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+  *reinterpret_cast<ACE_CDR::Octet*> (loc) = x;
+
+  return true;
+}
+
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::LongLong x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+#if !defined (ACE_ENABLE_SWAP_ON_WRITE)
+  *reinterpret_cast<ACE_CDR::LongLong*> (loc) = x;
+#else
+  if (!this->do_byte_swap_)
+  {
+    *reinterpret_cast<ACE_CDR::LongLong*> (loc) = x;
+  }
+  else
+  {
+    ACE_CDR::swap_8 (reinterpret_cast<const char*> (&x), loc);
+  }
+#endif /* ACE_ENABLE_SWAP_ON_WRITE */
+
+  return true;
+}
+
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::ULongLong x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+#if !defined (ACE_ENABLE_SWAP_ON_WRITE)
+  *reinterpret_cast<ACE_CDR::ULongLong*> (loc) = x;
+#else
+  if (!this->do_byte_swap_)
+  {
+    *reinterpret_cast<ACE_CDR::ULongLong*> (loc) = x;
+  }
+  else
+  {
+    ACE_CDR::swap_8 (reinterpret_cast<const char*> (&x), loc);
+  }
+#endif /* ACE_ENABLE_SWAP_ON_WRITE */
+
+  return true;
+}
+
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::Float x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+#if !defined (ACE_ENABLE_SWAP_ON_WRITE)
+  *reinterpret_cast<ACE_CDR::Float*> (loc) = x;
+#else
+  if (!this->do_byte_swap_)
+  {
+    *reinterpret_cast<ACE_CDR::Float*> (loc) = x;
+  }
+  else
+  {
+    ACE_CDR::swap_4 (reinterpret_cast<const char*> (&x), loc);
+  }
+#endif /* ACE_ENABLE_SWAP_ON_WRITE */
+
+  return true;
+}
+
+ACE_CDR::Boolean
+ACE_OutputCDR::replace (ACE_CDR::Double x, char* loc)
+{
+  if (this->find (loc) == 0)
+    return false;
+
+#if !defined (ACE_ENABLE_SWAP_ON_WRITE)
+  *reinterpret_cast<ACE_CDR::Double*> (loc) = x;
+#else
+  if (!this->do_byte_swap_)
+  {
+    *reinterpret_cast<ACE_CDR::Double*> (loc) = x;
+  }
+  else
+  {
+    ACE_CDR::swap_8 (reinterpret_cast<const char*> (&x), loc);
+  }
+#endif /* ACE_ENABLE_SWAP_ON_WRITE */
+
+  return true;
+}
 
 int
 ACE_OutputCDR::consolidate (void)
@@ -1682,7 +1911,17 @@ ACE_InputCDR::skip_string (void)
   ACE_CDR::ULong len = 0;
   if (this->read_ulong (len))
     {
-      if (this->rd_ptr () + len <= this->wr_ptr ())
+      if (static_cast<ACE_CDR::ULong> (~0u) == len)
+        {
+          // Indirection, next Long in stream is signed offset to actual
+          // string location (backwards in same stream from here).
+          ACE_CDR::Long offset = 0;
+          if (this->read_long (offset))
+            {
+              return true;
+            }
+        }
+      else if (this->rd_ptr () + len <= this->wr_ptr ())
         {
           this->rd_ptr (len);
           return true;

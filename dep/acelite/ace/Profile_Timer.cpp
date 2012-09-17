@@ -1,4 +1,4 @@
-// $Id: Profile_Timer.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Profile_Timer.cpp 95761 2012-05-15 18:23:04Z johnnyw $
 
 #include "ace/Profile_Timer.h"
 
@@ -308,11 +308,7 @@ ACE_Profile_Timer::elapsed_time (ACE_Elapsed_Time &et)
 
   ACE_hrtime_t delta_t; // nanoseconds
   timer_.elapsed_time (delta_t);
-#  if defined (ACE_LACKS_LONGLONG_T)
-  et.real_time = delta_t / (double) ACE_ONE_SECOND_IN_NSECS;
-#  else
   et.real_time = (__int64) delta_t / (double) ACE_ONE_SECOND_IN_NSECS;
-#  endif /* ACE_LACKS_LONGLONG_T */
 #  if defined (ACE_HAS_GETRUSAGE)
   ACE_Time_Value atv = ACE_Time_Value (this->end_usage_.ru_utime)
                        - ACE_Time_Value (this->begin_usage_.ru_utime);

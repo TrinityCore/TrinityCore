@@ -1,4 +1,4 @@
-// $Id: Thread_Adapter.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Thread_Adapter.cpp 92682 2010-11-23 23:41:19Z shuston $
 
 #include "ace/Thread_Adapter.h"
 #include "ace/Thread_Manager.h"
@@ -22,6 +22,7 @@ ACE_Thread_Adapter::ACE_Thread_Adapter (ACE_THR_FUNC user_func,
                                         , ACE_SEH_EXCEPT_HANDLER selector,
                                         ACE_SEH_EXCEPT_HANDLER handler
 #endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
+                                        , long cancel_flags
                                         )
   : ACE_Base_Thread_Adapter (
         user_func
@@ -32,6 +33,7 @@ ACE_Thread_Adapter::ACE_Thread_Adapter (ACE_THR_FUNC user_func,
         , selector
         , handler
 #endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
+        , cancel_flags
         )
   , thr_mgr_ (tm)
 {
@@ -105,6 +107,9 @@ ACE_Thread_Adapter::invoke_i (void)
   ACE_OS_Thread_Descriptor *thr_desc = this->thr_desc_;
 #endif /* ACE_WIN32 && ACE_HAS_MFC && (ACE_HAS_MFC != 0) */
 
+  // Pick up the cancel-related flags before deleting this.
+  long cancel_flags = this->flags_;
+
   // Delete ourselves since we don't need <this> anymore.  Make sure
   // not to access <this> anywhere below this point.
   delete this;
@@ -125,6 +130,17 @@ ACE_Thread_Adapter::invoke_i (void)
   ACE_OS::thr_setprio (prio);
 
 #endif /* ACE_NEEDS_LWP_PRIO_SET */
+  if (cancel_flags != 0)
+    {
+      // If both flags are set, ignore this.
+      int old = 0;
+      int val = cancel_flags & (THR_CANCEL_ENABLE | THR_CANCEL_DISABLE);
+      if (val == THR_CANCEL_ENABLE || val == THR_CANCEL_DISABLE)
+        ACE_OS::thr_setcancelstate (val, &old);
+      val = cancel_flags & (THR_CANCEL_DEFERRED | THR_CANCEL_ASYNCHRONOUS);
+      if (val == THR_CANCEL_DEFERRED || val == THR_CANCEL_ASYNCHRONOUS)
+        ACE_OS::thr_setcanceltype (val, &old);
+    }
 
   ACE_THR_FUNC_RETURN status = 0;
 

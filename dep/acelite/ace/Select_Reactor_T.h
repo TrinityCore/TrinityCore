@@ -4,7 +4,7 @@
 /**
  *  @file    Select_Reactor_T.h
  *
- *  $Id: Select_Reactor_T.h 86495 2009-08-13 19:35:25Z johnnyw $
+ *  $Id: Select_Reactor_T.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -60,7 +60,7 @@ public:
 
   /// If @a disable_notify_pipe is non-0 then the reactor will
   /// not create a notification pipe, which will save two I/O handles
-  /// but will elide the <notify()> feature.  If @a mask_signals is
+  /// but will elide the notify() feature.  If @a mask_signals is
   /// true the reactor is "signal-safe" when dispatching handlers to
   /// signal events, whereas if @a mask_signals is false the reactor will
   /// be more efficient, but not signal-safe (which may be perfectly
@@ -106,7 +106,7 @@ public:
    * timer queue, respectively.  If @arg disable_notify_pipe is non-0 the
    * notification pipe is not created, thereby saving two I/O handles.
    *
-   * @note On Unix platforms, the maximum_number_of_handles parameter
+   * @note On Unix platforms, the @a maximum_number_of_handles parameter
    *       should be as large as the maximum number of file
    *       descriptors allowed for a given process.  This is necessary
    *       since a file descriptor is used to directly index the array
@@ -148,6 +148,7 @@ public:
    */
   virtual int work_pending (const ACE_Time_Value &max_wait_time = ACE_Time_Value::zero);
 
+  //@{
   /**
    * This event loop driver that blocks for @a max_wait_time before
    * returning.  It will return earlier if timer events, I/O events,
@@ -165,12 +166,14 @@ public:
    * that were dispatched, 0 if the @a max_wait_time elapsed without
    * dispatching any handlers, or -1 if something goes wrong.
    *
-   * Current <alertable_handle_events> is identical to
-   * <handle_events>.
+   * Current alertable_handle_events() is identical to
+   * handle_events().
    */
   virtual int handle_events (ACE_Time_Value *max_wait_time = 0);
   virtual int alertable_handle_events (ACE_Time_Value *max_wait_time = 0);
+  //@}
 
+  //@{
   /**
    * This method is just like the one above, except the
    * @a max_wait_time value is a reference and can therefore never be
@@ -181,6 +184,7 @@ public:
    */
   virtual int handle_events (ACE_Time_Value &max_wait_time);
   virtual int alertable_handle_events (ACE_Time_Value &max_wait_time);
+  //@}
 
   // = Event handling control.
 
@@ -599,7 +603,7 @@ protected:
   virtual int any_ready (ACE_Select_Reactor_Handle_Set &handle_set);
 
   /// Implement the <any_ready> method, assuming that the Sig_Guard is
-  /// beign held
+  /// being held
   virtual int any_ready_i (ACE_Select_Reactor_Handle_Set &handle_set);
 
   /// Take corrective action when errors occur.
