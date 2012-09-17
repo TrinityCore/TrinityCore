@@ -406,9 +406,6 @@ class boss_thorim : public CreatureScript
                 if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveRandom(5.0f);
-
                 instance->HandleGameObject(instance->GetData64(GO_THORIM_LIGHTNING_FIELD), true); // Open the entrance door if the raid got past the first adds, since in this case, it will not be performed by the controller bunny.
             }
 
@@ -459,7 +456,10 @@ class boss_thorim : public CreatureScript
                 // Spawn Thunder Orbs
                 for (uint8 n = 0; n < 7; n++)
                     if (Creature* thunderOrb = me->SummonCreature(NPC_THUNDER_ORB, PosOrbs[n], TEMPSUMMON_CORPSE_DESPAWN))
-                        thunderOrb->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                    {
+                        thunderOrb->SetDisplayId(thunderOrb->GetCreatureTemplate()->Modelid2);
+                        thunderOrb->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    }
                 
                 EncounterTime = 0;
                 phase = PHASE_1;
@@ -483,8 +483,6 @@ class boss_thorim : public CreatureScript
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 me->SetFacingToObject(who);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveIdle();
             }
 
             void EnterEvadeMode()
@@ -542,7 +540,8 @@ class boss_thorim : public CreatureScript
                             DoScriptText(SAY_AGGRO_2, me);
                             break;
                         case EVENT_STORMHAMMER:
-                            DoCast(SPELL_STORMHAMMER);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.f, true))
+                                DoCast(target, SPELL_STORMHAMMER, true);
                             events.ScheduleEvent(EVENT_STORMHAMMER, urand(15, 20) *IN_MILLISECONDS, 0, PHASE_1);
                             break;
                         case EVENT_CHARGE_ORB:
@@ -805,10 +804,12 @@ class PrePhaseAddHelper
         uint32 operator()(PrePhaseAddIndex myId, Index idx)
         {
             if (myId < INDEX_PRE_ADD_NONE)
+            {
                 if (idx == INDEX_PRIMARY)
                     return PrePhaseAddSpells_Primary[diffi][myId];
                 else
                     return PrePhaseAddSpells_Secondary[diffi][myId];
+            }
             return 0;
         }
 
@@ -1140,7 +1141,8 @@ class npc_thorim_arena_phase_add : public CreatureScript
                         case EVENT_SECONDARY_SKILL:
                             if (Unit* target = amIhealer ? (me->GetHealthPct() > 40 ? DoSelectLowestHpFriendly(40) : me) : me->getVictim())
                             {
-                                DoCast(target, myHelper(myIndex, ArenaPhaseAddHelper::INDEX_SECONDARY));
+                                if (uint32 spellID = myHelper(myIndex, ArenaPhaseAddHelper::INDEX_SECONDARY))
+                                    DoCast(target, spellID);
                                 events.ScheduleEvent(EVENT_SECONDARY_SKILL, urand(12000, 16000));
                             }
                             else

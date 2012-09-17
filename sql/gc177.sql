@@ -326,6 +326,8 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 -- Thorim
 UPDATE `creature_template` SET `ScriptName`='boss_thorim' WHERE `entry`=32865;
 UPDATE `creature_template` SET `equipment_id`=1844 WHERE `entry`=33147;
+-- Thunder orbs are spawned via boss script
+DELETE FROM `creature` WHERE `id`=33378;
 
 -- Controller
 UPDATE `creature_template` SET `ScriptName`='npc_thorim_controller' WHERE `entry`=32879;
