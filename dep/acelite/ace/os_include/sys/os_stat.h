@@ -6,7 +6,7 @@
  *
  *  data returned by the stat() function
  *
- *  $Id: os_stat.h 85057 2009-04-08 10:59:58Z msmit $
+ *  $Id: os_stat.h 95718 2012-05-01 11:42:47Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -110,6 +110,7 @@ extern "C"
 #  define S_IFDIR FILE_ATTRIBUTE_DIRECTORY
 #  define S_IFREG FILE_ATTRIBUTE_NORMAL
 #  define S_IFLNK 0
+#  define S_IFCHR 0
 
 #  if !defined (__MINGW32__)
    // Since CE does not have _stat by default as NT/2000 does, the 'stat'

@@ -4,7 +4,7 @@
 /**
  *  @file    Atomic_Op.h
  *
- *  $Id: Atomic_Op.h 91523 2010-08-27 14:18:02Z johnnyw $
+ *  $Id: Atomic_Op.h 95225 2011-12-05 20:25:15Z shuston $
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -124,6 +124,9 @@ public:
   /// Atomically assign <rhs> to @c value_.
   ACE_Atomic_Op<ACE_Thread_Mutex, long> &operator= (const ACE_Atomic_Op<ACE_Thread_Mutex, long> &rhs);
 
+  /// Exchange value with @a newval.
+  long exchange (long newval);
+
   /// Explicitly return @c value_.
   long value (void) const;
 
@@ -220,6 +223,9 @@ public:
 
   /// Atomically assign <rhs> to @c value_.
   ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long> &operator= (const ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long> &rhs);
+
+  /// Exchange value with @a newval.
+  unsigned long exchange (unsigned long newval);
 
   /// Explicitly return @c value_.
   unsigned long value (void) const;

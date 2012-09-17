@@ -1,4 +1,4 @@
-// $Id: MMAP_Memory_Pool.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: MMAP_Memory_Pool.cpp 93974 2011-04-22 07:26:59Z msmit $
 
 // MMAP_Memory_Pool.cpp
 #include "ace/MMAP_Memory_Pool.h"
@@ -372,7 +372,7 @@ ACE_MMAP_Memory_Pool::init_acquire (size_t nbytes,
       void *result = this->acquire (nbytes, rounded_bytes);
       // After the first time, reset the flag so that subsequent calls
       // will use MAP_FIXED
-      if (use_fixed_addr_ == ACE_MMAP_Memory_Pool_Options::FIRSTCALL_FIXED)
+      if (this->use_fixed_addr_ == ACE_MMAP_Memory_Pool_Options::FIRSTCALL_FIXED)
         {
           ACE_SET_BITS (flags_, MAP_FIXED);
         }
