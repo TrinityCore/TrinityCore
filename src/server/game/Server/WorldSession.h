@@ -88,6 +88,7 @@ namespace WorldPackets
         class CompleteCinematic;
         class CompleteMovie;
         class NextCinematicCamera;
+        class OpeningCinematic;
     }
     namespace Query
     {
@@ -490,6 +491,7 @@ class TC_GAME_API WorldSession
         void HandleAlterAppearance(WorldPacket& recvData);
         void HandleCharCustomize(WorldPacket& recvData);
         void HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomizeInfo> customizeInfo, PreparedQueryResult result);
+        void HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& packet);
 
         void SendCharCreate(ResponseCodes result);
         void SendCharDelete(ResponseCodes result);

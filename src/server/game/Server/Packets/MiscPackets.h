@@ -180,6 +180,14 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class OpeningCinematic final : public ClientPacket
+        {
+        public:
+            OpeningCinematic(WorldPacket&& packet) : ClientPacket(CMSG_OPENING_CINEMATIC, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class OverrideLight final : public ServerPacket
         {
         public:
