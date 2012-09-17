@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_stdio.h
  *
- *  $Id: OS_NS_stdio.h 92178 2010-10-08 07:44:20Z olli $
+ *  $Id: OS_NS_stdio.h 93500 2011-03-07 16:19:27Z vzykov $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -220,7 +220,8 @@ namespace ACE_OS {
   //@}
 
   extern ACE_Export
-  int asprintf (char **bufp, const char* format, ...);
+  int asprintf (char **bufp, const char* format, ...)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 2, 3);
 
 # if defined (ACE_HAS_WCHAR)
   extern ACE_Export
@@ -371,7 +372,8 @@ namespace ACE_OS {
 #endif /* ACE_WIN32 */
 
   extern ACE_Export
-  int fprintf (FILE *fp, const char *format, ...);
+  int fprintf (FILE *fp, const char *format, ...)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 2, 3);
 
 # if defined (ACE_HAS_WCHAR)
   extern ACE_Export
@@ -437,7 +439,8 @@ namespace ACE_OS {
 #endif /* ACE_HAS_WCHAR */
 
   extern ACE_Export
-  int printf (const char *format, ...);
+  int printf (const char *format, ...)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 1, 2);
 
 #if defined (ACE_HAS_WCHAR)
   extern ACE_Export
@@ -468,7 +471,8 @@ namespace ACE_OS {
   void rewind (FILE *fp);
 
   extern ACE_Export
-  int snprintf (char *buf, size_t maxlen, const char *format, ...);
+  int snprintf (char *buf, size_t maxlen, const char *format, ...)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 3, 4);
 
 # if defined (ACE_HAS_WCHAR)
   extern ACE_Export
@@ -476,7 +480,8 @@ namespace ACE_OS {
 # endif /* ACE_HAS_WCHAR */
 
   extern ACE_Export
-  int sprintf (char *buf, const char *format, ...);
+  int sprintf (char *buf, const char *format, ...)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 2, 3);
 
 # if defined (ACE_HAS_WCHAR)
   extern ACE_Export
@@ -494,19 +499,24 @@ namespace ACE_OS {
 #endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int vasprintf (char **bufp, const char *format, va_list argptr);
+  int vasprintf (char **bufp, const char *format, va_list argptr)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 2, 0);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int vprintf (const char *format, va_list argptr);
+  int vprintf (const char *format, va_list argptr)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 1, 0);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int vfprintf (FILE *fp, const char *format, va_list argptr);
+  int vfprintf (FILE *fp, const char *format, va_list argptr)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 2, 0);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int vsprintf (char *buffer, const char *format, va_list argptr);
+  int vsprintf (char *buffer, const char *format, va_list argptr)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 2, 0);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int vsnprintf (char *buffer, size_t maxlen, const char *format, va_list argptr);
+  int vsnprintf (char *buffer, size_t maxlen, const char *format, va_list argptr)
+    ACE_GCC_FORMAT_ATTRIBUTE (printf, 3, 0);
 
 # if defined (ACE_HAS_WCHAR)
   ACE_NAMESPACE_INLINE_FUNCTION

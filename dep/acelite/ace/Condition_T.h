@@ -4,7 +4,7 @@
 /**
  *  @file    Condition_T.h
  *
- *  $Id: Condition_T.h 81462 2008-04-28 11:39:40Z johnnyw $
+ *  $Id: Condition_T.h 96061 2012-08-16 09:36:07Z mcorino $
  *
  *   Moved from Synch.h.
  *
@@ -18,7 +18,7 @@
 #include /**/ "ace/pre.h"
 
 #include "ace/OS_NS_Thread.h"
-#include "ace/Lock.h"
+#include "ace/Condition_Attributes.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -37,8 +37,8 @@ class ACE_Time_Value;
  * until shared data changes state.
  *
  * A condition variable enables threads to atomically block and
- * test the condition under the protection of a mutual exclu-
- * sion lock (mutex) until the condition is satisfied.  That is,
+ * test the condition under the protection of a mutual exclusion
+ * lock (mutex) until the condition is satisfied.  That is,
  * the mutex must have been held by the thread before calling
  * wait or signal on the condition.  If the condition is false,
  * a thread blocks on a condition variable and atomically
@@ -54,10 +54,15 @@ template <class MUTEX>
 class ACE_Condition
 {
 public:
-  // = Initialiation and termination methods.
   /// Initialize the condition variable.
   ACE_Condition (MUTEX &m, int type = USYNC_THREAD,
                  const ACE_TCHAR *name = 0, void *arg = 0);
+
+  /// Initialize the condition variable.
+  ACE_Condition (MUTEX &m,
+                 const ACE_Condition_Attributes &attributes,
+                 const ACE_TCHAR *name = 0,
+                 void *arg = 0);
 
   /// Implicitly destroy the condition variable.
   ~ACE_Condition (void);
@@ -67,7 +72,7 @@ public:
    * Block on condition, or until absolute time-of-day has passed.  If
    * @a abstime == 0 use "blocking" <wait> semantics.  Else, if @a abstime
    * != 0 and the call times out before the condition is signaled
-   * <wait> returns -1 and sets errno to ETIME.
+   * wait() returns -1 and sets errno to ETIME.
    */
   int wait (const ACE_Time_Value *abstime);
 
@@ -76,10 +81,10 @@ public:
 
   /**
    * Block on condition or until absolute time-of-day has passed.  If
-   * abstime == 0 use "blocking" wait() semantics on the <mutex>
+   * @a abstime == 0 use "blocking" wait() semantics on the @a mutex
    * passed as a parameter (this is useful if you need to store the
-   * <Condition> in shared memory).  Else, if <abstime> != 0 and the
-   * call times out before the condition is signaled <wait> returns -1
+   * <Condition> in shared memory).  Else, if @a abstime != 0 and the
+   * call times out before the condition is signaled wait() returns -1
    * and sets errno to ETIME.
    */
   int wait (MUTEX &mutex, const ACE_Time_Value *abstime = 0);

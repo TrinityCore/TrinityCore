@@ -1,4 +1,4 @@
-// $Id: Select_Reactor_T.cpp 92201 2010-10-11 19:07:59Z johnnyw $
+// $Id: Select_Reactor_T.cpp 95533 2012-02-14 22:59:17Z wotte $
 
 #ifndef ACE_SELECT_REACTOR_T_CPP
 #define ACE_SELECT_REACTOR_T_CPP
@@ -461,7 +461,14 @@ template <class ACE_SELECT_REACTOR_TOKEN> int
 ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::timer_queue
   (ACE_Timer_Queue *tq)
 {
-  delete this->timer_queue_;
+  if (this->delete_timer_queue_)
+    {
+      delete this->timer_queue_;
+    }
+  else if (this->timer_queue_)
+    {
+      this->timer_queue_->close ();
+    }
   this->timer_queue_ = tq;
   this->delete_timer_queue_ = false;
   return 0;
@@ -494,6 +501,9 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::ACE_Select_Reactor_T
       // The hard-coded default Reactor size failed, so attempt to
       // determine the size at run-time by checking the process file
       // descriptor limit on platforms that support this feature.
+
+      // reset the errno so that subsequent checks are valid
+      errno = 0;
 
       // There is no need to deallocate resources from previous open()
       // call since the open() method deallocates any resources prior
@@ -572,6 +582,11 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::close (void)
       delete this->timer_queue_;
       this->timer_queue_ = 0;
       this->delete_timer_queue_ = false;
+    }
+  else if (this->timer_queue_)
+    {
+      this->timer_queue_->close ();
+      this->timer_queue_ = 0;
     }
 
   if (this->notify_handler_ != 0)
@@ -764,14 +779,14 @@ template <class ACE_SELECT_REACTOR_TOKEN> int
 ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::handle_error (void)
 {
   ACE_TRACE ("ACE_Select_Reactor_T::handle_error");
-#if defined (linux) && defined (ERESTARTNOHAND)
+#if defined (ACE_LINUX) && defined (ERESTARTNOHAND)
   int const error = errno; // Avoid multiple TSS accesses.
   if (error == EINTR || error == ERESTARTNOHAND)
     return this->restart_;
 #else
   if (errno == EINTR)
     return this->restart_;
-#endif /* linux && ERESTARTNOHAND */
+#endif /* ACE_LINUX && ERESTARTNOHAND */
 #if defined (__MVS__) || defined (ACE_WIN32) || defined (ACE_VXWORKS)
   // On MVS Open Edition and Win32, there can be a number of failure
   // codes on a bad socket, so check_handles on anything other than
@@ -1402,15 +1417,25 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::handle_events
 
   ACE_GUARD_RETURN (ACE_SELECT_REACTOR_TOKEN, ace_mon, this->token_, -1);
 
-  if (ACE_OS::thr_equal (ACE_Thread::self (),
-                         this->owner_) == 0 || this->deactivated_)
-    return -1;
+  if (ACE_OS::thr_equal (ACE_Thread::self (), this->owner_) == 0)
+    {
+      errno = EACCES;
+      return -1;
+    }
+  if (this->deactivated_)
+    {
+      errno = ESHUTDOWN;
+      return -1;
+    }
 
   // Update the countdown to reflect time waiting for the mutex.
   countdown.update ();
 #else
   if (this->deactivated_)
-    return -1;
+    {
+      errno = ESHUTDOWN;
+      return -1;
+    }
 #endif /* ACE_MT_SAFE */
 
   return this->handle_events_i (max_wait_time);

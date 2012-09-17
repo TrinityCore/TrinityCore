@@ -1,4 +1,4 @@
-// $Id: Service_Types.cpp 91813 2010-09-17 07:52:52Z johnnyw $
+// $Id: Service_Types.cpp 95676 2012-04-03 16:32:27Z schmidt $
 
 #include "ace/Service_Types.h"
 
@@ -165,6 +165,7 @@ ACE_Module_Type::ACE_Module_Type (void *m,
                                   u_int f,
                                   int stype)
   : ACE_Service_Type_Impl (m, m_name, f, 0, stype)
+  , link_ (0)
 {
   ACE_TRACE ("ACE_Module_Type::ACE_Module_Type");
 }
@@ -181,12 +182,12 @@ ACE_Module_Type::init (int argc, ACE_TCHAR *argv[]) const
   void *obj = this->object ();
   MT_Module *mod = (MT_Module *) obj;
   //
-  // Change the Module's name to what's in the svc.conf file.
-  // We must do this so the names match up so everything shuts
-  // down properly during the call to ACE_Stream_Type::fini
-  // which calls MT_Stream::remove([name]) for all the modules.
-  // If the calls to remove fail, we end up with a double delete
-  // during shutdown. Bugzilla #3847
+  // Change the Module's name to what's in the svc.conf file.  We must
+  // do this so the names match up so everything shuts down properly
+  // during the call to ACE_Stream_Type::fini which calls
+  // MT_Stream::remove([name]) for all the modules.  If the calls to
+  // remove fail, we end up with a double delete during
+  // shutdown. Bugzilla #3847
   //
   mod->name (this->name_);
   MT_Task *reader = mod->reader ();

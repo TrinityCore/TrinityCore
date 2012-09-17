@@ -1,4 +1,4 @@
-// $Id: WIN32_Asynch_IO.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: WIN32_Asynch_IO.cpp 95652 2012-03-23 22:11:35Z shuston $
 
 #include "ace/WIN32_Asynch_IO.h"
 
@@ -3367,11 +3367,15 @@ ACE_WIN32_Asynch_Read_Dgram::recv (ACE_Message_Block *message_block,
                   -1);
 
   // do the scatter/gather recv
+  // NOTE! The flags value is in/out to recvfrom() - it's changed AFTER
+  // the call to WSARecvFrom returns and if it completes immediately, the
+  // result object may already be deleted. Since the changed value is not
+  // used, and not needed by result, pass a copy to avoid the race.
   ssize_t initiate_result = ACE_OS::recvfrom (result->handle (),
                                               iov,
                                               iovcnt,
                                               number_of_bytes_recvd,
-                                              result->flags_,
+                                              flags,
                                               result->saddr (),
                                               &(result->addr_len_),
                                               result,
@@ -3644,7 +3648,9 @@ ACE_WIN32_Asynch_Write_Dgram::send (ACE_Message_Block *message_block,
 
     do
       {
-        if (msg_len >= 0 && iovcnt < ACE_IOV_MAX)
+        //if (msg_len >= 0 && iovcnt < ACE_IOV_MAX)
+        // msg_len >= 0 is always true since msg_len is unsigned
+        if (iovcnt < ACE_IOV_MAX)
           {
             u_long this_chunk_length;
             if (msg_len > ULONG_MAX)

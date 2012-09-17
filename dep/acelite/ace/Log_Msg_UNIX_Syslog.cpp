@@ -1,4 +1,4 @@
-// $Id: Log_Msg_UNIX_Syslog.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Log_Msg_UNIX_Syslog.cpp 92791 2010-12-04 16:25:22Z shuston $
 
 #include "ace/config-all.h"
 
@@ -110,7 +110,7 @@ ACE_Log_Msg_UNIX_Syslog::log (ACE_Log_Record &log_record)
       if (ACE_BIT_ENABLED (flags, ACE_Log_Msg::VERBOSE)
           || ACE_BIT_ENABLED (flags, ACE_Log_Msg::VERBOSE_LITE))
         {
-          ACE_TCHAR date_and_time[35];
+          ACE_TCHAR date_and_time[27];
           if (0 == ACE::timestamp (date_and_time, sizeof (date_and_time), 1))
             ACE_OS::strcpy (date_and_time, ACE_TEXT ("<time error>"));
           const ACE_TCHAR *prio_name =

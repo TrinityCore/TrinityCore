@@ -3,7 +3,7 @@
 /**
  * @file Condition_Recursive_Thread_Mutex.cpp
  *
- * $Id: Condition_Recursive_Thread_Mutex.cpp 89127 2010-02-22 19:58:18Z schmidt $
+ * $Id: Condition_Recursive_Thread_Mutex.cpp 96077 2012-08-20 08:13:23Z johnnyw $
  *
  * Originally in Synch.cpp
  *
@@ -14,9 +14,7 @@
 
 #if defined (ACE_HAS_THREADS)
 
-#if defined (ACE_HAS_DUMP)
-#  include "ace/Log_Msg.h"
-#endif /* ACE_HAS_DUMP */
+#include "ace/Log_Msg.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -49,7 +47,19 @@ ACE_Condition<ACE_Recursive_Thread_Mutex>::~ACE_Condition (void)
 ACE_Condition<ACE_Recursive_Thread_Mutex>::ACE_Condition (ACE_Recursive_Thread_Mutex &m)
   : mutex_ (m)
 {
-  ACE_OS::cond_init (&this->cond_);
+  if (ACE_OS::cond_init (&this->cond_) != 0)
+    ACE_ERROR ((LM_ERROR, ACE_TEXT ("%p\n"),
+                ACE_TEXT ("ACE_Condition<ACE_Recursive_Thread_Mutex>::ACE_Condition<ACE_Recursive_Thread_Mutex>")));
+}
+
+ACE_Condition<ACE_Recursive_Thread_Mutex>::ACE_Condition (ACE_Recursive_Thread_Mutex &m,
+                                                          const ACE_Condition_Attributes &attributes)
+  : mutex_ (m)
+{
+  if (ACE_OS::cond_init (&this->cond_,
+                         const_cast<ACE_condattr_t &> (attributes.attributes ())) != 0)
+    ACE_ERROR ((LM_ERROR, ACE_TEXT ("%p\n"),
+                ACE_TEXT ("ACE_Condition<ACE_Recursive_Thread_Mutex>::ACE_Condition<ACE_Recursive_Thread_Mutex>")));
 }
 
 int
@@ -116,12 +126,6 @@ ACE_Recursive_Thread_Mutex &
 ACE_Condition<ACE_Recursive_Thread_Mutex>::mutex (void)
 {
   return this->mutex_;
-}
-
-ACE_Condition_Recursive_Thread_Mutex::ACE_Condition_Recursive_Thread_Mutex (
-  ACE_Recursive_Thread_Mutex &m) :
-    ACE_Condition<ACE_Recursive_Thread_Mutex> (m)
-{
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

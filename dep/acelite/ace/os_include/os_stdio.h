@@ -6,7 +6,7 @@
  *
  *  standard buffered input/output
  *
- *  $Id: os_stdio.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: os_stdio.h 93597 2011-03-21 12:54:52Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -37,9 +37,6 @@
 #  include /**/ <ioLib.h>
 // for remCurIdGet()
 #  include /**/ <remLib.h>
-#  if defined (__RTP__) && ((ACE_VXWORKS >= 0x620) && (ACE_VXWORKS <= 0x650))
-#    define L_cuserid       _PARM_L_cuserid
-#  endif
 #endif /* ACE_VXWORKS */
 
 // Place all additions (especially function declarations) within extern "C" {}

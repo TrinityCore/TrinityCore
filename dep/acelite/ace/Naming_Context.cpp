@@ -1,4 +1,4 @@
-// $Id: Naming_Context.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Naming_Context.cpp 93539 2011-03-13 09:40:44Z vzykov $
 
 #include "ace/Get_Opt.h"
 #include "ace/Naming_Context.h"
@@ -626,7 +626,7 @@ ACE_Name_Options::parse_args (int argc, ACE_TCHAR *argv[])
                          "\t[-b base address]\n"
                          "\t[-v] (verbose)\n"
                          "\t[-r] (use Win32 Registry)\n",
-                         argv[0]);
+                         ACE_TEXT_ALWAYS_CHAR (argv[0]));
         /* NOTREACHED */
         break;
       }

@@ -4,7 +4,7 @@
 /**
  *  @file    Atomic_Op_T.h
  *
- *  $Id: Atomic_Op_T.h 92353 2010-10-25 06:34:35Z johnnyw $
+ *  $Id: Atomic_Op_T.h 95761 2012-05-15 18:23:04Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -88,22 +88,17 @@ struct ACE_Type_Traits<unsigned long>
   typedef unsigned long parameter_type;
 };
 
-#ifndef ACE_LACKS_LONGLONG_T
 template<>
 struct ACE_Type_Traits<long long>
 {
   typedef long long parameter_type;
 };
-#endif  /* !ACE_LACKS_LONGLONG_T */
 
-#if !defined (ACE_LACKS_LONGLONG_T) \
-  && !defined (ACE_LACKS_UNSIGNEDLONGLONG_T)
 template<>
 struct ACE_Type_Traits<unsigned long long>
 {
   typedef unsigned long long parameter_type;
 };
-#endif  /* !ACE_LACKS_LONGLONG_T && !ACE_LACKS_UNSIGNEDLONGLONG_T */
 
 template<>
 struct ACE_Type_Traits<float>
@@ -206,6 +201,9 @@ public:
   /// Atomically assign <rhs> to @c value_.
   ACE_Atomic_Op_Ex<ACE_LOCK, TYPE> &operator= (
     ACE_Atomic_Op_Ex<ACE_LOCK, TYPE> const & rhs);
+
+  /// Exchange value with @a newval.
+  TYPE exchange (TYPE newval);
 
   /// Explicitly return @c value_.
   TYPE value (void) const;
@@ -317,6 +315,9 @@ public:
 
   /// Atomically check if @c value_ less than @a rhs.
   bool operator< (arg_type rhs) const;
+
+  /// Exchange value with @a newval.
+  TYPE exchange (TYPE newval);
 
   /// Explicitly return @c value_.
   TYPE value (void) const;

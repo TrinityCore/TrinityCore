@@ -4,7 +4,7 @@
 /**
  *  @file    Map_T.h
  *
- *  $Id: Map_T.h 92097 2010-09-30 05:41:49Z msmit $
+ *  $Id: Map_T.h 93792 2011-04-07 11:48:50Z mcorino $
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  */
@@ -851,11 +851,11 @@ public:
   /// Close down and release dynamically allocated resources.
   virtual ~ACE_Active_Map_Manager_Adapter (void);
 
-  /// Initialize a <Map> with size @a length.
+  /// Initialize a Map with size @a length.
   virtual int open (size_t length = ACE_DEFAULT_MAP_SIZE,
                     ACE_Allocator *alloc = 0);
 
-  /// Close down a <Map> and release dynamically allocated resources.
+  /// Close down a Map and release dynamically allocated resources.
   virtual int close (void);
 
   /**
@@ -870,11 +870,10 @@ public:
   /**
    * Add @a key / @a value pair to the map.  @a key is an "inout" parameter
    * and maybe modified/extended by the map to add additional
-   * information.  To recover original key, call the <recover_key>
+   * information.  To recover original key, call the recover_key()
    * method.
    */
-  virtual int bind_modify_key (const VALUE &value,
-                               KEY &key);
+  virtual int bind_modify_key (const VALUE &value, KEY &key);
 
   /**
    * Produce a key and return it through @a key which is an "out"
@@ -910,7 +909,7 @@ public:
   virtual int bind_create_key (const VALUE &value);
 
   /// Recovers the original key potentially modified by the map during
-  /// <bind_modify_key>.
+  /// bind_modify_key().
   virtual int recover_key (const KEY &modified_key,
                            KEY &original_key);
 
