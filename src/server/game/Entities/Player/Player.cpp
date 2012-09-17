@@ -995,7 +995,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetUInt32Value(PLAYER_GUILD_TIMESTAMP, 0);
 
     for (int i = 0; i < KNOWN_TITLES_SIZE; ++i)
-        SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
+        SetUInt64Value(PLAYER_FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
     SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
 
     SetUInt32Value(PLAYER_FIELD_KILLS, 0);
@@ -16751,7 +16751,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     SetUInt32Value(PLAYER_XP, fields[7].GetUInt32());
 
     _LoadIntoDataField(fields[61].GetCString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
-    _LoadIntoDataField(fields[64].GetCString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
+    _LoadIntoDataField(fields[64].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
 
     SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE);
     SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
@@ -17216,8 +17216,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     m_social = sSocialMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSOCIALLIST), GetGUIDLow());
 
-    // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
-    // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
+    // check PLAYER_CHOSEN_TITLE compatibility with PLAYER_FIELD_KNOWN_TITLES
+    // note: PLAYER_FIELD_KNOWN_TITLES updated at quest status loaded
     uint32 curTitle = fields[46].GetUInt32();
     if (curTitle && !HasTitle(curTitle))
         curTitle = 0;
@@ -18713,7 +18713,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
-            ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
+            ss << GetUInt32Value(PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
 
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, 2));
@@ -18824,7 +18824,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
-            ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
+            ss << GetUInt32Value(PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
 
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, 2));
@@ -23619,7 +23619,7 @@ bool Player::HasTitle(uint32 bitIndex)
 
     uint32 fieldIndexOffset = bitIndex / 32;
     uint32 flag = 1 << (bitIndex % 32);
-    return HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
+    return HasFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
 }
 
 void Player::SetTitle(CharTitlesEntry const* title, bool lost)
@@ -23629,17 +23629,17 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
 
     if (lost)
     {
-        if (!HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
+        if (!HasFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
             return;
 
-        RemoveFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
+        RemoveFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
     else
     {
-        if (HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
+        if (HasFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
             return;
 
-        SetFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
+        SetFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
 
     WorldPacket data(SMSG_TITLE_EARNED, 4 + 4);
