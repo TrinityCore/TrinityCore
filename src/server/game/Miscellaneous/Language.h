@@ -1076,7 +1076,7 @@ enum TrinityStrings
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
-    LANG_INVALID_REALMID                = 11001
+    LANG_INVALID_REALMID                = 11001,
 
     LANG_REM_TRANSMOGRIFICATIONS_ITEMS  = 11100,
     LANG_ERR_NO_TRANSMOGRIFICATIONS     = 11101,
@@ -1110,7 +1110,7 @@ enum TrinityStrings
     LANG_POPUP_REMOVE_ONE               = 11127,
     LANG_POPUP_TRANSMOGRIFY             = 11128,
 
-    LANG_ERR_NO_TOKEN                   = 11129,
+    LANG_ERR_NO_TOKEN                   = 11129
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
