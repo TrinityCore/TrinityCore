@@ -6448,30 +6448,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 basepoints0 = CalculatePctN(int32(damage), triggerAmount);
                 break;
             }
-            // King of the Jungle
-            else if (dummySpell->SpellIconID == 2850)
-            {
-                // Effect 0 - mod damage while having Enrage
-                if (effIndex == 0)
-                {
-                    if (!(procSpell->SpellFamilyFlags[0] & 0x00080000) || procSpell->SpellIconID != 961)
-                        return false;
-                    triggered_spell_id = 51185;
-                    basepoints0 = triggerAmount;
-                    target = this;
-                    break;
-                }
-                // Effect 1 - Tiger's Fury restore energy
-                else if (effIndex == 1)
-                {
-                    if (!(procSpell->SpellFamilyFlags[2] & 0x00000800) || procSpell->SpellIconID != 1181)
-                        return false;
-                    triggered_spell_id = 51178;
-                    basepoints0 = triggerAmount;
-                    target = this;
-                    break;
-                }
-            }
             break;
         }
         case SPELLFAMILY_ROGUE:
@@ -6653,24 +6629,33 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Light's Beacon - Beacon of Light
             if (dummySpell->Id == 53651)
             {
-                // Get target of beacon of light
-                if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
+                if (this->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+                // Check Party/Raid Group
+                if (Group *group = this->ToPlayer()->GetGroup())
                 {
-                    // do not proc when target of beacon of light is healed
-                    if (beaconTarget == this)
-                        return false;
-                    // check if it was heal by paladin which casted this beacon of light
-                    if (beaconTarget->GetAura(53563, victim->GetGUID()))
+                    for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
-                        if (beaconTarget->IsWithinLOSInMap(victim))
+                        Player* Member = itr->getSource();
+
+                        // check if it was heal by paladin which casted this beacon of light
+                        if (Aura const * aura = Member->GetAura(53563, victim->GetGUID()))
                         {
-                            basepoints0 = damage;
-                            victim->CastCustomSpell(beaconTarget, 53654, &basepoints0, NULL, NULL, true);
+                            Unit* beaconTarget = Member;
+
+                            // do not proc when target of beacon of light is healed
+                            if (beaconTarget == this)
+                                return false;
+
+                            basepoints0 = int32(damage);
+                            triggered_spell_id = 53652;
+                            victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
                             return true;
                         }
                     }
                 }
-                return false;
+                else
+                    return false;
             }
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
@@ -14361,10 +14346,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             continue;
         ProcTriggeredData triggerData(itr->second->GetBase());
         // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
-        bool active = (damage > 0) || (procExtra & (PROC_EX_ABSORB|PROC_EX_BLOCK) && isVictim);
+        bool active = damage || (procExtra & PROC_EX_BLOCK && isVictim);
         if (isVictim)
             procExtra &= ~PROC_EX_INTERNAL_REQ_FAMILY;
+
         SpellInfo const* spellProto = itr->second->GetBase()->GetSpellInfo();
+
+        // only auras that has triggered spell should proc from fully absorbed damage
+        if (procExtra & PROC_EX_ABSORB && isVictim)
+            if (damage || spellProto->Effects[EFFECT_0].TriggerSpell || spellProto->Effects[EFFECT_1].TriggerSpell || spellProto->Effects[EFFECT_2].TriggerSpell)
+                active = true;
+
         if (!IsTriggeredAtSpellProcEvent(target, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
             continue;
 

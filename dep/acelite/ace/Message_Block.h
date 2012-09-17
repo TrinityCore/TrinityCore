@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Block.h
  *
- *  $Id: Message_Block.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Message_Block.h 95798 2012-05-31 07:58:55Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -204,7 +204,7 @@ public:
 
   /**
    * Create a Message Block that assumes it has ownership of @a data,
-   * but in reality it doesnt (i.e., cannot delete it since it didn't
+   * but in reality it doesn't (i.e., cannot delete it since it didn't
    * malloc it!).  Note that the @c size of the Message_Block will
    * be @a size, but the @a length  will be 0 until <wr_ptr> is set.
    */
@@ -276,8 +276,8 @@ public:
   // = Data Block flag accessors and mutators.
   /// Bitwise-or the @a more_flags into the existing message flags and
   /// return the new value.
-  /* @todo: I think the following set of methods could not be used at
-   *  all. May be they are useless. Let us have it so that we dont
+  /** @todo I think the following set of methods could not be used at
+   *  all. May be they are useless. Let us have it so that we don't
    *  mess up memory management of the Message_Block. Somebody correct
    *  me if I am totally totally wrong..
    */
@@ -319,9 +319,9 @@ public:
 
   /**
    * Return a "shallow" copy that increments our reference count by 1.
-   * This is similar to CORBA's <_duplicate> method, which is useful
+   * This is similar to CORBA's _duplicate() method, which is useful
    * if you want to eliminate lots of checks for NULL @a mb pointers
-   * before calling <_duplicate> on them.
+   * before calling _duplicate() on them.
    */
   static ACE_Message_Block *duplicate (const ACE_Message_Block *mb);
 
@@ -355,10 +355,10 @@ public:
   virtual ACE_Message_Block *release (void);
 
   /**
-   * This behaves like the non-static method <release>, except that it
-   * checks if @a mb is 0.  This is similar to <CORBA::release>, which
+   * This behaves like the non-static method release(), except that it
+   * checks if @a mb is 0.  This is similar to CORBA::release(), which
    * is useful if you want to eliminate lots of checks for NULL
-   * pointers before calling <release> on them.  Returns @a mb.
+   * pointers before calling release() on them.  Returns @a mb.
    */
   static ACE_Message_Block *release (ACE_Message_Block *mb);
 
@@ -717,7 +717,7 @@ public:
    */
   char *mark (void) const;
 
-  // = Message size is the total amount of space alloted.
+  // = Message size is the total amount of space allotred.
 
   /// Get the total amount of allotted space in the message.  The amount of
   /// allotted space may be less than allocated space.
@@ -762,11 +762,11 @@ public:
   ACE_Data_Block *release (ACE_Lock *lock = 0);
 
   // = Message flag accessors and mutators.
-  /// Bitwise-or the <more_flags> into the existing message flags and
+  /// Bitwise-or the @a more_flags into the existing message flags and
   /// return the new value.
   ACE_Message_Block::Message_Flags set_flags (ACE_Message_Block::Message_Flags more_flags);
 
-  /// Clear the message flag bits specified in <less_flags> and return
+  /// Clear the message flag bits specified in @a less_flags and return
   /// the new value.
   ACE_Message_Block::Message_Flags clr_flags (ACE_Message_Block::Message_Flags less_flags);
 
@@ -803,7 +803,7 @@ protected:
    * Decrease the reference count, but don't delete the object.
    * Returns 0 if the object should be removed.
    * If @a lock is equal to the locking strategy then we assume that
-   * the lock is beign held by the current thread; this is used to
+   * the lock is being held by the current thread; this is used to
    * release all the data blocks in a chain while holding a single
    * lock.
    */
@@ -843,7 +843,7 @@ protected:
 
   /**
    * Reference count for this ACE_Data_Block, which is used to avoid
-   * deep copies (i.e., <clone>).  Note that this pointer value is
+   * deep copies (i.e., clone()).  Note that this pointer value is
    * shared by all owners of the <Data_Block>'s data, i.e., all the
    * ACE_Message_Blocks.
    */

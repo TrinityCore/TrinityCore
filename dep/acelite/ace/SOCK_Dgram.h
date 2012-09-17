@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Dgram.h
  *
- *  $Id: SOCK_Dgram.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: SOCK_Dgram.h 92580 2010-11-15 09:48:02Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -206,8 +206,7 @@ public:
 
 protected:
   /// Open is shared by this and by <LSOCK_Dgram>.
-  int shared_open (const ACE_Addr &local,
-                   int protocol_family);
+  int shared_open (const ACE_Addr &local, int protocol_family);
 
   /// Create a multicast addr/if pair, in format useful for system calls.
   /// If mreq param is NULL, just verify the passed addr/interface specs.

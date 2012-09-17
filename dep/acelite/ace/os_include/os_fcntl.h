@@ -6,7 +6,7 @@
  *
  *  file control options
  *
- *  $Id: os_fcntl.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: os_fcntl.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -30,11 +30,6 @@
 #if !defined (ACE_LACKS_FCNTL_H)
 # include /**/ <fcntl.h>
 #endif /* !ACE_LACKS_FCNTL_H */
-
-#if defined (ACE_VXWORKS) && (ACE_VXWORKS < 0x620)
-// for creat(), open()
-#  include /**/ <ioLib.h>
-#endif /* ACE_VXWORKS */
 
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus

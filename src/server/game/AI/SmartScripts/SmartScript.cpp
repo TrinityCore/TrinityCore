@@ -1268,7 +1268,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            CAST_AI(SmartAI, me->AI())->SetFly(e.action.setFly.fly ? true : false);
+            CAST_AI(SmartAI, me->AI())->SetFly(e.action.setFly.fly ? false : true);
             break;
         }
         case SMART_ACTION_SET_RUN:
@@ -1964,6 +1964,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is not using SMART_TARGET_SELF or SMART_TARGET_POSITION, skipping");
 
            break;
+        }
+        case SMART_ACTION_SET_HEALTH_REGEN:
+        {
+            if (!me || me->GetTypeId() != TYPEID_UNIT)
+                break;
+            me->setRegeneratingHealth(e.action.setHealthRegen.regenHealth ? true : false);
+            break;
         }
         default:
             sLog->outError(LOG_FILTER_SQL, "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());

@@ -1,4 +1,4 @@
-// $Id: Process_Manager.cpp 91688 2010-09-09 11:21:50Z johnnyw $
+// $Id: Process_Manager.cpp 94454 2011-09-08 17:36:56Z johnnyw $
 
 // Process_Manager.cpp
 #include "ace/Process_Manager.h"
@@ -347,8 +347,7 @@ ACE_Process_Manager::handle_signal (int,
 #if defined (ACE_WIN32)
   ACE_HANDLE proc = si->si_handle_;
   ACE_exitcode status = 0;
-  BOOL result = ::GetExitCodeProcess (proc,
-                                      &status);
+  BOOL result = ::GetExitCodeProcess (proc, &status);
   if (result)
     {
       if (status != STILL_ACTIVE)
@@ -843,7 +842,7 @@ ACE_Process_Manager::wait (pid_t pid,
           // WAIT_OBJECT_0 is a pointless comparison because
           // WAIT_OBJECT_0 is zero and DWORD is unsigned long, so this
           // test is skipped for Green Hills.  Same for mingw.
-# if defined (ghs) || defined (__MINGW32__) || defined (_MSC_VER)
+# if defined (__MINGW32__) || defined (_MSC_VER)
           ACE_ASSERT (result < WAIT_OBJECT_0 + this->current_count_);
 # else
           ACE_ASSERT (result >= WAIT_OBJECT_0
@@ -917,7 +916,7 @@ ACE_Process_Manager::wait (pid_t pid,
           for (ACE_Countdown_Time time_left (&tmo); ; time_left.update ())
             {
               pid = ACE_OS::waitpid (-1, status, WNOHANG);
-#   if defined (ACE_VXWORKS) && (ACE_VXWORKS >= 0x600)
+#   if defined (ACE_VXWORKS)
               if (pid > 0 || (pid == ACE_INVALID_PID && errno != EINTR))
 #   else
                 if (pid > 0 || pid == ACE_INVALID_PID)
