@@ -1282,23 +1282,43 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_NO_ACTIVE_ENCHANTMENT            = 102, // You have no active enchantment to unleash.
     SPELL_CUSTOM_ERROR_ENOUGH_HIGHBOURNE_SOULS          = 103, // You have bound enough Highborne souls. Return to Arcanist Valdurian.
     SPELL_CUSTOM_ERROR_ATLEAST_40YD_FROM_OIL_DRILLING   = 104, // You must be at least 40 yards away from all other Oil Drilling Rigs.
-    SPELL_CUSTOM_ERROR_ABOVE_ENSLAVED_PEARL_MINER       = 105, // You must be above the Enslaved Pearl Miner.
-    SPELL_CUSTOM_ERROR_MUST_TARGET_CORPSE_SPECIAL_1     = 106, // You must target the corpse of a Seabrush Terrapin, Scourgut Remora, or Spinescale Hammerhead.
-    SPELL_CUSTOM_ERROR_SLAGHAMMER_ALREADY_PRISONER      = 107, // Ambassador Slaghammer is already your prisoner.
-    SPELL_CUSTOM_ERROR_REQUIRE_ATTUNED_LOCATION_1       = 108, // Requires a location that is attuned with the Naz'jar Battlemaiden.
-    SPELL_CUSTOM_ERROR_NEED_TO_FREE_DRAKE_FIRST         = 109, // Free the Drake from the net first!
-    SPELL_CUSTOM_ERROR_DRAGONMAW_ALLIES_ALREADY_FOLLOW  = 110, // You already have three Dragonmaw allies following you.
-    SPELL_CUSTOM_ERROR_REQUIRE_OPPOSABLE_THUMBS         = 111, // Requires Opposable Thumbs.
-    SPELL_CUSTOM_ERROR_NOT_ENOUGH_HEALTH_2              = 112, // Not enough health
-    SPELL_CUSTOM_ERROR_ENOUGH_FORSAKEN_TROOPERS         = 113, // You already have enough Forsaken Troopers.
-    SPELL_CUSTOM_ERROR_CANNOT_JUMP_TO_BOULDER           = 114, // You cannot jump to another boulder yet.
-    SPELL_CUSTOM_ERROR_SKILL_TOO_HIGH                   = 115, // Skill too high.
-    SPELL_CUSTOM_ERROR_ALREADY_6_SURVIVORS_RESCUED      = 116, // You have already rescued 6 Survivors.
-    SPELL_CUSTOM_ERROR_MUST_FACE_SHIPS_FROM_BALLOON     = 117, // You need to be facing the ships from the rescue balloon.
-    SPELL_CUSTOM_ERROR_CANNOT_SUPERVISE_MORE_CULTISTS   = 118, // You cannot supervise more than 5 Arrested Cultists at a time.
-    SPELL_CUSTOM_ERROR_REQUIRES_LEVEL_85                = 119, // You must reach level 85 to use this portal.
-    SPELL_CUSTOM_ERROR_MUST_BE_BELOW_35_HEALTH          = 120, // Your target must be below 35% health.
-    SPELL_CUSTOM_ERROR_MUST_SELECT_TALENT_SPECIAL       = 121  // You must select a talent specialization first.
+    SPELL_CUSTOM_ERROR_ABOVE_ENSLAVED_PEARL_MINER       = 106, // You must be above the Enslaved Pearl Miner.
+    SPELL_CUSTOM_ERROR_MUST_TARGET_CORPSE_SPECIAL_1     = 107, // You must target the corpse of a Seabrush Terrapin, Scourgut Remora, or Spinescale Hammerhead.
+    SPELL_CUSTOM_ERROR_SLAGHAMMER_ALREADY_PRISONER      = 108, // Ambassador Slaghammer is already your prisoner.
+    SPELL_CUSTOM_ERROR_REQUIRE_ATTUNED_LOCATION_1       = 109, // Requires a location that is attuned with the Naz'jar Battlemaiden.
+    SPELL_CUSTOM_ERROR_NEED_TO_FREE_DRAKE_FIRST         = 110, // Free the Drake from the net first!
+    SPELL_CUSTOM_ERROR_DRAGONMAW_ALLIES_ALREADY_FOLLOW  = 111, // You already have three Dragonmaw allies following you.
+    SPELL_CUSTOM_ERROR_REQUIRE_OPPOSABLE_THUMBS         = 112, // Requires Opposable Thumbs.
+    SPELL_CUSTOM_ERROR_NOT_ENOUGH_HEALTH_2              = 113, // Not enough health
+    SPELL_CUSTOM_ERROR_ENOUGH_FORSAKEN_TROOPERS         = 114, // You already have enough Forsaken Troopers.
+    SPELL_CUSTOM_ERROR_CANNOT_JUMP_TO_BOULDER           = 115, // You cannot jump to another boulder yet.
+    SPELL_CUSTOM_ERROR_SKILL_TOO_HIGH                   = 116, // Skill too high.
+    SPELL_CUSTOM_ERROR_ALREADY_6_SURVIVORS_RESCUED      = 117, // You have already rescued 6 Survivors.
+    SPELL_CUSTOM_ERROR_MUST_FACE_SHIPS_FROM_BALLOON     = 118, // You need to be facing the ships from the rescue balloon.
+    SPELL_CUSTOM_ERROR_CANNOT_SUPERVISE_MORE_CULTISTS   = 119, // You cannot supervise more than 5 Arrested Cultists at a time.
+    SPELL_CUSTOM_ERROR_REQUIRES_LEVEL_85                = 120, // You must reach level 85 to use this portal.
+    SPELL_CUSTOM_ERROR_MUST_BE_BELOW_35_HEALTH          = 121, // Your target must be below 35% health.
+    SPELL_CUSTOM_ERROR_MUST_SELECT_TALENT_SPECIAL       = 122, // You must select a talent specialization first.
+    SPELL_CUSTOM_ERROR_TOO_WISE_AND_POWERFUL            = 123, // You are too wise and powerful to gain any benefit from that item.
+    SPELL_CUSTOM_ERROR_TOO_CLOSE_ARGENT_LIGHTWELL       = 124, // You are within 10 yards of another Argent Lightwell.
+    SPELL_CUSTOM_ERROR_NOT_WHILE_SHAPESHIFTED           = 125, // You can't do that while shapeshifted.
+    SPELL_CUSTOM_ERROR_MANA_GEM_IN_BANK                 = 126, // You already have a Mana Gem in your bank.
+    SPELL_CUSTOM_ERROR_FLAME_SHOCK_NOT_ACTIVE           = 127, // You must have at least one Flame Shock active.
+    SPELL_CUSTOM_ERROR_CANT_TRANSFORM                   = 128, // You cannot transform right now
+    SPELL_CUSTOM_ERROR_PET_MUST_BE_ATTACKING            = 129, // Your pet must be attacking a target.
+    SPELL_CUSTOM_ERROR_GNOMISH_ENGINEERING              = 130, // Requires Gnomish Engineering
+    SPELL_CUSTOM_ERROR_GOBLIN_ENGINEERING               = 131, // Requires Goblin Engineering
+    SPELL_CUSTOM_ERROR_NO_TARGET                        = 132, // You have no target.
+    SPELL_CUSTOM_ERROR_PET_OUT_OF_RANGE                 = 133, // Your Pet is out of range of the target.
+    SPELL_CUSTOM_ERROR_HOLDING_FLAG                     = 134, // You can't do that while holding the flag.
+    SPELL_CUSTOM_ERROR_TARGET_HOLDING_FLAG              = 135, // You can't do that to targets holding the flag.
+    SPELL_CUSTOM_ERROR_PORTAL_NOT_OPEN                  = 136, // The portal is not yet open. Continue helping the druids at the Sanctuary of Malorne.
+    SPELL_CUSTOM_ERROR_AGGRA_AIR_TOTEM                  = 137, // You need to be closer to Aggra's Air Totem, in the west.
+    SPELL_CUSTOM_ERROR_AGGRA_WATER_TOTEM                = 138, // You need to be closer to Aggra's Water Totem, in the north.
+    SPELL_CUSTOM_ERROR_AGGRA_EARTH_TOTEM                = 139, // You need to be closer to Aggra's Earth Totem, in the east.
+    SPELL_CUSTOM_ERROR_AGGRA_FIRE_TOTEM                 = 140, // You need to be closer to Aggra's Fire Totem, near Thrall.
+    SPELL_CUSTOM_ERROR_TARGET_HAS_STARTDUST_2           = 148, // Target is already affected by Stardust No. 2.
+    SPELL_CUSTOM_ERROR_ELEMENTIUM_GEM_CLUSTERS          = 149  // You cannot deconstruct Elementium Gem Clusters while collecting them!
 };
 
 enum StealthType
@@ -2862,6 +2882,8 @@ enum HolidayIds
     HOLIDAY_RATED_BG_15_VS_15        = 442,
     HOLIDAY_RATED_BG_25_VS_25        = 443,
     HOLIDAY_ANNIVERSARY_7_YEARS      = 467,
+    HOLIDAY_DARKMOON_FAIRE_TEROKKAR  = 479,
+    HOLIDAY_ANNIVERSARY_8_YEARS      = 484,
 };
 
 // values based at QuestInfo.dbc
