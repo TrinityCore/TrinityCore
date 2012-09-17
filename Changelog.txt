@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[35] --> Add Admin Announce Command.
 [34] --> GM Account can chat at 2 faction.
 [33] --> Add script Allow Two Side Interaction Chat.
 [32] --> Add Armory Patch.
