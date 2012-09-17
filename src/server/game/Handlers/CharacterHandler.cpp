@@ -2199,3 +2199,18 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
 
     CharacterDatabase.CommitTransaction(trans);
 }
+
+void WorldSession::HandleOpeningCinematic(WorldPacket& /*recvData*/)
+{
+    // Only players that has not yet gained any experience can use this
+    if (_player->GetUInt32Value(PLAYER_XP))
+        return;
+
+    if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(_player->getClass()))
+    {
+        if (classEntry->CinematicSequence)
+            _player->SendCinematicStart(classEntry->CinematicSequence);
+        else if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(_player->getRace()))
+            _player->SendCinematicStart(raceEntry->CinematicSequence);
+    }
+}
