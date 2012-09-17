@@ -4,7 +4,7 @@
 /**
  *  @file    SString.h
  *
- *  $Id: SString.h 91058 2010-07-12 08:20:09Z johnnyw $
+ *  $Id: SString.h 92580 2010-11-15 09:48:02Z johnnyw $
  *
  *  @author Douglas C. Schmidt (schmidt@cs.wustl.edu)
  */
@@ -75,7 +75,7 @@ public:
 #if defined (ACE_WSTRING_HAS_USHORT_SUPPORT)
   /// Constructor that takes in a ushort16 string (mainly used by the
   /// ACE Name_Space classes)
-  ACE_NS_WString (const ACE_USHORT16 *s,
+  ACE_NS_WString (const ACE_UINT16 *s,
                   size_type len,
                   ACE_Allocator *alloc = 0);
 #endif /* ACE_WSTRING_HAS_USHORT_SUPPORT */
@@ -102,7 +102,7 @@ public:
 
   /// Transform into a copy of a USHORT16 representation (caller must
   /// delete).  Note, behavior is undefined when sizeof (wchar_t) != 2.
-  ACE_USHORT16 *ushort_rep (void) const;
+  ACE_UINT16 *ushort_rep (void) const;
 };
 
 ACE_Export

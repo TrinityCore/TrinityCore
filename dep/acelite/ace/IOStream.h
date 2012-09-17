@@ -4,7 +4,7 @@
 /**
  *  @file    IOStream.h
  *
- *  $Id: IOStream.h 92102 2010-09-30 08:14:15Z johnnyw $
+ *  $Id: IOStream.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author James CE Johnson <jcej@lads.com>
  *  @author Jim Crossley <jim@lads.com>
@@ -156,7 +156,7 @@ class ACE_Export ACE_Streambuf : public streambuf
 public:
 
   /**
-   * If the default allocation strategey were used the common buffer
+   * If the default allocation strategy were used the common buffer
    * would be deleted when the object destructs.  Since we are
    * providing separate read/write buffers, it is up to us to manage
    * their memory.
@@ -274,11 +274,11 @@ protected:
    */
   int syncin (void);
 
-  /// syncout is called when the output needs to be flushed.  This is
+  /// syncout() is called when the output needs to be flushed.  This is
   /// easily done by calling the peer's send_n function.
   int syncout (void);
 
-  /// flushbuf is the worker of syncout.  It is a separate function
+  /// flushbuf() is the worker of syncout.  It is a separate function
   /// because it gets used sometimes in different context.
   int flushbuf (void);
 

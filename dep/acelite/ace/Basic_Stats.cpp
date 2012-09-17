@@ -1,4 +1,4 @@
-// $Id: Basic_Stats.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Basic_Stats.cpp 95743 2012-05-13 12:29:28Z johnnyw $
 
 #include "ace/Basic_Stats.h"
 #include "ace/Log_Msg.h"
@@ -42,7 +42,9 @@ ACE_Basic_Stats::accumulate (const ACE_Basic_Stats &rhs)
 }
 
 void
-ACE_Basic_Stats::dump_results (const ACE_TCHAR *msg, ACE_UINT32 sf) const
+ACE_Basic_Stats::dump_results (
+  const ACE_TCHAR *msg,
+  ACE_Basic_Stats::scale_factor_type sf) const
 {
 #ifndef ACE_NLOGGING
   if (this->samples_count () == 0u)

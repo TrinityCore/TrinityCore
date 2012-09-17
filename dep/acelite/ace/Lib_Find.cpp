@@ -1,4 +1,4 @@
-// $Id: Lib_Find.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Lib_Find.cpp 95630 2012-03-22 13:04:47Z johnnyw $
 
 #include "ace/Lib_Find.h"
 #include "ace/Log_Msg.h"
@@ -608,7 +608,13 @@ ACE::get_temp_dir (ACE_TCHAR *buffer, size_t buffer_len)
   const char *tmpdir = ACE_OS::getenv ("TMPDIR");
 
   if (tmpdir == 0)
-    tmpdir = "/tmp";
+    {
+#if defined (ACE_DEFAULT_TEMP_DIR)
+      tmpdir = ACE_DEFAULT_TEMP_DIR;
+#else
+      tmpdir = "/tmp";
+#endif
+    }
 
   size_t len = ACE_OS::strlen (tmpdir);
 
@@ -653,7 +659,10 @@ ACE::open_temp_file (const ACE_TCHAR *name, int mode, int perm)
   // Unlink it so that the file will be removed automatically when the
   // process goes away.
   if (ACE_OS::unlink (name) == -1)
-    return ACE_INVALID_HANDLE;
+    {
+      ACE_OS::close (handle);
+      return ACE_INVALID_HANDLE;
+    }
   else
     // Return the handle.
     return handle;

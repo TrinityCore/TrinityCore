@@ -1,4 +1,4 @@
-// $Id: Condition_T.cpp 89127 2010-02-22 19:58:18Z schmidt $
+// $Id: Condition_T.cpp 96077 2012-08-20 08:13:23Z johnnyw $
 
 #ifndef ACE_CONDITION_T_CPP
 #define ACE_CONDITION_T_CPP
@@ -15,6 +15,7 @@
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Condition_T.inl"
+#include "ace/Time_Value.h"
 #endif /* __ACE_INLINE__ */
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
@@ -66,6 +67,22 @@ ACE_Condition<MUTEX>::ACE_Condition (MUTEX &m,
                          (short) type,
                          name,
                          arg) != 0)
+    ACE_ERROR ((LM_ERROR,
+                ACE_TEXT ("%p\n"),
+                ACE_TEXT ("ACE_Condition::ACE_Condition")));
+}
+
+template <class MUTEX>
+ACE_Condition<MUTEX>::ACE_Condition (MUTEX &m,
+                                     const ACE_Condition_Attributes &attributes,
+                                     const ACE_TCHAR *name,
+                                     void *arg)
+  : mutex_ (m)
+{
+// ACE_TRACE ("ACE_Condition<MUTEX>::ACE_Condition<MUTEX>");
+  if (ACE_OS::cond_init (&this->cond_,
+                         const_cast<ACE_condattr_t &> (attributes.attributes ()),
+                         name, arg) != 0)
     ACE_ERROR ((LM_ERROR,
                 ACE_TEXT ("%p\n"),
                 ACE_TEXT ("ACE_Condition::ACE_Condition")));

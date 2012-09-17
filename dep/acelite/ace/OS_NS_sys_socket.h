@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_sys_socket.h
  *
- *  $Id: OS_NS_sys_socket.h 85110 2009-04-20 09:18:43Z msmit $
+ *  $Id: OS_NS_sys_socket.h 95533 2012-02-14 22:59:17Z wotte $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -192,6 +192,14 @@ namespace ACE_OS
                 size_t len,
                 int flags = 0);
 
+  /// internal function used by send when an ENOBUFS condition
+  /// requires a buffer to do a partial send
+  extern ACE_Export
+  ssize_t send_partial_i (ACE_HANDLE handle,
+                          const char *buf,
+                          size_t len,
+                          int flags);
+
   ACE_NAMESPACE_INLINE_FUNCTION
   ssize_t sendmsg (ACE_HANDLE handle,
                    const struct msghdr *msg,
@@ -221,6 +229,12 @@ namespace ACE_OS
                  const iovec *iov,
                  int iovcnt);
 
+  /// internal function used by sendv when an ENOBUFS condition
+  /// requires a buffer to do a partial send
+  extern ACE_Export
+  ssize_t sendv_partial_i (ACE_HANDLE handle,
+                           const iovec *iov,
+                           int iovcnt);
 
   /// Manipulate the options associated with a socket.
   ACE_NAMESPACE_INLINE_FUNCTION
@@ -234,7 +248,7 @@ namespace ACE_OS
   int shutdown (ACE_HANDLE handle,
                 int how);
 
-#if defined (__linux__) && defined (ACE_HAS_IPV6)
+#if defined (ACE_LINUX) && defined (ACE_HAS_IPV6)
   ACE_NAMESPACE_INLINE_FUNCTION
   unsigned int if_nametoindex (const char *ifname);
 
@@ -246,7 +260,7 @@ namespace ACE_OS
 
   ACE_NAMESPACE_INLINE_FUNCTION
   void if_freenameindex (struct if_nameindex *ptr);
-#endif /* __linux__ && ACE_HAS_IPV6 */
+#endif /* ACE_LINUX && ACE_HAS_IPV6 */
 
   /// Initialize WinSock before first use (e.g., when a DLL is first
   /// loaded or the first use of a socket() call.

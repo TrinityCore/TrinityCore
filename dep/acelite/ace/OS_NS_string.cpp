@@ -1,4 +1,4 @@
-// $Id: OS_NS_string.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: OS_NS_string.cpp 93549 2011-03-15 19:50:24Z olli $
 
 #include "ace/ACE.h"
 #include "ace/OS_NS_string.h"
@@ -368,8 +368,7 @@ ACE_OS::strsncpy (ACE_WCHAR_T *dst, const ACE_WCHAR_T *src, size_t maxlen)
   return dst;
 }
 
-#if (!defined (ACE_HAS_REENTRANT_FUNCTIONS) || defined (ACE_LACKS_STRTOK_R)) \
-    && !defined (ACE_HAS_TR24731_2005_CRT)
+#if defined (ACE_LACKS_STRTOK_R)
 char *
 ACE_OS::strtok_r_emulation (char *s, const char *tokens, char **lasts)
 {
@@ -390,7 +389,7 @@ ACE_OS::strtok_r_emulation (char *s, const char *tokens, char **lasts)
     *lasts = s + l_sub;
   return s ;
 }
-#endif /* !ACE_HAS_REENTRANT_FUNCTIONS */
+#endif /* ACE_LACKS_STRTOK_R */
 
 # if defined (ACE_HAS_WCHAR) && defined (ACE_LACKS_WCSTOK)
 wchar_t*

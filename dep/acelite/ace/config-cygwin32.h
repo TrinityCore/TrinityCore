@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-cygwin32.h 87169 2009-10-19 20:26:55Z olli $
+// $Id: config-cygwin32.h 93530 2011-03-11 12:12:40Z olli $
 
 // The following configuration file is designed to work for CygWin
 // platforms using GNU C++.
@@ -64,7 +64,6 @@
 #define ACE_HAS_VOIDPTR_SOCKOPT 1
 #define ACE_HAS_UALARM 1
 #define ACE_HAS_STRNLEN 1
-#define ACE_HAS_POSIX_GETPWNAM_R 1
 #define ACE_HAS_POSIX_NONBLOCK 1
 #define ACE_HAS_POSIX_TIME
 #define ACE_HAS_CLOCK_GETTIME 1
@@ -73,11 +72,9 @@
 #define ACE_DEFAULT_BASE_ADDR ((char *) 0x8000000)
 #define ACE_HAS_NONCONST_SELECT_TIMEVAL
 #define ACE_HAS_SVR4_DYNAMIC_LINKING
-//#define ACE_HAS_SYSV_IPC
 #define ACE_HAS_VOIDPTR_MMAP
 #define ACE_HAS_CPLUSPLUS_HEADERS
 #define ACE_HAS_POLL
-#define ACE_HAS_POSITION_INDEPENDENT_POINTERS 1
 #define ACE_HAS_SOCKADDR_MSG_NAME 1
 #define ACE_LACKS_PRI_T 1
 #define ACE_HAS_3_PARAM_READDIR_R
