@@ -1268,7 +1268,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            CAST_AI(SmartAI, me->AI())->SetFly(e.action.setFly.fly ? true : false);
+            CAST_AI(SmartAI, me->AI())->SetFly(e.action.setFly.fly ? false : true);
             break;
         }
         case SMART_ACTION_SET_RUN:
