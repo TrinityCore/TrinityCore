@@ -122,6 +122,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 1);
                     player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, GetData(TYPE_COUNTER));
                 }
+                else
+                    player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
 
                 // make sure Anub'arak isnt missing after a crash
                 if (GetData(TYPE_VALKIRIES) == DONE)
