@@ -204,6 +204,21 @@ UPDATE `creature_template` SET `minlevel`=80, `maxlevel`=80, `exp`=2, `faction_A
 UPDATE `creature_template` SET `faction_A`=16, `faction_H`=16, `difficulty_entry_1`=36301, `difficulty_entry_2`=36302, `difficulty_entry_3`=36303 WHERE `entry`=35465;
 UPDATE `creature_template` SET `name`="Zhaagrym (1)" WHERE `entry`=36301;
 
+-- Jaraxxus Mistress Kiss
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (66336, 67076, 67077, 67078);
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
+(66336, 66334, 1, 'Mistress Kiss - 10m'),
+(67076, 67905, 1, 'Mistress Kiss - 25m'),
+(67077, 67906, 1, 'Mistress Kiss - 10m Heroic'),
+(67078, 67907, 1, 'Mistress Kiss - 25m Heroic');
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_mistress_kiss';
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(66334, 'spell_mistress_kiss'),
+(67905, 'spell_mistress_kiss'),
+(67906, 'spell_mistress_kiss'),
+(67907, 'spell_mistress_kiss');
+
 -- -------------------------
 -- ULDUAR ------------------
 -- -------------------------
