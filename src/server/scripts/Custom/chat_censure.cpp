@@ -85,7 +85,7 @@ void CheckMessage(Player* player, std::string& msg, uint32 lang, Player* /*recei
         if (lower.find(checks[i]) != std::string::npos)
         {
             msg = "";
-            ChatHandler(player).PSendSysMessage("Advertising and vulgar behavior is not allowed!");         
+            ChatHandler(player).PSendSysMessage("Advertising and vulgar behavior is not allowed!");
             return;
         }
 }
