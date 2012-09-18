@@ -85,10 +85,8 @@ enum BossSpells
     SPELL_SPIDER_FRENZY     = 66128,
     SPELL_EXPOSE_WEAKNESS   = 67720, //Passive - Triggered
     SPELL_SHADOW_STRIKE     = 66134,
-    SPELL_SUBMERGE_EFFECT   = 68394,
-    SPELL_EMERGE_EFFECT     = 65982,
-    SPELL_AWAKENED          = 66311,
-    SPELL_PERSISTENT_DIRT   = 68048,
+    SPELL_SUBMERGE_EFFECT   = 53421,
+    SPELL_EMERGE_EFFECT     = 66947,
 
     SUMMON_SCARAB           = NPC_SCARAB,
     SUMMON_FROSTSPHERE      = NPC_FROST_SPHERE,
@@ -98,7 +96,6 @@ enum BossSpells
     SPELL_FROST_SPHERE      = 67539,
     SPELL_PERMAFROST        = 66193,
     SPELL_PERMAFROST_VISUAL = 65882,
-    SPELL_PERMAFROST_MODEL  = 66185,
 
     //Spike
     SPELL_SUMMON_SPIKE      = 66169,
@@ -217,10 +214,7 @@ public:
             //Summon Scarab Swarms neutral at random places
             for (int i=0; i < 10; i++)
                 if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
-                {
                     temp->setFaction(31);
-                    temp->GetMotionMaster()->MoveRandom(10);
-                }
         }
 
         void JustDied(Unit* /*killer*/)
@@ -243,6 +237,7 @@ public:
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
+                    summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid1);
                     Talk(EMOTE_SPIKE, target->GetGUID());
                     break;
             }
@@ -440,9 +435,10 @@ public:
             m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             DoCast(me, SPELL_ACID_MANDIBLE);
             me->SetInCombatWithZone();
-            if (me->isInCombat())
-                if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ANUBARAK)))
-                    Anubarak->AI()->JustSummoned(me);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                me->AddThreat(target, 20000.0f);
+            if (!me->isInCombat())
+                me->DisappearAndDie();
         }
 
         void DoAction(const int32 actionId)
@@ -503,16 +499,14 @@ public:
 
         void Reset()
         {
-            me->SetCorpseDelay(10);
+            me->SetCorpseDelay(0);
             m_uiSpiderFrenzyTimer = urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS);
             m_uiSubmergeTimer = 30*IN_MILLISECONDS;
             DoCast(me, SPELL_EXPOSE_WEAKNESS);
             DoCast(me, SPELL_SPIDER_FRENZY);
-            DoCast(me, SPELL_AWAKENED);
             me->SetInCombatWithZone();
-            if (me->isInCombat())
-                if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_ANUBARAK)))
-                    Anubarak->AI()->JustSummoned(me);
+            if (!me->isInCombat())
+                me->DisappearAndDie();
         }
 
         void DoAction(const int32 actionId)
@@ -520,37 +514,33 @@ public:
             switch (actionId)
             {
                 case ACTION_SHADOW_STRIKE:
-                    if (!me->HasAura(SPELL_AWAKENED))
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SHADOW_STRIKE);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_SHADOW_STRIKE);
                     break;
             }
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim())
+            if (!UpdateVictim() && !me->HasAura(SPELL_SUBMERGE_EFFECT))
                 return;
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if ((m_uiSubmergeTimer <= uiDiff) && HealthBelowPct(80))
+            if (m_uiSubmergeTimer <= uiDiff)
             {
                 if (me->HasAura(SPELL_SUBMERGE_EFFECT))
                 {
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_EFFECT);
                     DoCast(me, SPELL_EMERGE_EFFECT);
-                    DoCast(me, SPELL_AWAKENED);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                    me->CombatStart(me->SelectNearestTarget());
                 }
                 else
                 {
                     if (!me->HasAura(SPELL_PERMAFROST_HELPER))
                     {
                         DoCast(me, SPELL_SUBMERGE_EFFECT);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        DoCast(me, SPELL_PERSISTENT_DIRT, true);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                        me->CombatStop();
                     }
                 }
                 m_uiSubmergeTimer = 20*IN_MILLISECONDS;
@@ -575,12 +565,17 @@ class mob_frost_sphere : public CreatureScript
 
             void Reset()
             {
+                _isFalling = false;
                 me->SetReactState(REACT_PASSIVE);
-                DoCast(SPELL_FROST_SPHERE);
+                //! Confirmed sniff 3.3.5.a
+                me->SetDisableGravity(true);
+                me->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                //! end
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetSpeed(MOVE_FLIGHT, 0.5f, false);
                 me->CombatStop(true);
                 me->GetMotionMaster()->MoveRandom(20.0f);
+                DoCast(SPELL_FROST_SPHERE);
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage)
@@ -588,25 +583,15 @@ class mob_frost_sphere : public CreatureScript
                 if (me->GetHealth() <= damage)
                 {
                     damage = 0;
-                    float floorZ = me->GetMap()->GetHeight(me->GetPhaseMask(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                    if (fabs(me->GetPositionZ() - floorZ) < 0.1f)
+                    if (!_isFalling)
                     {
-                        // we are close to the ground
-                        me->GetMotionMaster()->MoveIdle();
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
-                        DoCast(SPELL_PERMAFROST_MODEL);
-                        DoCast(SPELL_PERMAFROST);
-                        me->SetObjectScale(2.0f);
-                    }
-                    else
-                    {
-                        // we are in air
+                        _isFalling = true;
                         me->GetMotionMaster()->MoveIdle();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         //At hit the ground
                         me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
                         me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
+                        me->SetDisplayId(11686);
                     }
                 }
             }
@@ -620,13 +605,15 @@ class mob_frost_sphere : public CreatureScript
                 {
                     case POINT_FALL_GROUND:
                         me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
-                        DoCast(SPELL_PERMAFROST_MODEL);
                         DoCast(SPELL_PERMAFROST_VISUAL);
                         DoCast(SPELL_PERMAFROST);
                         me->SetObjectScale(2.0f);
                         break;
                 }
             }
+
+        private:
+            bool _isFalling;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -737,7 +724,7 @@ public:
             if (m_Phase == PHASE_NO_MOVEMENT)
                 return;
 
-            if (me->IsWithinDist(pWho, 8.0f))
+            if (me->IsWithinDist(pWho, 7.0f))
             {
                 switch (m_Phase)
                 {
@@ -770,7 +757,7 @@ public:
             DoCast(who, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
             // make sure the Spine will really follow the one he should
-            me->getThreatManager().addThreat(who, me->getThreatManager().getThreat(me->getVictim()) + 100.f);
+            me->getThreatManager().addThreat(who, me->getThreatManager().getThreat(me->getVictim()) + 10000.f);
             me->GetMotionMaster()->Clear(true);
             me->GetMotionMaster()->MoveChase(who);
             me->TauntApply(who);
