@@ -83,7 +83,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_ACHIEVEMENT:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = player->GetAchievementMgr().HasAchieved(ConditionValue1);
+                condMeets = player->HasAchieved(ConditionValue1);
             break;
         }
         case CONDITION_TEAM:

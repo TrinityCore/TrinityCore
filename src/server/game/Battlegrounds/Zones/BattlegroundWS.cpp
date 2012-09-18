@@ -453,7 +453,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         UpdateFlagState(HORDE, BG_WS_FLAG_STATE_ON_PLAYER);
         UpdateWorldState(BG_WS_FLAG_UNK_ALLIANCE, 1);
         Source->CastSpell(Source, BG_WS_SPELL_SILVERWING_FLAG, true);
-        Source->GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_SILVERWING_FLAG_PICKED);
+        Source->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_SILVERWING_FLAG_PICKED);
         if (_flagState[1] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
     }
@@ -472,7 +472,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         UpdateFlagState(ALLIANCE, BG_WS_FLAG_STATE_ON_PLAYER);
         UpdateWorldState(BG_WS_FLAG_UNK_HORDE, 1);
         Source->CastSpell(Source, BG_WS_SPELL_WARSONG_FLAG, true);
-        Source->GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_WARSONG_FLAG_PICKED);
+        Source->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_WARSONG_FLAG_PICKED);
         if (_flagState[0] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
     }

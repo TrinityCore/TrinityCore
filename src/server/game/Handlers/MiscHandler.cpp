@@ -1723,7 +1723,7 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     if (!player)
         return;
 
-    player->GetAchievementMgr().SendAchievementInfo(_player);
+    player->SendRespondInspectAchievements(_player);
 }
 
 void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)

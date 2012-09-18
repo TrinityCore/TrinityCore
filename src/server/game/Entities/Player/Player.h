@@ -2647,9 +2647,14 @@ class Player : public Unit, public GridObject<Player>
         void AddRunePower(uint8 index);
         void InitRunes();
 
-        AchievementMgr<Player>& GetAchievementMgr() { return m_achievementMgr; }
-        AchievementMgr<Player> const& GetAchievementMgr() const { return m_achievementMgr; }
+        void SendRespondInspectAchievements(Player* player) const;
+        bool HasAchieved(uint32 achievementId) const;
+        void ResetAchievements();
+        void CheckAllAchievementCriteria();
+        void ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, bool evenIfCriteriaComplete = false);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
+        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
+        void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);
 
         bool HasTitle(uint32 bitIndex);
