@@ -884,6 +884,15 @@ public:
 
 class boss_icehowl : public CreatureScript
 {
+    enum
+    {
+        EVENT_FEROCIOUS_BUTT = 1,
+        EVENT_MASSIVE_CRASH,
+        EVENT_WHIRL,
+        EVENT_ARCTIC_BREATH,
+        EVENT_TRAMPLE
+    };
+
 public:
     boss_icehowl() : CreatureScript("boss_icehowl") { }
 
@@ -901,11 +910,6 @@ public:
 
         InstanceScript* instance;
 
-        uint32 m_uiFerociousButtTimer;
-        uint32 m_uiArticBreathTimer;
-        uint32 m_uiWhirlTimer;
-        uint32 m_uiMassiveCrashTimer;
-        uint32 m_uiTrampleTimer;
         float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
         uint64 m_uiTrampleTargetGUID;
         bool   m_bMovementStarted;
@@ -913,14 +917,15 @@ public:
         bool   m_bTrampleCasted;
         uint8  m_uiStage;
         Unit*  target;
+        EventMap events;
 
         void Reset()
         {
-            m_uiFerociousButtTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
-            m_uiWhirlTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
-            m_uiTrampleTimer = IN_MILLISECONDS;
+            events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_MASSIVE_CRASH, 30*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_TRAMPLE, 1*IN_MILLISECONDS);
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
@@ -945,20 +950,19 @@ public:
             switch (pointId)
             {
                 case 0:
-                    if (me->GetDistance2d(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()) < 6.0f)
+                    if (m_uiStage != 0)
                     {
-                        // Middle of the room
-                        m_uiStage = 1;
-                    }
-                    else
-                    {
-                        // Landed from Hop backwards (start trample)
-                        if (Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
-                        {
-                            m_uiStage = 4;
-                        }
+                        if (me->GetDistance2d(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()) < 6.0f)
+                            // Middle of the room
+                            m_uiStage = 1;
                         else
-                            m_uiStage = 6;
+                        {
+                            // Landed from Hop backwards (start trample)
+                            if (Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
+                                m_uiStage = 4;
+                            else
+                                m_uiStage = 6;
+                        }
                     }
                     break;
                 case 1: // Finish trample
@@ -969,6 +973,8 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
+                    break;
+                default:
                     break;
             }
         }
@@ -1022,39 +1028,45 @@ public:
             if (!UpdateVictim())
                 return;
 
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             switch (m_uiStage)
             {
                 case 0:
-                    if (m_uiFerociousButtTimer <= diff)
+                {
+                    while (uint32 event = events.ExecuteEvent())
                     {
-                        DoCastVictim(SPELL_FEROCIOUS_BUTT);
-                        m_uiFerociousButtTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                    } else m_uiFerociousButtTimer -= diff;
-
-                    if (m_uiArticBreathTimer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ARCTIC_BREATH);
-                        m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
-                    } else m_uiArticBreathTimer -= diff;
-
-                    if (m_uiWhirlTimer <= diff)
-                    {
-                        DoCastAOE(SPELL_WHIRL);
-                        m_uiWhirlTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                    } else m_uiWhirlTimer -= diff;
-
-                    if (m_uiMassiveCrashTimer <= diff)
-                    {
-                        me->GetMotionMaster()->MoveJump(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 10.0f, 20.0f); // 1: Middle of the room
-                        SetCombatMovement(false);
-                        me->AttackStop();
-                        m_uiStage = 7; //Invalid (Do nothing more than move)
-                        m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
-                    } else m_uiMassiveCrashTimer -= diff;
-
+                        switch (event)
+                        {
+                            case EVENT_FEROCIOUS_BUTT:
+                                DoCastVictim(SPELL_FEROCIOUS_BUTT);
+                                events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                                return;
+                            case EVENT_ARCTIC_BREATH:
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    DoCast(target, SPELL_ARCTIC_BREATH);
+                                events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+                                return;
+                            case EVENT_WHIRL:
+                                DoCastAOE(SPELL_WHIRL);
+                                events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                                return;
+                            case EVENT_MASSIVE_CRASH:
+                                me->GetMotionMaster()->MoveJump(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 20.0f, 20.0f); // 1: Middle of the room
+                                SetCombatMovement(false);
+                                me->AttackStop();
+                                m_uiStage = 7; //Invalid (Do nothing more than move)
+                                return;
+                            default:
+                                break;
+                        }
+                    }
                     DoMeleeAttackIfReady();
                     break;
+                }
                 case 1:
                     DoCastAOE(SPELL_MASSIVE_CRASH);
                     me->StopMoving();
@@ -1069,64 +1081,77 @@ public:
                         m_uiTrampleTargetGUID = target->GetGUID();
                         me->SetTarget(m_uiTrampleTargetGUID);
                         m_bTrampleCasted = false;
-                        //SetCombatMovement(false);
-                        //me->GetMotionMaster()->MoveIdle();
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        m_uiTrampleTimer = 4*IN_MILLISECONDS;
+                        SetCombatMovement(false);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveIdle();
+                        events.ScheduleEvent(EVENT_TRAMPLE, 4*IN_MILLISECONDS);
                         m_uiStage = 3;
-                    } else m_uiStage = 6;
+                    }
+                    else
+                        m_uiStage = 6;
                     break;
                 case 3:
-                    me->StopMoving();
-                    me->AttackStop();
-                    if (m_uiTrampleTimer <= diff)
+                    while (uint32 event = events.ExecuteEvent())
                     {
-                        if (Unit* target = Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
+                        switch (event)
                         {
-                            m_bTrampleCasted = false;
-                            m_bMovementStarted = true;
-                            m_fTrampleTargetX = target->GetPositionX();
-                            m_fTrampleTargetY = target->GetPositionY();
-                            m_fTrampleTargetZ = target->GetPositionZ();
-                            me->GetMotionMaster()->MoveJump(2*me->GetPositionX()-m_fTrampleTargetX,
-                                2*me->GetPositionY()-m_fTrampleTargetY,
-                                me->GetPositionZ(),
-                                20.0f, 30.0f); // 2: Hop Backwards
-                            m_uiStage = 7; //Invalid (Do nothing more than move)
-                        } else m_uiStage = 6;
-                    } else m_uiTrampleTimer -= diff;
+                            case EVENT_TRAMPLE:
+                            {
+                                if (Unit* target = Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
+                                {
+                                    me->StopMoving();
+                                    me->AttackStop();
+                                    m_bTrampleCasted = false;
+                                    m_bMovementStarted = true;
+                                    m_fTrampleTargetX = target->GetPositionX();
+                                    m_fTrampleTargetY = target->GetPositionY();
+                                    m_fTrampleTargetZ = target->GetPositionZ();
+                                    // 2: Hop Backwards
+                                    me->GetMotionMaster()->MoveJump(2*me->GetPositionX() - m_fTrampleTargetX, 2*me->GetPositionY() - m_fTrampleTargetY, me->GetPositionZ(), 30.0f, 20.0f);
+                                    m_uiStage = 7; //Invalid (Do nothing more than move)
+                                }
+                                else
+                                    m_uiStage = 6;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    }
                     break;
                 case 4:
                     me->StopMoving();
                     me->AttackStop();
                     Talk(EMOTE_TRAMPLE_START, m_uiTrampleTargetGUID);
-                    me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
+                    me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ, 42, 1);
                     me->SetTarget(0);
                     m_uiStage = 5;
                     break;
                 case 5:
                     if (m_bMovementFinish)
                     {
-                        if (m_uiTrampleTimer <= diff)
-                            DoCastAOE(SPELL_TRAMPLE);
+                        DoCastAOE(SPELL_TRAMPLE);
                         m_bMovementFinish = false;
                         m_uiStage = 6;
                         return;
                     }
-                    if (m_uiTrampleTimer <= diff)
+                    if (events.ExecuteEvent() == EVENT_TRAMPLE)
                     {
                         Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                         {
                             if (Unit* player = itr->getSource())
+                            {
                                 if (player->isAlive() && player->IsWithinDistInMap(me, 6.0f))
                                 {
                                     DoCastAOE(SPELL_TRAMPLE);
-                                    m_uiTrampleTimer = IN_MILLISECONDS;
+                                    events.ScheduleEvent(EVENT_TRAMPLE, 4*IN_MILLISECONDS);
                                     break;
                                 }
+                            }
                         }
-                    } else m_uiTrampleTimer -= diff;
+                    }
                     break;
                 case 6:
                     if (!m_bTrampleCasted)
@@ -1140,11 +1165,16 @@ public:
                         Talk(EMOTE_TRAMPLE_FAIL);
                     }
                     m_bMovementStarted = false;
-                    me->GetMotionMaster()->MovementExpired();
-                    me->GetMotionMaster()->MoveChase(me->getVictim());
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                     SetCombatMovement(true);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->GetMotionMaster()->MovementExpired();
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveChase(me->getVictim());
+                    AttackStart(me->getVictim());
+                    events.ScheduleEvent(EVENT_MASSIVE_CRASH, 40*IN_MILLISECONDS);
                     m_uiStage = 0;
+                    break;
+                default:
                     break;
             }
         }
