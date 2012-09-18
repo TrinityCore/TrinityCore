@@ -526,7 +526,7 @@ class boss_freya : public CreatureScript
                 me->CastCustomSpell(SPELL_ATTUNED_TO_NATURE, SPELLVALUE_AURA_STACK, 150, me, true);
 
                 events.ScheduleEvent(EVENT_WAVE, 10000);
-                events.ScheduleEvent(EVENT_NATURE_BOMB, 10000 + urand(10000, 20000)); // Event should at first occur 10-20 seconds after the first wave got spawned, and go on with the same period.
+                events.ScheduleEvent(EVENT_NATURE_BOMB, urand(20000, 30000)); // Event should at first occur 10-20 seconds after the first wave got spawned, and go on with the same period.
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
                 events.ScheduleEvent(EVENT_SUNBEAM, urand(5000, 15000));
@@ -1319,6 +1319,8 @@ class npc_detonating_lasher : public CreatureScript
             void InitializeAI()
             {
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                instance = me->GetInstanceScript();
+                Reset();
             }
 
             void Reset()
@@ -1370,11 +1372,16 @@ class npc_detonating_lasher : public CreatureScript
                             return;
                     }
                 }
+
+                if (instance && instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 DoMeleeAttackIfReady();
             }
 
             private:
                 EventMap events;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1394,7 +1401,8 @@ class npc_ancient_water_spirit : public CreatureScript
 
             void InitializeAI()
             {
-                if (InstanceScript* instance = me->GetInstanceScript())
+                instance = me->GetInstanceScript();
+                if (instance)
                     if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                         waveCount = Freya->AI()->GetData(DATA_TRIO_WAVE_COUNT);
             }
@@ -1410,7 +1418,7 @@ class npc_ancient_water_spirit : public CreatureScript
             {
                 if (damage >= me->GetHealth())
                 {
-                    if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance)
                         if (Creature* freya = me->GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                         {
                             freya->AI()->SetGUID(me->GetGUID(), ACTION_ELEMENTAL_DEAD);
@@ -1438,12 +1446,16 @@ class npc_ancient_water_spirit : public CreatureScript
                 else
                     tidalWaveTimer -= diff;
 
+                if (instance && instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 DoMeleeAttackIfReady();
             }
 
             private:
                 uint32 tidalWaveTimer;
                 uint8 waveCount;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1470,24 +1482,26 @@ class npc_storm_lasher : public CreatureScript
 
             void InitializeAI()
             {
-                if (InstanceScript* instance = me->GetInstanceScript())
+                instance = me->GetInstanceScript();
+                if (instance)
                     if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                         waveCount = Freya->AI()->GetData(DATA_TRIO_WAVE_COUNT);
+                Reset();
             }
 
             void Reset()
             {
-                if (Unit* target = me->SelectNearbyTarget(NULL,100.0f))
-                    AttackStart(target);
                 events.ScheduleEvent(EVENT_LIGHTNING_LASH, 10000);
                 events.ScheduleEvent(EVENT_STORMBOLT, 5000);
+                if (Unit* target = me->SelectNearbyTarget(NULL,100.0f))
+                    AttackStart(target);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32 &damage)
             {
                 if (damage >= me->GetHealth())
                 {
-                    if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance)
                         if (Creature* freya = me->GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                         {
                             freya->AI()->SetGUID(me->GetGUID(), ACTION_ELEMENTAL_DEAD);
@@ -1523,12 +1537,16 @@ class npc_storm_lasher : public CreatureScript
                     }
                 }
 
+                if (instance && instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 DoMeleeAttackIfReady();
             }
 
             private:
                 EventMap events;
                 uint8 waveCount;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1548,7 +1566,8 @@ class npc_snaplasher : public CreatureScript
 
             void InitializeAI()
             {
-                if (InstanceScript* instance = me->GetInstanceScript())
+                instance = me->GetInstanceScript();
+                if (instance)
                     if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                         waveCount = Freya->AI()->GetData(DATA_TRIO_WAVE_COUNT);
             }
@@ -1563,7 +1582,7 @@ class npc_snaplasher : public CreatureScript
             {
                 if (damage >= me->GetHealth())
                 {
-                    if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance)
                         if (Creature* freya = me->GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                         {
                             freya->AI()->SetGUID(me->GetGUID(), ACTION_ELEMENTAL_DEAD);
@@ -1582,11 +1601,15 @@ class npc_snaplasher : public CreatureScript
                 if (!me->HasAura(SPELL_BARK_AURA))
                     DoCast(SPELL_HARDENED_BARK);
 
+                if (instance && instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 DoMeleeAttackIfReady();
             }
 
             private:
                 uint8 waveCount;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1611,6 +1634,12 @@ class npc_ancient_conservator : public CreatureScript
         {
             npc_ancient_conservatorAI(Creature* creature) : ScriptedAI(creature) {}
 
+            void InitializeAI()
+            {
+                instance = me->GetInstanceScript();
+                Reset();
+            }
+
             void Reset()
             {
                 events.ScheduleEvent(EVENT_NATURES_FURY, 7500);
@@ -1634,7 +1663,7 @@ class npc_ancient_conservator : public CreatureScript
             {
                 if (damage >= me->GetHealth())
                 {
-                    if (InstanceScript* instance = me->GetInstanceScript())
+                    if (instance)
                         if (Creature* freya = me->GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                             freya->AI()->SetGUID(me->GetGUID(), ACTION_ELEMENTAL_DEAD);
                     me->DespawnOrUnsummon(1);
@@ -1674,11 +1703,16 @@ class npc_ancient_conservator : public CreatureScript
                             return;
                     }
                 }
+
+                if (instance && instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 DoMeleeAttackIfReady();
             }
 
             private:
                 EventMap events;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1781,6 +1815,7 @@ class npc_eonars_gift : public CreatureScript
             void Reset()
             {
                 lifeBindersGiftTimer = 12000;
+                cast = false;
             }
 
             void IsSummonedBy(Unit* /* summoner */)
@@ -1800,19 +1835,23 @@ class npc_eonars_gift : public CreatureScript
                 else 
                     me->DisappearAndDie();
                 
-                if (lifeBindersGiftTimer <= diff)
+                if (!cast)
                 {
-                    me->RemoveAurasDueToSpell(SPELL_GROW);
-                    DoCast(SPELL_LIFEBINDERS_GIFT);
-                    me->DespawnOrUnsummon(2500);
-                    // lifeBindersGiftTimer = 12000;   // Wt... ? Cannot cast after being despawned...
+                    if (lifeBindersGiftTimer <= diff)
+                    {
+                        me->RemoveAurasDueToSpell(SPELL_GROW);
+                        DoCast(SPELL_LIFEBINDERS_GIFT);
+                        me->DespawnOrUnsummon(2500);
+                        cast = true;
+                    }
+                    else
+                        lifeBindersGiftTimer -= diff;
                 }
-                else
-                    lifeBindersGiftTimer -= diff;
             }
 
             private:
                 uint32 lifeBindersGiftTimer;
+                bool cast;
         };
 
         CreatureAI* GetAI(Creature* creature) const
