@@ -38,7 +38,8 @@ enum GuildMisc
     GUILD_RANK_NONE                     = 0xFF,
     GUILD_WITHDRAW_MONEY_UNLIMITED      = 0xFFFFFFFF,
     GUILD_WITHDRAW_SLOT_UNLIMITED       = 0xFFFFFFFF,
-    GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF
+    GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF,
+    GUILD_EXPERIENCE_UNCAPPED_LEVEL     = 20                    ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
 };
 
 enum GuildDefaultRanks
@@ -88,7 +89,7 @@ enum GuildCommandType
 
 enum GuildCommandError
 {
-    ERR_PLAYER_NO_MORE_IN_GUILD         = 0x00,
+    ERR_GUILD_COMMAND_SUCCESS           = 0x00,
     ERR_GUILD_INTERNAL                  = 0x01,
     ERR_ALREADY_IN_GUILD                = 0x02,
     ERR_ALREADY_IN_GUILD_S              = 0x03,
@@ -138,7 +139,7 @@ enum GuildEvents
     GE_RANK_CREATED                 = 12,
     GE_RANK_DELETED                 = 13,
     GE_RANK_ORDER_CHANGED           = 14,
-    GE_FOUNDER                      = 15, // At guild creation - Set founder
+    GE_FOUNDER                      = 15,
     GE_SIGNED_ON                    = 16,
     GE_SIGNED_OFF                   = 17,
     GE_GUILDBANKBAGSLOTS_CHANGED    = 18,
@@ -259,9 +260,6 @@ uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
 
 typedef std::map<uint32, GuildNewsEntry> GuildNewsLogMap;
 
-#define GUILD_EXPERIENCE_UNCAPPED_LEVEL 20  ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
-
-////////////////////////////////////////////////////////////////////////////////////////////
 // Emblem info
 class EmblemInfo
 {
@@ -270,7 +268,7 @@ public:
 
     void LoadFromDB(Field* fields);
     void SaveToDB(uint32 guildId) const;
-    void ReadPacket(WorldPacket& recv) { recv >> m_style >> m_color >> m_borderStyle >> m_borderColor >> m_backgroundColor; }
+    void ReadPacket(WorldPacket& recv);
     void WritePacket(WorldPacket& data) const;
 
     uint32 GetStyle() const { return m_style; }
@@ -623,6 +621,7 @@ private:
         Item* GetItem(bool isCloned = false) const { return isCloned ? m_pClonedItem : m_pItem; }
         uint8 GetContainer() const { return m_container; }
         uint8 GetSlotId() const { return m_slotId; }
+
     protected:
         virtual InventoryResult CanStore(Item* pItem, bool swap) = 0;
 

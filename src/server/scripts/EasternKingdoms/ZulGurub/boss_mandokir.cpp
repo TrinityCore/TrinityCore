@@ -46,7 +46,7 @@ class boss_mandokir : public CreatureScript
             {
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
             }
 

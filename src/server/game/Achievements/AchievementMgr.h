@@ -243,6 +243,7 @@ class AchievementMgr
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed achievements
 
+        uint32 GetAchievementPoints() const { return _achievementPoints; }
     private:
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
         void SendAchievementEarned(AchievementEntry const* achievement) const;
@@ -265,6 +266,7 @@ class AchievementMgr
         CompletedAchievementMap m_completedAchievements;
         typedef std::map<uint32, uint32> TimedAchievementMap;
         TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
+        uint32 _achievementPoints;
 };
 
 class AchievementGlobalMgr
