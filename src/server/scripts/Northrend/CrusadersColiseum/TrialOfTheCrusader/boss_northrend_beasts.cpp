@@ -762,8 +762,8 @@ class boss_acidmaw : public CreatureScript
             modelMobile = MODEL_ACIDMAW_MOBILE;
             otherWormEntry = NPC_DREADSCALE;
 
-            Emerge();
             wasMobile = true;
+            Emerge();
         }
     };
 
