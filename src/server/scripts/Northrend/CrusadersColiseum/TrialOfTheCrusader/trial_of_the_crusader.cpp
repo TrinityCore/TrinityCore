@@ -753,12 +753,12 @@ class npc_tirion_toc : public CreatureScript
                             instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                             if (Creature* temp = Unit::GetCreature((*me), instance->GetData64(NPC_LIGHTBANE)))
                             {
-                                temp->GetMotionMaster()->MovePath(NPC_LIGHTBANE, false);
+                                temp->GetMotionMaster()->MovePoint(1, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
                                 temp->SetVisible(true);
                             }
                             if (Creature* temp = Unit::GetCreature((*me), instance->GetData64(NPC_DARKBANE)))
                             {
-                                temp->GetMotionMaster()->MovePath(NPC_DARKBANE, false);
+                                temp->GetMotionMaster()->MovePoint(1, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ());
                                 temp->SetVisible(true);
                             }
                             m_uiUpdateTimer = 10000;
