@@ -24477,7 +24477,7 @@ void Player::ResetAchievements()
 
 void Player::SendRespondInspectAchievements(Player* player) const
 {
-    m_achievementMgr.SendRespondInspectAchievements(player);
+    m_achievementMgr.SendAchievementInfo(player);
 }
 
 bool Player::HasAchieved(uint32 achievementId) const
