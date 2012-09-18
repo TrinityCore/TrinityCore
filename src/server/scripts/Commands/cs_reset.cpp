@@ -60,7 +60,7 @@ public:
             return false;
 
         if (target)
-            target->GetAchievementMgr().Reset();
+            target->ResetAchievements();
         else
             AchievementMgr::DeleteFromDB(GUID_LOPART(targetGuid));
 

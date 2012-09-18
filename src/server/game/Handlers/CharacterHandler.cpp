@@ -1345,7 +1345,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recv_data)
     }
 
     _player->ModifyMoney(-int32(cost));                     // it isn't free
-    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
     _player->SetByteValue(PLAYER_BYTES, 2, uint8(bs_hair->hair_id));
     _player->SetByteValue(PLAYER_BYTES, 3, uint8(Color));
@@ -1353,7 +1353,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recv_data)
     if (bs_skinColor)
         _player->SetByteValue(PLAYER_BYTES, 0, uint8(bs_skinColor->hair_id));
 
-    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
+    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
     _player->SetStandState(0);                              // stand up
 }
