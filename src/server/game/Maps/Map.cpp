@@ -806,9 +806,9 @@ void Map::MoveAllCreaturesInMoveList()
         // do move or do move to respawn or remove creature if previous all fail
         if (CreatureCellRelocation(c, Cell(c->_newPosition.m_positionX, c->_newPosition.m_positionY)))
         {
-            // update pos
+            // update position and visibility for server and client
             c->Relocate(c->_newPosition);
-            //CreatureRelocationNotify(c, new_cell, new_cell.cellCoord());
+            c->SendMovementFlagUpdate();
             c->UpdateObjectVisibility(false);
         }
         else
