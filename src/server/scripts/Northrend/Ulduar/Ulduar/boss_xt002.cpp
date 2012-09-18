@@ -433,11 +433,11 @@ class boss_xt002 : public CreatureScript
                     heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
                     heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
                     heart->CastSpell(heart, SPELL_EXPOSED_HEART, false);    // Channeled
-
+                    heart->SetVisible(true);
+                    heart->ExitVehicle();
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 }
                 // If that does not work... uh-oh
-
                 events.CancelEvent(EVENT_SEARING_LIGHT);
                 events.CancelEvent(EVENT_GRAVITY_BOMB);
                 events.CancelEvent(EVENT_TYMPANIC_TANTRUM);
@@ -469,12 +469,18 @@ class boss_xt002 : public CreatureScript
                 events.RescheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ONE);
                 events.RescheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX)*2, 0, PHASE_ONE);
 
+                /* Uncomment when XT works well as vehicle
                 Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
+                if (!heart)
+                    return;*/
+
+                Unit* heart = me->FindNearestCreature(NPC_XT002_HEART, 70.f, true);
                 if (!heart)
                     return;
 
                 heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 heart->RemoveAurasDueToSpell(SPELL_EXPOSED_HEART);
+                heart->EnterVehicle(me, HEART_VEHICLE_SEAT);
 
                 if (!hardMode)
                 {
@@ -522,8 +528,9 @@ class mob_xt002_heart : public CreatureScript
             mob_xt002_heartAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 instance = creature->GetInstanceScript();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
+                me->SetVisible(false);
             }
 
             void DamageTaken(Unit* /*pDone*/, uint32 &damage)

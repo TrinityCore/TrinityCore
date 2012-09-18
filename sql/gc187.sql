@@ -260,6 +260,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (63024, 'spell_xt002_gravity_bomb_aura_target'), 
 (64234, 'spell_xt002_gravity_bomb_aura_target');
 
+-- make XT Deconstructors heart not regen hp
+UPDATE `creature_template` SET `RegenHealth`=0 WHERE `entry` IN (33329, 33995);
+
 -- Kologarn
 -- Add script to arms.
 UPDATE `creature_template` SET `ScriptName`='npc_kologarn_arm' WHERE `entry` IN (32933,32934);
