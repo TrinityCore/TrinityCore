@@ -2687,7 +2687,7 @@ public:
     {
         // Argent Pony Bridle options
         const AchievementEntry * achiPonyUp = sAchievementStore.LookupEntry(ACHI_PONY_UP);
-        if (pPlayer->GetAchievementMgr().HasAchieved(ACHI_PONY_UP))
+        if (pPlayer->HasAchieved(ACHI_PONY_UP))
             if (!pCreature->HasAura(SPELL_SQUIRE_TIRED))
             {
                 uint8 uiBuff = (STATE_BANK | STATE_SHOP | STATE_MAIL);

@@ -1,4 +1,4 @@
-// $Id: DLL_Manager.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: DLL_Manager.cpp 95913 2012-06-21 17:14:36Z johnnyw $
 
 #include "ace/DLL_Manager.h"
 
@@ -415,10 +415,10 @@ ACE_DLL_Handle::get_dll_names (const ACE_TCHAR *dll_name,
 
   // 3. Build the combinations to try for this platform.
   // Try these combinations:
-  //   - name with decorator and platform's suffix appended (if not supplied)
-  //   - name with platform's suffix appended (if not supplied)
   //   - name with platform's dll prefix (if it has one) and suffix
   //   - name with platform's dll prefix, decorator, and suffix.
+  //   - name with decorator and platform's suffix appended (if not supplied)
+  //   - name with platform's suffix appended (if not supplied)
   //   - name as originally given
   // We first try to find the file using the decorator so that when a
   // filename with and without decorator is used, we get the file with
@@ -443,10 +443,10 @@ ACE_DLL_Handle::get_dll_names (const ACE_TCHAR *dll_name,
       size_t const j = try_names.size ();
       switch (i)
         {
-        case 0:        // Name + decorator + suffix
-        case 1:        // Name + suffix
-        case 2:        // Prefix + name + decorator + suffix
-        case 3:        // Prefix + name + suffix
+        case 0:        // Prefix + name + decorator + suffix
+        case 1:        // Prefix + name + suffix
+        case 2:        // Name + decorator + suffix
+        case 3:        // Name + suffix
           if (
               base_suffix.length () > 0
 #if !(defined (ACE_LD_DECORATOR_STR) && !defined (ACE_DISABLE_DEBUG_DLL_CHECK))
@@ -455,7 +455,7 @@ ACE_DLL_Handle::get_dll_names (const ACE_TCHAR *dll_name,
               )
             break;
           try_this = base_dir;
-          if (i > 1)
+          if (i < 2)
             try_this += prefix;
           try_this += base_file;
           if (base_suffix.length () > 0)

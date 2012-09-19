@@ -1662,7 +1662,7 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket & recv_data)
     if (!player)
         return;
 
-    player->GetAchievementMgr().SendRespondInspectAchievements(_player);
+    player->SendRespondInspectAchievements(_player);
 }
 
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recv_data*/)

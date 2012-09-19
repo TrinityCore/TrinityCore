@@ -4,7 +4,7 @@
 /**
  *  @file    NT_Service.h
  *
- *  $Id: NT_Service.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: NT_Service.h 93117 2011-01-20 12:11:28Z mcorino $
  *
  *  @author Steve Huston <shuston@riverace.com>
  */
@@ -415,7 +415,8 @@ extern VOID WINAPI ace_nt_svc_main_##SVCNAME (DWORD dwArgc,                \
                                               ACE_TCHAR **lpszArgv);
 
 #define ACE_NT_SERVICE_ENTRY(SVCDESC, SVCNAME)                             \
-                      { SVCDESC, &ace_nt_svc_main_##SVCNAME }
+                      { const_cast<ACE_TCHAR*> (SVCDESC),                  \
+                        &ace_nt_svc_main_##SVCNAME }
 
 #define ACE_NT_SERVICE_RUN(SVCNAME, SVCINSTANCE, RET)                      \
   ACE_TEXT_SERVICE_TABLE_ENTRY _ace_nt_svc_table[2] =                      \

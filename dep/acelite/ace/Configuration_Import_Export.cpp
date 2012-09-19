@@ -1,4 +1,4 @@
-// $Id: Configuration_Import_Export.cpp 84565 2009-02-23 08:20:39Z johnnyw $
+// $Id: Configuration_Import_Export.cpp 96017 2012-08-08 22:18:09Z mitza $
 
 #include "ace/Configuration_Import_Export.h"
 #include "ace/OS_Errno.h"
@@ -138,7 +138,8 @@ ACE_Registry_ImpExp::import_config (const ACE_TCHAR* filename)
               // number type
               ACE_TCHAR* endptr = 0;
               unsigned long value = ACE_OS::strtoul (end + 6, &endptr, 16);
-              if (config_.set_integer_value (section, name, value))
+              if (config_.set_integer_value (section, name,
+                                             static_cast<u_int> (value)))
                 {
                   ACE_OS::fclose (in);
                   delete [] buffer;

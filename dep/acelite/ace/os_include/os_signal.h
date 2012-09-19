@@ -6,7 +6,7 @@
  *
  *  signals
  *
- *  $Id: os_signal.h 91781 2010-09-15 12:49:15Z johnnyw $
+ *  $Id: os_signal.h 95430 2012-01-11 20:45:28Z mcorino $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -34,17 +34,13 @@
 
 #if defined (ACE_HAS_SIGINFO_T)
 #  if !defined (ACE_LACKS_SIGINFO_H)
-#    if defined (__QNX__) || defined (__OpenBSD__) || defined (__INTERIX)
+#    if defined (ACE_HAS_SYS_SIGINFO_H)
 #      include /**/ <sys/siginfo.h>
-#    else  /* __QNX__ || __OpenBSD__ */
+#    else  /* ACE_HAS_SYS_SIGINFO_H */
 #      include /**/ <siginfo.h>
-#    endif /* __QNX__ || __OpenBSD__ */
+#    endif /* ACE_HAS_SYS_SIGINFO_H */
 #  endif /* ACE_LACKS_SIGINFO_H */
 #endif /* ACE_HAS_SIGINFO_T */
-
-#if defined (ACE_VXWORKS) && (ACE_VXWORKS < 0x620) && !defined (__RTP__)
-#  include /**/ <sigLib.h>
-#endif /* ACE_VXWORKS */
 
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus
@@ -52,9 +48,9 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#if defined (ACE_LACKS_SIGSET) && !defined (__MINGW32__)
+#if defined (ACE_LACKS_SIGSET_T)
   typedef u_int sigset_t;
-#endif /* ACE_LACKS_SIGSET && !sigset_t */
+#endif /* ACE_LACKS_SIGSET_T && !sigset_t */
 
 #if !defined (ACE_HAS_SIG_ATOMIC_T)
    typedef int sig_atomic_t;

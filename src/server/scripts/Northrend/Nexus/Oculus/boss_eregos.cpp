@@ -113,6 +113,13 @@ enum EmeraldDrake
     SPELL_EMERALD_DREAM_FUNNEL                    = 50344         //(60 yds) - Channeled - Transfers 5% of the caster's max health to a friendly drake every second for 10 seconds as long as the caster channels.
 };
 
+enum EregosData
+{
+    DATA_RUBY_VOID          = 0,      // http://www.wowhead.com/achievement=2044
+    DATA_EMERALD_VOID       = 1,      // http://www.wowhead.com/achievement=2045
+    DATA_AMBER_VOID         = 2       // http://www.wowhead.com/achievement=2046
+};
+
 class boss_eregos : public CreatureScript
 {
 public:
@@ -126,12 +133,15 @@ public:
     struct boss_eregosAI : public BossAI
     {
         boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS_EVENT) { }
-
+        
         void Reset()
         {
             _Reset();
+            _phase = PHASE_NORMAL;
 
-            phase = PHASE_NORMAL;
+            _rubyVoid = true;
+            _emeraldVoid = true;
+            _amberVoid = true;
 
             DoAction(ACTION_SET_NORMAL_EVENTS);
         }
@@ -141,6 +151,31 @@ public:
             _EnterCombat();
 
             Talk(SAY_AGGRO);
+            /* Checks for present drakes vehicles from each type and deactivate achievement that corresponds to each found
+               The checks are so big in case some party try weird things like pulling boss down or hiding out of check range, the only thing player need is to get the boss kill credit after the check /even if he or his drake die/
+               Drakes mechanic would despawn all after unmount and also drakes should be auto mounted after item use, item use after Eregos is engaged leads to his despawn - based on retail data. */
+            if (me->FindNearestCreature(NPC_RUBY_DRAKE_VEHICLE, 500.0f, true))
+                _rubyVoid = false;
+            if (me->FindNearestCreature(NPC_EMERALD_DRAKE_VEHICLE, 500.0f, true))
+                _emeraldVoid = false;
+            if (me->FindNearestCreature(NPC_AMBER_DRAKE_VEHICLE, 500.0f, true))
+                _amberVoid = false;
+		}
+
+        uint32 GetData(uint32 type)
+        {
+           switch (type)
+           {
+               case DATA_RUBY_VOID:
+                    return _rubyVoid;
+               case DATA_EMERALD_VOID:
+                    return _emeraldVoid;
+               case DATA_AMBER_VOID:
+                    return _amberVoid;
+                default:
+                    break;
+            }
+            return 0;
         }
 
         void DoAction(const int32 action)
@@ -180,11 +215,11 @@ public:
             if (!me->GetMap()->IsHeroic())
                 return;
 
-            if ( (me->GetHealthPct() < 60.0f  && me->GetHealthPct() > 20.0f && phase < PHASE_FIRST_PLANAR)
-                || (me->GetHealthPct() < 20.0f && phase < PHASE_SECOND_PLANAR) )
+            if ( (me->GetHealthPct() < 60.0f  && me->GetHealthPct() > 20.0f && _phase < PHASE_FIRST_PLANAR)
+                || (me->GetHealthPct() < 20.0f && _phase < PHASE_SECOND_PLANAR) )
             {
                 events.Reset();
-                phase = (me->GetHealthPct() < 60.0f  && me->GetHealthPct() > 20.0f) ? PHASE_FIRST_PLANAR : PHASE_SECOND_PLANAR;
+                _phase = (me->GetHealthPct() < 60.0f  && me->GetHealthPct() > 20.0f) ? PHASE_FIRST_PLANAR : PHASE_SECOND_PLANAR;
 
                 DoCast(SPELL_PLANAR_SHIFT);
 
@@ -241,8 +276,11 @@ public:
             _JustDied();
         }
 
-    private:
-        uint8 phase;
+     private:
+         uint8 _phase;
+         bool _rubyVoid;
+         bool _emeraldVoid;
+         bool _amberVoid;
     };
 };
 
@@ -274,8 +312,25 @@ class spell_eregos_planar_shift : public SpellScriptLoader
         }
 };
 
-void AddSC_boss_eregos()
+class achievement_gen_eregos_void : public AchievementCriteriaScript
 {
+    public:
+        achievement_gen_eregos_void(char const* name, uint32 data) : AchievementCriteriaScript(name), _data(data) { }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            return target && target->GetAI()->GetData(_data);
+        }
+
+    private:
+        uint32 _data;
+};
+
+ void AddSC_boss_eregos()
+ {
     new boss_eregos();
     new spell_eregos_planar_shift();
-}
+    new achievement_gen_eregos_void("achievement_ruby_void", DATA_RUBY_VOID);
+    new achievement_gen_eregos_void("achievement_emerald_void", DATA_EMERALD_VOID);
+    new achievement_gen_eregos_void("achievement_amber_void", DATA_AMBER_VOID);
+ }
