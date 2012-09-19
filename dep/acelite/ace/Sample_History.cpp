@@ -1,4 +1,4 @@
-// $Id: Sample_History.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Sample_History.cpp 95747 2012-05-13 17:14:12Z johnnyw $
 
 #include "ace/Sample_History.h"
 
@@ -9,9 +9,6 @@
 #include "ace/Basic_Stats.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS_Memory.h"
-
-
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -27,21 +24,10 @@ ACE_Sample_History::~ACE_Sample_History (void)
   delete[] this->samples_;
 }
 
-size_t
-ACE_Sample_History::max_samples (void) const
-{
-  return this->max_samples_;
-}
-
-size_t
-ACE_Sample_History::sample_count (void) const
-{
-  return this->sample_count_;
-}
-
 void
-ACE_Sample_History::dump_samples (const ACE_TCHAR *msg,
-                                  ACE_UINT32 scale_factor) const
+ACE_Sample_History::dump_samples (
+    const ACE_TCHAR *msg,
+    ACE_Sample_History::scale_factor_type scale_factor) const
 {
 #ifndef ACE_NLOGGING
   for (size_t i = 0; i != this->sample_count_; ++i)

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: SOCK_Dgram_Mcast.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: SOCK_Dgram_Mcast.inl 96014 2012-08-08 15:30:01Z sma $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -47,6 +47,18 @@ ACE_SOCK_Dgram_Mcast::send (const iovec iov[],
                                      n,
                                      this->send_addr_,
                                      flags);
+}
+
+ACE_INLINE void
+ACE_SOCK_Dgram_Mcast::opts (int opts)
+{
+    this->opts_ = opts;
+}
+
+ACE_INLINE int
+ACE_SOCK_Dgram_Mcast::opts () const
+{
+    return this->opts_;
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

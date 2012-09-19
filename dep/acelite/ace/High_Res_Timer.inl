@@ -1,6 +1,5 @@
 // -*- C++ -*- */
-//
-// $Id: High_Res_Timer.inl 89483 2010-03-15 09:48:01Z johnnyw $
+// $Id: High_Res_Timer.inl 95798 2012-05-31 07:58:55Z johnnyw $
 
 #include "ace/Global_Macros.h"
 
@@ -10,32 +9,40 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-// Be very careful before changing the calculations inside
-// ACE_High_Res_Timer.  The precision matters and we are using integer
-// calculations not floating point.  Also look closely at the emulated 64
-// bit int class (inside Basic_Types{h,i,cpp} before changing
-// anything.  It's operator/ only returns 32 bits not 64 bits, among
-// other things.
-
+/// Be very careful before changing the calculations inside
+/// ACE_High_Res_Timer. The precision matters and we are using integer
+/// calculations not floating point.
 ACE_INLINE void
 ACE_High_Res_Timer::hrtime_to_tv (ACE_Time_Value &tv,
                                   const ACE_hrtime_t hrt)
 {
-  // The following are based on the units of global_scale_factor_
-  // being 1/microsecond.  Therefore, dividing by it converts
-  // clock ticks to microseconds.
-  tv.sec ((long) (hrt / (ACE_UINT32) ACE_HR_SCALE_CONVERSION /
+#if !defined (ACE_WIN32)
+    // The following are based on the units of global_scale_factor_
+    // being 1/microsecond.  Therefore, dividing by it converts
+    // clock ticks to microseconds.
+    tv.sec ((time_t) (hrt / (ACE_UINT32) ACE_HR_SCALE_CONVERSION /
                   global_scale_factor ()));
 
-  // Calculate usec in a manner that's compatible with ACE_U_LongLong.
-  // hrt = (tv.sec * ACE_ONE_SECOND_IN_USECS + tv.usec) * global_scale_factor_
-  // tv.usec = hrt / global_scale_factor_ - tv.sec * ACE_ONE_SECOND_IN_USECS
-  // That first term will be lossy, so factor out global_scale_factor_:
-  // tv.usec = (hrt - tv.sec * ACE_ONE_SECOND_IN_USECS * global_scale_factor_)/
-  //           global_scale_factor
-  ACE_hrtime_t tmp = tv.sec ();
-  tmp *= ((ACE_UINT32) ACE_HR_SCALE_CONVERSION * global_scale_factor ());
-  tv.usec ((long) ((hrt - tmp) / global_scale_factor ()));
+    // hrt = (tv.sec * ACE_ONE_SECOND_IN_USECS + tv.usec) * global_scale_factor_
+    // tv.usec = hrt / global_scale_factor_ - tv.sec * ACE_ONE_SECOND_IN_USECS
+    // That first term will be lossy, so factor out global_scale_factor_:
+    // tv.usec = (hrt - tv.sec * ACE_ONE_SECOND_IN_USECS * global_scale_factor_)/
+    //           global_scale_factor
+    ACE_hrtime_t tmp = tv.sec ();
+    tmp *= ((ACE_UINT32) ACE_HR_SCALE_CONVERSION * global_scale_factor ());
+    tv.usec ((suseconds_t) ((hrt - tmp) / global_scale_factor ()));
+#else
+    // This a higher-precision version, specific for Windows systems
+    // The following are based on the units of global_scale_factor_
+    // being 1/microsecond.  Therefore, dividing by it converts
+    // clock ticks to microseconds.
+    tv.sec ((time_t) (hrt / global_scale_factor () ));
+
+    // Calculate usec, first calculate the seconds in hrtime
+    ACE_High_Res_Timer::global_scale_factor_type tmp = tv.sec ();
+    tmp *= global_scale_factor ();
+    tv.usec ((suseconds_t) ((hrt - tmp) * ACE_HR_SCALE_CONVERSION / global_scale_factor ()));
+#endif
 }
 
 
@@ -57,13 +64,12 @@ ACE_High_Res_Timer::gettimeofday (const ACE_OS::ACE_HRTimer_Op op)
   return tv;
 }
 
-
-// Get the current high res timer as the time of day. This is intended
-// to be used for a gettimeofday replacement in ACE_Timer_Queue and
-// derived classes so the timers will bebased on high res timers rather
-// than wall clock time. It uses the ACE_High_Res_Timer::gettimeofday
-// function, which is deprecated. If it gets removed, please move the
-// code down here, intact.
+/// Get the current high res timer as the time of day. This is intended
+/// to be used for a gettimeofday replacement in ACE_Timer_Queue and
+/// derived classes so the timers will be based on high res timers rather
+/// than wall clock time. It uses the ACE_High_Res_Timer::gettimeofday
+/// function, which is deprecated. If it gets removed, please move the
+/// code down here, intact.
 ACE_INLINE ACE_Time_Value
 ACE_High_Res_Timer::gettimeofday_hr (void)
 {
@@ -139,13 +145,21 @@ ACE_High_Res_Timer::stop_incr (const ACE_OS::ACE_HRTimer_Op op)
 ACE_INLINE void
 ACE_High_Res_Timer::elapsed_microseconds (ACE_hrtime_t &usecs) const
 {
+
+#if !defined (ACE_WIN32)
   ACE_hrtime_t elapsed = ACE_High_Res_Timer::elapsed_hrtime (this->end_,
                                                              this->start_);
   usecs = (ACE_hrtime_t) (elapsed / global_scale_factor ());
+#else
+  usecs = (ACE_High_Res_Timer::elapsed_hrtime (this->end_, this->start_) *
+           ACE_HR_SCALE_CONVERSION) /
+          global_scale_factor ();
+#endif
 }
 
 ACE_INLINE void
-ACE_High_Res_Timer::global_scale_factor (ACE_UINT32 gsf)
+ACE_High_Res_Timer::global_scale_factor (
+    ACE_High_Res_Timer::global_scale_factor_type gsf)
 {
   global_scale_factor_ = gsf;
 }

@@ -1,10 +1,9 @@
-// $Id: Guard_T.cpp 92052 2010-09-27 14:20:22Z vzykov $
+// $Id: Guard_T.cpp 93736 2011-04-05 12:38:35Z johnnyw $
 
 #ifndef ACE_GUARD_T_CPP
 #define ACE_GUARD_T_CPP
 
 // FUZZ: disable check_for_ACE_Guard
-
 #include "ace/Guard_T.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)

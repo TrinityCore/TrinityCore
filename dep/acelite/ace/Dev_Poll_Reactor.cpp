@@ -1,4 +1,4 @@
-// $Id: Dev_Poll_Reactor.cpp 92199 2010-10-11 11:58:35Z johnnyw $
+// $Id: Dev_Poll_Reactor.cpp 95738 2012-05-11 19:16:53Z shuston $
 
 #include "ace/OS_NS_errno.h"
 #include "ace/Dev_Poll_Reactor.h"
@@ -12,13 +12,13 @@
 # include "ace/OS_NS_stropts.h"
 
 # if defined (ACE_HAS_DEV_POLL)
-#    if defined (linux)
+#    if defined (ACE_LINUX)
 #      include /**/ <linux/devpoll.h>
 #    elif defined (HPUX_VERS) && HPUX_VERS < 1123
 #      include /**/ <devpoll.h>
 #    else
 #      include /**/ <sys/devpoll.h>
-#    endif  /* linux */
+#    endif  /* ACE_LINUX */
 # endif  /* ACE_HAS_DEV_POLL */
 
 #if !defined (__ACE_INLINE__)
@@ -39,6 +39,7 @@
 #include "ace/Guard_T.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_sys_time.h"
+#include "ace/Functor_T.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -801,12 +802,13 @@ ACE_Dev_Poll_Reactor::timer_queue (ACE_Timer_Queue *tq)
 {
   if (this->delete_timer_queue_)
     delete this->timer_queue_;
+  else if (this->timer_queue_)
+    this->timer_queue_->close ();
 
   this->timer_queue_ = tq;
   this->delete_timer_queue_ = false;
 
   return 0;
-
 }
 
 ACE_Timer_Queue *
@@ -857,6 +859,11 @@ ACE_Dev_Poll_Reactor::close (void)
       delete this->timer_queue_;
       this->timer_queue_ = 0;
       this->delete_timer_queue_ = false;
+    }
+  else if (this->timer_queue_)
+    {
+      this->timer_queue_->close ();
+      this->timer_queue_ = 0;
     }
 
   if (this->notify_handler_ != 0)
@@ -1007,7 +1014,10 @@ ACE_Dev_Poll_Reactor::handle_events (ACE_Time_Value *max_wait_time)
     return result;
 
   if (this->deactivated_)
-    return -1;
+    {
+      errno = ESHUTDOWN;
+      return -1;
+    }
 
   // Update the countdown to reflect time waiting for the mutex.
   ACE_MT (countdown.update ());
@@ -1087,37 +1097,10 @@ ACE_Dev_Poll_Reactor::dispatch (Token_Guard &guard)
 int
 ACE_Dev_Poll_Reactor::dispatch_timer_handler (Token_Guard &guard)
 {
-  if (this->timer_queue_->is_empty ())
-    return 0;       // Empty timer queue so cannot have any expired timers.
+  typedef ACE_Member_Function_Command<Token_Guard> Guard_Release;
 
-  // Get the current time
-  ACE_Time_Value cur_time (this->timer_queue_->gettimeofday () +
-                           this->timer_queue_->timer_skew ());
-
-  // Look for a node in the timer queue whose timer <= the present
-  // time.
-  ACE_Timer_Node_Dispatch_Info info;
-  if (this->timer_queue_->dispatch_info (cur_time, info))
-    {
-      const void *upcall_act = 0;
-
-      // Preinvoke (handles refcount if needed, etc.)
-      this->timer_queue_->preinvoke (info, cur_time, upcall_act);
-
-      // Release the token before expiration upcall.
-      guard.release_token ();
-
-      // call the functor
-      this->timer_queue_->upcall (info, cur_time);
-
-      // Postinvoke (undo refcount if needed, etc.)
-      this->timer_queue_->postinvoke (info, cur_time, upcall_act);
-
-      // We have dispatched a timer
-      return 1;
-    }
-
-  return 0;
+  Guard_Release release(guard, &Token_Guard::release_token);
+  return this->timer_queue_->expire_single(release);
 }
 
 #if 0
@@ -1950,7 +1933,7 @@ ACE_Dev_Poll_Reactor::resumable_handler (void)
 {
   // @@ Is this correct?
 
-  return 0;
+  return 1;
 }
 
 bool
@@ -2395,8 +2378,8 @@ ACE_Dev_Poll_Reactor::mask_ops_i (ACE_HANDLE handle,
           // If a handle is closed, epoll removes it from the poll set
           // automatically - we may not know about it yet. If that's the
           // case, a mod operation will fail with ENOENT. Retry it as
-          // an add.
-          if (op == EPOLL_CTL_MOD && errno == ENOENT &&
+          // an add. If it's any other failure, just fail outright.
+          if (op != EPOLL_CTL_MOD || errno != ENOENT ||
               ::epoll_ctl (this->poll_fd_, EPOLL_CTL_ADD, handle, &epev) == -1)
             return -1;
         }

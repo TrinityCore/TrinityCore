@@ -1,4 +1,4 @@
-// $Id: Array_Map.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Array_Map.cpp 92386 2010-10-28 07:44:37Z johnnyw $
 
 #ifndef ACE_ARRAY_MAP_CPP
 #define ACE_ARRAY_MAP_CPP
@@ -15,7 +15,6 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-#ifndef ACE_LACKS_MEMBER_TEMPLATES
 template<typename Key, typename Value, class EqualTo>
 template<typename InputIterator>
 ACE_Array_Map<Key, Value, EqualTo>::ACE_Array_Map (InputIterator f,
@@ -34,26 +33,6 @@ ACE_Array_Map<Key, Value, EqualTo>::ACE_Array_Map (InputIterator f,
 //   for (InputIterator i = f; i != l; ++i, ++n)
 //     *n = *i;
 }
-#else
-template<typename Key, typename Value, class EqualTo>
-ACE_Array_Map<Key, Value, EqualTo>::ACE_Array_Map (
-  typename ACE_Array_Map<Key, Value, EqualTo>::const_iterator f,
-  typename ACE_Array_Map<Key, Value, EqualTo>::const_iterator l)
-  : size_ (l - f)
-  , capacity_ (size_)
-  , nodes_ (size_ == 0 ? 0 : new value_type[size_])
-{
-  (void) std::copy (f,
-                    l,
-                    ACE_make_checked_array_iterator (this->begin (),
-                                                     this->size_));
-
-//   iterator n = this->begin ();
-
-//   for (const_iterator i = f; i != l; ++i, ++n)
-//     *n = *i;
-}
-#endif  /* !ACE_LACKS_MEMBER_TEMPLATES */
 
 template<typename Key, typename Value, class EqualTo>
 ACE_Array_Map<Key, Value, EqualTo>::ACE_Array_Map (
@@ -119,7 +98,6 @@ ACE_Array_Map<Key, Value, EqualTo>::insert (
   return std::make_pair (i, inserted);
 }
 
-#ifndef ACE_LACKS_MEMBER_TEMPLATES
 template<typename Key, typename Value, class EqualTo>
 template<typename InputIterator>
 void
@@ -132,21 +110,6 @@ ACE_Array_Map<Key, Value, EqualTo>::insert (InputIterator f, InputIterator l)
       (void) this->insert (*i);
     }
 }
-#else
-template<typename Key, typename Value, class EqualTo>
-void
-ACE_Array_Map<Key, Value, EqualTo>::insert (
-  typename ACE_Array_Map<Key, Value, EqualTo>::const_iterator f,
-  typename ACE_Array_Map<Key, Value, EqualTo>::const_iterator l)
-{
-  this->grow (l - f);  // Preallocate storage.
-
-  for (const_iterator i = f; i != l; ++i)
-    {
-      (void) this->insert (*i);
-    }
-}
-#endif  /* ACE_LACKS_MEMBER_TEMPLATES */
 
 template<typename Key, typename Value, class EqualTo>
 void
