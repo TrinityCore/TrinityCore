@@ -128,21 +128,20 @@ enum XT002Data
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603300,
-    SAY_HEART_OPENED                            = -1603301,
-    SAY_HEART_CLOSED                            = -1603302,
-    SAY_TYMPANIC_TANTRUM                        = -1603303,
-    SAY_SLAY_1                                  = -1603304,
-    SAY_SLAY_2                                  = -1603305,
-    SAY_BERSERK                                 = -1603306,
-    SAY_DEATH                                   = -1603307,
-    SAY_SUMMON                                  = -1603308
+    SAY_AGGRO                                   = 0,
+    SAY_HEART_OPENED                            = 1,
+    SAY_HEART_CLOSED                            = 2,
+    SAY_TYMPANIC_TANTRUM                        = 3,
+    SAY_SLAY                                    = 4,
+    SAY_BERSERK                                 = 5,
+    SAY_DEATH                                   = 6,
+    SAY_SUMMON                                  = 7,
+    EMOTE_TYMPANIC                              = 8,
+    EMOTE_HEART                                 = 9,
+    EMOTE_REPAIR                                = 10
 };
 
 #define HEART_VEHICLE_SEAT 0
-#define EMOTE_TYMPANIC "XT-002 Deconstructor begins to cause the earth to quake."
-#define EMOTE_HEART    "XT-002 Deconstructor's heart is exposed and leaking energy."
-#define EMOTE_REPAIR   "XT-002 Deconstructor consumes a scrap bot to repair himself!"
 
 /************************************************
 -----------------SPAWN LOCATIONS-----------------
@@ -235,7 +234,7 @@ class boss_xt002 : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 _EnterCombat();
 
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE, 0, PHASE_ONE);
@@ -268,12 +267,12 @@ class boss_xt002 : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*victim*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 _JustDied();
             }
 
@@ -342,8 +341,8 @@ class boss_xt002 : public CreatureScript
                             events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ONE);
                             return;
                         case EVENT_TYMPANIC_TANTRUM:
-                            DoScriptText(SAY_TYMPANIC_TANTRUM, me);
-                            me->MonsterTextEmote(EMOTE_TYMPANIC, 0, true);
+                            Talk(SAY_TYMPANIC_TANTRUM);
+                            Talk(EMOTE_TYMPANIC);
                             DoCast(SPELL_TYMPANIC_TANTRUM);
                             events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX), 0, PHASE_ONE);
                             return;
@@ -351,7 +350,7 @@ class boss_xt002 : public CreatureScript
                             SetPhaseOne();
                             return;
                         case EVENT_ENRAGE:
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             DoCast(me, SPELL_ENRAGE);
                             return;
                         case EVENT_ENTER_HARD_MODE:
@@ -362,7 +361,7 @@ class boss_xt002 : public CreatureScript
                             SetPhaseOne();
                             return;
                         case EVENT_SPAWN_ADDS:
-                            DoScriptText(SAY_SUMMON, me);
+                            Talk(SAY_SUMMON);
 
                             // Spawn Pummeller
                             me->SummonCreature(NPC_XM024_PUMMELLER, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
@@ -415,8 +414,8 @@ class boss_xt002 : public CreatureScript
 
             void ExposeHeart()
             {
-                DoScriptText(SAY_HEART_OPENED, me);
-                me->MonsterTextEmote(EMOTE_HEART, 0, true);
+                Talk(SAY_HEART_OPENED);
+                Talk(EMOTE_HEART);
                 me->RemoveAurasDueToSpell(SPELL_TYMPANIC_TANTRUM);
                 me->GetMotionMaster()->MoveIdle();
 
@@ -424,6 +423,8 @@ class boss_xt002 : public CreatureScript
 
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
+                if (!urand(0,5))
+                    Talk(SAY_SUMMON);
 
                 Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
                 if (heart)
@@ -454,7 +455,7 @@ class boss_xt002 : public CreatureScript
 
             void SetPhaseOne()
             {
-                DoScriptText(SAY_HEART_CLOSED, me);
+                Talk(SAY_HEART_CLOSED);
                 if (me->HasAura(SPELL_SUBMERGE))
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                 DoCast(me, SPELL_STAND);
@@ -595,7 +596,7 @@ class mob_scrapbot : public CreatureScript
                             if (me->IsWithinMeleeRange(xt002))
                             {
                                 casted = true;
-                                xt002->MonsterTextEmote(EMOTE_REPAIR, 0, true);
+                                Talk(EMOTE_REPAIR);
                                 xt002->CastSpell(xt002, SPELL_HEAL_XT002, true);
                                 xt002->AI()->DoAction(ACTION_XT002_REACHED);
                                 /*
@@ -1140,8 +1141,6 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             }
                         }
                     }
-
-                    DoScriptText(SAY_SUMMON, caster->GetVehicleBase());
                 }
             }
 

@@ -916,3 +916,20 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33287, 0, 2, 'Ready to move out, keep those dwarves off of our backs!', 14, 0, 100, 0, 0, 0, 'Exp Engineer SAY_AGGRO_3'),
 (33287, 1, 0, 'Fires out! Let''s rebuild those turrets!', 14, 0, 100, 0, 0, 0, 'Exp Engineer SAY_TURRETS'),
 (33233, 0, 0, 'Harpoon Turret is ready for use!', 41, 0, 100, 0, 0, 0, 'Razorscale Controller EMOTE_HARPOON');
+
+-- XT-002 Deconstructor
+DELETE FROM `script_texts` WHERE `npc_entry`=33293;
+DELETE FROM `creature_text` WHERE `entry`=33293;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(33293, 0, 0, 'New toys? For me? I promise I won''t break them this time!', 14, 0, 100, 0, 0, 15724, 'XT002 SAY_AGGRO'),
+(33293, 1, 0, 'So tired. I will rest for just a moment!', 14, 0, 100, 0, 0, 15725, 'XT002 SAY_HEART_OPENED'),
+(33293, 2, 0, 'I''m ready to play!', 14, 0, 100, 0, 0, 15726, 'XT002 SAY_HEART_CLOSED'),
+(33293, 3, 0, 'NO! NO! NO! NO! NO!', 14, 0, 100, 0, 0, 15727, 'XT002 SAY_TYMPANIC_TANTRUM'),
+(33293, 4, 0, 'I... I think I broke it.', 14, 0, 100, 0, 0, 15728, 'XT002 SAY_SLAY_1'),
+(33293, 4, 1, 'I guess it doesn''t bend that way.', 14, 0, 100, 0, 0, 15729, 'XT002 SAY_SLAY_2'),
+(33293, 5, 0, 'I''m tired of these toys. I don''t want to play anymore!', 14, 0, 100, 0, 0, 15730, 'XT002 SAY_BERSERK'),
+(33293, 6, 0, 'You are bad... Toys... Very... Baaaaad!', 14, 0, 100, 0, 0, 15731, 'XT002 SAY_DEATH'),
+(33293, 7, 0, 'Time for a new game! My old toys will fight my new toys!', 14, 0, 100, 0, 0, 15732, 'XT002 SAY_SUMMON'),
+(33293, 8, 0, 'XT-002 Deconstructor begins to cause the earth to quake.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_TYMPANIC'),
+(33293, 9, 0, 'XT-002 Deconstructor''s heart is exposed and leaking energy.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_HEART'),
+(33293, 10, 0, 'XT-002 Deconstructor consumes a scrap bot to repair himself!', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_REPAIR');
