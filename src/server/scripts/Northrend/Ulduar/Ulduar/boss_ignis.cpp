@@ -24,16 +24,14 @@
 
 enum Yells
 {
-    SAY_AGGRO       = -1603220,
-    SAY_SLAY_1      = -1603221,
-    SAY_SLAY_2      = -1603222,
-    SAY_DEATH       = -1603223,
-    SAY_SUMMON      = -1603224,
-    SAY_SLAG_POT    = -1603225,
-    SAY_SCORCH_1    = -1603226,
-    SAY_SCORCH_2    = -1603227,
-    SAY_BERSERK     = -1603228,
-    EMOTE_JETS      = -1603229
+    SAY_AGGRO       = 0,
+    SAY_SLAY        = 1,
+    SAY_DEATH       = 2,
+    SAY_SUMMON      = 3,
+    SAY_SLAG_POT    = 4,
+    SAY_SCORCH      = 5,
+    SAY_BERSERK     = 6,
+    EMOTE_JETS      = 7
 };
 
 enum Spells
@@ -212,7 +210,7 @@ class boss_ignis : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_JET, 30000);
                 events.ScheduleEvent(EVENT_SCORCH, 25000);
                 events.ScheduleEvent(EVENT_SLAG_POT, 35000);
@@ -226,7 +224,7 @@ class boss_ignis : public CreatureScript
             void JustDied(Unit* /*victim*/)
             {
                 _JustDied();
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 if (shatteredHelper.GotAchievFulfilled())
                 {
                     instance->DoCompleteAchievement(RAID_MODE(2925,2926));
@@ -256,7 +254,7 @@ class boss_ignis : public CreatureScript
             void KilledUnit(Unit* /*victim*/)
             {
                 if (!urand(0, 4))
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                    Talk(SAY_SLAY);
             }
 
             void DoAction(const int32 action)
@@ -289,7 +287,7 @@ class boss_ignis : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_JET:
-                            me->MonsterTextEmote(EMOTE_JETS, 0, true);
+                            Talk(EMOTE_JETS);
                             DoCast(me, SPELL_FLAME_JETS);
                             events.DelayEvents(5000);   // Cast time
                             events.ScheduleEvent(EVENT_JET, urand(35000, 40000));
@@ -297,7 +295,7 @@ class boss_ignis : public CreatureScript
                         case EVENT_SLAG_POT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             {
-                                DoScriptText(SAY_SLAG_POT, me);
+                                Talk(SAY_SLAG_POT);
                                 slagPotGUID = target->GetGUID();
                                 DoCast(target, SPELL_GRAB);
                                 events.DelayEvents(3000);
@@ -329,14 +327,14 @@ class boss_ignis : public CreatureScript
                             }
                             return;
                         case EVENT_SCORCH:
-                            DoScriptText(RAND(SAY_SCORCH_1, SAY_SCORCH_2), me);
+                            Talk(SAY_SCORCH);
                             if (Unit* target = me->getVictim())
                                 me->SummonCreature(NPC_GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
                             DoCast(SPELL_SCORCH);
                             events.ScheduleEvent(EVENT_SCORCH, 25000);
                             return;
                         case EVENT_CONSTRUCT:
-                            DoScriptText(SAY_SUMMON, me);
+                            Talk(SAY_SUMMON);
 
                             if (!summons.empty())
                             {
@@ -357,7 +355,7 @@ class boss_ignis : public CreatureScript
                             return;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             return;
                         default:
                             return;
