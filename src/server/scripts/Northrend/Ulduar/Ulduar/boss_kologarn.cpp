@@ -93,11 +93,6 @@ enum NPCs
     NPC_ARM_SWEEP_STALKER = 33661
 };
 
-#define EMOTE_EYEBEAM           "Kologarn is focussing you!"
-#define EMOTE_LEFT              "The Left Arm has regrown!"
-#define EMOTE_RIGHT             "The Right Arm has regrown!"
-#define EMOTE_STONE             "Kologarn casts Stone Grip!"
-
 enum Events
 {
     EVENT_INSTALL_ACCESSORIES = 1,
@@ -114,15 +109,18 @@ enum Events
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603230,
-    SAY_SLAY_1                                  = -1603231,
-    SAY_SLAY_2                                  = -1603232,
-    SAY_LEFT_ARM_GONE                           = -1603233,
-    SAY_RIGHT_ARM_GONE                          = -1603234,
-    SAY_SHOCKWAVE                               = -1603235,
-    SAY_GRAB_PLAYER                             = -1603236,
-    SAY_DEATH                                   = -1603237,
-    SAY_BERSERK                                 = -1603238,
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_LEFT_ARM_GONE                           = 2,
+    SAY_RIGHT_ARM_GONE                          = 3,
+    SAY_SHOCKWAVE                               = 4,
+    SAY_GRAB_PLAYER                             = 5,
+    SAY_DEATH                                   = 6,
+    SAY_BERSERK                                 = 7,
+    WHISPER_EYEBEAM                             = 8,
+    EMOTE_LEFT                                  = 9,
+    EMOTE_RIGHT                                 = 10,
+    EMOTE_STONE                                 = 11
 };
 
 enum
@@ -179,7 +177,7 @@ class boss_kologarn : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
@@ -200,7 +198,7 @@ class boss_kologarn : public CreatureScript
 
             void JustDied(Unit* /*victim*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 DoCast(me, SPELL_KOLOGARN_PACIFY);  // TODO: Check if this works, since... yeah, we're dead.
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -220,7 +218,7 @@ class boss_kologarn : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                Talk(SAY_SLAY);
             }
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
@@ -232,7 +230,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         who->ToCreature()->DisappearAndDie();
-                        DoScriptText(SAY_LEFT_ARM_GONE, me);
+                        Talk(SAY_LEFT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     }
                 }
@@ -242,7 +240,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         who->ToCreature()->DisappearAndDie();
-                        DoScriptText(SAY_RIGHT_ARM_GONE, me);
+                        Talk(SAY_RIGHT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     }
                 }
@@ -421,7 +419,7 @@ class boss_kologarn : public CreatureScript
                                 if (Creature* target = me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true))
                                 {
                                     DoCast(target, SPELL_ARM_SWEEP, true);
-                                    DoScriptText(SAY_SHOCKWAVE, me);
+                                    Talk(SAY_SHOCKWAVE);
                                 }  
                             }
                             events.ScheduleEvent(EVENT_SWEEP, 25 * IN_MILLISECONDS);
@@ -430,8 +428,8 @@ class boss_kologarn : public CreatureScript
                             if (haveRightArm)
                             {
                                 DoCast(SPELL_STONE_GRIP);
-                                me->MonsterTextEmote(EMOTE_STONE, 0, true);
-                                DoScriptText(SAY_GRAB_PLAYER, me);
+                                Talk(EMOTE_STONE);
+                                Talk(SAY_GRAB_PLAYER);
                             }
                             events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);
                             return;
@@ -448,23 +446,23 @@ class boss_kologarn : public CreatureScript
                             return;
                         case EVENT_ENRAGE:
                             DoCast(SPELL_BERSERK);
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             return;
                         case EVENT_RESPAWN_LEFT_ARM:
                             RespawnArm(NPC_LEFT_ARM);
-                            me->MonsterTextEmote(EMOTE_LEFT, 0, true);
+                            Talk(EMOTE_LEFT);
                             events.CancelEvent(EVENT_RESPAWN_LEFT_ARM);
                             return;
                         case EVENT_RESPAWN_RIGHT_ARM:
                             RespawnArm(NPC_RIGHT_ARM);
-                            me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
+                            Talk(EMOTE_RIGHT);
                             events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);
                             return;
                         case EVENT_FOCUSED_EYEBEAM:
                             if (Player* eyebeamTargetUnit = GetEyeBeamTarget())
                             {
                                 eyebeamTarget = eyebeamTargetUnit->GetGUID();
-                                me->MonsterWhisper(EMOTE_EYEBEAM, eyebeamTarget, true);
+                                Talk(WHISPER_EYEBEAM, eyebeamTarget);
                                 DoCast(me, SPELL_SUMMON_FOCUSED_EYEBEAM, true); // TODO: Check if this works, otherwise, try the code below.
                                 /*
                                 eyebeamTargetUnit->CastSpell(eyebeamTargetUnit, 63343, true, NULL, NULL, me->GetGUID());

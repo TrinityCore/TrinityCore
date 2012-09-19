@@ -170,7 +170,8 @@ enum BrundirYells
     SAY_BRUNDIR_SPECIAL         = 2,
     SAY_BRUNDIR_FLIGHT          = 3,
     SAY_BRUNDIR_DEATH           = 4,
-    SAY_BRUNDIR_BERSERK         = 5
+    SAY_BRUNDIR_BERSERK         = 5,
+    EMOTE_OVERLOAD              = 6
 };
 
 enum AssemblyNPCs
@@ -191,7 +192,6 @@ enum Data
     DATA_CANT_DO_THAT_WHILE_STUNNED
 };
 
-#define EMOTE_OVERLOAD  "Stormcaller Brundir begins to Overload!" // Move it to DB
 #define FLOOR_Z         427.28f
 #define FINAL_FLIGHT_Z  435.0f
 
@@ -1058,7 +1058,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(5000, 7000));
                             return;
                         case EVENT_OVERLOAD:
-                            me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
+                            Talk(EMOTE_OVERLOAD);
                             Talk(SAY_BRUNDIR_SPECIAL);
                             DoCast(SPELL_OVERLOAD);
                             events.ScheduleEvent(EVENT_OVERLOAD, urand(40000, 80000));
