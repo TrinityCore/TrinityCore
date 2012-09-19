@@ -423,8 +423,7 @@ class boss_xt002 : public CreatureScript
 
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
-                if (!urand(0,5))
-                    Talk(SAY_SUMMON);
+                Talk(SAY_SUMMON);
 
                 Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
                 if (heart)

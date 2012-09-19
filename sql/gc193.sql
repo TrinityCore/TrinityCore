@@ -893,8 +893,8 @@ DELETE FROM `script_texts` WHERE `npc_entry`=33118;
 DELETE FROM `creature_text` WHERE `entry`=33118;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33118, 0, 0, 'Insolent whelps! Your blood will temper the weapons used to reclaim this world!', 14, 0, 100, 0, 0, 15564, 'Ignis SAY_AGGRO'),
-(33118, 1, 0, 'More scraps for the scrapheap!', 14, 0, 100, 0, 0, 15569, 'Ignis SAY_SLAY_1'),
-(33118, 1, 1, 'Your bones will serve as kindling!', 14, 0, 100, 0, 0, 15570, 'Ignis SAY_SLAY_2'),
+(33118, 1, 0, 'More scraps for the scrapheap!', 14, 0, 25, 0, 0, 15569, 'Ignis SAY_SLAY_1'),
+(33118, 1, 1, 'Your bones will serve as kindling!', 14, 0, 25, 0, 0, 15570, 'Ignis SAY_SLAY_2'),
 (33118, 2, 0, 'I. Have. Failed.', 14, 0, 100, 0, 0, 15572, 'Ignis SAY_DEATH'),
 (33118, 3, 0, 'Arise, soldiers of the Iron Crucible! The Makers'' will be done!', 14, 0, 100, 0, 0, 15565, 'Ignis SAY_SUMMON'),
 (33118, 4, 0, 'I will burn away your impurities!', 14, 0, 100, 0, 0, 15566, 'Ignis SAY_SLAG_POT'),
@@ -929,7 +929,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33293, 4, 1, 'I guess it doesn''t bend that way.', 14, 0, 100, 0, 0, 15729, 'XT002 SAY_SLAY_2'),
 (33293, 5, 0, 'I''m tired of these toys. I don''t want to play anymore!', 14, 0, 100, 0, 0, 15730, 'XT002 SAY_BERSERK'),
 (33293, 6, 0, 'You are bad... Toys... Very... Baaaaad!', 14, 0, 100, 0, 0, 15731, 'XT002 SAY_DEATH'),
-(33293, 7, 0, 'Time for a new game! My old toys will fight my new toys!', 14, 0, 100, 0, 0, 15732, 'XT002 SAY_SUMMON'),
+(33293, 7, 0, 'Time for a new game! My old toys will fight my new toys!', 14, 0, 15, 0, 0, 15732, 'XT002 SAY_SUMMON'),
 (33293, 8, 0, 'XT-002 Deconstructor begins to cause the earth to quake.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_TYMPANIC'),
 (33293, 9, 0, 'XT-002 Deconstructor''s heart is exposed and leaking energy.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_HEART'),
 (33293, 10, 0, 'XT-002 Deconstructor consumes a scrap bot to repair himself!', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_REPAIR');
@@ -963,7 +963,6 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32857, 5, 0, 'This meeting of the Assembly of Iron is adjourned!', 14, 0, 100, 0, 0, 15691, 'Brundir SAY_BERSERK'),
 (32857, 6, 0, 'Stormcaller Brundir begins to Overload!', 41, 0, 100, 0, 0, 0, 'Brundir EMOTE_OVERLOAD');
 
-
 -- Kologarn
 DELETE FROM `script_texts` WHERE `npc_entry`=32930;
 DELETE FROM `creature_text` WHERE `entry`=32930;
@@ -981,3 +980,15 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32930, 9, 0, 'The Left Arm has regrown!', 41, 0, 100, 0, 0, 0, 'Kologarn EMOTE_LEFT'),
 (32930, 10, 0, 'The Right Arm has regrown!', 41, 0, 100, 0, 0, 0, 'Kologarn EMOTE_RIGHT'),
 (32930, 11, 0, 'Kologarn casts Stone Grip!', 41, 0, 100, 0, 0, 0, 'Kologarn EMOTE_STONE');
+
+-- Auriaya
+DELETE FROM `script_texts` WHERE `npc_entry`=33515;
+DELETE FROM `creature_text` WHERE `entry`=33515;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(33515, 0, 0, 'Some things are better left alone!', 14, 0, 100, 0, 0, 15473, 'Auriaya SAY_AGGRO'),
+(33515, 1, 0, 'The secret dies with you!', 14, 0, 100, 0, 0, 15474, 'Auriaya SAY_SLAY_1'),
+(33515, 1, 1, 'There is no escape!', 14, 0, 100, 0, 0, 15475, 'Auriaya SAY_SLAY_2'),
+(33515, 2, 0, 'Auriaya screams in agony.', 14, 0, 100, 0, 0, 15476, 'Auriaya SAY_DEATH'),
+(33515, 3, 0, 'You waste my time!', 14, 0, 100, 0, 0, 15477, 'Auriaya SAY_BERSERK'),
+(33515, 4, 0, 'Auriaya begins to cast Terrifying Screech.', 41, 0, 100, 0, 0, 0, 'Auriaya - EMOTE_FEAR'),
+(33515, 5, 0, 'Auriaya begins to activate the Feral Defender!', 41, 0, 100, 0, 0, 0, 'Auriaya - EMOTE_DEFENDER');
