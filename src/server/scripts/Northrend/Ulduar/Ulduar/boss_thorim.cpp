@@ -60,24 +60,16 @@ enum Events // Only start > 0 is relevant
 
 enum Yells
 {
-    SAY_AGGRO_1      = -1603270,
-    SAY_AGGRO_2      = -1603271,
-    SAY_SPECIAL_1    = -1603272,
-    SAY_SPECIAL_2    = -1603273,
-    SAY_SPECIAL_3    = -1603274,
-    SAY_JUMPDOWN     = -1603275,
-    SAY_SLAY_1       = -1603276,
-    SAY_SLAY_2       = -1603277,
-    SAY_BERSERK      = -1603278,
-    SAY_WIPE         = -1603279,
-    SAY_DEATH        = -1603280,
-    SAY_END_NORMAL_1 = -1603281,
-    SAY_END_NORMAL_2 = -1603282,
-    SAY_END_NORMAL_3 = -1603283,
-    SAY_END_HARD_1   = -1603284,
-    SAY_END_HARD_2   = -1603285,
-    SAY_END_HARD_3   = -1603286,
-    SAY_YS_HELP      = -1603287
+    SAY_AGGRO       = 0,
+    SAY_SPECIAL     = 1,
+    SAY_JUMPDOWN    = 2,
+    SAY_SLAY        = 3,
+    SAY_BERSERK     = 4,
+    SAY_WIPE        = 5,
+    SAY_DEATH       = 6,
+    SAY_END_NORMAL  = 7,
+    SAY_END_HARD    = 8,
+    SAY_YS_HELP     = 97
 };
 
 enum Actions
@@ -384,7 +376,7 @@ class boss_thorim : public CreatureScript
                 }
 
                 if (gotAddsWiped)
-                    DoScriptText(SAY_WIPE, me);
+                    Talk(SAY_WIPE);
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
@@ -411,7 +403,7 @@ class boss_thorim : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                Talk(SAY_SLAY);
             }
 
             void EncounterPostProgress()
@@ -420,7 +412,7 @@ class boss_thorim : public CreatureScript
                     return;
 
                 gotEncounterFinished = true;
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(7000);
                 me->RemoveAllAuras();
@@ -451,7 +443,7 @@ class boss_thorim : public CreatureScript
             void EnterCombat(Unit* who)
             {
                 _EnterCombat();
-                DoScriptText(SAY_AGGRO_1, me);
+                Talk(SAY_AGGRO);
 
                 // Spawn Thunder Orbs
                 for (uint8 n = 0; n < 7; n++)
@@ -537,7 +529,7 @@ class boss_thorim : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SAY_AGGRO_2:
-                            DoScriptText(SAY_AGGRO_2, me);
+                            Talk(SAY_AGGRO);
                             break;
                         case EVENT_STORMHAMMER:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.f, true))
@@ -571,7 +563,7 @@ class boss_thorim : public CreatureScript
                         case EVENT_BERSERK_PHASE_1:
                             DoCast(me, SPELL_BERSERK_PHASE_1);
                             DoCast(me, SPELL_SUMMON_LIGHTNING_ORB, true);
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             break;
                         // Phase 2 stuff
                         case EVENT_UNBALANCING_STRIKE:
@@ -596,7 +588,7 @@ class boss_thorim : public CreatureScript
                             break;
                         case EVENT_BERSERK_PHASE_2:
                             DoCast(me, SPELL_BERSERK_PHASE_2);
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             break;
                         default:
                             break;
@@ -673,7 +665,7 @@ class boss_thorim : public CreatureScript
                     Creature* giant = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RUNE_GIANT));
                     if (colossus && colossus->isDead() && giant && giant->isDead() && me->IsWithinDistInMap(attacker, 50.0f) && attacker->ToPlayer())
                     {
-                        DoScriptText(SAY_JUMPDOWN, me);
+                        Talk(SAY_JUMPDOWN);
                         phase = PHASE_2;
                         events.SetPhase(PHASE_2);
                         me->RemoveAurasDueToSpell(SPELL_SHEAT_OF_LIGHTNING);
@@ -1191,7 +1183,6 @@ SummonLocation colossusAddLocations[]=
     {{2227.58f, -308.30f, 412.18f, 1.591f}, 33110},
     {{2227.47f, -345.37f, 412.18f, 1.566f}, 33110}
 };
-#define EMOTE_BARRIER                           "Runic Colossus surrounds itself with a crackling Runic Barrier!"
 
 class npc_runic_colossus : public CreatureScript
 {
@@ -1203,6 +1194,11 @@ class npc_runic_colossus : public CreatureScript
             EVENT_SMASH_WAVE,
             EVENT_CHARGE,
             EVENT_RUNIC_SMASH
+        };
+
+        enum Emote
+        {
+            EMOTE_BARRIER   = 0
         };
 
     public:
@@ -1293,7 +1289,7 @@ class npc_runic_colossus : public CreatureScript
                     switch (event)
                     {
                         case EVENT_BARRIER:
-                            me->MonsterTextEmote(EMOTE_BARRIER, 0, true);
+                            Talk(EMOTE_BARRIER);
                             DoCast(me, SPELL_RUNIC_BARRIER);
                             events.ScheduleEvent(EVENT_BARRIER, urand(35000, 45000));
                             return;
