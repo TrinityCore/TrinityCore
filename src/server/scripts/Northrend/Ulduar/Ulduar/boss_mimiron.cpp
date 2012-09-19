@@ -27,26 +27,22 @@
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603240,
-    SAY_HARDMODE_ON                             = -1603241,
-    SAY_MKII_ACTIVATE                           = -1603242,
-    SAY_MKII_SLAY_1                             = -1603243,
-    SAY_MKII_SLAY_2                             = -1603244,
-    SAY_MKII_DEATH                              = -1603245,
-    SAY_VX001_ACTIVATE                          = -1603246,
-    SAY_VX001_SLAY_1                            = -1603247,
-    SAY_VX001_SLAY_2                            = -1603248,
-    SAY_VX001_DEATH                             = -1603249,
-    SAY_AERIAL_ACTIVATE                         = -1603250,
-    SAY_AERIAL_SLAY_1                           = -1603251,
-    SAY_AERIAL_SLAY_2                           = -1603252,
-    SAY_AERIAL_DEATH                            = -1603253,
-    SAY_V07TRON_ACTIVATE                        = -1603254,
-    SAY_V07TRON_SLAY_1                          = -1603255,
-    SAY_V07TRON_SLAY_2                          = -1603256,
-    SAY_V07TRON_DEATH                           = -1603257,
-    SAY_BERSERK                                 = -1603258,
-    SAY_YS_HELP                                 = -1603259
+    SAY_AGGRO                                   = 0,
+    SAY_HARDMODE_ON                             = 1,
+    SAY_MKII_ACTIVATE                           = 2,
+    SAY_MKII_SLAY                               = 3,
+    SAY_MKII_DEATH                              = 4,
+    SAY_VX001_ACTIVATE                          = 5,
+    SAY_VX001_SLAY                              = 6,
+    SAY_VX001_DEATH                             = 7,
+    SAY_AERIAL_ACTIVATE                         = 8,
+    SAY_AERIAL_SLAY                             = 9,
+    SAY_AERIAL_DEATH                            = 10,
+    SAY_V07TRON_ACTIVATE                        = 11,
+    SAY_V07TRON_SLAY                            = 12,
+    SAY_V07TRON_DEATH                           = 13,
+    SAY_BERSERK                                 = 14,
+    SAY_YS_HELP                                 = 15
 };
 
 enum Spells
@@ -364,7 +360,7 @@ class boss_mimiron : public CreatureScript
                 if (gotEncounterFinished)
                     return;
 
-                DoScriptText(SAY_V07TRON_DEATH, me);
+                Talk(SAY_V07TRON_DEATH);
 
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAllAuras();
@@ -428,7 +424,7 @@ class boss_mimiron : public CreatureScript
                             events.ScheduleEvent(EVENT_CHECK_TARGET, 7000);
                             return;
                         case EVENT_ENRAGE:
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
                                 if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(data)))
                                     creature->AI()->DoAction(DO_ENTER_ENRAGE);
@@ -449,11 +445,11 @@ class boss_mimiron : public CreatureScript
                             switch (phase)
                             {
                                 case PHASE_INTRO:
-                                    DoScriptText(gotHardMode ? SAY_HARDMODE_ON : SAY_AGGRO, me);
+                                    Talk(gotHardMode ? SAY_HARDMODE_ON : SAY_AGGRO);
                                     events.ScheduleEvent(EVENT_STEP_2, 10*IN_MILLISECONDS, 0, PHASE_INTRO);
                                     break;
                                 case PHASE_VX001_ACTIVATION:
-                                    DoScriptText(SAY_MKII_DEATH, me);
+                                    Talk(SAY_MKII_DEATH);
                                     events.ScheduleEvent(EVENT_STEP_2, 10*IN_MILLISECONDS, 0, PHASE_VX001_ACTIVATION);
                                     break;
                                 case PHASE_AERIAL_ACTIVATION:
@@ -471,7 +467,7 @@ class boss_mimiron : public CreatureScript
                                         {
                                             me->EnterVehicle(VX_001, 1);
                                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
-                                            DoScriptText(SAY_AERIAL_DEATH, me);
+                                            Talk(SAY_AERIAL_DEATH);
                                         }
                                     }
                                     events.ScheduleEvent(EVENT_STEP_2, 5*IN_MILLISECONDS, 0, PHASE_V0L7R0N_ACTIVATION);
@@ -496,7 +492,7 @@ class boss_mimiron : public CreatureScript
                                     events.ScheduleEvent(EVENT_STEP_3, 2*IN_MILLISECONDS, 0, PHASE_VX001_ACTIVATION);
                                     break;
                                 case PHASE_AERIAL_ACTIVATION:
-                                    DoScriptText(SAY_VX001_DEATH, me);
+                                    Talk(SAY_VX001_DEATH);
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                                     events.ScheduleEvent(EVENT_STEP_3, 5*IN_MILLISECONDS, 0, PHASE_AERIAL_ACTIVATION);
                                     break;
@@ -546,7 +542,7 @@ class boss_mimiron : public CreatureScript
                                             {
                                                 AerialUnit->SetCanFly(false);
                                                 AerialUnit->EnterVehicle(VX_001, 3);
-                                                DoScriptText(SAY_V07TRON_ACTIVATE, me);
+                                                Talk(SAY_V07TRON_ACTIVATE);
                                             }
                                     events.ScheduleEvent(EVENT_STEP_4, 10*IN_MILLISECONDS, 0, PHASE_V0L7R0N_ACTIVATION);
                                     break;
@@ -613,7 +609,7 @@ class boss_mimiron : public CreatureScript
                             switch (phase) // TODO: Add other phases if required
                             {
                                 case PHASE_INTRO:
-                                    DoScriptText(SAY_MKII_ACTIVATE, me);
+                                    Talk(SAY_MKII_ACTIVATE);
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                                     events.ScheduleEvent(EVENT_STEP_6, 6*IN_MILLISECONDS, 0, PHASE_INTRO);
                                     break;
@@ -627,7 +623,7 @@ class boss_mimiron : public CreatureScript
                                     break;
                                 case PHASE_AERIAL_ACTIVATION:
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
-                                    DoScriptText(SAY_AERIAL_ACTIVATE, me);
+                                    Talk(SAY_AERIAL_ACTIVATE);
                                     events.ScheduleEvent(EVENT_STEP_6, 8*IN_MILLISECONDS, 0, PHASE_AERIAL_ACTIVATION);
                                     break;
                                 default:
@@ -643,7 +639,7 @@ class boss_mimiron : public CreatureScript
                                     break;
                                 case PHASE_VX001_ACTIVATION:
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
-                                    DoScriptText(SAY_VX001_ACTIVATE, me);
+                                    Talk(SAY_VX001_ACTIVATE);
                                     events.ScheduleEvent(EVENT_STEP_7, 10*IN_MILLISECONDS, 0, PHASE_VX001_ACTIVATION);
                                     break;
                                 case PHASE_AERIAL_ACTIVATION:
@@ -902,14 +898,13 @@ class boss_leviathan_mk : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                if (!(rand()%5))
-                    if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
-                    {
-                        if (phase == PHASE_LEVIATHAN_SOLO__GLOBAL_1)
-                            DoScriptText(RAND(SAY_MKII_SLAY_1, SAY_MKII_SLAY_2), Mimiron);
-                        else
-                            DoScriptText(RAND(SAY_V07TRON_SLAY_1, SAY_V07TRON_SLAY_2), Mimiron);
-                    }
+                if (uint64 Mimiron = instance->GetData64(BOSS_MIMIRON))
+                {
+                    if (phase == PHASE_LEVIATHAN_SOLO__GLOBAL_1)
+                        Talk(SAY_MKII_SLAY, Mimiron);
+                    else
+                        Talk(SAY_V07TRON_SLAY, Mimiron);
+                }
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
@@ -1321,15 +1316,14 @@ class boss_vx_001 : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                if (!(rand()%5))
-                    if (instance)
-                        if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
-                        {
-                            if (phase == PHASE_VX001_SOLO__GLOBAL_2)
-                                DoScriptText(RAND(SAY_VX001_SLAY_1, SAY_VX001_SLAY_2), Mimiron);
-                            else
-                                DoScriptText(RAND(SAY_V07TRON_SLAY_1, SAY_V07TRON_SLAY_2), Mimiron);
-                        }
+                if (instance)
+                    if (uint64 Mimiron = instance->GetData64(BOSS_MIMIRON))
+                    {
+                        if (phase == PHASE_VX001_SOLO__GLOBAL_2)
+                            Talk(SAY_VX001_SLAY, Mimiron);
+                        else
+                            Talk(SAY_V07TRON_SLAY, Mimiron);
+                    }
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -1732,15 +1726,14 @@ class boss_aerial_unit : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                if (!(rand()%5))
-                    if (instance)
-                        if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
-                        {
-                            if (phase == PHASE_AERIAL_SOLO__GLOBAL_3)
-                                DoScriptText(RAND(SAY_AERIAL_SLAY_1, SAY_AERIAL_SLAY_2), Mimiron);
-                            else
-                                DoScriptText(RAND(SAY_V07TRON_SLAY_1, SAY_V07TRON_SLAY_2), Mimiron);
-                        }
+                if (instance)
+                    if (uint64 Mimiron = instance->GetData64(BOSS_MIMIRON))
+                    {
+                        if (phase == PHASE_AERIAL_SOLO__GLOBAL_3)
+                            Talk(SAY_AERIAL_SLAY, Mimiron);
+                        else
+                            Talk(SAY_V07TRON_SLAY, Mimiron);
+                    }
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
