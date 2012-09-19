@@ -1019,3 +1019,19 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32914, 1, 0, '<Angry roar>', 14, 0, 100, 0, 0, 15501, 'Elder Stonebark SAY_SLAY_1'),
 (32914, 1, 1, 'Such a waste.', 14, 0, 100, 0, 0, 15502, 'Elder Stonebark SAY_SLAY_2'),
 (32914, 2, 0, 'Matron, flee! They are ruthless....', 14, 0, 100, 0, 0, 15503, 'Elder Stonebark SAY_DEATH');
+
+-- Hodir
+DELETE FROM `script_texts` WHERE `npc_entry`=32845;
+DELETE FROM `creature_text` WHERE `entry`=32845;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(32845, 9, 0, 'Hodir begins to cast Flash Freeze!', 41, 0, 100, 0, 0, 0, 'Hodir - EMOTE_FREEZE'),
+(32845, 0, 0, 'You will suffer for this trespass!', 14, 0, 100, 0, 0, 15552, 'Hodir SAY_AGGRO'),
+(32845, 1, 0, 'Tragic. To come so far, only to fail.', 14, 0, 30, 0, 0, 15553, 'Hodir SAY_SLAY_1'),
+(32845, 1, 1, 'Welcome to the endless winter.', 14, 0, 30, 0, 0, 15554, 'Hodir SAY_SLAY_2'),
+(32845, 2, 0, 'Winds of the north consume you!', 14, 0, 100, 0, 0, 15555, 'Hodir SAY_FLASH_FREEZE'),
+(32845, 3, 0, 'Hodir roars furious.', 41, 0, 100, 0, 0, 15556, 'Hodir SAY_STALACTITE'),
+(32845, 4, 0, 'I... I am released from his grasp... at last.', 14, 0, 100, 0, 0, 15557, 'Hodir SAY_DEATH'),
+(32845, 5, 0, 'Enough! This ends now!', 14, 0, 100, 0, 0, 15558, 'Hodir SAY_BERSERK'),
+(32845, 6, 0, 'The veil of winter will protect you, champions!', 14, 0, 100, 0, 0, 15559, 'Hodir SAY_YS_HELP'),
+(32845, 7, 0, 'Hodir shatters the Rare Cache of Hodir!', 41, 0, 100, 0, 0, 0, 'Hodir SAY_HARD_MODE_MISSED'),
+(32845, 8, 0, 'Hodir gains Frozen Blows!', 41, 0, 100, 0, 0, 0, 'Hodir - EMOTE_BLOW');
