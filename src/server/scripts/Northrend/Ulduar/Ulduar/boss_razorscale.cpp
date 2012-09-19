@@ -22,17 +22,27 @@
 #include "ulduar.h"
 #include "SpellInfo.h"
 
-enum Says
+enum RazorscaleEmotes
 {
-    SAY_GREET                                    = -1603260,
-    SAY_GROUND_PHASE                             = -1603261,
-    SAY_AGGRO_1                                  = -1603262,
-    SAY_AGGRO_2                                  = -1603263,
-    SAY_AGGRO_3                                  = -1603264,
-    SAY_TURRETS                                  = -1603265,
-    SAY_HARPOON                                  = -1603266,
-    EMOTE_BREATH                                 = -1603267,
-    EMOTE_PERMA                                  = -1603268
+    EMOTE_BREATH                                = 0,
+    EMOTE_PERMA                                 = 1
+};
+
+enum CommanderSays
+{
+    SAY_GREET                                   = 0,
+    SAY_GROUND_PHASE                            = 1
+};
+
+enum EngineerSays
+{
+    SAY_AGGRO                                   = 0,
+    SAY_TURRETS                                 = 1,
+};
+
+enum RazorscaleControllerEmote
+{
+    EMOTE_HARPOON                               = 0
 };
 
 enum Spells
@@ -247,7 +257,7 @@ class boss_razorscale_controller : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoScriptText(SAY_HARPOON, me);
+                    Talk(EMOTE_HARPOON);
                     switch (eventId)
                     {
                         case EVENT_BUILD_HARPOON_1:
@@ -495,7 +505,7 @@ class boss_razorscale : public CreatureScript
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                                 me->RemoveAurasDueToSpell(SPELL_HARPOON_TRIGGER);
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                DoScriptText(EMOTE_BREATH, me, 0);
+                                Talk(EMOTE_BREATH);
                                 DoCastAOE(SPELL_FLAMEBREATH);
                                 events.CancelEvent(EVENT_BREATH);
                                 return;
@@ -521,7 +531,7 @@ class boss_razorscale : public CreatureScript
                                 events.ScheduleEvent(EVENT_FLAME, 10000, 0, PHASE_PERMAGROUND);
                                 return;
                             case EVENT_BREATH:
-                                me->MonsterTextEmote(EMOTE_BREATH, 0, true);
+                                Talk(EMOTE_BREATH);
                                 DoCastVictim(SPELL_FLAMEBREATH);
                                 events.ScheduleEvent(EVENT_BREATH, 20000, 0, PHASE_PERMAGROUND);
                                 return;
@@ -585,7 +595,7 @@ class boss_razorscale : public CreatureScript
 
             void EnterPermaGround()
             {
-                me->MonsterTextEmote(EMOTE_PERMA, 0, true);
+                Talk(EMOTE_PERMA);
                 phase = PHASE_PERMAGROUND;
                 events.SetPhase(PHASE_PERMAGROUND);
                 me->SetCanFly(false);
@@ -679,7 +689,7 @@ class npc_expedition_commander : public CreatureScript
             {
                 if (!Greet && me->IsWithinDistInMap(who, 10.0f) && who->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoScriptText(SAY_GREET, me);
+                    Talk(SAY_GREET);
                     Greet = true;
                 }
             }
@@ -694,7 +704,7 @@ class npc_expedition_commander : public CreatureScript
                 switch (action)
                 {
                     case ACTION_GROUND_PHASE:
-                        DoScriptText(SAY_GROUND_PHASE, me);
+                        Talk(SAY_GROUND_PHASE);
                         break;
                     case ACTION_COMMANDER_RESET:
                         summons.DespawnAll();
@@ -726,7 +736,7 @@ class npc_expedition_commander : public CreatureScript
                                 Engineer[n]->SetHomePosition(PosEngRepair[n]);
                                 Engineer[n]->GetMotionMaster()->MoveTargetedHome();
                             }
-                            Engineer[0]->MonsterYell(SAY_AGGRO_3, LANG_UNIVERSAL, 0);
+                            Engineer[0]->AI()->Talk(SAY_AGGRO);
                             if (Creature* controller = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_RAZORSCALE_CONTROL) : 0))
                                 controller->AI()->DoAction(ACTION_PLACE_BROKEN_HARPOON);
                             Phase = 3;
@@ -747,7 +757,7 @@ class npc_expedition_commander : public CreatureScript
                                 Engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             for (uint8 n = 0; n < 4; ++n)
                                 Defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
-                            me->MonsterYell(SAY_AGGRO_2, LANG_UNIVERSAL, 0);
+                            me->AI()->Talk(SAY_AGGRO);
                             AttackStartTimer = 16000;
                             Phase = 5;
                             break;
@@ -757,7 +767,7 @@ class npc_expedition_commander : public CreatureScript
                                 Razorscale->AI()->DoAction(ACTION_EVENT_START);
                                 me->SetInCombatWith(Razorscale);
                             }
-                            Engineer[0]->MonsterYell(SAY_AGGRO_1, LANG_UNIVERSAL, 0);
+                            Engineer[0]->AI()->Talk(SAY_AGGRO);
                             Phase = 6;
                             break;
                         default:

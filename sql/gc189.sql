@@ -901,4 +901,18 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33118, 5, 0, 'Let the inferno consume you!', 14, 0, 100, 0, 0, 15567, 'Ignis SAY_SCORCH_1'),
 (33118, 5, 1, 'BURN! Burn in the makers fire!', 14, 0, 100, 0, 0, 15568, 'Ignis SAY_SCORCH_2'),
 (33118, 6, 0, 'Let it be finished!', 14, 0, 100, 0, 0, 15571, 'Ignis SAY_BERSERK'),
-(33118, 7, 0, 'Ignis the Furnace Master begins to cast Flame Jets!', 41, 0, 100, 0, 0, 0, 'IGNIS EMOTE_JETS');
+(33118, 7, 0, 'Ignis the Furnace Master begins to cast Flame Jets!', 41, 0, 100, 0, 0, 0, 'Ignis EMOTE_JETS');
+
+-- Razorscale
+DELETE FROM `script_texts` WHERE `npc_entry` IN (33186, 33210, 33287, 33233);
+DELETE FROM `creature_text` WHERE `entry` IN (33186, 33210, 33287, 33233);
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(33186, 0, 0, 'Razorscale takes a deep breath...', 41, 0, 100, 0, 0, 0, 'Razorscale EMOTE_BREATH'),
+(33186, 1, 0, 'Razorscale grounded permanently!', 41, 0, 100, 0, 0, 0, 'Razorscale EMOTE_PERMA'),
+(33210, 0, 0, 'Welcome, champions! All of our attempts at grounding her have failed. We could use a hand in bring her down with these harpoon guns.', 14, 0, 100, 0, 0, 15647, 'Exp Commander SAY_GREET'),
+(33210, 1, 0, 'Move! Quickly! She won''t remain grounded for long.', 14, 0, 100, 0, 0, 15648, 'Exp Commander SAY_GROUND_PHASE'),
+(33287, 0, 0, 'Give us a moment to prepare to build the turrets.', 14, 0, 100, 0, 0, 0, 'Exp Engineer SAY_AGGRO_1'),
+(33287, 0, 1, 'Be on the lookout! Mole machines will be surfacing soon with those nasty Iron dwarves aboard!', 14, 0, 100, 0, 0, 0, 'Exp Engineer SAY_AGGRO_2'),
+(33287, 0, 2, 'Ready to move out, keep those dwarves off of our backs!', 14, 0, 100, 0, 0, 0, 'Exp Engineer SAY_AGGRO_3'),
+(33287, 1, 0, 'Fires out! Let''s rebuild those turrets!', 14, 0, 100, 0, 0, 0, 'Exp Engineer SAY_TURRETS'),
+(33233, 0, 0, 'Harpoon Turret is ready for use!', 41, 0, 100, 0, 0, 0, 'Razorscale Controller EMOTE_HARPOON');
