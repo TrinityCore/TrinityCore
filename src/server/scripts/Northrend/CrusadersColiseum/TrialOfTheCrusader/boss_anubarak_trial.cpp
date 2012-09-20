@@ -234,6 +234,7 @@ public:
                     m_vBurrowGUID.push_back(summoned->GetGUID());
                     summoned->SetReactState(REACT_PASSIVE);
                     summoned->CastSpell(summoned, SPELL_CHURNING_GROUND, false);
+                    summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
                     break;
                 case NPC_SPIKE:
                     summoned->CombatStart(target);
@@ -757,7 +758,9 @@ public:
             DoCast(who, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
             // make sure the Spine will really follow the one he should
-            me->getThreatManager().addThreat(who, me->getThreatManager().getThreat(me->getVictim()) + 10000.f);
+            me->getThreatManager().clearReferences();
+            me->SetInCombatWithZone();
+            me->getThreatManager().addThreat(who, 10000.f);
             me->GetMotionMaster()->Clear(true);
             me->GetMotionMaster()->MoveChase(who);
             me->TauntApply(who);
