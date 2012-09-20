@@ -390,7 +390,7 @@ enum AuraType
     SPELL_AURA_PROC_ON_POWER_AMOUNT                         = 328,
     SPELL_AURA_MOD_RUNE_REGEN_SPEED                         = 329,  // NYI
     SPELL_AURA_CAST_WHILE_WALKING                           = 330,
-    SPELL_AURA_FORCE_WEATHER                                = 331,  // NYI
+    SPELL_AURA_FORCE_WEATHER                                = 331,
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS                    = 332,
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2                  = 333,
     SPELL_AURA_MOD_BLIND                                    = 334,  // NYI
