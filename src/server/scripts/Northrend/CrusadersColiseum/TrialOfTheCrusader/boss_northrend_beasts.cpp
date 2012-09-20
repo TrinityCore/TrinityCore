@@ -437,8 +437,9 @@ public:
                 switch (event)
                 {
                     case EVENT_FIRE_BOMB:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FIRE_BOMB, true);
+                        if (me->GetVehicleBase())
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach()))
+                                DoCast(target, SPELL_FIRE_BOMB, true);
                         events.ScheduleEvent(EVENT_FIRE_BOMB, 20*IN_MILLISECONDS);
                         return;
                     case EVENT_HEAD_CRACK:
