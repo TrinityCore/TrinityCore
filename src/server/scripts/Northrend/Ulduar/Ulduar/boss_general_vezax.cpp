@@ -232,7 +232,8 @@ class boss_general_vezax : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*who*/)

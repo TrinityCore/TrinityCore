@@ -402,7 +402,8 @@ class boss_thorim : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                Talk(SAY_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void EncounterPostProgress()

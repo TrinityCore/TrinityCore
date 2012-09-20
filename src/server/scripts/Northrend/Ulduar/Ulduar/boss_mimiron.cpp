@@ -900,9 +900,13 @@ class boss_leviathan_mk : public CreatureScript
                 if (uint64 Mimiron = instance->GetData64(BOSS_MIMIRON))
                 {
                     if (phase == PHASE_LEVIATHAN_SOLO__GLOBAL_1)
-                        Talk(SAY_MKII_SLAY, Mimiron);
+                    {
+                        if (!urand(0,5))
+                            Talk(SAY_MKII_SLAY, Mimiron);
+                    }
                     else
-                        Talk(SAY_V07TRON_SLAY, Mimiron);
+                        if (!urand(0,5))
+                            Talk(SAY_V07TRON_SLAY, Mimiron);
                 }
             }
 
@@ -1319,9 +1323,13 @@ class boss_vx_001 : public CreatureScript
                     if (uint64 Mimiron = instance->GetData64(BOSS_MIMIRON))
                     {
                         if (phase == PHASE_VX001_SOLO__GLOBAL_2)
-                            Talk(SAY_VX001_SLAY, Mimiron);
+                        {
+                            if (!urand(0,5))
+                                Talk(SAY_VX001_SLAY, Mimiron);
+                        }
                         else
-                            Talk(SAY_V07TRON_SLAY, Mimiron);
+                            if (!urand(0,5))
+                                Talk(SAY_V07TRON_SLAY, Mimiron);
                     }
             }
 
@@ -1729,9 +1737,13 @@ class boss_aerial_unit : public CreatureScript
                     if (uint64 Mimiron = instance->GetData64(BOSS_MIMIRON))
                     {
                         if (phase == PHASE_AERIAL_SOLO__GLOBAL_3)
-                            Talk(SAY_AERIAL_SLAY, Mimiron);
+                        {
+                            if (!urand(0,5))
+                                Talk(SAY_AERIAL_SLAY, Mimiron);
+                        }
                         else
-                            Talk(SAY_V07TRON_SLAY, Mimiron);
+                            if (!urand(0,5))
+                                Talk(SAY_V07TRON_SLAY, Mimiron);
                     }
             }
 

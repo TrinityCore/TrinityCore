@@ -337,7 +337,8 @@ class boss_hodir : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage)

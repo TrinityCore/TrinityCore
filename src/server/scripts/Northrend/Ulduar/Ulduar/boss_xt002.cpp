@@ -267,7 +267,8 @@ class boss_xt002 : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                Talk(SAY_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*victim*/)
@@ -361,7 +362,8 @@ class boss_xt002 : public CreatureScript
                             SetPhaseOne();
                             return;
                         case EVENT_SPAWN_ADDS:
-                            Talk(SAY_SUMMON);
+                            if (!urand(0,8))
+                                Talk(SAY_SUMMON);
 
                             // Spawn Pummeller
                             me->SummonCreature(NPC_XM024_PUMMELLER, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);

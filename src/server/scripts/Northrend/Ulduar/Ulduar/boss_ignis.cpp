@@ -253,7 +253,8 @@ class boss_ignis : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                Talk(SAY_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void DoAction(const int32 action)
