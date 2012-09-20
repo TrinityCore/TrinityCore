@@ -439,6 +439,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_mimiron' WHERE `entry`=33350;
 -- Leviathan MKII
 UPDATE `creature_template` SET `vehicleid`=370, `ScriptName`='boss_leviathan_mk' WHERE `entry`=33432;
 UPDATE `creature_template` SET `vehicleid`=370, `flags_extra`=`flags_extra` |1 WHERE `entry`=34106;
+UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id`=33236;
 -- Leviathan MKII Turret
 UPDATE `creature_template` SET `ScriptName`='boss_leviathan_mk_turret' WHERE `entry`=34071;
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=33432;
@@ -856,6 +857,30 @@ UPDATE `creature_template` SET `difficulty_entry_1`=33839 WHERE `entry`=33838;
 UPDATE `creature_template` SET `minlevel`= 82, `maxlevel`=82, `faction_A`=16, `faction_H`=16 WHERE `entry`=33839;
 
 -- Ulduar Texts
+-- Flame Leviathan
+DELETE FROM `script_texts` WHERE `npc_entry`=33113;
+DELETE FROM `creature_text` WHERE `entry`=33113;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(33113, 0, 0, 'Hostile entities detected. Threat assessment protocol active. Primary target engaged. Time minus thirty seconds to re-evaluation.', 14, 0, 0, 0, 0, 15506, 'Flame Leviathan SAY_AGGRO'),
+(33113, 1, 0, 'Threat assessment routine modified. Current target threat level: zero. Acquiring new target.', 14, 0, 0, 0, 0, 15521, 'Flame Leviathan SAY_SLAY'),
+(33113, 2, 0, 'Total systems failure. Defense protocols breached. Leviathan Unit shutting down.', 14, 0, 0, 0, 0, 15520, 'Flame Leviathan SAY_DEATH'),
+(33113, 3, 0, 'Threat re-evaluated. Target assessment complete. Changing course.', 14, 0, 0, 0, 0, 15507, 'Flame Leviathan SAY_TARGET_1'),
+(33113, 3, 1, 'Pursuit objective modified. Changing course.', 14, 0, 0, 0, 0, 15508, 'Flame Leviathan SAY_TARGET_2'),
+(33113, 3, 2, 'Hostile entity stratagem predicted. Rerouting battle function. Changing course.', 14, 0, 0, 0, 0, 15509, 'Flame Leviathan SAY_TARGET_3'),
+(33113, 4, 0, 'Orbital countermeasures enabled.', 14, 0, 0, 0, 0, 15510, 'Flame Leviathan SAY_HARDMODE'),
+(33113, 5, 0, 'Alert! Static defense system failure. Orbital countermeasures disabled.', 14, 0, 0, 0, 0, 15511, 'Flame Leviathan SAY_TOWER_NONE'),
+(33113, 6, 0, '''Hodir''s Fury'' online. Acquiring target.', 14, 0, 0, 0, 0, 15512, 'Flame Leviathan SAY_TOWER_FROST'),
+(33113, 7, 0, '''Mimiron''s Inferno'' online. Acquiring target.', 14, 0, 0, 0, 0, 15513, 'Flame Leviathan SAY_TOWER_FLAME'),
+(33113, 8, 0, '''Freya''s Ward'' online. Acquiring target.', 14, 0, 0, 0, 0, 15514, 'Flame Leviathan SAY_TOWER_NATURE'),
+(33113, 9, 0, '''Thorim''s Hammer'' online. Acquiring target.', 14, 0, 0, 0, 0, 15515, 'Flame Leviathan SAY_TOWER_STORM'),
+(33113, 10, 0, 'Unauthorized entity attempting circuit overload. Activating anti-personnel countermeasures.', 14, 0, 0, 0, 0, 15516, 'Flame Leviathan SAY_PLAYER_RIDING'),
+(33113, 11, 0, 'System malfunction. Diverting power to support systems.', 14, 0, 0, 0, 0, 15517, 'Flame Leviathan SAY_OVERLOAD_1'),
+(33113, 11, 1, 'Combat matrix overload. Powering do-o-o-own...', 14, 0, 0, 0, 0, 15518, 'Flame Leviathan SAY_OVERLOAD_2'),
+(33113, 11, 2, 'System restart required. Deactivating weapon systems.', 14, 0, 0, 0, 0, 15519, 'Flame Leviathan SAY_OVERLOAD_3'),
+(33113, 12, 0, 'Flame Leviathan pursues $N', 41, 0, 0, 0, 0, 0, 'Flame Leviathan EMOTE_PURSUE'),
+(33113, 13, 0, 'Flame Leviathan''s circuits overloaded.', 41, 0, 0, 0, 0, 0, 'Flame Leviathan EMOTE_OVERLOAD'),
+(33113, 14, 0, 'Automatic repair sequence initiated.', 41, 0, 0, 0, 0, 0, 'Flame Leviathan EMOTE_REPAIR');
+
 -- Ignis
 DELETE FROM `script_texts` WHERE `npc_entry`=33118;
 DELETE FROM `creature_text` WHERE `entry`=33118;

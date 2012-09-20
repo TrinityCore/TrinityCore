@@ -162,30 +162,26 @@ enum Vehicles
     VEHICLE_DEMOLISHER    = 33109,
 };
 
-#define EMOTE_PURSUE      "Flame Leviathan pursues $N."
-#define EMOTE_OVERLOAD    "Flame Leviathan's circuits overloaded."
-#define EMOTE_REPAIR      "Automatic repair sequence initiated."
 #define _DATA_SHUTOUT      29112912 // 2911, 2912 are achievement IDs   // TODO: Maybe get rid of those two defines
 #define _DATA_ORBIT_ACHIEVEMENTS    1
 
 enum Yells
 {
-    SAY_AGGRO            = -1603060,
-    SAY_SLAY             = -1603061,
-    SAY_DEATH            = -1603062,
-    SAY_TARGET_1         = -1603063,
-    SAY_TARGET_2         = -1603064,
-    SAY_TARGET_3         = -1603065,
-    SAY_HARDMODE         = -1603066,
-    SAY_TOWER_NONE       = -1603067,
-    SAY_TOWER_FROST      = -1603068,
-    SAY_TOWER_FLAME      = -1603069,
-    SAY_TOWER_NATURE     = -1603070,
-    SAY_TOWER_STORM      = -1603071,
-    SAY_PLAYER_RIDING    = -1603072,
-    SAY_OVERLOAD_1       = -1603073,
-    SAY_OVERLOAD_2       = -1603074,
-    SAY_OVERLOAD_3       = -1603075,
+    SAY_AGGRO           = 0,
+    SAY_SLAY            = 1,
+    SAY_DEATH           = 2,
+    SAY_TARGET          = 3,
+    SAY_HARDMODE        = 4,
+    SAY_TOWER_NONE      = 5,
+    SAY_TOWER_FROST     = 6,
+    SAY_TOWER_FLAME     = 7,
+    SAY_TOWER_NATURE    = 8,
+    SAY_TOWER_STORM     = 9,
+    SAY_PLAYER_RIDING   = 10,
+    SAY_OVERLOAD        = 11,
+    EMOTE_PURSUE        = 12,
+    EMOTE_OVERLOAD      = 13,
+    EMOTE_REPAIR        = 14
 };
 
 enum AchievementData
@@ -428,11 +424,11 @@ class boss_flame_leviathan : public CreatureScript
                         events.ScheduleEvent(EVENT_FREYAS_WARD, 140*IN_MILLISECONDS);
                     }
 
-                    DoScriptText(SAY_HARDMODE, me);
+                    Talk(SAY_HARDMODE);
                 }
                 else
-                    DoScriptText(SAY_TOWER_NONE, me);
-                    //DoScriptText(SAY_AGGRO, me);
+                    Talk(SAY_TOWER_NONE);
+                    //Talk(SAY_AGGRO);
             }
 
             void JustDied(Unit* /*victim*/)
@@ -441,7 +437,7 @@ class boss_flame_leviathan : public CreatureScript
                 // Set Field Flags 67108928 = 64 | 67108864 = UNIT_FLAG_UNK_6 | UNIT_FLAG_SKINNABLE
                 // Set DynFlags 12
                 // Set NPCFlags 0
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 // TODO: These chests should be somewhere around...
                 // Check if changing the loot-mode as shown below works as considered
                 if (GameObject* go = me->FindNearestGameObject(RAID_MODE(GO_LEVIATHAN_CHEST_10, GO_LEVIATHAN_CHEST_25), 250.0f))
@@ -521,7 +517,7 @@ class boss_flame_leviathan : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_PURSUE:
-                            DoScriptText(RAND(SAY_TARGET_1, SAY_TARGET_2, SAY_TARGET_3), me);
+                            Talk(SAY_TARGET);
                             DoCast(SPELL_PURSUED);  // Will select target in spellscript
                             events.ScheduleEvent(EVENT_PURSUE, 35*IN_MILLISECONDS);         // Note: Spell-cooldown is 35 seconds
                             return;
@@ -544,9 +540,9 @@ class boss_flame_leviathan : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON, 2*IN_MILLISECONDS);
                             return;
                         case EVENT_SHUTDOWN:
-                            DoScriptText(RAND(SAY_OVERLOAD_1, SAY_OVERLOAD_2, SAY_OVERLOAD_3), me);
+                            Talk(SAY_OVERLOAD);
                             me->StopMoving();
-                            me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
+                            Talk(EMOTE_OVERLOAD);
                             me->CastSpell(me, SPELL_SYSTEMS_SHUTDOWN, true);
                                 
                             // Achievement fails once SHUTDOWN got active
@@ -555,7 +551,7 @@ class boss_flame_leviathan : public CreatureScript
                             events.DelayEvents(20 * IN_MILLISECONDS, 0);
                             return;
                         case EVENT_REPAIR:
-                            me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
+                            Talk(EMOTE_REPAIR);
                             me->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                             events.ScheduleEvent(EVENT_SHUTDOWN, 150*IN_MILLISECONDS);
                             return;
@@ -568,11 +564,11 @@ class boss_flame_leviathan : public CreatureScript
                                 if (Creature* thorimBeacon = DoSummon(NPC_THORIM_BEACON, pos, 20*IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
                                     thorimBeacon->GetMotionMaster()->MoveRandom(100);
                             }
-                            DoScriptText(SAY_TOWER_STORM, me);
+                            Talk(SAY_TOWER_STORM);
                             return;
                         case EVENT_MIMIRONS_INFERNO: // Tower of Flames
                             me->SummonCreature(NPC_MIMIRON_BEACON, InfernoStart);
-                            DoScriptText(SAY_TOWER_FLAME, me);
+                            Talk(SAY_TOWER_FLAME);
                             return;
                         case EVENT_HODIRS_FURY:      // Tower of Frost
                             for (uint8 i = 0; i < 7; i++)   // TODO: Check where this "7" comes from
@@ -580,10 +576,10 @@ class boss_flame_leviathan : public CreatureScript
                                 if (Creature* hodir = DoSummon(NPC_HODIR_BEACON, me, 50.0f, 0))
                                     hodir->GetMotionMaster()->MoveRandom(100);
                             }
-                            DoScriptText(SAY_TOWER_FROST, me);
+                            Talk(SAY_TOWER_FROST);
                             return;
                         case EVENT_FREYAS_WARD:    // Tower of Nature
-                            DoScriptText(SAY_TOWER_NATURE, me);
+                            Talk(SAY_TOWER_NATURE);
                             for (int32 i = 0; i < 4; i++)   // TODO: Check where this "4" comes from
                                 me->SummonCreature(NPC_FREYA_BEACON, FreyaBeacons[i]);
 
@@ -616,7 +612,7 @@ class boss_flame_leviathan : public CreatureScript
                     me->GetMotionMaster()->MoveChase(target);                    
 
                     if (Player* player = target->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        me->MonsterTextEmote(EMOTE_PURSUE, player->GetGUID(), true);
+                        Talk(EMOTE_PURSUE, player->GetGUID());
                 }
             }
 
@@ -819,7 +815,7 @@ class npc_flame_leviathan_seat : public CreatureScript
                     else
                     {
                         me->AddAura(SPELL_FORCE_REACTION, who);
-                        DoScriptText(SAY_PLAYER_RIDING, me);
+                        Talk(SAY_PLAYER_RIDING);
                     }
 
                     if (Creature* turret = me->GetVehicleKit()->GetPassenger(SEAT_TURRET)->ToCreature())
@@ -1657,7 +1653,7 @@ class npc_lorekeeper : public CreatureScript
                             if (Creature* Brann = creature->FindNearestCreature(NPC_BRANN_BRONZBEARD, 1000, true))
                             {
                                 Delorah->GetMotionMaster()->MovePoint(0, Brann->GetPositionX()-4, Brann->GetPositionY(), Brann->GetPositionZ());
-                                //TODO DoScriptText(xxxx, Delorah, Branz); when reached at Brann
+                                //TODO Talk(xxxx, Delorah, Branz); when reached at Brann
                             }
                         }
                     }
@@ -1750,7 +1746,7 @@ class at_RX_214_repair_o_matic_station : public AreaTriggerScript
                 {
                     if (!vehicle->HasAura(SPELL_AUTO_REPAIR))
                     {
-                        player->MonsterTextEmote(EMOTE_REPAIR, player->GetGUID(), true);
+                        player->ToCreature()->AI()->Talk(EMOTE_REPAIR, player->GetUInt64Value(0));
                         player->CastSpell(vehicle, SPELL_AUTO_REPAIR, true);
                         vehicle->SetFullHealth();
                         if (Creature* leviathan = ObjectAccessor::GetCreature(*player, instance->GetData64(BOSS_LEVIATHAN)))
@@ -2147,7 +2143,7 @@ class spell_pursued : public SpellScriptLoader
                 {
                     if (IS_PLAYER_GUID(itr->second.Passenger))
                     {
-                        caster->MonsterTextEmote(EMOTE_PURSUE, itr->second.Passenger, true);
+                        caster->AI()->Talk(EMOTE_PURSUE, itr->second.Passenger);
                         return;
                     }
                 }
@@ -2305,7 +2301,7 @@ class spell_auto_repair : public SpellScriptLoader
                 if (!driver)
                     return;
 
-                driver->MonsterTextEmote(EMOTE_REPAIR, driver->GetGUID(), true);
+                driver->ToCreature()->AI()->Talk(EMOTE_REPAIR, driver->GetGUID());
 
                 InstanceScript* instance = driver->GetInstanceScript();
                 if (!instance)
