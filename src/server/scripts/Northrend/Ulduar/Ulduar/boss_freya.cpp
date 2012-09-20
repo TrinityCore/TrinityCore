@@ -34,8 +34,7 @@ enum FreyaYells
     SAY_BERSERK                                 = 4,
     SAY_SUMMON_CONSERVATOR                      = 5,
     SAY_SUMMON_TRIO                             = 6,
-    SAY_SUMMON_LASHERS                          = 7,
-    SAY_YS_HELP                                 = 8
+    SAY_SUMMON_LASHERS                          = 7
 };
 
 enum BrightleafYells

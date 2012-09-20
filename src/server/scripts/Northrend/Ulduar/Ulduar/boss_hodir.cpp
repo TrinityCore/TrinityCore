@@ -38,11 +38,10 @@ enum HodirYells
     SAY_STALACTITE                              = 3,
     SAY_DEATH                                   = 4,
     SAY_BERSERK                                 = 5,
-    SAY_YS_HELP                                 = 6,
-    SAY_HARD_MODE_FAILED                        = 7,
+    SAY_HARD_MODE_FAILED                        = 6,
 
-    EMOTE_FREEZE                                = 8,
-    EMOTE_BLOWS                                 = 9
+    EMOTE_FREEZE                                = 7,
+    EMOTE_BLOW                                  = 8
 };
 
 enum HodirSpells
@@ -418,7 +417,7 @@ class boss_hodir : public CreatureScript
                         }
                         case EVENT_BLOWS:
                             Talk(SAY_STALACTITE);
-                            Talk(EMOTE_BLOWS);
+                            Talk(EMOTE_BLOW);
                             DoCast(me, SPELL_FROZEN_BLOWS);
                             events.ScheduleEvent(EVENT_BLOWS, urand(60000, 65000));
                             return;

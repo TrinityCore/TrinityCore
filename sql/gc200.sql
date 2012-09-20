@@ -430,7 +430,7 @@ UPDATE `creature` SET `spawndist`=50 WHERE `id` IN (33528, 33733);
 UPDATE `gameobject_template` SET `flags`=32, `data2`=3000, `ScriptName`='go_call_tram' WHERE `entry` IN (194914, 194912, 194437);
 DELETE FROM `gameobject` WHERE id=194437;
 INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(194437, 603, 1, 1, 2306.87, 274.237, 424.288, 1.52255, 0, 0, 0.689847, 0.723956, 300, 0, 1);
+(194437, 603, 3, 1, 2306.87, 274.237, 424.288, 1.52255, 0, 0, 0.689847, 0.723956, 300, 0, 1);
 
 -- Mimirion
 UPDATE `creature_template` SET `ScriptName`='boss_mimiron' WHERE `entry`=33350;
@@ -514,7 +514,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 UPDATE `creature_template` SET `ScriptName`='npc_yogg_saron_encounter_controller' WHERE `entry`=29224;
 DELETE FROM `creature` WHERE `id`=29224;
 INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES 
-(29224, 603, 1, 1, 0, 0, 1980.28, -25.5868, 329.397, 2.91365, 300, 0, 0, 7841, 0, 0, 0, 0, 0);
+(29224, 603, 3, 1, 0, 0, 1980.28, -25.5868, 329.397, 2.91365, 300, 0, 0, 7841, 0, 0, 0, 0, 0);
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry`=33134;
 UPDATE `creature_template` SET `ScriptName`='npc_ominous_cloud' WHERE `entry`=33292;
 UPDATE `creature_template` SET `ScriptName`='npc_guardian_of_yogg_saron' WHERE `entry`=33136;
@@ -572,41 +572,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 62714, 31, 3, 33136, 'Effect should hit only Guardians'),
 (13, 2, 62714, 31, 4, 0, 'Effect should hit only Players');
 
--- Missing Says Vision
-UPDATE `script_texts` SET `npc_entry`=33134 WHERE `npc_entry`=33288 AND `entry` IN (-1603330,-1603331,-1603332,-1603333);
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1603360 AND -1603342;
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1603319 AND 1603310;
-INSERT INTO `script_texts` VALUES 
-(33535, -1603359, 'It is a weapon like no other. It must be like no other.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15610, 0, 0, 0, 'Malygos DragonSoulVision_Say'),
-(33523, -1603356, 'It is done... All have been given that which must be given. I now seal the Dragon Soul forever...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15631, 0, 0, 0, 'Neltharion DragonSoulVision_Say1'),
-(33495, -1603357, 'That terrible glow... should that be?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15702, 0, 0, 0, 'Ysera DragonSoulVision_Say'),
-(33523, -1603358, 'For it to be as it must, yes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15632, 0, 0, 0, 'Neltharion DragonSoulVision_Say2'),
-(33288, -1603355, 'He will learn... no king rules forever, only death is eternal!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15767, 0, 0, 0, 'YoggSaron LichKingVision_Say2'),
-(33288, -1603354, 'Yrr n\'lyeth... shuul anagg!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15766, 0, 0, 0, 'YoggSaron LichKingVision_Say1'),
-(33441, -1603353, 'I will break you as I broke him.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15599, 0, 0, 0, 'TheLichKing LichKingVision_Say2'),
-(33442, -1603351, 'Arrrrrrgh!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15470, 1, 0, 0, 'ImmolatedChampion LichKingVision_Say1'),
-(33442, -1603352, 'I\'m not afraid of you!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15471, 0, 0, 0, 'ImmolatedChampion LichKingVision_Say2'),
-(33436, -1603348, 'The orc leaders agree with your assessment.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15541, 0, 0, 0, 'Garona KingLlaneVision_Say4'),
-(33288, -1603349, 'Your petty quarrels only make me stronger!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15764, 0, 0, 0, 'YoggSaron KingLlaneVision_Say3'),
-(33288, -1603360, 'His brood learned their lesson before too long, you shall soon learn yours!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15765, 0, 0, 0, 'YoggSaron DragonSoulVision_Say1'),
-(33441, -1603350, 'Your resilience is admirable.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15598, 0, 0, 0, 'TheLichKing LichKingVision_Say1'),
-(33288, -1603346, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15763, 0, 0, 0, 'YoggSaron KingLlianeVision_Say2'),
-(33437, -1603347, 'We will hold until the reinforcements come. As long as men with stout hearts are manning the walls and throne Stormwind will hold.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15585, 0, 0, 0, 'KingLlane KingLlaneVision_Say'),
-(33436, -1603344, 'Gul\'dan is bringing up his warlocks by nightfall. Until then, the Blackrock clan will be trying to take the Eastern Wall.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15540, 0, 0, 0, 'Garona KingLlaneVision_Say3'),
-(33288, -1603345, 'A thousand deaths... or one murder.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15762, 0, 0, 0, 'YoggSaron KingLlaneVision_Say1'),
-(33436, -1603342, 'Bad news sire.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15538, 0, 0, 0, 'Garona KingLlaneVision_Say1'),
-(33436, -1603343, 'The clans are united under Blackhand in this assault. They will stand together until Stormwind has fallen.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15539, 0, 0, 0, 'Garona KingLlaneVision_Say2'),
-(33134, -1603310, 'Aaaaaaaaaaaaaaaaa... Help me!!! Please got to help me!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15771, 1, 0, 0, 'Sara say prefight 1'),
-(33134, -1603311, 'What do you want from me? Leave me alone!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15772, 1, 0, 0, 'Sara say prefight 2'),
-(33134, -1603312, 'The time to strike at the head of the beast will soon be upon us! Focus your anger and hatred on his minions!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15775, 1, 0, 0, 'Sara say aggro 2'),
-(33134, -1603313, 'Yes! YES! Show them no mercy! Give no pause to your attacks!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15773, 1, 0, 0, 'Sara help 1'),
-(33134, -1603314, 'Let hatred and rage guide your blows!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15774, 1, 0, 0, 'Sara help 2'),
-(33134, -1603315, 'Could they have been saved?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15779, 1, 0, 0, 'Sara slay 1'),
-(33134, -1603316, 'Powerless to act...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15778, 1, 0, 0, 'Sara slay 2'),
-(33134, -1603318, 'Tremble, mortals, before the coming of the end!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15777, 1, 0, 0, 'Sara phase 2 yell 1'),
-(33134, -1603319, 'Suffocate upon your own hate!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 15776, 1, 0, 0, 'Sara phase 2 yell 2');
-
--- Various things'
+-- Various things
 -- Update mechanic immunity flags.
 UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2048|4096|8192|65536|131072|524288|4194304|8388608|33554432|67108864|536870912, `flags_extra`=1 WHERE `entry` IN (
 33113, 34003, -- Flame Leviathan
@@ -883,9 +849,9 @@ DELETE FROM `creature` WHERE `id`=33838;
 UPDATE `creature_template` SET `difficulty_entry_1`=34114 WHERE `entry`=33855;
 UPDATE `creature_template` SET `faction_A`=16, `faction_H`=16 WHERE `entry`=34114;
 
--- deleting prespawned Ominous clouds and changing their models
-DELETE FROM `creature` WHERE `id`=33292;
-UPDATE `creature_template` SET `modelid1`=11686, `modelid2`=0 WHERE `entry`=33292;
+-- correcting Enslaved Fire Elemental versions
+UPDATE `creature_template` SET `difficulty_entry_1`=33839 WHERE `entry`=33838;
+UPDATE `creature_template` SET `minlevel`= 82, `maxlevel`=82, `faction_A`=16, `faction_H`=16 WHERE `entry`=33839;
 
 -- Ulduar Texts
 -- Ignis
@@ -1006,7 +972,6 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32906, 5, 0, 'Eonar, your servant requires aid!', 14, 0, 100, 0, 0, 15528, 'Freya SAY_SUMMON_CONSERVATOR'),
 (32906, 6, 0, 'Children, assist me!', 14, 0, 100, 0, 0, 15533, 'Freya SAY_SUMMON_TRIO'),
 (32906, 7, 0, 'The swarm of the elements shall overtake you!', 14, 0, 100, 0, 0, 15534, 'Freya SAY_SUMMON_LASHERS'),
-(32906, 8, 0, 'Eonar, your servant calls for your blessing!', 14, 0, 100, 0, 0, 15535, 'Freya SAY_YS_HELP'),
 (32915, 0, 0, 'Matron, the Conservatory has been breached!', 14, 0, 100, 0, 0, 15483, 'Elder Brightleaf SAY_AGGRO'),
 (32915, 1, 0, 'Fertilizer.', 14, 0, 100, 0, 0, 15485, 'Elder Brightleaf SAY_SLAY_1'),
 (32915, 1, 1, 'Your corpse will nourish the soil!', 14, 0, 100, 0, 0, 15486, 'Elder Brightleaf SAY_SLAY_2'),
@@ -1024,7 +989,6 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 DELETE FROM `script_texts` WHERE `npc_entry`=32845;
 DELETE FROM `creature_text` WHERE `entry`=32845;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
-(32845, 9, 0, 'Hodir begins to cast Flash Freeze!', 41, 0, 100, 0, 0, 0, 'Hodir - EMOTE_FREEZE'),
 (32845, 0, 0, 'You will suffer for this trespass!', 14, 0, 100, 0, 0, 15552, 'Hodir SAY_AGGRO'),
 (32845, 1, 0, 'Tragic. To come so far, only to fail.', 14, 0, 30, 0, 0, 15553, 'Hodir SAY_SLAY_1'),
 (32845, 1, 1, 'Welcome to the endless winter.', 14, 0, 30, 0, 0, 15554, 'Hodir SAY_SLAY_2'),
@@ -1032,8 +996,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32845, 3, 0, 'Hodir roars furious.', 41, 0, 100, 0, 0, 15556, 'Hodir SAY_STALACTITE'),
 (32845, 4, 0, 'I... I am released from his grasp... at last.', 14, 0, 100, 0, 0, 15557, 'Hodir SAY_DEATH'),
 (32845, 5, 0, 'Enough! This ends now!', 14, 0, 100, 0, 0, 15558, 'Hodir SAY_BERSERK'),
-(32845, 6, 0, 'The veil of winter will protect you, champions!', 14, 0, 100, 0, 0, 15559, 'Hodir SAY_YS_HELP'),
-(32845, 7, 0, 'Hodir shatters the Rare Cache of Hodir!', 41, 0, 100, 0, 0, 0, 'Hodir SAY_HARD_MODE_FAILED'),
+(32845, 6, 0, 'Hodir shatters the Rare Cache of Hodir!', 41, 0, 100, 0, 0, 0, 'Hodir SAY_HARD_MODE_FAILED'),
+(32845, 7, 0, 'Hodir begins to cast Flash Freeze!', 41, 0, 100, 0, 0, 0, 'Hodir - EMOTE_FREEZE'),
 (32845, 8, 0, 'Hodir gains Frozen Blows!', 41, 0, 100, 0, 0, 0, 'Hodir - EMOTE_BLOW');
 
 -- Mimiron
@@ -1058,8 +1022,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33350, 12, 0, 'Prognosis: Negative!', 14, 0, 20, 0, 0, 15625, 'Mimiron SAY_V07TRON_SLAY_1'),
 (33350, 12, 1, 'You''re not going to get up from that one, friend.', 14, 0, 20, 0, 0, 15626, 'Mimiron SAY_V07TRON_SLAY_2'),
 (33350, 13, 0, 'It would appear that I''ve made a slight miscalculation. I allowed my mind to be corrupted by the fiend in the prison, overriding my primary directive. All systems seem to be functional now. Clear.', 14, 0, 100, 0, 0, 15627, 'Mimiron SAY_V07TRON_DEATH'),
-(33350, 14, 0, 'Oh, my! It would seem that we are out of time, my friends!', 14, 0, 100, 0, 0, 15628, 'Mimiron SAY_BERSERK'),
-(33350, 15, 0, 'Combat matrix enhanced. Behold wonderous rapidity!', 14, 0, 100, 0, 0, 15630, 'Mimiron SAY_YS_HELP');
+(33350, 14, 0, 'Oh, my! It would seem that we are out of time, my friends!', 14, 0, 100, 0, 0, 15628, 'Mimiron SAY_BERSERK');
 
 -- Thorim
 DELETE FROM `script_texts` WHERE `npc_entry` IN (33413, 32865, 32872);
@@ -1082,7 +1045,6 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32865, 8, 0, 'You! Fiend! You are not my beloved! Be gone!', 14, 0, 100, 0, 0, 15747, 'Thorim SAY_END_HARD_1'),
 (32865, 8, 1, 'Behold the hand behind all the evil that has befallen Ulduar! Left my kingdom in ruins, corrupted my brother and slain my wife!', 14, 0, 100, 0, 0, 15748, 'Thorim SAY_END_HARD_2'),
 (32865, 8, 2, 'And now it falls to you, champions, to avenge us all! The task before you is great, but I will lend you my aid as I am able. You must prevail!', 14, 0, 100, 0, 0, 15749, 'Thorim SAY_END_HARD_3'),
-(32865, 9, 0, 'Golganneth, lend me your strengh! Grant my mortal allies the power of thunder!', 14, 0, 100, 0, 0, 15750, 'Thorim SAY_YS_HELP'),
 (32872, 0, 0, 'Runic Colossus surrounds itself with a crackling Runic Barrier!', 41, 0, 100, 0, 0, 0, 'Runic Colossus EMOTE_BARRIER');
 
 -- General Vezax
@@ -1100,3 +1062,60 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33271, 7, 0, 'A saronite barrier appears around General Vezax!', 41, 0, 100, 0, 0, 0, 'General Vezax - EMOTE_BARRIER'),
 (33271, 8, 0, 'General Vezax roars and surges with dark might!', 41, 0, 100, 0, 0, 0, 'General Vezax - EMOTE_SURGE_OF_DARKNESS'),
 (33488, 0, 0, 'A cloud of saronite vapors coalesces nearby!', 41, 0, 100, 0, 0, 0, 'Saronite Vapor - EMOTE_VAPOR');
+
+-- Yogg-Saron
+DELETE FROM `script_texts` WHERE `npc_entry` IN (33288, 33241, 33213, 33244, 33242, 33436, 33437, 33523, 33495, 33535, 33441, 33442, 33134);
+DELETE FROM `creature_text` WHERE `entry` IN (33288, 33241, 33213, 33244, 33242, 33436, 33437, 33523, 33495, 33535, 33441, 33442, 33134);
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(33288, 0, 0, 'BOW DOWN BEFORE THE GOD OF DEATH!', 14, 0, 100, 0, 0, 0, 'YoggSaron SAY_PHASE2'),
+(33288, 1, 0, 'Look upon the true face of death and know that your end comes soon!', 14, 0, 100, 0, 0, 15755, 'YoggSaron SAY_PHASE3'),
+(33288, 2, 0, 'MADNESS WILL CONSUME YOU!', 14, 0, 100, 0, 0, 15756, 'YoggSaron SAY_PORTAL'),
+(33288, 3, 0, 'Hoohehehahahaha... AHAHAHAHAHAHA!', 14, 0, 100, 0, 0, 15757, 'YoggSaron SAY_SLAY_1'),
+(33288, 4, 0, 'Eternal suffering awaits!', 14, 0, 100, 0, 0, 15758, 'YoggSaron SAY_DEAFENING_ROAR'),
+(33288, 5, 0, 'Your will is no longer you own...', 42, 0, 100, 0, 0, 15759, 'YoggSaron WHISP_INSANITY_1'),
+(33288, 5, 1, 'Destroy them minion, your master commands it!', 42, 0, 100, 0, 0, 15760, 'YoggSaron WHISP_INSANITY_2'),
+(33288, 6, 0, 'Your fate is sealed. The end of days is finally upon you and ALL who inhabit this miserable little seedling. Uulwi ifis halahs gag erh''ongg w''ssh.', 14, 0, 100, 0, 0, 15761, 'YoggSaron SAY_DEATH'),
+
+-- 3 Vision at brain phase
+-- tibbi: These should not be yells (shouldnt be visible in chat), but with normal SAY players cant hear sound effects (low Say range?) so Ive set all to Yell
+(33288, 7, 0, 'A thousand deaths...', 14, 0, 100, 0, 0, 15762, 'YoggSaron v1 1'),
+(33288, 8, 0, 'or one murder.', 14, 0, 100, 0, 0, 15763, 'YoggSaron v1 2'),
+(33288, 9, 0, 'Your petty quarrels only make me stronger!', 14, 0, 100, 0, 0, 15764, 'YoggSaron v1 3'),
+(33436, 0, 0, 'Bad news sire.', 14, 0, 100, 0, 0, 15538, 'Garona v1 4'),
+(33436, 1, 0, 'The clans are united under Blackhand in this assault. They will stand together until Stormwind has fallen.', 14, 0, 100, 0, 0, 15539, 'Garona v1 5'),
+(33436, 2, 0, 'Gul''dan is bringing up his warlocks by nightfall. Until then, the Blackrock clan will be trying to take the Eastern Wall.', 14, 0, 100, 0, 0, 15540, 'Garona v1 6'),
+(33437, 0, 0, 'We will hold until the reinforcements come. As long as men with stout hearts are manning the walls and throne Stormwind will hold.', 14, 0, 100, 0, 0, 15585, 'King Llane v1 7'),
+(33436, 3, 0, 'The orc leaders agree with your assessment.', 14, 0, 100, 0, 0, 15541, 'Garona v1 8'),
+
+(33523, 0, 0, 'It is done... All have been given that which must be given. I now seal the Dragon Soul forever...', 14, 0, 100, 0, 0, 15631, 'Neltharion v3 1'),
+(33495, 0, 0, 'That terrible glow... should that be?', 14, 0, 100, 0, 0, 15784, 'Ysera v3 2'),
+(33523, 1, 0, 'For it to be as it must, yes.', 14, 0, 100, 0, 0, 15632, 'Neltharion v3 3'),
+(33535, 0, 0, 'It is a weapon like no other. It must be like no other.', 14, 0, 100, 0, 0, 15610, 'Malygos v3 4'),
+(33288, 10, 0, 'His brood learned their lesson before too long, you shall soon learn yours!', 14, 0, 100, 0, 0, 15765, 'YoggSaron v3 5'),
+
+(33442, 0, 0, 'Arrrrrrgh!', 14, 0, 100, 0, 0, 15470, 'Immolated Champion v2 1'),
+(33441, 0, 0, 'Your resilience is admirable.', 14, 0, 100, 0, 0, 15598, 'Lich King v2 2'),
+(33442, 1, 0, 'I''m not afraid of you!', 14, 0, 100, 0, 0, 15471, 'Immolated Champion v2 3'),
+(33441, 1, 0, 'I will break you as I broke him.', 14, 0, 100, 0, 0, 15599, 'Lich King v2 4'),
+(33288, 11, 0, 'Yrr n''lyeth... shuul anagg!', 14, 0, 100, 0, 0, 15766, 'YoggSaron v2 5'),
+(33288, 12, 0, 'He will learn... no king rules forever; only death is eternal!', 14, 0, 100, 0, 0, 15767, 'YoggSaron v2 6'),
+
+(33134, 0, 0, 'Help me! Please get them off me!', 14, 0, 100, 0, 0, 15771, 'Sara SAY_PREFIGHT_1'),
+(33134, 0, 1, 'What do you want from me? Leave me alone!', 14, 0, 100, 0, 0, 15772, 'Sara SAY_PREFIGHT_2'),
+(33134, 1, 0, 'The time to strike at the head of the beast will soon be upon us! Focus your anger and hatred on his minions!', 14, 0, 100, 457, 0, 15775, 'Sara SAY_AGGRO'),
+(33134, 2, 0, 'Yes! YES! Show them no mercy! Give no pause to your attacks!', 14, 0, 100, 0, 0, 15773, 'Sara SAY_PHASE1_1'),
+(33134, 2, 1, 'Let hatred and rage guide your blows!', 14, 0, 100, 0, 0, 15774, 'Sara SAY_PHASE1_2'),
+(33134, 3, 0, 'Suffocate upon your own hate!', 14, 0, 100, 0, 0, 15776, 'Sara SAY_PHASE2_1'),
+(33134, 3, 1, 'Tremble, mortals, before the coming of the end!', 14, 0, 100, 0, 0, 15777, 'Sara SAY_PHASE2_2'),
+(33134, 4, 0, 'Powerless to act...', 14, 0, 100, 0, 0, 15778, 'Sara SAY_SLAY_1'),
+(33134, 4, 1, 'Could they have been saved?', 14, 0, 100, 0, 0, 15779, 'Sara SAY_SLAY_2'),
+(33134, 5, 0, 'I am the lucid dream.', 14, 0, 100, 0, 0, 15754, 'Sara SAY_PHASE2_1'),
+(33134, 6, 0, 'The monster in your nightmares.', 14, 0, 100, 0, 0, 0, 'Sara SAY_PHASE2_2'),
+(33134, 7, 0, 'The fiend of a thousand faces.', 14, 0, 100, 0, 0, 0, 'Sara SAY_PHASE2_3'),
+(33134, 8, 0, 'Cower before my true form.', 14, 0, 100, 0, 0, 0, 'Sara SAY_PHASE2_4'),
+
+-- chosing helping keepers
+(33241, 0, 0, 'Eonar, your servant calls for your blessing!', 14, 0, 100, 0, 0, 15535, 'Freya SAY_YS_HELP'),
+(33213, 0, 0, 'The veil of winter will protect you, champions!', 14, 0, 100, 0, 0, 15559, 'Hodir SAY_YS_HELP'),
+(33244, 0, 0, 'Combat matrix enhanced. Behold wonderous rapidity!', 14, 0, 100, 0, 0, 15630, 'Mimiron SAY_YS_HELP'),
+(33242, 0, 0, 'Golganneth, lend me your strengh! Grant my mortal allies the power of thunder!', 14, 0, 100, 0, 0, 15750, 'Thorim SAY_YS_HELP');

@@ -1562,17 +1562,9 @@ class npc_enslaved_fire_elemental : public CreatureScript
                     switch (event)
                     {
                         case EVENT_FIRE_SHIELD_CHECK:
-                            {
-                                std::list<Unit*> allies;
-                                Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 20.0f);
-                                Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, allies, checker);
-                                me->VisitNearbyObject(20.0f, searcher);
-                                allies.push_back(me->ToUnit());                // Add me to list
-                                allies.remove_if(Trinity::UnitAuraCheck(true, SPELL_FIRE_SHIELD)); // Fulfills here, since the call-to-predicate does not require a const one
-                                if (!allies.empty())
-                                    DoCast( Trinity::Containers::SelectRandomContainerElement(allies), SPELL_FIRE_SHIELD );
-                                events.ScheduleEvent(EVENT_FIRE_SHIELD_CHECK, 1*IN_MILLISECONDS);
-                            }
+                            if (!me->HasAura(SPELL_FIRE_SHIELD))
+                                DoCast(SPELL_FIRE_SHIELD);
+                            events.ScheduleEvent(EVENT_FIRE_SHIELD_CHECK, 3*IN_MILLISECONDS);
                             break;
                         case EVENT_BLAST_WAVE:
                             DoCast(SPELL_BLAST_WAVE);

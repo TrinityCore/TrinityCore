@@ -68,8 +68,7 @@ enum Yells
     SAY_WIPE        = 5,
     SAY_DEATH       = 6,
     SAY_END_NORMAL  = 7,
-    SAY_END_HARD    = 8,
-    SAY_YS_HELP     = 97
+    SAY_END_HARD    = 8
 };
 
 enum Actions
