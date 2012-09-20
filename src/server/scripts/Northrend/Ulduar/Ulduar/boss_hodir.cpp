@@ -204,8 +204,26 @@ class npc_flash_freeze : public CreatureScript
                 targetGUID = summoner->GetGUID();
                 me->SetInCombatWith(summoner);
                 me->AddThreat(summoner, 250.0f);
+
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                 {
+                    // Freeze only players and helper npcs
+                    bool freeze = false;
+
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                        freeze = true;
+
+                    if (target->GetTypeId() == TYPEID_UNIT)
+                        for (uint8 n = 0; n < FRIENDS_COUNT; ++n)
+                            if (target->GetEntry() == Entry[n])
+                            {
+                                freeze = true;
+                                break;
+                            }
+
+                    if (!freeze)
+                        return;
+
                     DoCast(target, SPELL_BLOCK_OF_ICE, true);
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
@@ -1074,6 +1092,7 @@ class achievement_staying_buffed_all_winter : public AchievementCriteriaScript
            return false;
        }
 };
+
 void AddSC_boss_hodir()
 {
     new boss_hodir();
