@@ -421,7 +421,8 @@ class boss_freya : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32 &amount)
@@ -928,7 +929,8 @@ class boss_elder_brightleaf : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_BRIGHTLEAF_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_BRIGHTLEAF_SLAY);
             }
 
             void JustDied(Unit* who)
@@ -1067,7 +1069,8 @@ class boss_elder_stonebark : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_STONEBARK_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_STONEBARK_SLAY);
             }
 
             void JustDied(Unit* who)
@@ -1207,7 +1210,8 @@ class boss_elder_ironbranch : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_IRONBRANCH_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_IRONBRANCH_SLAY);
             }
 
             void JustDied(Unit* who)

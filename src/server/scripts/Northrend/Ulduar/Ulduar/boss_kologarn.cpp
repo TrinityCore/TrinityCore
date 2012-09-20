@@ -218,7 +218,8 @@ class boss_kologarn : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)

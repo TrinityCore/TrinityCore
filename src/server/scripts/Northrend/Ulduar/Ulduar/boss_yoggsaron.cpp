@@ -1557,6 +1557,12 @@ class boss_sara : public CreatureScript
                     damage = me->GetHealth() - 1;
             }                        
 
+            void KilledUnit(Unit* /*who*/)
+            {
+                if (!urand(0,5))
+                    Talk(SAY_SARA_SLAY);
+            }
+
             void EnterCombat(Unit* /*target*/)
             {
                 me->setActive(true);
@@ -2433,7 +2439,8 @@ class boss_yogg_saron : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void SetData(uint32 type, uint32 val)

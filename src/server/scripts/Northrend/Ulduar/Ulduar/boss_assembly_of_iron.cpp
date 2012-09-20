@@ -396,7 +396,8 @@ class boss_steelbreaker : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_STEELBREAKER_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_STEELBREAKER_SLAY);
 
                 if (phase == 3)
                     DoCast(me, SPELL_ELECTRICAL_CHARGE);
@@ -690,7 +691,8 @@ class boss_runemaster_molgeim : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_MOLGEIM_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_MOLGEIM_SLAY);
             }
 
             void SpellHit(Unit* /*from*/, SpellInfo const* spell)
@@ -1017,7 +1019,8 @@ class boss_stormcaller_brundir : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                Talk(SAY_BRUNDIR_SLAY);
+                if (!urand(0,5))
+                    Talk(SAY_BRUNDIR_SLAY);
             }
 
             void SpellHit(Unit* /*from*/, SpellInfo const* spell)

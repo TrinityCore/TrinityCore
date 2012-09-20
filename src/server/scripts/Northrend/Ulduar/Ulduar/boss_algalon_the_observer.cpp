@@ -128,7 +128,8 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            if (!urand(0,5))
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void Reset()
