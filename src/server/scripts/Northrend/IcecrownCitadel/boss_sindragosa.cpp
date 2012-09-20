@@ -1199,7 +1199,7 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                if (Unit* caster = GetCaster())
+                if (Unit* caster == GetCaster())
                     caster->CastSpell(GetTarget(), SPELL_ICE_TOMB_DAMAGE, true);
             }
 
