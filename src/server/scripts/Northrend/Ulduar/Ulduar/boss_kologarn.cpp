@@ -843,7 +843,8 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
                 caster->RemoveAurasDueToSpell(GetId());
                 caster->ExitVehicle();
                 caster->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 5.0f, 5.0f);
-                PreventDefaultAction();
+                // TODO: is it needed here? causes crash (tibbi)
+                //PreventDefaultAction();
             }
 
             void Register()
