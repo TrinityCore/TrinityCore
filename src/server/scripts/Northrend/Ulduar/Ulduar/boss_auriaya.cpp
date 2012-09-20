@@ -150,7 +150,6 @@ class boss_auriaya : public CreatureScript
                 Talk(SAY_AGGRO);
                 summons.DoZoneInCombat();
                 events.ScheduleEvent(EVENT_SONIC_SCREECH, urand(45000, 65000));
-                events.ScheduleEvent(EVENT_SENTINEL_BLAST, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(20000, 30000));
                 events.ScheduleEvent(EVENT_ACTIVATE_DEFENDER, urand(40000, 55000));
                 events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(45000, 55000));
@@ -262,10 +261,10 @@ class boss_auriaya : public CreatureScript
                             Talk(EMOTE_FEAR);
                             DoCast(SPELL_TERRIFYING_SCREECH);
                             events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_SENTINEL_BLAST, 1*IN_MILLISECONDS);
                             return;
                         case EVENT_SENTINEL_BLAST:
                             DoCastAOE(SPELL_SENTINEL_BLAST);
-                            events.ScheduleEvent(EVENT_SENTINEL_BLAST, urand(25000, 35000));
                             return;
                         case EVENT_ACTIVATE_DEFENDER:
                             Talk(EMOTE_DEFENDER);
