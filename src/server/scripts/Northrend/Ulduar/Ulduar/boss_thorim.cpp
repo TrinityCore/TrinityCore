@@ -60,15 +60,16 @@ enum Events // Only start > 0 is relevant
 
 enum Yells
 {
-    SAY_AGGRO       = 0,
-    SAY_SPECIAL     = 1,
-    SAY_JUMPDOWN    = 2,
-    SAY_SLAY        = 3,
-    SAY_BERSERK     = 4,
-    SAY_WIPE        = 5,
-    SAY_DEATH       = 6,
-    SAY_END_NORMAL  = 7,
-    SAY_END_HARD    = 8
+    SAY_AGGRO_1     = 0,
+    SAY_AGGRO_2     = 1,
+    SAY_SPECIAL     = 2,
+    SAY_JUMPDOWN    = 3,
+    SAY_SLAY        = 4,
+    SAY_BERSERK     = 5,
+    SAY_WIPE        = 6,
+    SAY_DEATH       = 7,
+    SAY_END_NORMAL  = 8,
+    SAY_END_HARD    = 9
 };
 
 enum Actions
@@ -98,8 +99,8 @@ enum Creatures
 
 enum GameObjects
 {
-    GO_LEVER = 194264,
-     // Should be opened by GO_LEVER
+    GO_LEVER                = 194264,
+    GO_DARK_IRON_PORTCULLIS = 194560
 };
 
 // Runic Colossus (Mini Boss) Spells
@@ -443,7 +444,7 @@ class boss_thorim : public CreatureScript
             void EnterCombat(Unit* who)
             {
                 _EnterCombat();
-                Talk(SAY_AGGRO);
+                Talk(SAY_AGGRO_1);
 
                 // Spawn Thunder Orbs
                 for (uint8 n = 0; n < 7; n++)
@@ -529,7 +530,7 @@ class boss_thorim : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SAY_AGGRO_2:
-                            Talk(SAY_AGGRO);
+                            Talk(SAY_AGGRO_2);
                             break;
                         case EVENT_STORMHAMMER:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.f, true))
@@ -1726,6 +1727,23 @@ class spell_thorim_berserk : public SpellScriptLoader
         }
 };
 
+class go_thorim_lever : public GameObjectScript
+{
+    public:
+        go_thorim_lever() : GameObjectScript("go_thorim_lever") {}
+
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+        {
+            if (GameObject* door = pGo->FindNearestGameObject(GO_DARK_IRON_PORTCULLIS, 15.f))
+            {
+                door->UseDoorOrButton();
+                pGo->UseDoorOrButton();
+                return true;
+            }
+            return false;
+        }
+};
+
 void AddSC_boss_thorim()
 {
     new boss_thorim();
@@ -1739,6 +1757,7 @@ void AddSC_boss_thorim()
     new spell_stormhammer_targeting();
     new spell_thorim_berserk();
     new spell_thorim_charge_orb_targeting();
+    new go_thorim_lever();
 }
 
 #undef SPELL_CHAIN_LIGHTNING
