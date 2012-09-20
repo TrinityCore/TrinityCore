@@ -1171,10 +1171,20 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
                 targets.remove_if (PlayerOrPetCheck());
             }
 
+            void HandleDamageCalc(SpellEffIndex effIndex)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    uint8 healthPct = GetSpellInfo()->Effects[effIndex].CalcValue(target);
+                    SetHitDamage(target->GetMaxHealth() / healthPct);
+                }
+            }
+
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_xt002_tympanic_tantrum_SpellScript::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
