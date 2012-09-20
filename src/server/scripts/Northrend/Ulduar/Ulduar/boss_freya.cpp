@@ -393,6 +393,7 @@ class boss_freya : public CreatureScript
                 trioWaveCount = 0;
                 trioWaveController = 0;
                 elderCount = 0;
+                waveNumber = 0;
 
                 for (uint8 i = 0; i < 3; ++i)
                     for (uint8 n = 0; n < 2; ++n)
@@ -529,7 +530,6 @@ class boss_freya : public CreatureScript
                 me->CastCustomSpell(SPELL_ATTUNED_TO_NATURE, SPELLVALUE_AURA_STACK, 150, me, true);
 
                 events.ScheduleEvent(EVENT_WAVE, 10000);
-                events.ScheduleEvent(EVENT_NATURE_BOMB, urand(20000, 30000)); // Event should at first occur 10-20 seconds after the first wave got spawned, and go on with the same period.
                 events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
                 events.ScheduleEvent(EVENT_SUNBEAM, urand(5000, 15000));
@@ -583,7 +583,7 @@ class boss_freya : public CreatureScript
                             me->VisitNearbyWorldObject(50.0f, searcher);
                             for (std::list<Player*>::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                                 (*itr)->CastSpell(*itr, SPELL_SUMMON_NATURE_BOMB, true);
-                            events.ScheduleEvent(EVENT_NATURE_BOMB, urand(10000, 12000));
+                            events.ScheduleEvent(EVENT_NATURE_BOMB, 15000);
                             return;
                         }
                         case EVENT_UNSTABLE_ENERGY:
@@ -592,12 +592,17 @@ class boss_freya : public CreatureScript
                             events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, urand(15000, 20000));
                             return;
                         case EVENT_WAVE:
-                            if (Aura * aura = me->GetAura(SPELL_ATTUNED_TO_NATURE)) // This is change to phase 2: All stacks are down! On first visit, this prevents the event from being performed.
-                                if (aura->GetStackAmount() > 0)
-                                {
-                                    SpawnWave();
-                                    events.ScheduleEvent(EVENT_WAVE, WAVE_TIME);
-                                }
+                            if (waveNumber < 6)
+                            {
+                                SpawnWave();
+                                events.ScheduleEvent(EVENT_WAVE, WAVE_TIME);
+                                waveNumber++;
+                            }
+                            else
+                            {
+                                events.ScheduleEvent(EVENT_NATURE_BOMB, urand(10000, 15000));
+                                events.CancelEvent(EVENT_WAVE);
+                            }
                             return;
                         case EVENT_EONAR_GIFT:
                             DoCast(me, SPELL_SUMMON_EONAR_GIFT);
@@ -885,6 +890,7 @@ class boss_freya : public CreatureScript
                 uint8 trioWaveController;
                 uint8 elderCount;
                 uint8 attunedToNature;
+                uint8 waveNumber;
 
                 bool checkElementalAlive[2];
                 bool trioDefeated[2];
