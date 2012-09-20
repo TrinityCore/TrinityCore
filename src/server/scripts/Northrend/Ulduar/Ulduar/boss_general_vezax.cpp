@@ -578,7 +578,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            targets.remove(GetHitUnit());   // The target of this spell should _not_ be in this list (due to spell definition), yet it seems it occurs there sometimes...
+            targets.remove(GetExplTargetUnit()); // The target of this spell should _not_ be in this list
         }
 
         void Register()
