@@ -600,6 +600,9 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2
 33890, 33954  -- Brain of Yogg-Saron
 );
 
+-- Stormcaller Brundir (stun and interrupt immunities are handled in scripts)
+UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912, `flags_extra`=1 WHERE `entry` IN (32857, 33694);
+
 -- updating giant immunities
 UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|64|256|512|1024|2048|4096|8192|65536|131072|524288|4194304|8388608|33554432|67108864|536870912 WHERE `entry` IN (33149, 33148);
 
@@ -607,9 +610,7 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|64|256|512|1024
 UPDATE `creature_template` SET `difficulty_entry_1`=33954 WHERE `entry`=33890;
 
 -- Auriaya should be interruptible, due to Sentinel Blast
-UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2048|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912 WHERE `entry` IN (33515);
--- Stormcaller Brundir, immunities to stun and interrupt are gained infight.
-UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912 WHERE `entry` IN (32857);
+UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2048|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912 WHERE `entry` IN (33515, 34175);
 
 -- Ulduar Trash
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_steelforged_defender' WHERE `entry`=33236;
