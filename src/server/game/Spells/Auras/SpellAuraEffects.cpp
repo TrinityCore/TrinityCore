@@ -397,7 +397,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //338 SPELL_AURA_MOD_DURABILITY_LOSS
     &AuraEffect::HandleNULL,                                      //339 SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE
     &AuraEffect::HandleNULL,                                      //340 SPELL_AURA_340
-    &AuraEffect::HandleNULL,                                      //341 SSPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN
+    &AuraEffect::HandleNULL,                                      //341 SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN
     &AuraEffect::HandleModMeleeRangedSpeedPct,                    //342 SPELL_AURA_MOD_MELEE_RANGED_HASTE_2
     &AuraEffect::HandleNULL,                                      //343 SPELL_AURA_343
     &AuraEffect::HandleNULL,                                      //344 SPELL_AURA_MOD_AUTOATTACK_DAMAGE
