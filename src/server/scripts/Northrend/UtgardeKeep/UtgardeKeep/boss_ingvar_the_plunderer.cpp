@@ -56,13 +56,16 @@ enum Events
     EVENT_DARK_SMASH,
     EVENT_DREADFUL_ROAR,
     EVENT_WOE_STRIKE,
-    EVENT_SHADOW_AXE
+    EVENT_SHADOW_AXE,
+    EVENT_JUST_TRANSFORMED,
+    EVENT_SUMMON_BANSHEE
 };
 
 enum Phases
 {
     PHASE_HUMAN = 1,
     PHASE_UNDEAD,
+    PHASE_EVENT
 };
 
 enum Spells
@@ -107,11 +110,6 @@ public:
         InstanceScript* instance;
 
         bool bIsUndead;
-        bool bEventInProgress;
-        bool justTransformed;
-
-        uint32 uiSpawnResTimer;
-        uint32 afterTransformTimer;
 
         void Reset()
         {
@@ -119,7 +117,6 @@ public:
                 me->UpdateEntry(MOB_INGVAR_HUMAN);
 
             bIsUndead = false;
-            bEventInProgress = false;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -131,10 +128,6 @@ public:
             events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18,21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
             events.ScheduleEvent(EVENT_ENRAGE, urand(7,14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
             events.ScheduleEvent(EVENT_SMASH, urand(12,17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-
-            uiSpawnResTimer = 3000;
-            afterTransformTimer = 2000;
-            justTransformed = false;
 
             if (instance)
                 instance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
@@ -155,30 +148,21 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
                 // visuel hack end
 
-                bEventInProgress = true;
-                bIsUndead = true;
-
-                events.SetPhase(PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_DARK_SMASH, urand(14,18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18,22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10,14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.SetPhase(PHASE_EVENT);
+                events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
                 DoScriptText(YELL_DEAD_1, me);
             }
 
-            if (bEventInProgress)
-            {
+            if (events.GetPhaseMask() & PHASE_EVENT)
                 damage = 0;
-            }
         }
 
         void StartZombiePhase()
         {
             bIsUndead = true;
-            bEventInProgress = false;
             me->UpdateEntry(MOB_INGVAR_UNDEAD);
-            justTransformed = true;
+            events.ScheduleEvent(EVENT_JUST_TRANSFORMED, 2 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
             DoScriptText(YELL_AGGRO_2, me);
         }
@@ -206,6 +190,15 @@ public:
             }
         }
 
+        void ScheduleSecondPhase()
+        {
+            events.SetPhase(PHASE_UNDEAD);
+            events.ScheduleEvent(EVENT_DARK_SMASH, urand(14,18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+            events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18,22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+            events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10,14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+            events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+        }
+
         void KilledUnit(Unit* /*victim*/)
         {
             if (bIsUndead)
@@ -216,38 +209,8 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() && !justTransformed)
+            if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_EVENT))
                 return;
-
-            if (bEventInProgress)
-            {
-                if (uiSpawnResTimer)
-                {
-                    if (uiSpawnResTimer <= diff)
-                    {
-                        DoCast(me, SPELL_SUMMON_BANSHEE); // Summons directly on caster position
-                        // DoCast(me, SPELL_SCOURG_RESURRECTION, true); // Not needed ?
-                        uiSpawnResTimer = 0;
-                    } else uiSpawnResTimer -= diff;
-                }
-
-                return;
-            }
-
-            if (justTransformed)
-            {
-                if (afterTransformTimer <= diff)
-                {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetInCombatWithZone();
-                    me->GetMotionMaster()->MoveChase(me->getVictim());
-                    justTransformed = false;
-                    afterTransformTimer = 2000;
-                } else
-                    afterTransformTimer -= diff;
-
-                return;
-            }
 
             events.Update(diff);
 
@@ -275,6 +238,15 @@ public:
                         DoCastVictim(SPELL_SMASH);
                         events.ScheduleEvent(EVENT_SMASH, urand(12,16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
+                    case EVENT_JUST_TRANSFORMED:
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetInCombatWithZone();
+                        me->GetMotionMaster()->MoveChase(me->getVictim());
+                        ScheduleSecondPhase();
+                        return;
+                    case EVENT_SUMMON_BANSHEE:
+                        DoCast(me, SPELL_SUMMON_BANSHEE);
+                        return;
                     // PHASE TWO
                     case EVENT_DARK_SMASH:
                         DoCastVictim(SPELL_DARK_SMASH);
