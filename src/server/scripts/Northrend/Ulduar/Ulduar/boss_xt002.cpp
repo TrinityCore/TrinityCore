@@ -138,7 +138,8 @@ enum Yells
     SAY_SUMMON                                  = 7,
     EMOTE_TYMPANIC                              = 8,
     EMOTE_HEART                                 = 9,
-    EMOTE_REPAIR                                = 10
+    // Scrapbot emote
+    EMOTE_REPAIR                                = 0
 };
 
 #define HEART_VEHICLE_SEAT 0

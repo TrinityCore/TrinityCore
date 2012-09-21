@@ -857,6 +857,9 @@ UPDATE `creature_template` SET `faction_A`=16, `faction_H`=16 WHERE `entry`=3411
 UPDATE `creature_template` SET `difficulty_entry_1`=33839 WHERE `entry`=33838;
 UPDATE `creature_template` SET `minlevel`= 82, `maxlevel`=82, `faction_A`=16, `faction_H`=16 WHERE `entry`=33839;
 
+-- correcting some Ulduar loot
+UPDATE `creature_loot_template` SET `lootmode`=1 WHERE `entry` IN (33885, 33293, 33449, 33271) AND `lootmode`=3;
+
 -- Ulduar Texts
 -- Flame Leviathan
 DELETE FROM `script_texts` WHERE `npc_entry`=33113;
@@ -912,8 +915,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33233, 0, 0, 'Harpoon Turret is ready for use!', 41, 0, 100, 0, 0, 0, 'Razorscale Controller EMOTE_HARPOON');
 
 -- XT-002 Deconstructor
-DELETE FROM `script_texts` WHERE `npc_entry`=33293;
-DELETE FROM `creature_text` WHERE `entry`=33293;
+DELETE FROM `script_texts` WHERE `npc_entry` IN (33293, 33343);
+DELETE FROM `creature_text` WHERE `entry` IN (33293, 33343);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33293, 0, 0, 'New toys? For me? I promise I won''t break them this time!', 14, 0, 100, 0, 0, 15724, 'XT002 SAY_AGGRO'),
 (33293, 1, 0, 'So tired. I will rest for just a moment!', 14, 0, 100, 0, 0, 15725, 'XT002 SAY_HEART_OPENED'),
@@ -926,7 +929,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33293, 7, 0, 'Time for a new game! My old toys will fight my new toys!', 14, 0, 100, 0, 0, 15732, 'XT002 SAY_SUMMON'),
 (33293, 8, 0, 'XT-002 Deconstructor begins to cause the earth to quake.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_TYMPANIC'),
 (33293, 9, 0, 'XT-002 Deconstructor''s heart is exposed and leaking energy.', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_HEART'),
-(33293, 10, 0, 'XT-002 Deconstructor consumes a scrap bot to repair himself!', 41, 0, 100, 0, 0, 0, 'XT002 EMOTE_REPAIR');
+(33343, 0, 0, 'XT-002 Deconstructor consumes a scrap bot to repair himself!', 41, 0, 100, 0, 0, 0, 'XS-013 Scrapbot EMOTE_REPAIR');
 
 -- Assembly of Iron
 DELETE FROM `script_texts` WHERE `npc_entry` IN (32867, 32927, 32857);
