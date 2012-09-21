@@ -225,6 +225,19 @@ enum UlduarNPCs // TODO: Check if we also need the heroic-entries for the boss-N
     NPC_IRONROOT_LASHER          = 33526,
     NPC_NATURES_BLADE            = 33527,
     NPC_GUARDIAN_OF_LIFE         = 33528,
+
+    // Algalon the Observer
+    NPC_BRANN_BRONZBEARD_ALG                = 34064,
+    NPC_AZEROTH                             = 34246,
+    NPC_LIVING_CONSTELLATION                = 33052,
+    NPC_ALGALON_STALKER                     = 33086,
+    NPC_COLLAPSING_STAR                     = 32955,
+    NPC_BLACK_HOLE                          = 32953,
+    NPC_WORM_HOLE                           = 34099,
+    NPC_ALGALON_VOID_ZONE_VISUAL_STALKER    = 34100,
+    NPC_ALGALON_STALKER_ASTEROID_TARGET_01  = 33104,
+    NPC_ALGALON_STALKER_ASTEROID_TARGET_02  = 33105,
+    NPC_UNLEASHED_DARK_MATTER               = 34097,
 };
 
 enum UlduarGameObjects
@@ -417,7 +430,6 @@ enum UlduarArea
     AREA_FORMATION_GROUNDS  = 4652
 };
 
-// Cute guard, really...
 template<class AI>
 CreatureAI* GetUlduarAI(Creature* creature)
 {
@@ -425,6 +437,17 @@ CreatureAI* GetUlduarAI(Creature* creature)
         if (instance->GetInstanceScript())
             if (instance->GetScriptId() == sObjectMgr->GetScriptId(UlduarScriptName))
                 return new AI(creature);
+
+    return NULL;
+}
+
+template<class AI>
+GameObjectAI* GetUlduarAI(GameObject* go)
+{
+    if (InstanceMap* instance = go->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(UlduarScriptName))
+                return new AI(go);
 
     return NULL;
 }
