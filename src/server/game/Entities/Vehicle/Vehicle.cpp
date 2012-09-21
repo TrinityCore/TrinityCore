@@ -351,17 +351,10 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     unit->m_movementInfo.t_seat = seat->first;
     unit->m_movementInfo.t_guid = _me->GetGUID();
 
-    if (_me->GetTypeId() == TYPEID_UNIT
-        && unit->GetTypeId() == TYPEID_PLAYER
-        && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
-    {
-        if (!_me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
-            ASSERT(false);
-    }
-
     if (_me->IsInWorld())
     {
         unit->SendClearTarget();                                 // SMSG_BREAK_TARGET
+        unit->SendGravityDisable();                              // SMSG_MOVE_GRAVITY_DISABLE
         unit->SetControlled(true, UNIT_STATE_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
                                                                  // also adds MOVEMENTFLAG_ROOT
         Movement::MoveSplineInit init(*unit);
@@ -370,6 +363,8 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         init.SetFacing(0.0f);
         init.SetTransportEnter();
         init.Launch();
+
+        unit->ToPlayer()->SendAutoRepeatCancel(unit);
 
         if (_me->GetTypeId() == TYPEID_UNIT)
         {
@@ -380,6 +375,14 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
             //Passenger's spline OR vehicle movement will update positions
             //RelocatePassengers(_me->GetPositionX(), _me->GetPositionY(), _me->GetPositionZ(), _me->GetOrientation());
         }
+    }
+
+    if (_me->GetTypeId() == TYPEID_UNIT
+        && unit->GetTypeId() == TYPEID_PLAYER
+        && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
+    {
+        if (!_me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
+            ASSERT(false);
     }
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)

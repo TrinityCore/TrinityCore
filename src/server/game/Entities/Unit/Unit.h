@@ -2216,9 +2216,11 @@ class Unit : public WorldObject
         void FocusTarget(Spell const* focusSpell, uint64 target);
         void ReleaseFocus(Spell const* focusSpell);
 
+        void SendGravityEnable();
+        void SendGravityDisable();
+
         // Movement info
         Movement::MoveSpline * movespline;
-
     protected:
         explicit Unit (bool isWorldObject);
 
