@@ -401,7 +401,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_runic_smash' WHERE `entry` IN (
 -- adding Thorim Lever ScriptName
 -- TODO: find out why entry 194264 doesnt work
 UPDATE `gameobject_template` SET `ScriptName`='go_thorim_lever' WHERE `entry`=194264;
-UPDATE `gameobject_template` SET `size`=3, `data2`=6000, `ScriptName`='go_thorim_lever' WHERE `entry`=179148;
+UPDATE `gameobject_template` SET `size`=3, `data2`=6000, `flags`=16|32, `ScriptName`='go_thorim_lever' WHERE `entry`=179148;
 UPDATE `gameobject` SET `id`=179148 WHERE `guid`=55194;
 
 -- Freya
