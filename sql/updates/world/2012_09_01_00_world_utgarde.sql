@@ -65,16 +65,14 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (40414,'spell_fixate');
 
 -- Proto-drake striders
-DELETE FROM `creature` WHERE `guid` IN(125940,125934,125915,125920,125914,125936,125937,125922);
-INSERT INTO `creature`(`guid`,`id`,`map`,`spawnmask`,`modelid`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`curhealth`,`MovementType`) VALUES
-(125914,24849,574,3,22287,212.429,-127.793,256.101,1.62166,3600,35928,2),
-(125915,24849,574,3,22287,211.854,-112.602,262.188,1.61856,3600,35928,2),
-(125920,24849,574,3,22287,211.024,-100.299,266.201,1.63628,3600,35928,2),
-(125922,24849,574,3,22288,213.777,-140.709,251.048,1.72496,3600,35928,2),
-(125934,24849,574,3,22287,252.247,-350.532,185.813,2.01344,3600,35928,2),
-(125936,24849,574,3,22287,243.964,-194.833,227.126,2.88377,3600,35928,2),
-(125937,24849,574,3,22288,221.534,-239.809,196.459,0.23628,3600,35928,2),
-(125940,24849,574,3,22287,238.382,-353.086,188.785,1.29762,3600,35928,2);
+UPDATE `creature` SET `position_x`=212.429,`position_y`=-127.793,`position_z`=256.101,`MovementType`=2 WHERE `guid`=125914;
+UPDATE `creature` SET `position_x`=211.854,`position_y`=-112.602,`position_z`=262.188,`MovementType`=2 WHERE `guid`=125915;
+UPDATE `creature` SET `position_x`=211.024,`position_y`=-100.299,`position_z`=266.201,`MovementType`=2 WHERE `guid`=125920;
+UPDATE `creature` SET `position_x`=213.777,`position_y`=-140.709,`position_z`=251.048,`MovementType`=2 WHERE `guid`=125922;
+UPDATE `creature` SET `position_x`=252.247,`position_y`=-350.532,`position_z`=185.813,`MovementType`=2 WHERE `guid`=125934;
+UPDATE `creature` SET `position_x`=243.964,`position_y`=-194.833,`position_z`=227.126,`MovementType`=2 WHERE `guid`=125936;
+UPDATE `creature` SET `position_x`=221.534,`position_y`=-239.809,`position_z`=196.459,`MovementType`=2 WHERE `guid`=125937;
+UPDATE `creature` SET `position_x`=238.382,`position_y`=-353.086,`position_z`=188.785,`MovementType`=2 WHERE `guid`=125940;
 
 -- Waypoint assignments
 DELETE FROM `creature_addon` WHERE `guid` IN(125940,125934,125915,125920,125914,125936,125937,125922);
