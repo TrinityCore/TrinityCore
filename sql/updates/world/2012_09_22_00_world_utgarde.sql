@@ -75,7 +75,7 @@ UPDATE `creature` SET `position_x`=221.534,`position_y`=-239.809,`position_z`=19
 UPDATE `creature` SET `position_x`=238.382,`position_y`=-353.086,`position_z`=188.785,`MovementType`=2 WHERE `guid`=125940;
 
 -- Waypoint assignments
-DELETE FROM `creature_addon` WHERE `guid` IN(125940,125934,125915,125920,125914,125936,125937,125922);
+DELETE FROM `creature_addon` WHERE `guid` IN (125940,125934,125915,125920,125914,125936,125937,125922);
 INSERT INTO `creature_addon`(`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`auras`) VALUES
 (125914,1259140,22657,50331648,1,'54775'),
 (125915,1259150,22657,50331648,1,'54775'),
@@ -87,7 +87,7 @@ INSERT INTO `creature_addon`(`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`auras`)
 (125940,1259400,22657,50331648,1,'54775');
 
 -- Waypoint data
-DELETE FROM `waypoint_data` WHERE `id` IN(1259400,1259340,1259150,1259200,1259140,1259360,1259370,1259220);
+DELETE FROM `waypoint_data` WHERE `id` IN (1259400,1259340,1259150,1259200,1259140,1259360,1259370,1259220);
 INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES 
 (1259400,1,211.864,-352.629,196.144),
 (1259340,1,271.911,-318.506,185.049),
@@ -99,4 +99,4 @@ INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`)
 (1259220,1,149.42,-247.696,194.145);
 
 INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`)
-SELECT `guid`*10,2,`position_x`,`position_y`,`position_z` FROM `creature` WHERE `guid` IN(125940,125934,125915,125920,125914,125936,125937,125922);
+SELECT `guid`*10,2,`position_x`,`position_y`,`position_z` FROM `creature` WHERE `guid` IN (125940,125934,125915,125920,125914,125936,125937,125922);
