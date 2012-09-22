@@ -485,6 +485,9 @@ UPDATE `creature_template` SET `unit_flags`=`unit_flags` |2|33554432 WHERE `entr
 -- Ignis Iron Construct are spawned via scripts
 DELETE FROM `creature` WHERE `id`=33121;
 
+-- Auriaya Sanctum Sentries are spawned via scripts
+DELETE FROM `creature` WHERE `id`=34014;
+
 -- Achievement "Firefighter" (3180 / 3189)
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10450, 10463);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
