@@ -13051,7 +13051,7 @@ Unit* Creature::SelectVictim()
     // Mob may not be in range to attack or may have dropped target. In any case,
     //  don't evade if damage received within the last 10 seconds
     // Does not apply to world bosses to prevent kiting to cities
-    if (!isWorldBoss() && !GetInstanceId())
+    if (!isWorldBoss() || GetInstanceId())
         if (time(NULL) - GetLastDamagedTime() <= MAX_AGGRO_RESET_TIME)
             return target;
 
