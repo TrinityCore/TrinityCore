@@ -2218,6 +2218,10 @@ class Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
+        // Part of Evade mechanics
+        uint32 GetLastDamagedTime() const { return _lastDamagedTime; }
+        void SetLastDamagedTime(uint32 val) { _lastDamagedTime = val; }
+
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -2339,6 +2343,8 @@ class Unit : public WorldObject
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
+
+        uint32 _lastDamagedTime; // Part of Evade mechanics
 };
 
 namespace Trinity
