@@ -1428,6 +1428,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
     {
         case TARGET_DEST_TARGET_ENEMY:
         case TARGET_DEST_TARGET_ANY:
+        case TARGET_DEST_CHANNEL_CASTER:
             m_targets.SetDst(*target);
             return;
         default:
