@@ -1637,6 +1637,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA)
             {
+                if (!caster)
+                    break;
+
                 // Improved devotion aura
                 if (caster->HasAura(20140) || caster->HasAura(20138) || caster->HasAura(20139))
                 {
