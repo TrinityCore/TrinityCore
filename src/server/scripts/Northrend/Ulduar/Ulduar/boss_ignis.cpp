@@ -335,22 +335,7 @@ class boss_ignis : public CreatureScript
                             return;
                         case EVENT_CONSTRUCT:
                             Talk(SAY_SUMMON);
-
-                            if (!summons.empty())
-                            {
-                                uint64 selectedConstruct = Trinity::Containers::SelectRandomContainerElement(summons);
-                                if (Creature* construct = ObjectAccessor::GetCreature(*me, selectedConstruct))
-                                {
-                                    construct->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
-                                    construct->SetReactState(REACT_AGGRESSIVE);
-                                    construct->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
-                                    construct->AI()->AttackStart(me->getVictim());
-                                    construct->AI()->DoZoneInCombat();
-                                    DoCast(me, SPELL_STRENGTH, true);
-                                    // Due to Spellworks, this spell requires a given target position.
-                                    me->CastSpell(construct->GetPositionX(), construct->GetPositionY(), construct->GetPositionZ(), SPELL_ACTIVATE_CONSTRUCT, true);
-                                }
-                            }
+                            DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
                             events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));
                             return;
                         case EVENT_BERSERK:
@@ -389,7 +374,7 @@ class npc_iron_construct : public CreatureScript
             npc_iron_constructAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
             {
                 creature->setActive(true);
-                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
                 DoCast(me, SPELL_FREEZE_ANIM, true);
             }
 
@@ -415,6 +400,22 @@ class npc_iron_construct : public CreatureScript
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
                     me->DespawnOrUnsummon(1000);
+                }
+            }
+
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_ACTIVATE_CONSTRUCT)
+                {
+                    me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
+                    me->AI()->DoZoneInCombat();
+                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IGNIS)))
+                    {
+                        me->AI()->AttackStart(ignis->getVictim());
+                        ignis->CastSpell(ignis, SPELL_STRENGTH, true);
+                    }
                 }
             }
 
@@ -596,6 +597,36 @@ class spell_ignis_flame_jets : public SpellScriptLoader
         }
 };
 
+class spell_ignis_activate_construct : public SpellScriptLoader
+{
+    public:
+        spell_ignis_activate_construct() : SpellScriptLoader("spell_ignis_activate_construct") {}
+
+        class spell_ignis_activate_construct_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ignis_activate_construct_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (WorldObject* _target = Trinity::Containers::SelectRandomContainerElement(targets))
+                {
+                    targets.clear();
+                    targets.push_back(_target);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ignis_activate_construct_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ignis_activate_construct_SpellScript();
+        }
+};
+
 class achievement_ignis_shattered : public AchievementCriteriaScript
 {
     public:
@@ -618,6 +649,7 @@ void AddSC_boss_ignis()
     new spell_ignis_slag_pot();
     new spell_ignis_flame_jets();
     new achievement_ignis_shattered();
+    new spell_ignis_activate_construct();
 }
 
 #undef SPELL_FLAME_JETS

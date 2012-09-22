@@ -250,11 +250,16 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=62016;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62016, 'spell_thorim_charge_orb_targeting');
 
--- Ignis::Spell::Flame_Jets -> Target filtering.
+-- Ignis Flame_Jets target filtering
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (62680, 63472);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (62680, 'spell_ignis_flame_jets'),
 (63472, 'spell_ignis_flame_jets');
+
+-- Ignis Activate Construct targeting
+DELETE FROM `spell_script_names` WHERE `spell_id`=62488;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62488, 'spell_ignis_activate_construct');
 
 -- XT002
 -- Add additional target selection script, i.e. a SpellScript that is used aside the AuraScript that already got attached to
@@ -473,9 +478,12 @@ UPDATE `creature_template` SET `speed_walk`=0.15, `speed_run`=0.15, `ScriptName`
 UPDATE `creature_template` SET `ScriptName`='npc_mimiron_flame_spread' WHERE `entry`=34121;
 UPDATE `creature_template` SET `ScriptName`='npc_mimiron_bomb_bot' WHERE `entry`=33836;
 
--- CleanUp
+-- Cleaning up Leviathan Mk II
 DELETE FROM `creature` WHERE `id`=34071;
 UPDATE `creature_template` SET `unit_flags`=`unit_flags` |2|33554432 WHERE `entry`=34143;
+
+-- Ignis Iron Construct are spawned via scripts
+DELETE FROM `creature` WHERE `id`=33121;
 
 -- Achievement "Firefighter" (3180 / 3189)
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10450, 10463);
