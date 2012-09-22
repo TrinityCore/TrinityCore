@@ -139,19 +139,12 @@ public:
         uint32 m_uiStaggeringStompTimer;
         SummonList Summons;
         uint32 m_uiThrowTimer;
-        uint32 m_uiSummonCount;
 
         void Reset()
         {
             m_uiImpaleTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             m_uiStaggeringStompTimer = 15*IN_MILLISECONDS;
             m_uiThrowTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);;
-
-            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
-                GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
-                m_uiSummonCount = 5;
-            else
-                m_uiSummonCount = 4;
 
             Summons.DespawnAll();
         }
@@ -210,29 +203,6 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summon)
-        {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-            {
-                if (summon->GetEntry() == NPC_SNOBOLD_VASSAL)
-                {
-                    summon->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 10.0f, 20.0f);
-                    DoCast(me, SPELL_RISING_ANGER);
-                    --m_uiSummonCount;
-                }
-                summon->AI()->AttackStart(target);
-            }
-            Summons.Summon(summon);
-        }
-
-        void SummonedCreatureDespawn(Creature* summon)
-        {
-            if (summon->GetEntry() == NPC_SNOBOLD_VASSAL)
-                if (summon->isAlive())
-                    ++m_uiSummonCount;
-            Summons.Despawn(summon);
-        }
-
         void DamageTaken(Unit* /*who*/, uint32& damage)
         {
             // despawn the remaining passengers on death
@@ -269,6 +239,7 @@ public:
                         pSnobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         pSnobold->ToCreature()->SetReactState(REACT_AGGRESSIVE);
                         pSnobold->ToCreature()->AI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
+                        pSnobold->CastSpell(me, SPELL_RISING_ANGER, true);
                         Talk(EMOTE_SNOBOLLED);
                         break;
                     }
@@ -534,14 +505,13 @@ struct boss_jormungarAI : public ScriptedAI
     void Reset()
     {
         enraged = false;
-        /* event groups: 1 - PHASE_STATIONARY
-                         2 - PHASE_MOBILE   */
-        events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 1);
-        events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 1);
-        events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 1);
-        events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 2);
-        events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 2);
-        events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, 2);
+
+        events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
+        events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
+        events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, PHASE_MOBILE);
     }
 
     void JustDied(Unit* /*killer*/)
@@ -712,6 +682,9 @@ struct boss_jormungarAI : public ScriptedAI
             phase = PHASE_STATIONARY;
             events.DelayEvents(45*IN_MILLISECONDS, 2);
             events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
         }
         else
         {
@@ -722,6 +695,9 @@ struct boss_jormungarAI : public ScriptedAI
             phase = PHASE_MOBILE;
             events.DelayEvents(45*IN_MILLISECONDS, 1);
             events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, PHASE_MOBILE);
         }
     }
 

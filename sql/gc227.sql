@@ -223,6 +223,11 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (67906, 'spell_mistress_kiss'),
 (67907, 'spell_mistress_kiss');
 
+-- Gormoks Rising anger targeting
+DELETE FROM `conditions` WHERE `SourceEntry`=66636;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
+(13, 1, 66636, 31, 3, 34796, 'Rising Anger');
+
 -- -------------------------
 -- ULDUAR ------------------
 -- -------------------------
