@@ -931,7 +931,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
             {
                 _Reset();
                 myPhase = PHASE_NONE;
-                CloudHandling(true);
+                SpawnClouds(true, 6);
 
                 if (Creature* yogg = ObjectAccessor::GetCreature(*me, guidYogg))
                     yogg->DespawnOrUnsummon();
@@ -1063,12 +1063,12 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
             /************************************************************************/
             /*                         Custom stuff                                 */
             /************************************************************************/
-            void CloudHandling(bool spawn)
+            void SpawnClouds(bool spawn, uint8 amount = 1)
             {
                 if (spawn)
                 {
-                    // spawn 6 clouds randomly around Sara
-                    for (uint8 i = 0; i < 6; i++)
+                    // spawn clouds randomly around Sara (6 at reset)
+                    for (uint8 i = 0; i < amount; i++)
                         if (Creature* summon = me->SummonCreature(NPC_OMINOUS_CLOUD, me->GetPositionX() + frand(0.f, 80.f) - 40.f , me->GetPositionY() + frand(0.f,80.f) - 40.f, me->GetPositionZ()))
                             summon->AI()->DoAction(ACTION_ACTIVATE_CLOUDS);
                 }
@@ -1427,7 +1427,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                         }
                         break;
                     case PHASE_BRAIN:
-                        CloudHandling(false);
+                        SpawnClouds(false);
                         brainEventsCount = 0;
                         events.ScheduleEvent(EVENT_DESCENT_TO_MADNESS_BEGIN, 90000, 0, newPhase);
                         break;
@@ -1934,6 +1934,8 @@ class npc_ominous_cloud : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->GetMotionMaster()->MoveRandom(25.0f);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                spawned = false;
+                dying = false;
             }
 
             void MoveInLineOfSight(Unit* target)
@@ -1961,14 +1963,32 @@ class npc_ominous_cloud : public CreatureScript
 
             void TriggerGuardianSpawn()
             {
-                if(!me->HasAura(SPELL_SUMMON_GUARDIAN))
-                    DoCast(me, SPELL_SUMMON_GUARDIAN, true);
+                if (!spawned)
+                {
+                    if (!me->HasAura(SPELL_SUMMON_GUARDIAN))
+                    {
+                        DoCast(me, SPELL_SUMMON_GUARDIAN, true);
+                        spawned = true;
+                    }
+                }
             }
 
-            void UpdateAI(const uint32 /*diff*/) {}
+            void UpdateAI(const uint32 /*diff*/)
+            {
+                if (!me->HasAura(SPELL_SUMMON_GUARDIAN) && spawned && !dying)
+                {
+                    me->RemoveAurasDueToSpell(SPELL_OMINOUS_CLOUD_EFFECT);
+                    me->DespawnOrUnsummon(2000);
+                    dying = true;
+                    if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))
+                        CAST_AI(npc_yogg_saron_encounter_controller::npc_yogg_saron_encounter_controllerAI, ctrl->AI())->SpawnClouds(true);
+                }
+            }
 
             private:
                 InstanceScript* instance;
+                bool spawned;
+                bool dying;
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
@@ -3628,6 +3648,37 @@ class npc_keeper_help : public CreatureScript
         }
 };
 
+class spell_sara_psychosis : public SpellScriptLoader
+{
+    public:
+        spell_sara_psychosis() : SpellScriptLoader("spell_sara_psychosis") {}
+
+        class spell_sara_psychosis_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sara_psychosis_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (WorldObject* _target = Trinity::Containers::SelectRandomContainerElement(targets))
+                {
+                    targets.clear();
+                    targets.push_back(_target);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sara_psychosis_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sara_psychosis_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sara_psychosis_SpellScript();
+        }
+};
+
 class item_unbound_fragments_of_valanyr : public ItemScript
 {
     public:
@@ -3675,4 +3726,5 @@ void AddSC_boss_yoggsaron()
     new spell_summon_tentacle_position();
     new spell_empowering_shadows();
     new spell_hodir_protective_gaze();
+    new spell_sara_psychosis();
 }

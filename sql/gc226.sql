@@ -261,6 +261,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=62488;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62488, 'spell_ignis_activate_construct');
 
+-- Sara Psychosis
+DELETE FROM `spell_script_names` WHERE `spell_id`=65301;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(65301, 'spell_sara_psychosis');
+
 -- XT002
 -- Add additional target selection script, i.e. a SpellScript that is used aside the AuraScript that already got attached to
 -- these spells.
