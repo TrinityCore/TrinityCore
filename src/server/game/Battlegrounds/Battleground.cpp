@@ -1958,3 +1958,11 @@ void Battleground::RewardXPAtKill(Player* killer, Player* victim)
     if (sWorld->getBoolConfig(CONFIG_BG_XP_FOR_KILL) && killer && victim)
         killer->RewardPlayerAndGroupAtKill(victim, true);
 }
+
+void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
+{
+    sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger %u in Battleground %u. Player coords (x: %f, y: %f, z: %f)",
+                   trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+    if (player->isGameMaster())
+        player->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", trigger);
+}
