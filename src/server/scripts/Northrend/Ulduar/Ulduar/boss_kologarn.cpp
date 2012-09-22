@@ -288,7 +288,7 @@ class boss_kologarn : public CreatureScript
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
                         if (Player* player = itr->getSource())
-                        {                         
+                        {
                             if (player->isDead() || player->HasAura(SPELL_STONE_GRIP_DOT) || player->isGameMaster())
                                 continue;
 
@@ -464,11 +464,9 @@ class boss_kologarn : public CreatureScript
                             {
                                 eyebeamTarget = eyebeamTargetUnit->GetGUID();
                                 Talk(WHISPER_EYEBEAM, eyebeamTarget);
-                                DoCast(me, SPELL_SUMMON_FOCUSED_EYEBEAM, true); // TODO: Check if this works, otherwise, try the code below.
-                                /*
+
                                 eyebeamTargetUnit->CastSpell(eyebeamTargetUnit, 63343, true, NULL, NULL, me->GetGUID());
                                 eyebeamTargetUnit->CastSpell(eyebeamTargetUnit, 63701, true, NULL, NULL, me->GetGUID());
-                                */
                             }
                             events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
                             return;

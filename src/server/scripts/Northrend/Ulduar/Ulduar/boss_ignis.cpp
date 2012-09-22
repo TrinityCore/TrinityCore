@@ -334,9 +334,12 @@ class boss_ignis : public CreatureScript
                             events.ScheduleEvent(EVENT_SCORCH, 25000);
                             return;
                         case EVENT_CONSTRUCT:
-                            Talk(SAY_SUMMON);
-                            DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
-                            events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));
+                            if (!summons.empty())
+                            {
+                                Talk(SAY_SUMMON);
+                                DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
+                                events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));
+                            }
                             return;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);
