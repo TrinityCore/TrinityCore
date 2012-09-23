@@ -262,6 +262,8 @@ enum UnitRename
 #define MAX_SPELL_POSSESS       8
 #define MAX_SPELL_CONTROL_BAR   10
 
+#define MAX_AGGRO_RESET_TIME 10 // in seconds
+
 enum Swing
 {
     NOSWING                    = 0,
@@ -2219,6 +2221,10 @@ class Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
+        // Part of Evade mechanics
+        time_t GetLastDamagedTime() const { return _lastDamagedTime; }
+        void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
+
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -2340,6 +2346,8 @@ class Unit : public WorldObject
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
+
+        time_t _lastDamagedTime; // Part of Evade mechanics
 };
 
 namespace Trinity

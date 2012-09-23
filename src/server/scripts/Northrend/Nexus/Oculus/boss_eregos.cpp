@@ -133,7 +133,7 @@ public:
     struct boss_eregosAI : public BossAI
     {
         boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS_EVENT) { }
-        
+
         void Reset()
         {
             _Reset();
@@ -160,7 +160,7 @@ public:
                 _emeraldVoid = false;
             if (me->FindNearestCreature(NPC_AMBER_DRAKE_VEHICLE, 500.0f, true))
                 _amberVoid = false;
-		}
+        }
 
         uint32 GetData(uint32 type)
         {
