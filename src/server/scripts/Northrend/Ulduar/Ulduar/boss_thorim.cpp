@@ -99,7 +99,7 @@ enum Creatures
 
 enum GameObjects
 {
-    GO_LEVER                = 194264,
+    GO_LEVER                = 179148,
     GO_DARK_IRON_PORTCULLIS = 194560
 };
 
@@ -953,7 +953,7 @@ enum ArenaAddsSpells
     //SPELL_RENEW_10              = 62333,  // Used from previous definition
     //SPELL_RENEW_25              = 62441,
     // Secondary spells
-    SPELL_WHIRLWIND             = 15578,
+    SPELL_WHIRLWIND             = 33500,
     SPELL_PUMMEL                = 38313,
     SPELL_RUNIC_SHIELD_10       = 62321,
     SPELL_RUNIC_SHIELD_25       = 62529,
@@ -1121,7 +1121,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
                         case EVENT_PRIMARY_SKILL:
                             if (Unit* target = amIhealer ? (me->GetHealthPct() > 40 ? DoSelectLowestHpFriendly(40) : me) : me->getVictim())
                             {
-                                if (myIndex != INDEX_DARK_RUNE_EVOKER)  // Specialize
+                                if (myIndex == INDEX_DARK_RUNE_EVOKER)  // Specialize
                                     DoCast(target, SPELL_RUNIC_MENDING);
                                 else
                                     DoCast(target, myHelper(myIndex, ArenaPhaseAddHelper::INDEX_PRIMARY));
