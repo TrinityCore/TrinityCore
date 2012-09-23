@@ -154,7 +154,7 @@ public:
                 DoScriptText(YELL_DEAD_1, me);
             }
 
-            if (events.GetPhaseMask() & PHASE_EVENT)
+            if (events.GetPhaseMask() & (1 << PHASE_EVENT))
                 damage = 0;
         }
 
@@ -209,7 +209,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_EVENT))
+            if (!UpdateVictim() && !(events.GetPhaseMask() & (1 << PHASE_EVENT)))
                 return;
 
             events.Update(diff);
@@ -235,7 +235,7 @@ public:
                         events.ScheduleEvent(EVENT_ENRAGE, urand(7,14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
                     case EVENT_SMASH:
-                        DoCastVictim(SPELL_SMASH);
+                        DoCastAOE(SPELL_SMASH);
                         events.ScheduleEvent(EVENT_SMASH, urand(12,16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                         break;
                     case EVENT_JUST_TRANSFORMED:
@@ -438,7 +438,7 @@ public:
 
         void MovementInform(uint32 type, uint32 id)
         {
-            if (type == POINT_MOTION_TYPE && id == 28)
+            if (id == 28)
             {
                 DoCast(me, SPELL_SHADOW_AXE_DAMAGE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
