@@ -133,7 +133,7 @@ public:
     struct boss_eregosAI : public BossAI
     {
         boss_eregosAI(Creature* creature) : BossAI(creature, DATA_EREGOS_EVENT) { }
-        
+
         void Reset()
         {
             _Reset();
