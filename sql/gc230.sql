@@ -166,6 +166,8 @@ UPDATE `creature_template` SET `unit_class`=1 WHERE `entry` IN (34461, 35743, 35
 -- adding Jaraxxus add immunities
 UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` | 1024 | 2048 WHERE `entry` IN (34815, 35262, 35263, 35264, 34826, 35270, 35271, 35272);
 UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` | 262144 WHERE `entry` IN (35263, 35264);
+-- adding Nether portal and Infernal volcano immunities to knockout/grip
+UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` | 32 | 8192 WHERE `entry` IN (34825, 35278, 35279, 35280, 34813, 35265, 35266, 35267);
 
 -- cast Forbearance together with Divine shield (ToC Faction Champions paladin)
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=66010;
