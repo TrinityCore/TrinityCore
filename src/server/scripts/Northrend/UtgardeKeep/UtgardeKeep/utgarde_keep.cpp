@@ -166,7 +166,7 @@ public:
     };
 };
 
-enum TickingTimeBomb 
+enum TickingTimeBomb
 {
     SPELL_TICKING_TIME_BOMB_EXPLODE = 59687
 };
@@ -189,7 +189,7 @@ class spell_ticking_time_bomb : public SpellScriptLoader
                 if (GetCaster() == GetTarget())
                 {
                     GetTarget()->CastSpell(GetTarget(), SPELL_TICKING_TIME_BOMB_EXPLODE, true);
-                }                
+                }
             }
 
             void Register()
