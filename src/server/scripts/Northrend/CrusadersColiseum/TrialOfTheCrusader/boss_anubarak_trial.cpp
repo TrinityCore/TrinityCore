@@ -56,7 +56,7 @@ enum Summons
     NPC_BURROW           = 34862,
     NPC_BURROWER         = 34607,
     NPC_SCARAB           = 34605,
-    NPC_SPIKE            = 34660,
+    NPC_SPIKE            = 34660
 };
 
 enum BossSpells
@@ -104,15 +104,14 @@ enum BossSpells
     SPELL_SPIKE_SPEED2      = 65922,
     SPELL_SPIKE_SPEED3      = 65923,
     SPELL_SPIKE_FAIL        = 66181,
-    SPELL_SPIKE_TELE        = 66170,
+    SPELL_SPIKE_TELE        = 66170
 };
 
 #define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193, 67855, 67856, 67857)
 
 enum SummonActions
 {
-    ACTION_SHADOW_STRIKE,
-    ACTION_SCARAB_SUBMERGE,
+    ACTION_SCARAB_SUBMERGE
 };
 
 enum MovementPoints
@@ -153,7 +152,6 @@ public:
         uint32 m_uiFreezeSlashTimer;
         uint32 m_uiPenetratingColdTimer;
         uint32 m_uiSummonNerubianTimer;
-        uint32 m_uiNerubianShadowStrikeTimer;
         uint32 m_uiSubmergeTimer;
         uint32 m_uiPursuingSpikeTimer;
         uint32 m_uiSummonScarabTimer;
@@ -169,7 +167,6 @@ public:
         {
             m_uiFreezeSlashTimer = 15*IN_MILLISECONDS;
             m_uiPenetratingColdTimer = 20*IN_MILLISECONDS;
-            m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
             m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
             m_uiSubmergeTimer = 80*IN_MILLISECONDS;
 
@@ -184,6 +181,13 @@ public:
             m_bIntro = true;
             m_bReachedPhase3 = false;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            // clean up spawned Frost Spheres
+            std::list<Creature*> FrostSphereList;
+            me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
+            if (!FrostSphereList.empty())
+                for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
+                    (*itr)->DespawnOrUnsummon();
+
             Summons.DespawnAll();
             m_vBurrowGUID.clear();
         }
@@ -302,13 +306,6 @@ public:
                         m_uiSummonNerubianTimer = 45*IN_MILLISECONDS;
                     } else m_uiSummonNerubianTimer -= uiDiff;
 
-                    if (IsHeroic() && m_uiNerubianShadowStrikeTimer <= uiDiff)
-                    {
-                        EntryCheckPredicate pred(NPC_BURROWER);
-                        Summons.DoAction(ACTION_SHADOW_STRIKE, pred);
-                        m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
-                    } else m_uiNerubianShadowStrikeTimer -= uiDiff;
-
                     if (m_uiSubmergeTimer <= uiDiff && !m_bReachedPhase3 && !me->HasAura(SPELL_BERSERK))
                     {
                         m_uiStage = 1;
@@ -368,7 +365,6 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     DoCast(me, SPELL_EMERGE_ANUBARAK);
                     m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
-                    m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
                     m_uiSummonScarabTimer = 2*IN_MILLISECONDS;
                     break;
             }
@@ -478,6 +474,18 @@ public:
 
 class mob_nerubian_burrower : public CreatureScript
 {
+    enum Phases
+    {
+        PHASE_GROUND    = 0,
+        PHASE_SUBMERGED
+    };
+
+    enum Events
+    {
+        EVENT_SUBMERGE          = 1,
+        EVENT_SHADOW_STRIKE
+    };
+
 public:
     mob_nerubian_burrower() : CreatureScript("mob_nerubian_burrower") { }
 
@@ -495,30 +503,18 @@ public:
 
         InstanceScript* instance;
 
-        uint32 m_uiSpiderFrenzyTimer;
-        uint32 m_uiSubmergeTimer;
-
         void Reset()
         {
             me->SetCorpseDelay(0);
-            m_uiSpiderFrenzyTimer = urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            m_uiSubmergeTimer = 30*IN_MILLISECONDS;
+            events.ScheduleEvent(EVENT_SUBMERGE, 30*IN_MILLISECONDS, 0, PHASE_GROUND);
+            if (IsHeroic())
+                events.ScheduleEvent(EVENT_SHADOW_STRIKE, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS), 0, PHASE_GROUND);
             DoCast(me, SPELL_EXPOSE_WEAKNESS);
             DoCast(me, SPELL_SPIDER_FRENZY);
             me->SetInCombatWithZone();
+            phase = PHASE_GROUND;
             if (!me->isInCombat())
                 me->DisappearAndDie();
-        }
-
-        void DoAction(const int32 actionId)
-        {
-            switch (actionId)
-            {
-                case ACTION_SHADOW_STRIKE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_SHADOW_STRIKE);
-                    break;
-            }
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -526,29 +522,53 @@ public:
             if (!UpdateVictim() && !me->HasAura(SPELL_SUBMERGE_EFFECT))
                 return;
 
-            if (m_uiSubmergeTimer <= uiDiff)
+            events.Update(uiDiff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 event = events.ExecuteEvent())
             {
-                if (me->HasAura(SPELL_SUBMERGE_EFFECT))
+                switch (event)
                 {
-                    me->RemoveAurasDueToSpell(SPELL_SUBMERGE_EFFECT);
-                    DoCast(me, SPELL_EMERGE_EFFECT);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                    me->CombatStart(me->SelectNearestTarget());
+                    case EVENT_SUBMERGE:
+                        if (me->HasAura(SPELL_SUBMERGE_EFFECT))
+                        {
+                            me->RemoveAurasDueToSpell(SPELL_SUBMERGE_EFFECT);
+                            DoCast(me, SPELL_EMERGE_EFFECT);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                            me->CombatStart(me->SelectNearestTarget());
+                            if (IsHeroic())
+                                events.ScheduleEvent(EVENT_SHADOW_STRIKE, 20*IN_MILLISECONDS, 0, PHASE_GROUND);
+                            phase = PHASE_GROUND;
+                        }
+                        else
+                        {
+                            if (!me->HasAura(SPELL_PERMAFROST_HELPER))
+                            {
+                                DoCast(me, SPELL_SUBMERGE_EFFECT);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                                me->CombatStop();
+                                phase = PHASE_SUBMERGED;
+                            }
+                        }
+                        events.ScheduleEvent(EVENT_SUBMERGE, 20*IN_MILLISECONDS);
+                        return;
+                    case EVENT_SHADOW_STRIKE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SHADOW_STRIKE);
+                        events.ScheduleEvent(EVENT_SHADOW_STRIKE, 20*IN_MILLISECONDS, 0, PHASE_GROUND);
+                        return;
+                    default:
+                        break;
                 }
-                else
-                {
-                    if (!me->HasAura(SPELL_PERMAFROST_HELPER))
-                    {
-                        DoCast(me, SPELL_SUBMERGE_EFFECT);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                        me->CombatStop();
-                    }
-                }
-                m_uiSubmergeTimer = 20*IN_MILLISECONDS;
-            } else m_uiSubmergeTimer -= uiDiff;
+            }
 
             DoMeleeAttackIfReady();
         }
+        private:
+            Phases phase;
+            EventMap events;
     };
 
 };
