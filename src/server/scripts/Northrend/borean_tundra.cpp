@@ -1696,9 +1696,7 @@ public:
         void Reset()
         {
             if (me->GetReactState() != REACT_PASSIVE)
-            {
                 me->SetReactState(REACT_PASSIVE);
-            }
 
             rebuff = 0;
         }
@@ -1738,33 +1736,33 @@ public:
 
         void GotStinged(uint64 casterGUID)
         {
-            if(Player* caster = Player::GetPlayer(*me, casterGUID))
+            if (Player* caster = Player::GetPlayer(*me, casterGUID))
             {
                 uint32 step = caster->GetAuraCount(SPELL_NEURAL_NEEDLE) + 1;
                 switch (step)
                 {
-                case 1:
-                    DoScriptText(SAY_IMPRISIONED_BERYL_1, me);
-                    break;
-                case 2:
-                    DoScriptText(SAY_IMPRISIONED_BERYL_2, me, caster);
-                    break;
-                case 3:
-                    DoScriptText(SAY_IMPRISIONED_BERYL_3, me);
-                    break;
-                case 4:
-                    DoScriptText(SAY_IMPRISIONED_BERYL_4, me);
-                    break;
-                case 5:
-                    DoScriptText(SAY_IMPRISIONED_BERYL_5, me);
-                    break;
-                case 6:
-                    DoScriptText(SAY_IMPRISIONED_BERYL_6, me, caster);
-                    break;
-                case 7:
-                    DoScriptText(SAY_IMPRISIONED_BERYL_7, me);
-                    caster->KilledMonsterCredit(25478, 0);
-                    break;
+                    case 1:
+                        DoScriptText(SAY_IMPRISIONED_BERYL_1, me);
+                        break;
+                    case 2:
+                        DoScriptText(SAY_IMPRISIONED_BERYL_2, me, caster);
+                        break;
+                    case 3:
+                        DoScriptText(SAY_IMPRISIONED_BERYL_3, me);
+                        break;
+                    case 4:
+                        DoScriptText(SAY_IMPRISIONED_BERYL_4, me);
+                        break;
+                    case 5:
+                        DoScriptText(SAY_IMPRISIONED_BERYL_5, me);
+                        break;
+                    case 6:
+                        DoScriptText(SAY_IMPRISIONED_BERYL_6, me, caster);
+                        break;
+                    case 7:
+                        DoScriptText(SAY_IMPRISIONED_BERYL_7, me);
+                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER, 0);
+                        break;
                 }
             }
         }
