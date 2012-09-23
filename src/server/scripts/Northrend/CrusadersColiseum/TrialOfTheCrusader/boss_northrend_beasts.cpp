@@ -902,7 +902,6 @@ public:
             events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS));
             events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
             events.ScheduleEvent(EVENT_MASSIVE_CRASH, 30*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_TRAMPLE, 1*IN_MILLISECONDS);
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
