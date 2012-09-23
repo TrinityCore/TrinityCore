@@ -281,6 +281,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 -- make XT Deconstructors heart not regen hp
 UPDATE `creature_template` SET `RegenHealth`=0 WHERE `entry` IN (33329, 33995);
+UPDATE `vehicle_template_accessory` SET `minion`=0 WHERE `entry`=33293;
 
 -- Kologarn
 -- Add script to arms.
