@@ -573,6 +573,48 @@ class spell_mistress_kiss : public SpellScriptLoader
         }
 };
 
+enum MistressKissDebuff
+{
+    SPELL_MISTRESS_KISS_DEBUFF  = 66334
+};
+
+class spell_mistress_kiss_area : public SpellScriptLoader
+{
+    public:
+        spell_mistress_kiss_area() : SpellScriptLoader("spell_mistress_kiss_area") {}
+
+        class spell_mistress_kiss_area_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mistress_kiss_area_SpellScript)
+
+            bool Load()
+            {
+                if (GetCaster())
+                    if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DEBUFF, GetCaster()))
+                        return true;
+                return false;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (caster && target)
+                    caster->CastSpell(target, SPELL_MISTRESS_KISS_DEBUFF, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mistress_kiss_area_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mistress_kiss_area_SpellScript();
+        }
+};
+
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -582,4 +624,5 @@ void AddSC_boss_jaraxxus()
     new mob_nether_portal();
     new mob_mistress_of_pain();
     new spell_mistress_kiss();
+    new spell_mistress_kiss_area();
 }
