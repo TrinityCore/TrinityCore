@@ -402,7 +402,8 @@ public:
 enum eShadowAxe
 {
     SPELL_SHADOW_AXE_DAMAGE                     = 42750,
-    H_SPELL_SHADOW_AXE_DAMAGE                   = 59719
+    H_SPELL_SHADOW_AXE_DAMAGE                   = 59719,
+    POINT_TARGET                                = 28
 };
 
 class mob_ingvar_throw_dummy : public CreatureScript
@@ -427,7 +428,7 @@ public:
             {
                 float x, y, z;
                 target->GetPosition(x, y, z);
-                me->GetMotionMaster()->MoveCharge(x, y, z, 42.0f, 28);
+                me->GetMotionMaster()->MoveCharge(x, y, z, 42.0f, POINT_TARGET);
                 target->DisappearAndDie();
             }
             else
@@ -438,7 +439,7 @@ public:
 
         void MovementInform(uint32 type, uint32 id)
         {
-            if (id == 28)
+            if (type == EFFECT_MOTION_TYPE && id == POINT_TARGET)
             {
                 DoCast(me, SPELL_SHADOW_AXE_DAMAGE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
