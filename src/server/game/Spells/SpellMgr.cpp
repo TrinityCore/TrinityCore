@@ -2989,7 +2989,7 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
-            case 42730: 
+            case 42730:
                 spellInfo->EffectTriggerSpell[EFFECT_1] = 42739;
                 break;
             case 59735:
