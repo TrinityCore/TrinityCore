@@ -1203,7 +1203,7 @@ struct LFGDungeonEntry
     uint32  recmaxlevel;                                    // 22
     int32   map;                                            // 23
     uint32  difficulty;                                     // 24
-    //uint32  flags;                                        // 25 (flags & 4) = IsHoliday
+    uint32  flags;                                          // 25
     uint32  type;                                           // 26
     //uint32  unk;                                          // 27
     //char*   iconname;                                     // 28
