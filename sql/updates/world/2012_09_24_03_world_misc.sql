@@ -34,15 +34,6 @@ UPDATE `item_template` SET `flagsCustom`=flagsCustom|2 WHERE `entry`=18706;
 -- https://www.youtube.com/watch?v=fkJ3vrwC4q4&feature=player_detailpage#t=170s
 UPDATE `quest_template` SET `SpecialFlags` = 1 WHERE `Id` = 7838;
 
-SET @CGUID:= xxxxx;
---  Spawn Dark Ranger Marrah author Vincent-Michael Closes #7681
-DELETE FROM `creature` WHERE `id` = @ENTRY;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
-(@CGUID, 24137, 574, 3, 1, 183.8515, -76.50119, 15.84287, 3.455082, 7200, 0, 0);
-DELETE FROM `creature_template_addon` WHERE `entry` = @ENTRY;
-INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `bytes2`, `auras`) VALUES
-(24137, 0, 0x20000, 0x1, '34189');
-
 -- Update DisenchantID's to proper values for items from Satchel of Helpful Goods (51999) author Exodius Closes #7572
 UPDATE `item_template` SET `DisenchantID`=41 WHERE `entry` IN (51964, 51968, 51978, 51994);
 
