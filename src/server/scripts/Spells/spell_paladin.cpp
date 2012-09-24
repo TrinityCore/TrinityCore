@@ -580,15 +580,15 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
             PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript);
 
             int32 remainingAmount;
-            Unit* caster;
 
             bool Load()
             {
-                caster = GetCaster();
-                if (!caster)
-                    return false;
-                remainingAmount = caster->GetMaxHealth();
-                return true;
+                if (Unit* caster = GetCaster())
+                {
+                    remainingAmount = caster->GetMaxHealth();
+                    return true;
+                }
+                return false;
             }
 
             void Split(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & splitAmount)
@@ -597,8 +597,7 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
 
                 if (remainingAmount <= 0)
                 {
-                    Unit* target = GetTarget();
-                    target->RemoveAura(SPELL_HAND_OF_SACRIFICE);
+                    GetTarget()->RemoveAura(SPELL_HAND_OF_SACRIFICE);
                 }
             }
 
@@ -625,32 +624,36 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
 
             uint32 groupSize, minHpPct;
             int32 remainingAmount;
-            Unit* caster;
 
             bool Load()
             {
-                caster = GetCaster();
-                if (!caster)
-                    return false;
+                
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (caster->ToPlayer()->GetGroup())
+                            groupSize = caster->ToPlayer()->GetGroup()->GetMembersCount();
+                        else
+                            groupSize = 1;
+                    }
+                    else
+                        return false;
 
-                if (caster->ToPlayer()->GetGroup())
-                    groupSize = caster->ToPlayer()->GetGroup()->GetMembersCount();
-                else
-                    groupSize = 1;
-
-                remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
-                minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
-
-                return true;
+                    remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
+                    minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
+                    return true;
+                }
+                return false;
             }
 
             void Split(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & splitAmount)
             {
                 remainingAmount -= splitAmount;
-
                 // break when absorbed everything it could, or if the casters hp drops below 20%
-                if (remainingAmount <= 0 || (GetCaster()->GetHealthPct() < minHpPct))
-                    GetCaster()->RemoveAura(SPELL_DIVINE_SACRIFICE);
+                if (Unit* caster = GetCaster())
+                    if (remainingAmount <= 0 || (caster->GetHealthPct() < minHpPct))
+                        caster->RemoveAura(SPELL_DIVINE_SACRIFICE);
             }
 
             void Register()
