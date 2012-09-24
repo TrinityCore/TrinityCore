@@ -215,11 +215,7 @@ class npc_announcer_toc10 : public CreatureScript
                         return true;
 
                     if (GameObject* floor = GameObject::GetGameObject(*player, instanceScript->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
-                    {
-                        floor->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
-                        floor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
-                        floor->SetGoState(GO_STATE_ACTIVE);
-                    }
+                        floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
 
                     creature->CastSpell(creature, SPELL_CORPSE_TELEPORT, false);
                     creature->CastSpell(creature, SPELL_DESTROY_FLOOR_KNOCKUP, false);
