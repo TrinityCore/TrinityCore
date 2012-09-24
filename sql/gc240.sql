@@ -80,9 +80,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- making the Four Horsemen chest lootable
 UPDATE `gameobject_template` SET `flags`=`flags` &~16 WHERE `entry`=193426;
 
--- -------------------------
--- TRIAL OF THE CRUSADER --
--- -------------------------
+##########################
+-- TRIAL OF THE CRUSADER #
+##########################
 
 -- Trial of the Crusader Death knight Death grip scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (66017, 68753, 68754, 68755);
@@ -231,9 +231,9 @@ DELETE FROM `conditions` WHERE `SourceEntry`=66636;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
 (13, 1, 66636, 31, 3, 34796, 'Rising Anger');
 
--- -------------------------
--- ULDUAR ------------------
--- -------------------------
+###########
+-- ULDUAR #
+###########
 
 -- Saronite Vapors scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id`=63322;
@@ -1196,3 +1196,14 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33213, 0, 0, 'The veil of winter will protect you, champions!', 14, 0, 100, 0, 0, 15559, 'Hodir SAY_YS_HELP'),
 (33244, 0, 0, 'Combat matrix enhanced. Behold wonderous rapidity!', 14, 0, 100, 0, 0, 15630, 'Mimiron SAY_YS_HELP'),
 (33242, 0, 0, 'Golganneth, lend me your strengh! Grant my mortal allies the power of thunder!', 14, 0, 100, 0, 0, 15750, 'Thorim SAY_YS_HELP');
+
+###########################
+-- Strand of the Ancients #
+###########################
+-- Antipersonel cannons and Battleground Demolishers mustnt heal
+DELETE FROM creature_template_addon WHERE entry IN (28781, 32796, 27894, 32795);
+INSERT INTO creature_template_addon (entry, auras) VALUES
+(28781, 52455),
+(32796, 52455),
+(27894, 52455),
+(32795, 52455);
