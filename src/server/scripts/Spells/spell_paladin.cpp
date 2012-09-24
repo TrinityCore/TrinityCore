@@ -623,7 +623,7 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_divine_sacrifice_AuraScript);
 
-            uint32 splitPct, groupSize, minHpPct;
+            uint32 groupSize, minHpPct;
             int32 remainingAmount;
             Unit* caster;
 
@@ -639,15 +639,13 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
                     groupSize = 1;
 
                 remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
-                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster);
                 minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
 
                 return true;
             }
 
-            void Split(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & splitAmount)
+            void Split(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & splitAmount)
             {
-                splitAmount = CalculatePctN(dmgInfo.GetDamage(), splitPct);
                 remainingAmount -= splitAmount;
 
                 // break when absorbed everything it could, or if the casters hp drops below 20%
