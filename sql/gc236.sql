@@ -274,6 +274,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=65301;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (65301, 'spell_sara_psychosis');
 
+-- Thorim Lightning Destruction
+DELETE FROM `spell_script_names` WHERE `spell_id`=62392;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62392, 'spell_thorim_lightning_destruction');
+
 -- XT002
 -- Add additional target selection script, i.e. a SpellScript that is used aside the AuraScript that already got attached to
 -- these spells.
@@ -374,6 +379,19 @@ UPDATE `creature_template` SET `ScriptName`='boss_thorim' WHERE `entry`=32865;
 UPDATE `creature_template` SET `equipment_id`=1844 WHERE `entry`=33147;
 -- Thunder orbs are spawned via boss script
 DELETE FROM `creature` WHERE `id`=33378;
+-- Lightning orb scriptname and waypoints
+UPDATE `creature_template` SET `ScriptName`='npc_lightning_orb' WHERE `entry`=33138;
+DELETE FROM waypoint_data WHERE id = 33138;
+INSERT INTO waypoint_data (id, point, position_x, position_y, position_z) VALUES
+(33138, 1, 2227.6, -263.7, 412.2),
+(33138, 2, 2227.6, -432.6, 412.2),
+(33138, 3, 2199.3, -433.7, 420),
+(33138, 4, 2167.5 ,-440.2, 438.5),
+(33138, 5, 2134.8 ,-440.2, 438.5),
+(33138, 6, 2134.8 ,-303.4, 438.5);
+
+-- update faction of Dark Rune Acolyte so hes correctly affected by Berserk
+UPDATE `creature_template` SET `faction_A`=1692, `faction_H`=1692 WHERE `entry` IN (32886, 33159);
 
 -- Controller
 UPDATE `creature_template` SET `ScriptName`='npc_thorim_controller' WHERE `entry`=32879;

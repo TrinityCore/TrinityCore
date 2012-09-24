@@ -2606,6 +2606,7 @@ class spell_leviathan_tower_buff : public SpellScriptLoader
                 else
                     return false;
             }
+
             void Register()
             {
                 DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_leviathan_tower_buff_AuraScript::CheckAreaTarget);
