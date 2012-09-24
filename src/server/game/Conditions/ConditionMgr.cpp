@@ -223,6 +223,9 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                         case RELATION_PASSENGER_OF:
                             condMeets = unit->IsOnVehicle(toUnit);
                             break;
+                        case RELATION_CREATED_BY:
+                            condMeets = unit->GetCreatorGUID() == toUnit->GetGUID();
+                            break;
                     }
                 }
             }
