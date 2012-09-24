@@ -47,6 +47,8 @@ enum PaladinSpells
     SPELL_FORBEARANCE                            = 25771,
     SPELL_AVENGING_WRATH_MARKER                  = 61987,
     SPELL_IMMUNE_SHIELD_MARKER                   = 61988,
+
+    SPELL_HAND_OF_SACRIFICE                      = 6940,
 };
 
 // 31850 - Ardent Defender
@@ -566,6 +568,52 @@ class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
         }
 };
 
+class spell_pal_hand_of_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_pal_hand_of_sacrifice() : SpellScriptLoader("spell_pal_hand_of_sacrifice") { }
+
+        class spell_pal_hand_of_sacrifice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript);
+
+            uint32 splitPct;
+            int32 remainingAmount;
+            Unit* caster;
+
+            bool Load()
+            {
+                caster = GetCaster();
+                if (!caster)
+                    return false;
+                remainingAmount = caster->GetMaxHealth();
+                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                return true;
+            }
+
+            void Split(AuraEffect* /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & splitAmount)
+            {
+                remainingAmount -= splitAmount;
+
+                if (remainingAmount <= 0)
+                {
+                    Unit* target = GetTarget();
+                    target->RemoveAura(SPELL_HAND_OF_SACRIFICE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectSplit += AuraEffectSplitFn(spell_pal_hand_of_sacrifice_AuraScript::Split, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_hand_of_sacrifice_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -579,4 +627,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
     new spell_pal_exorcism_and_holy_wrath_damage();
+    new spell_pal_hand_of_sacrifice();
 }
