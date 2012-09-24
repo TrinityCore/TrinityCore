@@ -1275,7 +1275,8 @@ class npc_thorims_hammer : public CreatureScript
                                 {
                                     trigger->CastSpell(unit, SPELL_THORIMS_HAMMER, true);
                                     dedicatedTarget = 0;
-                                }     
+                                }
+                                trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
                                 events.ScheduleEvent(EVENT_DROP_AURAS_AND_WAIT, 4*IN_MILLISECONDS);
                             }
                             break;
@@ -1340,6 +1341,7 @@ class npc_mimirons_inferno : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
                                 trigger->CastSpell(target, SPELL_MIMIRONS_INFERNO, true);
                             infernoTimer = 2*IN_MILLISECONDS;
+                            trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
                         }
                     }
                     else
@@ -1431,7 +1433,10 @@ class npc_hodirs_fury : public CreatureScript
                             {
                                 // TODO: Once again, crazy target selection check that again.
                                 if (Creature* trigger = DoSummonFlyer(NPC_HODIR_TARGET_BEACON, me, 30.0f, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
+                                {
                                     trigger->CastSpell(target, SPELL_HODIRS_FURY, true);
+                                    trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
+                                }
                                 dedicatedTarget = 0;
                                 events.ScheduleEvent(EVENT_SELECT_TARGET_AND_FOLLOW, 7*IN_MILLISECONDS);
                             }
@@ -1487,6 +1492,7 @@ class npc_freyas_ward : public CreatureScript
                         // TODO: Check if this is the correct spell, only the triggered one does something :o
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
                             trigger->CastSpell(target, SPELL_FREYAS_WARD, true);
+                        trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
                         summonTimer = 30*IN_MILLISECONDS;
                     }
                     else
