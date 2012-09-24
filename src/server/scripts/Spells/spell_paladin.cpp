@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Group.h"
 
 
 enum PaladinSpells
@@ -49,6 +50,7 @@ enum PaladinSpells
     SPELL_IMMUNE_SHIELD_MARKER                   = 61988,
 
     SPELL_HAND_OF_SACRIFICE                      = 6940,
+    SPELL_DIVINE_SACRIFICE                       = 64205,
 };
 
 // 31850 - Ardent Defender
@@ -577,7 +579,6 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_hand_of_sacrifice_AuraScript);
 
-            uint32 splitPct;
             int32 remainingAmount;
             Unit* caster;
 
@@ -587,7 +588,6 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
                 if (!caster)
                     return false;
                 remainingAmount = caster->GetMaxHealth();
-                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
                 return true;
             }
 
@@ -614,6 +614,59 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         }
 };
 
+class spell_pal_divine_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_pal_divine_sacrifice() : SpellScriptLoader("spell_pal_divine_sacrifice") { }
+
+        class spell_pal_divine_sacrifice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_divine_sacrifice_AuraScript);
+
+            uint32 splitPct, groupSize, minHpPct;
+            int32 remainingAmount;
+            Unit* caster;
+
+            bool Load()
+            {
+                caster = GetCaster();
+                if (!caster)
+                    return false;
+
+                if (caster->ToPlayer()->GetGroup())
+                    groupSize = caster->ToPlayer()->GetGroup()->GetMembersCount();
+                else
+                    groupSize = 1;
+
+                remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
+                splitPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster);
+                minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
+
+                return true;
+            }
+
+            void Split(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & splitAmount)
+            {
+                splitAmount = CalculatePctN(dmgInfo.GetDamage(), splitPct);
+                remainingAmount -= splitAmount;
+
+                // break when absorbed everything it could, or if the casters hp drops below 20%
+                if (remainingAmount <= 0 || (GetCaster()->GetHealthPct() < minHpPct))
+                    GetCaster()->RemoveAura(SPELL_DIVINE_SACRIFICE);
+            }
+
+            void Register()
+            {
+                OnEffectSplit += AuraEffectSplitFn(spell_pal_divine_sacrifice_AuraScript::Split, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_divine_sacrifice_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -628,4 +681,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_righteous_defense();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_hand_of_sacrifice();
+    new spell_pal_divine_sacrifice();
 }
