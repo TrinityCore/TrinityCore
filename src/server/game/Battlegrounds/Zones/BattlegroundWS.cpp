@@ -159,6 +159,17 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
         }
         else
         {
+            if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[0]))
+            {
+                player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
+                player->RemoveAurasDueToSpell(WS_SPELL_BRUTAL_ASSAULT);
+            }
+            if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[1]))
+            {
+                player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
+                player->RemoveAurasDueToSpell(WS_SPELL_BRUTAL_ASSAULT);
+            }
+
             _flagSpellForceTimer = 0; //reset timer.
             _flagDebuffState = 0;
         }
