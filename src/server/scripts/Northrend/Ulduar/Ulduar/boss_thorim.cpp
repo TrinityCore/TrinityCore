@@ -630,26 +630,26 @@ class boss_thorim : public CreatureScript
                             //DoCast(me, SPELL_SUMMON_LIGHTNING_ORB, true);
                             Talk(SAY_BERSERK);
                             break;
-                        // Phase 2 stuff
+                        // Phase 3 stuff
                         case EVENT_UNBALANCING_STRIKE:
                             DoCastVictim(SPELL_UNBALANCING_STRIKE);
-                            events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 26000, 0, PHASE_PRE_ARENA_ADDS);
+                            events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 26000, 0, PHASE_ARENA);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(7, 15) *IN_MILLISECONDS, 0, PHASE_PRE_ARENA_ADDS);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(7, 15) *IN_MILLISECONDS, 0, PHASE_ARENA);
                             break;
                         case EVENT_TRANSFER_ENERGY:
                             if (Creature* source = me->SummonCreature(NPC_THORIM_COMBAT_TRIGGER, PosCharge[urand(0, 6)], TEMPSUMMON_TIMED_DESPAWN, 9000))
                                 source->CastSpell(source, SPELL_LIGHTNING_PILLAR, true);
-                            events.ScheduleEvent(EVENT_RELEASE_LIGHTNING_CHARGE, 8000, 0, PHASE_PRE_ARENA_ADDS);
+                            events.ScheduleEvent(EVENT_RELEASE_LIGHTNING_CHARGE, 8000, 0, PHASE_ARENA);
                             break;
                         case EVENT_RELEASE_LIGHTNING_CHARGE:
                             if (Creature* source = me->FindNearestCreature(NPC_THORIM_COMBAT_TRIGGER, 100.0f))
                                 DoCast(source, SPELL_LIGHTNING_RELEASE);
                             DoCast(me, SPELL_LIGHTNING_CHARGE, true);
-                            events.ScheduleEvent(EVENT_TRANSFER_ENERGY, 8000, 0, PHASE_PRE_ARENA_ADDS);
+                            events.ScheduleEvent(EVENT_TRANSFER_ENERGY, 8000, 0, PHASE_ARENA);
                             break;
                         case EVENT_BERSERK_PHASE_2:
                             DoCast(me, SPELL_BERSERK_PHASE_2);
@@ -671,6 +671,9 @@ class boss_thorim : public CreatureScript
                     case ACTION_BERSERK:
                         if (!gotBerserkedAndOrbSummoned)
                         {
+                            if (phase == PHASE_ARENA)
+                                return;
+
                             DoCast(me, SPELL_BERSERK_PHASE_1);
                             me->SummonCreature(NPC_LIGHTNING_ORB, 2192.f, -263.f, 414.f, 0.f, TEMPSUMMON_TIMED_DESPAWN, 30000);
                             Talk(SAY_BERSERK);
