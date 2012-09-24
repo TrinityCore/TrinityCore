@@ -1899,6 +1899,96 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
         }
 };
 
+enum ShadowMoonTuberEnum
+{
+    SPELL_WHISTLE               = 36652,
+    SPELL_SHADOWMOON_TUBER      = 36462,
+
+    NPC_BOAR_ENTRY              = 21195,
+    GO_SHADOWMOON_TUBER_MOUND   = 184701,
+
+    POINT_TUBER                 = 1,
+    TYPE_BOAR                   = 1,
+    DATA_BOAR                   = 1
+};
+
+class npc_shadowmoon_tuber_node : public CreatureScript
+{
+public:
+    npc_shadowmoon_tuber_node() : CreatureScript("npc_shadowmoon_tuber_node") {}
+
+    struct npc_shadowmoon_tuber_nodeAI : public ScriptedAI
+    {
+        npc_shadowmoon_tuber_nodeAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset()
+        {
+            tapped = false;
+            tuberGUID = 0;
+            resetTimer = 60000;
+        }
+
+        void SetData(uint32 id, uint32 data)
+        {
+            if (id == TYPE_BOAR && data == DATA_BOAR)
+            {
+                // Spawn chest GO
+                DoCast(SPELL_SHADOWMOON_TUBER);
+
+                // Despawn the tuber
+                if (GameObject* tuber = me->FindNearestGameObject(GO_SHADOWMOON_TUBER_MOUND, 5.0f))
+                {
+                    tuberGUID = tuber->GetGUID();
+                    // @Workaround: find how to properly despawn the GO
+                    tuber->SetPhaseMask(2, true);
+                }
+            }
+        }
+
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+        {
+            if (!tapped && spell->Id == SPELL_WHISTLE)
+            {
+                if (Creature* boar = me->FindNearestCreature(NPC_BOAR_ENTRY, 30.0f))
+                {
+                    // Disable trigger and force nearest boar to walk to him
+                    tapped = true;
+                    boar->SetWalk(false);
+                    boar->GetMotionMaster()->MovePoint(POINT_TUBER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (tapped)
+            {
+                if (resetTimer <= diff)
+                {
+                    // Respawn the tuber
+                    if (tuberGUID)
+                        if (GameObject* tuber = GameObject::GetGameObject(*me, tuberGUID))
+                        // @Workaround: find how to properly respawn the GO
+                            tuber->SetPhaseMask(1, true);
+
+                    Reset();
+                }
+                else
+                    resetTimer -= diff;
+            }
+        }
+    private:
+        bool tapped;
+        uint64 tuberGUID;
+        uint32 resetTimer;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_shadowmoon_tuber_nodeAI(creature);
+    }
+};
+
 void AddSC_shadowmoon_valley()
 {
     new mob_mature_netherwing_drake();
@@ -1917,4 +2007,5 @@ void AddSC_shadowmoon_valley()
     new mob_torloth_the_magnificent();
     new npc_enraged_spirit();
     new spell_unlocking_zuluheds_chains();
+    new npc_shadowmoon_tuber_node();
 }
