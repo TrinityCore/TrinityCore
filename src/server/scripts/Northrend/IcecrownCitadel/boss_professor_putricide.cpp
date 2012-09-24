@@ -1122,17 +1122,18 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                 return true;
             }
 
-            SpellCastResult CheckCast()
-            {
-                if (AuraEffect const* eff = GetCaster()->GetAuraEffect(SPELL_UNBOUND_PLAGUE_SEARCHER, EFFECT_0))
-                    if (eff->GetTickNumber() < 2)
-                        return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                if (AuraEffect const* eff = GetCaster()->GetAuraEffect(SPELL_UNBOUND_PLAGUE_SEARCHER, EFFECT_0))
+                {
+                    if (eff->GetTickNumber() < 2)
+                    {
+                        targets.clear();
+                        return;
+                    }
+                }
+
+
                 targets.remove_if(Trinity::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
                 Trinity::Containers::RandomResizeList(targets, 1);
             }
@@ -1171,7 +1172,6 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_putricide_unbound_plague_SpellScript::CheckCast);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_unbound_plague_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnEffectHitTarget += SpellEffectFn(spell_putricide_unbound_plague_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }

@@ -1,4 +1,4 @@
-// $Id: High_Res_Timer.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: High_Res_Timer.cpp 95788 2012-05-24 07:59:51Z johnnyw $
 
 // Be very carefull before changing the calculations inside
 // ACE_High_Res_Timer.  The precision matters and we are using integer
@@ -22,8 +22,6 @@
 #include "ace/OS_NS_stdlib.h"
 #include "ace/Truncate.h"
 
-
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_ALLOC_HOOK_DEFINE(ACE_High_Res_Timer)
@@ -43,11 +41,11 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-  // Initialize the global_scale_factor_ to 1.  The first
-  // ACE_High_Res_Timer instance construction will override this
-  // value.
-  /* static */
-  ACE_UINT32 ACE_High_Res_Timer::global_scale_factor_ = 1u;
+/// Initialize the global_scale_factor_ to 1.  The first
+/// ACE_High_Res_Timer instance construction will override this
+/// value.
+/* static */
+ACE_High_Res_Timer::global_scale_factor_type ACE_High_Res_Timer::global_scale_factor_ = 1u;
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 
@@ -69,13 +67,12 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-// This is used to tell if the global_scale_factor_ has been
-// set, and if high resolution timers are supported.
+/// This is used to tell if the global_scale_factor_ has been
+/// set, and if high resolution timers are supported.
 /* static */
 int ACE_High_Res_Timer::global_scale_factor_status_ = 0;
 
-
-#if defined (linux)
+#if defined (ACE_LINUX)
 // Determine the apparent CPU clock speed from /proc/cpuinfo
 ACE_UINT32
 ACE_High_Res_Timer::get_cpuinfo (void)
@@ -188,9 +185,10 @@ ACE_High_Res_Timer::get_cpuinfo (void)
 
   return scale_factor;
 }
-#endif /* linux */
+#endif /* ACE_LINUX */
 
-ACE_UINT32
+
+ACE_High_Res_Timer::global_scale_factor_type
 ACE_High_Res_Timer::global_scale_factor (void)
 {
 #if (defined (ACE_WIN32) || defined (ACE_HAS_POWERPC_TIMER) || \
@@ -211,30 +209,23 @@ ACE_High_Res_Timer::global_scale_factor (void)
       if (ACE_High_Res_Timer::global_scale_factor_status_ == 0)
         {
 #         if defined (ACE_WIN32)
+            // This a higher-precision version, specific for Windows systems
             LARGE_INTEGER freq;
             if (::QueryPerformanceFrequency (&freq))
-              {
-                // We have a high-res timer
-#             if defined (ACE_LACKS_LONGLONG_T)
-                ACE_UINT64 uint64_freq(freq.u.LowPart, (ACE_UINT32) freq.u.HighPart);
-                ACE_High_Res_Timer::global_scale_factor
-                  (uint64_freq / (ACE_UINT32) ACE_ONE_SECOND_IN_USECS);
-#             else
-                ACE_High_Res_Timer::global_scale_factor
-                  (static_cast<unsigned int> (freq.QuadPart / ACE_HR_SCALE_CONVERSION));
-#             endif // (ACE_LACKS_LONGLONG_T)
+            {
+                ACE_High_Res_Timer::global_scale_factor(freq.QuadPart);
 
                 ACE_High_Res_Timer::global_scale_factor_status_ = 1;
-              }
+            }
             else
+            {
               // High-Res timers not supported
               ACE_High_Res_Timer::global_scale_factor_status_ = -1;
-
+            }
             return ACE_High_Res_Timer::global_scale_factor_;
-
-#         elif defined (linux)
+#         elif defined (ACE_LINUX)
             ACE_High_Res_Timer::global_scale_factor (ACE_High_Res_Timer::get_cpuinfo ());
-#         endif /* ! ACE_WIN32 && ! (linux && __alpha__) */
+#         endif /* ! ACE_WIN32 && ! (ACE_LINUX && __alpha__) */
 
 #         if !defined (ACE_WIN32)
           if (ACE_High_Res_Timer::global_scale_factor_ <= 1u)
@@ -314,17 +305,6 @@ ACE_High_Res_Timer::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\nglobal_scale_factor_: %u\n"),
              global_scale_factor ()));
-#if defined (ACE_LACKS_LONGLONG_T)
-  ACE_DEBUG ((LM_DEBUG,
-             ACE_TEXT (":\nstart_.hi ():     %8x; start_.lo ():      %8x;\n")
-             ACE_TEXT ("end_.hi ():       %8x; end_.lo ():        %8x;\n")
-             ACE_TEXT ("total_.hi ():     %8x; total_.lo ():      %8x;\n")
-             ACE_TEXT ("start_incr_.hi () %8x; start_incr_.lo (): %8x;\n"),
-             start_.hi (), start_.lo (),
-             end_.hi (), end_.lo (),
-             total_.hi (), total_.lo (),
-             start_incr_.hi (), start_incr_.lo ()));
-#else  /* ! ACE_LACKS_LONGLONG_T */
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT (":\nstart_.hi ():     %8x; start_.lo ():      %8x;\n")
               ACE_TEXT ("end_.hi ():       %8x; end_.lo ():        %8x;\n")
@@ -338,7 +318,6 @@ ACE_High_Res_Timer::dump (void) const
               static_cast<ACE_UINT32> (total_ & 0xfffffffful),
               static_cast<ACE_UINT32> (start_incr_ >> 32),
               static_cast<ACE_UINT32> (start_incr_ & 0xfffffffful)));
-#endif /* ! ACE_LACKS_LONGLONG_T */
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
@@ -357,7 +336,7 @@ ACE_High_Res_Timer::reset (void)
 void
 ACE_High_Res_Timer::elapsed_time (ACE_Time_Value &tv) const
 {
-  hrtime_to_tv (tv,
+  this->hrtime_to_tv (tv,
                 ACE_High_Res_Timer::elapsed_hrtime (this->end_, this->start_));
 }
 
@@ -394,12 +373,13 @@ ACE_High_Res_Timer::elapsed_time (struct timespec &elapsed_time) const
 void
 ACE_High_Res_Timer::elapsed_time_incr (ACE_Time_Value &tv) const
 {
-  hrtime_to_tv (tv, total_);
+  this->hrtime_to_tv (tv, total_);
 }
 
 void
 ACE_High_Res_Timer::elapsed_time (ACE_hrtime_t &nanoseconds) const
 {
+#if !defined (ACE_WIN32)
   // Please do _not_ rearrange this equation.  It is carefully
   // designed and tested to avoid overflow on machines that don't have
   // native 64-bit ints. In particular, division can be a problem.
@@ -410,16 +390,29 @@ ACE_High_Res_Timer::elapsed_time (ACE_hrtime_t &nanoseconds) const
   nanoseconds = nanoseconds >> 10;
   // Right shift is implemented for non native 64-bit ints
   // operator/ only for a 32 bit result !
+#else
+  // This a higher-precision version, specific for Windows systems
+  nanoseconds =
+    (ACE_High_Res_Timer::elapsed_hrtime (this->end_, this->start_) * ACE_HR_SCALE_CONVERSION * 1000u) /
+    ACE_High_Res_Timer::global_scale_factor ();
+#endif
 }
 
 void
 ACE_High_Res_Timer::elapsed_time_incr (ACE_hrtime_t &nanoseconds) const
 {
+#if !defined (ACE_WIN32)
   // Same as above.
   nanoseconds = this->total_
-            * (1024000u / ACE_High_Res_Timer::global_scale_factor ());
+          * (1024000u / ACE_High_Res_Timer::global_scale_factor ());
   // Caution - Borland has a problem with >>=, so resist the temptation.
   nanoseconds = nanoseconds >> 10;
+#else
+  // This a higher-precision version, specific for Windows systems
+  nanoseconds =
+      this->total_ * 1000000000u /
+      ACE_High_Res_Timer::global_scale_factor ();
+#endif
 }
 
 void

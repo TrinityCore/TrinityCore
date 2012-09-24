@@ -1,4 +1,4 @@
-// $Id: IO_SAP.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: IO_SAP.cpp 93736 2011-04-05 12:38:35Z johnnyw $
 
 #include "ace/IO_SAP.h"
 
@@ -11,8 +11,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/IO_SAP.inl"
 #endif /* __ACE_INLINE__ */
-
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

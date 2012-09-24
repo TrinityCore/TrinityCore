@@ -1,4 +1,4 @@
-// $Id: Thread_Manager.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: Thread_Manager.cpp 96067 2012-08-16 13:45:10Z mcorino $
 
 #include "ace/TSS_T.h"
 #include "ace/Thread_Manager.h"
@@ -188,9 +188,16 @@ ACE_Thread_Descriptor::terminate ()
            }
 #endif /* !ACE_HAS_VXTHREADS */
 
-         // Remove thread descriptor from the table.
+         // Remove thread descriptor from the table. 'this' is invalid
+         // upon return.
          if (this->tm_ != 0)
-           tm_->remove_thr (this, close_handle);
+           {
+             // remove_thr makes use of 'this' invalid on return.
+             // Code below will free log_msg, so clear our pointer
+             // now - it's already been saved in log_msg.
+             this->log_msg_ = 0;
+             tm_->remove_thr (this, close_handle);
+           }
       }
 
      // Check if we need delete ACE_Log_Msg instance
@@ -203,9 +210,6 @@ ACE_Thread_Descriptor::terminate ()
       }
      else
       {
-        // Thread_Descriptor is the owner of the Log_Msg instance!!
-        // deleted.
-        this->log_msg_ = 0;
         delete log_msg;
       }
    }
@@ -257,6 +261,7 @@ ACE_Thread_Descriptor::dump (void) const
 ACE_Thread_Descriptor::ACE_Thread_Descriptor (void)
   : log_msg_ (0),
     at_exit_list_ (0),
+    tm_ (0),
     terminated_ (false)
 {
   ACE_TRACE ("ACE_Thread_Descriptor::ACE_Thread_Descriptor");
@@ -366,6 +371,25 @@ ACE_Thread_Manager::ACE_Thread_Manager (size_t prealloc,
     , thread_desc_freelist_ (ACE_FREE_LIST_WITH_POOL,
                              prealloc, lwm, hwm, inc)
 {
+  ACE_TRACE ("ACE_Thread_Manager::ACE_Thread_Manager");
+}
+
+ACE_Thread_Manager::ACE_Thread_Manager (const ACE_Condition_Attributes &attributes,
+                                        size_t prealloc,
+                                        size_t lwm,
+                                        size_t inc,
+                                        size_t hwm)
+  : grp_id_ (1),
+    automatic_wait_ (1)
+#if defined (ACE_HAS_THREADS)
+    , zero_cond_ (lock_, attributes)
+#endif /* ACE_HAS_THREADS */
+    , thread_desc_freelist_ (ACE_FREE_LIST_WITH_POOL,
+                             prealloc, lwm, hwm, inc)
+{
+#if !defined (ACE_HAS_THREADS)
+  ACE_UNUSED_ARG (attributes);
+#endif /* ACE_HAS_THREADS */
   ACE_TRACE ("ACE_Thread_Manager::ACE_Thread_Manager");
 }
 
@@ -525,10 +549,11 @@ ace_thread_manager_adapter (void *args)
   exit_hook.thr_mgr (thread_args->thr_mgr ());
 
   // Invoke the user-supplied function with the args.
-  void *status = thread_args->invoke ();
+  ACE_THR_FUNC_RETURN status = thread_args->invoke ();
 
   delete static_cast<ACE_Base_Thread_Adapter *> (thread_args);
-  return status;
+
+  return reinterpret_cast<void *> (status);
 }
 #endif
 
@@ -571,7 +596,8 @@ ACE_Thread_Manager::spawn_i (ACE_THR_FUNC func,
                                       this,
                                       new_thr_desc.get (),
                                       ACE_OS_Object_Manager::seh_except_selector(),
-                                      ACE_OS_Object_Manager::seh_except_handler()),
+                                      ACE_OS_Object_Manager::seh_except_handler(),
+                                      flags),
                   -1);
 # else
   ACE_NEW_RETURN (thread_args,
@@ -579,7 +605,8 @@ ACE_Thread_Manager::spawn_i (ACE_THR_FUNC func,
                                       args,
                                       (ACE_THR_C_FUNC) ACE_THREAD_ADAPTER_NAME,
                                       this,
-                                      new_thr_desc.get ()),
+                                      new_thr_desc.get (),
+                                      flags),
                   -1);
 # endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
   auto_ptr <ACE_Base_Thread_Adapter> auto_thread_args (static_cast<ACE_Base_Thread_Adapter *> (thread_args));
@@ -1600,13 +1627,16 @@ ACE_Thread_Manager::wait (const ACE_Time_Value *timeout,
 {
   ACE_TRACE ("ACE_Thread_Manager::wait");
 
-  ACE_Time_Value local_timeout;
+  ACE_Auto_Ptr<ACE_Time_Value> local_timeout;
   // Check to see if we're using absolute time or not.
   if (use_absolute_time == false && timeout != 0)
     {
-      local_timeout = *timeout;
-      local_timeout += ACE_OS::gettimeofday ();
-      timeout = &local_timeout;
+      // create time value duplicate (preserves time policy)
+      local_timeout.reset (timeout->duplicate ());
+      // convert time value to absolute time
+      (*local_timeout) = local_timeout->to_absolute_time ();
+      // replace original time by abs time duplicate
+      timeout = local_timeout.get ();
     }
 
 #if !defined (ACE_HAS_VXTHREADS)

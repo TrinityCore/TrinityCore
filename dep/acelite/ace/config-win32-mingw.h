@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: config-win32-mingw.h 92102 2010-09-30 08:14:15Z johnnyw $
+// $Id: config-win32-mingw.h 95438 2012-01-16 10:35:03Z mcorino $
 
 //
 // The following configuration file is designed to work for win32
@@ -28,11 +28,17 @@
 
 #define ACE_HAS_USER_MODE_MASKS
 
-#if (__MINGW32_MAJOR_VERSION < 2)
+#if (__MINGW32_MAJOR_VERSION < 2) && (__MINGW64_VERSION_MAJOR < 3)
 #  error You need a newer version (>= 2.0) of mingw32/w32api
 #endif
 
-#if (__MINGW32_MAJOR_VERSION >= 3)
+// In strict ANSI mode (default when using --std=c++0x) the fileno()
+// macro is not defined so use the following work around.
+#if defined(__STRICT_ANSI__)
+# define ACE_FILENO_EQUIVALENT ::_fileno
+#endif
+
+#if (__MINGW32_MAJOR_VERSION >= 3) || (__MINGW64_VERSION_MAJOR >= 3)
 #  define ACE_HAS_SSIZE_T
 #  undef ACE_LACKS_STRUCT_DIR
 #  undef ACE_LACKS_OPENDIR
@@ -47,6 +53,22 @@
 
 #if (__MINGW32_MAJOR_VERSION > 3)  || ((__MINGW32_MAJOR_VERSION == 3) && (__MINGW32_MINOR_VERSION >= 15))
 # undef ACE_LACKS_USECONDS_T
+#elif (__MINGW64_VERSION_MAJOR >= 3)
+# undef ACE_LACKS_USECONDS_T
+#endif
+
+#if (__MINGW64_VERSION_MAJOR >= 3)
+# define ACE_HAS_POSIX_TIME 1
+# define ACE_LACKS_TIMESPEC_T 1
+
+# include <stdlib.h>
+# if defined (strtod)
+#  undef strtod
+# endif
+#else
+# if defined (ACE_LACKS_SIGSET_T)
+#   undef ACE_LACKS_SIGSET_T
+# endif
 #endif
 
 #undef ACE_HAS_WTOF
@@ -78,6 +100,8 @@
 #define ACE_LACKS_SYS_IOCTL_H
 #define ACE_LACKS_PDH_H
 #define ACE_LACKS_PDHMSG_H
+#define ACE_LACKS_STRTOK_R
+#define ACE_LACKS_LOCALTIME_R
 #define ACE_HAS_NONCONST_WCSDUP
 #define ACE_HAS_WINSOCK2_GQOS
 #define ACE_ISCTYPE_EQUIVALENT ::_isctype

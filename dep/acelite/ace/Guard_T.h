@@ -4,7 +4,7 @@
 /**
  *  @file    Guard_T.h
  *
- *  $Id: Guard_T.h 91626 2010-09-07 10:59:20Z johnnyw $
+ *  $Id: Guard_T.h 93792 2011-04-07 11:48:50Z mcorino $
  *
  *   Moved from Synch.h.
  *
@@ -36,9 +36,9 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * function...  It performs automatic acquisition and release of
  * a parameterized synchronization object ACE_LOCK.
  *
- * The <ACE_LOCK> class given as an actual parameter must provide, at
- * the very least the <acquire>, <tryacquire>, <release>, and
- * <remove> methods.
+ * The ACE_LOCK class given as an actual parameter must provide, at
+ * the very least the acquire(), tryacquire(), release(), and
+ * remove() methods.
  *
  * @warning A successfully constructed ACE_Guard does NOT mean that the
  * lock was acquired!  It is the caller's responsibility, after
@@ -72,11 +72,11 @@ public:
   ACE_Guard (ACE_LOCK &l);
 
   /// Implicitly and automatically acquire (or try to acquire) the
-  /// lock.  If @a block is non-0 then <acquire> the <ACE_LOCK>, else
-  /// <tryacquire> it.
+  /// lock.  If @a block is non-0 then acquire() the ACE_LOCK, else
+  /// tryacquire() it.
   ACE_Guard (ACE_LOCK &l, bool block);
 
-  /// Initialise the guard without implicitly acquiring the lock. The
+  /// Initialize the guard without implicitly acquiring the lock. The
   /// @a become_owner parameter indicates whether the guard should release
   /// the lock implicitly on destruction. The @a block parameter is
   /// ignored and is used here to disambiguate with the preceding
