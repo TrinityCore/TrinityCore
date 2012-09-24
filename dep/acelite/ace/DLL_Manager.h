@@ -4,7 +4,7 @@
 /**
  *  @file    DLL_Manager.h
  *
- *  $Id: DLL_Manager.h 91064 2010-07-12 10:11:24Z johnnyw $
+ *  $Id: DLL_Manager.h 95913 2012-06-21 17:14:36Z johnnyw $
  *
  *  @author Don Hinton <dhinton@ieee.org>
  */
@@ -68,14 +68,44 @@ public:
   const ACE_TCHAR *dll_name () const;
 
   /**
-   * This method opens and dynamically links @a dll_name.  The default
-   * mode is @c RTLD_LAZY, which loads identifier symbols but not the
-   * symbols for functions, which are loaded dynamically on-demand.
-   * Other supported modes include: @c RTLD_NOW, which performs all
-   * necessary relocations when @a dll_name is first loaded and
-   * @c RTLD_GLOBAL, which makes symbols available for relocation
-   * processing of any other DLLs.  Returns -1 on failure and 0 on
-   * success.
+   * This method opens and dynamically links a library/DLL.
+   * @param dll_name  The filename or path of the DLL to load. ACE will
+   *        attempt to apply the platform's standard library/DLL prefixes
+   *        and suffixes, allowing a simple, unadorned name to be passed
+   *        regardless of platform. The set of name transforms is listed
+   *        below. A @i decorator is a platform's name designator for a debug
+   *        vs release build. For example, on Windows it is usually "d".
+   *        @li Prefix + name + decorator + suffix
+   *        @li Prefix + name + suffix
+   *        @li Name + decorator + suffix
+   *        @li Name + suffix
+   *        @li Name
+   *        Note that the transforms with @i decorator will be avoided if
+   *        ACE is built with the @c ACE_DISABLE_DEBUG_DLL_CHECK config macro.
+   *
+   *        @Note There is another mode for locating library/DLL files that
+   *        was used in old versions of ACE. The alternate method builds
+   *        more combinations of pathname by combining the names transforms
+   *        above with locations listed in the platform's standard "path"
+   *        locations (e.g., @c LD_LIBRARY_PATH). It can be enabled by building
+   *        ACE with the @c ACE_MUST_HELP_DLOPEN_SEARCH_PATH config macro.
+   *        Use of this option is discouraged since it avoids the standard
+   *        platform search options and security mechanisms.
+   *
+   * @param open_mode  Flags to alter the actions taken when loading the DLL.
+   *        The possible values are:
+   *        @li @c RTLD_LAZY (this the default): loads identifier symbols but
+   *            not the symbols for functions, which are loaded dynamically
+   *            on demand.
+   *        @li @c RTLD_NOW: performs all necessary relocations when
+   *            @a dll_name is first loaded
+   *        @li @c RTLD_GLOBAL: makes symbols available for relocation
+   *            processing of any other DLLs.
+   * @param handle If a value other than @c ACE_INVALID_HANDLE is supplied,
+   *        this object is assigned the specified handle instead of attempting
+   *        to open the specified @a dll_name.
+   * @retval -1 On failure
+   * @retval 0 On success.
    */
   int open (const ACE_TCHAR *dll_name,
             int open_mode,

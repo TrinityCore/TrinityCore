@@ -4,12 +4,11 @@
 /**
  *  @file    Thread_Hook.h
  *
- *  $Id: Thread_Hook.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Thread_Hook.h 94054 2011-05-11 18:28:20Z johnnyw $
  *
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
 //=============================================================================
-
 
 #ifndef ACE_THREAD_HOOK_H
 #define ACE_THREAD_HOOK_H
@@ -34,9 +33,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  */
 class ACE_Export ACE_Thread_Hook
 {
-
 public:
-
   /// Destructor.
   virtual ~ACE_Thread_Hook (void);
 
@@ -51,7 +48,7 @@ public:
   virtual ACE_THR_FUNC_RETURN start (ACE_THR_FUNC func,
                                      void *arg);
 
-  /// sets the system wide thread hook, returns the previous thread
+  /// Sets the system wide thread hook, returns the previous thread
   /// hook or 0 if none is set.
   static ACE_Thread_Hook *thread_hook (ACE_Thread_Hook *hook);
 

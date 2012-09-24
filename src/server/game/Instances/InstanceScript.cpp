@@ -358,7 +358,7 @@ void InstanceScript::DoStartTimedAchievement(AchievementCriteriaTimedTypes type,
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->getSource())
-                player->GetAchievementMgr().StartTimedAchievement(type, entry);
+                player->StartTimedAchievement(type, entry);
 }
 
 // Stop timed achievement for all players in instance
@@ -369,7 +369,7 @@ void InstanceScript::DoStopTimedAchievement(AchievementCriteriaTimedTypes type, 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->getSource())
-                player->GetAchievementMgr().RemoveTimedAchievement(type, entry);
+                player->RemoveTimedAchievement(type, entry);
 }
 
 // Remove Auras due to Spell on all players in instance

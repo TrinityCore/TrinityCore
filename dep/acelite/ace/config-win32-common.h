@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-win32-common.h 92120 2010-10-01 12:00:01Z johnnyw $
+// $Id: config-win32-common.h 96094 2012-08-22 11:51:11Z johnnyw $
 
 
 #ifndef ACE_CONFIG_WIN32_COMMON_H
@@ -10,13 +10,27 @@
 #error Use config-win32.h in config.h instead of this header
 #endif /* ACE_CONFIG_WIN32_H */
 
-
 // Windows Mobile (CE) stuff is primarily further restrictions to what's
 // in the rest of this file. Also, it defined ACE_HAS_WINCE, which is used
 // in this file.
 #if defined (_WIN32_WCE)
 #  include "ace/config-WinCE.h"
 #endif /* _WIN32_WCE */
+
+#if defined(__MINGW32__)
+// When using the --std=c++0x option with MinGW the compiler omits defining
+// the following required macros (at least with the GCC 4.6.2 version)
+// So we define them ourselves here.
+# if !defined(WIN32)
+#   define _stdcall __attribute__((__stdcall__))
+#   define _cdecl __attribute__((__cdecl__))
+#   define _thiscall __attribute__((__thiscall__))
+#   define _fastcall __attribute__((__fastcall__))
+#   define WIN32 1
+#   define WINNT 1
+#   define i386 1
+# endif
+#endif
 
 // Complain if WIN32 is not already defined.
 #if !defined (WIN32) && !defined (ACE_HAS_WINCE)
@@ -26,6 +40,12 @@
 #define ACE_WIN32
 #if defined (_WIN64) || defined (WIN64)
 #  define ACE_WIN64
+
+// MPC template adds _AMD64_ but user projects not generated using MPC
+// may want to use _AMD64_ as well. Ensure it's there in all cases.
+#  ifndef _AMD64_
+#    define _AMD64_
+#  endif
 
 // Use 64-bit file offsets by default in the WIN64 case, similar to
 // what 64-bit UNIX systems do.
@@ -227,6 +247,10 @@
 #define ACE_LACKS_SEEKDIR
 #define ACE_LACKS_TELLDIR
 
+#define ACE_LACKS_CLOCKID_T
+#define ACE_LACKS_CLOCK_REALTIME
+#define ACE_LACKS_CLOCK_MONOTONIC
+
 /* LACKS gid/pid/sid/uid facilities */
 #define ACE_LACKS_GETPGID
 #define ACE_LACKS_GETPPID
@@ -258,6 +282,7 @@
 #define ACE_LACKS_MODE_MASKS
 #define ACE_LACKS_PTHREAD_H
 #define ACE_LACKS_PWD_FUNCTIONS
+#define ACE_LACKS_RAND_R
 #define ACE_LACKS_READLINK
 #define ACE_LACKS_RLIMIT
 #define ACE_LACKS_SBRK
@@ -265,6 +290,7 @@
 #define ACE_LACKS_SEMBUF_T
 #define ACE_LACKS_SIGACTION
 #define ACE_LACKS_SIGSET
+#define ACE_LACKS_SIGSET_T
 #define ACE_LACKS_SOCKETPAIR
 #define ACE_LACKS_SUSECONDS_T
 #define ACE_LACKS_USECONDS_T
@@ -301,7 +327,7 @@
 
 #define ACE_SIZEOF_LONG_LONG 8
 
-#if !defined (ACE_LACKS_LONGLONG_T) && !defined (__MINGW32__)
+#if !defined (__MINGW32__)
 #define ACE_INT64_TYPE  signed __int64
 #define ACE_UINT64_TYPE unsigned __int64
 #endif
@@ -501,9 +527,9 @@
 #  else
 #    pragma comment(lib, "ws2_32.lib")
 #    pragma comment(lib, "mswsock.lib")
-#    if defined (ACE_HAS_IPV6)
+// #    if defined (ACE_HAS_IPV6)
 #      pragma comment(lib, "iphlpapi.lib")
-#    endif
+// #    endif
 #  endif /* ACE_HAS_WINCE */
 # endif /* _MSC_VER */
 
@@ -579,6 +605,9 @@
 #define ACE_LACKS_LSTAT
 // Looks like Win32 has a non-const swab function
 #define ACE_HAS_NONCONST_SWAB
+
+// gethostbyaddr does not handle IPv6-mapped-IPv4 addresses
+#define ACE_HAS_BROKEN_GETHOSTBYADDR_V4MAPPED
 
 // If we are using winsock2 then the SO_REUSEADDR feature is broken
 // SO_REUSEADDR=1 behaves like SO_REUSEPORT=1. (SO_REUSEPORT is an

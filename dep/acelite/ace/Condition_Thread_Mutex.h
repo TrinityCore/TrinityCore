@@ -4,7 +4,7 @@
 /**
  *  @file    Condition_Thread_Mutex.h
  *
- *  $Id: Condition_Thread_Mutex.h 92069 2010-09-28 11:38:59Z johnnyw $
+ *  $Id: Condition_Thread_Mutex.h 96073 2012-08-17 13:39:55Z mcorino $
  *
  *   Moved from Synch.h.
  *
@@ -28,37 +28,17 @@
 // ACE platform supports some form of threading.
 
 #include "ace/Thread_Mutex.h"
+#include "ace/Condition_Attributes.h"
+#include "ace/Condition_T.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 class ACE_Time_Value;
 
-class ACE_Export ACE_Condition_Attributes
-{
-public:
-  /// Constructor
-  ACE_Condition_Attributes (int type = ACE_DEFAULT_SYNCH_TYPE);
-
-  /// Destructor
-  ~ACE_Condition_Attributes (void);
-
-private:
-  friend class ACE_Condition_Thread_Mutex;
-
-  /// The attributes
-  ACE_condattr_t attributes_;
-
-private:
-  // = Prevent assignment and initialization.
-  void operator= (const ACE_Condition_Attributes &);
-  ACE_Condition_Attributes (const ACE_Condition_Attributes &);
-};
-
 /**
- * @class ACE_Condition_Thread_Mutex
- *
- * @brief ACE_Condition variable wrapper written using ACE_Mutexes This
- * allows threads to block until shared data changes state.
+ * @brief ACE_Condition template specialization written using
+ * ACE_Mutexes. This allows threads to block until shared data
+ * changes state.
  * A condition variable enables threads to atomically block and
  * test the condition under the protection of a mutual exclu-
  * sion lock (mutex) until the condition is satisfied.  That is,
@@ -70,26 +50,24 @@ private:
  * up waiting threads by signaling the associated condition
  * variable.  The waiting threads, upon awakening, reacquire the
  * mutex and re-evaluate the condition.
- *
- * This should be an instantiation of ACE_Condition but problems
- * with compilers precludes this...
  */
-class ACE_Export ACE_Condition_Thread_Mutex
+template <>
+class ACE_Export ACE_Condition<ACE_Thread_Mutex>
 {
 public:
   /// Initialize the condition variable.
-  ACE_Condition_Thread_Mutex (ACE_Thread_Mutex &m,
-                              const ACE_TCHAR *name = 0,
-                              void *arg = 0);
+  ACE_Condition (ACE_Thread_Mutex &m,
+                 const ACE_TCHAR *name = 0,
+                 void *arg = 0);
 
   /// Initialize the condition variable.
-  ACE_Condition_Thread_Mutex (ACE_Thread_Mutex &m,
-                              ACE_Condition_Attributes &attributes,
-                              const ACE_TCHAR *name = 0,
-                              void *arg = 0);
+  ACE_Condition (ACE_Thread_Mutex &m,
+                 const ACE_Condition_Attributes &attributes,
+                 const ACE_TCHAR *name = 0,
+                 void *arg = 0);
 
   /// Implicitly destroy the condition variable.
-  ~ACE_Condition_Thread_Mutex (void);
+  ~ACE_Condition (void);
 
   /**
    * Explicitly destroy the condition variable.  Note that only one
@@ -111,7 +89,7 @@ public:
 
   /**
    * Block on condition or until absolute time-of-day has passed.  If
-   * abstime == 0 use "blocking" wait() semantics on the <mutex>
+   * abstime == 0 use "blocking" wait() semantics on the @a mutex
    * passed as a parameter (this is useful if you need to store the
    * <Condition> in shared memory).  Else, if @a abstime != 0 and the
    * call times out before the condition is signaled <wait> returns -1
@@ -150,9 +128,11 @@ protected:
 
 private:
   // = Prevent assignment and initialization.
-  void operator= (const ACE_Condition_Thread_Mutex &);
-  ACE_Condition_Thread_Mutex (const ACE_Condition_Thread_Mutex &);
+  void operator= (const ACE_Condition<ACE_Thread_Mutex> &);
+  ACE_Condition (const ACE_Condition<ACE_Thread_Mutex> &);
 };
+
+typedef ACE_Condition<ACE_Thread_Mutex> ACE_Condition_Thread_Mutex;
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

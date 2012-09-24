@@ -4,7 +4,7 @@
 /**
  *  @file    WFMO_Reactor.h
  *
- *  $Id: WFMO_Reactor.h 84727 2009-03-05 19:22:29Z johnnyw $
+ *  $Id: WFMO_Reactor.h 93792 2011-04-07 11:48:50Z mcorino $
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  *  @author Tim Harrison <harrison@cs.wustl.edu>
@@ -112,7 +112,7 @@ public:
    * @class Common_Info
    *
    * @brief This struct contains the necessary information for every
-   * <Event_Handler> entry. The reason the event is not in this
+   * Event_Handler entry. The reason the event is not in this
    * structure is because we need to pass an event array into
    * WaitForMultipleObjects and therefore keeping the events
    * seperate makes sense.
@@ -124,25 +124,25 @@ public:
     /// event
     bool io_entry_;
 
-    /// The assosiated <Event_Handler>
+    /// The assosiated Event_Handler
     ACE_Event_Handler *event_handler_;
 
-    /// The I/O handle related to the <Event_Handler>.  This entry is
-    /// only valid if the <io_entry_> flag is true.
+    /// The I/O handle related to the Event_Handler.  This entry is
+    /// only valid if the io_entry_ flag is true.
     ACE_HANDLE io_handle_;
 
     /**
-     * This is the set of events that the <Event_Handler> is
-     * interested in. This entry is only valid if the <io_entry_> flag
+     * This is the set of events that the Event_Handler is
+     * interested in. This entry is only valid if the io_entry_ flag
      * is true.
      */
     long network_events_;
 
     /**
-     * This flag indicates that <WFMO_Reactor> created the event on
+     * This flag indicates that WFMO_Reactor created the event on
      * behalf of the user. Therefore we need to clean this up when the
-     * <Event_Handler> removes itself from <WFMO_Reactor>.  This entry
-     * is only valid if the <io_entry_> flag is true.
+     * Event_Handler removes itself from WFMO_Reactor.  This entry
+     * is only valid if the io_entry_ flag is true.
      */
     bool delete_event_;
 
@@ -150,8 +150,8 @@ public:
     bool delete_entry_;
 
     /**
-     * These are the masks related to <handle_close> for the
-     * <Event_Handler>.  This is only valid when <delete_entry_> is
+     * These are the masks related to handle_close() for the
+     * Event_Handler.  This is only valid when delete_entry_ is
      * set.
      */
     ACE_Reactor_Mask close_masks_;
@@ -302,7 +302,7 @@ public:
   /// Destructor.
   virtual ~ACE_WFMO_Reactor_Handler_Repository (void);
 
-  /// Initialize the repository of the approriate @a size.
+  /// Initialize the repository of the appropriate @a size.
   int open (size_t size);
 
   /// Close down the handler repository.
@@ -314,7 +314,7 @@ public:
   /// the simple event entry.
   int bind (ACE_HANDLE, ACE_Event_Handler *);
 
-  /// Insert I/O <Event_Handler> entry into the system. This method
+  /// Insert I/O Event_Handler entry into the system. This method
   /// assumes that the lock are head *before* this method is invoked.
   int bind_i (bool io_entry,
               ACE_Event_Handler *event_handler,
@@ -363,7 +363,7 @@ public:
 
   /**
    * This method is used to calculate the network mask after a mask_op
-   * request to <WFMO_Reactor>. Note that because the <Event_Handler>
+   * request to <WFMO_Reactor>. Note that because the Event_Handler
    * may already be in the handler repository, we may have to find the
    * old event and the old network events
    */
@@ -561,7 +561,7 @@ public:
 
   /**
    * Get the maximum number of times that the
-   * <ACE_WFMO_Reactor_Notify::handle_input> method will iterate and
+   * ACE_WFMO_Reactor_Notify::handle_input() method will iterate and
    * dispatch the ACE_Event_Handlers that are passed in via the
    * notify queue before breaking out of its
    * <ACE_Message_Queue::dequeue> loop.
@@ -592,7 +592,7 @@ private:
    */
   virtual int handle_signal (int signum, siginfo_t * = 0, ucontext_t * = 0);
 
-  /// An auto event is used so that we can <signal> it to wakeup one
+  /// An auto event is used so that we can signal() it to wakeup one
   /// thread up (e.g., when the <notify> method is called).
   ACE_Auto_Event wakeup_one_thread_;
 
@@ -808,7 +808,7 @@ public:
    * <ACE_INVALID_HANDLE>, WFMO_Reactor will create an event for
    * associating it with the I/O handle. When the <event_handle> is
    * signalled, the appropriate <handle_*> callback will be invoked on
-   * the <Event_Handler>
+   * the Event_Handler
    */
   virtual int register_handler (ACE_HANDLE event_handle,
                                 ACE_HANDLE io_handle,
@@ -827,7 +827,7 @@ public:
   /**
    * This is a simple version of the above <register_handler> method
    * where the I/O handle will always come from <get_handle> on the
-   * <Event_Handler> and the event handle will always be created by
+   * Event_Handler and the event handle will always be created by
    * <WFMO_Reactor>
    */
   virtual int register_handler (ACE_Event_Handler *event_handler,
@@ -874,10 +874,10 @@ public:
    * either be the <event_handle> or the <io_handle>
    *
    * For the case of I/O entries, this removes the @a mask binding of
-   * <Event_Handler> whose handle is @a handle from <WFMO_Reactor>.  If
+   * Event_Handler whose handle is @a handle from <WFMO_Reactor>.  If
    * there are no more bindings for this <event_handler> then it is
    * removed from the WFMO_Reactor.  For simple event entries, mask is
-   * mostly ignored and the <Event_Handler> is always removed from
+   * mostly ignored and the Event_Handler is always removed from
    * <WFMO_Reactor>
    */
   virtual int remove_handler (ACE_HANDLE handle,
@@ -885,7 +885,7 @@ public:
 
   /**
    * Removes all the @a mask bindings for handles in the @a handle_set
-   * bind of <Event_Handler>.  If there are no more bindings for any
+   * bind of Event_Handler.  If there are no more bindings for any
    * of these handles then they are removed from WFMO_Reactor.
    */
   virtual int remove_handler (const ACE_Handle_Set &handle_set,
@@ -903,13 +903,13 @@ public:
                               ACE_Sig_Action *old_disp = 0,
                               int sigkey = -1);
 
-  /// Calls <remove_handler> for every signal in @a sigset.
+  /// Calls remove_handler() for every signal in @a sigset.
   virtual int remove_handler (const ACE_Sig_Set &sigset);
 
   // = Suspend and resume Handlers.
 
   /// Suspend @a event_handler temporarily.  Use
-  /// <ACE_Event_Handler::get_handle> to get the handle.
+  /// ACE_Event_Handler::get_handle() to get the handle.
   virtual int suspend_handler (ACE_Event_Handler *event_handler);
 
   /// Suspend @a handle temporarily.
@@ -918,7 +918,7 @@ public:
   /// Suspend all @a handles in handle set temporarily.
   virtual int suspend_handler (const ACE_Handle_Set &handles);
 
-  /// Suspend all <handles> temporarily.
+  /// Suspend all handles temporarily.
   virtual int suspend_handlers (void);
 
   /// Resume @a event_handler. Use <ACE_Event_Handler::get_handle> to
@@ -975,7 +975,7 @@ public:
   /**
    * Resets the interval of the timer represented by @a timer_id to
    * @a interval, which is specified in relative time to the current
-   * <gettimeofday>.  If @a interval is equal to
+   * gettimeofday().  If @a interval is equal to
    * ACE_Time_Value::zero, the timer will become a non-rescheduling
    * timer.  Returns 0 if successful, -1 if not.
    */
@@ -1019,15 +1019,15 @@ public:
                                ACE_Reactor_Mask masks_to_be_added);
 
   /**
-   * Remove <masks_to_be_deleted> to the <handle>'s entry in
-   * WFMO_Reactor.  The Event_Handler associated with <handle> must
+   * Remove @a masks_to_be_deleted to the <handle>'s entry in
+   * WFMO_Reactor.  The Event_Handler associated with @a event_handler must
    * already have been registered with WFMO_Reactor.
    */
   virtual int cancel_wakeup (ACE_Event_Handler *event_handler,
                              ACE_Reactor_Mask masks_to_be_deleted);
 
   /**
-   * Remove <masks_to_be_deleted> to the <handle>'s entry in
+   * Remove @a masks_to_be_deleted to the <handle>'s entry in
    * WFMO_Reactor.  The Event_Handler associated with <handle> must
    * already have been registered with WFMO_Reactor.
    */
