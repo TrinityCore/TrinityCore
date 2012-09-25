@@ -528,6 +528,9 @@ DELETE FROM `creature` WHERE `id`=34014;
 -- Thorim tunnel adds are spawned via scripts
 DELETE FROM `creature` WHERE `id` IN (33110, 32874, 32875);
 
+-- Algalons Celestial Planetarium Access is spawned via core
+DELETE FROM `gameobject` WHERE `id`=194752;
+
 -- Achievement "Firefighter" (3180 / 3189)
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10450, 10463);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 

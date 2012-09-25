@@ -872,6 +872,9 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                         _events.Reset();
                         me->SetWalk(false);
                         _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1);
+
+                        if (InstanceScript* instance = me->GetInstanceScript())
+                            instance->SetBossState(BOSS_ALGALON, SPECIAL);
                         break;
                     case ACTION_FINISH_INTRO:
                         Talk(SAY_BRANN_ALGALON_INTRO_2);
