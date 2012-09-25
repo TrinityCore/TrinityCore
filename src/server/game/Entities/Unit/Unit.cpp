@@ -1041,7 +1041,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
     //Script Hook For CalculateSpellDamageTaken -- Allow scripts to change the Damage post class mitigation calculations
     damage = sScriptMgr->ModifySpellDamageTaken(damageInfo->target, damageInfo->attacker, damage);
-    
+
     // Calculate absorb resist
     if (damage > 0)
     {
@@ -1050,7 +1050,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     }
     else
         damage = 0;
-    
+
     damageInfo->damage = damage;
 }
 
@@ -1137,10 +1137,10 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     // Add melee damage bonus
     damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);
     damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
-    
+
     //Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
     damage = sScriptMgr->ModifyMeleeDamage(damageInfo->target, damageInfo->attacker, damage);
-    
+
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
     {
@@ -6679,7 +6679,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
                     return true;
-                } 
+                }
                 else
                     return false;
             }
