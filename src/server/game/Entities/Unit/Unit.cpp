@@ -1770,8 +1770,10 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         for (AuraEffectList::iterator itr = vSplitDamagePctCopy.begin(), next; (itr != vSplitDamagePctCopy.end()) &&  (dmgInfo.GetDamage() > 0); ++itr)
         {
             // Check if aura was removed during iteration - we don't need to work on such auras
-            if (!((*itr)->GetBase()->IsAppliedOnTarget(victim->GetGUID())))
+            AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(victim->GetGUID());
+            if (!aurApp)
                 continue;
+
             // check damage school mask
             if (!((*itr)->GetMiscValue() & schoolMask))
                 continue;
@@ -1781,13 +1783,14 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             if (!caster || (caster == victim) || !caster->IsInWorld() || !caster->isAlive())
                 continue;
 
-            int32 splitDamage = CalculatePctN(dmgInfo.GetDamage(), (*itr)->GetAmount());
+            uint32 splitDamage = CalculatePctN(dmgInfo.GetDamage(), (*itr)->GetAmount());
+
+            (*itr)->GetBase()->CallScriptEffectSplitHandlers((*itr), aurApp, dmgInfo, splitDamage);
 
             // absorb must be smaller than the damage itself
-            splitDamage = RoundToInterval(splitDamage, 0, int32(dmgInfo.GetDamage()));
+            splitDamage = RoundToInterval(splitDamage, uint32(0), uint32(dmgInfo.GetDamage()));
 
             dmgInfo.AbsorbDamage(splitDamage);
-
             uint32 splitted = splitDamage;
             uint32 split_absorb = 0;
             DealDamageMods(caster, splitted, &split_absorb);
@@ -6630,31 +6633,47 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Light's Beacon - Beacon of Light
             if (dummySpell->Id == 53651)
             {
-                if (this->GetTypeId() != TYPEID_PLAYER)
+                if (!victim)
                     return false;
-                // Check Party/Raid Group
-                if (Group *group = this->ToPlayer()->GetGroup())
+                triggered_spell_id = 0;
+                Unit* beaconTarget = NULL;
+                if (this->GetTypeId() != TYPEID_PLAYER)
                 {
-                    for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                    beaconTarget = triggeredByAura->GetBase()->GetCaster();
+                    if (beaconTarget == this || !(beaconTarget->GetAura(53563, victim->GetGUID())))
+                        return false;
+                    basepoints0 = int32(damage);
+                    triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(365)) ? 53652 : 53654;
+                }
+                else
+                {    // Check Party/Raid Group
+                    if (Group *group = this->ToPlayer()->GetGroup())
                     {
-                        Player* Member = itr->getSource();
-
-                        // check if it was heal by paladin which casted this beacon of light
-                        if (Aura const * aura = Member->GetAura(53563, victim->GetGUID()))
+                        for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                         {
-                            Unit* beaconTarget = Member;
+                            Player* Member = itr->getSource();
 
-                            // do not proc when target of beacon of light is healed
-                            if (beaconTarget == this)
-                                return false;
+                            // check if it was heal by paladin which casted this beacon of light
+                            if (Aura const * aura = Member->GetAura(53563, victim->GetGUID()))
+                            {
+                                // do not proc when target of beacon of light is healed
+                                if (Member == this)
+                                    return false;
 
-                            basepoints0 = int32(damage);
-                            triggered_spell_id = 53652;
-                            victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
-                            return true;
+                                beaconTarget = Member;
+                                basepoints0 = int32(damage);
+                                triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(365)) ? 53652 : 53654;
+                                break;
+                            }
                         }
                     }
                 }
+
+                if (triggered_spell_id && beaconTarget)
+                {
+                    victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
+                    return true;
+                } 
                 else
                     return false;
             }
@@ -16193,12 +16212,16 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                 charmer->ToPlayer()->SetClientControl(charmer, 1);
                 charmer->ToPlayer()->SetViewpoint(this, false);
                 charmer->ToPlayer()->SetClientControl(this, 0);
+                if (GetTypeId() == TYPEID_PLAYER)
+                    ToPlayer()->SetMover(this);
                 break;
             case CHARM_TYPE_POSSESS:
                 charmer->ToPlayer()->SetClientControl(charmer, 1);
                 charmer->ToPlayer()->SetViewpoint(this, false);
                 charmer->ToPlayer()->SetClientControl(this, 0);
                 charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                if (GetTypeId() == TYPEID_PLAYER)
+                    ToPlayer()->SetMover(this);
                 break;
             case CHARM_TYPE_CHARM:
                 if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
