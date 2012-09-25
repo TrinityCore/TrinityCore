@@ -344,31 +344,6 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
         virtual void OnUpdate(TMap* /*map*/, uint32 /*diff*/) { }
 };
 
-class UnitScript : public ScriptObject
-{
-    protected:
-
-        UnitScript(const char* name);
-
-    public:
-
-        virtual void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage)
-        {
-            if(!target->isAlive() || !attacker->isAlive())
-                damage = 0;
-        }
-        virtual void ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage)
-        {
-            if(!target->isAlive() || !attacker->isAlive())
-                damage = 0;
-        }
-        virtual void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage)
-        {
-            if(!target->isAlive() || !attacker->isAlive())
-                damage = 0;
-        }
-};
-
 class WorldMapScript : public ScriptObject, public MapScript<Map>
 {
     protected:
@@ -420,7 +395,32 @@ class ItemScript : public ScriptObject
         virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
 };
 
-class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
+class UnitScript : public ScriptObject
+{
+    protected:
+
+        UnitScript(const char* name);
+
+    public:
+
+        virtual void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage)
+        {
+            if(!target->isAlive() || !attacker->isAlive())
+                damage = 0;
+        }
+        virtual void ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage)
+        {
+            if(!target->isAlive() || !attacker->isAlive())
+                damage = 0;
+        }
+        virtual void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage)
+        {
+            if(!target->isAlive() || !attacker->isAlive())
+                damage = 0;
+        }
+};
+
+class CreatureScript : public UnitScript, public UpdatableScript<Creature>
 {
     protected:
 
@@ -611,7 +611,7 @@ class ConditionScript : public ScriptObject
         virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
 };
 
-class VehicleScript : public ScriptObject
+class VehicleScript : public UnitScript
 {
     protected:
 
@@ -682,7 +682,7 @@ class AchievementCriteriaScript : public ScriptObject
         virtual bool OnCheck(Player* source, Unit* target) = 0;
 };
 
-class PlayerScript : public ScriptObject
+class PlayerScript : public UnitScript
 {
     protected:
 
@@ -1059,7 +1059,7 @@ class ScriptMgr
         void OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnGroupDisband(Group* group);
 
-    public:
+    public: /* UnitScript */
 
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage);
