@@ -502,29 +502,13 @@ public:
 
             if (IsHeroic() && m_uiMistressKissTimer <= uiDiff)
             {
-                if (Unit* target = SelectEnemyCaster(false))
-                    DoCast(target, SPELL_MISTRESS_KISS);
+                DoCast(me, SPELL_MISTRESS_KISS);
                 m_uiMistressKissTimer = 30*IN_MILLISECONDS;
             } else m_uiMistressKissTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
         }
-
-        Unit* SelectEnemyCaster(bool /*casting*/)
-        {
-            std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
-            std::list<HostileReference*>::const_iterator iter;
-            Unit* target;
-            for (iter = tList.begin(); iter!=tList.end(); ++iter)
-            {
-                target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
-                if (target && target->getPowerType() == POWER_MANA)
-                    return target;
-            }
-            return NULL;
-        }
     };
-
 };
 
 enum MistressKiss
@@ -551,11 +535,13 @@ class spell_mistress_kiss : public SpellScriptLoader
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* target = GetTarget())
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+                if (caster && target)
                 {
                     if (target->HasUnitState(UNIT_STATE_CASTING))
                     {
-                        target->CastSpell(target, SPELL_MISTRESS_KISS_DAMAGE_SILENCE, true);
+                        caster->CastSpell(target, SPELL_MISTRESS_KISS_DAMAGE_SILENCE, true);
                         target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
                     }
                 }
@@ -603,9 +589,28 @@ class spell_mistress_kiss_area : public SpellScriptLoader
                     caster->CastSpell(target, SPELL_MISTRESS_KISS_DEBUFF, true);
             }
 
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                // get a list of players with mana
+                std::list<WorldObject*> _targets;
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    if ((*itr)->ToUnit()->getPowerType() == POWER_MANA)
+                        _targets.push_back(*itr);
+
+                // pick a random target and kiss him
+                if (WorldObject* _target = Trinity::Containers::SelectRandomContainerElement(_targets))
+                {
+                    // correctly fill "targets" for the visual effect
+                    targets.clear();
+                    targets.push_back(_target);
+                    if (Unit* caster = GetCaster())
+                        caster->CastSpell(_target->ToUnit(), SPELL_MISTRESS_KISS_DEBUFF, true);
+                }
+            }
+
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_mistress_kiss_area_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mistress_kiss_area_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
