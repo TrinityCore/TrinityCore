@@ -6359,42 +6359,41 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     {
                         for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                         {
-                        Player* Member = itr->getSource();
+                            Player* Member = itr->getSource();
 
-                        // check if it was heal by paladin which casted this beacon of light
-                        if (Aura const * aura = Member->GetAura(53563, victim->GetGUID()))
-                        {
-                            Unit* beaconTarget = Member;
-
-                            // do not proc when target of beacon of light is healed
-                            if (beaconTarget == this)
-                                return false;
-
-                            basepoints0 = int32(damage);
-                            triggered_spell_id = 53652;
-                            victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
-                            int32 percent = 0;
-                            switch (procSpell->Id)
+                            // check if it was heal by paladin which casted this beacon of light
+                            if (Aura const * aura = Member->GetAura(53563, victim->GetGUID()))
                             {
-                                case 85673: // Word of Glory
-                                case 20473: // Holy Shock
-                                case 19750: // Flash of Light
-                                case 82326: // Divine Light
-                                case 85222: // Light of Dawn
-                                    percent = triggerAmount; // 50% heal from these spells
-                                    break;
-                                case 635:   // Holy Light
-                                    percent = triggerAmount * 2; // 100% heal from Holy Light
-                                    break;
+                                // do not proc when target of beacon of light is healed
+                                if (Member == this)
+                                    return false;
+
+                                beaconTarget = Member;
+                                basepoints0 = int32(damage);
+                                triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(365)) ? 53652 : 53654;
+                                break;
                             }
-                            basepoints0 = CalculatePctN(damage, percent);
-                            victim->CastCustomSpell(beaconTarget, 53652, &basepoints0, NULL, NULL, true);
                         }
                     }
                 }
 
                 if (triggered_spell_id && beaconTarget)
                 {
+                    int32 percent = 0;
+                    switch (procSpell->Id)
+                    {
+                        case 85673: // Word of Glory
+                        case 20473: // Holy Shock
+                        case 19750: // Flash of Light
+                        case 82326: // Divine Light
+                        case 85222: // Light of Dawn
+                            percent = triggerAmount; // 50% heal from these spells
+                            break;
+                        case 635:   // Holy Light
+                            percent = triggerAmount * 2; // 100% heal from Holy Light
+                            break;
+                    }
+                    basepoints0 = CalculatePctN(damage, percent);
                     victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
                     return true;
                 } 
