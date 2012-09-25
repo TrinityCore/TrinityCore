@@ -291,6 +291,7 @@ void ScriptMgr::Unload()
     SCR_CLEAR(PlayerScript);
     SCR_CLEAR(GuildScript);
     SCR_CLEAR(GroupScript);
+    SCR_CLEAR(UnitScript);
 
     #undef SCR_CLEAR
 }
@@ -1414,6 +1415,27 @@ void ScriptMgr::OnGroupDisband(Group* group)
     FOREACH_SCRIPT(GroupScript)->OnDisband(group);
 }
 
+uint32 ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32 damage)
+{
+    FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
+        damage = itr->second->ModifyPeriodicDamageAurasTick(target, attacker, damage);
+    return damage;
+}
+
+uint32 ScriptMgr::ModifyMeleeDamage(Unit* target, Unit* attacker, int32 damage)
+{
+    FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
+        damage = itr->second->ModifyMeleeDamage(target, attacker, damage);
+    return damage;
+}
+
+uint32 ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32 damage)
+{
+    FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
+        damage = itr->second->ModifySpellDamageTaken(target, attacker, damage);
+    return damage;
+}
+
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
@@ -1436,6 +1458,12 @@ FormulaScript::FormulaScript(const char* name)
     : ScriptObject(name)
 {
     ScriptRegistry<FormulaScript>::AddScript(this);
+}
+
+UnitScript::UnitScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<UnitScript>::AddScript(this);
 }
 
 WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
@@ -1596,6 +1624,7 @@ template class ScriptRegistry<AchievementCriteriaScript>;
 template class ScriptRegistry<PlayerScript>;
 template class ScriptRegistry<GuildScript>;
 template class ScriptRegistry<GroupScript>;
+template class ScriptRegistry<UnitScript>;
 
 // Undefine utility macros.
 #undef GET_SCRIPT_RET

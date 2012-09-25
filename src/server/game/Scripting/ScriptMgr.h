@@ -344,6 +344,34 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
         virtual void OnUpdate(TMap* /*map*/, uint32 /*diff*/) { }
 };
 
+class UnitScript : public ScriptObject
+{
+    protected:
+
+        UnitScript(const char* name);
+
+    public:
+
+        virtual uint32 ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32 damage) 
+        {
+            if(!target->isAlive() || !attacker->isAlive())
+                return 0;
+            return damage; 
+        }
+        virtual uint32 ModifyMeleeDamage(Unit* target, Unit* attacker, int32 damage)
+        {
+            if(!target->isAlive() || !attacker->isAlive())
+                return 0;
+            return damage; 
+        }
+        virtual uint32 ModifySpellDamageTaken(Unit* target, Unit* attacker, int32 damage)
+        {
+            if(!target->isAlive() || !attacker->isAlive())
+                return 0;
+            return damage; 
+        }
+};
+
 class WorldMapScript : public ScriptObject, public MapScript<Map>
 {
     protected:
@@ -1033,6 +1061,12 @@ class ScriptMgr
         void OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason);
         void OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnGroupDisband(Group* group);
+        
+    public:
+    
+        uint32 ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32 damage);
+        uint32 ModifyMeleeDamage(Unit* target, Unit* attacker, int32 damage);
+        uint32 ModifySpellDamageTaken(Unit* target, Unit* attacker, int32 damage);
 
     public: /* Scheduled scripts */
 
