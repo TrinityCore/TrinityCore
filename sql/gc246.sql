@@ -279,6 +279,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=62392;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62392, 'spell_thorim_lightning_destruction');
 
+-- Thorim Runic Fortification
+DELETE FROM `spell_script_names` WHERE `spell_id`=62942;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62942, 'spell_thorim_runic_fortification');
+
 -- XT002
 -- Add additional target selection script, i.e. a SpellScript that is used aside the AuraScript that already got attached to
 -- these spells.
@@ -519,6 +524,9 @@ DELETE FROM `creature` WHERE `id`=33121;
 
 -- Auriaya Sanctum Sentries are spawned via scripts
 DELETE FROM `creature` WHERE `id`=34014;
+
+-- Thorim tunnel adds are spawned via scripts
+DELETE FROM `creature` WHERE `id` IN (33110, 32874, 32875);
 
 -- Achievement "Firefighter" (3180 / 3189)
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10450, 10463);

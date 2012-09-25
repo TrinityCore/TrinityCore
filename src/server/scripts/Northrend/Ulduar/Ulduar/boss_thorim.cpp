@@ -284,7 +284,7 @@ class npc_thorim_controller : public CreatureScript
             {
                 gotActivated = false;
                 instance->HandleGameObject(instance->GetData64(GO_THORIM_LIGHTNING_FIELD), true); // Open the entrance door.
-                events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 1000);
+                events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 10000);
             }
 
             void JustSummoned(Creature* summon)
@@ -328,9 +328,9 @@ class npc_thorim_controller : public CreatureScript
                             if (!gotActivated)
                             {
                                 Player* player = 0;
-                                Trinity::AnyPlayerInObjectRangeCheck u_check(me, 70.0f, true);
+                                Trinity::AnyPlayerInObjectRangeCheck u_check(me, 60.0f, true);
                                 Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, u_check);
-                                me->VisitNearbyObject(70.0f, searcher);
+                                me->VisitNearbyObject(60.0f, searcher);
                                 if (player)
                                     if (!player->isGameMaster())
                                     {
@@ -360,8 +360,8 @@ class npc_thorim_controller : public CreatureScript
                                 {
                                     if (Creature* thorim = me->GetCreature(*me, instance->GetData64(BOSS_THORIM)))
                                         thorim->AI()->DoAction(ACTION_BERSERK);
+
                                     gotActivated = false;
-                                    events.ScheduleEvent(EVENT_CHECK_PLAYER_IN_RANGE, 15000);
                                     // despawn pre-arena adds
                                     std::list<Creature*> spawnList;
                                     for (uint8 i = 0; i < 6; i++)
@@ -1299,7 +1299,7 @@ class npc_runic_colossus : public CreatureScript
                 // Spawn trashes
                 summons.DespawnAll();
                 for (uint8 i = 0; i < 6; i++)
-                    me->SummonCreature(colossusAddLocations[i].entry, colossusAddLocations[i].pos.GetPositionX(), colossusAddLocations[i].pos.GetPositionX(), colossusAddLocations[i].pos.GetPositionX(),
+                    me->SummonCreature(colossusAddLocations[i].entry, colossusAddLocations[i].pos.GetPositionX(), colossusAddLocations[i].pos.GetPositionY(), colossusAddLocations[i].pos.GetPositionZ(),
                     colossusAddLocations[i].pos.GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
             }
 
@@ -1517,7 +1517,8 @@ class npc_ancient_rune_giant : public CreatureScript
                 // Spawn trashes
                 summons.DespawnAll();
                 for (uint8 i = 0; i < 5; i++)
-                    me->SummonCreature(giantAddLocations[i].entry, giantAddLocations[i].pos.GetPositionX(), giantAddLocations[i].pos.GetPositionY(), giantAddLocations[i].pos.GetPositionZ(), giantAddLocations[i].pos.GetOrientation(),TEMPSUMMON_CORPSE_TIMED_DESPAWN,3000);
+                    me->SummonCreature(giantAddLocations[i].entry, giantAddLocations[i].pos.GetPositionX(), giantAddLocations[i].pos.GetPositionY(), giantAddLocations[i].pos.GetPositionZ(),
+                    giantAddLocations[i].pos.GetOrientation(),TEMPSUMMON_CORPSE_TIMED_DESPAWN,3000);
             }
 
             void JustSummoned(Creature *summon)
@@ -1527,9 +1528,8 @@ class npc_ancient_rune_giant : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                // runic fortification causes client crash at wipe, disabled it for now
-                /*me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
-                me->AddAura(SPELL_RUNIC_FORTIFICATION, me);*/
+                me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
+                me->CastSpell(me, SPELL_RUNIC_FORTIFICATION);
             }
 
             void JustDied(Unit* /*victim*/)
@@ -1848,6 +1848,38 @@ class spell_thorim_lightning_destruction : public SpellScriptLoader
         }
 };
 
+class spell_thorim_runic_fortification : public SpellScriptLoader
+{
+    public:
+        spell_thorim_runic_fortification() : SpellScriptLoader("spell_thorim_runic_fortification") { }
+
+        class spell_thorim_runic_fortification_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_thorim_runic_fortification_AuraScript);
+
+            bool CheckAreaTarget(Unit* target)
+            {
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                {
+                    for (uint8 i = 0; i < 8; i++)
+                        if (target->GetEntry() == ArenaAddEntries[i])
+                            return true;
+                }
+                return false;
+            }
+
+            void Register()
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_thorim_runic_fortification_AuraScript::CheckAreaTarget);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_thorim_runic_fortification_AuraScript();
+        }
+};
+
 class go_thorim_lever : public GameObjectScript
 {
     public:
@@ -1880,6 +1912,7 @@ void AddSC_boss_thorim()
     new spell_thorim_berserk();
     new spell_thorim_charge_orb_targeting();
     new spell_thorim_lightning_destruction();
+    new spell_thorim_runic_fortification();
     new go_thorim_lever();
 }
 
