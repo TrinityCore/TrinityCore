@@ -2,6 +2,7 @@
 build*/
 .directory
 .mailmap
+.c9revisions
 *.orig
 *.rej
 *~
