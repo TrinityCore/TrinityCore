@@ -1415,25 +1415,20 @@ void ScriptMgr::OnGroupDisband(Group* group)
     FOREACH_SCRIPT(GroupScript)->OnDisband(group);
 }
 
-uint32 ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32 damage)
+// Unit
+void ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage)
 {
-    FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
-        damage = itr->second->ModifyPeriodicDamageAurasTick(target, attacker, damage);
-    return damage;
+    FOREACH_SCRIPT(UnitScript)->ModifyPeriodicDamageAurasTick(target, attacker, damage);
 }
 
-uint32 ScriptMgr::ModifyMeleeDamage(Unit* target, Unit* attacker, int32 damage)
+void ScriptMgr::ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage)
 {
-    FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
-        damage = itr->second->ModifyMeleeDamage(target, attacker, damage);
-    return damage;
+    FOREACH_SCRIPT(UnitScript)->ModifyMeleeDamage(target, attacker, damage);
 }
 
-uint32 ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32 damage)
+void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage)
 {
-    FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
-        damage = itr->second->ModifySpellDamageTaken(target, attacker, damage);
-    return damage;
+    FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(target, attacker, damage);
 }
 
 SpellScriptLoader::SpellScriptLoader(const char* name)

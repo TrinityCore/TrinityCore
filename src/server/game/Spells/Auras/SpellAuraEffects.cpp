@@ -6174,7 +6174,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     uint32 damage = std::max(GetAmount(), 0);
 
     //Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
-    damage = sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+    sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
 
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {

@@ -352,23 +352,20 @@ class UnitScript : public ScriptObject
 
     public:
 
-        virtual uint32 ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32 damage) 
+        virtual void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage)
         {
             if(!target->isAlive() || !attacker->isAlive())
-                return 0;
-            return damage; 
+                damage = 0;
         }
-        virtual uint32 ModifyMeleeDamage(Unit* target, Unit* attacker, int32 damage)
+        virtual void ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage)
         {
             if(!target->isAlive() || !attacker->isAlive())
-                return 0;
-            return damage; 
+                damage = 0;
         }
-        virtual uint32 ModifySpellDamageTaken(Unit* target, Unit* attacker, int32 damage)
+        virtual void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage)
         {
             if(!target->isAlive() || !attacker->isAlive())
-                return 0;
-            return damage; 
+                damage = 0;
         }
 };
 
@@ -1061,12 +1058,12 @@ class ScriptMgr
         void OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason);
         void OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnGroupDisband(Group* group);
-        
+
     public:
-    
-        uint32 ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32 damage);
-        uint32 ModifyMeleeDamage(Unit* target, Unit* attacker, int32 damage);
-        uint32 ModifySpellDamageTaken(Unit* target, Unit* attacker, int32 damage);
+
+        void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage);
+        void ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage);
+        void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
 
     public: /* Scheduled scripts */
 
