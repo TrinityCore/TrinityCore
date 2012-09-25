@@ -29,8 +29,7 @@ typedef std::map<uint32, Battleground*> BattlegroundSet;
 
 typedef UNORDERED_MAP<uint32, BattlegroundTypeId> BattleMastersMap;
 
-#define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
-#define WS_ARENA_DISTRIBUTION_TIME 20001                    // Custom worldstate
+#define WS_CURRENCY_RESET_TIME 20001                    // Custom worldstate
 
 struct CreateBattlegroundData
 {
@@ -105,7 +104,6 @@ class BattlegroundMgr
         uint32 GetRatingDiscardTimer()  const;
         uint32 GetPrematureFinishTime() const;
 
-        void InitAutomaticArenaPointDistribution();
         void ToggleArenaTesting();
         void ToggleTesting();
 
@@ -142,8 +140,6 @@ class BattlegroundMgr
         std::vector<uint64> m_QueueUpdateScheduler;
         std::set<uint32> m_ClientBattlegroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; //the instanceids just visible for the client
         uint32 m_NextRatedArenaUpdate;
-        time_t m_NextAutoDistributionTime;
-        uint32 m_AutoDistributionTimeChecker;
         bool   m_ArenaTesting;
         bool   m_Testing;
 };

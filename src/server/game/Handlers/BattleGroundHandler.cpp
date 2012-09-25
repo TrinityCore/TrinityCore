@@ -825,3 +825,57 @@ void WorldSession::HandleReportPvPAFK(WorldPacket & recvData)
 
     reportedPlayer->ReportedAfkBy(_player);
 }
+
+void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_BG_INFO");
+
+    uint8 unk;
+    recvData >> unk;
+
+    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleRequestRatedBgInfo: get unk = %u", unk);
+
+    /// @Todo: perfome research in this case
+    WorldPacket data(SMSG_RATED_BG_STATS, 72);
+    for (int32 i = 0; i < 18; ++i)
+        data << uint32(0);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
+
+    /// @Todo: perfome research in this case
+    WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
+    data.WriteBit(1);
+    data.WriteBit(1);
+    data.WriteBit(1);
+    data.WriteBit(1);
+    data.WriteBit(1);
+    data.FlushBits();
+    SendPacket(&data);
+}
+
+void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_REWARDS");
+
+    _player->SendPvpRewards();
+}
+
+void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_BG_STATS");
+
+    WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 29);
+    data << uint32(0);  //rating
+    data << uint8(3);   //unk
+    data << uint32(0);  //unk1
+    data << uint32(0);  //unk2
+    data << _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG, true);
+    data << uint32(0);  //unk3
+    data << uint32(0);  //unk4
+    data << _player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    SendPacket(&data);
+}
