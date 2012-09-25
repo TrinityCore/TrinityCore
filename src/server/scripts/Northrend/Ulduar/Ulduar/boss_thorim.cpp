@@ -328,9 +328,9 @@ class npc_thorim_controller : public CreatureScript
                             if (!gotActivated)
                             {
                                 Player* player = 0;
-                                Trinity::AnyPlayerInObjectRangeCheck u_check(me, 60.0f, true);
+                                Trinity::AnyPlayerInObjectRangeCheck u_check(me, 50.0f, true);
                                 Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, u_check);
-                                me->VisitNearbyObject(60.0f, searcher);
+                                me->VisitNearbyObject(50.0f, searcher);
                                 if (player)
                                     if (!player->isGameMaster())
                                     {
