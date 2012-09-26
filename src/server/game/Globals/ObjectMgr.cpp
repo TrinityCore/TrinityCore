@@ -8662,18 +8662,18 @@ void ObjectMgr::LoadPhaseDefinitions()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phasing definitions in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadSpellPhaseDbcInfo()
+void ObjectMgr::LoadSpellPhaseInfo()
 {
-    _SpellPhaseDBCStore.clear();
+    _SpellPhaseStore.clear();
 
     uint32 oldMSTime = getMSTime();
 
     //                                               0       1            2
-    QueryResult result = WorldDatabase.Query("SELECT id, phasemask, terrainswapmap FROM `spell_phase_dbc`");
+    QueryResult result = WorldDatabase.Query("SELECT id, phasemask, terrainswapmap FROM `spell_phase`");
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell dbc infos. DB table `spell_phase_dbc` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell dbc infos. DB table `spell_phase` is empty.");
         return;
     }
 
@@ -8688,20 +8688,20 @@ void ObjectMgr::LoadSpellPhaseDbcInfo()
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellPhaseInfo.spellId);
         if (!spell)
         {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u defined in `spell_phase_dbc` does not exists, skipped.", spellPhaseInfo.spellId);
+            sLog->outError(LOG_FILTER_SQL, "Spell %u defined in `spell_phase` does not exists, skipped.", spellPhaseInfo.spellId);
             continue;
         }
 
         if (!spell->HasAura(SPELL_AURA_PHASE))
         {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u defined in `spell_phase_dbc` does not have aura effect type SPELL_AURA_PHASE, useless value.", spellPhaseInfo.spellId);
+            sLog->outError(LOG_FILTER_SQL, "Spell %u defined in `spell_phase` does not have aura effect type SPELL_AURA_PHASE, useless value.", spellPhaseInfo.spellId);
             continue;
         }
 
         spellPhaseInfo.phasemask              = fields[1].GetUInt32();
         spellPhaseInfo.terrainswapmap         = fields[2].GetUInt32();
 
-        _SpellPhaseDBCStore[spellPhaseInfo.spellId] = spellPhaseInfo;
+        _SpellPhaseStore[spellPhaseInfo.spellId] = spellPhaseInfo;
 
         ++count;
     }

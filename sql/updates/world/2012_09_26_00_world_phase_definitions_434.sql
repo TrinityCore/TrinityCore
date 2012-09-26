@@ -25,8 +25,8 @@ INSERT INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `ter
 (1637, 4, 1025, 0,   0,   0, 'Orgrimmar: [H] Warchiefs Command: Uldum'),
 (1637, 5, 2049, 0,   0,   0, 'Orgrimmar: [H] Warchiefs Command: Twilight Highlands');
 
-DROP TABLE IF EXISTS `spell_phase_dbc`;
-CREATE TABLE `spell_phase_dbc` (
+DROP TABLE IF EXISTS `spell_phase`;
+CREATE TABLE `spell_phase` (
   `id` mediumint(7) unsigned NOT NULL DEFAULT '0',
   `phasemask` bigint(20) unsigned NOT NULL DEFAULT '1',
   `terrainswapmap` smallint(5) unsigned NOT NULL DEFAULT '0',

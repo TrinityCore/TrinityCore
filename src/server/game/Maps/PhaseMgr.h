@@ -67,7 +67,7 @@ struct SpellPhaseInfo
     uint32 terrainswapmap;
 };
 
-typedef UNORDERED_MAP<uint32 /*spellId*/, SpellPhaseInfo> SpellPhaseDBCStore;
+typedef UNORDERED_MAP<uint32 /*spellId*/, SpellPhaseInfo> SpellPhaseStore;
 
 struct PhaseInfo
 {
@@ -163,7 +163,7 @@ private:
     inline bool IsUpdateInProgress() const { return (_UpdateFlags & PHASE_UPDATE_FLAG_ZONE_UPDATE) || (_UpdateFlags & PHASE_UPDATE_FLAG_AREA_UPDATE); }
 
     PhaseDefinitionStore const* _PhaseDefinitionStore;
-    SpellPhaseDBCStore const* _SpellPhaseDBCStore;
+    SpellPhaseStore const* _SpellPhaseStore;
 
     Player* player;
     PhaseData phaseData;

@@ -24,7 +24,7 @@
 PhaseMgr::PhaseMgr(Player* _player) : player(_player), phaseData(_player), _UpdateFlags(0)
 {
     _PhaseDefinitionStore = sObjectMgr->GetPhaseDefinitionStore();
-    _SpellPhaseDBCStore = sObjectMgr->GetSpellPhaseDBCStore();
+    _SpellPhaseStore = sObjectMgr->GetSpellPhaseStore();
 }
 
 void PhaseMgr::Update()
@@ -137,8 +137,8 @@ void PhaseMgr::RegisterPhasingAuraEffect(AuraEffect const* auraEffect)
     }
     else
     {
-        SpellPhaseDBCStore::const_iterator itr = _SpellPhaseDBCStore->find(auraEffect->GetId());
-        if (itr != _SpellPhaseDBCStore->end())
+        SpellPhaseStore::const_iterator itr = _SpellPhaseStore->find(auraEffect->GetId());
+        if (itr != _SpellPhaseStore->end())
         {
             if (itr->second.phasemask)
             {
