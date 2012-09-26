@@ -124,7 +124,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
-    CONDITION_SOURCE_TYPE_MAX                            = 23  //MAX
+    CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 23,
+    CONDITION_SOURCE_TYPE_MAX                            = 24  //MAX
 };
 
 enum ComparisionType
@@ -211,6 +212,7 @@ typedef std::map<uint32, ConditionList> ConditionTypeContainer;
 typedef std::map<ConditionSourceType, ConditionTypeContainer> ConditionContainer;
 typedef std::map<uint32, ConditionTypeContainer> CreatureSpellConditionContainer;
 typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
+typedef std::map<int32 /*zoneId*/, ConditionTypeContainer> PhaseDefinitionConditionContainer;
 
 typedef std::map<uint32, ConditionList> ConditionReferenceContainer;//only used for references
 
@@ -237,6 +239,7 @@ class ConditionMgr
         ConditionList GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId);
         ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId);
+        ConditionList GetConditionsForPhaseDefinition(uint32 zone, uint32 entry);
 
     private:
         bool isSourceTypeValid(Condition* cond);
@@ -254,6 +257,7 @@ class ConditionMgr
         CreatureSpellConditionContainer   VehicleSpellConditionStore;
         CreatureSpellConditionContainer   SpellClickEventConditionStore;
         SmartEventConditionContainer      SmartEventConditionStore;
+        PhaseDefinitionConditionContainer PhaseDefinitionsConditionStore;
 };
 
 template <class T> bool CompareValues(ComparisionType type,  T val1, T val2)

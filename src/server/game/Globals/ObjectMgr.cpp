@@ -8618,6 +8618,97 @@ void ObjectMgr::LoadHotfixData()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadPhaseDefinitions()
+{
+    _PhaseDefinitionStore.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    //                                                 0       1       2         3            4           5
+    QueryResult result = WorldDatabase.Query("SELECT zoneId, entry, phasemask, phaseId, terrainswapmap, flags FROM `phase_definitions` ORDER BY `entry` ASC");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 phasing definitions. DB table `phase_definitions` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field *fields = result->Fetch();
+
+        PhaseDefinition PhaseDefinition;
+
+        PhaseDefinition.zoneId                = fields[0].GetUInt32();
+        PhaseDefinition.entry                 = fields[1].GetUInt32();
+        PhaseDefinition.phasemask             = fields[2].GetUInt32();
+        PhaseDefinition.phaseId               = fields[3].GetUInt32();
+        PhaseDefinition.terrainswapmap        = fields[4].GetUInt32();
+        PhaseDefinition.flags                 = fields[5].GetUInt32();
+
+        // Checks
+        if ((PhaseDefinition.flags & PHASE_FLAG_OVERWRITE_EXISTING) && (PhaseDefinition.flags & PHASE_FLAG_NEGATE_PHASE))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Flags defined in phase_definitions in zoneId %d and entry %u does contain PHASE_FLAG_OVERWRITE_EXISTING and PHASE_FLAG_NEGATE_PHASE. Setting flags to PHASE_FLAG_OVERWRITE_EXISTING", PhaseDefinition.zoneId, PhaseDefinition.entry);
+            PhaseDefinition.flags &= ~PHASE_FLAG_NEGATE_PHASE;
+        }
+
+        _PhaseDefinitionStore[PhaseDefinition.zoneId].push_back(PhaseDefinition);
+
+        ++count;
+    }
+    while (result->NextRow());
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phasing definitions in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadSpellPhaseDbcInfo()
+{
+    _SpellPhaseDBCStore.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0       1            2
+    QueryResult result = WorldDatabase.Query("SELECT id, phasemask, terrainswapmap FROM `spell_phase_dbc`");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell dbc infos. DB table `spell_phase_dbc` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field *fields = result->Fetch();
+
+        SpellPhaseInfo spellPhaseInfo;
+        spellPhaseInfo.spellId                = fields[0].GetUInt32();
+
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellPhaseInfo.spellId);
+        if (!spell)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Spell %u defined in `spell_phase_dbc` does not exists, skipped.", spellPhaseInfo.spellId);
+            continue;
+        }
+
+        if (!spell->HasAura(SPELL_AURA_PHASE))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Spell %u defined in `spell_phase_dbc` does not have aura effect type SPELL_AURA_PHASE, useless value.", spellPhaseInfo.spellId);
+            continue;
+        }
+
+        spellPhaseInfo.phasemask              = fields[1].GetUInt32();
+        spellPhaseInfo.terrainswapmap         = fields[2].GetUInt32();
+
+        _SpellPhaseDBCStore[spellPhaseInfo.spellId] = spellPhaseInfo;
+
+        ++count;
+    }
+    while (result->NextRow());
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell dbc infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 {
     GameObjectTemplateContainer::const_iterator itr = _gameObjectTemplateStore.find(entry);
