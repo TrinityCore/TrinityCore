@@ -450,3 +450,14 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         }
     }
 }
+
+void InstanceScript::UpdatePhasing()
+{
+    PhaseUpdateData phaseUdateData;
+    phaseUdateData.AddConditionType(CONDITION_INSTANCE_DATA);
+
+    Map::PlayerList const& players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        if (Player* player = itr->getSource())
+            player->GetPhaseMgr().NotifyConditionChanged(phaseUdateData);
+}
