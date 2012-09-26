@@ -4,7 +4,7 @@
 /**
  *  @file    Dynamic_Message_Strategy.h
  *
- *  $Id: Dynamic_Message_Strategy.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Dynamic_Message_Strategy.h 95839 2012-06-07 10:13:33Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -43,17 +43,15 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * priority field of 10 bits.  This corresponds to the initial
  * values of the static class members.  To provide a different
  * partitioning, assign a different set of values to the static
- * class memebers before using the static member functions.
+ * class members before using the static member functions.
  */
 class ACE_Export ACE_Dynamic_Message_Strategy
 {
 public:
 
-  // = Message priority status
-
-  // Values are defined as bit flags so that status combinations may
-  // be specified easily.
-
+  /// Message priority status
+  /// Values are defined as bit flags so that status combinations may
+  /// be specified easily.
   enum Priority_Status
   {
     /// Message can still make its deadline
@@ -154,13 +152,13 @@ protected:
 class ACE_Export ACE_Deadline_Message_Strategy : public ACE_Dynamic_Message_Strategy
 {
 public:
-  /// Ctor, with all arguments defaulted.
+  /// Constructor with all arguments defaulted.
   ACE_Deadline_Message_Strategy (unsigned long static_bit_field_mask = 0x3FFUL,       // 2^(10) - 1
                                  unsigned long static_bit_field_shift = 10,           // 10 low order bits
                                  unsigned long dynamic_priority_max = 0x3FFFFFUL,     // 2^(22)-1
                                  unsigned long dynamic_priority_offset = 0x200000UL); // 2^(22-1)
 
-  /// Virtual dtor.
+  /// Virtual destructor.
   virtual ~ACE_Deadline_Message_Strategy (void);
 
   /// Dynamic priority conversion function based on time to deadline.

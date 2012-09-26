@@ -215,11 +215,7 @@ class npc_announcer_toc10 : public CreatureScript
                         return true;
 
                     if (GameObject* floor = GameObject::GetGameObject(*player, instanceScript->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
-                    {
-                        floor->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
-                        floor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
-                        floor->SetGoState(GO_STATE_ACTIVE);
-                    }
+                        floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
 
                     creature->CastSpell(creature, SPELL_CORPSE_TELEPORT, false);
                     creature->CastSpell(creature, SPELL_DESTROY_FLOOR_KNOCKUP, false);
@@ -354,7 +350,8 @@ class boss_lich_king_toc : public CreatureScript
                                 if (!temp || !temp->isAlive())
                                     temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
-                                instance->SetData(TYPE_EVENT, 0);
+                            instance->SetData(TYPE_EVENT, 0);
+
                             }
                             me->DespawnOrUnsummon();
                             m_uiUpdateTimer = 20000;
@@ -621,12 +618,6 @@ class npc_tirion_toc : public CreatureScript
                                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                     temp->SetReactState(REACT_PASSIVE);
                                 }
-                                if (Creature* temp = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
-                                {
-                                    temp->SetVisible(true);
-                                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    temp->SetReactState(REACT_PASSIVE);
-                                }
                             }
                             m_uiUpdateTimer = 5000;
                             instance->SetData(TYPE_EVENT, 220);
@@ -758,12 +749,12 @@ class npc_tirion_toc : public CreatureScript
                             instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                             if (Creature* temp = Unit::GetCreature((*me), instance->GetData64(NPC_LIGHTBANE)))
                             {
-                                temp->GetMotionMaster()->MovePath(NPC_LIGHTBANE, false);
+                                temp->GetMotionMaster()->MovePoint(1, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
                                 temp->SetVisible(true);
                             }
                             if (Creature* temp = Unit::GetCreature((*me), instance->GetData64(NPC_DARKBANE)))
                             {
-                                temp->GetMotionMaster()->MovePath(NPC_DARKBANE, false);
+                                temp->GetMotionMaster()->MovePoint(1, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ());
                                 temp->SetVisible(true);
                             }
                             m_uiUpdateTimer = 10000;

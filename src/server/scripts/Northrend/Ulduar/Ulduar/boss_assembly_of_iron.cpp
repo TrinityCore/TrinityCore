@@ -144,33 +144,34 @@ enum AssemblyActions
     ACTION_UPDATEPHASE          = 4
 };
 
-enum AssemblyYells
+enum SteelBreakerYells
 {
-    SAY_STEELBREAKER_AGGRO   = -1603020,
-    SAY_STEELBREAKER_SLAY_1  = -1603021,
-    SAY_STEELBREAKER_SLAY_2  = -1603022,
-    SAY_STEELBREAKER_POWER   = -1603023,
-    SAY_STEELBREAKER_DEATH_1 = -1603024,
-    SAY_STEELBREAKER_DEATH_2 = -1603025,
-    SAY_STEELBREAKER_BERSERK = -1603026,
+    SAY_STEELBREAKER_AGGRO      = 0,
+    SAY_STEELBREAKER_SLAY       = 1,
+    SAY_STEELBREAKER_POWER      = 2,
+    SAY_STEELBREAKER_DEATH      = 3,
+    SAY_STEELBREAKER_BERSERK    = 4,
+};
 
-    SAY_MOLGEIM_AGGRO        = -1603030,
-    SAY_MOLGEIM_SLAY_1       = -1603031,
-    SAY_MOLGEIM_SLAY_2       = -1603032,
-    SAY_MOLGEIM_RUNE_DEATH   = -1603033,
-    SAY_MOLGEIM_SUMMON       = -1603034,
-    SAY_MOLGEIM_DEATH_1      = -1603035,
-    SAY_MOLGEIM_DEATH_2      = -1603036,
-    SAY_MOLGEIM_BERSERK      = -1603037,
+enum MolgeimYells
+{
+    SAY_MOLGEIM_AGGRO           = 0,
+    SAY_MOLGEIM_SLAY            = 1,
+    SAY_MOLGEIM_RUNE_DEATH      = 2,
+    SAY_MOLGEIM_SUMMON          = 3,
+    SAY_MOLGEIM_DEATH           = 4,
+    SAY_MOLGEIM_BERSERK         = 5,
+};
 
-    SAY_BRUNDIR_AGGRO        = -1603040,
-    SAY_BRUNDIR_SLAY_1       = -1603041,
-    SAY_BRUNDIR_SLAY_2       = -1603042,
-    SAY_BRUNDIR_SPECIAL      = -1603043,
-    SAY_BRUNDIR_FLIGHT       = -1603044,
-    SAY_BRUNDIR_DEATH_1      = -1603045,
-    SAY_BRUNDIR_DEATH_2      = -1603046,
-    SAY_BRUNDIR_BERSERK      = -1603047
+enum BrundirYells
+{
+    SAY_BRUNDIR_AGGRO           = 0,
+    SAY_BRUNDIR_SLAY            = 1,
+    SAY_BRUNDIR_SPECIAL         = 2,
+    SAY_BRUNDIR_FLIGHT          = 3,
+    SAY_BRUNDIR_DEATH           = 4,
+    SAY_BRUNDIR_BERSERK         = 5,
+    EMOTE_OVERLOAD              = 6
 };
 
 enum AssemblyNPCs
@@ -191,7 +192,6 @@ enum Data
     DATA_CANT_DO_THAT_WHILE_STUNNED
 };
 
-#define EMOTE_OVERLOAD  "Stormcaller Brundir begins to Overload!" // Move it to DB
 #define FLOOR_Z         427.28f
 #define FINAL_FLIGHT_Z  435.0f
 
@@ -335,7 +335,7 @@ class boss_steelbreaker : public CreatureScript
                 DoCast(me, SPELL_HIGH_VOLTAGE);
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
-                DoScriptText(SAY_STEELBREAKER_AGGRO, me);
+                Talk(SAY_STEELBREAKER_AGGRO);
                 DoAction(ACTION_UPDATEPHASE);
             }
 
@@ -378,7 +378,7 @@ class boss_steelbreaker : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_STEELBREAKER_DEATH_1, SAY_STEELBREAKER_DEATH_2), me);
+                Talk(SAY_STEELBREAKER_DEATH);
                 if (IsEncounterComplete(instance, me))
                 {
                     _JustDied();
@@ -396,7 +396,8 @@ class boss_steelbreaker : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_STEELBREAKER_SLAY_1, SAY_STEELBREAKER_SLAY_2), me);
+                if (!urand(0,5))
+                    Talk(SAY_STEELBREAKER_SLAY);
 
                 if (phase == 3)
                     DoCast(me, SPELL_ELECTRICAL_CHARGE);
@@ -489,7 +490,7 @@ class boss_steelbreaker : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ENRAGE:
-                            DoScriptText(SAY_STEELBREAKER_BERSERK, me);
+                            Talk(SAY_STEELBREAKER_BERSERK);
                             DoCast(SPELL_BERSERK);
                             return;
                         case EVENT_FUSION_PUNCH:
@@ -505,7 +506,7 @@ class boss_steelbreaker : public CreatureScript
                         case EVENT_OVERWHELMING_POWER:
                             if (me->getVictim() && !me->getVictim()->HasAura(SPELL_OVERWHELMING_POWER))
                             {
-                                DoScriptText(SAY_STEELBREAKER_POWER, me);
+                                Talk(SAY_STEELBREAKER_POWER);
                                 DoCastVictim(SPELL_OVERWHELMING_POWER);
                                 events.ScheduleEvent(EVENT_OVERWHELMING_POWER, RAID_MODE(60000, 35000));
                             }
@@ -634,7 +635,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 30000);
                 events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20000);
-                DoScriptText(SAY_MOLGEIM_AGGRO, me);
+                Talk(SAY_MOLGEIM_AGGRO);
                 DoAction(ACTION_UPDATEPHASE);
             }
 
@@ -667,7 +668,7 @@ class boss_runemaster_molgeim : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_MOLGEIM_DEATH_1, SAY_MOLGEIM_DEATH_2), me);
+                Talk(SAY_MOLGEIM_DEATH);
                 if (IsEncounterComplete(instance, me))
                 {
                     _JustDied();
@@ -690,7 +691,8 @@ class boss_runemaster_molgeim : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_MOLGEIM_SLAY_1, SAY_MOLGEIM_SLAY_2), me);
+                if (!urand(0,5))
+                    Talk(SAY_MOLGEIM_SLAY);
             }
 
             void SpellHit(Unit* /*from*/, SpellInfo const* spell)
@@ -723,7 +725,7 @@ class boss_runemaster_molgeim : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ENRAGE:
-                            DoScriptText(SAY_MOLGEIM_BERSERK, me);
+                            Talk(SAY_MOLGEIM_BERSERK);
                             DoCast(SPELL_BERSERK);
                             break;
                         case EVENT_RUNE_OF_POWER:
@@ -738,13 +740,13 @@ class boss_runemaster_molgeim : public CreatureScript
                             events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, urand(27000, 34000));
                             break;
                         case EVENT_RUNE_OF_DEATH:
-                            DoScriptText(SAY_MOLGEIM_RUNE_DEATH, me);
+                            Talk(SAY_MOLGEIM_RUNE_DEATH);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_RUNE_OF_DEATH);
                             events.ScheduleEvent(EVENT_RUNE_OF_DEATH, urand(30000, 40000));
                             break;
                         case EVENT_RUNE_OF_SUMMONING:
-                            DoScriptText(SAY_MOLGEIM_SUMMON, me);
+                            Talk(SAY_MOLGEIM_SUMMON);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_RUNE_OF_SUMMONING);
                             events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(35000, 45000));
@@ -934,7 +936,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4000);
                 events.ScheduleEvent(EVENT_OVERLOAD, urand(40000, 80000));
                 events.ScheduleEvent(EVENT_THREAT_WIPE, 10000);
-                DoScriptText(SAY_BRUNDIR_AGGRO, me);
+                Talk(SAY_BRUNDIR_AGGRO);
                 DoAction(ACTION_UPDATEPHASE);
             }
 
@@ -995,7 +997,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_BRUNDIR_DEATH_1, SAY_BRUNDIR_DEATH_2), me);
+                Talk(SAY_BRUNDIR_DEATH);
                 if (IsEncounterComplete(instance, me))
                 {
                     _JustDied();
@@ -1017,7 +1019,8 @@ class boss_stormcaller_brundir : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_BRUNDIR_SLAY_1, SAY_BRUNDIR_SLAY_2), me);
+                if (!urand(0,5))
+                    Talk(SAY_BRUNDIR_SLAY);
             }
 
             void SpellHit(Unit* /*from*/, SpellInfo const* spell)
@@ -1049,7 +1052,7 @@ class boss_stormcaller_brundir : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ENRAGE:
-                            DoScriptText(SAY_BRUNDIR_BERSERK, me);
+                            Talk(SAY_BRUNDIR_BERSERK);
                             DoCast(SPELL_BERSERK);
                             return;
                         case EVENT_CHAIN_LIGHTNING:
@@ -1058,8 +1061,8 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(5000, 7000));
                             return;
                         case EVENT_OVERLOAD:
-                            me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
-                            DoScriptText(SAY_BRUNDIR_SPECIAL, me);
+                            Talk(EMOTE_OVERLOAD);
+                            Talk(SAY_BRUNDIR_SPECIAL);
                             DoCast(SPELL_OVERLOAD);
                             events.ScheduleEvent(EVENT_OVERLOAD, urand(40000, 80000));
                             return;
@@ -1078,7 +1081,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             return;
                         case EVENT_LIGHTNING_TENDRILS_START:
                             me->SetSpeed(MOVE_RUN, 0.7f);
-                            DoScriptText(SAY_BRUNDIR_FLIGHT, me);
+                            Talk(SAY_BRUNDIR_FLIGHT);
                             DoCast(SPELL_LIGHTNING_TENDRILS);
                             DoCast(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             me->AttackStop();

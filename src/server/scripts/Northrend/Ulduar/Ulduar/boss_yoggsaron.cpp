@@ -19,68 +19,64 @@
 #include "ulduar.h"
 #include <limits>
 
-enum Sara_Yells
+enum SaraYells
 {
-    SAY_SARA_PREFIGHT_1                         = -1603310,
-    SAY_SARA_PREFIGHT_2                         = -1603311,
-    SAY_SARA_AGGRO_1                            = -1603312,
-    SAY_SARA_AGGRO_2                            = -1603313,
-    SAY_SARA_AGGRO_3                            = -1603314,
-    SAY_SARA_SLAY_1                             = -1603315,
-    SAY_SARA_SLAY_2                             = -1603316,
-    WHISP_SARA_INSANITY                         = -1603317,
-    SAY_SARA_PHASE2_1                           = -1603318,
-    SAY_SARA_PHASE2_2                           = -1603319
+    SAY_SARA_PREFIGHT                           = 0,
+    SAY_SARA_AGGRO                              = 1,
+    SAY_SARA_PHASE1                             = 2,
+    SAY_SARA_PHASE2                             = 3,
+    SAY_SARA_SLAY                               = 4,
+    SAY_SARA_PHASE2_1                           = 5,
+    SAY_SARA_PHASE2_2                           = 6,
+    SAY_SARA_PHASE2_3                           = 7,
+    SAY_SARA_PHASE2_4                           = 8,
 };
 
 enum KeepersHelpSays
 {
-    SAY_FREYA_HELP                              = -1603189,
-    SAY_MIMIRON_HELP                            = -1603259,
-    SAY_THORIM_HELP                             = -1603287,
-    SAY_HODIR_HELP                              = -1603217
+    SAY_FREYA_HELP                              = 0,
+    SAY_MIMIRON_HELP                            = 0,
+    SAY_THORIM_HELP                             = 0,
+    SAY_HODIR_HELP                              = 0
 };
 
-enum YoggSaron_Yells
+enum YoggSaronYells
 {
-    SAY_PHASE2_1                                = -1603330,
-    SAY_PHASE2_2                                = -1603331,
-    SAY_PHASE2_3                                = -1603332,
-    SAY_PHASE2_4                                = -1603333,
-    SAY_PHASE2_5                                = -1603334,
-    SAY_PHASE3                                  = -1603335,
-    SAY_VISION                                  = -1603336,
-    SAY_SLAY                                    = -1603337,
-    SAY_DEAFENING_ROAR                          = -1603338,
-    WHISP_INSANITY_1                            = -1603339,
-    WHISP_INSANITY_2                            = -1603340,
-    SAY_DEATH                                   = -1603341
+    SAY_PHASE3                                  = 0,
+    SAY_VISION                                  = 1,
+    SAY_PORTAL                                  = 2,
+    SAY_SLAY                                    = 3,
+    SAY_DEAFENING_ROAR                          = 4,
+    WHISP_INSANITY                              = 5,
+    SAY_DEATH                                   = 6
 };
 
-enum Vision_Says
+enum VisionSays
 {
     // King Llane
-    SAY_GARONA_1_VISION_1                       = -1603342,
-    SAY_GARONA_2_VISION_1                       = -1603343,
-    SAY_GARONA_3_VISION_1                       = -1603344,
-    SAY_YOGGSARON_4_VISION_1                    = -1603345,
-    SAY_YOGGSARON_5_VISION_1                    = -1603346,
-    SAY_LLANE_6_VISION_1                        = -1603347,
-    SAY_GARONA_7_VISION_1                       = -1603348,
-    SAY_YOGGSARON_8_VISION_1                    = -1603349,
+    SAY_YOGGSARON_1_VISION_1                = 7,
+    SAY_YOGGSARON_2_VISION_1                = 8,
+    SAY_YOGGSARON_3_VISION_1                = 9,
+    SAY_GARONA_4_VISION_1                   = 0,
+    SAY_GARONA_5_VISION_1                   = 1,
+    SAY_GARONA_6_VISION_1                   = 2,
+    SAY_KING_LLANE_7_VISION_1               = 0,
+    SAY_GARONA_8_VISION_1                   = 3,
+
     // Lichking
-    SAY_LICHKING_1_VISION_2                     = -1603350,
-    SAY_CHAMP_2_VISION_2                        = -1603351,
-    SAY_CHAMP_3_VISION_2                        = -1603352,
-    SAY_LICHKING_4_VISION_2                     = -1603353,
-    SAY_YOGGSARON_5_VISION_2                    = -1603354,
-    SAY_YOGGSARON_6_VISION_2                    = -1603355,
+    SAY_CHAMP_1_VISION_2                    = 0,
+    SAY_LICHKING_2_VISION_2                 = 0,
+    SAY_CHAMP_3_VISION_2                    = 1,
+    SAY_LICHKING_4_VISION_2                 = 1,
+    SAY_YOGGSARON_5_VISION_2                = 11,
+    SAY_YOGGSARON_6_VISION_2                = 12,
+
     // Dragon Soul
-    SAY_NELTHARION_1_VISION_3                   = -1603356,
-    SAY_YSERA_2_VISION_3                        = -1603357,
-    SAY_NELTHARION_3_VISION_3                   = -1603358,
-    SAY_MALYGOS_4_VISION_3                      = -1603359,
-    SAY_YOGGSARON_5_VISION_3                    = -1603360
+    SAY_NELTHARION_1_VISION_3               = 0,
+    SAY_YSERA_2_VISION_3                    = 0,
+    SAY_NELTHARION_3_VISION_3               = 1,
+    SAY_MALYGOS_4_VISION_3                  = 0,
+    SAY_YOGGSARON_5_VISION_3                = 10
 };
 
 enum Events
@@ -120,7 +116,6 @@ enum Achievments
 
 enum Entries
 {
-    // TODO: Those need to be spawned
     NPC_HELP_KEEPER_FREYA                       = 33241,
     NPC_HELP_KEEPER_MIMIRON                     = 33244,
     NPC_HELP_KEEPER_THORIM                      = 33242,
@@ -475,7 +470,6 @@ const Position EventNpcLocation[9] =
     { 1903.41f, -160.21f, 239.99f, 1.114f }, // Immolated Champion
     { 1909.31f, -155.88f, 239.99f, 4.222f }, // Turned Champion
     { 1907.02f, -153.92f, 239.99f, 4.187f }  // The Lich King
-
 };
 
 struct EventNPC
@@ -507,27 +501,27 @@ const uint32 EventNpcEntrys[9] =
 
 const EventSpeech EventNpcSpeaching[19] =
 {
-    {NPC_BUNNY_GARONA_VISION, SAY_GARONA_1_VISION_1, 3000, true},
-    {NPC_BUNNY_GARONA_VISION, SAY_GARONA_2_VISION_1, 5000, true},
-    {NPC_BUNNY_GARONA_VISION, SAY_GARONA_3_VISION_1, 5000, true},
-    {NPC_YOGG_SARON, SAY_YOGGSARON_4_VISION_1, 3000, true},
-    {NPC_YOGG_SARON, SAY_YOGGSARON_5_VISION_1, 3000, true},
-    {NPC_KING_LLANE, SAY_LLANE_6_VISION_1, 5000, true},
-    {NPC_BUNNY_GARONA_VISION, SAY_GARONA_7_VISION_1, 5000, true},
-    {NPC_YOGG_SARON, SAY_YOGGSARON_8_VISION_1, 5000, false},
+    {NPC_YOGG_SARON, SAY_YOGGSARON_1_VISION_1, 3000, true},
+    {NPC_YOGG_SARON, SAY_YOGGSARON_2_VISION_1, 3000, true},
+    {NPC_YOGG_SARON, SAY_YOGGSARON_3_VISION_1, 5000, true},
+    {NPC_BUNNY_GARONA_VISION, SAY_GARONA_4_VISION_1, 2000, true},
+    {NPC_BUNNY_GARONA_VISION, SAY_GARONA_5_VISION_1, 8000, true},
+    {NPC_BUNNY_GARONA_VISION, SAY_GARONA_6_VISION_1, 10000, true},
+    {NPC_KING_LLANE, SAY_KING_LLANE_7_VISION_1, 10000, true},
+    {NPC_BUNNY_GARONA_VISION, SAY_GARONA_8_VISION_1, 7000, true},
 
-    {NPC_LICHKING_VISION, SAY_LICHKING_1_VISION_2, 5000, true},/*8*/
-    {NPC_IMMOLATED_CHAMPION_VISION, SAY_CHAMP_2_VISION_2, 5000, true},
+    {NPC_IMMOLATED_CHAMPION_VISION, SAY_CHAMP_1_VISION_2, 5000, true},/*8*/
+    {NPC_LICHKING_VISION, SAY_LICHKING_2_VISION_2, 7000, true},
     {NPC_IMMOLATED_CHAMPION_VISION, SAY_CHAMP_3_VISION_2, 5000, true},
-    {NPC_LICHKING_VISION, SAY_LICHKING_4_VISION_2, 5000,true},
+    {NPC_LICHKING_VISION, SAY_LICHKING_4_VISION_2, 7000,true},
     {NPC_YOGG_SARON, SAY_YOGGSARON_5_VISION_2, 5000, true},
     {NPC_YOGG_SARON, SAY_YOGGSARON_6_VISION_2, 5000, false},
 
-    {NPC_NELTHARION_VISION, SAY_NELTHARION_1_VISION_3, 5000, true},/*14*/
-    {NPC_YSERA_VISION, SAY_YSERA_2_VISION_3, 5000, true},
-    {NPC_NELTHARION_VISION, SAY_NELTHARION_3_VISION_3, 5000, true},
-    {NPC_MALYGOS_VISION, SAY_MALYGOS_4_VISION_3, 5000, true},
-    {NPC_YOGG_SARON, SAY_YOGGSARON_5_VISION_3, 5000, false},
+    {NPC_NELTHARION_VISION, SAY_NELTHARION_1_VISION_3, 9000, true},/*14*/
+    {NPC_YSERA_VISION, SAY_YSERA_2_VISION_3, 4000, true},
+    {NPC_NELTHARION_VISION, SAY_NELTHARION_3_VISION_3, 3000, true},
+    {NPC_MALYGOS_VISION, SAY_MALYGOS_4_VISION_3, 8000, true},
+    {NPC_YOGG_SARON, SAY_YOGGSARON_5_VISION_3, 6000, true},
 };
 
 enum Disabler
@@ -816,7 +810,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                             yogg->SetStandState(UNIT_STAND_STATE_STAND);
                             yogg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             yogg->CastSpell(yogg, SPELL_SUMMON_CURRUPTOR_TENTACLE, true);
-                            DoScriptText(SAY_PHASE2_5, yogg);
+                            yogg->AI()->Talk(SAY_PHASE3);
                         }
 
                         OnRemove_ShatteredIllusions(false);
@@ -937,7 +931,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
             {
                 _Reset();
                 myPhase = PHASE_NONE;
-                CloudHandling(true);
+                SpawnClouds(true, 6);
 
                 if (Creature* yogg = ObjectAccessor::GetCreature(*me, guidYogg))
                     yogg->DespawnOrUnsummon();
@@ -1047,9 +1041,10 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                         case EVENT_DESCENT_TO_MADNESS_BEGIN:
                             if (Creature* yogg = ObjectAccessor::GetCreature(*me, guidYogg))
                             {
-                                DoScriptText(SAY_VISION, yogg);
+                                yogg->AI()->Talk(SAY_PORTAL);
                                 DoMadness();
                             }
+
                             events.ScheduleEvent(EVENT_DESCENT_TO_MADNESS_BEGIN, 90000, 0, PHASE_BRAIN);
                             events.ScheduleEvent(EVENT_DESCENT_TO_MADNESS_END, 60000, 0, PHASE_BRAIN); // End of cast SPELL_INDUCE_MADNESS
                             return;
@@ -1068,12 +1063,12 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
             /************************************************************************/
             /*                         Custom stuff                                 */
             /************************************************************************/
-            void CloudHandling(bool spawn)
+            void SpawnClouds(bool spawn, uint8 amount = 1)
             {
                 if (spawn)
                 {
-                    // spawn 6 clouds randomly around Sara
-                    for (uint8 i = 0; i < 6; i++)
+                    // spawn clouds randomly around Sara (6 at reset)
+                    for (uint8 i = 0; i < amount; i++)
                         if (Creature* summon = me->SummonCreature(NPC_OMINOUS_CLOUD, me->GetPositionX() + frand(0.f, 80.f) - 40.f , me->GetPositionY() + frand(0.f,80.f) - 40.f, me->GetPositionZ()))
                             summon->AI()->DoAction(ACTION_ACTIVATE_CLOUDS);
                 }
@@ -1122,7 +1117,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                         tempAction = ACTION_PORTAL_TO_MADNESS_STORMWIND;
                         break;
                     default:
-                        tempAction = RAND(ACTION_PORTAL_TO_MADNESS_STORMWIND, ACTION_PORTAL_TO_MADNESS_DRAGON, ACTION_PORTAL_TO_MADNESS_LICHKING);
+                        RAND(ACTION_PORTAL_TO_MADNESS_STORMWIND, ACTION_PORTAL_TO_MADNESS_DRAGON, ACTION_PORTAL_TO_MADNESS_LICHKING);
                         break;
                 }
                 lastBrainAction = tempAction;
@@ -1387,7 +1382,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                     }
                     else
                     {
-                        if (Creature* temp = DoSummon(EventNpcEntrys[npcIndex+i], EventNpcLocation[npcIndex+i], 40000, TEMPSUMMON_TIMED_DESPAWN))
+                        if (Creature* temp = DoSummon(EventNpcEntrys[npcIndex+i], EventNpcLocation[npcIndex+i], 60000, TEMPSUMMON_TIMED_DESPAWN))
                         {
                             temp->setActive(true);
                             EventNPC info = { temp->GetEntry(), temp->GetGUID() };
@@ -1432,7 +1427,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                         }
                         break;
                     case PHASE_BRAIN:
-                        CloudHandling(false);
+                        SpawnClouds(false);
                         brainEventsCount = 0;
                         events.ScheduleEvent(EVENT_DESCENT_TO_MADNESS_BEGIN, 90000, 0, newPhase);
                         break;
@@ -1562,10 +1557,17 @@ class boss_sara : public CreatureScript
                     damage = me->GetHealth() - 1;
             }                        
 
+            void KilledUnit(Unit* /*who*/)
+            {
+                if (!urand(0,5))
+                    Talk(SAY_SARA_SLAY);
+            }
+
             void EnterCombat(Unit* /*target*/)
             {
                 me->setActive(true);
                 DoZoneInCombat();
+                guidYogg = instance->GetData64(BOSS_YOGGSARON);
             }
 
             void SpellHitTarget(Unit* target, const SpellInfo* spell)
@@ -1632,12 +1634,11 @@ class boss_sara : public CreatureScript
                         UpdatePhase(PHASE_SARA);
                         break;
                     case ACTION_MADNESS_STARTED:
-                        IsEventSpeaking = true;
                         EventSpeakingPhase = 0;
+                        events.ScheduleEvent(EVENT_EVTSPEAKING, 6000);
                         break;  
                     case ACTION_APPLY_SHATTERED_ILLUSIONS:
                         me->AddAura(SPELL_SHATTERED_ILLUSIONS, me);
-                        IsEventSpeaking = false;
                         events.CancelEventGroup(ID_GROUP_NON_SHATTERED);
                         break;
                     case ACTION_REMOVE_SHATTERED_ILLUSIONS:
@@ -1676,16 +1677,14 @@ class boss_sara : public CreatureScript
                 switch (newPhase)
                 {
                     case PHASE_SARA:
-                        DoScriptText(SAY_SARA_AGGRO_1, me);
+                        Talk(SAY_SARA_AGGRO);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         events.ScheduleEvent(EVENT_SARAHS_HELP, urand(5000, 6000), 0, PHASE_SARA);
                         break;
                     case PHASE_BRAIN:
                         me->SetHealth(me->GetMaxHealth());
                         SpeakingPhase = 0;
-                        events.CancelEvent(EVENT_EVTSPEAKING);
                         events.ScheduleEvent(EVENT_SPEAKING, 1000, 0, newPhase);
-                        IsEventSpeaking = false;
                         EventSpeakingPhase = 0;
                         events.ScheduleEvent(EVENT_RANDOM_YELL, 35000);
                         if (Player* target = SelectPlayerTargetInRange(me, 100.0f))
@@ -1706,13 +1705,13 @@ class boss_sara : public CreatureScript
                 switch (myPhase)
                 {
                     case PHASE_NONE: 
-                        DoScriptText(RAND(SAY_SARA_PREFIGHT_1, SAY_SARA_PREFIGHT_2), me);
+                        Talk(SAY_SARA_PREFIGHT);
                         break;
                     case PHASE_SARA: 
-                        DoScriptText(RAND(SAY_SARA_AGGRO_2, SAY_SARA_AGGRO_3), me);
+                        Talk(SAY_SARA_PHASE1);
                         break;
                     case PHASE_BRAIN:
-                        DoScriptText(RAND(SAY_SARA_PHASE2_1 ,SAY_SARA_PHASE2_2), me);
+                        Talk(SAY_SARA_PHASE2);
                         break;
                     default:
                         break;
@@ -1753,16 +1752,19 @@ class boss_sara : public CreatureScript
                 if (phase + speachindex > 18)
                     return 5000;
 
-                if (EventNpcSpeaching[speachindex+part].npc_entry != NPC_YOGG_SARON)          // Why differ at this point ?
+                if (EventNpcSpeaching[speachindex+part].npc_entry != NPC_YOGG_SARON)
+                {
                     if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))
-                        npcguid = ctrl->AI()->GetGUID(EventNpcSpeaching[speachindex+part].npc_entry);
+                        npcguid = ctrl->AI()->GetGUID(EventNpcSpeaching[speachindex + part].npc_entry);
+                }
                 else
                     npcguid = guidYogg;
 
                 if (Creature* speaker = ObjectAccessor::GetCreature(*me, npcguid))
-                    DoScriptText(EventNpcSpeaching[speachindex+part].speech_entry, speaker);
+                    speaker->AI()->Talk(EventNpcSpeaching[speachindex + part].speech_entry);
+
                 return EventNpcSpeaching[speachindex+part].next_speech;
-            }                       
+            }
 
             void UpdateAI(const uint32 diff)
             {
@@ -1816,19 +1818,19 @@ class boss_sara : public CreatureScript
                                 switch (SpeakingPhase)
                                 {
                                     case 0:
-                                        DoScriptText(SAY_PHASE2_1, me);
+                                        Talk(SAY_SARA_PHASE2_1);
                                         nextEventTime = 5000;
                                         break;
                                     case 1:
-                                        DoScriptText(SAY_PHASE2_2, me);
+                                        Talk(SAY_SARA_PHASE2_2);
                                         nextEventTime = 5000;
                                         break;
                                     case 2:
-                                        DoScriptText(SAY_PHASE2_3, me);
+                                        Talk(SAY_SARA_PHASE2_3);
                                         nextEventTime = 4000;
                                         break;
                                     case 3:
-                                        DoScriptText(SAY_PHASE2_4, me);
+                                        Talk(SAY_SARA_PHASE2_4);
                                         nextEventTime = 4000;
                                         break;
                                     case 4:
@@ -1901,7 +1903,6 @@ class boss_sara : public CreatureScript
                 // Phase 2
                 uint32 SpeakingPhase;
 
-                bool IsEventSpeaking;
                 uint32 EventSpeakingPhase;
         };
 
@@ -1933,12 +1934,14 @@ class npc_ominous_cloud : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->GetMotionMaster()->MoveRandom(25.0f);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                spawned = false;
+                dying = false;
             }
 
             void MoveInLineOfSight(Unit* target)
             {
                 if(instance && instance->GetBossState(BOSS_YOGGSARON) == IN_PROGRESS)
-                    if(target && me->GetDistance2d(target) <= 11.f && target->ToPlayer() && !target->ToPlayer()->isGameMaster() && !target->HasAura(SPELL_FLASH_FREEZE))
+                    if(target && me->GetDistance2d(target) <= 9.f && target->ToPlayer() && !target->ToPlayer()->isGameMaster() && !target->HasAura(SPELL_FLASH_FREEZE))
                         TriggerGuardianSpawn();
             }
 
@@ -1960,14 +1963,32 @@ class npc_ominous_cloud : public CreatureScript
 
             void TriggerGuardianSpawn()
             {
-                if(!me->HasAura(SPELL_SUMMON_GUARDIAN))
-                    DoCast(me, SPELL_SUMMON_GUARDIAN, true);
+                if (!spawned)
+                {
+                    if (!me->HasAura(SPELL_SUMMON_GUARDIAN))
+                    {
+                        DoCast(me, SPELL_SUMMON_GUARDIAN, true);
+                        spawned = true;
+                    }
+                }
             }
 
-            void UpdateAI(const uint32 /*diff*/) {}
+            void UpdateAI(const uint32 /*diff*/)
+            {
+                if (!me->HasAura(SPELL_SUMMON_GUARDIAN) && spawned && !dying)
+                {
+                    me->RemoveAurasDueToSpell(SPELL_OMINOUS_CLOUD_EFFECT);
+                    me->DespawnOrUnsummon(2000);
+                    dying = true;
+                    if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))
+                        CAST_AI(npc_yogg_saron_encounter_controller::npc_yogg_saron_encounter_controllerAI, ctrl->AI())->SpawnClouds(true);
+                }
+            }
 
             private:
                 InstanceScript* instance;
+                bool spawned;
+                bool dying;
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
@@ -2411,7 +2432,7 @@ class boss_yogg_saron : public CreatureScript
             {
                 if (Creature* ctrl = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_YOGGSARON_CTRL)))
                     ctrl->AI()->DoAction(ACTION_YOGGSARON_KILLED);
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
             }
 
             void DoAction(const int32 action)
@@ -2438,7 +2459,8 @@ class boss_yogg_saron : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                DoScriptText(SAY_SLAY, me);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void SetData(uint32 type, uint32 val)
@@ -2464,7 +2486,7 @@ class boss_yogg_saron : public CreatureScript
                                 me->SetHealth(me->CountPctFromMaxHealth(30));
                                 me->RemoveAurasDueToSpell(SPELL_SHADOWY_BARRIER);
                                 me->RemoveAurasDueToSpell(SPELL_SHATTERED_ILLUSIONS);
-                                DoScriptText(SAY_PHASE3, me);
+                                Talk(SAY_VISION);
                                 me->AddAura(SPELL_YOGG_SARON_TRANSFORMATION, me);
 
                                 // Internal phase-change
@@ -2553,7 +2575,7 @@ class boss_yogg_saron : public CreatureScript
 
                                             me->AddAura(SPELL_INSANE, (*plr));
                                             me->AddAura(SPELL_INSANE_2, (*plr));
-                                            DoScriptText(RAND(WHISP_INSANITY_1, WHISP_INSANITY_2), me, (*plr));
+                                            Talk(WHISP_INSANITY, (*plr)->GetUInt64Value(0));
                                         }
                                 }
                             events.ScheduleEvent(EVENT_SANITY_CHECK, 1000);
@@ -2598,7 +2620,7 @@ class boss_yogg_saron : public CreatureScript
                             events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12000, 0, PHASE_YOGG);
                             return;
                         case EVENT_DEAFENING_ROAR:
-                            DoScriptText(SAY_DEAFENING_ROAR, me, 0);
+                            Talk(SAY_DEAFENING_ROAR);
                             me->CastSpell(me, SPELL_DEAFENING_ROAR, false);
                             events.ScheduleEvent(EVENT_DEAFENING_ROAR, 60000, 0, PHASE_YOGG);
                             return;
@@ -2996,6 +3018,7 @@ class npc_laughting_skull : public CreatureScript
             void Reset()
             {
                 DoCast(SPELL_LS_LUNATIC_GAZE);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void SpellHitTarget(Unit* target, const SpellInfo* spell)
@@ -3575,19 +3598,19 @@ class npc_keeper_help : public CreatureScript
                     switch(creature->GetEntry())
                     {
                         case NPC_HELP_KEEPER_FREYA:
-                            DoScriptText(SAY_FREYA_HELP, creature, player);
+                            creature->AI()->Talk(SAY_FREYA_HELP, player->GetUInt64Value(0));
                             instance->SetData(DATA_ADD_HELP_FLAG, FREYA_SUPPORT);
                             break;
                         case NPC_HELP_KEEPER_MIMIRON:
-                            DoScriptText(SAY_MIMIRON_HELP, creature, player);
+                            creature->AI()->Talk(SAY_MIMIRON_HELP, player->GetUInt64Value(0));
                             instance->SetData(DATA_ADD_HELP_FLAG, MIMIRON_SUPPORT);
                             break;
                         case NPC_HELP_KEEPER_THORIM:
-                            DoScriptText(SAY_THORIM_HELP, creature, player);
+                            creature->AI()->Talk(SAY_THORIM_HELP, player->GetUInt64Value(0));
                             instance->SetData(DATA_ADD_HELP_FLAG, THORIM_SUPPORT);
                             break;
                         case NPC_HELP_KEEPER_HODIR:
-                            DoScriptText(SAY_HODIR_HELP, creature, player);
+                            creature->AI()->Talk(SAY_HODIR_HELP, player->GetUInt64Value(0));
                             instance->SetData(DATA_ADD_HELP_FLAG, HODIR_SUPPORT);
                             break;
                         default:
@@ -3605,7 +3628,7 @@ class npc_keeper_help : public CreatureScript
             {
                 instance = c->GetInstanceScript();
                 me->setFaction(FACTION_FRIENDLY_ALL);
-            }            
+            }
 
             void AttackStart(Unit* /*who*/) {} // Should be overwritten, but has no effect
 
@@ -3622,6 +3645,37 @@ class npc_keeper_help : public CreatureScript
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return GetUlduarAI<npc_keeper_helpAI>(pCreature);
+        }
+};
+
+class spell_sara_psychosis : public SpellScriptLoader
+{
+    public:
+        spell_sara_psychosis() : SpellScriptLoader("spell_sara_psychosis") {}
+
+        class spell_sara_psychosis_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sara_psychosis_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (WorldObject* _target = Trinity::Containers::SelectRandomContainerElement(targets))
+                {
+                    targets.clear();
+                    targets.push_back(_target);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sara_psychosis_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sara_psychosis_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sara_psychosis_SpellScript();
         }
 };
 
@@ -3672,4 +3726,5 @@ void AddSC_boss_yoggsaron()
     new spell_summon_tentacle_position();
     new spell_empowering_shadows();
     new spell_hodir_protective_gaze();
+    new spell_sara_psychosis();
 }

@@ -1,4 +1,4 @@
-// $Id: Task.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: Task.cpp 95761 2012-05-15 18:23:04Z johnnyw $
 
 #include "ace/Task.h"
 #include "ace/Module.h"
@@ -15,21 +15,15 @@ ACE_Task_Base::ACE_Task_Base (ACE_Thread_Manager *thr_man)
     thr_mgr_ (thr_man),
     flags_ (0),
     grp_id_ (-1)
-#if !(defined (ACE_MVS) || defined(__TANDEM))
     ,last_thread_id_ (0)
-#endif /* !defined (ACE_MVS) */
 {
-#if (defined (ACE_MVS) || defined(__TANDEM))
-   ACE_OS::memset( &this->last_thread_id_, '\0', sizeof( this->last_thread_id_ ));
-#endif /* defined (ACE_MVS) */
 }
 
 ACE_Task_Base::~ACE_Task_Base (void)
 {
 }
 
-// Default ACE_Task service routine
-
+/// Default ACE_Task service routine
 int
 ACE_Task_Base::svc (void)
 {
@@ -37,8 +31,7 @@ ACE_Task_Base::svc (void)
   return 0;
 }
 
-// Default ACE_Task open routine
-
+/// Default ACE_Task open routine
 int
 ACE_Task_Base::open (void *)
 {
@@ -46,8 +39,7 @@ ACE_Task_Base::open (void *)
   return 0;
 }
 
-// Default ACE_Task close routine
-
+/// Default ACE_Task close routine
 int
 ACE_Task_Base::close (u_long)
 {
@@ -55,17 +47,15 @@ ACE_Task_Base::close (u_long)
   return 0;
 }
 
-// Forward the call to close() so that existing applications don't
-// break.
-
+/// Forward the call to close() so that existing applications don't
+/// break.
 int
 ACE_Task_Base::module_closed (void)
 {
   return this->close (1);
 }
 
-// Default ACE_Task put routine.
-
+/// Default ACE_Task put routine.
 int
 ACE_Task_Base::put (ACE_Message_Block *, ACE_Time_Value *)
 {
@@ -73,8 +63,7 @@ ACE_Task_Base::put (ACE_Message_Block *, ACE_Time_Value *)
   return 0;
 }
 
-// Wait for all threads running in a task to exit.
-
+/// Wait for all threads running in a task to exit.
 int
 ACE_Task_Base::wait (void)
 {
@@ -88,7 +77,7 @@ ACE_Task_Base::wait (void)
     return 0;
 }
 
-// Suspend a task.
+/// Suspend a task.
 int
 ACE_Task_Base::suspend (void)
 {
@@ -100,7 +89,7 @@ ACE_Task_Base::suspend (void)
   return 0;
 }
 
-// Resume a suspended task.
+/// Resume a suspended task.
 int
 ACE_Task_Base::resume (void)
 {
@@ -195,11 +184,11 @@ ACE_Task_Base::activate (long flags,
   if (this->grp_id_ == -1)
     this->grp_id_ = grp_spawned;
 
-#if defined (ACE_MVS) || defined(__TANDEM)
+#if defined(ACE_TANDEM_T1248_PTHREADS)
   ACE_OS::memcpy( &this->last_thread_id_, '\0', sizeof(this->last_thread_id_));
 #else
   this->last_thread_id_ = 0;    // Reset to prevent inadvertant match on ID
-#endif /* defined (ACE_MVS) */
+#endif /* defined (ACE_TANDEM_T1248_PTHREADS) */
 
   return 0;
 

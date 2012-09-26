@@ -1,4 +1,4 @@
-// $Id: Svc_Conf_y.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: Svc_Conf_y.cpp 94034 2011-05-09 19:11:03Z johnnyw $
 /* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
@@ -105,7 +105,7 @@
 /* Copy the first part of user declarations.  */
 
 
-// $Id: Svc_Conf_y.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: Svc_Conf_y.cpp 94034 2011-05-09 19:11:03Z johnnyw $
 
 #include "ace/Svc_Conf.h"
 
@@ -1955,11 +1955,10 @@ ace_get_module (ACE_Service_Type const * sr,
                 ACE_TCHAR const * svc_name,
                 int & ace_yyerrno)
 {
-  ACE_Service_Type_Impl const * const type = sr->type ();
   ACE_Stream_Type const * const st =
     (sr == 0
      ? 0
-     : dynamic_cast<ACE_Stream_Type const *> (type));
+     : dynamic_cast<ACE_Stream_Type const *> (sr->type ()));
   ACE_Module_Type const * const mt = (st == 0 ? 0 : st->find (svc_name));
 
   if (sr == 0 || st == 0 || mt == 0)

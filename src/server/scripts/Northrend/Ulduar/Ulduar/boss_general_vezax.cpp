@@ -23,21 +23,19 @@
 
 enum VezaxYells
 {
-    SAY_AGGRO                                    = -1603290,
-    SAY_SLAY_1                                   = -1603291,
-    SAY_SLAY_2                                   = -1603292,
-    SAY_SURGE_OF_DARKNESS                        = -1603293,
-    SAY_DEATH                                    = -1603294,
-    SAY_BERSERK                                  = -1603295,
-    SAY_HARDMODE                                 = -1603296
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_SURGE_OF_DARKNESS                       = 2,
+    SAY_DEATH                                   = 3,
+    SAY_BERSERK                                 = 4,
+    SAY_HARDMODE                                = 5
 };
 
 enum VezaxEmotes
 {
-    EMOTE_VAPORS                                 = -1603289,
-    EMOTE_ANIMUS                                 = -1603297,
-    EMOTE_BARRIER                                = -1603298,
-    EMOTE_SURGE_OF_DARKNESS                      = -1603299
+    EMOTE_ANIMUS                                = 6,
+    EMOTE_BARRIER                               = 7,
+    EMOTE_SURGE_OF_DARKNESS                     = 8
 };
 
 enum VezaxSpells
@@ -124,7 +122,7 @@ class boss_general_vezax : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 DoCast(me, SPELL_AURA_OF_DESPAIR);
                 events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 10000));
                 events.ScheduleEvent(EVENT_SEARING_FLAMES, 12000);
@@ -163,8 +161,8 @@ class boss_general_vezax : public CreatureScript
                             events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));
                             return;
                         case EVENT_SURGE_OF_DARKNESS:
-                            DoScriptText(EMOTE_SURGE_OF_DARKNESS, me);
-                            DoScriptText(SAY_SURGE_OF_DARKNESS, me);
+                            Talk(EMOTE_SURGE_OF_DARKNESS);
+                            Talk(SAY_SURGE_OF_DARKNESS);
                             DoCast(me, SPELL_SURGE_OF_DARKNESS);
                             events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, urand(50000, 70000));
                             return;
@@ -173,7 +171,7 @@ class boss_general_vezax : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, urand(30000, 35000));
                             return;
                         case EVENT_BERSERK:
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             DoCast(me, SPELL_BERSERK);
                             return;
                         default:
@@ -205,8 +203,8 @@ class boss_general_vezax : public CreatureScript
                         break;
                     case NPC_SARONITE_ANIMUS:
                         events.CancelEvent(EVENT_SEARING_FLAMES);
-                        DoScriptText(SAY_HARDMODE, me);
-                        DoScriptText(EMOTE_BARRIER, me);
+                        Talk(SAY_HARDMODE);
+                        Talk(EMOTE_BARRIER);
                         me->InterruptNonMeleeSpells(false);
                         DoCast(SPELL_SARONITE_BARRIER);
                         me->AddLootMode(LOOT_MODE_HARD_MODE_1);
@@ -234,14 +232,14 @@ class boss_general_vezax : public CreatureScript
 
             void KilledUnit(Unit* /*who*/)
             {
-                if (urand(0, 5) == 0)
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                if (!urand(0,5))
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*who*/)
             {
                 _JustDied();
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AURA_OF_DESPAIR);
             }
 
@@ -392,6 +390,11 @@ class npc_saronite_vapors : public CreatureScript
             EVENT_RANDOM_MOVE = 1
         };
 
+        enum Emote
+        {
+            EMOTE_VAPORS    = 0
+        };
+
     public:
         npc_saronite_vapors() : CreatureScript("npc_saronite_vapors") {}
 
@@ -401,7 +404,7 @@ class npc_saronite_vapors : public CreatureScript
 
             void InitializeAI()
             {
-                DoScriptText(EMOTE_VAPORS, me);
+                Talk(EMOTE_VAPORS);
                 instance = me->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_DEATH_GRIP, true); 
@@ -575,7 +578,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            targets.remove(GetHitUnit());   // The target of this spell should _not_ be in this list (due to spell definition), yet it seems it occurs there sometimes...
+            targets.remove(GetExplTargetUnit()); // The target of this spell should _not_ be in this list
         }
 
         void Register()

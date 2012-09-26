@@ -6,7 +6,7 @@
  *
  *  select types
  *
- *  $Id: os_select.h 85015 2009-04-03 12:27:59Z johnnyw $
+ *  $Id: os_select.h 93359 2011-02-11 11:33:12Z mcorino $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -44,7 +44,7 @@ extern "C"
 
 #if defined (ACE_LACKS_FD_MASK)
    typedef long fd_mask;
-#endif /* __QNX__ */
+#endif /* ACE_LACKS_FD_MASK */
 
 #if defined (ACE_WIN32)
    // This will help until we figure out everything:

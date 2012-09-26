@@ -23,9 +23,7 @@ SDCategory:
 EndScriptData */
 
 // Known bugs:
-// Gormok - Not implemented as a vehicle
-//        - Snobold Firebomb
-//        - Snobolled (creature at back)
+// Gormok - Snobolled (creature at back)
 // Snakes - miss the 1-hitkill from emerging
 //        - visual changes between mobile and stationary models seems not to work sometimes
 
@@ -102,15 +100,6 @@ enum BossSpells
     SPELL_ENRAGE            = 68335,
     SPELL_SLIME_POOL_EFFECT = 66882, //In 60s it diameter grows from 10y to 40y (r=r+0.25 per second)
 
-    STAGE_MOBILE            = 0,
-    STAGE_SUBMERGE_1        = 1,
-    STAGE_WAIT_EMERGE_1     = 2,
-    STAGE_EMERGE_1          = 3,
-    STAGE_STATIONARY        = 4,
-    STAGE_SUBMERGE_2        = 5,
-    STAGE_WAIT_EMERGE_2     = 6,
-    STAGE_EMERGE_2          = 7,
-
     //Icehowl
     SPELL_FEROCIOUS_BUTT    = 66770,
     SPELL_MASSIVE_CRASH     = 66683,
@@ -150,19 +139,12 @@ public:
         uint32 m_uiStaggeringStompTimer;
         SummonList Summons;
         uint32 m_uiThrowTimer;
-        uint32 m_uiSummonCount;
 
         void Reset()
         {
             m_uiImpaleTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             m_uiStaggeringStompTimer = 15*IN_MILLISECONDS;
             m_uiThrowTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);;
-
-            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
-                GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
-                m_uiSummonCount = 5;
-            else
-                m_uiSummonCount = 4;
 
             Summons.DespawnAll();
         }
@@ -221,29 +203,6 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summon)
-        {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-            {
-                if (summon->GetEntry() == NPC_SNOBOLD_VASSAL)
-                {
-                    summon->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 10.0f, 20.0f);
-                    DoCast(me, SPELL_RISING_ANGER);
-                    --m_uiSummonCount;
-                }
-                summon->AI()->AttackStart(target);
-            }
-            Summons.Summon(summon);
-        }
-
-        void SummonedCreatureDespawn(Creature* summon)
-        {
-            if (summon->GetEntry() == NPC_SNOBOLD_VASSAL)
-                if (summon->isAlive())
-                    ++m_uiSummonCount;
-            Summons.Despawn(summon);
-        }
-
         void DamageTaken(Unit* /*who*/, uint32& damage)
         {
             // despawn the remaining passengers on death
@@ -280,6 +239,7 @@ public:
                         pSnobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         pSnobold->ToCreature()->SetReactState(REACT_AGGRESSIVE);
                         pSnobold->ToCreature()->AI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
+                        pSnobold->CastSpell(me, SPELL_RISING_ANGER, true);
                         Talk(EMOTE_SNOBOLLED);
                         break;
                     }
@@ -448,8 +408,9 @@ public:
                 switch (event)
                 {
                     case EVENT_FIRE_BOMB:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FIRE_BOMB, true);
+                        if (me->GetVehicleBase())
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach()))
+                                DoCast(target, SPELL_FIRE_BOMB, true);
                         events.ScheduleEvent(EVENT_FIRE_BOMB, 20*IN_MILLISECONDS);
                         return;
                     case EVENT_HEAD_CRACK:
@@ -503,6 +464,7 @@ public:
             DoCast(me, SPELL_FIRE_BOMB_DOT, true);
             SetCombatMovement(false);
             me->SetReactState(REACT_PASSIVE);
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         }
 
         void UpdateAI(uint32 const /*diff*/)
@@ -515,6 +477,26 @@ public:
 
 struct boss_jormungarAI : public ScriptedAI
 {
+    enum Phases
+    {
+        PHASE_MOBILE            = 0,
+        PHASE_STATIONARY,
+        PHASE_SUBMERGED
+    };
+
+    enum
+    {
+        EVENT_BITE = 1,
+        EVENT_SPEW,
+        EVENT_SLIME_POOL,
+        EVENT_SPIT,
+        EVENT_SPRAY,
+        EVENT_SWEEP,
+        EVENT_SUBMERGE,
+        EVENT_EMERGE,
+        EVENT_SUMMON_ACIDMAW
+    };
+
     boss_jormungarAI(Creature* creature) : ScriptedAI(creature)
     {
         instanceScript = creature->GetInstanceScript();
@@ -523,12 +505,13 @@ struct boss_jormungarAI : public ScriptedAI
     void Reset()
     {
         enraged = false;
-        biteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        spewTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        slimePoolTimer = 15*IN_MILLISECONDS;
-        spitTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+
+        events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
+        events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
+        events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, PHASE_MOBILE);
     }
 
     void JustDied(Unit* /*killer*/)
@@ -586,113 +569,135 @@ struct boss_jormungarAI : public ScriptedAI
             Talk(EMOTE_ENRAGE);
         }
 
-        switch (stage)
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+
+        switch (phase)
         {
-            case STAGE_MOBILE:
-                if (biteTimer <= diff)
+            case PHASE_SUBMERGED:
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    DoCastVictim(biteSpell);
-                    biteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else biteTimer -= diff;
-
-                if (spewTimer <= diff)
+                    switch (event)
+                    {
+                        case EVENT_EMERGE:
+                            Emerge();
+                            return;
+                    }
+                }
+            case PHASE_MOBILE:
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    DoCastAOE(spewSpell);
-                    spewTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else spewTimer -= diff;
-
-                if (slimePoolTimer <= diff)
-                {
-                    /* Spell summon has only 30s duration */
-                    DoCast(me, SUMMON_SLIME_POOL);
-                    slimePoolTimer = 30*IN_MILLISECONDS;
-                } else slimePoolTimer -= diff;
-
-                if (submergeTimer <= diff && !enraged)
-                {
-                    stage = STAGE_SUBMERGE_1;
-                    submergeTimer = 5*IN_MILLISECONDS;
-                } else submergeTimer -= diff;
-
+                    switch (event)
+                    {
+                        case EVENT_SUBMERGE:
+                            Submerge();
+                            return;
+                        case EVENT_BITE:
+                            DoCastVictim(biteSpell);
+                            events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+                            return;
+                        case EVENT_SPEW:
+                            DoCastAOE(spewSpell);
+                            events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+                            return;
+                        case EVENT_SLIME_POOL:
+                            DoCast(me, SUMMON_SLIME_POOL);
+                            events.ScheduleEvent(EVENT_SLIME_POOL, 30*IN_MILLISECONDS, 0, PHASE_MOBILE);
+                            return;
+                        case EVENT_SUMMON_ACIDMAW:
+                            if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                acidmaw->SetReactState(REACT_AGGRESSIVE);
+                                acidmaw->SetInCombatWithZone();
+                                acidmaw->CastSpell(acidmaw, SPELL_EMERGE_0);
+                            }
+                            return;
+                        default:
+                            return;
+                    }
+                }
                 DoMeleeAttackIfReady();
-                break;
-
-            case STAGE_SUBMERGE_1:
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                DoCast(me, SPELL_SUBMERGE_0);
-                me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
-                stage = STAGE_WAIT_EMERGE_1;
                 return;
-
-            case STAGE_WAIT_EMERGE_1:
-                if (submergeTimer <= diff)
+            case PHASE_STATIONARY:
+            {
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    stage = STAGE_EMERGE_1;
-                    submergeTimer = 50*IN_MILLISECONDS;
-                } else submergeTimer -= diff;
-                return;
-            case STAGE_EMERGE_1:
-                me->SetDisplayId(modelStationary);
-                me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
-                DoCast(me, SPELL_EMERGE_0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                SetCombatMovement(false);
-                me->GetMotionMaster()->MoveIdle();
-                stage = STAGE_STATIONARY;
-                return;
-
-            case STAGE_STATIONARY:
-                if (sprayTimer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, spraySpell);
-                    sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else sprayTimer -= diff;
-
-                if (sweepTimer <= diff)
-                {
-                    DoCastAOE(SPELL_SWEEP_0);
-                    sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else sweepTimer -= diff;
-
-                if (submergeTimer <= diff)
-                {
-                    stage = STAGE_SUBMERGE_2;
-                    submergeTimer = 10*IN_MILLISECONDS;
-                } else submergeTimer -= diff;
-
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->GetMotionMaster()->MoveIdle();
-                me->GetMotionMaster()->Clear();
+                    switch (event)
+                    {
+                        case EVENT_SUBMERGE:
+                            Submerge();
+                            return;
+                        case EVENT_SPRAY:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, spraySpell);
+                            events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+                            return;
+                        case EVENT_SWEEP:
+                            DoCastAOE(SPELL_SWEEP_0);
+                            events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+                            return;
+                        default:
+                            return;
+                    }
+                }
                 DoSpellAttackIfReady(spitSpell);
                 return;
+            }
+            default:
+                break;
+        }
+    }
 
-            case STAGE_SUBMERGE_2:
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                DoCast(me, SPELL_SUBMERGE_0);
-                me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
-                stage = STAGE_WAIT_EMERGE_2;
-                return;
 
-            case STAGE_WAIT_EMERGE_2:
-                if (submergeTimer <= diff)
-                {
-                    stage = STAGE_EMERGE_2;
-                    submergeTimer = 45*IN_MILLISECONDS;
-                } else submergeTimer -= diff;
-                return;
+    void Submerge()
+    {
+        DoCast(me, SPELL_SUBMERGE_0);
+        me->RemoveAurasDueToSpell(SPELL_EMERGE_0);
+        me->SetInCombatWithZone();
+        phase = PHASE_SUBMERGED;
+        events.ScheduleEvent(EVENT_EMERGE, 5*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
+        wasMobile = !wasMobile;
+    }
 
-            case STAGE_EMERGE_2:
-                me->SetDisplayId(modelMobile);
-                me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
-                DoCast(me, SPELL_EMERGE_0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                SetCombatMovement(true);
-                me->GetMotionMaster()->MoveChase(me->getVictim());
-                stage = STAGE_MOBILE;
-                return;
+    void Emerge()
+    {
+        DoCast(me, SPELL_EMERGE_0);
+        me->SetDisplayId(modelMobile);
+        me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->GetMotionMaster()->Clear();
+
+        // if the worm was mobile before submerging, make him stationary now
+        if (wasMobile)
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            SetCombatMovement(false);
+            me->SetDisplayId(modelStationary);
+            phase = PHASE_STATIONARY;
+            events.DelayEvents(45*IN_MILLISECONDS, 2);
+            events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+        }
+        else
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            SetCombatMovement(true);
+            me->GetMotionMaster()->MoveChase(me->getVictim());
+            me->SetDisplayId(modelMobile);
+            phase = PHASE_MOBILE;
+            events.DelayEvents(45*IN_MILLISECONDS, 1);
+            events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, PHASE_MOBILE);
         }
     }
 
@@ -708,15 +713,10 @@ struct boss_jormungarAI : public ScriptedAI
     uint32 spitSpell;
     uint32 spraySpell;
 
-    uint32 biteTimer;
-    uint32 spewTimer;
-    uint32 slimePoolTimer;
-    uint32 spitTimer;
-    uint32 sprayTimer;
-    uint32 sweepTimer;
-    uint32 submergeTimer;
-    uint8  stage;
-    bool   enraged;
+    Phases phase;
+    bool enraged;
+    bool wasMobile;
+    EventMap events;
 };
 
 class boss_acidmaw : public CreatureScript
@@ -739,9 +739,8 @@ class boss_acidmaw : public CreatureScript
             modelMobile = MODEL_ACIDMAW_MOBILE;
             otherWormEntry = NPC_DREADSCALE;
 
-            submergeTimer = 500;
-            DoCast(me, SPELL_SUBMERGE_0);
-            stage = STAGE_WAIT_EMERGE_1;
+            wasMobile = true;
+            Emerge();
         }
     };
 
@@ -776,8 +775,10 @@ public:
             modelMobile = MODEL_DREADSCALE_MOBILE;
             otherWormEntry = NPC_ACIDMAW;
 
-            submergeTimer = 45 * IN_MILLISECONDS;
-            stage = STAGE_MOBILE;
+            phase = PHASE_MOBILE;
+            events.ScheduleEvent(EVENT_SUMMON_ACIDMAW, 3*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
+            wasMobile = false;
         }
 
         void MovementInform(uint32 type, uint32 pointId)
@@ -792,13 +793,6 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
-                    if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
-                    {
-                        otherWorm->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                        otherWorm->SetReactState(REACT_AGGRESSIVE);
-                        otherWorm->SetVisible(true);
-                        otherWorm->SetInCombatWithZone();
-                    }
                     break;
             }
         }
@@ -858,7 +852,7 @@ public:
                 DoCast(me, SPELL_SLIME_POOL_EFFECT);
             }
 
-            if (instanceScript->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_IN_PROGRESS)
+            if (instanceScript->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_IN_PROGRESS && instanceScript->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_SPECIAL)
                 me->DespawnOrUnsummon();
         }
     };
@@ -867,6 +861,15 @@ public:
 
 class boss_icehowl : public CreatureScript
 {
+    enum
+    {
+        EVENT_FEROCIOUS_BUTT = 1,
+        EVENT_MASSIVE_CRASH,
+        EVENT_WHIRL,
+        EVENT_ARCTIC_BREATH,
+        EVENT_TRAMPLE
+    };
+
 public:
     boss_icehowl() : CreatureScript("boss_icehowl") { }
 
@@ -884,11 +887,6 @@ public:
 
         InstanceScript* instance;
 
-        uint32 m_uiFerociousButtTimer;
-        uint32 m_uiArticBreathTimer;
-        uint32 m_uiWhirlTimer;
-        uint32 m_uiMassiveCrashTimer;
-        uint32 m_uiTrampleTimer;
         float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
         uint64 m_uiTrampleTargetGUID;
         bool   m_bMovementStarted;
@@ -896,14 +894,14 @@ public:
         bool   m_bTrampleCasted;
         uint8  m_uiStage;
         Unit*  target;
+        EventMap events;
 
         void Reset()
         {
-            m_uiFerociousButtTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
-            m_uiWhirlTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
-            m_uiTrampleTimer = IN_MILLISECONDS;
+            events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_MASSIVE_CRASH, 30*IN_MILLISECONDS);
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
@@ -928,20 +926,19 @@ public:
             switch (pointId)
             {
                 case 0:
-                    if (me->GetDistance2d(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()) < 6.0f)
+                    if (m_uiStage != 0)
                     {
-                        // Middle of the room
-                        m_uiStage = 1;
-                    }
-                    else
-                    {
-                        // Landed from Hop backwards (start trample)
-                        if (Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
-                        {
-                            m_uiStage = 4;
-                        }
+                        if (me->GetDistance2d(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()) < 6.0f)
+                            // Middle of the room
+                            m_uiStage = 1;
                         else
-                            m_uiStage = 6;
+                        {
+                            // Landed from Hop backwards (start trample)
+                            if (Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
+                                m_uiStage = 4;
+                            else
+                                m_uiStage = 6;
+                        }
                     }
                     break;
                 case 1: // Finish trample
@@ -952,6 +949,8 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
+                    break;
+                default:
                     break;
             }
         }
@@ -1005,39 +1004,45 @@ public:
             if (!UpdateVictim())
                 return;
 
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             switch (m_uiStage)
             {
                 case 0:
-                    if (m_uiFerociousButtTimer <= diff)
+                {
+                    while (uint32 event = events.ExecuteEvent())
                     {
-                        DoCastVictim(SPELL_FEROCIOUS_BUTT);
-                        m_uiFerociousButtTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                    } else m_uiFerociousButtTimer -= diff;
-
-                    if (m_uiArticBreathTimer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ARCTIC_BREATH);
-                        m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
-                    } else m_uiArticBreathTimer -= diff;
-
-                    if (m_uiWhirlTimer <= diff)
-                    {
-                        DoCastAOE(SPELL_WHIRL);
-                        m_uiWhirlTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                    } else m_uiWhirlTimer -= diff;
-
-                    if (m_uiMassiveCrashTimer <= diff)
-                    {
-                        me->GetMotionMaster()->MoveJump(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 10.0f, 20.0f); // 1: Middle of the room
-                        SetCombatMovement(false);
-                        me->AttackStop();
-                        m_uiStage = 7; //Invalid (Do nothing more than move)
-                        m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
-                    } else m_uiMassiveCrashTimer -= diff;
-
+                        switch (event)
+                        {
+                            case EVENT_FEROCIOUS_BUTT:
+                                DoCastVictim(SPELL_FEROCIOUS_BUTT);
+                                events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                                return;
+                            case EVENT_ARCTIC_BREATH:
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    DoCast(target, SPELL_ARCTIC_BREATH);
+                                events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+                                return;
+                            case EVENT_WHIRL:
+                                DoCastAOE(SPELL_WHIRL);
+                                events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                                return;
+                            case EVENT_MASSIVE_CRASH:
+                                me->GetMotionMaster()->MoveJump(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 20.0f, 20.0f); // 1: Middle of the room
+                                SetCombatMovement(false);
+                                me->AttackStop();
+                                m_uiStage = 7; //Invalid (Do nothing more than move)
+                                return;
+                            default:
+                                break;
+                        }
+                    }
                     DoMeleeAttackIfReady();
                     break;
+                }
                 case 1:
                     DoCastAOE(SPELL_MASSIVE_CRASH);
                     me->StopMoving();
@@ -1052,64 +1057,77 @@ public:
                         m_uiTrampleTargetGUID = target->GetGUID();
                         me->SetTarget(m_uiTrampleTargetGUID);
                         m_bTrampleCasted = false;
-                        //SetCombatMovement(false);
-                        //me->GetMotionMaster()->MoveIdle();
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        m_uiTrampleTimer = 4*IN_MILLISECONDS;
+                        SetCombatMovement(false);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveIdle();
+                        events.ScheduleEvent(EVENT_TRAMPLE, 4*IN_MILLISECONDS);
                         m_uiStage = 3;
-                    } else m_uiStage = 6;
+                    }
+                    else
+                        m_uiStage = 6;
                     break;
                 case 3:
-                    me->StopMoving();
-                    me->AttackStop();
-                    if (m_uiTrampleTimer <= diff)
+                    while (uint32 event = events.ExecuteEvent())
                     {
-                        if (Unit* target = Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
+                        switch (event)
                         {
-                            m_bTrampleCasted = false;
-                            m_bMovementStarted = true;
-                            m_fTrampleTargetX = target->GetPositionX();
-                            m_fTrampleTargetY = target->GetPositionY();
-                            m_fTrampleTargetZ = target->GetPositionZ();
-                            me->GetMotionMaster()->MoveJump(2*me->GetPositionX()-m_fTrampleTargetX,
-                                2*me->GetPositionY()-m_fTrampleTargetY,
-                                me->GetPositionZ(),
-                                20.0f, 30.0f); // 2: Hop Backwards
-                            m_uiStage = 7; //Invalid (Do nothing more than move)
-                        } else m_uiStage = 6;
-                    } else m_uiTrampleTimer -= diff;
+                            case EVENT_TRAMPLE:
+                            {
+                                if (Unit* target = Unit::GetPlayer(*me, m_uiTrampleTargetGUID))
+                                {
+                                    me->StopMoving();
+                                    me->AttackStop();
+                                    m_bTrampleCasted = false;
+                                    m_bMovementStarted = true;
+                                    m_fTrampleTargetX = target->GetPositionX();
+                                    m_fTrampleTargetY = target->GetPositionY();
+                                    m_fTrampleTargetZ = target->GetPositionZ();
+                                    // 2: Hop Backwards
+                                    me->GetMotionMaster()->MoveJump(2*me->GetPositionX() - m_fTrampleTargetX, 2*me->GetPositionY() - m_fTrampleTargetY, me->GetPositionZ(), 30.0f, 20.0f);
+                                    m_uiStage = 7; //Invalid (Do nothing more than move)
+                                }
+                                else
+                                    m_uiStage = 6;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    }
                     break;
                 case 4:
                     me->StopMoving();
                     me->AttackStop();
                     Talk(EMOTE_TRAMPLE_START, m_uiTrampleTargetGUID);
-                    me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
+                    me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ, 42, 1);
                     me->SetTarget(0);
                     m_uiStage = 5;
                     break;
                 case 5:
                     if (m_bMovementFinish)
                     {
-                        if (m_uiTrampleTimer <= diff)
-                            DoCastAOE(SPELL_TRAMPLE);
+                        DoCastAOE(SPELL_TRAMPLE);
                         m_bMovementFinish = false;
                         m_uiStage = 6;
                         return;
                     }
-                    if (m_uiTrampleTimer <= diff)
+                    if (events.ExecuteEvent() == EVENT_TRAMPLE)
                     {
                         Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                         {
                             if (Unit* player = itr->getSource())
+                            {
                                 if (player->isAlive() && player->IsWithinDistInMap(me, 6.0f))
                                 {
                                     DoCastAOE(SPELL_TRAMPLE);
-                                    m_uiTrampleTimer = IN_MILLISECONDS;
+                                    events.ScheduleEvent(EVENT_TRAMPLE, 4*IN_MILLISECONDS);
                                     break;
                                 }
+                            }
                         }
-                    } else m_uiTrampleTimer -= diff;
+                    }
                     break;
                 case 6:
                     if (!m_bTrampleCasted)
@@ -1123,11 +1141,16 @@ public:
                         Talk(EMOTE_TRAMPLE_FAIL);
                     }
                     m_bMovementStarted = false;
-                    me->GetMotionMaster()->MovementExpired();
-                    me->GetMotionMaster()->MoveChase(me->getVictim());
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                     SetCombatMovement(true);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->GetMotionMaster()->MovementExpired();
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveChase(me->getVictim());
+                    AttackStart(me->getVictim());
+                    events.ScheduleEvent(EVENT_MASSIVE_CRASH, 40*IN_MILLISECONDS);
                     m_uiStage = 0;
+                    break;
+                default:
                     break;
             }
         }

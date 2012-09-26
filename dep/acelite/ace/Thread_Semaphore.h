@@ -4,7 +4,7 @@
 /**
  *  @file    Thread_Semaphore.h
  *
- *  $Id: Thread_Semaphore.h 86731 2009-09-17 12:23:48Z johnnyw $
+ *  $Id: Thread_Semaphore.h 95807 2012-06-01 12:44:19Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -47,7 +47,7 @@ public:
                         void * = 0,
                         int max = 0x7FFFFFFF);
 
-  /// Default dtor.
+  /// Default destructor.
   ~ACE_Thread_Semaphore (void);
 
   /// Dump the state of an object.
