@@ -44,7 +44,6 @@
 #include "Battleground.h"
 #include "AccountMgr.h"
 #include "LFGMgr.h"
-#include "GroupMgr.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -1621,60 +1620,16 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     std::string newname;
     uint8 gender, skin, face, hairStyle, hairColor, facialHair, race;
     recv_data >> guid;
-
-    int old_base_rep[14];
-    int f = 0;
-
-    uint32 lowGuid = GUID_LOPART(guid);
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
-
-    stmt->setUInt32(0, lowGuid);
-
-    PreparedQueryResult oldRace = CharacterDatabase.Query(stmt);
-    if (oldRace)
-    {
-        Field *fields2 = oldRace->Fetch();
-        uint32 old_race = fields2[0].GetUInt32();
-
-        // Search each faction is targeted
-        BattlegroundTeamId team = BG_TEAM_ALLIANCE;
-        switch(old_race)
-        {
-            case RACE_ORC:
-            case RACE_TAUREN:
-            case RACE_UNDEAD_PLAYER:
-            case RACE_TROLL:
-            case RACE_BLOODELF:
-            //case RACE_GOBLIN: for cataclysm
-                team = BG_TEAM_HORDE;
-                break;
-            default: break;
-        }
-
-        if (QueryResult result2 = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations"))
-        {
-            do
-            {
-                Field *fields3 = result2->Fetch();
-                uint32 reputation_alliance = fields3[0].GetUInt32();
-                uint32 reputation_horde = fields3[1].GetUInt32();
-                FactionEntry const* factionEntry = sFactionStore.LookupEntry(team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde);
-                old_base_rep[f] = factionEntry->BaseRepValue[0];
-                f++;
-            }
-            while( result2->NextRow() );
-        }
-    }
-
     recv_data >> newname;
     recv_data >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face >> race;
 
-    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
+    uint32 lowGuid = GUID_LOPART(guid);
 
-    stmt2->setUInt32(0, lowGuid);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
 
-    PreparedQueryResult result = CharacterDatabase.Query(stmt2);
+    stmt->setUInt32(0, lowGuid);
+
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
     {
@@ -1756,15 +1711,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
             return;
         }
     }
-
-    // The player was uninvited already on logout so just remove from group
-    // immediately remove from group before start change process
-    PreparedStatement* stmt3 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-    stmt3->setUInt32(0, guid);
-    PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt3);
-    if (resultGroup)
-        if (Group* group = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32()))
-            Player::RemoveFromGroup(group, guid);
 
     CharacterDatabase.EscapeString(newname);
     Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
