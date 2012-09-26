@@ -183,7 +183,7 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=31
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=4743 AND `SourceEntry` IN (5816,5817);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=7376 AND `SourceEntry`=8827;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=4743 AND `SourceEntry` IN (0,1);
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=4743 AND `SourceEntry` IN (5816,5817,5818);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=4743 AND `SourceEntry` IN (5816,5817,5795);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=6471 AND `SourceEntry`=7642;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=6504 AND `SourceEntry`=7699;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=6471 AND `SourceEntry`=0;
@@ -192,17 +192,18 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=58
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (14,6471,7642,0,0,27,0,20,2,0,0,0,'','Donal Osgood <Arathi Basin Battlemaster> - Show different gossip if player level is below 20'),
 (14,6504,7699,0,0,27,0,20,2,0,0,0,'','League of Arathor Emissary - Show different gossip if player level is below 20'),
-(15,6471,0,0,27,0,20,3,0,0,0,0,'','Donal Osgood <Arathi Basin Battlemaster> - Show gossip option only if player level is at least 20'),
-(14,5665,6960,0,7,0,356,225,0,0,0,0,'','Show different gossip if player has fishing skill 225'),
-(14,5665,6961,0,7,0,356,225,0,1,0,0,'','Show gossip if player has not fishing skill 225'),
-(14,5853,7021,0,7,0,185,1,0,0,0,0,'','Show different gossip if player has cooking profession'),
-(14,3131,4788,0,8,0,979,0,0,0,0,0,'','Show different gossip if player has completed quest 979'),
-(14,4743,5816,0,28,0,5245,0,0,0,0,0,'','Show different gossip if player has quest 5245 objectives complete'),
-(14,4743,5817,0,8,0,5245,0,0,0,0,0,'','Show different gossip if player has completed quest 5245'),
-(14,4743,5818,0,8,0,5247,0,0,0,0,0,'','Show different gossip if player has completed quest 5247'),
-(14,7376,8827,0,8,0,9450,0,0,1,0,0,'','Show different gossip if player has not completed quest 9450'),
-(15,4743,0,0,9,0,5247,0,0,0,0,0,'','Show gossip option only if player has taken quest 5247 but not complete'),
-(15,4743,1,0,9,0,5247,0,0,0,0,0,'','Show gossip option only if player has taken quest 5247 but not complete');
+(15,6471,0,0,0,27,0,20,3,0,0,0,'','Donal Osgood <Arathi Basin Battlemaster> - Show gossip option only if player level is at least 20'),
+(14,5665,6960,0,0,7,0,356,225,0,0,0,'','Show different gossip if player has fishing skill 225'),
+(14,5665,6961,0,0,7,0,356,225,0,1,0,'','Show gossip if player has not fishing skill 225'),
+(14,5853,7021,0,0,7,0,185,1,0,0,0,'','Show different gossip if player has cooking profession'),
+(14,3131,4788,0,0,8,0,979,0,0,0,0,'','Show different gossip if player has completed quest 979'),
+(14,4743,5816,0,0,28,0,5245,0,0,0,0,'','Show different gossip if player has quest 5245 objectives complete'),
+(14,4743,5817,0,0,8,0,5245,0,0,0,0,'','Show different gossip if player has completed quest 5245'),
+(14,4743,5795,0,0,8,0,5247,0,0,0,0,'','Show different gossip if player has completed quest 5247'),
+(14,7376,8827,0,0,8,0,9450,0,0,1,0,'','Show different gossip if player has not completed quest 9450'),
+(15,4743,0,0,0,9,0,5247,0,0,0,0,'','Show gossip option only if player has taken quest 5247 but not complete'),
+(15,4743,1,0,0,9,0,5247,0,0,0,0,'','Show gossip option only if player has taken quest 5247 but not complete');
+
 
 -- Flesh Eating Worms should not have loot author exodius Closes #7144
 UPDATE `creature_template` SET `lootid`=0 WHERE `entry`=2462;
@@ -361,11 +362,11 @@ INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`op
 
 -- Gossip conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (@GOSSIP_AMISH,@GOSSIP_VLAGGA);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(15,@GOSSIP_AMISH,0,0,0, 8,0,10140,0,'',"Show gossip option 0 if player has rewarded quest Journey to Honor Hold"),
-(15,@GOSSIP_AMISH,1,0,0,28,0,10140,0,'',"Show gossip option 1 if player has complete quest Journey to Honor Hold"),
-(15,@GOSSIP_VLAGGA,0,0,0, 8,0,10289,0,'',"Show gossip option 0 if player has rewarded quest Journey to Thrallmar"),
-(15,@GOSSIP_VLAGGA,1,0,0,28,0,10289,0,'',"Show gossip option 1 if player has complete quest Journey to Thrallmar");
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(15,@GOSSIP_AMISH,0,0,0,8,10140,0,0,0,'',"Show gossip option 0 if player has rewarded quest Journey to Honor Hold"),
+(15,@GOSSIP_AMISH,1,0,0,28,10140,0,0,0,'',"Show gossip option 1 if player has complete quest Journey to Honor Hold"),
+(15,@GOSSIP_VLAGGA,0,0,0,8,10289,0,0,0,'',"Show gossip option 0 if player has rewarded quest Journey to Thrallmar"),
+(15,@GOSSIP_VLAGGA,1,0,0,28,10289,0,0,0,'',"Show gossip option 1 if player has complete quest Journey to Thrallmar");
 
 -- fix dedication of honor movie playback. author trista and vincent-michael. Closes 	#5754
 SET @MEMORIAL := 202443;
