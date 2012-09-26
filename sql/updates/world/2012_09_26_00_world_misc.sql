@@ -193,16 +193,16 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (14,6471,7642,0,0,27,0,20,2,0,0,0,'','Donal Osgood <Arathi Basin Battlemaster> - Show different gossip if player level is below 20'),
 (14,6504,7699,0,0,27,0,20,2,0,0,0,'','League of Arathor Emissary - Show different gossip if player level is below 20'),
 (15,6471,0,0,0,27,0,20,3,0,0,0,'','Donal Osgood <Arathi Basin Battlemaster> - Show gossip option only if player level is at least 20'),
-(14,5665,6960,0,0,7,356,225,0,0,0,0,'','Show different gossip if player has fishing skill 225'),
-(14,5665,6961,0,0,7,356,225,0,1,0,0,'','Show gossip if player has not fishing skill 225'),
-(14,5853,7021,0,0,7,185,1,0,0,0,0,'','Show different gossip if player has cooking profession'),
-(14,3131,4788,0,0,8,979,0,0,0,0,0,'','Show different gossip if player has completed quest 979'),
-(14,4743,5816,0,0,28,5245,0,0,0,0,0,'','Show different gossip if player has quest 5245 objectives complete'),
-(14,4743,5817,0,0,8,5245,0,0,0,0,0,'','Show different gossip if player has completed quest 5245'),
-(14,4743,5818,0,0,8,5247,0,0,0,0,0,'','Show different gossip if player has completed quest 5247'),
-(14,7376,8827,0,0,8,9450,0,0,1,0,0,'','Show different gossip if player has not completed quest 9450'),
-(15,4743,0,0,0,9,5247,0,0,0,0,0,'','Show gossip option only if player has taken quest 5247 but not complete'),
-(15,4743,1,0,0,9,5247,0,0,0,0,0,'','Show gossip option only if player has taken quest 5247 but not complete');
+(14,5665,6960,0,0,7,0,356,225,0,0,0,'','Show different gossip if player has fishing skill 225'),
+(14,5665,6961,0,0,7,0,356,225,0,1,0,'','Show gossip if player has not fishing skill 225'),
+(14,5853,7021,0,0,7,0,185,1,0,0,0,0,'','Show different gossip if player has cooking profession'),
+(14,3131,4788,0,0,8,0,979,0,0,0,0,0,'','Show different gossip if player has completed quest 979'),
+(14,4743,5816,0,0,28,0,5245,0,0,0,0,'','Show different gossip if player has quest 5245 objectives complete'),
+(14,4743,5817,0,0,8,0,5245,0,0,0,0,'','Show different gossip if player has completed quest 5245'),
+(14,4743,5818,0,0,8,0,5247,0,0,0,0,'','Show different gossip if player has completed quest 5247'),
+(14,7376,8827,0,0,8,0,9450,0,0,1,0,'','Show different gossip if player has not completed quest 9450'),
+(15,4743,0,0,0,9,0,5247,0,0,0,0,0,'','Show gossip option only if player has taken quest 5247 but not complete'),
+(15,4743,1,0,0,9,0,5247,0,0,0,0,0,'','Show gossip option only if player has taken quest 5247 but not complete');
 
 -- Flesh Eating Worms should not have loot author exodius Closes #7144
 UPDATE `creature_template` SET `lootid`=0 WHERE `entry`=2462;
