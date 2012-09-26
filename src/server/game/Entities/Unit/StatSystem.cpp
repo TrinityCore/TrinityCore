@@ -932,17 +932,8 @@ bool Guardian::UpdateStats(Stats stat)
     }
     else if (stat == STAT_STAMINA)
     {
-        if (owner->getClass() == CLASS_WARLOCK && isPet())
-        {
-            ownersBonus = CalculatePctN(owner->GetStat(STAT_STAMINA), 75);
-            value += ownersBonus;
-        }
-        else
-        {
-            mod = 0.45f;
-            ownersBonus = float(owner->GetStat(stat)) * mod;
-            value += ownersBonus;
-        }
+        ownersBonus = CalculatePctN(owner->GetStat(STAT_STAMINA), 30);
+        value += ownersBonus;
     }
                                                             //warlock's and mage's pets gain 30% of owner's intellect
     else if (stat == STAT_INTELLECT)
@@ -1015,13 +1006,14 @@ void Guardian::UpdateArmor()
     float bonus_armor = 0.0f;
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
-    // hunter and warlock pets gain 35% of owner's armor value
-    if (isPet())
-        bonus_armor = float(CalculatePctN(m_owner->GetArmor(), 35));
+    // hunter pets gain 35% of owner's armor value, warlock pets gain 100% of owner's armor
+    if (isHunterPet())
+        bonus_armor = float(CalculatePctN(m_owner->GetArmor(), 70);
+    else if (isPet())
+        bonus_armor = m_owner->GetArmor();
 
     value  = GetModifierValue(unitMod, BASE_VALUE);
     value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetStat(STAT_AGILITY) * 2.0f;
     value += GetModifierValue(unitMod, TOTAL_VALUE) + bonus_armor;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
