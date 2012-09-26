@@ -39,7 +39,7 @@ const char CharStartOutfitEntryfmt[]="diiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxx
 const char CharTitlesEntryfmt[]="nxsxix";
 const char ChatChannelsEntryfmt[]="nixsx";
 
-const char ChrClassesEntryfmt[]="nixsxxxixiiiix";
+const char ChrClassesEntryfmt[]="nixsxxxixiiiii";
 const char ChrRacesEntryfmt[]="nxixiixixxxxixsxxxxxixxx";
 const char ChrClassesXPowerTypesfmt[]="nii";
 
