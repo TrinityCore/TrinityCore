@@ -1416,7 +1416,7 @@ void ScriptMgr::OnGroupDisband(Group* group)
 }
 
 // Unit
-void ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage)
+void ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->ModifyPeriodicDamageAurasTick(target, attacker, damage);
 }
