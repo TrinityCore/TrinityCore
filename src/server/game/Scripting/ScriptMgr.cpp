@@ -1421,7 +1421,7 @@ void ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int3
     FOREACH_SCRIPT(UnitScript)->ModifyPeriodicDamageAurasTick(target, attacker, damage);
 }
 
-void ScriptMgr::ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage)
+void ScriptMgr::ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->ModifyMeleeDamage(target, attacker, damage);
 }

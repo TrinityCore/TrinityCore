@@ -406,7 +406,7 @@ class UnitScript : public ScriptObject
         virtual void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
         
         // Called when Melee Damage is being Dealt
-        virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+        virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
         
         // Called when Spell Damage is being Dealt
         virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
@@ -1054,7 +1054,7 @@ class ScriptMgr
     public: /* UnitScript */
 
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage);
-        void ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage);
+        void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
 
     public: /* Scheduled scripts */
