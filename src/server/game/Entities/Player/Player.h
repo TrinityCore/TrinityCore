@@ -502,7 +502,6 @@ enum AtLoginFlags
     AT_LOGIN_FIRST             = 0x20,
     AT_LOGIN_CHANGE_FACTION    = 0x40,
     AT_LOGIN_CHANGE_RACE       = 0x80,
-    AT_LOGIN_CHECK_TITLES      = 0x100,
     CUSTOMFLAG_DOUBLE_RATE     = 0x200
 };
 
