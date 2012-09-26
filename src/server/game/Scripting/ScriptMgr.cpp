@@ -1495,7 +1495,7 @@ ItemScript::ItemScript(const char* name)
 }
 
 CreatureScript::CreatureScript(const char* name)
-    : ScriptObject(name)
+    : UnitScript(name)
 {
     ScriptRegistry<CreatureScript>::AddScript(this);
 }
@@ -1549,7 +1549,7 @@ ConditionScript::ConditionScript(const char* name)
 }
 
 VehicleScript::VehicleScript(const char* name)
-    : ScriptObject(name)
+    : UnitScript(name)
 {
     ScriptRegistry<VehicleScript>::AddScript(this);
 }
@@ -1573,7 +1573,7 @@ AchievementCriteriaScript::AchievementCriteriaScript(const char* name)
 }
 
 PlayerScript::PlayerScript(const char* name)
-    : ScriptObject(name)
+    : UnitScript(name)
 {
     ScriptRegistry<PlayerScript>::AddScript(this);
 }

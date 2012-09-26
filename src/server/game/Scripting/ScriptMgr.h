@@ -402,22 +402,14 @@ class UnitScript : public ScriptObject
         UnitScript(const char* name);
 
     public:
-
-        virtual void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, int32& damage)
-        {
-            if(!target->isAlive() || !attacker->isAlive())
-                damage = 0;
-        }
-        virtual void ModifyMeleeDamage(Unit* target, Unit* attacker, int32& damage)
-        {
-            if(!target->isAlive() || !attacker->isAlive())
-                damage = 0;
-        }
-        virtual void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage)
-        {
-            if(!target->isAlive() || !attacker->isAlive())
-                damage = 0;
-        }
+        // Called when DoT's Tick Damage is being Dealt
+        virtual void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+        
+        // Called when Melee Damage is being Dealt
+        virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+        
+        // Called when Spell Damage is being Dealt
+        virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
 };
 
 class CreatureScript : public UnitScript, public UpdatableScript<Creature>
