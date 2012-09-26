@@ -547,7 +547,7 @@ struct AreaTableEntry
     char*   area_name;                                      // 11
     uint32  team;                                           // 12
     uint32  LiquidTypeOverride[4];                          // 13-16 liquid override by type
-    //float  unk13;                                         // 17,
+    float   MaxDepth;                                       // 17,
     //float  unk13;                                         // 18,
     //uint32 unk19;                                         // 19, All zeros (4.2.2)
     //uint32 unk20;                                         // 20 4.0.0
