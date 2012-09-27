@@ -2882,12 +2882,18 @@ PvPRank.HKPerRank = "10,50,100,200,450,1000,2000,3000,4500,7500,10500,15000,3000
 #        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
 #        Default:     70
 #
+#     Anticheat.Ban
+#        Description: Make anticheat active (Ban cheaters character for 1 hour.)
+#        Default: 1 - (Enabled)
+#                 0 - (Disabled)
+#
 ###################################################################################################################
 
 Anticheat.Enable = 1
 Anticheat.ReportsForIngameWarnings = 70
 Anticheat.DetectionsEnabled = 31
 Anticheat.MaxReportsForDailyReport = 70
+Anticheat.Ban = 1
 
 ###################################################################################################
 #    Transmogrification config                                                                    #

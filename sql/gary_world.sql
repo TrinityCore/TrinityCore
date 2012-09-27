@@ -147,3 +147,7 @@ REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `cont
 REPLACE INTO `command` (`name`, `security`, `help`) VALUES
 ('msg', 2, 'Syntax: .msg $announcement.\nSend an announcement to all online players, displaying the name of the sender.'),
 ('adm', 4, 'Syntax: .adm $announcement.\nSend an announcement to all online players, displaying the name of the sender.');
+
+-- Add AutoBanned Passive Anticheat System!
+REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+(11002, '|cFFFFFC00[ANTICHEAT]|cFF00FFFF[|cFF60FF00%s|cFF00FFFF] Banned for cheating!|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);

@@ -332,10 +332,22 @@ void AnticheatMgr::BuildReport(Player* player,uint8 reportType)
     {
         // display warning at the center of the screen, hacky way?
         std::string str = "";
+        if (sWorld->getBoolConfig(CONFIG_BAN_PLAYER)) //Make anticheat active.
+        {
+            if (m_Players[key].GetAverage() > 0.5f)
+            {
+                str = "Possible cheater found: " + std::string(player->GetName());
+                sWorld->BanCharacter(player->GetName(), "1h", str, "Anticheat");
+                sWorld->SendWorldText(LANG_BAN_CHEATER, player->GetName());
+            }
+        }
+        else
+        {
         str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(player->GetName()) + "|cFF00FFFF] Possible cheater!";
         WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
         data << str;
         sWorld->SendGlobalGMMessage(&data);
+        }
     }
 }
 
