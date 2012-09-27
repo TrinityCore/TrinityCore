@@ -115,8 +115,8 @@ public:
 
         //handler->SendSysMessage(_FULLVERSION);
         handler->PSendSysMessage("Core: GaryMoveOut");
-        handler->PSendSysMessage("Rev: XX.08.2012");
-        handler->PSendSysMessage("Sponsors: BlizzNet.PL / xGame.PL / JarSat.PL");
+        handler->PSendSysMessage("Rev: XX.09.2012");
+        handler->PSendSysMessage("Sponsors: BlizzNet.PL");
         handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
         handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
         handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
