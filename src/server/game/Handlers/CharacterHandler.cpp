@@ -1964,11 +1964,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
             stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? achiev_horde : achiev_alliance));
             stmt->setUInt32(2, lowGuid);
             trans->Append(stmt);
-
-            // wipe titles, all should be given back together with corresponding achies
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TITLES);
-            stmt->setUInt32(0, lowGuid);
-            trans->Append(stmt);
         }
 
         // Item conversion
