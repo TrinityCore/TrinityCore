@@ -1132,7 +1132,7 @@ class npc_pool_of_tar : public CreatureScript
 
             void Reset()
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE); // Check if this also prevents SpellHit
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE); // Check if this also prevents SpellHit
                 me->CastSpell(me, SPELL_TAR_PASSIVE, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -2616,7 +2616,10 @@ class spell_shield_generator : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* siege = caster->GetVehicleBase())
-                        amount = int32(siege->CountPctFromMaxHealth(15));
+                    {
+                        uint8 hpPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(siege);
+                        amount = int32(siege->CountPctFromMaxHealth(hpPct));
+                    }
             }
 
             void Register()
