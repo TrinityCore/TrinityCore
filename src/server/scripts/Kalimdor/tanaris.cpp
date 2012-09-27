@@ -150,20 +150,20 @@ public:
 
 enum CustodianOfTime
 {
-    WHISPER_CUSTODIAN_1     = -1000217,
-    WHISPER_CUSTODIAN_2     = -1000218,
-    WHISPER_CUSTODIAN_3     = -1000219,
-    WHISPER_CUSTODIAN_4     = -1000220,
-    WHISPER_CUSTODIAN_5     = -1000221,
-    WHISPER_CUSTODIAN_6     = -1000222,
-    WHISPER_CUSTODIAN_7     = -1000223,
-    WHISPER_CUSTODIAN_8     = -1000224,
-    WHISPER_CUSTODIAN_9     = -1000225,
-    WHISPER_CUSTODIAN_10    = -1000226,
-    WHISPER_CUSTODIAN_11    = -1000227,
-    WHISPER_CUSTODIAN_12    = -1000228,
-    WHISPER_CUSTODIAN_13    = -1000229,
-    WHISPER_CUSTODIAN_14    = -1000230
+    WHISPER_CUSTODIAN_1     = 0,
+    WHISPER_CUSTODIAN_2     = 1,
+    WHISPER_CUSTODIAN_3     = 2,
+    WHISPER_CUSTODIAN_4     = 3,
+    WHISPER_CUSTODIAN_5     = 4,
+    WHISPER_CUSTODIAN_6     = 5,
+    WHISPER_CUSTODIAN_7     = 6,
+    WHISPER_CUSTODIAN_8     = 7,
+    WHISPER_CUSTODIAN_9     = 8,
+    WHISPER_CUSTODIAN_10    = 9,
+    WHISPER_CUSTODIAN_11    = 10,
+    WHISPER_CUSTODIAN_12    = 11,
+    WHISPER_CUSTODIAN_13    = 12,
+    WHISPER_CUSTODIAN_14    = 13
 };
 
 class npc_custodian_of_time : public CreatureScript
@@ -187,58 +187,58 @@ public:
                 switch (waypointId)
                 {
                     case 0:
-                        DoScriptText(WHISPER_CUSTODIAN_1, me, player);
+                        Talk(WHISPER_CUSTODIAN_1, player->GetGUID());
                         break;
                     case 1:
-                        DoScriptText(WHISPER_CUSTODIAN_2, me, player);
+                        Talk(WHISPER_CUSTODIAN_2, player->GetGUID());
                         break;
                     case 2:
-                        DoScriptText(WHISPER_CUSTODIAN_3, me, player);
+                        Talk(WHISPER_CUSTODIAN_3, player->GetGUID());
                         break;
                     case 3:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 5:
-                        DoScriptText(WHISPER_CUSTODIAN_5, me, player);
+                        Talk(WHISPER_CUSTODIAN_5, player->GetGUID());
                         break;
                     case 6:
-                        DoScriptText(WHISPER_CUSTODIAN_6, me, player);
+                        Talk(WHISPER_CUSTODIAN_6, player->GetGUID());
                         break;
                     case 7:
-                        DoScriptText(WHISPER_CUSTODIAN_7, me, player);
+                        Talk(WHISPER_CUSTODIAN_7, player->GetGUID());
                         break;
                     case 8:
-                        DoScriptText(WHISPER_CUSTODIAN_8, me, player);
+                        Talk(WHISPER_CUSTODIAN_8, player->GetGUID());
                         break;
                     case 9:
-                        DoScriptText(WHISPER_CUSTODIAN_9, me, player);
+                        Talk(WHISPER_CUSTODIAN_9, player->GetGUID());
                         break;
                     case 10:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 13:
-                        DoScriptText(WHISPER_CUSTODIAN_10, me, player);
+                        Talk(WHISPER_CUSTODIAN_10, player->GetGUID());
                         break;
                     case 14:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 16:
-                        DoScriptText(WHISPER_CUSTODIAN_11, me, player);
+                        Talk(WHISPER_CUSTODIAN_11, player->GetGUID());
                         break;
                     case 17:
-                        DoScriptText(WHISPER_CUSTODIAN_12, me, player);
+                        Talk(WHISPER_CUSTODIAN_12, player->GetGUID());
                         break;
                     case 18:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 22:
-                        DoScriptText(WHISPER_CUSTODIAN_13, me, player);
+                        Talk(WHISPER_CUSTODIAN_13, player->GetGUID());
                         break;
                     case 23:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 24:
-                        DoScriptText(WHISPER_CUSTODIAN_14, me, player);
+                        Talk(WHISPER_CUSTODIAN_14, player->GetGUID());
                         DoCast(player, 34883);
                         // below here is temporary workaround, to be removed when spell works properly
                         player->AreaExploredOrEventHappens(10277);
