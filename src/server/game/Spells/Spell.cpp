@@ -1144,8 +1144,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     }
     std::list<WorldObject*> targets;
     float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
-    if (m_spellInfo->Effects[effIndex].RadiusEntry->ID == EFFECT_RADIUS_3_YARDS)
-        radius = m_spellInfo->GetMaxRange() * m_spellValue->RadiusMod;
     SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
