@@ -533,6 +533,11 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
             Weight += it->second;
         if (!Weight)
             return NULL;
+
+        // remove IoC from possible random BGs
+        if (!bg_template->isArena())
+            Weight--;
+
         // Select a random value
         selectedWeight = urand(0, Weight-1);
 

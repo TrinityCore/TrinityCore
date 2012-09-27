@@ -44,7 +44,6 @@
 #include "Battleground.h"
 #include "AccountMgr.h"
 #include "LFGMgr.h"
-#include "GroupMgr.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -1011,41 +1010,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     m_playerLoading = false;
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
-
-    // Check titles at login
-    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_CHECK_TITLES))
-    {
-        uint32 team = pCurrChar->GetTeam();
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ACHIEWMENT_REWARD);
-        if (PreparedQueryResult result = WorldDatabase.Query(stmt))
-        {
-            do
-            {
-                Field *fields = result->Fetch();
-                uint32 id_titleAlliance = fields[0].GetUInt32();
-                uint32 id_titleHorde = fields[1].GetUInt32();
-
-                // Check if we really have that title
-                CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(team == HORDE ? id_titleAlliance : id_titleHorde);
-
-                uint32 fieldIndexOffset = titleEntry->bit_index / 32;
-                uint32 flag = 1 << (titleEntry->bit_index % 32);
-                if (pCurrChar->HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
-                {
-                    pCurrChar->SetTitle(titleEntry, true);
-                    if (CharTitlesEntry const* titleNewEntry = sCharTitlesStore.LookupEntry(team == HORDE ? id_titleHorde : id_titleAlliance))
-                    {
-                        pCurrChar->SetTitle(titleNewEntry);
-                        pCurrChar->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
-                    }
-                }
-            }
-            while (result->NextRow());
-        }
-
-        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_CHECK_TITLES);
-    }
-
     delete holder;
 }
 
@@ -1656,60 +1620,16 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     std::string newname;
     uint8 gender, skin, face, hairStyle, hairColor, facialHair, race;
     recv_data >> guid;
-
-    int old_base_rep[14];
-    int f = 0;
-
-    uint32 lowGuid = GUID_LOPART(guid);
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
-
-    stmt->setUInt32(0, lowGuid);
-
-    PreparedQueryResult oldRace = CharacterDatabase.Query(stmt);
-    if (oldRace)
-    {
-        Field *fields2 = oldRace->Fetch();
-        uint32 old_race = fields2[0].GetUInt32();
-
-        // Search each faction is targeted
-        BattlegroundTeamId team = BG_TEAM_ALLIANCE;
-        switch(old_race)
-        {
-            case RACE_ORC:
-            case RACE_TAUREN:
-            case RACE_UNDEAD_PLAYER:
-            case RACE_TROLL:
-            case RACE_BLOODELF:
-            //case RACE_GOBLIN: for cataclysm
-                team = BG_TEAM_HORDE;
-                break;
-            default: break;
-        }
-
-        if (QueryResult result2 = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations"))
-        {
-            do
-            {
-                Field *fields3 = result2->Fetch();
-                uint32 reputation_alliance = fields3[0].GetUInt32();
-                uint32 reputation_horde = fields3[1].GetUInt32();
-                FactionEntry const* factionEntry = sFactionStore.LookupEntry(team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde);
-                old_base_rep[f] = factionEntry->BaseRepValue[0];
-                f++;
-            }
-            while( result2->NextRow() );
-        }
-    }
-
     recv_data >> newname;
     recv_data >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face >> race;
 
-    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
+    uint32 lowGuid = GUID_LOPART(guid);
 
-    stmt2->setUInt32(0, lowGuid);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
 
-    PreparedQueryResult result = CharacterDatabase.Query(stmt2);
+    stmt->setUInt32(0, lowGuid);
+
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
     {
@@ -1724,6 +1644,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     uint32 level = uint32(fields[1].GetUInt8());
     uint32 at_loginFlags = fields[2].GetUInt16();
     uint32 used_loginFlag = ((recv_data.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
+    const char *knownTitlesStr = fields[3].GetCString();
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {
@@ -1791,15 +1712,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
             return;
         }
     }
-
-    // The player was uninvited already on logout so just remove from group
-    // immediately remove from group before start change process
-    PreparedStatement* stmt3 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-    stmt3->setUInt32(0, guid);
-    PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt3);
-    if (resultGroup)
-        if (Group* group = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32()))
-            Player::RemoveFromGroup(group, guid);
 
     CharacterDatabase.EscapeString(newname);
     Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
@@ -2102,6 +2014,69 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
             stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
             stmt->setUInt32(2, lowGuid);
             trans->Append(stmt);
+        }
+
+        // Title conversion
+        if (knownTitlesStr)
+        {
+            uint32 ktcount = 6;
+            uint32 knownTitles[6];
+            Tokens tokens(knownTitlesStr, ' ', ktcount);
+
+            if (tokens.size() != ktcount)
+                return;
+
+            for (uint32 index = 0; index < ktcount; ++index)
+                knownTitles[index] = atol(tokens[index]);
+
+            for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Titles.begin(); it != sObjectMgr->FactionChange_Titles.end(); ++it)
+            {
+                uint32 title_alliance = it->first;
+                uint32 title_horde = it->second;
+
+                CharTitlesEntry const* atitleInfo = sCharTitlesStore.LookupEntry(title_alliance);
+                CharTitlesEntry const* htitleInfo = sCharTitlesStore.LookupEntry(title_horde);
+                // new team
+                if (team == BG_TEAM_ALLIANCE)
+                {
+                    uint32 bitIndex = htitleInfo->bit_index;
+                    uint32 index = bitIndex / 32;
+                    uint32 old_flag = 1 << (bitIndex % 32);
+                    uint32 new_flag = 1 << (atitleInfo->bit_index % 32);
+                    if (knownTitles[index] & old_flag)
+                    {
+                        knownTitles[index] &= ~old_flag;
+                        // use index of the new title
+                        knownTitles[atitleInfo->bit_index / 32] |= new_flag;
+                    }
+                }
+                else
+                {
+                    uint32 bitIndex = atitleInfo->bit_index;
+                    uint32 index = bitIndex / 32;
+                    uint32 old_flag = 1 << (bitIndex % 32);
+                    uint32 new_flag = 1 << (htitleInfo->bit_index % 32);
+                    if (knownTitles[index] & old_flag)
+                    {
+                        knownTitles[index] &= ~old_flag;
+                        // use index of the new title
+                        knownTitles[htitleInfo->bit_index / 32] |= new_flag;
+                    }
+                }
+
+                std::ostringstream ss;
+                for (uint32 index = 0; index < 6; ++index)
+                    ss << knownTitles[index] << ' ';
+
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
+                stmt->setString(0, ss.str().c_str());
+                stmt->setUInt32(1, lowGuid);
+                trans->Append(stmt);
+
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_RES_CHAR_TITLES_FACTION_CHANGE);
+                stmt->setUInt32(0, lowGuid);
+                trans->Append(stmt);
+            }
         }
     }
 
