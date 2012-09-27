@@ -369,7 +369,7 @@ class boss_razorscale : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (type == POINT_MOTION_TYPE && id == 1)
+                if (type == EFFECT_MOTION_TYPE && id == 1)
                 {
                     phase = PHASE_GROUND;
                     events.SetPhase(PHASE_GROUND);
@@ -407,7 +407,7 @@ class boss_razorscale : public CreatureScript
                 if (HarpoonCounter == RAID_MODE(2, 4))
                 {
                     HarpoonCounter = 0;
-                    me->GetMotionMaster()->MovePoint(1, RazorGround);
+                    me->GetMotionMaster()->MoveLand(1, RazorGround);
                 }
 
                 if (phase == PHASE_GROUND)
@@ -423,7 +423,7 @@ class boss_razorscale : public CreatureScript
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetReactState(REACT_PASSIVE);
                                 me->AttackStop();
-                                me->GetMotionMaster()->MovePoint(0, RazorFlight);
+                                me->GetMotionMaster()->MoveTakeoff(0, RazorFlight);
                                 events.ScheduleEvent(EVENT_FIREBALL, 7000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_SUMMON, 5000, 0, PHASE_FLIGHT);
@@ -525,7 +525,7 @@ class boss_razorscale : public CreatureScript
                 phase = PHASE_PERMAGROUND;
                 events.SetPhase(PHASE_PERMAGROUND);
                 me->SetCanFly(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAurasDueToSpell(SPELL_HARPOON_TRIGGER);
                 me->SetSpeed(MOVE_FLIGHT, 1.0f, true);
