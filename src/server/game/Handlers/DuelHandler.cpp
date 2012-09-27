@@ -50,8 +50,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     plTarget->duel->startTimer = now;
 
     // Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power.
-    //                         Elwynn Forest                Durotar                      Circle of Wills          
-    if (player->GetAreaId() == 12 || player->GetAreaId() == 14 || player->GetAreaId() == 4570)
+    //                         Elwynn Forest                Durotar                      Circle of Wills                Astranaar          
+    if (player->GetAreaId() == 12 || player->GetAreaId() == 14 || player->GetAreaId() == 4570 || player->GetAreaId() == 415)
     {
         player->SetHealth(player->GetMaxHealth());
         plTarget->SetHealth(plTarget->GetMaxHealth());

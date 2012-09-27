@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[37] --> Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power in Astranaar.
 [36] --> [Censor] Update vulgar slang.
 [35] --> Add Admin Announce Command.
 [34] --> GM Account can chat at 2 faction.
