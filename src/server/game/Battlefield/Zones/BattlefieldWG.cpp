@@ -844,20 +844,13 @@ uint32 BattlefieldWG::GetData(uint32 data)
     return Battlefield::GetData(data);
 }
 
-// Method sending worldsate to player
-WorldPacket BattlefieldWG::BuildInitWorldStates()
+
+void BattlefieldWG::FillInitialWorldStates(WorldPacket& data)
 {
-    WorldPacket data(SMSG_INIT_WORLD_STATES, (4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (WorkshopsList.size() * 8)));
-
-    data << uint32(m_MapId);
-    data << uint32(m_ZoneId);
-    data << uint32(0);
-    data << uint16(4 + 2 + 4 + BuildingsInZone.size() + WorkshopsList.size());
-
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER) << uint32(GetAttackerTeam());
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) << uint32(GetDefenderTeam());
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) << uint32(IsWarTime()? 0 : 1); // Note: cleanup these two, their names look awkward
-    data << uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE) << uint32(IsWarTime()? 1 : 0);
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) << uint32(IsWarTime() ? 0 : 1); // Note: cleanup these two, their names look awkward
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE) << uint32(IsWarTime() ? 1 : 0);
 
     for (uint32 i = 0; i < 2; ++i)
         data << ClockWorldState[i] << uint32(time(NULL) + (m_Timer / 1000));
@@ -879,17 +872,24 @@ WorldPacket BattlefieldWG::BuildInitWorldStates()
 
 void BattlefieldWG::SendInitWorldStatesTo(Player* player)
 {
-    WorldPacket data = BuildInitWorldStates();
+    WorldPacket data(SMSG_INIT_WORLD_STATES, (4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (WorkshopsList.size() * 8)));
+
+    data << uint32(m_MapId);
+    data << uint32(m_ZoneId);
+    data << uint32(0);
+    data << uint16(10 + BuildingsInZone.size() + WorkshopsList.size()); // Number of fields
+    
+    FillInitialWorldStates(data);
+    
     player->GetSession()->SendPacket(&data);
 }
 
 void BattlefieldWG::SendInitWorldStatesToAll()
 {
-    WorldPacket data = BuildInitWorldStates();
     for (uint8 team = 0; team < 2; team++)
         for (GuidSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                player->GetSession()->SendPacket(&data);
+                SendInitWorldStatesTo(player);
 }
 
 void BattlefieldWG::BrokenWallOrTower(TeamId /*team*/)

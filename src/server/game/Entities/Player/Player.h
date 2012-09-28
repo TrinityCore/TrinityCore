@@ -2125,6 +2125,7 @@ class Player : public Unit, public GridObject<Player>
         void SendUpdateWorldState(uint32 Field, uint32 Value);
         void SendDirectMessage(WorldPacket* data);
         void SendBGWeekendWorldStates();
+        void SendBattlefieldWorldStates();
 
         void SendAurasForTarget(Unit* target);
 
