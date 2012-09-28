@@ -22,6 +22,13 @@ public:
         POLY_AREA_ROAD = 3,
         POLY_AREA_DANGER = 4,
     };
+
+    enum PolyFlag
+    {
+        POLY_FLAG_WALK  = 1,
+        POLY_FLAG_SWIM  = 2,
+        POLY_FLAG_FLIGHTMASTER = 4
+    };
     static const float TileSize;
     static const float MaxXY;
     static const float ChunkSize;

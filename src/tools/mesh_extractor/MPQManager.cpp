@@ -46,7 +46,7 @@ void MPQManager::LoadMPQs()
         sprintf(filename, "Data/%s", Files[i]);
         Archives.push_front(new MPQArchive(filename));
     }
-    printf("Loaded %u MPQ files succesfully", Archives.size());
+    printf("Loaded %u MPQ files succesfully\n", Archives.size());
 }
 
 FILE* MPQManager::GetFile( std::string path )

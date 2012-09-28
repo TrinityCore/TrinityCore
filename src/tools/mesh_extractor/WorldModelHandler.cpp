@@ -92,7 +92,7 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
         }
     }
 
-    if (def.DoodadSet >= 0 && def.DoodadSet < root->DoodadSets.size())
+    if (def.DoodadSet < root->DoodadSets.size())
     {
         DoodadSet set = root->DoodadSets[def.DoodadSet];
         std::vector<DoodadInstance> instances;
