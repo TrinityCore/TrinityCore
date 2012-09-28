@@ -4,17 +4,19 @@
 #include "MapChunk.h"
 #include "DoodadHandler.h"
 #include "WorldModelHandler.h"
+#include "LiquidHandler.h"
 
 class ADT
 {
 public:
-    ADT();
-    ~ADT() { delete[] MapChunks; delete ObjectData; delete Data; }
+    ADT(std::string file);
+    ~ADT();
+    
+    void Read();
 
     ChunkedData* ObjectData;
     ChunkedData* Data;
-    // This here is not a pointer, is an array of objects ( made this way to allow the dynamic allocation )
-    MapChunk* MapChunks;
+    std::vector<MapChunk*> MapChunks;
     MHDR Header;
     // Can we dispose of this?
     bool HasObjectData;

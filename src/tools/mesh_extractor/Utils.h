@@ -16,9 +16,9 @@ struct Vector3
     float x;
     float y;
     float z;
-    Vector3 operator+(Vector3 right, Vector3 left)
+    Vector3 operator +(Vector3 const& other)
     {
-        return Vector3(right.x+left.x, right.y+left.y, right.z+left.z);
+        return Vector3(x + other.x, y + other.y, z + other.z);
     }
     static Vector3 Read(FILE* file);
 };
@@ -380,7 +380,7 @@ public:
         return RenderFlags[x][y] != 0x0F;
     }
 
-    public static LiquidData Read(FILE* stream, LiquidHeader header)
+    static LiquidData Read(FILE* stream, LiquidHeader header)
     {
         LiquidData ret;
         ret.HeightMap = new float*[header.CountXVertices];
@@ -440,14 +440,15 @@ class MCNKLiquidData
 {
 public:
     MCNKLiquidData() {}
+    MCNKLiquidData(float** heights, H2ORenderMask mask) : Heights(heights), Mask(mask) {}
     const float MaxStandableHeight = 1.5f;
 
     float** Heights;
-    H2ORenderMask* Mask;
+    H2ORenderMask Mask;
 
     bool IsWater(int x, int y, float height)
     {
-        if (!Heights || !Mask)
+        if (!Heights)
             return false;
         if (!Mask->ShouldRender(x, y))
             return false;
@@ -455,6 +456,56 @@ public:
         if (diff > MaxStandableHeight)
             return true;
         return false;
+    }
+};
+
+class H2OHeader
+{
+public:
+    H2OHeader() {}
+    uint32 OffsetInformation;
+    uint32 LayerCount;
+    uint32 OffsetRender;
+
+    static H2OHeader Read(FILE* stream)
+    {
+        H2OHeader ret;
+        fread(&ret.OffsetInformation, sizeof(uint32), 1, stream);
+        fread(&ret.LayerCount, sizeof(uint32), 1, stream);
+        fread(&ret.OffsetRender, sizeof(uint32), 1, stream);
+        return ret;
+    }
+};
+
+class H2OInformation
+{
+public:
+    H2OInformation() {}
+    uint16 LiquidType;
+    uint16 Flags;
+    float HeightLevel1;
+    float HeightLevel2;
+    uint8 OffsetX;
+    uint8 OffsetY;
+    uint8 Width;
+    uint8 Height;
+    uint32 OffsetMask2;
+    uint32 OffsetHeightmap;
+
+    static H2OInformation Read(FILE* stream)
+    {
+        H2OInformation ret;
+        fread(&ret.LiquidType, sizeof(uint16), 1, stream);
+        fread(&ret.Flags, sizeof(uint16), 1, stream);
+        fread(&ret.HeightLevel1, sizeof(float), 1, stream);
+        fread(&ret.HeightLevel2, sizeof(float), 1, stream);
+        fread(&ret.OffsetX, sizeof(uint8), 1, stream);
+        fread(&ret.OffsetY, sizeof(uint8), 1, stream);
+        fread(&ret.Width, sizeof(uint8), 1, stream);
+        fread(&ret.Height, sizeof(uint8), 1, stream);
+        fread(&ret.OffsetMask2, sizeof(uint32), 1, stream);
+        fread(&ret.OffsetHeightmap, sizeof(uint32), 1, stream);
+        return ret;
     }
 };
 
@@ -493,5 +544,15 @@ public:
     static std::string GetPathBase(std::string path);
     static Vector3 GetLiquidVert(G3D::Matrix4 transformation, Vector3 basePosition, float height, int x, int y);
     static float Distance(float x, float y);
+    template<typename T>
+    static bool IsAllZero(T* arr, uint32 size)
+    {
+        for (uint32 i = 0; i < size; ++i)
+            if (arr[i])
+                return false;
+        return true;
+    }
+    static std::string Utils::Replace( std::string str, const std::string& oldStr, const std::string& newStr );
+
 };
 #endif

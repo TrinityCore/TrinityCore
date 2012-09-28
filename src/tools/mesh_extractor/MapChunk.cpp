@@ -1,7 +1,7 @@
 #include "MapChunk.h"
 #include "ADT.h"
 
-MapChunk::MapChunk( ADT* _adt, Chunk* chunk ) : adt(_adt), Source(chunk), Vertices(NULL)
+MapChunk::MapChunk( ADT* _adt, Chunk* chunk ) : Adt(_adt), Source(chunk), Vertices(NULL)
 {
     FILE* stream = chunk->GetStream();
     Header.Read(stream);
@@ -26,14 +26,14 @@ void MapChunk::GenerateTriangles()
             uint32 center = (17 * y) + 9 + x;
 
             uint8 triangleType = Constants::TRIANGLE_TYPE_TERRAIN;
-            if (ADT.LiquidHandler && ADT.LiquidHandler.MCNKData)
+            if (Adt->_LiquidHandler && !Adt->_LiquidHandler->MCNKData.empty())
             {
-                var data = ADT.LiquidHandler.MCNKData[Index];
+                MCNKLiquidData& data = Adt->_LiquidHandler->MCNKData[Index];
                 uint32 maxHeight = std::max(
                     std::max(
                     std::max(std::max(Vertices[topLeft].z, Vertices[topRight].z), Vertices[bottomLeft].z),
                     Vertices[bottomRight].z), Vertices[center].z);
-                if (data && data->IsWater(x, y, maxHeight))
+                if (data.IsWater(x, y, maxHeight))
                     triangleType = Constants::TRIANGLE_TYPE_WATER;
             }
 
