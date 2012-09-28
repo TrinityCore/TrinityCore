@@ -2,7 +2,7 @@
 #include "Chunk.h"
 #include "Cache.h"
 #include "Model.h"
-#include "g3d/Matrix4.h"
+#include "G3D/Matrix4.h"
 
 DoodadHandler::DoodadHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
 {
