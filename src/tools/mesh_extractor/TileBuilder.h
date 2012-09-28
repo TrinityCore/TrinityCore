@@ -10,7 +10,7 @@ class WDT;
 class TileBuilder
 {
 public:
-    TileBuilder(std::string world, int x, int y, WDT* wdt);
+    TileBuilder(std::string world, int x, int y, WDT* wdt, uint32 mapId);
     void CalculateTileBounds(float*& bmin, float*& bmax);
     uint8* Build();
 

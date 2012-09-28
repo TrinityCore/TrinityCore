@@ -29,7 +29,14 @@ ADT::~ADT()
 
 void ADT::Read()
 {
-    Header.Read(Data->GetChunkByName("MHDR")->GetStream());
+    Chunk* mhdr = Data->GetChunkByName("MHDR");
+    if (!mhdr)
+    {
+        delete Data;
+        Data = NULL;
+        return;
+    }
+    Header.Read(mhdr->GetStream());
     MapChunks.reserve(16 * 16);
     int mapChunkIndex = 0;
 

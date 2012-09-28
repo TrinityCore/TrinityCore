@@ -4,7 +4,7 @@
 #include "Cache.h"
 #include "Model.h"
 #include "Common.h"
-#include "g3d/Matrix4.h"
+#include "G3D/Matrix4.h"
 #include <cstdio>
 
 WorldModelDefinition WorldModelDefinition::Read( FILE* file )

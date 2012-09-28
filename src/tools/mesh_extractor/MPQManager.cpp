@@ -1,5 +1,7 @@
 #include "MPQManager.h"
 #include "MPQ.h"
+#include "DBC.h"
+#include "Utils.h"
 
 char* MPQManager::Files[] = { 
     "common.MPQ",
@@ -11,42 +13,43 @@ char* MPQManager::Files[] = {
     "patch-3.MPQ"
 };
 
+char* MPQManager::Languages[] = { "esES", "enUS", "enGB", "esMX", "deDE" };
+
 void MPQManager::Initialize()
 {
-    LoadMPQs();
+    InitializeDBC();
+    uint32 size = sizeof(Files) / sizeof(char*);
+    for (uint32 i = 0; i < size; ++i)
+    {
+        MPQArchive* arc = new MPQArchive(std::string("Data/" + std::string(Files[i])).c_str());
+        Archives.push_front(arc);
+        printf("Opened %s\n", Files[i]);
+    }
 }
 
 void MPQManager::LoadMaps()
 {
-
+    DBC* file = GetDBC("Map");
+    printf("NAME %s\n", file->GetRecordById(608)->GetString(1).c_str());
 }
 
-void MPQManager::LoadMPQs()
+void MPQManager::InitializeDBC()
 {
-    // Load the locale MPQ files first
-    char filename[512];
-
-    /*sprintf(filename,"Data/%s/locale-%s.MPQ", langs[locale], langs[locale]);*/
-    Archives.push_front(new MPQArchive("Data/enUS/locale-enUS.MPQ"));
-
-    for(int i = 0; i < 3; ++i)
+    CurLocale = 0;
+    std::string fileName;
+    uint32 size = sizeof(Languages) / sizeof(char*);
+    for (uint32 i = 0; i < size; ++i)
     {
-        char ext[3] = "";
-        if (i)
-            sprintf(ext, "-%i", i + 1);
-
-        sprintf(filename, "Data/enUS/patch-enUS%s.MPQ", ext);
-        Archives.push_front(new MPQArchive(filename));
+        fileName = "Data/" + std::string(Languages[i]) + "/locale-" + std::string(Languages[i]) + ".MPQ";
+        FILE* file = fopen(fileName.c_str(), "rb");
+        if (file)
+        {
+            CurLocale = i;
+            break;
+        }
     }
-
-    // Now load the common MPQ files
-    int count = sizeof(Files) / sizeof(char*);
-    for (int i = 0; i < count; ++i)
-    {
-        sprintf(filename, "Data/%s", Files[i]);
-        Archives.push_front(new MPQArchive(filename));
-    }
-    printf("Loaded %u MPQ files succesfully\n", Archives.size());
+    Archives.push_front(new MPQArchive(fileName.c_str()));
+    printf("Using locale: %s\n", Languages[CurLocale]);
 }
 
 FILE* MPQManager::GetFile( std::string path )
@@ -55,4 +58,10 @@ FILE* MPQManager::GetFile( std::string path )
     if (file.isEof())
         return NULL;
     return file.GetFileStream();
+}
+
+DBC* MPQManager::GetDBC( std::string name )
+{
+    std::string path = "DBFilesClient\\" + name + ".dbc";
+    return new DBC(GetFile(path));
 }
