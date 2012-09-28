@@ -619,7 +619,12 @@ INSERT INTO `spell_script_names` VALUES
 (63276,'spell_mark_of_the_faceless'),
 (63278,'spell_mark_of_the_faceless_drain');
 
--- Update saronite animus entry. TODO: Check if its health-modifier is ok.
+-- Shadow crash auras
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=63277;
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
+(63277, 65269, 2, 'Shadow Crash auras');
+
+-- Update saronite animus entry.
 UPDATE `creature_template` SET `flags_extra`=`flags_extra` |1 WHERE `entry`=33524;
 
 -- Achievements "I love the smell of saronite in the morning" and "Shadowdodger"
