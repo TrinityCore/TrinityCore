@@ -65,7 +65,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (GetStartTime() >= 25*MINUTE*IN_MILLISECONDS)
+        if (GetStartTime() >= 27*MINUTE*IN_MILLISECONDS)
         {
             if (GetTeamScore(ALLIANCE) == 0)
             {
@@ -83,7 +83,8 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
             else
                 EndBattleground(ALLIANCE);
         }
-        else if (GetStartTime() > uint32(_minutesElapsed * MINUTE * IN_MILLISECONDS))
+        // first update needed after 1 minute of game already in progress
+        else if (GetStartTime() > uint32(_minutesElapsed * MINUTE * IN_MILLISECONDS) +  3 * MINUTE * IN_MILLISECONDS)
         {
             ++_minutesElapsed;
             UpdateWorldState(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
@@ -159,6 +160,17 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
         }
         else
         {
+            if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[0]))
+            {
+                player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
+                player->RemoveAurasDueToSpell(WS_SPELL_BRUTAL_ASSAULT);
+            }
+            if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[1]))
+            {
+                player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
+                player->RemoveAurasDueToSpell(WS_SPELL_BRUTAL_ASSAULT);
+            }
+
             _flagSpellForceTimer = 0; //reset timer.
             _flagDebuffState = 0;
         }
@@ -826,23 +838,17 @@ void BattlegroundWS::FillInitialWorldStates(WorldPacket& data)
 
     data << uint32(BG_WS_FLAG_CAPTURES_MAX) << uint32(BG_WS_MAX_TEAM_SCORE);
 
-    if (GetStatus() == STATUS_IN_PROGRESS)
-    {
-        data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(1);
-        data << uint32(BG_WS_STATE_TIMER) << uint32(25-_minutesElapsed);
-    }
-    else
-        data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(0);
-
     if (_flagState[BG_TEAM_HORDE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        data << uint32(BG_WS_FLAG_STATE_ALLIANCE) << uint32(2);
-    else
-        data << uint32(BG_WS_FLAG_STATE_ALLIANCE) << uint32(1);
-
-    if (_flagState[BG_TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_PLAYER)
         data << uint32(BG_WS_FLAG_STATE_HORDE) << uint32(2);
     else
         data << uint32(BG_WS_FLAG_STATE_HORDE) << uint32(1);
 
+    if (_flagState[BG_TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_PLAYER)
+        data << uint32(BG_WS_FLAG_STATE_ALLIANCE) << uint32(2);
+    else
+        data << uint32(BG_WS_FLAG_STATE_ALLIANCE) << uint32(1);
+
+    data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(1);
+    data << uint32(BG_WS_STATE_TIMER) << uint32(25 - _minutesElapsed);
 }
 
