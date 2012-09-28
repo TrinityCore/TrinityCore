@@ -15,10 +15,10 @@ void ExtractAllMaps()
     WDT wdt("World\\maps\\DalaranPrison\\DalaranPrison.wdt");
     if (!wdt.IsValid)
         return;
-    printf("Model valid!");
+    printf("Model valid!\n");
     if (wdt.IsGlobalModel)
     {
-        printf("Unsupported");
+        printf("Unsupported\n");
         return;
     }
     ContinentBuilder builder("DalaranPrison", &wdt);

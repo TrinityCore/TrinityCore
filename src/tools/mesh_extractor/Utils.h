@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "g3d/Matrix4.h"
+#include "DetourNavMesh.h"
 
 #include "Common.h"
 #include "Constants.h"
@@ -521,6 +522,21 @@ public:
     Vector3 Position;
     Vector3 Rotation;
     virtual float Scale() const { return 1.0f; };
+};
+
+#define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
+#define MMAP_VERSION 3
+
+struct MmapTileHeader
+{
+    uint32 mmapMagic;
+    uint32 dtVersion;
+    uint32 mmapVersion;
+    uint32 size;
+    bool usesLiquids : 1;
+
+    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
+        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
 };
 
 class Utils

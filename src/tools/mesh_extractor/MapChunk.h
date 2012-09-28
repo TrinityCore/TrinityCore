@@ -10,7 +10,6 @@ class MapChunk
 {
 public:
     MapChunk(ADT* _adt, Chunk* chunk);
-    ~MapChunk();
     
     void GenerateTriangles();
     void GenerateVertices(FILE* stream);
@@ -18,7 +17,7 @@ public:
     ADT* Adt;
     Chunk* Source;
     MapChunkHeader Header;
-    Vector3* Vertices;
+    std::vector<Vector3> Vertices;
     std::vector<Triangle<uint8> > Triangles;
     int32 Index;
 };

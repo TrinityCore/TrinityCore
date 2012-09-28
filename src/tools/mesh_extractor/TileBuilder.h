@@ -5,10 +5,12 @@
 
 #include "Geometry.h"
 
+class WDT;
+
 class TileBuilder
 {
 public:
-    TileBuilder(std::string world, int x, int y);
+    TileBuilder(std::string world, int x, int y, WDT* wdt);
     void CalculateTileBounds(float*& bmin, float*& bmax);
     uint8* Build();
 
@@ -17,6 +19,9 @@ public:
     int Y;
     int MapId;
     rcConfig Config;
+    rcContext* Context;
     Geometry* _Geometry;
+    uint32 DataSize;
+    WDT* Wdt;
 };
 #endif
