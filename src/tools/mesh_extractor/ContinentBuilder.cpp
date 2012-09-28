@@ -3,6 +3,49 @@
 #include "WDT.h"
 #include "Utils.h"
 #include "DetourNavMesh.h"
+#include "ace/Task.h"
+
+class BuilderThread : public ACE_Task<ACE_MT_SYNCH>
+{
+private:
+    int X, Y, MapId;
+    std::string Continent;
+public:
+    BuilderThread() : Free(true) {}
+    void SetData(int x, int y, int map, std::string cont) { X = x; Y = y; MapId = map; Continent = cont; }
+
+    int svc()
+    {
+        Free = false;
+        TileBuilder builder(Continent, X, Y, MapId);
+        char buff[100];
+        sprintf(buff, "%03u%02u%02u.mmtile", MapId, X, Y);
+        FILE* f = fopen(buff, "r");
+        if (f) // Check if file already exists.
+        {
+            fclose(f);
+            Free = true;
+            return 0;
+        }
+        uint8* nav = builder.Build();
+        if (nav)
+        {
+            fclose(f);
+            f = fopen(buff, "wb");
+            MmapTileHeader header;
+            header.size = builder.DataSize;
+            fwrite(&header, sizeof(MmapTileHeader), 1, f);
+            fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
+            fclose(f);
+        }
+        dtFree(nav);
+        printf("[%02u,%02u] Tile Built!\n", X, Y);
+        Free = true;
+        return 0;
+    }
+
+    bool Free;
+};
 
 void ContinentBuilder::Build()
 {
@@ -19,29 +62,36 @@ void ContinentBuilder::Build()
     params.tileWidth = 533.33333f;
     fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
     fclose(mmap);
+    std::vector<BuilderThread*> Threads;
+    /*for (uint32 i = 0; i < 1; ++i)
+        Threads.push_back(new BuilderThread());*/
     for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
     {
-        TileBuilder builder(Continent, itr->X, itr->Y, TileMap, MapId);
-        char buff[100];
-        sprintf(buff, "%03u%02u%02u.mmtile", MapId, itr->X, itr->Y);
-        FILE* f = fopen(buff, "r");
-        if (f) // Check if file already exists.
+        BuilderThread th;
+        th.SetData(itr->X, itr->Y, MapId, Continent);
+        th.svc();
+        /*bool next = false;
+        while (!next)
         {
-            fclose(f);
-            continue;
-        }
-        uint8* nav = builder.Build();
-        if (nav)
-        {
-            fclose(f);
-            f = fopen(buff, "wb");
-            MmapTileHeader header;
-            header.size = builder.DataSize;
-            fwrite(&header, sizeof(MmapTileHeader), 1, f);
-            fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
-            fclose(f);
-        }
-        dtFree(nav);
-        printf("[%02u,%02u] Tile Built!\n", itr->X, itr->Y);
+            for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
+            {
+                if ((*_th)->Free)
+                {
+                    (*_th)->SetData(itr->X, itr->Y, MapId, Continent);
+                    (*_th)->activate();
+                    next = true;
+                    break;
+                }
+            }
+            // Wait for 20 seconds
+            ACE_OS::sleep(ACE_Time_Value (0, 20000));
+        }*/
     }
+
+    /*// Free memory
+    for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
+    {
+        (*_th)->wait();
+        delete *_th;
+    }*/
 }
