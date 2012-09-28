@@ -2,13 +2,15 @@
 #define WMODEL_HNDL_H
 #include "Common.h"
 #include "Utils.h"
+#include "WorldModelRoot.h"
 #include "ObjectDataHandler.h"
-#include "ADT.h"
 
 #include <set>
 #include <vector>
 
-struct WorldModelDefinition : IDefinition
+class ADT;
+
+struct WorldModelDefinition : public IDefinition
 {
 public:
     WorldModelDefinition() {}
@@ -19,8 +21,6 @@ public:
     Vector3 LowerExtents;
     uint16 Flags;
     uint16 DoodadSet;
-
-    virtual float Scale() const { return 1.0f; }
 
     static WorldModelDefinition Read(FILE* file);
 };
@@ -33,7 +33,7 @@ public:
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;
     bool IsSane() { return _definitions && _paths; }
-    void InsertModelGeometry(std::vector<Vector3> verts, std::vector<Triangle<uint32> > tris, WorldModelDefinition& def, WorldModelRoot* root);
+    void InsertModelGeometry(std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, WorldModelDefinition& def, WorldModelRoot* root);
 protected:
     void ProcessInternal(ChunkedData* data);
 private:

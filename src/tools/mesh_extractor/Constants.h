@@ -28,6 +28,7 @@ public:
     static const float UnitSize;
     static const float Origin[];
     static const float PI;
+    static const float MaxStandableHeight;
 };
 
 #endif

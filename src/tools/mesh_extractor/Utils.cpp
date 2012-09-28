@@ -1,7 +1,9 @@
 #include "Utils.h"
+#include "WorldModelHandler.h"
 #include "Constants.h"
 #include <cstring>
 #include "g3d/Matrix4.h"
+#include "g3d/Quat.h"
 
 const float Constants::TileSize = 533.0f + (1/3.0f);
 const float Constants::MaxXY = 32.0f * Constants::TileSize;
@@ -9,6 +11,7 @@ const float Constants::ChunkSize = Constants::TileSize / 16.0f;
 const float Constants::UnitSize = Constants::ChunkSize / 8.0f;
 const float Constants::Origin[] = { -Constants::MaxXY, 0.0f, -Constants::MaxXY };
 const float Constants::PI = 3.1415926f;
+const float Constants::MaxStandableHeight = 1.5f;
 
 void Utils::Reverse(char word[])
 {
@@ -60,14 +63,7 @@ std::string Utils::GetAdtPath( std::string world, int x, int y )
 
 std::string Utils::FixModelPath( std::string path )
 {
-    std::string::size_type idx = path.rfind(".");
-    // Bizarre way of changing extension but...
-    if (idx != std::string::npos)
-    {
-        path[idx + 1] = "M";
-        path[idx + 2] = "2";
-    }
-    return path;
+    return Utils::GetPathBase(path) + ".M2";
 }
 
 G3D::Matrix4 Utils::RotationX(float angle)
@@ -139,7 +135,7 @@ std::string Utils::GetPathBase( std::string path )
 {
     int lastIndex = path.find_last_of("."); 
     if (lastIndex != std::string::npos)
-        return path.substr(0, lastindex);
+        return path.substr(0, lastIndex);
     return path;
 }
 
@@ -171,4 +167,16 @@ std::string Utils::Replace( std::string str, const std::string& oldStr, const st
         pos += newStr.length();
     }
     return str;
+}
+
+G3D::Matrix4 Utils::GetWmoDoodadTransformation( DoodadInstance inst, WorldModelDefinition root )
+{
+    G3D::Matrix4 rootTransformation = Utils::GetTransformation(root);
+    G3D::Matrix4 translation = G3D::Matrix4::translation(inst.Position.x, inst.Position.y, inst.Position.z);
+    G3D::Matrix4 scale = G3D::Matrix4::scale(inst.Scale);
+    G3D::Matrix4 rotation = Utils::RotationY(Constants::PI);
+    G3D::Quat quat(-inst.QuatY, inst.QuatZ, -inst.QuatX, inst.QuatW);
+    G3D::Matrix4 quatRotation = quat.toRotationMatrix();
+
+    return scale * rotation * quatRotation ** translation * rootTransformation;
 }

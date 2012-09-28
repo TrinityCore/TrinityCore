@@ -88,7 +88,7 @@ void DoodadHandler::ReadDoodadPaths( Chunk* id, Chunk* data )
     }
 }
 
-void DoodadHandler::InsertModelGeometry(DoodadDefinition def, Model* model)
+void DoodadHandler::InsertModelGeometry(const DoodadDefinition def, Model* model)
 {
     G3D::Matrix4 transformation = Utils::GetTransformation(def);
     uint32 vertOffset = Vertices.size();

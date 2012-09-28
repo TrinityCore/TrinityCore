@@ -33,7 +33,7 @@ void WorldModelGroup::ReadNormals()
         return;
 
     uint32 normalCount = chunk->Length / 12;
-    ASSERT(normalCount == Vertices.size(), "normalCount is different than the Vertices count");
+    ASSERT(normalCount == Vertices.size() && "normalCount is different than the Vertices count");
     Normals.reserve(normalCount);
     FILE* stream = chunk->GetStream();
     for (int i = 0; i < normalCount; i++)
@@ -48,8 +48,8 @@ void WorldModelGroup::ReadLiquid()
 
     HasLiquidData = true;
     FILE* stream = chunk->GetStream();
-    LiquidDataHeader = LiquidHeader.Read(stream);
-    LiquidDataGeometry = LiquidData.Read(stream, LiquidDataHeader);
+    LiquidDataHeader = LiquidHeader::Read(stream);
+    LiquidDataGeometry = LiquidData::Read(stream, LiquidDataHeader);
 }
 
 void WorldModelGroup::ReadVertices()
@@ -72,7 +72,7 @@ void WorldModelGroup::ReadTriangles()
         return;
 
     uint32 triangleCount = chunk->Length / 6;
-    ASSERT(triangleCount == TriangleFlags.size(), "triangleCount != TriangleFlags.size()");
+    ASSERT(triangleCount == TriangleFlags.size() && "triangleCount != TriangleFlags.size()");
     FILE* stream = chunk->GetStream();
     Triangles.reserve(triangleCount);
     for (int i = 0; i < triangleCount; i++)

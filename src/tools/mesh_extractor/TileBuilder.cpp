@@ -27,11 +27,10 @@ TileBuilder::TileBuilder(std::string world, int x, int y) : _Geometry(NULL), Wor
 
 void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax )
 {
-    float origin[3] = Constants::Origin;
     bmin = new float[3];
     bmax = new float[3];
-    bmin[0] = origin[0] + (Constants::TileSize * X);
-    bmin[2] = origin[2] + (Constants::TileSize * Y);
-    bmax[0] = origin[0] + (Constants::TileSize * (X + 1));
-    bmax[2] = origin[2] + (Constants::TileSize * (Y + 1));
+    bmin[0] = Constants::Origin[0] + (Constants::TileSize * X);
+    bmin[2] = Constants::Origin[2] + (Constants::TileSize * Y);
+    bmax[0] = Constants::Origin[0] + (Constants::TileSize * (X + 1));
+    bmax[2] = Constants::Origin[2] + (Constants::TileSize * (Y + 1));
 }

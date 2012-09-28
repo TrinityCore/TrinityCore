@@ -7,7 +7,7 @@
 #include <set>
 #include <vector>
 
-class DoodadDefinition : IDefinition
+class DoodadDefinition : public IDefinition
 {
 public:
     uint32 MmidIndex;
@@ -43,7 +43,7 @@ protected:
 private:
     void ReadDoodadDefinitions(Chunk* chunk);
     void ReadDoodadPaths(Chunk* id, Chunk* data);
-    void InsertModelGeometry(DoodadDefinition def, Model* model);
+    void InsertModelGeometry(const DoodadDefinition def, Model* model);
     std::set<uint32> _drawn;
     std::vector<DoodadDefinition>* _definitions;
     std::vector<std::string>* _paths;

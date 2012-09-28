@@ -1,5 +1,6 @@
 #include "MapChunk.h"
 #include "ADT.h"
+#include "LiquidHandler.h"
 
 MapChunk::MapChunk( ADT* _adt, Chunk* chunk ) : Adt(_adt), Source(chunk), Vertices(NULL)
 {
@@ -25,7 +26,7 @@ void MapChunk::GenerateTriangles()
             uint32 bottomRight = (17 * (y + 1)) + x + 1;
             uint32 center = (17 * y) + 9 + x;
 
-            uint8 triangleType = Constants::TRIANGLE_TYPE_TERRAIN;
+            Constants::TriangleType triangleType = Constants::TRIANGLE_TYPE_TERRAIN;
             if (Adt->_LiquidHandler && !Adt->_LiquidHandler->MCNKData.empty())
             {
                 MCNKLiquidData& data = Adt->_LiquidHandler->MCNKData[Index];
@@ -37,10 +38,10 @@ void MapChunk::GenerateTriangles()
                     triangleType = Constants::TRIANGLE_TYPE_WATER;
             }
 
-            Triangles.push_back(new Triangle<uint8>(triangleType, topRight, topLeft, center));
-            Triangles.push_back(new Triangle<uint8>(triangleType, topLeft, bottomLeft, center));
-            Triangles.push_back(new Triangle<uint8>(triangleType, bottomLeft, bottomRight, center));
-            Triangles.push_back(new Triangle<uint8>(triangleType, bottomRight, topRight, center));
+            Triangles.push_back(Triangle<uint8>(triangleType, topRight, topLeft, center));
+            Triangles.push_back(Triangle<uint8>(triangleType, topLeft, bottomLeft, center));
+            Triangles.push_back(Triangle<uint8>(triangleType, bottomLeft, bottomRight, center));
+            Triangles.push_back(Triangle<uint8>(triangleType, bottomRight, topRight, center));
         }
     }
 }
