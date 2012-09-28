@@ -159,8 +159,8 @@ void WorldModelHandler::ReadDefinitions()
         return;
 
     const int32 definitionSize = 64;
-    uint32 definitionCount = chunk.Length / definitionSize;
-    _definitions = new new std::vector<WorldModelDefinition>;
+    uint32 definitionCount = chunk->Length / definitionSize;
+    _definitions = new std::vector<WorldModelDefinition>;
     _definitions->reserve(definitionCount);
     FILE* stream = chunk->GetStream();
     for (int i = 0; i < definitionCount; i++)
@@ -174,7 +174,7 @@ void WorldModelHandler::ReadModelPaths()
     if (!mwid || !mwmo)
         return;
 
-    uint32 paths = mwid.Length / 4;
+    uint32 paths = mwid->Length / 4;
     _paths = new std::vector<std::string>;
     _paths->reserve(paths);
     for (int i = 0; i < paths; i++)

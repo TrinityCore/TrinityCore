@@ -68,7 +68,7 @@ void Geometry::AddData( std::vector<Vector3>& verts, std::vector<Triangle<uint32
 void Geometry::GetRawData( float*& verts, int*& tris, uint8*& areas )
 {
     verts = new float[Vertices.size() * 3];
-    for (int i = 0; i < Vertices.size(); ++i)
+    for (uint32 i = 0; i < Vertices.size(); ++i)
     {
         Vector3& vert = Vertices[i];
         verts[(i * 3) + 0] = vert.x;
@@ -77,7 +77,7 @@ void Geometry::GetRawData( float*& verts, int*& tris, uint8*& areas )
     }
 
     tris = new int[Triangles.size() * 3];
-    for (int i = 0; i < Triangles.size(); ++i)
+    for (uint32 i = 0; i < Triangles.size(); ++i)
     {
         Triangle<uint32>& tri = Triangles[i];
         tris[(i * 3) + 0] = (int)tri.V0;
@@ -86,7 +86,7 @@ void Geometry::GetRawData( float*& verts, int*& tris, uint8*& areas )
     }
 
     areas = new uint8[Triangles.size()];
-    for (int i = 0; i < Triangles.size(); i++)
+    for (uint32 i = 0; i < Triangles.size(); i++)
     {
         switch (Triangles[i].Type)
         {
