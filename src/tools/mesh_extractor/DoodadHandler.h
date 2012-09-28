@@ -43,7 +43,7 @@ protected:
 private:
     void ReadDoodadDefinitions(Chunk* chunk);
     void ReadDoodadPaths(Chunk* id, Chunk* data);
-    void InsertModelGeometry(const DoodadDefinition def, Model* model);
+    void InsertModelGeometry(const DoodadDefinition& def, Model* model);
     std::set<uint32> _drawn;
     std::vector<DoodadDefinition>* _definitions;
     std::vector<std::string>* _paths;
