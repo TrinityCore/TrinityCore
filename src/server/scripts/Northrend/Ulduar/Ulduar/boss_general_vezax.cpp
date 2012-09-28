@@ -168,7 +168,15 @@ class boss_general_vezax : public CreatureScript
                             return;
                         case EVENT_SUMMON_SARONITE_VAPOR:
                             DoCast(me, SPELL_SUMMON_SARONITE_VAPORS, true);   // Spells summons 33488 in a random place in 40 meters
-                            events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, urand(30000, 35000));
+                            if (summons.size() >= 6) // summons include both vapors and saronite animus, but since the animus was not spawned yet...
+                            {
+                                events.CancelEvent(EVENT_SUMMON_SARONITE_VAPOR);    // Should always be cancelled after six vapors got spawned
+                                if (!vaporKilled && notHardModed)                   // If animus was not spawned yet and no vapor got killed yet...
+                                    DoCast(SPELL_SUMMON_SARONITE_ANIMUS);
+                                events.CancelEvent(EVENT_SUMMON_SARONITE_VAPOR);
+                            }
+                            else
+                                events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, urand(30000, 35000));
                             return;
                         case EVENT_BERSERK:
                             Talk(SAY_BERSERK);
@@ -193,14 +201,6 @@ class boss_general_vezax : public CreatureScript
                 summons.Summon(summoned);   // Placed here for the check below
                 switch (summoned->GetEntry())
                 {
-                    case NPC_SARONITE_VAPOR:
-                        if (summons.size() >= 6) // summons include both vapors and saronite animus, but since the animus was not spawned yet...
-                        {
-                            events.CancelEvent(EVENT_SUMMON_SARONITE_VAPOR);    // Should always be cancelled after six vapors got spawned
-                            if (!vaporKilled && notHardModed)                   // If animus was not spawned yet and no vapor got killed yet...
-                                DoCast(SPELL_SUMMON_SARONITE_ANIMUS);
-                        }
-                        break;
                     case NPC_SARONITE_ANIMUS:
                         events.CancelEvent(EVENT_SEARING_FLAMES);
                         Talk(SAY_HARDMODE);
@@ -332,6 +332,7 @@ class boss_saronite_animus : public CreatureScript
             void InitializeAI()
             {
                 instance = me->GetInstanceScript();
+                Reset();
             }
 
             void Reset()
