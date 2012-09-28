@@ -3302,6 +3302,34 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
         }
 };
 
+class spell_av_honorable_defender : public SpellScriptLoader
+{
+    public:
+        spell_av_honorable_defender() : SpellScriptLoader("spell_av_honorable_defender") { }
+
+        class spell_av_honorable_defender_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_av_honorable_defender_AuraScript);
+
+            bool CheckAreaTarget(Unit* target)
+            {
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    return true;
+                return false;
+            }
+
+            void Register()
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_av_honorable_defender_AuraScript::CheckAreaTarget);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_av_honorable_defender_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3378,4 +3406,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_bonked();
     new spell_gen_gift_of_naaru();
+    new spell_gen_av_honorable_defender();
 }

@@ -1321,3 +1321,13 @@ INSERT INTO `player_factionchange_titles` (`alliance_id`,`horde_id`) VALUES
 (147, 154),
 (148, 151),
 (149, 150);
+
+###################
+-- Alterac Valley #
+###################
+
+-- Honorable Defender scriptname
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (66157, 68652);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(66157, 'spell_gen_av_honorable_defender'),
+(68652, 'spell_gen_av_honorable_defender');
