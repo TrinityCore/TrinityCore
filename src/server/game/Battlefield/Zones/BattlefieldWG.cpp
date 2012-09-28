@@ -612,32 +612,25 @@ void BattlefieldWG::OnCreatureRemove(Creature* /*creature*/)
 
 void BattlefieldWG::OnGameObjectCreate(GameObject* go)
 {
-    bool isWorkshop = false;
     uint8 workshopId = 0;
 
     switch (go->GetEntry())
     {
         case GO_WINTERGRASP_FACTORY_BANNER_NE:
-            isWorkshop = true;
             workshopId = BATTLEFIELD_WG_WORKSHOP_NE;
             break;
         case GO_WINTERGRASP_FACTORY_BANNER_NW:
-            isWorkshop = true;
             workshopId = BATTLEFIELD_WG_WORKSHOP_NW;
             break;
         case GO_WINTERGRASP_FACTORY_BANNER_SE:
-            isWorkshop = true;
             workshopId = BATTLEFIELD_WG_WORKSHOP_SE;
             break;
         case GO_WINTERGRASP_FACTORY_BANNER_SW:
-            isWorkshop = true;
             workshopId = BATTLEFIELD_WG_WORKSHOP_SW;
             break;
-
+        default:
+            return;
     }
-
-    if (!isWorkshop)
-        return;
 
     for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
     {
