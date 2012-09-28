@@ -307,7 +307,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                         // Tabulation madness in the hole!
                         for (uint8 i = 0; i < MAX_WINTERGRASP_VEHICLES; i++)
                             if (Creature* vehicleCreature = go->FindNearestCreature(vehiclesList[i], 3.0f, true))
-                                if (!vehicleCreature->HasAura(SPELL_VEHICLE_TELEPORT) && vehicleCreature->getFaction() == WintergraspFaction[wg->GetDefenderTeam()])
+                                if (!vehicleCreature->HasAura(SPELL_VEHICLE_TELEPORT) && vehicleCreature->getFaction() == BattlefieldWG::WintergraspFaction[wg->GetDefenderTeam()])
                                     if (Creature* teleportTrigger = vehicleCreature->FindNearestCreature(NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC, 100.0f, true))
                                         teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
 
