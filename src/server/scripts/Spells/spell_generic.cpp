@@ -3302,14 +3302,14 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
         }
 };
 
-class spell_av_honorable_defender : public SpellScriptLoader
+class spell_gen_av_honorable_defender : public SpellScriptLoader
 {
     public:
-        spell_av_honorable_defender() : SpellScriptLoader("spell_av_honorable_defender") { }
+        spell_gen_av_honorable_defender() : SpellScriptLoader("spell_gen_av_honorable_defender") { }
 
-        class spell_av_honorable_defender_AuraScript : public AuraScript
+        class spell_gen_av_honorable_defender_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_av_honorable_defender_AuraScript);
+            PrepareAuraScript(spell_gen_av_honorable_defender_AuraScript);
 
             bool CheckAreaTarget(Unit* target)
             {
@@ -3320,13 +3320,13 @@ class spell_av_honorable_defender : public SpellScriptLoader
 
             void Register()
             {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_av_honorable_defender_AuraScript::CheckAreaTarget);
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_gen_av_honorable_defender_AuraScript::CheckAreaTarget);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_av_honorable_defender_AuraScript();
+            return new spell_gen_av_honorable_defender_AuraScript();
         }
 };
 
