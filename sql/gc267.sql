@@ -80,6 +80,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- making the Four Horsemen chest lootable
 UPDATE `gameobject_template` SET `flags`=`flags` &~16 WHERE `entry`=193426;
 
+-- despawn Skadi's drake, hes spawned via core
+DELETE FROM `creature` WHERE `id`=26893;
+
 ##########################
 -- TRIAL OF THE CRUSADER #
 ##########################
