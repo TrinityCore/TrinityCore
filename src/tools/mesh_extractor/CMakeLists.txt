@@ -45,9 +45,14 @@ add_executable(MeshExtractor
 )
 
 target_link_libraries(MeshExtractor
+  shared
+  g3dlib
   mpq
   Recast
   Detour
+  ${MYSQL_LIBRARY}
+  ${OPENSSL_LIBRARIES}
+  ${OPENSSL_EXTRA_LIBRARIES}
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${ACE_LIBRARY}

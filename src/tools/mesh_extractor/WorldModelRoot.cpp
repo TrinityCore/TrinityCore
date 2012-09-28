@@ -33,7 +33,7 @@ void WorldModelRoot::ReadDoodadSets()
         return;
 
     FILE* stream = chunk->GetStream();
-    ASSERT(chunk->Length / 32 == Header.CountSets, "chunk.Length / 32 == Header.CountSets");
+    ASSERT(chunk->Length / 32 == Header.CountSets && "chunk.Length / 32 == Header.CountSets");
     DoodadSets.reserve(Header.CountSets);
     for (int i = 0; i < Header.CountSets; i++)
         DoodadSets.push_back(DoodadSet::Read(stream));

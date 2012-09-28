@@ -43,7 +43,7 @@ void LiquidHandler::HandleNewLiquid()
                 fseek(stream, chunk->Offset + information.OffsetMask2, SEEK_SET);
                 uint32 size = ceil(information.Width * information.Height / 8.0f);
                 uint8* altMask = new uint8[size];
-                fread(altMax, sizeof(uint8), size, stream);
+                fread(altMask, sizeof(uint8), size, stream);
 
                 for (int mi = 0; mi < size; mi++)
                     renderMask.Mask[mi + information.OffsetY] |= altMask[mi];
@@ -84,8 +84,8 @@ void LiquidHandler::HandleNewLiquid()
                 uint32 vertOffset = Vertices.size();
                 Vertices.push_back(location);
                 Vertices.push_back(Vector3(location.x - Constants::UnitSize, location.y, location.z));
-                Vertices.push_back(new Vector3(location.x, location.y - Constants::UnitSize, location.z));
-                Vertices.push_back(new Vector3(location.x - Constants::UnitSize, location.y - Constants::UnitSize, location.z));
+                Vertices.push_back(Vector3(location.x, location.y - Constants::UnitSize, location.z));
+                Vertices.push_back(Vector3(location.x - Constants::UnitSize, location.y - Constants::UnitSize, location.z));
 
                 Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset, vertOffset+2, vertOffset + 1));
                 Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));

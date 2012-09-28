@@ -1,6 +1,8 @@
 #include "WorldModelHandler.h"
+#include "WorldModelRoot.h"
 #include "Chunk.h"
 #include "Cache.h"
+#include "Model.h"
 #include "Common.h"
 #include "g3d/Matrix4.h"
 #include <cstdio>
@@ -15,7 +17,7 @@ WorldModelDefinition WorldModelDefinition::Read( FILE* file )
     ret.UpperExtents = Vector3::Read(file);
     ret.LowerExtents = Vector3::Read(file);
     fread(&ret.Flags, sizeof(uint16), 1, file);
-    fread(&ret.DooadSet, sizeof(uint16), 1, file);
+    fread(&ret.DoodadSet, sizeof(uint16), 1, file);
     uint32 discard;
     fread(&discard, sizeof(uint32), 1, file);
     return ret;
@@ -39,7 +41,7 @@ void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
         return;
     FILE* stream = wmoReferencesChunk->GetStream();
     uint32 refCount = wmoReferencesChunk->Length / 4;
-    for (int i = 0; i < refCount; i++)
+    for (uint32 i = 0; i < refCount; i++)
     {
         int32 index;
         fread(&index, sizeof(int32), 1, stream);
@@ -56,7 +58,7 @@ void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
         if (wmo.MwidIndex >= _paths->size())
             continue;
 
-        std::string path = _paths[(int) wmo.MwidIndex];
+        std::string path = (*_paths)[wmo.MwidIndex];
         WorldModelRoot* model = Cache->WorldModelCache.Get(path);
         if (!model)
         {
@@ -71,16 +73,16 @@ void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
     }
 }
 
-void WorldModelHandler::InsertModelGeometry( std::vector<Vector3> verts, std::vector<Triangle<uint32> > tris, WorldModelDefinition& def, WorldModelRoot* root )
+void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris, WorldModelDefinition& def, WorldModelRoot* root )
 {
-    G3D::Matrix4 transformation = Utils::GetTransformation();
+    G3D::Matrix4 transformation = Utils::GetTransformation(def);
     for (std::vector<WorldModelGroup>::iterator group =  root->Groups.begin(); group != root->Groups.end(); ++group)
     {
         uint32 vertOffset = verts.size();
         for (std::vector<Vector3>::iterator itr2 = group->Vertices.begin(); itr2 != group->Vertices.end(); ++itr2)
             verts.push_back(Utils::VectorTransform(*itr2, transformation));
 
-        for (int i = 0; i < group->Triangles.size(); ++i)
+        for (uint32 i = 0; i < group->Triangles.size(); ++i)
         {
             // only include collidable tris
             if ((group->TriangleFlags[i] & 0x04) != 0 && group->TriangleMaterials[i] != 0xFF)
@@ -93,7 +95,7 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3> verts, std::ve
     if (def.DoodadSet >= 0 && def.DoodadSet < root->DoodadSets.size())
     {
         DoodadSet set = root->DoodadSets[def.DoodadSet];
-        std::vector<DoodadInstance> instances = new std::vector<DoodadInstance>;
+        std::vector<DoodadInstance> instances;
         instances.reserve(set.CountInstances);
         for (uint32 i = set.FirstInstanceIndex; i < (set.CountInstances + set.FirstInstanceIndex); i++)
         {
@@ -104,16 +106,16 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3> verts, std::ve
         
         for (std::vector<DoodadInstance>::iterator instance = instances.begin(); instance != instances.end(); ++instance)
         {
-            Model* model = Cache.ModelCache.Get(instance->File);
+            Model* model = Cache->ModelCache.Get(instance->File);
             if (!model)
             {
                 model = new Model(instance->File);
-                Cache.ModelCache.Insert(instance->File, model);
+                Cache->ModelCache.Insert(instance->File, model);
             }
 
-            if (!model.IsCollidable)
+            if (!model->IsCollidable)
                 continue;
-            G3D::Matrix4 doodadTransformation = Utils::GetWmoDoodadTransformation(instance, def);
+            G3D::Matrix4 doodadTransformation = Utils::GetWmoDoodadTransformation(*instance, def);
             int vertOffset = verts.size();
             for (std::vector<Vector3>::iterator itr2 = model->Vertices.begin(); itr2 != model->Vertices.end(); ++itr2)
                 verts.push_back(Utils::VectorTransform(*itr2, doodadTransformation));
@@ -126,9 +128,9 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3> verts, std::ve
             if (!group->HasLiquidData)
                 continue;
 
-            for (int y = 0; y < group->LiquidDataHeader.Height; y++)
+            for (uint32 y = 0; y < group->LiquidDataHeader.Height; y++)
             {
-                for (int x = 0; x < group->LiquidDataHeader.Width; x++)
+                for (uint32 x = 0; x < group->LiquidDataHeader.Width; x++)
                 {
                     if (!group->LiquidDataGeometry.ShouldRender(x, y))
                         continue;
@@ -144,7 +146,7 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3> verts, std::ve
                         group->LiquidDataGeometry.HeightMap[x + 1][y + 1], x + 1, y + 1));
 
                     tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset, vertOffset + 2, vertOffset + 1));
-                    tris.push_back(new Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));
+                    tris.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_WATER, vertOffset + 2, vertOffset + 3, vertOffset + 1));
 
                 }
             }
@@ -163,7 +165,7 @@ void WorldModelHandler::ReadDefinitions()
     _definitions = new std::vector<WorldModelDefinition>;
     _definitions->reserve(definitionCount);
     FILE* stream = chunk->GetStream();
-    for (int i = 0; i < definitionCount; i++)
+    for (uint32 i = 0; i < definitionCount; i++)
         _definitions->push_back(WorldModelDefinition::Read(stream));
 }
 
@@ -177,7 +179,7 @@ void WorldModelHandler::ReadModelPaths()
     uint32 paths = mwid->Length / 4;
     _paths = new std::vector<std::string>;
     _paths->reserve(paths);
-    for (int i = 0; i < paths; i++)
+    for (uint32 i = 0; i < paths; i++)
     {
         FILE* stream = mwid->GetStream();
         fseek(stream, i * 4, SEEK_CUR);

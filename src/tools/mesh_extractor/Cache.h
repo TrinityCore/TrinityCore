@@ -18,7 +18,7 @@ public:
     {
         if (_items.size() > FlushLimit)
             Clear();
-        _items.insert(key, val);
+        _items[key] = val;
     }
 
     T* Get(std::string key)
