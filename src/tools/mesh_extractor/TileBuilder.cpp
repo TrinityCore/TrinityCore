@@ -111,7 +111,7 @@ uint8* TileBuilder::Build()
     rcClearUnwalkableTriangles(Context, Config.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
     rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, Config.walkableClimb);
     
-    printf("[%02u,%02u] Triangles rasterized!\n", X, Y);
+    printf("[%02i,%02i] Triangles rasterized!\n", X, Y);
 
     // Once all geometry is rasterized, we do initial pass of filtering to
     // remove unwanted overhangs caused by the conservative rasterization
@@ -120,7 +120,7 @@ uint8* TileBuilder::Build()
     rcFilterLedgeSpans(Context, Config.walkableHeight, Config.walkableClimb, *hf);
     rcFilterWalkableLowHeightSpans(Context, Config.walkableHeight, *hf);
     
-    printf("[%02u,%02u] Filtering done!\n", X, Y);
+    printf("[%02i,%02i] Filtering done!\n", X, Y);
 
     // Compact the heightfield so that it is faster to handle from now on.
     // This will result in more cache coherent data as well as the neighbours
@@ -130,7 +130,7 @@ uint8* TileBuilder::Build()
 
     rcFreeHeightField(hf);
 
-    printf("[%02u,%02u] Heightfield compressed!\n", X, Y);
+    printf("[%02i,%02i] Heightfield compressed!\n", X, Y);
 
     // Erode the walkable area by agent radius.
     rcErodeWalkableArea(Context, Config.walkableRadius, *chf);
@@ -139,7 +139,7 @@ uint8* TileBuilder::Build()
     // Partition the walkable surface into simple regions without holes.
     rcBuildRegions(Context, *chf, Config.borderSize, Config.minRegionArea, Config.mergeRegionArea);
     
-    printf("[%02u,%02u] Regions built!\n", X, Y);
+    printf("[%02i,%02i] Regions built!\n", X, Y);
 
     // Create contours.
     rcContourSet* cset = rcAllocContourSet();
@@ -149,13 +149,13 @@ uint8* TileBuilder::Build()
     rcPolyMesh* pmesh = rcAllocPolyMesh();
     rcBuildPolyMesh(Context, *cset, Config.maxVertsPerPoly, *pmesh);
 
-    printf("[%02u,%02u] Polymesh built!\n", X, Y);
+    printf("[%02i,%02i] Polymesh built!\n", X, Y);
 
     // Build detail mesh.
     rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
     rcBuildPolyMeshDetail(Context, *pmesh, *chf, Config.detailSampleDist, Config.detailSampleMaxError, *dmesh);
 
-    printf("[%02u,%02u] Polymesh detail built!\n", X, Y);
+    printf("[%02i,%02i] Polymesh detail built!\n", X, Y);
 
     rcFreeCompactHeightfield(chf);
     rcFreeContourSet(cset);
@@ -215,13 +215,17 @@ uint8* TileBuilder::Build()
     params.tileX = X;
     params.tileY = Y;
     params.tileSize = Config.width;
+
+    // Offmesh-connection settings
+    params.offMeshConCount = 0; // none for now
+
     int navDataSize;
     uint8* navData;
-    printf("[%02u,%02u] Creating the navmesh!\n", X, Y);
+    printf("[%02i,%02i] Creating the navmesh!\n", X, Y);
     bool result = dtCreateNavMeshData(&params, &navData, &navDataSize);
     if (result)
     {
-        printf("[%02u,%02u] NavMesh created, size %u!\n", X, Y, navDataSize);
+        printf("[%02i,%02i] NavMesh created, size %i!\n", X, Y, navDataSize);
         DataSize = navDataSize;
         rcFreePolyMesh(pmesh);
         rcFreePolyMeshDetail(dmesh);
