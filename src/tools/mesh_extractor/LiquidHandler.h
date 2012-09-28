@@ -9,9 +9,12 @@
 class LiquidHandler
 {
 public:
+    LiquidHandler(ADT* adt);
     ADT* Source;
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;
     std::vector<MCNKLiquidData> MCNKData;
+private:
+    void HandleNewLiquid();
 };
 #endif
