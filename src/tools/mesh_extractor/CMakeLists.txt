@@ -13,15 +13,19 @@ file(GLOB_RECURSE sources *.cpp *.h)
 
 if( UNIX )
   include_directories (
+    ${CMAKE_BINARY_DIR}
     ${CMAKE_SOURCE_DIR}/src/server/shared
     ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast
     ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
     ${CMAKE_SOURCE_DIR}/dep/libmpq
     ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+    ${MYSQL_INCLUDE_DIR}
+    ${OPENSSL_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
 elseif( WIN32 )
   include_directories (
+    ${CMAKE_BINARY_DIR}
     ${CMAKE_SOURCE_DIR}/src/server/shared
     ${CMAKE_SOURCE_DIR}/src/server/shared/Database
     ${CMAKE_SOURCE_DIR}/src/server/shared/Database/Implementation
@@ -36,6 +40,8 @@ elseif( WIN32 )
     ${CMAKE_SOURCE_DIR}/dep/libmpq/win
     ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
     ${ACE_INCLUDE_DIR}
+    ${MYSQL_INCLUDE_DIR}
+    ${OPENSSL_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
 endif()

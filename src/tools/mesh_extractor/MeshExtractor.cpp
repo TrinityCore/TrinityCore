@@ -3,6 +3,10 @@
 #include "ContinentBuilder.h"
 #include "Cache.h"
 
+#include "Common.h"
+#include "LoginDatabase.h"
+LoginDatabaseWorkerPool LoginDatabase;
+
 MPQManager* MPQHandler;
 CacheClass* Cache;
 
