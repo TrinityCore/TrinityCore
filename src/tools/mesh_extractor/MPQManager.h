@@ -3,6 +3,7 @@
 
 #include "MPQ.h"
 
+class DBC;
 class MPQManager
 {
 public:
@@ -12,12 +13,15 @@ public:
     void Initialize();
     void LoadMaps();
     FILE* GetFile(std::string path);
+    DBC* GetDBC(std::string name);
 
     std::deque<MPQArchive*> Archives;
+    uint32 CurLocale;
 
     static char* Files[];
+    static char* Languages[];
 protected:
-    void LoadMPQs();
+    void InitializeDBC();
 };
 
 extern MPQManager* MPQHandler;

@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-#include "g3d/Matrix4.h"
+#include "G3D/Matrix4.h"
 #include "DetourNavMesh.h"
 
 #include "Common.h"
@@ -573,7 +573,7 @@ public:
                 return false;
         return true;
     }
-    static std::string Utils::Replace( std::string str, const std::string& oldStr, const std::string& newStr );
+    static std::string Replace( std::string str, const std::string& oldStr, const std::string& newStr );
     static G3D::Matrix4 GetWmoDoodadTransformation( DoodadInstance inst, WorldModelDefinition root );
 };
 #endif

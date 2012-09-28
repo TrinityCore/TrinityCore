@@ -2,8 +2,8 @@
 #include "WorldModelHandler.h"
 #include "Constants.h"
 #include <cstring>
-#include "g3d/Matrix4.h"
-#include "g3d/Quat.h"
+#include "G3D/Matrix4.h"
+#include "G3D/Quat.h"
 
 const float Constants::TileSize = 533.0f + (1/3.0f);
 const float Constants::MaxXY = 32.0f * Constants::TileSize;

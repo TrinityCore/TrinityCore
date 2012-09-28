@@ -25,7 +25,7 @@ public:
 
     T* Get(K key)
     {
-        std::map<K, T*>::iterator itr = _items.find(key);
+        typename std::map<K, T*>::iterator itr = _items.find(key);
         if (itr != _items.end())
             return itr->second;
         return NULL;
@@ -33,7 +33,7 @@ public:
 
     void Clear() 
     { 
-        for (std::map<K, T*>::iterator itr = _items.begin(); itr != _items.end(); ++itr) 
+        for (typename std::map<K, T*>::iterator itr = _items.begin(); itr != _items.end(); ++itr) 
             delete itr->second;
         _items.clear(); 
     }
