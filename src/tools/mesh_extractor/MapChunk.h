@@ -15,7 +15,7 @@ public:
     void GenerateTriangles();
     void GenerateVertices(FILE* stream);
     static bool HasHole(uint32 map, int x, int y);
-    ADT* adt;
+    ADT* Adt;
     Chunk* Source;
     MapChunkHeader Header;
     Vector3* Vertices;
