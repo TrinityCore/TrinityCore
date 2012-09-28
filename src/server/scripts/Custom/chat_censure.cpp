@@ -40,7 +40,7 @@ void CheckMessage(Player* player, std::string& msg, uint32 lang, Player* /*recei
     std::string lower = msg;
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
 
-    uint8 cheksSize = 38;
+    uint8 cheksSize = 37;
     std::string checks[cheksSize];
     // Strony (Sites)
     checks[0] ="http://";
@@ -67,22 +67,21 @@ void CheckMessage(Player* player, std::string& msg, uint32 lang, Player* /*recei
     checks[20] ="zjeb";
     // English curses
     checks[21] ="anal";
-    checks[22] ="ass";
-    checks[23] ="bitch";
-    checks[24] ="clit";
-    checks[25] ="cock";
-    checks[26] ="cum";
-    checks[27] ="cunt";
-    checks[28] ="dick";
-    checks[29] ="faggot";
-    checks[30] ="fuck";
-    checks[31] ="gay";
-    checks[32] ="lesbian";
-    checks[33] ="penis";
-    checks[34] ="prick";
-    checks[35] ="slut";
-    checks[36] ="twat";
-    checks[37] ="whore";
+    checks[22] ="bitch";
+    checks[23] ="clit";
+    checks[24] ="cock";
+    checks[25] ="cum";
+    checks[26] ="cunt";
+    checks[27] ="dick";
+    checks[28] ="faggot";
+    checks[29] ="fuck";
+    checks[30] ="gay";
+    checks[31] ="lesbian";
+    checks[32] ="penis";
+    checks[33] ="prick";
+    checks[34] ="slut";
+    checks[35] ="twat";
+    checks[36] ="whore";
     for (int i = 0; i < cheksSize; ++i)
         if (lower.find(checks[i]) != std::string::npos)
         {
