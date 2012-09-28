@@ -2,7 +2,7 @@
 #include "ADT.h"
 #include "LiquidHandler.h"
 
-MapChunk::MapChunk( ADT* _adt, Chunk* chunk ) : Adt(_adt), Source(chunk), Vertices(NULL)
+MapChunk::MapChunk( ADT* _adt, Chunk* chunk ) : Adt(_adt), Source(chunk)
 {
     FILE* stream = chunk->GetStream();
     Header.Read(stream);
@@ -46,16 +46,10 @@ void MapChunk::GenerateTriangles()
     }
 }
 
-MapChunk::~MapChunk()
-{
-    delete[] Vertices;
-}
-
 void MapChunk::GenerateVertices( FILE* stream )
 {
     fseek(stream, Header.OffsetMCVT, SEEK_CUR);
-    int32 vertIndex = 0;
-    Vertices = new Vector3[125];
+    Vertices.reserve(125);
 
     for (int j = 0; j < 17; j++)
     {
@@ -67,7 +61,7 @@ void MapChunk::GenerateVertices( FILE* stream )
             Vector3 vert(Header.Position.x - (j * (Constants::UnitSize * 0.5f)), Header.Position.y - (i * Constants::UnitSize), Header.Position.z + tmp);
             if (values == 8)
                 vert.y -= Constants::UnitSize * 0.5f;
-            Vertices[vertIndex++] = vert;
+            Vertices.push_back(vert);
         }
     }
 }

@@ -1,5 +1,8 @@
 #include "Geometry.h"
 #include "Constants.h"
+#include "ADT.h"
+#include "WorldModelHandler.h"
+#include "DoodadHandler.h"
 
 Geometry::Geometry() : Transform(false)
 {
@@ -98,5 +101,23 @@ void Geometry::GetRawData( float*& verts, int*& tris, uint8*& areas )
                 break;
         }
     }
+}
+
+void Geometry::AddAdt( ADT* adt )
+{
+    for (std::vector<MapChunk*>::iterator itr = adt->MapChunks.begin(); itr != adt->MapChunks.end(); ++itr)
+    {
+        std::vector<Triangle<uint32> > tmp;
+        tmp.reserve((*itr)->Triangles.size());
+        for (std::vector<Triangle<uint8> >::iterator itr2 = (*itr)->Triangles.begin(); itr2 != (*itr)->Triangles.end(); ++itr2)
+            tmp.push_back(Triangle<uint32>(itr2->Type, itr2->V0, itr2->V1, itr2->V2));
+        AddData((*itr)->Vertices, tmp);
+    }
+
+    if (!adt->_DoodadHandler->Triangles.empty())
+        AddData(adt->_DoodadHandler->Vertices, adt->_DoodadHandler->Triangles);
+    
+    if (!adt->_WorldModelHandler->Triangles.empty())
+        AddData(adt->_WorldModelHandler->Vertices, adt->_WorldModelHandler->Triangles);
 }
 

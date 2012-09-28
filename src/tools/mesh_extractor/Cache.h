@@ -1,12 +1,14 @@
 #ifndef CACHE_H
 #define CACHE_H
 #include <string>
+#include <map>
 #include "Common.h"
 
 class WorldModelRoot;
 class Model;
+class ADT;
 
-template<class T>
+template<class K, class T>
 class GenericCache
 {
 public:
@@ -14,32 +16,42 @@ public:
 
     static const int32 FlushLimit = 1000;
     
-    void Insert(std::string key, T* val)
+    void Insert(K key, T* val)
     {
         if (_items.size() > FlushLimit)
             Clear();
         _items[key] = val;
     }
 
-    T* Get(std::string key)
+    T* Get(K key)
     {
-        UNORDERED_MAP<std::string, T*>::iterator itr = _items.find(key);
+        std::map<K, T*>::iterator itr = _items.find(key);
         if (itr != _items.end())
             return itr->second;
         return NULL;
     }
 
-    void Clear() { _items.clear(); }
+    void Clear() 
+    { 
+        for (std::map<K, T*>::iterator itr = _items.begin(); itr != _items.end(); ++itr) 
+            delete itr->second;
+        _items.clear(); 
+    }
 private:
-    UNORDERED_MAP<std::string, T*> _items;
+    std::map<K, T*> _items;
 };
 
 class CacheClass
 {
 public:
     CacheClass() {}
-    GenericCache<Model> ModelCache;
-    GenericCache<WorldModelRoot> WorldModelCache;
+    GenericCache<std::string, Model> ModelCache;
+    GenericCache<std::string, WorldModelRoot> WorldModelCache;
+    GenericCache<std::pair<int32,int32>, ADT> AdtCache;
+    void Clear()
+    {
+        AdtCache.Clear();
+    }
 };
 
 extern CacheClass* Cache;
