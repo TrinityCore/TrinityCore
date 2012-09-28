@@ -11,16 +11,20 @@ LoginDatabaseWorkerPool LoginDatabase;
 MPQManager* MPQHandler;
 CacheClass* Cache;
 
-void ExtractAllMaps()
+void ExtractAllMaps(uint32 onlyMap)
 {
     DBC* dbc = MPQHandler->GetDBC("Map");
     for (std::vector<Record*>::iterator itr = dbc->Records.begin(); itr != dbc->Records.end(); ++itr)
     {
+        uint32 mapId = (*itr)->Values[0];
+        if (onlyMap && mapId != onlyMap)
+            continue;
         std::string name = (*itr)->GetString(1);
         WDT wdt("World\\maps\\" + name + "\\" + name + ".wdt");
         if (!wdt.IsValid || wdt.IsGlobalModel)
             continue;
-        ContinentBuilder builder(name, (*itr)->Values[0], &wdt);
+        printf("Building %s MapId %u\n", name, mapId);
+        ContinentBuilder builder(name, mapId, &wdt);
         builder.Build();
     }
     /*
@@ -45,7 +49,10 @@ int main(int argc, char* argv[])
     MPQHandler = new MPQManager();
     MPQHandler->Initialize();
     MPQHandler->LoadMaps();
-    ExtractAllMaps();
+    uint32 onlyMap = 0;
+    if (argc == 2)
+        onlyMap = uint32(atoi(argv[1]));
+    ExtractAllMaps(onlyMap);
 	return 0;
 }
 
