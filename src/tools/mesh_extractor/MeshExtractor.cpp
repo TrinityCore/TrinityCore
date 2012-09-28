@@ -23,7 +23,7 @@ void ExtractAllMaps(uint32 onlyMap)
         WDT wdt("World\\maps\\" + name + "\\" + name + ".wdt");
         if (!wdt.IsValid || wdt.IsGlobalModel)
             continue;
-        printf("Building %s MapId %u\n", name, mapId);
+        printf("Building %s MapId %u\n", name.c_str(), mapId);
         ContinentBuilder builder(name, mapId, &wdt);
         builder.Build();
     }

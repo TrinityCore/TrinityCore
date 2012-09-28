@@ -7,6 +7,7 @@ MapChunk::MapChunk( ADT* _adt, Chunk* chunk ) : Adt(_adt), Source(chunk)
     FILE* stream = chunk->GetStream();
     Header.Read(stream);
     fseek(stream, chunk->Offset, SEEK_SET);
+    Index = Header.IndexX + Header.IndexY * 16;
     GenerateVertices(stream);
 }
 
