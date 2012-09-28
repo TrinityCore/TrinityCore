@@ -228,6 +228,7 @@ enum UlduarNPCs // TODO: Check if we also need the heroic-entries for the boss-N
 
     // Algalon the Observer
     NPC_BRANN_BRONZBEARD_ALG                = 34064,
+    NPC_PROSPECTOR_DOREN                    = 33956,
     NPC_AZEROTH                             = 34246,
     NPC_LIVING_CONSTELLATION                = 33052,
     NPC_ALGALON_STALKER                     = 33086,

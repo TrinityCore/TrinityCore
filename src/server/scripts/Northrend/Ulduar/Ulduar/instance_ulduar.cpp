@@ -168,6 +168,7 @@ class instance_ulduar : public InstanceMapScript
 
             // Creatures
             uint64 KeeperGUIDs[3];
+            uint64 DorenGUID;
 
             // Miscellaneous
             uint32 ColossusData;
@@ -292,6 +293,7 @@ class instance_ulduar : public InstanceMapScript
 
                 // Creatures
                 std::fill(KeeperGUIDs, KeeperGUIDs + 3, 0);
+                DorenGUID = 0;
 
                 // Miscellaneous
                 ColossusData        = 0;
@@ -535,6 +537,11 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case NPC_BRUNDIR:
                         AssemblyGUIDs[2] = creature->GetGUID();
+                        break;
+                    case NPC_PROSPECTOR_DOREN:
+                        DorenGUID = creature->GetGUID();
+                        creature->setActive(false);
+                        creature->SetVisible(false);
                         break;
 
                     // Kologarn
@@ -985,8 +992,14 @@ class instance_ulduar : public InstanceMapScript
                         // Prevent fleeing :o
                         HandleGameObject(IronCouncilEntranceGUID, state != IN_PROGRESS);
                         if (state == DONE)
+                        {
                             HandleGameObject(ArchivumDoorGUID, true);
-                        break;
+                            if (Creature* doren = instance->GetCreature(DorenGUID))
+                            {
+                                doren->SetVisible(true);
+                                doren->setActive(true);
+                            }
+                        }
                         break;
                     case BOSS_AURIAYA:
                         if (state == DONE)
@@ -1392,19 +1405,17 @@ public:
 
         if (pInstance->GetBossState(BOSS_AURIAYA) != DONE)
             return false;
-            sLog->outError(LOG_FILTER_SQL, "STATE: %u", pInstance->GetData(DATA_CALL_TRAM));
+
         switch (pGo->GetEntry())
         {
             // Activate
             case 194437:    // [ok]
             case 194912:
-                sLog->outError(LOG_FILTER_SQL, "BUTTON 1");
                 pInstance->SetData(DATA_CALL_TRAM, 0);
                 break;
             // Call
             case 194438:
             case 194914:    // [ok]
-                sLog->outError(LOG_FILTER_SQL, "BUTTON 2");
                 pInstance->SetData(DATA_CALL_TRAM, 0);
                 break;
             default:
