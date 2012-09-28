@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[40] --> Fix Pet CD After Summon.
 [39] --> Add AutoBanned Passive Anticheat System!
 [38] --> [Censor] Update vulgar slang.
 [37] --> Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power in Astranaar.
