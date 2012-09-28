@@ -1769,7 +1769,7 @@ class at_RX_214_repair_o_matic_station : public AreaTriggerScript
                 {
                     if (!vehicle->HasAura(SPELL_AUTO_REPAIR))
                     {
-                        player->ToCreature()->AI()->Talk(EMOTE_REPAIR, player->GetUInt64Value(0));
+                        //player->ToCreature()->AI()->Talk(EMOTE_REPAIR, player->GetUInt64Value(0));
                         player->CastSpell(vehicle, SPELL_AUTO_REPAIR, true);
                         vehicle->SetFullHealth();
                         if (Creature* leviathan = ObjectAccessor::GetCreature(*player, instance->GetData64(BOSS_LEVIATHAN)))
