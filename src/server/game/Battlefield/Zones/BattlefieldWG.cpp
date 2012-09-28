@@ -866,8 +866,6 @@ void BattlefieldWG::FillInitialWorldStates(WorldPacket& data)
     for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
         if (*itr)
             data << WorkshopsData[(*itr)->workshopId].worldstate << (*itr)->state;
-
-    return data;
 }
 
 void BattlefieldWG::SendInitWorldStatesTo(Player* player)
