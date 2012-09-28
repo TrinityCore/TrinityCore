@@ -30,7 +30,6 @@ public:
         uint8* nav = builder.Build();
         if (nav)
         {
-            fclose(f);
             f = fopen(buff, "wb");
             MmapTileHeader header;
             header.size = builder.DataSize;
