@@ -384,6 +384,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (63495, 'spell_steelbreaker_static_disruption'),
 (61920, 'spell_supercharge');
 
+-- spawning Prospector Doren
+DELETE FROM `creature` WHERE `id`=33956;
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(33956, 603, 1, 1, 0, 0, 1438.6, 114.639, 423.642, 2.11325, 120, 0, 0, 75600, 0, 0, 0, 0, 0);
+
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10084,10087,10088,10418,10419,10089,10420,10421,10090,10422,10423,10091,10424,10425);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
 (10084, 11, 0, 0, 'achievement_i_choose_you'), -- achievement 2941
