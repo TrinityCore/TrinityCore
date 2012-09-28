@@ -10,14 +10,18 @@
 
 struct WorldModelDefinition : IDefinition
 {
+public:
     WorldModelDefinition() {}
+
     uint32 MwidIndex;
     uint32 UniqueId;
     Vector3 UpperExtents;
     Vector3 LowerExtents;
     uint16 Flags;
     uint16 DoodadSet;
-    float Scale() { return 1.0f; }
+
+    virtual float Scale() const { return 1.0f; }
+
     static WorldModelDefinition Read(FILE* file);
 };
 

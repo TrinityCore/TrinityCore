@@ -11,7 +11,8 @@ class GenericCache
 {
 public:
     GenericCache() {}
-    const int32 FlushLimit = 1000;
+
+    static const int32 FlushLimit = 1000;
     
     void Insert(std::string key, T* val)
     {
@@ -35,6 +36,7 @@ private:
 
 class CacheClass
 {
+public:
     CacheClass() {}
     GenericCache<Model> ModelCache;
     GenericCache<WorldModelRoot> WorldModelCache;
