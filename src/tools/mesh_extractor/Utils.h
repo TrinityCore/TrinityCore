@@ -16,10 +16,12 @@ struct Vector3
     float x;
     float y;
     float z;
+
     Vector3 operator +(Vector3 const& other)
     {
         return Vector3(x + other.x, y + other.y, z + other.z);
     }
+
     static Vector3 Read(FILE* file);
 };
 
@@ -342,7 +344,7 @@ public:
         fread(&ret.UnknownZero, sizeof(uint32), 1, stream);
         return ret;
     }
-}
+};
 
 class LiquidHeader
 {
@@ -384,16 +386,16 @@ public:
     {
         LiquidData ret;
         ret.HeightMap = new float*[header.CountXVertices];
-        for (int i = 0; i < header.CountXVertices; ++i)
+        for (uint32 i = 0; i < header.CountXVertices; ++i)
             ret.HeightMap[i] = new float[header.CountYVertices];
 
         ret.RenderFlags = new uint8*[header.Width];
-        for (int i = 0; i < header.Width; ++i)
+        for (uint32 i = 0; i < header.Width; ++i)
             ret.RenderFlags[i] = new uint8[header.Height];
 
-        for (int y = 0; y < header.CountYVertices; y++)
+        for (uint32 y = 0; y < header.CountYVertices; y++)
         {
-            for (int x = 0; x < header.CountXVertices; x++)
+            for (uint32 x = 0; x < header.CountXVertices; x++)
             {
                 uint32 discard;
                 fread(&discard, sizeof(uint32), 1, stream);
@@ -403,9 +405,9 @@ public:
             }
         }
 
-        for (int y = 0; y < header.Height; y++)
+        for (uint32 y = 0; y < header.Height; y++)
         {
-            for (int x = 0; x < header.Width; x++)
+            for (uint32 x = 0; x < header.Width; x++)
             {
                 uint8 tmp;
                 fread(&tmp, sizeof(uint8), 1, stream);
@@ -441,8 +443,8 @@ class MCNKLiquidData
 public:
     MCNKLiquidData() {}
     MCNKLiquidData(float** heights, H2ORenderMask mask) : Heights(heights), Mask(mask) {}
-    const float MaxStandableHeight = 1.5f;
 
+    static const float MaxStandableHeight = 1.5f;
     float** Heights;
     H2ORenderMask Mask;
 
@@ -515,7 +517,7 @@ class IDefinition
 public:
     Vector3 Position;
     Vector3 Rotation;
-    virtual float Scale() = 0;
+    virtual float Scale() const = 0;
 };
 
 class Utils
@@ -540,7 +542,7 @@ public:
     static G3D::Matrix4 RotationY(float angle);
     static G3D::Matrix4 RotationZ(float angle);
     static float ToRadians(float degrees);
-    static Vector3 VectorTransform(Vector3 vec, G3D::Matrix matrix);
+    static Vector3 VectorTransform(Vector3 vec, G3D::Matrix4 matrix);
     static std::string GetPathBase(std::string path);
     static Vector3 GetLiquidVert(G3D::Matrix4 transformation, Vector3 basePosition, float height, int x, int y);
     static float Distance(float x, float y);

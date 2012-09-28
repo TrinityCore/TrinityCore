@@ -74,7 +74,7 @@ G3D::Matrix4 Utils::RotationX(float angle)
 {
     float _cos = cos(angle);
     float _sin = sin(angle);
-    Matrix4 ret = G3D::Matrix4::identity();
+    G3D::Matrix4 ret = G3D::Matrix4::identity();
     ret[2][2] = _cos;
     ret[2][3] = _sin;
     ret[3][2] = -_sin;
@@ -82,7 +82,7 @@ G3D::Matrix4 Utils::RotationX(float angle)
     return ret;
 }
 
-G3D::Matrix4 Utils::GetTransformation( IDefinition def )
+G3D::Matrix4 Utils::GetTransformation(IDefinition def)
 {
     G3D::Matrix4 translation;
     if (def.Position.x == 0.0f && def.Position.y == 0.0f && def.Position.z == 0.0f)
@@ -101,7 +101,7 @@ G3D::Matrix4 Utils::RotationY( float angle )
 {
     float _cos = cos(angle);
     float _sin = sin(angle);
-    Matrix4 ret = G3D::Matrix4::identity();
+    G3D::Matrix4 ret = G3D::Matrix4::identity();
     ret[1][1] = _cos;
     ret[1][3] = -_sin;
     ret[3][1] = _sin;
@@ -113,7 +113,7 @@ G3D::Matrix4 Utils::RotationZ( float angle )
 {
     float _cos = cos(angle);
     float _sin = sin(angle);
-    Matrix4 ret = G3D::Matrix4::identity();
+    G3D::Matrix4 ret = G3D::Matrix4::identity();
     ret[1][1] = _cos;
     ret[1][2] = _sin;
     ret[2][1] = -_sin;
@@ -126,7 +126,7 @@ float Utils::ToRadians( float degrees )
     return Constants::PI * degrees / 180.0f;
 }
 
-Vector3 Utils::VectorTransform( Vector3 vec, G3D::Matrix matrix )
+Vector3 Utils::VectorTransform( Vector3 vec, G3D::Matrix4 matrix )
 {
     Vector3 ret;
     ret.x = vec.x * matrix[1][1] + vec.y * matrix[2][1] + vec.z * matrix[3][1] + matrix[4][1];

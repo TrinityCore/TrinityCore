@@ -15,7 +15,7 @@ public:
     uint16 DecimalScale;
     uint16 Flags;
 
-    float Scale() { return DecimalScale / 1024.0f; }
+    virtual float Scale() const { return DecimalScale / 1024.0f; }
 
     void Read(FILE* stream)
     {

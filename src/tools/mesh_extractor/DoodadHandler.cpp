@@ -27,7 +27,7 @@ void DoodadHandler::ProcessInternal( ChunkedData* subChunks )
         return;
     FILE* stream = doodadReferencesChunk->GetStream();
     uint32 refCount = doodadReferencesChunk->Length / 4;
-    for (int i = 0; i < refCount; i++)
+    for (uint32 i = 0; i < refCount; i++)
     {
         int32 index;
         fread(&index, sizeof(int32), 1, stream);
@@ -41,11 +41,11 @@ void DoodadHandler::ProcessInternal( ChunkedData* subChunks )
             continue;
 
         std::string path = (*_paths)[doodad.MmidIndex];
-        Model* model = Cache.ModelCache.Get(path);
+        Model* model = Cache->ModelCache.Get(path);
         if (!model)
         {
             model = new Model(path);
-            Cache.ModelCache.Insert(path, model);
+            Cache->ModelCache.Insert(path, model);
         }
         if (!model->IsCollidable)
             continue;
@@ -92,8 +92,10 @@ void DoodadHandler::InsertModelGeometry(DoodadDefinition def, Model* model)
 {
     G3D::Matrix4 transformation = Utils::GetTransformation(def);
     uint32 vertOffset = Vertices.size();
+
     for (std::vector<Vector3>::iterator itr = model->Vertices.begin(); itr != model->Vertices.end(); ++itr)
         Vertices.push_back(Utils::VectorTransform(*itr, transformation));
+
     for (std::vector<Triangle<uint16> >::iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
-        Triangles.push_back(Triangle<uint16>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
+        Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
 }
