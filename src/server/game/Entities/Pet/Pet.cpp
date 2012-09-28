@@ -943,6 +943,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             //damage range is then petlevel / 2
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
             //damage is increased afterwards as strength and pet scaling modify attack power
+            SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.3f);
+            //  Bonus Stamina (30% of player stamina)
             break;
         }
         default:

@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[41] --> Fix pets scaling HP.
 [40] --> Fix Pet CD After Summon.
 [39] --> Add AutoBanned Passive Anticheat System!
 [38] --> [Censor] Update vulgar slang.
