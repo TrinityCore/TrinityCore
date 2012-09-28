@@ -46,10 +46,10 @@ class BattlefieldMgr
     // called when player resurrects
     void HandlePlayerResurrects(Player * player, uint32 areaflag);
     // return assigned battlefield
-    Battlefield *GetBattlefieldToZoneId(uint32 zoneid);
-    Battlefield *GetBattlefieldByBattleId(uint32 battleid);
+    Battlefield* GetBattlefieldToZoneId(uint32 zoneid);
+    Battlefield* GetBattlefieldByBattleId(uint32 battleid);
 
-    ZoneScript *GetZoneScript(uint32 zoneId);
+    ZoneScript* GetZoneScript(uint32 zoneId);
 
     void AddZone(uint32 zoneid, Battlefield * handle);
 
