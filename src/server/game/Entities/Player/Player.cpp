@@ -9118,7 +9118,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
         case 4197: // Wintergrasp
             /// Use the max here, and fill with zeros if missing.
-            NumberOfFields = 10 + BattlefieldWG::WG_MAX_OBJ + BattlefieldWG::WG_MAX_WORKSHOP;
+            NumberOfFields = 10 + WG_MAX_OBJ + WG_MAX_WORKSHOP;
             break;
          default:
             NumberOfFields = 12;
@@ -9720,11 +9720,11 @@ void Player::SendBattlefieldWorldStates()
         if (BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
         {
             if (wg->IsWarTime())
-                SendUpdateWorldState(BattlefieldWG::ClockWorldState[1], uint32(time(NULL)));
+                SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
             else // Time to next battle
             {
                 uint32 timer = wg->GetTimer() / 1000;
-                SendUpdateWorldState(BattlefieldWG::ClockWorldState[1], time(NULL) + timer);
+                SendUpdateWorldState(ClockWorldState[1], time(NULL) + timer);
             }
         }
     }
