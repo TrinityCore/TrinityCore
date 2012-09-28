@@ -150,7 +150,7 @@ class boss_auriaya : public CreatureScript
                 Talk(SAY_AGGRO);
                 summons.DoZoneInCombat();
                 events.ScheduleEvent(EVENT_SONIC_SCREECH, urand(45000, 65000));
-                events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(20000, 30000));
+                events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(30000, 50000));
                 events.ScheduleEvent(EVENT_ACTIVATE_DEFENDER, urand(40000, 55000));
                 events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(45000, 55000));
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
@@ -260,7 +260,7 @@ class boss_auriaya : public CreatureScript
                         case EVENT_TERRIFYING_SCREECH:
                             Talk(EMOTE_FEAR);
                             DoCast(SPELL_TERRIFYING_SCREECH);
-                            events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(30000, 50000));
                             events.ScheduleEvent(EVENT_SENTINEL_BLAST, 1*IN_MILLISECONDS);
                             return;
                         case EVENT_SENTINEL_BLAST:
@@ -277,8 +277,10 @@ class boss_auriaya : public CreatureScript
                             return;
                         case EVENT_RESPAWN_DEFENDER:
                             if (defenderLives > 0)
-                                if (Creature* corpse = me->FindNearestCreature(NPC_FERAL_DEFENDER, 50.0f, false))
-                                    me->SummonCreature(NPC_FERAL_DEFENDER, *corpse, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 31000);
+                            {
+                                if (Creature* corpse = me->FindNearestCreature(NPC_FERAL_DEFENDER, 100.0f, false))
+                                    corpse->Respawn();
+                            }
                             return;
                         case EVENT_SUMMON_SWARMING_GUARDIAN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -490,8 +492,7 @@ class npc_feral_defender : public CreatureScript
             void JustDied(Unit* /*who*/)
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
-                // corpse has to be summoned when EVENT_RESPAWN_DEFENDER happens
-                me->DespawnOrUnsummon(31000);
+                // dont despawn the corpse
                 // Moved other behavior to SummonedCreatureDies
             }
 

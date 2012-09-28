@@ -540,8 +540,11 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case NPC_PROSPECTOR_DOREN:
                         DorenGUID = creature->GetGUID();
-                        creature->setActive(false);
-                        creature->SetVisible(false);
+                        if (GetBossState(BOSS_ASSEMBLY_OF_IRON) != DONE)
+                        {
+                            creature->setActive(false);
+                            creature->SetVisible(false);
+                        }
                         break;
 
                     // Kologarn
