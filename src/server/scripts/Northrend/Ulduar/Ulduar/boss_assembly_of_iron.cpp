@@ -935,7 +935,6 @@ class boss_stormcaller_brundir : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4000);
                 events.ScheduleEvent(EVENT_OVERLOAD, urand(40000, 80000));
-                events.ScheduleEvent(EVENT_THREAT_WIPE, 10000);
                 Talk(SAY_BRUNDIR_AGGRO);
                 DoAction(ACTION_UPDATEPHASE);
             }
@@ -983,7 +982,9 @@ class boss_stormcaller_brundir : public CreatureScript
                         if (phase >= 3)
                         {
                             me->ResetLootMode();
+                            events.ScheduleEvent(EVENT_THREAT_WIPE, 10000);
                             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                             DoCast(me, SPELL_STORMSHIELD);
                             events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS_START, urand(30000, 40000));
                         }
