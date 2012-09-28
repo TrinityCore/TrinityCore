@@ -9,6 +9,9 @@
 #include "Common.h"
 #include "Constants.h"
 
+struct WorldModelDefinition;
+class DoodadInstance;
+
 struct Vector3
 {
     Vector3() {}
@@ -35,6 +38,7 @@ struct TilePos
 template<typename T>
 struct Triangle
 {
+    Triangle() {}
     Triangle(Constants::TriangleType type, T v0, T v1, T v2) : Type(type), V0(v0), V1(v1), V2(v2) {}
     T V0;
     T V1;
@@ -444,7 +448,6 @@ public:
     MCNKLiquidData() {}
     MCNKLiquidData(float** heights, H2ORenderMask mask) : Heights(heights), Mask(mask) {}
 
-    static const float MaxStandableHeight = 1.5f;
     float** Heights;
     H2ORenderMask Mask;
 
@@ -452,10 +455,10 @@ public:
     {
         if (!Heights)
             return false;
-        if (!Mask->ShouldRender(x, y))
+        if (!Mask.ShouldRender(x, y))
             return false;
         float diff = Heights[x][y] - height;
-        if (diff > MaxStandableHeight)
+        if (diff > Constants::MaxStandableHeight)
             return true;
         return false;
     }
@@ -517,7 +520,7 @@ class IDefinition
 public:
     Vector3 Position;
     Vector3 Rotation;
-    virtual float Scale() const = 0;
+    virtual float Scale() const { return 1.0f; };
 };
 
 class Utils
@@ -555,6 +558,6 @@ public:
         return true;
     }
     static std::string Utils::Replace( std::string str, const std::string& oldStr, const std::string& newStr );
-
+    static G3D::Matrix4 GetWmoDoodadTransformation( DoodadInstance inst, WorldModelDefinition root );
 };
 #endif

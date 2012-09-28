@@ -2,9 +2,10 @@
 #define ADT_H
 #include "ChunkedData.h"
 #include "MapChunk.h"
-#include "DoodadHandler.h"
-#include "WorldModelHandler.h"
-#include "LiquidHandler.h"
+
+class DoodadHandler;
+class WorldModelHandler;
+class LiquidHandler;
 
 class ADT
 {

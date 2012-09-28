@@ -22,7 +22,7 @@ endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   add_subdirectory(acelite)
-  if(SERVERS AND USE_MYSQL_SOURCES)
+  if(USE_MYSQL_SOURCES)
       add_subdirectory(mysqllite)
   endif()
   if(TOOLS)
