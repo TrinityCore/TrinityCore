@@ -258,6 +258,9 @@ bool BattlegroundSA::ResetObjs()
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 SendTransportInit(player);
 
+    // set status manually so preparation is cast correctly in 2nd round too
+    SetStatus(STATUS_WAIT_JOIN);
+
     TeleportPlayers();
     return true;
 }
@@ -338,6 +341,8 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             DemolisherStartState(false);
             Status = BG_SA_ROUND_TWO;
             StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
+            // status was set to STATUS_WAIT_JOIN manually for Preparation, set it back now
+            SetStatus(STATUS_IN_PROGRESS);
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* p = ObjectAccessor::FindPlayer(itr->first))
                     p->RemoveAurasDueToSpell(SPELL_PREPARATION);
@@ -370,10 +375,6 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 InitSecondRound = true;
                 ToggleTimer();
                 ResetObjs();
-                // TODO: find out why casting preparation doesnt work
-                for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                    if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                        p->CastSpell(p, SPELL_PREPARATION, true);
                 return;
             }
         }
@@ -523,6 +524,10 @@ void BattlegroundSA::TeleportPlayers()
 
             player->ResetAllPowers();
             player->CombatStopWithPets(true);
+
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+                if (Player* p = ObjectAccessor::FindPlayer(itr->first))
+                    p->CastSpell(p, SPELL_PREPARATION, true);
 
             if (player->GetTeamId() == Attackers)
             {
