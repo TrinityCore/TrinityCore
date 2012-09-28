@@ -488,6 +488,11 @@ typedef std::map<uint32, PetAura> SpellPetAuraMap;
 
 struct SpellArea
 {
+    SpellArea() : spellId(0), areaId(0), questStart(0), questEnd(0),
+        auraSpell(0), raceMask(0), gender(GENDER_NONE), questStartCanActive(false), autocast(false) 
+    {
+    }
+
     uint32 spellId;
     uint32 areaId;                                          // zone/subzone/or 0 is not limited to zone
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)

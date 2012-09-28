@@ -594,6 +594,7 @@ enum AtLoginFlags
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
 typedef std::set<uint32> RewardedQuestSet;
+typedef std::set<uint32> ApplyPhaseSet;
 
 //               quest,  keep
 typedef std::map<uint32, bool> QuestStatusSaveMap;
@@ -1996,6 +1997,11 @@ class Player : public Unit, public GridObject<Player>
             m_contestedPvPTimer = 0;
         }
 
+        /// check phase changes for player by auras changes or by phase_template date
+        void UpdatePhasing();
+        /// enable recalculation of phase state by UpdatePhasing at next update tick.
+        void SetUpdatePhasing(bool state = true) { m_update_phasing = state; }
+
         /** todo: -maybe move UpdateDuelFlag+DuelComplete to independent DuelHandler.. **/
         DuelInfo* duel;
         void UpdateDuelFlag(time_t currTime);
@@ -3072,6 +3078,22 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
+
+        // Phasing
+
+        /**
+          * @name   SendPhaseShifting
+          * @brief  Send to client prepared data of SMSG_SET_PHASE_SHIFT
+
+          * @param  data list of phase_template entry witch need to send
+          * @param  map shadow-phasing mapid. used for replace current map visualization on client by targeted
+          * @param  phaseCount namber of phaseIDs witch will be send to clien in SMSG_SET_PHASE_SHIFT
+          * @param  terrainCount namber of terrain data witch will be send to clien in SMSG_SET_PHASE_SHIFT
+          * @param  unkCounter namber of unk variable witch will be send to clien in SMSG_SET_PHASE_SHIFT
+        */
+        void SendPhaseShifting(ApplyPhaseSet &data, uint32 map, uint32 phaseCount, uint32 terrainCount, uint32 unkCounter);
+        bool m_update_phasing; ///> variable enable phase recalculation for current plar an next Player::update tick.
+        uint32 m_phaseChacker; ///> custom check for applyed phases contein summ of all phase entryes.
 };
 
 void AddItemsSetItem(Player*player, Item* item);

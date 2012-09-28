@@ -611,7 +611,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType) const
             sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
             sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET ||
             sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
-            sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
+            sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
+            sourceType == CONDITION_SOURCE_TYPE_PHASE_TEMPLATE);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType) const
@@ -684,6 +685,23 @@ ConditionList ConditionMgr::GetConditionsForSmartEvent(int32 entryOrGuid, uint32
             sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForSmartEvent: found conditions for Smart Event entry or guid %d event_id %u", entryOrGuid, eventId);
         }
     }
+    return cond;
+}
+
+ConditionList ConditionMgr::GetConditionsForPhaseDefinition(uint32 zone, uint32 entry)
+{
+    ConditionList cond;
+    PhaseTemplateConditionContainer::const_iterator itr = PhaseTemplateConditionStore.find(zone);
+    if (itr != PhaseTemplateConditionStore.end())
+    {
+        ConditionTypeContainer::const_iterator i = (*itr).second.find(entry);
+        if (i != (*itr).second.end())
+        {
+            cond = (*i).second;
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
+        }
+    }
+
     return cond;
 }
 
@@ -894,6 +912,13 @@ void ConditionMgr::LoadConditions(bool isReload)
                     //! TODO: PAIR_32 ?
                     std::pair<int32, uint32> key = std::make_pair(cond->SourceEntry, cond->SourceId);
                     SmartEventConditionStore[key][cond->SourceGroup].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;
+                }
+                case CONDITION_SOURCE_TYPE_PHASE_TEMPLATE:
+                {
+                    PhaseTemplateConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
                     continue;
@@ -1393,6 +1418,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NONE:
+        case CONDITION_SOURCE_TYPE_PHASE_TEMPLATE:
         default:
             break;
     }
@@ -1939,6 +1965,19 @@ void ConditionMgr::Clean()
     }
 
     SpellClickEventConditionStore.clear();
+
+    for (PhaseTemplateConditionContainer::iterator itr = PhaseTemplateConditionStore.begin(); itr != PhaseTemplateConditionStore.end(); ++itr)
+    {
+        for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        {
+            for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+                delete *i;
+            it->second.clear();
+        }
+        itr->second.clear();
+    }
+
+    PhaseTemplateConditionStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::list<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)
