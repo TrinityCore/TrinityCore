@@ -29,7 +29,7 @@ void ContinentBuilder::Build()
             MmapTileHeader header;
             header.size = builder.DataSize;
             fwrite(&header, sizeof(MmapTileHeader), 1, f);
-            fwrite(nav, sizeof(uint8), builder.DataSize, f);
+            fwrite(nav, sizeof(unsigned char), builder.DataSize, f);
         }
         fclose(f);
         dtFree(nav);
