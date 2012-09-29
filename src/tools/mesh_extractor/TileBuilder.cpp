@@ -225,16 +225,30 @@ uint8* TileBuilder::Build()
     uint8* navData;
     printf("[%02i,%02i] Creating the navmesh!\n", X, Y);
     bool result = dtCreateNavMeshData(&params, &navData, &navDataSize);
-    if (result)
+	
+	// Free some memory
+	rcFreePolyMesh(pmesh);
+	rcFreePolyMeshDetail(dmesh);
+	delete tilebMax;
+	delete tilebMin;
+	delete areas;
+	delete triangles;
+	delete vertices;
+	delete bbMax;
+	delete bbMin;
+
+	if (result)
     {
         printf("[%02i,%02i] NavMesh created, size %i!\n", X, Y, navDataSize);
         DataSize = navDataSize;
-        rcFreePolyMesh(pmesh);
-        rcFreePolyMeshDetail(dmesh);
         return navData;
     }
 
-    rcFreePolyMesh(pmesh);
-    rcFreePolyMeshDetail(dmesh);
     return NULL;
+}
+
+TileBuilder::~TileBuilder()
+{
+	delete Context;
+	delete _Geometry;
 }
