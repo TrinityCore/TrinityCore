@@ -99,3 +99,9 @@ void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* mode
     for (std::vector<Triangle<uint16> >::iterator itr = model->Triangles.begin(); itr != model->Triangles.end(); ++itr)
         Triangles.push_back(Triangle<uint32>(Constants::TRIANGLE_TYPE_DOODAD, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
 }
+
+DoodadHandler::~DoodadHandler()
+{
+	delete _definitions;
+	delete _paths;
+}
