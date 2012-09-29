@@ -3,6 +3,7 @@
 #include "WDT.h"
 #include "Utils.h"
 #include "DetourNavMesh.h"
+#include "Cache.h"
 #include "ace/Task.h"
 
 class BuilderThread : public ACE_Task<ACE_MT_SYNCH>
@@ -17,7 +18,7 @@ public:
     int svc()
     {
         Free = false;
-        printf("[%02i,%02i] Building tile", X, Y);
+        printf("[%02i,%02i] Building tile\n", X, Y);
         TileBuilder builder(Continent, X, Y, MapId);
         char buff[100];
         sprintf(buff, "%03u%02u%02u.mmtile", MapId, X, Y);
@@ -63,14 +64,11 @@ void ContinentBuilder::Build()
     fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
     fclose(mmap);
     std::vector<BuilderThread*> Threads;
-    /*for (uint32 i = 0; i < 1; ++i)
-        Threads.push_back(new BuilderThread());*/
+    for (uint32 i = 0; i < NumberOfThreads; ++i)
+        Threads.push_back(new BuilderThread());
     for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
     {
-        BuilderThread th;
-        th.SetData(itr->X, itr->Y, MapId, Continent);
-        th.svc();
-        /*bool next = false;
+        bool next = false;
         while (!next)
         {
             for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
@@ -85,13 +83,14 @@ void ContinentBuilder::Build()
             }
             // Wait for 20 seconds
             ACE_OS::sleep(ACE_Time_Value (0, 20000));
-        }*/
+        }
     }
+    Cache->Clear();
 
-    /*// Free memory
+    // Free memory
     for (std::vector<BuilderThread*>::iterator _th = Threads.begin(); _th != Threads.end(); ++_th)
     {
         (*_th)->wait();
         delete *_th;
-    }*/
+    }
 }
