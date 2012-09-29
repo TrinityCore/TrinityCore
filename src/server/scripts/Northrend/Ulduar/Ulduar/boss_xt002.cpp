@@ -145,7 +145,7 @@ enum Yells
 enum WaypointID
 {
     WAYPOINT_XT     = 1360540
-}
+};
 
 #define HEART_VEHICLE_SEAT 0
 
