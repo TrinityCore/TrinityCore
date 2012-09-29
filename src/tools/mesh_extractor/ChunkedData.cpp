@@ -61,3 +61,12 @@ Chunk* ChunkedData::GetChunkByName( std::string name )
             return Chunks[i];
     return NULL;
 }
+
+ChunkedData::~ChunkedData()
+{
+	for (std::vector<Chunk*>::iterator itr = Chunks.begin(); itr != Chunks.end(); ++itr)
+		delete *itr;
+	
+	Chunks.clear();
+	fclose(Stream);
+}

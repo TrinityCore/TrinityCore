@@ -24,7 +24,7 @@ WorldModelDefinition WorldModelDefinition::Read( FILE* file )
 }
 
 
-WorldModelHandler::WorldModelHandler( ADT* adt ) : ObjectDataHandler(adt)
+WorldModelHandler::WorldModelHandler( ADT* adt ) : ObjectDataHandler(adt), _definitions(NULL), _paths(NULL)
 {
     if (!adt->HasObjectData)
         return;
@@ -189,4 +189,10 @@ void WorldModelHandler::ReadModelPaths()
         fseek(dataStream, offset + mwmo->Offset, SEEK_SET);
         _paths->push_back(Utils::ReadString(dataStream));
     }
+}
+
+WorldModelHandler::~WorldModelHandler()
+{
+	delete _definitions;
+	delete _paths;
 }
