@@ -21,26 +21,22 @@
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603240,
-    SAY_HARDMODE_ON                             = -1603241,
-    SAY_MKII_ACTIVATE                           = -1603242,
-    SAY_MKII_SLAY_1                             = -1603243,
-    SAY_MKII_SLAY_2                             = -1603244,
-    SAY_MKII_DEATH                              = -1603245,
-    SAY_VX001_ACTIVATE                          = -1603246,
-    SAY_VX001_SLAY_1                            = -1603247,
-    SAY_VX001_SLAY_2                            = -1603248,
-    SAY_VX001_DEATH                             = -1603249,
-    SAY_AERIAL_ACTIVATE                         = -1603250,
-    SAY_AERIAL_SLAY_1                           = -1603251,
-    SAY_AERIAL_SLAY_2                           = -1603252,
-    SAY_AERIAL_DEATH                            = -1603253,
-    SAY_V07TRON_ACTIVATE                        = -1603254,
-    SAY_V07TRON_SLAY_1                          = -1603255,
-    SAY_V07TRON_SLAY_2                          = -1603256,
-    SAY_V07TRON_DEATH                           = -1603257,
-    SAY_BERSERK                                 = -1603258,
-    SAY_YS_HELP                                 = -1603259,
+   SAY_AGGRO                                   = 0,
+   SAY_HARDMODE_ON                             = 1,
+   SAY_MKII_ACTIVATE                           = 2,
+   SAY_MKII_SLAY                               = 3,
+   SAY_MKII_DEATH                              = 4,
+   SAY_VX001_ACTIVATE                          = 5,
+   SAY_VX001_SLAY                              = 6,
+   SAY_VX001_DEATH                             = 7,
+   SAY_AERIAL_ACTIVATE                         = 8,
+   SAY_AERIAL_SLAY                             = 9,
+   SAY_AERIAL_DEATH                            = 10,
+   SAY_V07TRON_ACTIVATE                        = 11,
+   SAY_V07TRON_SLAY                            = 12,
+   SAY_V07TRON_DEATH                           = 13,
+   SAY_BERSERK                                 = 14,
+   SAY_YS_HELP                                 = 15
 };
 
 enum Spells
