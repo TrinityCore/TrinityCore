@@ -1769,7 +1769,6 @@ class at_RX_214_repair_o_matic_station : public AreaTriggerScript
                 {
                     if (!vehicle->HasAura(SPELL_AUTO_REPAIR))
                     {
-                        //player->ToCreature()->AI()->Talk(EMOTE_REPAIR, player->GetUInt64Value(0));
                         player->CastSpell(vehicle, SPELL_AUTO_REPAIR, true);
                         vehicle->SetFullHealth();
                         if (Creature* leviathan = ObjectAccessor::GetCreature(*player, instance->GetData64(BOSS_LEVIATHAN)))
@@ -2307,7 +2306,7 @@ class spell_auto_repair : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(62705))
+                if (!sSpellMgr->GetSpellInfo(SPELL_AUTO_REPAIR))
                     return false;
                 return true;
             }
@@ -2337,8 +2336,6 @@ class spell_auto_repair : public SpellScriptLoader
                 Player* driver = vehicle->GetPassenger(0) ? vehicle->GetPassenger(0)->ToPlayer() : NULL;
                 if (!driver)
                     return;
-
-                driver->ToCreature()->AI()->Talk(EMOTE_REPAIR, driver->GetGUID());
 
                 InstanceScript* instance = driver->GetInstanceScript();
                 if (!instance)
