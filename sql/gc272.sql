@@ -581,7 +581,8 @@ UPDATE `gameobject_template` SET `flags`=`flags` &~16, `ScriptName`='go_mimiron_
 UPDATE `creature_template` SET `difficulty_entry_1`=34361, `ScriptName`='npc_frost_bomb' WHERE `entry`=34149;
 UPDATE `creature_template` SET `speed_walk`=0.15, `speed_run`=0.15, `ScriptName`='npc_mimiron_flame_trigger' WHERE `entry` =34363;
 UPDATE `creature_template` SET `ScriptName`='npc_mimiron_flame_spread' WHERE `entry`=34121;
-UPDATE `creature_template` SET `ScriptName`='npc_mimiron_bomb_bot' WHERE `entry` IN (33836, 34192);
+UPDATE `creature_template` SET `ScriptName`='npc_mimiron_bomb_bot' WHERE `entry`=33836;
+UPDATE `creature_template` SET `ScriptName`='npc_boomer_xp' WHERE `entry`=34192;
 
 -- Cleaning up Leviathan Mk II
 DELETE FROM `creature` WHERE `id`=34071;

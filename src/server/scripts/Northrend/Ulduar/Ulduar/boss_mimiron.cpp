@@ -2110,7 +2110,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
             {
                 despawn = false;
 
-                if (Unit* target = SelectPlayerTargetInRange(500.0f))
+                if (Unit* target = SelectPlayerTargetInRange(100.0f))
                 {
                     me->AddThreat(target, std::numeric_limits<float>::max());
                     me->GetMotionMaster()->MoveFollow(target, 100.0f, 0.0f);
