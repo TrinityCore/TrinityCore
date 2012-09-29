@@ -2,6 +2,7 @@
 #define MPQ_MANAGER_H
 
 #include "MPQ.h"
+#include "ace/Synch.h"
 
 class DBC;
 class MPQManager
@@ -11,7 +12,6 @@ public:
     ~MPQManager() {}
     
     void Initialize();
-    void LoadMaps();
     FILE* GetFile(std::string path);
     DBC* GetDBC(std::string name);
 
@@ -22,6 +22,8 @@ public:
     static char* Languages[];
 protected:
     void InitializeDBC();
+private:
+    ACE_Thread_Mutex mutex;
 };
 
 extern MPQManager* MPQHandler;

@@ -25,7 +25,11 @@ void LiquidHandler::HandleNewLiquid()
     {
         H2OHeader h = header[i];
         if (h.LayerCount == 0)
+        {
+            // Need to fill in missing data with dummies.
+            MCNKData.push_back(MCNKLiquidData(NULL, H2ORenderMask()));
             continue;
+        }
         fseek(stream, chunk->Offset + h.OffsetInformation, SEEK_SET);
         H2OInformation information = H2OInformation::Read(stream);
 

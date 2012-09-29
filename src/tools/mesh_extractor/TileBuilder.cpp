@@ -9,6 +9,8 @@
 #include "RecastAlloc.h"
 #include "DetourNavMeshBuilder.h"
 
+#include "ace/Synch.h"
+
 TileBuilder::TileBuilder(std::string world, int x, int y, uint32 mapId) : _Geometry(NULL), World(world), X(x), Y(y), MapId(mapId), DataSize(0)
 {
     // Cell Size = TileSize / TileVoxelSize
@@ -54,11 +56,6 @@ uint8* TileBuilder::Build()
     {
         adt = new ADT(Utils::GetAdtPath(World, X, Y));
         adt->Read();
-        if (!adt->Data)
-        {
-            delete adt;
-            return NULL;
-        }
         Cache->AdtCache.Insert(std::make_pair(X, Y), adt);
     }
     _Geometry->AddAdt(adt);
@@ -234,7 +231,6 @@ uint8* TileBuilder::Build()
         DataSize = navDataSize;
         rcFreePolyMesh(pmesh);
         rcFreePolyMeshDetail(dmesh);
-        Cache->Clear();
         return navData;
     }
 
