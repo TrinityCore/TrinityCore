@@ -31,7 +31,10 @@ void LiquidHandler::HandleNewLiquid()
 
         float** heights = new float*[9];
         for (int i = 0; i < 9; ++i)
+        {
             heights[i] = new float[9];
+            memset(heights[i], 0, sizeof(float) * 9);
+        }
 
         H2ORenderMask renderMask;
         if (information.LiquidType != 2)

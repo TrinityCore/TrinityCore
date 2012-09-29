@@ -31,7 +31,7 @@ void MapChunk::GenerateTriangles()
             if (Adt->_LiquidHandler && !Adt->_LiquidHandler->MCNKData.empty())
             {
                 MCNKLiquidData& data = Adt->_LiquidHandler->MCNKData[Index];
-                uint32 maxHeight = std::max(
+                float maxHeight = std::max(
                     std::max(
                     std::max(std::max(Vertices[topLeft].z, Vertices[topRight].z), Vertices[bottomLeft].z),
                     Vertices[bottomRight].z), Vertices[center].z);
