@@ -1831,6 +1831,86 @@ class npc_twilight_shadowblade : public CreatureScript
         }
 };
 
+class npc_boomer_xp : public CreatureScript
+{
+    enum MySpells
+    {
+        SPELL_BOOM_BOT               = 63767,
+        SPELL_BOOM_BOT_PERIODIC      = 63801
+    };
+
+    public:
+        npc_boomer_xp() : CreatureScript("npc_boomer_xp") {}
+
+        struct npc_boomer_xpAI : public ScriptedAI
+        {
+            npc_boomer_xpAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void InitializeAI()
+            {
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+                Reset();
+            }
+
+            Unit* SelectPlayerTargetInRange(float range)
+            {
+                Player* target = 0;
+                Trinity::AnyPlayerInObjectRangeCheck u_check(me, range, true);
+                Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, target, u_check);
+                me->VisitNearbyObject(range, searcher);
+                return target;
+            }
+
+            void Reset()
+            {
+                despawn = false;
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                if (Unit* target = SelectPlayerTargetInRange(100.0f))
+                {
+                    me->AddThreat(target, std::numeric_limits<float>::max());
+                    me->GetMotionMaster()->MoveFollow(target, 100.0f, 0.0f);
+                }
+            }
+
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_BOOM_BOT_PERIODIC)
+                    me->DespawnOrUnsummon(1000);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                DoCast(me, SPELL_BOOM_BOT, true);
+            }
+
+            void UpdateAI(const uint32 /*diff*/)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (!despawn && me->IsWithinMeleeRange(me->getVictim()))
+                {
+                    despawn = true;
+                    me->CastSpell(me, SPELL_BOOM_BOT, true);
+                }
+                // suicide has procflag PROC_FLAG_DONE_MELEE_AUTO_ATTACK, they have to melee, even tho the spell is delayed if the npc misses
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                bool despawn;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_boomer_xpAI(creature);
+        }
+};
+
 /************************************************************************/
 /*                          Spells                                      */
 /************************************************************************/
@@ -1907,6 +1987,9 @@ void AddSC_ulduar_trash()
     new npc_ironroot_lasher();
     new npc_natures_blade();
     new npc_guardian_of_life();
+
+    // IS - Mimiron
+    new npc_boomer_xp();
 
     new spell_pollinate();
 }

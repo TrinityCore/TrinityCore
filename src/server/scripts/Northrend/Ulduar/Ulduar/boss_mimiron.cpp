@@ -1169,6 +1169,7 @@ class npc_proximity_mine : public CreatureScript
             void InitializeAI()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 uiBoomTimer = 35000;
                 boomLocked = false;
             }
@@ -1192,7 +1193,7 @@ class npc_proximity_mine : public CreatureScript
 
                 if (Player* player = who->ToPlayer())
                     if (!player->isGameMaster())
-                        if (!boomLocked && me->GetDistance2d(player)<3.0f)
+                        if (!boomLocked && me->GetDistance2d(player) < 3.0f)
                         {
                             DoCastAOE(SPELL_EXPLOSION);
                             boomLocked = true;
@@ -1255,7 +1256,6 @@ class spell_proximity_mines : public SpellScriptLoader // Spell 63027
             return new spell_proximity_mines_SpellScript();
         }
 };
-
 
 /************************************************************************/
 /*                               VX-001                                 */
@@ -2110,7 +2110,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
             {
                 despawn = false;
 
-                if (Unit* target = SelectPlayerTargetInRange(500.0f))
+                if (Unit* target = SelectPlayerTargetInRange(100.0f))
                 {
                     me->AddThreat(target, std::numeric_limits<float>::max());
                     me->GetMotionMaster()->MoveFollow(target, 100.0f, 0.0f);
@@ -2129,6 +2129,12 @@ class npc_mimiron_bomb_bot : public CreatureScript
                                 mimiron->AI()->DoAction(DATA_AVOIDED_BOOM_BOT_EXPLOSION);
             }
 
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_BOOM_BOT_PERIODIC)
+                    me->DespawnOrUnsummon(1000);
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 DoCast(me, SPELL_BOOM_BOT, true);
@@ -2142,10 +2148,10 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 if (!despawn && me->IsWithinMeleeRange(me->getVictim()))
                 {
                     despawn = true;
-                    // TODO: spell doesnt work for some reason
                     me->CastSpell(me, SPELL_BOOM_BOT, true);
-                    me->DespawnOrUnsummon(1500);
                 }
+                // suicide has procflag PROC_FLAG_DONE_MELEE_AUTO_ATTACK, they have to melee, even tho the spell is delayed if the npc misses
+                DoMeleeAttackIfReady();
             }
 
             private:

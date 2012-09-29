@@ -582,6 +582,7 @@ UPDATE `creature_template` SET `difficulty_entry_1`=34361, `ScriptName`='npc_fro
 UPDATE `creature_template` SET `speed_walk`=0.15, `speed_run`=0.15, `ScriptName`='npc_mimiron_flame_trigger' WHERE `entry` =34363;
 UPDATE `creature_template` SET `ScriptName`='npc_mimiron_flame_spread' WHERE `entry`=34121;
 UPDATE `creature_template` SET `ScriptName`='npc_mimiron_bomb_bot' WHERE `entry`=33836;
+UPDATE `creature_template` SET `ScriptName`='npc_boomer_xp' WHERE `entry`=34192;
 
 -- Cleaning up Leviathan Mk II
 DELETE FROM `creature` WHERE `id`=34071;
@@ -928,8 +929,6 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=34224;
 INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
 (34224, 0, 0, 2, 2000, 5000, 15000, 30000, 11, 66346, 1, 'Ice Turret - Cast Ice Nova'),
 (34224, 1, 0, 4, 2000, 5000, 15000, 30000, 11, 64919, 1, 'Ice Turret - Cast ce Nova');
-
--- TODO: Boomer XP-500
 
 -- Champion of Hodir
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=34133;
