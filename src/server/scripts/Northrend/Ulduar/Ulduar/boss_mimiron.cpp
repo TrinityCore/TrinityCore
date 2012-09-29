@@ -2129,6 +2129,12 @@ class npc_mimiron_bomb_bot : public CreatureScript
                                 mimiron->AI()->DoAction(DATA_AVOIDED_BOOM_BOT_EXPLOSION);
             }
 
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_BOOM_BOT_PERIODIC)
+                    me->DespawnOrUnsummon(1000);
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 DoCast(me, SPELL_BOOM_BOT, true);
@@ -2142,10 +2148,10 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 if (!despawn && me->IsWithinMeleeRange(me->getVictim()))
                 {
                     despawn = true;
-                    // TODO: spell doesnt work for some reason
                     me->CastSpell(me, SPELL_BOOM_BOT, true);
-                    me->DespawnOrUnsummon(1500);
                 }
+                // suicide has procflag PROC_FLAG_DONE_MELEE_AUTO_ATTACK, they have to melee, even tho the spell is delayed if the npc misses
+                DoMeleeAttackIfReady();
             }
 
             private:
