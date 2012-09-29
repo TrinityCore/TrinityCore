@@ -14,7 +14,7 @@ REPLACE INTO `gossip_scripts` (`id`, `command`, `datalong`, `datalong2`) VALUES 
 #define LIP_BALM_SPELL 62574
 #define FROG_LOVE 62537
 #define SUMMON_ASHOOD_BRAND_SPELL 62554
-#define MAIDEN_SAY "Неужели это может быть? Свободна после всех этих многих лет?"
+#define MAIDEN_SAY "Thank to you, here is you Ashwood Brand !"
 
 struct A_BLADE_FIT_FOR_A_CHAMPION_QUEST
 { 
