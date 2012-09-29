@@ -260,6 +260,7 @@ class spell_warr_charge : public SpellScriptLoader
 enum Slam
 {
     SPELL_SLAM      = 50783,
+    SPELL_SLAM_PROC = 46916,
 };
 
 class spell_warr_slam : public SpellScriptLoader
@@ -290,9 +291,30 @@ class spell_warr_slam : public SpellScriptLoader
             }
         };
 
+        class spell_warr_slam_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_slam_AuraScript);
+
+            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
+            {
+                if (spellMod && spellMod->spellId == SPELL_SLAM_PROC)
+                    spellMod->charges++;
+            }
+
+            void Register()
+            {
+                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_warr_slam_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_warr_slam_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_slam_AuraScript();
         }
 };
 

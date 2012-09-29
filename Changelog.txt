@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[43] --> Fix [Warrior] T10 4P Bonus.
 [42] --> [Death Grip] Fix castable while jumping/falling.
 [41] --> Fix pets scaling HP.
 [40] --> Fix Pet CD After Summon.
