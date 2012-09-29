@@ -17,6 +17,7 @@ public:
     int svc()
     {
         Free = false;
+        printf("[%02i,%02i] Building tile", X, Y);
         TileBuilder builder(Continent, X, Y, MapId);
         char buff[100];
         sprintf(buff, "%03u%02u%02u.mmtile", MapId, X, Y);
