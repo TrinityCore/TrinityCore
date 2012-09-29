@@ -359,6 +359,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 UPDATE `creature_template` SET `RegenHealth`=0 WHERE `entry` IN (33329, 33995);
 UPDATE `vehicle_template_accessory` SET `minion`=0 WHERE `entry`=33293;
 
+-- removing spell_xt002_heart_overload_periodic
+DELETE FROM `spell_script_names` WHERE `spell_id`=62791;
+
 -- Kologarn
 -- Add script to arms.
 UPDATE `creature_template` SET `ScriptName`='npc_kologarn_arm' WHERE `entry` IN (32933,32934);
