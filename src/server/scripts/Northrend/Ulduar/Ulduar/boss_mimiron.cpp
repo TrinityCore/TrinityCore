@@ -1169,6 +1169,7 @@ class npc_proximity_mine : public CreatureScript
             void InitializeAI()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 uiBoomTimer = 35000;
                 boomLocked = false;
             }
@@ -1192,7 +1193,7 @@ class npc_proximity_mine : public CreatureScript
 
                 if (Player* player = who->ToPlayer())
                     if (!player->isGameMaster())
-                        if (!boomLocked && me->GetDistance2d(player)<3.0f)
+                        if (!boomLocked && me->GetDistance2d(player) < 3.0f)
                         {
                             DoCastAOE(SPELL_EXPLOSION);
                             boomLocked = true;
@@ -1255,7 +1256,6 @@ class spell_proximity_mines : public SpellScriptLoader // Spell 63027
             return new spell_proximity_mines_SpellScript();
         }
 };
-
 
 /************************************************************************/
 /*                               VX-001                                 */
