@@ -2338,7 +2338,7 @@ class spell_auto_repair : public SpellScriptLoader
                 if (!driver)
                     return;
 
-                driver->ToCreature()->AI()->Talk(EMOTE_REPAIR, driver->GetGUID());
+                //driver->ToCreature()->AI()->Talk(EMOTE_REPAIR, driver->GetGUID());
 
                 InstanceScript* instance = driver->GetInstanceScript();
                 if (!instance)
