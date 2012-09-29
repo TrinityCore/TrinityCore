@@ -1903,8 +1903,6 @@ public:
         npc_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) {}
 
         uint32 despawnTimer;
-        Unit* owner;
-        Unit* target;
 
         void InitializeAI()
         {
@@ -1912,13 +1910,19 @@ public:
             uint64 ownerGuid = me->GetOwnerGUID();
             if (!ownerGuid)
                 return;
-
-            owner = me->GetOwner();
-
             // Not needed to be despawned now
             despawnTimer = 0;
-
-            target = NULL;
+            // Find victim of Summon Gargoyle spell
+            std::list<Unit*> targets;
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+            me->VisitNearbyObject(30, searcher);
+            for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                if ((*iter)->GetAura(49206, ownerGuid))
+                {
+                    me->Attack((*iter), false);
+                    break;
+                }
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1970,29 +1974,6 @@ public:
                     me->DespawnOrUnsummon();
                 return;
             }
-
-            if (!target)
-            {
-                // Find victim of Summon Gargoyle spell
-                std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(30, searcher);
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                {
-                    if ((*iter)->HasAura(49206, me->GetOwnerGUID()))
-                    {
-                        target = (*iter);
-                        AttackStart(target);
-                        break;
-                    }
-                }
-            }
-            else if (target && target->isAlive())
-            {
-                AttackStart(target);
-            }
-
             CasterAI::UpdateAI(diff);
         }
     };

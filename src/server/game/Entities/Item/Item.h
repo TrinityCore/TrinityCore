@@ -340,11 +340,11 @@ class Item : public Object
 
         void BuildUpdate(UpdateDataMapType&);
 
+        // custom
         uint32 GetFakeEntry();
         bool DeleteFakeEntry();
         static void DeleteFakeFromDB(uint32 lowGUID);
         void SetFakeEntry(uint32 entry);
-        bool HasGoodFakeQuality();
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
     private:

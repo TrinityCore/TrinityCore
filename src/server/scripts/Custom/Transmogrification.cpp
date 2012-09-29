@@ -1,6 +1,29 @@
 /*
-3.7 Transmogrification 3.3.5a - Gossip Menu
+3.7
+Transmogrification 3.3.5a - Gossip Menu
 By Rochet2
+
+ScriptName for NPC:
+NPC_Transmogrify
+
+
+TODO:
+Make DB saving even better (Deleting)? What about coding?
+
+Fix the cost formula
+
+TODO in the distant future:
+
+Are the qualities right? Blizzard might have changed the quality requirements.
+What can and cant be used as source or target..?
+
+Cant transmogrify:
+rediculus _items // Foereaper: would be fun to stab people with a fish
+-- Cant think of any good way to handle this easily
+
+Cataclysm:
+Test on cata -> implement UI xD?
+Item link icon to Are You sure text
 */
 
 #include "ScriptPCH.h"

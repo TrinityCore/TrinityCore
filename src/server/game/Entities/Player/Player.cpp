@@ -12502,6 +12502,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
+        // custom
         if (pItem->GetFakeEntry())
             SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetFakeEntry());
         else
@@ -12626,7 +12627,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
 {
     if (Item* it = GetItemByPos(bag, slot))
     {
-        it->DeleteFakeFromDB(it->GetGUIDLow());
+        it->DeleteFakeFromDB(it->GetGUIDLow()); // custom
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         RemoveItem(bag, slot, update);
         it->SetNotRefundable(this, false);
@@ -25817,7 +25818,7 @@ void Player::SendMovementSetFeatherFall(bool apply)
     SendDirectMessage(&data);
 }
 
-uint32 Player::SuitableForTransmogrification(Item* oldItem, Item* newItem)
+uint32 Player::SuitableForTransmogrification(Item* oldItem, Item* newItem) // custom
 {
     // not possibly the best structure here, but atleast I got my head around this
     if (!sTransmogrification->AllowedQuality(newItem->GetTemplate()->Quality))

@@ -1148,7 +1148,7 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeTitles();
 
-        ItemFakeEntryContainer _itemFakeEntryStore;
+        ItemFakeEntryContainer _itemFakeEntryStore; // custom
 
     private:
         // first free id for selected id type

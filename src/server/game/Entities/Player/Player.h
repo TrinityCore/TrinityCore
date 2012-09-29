@@ -88,7 +88,7 @@ enum BuyBankSlotResult
     ERR_BANKSLOT_OK                 = 3
 };
 
-enum TransmogrificationResult
+enum TransmogrificationResult // custom
 {
     ERR_FAKE_NEW_BAD_QUALITY,
     ERR_FAKE_OLD_BAD_QUALITY,
@@ -2609,7 +2609,7 @@ class Player : public Unit, public GridObject<Player>
             }
         }
 
-        uint32 SuitableForTransmogrification(Item* oldItem, Item* newItem);
+        uint32 SuitableForTransmogrification(Item* oldItem, Item* newItem); // custom
 
     protected:
         // Gamemaster whisper whitelist
