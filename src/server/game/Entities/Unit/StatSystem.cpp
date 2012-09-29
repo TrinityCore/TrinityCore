@@ -1008,7 +1008,7 @@ void Guardian::UpdateArmor()
 
     // hunter pets gain 35% of owner's armor value, warlock pets gain 100% of owner's armor
     if (isHunterPet())
-        bonus_armor = float(CalculatePctN(m_owner->GetArmor(), 70);
+        bonus_armor = float(CalculatePctN(m_owner->GetArmor(), 70));
     else if (isPet())
         bonus_armor = m_owner->GetArmor();
 
