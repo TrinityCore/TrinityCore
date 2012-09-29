@@ -68,5 +68,6 @@ ChunkedData::~ChunkedData()
 		delete *itr;
 	
 	Chunks.clear();
-	fclose(Stream);
+	if (Stream)
+		fclose(Stream);
 }
