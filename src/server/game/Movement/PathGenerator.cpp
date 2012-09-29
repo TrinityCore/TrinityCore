@@ -58,12 +58,8 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
         return false;
 
-    float newDestZ = _sourceUnit->GetBaseMap()->GetHeight(_sourceUnit->GetPhaseMask(), x, y, z, true, MAX_FALL_DISTANCE);
-    if (newDestZ <= INVALID_HEIGHT)
-        return false;
-
     Vector3 oldDest = GetEndPosition();
-    Vector3 dest(destX, destY, newDestZ);
+    Vector3 dest(destX, destY, destZ);
     SetEndPosition(dest);
 
     Vector3 start(x, y, z);
