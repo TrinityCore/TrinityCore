@@ -3,6 +3,8 @@
 #include "DBC.h"
 #include "Utils.h"
 
+#include "ace/Synch.h"
+
 char* MPQManager::Files[] = { 
     "common.MPQ",
     "common-2.MPQ",
@@ -27,12 +29,6 @@ void MPQManager::Initialize()
     }
 }
 
-void MPQManager::LoadMaps()
-{
-    DBC* file = GetDBC("Map");
-    printf("NAME %s\n", file->GetRecordById(608)->GetString(1).c_str());
-}
-
 void MPQManager::InitializeDBC()
 {
     CurLocale = 0;
@@ -54,6 +50,7 @@ void MPQManager::InitializeDBC()
 
 FILE* MPQManager::GetFile( std::string path )
 {
+    ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
     MPQFile file(path.c_str());
     if (file.isEof())
         return NULL;

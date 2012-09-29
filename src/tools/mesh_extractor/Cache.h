@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include "Common.h"
+#include "ace/Synch.h"
 
 class WorldModelRoot;
 class Model;
@@ -20,6 +21,7 @@ public:
     {
         if (_items.size() > FlushLimit)
             Clear();
+        ACE_GUARD(ACE_Thread_Mutex, g, mutex);
         _items[key] = val;
     }
 
@@ -39,6 +41,7 @@ public:
     }
 private:
     std::map<K, T*> _items;
+    ACE_Thread_Mutex mutex;
 };
 
 class CacheClass
