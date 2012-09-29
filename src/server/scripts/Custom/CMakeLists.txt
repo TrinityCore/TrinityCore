@@ -14,6 +14,7 @@ set(scripts_STAT_SRCS
   Custom/Transmogrification.cpp
   Custom/Transmogrification.h
   Custom/chat_censure.cpp
+  Custom/argent_tournament.cpp
 )
 
 message("  -> Prepared: Custom")

@@ -30,6 +30,8 @@ void AddSC_npc_hunterpetvendor();
 void AddSC_NPC_Transmogrify();
 //Chat Censure
 void AddSC_System_Censure();
+// Argent Tournament quest scripts
+void AddSC_ArgentTournament();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1291,6 +1293,8 @@ void AddCustomScripts()
     AddSC_NPC_Transmogrify();
     //Chat Censure
     AddSC_System_Censure();
+    // Argent Tournament quest scripts
+    AddSC_ArgentTournament();
 
 #endif
 }
