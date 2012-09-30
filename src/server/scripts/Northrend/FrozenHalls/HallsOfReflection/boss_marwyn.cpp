@@ -32,9 +32,12 @@ enum Yells
 enum Spells
 {
     SPELL_OBLITERATE                              = 72360,
+    H_SPELL_OBLITERATE                            = 72434,
     SPELL_WELL_OF_CORRUPTION                      = 72362,
     SPELL_CORRUPTED_FLESH                         = 72363,
+    H_SPELL_CORRUPTED_FLESH                       = 72436,
     SPELL_SHARED_SUFFERING                        = 72368,
+    H_SPELL_SHARED_SUFFERING                      = 72369
 };
 
 enum Events
@@ -74,10 +77,10 @@ public:
             if (instance)
                 instance->SetData(DATA_MARWYN_EVENT, IN_PROGRESS);
 
-            events.ScheduleEvent(EVENT_OBLITERATE, 30000);          // TODO Check timer
-            events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
+            events.ScheduleEvent(EVENT_OBLITERATE, 10000);
+            events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, DUNGEON_MODE(13000, 8000));
             events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
-            events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    // TODO Check timer
+            events.ScheduleEvent(EVENT_SHARED_SUFFERING, 15000);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -85,7 +88,10 @@ public:
             DoScriptText(SAY_DEATH, me);
 
             if (instance)
+            {
                 instance->SetData(DATA_MARWYN_EVENT, DONE);
+                instance->SetData(DATA_WAVES_STATE, DONE);
+            }
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -107,22 +113,22 @@ public:
             switch (events.ExecuteEvent())
             {
                 case EVENT_OBLITERATE:
-                    DoCast(SPELL_OBLITERATE);
-                    events.ScheduleEvent(EVENT_OBLITERATE, 30000);
+                    DoCast(me->getVictim(), DUNGEON_MODE(SPELL_OBLITERATE, H_SPELL_OBLITERATE));
+                    events.ScheduleEvent(EVENT_OBLITERATE, 10000);
                     break;
                 case EVENT_WELL_OF_CORRUPTION:
                     DoCast(SPELL_WELL_OF_CORRUPTION);
-                    events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
+                    events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, DUNGEON_MODE(13000, 8000));
                     break;
                 case EVENT_CORRUPTED_FLESH:
                     DoScriptText(RAND(SAY_CORRUPTED_FLESH_1, SAY_CORRUPTED_FLESH_2), me);
-                    DoCast(SPELL_CORRUPTED_FLESH);
+                    DoCast(DUNGEON_MODE(SPELL_CORRUPTED_FLESH, H_SPELL_CORRUPTED_FLESH));
                     events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
                     break;
                 case EVENT_SHARED_SUFFERING:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(target, SPELL_SHARED_SUFFERING);
-                    events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);
+                        DoCast(target, DUNGEON_MODE(SPELL_SHARED_SUFFERING, H_SPELL_SHARED_SUFFERING));
+                    events.ScheduleEvent(EVENT_SHARED_SUFFERING, 15000);
                     break;
             }
 

@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[49] --> Add Scripts/Halls Of Reflection (thx Cashew).
 [48] --> Pet: Return to player in passive reactstate if commandstate is follow.
 [47] --> Add Scripts/Ruby Sanctum: Halion (thx Warpten).
 [46] --> Updated script Transmogrification and fix crash gargoyle.
