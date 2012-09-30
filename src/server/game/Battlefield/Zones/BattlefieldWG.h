@@ -26,12 +26,6 @@
 #include "GroupMgr.h"
 #include "Battlefield.h"
 
-uint32 const VehNumWorldState[2]        = { 3680, 3490 };
-uint32 const MaxVehNumWorldState[2]     = { 3681, 3491 };
-uint32 const ClockWorldState[2]         = { 3781, 4354 };
-uint32 const WintergraspFaction[3]      = { 1732, 1735, 35 };
-float const WintergraspStalkerPos[4]    = { 0, 0, 0, 0 };
-
 class BattlefieldWG;
 class WintergraspCapturePoint;
 
@@ -404,9 +398,9 @@ class BattlefieldWG : public Battlefield
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
-        WorldPacket BuildInitWorldStates();
         void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll();
+        void FillInitialWorldStates(WorldPacket& data);
 
         void HandleKill(Player* killer, Unit* victim);
         void OnUnitDeath(Unit* unit);
@@ -421,6 +415,7 @@ class BattlefieldWG : public Battlefield
         uint8 GetSpiritGraveyardId(uint32 areaId);
 
         uint32 GetData(uint32 data);
+
     protected:
         bool m_isRelicInteractible;
 
@@ -441,6 +436,12 @@ class BattlefieldWG : public Battlefield
         GameObject* m_titansRelic;
 };
 
+uint32 const VehNumWorldState[]        = { 3680, 3490 };
+uint32 const MaxVehNumWorldState[]     = { 3681, 3491 };
+uint32 const ClockWorldState[]         = { 3781, 4354 };
+uint32 const WintergraspFaction[]      = { 1732, 1735, 35 };
+float const WintergraspStalkerPos[]    = { 0, 0, 0, 0 };
+
 uint8 const WG_MAX_OBJ              = 32;
 uint8 const WG_KEEPGAMEOBJECT_MAX   = 44;
 uint8 const WG_MAX_TURRET           = 15;
@@ -448,6 +449,7 @@ uint8 const WG_MAX_KEEP_NPC         = 39;
 uint8 const WG_MAX_OUTSIDE_NPC      = 14;
 uint8 const WG_OUTSIDE_ALLIANCE_NPC = 7;
 uint8 const WG_MAX_TELEPORTER       = 12;
+uint8 const WG_MAX_WORKSHOP = 6;
 
 enum WintergraspGameObjectBuildingType
 {
@@ -1111,8 +1113,6 @@ const WintergraspTowerCannonData TowerCannon[WG_MAX_TOWER_CANNON] =
 // *********************************************************
 // *****************WorkShop Data & Element*****************
 // *********************************************************
-
-uint8 const WG_MAX_WORKSHOP = 6;
 
 struct WGWorkshopData
 {
