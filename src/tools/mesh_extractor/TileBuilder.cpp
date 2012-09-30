@@ -17,20 +17,22 @@ TileBuilder::TileBuilder(std::string world, int x, int y, uint32 mapId) : _Geome
     // 1800 = TileVoxelSize
     Config.cs = Constants::TileSize / 1800;
     // Cell Height
-    Config.ch = 0.3f;
-    // Min Region Area = 6^2
-    Config.minRegionArea = 36;
-    // Merge Region Area = 12^2
-    Config.mergeRegionArea = 144;
+    Config.ch = 0.4f;
+    // Min Region Area = 20^2
+    Config.minRegionArea = 20*20;
+    // Merge Region Area = 40^2
+    Config.mergeRegionArea = 40*40;
+    Config.tileSize = Constants::TileSize / 4;
     Config.walkableSlopeAngle = 50.0f;
     Config.detailSampleDist = 3.0f;
     Config.detailSampleMaxError = 1.25f;
     Config.walkableClimb = 1.0f / Config.ch;
-    Config.walkableHeight = 2.1f / Config.ch;
-    Config.walkableRadius = 0.6f / Config.cs;
+    Config.walkableHeight = 1.652778f / Config.ch;
+    Config.walkableRadius = 0.2951389f / Config.cs;
     Config.maxEdgeLen = Config.walkableRadius * 8;
-    Config.borderSize = Config.walkableRadius + 8;
-    Config.width = 1800;
+    Config.borderSize = Config.walkableRadius + 4;
+    Config.width = 1800 + Config.borderSize * 2;
+    Config.height = 1800 + Config.borderSize * 2;
     Config.maxVertsPerPoly = 6;
     Config.maxSimplificationError = 1.3f;
 
@@ -47,7 +49,7 @@ void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax )
     bmax[2] = Constants::Origin[2] + (Constants::TileSize * (Y + 1));
 }
 
-uint8* TileBuilder::Build()
+uint8* TileBuilder::Build(bool dbg)
 {
     _Geometry = new Geometry();
     _Geometry->Transform = true;
@@ -65,9 +67,9 @@ uint8* TileBuilder::Build()
     _Geometry->CalculateMinMaxHeight(bbMin[1], bbMax[1]);
 
     // again, we load everything - wasteful but who cares
-    for (int ty = Y - 1; ty <= Y + 1; ty++)
+    for (int ty = Y - 4; ty <= Y + 4; ty++)
     {
-        for (int tx = X - 1; tx <= X + 1; tx++)
+        for (int tx = X - 4; tx <= X + 4; tx++)
         {
             // don't load main tile again
             if (tx == X && ty == Y)
@@ -85,6 +87,19 @@ uint8* TileBuilder::Build()
             delete _adt;
         }
     }
+
+    if (dbg)
+    {
+        char buff[100];
+        sprintf(buff, "mmaps/%s_%02u%02u.obj", World.c_str(), Y, X);
+        FILE* debug = fopen(buff, "wb");
+        for (int i = 0; i < _Geometry->Vertices.size(); ++i)
+            fprintf(debug, "v %f %f %f\n", _Geometry->Vertices[i].x, _Geometry->Vertices[i].y, _Geometry->Vertices[i].z);
+        for (int i = 0; i < _Geometry->Triangles.size(); ++i)
+            fprintf(debug, "f %i %i %i\n", _Geometry->Triangles[i].V0 + 1, _Geometry->Triangles[i].V1 + 1, _Geometry->Triangles[i].V2 + 1);
+        fclose(debug);
+    }
+    
     uint32 numVerts = _Geometry->Vertices.size();
     uint32 numTris = _Geometry->Triangles.size();
     float* vertices;
@@ -100,8 +115,7 @@ uint8* TileBuilder::Build()
     bbMax[0] += Config.borderSize * Config.cs;
 
     rcHeightfield* hf = rcAllocHeightfield();
-    int width = Config.width + (Config.borderSize * 2);
-    rcCreateHeightfield(Context, *hf, width, width, bbMin, bbMax, Config.cs, Config.ch);
+    rcCreateHeightfield(Context, *hf, Config.width, Config.height, bbMin, bbMax, Config.cs, Config.ch);
     rcClearUnwalkableTriangles(Context, Config.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
     rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, Config.walkableClimb);
 
@@ -208,14 +222,14 @@ uint8* TileBuilder::Build()
     params.walkableRadius = Config.walkableRadius;
     params.tileX = X;
     params.tileY = Y;
-    params.tileSize = Config.width;
+    params.tileSize = 1800;
 
     // Offmesh-connection settings
     params.offMeshConCount = 0; // none for now
 
     int navDataSize;
     uint8* navData;
-    printf("[%02i,%02i] Creating the navmesh!\n", X, Y);
+    printf("[%02i,%02i] Creating the navmesh with %i vertices, %i polys, %i triangles!\n", X, Y, pmesh->nverts, pmesh->npolys, dmesh->ntris);
     bool result = dtCreateNavMeshData(&params, &navData, &navDataSize);
 
     // Free some memory
