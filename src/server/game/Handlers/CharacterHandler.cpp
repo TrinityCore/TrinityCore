@@ -1644,7 +1644,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     uint32 level = uint32(fields[1].GetUInt8());
     uint32 at_loginFlags = fields[2].GetUInt16();
     uint32 used_loginFlag = ((recv_data.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
-    const char *knownTitlesStr = fields[3].GetCString();
+    char const* knownTitlesStr = fields[3].GetCString();
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {
@@ -2019,8 +2019,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         // Title conversion
         if (knownTitlesStr)
         {
-            uint32 ktcount = 6;
-            uint32 knownTitles[6];
+            const uint32 ktcount = KNOWN_TITLES_SIZE * 2;
+            uint32 knownTitles[ktcount];
             Tokens tokens(knownTitlesStr, ' ', ktcount);
 
             if (tokens.size() != ktcount)
@@ -2065,7 +2065,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
                 }
 
                 std::ostringstream ss;
-                for (uint32 index = 0; index < 6; ++index)
+                for (uint32 index = 0; index < ktcount; ++index)
                     ss << knownTitles[index] << ' ';
 
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
@@ -2073,6 +2073,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
                 stmt->setUInt32(1, lowGuid);
                 trans->Append(stmt);
 
+                // unset any currently chosen title
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_RES_CHAR_TITLES_FACTION_CHANGE);
                 stmt->setUInt32(0, lowGuid);
                 trans->Append(stmt);
