@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[52] --> Fix crash 'arena_run_reg_alloc'.
 [51] --> Add Scripts/Halls Of Lightning (thx Cashew).
 [50] --> Add Scripts/Halls Of Stone (thx Cashew).
 [49] --> Add Scripts/Halls Of Reflection (thx Cashew).
