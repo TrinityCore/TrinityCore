@@ -525,7 +525,10 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_XT_TOY_PILE:
                         for (uint8 i = 0; i < 4; ++i)
                             if (!XTToyPileGUIDs[i])
+                            {
                                 XTToyPileGUIDs[i] = creature->GetGUID();
+                                break;
+                            }
                         break;
 
                     // Assembly of Iron
