@@ -217,6 +217,9 @@ class InstanceScript : public ZoneScript
 
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
 
+        // ReCheck PhaseTemplate related conditions
+        void UpdatePhasing();
+
     protected:
         void SetBossNumber(uint32 number) { bosses.resize(number); }
         void LoadDoorData(DoorData const* data);

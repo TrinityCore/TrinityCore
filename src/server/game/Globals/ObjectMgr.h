@@ -42,8 +42,10 @@
 #include <limits>
 #include "ConditionMgr.h"
 #include <functional>
+#include "PhaseMgr.h"
 
 class Item;
+class PhaseMgr;
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
@@ -904,6 +906,12 @@ class ObjectMgr
         void LoadTrainerSpell();
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
+        void LoadPhaseDefinitions();
+        void LoadSpellPhaseInfo();
+
+        PhaseDefinitionStore const* GetPhaseDefinitionStore() { return &_PhaseDefinitionStore; }
+        SpellPhaseStore const* GetSpellPhaseStore() { return &_SpellPhaseStore; }
+
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
@@ -1217,6 +1225,9 @@ class ObjectMgr
 
         PageTextContainer _pageTextStore;
         InstanceTemplateContainer _instanceTemplateStore;
+
+        PhaseDefinitionStore _PhaseDefinitionStore;
+        SpellPhaseStore _SpellPhaseStore;
 
     private:
         void LoadScripts(ScriptsType type);
