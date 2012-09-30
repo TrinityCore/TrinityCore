@@ -10,7 +10,7 @@ class MapChunk
 {
 public:
     MapChunk(ADT* _adt, Chunk* chunk);
-    
+
     void GenerateTriangles();
     void GenerateVertices(FILE* stream);
     static bool HasHole(uint32 map, int x, int y);

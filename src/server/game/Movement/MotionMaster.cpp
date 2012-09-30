@@ -428,7 +428,7 @@ void MotionMaster::MoveCharge(PathGenerator path, float speed, uint32 id)
     Vector3 dest = path.GetActualEndPosition();
 
     MoveCharge(dest.x, dest.y, dest.z);
-    
+
     Movement::MoveSplineInit init(_owner);
     init.MovebyPath(path.GetPath());
     init.SetVelocity(speed);

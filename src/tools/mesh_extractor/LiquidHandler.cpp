@@ -20,7 +20,7 @@ void LiquidHandler::HandleNewLiquid()
     MCNKData.reserve(256);
     for (int i = 0; i < 256; i++)
         header[i] = H2OHeader::Read(stream);
-    
+
     for (int i = 0; i < 256; i++)
     {
         H2OHeader h = header[i];

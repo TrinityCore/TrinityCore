@@ -10,7 +10,7 @@ class MPQManager
 public:
     MPQManager() {}
     ~MPQManager() {}
-    
+
     void Initialize();
     FILE* GetFile(std::string path);
     DBC* GetDBC(std::string name);

@@ -9,7 +9,7 @@ class Geometry
 {
 public:
     Geometry();
-    
+
     void CalculateBoundingBox(float*& min, float*& max);
     void CalculateMinMaxHeight(float& min, float& max);
     void AddData(std::vector<Vector3>& verts, std::vector<Triangle<uint32> >& tris);

@@ -852,7 +852,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                 hasHoles = true;
         }
     }
-    
+
     if (hasHoles)
         map.holesSize = sizeof(holes);
     else

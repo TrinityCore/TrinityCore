@@ -63,7 +63,7 @@ void Geometry::AddData( std::vector<Vector3>& verts, std::vector<Triangle<uint32
     uint32 vertOffset = Vertices.size();
     for (std::vector<Vector3>::iterator itr = verts.begin(); itr != verts.end(); ++itr)
         Vertices.push_back(Transform ? Utils::ToRecast(*itr) : *itr);
-    
+
     for (std::vector<Triangle<uint32> >::iterator itr = tris.begin(); itr != tris.end(); ++itr)
         Triangles.push_back(Triangle<uint32>(itr->Type, itr->V0 + vertOffset, itr->V1 + vertOffset, itr->V2 + vertOffset));
 }
@@ -116,7 +116,7 @@ void Geometry::AddAdt( ADT* adt )
 
     if (!adt->_DoodadHandler->Triangles.empty())
         AddData(adt->_DoodadHandler->Vertices, adt->_DoodadHandler->Triangles);
-    
+
     if (!adt->_WorldModelHandler->Triangles.empty())
         AddData(adt->_WorldModelHandler->Vertices, adt->_WorldModelHandler->Triangles);
 }
