@@ -120,12 +120,13 @@ public:
             {
                 if (PartingSorrowTimer <= diff)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if(!me->IsNonMeleeSpellCasted(false))
+                    {
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_PARTING_SORROW);
 
-                    if (target)
-                        DoCast(target, SPELL_PARTING_SORROW);
-
-                    PartingSorrowTimer = urand(30000, 40000);
+                        PartingSorrowTimer = 10000 + rand()%7000;
+                    }
                 } else PartingSorrowTimer -= diff;
             }
 
