@@ -324,8 +324,8 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket &recv_data)
     uint8 fromWhere;
     recv_data >> fromWhere;                                 // 0 - battlemaster (lua: ShowBattlefieldList), 1 - UI (lua: RequestBattlegroundInstanceInfo)
 
-    uint8 unk1;
-    recv_data >> unk1;                                       // Unknown 3.2.2
+    uint8 canGainXP;
+    recv_data >> canGainXP;                                 // players with locked xp have their own bg queue on retail
 
     BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
     if (!bl)
