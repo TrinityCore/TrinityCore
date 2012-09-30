@@ -827,6 +827,9 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `position_x`, `positio
 (48307, 33233, 603, 2, 603.931, -142.889, 391.517),
 (48308, 33233, 603, 3, 572.654, -139.375, 391.517);
 
+-- delete razorscale broken harpoons, they are spawned via scripts
+DELETE FROM `gameobject` WHERE `id`=194565;
+
 -- small Emote to Say correction
 UPDATE `script_texts` SET `type`=3 WHERE `entry`=-1603266;
 
