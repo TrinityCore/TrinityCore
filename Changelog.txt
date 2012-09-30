@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[51] --> Add Scripts/Halls Of Lightning (thx Cashew).
 [50] --> Add Scripts/Halls Of Stone (thx Cashew).
 [49] --> Add Scripts/Halls Of Reflection (thx Cashew).
 [48] --> Pet: Return to player in passive reactstate if commandstate is follow.
