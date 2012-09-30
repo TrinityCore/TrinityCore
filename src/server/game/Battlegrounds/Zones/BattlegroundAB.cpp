@@ -236,6 +236,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
         case 3870:                                          // Black Smith
         case 4020:                                          // Unk1
         case 4021:                                          // Unk2
+        case 4674:                                          // Unk3
             //break;
         default:
             Battleground::HandleAreaTrigger(player, trigger);
