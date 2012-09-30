@@ -29,7 +29,7 @@ class WorldModelHandler : public ObjectDataHandler
 {
 public:
     WorldModelHandler(ADT* adt);
-	~WorldModelHandler();
+    ~WorldModelHandler();
 
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;

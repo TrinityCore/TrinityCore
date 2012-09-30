@@ -32,7 +32,7 @@ class DoodadHandler : public ObjectDataHandler
 {
 public:
     DoodadHandler(ADT* adt);
-	~DoodadHandler();
+    ~DoodadHandler();
 
     std::vector<Vector3> Vertices;
     std::vector<Triangle<uint32> > Triangles;

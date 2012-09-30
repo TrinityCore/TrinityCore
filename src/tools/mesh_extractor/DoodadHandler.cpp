@@ -102,6 +102,6 @@ void DoodadHandler::InsertModelGeometry(const DoodadDefinition& def, Model* mode
 
 DoodadHandler::~DoodadHandler()
 {
-	delete _definitions;
-	delete _paths;
+    delete _definitions;
+    delete _paths;
 }

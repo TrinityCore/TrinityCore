@@ -193,6 +193,6 @@ void WorldModelHandler::ReadModelPaths()
 
 WorldModelHandler::~WorldModelHandler()
 {
-	delete _definitions;
-	delete _paths;
+    delete _definitions;
+    delete _paths;
 }
