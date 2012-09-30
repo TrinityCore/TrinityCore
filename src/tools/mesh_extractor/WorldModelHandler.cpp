@@ -103,7 +103,7 @@ void WorldModelHandler::InsertModelGeometry( std::vector<Vector3>& verts, std::v
                 break;
             instances.push_back(root->DoodadInstances[i]);
         }
-        
+
         for (std::vector<DoodadInstance>::iterator instance = instances.begin(); instance != instances.end(); ++instance)
         {
             Model* model = Cache->ModelCache.Get(instance->File);

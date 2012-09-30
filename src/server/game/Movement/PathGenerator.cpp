@@ -469,7 +469,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         _pathPoints[i] = Vector3(pathPoints[i*VERTEX_SIZE+2], pathPoints[i*VERTEX_SIZE], pathPoints[i*VERTEX_SIZE+1]);
 
     NormalizePath();
-    
+
     // first point is always our current location - we need the next one
     SetActualEndPosition(_pathPoints[pointCount-1]);
 
@@ -515,7 +515,7 @@ void PathGenerator::BuildShortcut()
     _pathPoints[1] = GetActualEndPosition();
 
     NormalizePath();
-    
+
     _type = PATHFIND_SHORTCUT;
 }
 

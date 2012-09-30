@@ -17,7 +17,7 @@ void WDT::ReadGlobalModel()
     Chunk* defChunk = Data->GetChunkByName("MODF");
     if (!fileChunk || !defChunk)
         return;
-    
+
     IsGlobalModel = true;
     ModelDefinition = WorldModelDefinition::Read(defChunk->GetStream());
     ModelFile = Utils::ReadString(fileChunk->GetStream());

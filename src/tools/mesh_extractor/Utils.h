@@ -551,8 +551,8 @@ public:
     static G3D::Matrix4 GetTransformation(IDefinition def);
     /// They say its better to declare template functions in the header files.
     template <typename T>
-    static std::string ToString(T val) 
-    { 
+    static std::string ToString(T val)
+    {
         std::stringstream ss;
         ss << val;
         return ss.str();

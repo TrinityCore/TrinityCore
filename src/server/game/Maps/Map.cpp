@@ -123,7 +123,7 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 void Map::LoadMMap(int gx, int gy)
 {
     bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
-    
+
     if (mmapLoadResult)
         sLog->outInfo(LOG_FILTER_MAPS, "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
     else

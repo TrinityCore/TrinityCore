@@ -12,7 +12,7 @@ class ADT
 public:
     ADT(std::string file);
     ~ADT();
-    
+
     void Read();
 
     ChunkedData* ObjectData;

@@ -152,7 +152,7 @@ public:
 
         // navmesh poly -> navmesh tile location
         dtQueryFilter filter = dtQueryFilter();
-        dtPolyRef polyRef = INVALID_POLYREF; 
+        dtPolyRef polyRef = INVALID_POLYREF;
         navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL);
 
         if (polyRef == INVALID_POLYREF)
@@ -252,7 +252,7 @@ public:
         CellCoord pair(Trinity::ComputeCellCoord(object->GetPositionX(), object->GetPositionY()) );
         Cell cell(pair);
         cell.SetNoCreate();
-        
+
         std::list<Creature*> creatureList;
 
         Trinity::AnyUnitInObjectRangeCheck go_check(object, radius);
