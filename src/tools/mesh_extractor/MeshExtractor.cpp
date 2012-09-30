@@ -89,6 +89,6 @@ int main(int argc, char* argv[])
     }
 
     ExtractAllMaps(mapIds, threads);
-	return 0;
+    return 0;
 }
 

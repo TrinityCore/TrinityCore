@@ -11,7 +11,7 @@ class TileBuilder
 {
 public:
     TileBuilder(std::string world, int x, int y, uint32 mapId);
-	~TileBuilder();
+    ~TileBuilder();
 
     void CalculateTileBounds(float*& bmin, float*& bmax);
     uint8* Build();
