@@ -405,7 +405,7 @@ class boss_razorscale : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (type != POINT_MOTION_TYPE)
+                if (type != EFFECT_MOTION_TYPE)
                     return;
 
                 switch (id)
@@ -465,7 +465,7 @@ class boss_razorscale : public CreatureScript
                 {
                     HarpoonCounter = 0;
                     events.CancelEvent(EVENT_SUMMON);
-                    me->GetMotionMaster()->MovePoint(POINT_GROUND, RazorGround);
+                    me->GetMotionMaster()->MoveLand(POINT_GROUND, RazorGround);
                 }
 
                 if (phase == PHASE_GROUND)
@@ -481,7 +481,7 @@ class boss_razorscale : public CreatureScript
                                 me->RemoveAllAuras();
                                 me->SetReactState(REACT_PASSIVE);
                                 me->AttackStop();
-                                me->GetMotionMaster()->MovePoint(POINT_AIR, RazorFlight);
+                                me->GetMotionMaster()->MoveTakeoff(POINT_AIR, RazorFlight);
                                 events.ScheduleEvent(EVENT_FIREBALL, 7000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_SUMMON, 5000, 0, PHASE_FLIGHT);
