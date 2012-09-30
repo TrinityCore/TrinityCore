@@ -33,6 +33,7 @@ UPDATE `gameobject_template` SET `flags`=32, `faction`=35, `ScriptName`="go_twil
 UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35,`faction_A`=14,`faction_H`=14,`exp`=2 WHERE `entry` IN (39863, 39864, 39944, 39945, 40142); -- Halion
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion',`flags_extra`=`flags_extra`|0x1 WHERE `entry`=39863; -- Halion
 UPDATE `creature_template` SET `mindmg`=422,`maxdmg`=586,`attackpower`=642,`dmg_multiplier`=7.5 WHERE `entry` IN (40417, 40418, 40419, 40420, 40421, 40422, 40423, 40424); -- Trashs
+UPDATE `creature_template` SET `RegenHealth`=0 WHERE entry IN (39863,40142,39864,39944,39945,40143,40144,40145);
 
 -- Trahs respawn time
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751, 39746, 39747);
@@ -154,13 +155,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (40146,0,0, 'Without pressure in both realms, %s begins to regenerate.',41,0,100,0,0,0, 'Halion Controller');
 
 -- 2012_09_30_04_world_misc_spawns.sql
-SET @GUID = xxxxxx;  -- Requires one   (creature)
-SET @OGUID = xxxxxx; -- Requires three (gameobject)
-
-DELETE FROM `creature` WHERE `id` IN (40081,40091); -- ,40151);
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
-(@GUID,40091,724,1,0x20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0),
-(@GUID+1,40081,724,1,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0);
+SET @GUID = 42639;  -- Requires one   (creature)
+SET @OGUID = 5286; -- Requires three (gameobject)
 
 DELETE FROM `gameobject` WHERE `id`=203624;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
