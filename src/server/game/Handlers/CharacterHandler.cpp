@@ -1732,6 +1732,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     uint32 level = uint32(fields[1].GetUInt8());
     uint32 at_loginFlags = fields[2].GetUInt16();
     uint32 used_loginFlag = ((recvData.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
+    char const* knownTitlesStr = fields[3].GetCString();
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {
@@ -2108,6 +2109,70 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
             stmt->setUInt32(2, lowGuid);
             trans->Append(stmt);
+        }
+
+        // Title conversion
+        if (knownTitlesStr)
+        {
+            const uint32 ktcount = KNOWN_TITLES_SIZE * 2;
+            uint32 knownTitles[ktcount];
+            Tokens tokens(knownTitlesStr, ' ', ktcount);
+
+            if (tokens.size() != ktcount)
+                return;
+
+            for (uint32 index = 0; index < ktcount; ++index)
+                knownTitles[index] = atol(tokens[index]);
+
+            for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Titles.begin(); it != sObjectMgr->FactionChange_Titles.end(); ++it)
+            {
+                uint32 title_alliance = it->first;
+                uint32 title_horde = it->second;
+
+                CharTitlesEntry const* atitleInfo = sCharTitlesStore.LookupEntry(title_alliance);
+                CharTitlesEntry const* htitleInfo = sCharTitlesStore.LookupEntry(title_horde);
+                // new team
+                if (team == BG_TEAM_ALLIANCE)
+                {
+                    uint32 bitIndex = htitleInfo->bit_index;
+                    uint32 index = bitIndex / 32;
+                    uint32 old_flag = 1 << (bitIndex % 32);
+                    uint32 new_flag = 1 << (atitleInfo->bit_index % 32);
+                    if (knownTitles[index] & old_flag)
+                    {
+                        knownTitles[index] &= ~old_flag;
+                        // use index of the new title
+                        knownTitles[atitleInfo->bit_index / 32] |= new_flag;
+                    }
+                }
+                else
+                {
+                    uint32 bitIndex = atitleInfo->bit_index;
+                    uint32 index = bitIndex / 32;
+                    uint32 old_flag = 1 << (bitIndex % 32);
+                    uint32 new_flag = 1 << (htitleInfo->bit_index % 32);
+                    if (knownTitles[index] & old_flag)
+                    {
+                        knownTitles[index] &= ~old_flag;
+                        // use index of the new title
+                        knownTitles[htitleInfo->bit_index / 32] |= new_flag;
+                    }
+                }
+
+                std::ostringstream ss;
+                for (uint32 index = 0; index < ktcount; ++index)
+                    ss << knownTitles[index] << ' ';
+
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
+                stmt->setString(0, ss.str().c_str());
+                stmt->setUInt32(1, lowGuid);
+                trans->Append(stmt);
+
+                // unset any currently chosen title
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_RES_CHAR_TITLES_FACTION_CHANGE);
+                stmt->setUInt32(0, lowGuid);
+                trans->Append(stmt);
+            }
         }
     }
 

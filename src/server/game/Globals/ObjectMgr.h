@@ -1128,11 +1128,13 @@ class ObjectMgr
         CharacterConversionMap FactionChange_Items;
         CharacterConversionMap FactionChange_Spells;
         CharacterConversionMap FactionChange_Reputation;
+        CharacterConversionMap FactionChange_Titles;
 
         void LoadFactionChangeAchievements();
         void LoadFactionChangeItems();
         void LoadFactionChangeSpells();
         void LoadFactionChangeReputations();
+        void LoadFactionChangeTitles();
 
         void LoadHotfixData();
         HotfixData const& GetHotfixData() const { return _hotfixData; }

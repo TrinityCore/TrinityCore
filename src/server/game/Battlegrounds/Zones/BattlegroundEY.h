@@ -105,11 +105,11 @@ enum EYBattlegroundObjectEntry
 enum EYBattlegroundPointsTrigger
 {
     TR_BLOOD_ELF_POINT        = 4476,
-    TR_FEL_REAVER_POINT      = 4514,
+    TR_FEL_REAVER_POINT       = 4514,
     TR_MAGE_TOWER_POINT       = 4516,
     TR_DRAENEI_RUINS_POINT    = 4518,
     TR_BLOOD_ELF_BUFF         = 4568,
-    TR_FEL_REAVER_BUFF       = 4569,
+    TR_FEL_REAVER_BUFF        = 4569,
     TR_MAGE_TOWER_BUFF        = 4570,
     TR_DRAENEI_RUINS_BUFF     = 4571
 };

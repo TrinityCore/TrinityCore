@@ -2251,6 +2251,10 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     case 75532:
                         target->SetDisplayId(target->getGender() == GENDER_MALE ? 31737 : 31738);
                         break;
+                    // Gnomeregan Pride
+                    case 75531:
+                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 31654 : 31655);
+                        break;
                     default:
                         break;
                 }

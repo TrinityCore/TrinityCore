@@ -8618,6 +8618,41 @@ void ObjectMgr::LoadHotfixData()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadFactionChangeTitles()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 faction change title pairs. DB table `player_factionchange_title` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 alliance = fields[0].GetUInt32();
+        uint32 horde = fields[1].GetUInt32();
+
+        if (!sCharTitlesStore.LookupEntry(alliance))
+            sLog->outError(LOG_FILTER_SQL, "Title %u referenced in `player_factionchange_title` does not exist, pair skipped!", alliance);
+        else if (!sCharTitlesStore.LookupEntry(horde))
+            sLog->outError(LOG_FILTER_SQL, "Title %u referenced in `player_factionchange_title` does not exist, pair skipped!", horde);
+        else
+            FactionChange_Titles[alliance] = horde;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 {
     GameObjectTemplateContainer::const_iterator itr = _gameObjectTemplateStore.find(entry);
