@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[47] --> Add Scripts/Ruby Sanctum: Halion (thx Warpten).
 [46] --> Updated script Transmogrification and fix crash gargoyle.
 [45] --> [Argent Tournament] Fix Npc Lake Frog.
 [44] --> Revert 'Fix Pet CD After Summon.'.

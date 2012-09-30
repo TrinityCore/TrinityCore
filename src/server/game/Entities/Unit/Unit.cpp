@@ -3660,7 +3660,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId
         Aura* aura = iter->second;
         if (aura->GetCasterGUID() == casterGUID)
         {
-            DispelInfo dispelInfo(dispeller, dispellerSpellId, chargesRemoved);
+            DispelInfo dispelInfo(dispeller, this, dispellerSpellId, chargesRemoved);
 
             // Call OnDispel hook on AuraScript
             aura->CallScriptDispel(&dispelInfo);
