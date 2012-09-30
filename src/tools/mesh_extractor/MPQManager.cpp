@@ -5,7 +5,7 @@
 
 #include "ace/Synch.h"
 
-char* MPQManager::Files[] = { 
+char* MPQManager::Files[] = {
     "common.MPQ",
     "common-2.MPQ",
     "expansion.MPQ",

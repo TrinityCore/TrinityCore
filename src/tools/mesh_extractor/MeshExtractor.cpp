@@ -56,7 +56,7 @@ bool HandleArgs(int argc, char** argv, uint32& threads, std::set<uint32>& mapLis
                 return false;
             std::string maps = std::string(param);
             Tokens tokens(maps, ',');
-            
+
             for (Tokens::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
                 mapList.insert(atoi(*itr));
 

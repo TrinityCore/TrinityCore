@@ -18,7 +18,7 @@ ADT::~ADT()
 {
     delete ObjectData;
     delete Data;
-    
+
     for (std::vector<MapChunk*>::iterator itr = MapChunks.begin(); itr != MapChunks.end(); ++itr)
         delete *itr;
 

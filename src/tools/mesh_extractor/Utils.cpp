@@ -133,7 +133,7 @@ Vector3 Utils::VectorTransform( Vector3 vec, G3D::Matrix4 matrix )
 
 std::string Utils::GetPathBase( std::string path )
 {
-    int lastIndex = path.find_last_of("."); 
+    int lastIndex = path.find_last_of(".");
     if (lastIndex != std::string::npos)
         return path.substr(0, lastIndex);
     return path;

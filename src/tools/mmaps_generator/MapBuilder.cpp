@@ -161,7 +161,7 @@ namespace MMAP
     void MapBuilder::buildAllMaps(int threads)
     {
         std::vector<BuilderThread*> _threads;
-        
+
         for (int i = 0; i < threads; ++i)
             _threads.push_back(new BuilderThread(this));
 
@@ -241,7 +241,7 @@ namespace MMAP
         minX = 32 - bmax[0] / GRID_SIZE;
         minY = 32 - bmax[2] / GRID_SIZE;
     }
-    
+
     void MapBuilder::buildMeshFromFile(char* name)
     {
         FILE* file = fopen(name, "rb");
@@ -253,7 +253,7 @@ namespace MMAP
         fread(&mapId, sizeof(int), 1, file);
         fread(&tileX, sizeof(int), 1, file);
         fread(&tileY, sizeof(int), 1, file);
-        
+
         dtNavMesh* navMesh = NULL;
         buildNavMesh(mapId, navMesh);
         if (!navMesh)
@@ -270,7 +270,7 @@ namespace MMAP
 
         float* verts = new float[verticesCount];
         int* inds = new int[indicesCount];
-        
+
         fread(verts, sizeof(float), verticesCount, file);
         fread(inds, sizeof(int), indicesCount, file);
 
@@ -648,7 +648,7 @@ namespace MMAP
                 tile.chf = NULL;
                 rcFreeContourSet(tile.cset);
                 tile.cset = NULL;
-                
+
                 if (tile.pmesh)
                 {
                     pmmerge[nmerge] = tile.pmesh;

@@ -124,7 +124,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, const uint32& time_d
         D::_clearUnitStateMove(owner);
         return true;
     }
-    
+
     // prevent movement while casting spells with cast time or channel time
     if (owner->HasUnitState(UNIT_STATE_CASTING))
     {

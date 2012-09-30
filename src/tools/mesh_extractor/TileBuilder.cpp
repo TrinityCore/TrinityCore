@@ -15,7 +15,7 @@ TileBuilder::TileBuilder(std::string world, int x, int y, uint32 mapId) : _Geome
 {
     // Cell Size = TileSize / TileVoxelSize
     // 1800 = TileVoxelSize
-    Config.cs = Constants::TileSize / 1800; 
+    Config.cs = Constants::TileSize / 1800;
     // Cell Height
     Config.ch = 0.3f;
     // Min Region Area = 6^2
@@ -72,7 +72,7 @@ uint8* TileBuilder::Build()
             // don't load main tile again
             if (tx == X && ty == Y)
                 continue;
-            
+
             ADT* _adt = new ADT(Utils::GetAdtPath(World, tx, ty));
             // If this condition is met, it means that this wdt does not contain the ADT
             if (!_adt->Data->Stream)
@@ -104,7 +104,7 @@ uint8* TileBuilder::Build()
     rcCreateHeightfield(Context, *hf, width, width, bbMin, bbMax, Config.cs, Config.ch);
     rcClearUnwalkableTriangles(Context, Config.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
     rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, Config.walkableClimb);
-    
+
     printf("[%02i,%02i] Triangles rasterized!\n", X, Y);
 
     // Once all geometry is rasterized, we do initial pass of filtering to
@@ -113,7 +113,7 @@ uint8* TileBuilder::Build()
     rcFilterLowHangingWalkableObstacles(Context, Config.walkableClimb, *hf);
     rcFilterLedgeSpans(Context, Config.walkableHeight, Config.walkableClimb, *hf);
     rcFilterWalkableLowHeightSpans(Context, Config.walkableHeight, *hf);
-    
+
     printf("[%02i,%02i] Filtering done!\n", X, Y);
 
     // Compact the heightfield so that it is faster to handle from now on.
@@ -132,13 +132,13 @@ uint8* TileBuilder::Build()
     rcBuildDistanceField(Context, *chf);
     // Partition the walkable surface into simple regions without holes.
     rcBuildRegions(Context, *chf, Config.borderSize, Config.minRegionArea, Config.mergeRegionArea);
-    
+
     printf("[%02i,%02i] Regions built!\n", X, Y);
 
     // Create contours.
     rcContourSet* cset = rcAllocContourSet();
     rcBuildContours(Context, *chf, Config.maxSimplificationError, Config.maxEdgeLen, *cset);
-    
+
     // Build polygon navmesh from the contours.
     rcPolyMesh* pmesh = rcAllocPolyMesh();
     rcBuildPolyMesh(Context, *cset, Config.maxVertsPerPoly, *pmesh);
@@ -217,7 +217,7 @@ uint8* TileBuilder::Build()
     uint8* navData;
     printf("[%02i,%02i] Creating the navmesh!\n", X, Y);
     bool result = dtCreateNavMeshData(&params, &navData, &navDataSize);
-    
+
     // Free some memory
     rcFreePolyMesh(pmesh);
     rcFreePolyMeshDetail(dmesh);

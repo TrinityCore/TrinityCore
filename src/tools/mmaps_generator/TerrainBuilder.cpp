@@ -779,7 +779,7 @@ namespace MMAP
                 continue;
             std::pair<int, int> val;
             val.first = t[i];
-            
+
             index = val.first;
             val.second = count;
 

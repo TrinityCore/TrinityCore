@@ -15,7 +15,7 @@ public:
     GenericCache() {}
 
     static const int32 FlushLimit = 1000;
-    
+
     void Insert(K key, T* val)
     {
         ACE_GUARD(ACE_Thread_Mutex, g, mutex);
@@ -35,10 +35,10 @@ public:
     }
 
     void Clear()
-    { 
-        for (typename std::map<K, T*>::iterator itr = _items.begin(); itr != _items.end(); ++itr) 
+    {
+        for (typename std::map<K, T*>::iterator itr = _items.begin(); itr != _items.end(); ++itr)
             delete itr->second;
-        _items.clear(); 
+        _items.clear();
     }
 private:
     std::map<K, T*> _items;
@@ -54,7 +54,7 @@ public:
 
     void Clear()
     {
-        
+
     }
 };
 
