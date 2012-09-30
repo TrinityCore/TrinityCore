@@ -51,14 +51,10 @@ uint8* TileBuilder::Build()
 {
     _Geometry = new Geometry();
     _Geometry->Transform = true;
-    ADT* adt = Cache->AdtCache.Get(std::make_pair(X, Y));
-    if (!adt)
-    {
-        adt = new ADT(Utils::GetAdtPath(World, X, Y));
-        adt->Read();
-        Cache->AdtCache.Insert(std::make_pair(X, Y), adt);
-    }
+    ADT* adt = new ADT(Utils::GetAdtPath(World, X, Y));
+    adt->Read();
     _Geometry->AddAdt(adt);
+    delete adt;
 
     if (_Geometry->Vertices.empty() && _Geometry->Triangles.empty())
         return NULL;
@@ -77,20 +73,16 @@ uint8* TileBuilder::Build()
             if (tx == X && ty == Y)
                 continue;
             
-            ADT* _adt = Cache->AdtCache.Get(std::make_pair(tx, ty));
-            if (!_adt)
+            ADT* _adt = new ADT(Utils::GetAdtPath(World, tx, ty));
+            // If this condition is met, it means that this wdt does not contain the ADT
+            if (!_adt->Data->Stream)
             {
-                _adt = new ADT(Utils::GetAdtPath(World, tx, ty));
-                // If this condition is met, it means that this wdt does not contain the ADT
-                if (!_adt->Data->Stream)
-                {
-                    delete _adt;
-                    continue;
-                }
-                _adt->Read();
-                Cache->AdtCache.Insert(std::make_pair(tx, ty), _adt);
+                delete _adt;
+                continue;
             }
-            _Geometry->AddAdt(adt);
+            _adt->Read();
+            _Geometry->AddAdt(_adt);
+            delete _adt;
         }
     }
     uint32 numVerts = _Geometry->Vertices.size();

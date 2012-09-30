@@ -7,7 +7,6 @@
 
 class WorldModelRoot;
 class Model;
-class ADT;
 
 template<class K, class T>
 class GenericCache
@@ -19,21 +18,23 @@ public:
     
     void Insert(K key, T* val)
     {
+        ACE_GUARD(ACE_Thread_Mutex, g, mutex);
+
         if (_items.size() > FlushLimit)
             Clear();
-        ACE_GUARD(ACE_Thread_Mutex, g, mutex);
         _items[key] = val;
     }
 
     T* Get(K key)
     {
+        ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
         typename std::map<K, T*>::iterator itr = _items.find(key);
         if (itr != _items.end())
             return itr->second;
         return NULL;
     }
 
-    void Clear() 
+    void Clear()
     { 
         for (typename std::map<K, T*>::iterator itr = _items.begin(); itr != _items.end(); ++itr) 
             delete itr->second;
@@ -50,10 +51,10 @@ public:
     CacheClass() {}
     GenericCache<std::string, Model> ModelCache;
     GenericCache<std::string, WorldModelRoot> WorldModelCache;
-    GenericCache<std::pair<int32,int32>, ADT> AdtCache;
+
     void Clear()
     {
-        AdtCache.Clear();
+        
     }
 };
 
