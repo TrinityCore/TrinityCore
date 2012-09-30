@@ -7,13 +7,14 @@
 #include "ace/Task.h"
 #include "Recast.h"
 
-class BuilderThread : public ACE_Task<ACE_MT_SYNCH>
+class BuilderThread : public ACE_Task_Base
 {
 private:
     int X, Y, MapId;
     std::string Continent;
+    bool debug;
 public:
-    BuilderThread() : Free(true) {}
+    BuilderThread(bool deb) : Free(true), debug(deb) {}
     void SetData(int x, int y, int map, std::string cont) { X = x; Y = y; MapId = map; Continent = cont; }
 
     int svc()
@@ -22,23 +23,23 @@ public:
         printf("[%02i,%02i] Building tile\n", X, Y);
         TileBuilder builder(Continent, X, Y, MapId);
         char buff[100];
-        sprintf(buff, "mmaps/%03u%02u%02u.mmtile", MapId, X, Y);
+        sprintf(buff, "mmaps/%03u%02u%02u.mmtile", MapId, Y, X);
         FILE* f = fopen(buff, "r");
         if (f) // Check if file already exists.
         {
             printf("[%02i,%02i] Tile skipped, file already exists\n", X, Y);
             fclose(f);
             Free = true;
-            return 1;
+            return 0;
         }
-        uint8* nav = builder.Build();
+        uint8* nav = builder.Build(debug);
         if (nav)
         {
             f = fopen(buff, "wb");
             if (!f)
             {
                 printf("Could not create file %s. Check that you have write permissions to the destination folder and try again\n", buff);
-                return -1;
+                return 0;
             }
             MmapTileHeader header;
             header.size = builder.DataSize;
@@ -73,7 +74,7 @@ void getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, floa
     bmin[2] = bmax[2] - Constants::TileSize;
 }
 
-void ContinentBuilder::Build()
+void ContinentBuilder::Build(bool debug)
 {
     char buff[50];
     sprintf(buff, "mmaps/%03u.mmap", MapId);
@@ -107,7 +108,7 @@ void ContinentBuilder::Build()
     fclose(mmap);
     std::vector<BuilderThread*> Threads;
     for (uint32 i = 0; i < NumberOfThreads; ++i)
-        Threads.push_back(new BuilderThread());
+        Threads.push_back(new BuilderThread(debug));
     printf("Map %s ( %i ) has %i tiles. Building them with %i threads\n", Continent.c_str(), MapId, TileMap->TileTable.size(), NumberOfThreads);
     for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
     {

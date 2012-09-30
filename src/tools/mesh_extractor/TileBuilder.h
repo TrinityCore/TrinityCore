@@ -14,7 +14,7 @@ public:
     ~TileBuilder();
 
     void CalculateTileBounds(float*& bmin, float*& bmax);
-    uint8* Build();
+    uint8* Build(bool dbg);
 
     std::string World;
     int X;
