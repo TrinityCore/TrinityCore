@@ -2,6 +2,7 @@
 #include "DoodadHandler.h"
 #include "LiquidHandler.h"
 #include "WorldModelHandler.h"
+#include "Cache.h"
 
 ADT::ADT( std::string file ) : ObjectData(NULL), Data(NULL), _DoodadHandler(NULL), _WorldModelHandler(NULL), _LiquidHandler(NULL), HasObjectData(false)
 {
