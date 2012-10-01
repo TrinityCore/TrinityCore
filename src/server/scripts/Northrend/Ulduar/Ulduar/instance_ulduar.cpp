@@ -525,7 +525,10 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_XT_TOY_PILE:
                         for (uint8 i = 0; i < 4; ++i)
                             if (!XTToyPileGUIDs[i])
+                            {
                                 XTToyPileGUIDs[i] = creature->GetGUID();
+                                break;
+                            }
                         break;
 
                     // Assembly of Iron
@@ -1236,7 +1239,7 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_RUNIC_COLOSSUS:       return RunicColossusGUID;
                     case DATA_RUNE_GIANT:           return RuneGiantGUID;
 
-                    // Razorscale 
+                    // Razorscale
                     case BOSS_RAZORSCALE:           return RazorscaleGUID;
                     case DATA_RAZORSCALE_CONTROL:   return RazorscaleController;
                     case DATA_EXPEDITION_COMMANDER: return ExpeditionCommanderGUID;
@@ -1290,6 +1293,10 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_BRAIN_DOOR_1:         return YoggSaronBrainDoor1GUID;
                     case DATA_BRAIN_DOOR_2:         return YoggSaronBrainDoor2GUID;
                     case DATA_BRAIN_DOOR_3:         return YoggSaronBrainDoor3GUID;
+
+                    // Algalon
+                    case DATA_SIGILDOOR_01:         return AlgalonDoor1GUID;
+                    case DATA_SIGILDOOR_02:         return AlgalonDoor2GUID;
                     default: break;
                 }
 

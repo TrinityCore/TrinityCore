@@ -827,6 +827,9 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `position_x`, `positio
 (48307, 33233, 603, 2, 603.931, -142.889, 391.517),
 (48308, 33233, 603, 3, 572.654, -139.375, 391.517);
 
+-- delete razorscale broken harpoons, they are spawned via scripts
+DELETE FROM `gameobject` WHERE `id`=194565;
+
 -- small Emote to Say correction
 UPDATE `script_texts` SET `type`=3 WHERE `entry`=-1603266;
 
@@ -1364,7 +1367,7 @@ UPDATE creature_template SET difficulty_entry_3 = 37297 WHERE entry = 13358;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.27, mindmg = 623, maxdmg = 834, attackpower = 731, baseattacktime = 2000, unit_flags = 4608, dynamicflags = 8, minrangedmg = 423, maxrangedmg = 720, rangedattackpower = 167, MovementType = 1, equipment_id = 953 WHERE entry = 37297;
 UPDATE creature_template SET difficulty_entry_3 = 37244 WHERE entry = 11947;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.8, mindmg = 631, maxdmg = 840, attackpower = 810, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4160, dynamicflags = 8, MovementType = 1, equipment_id = 1552, mechanic_immune_mask = 617299803 WHERE entry = 37244;
-UPDATE creature_template SET difficulty_entry_3 = 37284 WHERE entry = 11946;
+UPDATE creature_template SET difficulty_entry_3 = 37283 WHERE entry = 11946;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, npcflag = 1, speed_walk = 1.78, mindmg = 678, maxdmg = 871, attackpower = 852, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2384, mechanic_immune_mask = 617299803 WHERE entry = 37283;
 UPDATE creature_template SET difficulty_entry_3 = 37287 WHERE entry = 14763;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 759, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37287;
