@@ -69,9 +69,9 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike' WHERE `entry` I
 
 UPDATE `creature_template` SET `speed_walk`=1.6,`speed_run`=1.42857146263123,`minlevel`=83,`maxlevel`=83,`faction_H`=14,`faction_A`=14,`unit_flags`=0x88840,`BaseAttackTime`=1800,`DynamicFlags`=0xC WHERE `entry`=40142; -- Twilight Halion
 UPDATE `creature_template` SET `speed_walk`=1.6,`speed_run`=1.42857146263123,`minlevel`=83,`maxlevel`=83,`faction_H`=14,`faction_A`=14,`unit_flags`=0x8040,`BaseAttackTime`=1500 WHERE `entry`=39863; -- Material Halion
-UPDATE `creature_template` SET `Faction_H`=14,`Faction_A`=14,`unit_flags`=0x2000000,`Unit_Class`=2 WHERE `entry`=40029; -- Meteor Strike
-UPDATE `creature_template` SET `Faction_H`=14,`Faction_A`=14,`unit_flags`=0x2000000 WHERE `entry`=40001; -- Combustion
-UPDATE `creature_template` SET `InhabitType`=0x4,`speed_walk`=1.2,`speed_run`=0.428571432828903,`VehicleId`=718,`minlevel`=80,`maxlevel`=80,`Faction_H`=14,`Faction_A`=14,`unit_flags`=0x2000100 WHERE `entry`=40081; -- Orb Carrier
+UPDATE `creature_template` SET `faction_H`=14,`faction_A`=14,`unit_flags`=0x2000000,`unit_class`=2 WHERE `entry`=40029; -- Meteor Strike
+UPDATE `creature_template` SET `faction_H`=14,`faction_A`=14,`unit_flags`=0x2000000 WHERE `entry`=40001; -- Combustion
+UPDATE `creature_template` SET `InhabitType`=0x4,`speed_walk`=1.2,`speed_run`=0.428571432828903,`VehicleId`=718,`minlevel`=80,`maxlevel`=80,`faction_H`=14,`faction_A`=14,`unit_flags`=0x2000100 WHERE `entry`=40081; -- Orb Carrier
 UPDATE `creature_template` SET `speed_walk`=2.2,`speed_run`=0.785714268684387,`minlevel`=80,`maxlevel`=80,`faction_H`=14,`faction_A`=14,`unit_flags`=0x2000100 WHERE `entry`=40091; -- Orb Rotation Focus
 UPDATE `creature_template` SET `flags_extra`=130,`ScriptName`= 'npc_halion_controller',`exp`=2,`speed_walk`=2.8,`speed_run`=1,`minlevel`=80,`maxlevel`=80,`faction_A`=14,`faction_H`=14,`unit_flags`=0x2000100 WHERE `entry`=40146; -- 40146 - Halion Controller
 
