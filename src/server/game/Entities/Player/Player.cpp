@@ -192,10 +192,10 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
 
 void PlayerTaxi::LoadTaxiMask(const char* data)
 {
-    Tokens tokens(data, ' ');
+    Tokenizer tokens(data, ' ');
 
     uint8 index;
-    Tokens::iterator iter;
+    Tokenizer::const_iterator iter;
     for (iter = tokens.begin(), index = 0;
         (index < TaxiMaskSize) && (iter != tokens.end()); ++iter, ++index)
     {
@@ -222,9 +222,9 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
 {
     ClearTaxiDestinations();
 
-    Tokens tokens(values, ' ');
+    Tokenizer tokens(values, ' ');
 
-    for (Tokens::iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+    for (Tokenizer::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
     {
         uint32 node = uint32(atol(*iter));
         AddTaxiDestination(node);
@@ -1975,7 +1975,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     *data << uint32(petLevel);
     *data << uint32(petFamily);
 
-    Tokens equipment(fields[19].GetString(), ' ');
+    Tokenizer equipment(fields[19].GetString(), ' ');
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
         uint32 visualBase = slot * 2;
@@ -16691,7 +16691,7 @@ void Player::SetHomebind(WorldLocation const& /*loc*/, uint32 /*area_id*/)
     CharacterDatabase.Execute(stmt);
 }
 
-uint32 Player::GetUInt32ValueFromArray(Tokens const& data, uint16 index)
+uint32 Player::GetUInt32ValueFromArray(Tokenizer const& data, uint16 index)
 {
     if (index >= data.size())
         return 0;
@@ -16699,7 +16699,7 @@ uint32 Player::GetUInt32ValueFromArray(Tokens const& data, uint16 index)
     return (uint32)atoi(data[index]);
 }
 
-float Player::GetFloatValueFromArray(Tokens const& data, uint16 index)
+float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
 {
     float result;
     uint32 temp = Player::GetUInt32ValueFromArray(data, index);
@@ -17742,9 +17742,9 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                 {
                     std::string strGUID = (*result)[0].GetString();
-                    Tokens GUIDlist(strGUID, ' ');
+                    Tokenizer GUIDlist(strGUID, ' ');
                     AllowedLooterSet looters;
-                    for (Tokens::iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
+                    for (Tokenizer::const_iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
                         looters.insert(atol(*itr));
                     item->SetSoulboundTradeable(looters);
                     AddTradeableItem(item);
@@ -19604,7 +19604,7 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
     CharacterDatabase.Execute(stmt);
 }
 
-void Player::SetUInt32ValueInArray(Tokens& tokens, uint16 index, uint32 value)
+void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value)
 {
     char buf[11];
     snprintf(buf, 11, "%u", value);
