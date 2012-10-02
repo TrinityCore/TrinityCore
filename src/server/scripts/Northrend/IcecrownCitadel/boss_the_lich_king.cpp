@@ -1333,7 +1333,7 @@ class npc_shambling_horror_icc : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHOCKWAVE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_ENRAGE, urand(11000, 14000));
+                _events.ScheduleEvent(EVENT_ENRAGE, urand(21000, 24000));
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
@@ -1365,7 +1365,7 @@ class npc_shambling_horror_icc : public CreatureScript
                             break;
                         case EVENT_ENRAGE:
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_ENRAGE, urand(40000, 45000));
                             break;
                         default:
                             break;
@@ -2452,7 +2452,7 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 5.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
             }
 
             void ChangeDamageAndGrow()
