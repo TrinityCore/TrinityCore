@@ -138,7 +138,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                                 int32 TickCount = aurEff->GetTotalTicks();
                                 spellId = HUNTER_SPELL_CHIMERA_SHOT_SERPENT;
                                 basePoint = caster->SpellDamageBonusDone(unitTarget, aura->GetSpellInfo(), aurEff->GetAmount(), DOT, aura->GetStackAmount());
-                                ApplyPctN(basePoint, TickCount * 40);
+                                ApplyPct(basePoint, TickCount * 40);
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aura->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
                             }
                             // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
@@ -148,11 +148,11 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                                 spellId = HUNTER_SPELL_CHIMERA_SHOT_VIPER;
 
                                 // Amount of one aura tick
-                                basePoint = int32(CalculatePctN(unitTarget->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
+                                basePoint = int32(CalculatePct(unitTarget->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
                                 int32 casterBasePoint = aurEff->GetAmount() * unitTarget->GetMaxPower(POWER_MANA) / 50; // TODO: WTF? caster uses unitTarget?
                                 if (basePoint > casterBasePoint)
                                     basePoint = casterBasePoint;
-                                ApplyPctN(basePoint, TickCount * 60);
+                                ApplyPct(basePoint, TickCount * 60);
                             }
                             // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
                             else if (familyFlag[0] & 0x00008000)

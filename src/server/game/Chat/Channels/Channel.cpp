@@ -69,8 +69,8 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
 
                 if (db_BannedList)
                 {
-                    Tokens tokens(db_BannedList, ' ');
-                    Tokens::iterator iter;
+                    Tokenizer tokens(db_BannedList, ' ');
+                    Tokenizer::const_iterator iter;
                     for (iter = tokens.begin(); iter != tokens.end(); ++iter)
                     {
                         uint64 banned_guid = atol(*iter);
