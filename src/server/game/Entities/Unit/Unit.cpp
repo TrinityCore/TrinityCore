@@ -6654,7 +6654,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             Player* Member = itr->getSource();
 
                             // check if it was heal by paladin which casted this beacon of light
-                            if (Aura const * aura = Member->GetAura(53563, victim->GetGUID()))
+                            if (Member->GetAura(53563, victim->GetGUID()))
                             {
                                 // do not proc when target of beacon of light is healed
                                 if (Member == this)
@@ -14132,14 +14132,14 @@ void CharmInfo::LoadPetActionBar(const std::string& data)
 {
     InitPetActionBar();
 
-    Tokens tokens(data, ' ');
+    Tokenizer tokens(data, ' ');
 
     if (tokens.size() != (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START) * 2)
         return;                                             // non critical, will reset to default
 
-    uint8 index;
-    Tokens::iterator iter;
-    for (iter = tokens.begin(), index = ACTION_BAR_INDEX_START; index < ACTION_BAR_INDEX_END; ++iter, ++index)
+    uint8 index = ACTION_BAR_INDEX_START;
+    Tokenizer::const_iterator iter = tokens.begin();
+    for (; index < ACTION_BAR_INDEX_END; ++iter, ++index)
     {
         // use unsigned cast to avoid sign negative format use at long-> ActiveStates (int) conversion
         ActiveStates type  = ActiveStates(atol(*iter));
