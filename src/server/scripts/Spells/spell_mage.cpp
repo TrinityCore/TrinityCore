@@ -292,7 +292,7 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
 
             if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
             {
-                int32 bp = CalculatePctN(absorbAmount, talentAurEff->GetAmount());
+                int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
                 target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
             }
         }
