@@ -3047,6 +3047,8 @@ void SpellMgr::LoadDbcDataCorrections()
             case 5171: // Slice and Dice rank1
             case 6774: // Slice and Dice rank2
             case 52916: // Honor Among Thieves
+            case 3600: // Earthbind totem effect
+            case 50526: // Wandering plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
             case 61407: // Energize Cores
