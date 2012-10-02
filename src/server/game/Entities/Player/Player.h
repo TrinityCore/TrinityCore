@@ -34,10 +34,8 @@
 #include "QuestDef.h"
 #include "ReputationMgr.h"
 #include "Unit.h"
-#include "Util.h"                                           // for Tokenizer typedef
+#include "Util.h"                                           // for Tokens typedef
 #include "WorldSession.h"
-
-// for template
 #include "SpellMgr.h"
 
 #include<string>
