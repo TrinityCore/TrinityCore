@@ -140,8 +140,8 @@ public:
                         {
                             float angle, x, y;
                             angle = pSpheres[0]->GetAngle(pSphereTarget);
-                            x = pSpheres[0]->GetPositionX() + DATA_SPHERE_DISTANCE * cos(angle);
-                            y = pSpheres[0]->GetPositionY() + DATA_SPHERE_DISTANCE * sin(angle);
+                            x = pSpheres[0]->GetPositionX() + DATA_SPHERE_DISTANCE * std::cos(angle);
+                            y = pSpheres[0]->GetPositionY() + DATA_SPHERE_DISTANCE * std::sin(angle);
                             pSpheres[0]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[0]->GetPositionZ());
                         }
                         if (IsHeroic())
@@ -154,12 +154,12 @@ public:
                             {
                                 float angle, x, y;
                                 angle = pSpheres[1]->GetAngle(pSphereTarget) + DATA_SPHERE_ANGLE_OFFSET;
-                                x = pSpheres[1]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * cos(angle);
-                                y = pSpheres[1]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * sin(angle);
+                                x = pSpheres[1]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
+                                y = pSpheres[1]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * std::sin(angle);
                                 pSpheres[1]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[1]->GetPositionZ());
                                 angle = pSpheres[2]->GetAngle(pSphereTarget) - DATA_SPHERE_ANGLE_OFFSET;
-                                x = pSpheres[2]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * cos(angle);
-                                y = pSpheres[2]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * sin(angle);
+                                x = pSpheres[2]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
+                                y = pSpheres[2]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * std::sin(angle);
                                 pSpheres[2]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[2]->GetPositionZ());
                             }
                         }

@@ -862,8 +862,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
 
         // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
         double rotation = 2 * M_PI - atEntry->box_orientation;
-        double sinVal = sin(rotation);
-        double cosVal = cos(rotation);
+        double sinVal = std::sin(rotation);
+        double cosVal = std::cos(rotation);
 
         float playerBoxDistX = player->GetPositionX() - atEntry->x;
         float playerBoxDistY = player->GetPositionY() - atEntry->y;
