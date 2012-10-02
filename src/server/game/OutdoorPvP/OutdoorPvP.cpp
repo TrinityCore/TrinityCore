@@ -135,7 +135,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
     m_maxValue = (float)goinfo->capturePoint.maxTime;
     m_maxSpeed = m_maxValue / (goinfo->capturePoint.minTime ? goinfo->capturePoint.minTime : 60);
     m_neutralValuePct = goinfo->capturePoint.neutralPercent;
-    m_minValue = CalculatePctU(m_maxValue, m_neutralValuePct);
+    m_minValue = CalculatePct(m_maxValue, m_neutralValuePct);
 
     return true;
 }
