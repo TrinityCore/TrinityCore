@@ -183,7 +183,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                     // apply percent damage mods
                     damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
-                    ApplyPctN(damage, 16 * sSpellMgr->GetSpellRank(GetSpellInfo()->Id));
+                    ApplyPct(damage, 16 * sSpellMgr->GetSpellRank(GetSpellInfo()->Id));
 
                     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
 
@@ -368,7 +368,7 @@ class spell_warr_concussion_blow : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                SetHitDamage(CalculatePctN(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectValue()));
+                SetHitDamage(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectValue()));
             }
 
             void Register()
@@ -400,7 +400,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
-                ApplyPctF(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
+                ApplyPct(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
 
                 if (Unit* target = GetHitUnit())
                 {
