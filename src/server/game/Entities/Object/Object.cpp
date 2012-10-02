@@ -772,7 +772,7 @@ void Object::_LoadIntoDataField(char const* data, uint32 startOffset, uint32 cou
     if (!data)
         return;
 
-    Tokens tokens(data, ' ', count);
+    Tokenizer tokens(data, ' ', count);
 
     if (tokens.size() != count)
         return;

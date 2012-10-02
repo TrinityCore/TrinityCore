@@ -34,7 +34,7 @@
 #include "QuestDef.h"
 #include "ReputationMgr.h"
 #include "Unit.h"
-#include "Util.h"                                           // for Tokens typedef
+#include "Util.h"                                           // for Tokenizer typedef
 #include "WorldSession.h"
 
 // for template
@@ -1518,8 +1518,8 @@ class Player : public Unit, public GridObject<Player>
         bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
         void Initialize(uint32 guid);
-        static uint32 GetUInt32ValueFromArray(Tokens const& data, uint16 index);
-        static float  GetFloatValueFromArray(Tokens const& data, uint16 index);
+        static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
+        static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(uint64 guid);
         static uint32 GetLevelFromDB(uint64 guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid);
@@ -1534,8 +1534,8 @@ class Player : public Unit, public GridObject<Player>
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans);
 
-        static void SetUInt32ValueInArray(Tokens& data, uint16 index, uint32 value);
-        static void SetFloatValueInArray(Tokens& data, uint16 index, float value);
+        static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
+        static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
         static void Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
         static void SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid);
 
