@@ -21,7 +21,6 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 
-#include "Battleground.h"
 #include "Miscellaneous/Formulas.h"
 #include "GameObject.h"
 #include "Miscellaneous/Language.h"
