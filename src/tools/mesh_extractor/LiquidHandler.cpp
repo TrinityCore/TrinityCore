@@ -34,10 +34,10 @@ void LiquidHandler::HandleNewLiquid()
         H2OInformation information = H2OInformation::Read(stream);
 
         float** heights = new float*[9];
-        for (int i = 0; i < 9; ++i)
+        for (int j = 0; j < 9; ++i)
         {
-            heights[i] = new float[9];
-            memset(heights[i], 0, sizeof(float) * 9);
+            heights[j] = new float[9];
+            memset(heights[j], 0, sizeof(float) * 9);
         }
 
         H2ORenderMask renderMask;
@@ -52,7 +52,7 @@ void LiquidHandler::HandleNewLiquid()
                 uint8* altMask = new uint8[size];
                 fread(altMask, sizeof(uint8), size, stream);
 
-                for (int mi = 0; mi < size; mi++)
+                for (uint32 mi = 0; mi < size; mi++)
                     renderMask.Mask[mi + information.OffsetY] |= altMask[mi];
                 delete[] altMask;
             }

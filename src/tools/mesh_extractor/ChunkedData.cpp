@@ -48,7 +48,7 @@ void ChunkedData::Load( uint32 maxLength, uint32 chunksHint )
 
 int ChunkedData::GetFirstIndex( std::string name )
 {
-    for (int i = 0; i < Chunks.size(); ++i)
+    for (uint32 i = 0; i < Chunks.size(); ++i)
         if (Chunks[i]->Name == name)
             return i;
     return -1;
@@ -56,7 +56,7 @@ int ChunkedData::GetFirstIndex( std::string name )
 
 Chunk* ChunkedData::GetChunkByName( std::string name )
 {
-    for (int i = 0; i < Chunks.size(); ++i)
+    for (uint32 i = 0; i < Chunks.size(); ++i)
         if (Chunks[i]->Name == name)
             return Chunks[i];
     return NULL;

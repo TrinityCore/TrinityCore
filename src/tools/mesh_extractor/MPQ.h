@@ -16,6 +16,8 @@ class MPQArchive
 
 public:
     mpq_archive_s *mpq_a;
+    
+    vector<string> Files;
 
     MPQArchive(const char* filename);
     void close();

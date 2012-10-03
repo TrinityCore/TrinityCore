@@ -13,8 +13,9 @@ private:
     int X, Y, MapId;
     std::string Continent;
     bool debug;
+    dtNavMeshParams Params;
 public:
-    BuilderThread(bool deb) : Free(true), debug(deb) {}
+    BuilderThread(bool deb, dtNavMeshParams& params) : Free(true), debug(deb), Params(params) {}
     void SetData(int x, int y, int map, std::string cont) { X = x; Y = y; MapId = map; Continent = cont; }
 
     int svc()
@@ -32,7 +33,7 @@ public:
             Free = true;
             return 0;
         }
-        uint8* nav = builder.Build(debug);
+        uint8* nav = builder.Build(debug, Params);
         if (nav)
         {
             f = fopen(buff, "wb");
@@ -101,14 +102,17 @@ void ContinentBuilder::Build(bool debug)
     dtNavMeshParams params;
     params.maxPolys = 32768;
     params.maxTiles = TileMap->TileTable.size();
-    rcVcopy(params.orig, bmin);
-    params.tileHeight = 533.33333f;
-    params.tileWidth = 533.33333f;
+    // rcVcopy(params.orig, bmin);
+    params.orig[0] = Constants::Origin[0];
+    params.orig[1] = 0;
+    params.orig[2] = Constants::Origin[2];
+    params.tileHeight = Constants::TileSize;
+    params.tileWidth = Constants::TileSize;
     fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
     fclose(mmap);
     std::vector<BuilderThread*> Threads;
     for (uint32 i = 0; i < NumberOfThreads; ++i)
-        Threads.push_back(new BuilderThread(debug));
+        Threads.push_back(new BuilderThread(debug, params));
     printf("Map %s ( %i ) has %i tiles. Building them with %i threads\n", Continent.c_str(), MapId, TileMap->TileTable.size(), NumberOfThreads);
     for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
     {

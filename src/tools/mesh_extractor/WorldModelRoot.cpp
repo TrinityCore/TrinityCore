@@ -16,7 +16,7 @@ void WorldModelRoot::ReadGroups()
 {
     std::string pathBase = Utils::GetPathBase(Path);
     Groups.reserve(Header.CountGroups);
-    for (int i = 0; i < Header.CountGroups; i++)
+    for (uint32 i = 0; i < Header.CountGroups; i++)
     {
         char name[200];
         sprintf(name, "%s_%03u.wmo", pathBase.c_str(), i);
@@ -35,7 +35,7 @@ void WorldModelRoot::ReadDoodadSets()
     FILE* stream = chunk->GetStream();
     ASSERT(chunk->Length / 32 == Header.CountSets && "chunk.Length / 32 == Header.CountSets");
     DoodadSets.reserve(Header.CountSets);
-    for (int i = 0; i < Header.CountSets; i++)
+    for (uint32 i = 0; i < Header.CountSets; i++)
         DoodadSets.push_back(DoodadSet::Read(stream));
 }
 
@@ -49,7 +49,7 @@ void WorldModelRoot::ReadDoodadInstances()
     const uint32 instanceSize = 40;
     uint32 countInstances = chunk->Length / instanceSize;
     DoodadInstances.reserve(countInstances);
-    for (int i = 0; i < countInstances; i++)
+    for (uint32 i = 0; i < countInstances; i++)
     {
         FILE* stream = chunk->GetStream();
         fseek(stream, instanceSize * i, SEEK_CUR);
