@@ -97,7 +97,7 @@ public:
 
             me->SetInCombatWithZone();
             if (instance)
-                instance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);            
+                instance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
         }
 
         void SpawnAdds()
@@ -193,7 +193,7 @@ public:
             events.Reset();
             events.ScheduleEvent(EVENT_AURA, 1*IN_MILLISECONDS);
             
-            me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             DoCast(SPELL_PUTRID_MUSHROOM);
 
             if (me->GetEntry() == NPC_POISONOUS_MUSHROOM)
