@@ -207,9 +207,7 @@ class mob_chaotic_rift : public CreatureScript
             {
                 uiChaoticEnergyBurstTimer = 1000;
                 uiSummonCrazedManaWraithTimer = 5000;
-                //me->SetDisplayId(25206); //For some reason in DB models for ally and horde are different.
-                                                 //Model for ally (1126) does not show auras. Horde model works perfect.
-                                                 //Set model to horde number
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 DoCast(me, SPELL_ARCANEFORM, false);
             }
 
