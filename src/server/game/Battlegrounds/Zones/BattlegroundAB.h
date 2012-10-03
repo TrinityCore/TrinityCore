@@ -306,4 +306,3 @@ class BattlegroundAB : public Battleground
         bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
 };
 #endif
-

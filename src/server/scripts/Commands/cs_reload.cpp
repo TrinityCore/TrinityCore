@@ -408,9 +408,9 @@ public:
         if (!*args)
             return false;
 
-        Tokens entries(std::string(args), ' ');
+        Tokenizer entries(std::string(args), ' ');
 
-        for (Tokens::const_iterator itr = entries.begin(); itr != entries.end(); ++itr)
+        for (Tokenizer::const_iterator itr = entries.begin(); itr != entries.end(); ++itr)
         {
             uint32 entry = uint32(atoi(*itr));
 

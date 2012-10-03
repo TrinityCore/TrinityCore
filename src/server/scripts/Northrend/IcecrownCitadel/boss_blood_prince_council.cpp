@@ -1585,7 +1585,7 @@ class spell_valanar_kinetic_bomb_absorb : public SpellScriptLoader
 
             void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                absorbAmount = CalculatePctN(dmgInfo.GetDamage(), aurEff->GetAmount());
+                absorbAmount = CalculatePct(dmgInfo.GetDamage(), aurEff->GetAmount());
                 RoundToInterval<uint32>(absorbAmount, 0, dmgInfo.GetDamage());
                 dmgInfo.AbsorbDamage(absorbAmount);
             }
