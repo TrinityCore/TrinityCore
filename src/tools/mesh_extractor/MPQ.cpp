@@ -31,6 +31,7 @@ MPQArchive::MPQArchive(const char* filename)
                 break;
         }
     }
+    GetFileListTo(Files);
 }
 
 void MPQArchive::close()

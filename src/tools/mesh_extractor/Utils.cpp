@@ -5,6 +5,13 @@
 #include "G3D/Matrix4.h"
 #include "G3D/Quat.h"
 
+#ifdef _WIN32
+    #include "direct.h"
+#else
+    #include <sys/stat.h>
+    #include <unistd.h>
+#endif
+
 const float Constants::TileSize = 533.0f + (1/3.0f);
 const float Constants::MaxXY = 32.0f * Constants::TileSize;
 const float Constants::ChunkSize = Constants::TileSize / 16.0f;
@@ -12,6 +19,15 @@ const float Constants::UnitSize = Constants::ChunkSize / 8.0f;
 const float Constants::Origin[] = { -Constants::MaxXY, 0.0f, -Constants::MaxXY };
 const float Constants::PI = 3.1415926f;
 const float Constants::MaxStandableHeight = 1.5f;
+
+void Utils::CreateDir( const std::string& Path )
+{
+#ifdef _WIN32
+    _mkdir( Path.c_str());
+#else
+    mkdir( Path.c_str(), 0777 );
+#endif
+}
 
 void Utils::Reverse(char word[])
 {
@@ -179,6 +195,28 @@ G3D::Matrix4 Utils::GetWmoDoodadTransformation( DoodadInstance inst, WorldModelD
     G3D::Matrix4 quatRotation = quat.toRotationMatrix();
 
     return scale * rotation * quatRotation ** translation * rootTransformation;
+}
+
+void Utils::SaveToDisk( FILE* stream, std::string path )
+{
+    FILE* disk = fopen(path.c_str(), "wb");
+    if (!disk)
+    {
+        printf("Could not save file %s to disk, please verify that you have write permissions on that directory\n", path.c_str());
+        return;
+    }
+
+    uint32 size = Utils::Size(stream);
+    uint8* data = new uint8[size];
+    // Read the data to an array
+    fread(data, 1, size, stream);
+    // And write it in the file
+    fwrite(data, 1, size, disk);
+
+    // Close the filestream
+    fclose(disk);
+    // Free the used memory
+    delete data;
 }
 
 void MapChunkHeader::Read(FILE* stream)

@@ -26,9 +26,9 @@ TileBuilder::TileBuilder(std::string world, int x, int y, uint32 mapId) : _Geome
     Config.walkableSlopeAngle = 50.0f;
     Config.detailSampleDist = 3.0f;
     Config.detailSampleMaxError = 1.25f;
-    Config.walkableClimb = 1.0f / Config.ch;
-    Config.walkableHeight = 1.652778f / Config.ch;
-    Config.walkableRadius = 0.2951389f / Config.cs;
+    Config.walkableClimb = floorf(1.0f / Config.ch);
+    Config.walkableHeight = ceilf(1.652778f / Config.ch);
+    Config.walkableRadius = ceilf(0.2951389f / Config.cs);
     Config.maxEdgeLen = Config.walkableRadius * 8;
     Config.borderSize = Config.walkableRadius + 4;
     Config.width = 1800 + Config.borderSize * 2;
@@ -39,17 +39,17 @@ TileBuilder::TileBuilder(std::string world, int x, int y, uint32 mapId) : _Geome
     Context = new rcContext;
 }
 
-void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax )
+void TileBuilder::CalculateTileBounds( float*& bmin, float*& bmax, dtNavMeshParams& navMeshParams )
 {
     bmin = new float[3];
     bmax = new float[3];
-    bmin[0] = Constants::Origin[0] + (Constants::TileSize * X);
-    bmin[2] = Constants::Origin[2] + (Constants::TileSize * Y);
-    bmax[0] = Constants::Origin[0] + (Constants::TileSize * (X + 1));
-    bmax[2] = Constants::Origin[2] + (Constants::TileSize * (Y + 1));
+    bmin[0] = Constants::Origin[0] /*navMeshParams.orig[0]*/ + (Constants::TileSize * X);
+    bmin[2] = Constants::Origin[2] /*navMeshParams.orig[2]*/ + (Constants::TileSize * Y);
+    bmax[0] = Constants::Origin[0] /*navMeshParams.orig[0]*/ + (Constants::TileSize * (X + 1));
+    bmax[2] = Constants::Origin[2] /*navMeshParams.orig[2]*/ + (Constants::TileSize * (Y + 1));
 }
 
-uint8* TileBuilder::Build(bool dbg)
+uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
 {
     _Geometry = new Geometry();
     _Geometry->Transform = true;
@@ -61,15 +61,10 @@ uint8* TileBuilder::Build(bool dbg)
     if (_Geometry->Vertices.empty() && _Geometry->Triangles.empty())
         return NULL;
 
-    float* bbMin;
-    float* bbMax;
-    CalculateTileBounds(bbMin, bbMax);
-    _Geometry->CalculateMinMaxHeight(bbMin[1], bbMax[1]);
-
     // again, we load everything - wasteful but who cares
-    for (int ty = Y - 4; ty <= Y + 4; ty++)
+    for (int ty = Y - 2; ty <= Y + 2; ty++)
     {
-        for (int tx = X - 4; tx <= X + 4; tx++)
+        for (int tx = X - 2; tx <= X + 2; tx++)
         {
             // don't load main tile again
             if (tx == X && ty == Y)
@@ -109,13 +104,23 @@ uint8* TileBuilder::Build(bool dbg)
     _Geometry->Vertices.clear();
     _Geometry->Triangles.clear();
 
-    bbMin[0] -= Config.borderSize * Config.cs;
+    float bbMin[3];
+    float bbMax[3];
+    // CalculateTileBounds(bbMin, bbMax, navMeshParams);
+    rcCalcBounds(vertices, numVerts, bbMin, bbMax);
+    // _Geometry->CalculateMinMaxHeight(bbMin[1], bbMax[1]);
+
+    /*bbMin[0] -= Config.borderSize * Config.cs;
     bbMin[2] -= Config.borderSize * Config.cs;
     bbMax[0] += Config.borderSize * Config.cs;
-    bbMax[0] += Config.borderSize * Config.cs;
+    bbMax[0] += Config.borderSize * Config.cs;*/
+
 
     rcHeightfield* hf = rcAllocHeightfield();
-    rcCreateHeightfield(Context, *hf, Config.width, Config.height, bbMin, bbMax, Config.cs, Config.ch);
+    int height, width;
+    rcCalcGridSize(bbMin, bbMax, Config.cs, &width, &height);
+    printf("Config values: Height: %i, Width: %i. Calculated values: Height: %i, Width: %i\n", Config.height, Config.width, height, width);
+    rcCreateHeightfield(Context, *hf, width, height, bbMin, bbMax, Config.cs, Config.ch);
     rcClearUnwalkableTriangles(Context, Config.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
     rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, Config.walkableClimb);
 
@@ -168,29 +173,31 @@ uint8* TileBuilder::Build(bool dbg)
     rcFreeCompactHeightfield(chf);
     rcFreeContourSet(cset);
 
+    /*
+    * Removed with RecastNavigation v292
     // Remove padding from the polymesh data. (Remove this odditity)
     for (int i = 0; i < pmesh->nverts; ++i)
     {
         unsigned short* v = &pmesh->verts[i * 3];
         v[0] -= (unsigned short)Config.borderSize;
         v[2] -= (unsigned short)Config.borderSize;
-    }
+    }*/
 
     // Set flags according to area types (e.g. Swim for Water)
     for (int i = 0; i < pmesh->npolys; i++)
     {
         if (pmesh->areas[i] == Constants::POLY_AREA_ROAD || pmesh->areas[i] == Constants::POLY_AREA_TERRAIN)
             pmesh->flags[i] = Constants::POLY_FLAG_WALK;
-        else if (pmesh->areas[i] == (int)Constants::POLY_AREA_WATER)
+        else if (pmesh->areas[i] == Constants::POLY_AREA_WATER)
             pmesh->flags[i] = Constants::POLY_FLAG_SWIM;
     }
 
     // get original bounds
-    float* tilebMin;
+    /*float* tilebMin;
     float* tilebMax;
-    CalculateTileBounds(tilebMin, tilebMax);
+    CalculateTileBounds(tilebMin, tilebMax, navMeshParams);
     tilebMin[1] = bbMin[1];
-    tilebMax[1] = bbMax[1];
+    tilebMax[1] = bbMax[1];*/
 
     dtNavMeshCreateParams params;
     // PolyMesh data
@@ -208,12 +215,14 @@ uint8* TileBuilder::Build(bool dbg)
     params.detailTris = dmesh->tris;
     params.detailTriCount = dmesh->ntris;
     // Copy bounding box
-    params.bmin[0] = tilebMin[0];
+    /*params.bmin[0] = tilebMin[0];
     params.bmin[1] = tilebMin[1];
     params.bmin[2] = tilebMin[2];
     params.bmax[0] = tilebMax[0];
     params.bmax[1] = tilebMax[1];
-    params.bmax[2] = tilebMax[2];
+    params.bmax[2] = tilebMax[2];*/
+    rcVcopy(params.bmin, pmesh->bmin);
+    rcVcopy(params.bmax, pmesh->bmax);
     // General settings
     params.ch = Config.ch;
     params.cs = Config.cs;
@@ -222,7 +231,11 @@ uint8* TileBuilder::Build(bool dbg)
     params.walkableRadius = Config.walkableRadius;
     params.tileX = X;
     params.tileY = Y;
-    params.tileSize = 1800;
+    int _x = (((pmesh->bmin[0] + pmesh->bmax[0]) / 2) - Constants::Origin[0]) / Constants::TileSize;
+    int _y = (((pmesh->bmin[2] + pmesh->bmax[2]) / 2) - Constants::Origin[2]) / Constants::TileSize;
+    printf("[%02i,%02i] Generated with TileX: %i and TileY: %i\nbmin[0] %f bmin[1] %f bmin[2] %f bmax[0] %f bmax[1] %f bmax[2] %f\n", X, Y, _x, _y, params.bmin[0], params.bmin[1], params.bmin[2], params.bmax[0], params.bmax[1], params.bmax[2]);
+    params.buildBvTree = true;
+    params.tileLayer = 0;
 
     // Offmesh-connection settings
     params.offMeshConCount = 0; // none for now
@@ -235,13 +248,13 @@ uint8* TileBuilder::Build(bool dbg)
     // Free some memory
     rcFreePolyMesh(pmesh);
     rcFreePolyMeshDetail(dmesh);
-    delete tilebMax;
-    delete tilebMin;
+    //delete tilebMax;
+    //delete tilebMin;
     delete areas;
     delete triangles;
     delete vertices;
-    delete bbMax;
-    delete bbMin;
+    //delete bbMax;
+    //delete bbMin;
 
     if (result)
     {

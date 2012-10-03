@@ -46,7 +46,7 @@ void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
         int32 index;
         fread(&index, sizeof(int32), 1, stream);
 
-        if (index < 0 || index >= _definitions->size())
+        if (index < 0 || uint32(index) >= _definitions->size())
             continue;
 
         WorldModelDefinition wmo = (*_definitions)[index];
