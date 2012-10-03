@@ -57,26 +57,14 @@ public:
 
     struct boss_amanitarAI : public BossAI
     {
-        boss_amanitarAI(Creature* creature) : BossAI(creature, DATA_AMANITAR)
-        {
-            instance = creature->GetInstanceScript();
-        }
+        boss_amanitarAI(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
         
-        InstanceScript* instance;
-        EventMap events;
-
         void Reset()
         {
-            events.Reset();
-            events.ScheduleEvent(EVENT_ROOT, urand(5,9)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_BASH, urand(10,14)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_BOLT, urand(15,20)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_MINI, urand(12,18)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SPAWN, 5 *IN_MILLISECONDS);
-
-            me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+            _Reset();
             
+            me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);            
             summons.DespawnAll();
 
             if (instance)
@@ -90,6 +78,7 @@ public:
         {
             if (instance)
             {
+                _JustDied();
                 instance->SetData(DATA_AMANITAR_EVENT, DONE);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
                 summons.DespawnAll();
@@ -98,6 +87,14 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            _EnterCombat();
+
+            events.ScheduleEvent(EVENT_ROOT, urand(5,9)*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BASH, urand(10,14)*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BOLT, urand(15,20)*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_MINI, urand(12,18)*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SPAWN, 5 *IN_MILLISECONDS);
+
             me->SetInCombatWithZone();
             if (instance)
                 instance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
@@ -196,7 +193,7 @@ public:
             events.Reset();
             events.ScheduleEvent(EVENT_AURA, 1*IN_MILLISECONDS);
             
-            me->SetDisplayId(26981);
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             DoCast(SPELL_PUTRID_MUSHROOM);
 
             if (me->GetEntry() == NPC_POISONOUS_MUSHROOM)
@@ -240,7 +237,6 @@ public:
                         break;
                 }
             }
-            DoMeleeAttackIfReady();
         }
     };
 
