@@ -13,10 +13,14 @@ public:
 
     void Initialize();
     FILE* GetFile(std::string path);
+    FILE* GetFileFrom(std::string path, MPQArchive* file);
     DBC* GetDBC(std::string name);
+    std::vector<std::string> GetAllFiles(std::string extension);
 
     std::deque<MPQArchive*> Archives;
-    uint32 CurLocale;
+    int32 BaseLocale;
+    std::set<uint32> AvailableLocales;
+    std::map<uint32, MPQArchive*> LocaleFiles;
 
     static char* Files[];
     static char* Languages[];

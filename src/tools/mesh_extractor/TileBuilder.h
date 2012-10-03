@@ -13,8 +13,8 @@ public:
     TileBuilder(std::string world, int x, int y, uint32 mapId);
     ~TileBuilder();
 
-    void CalculateTileBounds(float*& bmin, float*& bmax);
-    uint8* Build(bool dbg);
+    void CalculateTileBounds(float*& bmin, float*& bmax, dtNavMeshParams& navMeshParams);
+    uint8* Build(bool dbg, dtNavMeshParams& navMeshParams);
 
     std::string World;
     int X;

@@ -36,7 +36,7 @@ void WorldModelGroup::ReadNormals()
     ASSERT(normalCount == Vertices.size() && "normalCount is different than the Vertices count");
     Normals.reserve(normalCount);
     FILE* stream = chunk->GetStream();
-    for (int i = 0; i < normalCount; i++)
+    for (uint32 i = 0; i < normalCount; i++)
         Normals[i] = Vector3::Read(stream);
 }
 
@@ -61,7 +61,7 @@ void WorldModelGroup::ReadVertices()
     uint32 verticeCount = chunk->Length / 12;
     Vertices.reserve(verticeCount);
     FILE* stream = chunk->GetStream();
-    for (int i = 0; i < verticeCount; i++)
+    for (uint32 i = 0; i < verticeCount; i++)
         Vertices.push_back(Vector3::Read(stream));
 }
 
@@ -75,7 +75,7 @@ void WorldModelGroup::ReadTriangles()
     ASSERT(triangleCount == TriangleFlags.size() && "triangleCount != TriangleFlags.size()");
     FILE* stream = chunk->GetStream();
     Triangles.reserve(triangleCount);
-    for (int i = 0; i < triangleCount; i++)
+    for (uint32 i = 0; i < triangleCount; i++)
     {
         uint16 v0;
         uint16 v1;
@@ -97,7 +97,7 @@ void WorldModelGroup::ReadMaterials()
     uint32 triangleCount = chunk->Length / 2;
     TriangleFlags.reserve(triangleCount);
     TriangleMaterials.reserve(triangleCount);
-    for (int i = 0; i < triangleCount; i++)
+    for (uint32 i = 0; i < triangleCount; i++)
     {
         uint8 tmp;
         fread(&tmp, sizeof(uint8), 1, stream);

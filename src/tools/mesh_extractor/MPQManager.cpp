@@ -15,7 +15,7 @@ char* MPQManager::Files[] = {
     "patch-3.MPQ"
 };
 
-char* MPQManager::Languages[] = { "esES", "enUS", "enGB", "esMX", "deDE" };
+char* MPQManager::Languages[] = { "enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 
 void MPQManager::Initialize()
 {
@@ -31,21 +31,38 @@ void MPQManager::Initialize()
 
 void MPQManager::InitializeDBC()
 {
-    CurLocale = 0;
+    BaseLocale = -1;
     std::string fileName;
     uint32 size = sizeof(Languages) / sizeof(char*);
+    MPQArchive* _baseLocale = NULL;
     for (uint32 i = 0; i < size; ++i)
     {
-        fileName = "Data/" + std::string(Languages[i]) + "/locale-" + std::string(Languages[i]) + ".MPQ";
-        FILE* file = fopen(fileName.c_str(), "rb");
+        std::string _fileName = "Data/" + std::string(Languages[i]) + "/locale-" + std::string(Languages[i]) + ".MPQ";
+        FILE* file = fopen(_fileName.c_str(), "rb");
         if (file)
         {
-            CurLocale = i;
-            break;
+            if (BaseLocale == -1)
+            {
+                BaseLocale = i;
+                _baseLocale = new MPQArchive(_fileName.c_str());
+                fileName = _fileName;
+                LocaleFiles[i] = _baseLocale;
+            }
+            else
+                LocaleFiles[i] = new MPQArchive(_fileName.c_str());
+
+            AvailableLocales.insert(i);
+            printf("Detected locale: %s\n", Languages[i]);
         }
     }
-    Archives.push_front(new MPQArchive(fileName.c_str()));
-    printf("Using locale: %s\n", Languages[CurLocale]);
+    Archives.push_front(_baseLocale);
+    if (BaseLocale == -1)
+    {
+        printf("No locale data detected\n");
+        ASSERT(false);
+    }
+    else
+        printf("Using default locale: %s\n", Languages[BaseLocale]);
 }
 
 FILE* MPQManager::GetFile( std::string path )
@@ -61,4 +78,32 @@ DBC* MPQManager::GetDBC( std::string name )
 {
     std::string path = "DBFilesClient\\" + name + ".dbc";
     return new DBC(GetFile(path));
+}
+
+FILE* MPQManager::GetFileFrom( std::string path, MPQArchive* file )
+{
+    ACE_GUARD_RETURN(ACE_Thread_Mutex, g, mutex, NULL);
+    mpq_archive* mpq_a = file->mpq_a;
+
+    uint32_t filenum;
+    if(libmpq__file_number(mpq_a, path.c_str(), &filenum))
+        return NULL;
+
+    libmpq__off_t transferred;
+    libmpq__off_t size = 0;
+    libmpq__file_unpacked_size(mpq_a, filenum, &size);
+
+    // HACK: in patch.mpq some files don't want to open and give 1 for filesize
+    if (size <= 1)
+        return NULL;
+
+    uint8* buffer = new uint8[size];
+
+    //libmpq_file_getdata
+    libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
+
+    // Pack the return into a FILE stream
+    FILE* ret = tmpfile();
+    fwrite(buffer, sizeof(uint8), size, ret);
+    return ret;
 }
