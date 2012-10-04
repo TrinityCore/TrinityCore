@@ -7,6 +7,7 @@ class Model
 {
 public:
     Model(std::string path);
+    ~Model();
 
     void ReadVertices(FILE* stream);
     void ReadBoundingTriangles(FILE* stream);
@@ -17,5 +18,6 @@ public:
     std::vector<Triangle<uint16> > Triangles;
     bool IsCollidable;
     FILE* Stream;
+    bool IsBad;
 };
 #endif

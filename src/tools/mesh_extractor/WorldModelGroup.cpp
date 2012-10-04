@@ -37,7 +37,7 @@ void WorldModelGroup::ReadNormals()
     Normals.reserve(normalCount);
     FILE* stream = chunk->GetStream();
     for (uint32 i = 0; i < normalCount; i++)
-        Normals[i] = Vector3::Read(stream);
+        Normals.push_back(Vector3::Read(stream));
 }
 
 void WorldModelGroup::ReadLiquid()

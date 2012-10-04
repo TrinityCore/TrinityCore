@@ -11,7 +11,7 @@ void ObjectDataHandler::ProcessMapChunk( MapChunk* chunk )
     int32 firstIndex = Source->ObjectData->GetFirstIndex("MCNK");
     if (firstIndex == -1)
         return;
-    if (firstIndex + chunk->Index > Source->ObjectData->Chunks.size())
+    if (uint32(firstIndex + chunk->Index) > Source->ObjectData->Chunks.size())
         return;
     Chunk* ourChunk = Source->ObjectData->Chunks[firstIndex + chunk->Index];
     if (ourChunk->Length == 0)

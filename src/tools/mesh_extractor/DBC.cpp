@@ -38,7 +38,7 @@ DBC::DBC( FILE* stream ) : StringBlock(NULL), IsFaulty(true), StringBlockSize(0)
 std::string DBC::GetStringByOffset( int offset )
 {
     int len = 0;
-    for (int i = offset; i < StringBlockSize; i++)
+    for (uint32 i = offset; i < StringBlockSize; i++)
     {
         if (!StringBlock[i])
         {
