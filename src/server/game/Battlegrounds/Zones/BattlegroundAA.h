@@ -24,7 +24,7 @@ class BattlegroundAAScore : public BattlegroundScore
 {
     public:
         BattlegroundAAScore() {};
-        virtual ~BattlegroundAAScore() {};
+        ~BattlegroundAAScore() {};
         //TODO fix me
 };
 
@@ -35,9 +35,9 @@ class BattlegroundAA : public Battleground
         ~BattlegroundAA();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void AddPlayer(Player* player);
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
 
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);

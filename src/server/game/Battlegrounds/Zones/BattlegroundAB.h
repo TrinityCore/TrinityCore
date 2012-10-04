@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef __BATTLEGROUNDAB_H
 #define __BATTLEGROUNDAB_H
 
-class Battleground;
+#include "Battleground.h"
 
 enum BG_AB_WorldStates
 {
@@ -236,13 +237,12 @@ struct BG_AB_BannerTimer
     uint8       teamIndex;
 };
 
-class BattlegroundABScore : public BattlegroundScore
+struct BattlegroundABScore : public BattlegroundScore
 {
-    public:
-        BattlegroundABScore(): BasesAssaulted(0), BasesDefended(0) {};
-        virtual ~BattlegroundABScore() {};
-        uint32 BasesAssaulted;
-        uint32 BasesDefended;
+    BattlegroundABScore(): BasesAssaulted(0), BasesDefended(0) { }
+    ~BattlegroundABScore() { }
+    uint32 BasesAssaulted;
+    uint32 BasesDefended;
 };
 
 class BattlegroundAB : public Battleground
@@ -252,28 +252,28 @@ class BattlegroundAB : public Battleground
         ~BattlegroundAB();
 
         void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        virtual bool SetupBattleground();
-        virtual void Reset();
+        bool SetupBattleground();
+        void Reset();
         void EndBattleground(uint32 winner);
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
-        virtual void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPacket& data);
 
         /* Nodes occupying */
-        virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
 
         /* achievement req. */
         bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
         bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
     private:
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff);
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
         void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);
