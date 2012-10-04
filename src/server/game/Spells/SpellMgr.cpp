@@ -3639,6 +3639,13 @@ void SpellMgr::LoadDbcDataCorrections()
             case 45524: // Chains of Ice
                 spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            // OCULUS SPELLS
+            // The spells below are here, because their effect 1 is giving warning, because the triggered spell is not found in dbc and is missing from encounter sniff.
+            case 49462: // Call Ruby Drake
+            case 49461: // Call Amber Drake
+            case 49345: // Call Emerald Drake
+                spellInfo->Effect[1] = 0;
+                break;
             default:
                 break;
         }
