@@ -140,14 +140,12 @@ class BattlegroundMgr
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
         BattlegroundTypeId GetRandomBG(BattlegroundTypeId id);
 
-        BattleMastersMap    mBattleMastersMap;
         typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
         BattlegroundDataContainer bgDataStore;
 
-        typedef std::map<BattlegroundTypeId, uint8> BattlegroundSelectionWeightMap; // TypeId and its selectionWeight
-
         BattlegroundQueue m_BattlegroundQueues[MAX_BATTLEGROUND_QUEUE_TYPES];
 
+        typedef std::map<BattlegroundTypeId, uint8> BattlegroundSelectionWeightMap; // TypeId and its selectionWeight
         BattlegroundSelectionWeightMap m_ArenaSelectionWeights;
         BattlegroundSelectionWeightMap m_BGSelectionWeights;
         std::vector<uint64> m_QueueUpdateScheduler;
@@ -156,6 +154,7 @@ class BattlegroundMgr
         uint32 m_AutoDistributionTimeChecker;
         bool   m_ArenaTesting;
         bool   m_Testing;
+        BattleMastersMap mBattleMastersMap;
 };
 
 #define sBattlegroundMgr ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>::instance()
