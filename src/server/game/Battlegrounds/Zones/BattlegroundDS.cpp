@@ -21,6 +21,7 @@
 #include "Language.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "GameObject.h"
 
 BattlegroundDS::BattlegroundDS()
 {
