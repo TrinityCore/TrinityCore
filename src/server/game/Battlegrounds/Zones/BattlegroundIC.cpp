@@ -864,7 +864,7 @@ void BattlegroundIC::EventPlayerDamagedGO(Player* /*player*/, GameObject* /*go*/
 
 WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
 {
-    BattlegroundTeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
+    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
     // Is there any occupied node for this team?
     std::vector<uint8> nodes;
