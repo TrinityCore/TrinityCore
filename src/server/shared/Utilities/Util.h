@@ -21,6 +21,7 @@
 
 #include "Define.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <list>
