@@ -25,7 +25,7 @@ class BattlegroundRBScore : public BattlegroundScore
 {
     public:
         BattlegroundRBScore() {};
-        virtual ~BattlegroundRBScore() {};
+        ~BattlegroundRBScore() {};
 };
 
 class BattlegroundRB : public Battleground
@@ -34,9 +34,9 @@ class BattlegroundRB : public Battleground
         BattlegroundRB();
         ~BattlegroundRB();
 
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void AddPlayer(Player* player);
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
 
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
