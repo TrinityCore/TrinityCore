@@ -347,6 +347,12 @@ INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `
 -- Leviathan vehicles should not regen hp
 UPDATE `creature_addon` SET `auras`=52455 WHERE `guid` IN (136093, 136094, 136239, 136240, 136268, 136269);
 
+-- adding the lightning door behind leviathan
+-- delete only the lightning door behind leviathan, not all
+DELETE FROM `gameobject` WHERE `id`=194905 AND `position_x` > 200;
+INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(194905, 603, 3, 1, 401.308, -13.8236, 409.524, 3.14159, 0, 0, -1, 0, 25, 0, 0);
+
 -- XT002
 -- Add additional target selection script, i.e. a SpellScript that is used aside the AuraScript that already got attached to
 -- these spells.
@@ -393,7 +399,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- spawning Prospector Doren
 DELETE FROM `creature` WHERE `id`=33956;
 INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-(33956, 603, 1, 1, 0, 0, 1438.6, 114.639, 423.642, 2.11325, 120, 0, 0, 75600, 0, 0, 0, 0, 0);
+(33956, 603, 3, 1, 0, 0, 1438.6, 114.639, 423.642, 2.11325, 120, 0, 0, 75600, 0, 0, 0, 0, 0);
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10084,10087,10088,10418,10419,10089,10420,10421,10090,10422,10423,10091,10424,10425);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
