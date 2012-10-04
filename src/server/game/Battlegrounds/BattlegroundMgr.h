@@ -26,6 +26,7 @@
 #include <ace/Singleton.h>
 
 typedef std::map<uint32, Battleground*> BattlegroundContainer;
+typedef std::set<uint32> BattlegroundClientIdsContainer;
 
 typedef UNORDERED_MAP<uint32, BattlegroundTypeId> BattleMastersMap;
 
@@ -52,6 +53,13 @@ struct CreateBattlegroundData
     float Team2StartLocO;
     float StartMaxDist;
     uint32 scriptId;
+};
+
+struct BattlegroundData
+{
+    BattlegroundContainer m_Battlegrounds;
+    BattlegroundClientIdsContainer m_ClientBattlegroundIds[MAX_BATTLEGROUND_BRACKETS];
+    BGFreeSlotQueueContainer BGFreeSlotQueue;
 };
 
 class BattlegroundMgr
@@ -133,13 +141,12 @@ class BattlegroundMgr
         BattlegroundTypeId GetRandomBG(BattlegroundTypeId id);
 
         BattleMastersMap    mBattleMastersMap;
+        typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
+        BattlegroundDataContainer bgDataStore;
 
         typedef std::map<BattlegroundTypeId, uint8> BattlegroundSelectionWeightMap; // TypeId and its selectionWeight
 
         BattlegroundQueue m_BattlegroundQueues[MAX_BATTLEGROUND_QUEUE_TYPES];
-        BGFreeSlotQueueContainer BGFreeSlotQueue[MAX_BATTLEGROUND_TYPE_ID];
-        BattlegroundContainer m_Battlegrounds[MAX_BATTLEGROUND_TYPE_ID];
-        std::set<uint32> m_ClientBattlegroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; //the instanceids just visible for the client
 
         BattlegroundSelectionWeightMap m_ArenaSelectionWeights;
         BattlegroundSelectionWeightMap m_BGSelectionWeights;

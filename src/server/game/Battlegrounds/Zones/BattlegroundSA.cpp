@@ -56,8 +56,8 @@ void BattlegroundSA::Reset()
         GateStatus[i] = BG_SA_GATE_OK;
     ShipsStarted = false;
     gateDestroyed = false;
-    _notEvenAScratch[BG_TEAM_ALLIANCE] = true;
-    _notEvenAScratch[BG_TEAM_HORDE] = true;
+    _notEvenAScratch[TEAM_ALLIANCE] = true;
+    _notEvenAScratch[TEAM_HORDE] = true;
     Status = BG_SA_WARMUP;
 }
 
