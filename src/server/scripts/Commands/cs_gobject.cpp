@@ -201,8 +201,8 @@ public:
         float z = player->GetPositionZ();
         float ang = player->GetOrientation();
 
-        float rot2 = sin(ang/2);
-        float rot3 = cos(ang/2);
+        float rot2 = std::sin(ang/2);
+        float rot3 = std::cos(ang/2);
 
         uint32 objectId = atoi(id);
 

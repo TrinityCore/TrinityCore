@@ -181,8 +181,8 @@ class boss_warp_splinter : public CreatureScript
                 {
                     float angle = (M_PI / 3) * i;
 
-                    float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * cos(angle);
-                    float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * sin(angle);
+                    float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * std::cos(angle);
+                    float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * std::sin(angle);
                     float O = - me->GetAngle(X, Y);
 
                     if (Creature* pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
