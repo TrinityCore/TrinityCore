@@ -198,7 +198,7 @@ void Player::UpdateArmor()
     for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
     {
         if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-            value += CalculatePctN(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
+            value += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
 
     value *= GetModifierValue(unitMod, TOTAL_PCT);
@@ -677,7 +677,7 @@ void Player::UpdateManaRegen()
     // Set regen rate in cast state apply only on spirit based regen
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
 
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, base_regen + CalculatePctN(spirit_regen, modManaRegenInterrupt));
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 0.001f + spirit_regen + base_regen);
 }
 
@@ -921,18 +921,18 @@ bool Guardian::UpdateStats(Stats stat)
         if (aurEff)
         {
             SpellInfo const* spellInfo = aurEff->GetSpellInfo();                                                 // Then get the SpellProto and add the dummy effect value
-            AddPctN(mod, spellInfo->Effects[EFFECT_1].CalcValue(owner));                                              // Ravenous Dead edits the original scale
+            AddPct(mod, spellInfo->Effects[EFFECT_1].CalcValue(owner));                                              // Ravenous Dead edits the original scale
         }
         // Glyph of the Ghoul
         aurEff = owner->GetAuraEffect(58686, 0);
         if (aurEff)
-            mod += CalculatePctN(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
+            mod += CalculatePct(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
         ownersBonus = float(owner->GetStat(stat)) * mod;
         value += ownersBonus;
     }
     else if (stat == STAT_STAMINA)
     {
-        ownersBonus = CalculatePctN(owner->GetStat(STAT_STAMINA), 30);
+        ownersBonus = CalculatePct(owner->GetStat(STAT_STAMINA), 30);
         value += ownersBonus;
     }
                                                             //warlock's and mage's pets gain 30% of owner's intellect
@@ -940,7 +940,7 @@ bool Guardian::UpdateStats(Stats stat)
     {
         if (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE)
         {
-            ownersBonus = CalculatePctN(owner->GetStat(stat), 30);
+            ownersBonus = CalculatePct(owner->GetStat(stat), 30);
             value += ownersBonus;
         }
     }
@@ -992,7 +992,7 @@ void Guardian::UpdateResistances(uint32 school)
 
         // hunter and warlock pets gain 40% of owner's resistance
         if (isPet())
-            value += float(CalculatePctN(m_owner->GetResistance(SpellSchools(school)), 40));
+            value += float(CalculatePct(m_owner->GetResistance(SpellSchools(school)), 40));
 
         SetResistance(SpellSchools(school), int32(value));
     }
@@ -1008,7 +1008,7 @@ void Guardian::UpdateArmor()
 
     // hunter pets gain 35% of owner's armor value, warlock pets gain 100% of owner's armor
     if (isHunterPet())
-        bonus_armor = float(CalculatePctN(m_owner->GetArmor(), 70));
+        bonus_armor = float(CalculatePct(m_owner->GetArmor(), 70));
     else if (isPet())
         bonus_armor = m_owner->GetArmor();
 
@@ -1180,8 +1180,8 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
         {
             case 61682:
             case 61683:
-                AddPctN(mindamage, -(*itr)->GetAmount());
-                AddPctN(maxdamage, -(*itr)->GetAmount());
+                AddPct(mindamage, -(*itr)->GetAmount());
+                AddPct(maxdamage, -(*itr)->GetAmount());
                 break;
             default:
                 break;

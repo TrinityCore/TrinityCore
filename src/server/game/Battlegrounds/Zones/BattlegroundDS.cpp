@@ -16,12 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundDS.h"
+#include "ObjectAccessor.h"
 #include "Language.h"
 #include "Player.h"
-#include "Object.h"
-#include "ObjectMgr.h"
 #include "WorldPacket.h"
 
 BattlegroundDS::BattlegroundDS()
@@ -147,11 +145,7 @@ void BattlegroundDS::StartingEventOpenDoors()
 void BattlegroundDS::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundDSScore* score = new BattlegroundDSScore;
-
-    PlayerScores[player->GetGUID()] = score;
-
+    PlayerScores[player->GetGUID()] = new BattlegroundScore;
     UpdateArenaWorldState();
 }
 

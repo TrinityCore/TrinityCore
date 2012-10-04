@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundSA.h"
 #include "Language.h"
 #include "Player.h"
@@ -56,8 +55,8 @@ void BattlegroundSA::Reset()
         GateStatus[i] = BG_SA_GATE_OK;
     ShipsStarted = false;
     gateDestroyed = false;
-    _notEvenAScratch[BG_TEAM_ALLIANCE] = true;
-    _notEvenAScratch[BG_TEAM_HORDE] = true;
+    _notEvenAScratch[TEAM_ALLIANCE] = true;
+    _notEvenAScratch[TEAM_HORDE] = true;
     Status = BG_SA_WARMUP;
 }
 

@@ -243,7 +243,7 @@ public:
                 if (pet->isPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        float ownerBonus = CalculatePctN(owner->GetStat(STAT_STAMINA), 75);
+                        float ownerBonus = CalculatePct(owner->GetStat(STAT_STAMINA), 75);
 
                         amount += ownerBonus;
                     }
@@ -313,7 +313,7 @@ public:
                         if (AuraEffect* /* aurEff */ect = owner->GetAuraEffect(56246, EFFECT_0))
                         {
                             float base_attPower = pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE) * pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_PCT);
-                            amount += CalculatePctN(amount+base_attPower, /* aurEff */ect->GetAmount());
+                            amount += CalculatePct(amount+base_attPower, /* aurEff */ect->GetAmount());
                         }
                     }
                 }
@@ -382,7 +382,7 @@ public:
                     {
                         float ownerBonus = 0.0f;
 
-                        ownerBonus = CalculatePctN(owner->GetStat(STAT_INTELLECT), 30);
+                        ownerBonus = CalculatePct(owner->GetStat(STAT_INTELLECT), 30);
 
                         amount += ownerBonus;
                         _tempBonus = ownerBonus;
@@ -434,7 +434,7 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
-                        ownerBonus = CalculatePctN(owner->GetArmor(), 35);
+                        ownerBonus = CalculatePct(owner->GetArmor(), 35);
                         amount += ownerBonus;
                     }
         }
@@ -446,7 +446,7 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
-                        ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_FIRE), 40);
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FIRE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -493,7 +493,7 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
-                        ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_FROST), 40);
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FROST), 40);
                         amount += ownerBonus;
                     }
         }
@@ -505,7 +505,7 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
-                        ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_ARCANE), 40);
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_ARCANE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -517,7 +517,7 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
-                        ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_NATURE), 40);
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_NATURE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -560,7 +560,7 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float ownerBonus = 0.0f;
-                        ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_SHADOW), 40);
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_SHADOW), 40);
                         amount += ownerBonus;
                     }
         }
@@ -686,7 +686,7 @@ public:
                 if (AuraApplication* improvedDemonicTacticsApp = owner->GetAuraApplicationOfRankedSpell(54347))
                     if (Aura* improvedDemonicTactics = improvedDemonicTacticsApp->GetBase())
                         if (AuraEffect* improvedDemonicTacticsEffect = improvedDemonicTactics->GetEffect(EFFECT_0))
-                            amount += CalculatePctN(CritSpell, improvedDemonicTacticsEffect->GetAmount());
+                            amount += CalculatePct(CritSpell, improvedDemonicTacticsEffect->GetAmount());
             }
         }
 
@@ -708,7 +708,7 @@ public:
                 if (AuraApplication* improvedDemonicTacticsApp = owner->GetAuraApplicationOfRankedSpell(54347))
                     if (Aura* improvedDemonicTactics = improvedDemonicTacticsApp->GetBase())
                         if (AuraEffect* improvedDemonicTacticsEffect = improvedDemonicTactics->GetEffect(EFFECT_0))
-                            amount += CalculatePctN(CritMelee, improvedDemonicTacticsEffect->GetAmount());
+                            amount += CalculatePct(CritMelee, improvedDemonicTacticsEffect->GetAmount());
             }
         }
 
@@ -898,7 +898,7 @@ public:
                         if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                         {
                             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
-                            AddPctN(mod, spellInfo->Effects[EFFECT_0].CalcValue());
+                            AddPct(mod, spellInfo->Effects[EFFECT_0].CalcValue());
                         }
 
                         ownerBonus = owner->GetStat(STAT_STAMINA)*mod;
@@ -941,7 +941,7 @@ public:
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
-                    mod += CalculatePctN(1.0f, spellInfo->Effects[EFFECT_1].CalcValue());
+                    mod += CalculatePct(1.0f, spellInfo->Effects[EFFECT_1].CalcValue());
                 }
 
                 bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
@@ -971,7 +971,7 @@ public:
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
-                    mod += CalculatePctN(1.0f, spellInfo->Effects[EFFECT_1].CalcValue());
+                    mod += CalculatePct(1.0f, spellInfo->Effects[EFFECT_1].CalcValue());
                 }
 
                 bonusDamage = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod;
@@ -1028,7 +1028,7 @@ public:
 
                 float ownerBonus = 0.0f;
 
-                ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_FROST), 40);
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FROST), 40);
 
                 amount += ownerBonus;
             }
@@ -1047,7 +1047,7 @@ public:
 
                 float ownerBonus = 0.0f;
 
-                ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_FIRE), 40);
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FIRE), 40);
 
                 amount += ownerBonus;
             }
@@ -1066,7 +1066,7 @@ public:
 
                 float ownerBonus = 0.0f;
 
-                ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_NATURE), 40);
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_NATURE), 40);
 
                 amount += ownerBonus;
             }
@@ -1115,7 +1115,7 @@ public:
 
                 float ownerBonus = 0.0f;
 
-                ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_SHADOW), 40);
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_SHADOW), 40);
 
                 amount += ownerBonus;
             }
@@ -1134,7 +1134,7 @@ public:
 
                 float ownerBonus = 0.0f;
 
-                ownerBonus = CalculatePctN(owner->GetResistance(SPELL_SCHOOL_ARCANE), 40);
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_ARCANE), 40);
 
                 amount += ownerBonus;
             }
@@ -1153,7 +1153,7 @@ public:
 
                 float ownerBonus = 0.0f;
 
-                ownerBonus = CalculatePctN(owner->GetArmor(), 35);
+                ownerBonus = CalculatePct(owner->GetArmor(), 35);
 
                 amount += ownerBonus;
             }
@@ -1526,12 +1526,12 @@ public:
                 aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
                 if (aurEff)
                 {
-                    mod += CalculatePctN(mod, aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());                   // Ravenous Dead edits the original scale
+                    mod += CalculatePct(mod, aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());                   // Ravenous Dead edits the original scale
                 }
                 // Glyph of the Ghoul
                 aurEff = owner->GetAuraEffect(58686, 0);
                 if (aurEff)
-                    mod += CalculatePctN(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
+                    mod += CalculatePct(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
                 float ownerBonus = float(owner->GetStat(STAT_STRENGTH)) * mod;
                 amount += ownerBonus;
             }

@@ -642,7 +642,7 @@ void Creature::Regenerate(Powers power)
     AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         if (Powers((*i)->GetMiscValue()) == power)
-            AddPctN(addvalue, (*i)->GetAmount());
+            AddPct(addvalue, (*i)->GetAmount());
 
     addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (isHunterPet()? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
 
@@ -1938,7 +1938,7 @@ void Pet::CastPetAura(PetAura const* aura)
 
     if (auraId == 35696)                                      // Demonic Knowledge
     {
-        int32 basePoints = CalculatePctF(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT));
+        int32 basePoints = CalculatePct(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT));
         CastCustomSpell(this, auraId, &basePoints, NULL, NULL, true);
     }
     else

@@ -462,10 +462,6 @@ void WorldSession::LogoutPlayer(bool Save)
         }
         else if (!_player->getAttackers().empty())
         {
-            _player->CombatStop();
-            _player->getHostileRefManager().setOnlineOfflineState(false);
-            _player->RemoveAllAurasOnDeath();
-
             // build set of player who attack _player or who have pet attacking of _player
             std::set<Player*> aset;
             for (Unit::AttackerSet::const_iterator itr = _player->getAttackers().begin(); itr != _player->getAttackers().end(); ++itr)
@@ -477,6 +473,11 @@ void WorldSession::LogoutPlayer(bool Save)
                     aset.insert((Player*)(*itr));
             }
 
+            // CombatStop() method is removing all attackers from the AttackerSet
+            // That is why it must be AFTER building current set of attackers
+            _player->CombatStop();
+            _player->getHostileRefManager().setOnlineOfflineState(false);
+            _player->RemoveAllAurasOnDeath();
             _player->SetPvPDeath(!aset.empty());
             _player->KillPlayer();
             _player->BuildPlayerRepop();
@@ -521,7 +522,8 @@ void WorldSession::LogoutPlayer(bool Save)
             if (BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i))
             {
                 _player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                sBattlegroundMgr->m_BattlegroundQueues[ bgQueueTypeId ].RemovePlayer(_player->GetGUID(), true);
+                BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+                queue.RemovePlayer(_player->GetGUID(), true);
             }
         }
 

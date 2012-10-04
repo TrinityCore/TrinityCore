@@ -88,8 +88,8 @@ void Log::CreateAppenderFromConfig(const char* name)
     std::string options = "Appender.";
     options.append(name);
     options = ConfigMgr::GetStringDefault(options.c_str(), "");
-    Tokens tokens(options, ',');
-    Tokens::iterator iter = tokens.begin();
+    Tokenizer tokens(options, ',');
+    Tokenizer::const_iterator iter = tokens.begin();
 
     if (tokens.size() < 2)
     {
@@ -181,8 +181,8 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
     }
 
-    Tokens tokens(options, ',');
-    Tokens::iterator iter = tokens.begin();
+    Tokenizer tokens(options, ',');
+    Tokenizer::const_iterator iter = tokens.begin();
 
     if (tokens.size() != 3)
     {

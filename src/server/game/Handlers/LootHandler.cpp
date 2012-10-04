@@ -183,7 +183,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
 
                 if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
-                    if (uint32 guildGold = CalculatePctN(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
+                    if (uint32 guildGold = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                         guild->HandleMemberDepositMoney(this, guildGold, true);
 
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
@@ -198,7 +198,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, loot->gold);
 
             if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
-                if (uint32 guildGold = CalculatePctN(loot->gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
+                if (uint32 guildGold = CalculatePct(loot->gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                     guild->HandleMemberDepositMoney(this, guildGold, true);
 
             WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
