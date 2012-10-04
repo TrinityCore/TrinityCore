@@ -122,15 +122,15 @@ inline T CalculatePct(T base, U pct)
 }
 
 template <class T>
-inline T AddPctF(T& base, float pct)
+inline T CalculatePctU(T base, uint32 pct)
 {
-    return base += CalculatePctF(base, pct);
+    return T(base * float(pct) / 100.0f);
 }
 
 template <class T>
-inline T AddPctN(T& base, int32 pct)
+inline T AddPctF(T& base, float pct)
 {
-    return base += CalculatePctN(base, pct);
+    return base += CalculatePctF(base, pct);
 }
 
 template <class T>
@@ -146,9 +146,9 @@ inline T AddFlatPctF(T& base, float pct)
 }
 
 template <class T>
-inline T AddFlatPctN(T& base, int32 pct)
+inline T AddFlatPct(T& base, int32 pct)
 {
-    return base += (pct >= 0) ? float(pct) / 100.0f : CalculatePctN(base, pct);
+    return base += (pct >= 0) ? float(pct) / 100.0f : CalculatePct(base, pct);
 }
 
 template <class T>
