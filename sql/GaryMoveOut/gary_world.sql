@@ -164,3 +164,10 @@ REPLACE INTO `gossip_scripts` (`id`, `command`, `datalong`, `datalong2`) VALUES 
 
 -- Removes Master's Call stun immunity.
 INSERT INTO `spell_linked_spell`(`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES (54216,-56651,1,'Removes Master''s Call stun immunity');
+
+-- Fix [Undead][Racial] Will of the Forsaken.
+DELETE FROM spell_linked_spell WHERE spell_trigger = 7744;
+DELETE FROM spell_linked_spell WHERE spell_trigger = 42292;
+INSERT INTO spell_linked_spell (spell_trigger, spell_effect, type, comment) VALUES
+(7744, 72757, 0, 'Will of the Forsaken Cooldown Trigger (WOTF)'),
+(42292, 72752, 0, 'Will of the Forsaken Cooldown Trigger');

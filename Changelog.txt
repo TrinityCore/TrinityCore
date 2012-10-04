@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[58] --> Fix [Undead][Racial] Will of the Forsaken.
 [57] --> Removes Master's Call stun immunity.
 [56] --> [ICC] Fix Lich King.
 [55] --> Fix Earthbind totem effect and Wandering plague.
