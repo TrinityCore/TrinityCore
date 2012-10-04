@@ -509,59 +509,29 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
 {
+    BattlegroundTypeId bgTypeId = originalBgTypeId;
+    bool isRandom = false;
+
+    switch (originalBgTypeId)
+    {
+        case BATTLEGROUND_RB:
+            isRandom = true;
+        case BATTLEGROUND_AA:
+            bgTypeId = GetRandomBG(originalBgTypeId);
+            break;
+        default:
+            break;
+    }
+
     // get the template BG
     Battleground* bg_template = GetBattlegroundTemplate(bgTypeId);
-    BattlegroundSelectionWeightMap* selectionWeights = NULL;
 
     if (!bg_template)
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground: CreateNewBattleground - bg template not found for %u", bgTypeId);
         return NULL;
-    }
-    bool isRandom = false;
-
-    if (bg_template->isArena())
-        selectionWeights = &m_ArenaSelectionWeights;
-    else if (bgTypeId == BATTLEGROUND_RB)
-    {
-        selectionWeights = &m_BGSelectionWeights;
-        isRandom = true;
-    }
-
-    if (selectionWeights)
-    {
-        if (selectionWeights->empty())
-           return NULL;
-        uint32 Weight = 0;
-        uint32 selectedWeight = 0;
-        bgTypeId = BATTLEGROUND_TYPE_NONE;
-        // Get sum of all weights
-        for (BattlegroundSelectionWeightMap::const_iterator it = selectionWeights->begin(); it != selectionWeights->end(); ++it)
-            Weight += it->second;
-        if (!Weight)
-            return NULL;
-        // Select a random value
-        selectedWeight = urand(0, Weight-1);
-
-        // Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
-        Weight = 0;
-        for (BattlegroundSelectionWeightMap::const_iterator it = selectionWeights->begin(); it != selectionWeights->end(); ++it)
-        {
-            Weight += it->second;
-            if (selectedWeight < Weight)
-            {
-                bgTypeId = it->first;
-                break;
-            }
-        }
-        bg_template = GetBattlegroundTemplate(bgTypeId);
-        if (!bg_template)
-        {
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground: CreateNewBattleground - bg template not found for %u", bgTypeId);
-            return NULL;
-        }
     }
 
     Battleground* bg = NULL;
@@ -732,8 +702,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         data.MaxPlayersPerTeam = fields[2].GetUInt16();
         data.LevelMin = fields[3].GetUInt8();
         data.LevelMax = fields[4].GetUInt8();
-
-        data.StartMaxDist = fields[9].GetFloat();
+        uint8 spawn = fields[9].GetUInt8();
+        data.StartMaxDist = float(spawn * spawn);
 
         data.scriptId = sObjectMgr->GetScriptId(fields[11].GetCString());
         data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
@@ -1134,6 +1104,56 @@ BattlegroundTypeId BattlegroundMgr::WeekendHolidayIdToBGType(HolidayIds holiday)
 bool BattlegroundMgr::IsBGWeekend(BattlegroundTypeId bgTypeId)
 {
     return IsHolidayActive(BGTypeToWeekendHolidayId(bgTypeId));
+}
+
+BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
+{
+    uint32 weight = 0;
+    BattlegroundTypeId returnBgTypeId = BATTLEGROUND_TYPE_NONE;
+    BattlegroundSelectionWeightMap selectionWeights;
+
+    if (bgTypeId == BATTLEGROUND_AA)
+    {
+        for (BattlegroundSelectionWeightMap::const_iterator it = m_ArenaSelectionWeights.begin(); it != m_ArenaSelectionWeights.end(); ++it)
+        {
+            if (it->second)
+            {
+                weight += it->second;
+                selectionWeights[it->first] = it->second;
+            }
+        }
+    }
+    else if (bgTypeId == BATTLEGROUND_RB)
+    {
+        for (BattlegroundSelectionWeightMap::const_iterator it = m_BGSelectionWeights.begin(); it != m_BGSelectionWeights.end(); ++it)
+        {
+            if (it->second)
+            {
+                weight += it->second;
+                selectionWeights[it->first] = it->second;
+            }
+        }
+    }
+
+    if (weight)
+    {
+        uint32 selectedWeight = 0;
+        // Select a random value
+        selectedWeight = urand(0, weight - 1);
+        // Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
+        weight = 0;
+        for (BattlegroundSelectionWeightMap::const_iterator it = selectionWeights.begin(); it != selectionWeights.end(); ++it)
+        {
+            weight += it->second;
+            if (selectedWeight < weight)
+            {
+                returnBgTypeId = it->first;
+                break;
+            }
+        }
+    }
+
+    return returnBgTypeId;
 }
 
 BGFreeSlotQueueContainer& BattlegroundMgr::GetBGFreeSlotQueueStore(BattlegroundTypeId bgTypeId)

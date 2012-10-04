@@ -104,6 +104,7 @@ enum BattlegroundSpells
 
 enum BattlegroundTimeIntervals
 {
+    CHECK_PLAYER_POSITION_INVERVAL  = 1000,                 // ms
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
@@ -319,11 +320,9 @@ class Battleground
             return true;
         }
         virtual void Reset();                               // resets all common properties for battlegrounds, must be implemented and called in BG subclass
-        virtual void StartingEventCloseDoors() {}
-        virtual void StartingEventOpenDoors() {}
-        virtual void ResetBGSubclass()                      // must be implemented in BG subclass
-        {
-        }
+        virtual void StartingEventCloseDoors() { }
+        virtual void StartingEventOpenDoors() { }
+        virtual void ResetBGSubclass() { }                  // must be implemented in BG subclass
 
         virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) {}
 
@@ -438,6 +437,7 @@ class Battleground
             Z = m_TeamStartLocZ[idx];
             O = m_TeamStartLocO[idx];
         }
+
         void SetStartMaxDist(float startMaxDist) { m_StartMaxDist = startMaxDist; }
         float GetStartMaxDist() const { return m_StartMaxDist; }
 
@@ -584,6 +584,7 @@ class Battleground
         void _ProcessProgress(uint32 diff);
         void _ProcessLeave(uint32 diff);
         void _ProcessJoin(uint32 diff);
+        void _CheckSafePositions(uint32 diff);
 
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
@@ -644,7 +645,7 @@ class Battleground
          *
          * @see Update(), PostUpdateImpl().
          */
-        virtual bool PreUpdateImpl(uint32 /* diff */) { return true; };
+        virtual bool PreUpdateImpl(uint32 /* diff */) { return true; }
 
         /**
          * @brief Post-update hook.
@@ -657,7 +658,7 @@ class Battleground
          *
          * @see Update(), PreUpdateImpl().
          */
-        virtual void PostUpdateImpl(uint32 /* diff */) { };
+        virtual void PostUpdateImpl(uint32 /* diff */) { }
 
         // Player lists
         std::vector<uint64> m_ResurrectQueue;               // Player GUID
@@ -700,4 +701,3 @@ class Battleground
         uint32 ScriptId;
 };
 #endif
-
