@@ -645,8 +645,8 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
         creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim);
 
     creature->Relocate(
-        GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + float(M_PI))),
-        GetPositionY() + (y * cos(GetOrientation()) + x * sin(GetOrientation())),
+        GetPositionX() + (x * std::cos(GetOrientation()) + y * std::sin(GetOrientation() + float(M_PI))),
+        GetPositionY() + (y * std::cos(GetOrientation()) + x * std::sin(GetOrientation())),
         z + GetPositionZ(),
         o + GetOrientation());
 
@@ -679,8 +679,8 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
 void Transport::UpdatePosition(MovementInfo* mi)
 {
     float transport_o = mi->pos.GetOrientation() - mi->t_pos.GetOrientation();
-    float transport_x = mi->pos.m_positionX - (mi->t_pos.m_positionX * cos(transport_o) - mi->t_pos.m_positionY*sin(transport_o));
-    float transport_y = mi->pos.m_positionY - (mi->t_pos.m_positionY * cos(transport_o) + mi->t_pos.m_positionX*sin(transport_o));
+    float transport_x = mi->pos.m_positionX - (mi->t_pos.m_positionX * std::cos(transport_o) - mi->t_pos.m_positionY*sin(transport_o));
+    float transport_y = mi->pos.m_positionY - (mi->t_pos.m_positionY * std::cos(transport_o) + mi->t_pos.m_positionX*sin(transport_o));
     float transport_z = mi->pos.m_positionZ - mi->t_pos.m_positionZ;
 
     Relocate(transport_x, transport_y, transport_z, transport_o);
@@ -707,8 +707,8 @@ void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& 
 {
     float inx = x, iny = y, inz = z, ino = o;
     o = GetOrientation() + ino;
-    x = GetPositionX() + inx * cos(GetOrientation()) - iny * sin(GetOrientation());
-    y = GetPositionY() + iny * cos(GetOrientation()) + inx * sin(GetOrientation());
+    x = GetPositionX() + inx * std::cos(GetOrientation()) - iny * std::sin(GetOrientation());
+    y = GetPositionY() + iny * std::cos(GetOrientation()) + inx * std::sin(GetOrientation());
     z = GetPositionZ() + inz;
 }
 
@@ -716,9 +716,9 @@ void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
 {
     o = o - GetOrientation();
     z -= GetPositionZ();
-    y -= GetPositionY();    // y = searchedY * cos(o) + searchedX * sin(o)
-    x -= GetPositionX();    // x = searchedX * cos(o) + searchedY * sin(o + pi)
+    y -= GetPositionY();    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
+    x -= GetPositionX();    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
     float inx = x, iny = y;
-    y = (iny - inx * tan(GetOrientation())) / (cos(GetOrientation()) + sin(GetOrientation()) * tan(GetOrientation()));
-    x = (inx + iny * tan(GetOrientation())) / (cos(GetOrientation()) + sin(GetOrientation()) * tan(GetOrientation()));
+    y = (iny - inx * tan(GetOrientation())) / (cos(GetOrientation()) + std::sin(GetOrientation()) * tan(GetOrientation()));
+    x = (inx + iny * tan(GetOrientation())) / (cos(GetOrientation()) + std::sin(GetOrientation()) * tan(GetOrientation()));
 }

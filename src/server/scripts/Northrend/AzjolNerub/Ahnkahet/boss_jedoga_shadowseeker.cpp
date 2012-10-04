@@ -23,22 +23,15 @@
 #include "ScriptedCreature.h"
 #include "ahnkahet.h"
 
+
 enum Yells
 {
-    TEXT_AGGRO                                    = -1619000,
-    TEXT_SACRIFICE_1_1                            = -1619001,
-    TEXT_SACRIFICE_1_2                            = -1619002,
-    TEXT_SACRIFICE_2_1                            = -1619003,
-    TEXT_SACRIFICE_2_2                            = -1619004,
-    TEXT_SLAY_1                                   = -1619005,
-    TEXT_SLAY_2                                   = -1619006,
-    TEXT_SLAY_3                                   = -1619007,
-    TEXT_DEATH                                    = -1619008,
-    TEXT_PREACHING_1                              = -1619009,
-    TEXT_PREACHING_2                              = -1619010,
-    TEXT_PREACHING_3                              = -1619011,
-    TEXT_PREACHING_4                              = -1619012,
-    TEXT_PREACHING_5                              = -1619013
+    TEXT_AGGRO          = 0,
+    TEXT_SACRIFICE_1    = 1,
+    TEXT_SACRIFICE_2    = 2,
+    TEXT_SLAY           = 3,
+    TEXT_DEATH          = 4,
+    TEXT_PREACHING      = 5
 };
 
 enum Spells
@@ -129,7 +122,7 @@ public:
             if (!instance || (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_JEDOGA_CONTROLLER))
                 return;
 
-            DoScriptText(TEXT_AGGRO, me);
+            Talk(TEXT_AGGRO);
             me->SetInCombatWithZone();
             instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, IN_PROGRESS);
         }
@@ -147,12 +140,12 @@ public:
             if (!Victim || Victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            DoScriptText(RAND(TEXT_SLAY_1, TEXT_SLAY_2, TEXT_SLAY_3), me);
+            Talk(TEXT_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(TEXT_DEATH, me);
+            Talk(TEXT_DEATH);
             if (instance)
                 instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, DONE);
         }
@@ -178,7 +171,7 @@ public:
 
             if (!bPreDone && who->GetTypeId() == TYPEID_PLAYER && me->GetDistance(who) < 100.0f)
             {
-                DoScriptText(RAND(TEXT_PREACHING_1, TEXT_PREACHING_2, TEXT_PREACHING_3, TEXT_PREACHING_4, TEXT_PREACHING_5), me);
+                Talk(TEXT_PREACHING);
                 bPreDone = true;
             }
 
@@ -270,7 +263,7 @@ public:
 
             if (opfer)
             {
-                DoScriptText(RAND(TEXT_SACRIFICE_1_1, TEXT_SACRIFICE_1_2), me);
+                Talk(TEXT_SACRIFICE_1);
                 instance->SetData64(DATA_ADD_JEDOGA_OPFER, opfer);
             } else
                 bCanDown = true;
@@ -278,7 +271,7 @@ public:
 
         void Opfern()
         {
-            DoScriptText(RAND(TEXT_SACRIFICE_2_1, TEXT_SACRIFICE_2_2), me);
+            Talk(TEXT_SACRIFICE_2);
 
             me->InterruptNonMeleeSpells(false);
             DoCast(me, SPELL_GIFT_OF_THE_HERALD, false);
@@ -534,11 +527,11 @@ public:
     {
         npc_jedogas_aufseher_triggerAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            instance = creature->GetInstanceScript();
-            bRemoved = false;
-            bRemoved2 = false;
-            bCasted = false;
-            bCasted2 = false;
+            instance    = creature->GetInstanceScript();
+            bRemoved    = false;
+            bRemoved2   = false;
+            bCasted     = false;
+            bCasted2    = false;
         }
 
         InstanceScript* instance;

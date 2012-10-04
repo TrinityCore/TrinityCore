@@ -774,8 +774,8 @@ public:
                             for (uint8 i = 1; i < Phase; ++i)
                             {
                                 float sx, sy;
-                                sx = ShieldOrbLocations[0][0] + sin(ShieldOrbLocations[i][0]);
-                                sy = ShieldOrbLocations[0][1] + sin(ShieldOrbLocations[i][1]);
+                                sx = ShieldOrbLocations[0][0] + std::sin(ShieldOrbLocations[i][0]);
+                                sy = ShieldOrbLocations[0][1] + std::sin(ShieldOrbLocations[i][1]);
                                 me->SummonCreature(CREATURE_SHIELD_ORB, sx, sy, SHIELD_ORB_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
                             }
                             Timer[TIMER_SUMMON_SHILEDORB] = urand(30000, 60000); // 30-60seconds cooldown
@@ -1207,13 +1207,13 @@ public:
             {
                 if (bClockwise)
                 {
-                    y = my - r * sin(c);
-                    x = mx - r * cos(c);
+                    y = my - r * std::sin(c);
+                    x = mx - r * std::cos(c);
                 }
                 else
                 {
-                    y = my + r * sin(c);
-                    x = mx + r * cos(c);
+                    y = my + r * std::sin(c);
+                    x = mx + r * std::cos(c);
                 }
                 bPointReached = false;
                 uiCheckTimer = 1000;

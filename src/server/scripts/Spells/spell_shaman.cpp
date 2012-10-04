@@ -80,7 +80,7 @@ class spell_sha_astral_shift : public SpellScriptLoader
             {
                 // reduces all damage taken while stun, fear or silence
                 if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
-                    absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
+                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
             }
 
             void Register()
@@ -186,7 +186,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
                                 if (AuraEffect* dummy = owner->GetAuraEffect(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE, 0))
                                     effValue += dummy->GetAmount();
                             // Regenerate 6% of Total Mana Every 3 secs
-                            int32 effBasePoints0 = int32(CalculatePctN(unitTarget->GetMaxPower(POWER_MANA), effValue));
+                            int32 effBasePoints0 = int32(CalculatePct(unitTarget->GetMaxPower(POWER_MANA), effValue));
                             caster->CastCustomSpell(unitTarget, SHAMAN_SPELL_MANA_TIDE_TOTEM, &effBasePoints0, NULL, NULL, true, NULL, NULL, GetOriginalCaster()->GetGUID());
                         }
                     }
@@ -507,11 +507,11 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
 
                             // Restorative Totems
                             if (AuraEffect* dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, ICON_ID_RESTORATIVE_TOTEMS, 1))
-                                AddPctN(damage, dummy->GetAmount());
+                                AddPct(damage, dummy->GetAmount());
 
                             // Glyph of Healing Stream Totem
                             if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_GLYPH_OF_HEALING_STREAM_TOTEM, EFFECT_0))
-                                AddPctN(damage, aurEff->GetAmount());
+                                AddPct(damage, aurEff->GetAmount());
 
                             damage = int32(target->SpellHealingBonusTaken(owner, triggeringSpell, damage, HEAL));
                         }
@@ -598,7 +598,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
                     {
                         // Damage is increased by 25% if your off-hand weapon is enchanted with Flametongue.
                         if (caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x200000, 0, 0))
-                            AddPctN(hitDamage, damage);
+                            AddPct(hitDamage, damage);
                         SetHitDamage(hitDamage);
                     }
                 }

@@ -146,8 +146,8 @@ bool FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float 
                 break;
         }
 
-        temp_x = x + distance * cos(angle);
-        temp_y = y + distance * sin(angle);
+        temp_x = x + distance * std::cos(angle);
+        temp_y = y + distance * std::sin(angle);
         Trinity::NormalizeMapCoord(temp_x);
         Trinity::NormalizeMapCoord(temp_y);
         if (owner.IsWithinLOS(temp_x, temp_y, z))
@@ -172,8 +172,8 @@ bool FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float 
 
             if (!(new_z - z) || distance / fabs(new_z - z) > 1.0f)
             {
-                float new_z_left = _map->GetHeight(owner.GetPhaseMask(), temp_x + 1.0f*cos(angle+static_cast<float>(M_PI/2)),temp_y + 1.0f*sin(angle+static_cast<float>(M_PI/2)),z,true);
-                float new_z_right = _map->GetHeight(owner.GetPhaseMask(), temp_x + 1.0f*cos(angle-static_cast<float>(M_PI/2)),temp_y + 1.0f*sin(angle-static_cast<float>(M_PI/2)),z,true);
+                float new_z_left = _map->GetHeight(owner.GetPhaseMask(), temp_x + 1.0f* std::cos(angle+static_cast<float>(M_PI/2)),temp_y + 1.0f* std::sin(angle+static_cast<float>(M_PI/2)),z,true);
+                float new_z_right = _map->GetHeight(owner.GetPhaseMask(), temp_x + 1.0f* std::cos(angle-static_cast<float>(M_PI/2)),temp_y + 1.0f* std::sin(angle-static_cast<float>(M_PI/2)),z,true);
                 if (fabs(new_z_left - new_z) < 1.2f && fabs(new_z_right - new_z) < 1.2f)
                 {
                     x = temp_x;
