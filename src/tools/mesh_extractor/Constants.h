@@ -47,6 +47,8 @@ public:
     static const float Origin[];
     static const float PI;
     static const float MaxStandableHeight;
+    static bool ToWoWCoords;
+    static const char* VMAPMagic;
 };
 
 #endif

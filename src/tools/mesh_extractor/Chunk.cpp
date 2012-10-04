@@ -10,7 +10,7 @@ int32 Chunk::FindSubChunkOffset(std::string name)
 
     FILE* stream = GetStream();
     uint32 matched = 0;
-    while (ftell(stream) < Utils::Size(stream))
+    while (uint32(ftell(stream)) < Utils::Size(stream))
     {
         char b;
         fread(&b, sizeof(char), 1, stream);

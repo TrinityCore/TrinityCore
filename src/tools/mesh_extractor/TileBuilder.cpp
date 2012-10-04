@@ -88,9 +88,9 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
         char buff[100];
         sprintf(buff, "mmaps/%s_%02u%02u.obj", World.c_str(), Y, X);
         FILE* debug = fopen(buff, "wb");
-        for (int i = 0; i < _Geometry->Vertices.size(); ++i)
+        for (uint32 i = 0; i < _Geometry->Vertices.size(); ++i)
             fprintf(debug, "v %f %f %f\n", _Geometry->Vertices[i].x, _Geometry->Vertices[i].y, _Geometry->Vertices[i].z);
-        for (int i = 0; i < _Geometry->Triangles.size(); ++i)
+        for (uint32 i = 0; i < _Geometry->Triangles.size(); ++i)
             fprintf(debug, "f %i %i %i\n", _Geometry->Triangles[i].V0 + 1, _Geometry->Triangles[i].V1 + 1, _Geometry->Triangles[i].V2 + 1);
         fclose(debug);
     }

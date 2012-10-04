@@ -37,9 +37,10 @@ public:
         return Values[index];
     }
 
-    float GetFloat(int index)
+    template <typename T>
+    T GetValue(int index)
     {
-        return *(float*)(&Values[index]);
+        return *(T*)(&Values[index]);
     }
 
     std::string GetString(int index)
