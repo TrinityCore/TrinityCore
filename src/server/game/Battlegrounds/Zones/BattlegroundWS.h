@@ -146,13 +146,12 @@ enum BG_WS_Objectives
 
 #define WS_EVENT_START_BATTLE   8563
 
-class BattlegroundWGScore : public BattlegroundScore
+struct BattlegroundWGScore : public BattlegroundScore
 {
-    public:
-        BattlegroundWGScore() : FlagCaptures(0), FlagReturns(0) {};
-        virtual ~BattlegroundWGScore() {};
-        uint32 FlagCaptures;
-        uint32 FlagReturns;
+    BattlegroundWGScore() : FlagCaptures(0), FlagReturns(0) { }
+    ~BattlegroundWGScore() { }
+    uint32 FlagCaptures;
+    uint32 FlagReturns;
 };
 
 class BattlegroundWS : public Battleground
@@ -163,9 +162,9 @@ class BattlegroundWS : public Battleground
         ~BattlegroundWS();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void AddPlayer(Player* player);
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
 
         /* BG Flags */
         uint64 GetFlagPickerGUID(int32 team) const
@@ -183,28 +182,32 @@ class BattlegroundWS : public Battleground
         uint8 GetFlagState(uint32 team)             { return _flagState[GetTeamIndexByTeamId(team)]; }
 
         /* Battleground Events */
-        virtual void EventPlayerDroppedFlag(Player* Source);
-        virtual void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
-        virtual void EventPlayerCapturedFlag(Player* Source);
+        void EventPlayerDroppedFlag(Player* Source);
+        void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
+        void EventPlayerCapturedFlag(Player* Source);
 
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         bool SetupBattleground();
-        virtual void Reset();
+        void Reset();
         void EndBattleground(uint32 winner);
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         void UpdateFlagState(uint32 team, uint32 value);
         void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }
         void UpdateTeamScore(uint32 team);
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-        void SetDroppedFlagGUID(uint64 guid, uint32 TeamID)  { m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid;}
+        void SetDroppedFlagGUID(uint64 guid, int32 team = -1)
+        {
+            if (team == TEAM_ALLIANCE || team == TEAM_HORDE)
+                m_DroppedFlagGUID[team] = guid;
+        }
+
         uint64 GetDroppedFlagGUID(uint32 TeamID)             { return m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)];}
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPacket& data);
 
         /* Scorekeeping */
-        uint32 GetTeamScore(uint32 TeamID) const            { return m_TeamScores[GetTeamIndexByTeamId(TeamID)]; }
         void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }
         void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
         void RemovePoint(uint32 TeamID, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
@@ -224,7 +227,6 @@ class BattlegroundWS : public Battleground
         uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
         uint8 _minutesElapsed;
 
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff);
 };
 #endif
-

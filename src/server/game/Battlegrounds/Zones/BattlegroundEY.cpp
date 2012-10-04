@@ -16,12 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BattlegroundEY.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "BattlegroundMgr.h"
-#include "Battleground.h"
-#include "BattlegroundEY.h"
 #include "Creature.h"
 #include "Language.h"
 #include "Object.h"
@@ -136,7 +135,7 @@ void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
         RewardHonorToTeam(GetBonusHonorFromKill(1), Team);
         m_HonorScoreTics[team_index] -= m_HonorTics;
     }
-    UpdateTeamScore(Team);
+    UpdateTeamScore(team_index);
 }
 
 void BattlegroundEY::CheckSomeoneJoinedPoint()
@@ -281,10 +280,13 @@ void BattlegroundEY::UpdateTeamScore(uint32 Team)
     if (score >= BG_EY_MAX_TEAM_SCORE)
     {
         score = BG_EY_MAX_TEAM_SCORE;
-        EndBattleground(Team);
+        if (Team == TEAM_ALLIANCE)
+            EndBattleground(ALLIANCE);
+        else
+            EndBattleground(HORDE);
     }
 
-    if (Team == ALLIANCE)
+    if (Team == TEAM_ALLIANCE)
         UpdateWorldState(EY_ALLIANCE_RESOURCES, score);
     else
         UpdateWorldState(EY_HORDE_RESOURCES, score);
@@ -292,12 +294,12 @@ void BattlegroundEY::UpdateTeamScore(uint32 Team)
 
 void BattlegroundEY::EndBattleground(uint32 winner)
 {
-    //win reward
+    // Win reward
     if (winner == ALLIANCE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     if (winner == HORDE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
-    //complete map reward
+    // Complete map reward
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
 
@@ -864,8 +866,8 @@ void BattlegroundEY::FillInitialWorldStates(WorldPacket& data)
 
     data << uint32(0xad2) << uint32(0x1);
     data << uint32(0xad1) << uint32(0x1);
-    data << uint32(0xabe) << uint32(GetTeamScore(HORDE));
-    data << uint32(0xabd) << uint32(GetTeamScore(ALLIANCE));
+    data << uint32(0xabe) << uint32(GetTeamScore(TEAM_HORDE));
+    data << uint32(0xabd) << uint32(GetTeamScore(TEAM_ALLIANCE));
     data << uint32(0xa05) << uint32(0x8e);
     data << uint32(0xaa0) << uint32(0x0);
     data << uint32(0xa9f) << uint32(0x0);

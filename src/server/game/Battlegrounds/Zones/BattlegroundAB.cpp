@@ -16,12 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BattlegroundAB.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "BattlegroundMgr.h"
-#include "Battleground.h"
-#include "BattlegroundAB.h"
 #include "Creature.h"
 #include "Language.h"
 #include "Object.h"
@@ -622,12 +621,12 @@ void BattlegroundAB::Reset()
 
 void BattlegroundAB::EndBattleground(uint32 winner)
 {
-    //win reward
+    // Win reward
     if (winner == ALLIANCE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     if (winner == HORDE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
-    //complete map_end rewards (even if no team wins)
+    // Complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
 
