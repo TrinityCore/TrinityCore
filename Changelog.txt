@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[57] --> Removes Master's Call stun immunity.
 [56] --> [ICC] Fix Lich King.
 [55] --> Fix Earthbind totem effect and Wandering plague.
 [54] --> [Spells/Hunter] Fix Misdirection.
