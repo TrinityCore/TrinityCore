@@ -19,6 +19,8 @@ const float Constants::UnitSize = Constants::ChunkSize / 8.0f;
 const float Constants::Origin[] = { -Constants::MaxXY, 0.0f, -Constants::MaxXY };
 const float Constants::PI = 3.1415926f;
 const float Constants::MaxStandableHeight = 1.5f;
+const char* Constants::VMAPMagic =  "VMAP042";
+bool Constants::ToWoWCoords = false;
 
 void Utils::CreateDir( const std::string& Path )
 {
@@ -219,6 +221,21 @@ void Utils::SaveToDisk( FILE* stream, std::string path )
     delete data;
 }
 
+Vector3 Utils::ToWoWCoords( Vector3 vec )
+{
+    return Vector3(vec.x, -vec.z, vec.y);
+}
+
+std::string Utils::GetExtension( std::string path )
+{
+    std::string::size_type idx = path.rfind('.');
+    std::string extension = "";
+
+    if(idx != std::string::npos)
+        extension = path.substr(idx+1);
+    return extension;
+}
+
 void MapChunkHeader::Read(FILE* stream)
 {
     fread(&Flags, sizeof(uint32), 1, stream);
@@ -308,16 +325,6 @@ void ModelHeader::Read(FILE* stream)
     fread(&OffsetTransLookup, sizeof(uint32), 1, stream);
     fread(&CountUvAnimLookup, sizeof(uint32), 1, stream);
     fread(&OffsetUvAnimLookup, sizeof(uint32), 1, stream);
-    fread(&CountColors, sizeof(uint32), 1, stream);
-    fread(&OffsetColors, sizeof(uint32), 1, stream);
-    fread(&CountTextures, sizeof(uint32), 1, stream);
-    fread(&OffsetTextures, sizeof(uint32), 1, stream);
-    fread(&CountTransparency, sizeof(uint32), 1, stream);
-    fread(&OffsetTransparency, sizeof(uint32), 1, stream);
-    fread(&CountUvAnimation, sizeof(uint32), 1, stream);
-    fread(&OffsetUvAnimation, sizeof(uint32), 1, stream);
-    fread(&CountTexReplace, sizeof(uint32), 1, stream);
-    fread(&OffsetTexReplace, sizeof(uint32), 1, stream);
     VertexBox[0] = Vector3::Read(stream);
     VertexBox[1] = Vector3::Read(stream);
     fread(&VertexRadius, sizeof(float), 1, stream);
@@ -467,4 +474,13 @@ H2OInformation H2OInformation::Read(FILE* stream)
     fread(&ret.OffsetMask2, sizeof(uint32), 1, stream);
     fread(&ret.OffsetHeightmap, sizeof(uint32), 1, stream);
     return ret;
+}
+
+char* Utils::GetPlainName(const char* FileName)
+{
+    char* temp;
+
+    if((temp = (char*)strrchr(FileName, '\\')) != NULL)
+        FileName = temp + 1;
+    return (char*)FileName;
 }
