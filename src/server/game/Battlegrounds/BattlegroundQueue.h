@@ -89,7 +89,7 @@ class BattlegroundQueue
         QueuedPlayersMap m_QueuedPlayers;
 
         //we need constant add to begin and constant remove / add from the end, therefore deque suits our problem well
-        typedef std::list<GroupQueueInfo*> GroupsQueueType;
+        typedef std::deque<GroupQueueInfo*> GroupsQueueType;
 
         /*
         This two dimensional array is used to store All queued groups
@@ -119,7 +119,7 @@ class BattlegroundQueue
 
         //one selection pool for horde, other one for alliance
         SelectionPool m_SelectionPools[BG_TEAMS_COUNT];
-
+        uint32 GetPlayersInQueue(TeamId id);
     private:
 
         bool InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side);
@@ -140,9 +140,8 @@ class BGQueueInviteEvent : public BasicEvent
     public:
         BGQueueInviteEvent(uint64 pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
           m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime)
-          {
-          };
-        virtual ~BGQueueInviteEvent() {};
+          { }
+        virtual ~BGQueueInviteEvent() { }
 
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);

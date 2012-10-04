@@ -35,8 +35,6 @@
 #include "BattlegroundDS.h"
 #include "BattlegroundRV.h"
 #include "BattlegroundIC.h"
-#include "BattlegroundRB.h"
-#include "BattlegroundAA.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -572,10 +570,8 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
             bg = new BattlegroundIC(*(BattlegroundIC*)bg_template);
             break;
         case BATTLEGROUND_RB:
-            bg = new BattlegroundRB(*(BattlegroundRB*)bg_template);
-            break;
         case BATTLEGROUND_AA:
-            bg = new BattlegroundAA(*(BattlegroundAA*)bg_template);
+            bg = new Battleground(*bg_template);
             break;
         default:
             return NULL;
@@ -587,7 +583,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
     bg->Reset();                     // reset the new bg (set status to status_wait_queue from status_none)
     bg->SetStatus(STATUS_WAIT_JOIN); // start the joining of the bg
     bg->SetArenaType(arenaType);
-    bg->SetTypeID(isRandom ? BATTLEGROUND_RB : bgTypeId);
+    bg->SetTypeID(originalBgTypeId);
     bg->SetRandomTypeID(bgTypeId);
     bg->SetRated(isRated);
     bg->SetRandom(isRandom);
@@ -635,11 +631,12 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
         case BATTLEGROUND_IC:
             bg = new BattlegroundIC;
             break;
-        case BATTLEGROUND_RB:
-            bg = new BattlegroundRB;
-            break;
         case BATTLEGROUND_AA:
-            bg = new BattlegroundAA;
+            bg = new Battleground;
+            break;
+        case BATTLEGROUND_RB:
+            bg = new Battleground;
+            bg->SetRandom(true);
             break;
         default:
             return false;
