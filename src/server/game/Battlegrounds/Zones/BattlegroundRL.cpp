@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundRL.h"
 #include "Language.h"
 #include "Object.h"
@@ -62,11 +61,7 @@ void BattlegroundRL::StartingEventOpenDoors()
 void BattlegroundRL::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundRLScore* sc = new BattlegroundRLScore;
-
-    PlayerScores[player->GetGUID()] = sc;
-
+    PlayerScores[player->GetGUID()] = new BattlegroundScore;
     UpdateArenaWorldState();
 }
 
@@ -102,27 +97,20 @@ bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundRL::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
 {
-    // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    //uint32 SpellId = 0;
-    //uint64 buff_guid = 0;
-    switch (Trigger)
+    switch (trigger)
     {
         case 4696:                                          // buff trigger?
         case 4697:                                          // buff trigger?
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
-
-    //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid, Source);
 }
 
 void BattlegroundRL::FillInitialWorldStates(WorldPacket &data)
@@ -152,13 +140,3 @@ bool BattlegroundRL::SetupBattleground()
 
     return true;
 }
-
-/*
-Packet S->C, id 600, SMSG_INIT_WORLD_STATES (706), len 86
-0000: 3C 02 00 00 80 0F 00 00 00 00 00 00 09 00 BA 0B | <...............
-0010: 00 00 01 00 00 00 B9 0B 00 00 02 00 00 00 B8 0B | ................
-0020: 00 00 00 00 00 00 D8 08 00 00 00 00 00 00 D7 08 | ................
-0030: 00 00 00 00 00 00 D6 08 00 00 00 00 00 00 D5 08 | ................
-0040: 00 00 00 00 00 00 D3 08 00 00 00 00 00 00 D4 08 | ................
-0050: 00 00 00 00 00 00                               | ......
-*/

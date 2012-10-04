@@ -1,8 +1,8 @@
 ACKNOWLEDGEMENTS
 
-ACE and TAO have been deeply influenced and improved by the following
-members of my research group at Washington University in St. Louis, the
-University of California at Irvine, and Vanderbilt University in Nashville.
+ACE, TAO, CIAO, and DAnCE have been deeply influenced and improved by the
+following members of my research group at Washington University in St. Louis,
+the University of California at Irvine, and Vanderbilt University in Nashville.
 
 Everett Anderson <eea1 at cec dot wustl dot edu>
 Alexander Babu Arulanthu <alex at cs dot wustl dot edu>
@@ -75,7 +75,7 @@ Torben Worm <tworm at cs dot wustl dot edu>
 Ming Xiong <xiongm at isis dot vanderbilt dot edu>
 
 I would also like to thank all the following people who have also
-contributed to ACE and TAO over the years:
+contributed to ACE, TAO, CIAO, and DAnCE over the years:
 
 Paul Stephenson <pstephenson at objectspace dot com>
 Olaf Kruger <okruger at cssc-melb dot tansu dot com dot au>
@@ -411,7 +411,7 @@ Andrew Harbick <aharbick at opentext dot com>
 Pavel Motuzenko <p_motuzenko at hotmail dot com>
 Ross J. Lillie <lillie at rsch dot comm dot mot dot com>
 Sam Hauer <shauer at nmo dot gtegsc dot com>
-Frank J. Hodum <fhodum at dctd dot saic dot com>
+Frank J. Hodum <FRANK.J.HODUM at saic dot com>
 David Miron <dxm at crapper dot dsto dot defence dot gov dot au>
 Anton van Straaten <anton at appsolutions dot com>
 Joe Covalesky <joe at nowsol dot com>
@@ -2339,6 +2339,36 @@ Matthew Waller <matthewrwaller at gmail dot com>
 Elez <elezsh at gmail dot com>
 Ranjit Hande <hande at avaya dot com>
 Van Vuong <vanvuong1 at us dot ibm dot com>
+Mark <markg85 at gmail dot com>
+Wendsomde Yameogo <wendsomde at yameogo dot com>
+Shi John <John dot Shi at acxiom dot com>
+Helmut BÃ¶ing
+Andrew Hill <lists at thefrog dot net>
+Henk Jan Priester <hjpriester at gmail dot com>
+Glenn Zickert <gzickert at comcast dot net>
+Chris Galli <christian dot galli at gmail dot com>
+Laura Autón García <darklulu+ace at gmail dot com>
+Jonathan Saxton <jsaxton at appsecinc dot com>
+Remko Duppen <remko dot duppen at syntel dot nl>
+Paul Fitzpatrick <paul at robotrebuilt dot com>
+Chad Beaulac <chad dot beaulac at objectivesolutions dot com>
+Jochen Meier <gesammeltimusenet2009 at arcor dot de>
+Thomas Pauli <thomas dot pauli at tu-dortmund dot de>
+Qiao Zhiqiang <qiaozhiqiang at leadcoretech dot com>
+JaeSung Lee <berise at gmail dot com>
+Chong Wuk Pak <chong dot pak at lmco dot com>
+Michael Frommberger <michael dot frommberger at gmx dot net>
+Andrey Karpov <karpov at viva64 dot com>
+Dmytro Ovdiienko <dmitriy dot ovdienko at gmail.com>
+Andrea Sormanni <andrea dot sormanni at gmail dot com>
+Thomas Stegemann <Thomas dot Stegemann at materna dot de>
+David Simmonds <david dot simmonds at iggroup dot com>
+Andreas Dröscher <ace at anticat dot ch>
+Markus Manck <Markus dot Manck at Philotech dot de>
+Deux deVille <dev2 at weitling dot net>
+Mohsin Zaidi <mohsinrzaidi at gmail dot com>
+Milind Pangarkar <Milind dot Pangarkar at amdocs dot com>
+Ali Akbar Zarezadeh <akzare at cs dot uni-potsdam dot de>
 
 I would particularly like to thank Paul Stephenson, who worked with me
 at Ericsson in the early 1990's.  Paul devised the recursive Makefile

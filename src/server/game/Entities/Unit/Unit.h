@@ -262,6 +262,8 @@ enum UnitRename
 #define MAX_SPELL_POSSESS       8
 #define MAX_SPELL_CONTROL_BAR   10
 
+#define MAX_AGGRO_RESET_TIME 10 // in seconds
+
 enum Swing
 {
     NOSWING                    = 0,
@@ -1333,8 +1335,8 @@ class Unit : public WorldObject
         bool HealthAbovePct(int32 pct) const { return GetHealth() > CountPctFromMaxHealth(pct); }
         bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
         float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
-        uint32 CountPctFromMaxHealth(int32 pct) const { return CalculatePctN(GetMaxHealth(), pct); }
-        uint32 CountPctFromCurHealth(int32 pct) const { return CalculatePctN(GetHealth(), pct); }
+        uint32 CountPctFromMaxHealth(int32 pct) const { return CalculatePct(GetMaxHealth(), pct); }
+        uint32 CountPctFromCurHealth(int32 pct) const { return CalculatePct(GetHealth(), pct); }
 
         void SetHealth(uint32 val);
         void SetMaxHealth(uint32 val);
@@ -2210,37 +2212,20 @@ class Unit : public WorldObject
 
         void SetTarget(uint64 guid)
         {
-            if (!_targetLocked)
+            if (!_focusSpell)
                 SetUInt64Value(UNIT_FIELD_TARGET, guid);
         }
 
-        void FocusTarget(Spell const* focusSpell, uint64 target)
-        {
-            // already focused
-            if (_focusSpell)
-                return;
-
-            _focusSpell = focusSpell;
-            _targetLocked = true;
-            SetUInt64Value(UNIT_FIELD_TARGET, target);
-        }
-
-        void ReleaseFocus(Spell const* focusSpell)
-        {
-            // focused to something else
-            if (focusSpell != _focusSpell)
-                return;
-
-            _focusSpell = NULL;
-            _targetLocked = false;
-            if (Unit* victim = getVictim())
-                SetUInt64Value(UNIT_FIELD_TARGET, victim->GetGUID());
-            else
-                SetUInt64Value(UNIT_FIELD_TARGET, 0);
-        }
+        // Handling caster facing during spellcast
+        void FocusTarget(Spell const* focusSpell, uint64 target);
+        void ReleaseFocus(Spell const* focusSpell);
 
         // Movement info
         Movement::MoveSpline * movespline;
+
+        // Part of Evade mechanics
+        time_t GetLastDamagedTime() const { return _lastDamagedTime; }
+        void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
     protected:
         explicit Unit (bool isWorldObject);
@@ -2361,9 +2346,10 @@ class Unit : public WorldObject
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
 
-        Spell const* _focusSpell;
-        bool _targetLocked; // locks the target during spell cast for proper facing
+        Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
+
+        time_t _lastDamagedTime; // Part of Evade mechanics
 };
 
 namespace Trinity

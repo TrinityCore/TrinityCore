@@ -525,10 +525,10 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.bytes2  = fields[4].GetUInt32();
         creatureAddon.emote   = fields[5].GetUInt32();
 
-        Tokens tokens(fields[6].GetString(), ' ');
+        Tokenizer tokens(fields[6].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
-        for (Tokens::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
             if (!AdditionalSpellInfo)
@@ -907,10 +907,10 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.bytes2  = fields[4].GetUInt32();
         creatureAddon.emote   = fields[5].GetUInt32();
 
-        Tokens tokens(fields[6].GetString(), ' ');
+        Tokenizer tokens(fields[6].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
-        for (Tokens::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
             if (!AdditionalSpellInfo)
@@ -2001,8 +2001,8 @@ void ObjectMgr::LoadItemTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0      1       2       3     4        5        6       7          8         9        10        11           12
-    QueryResult result = WorldDatabase.Query("SELECT entry, class, subclass, unk0, name, displayid, Quality, Flags, FlagsExtra, BuyCount, BuyPrice, SellPrice, InventoryType, "
+    //                                                 0      1       2               3              4        5        6       7          8         9        10        11           12
+    QueryResult result = WorldDatabase.Query("SELECT entry, class, subclass, SoundOverrideSubclass, name, displayid, Quality, Flags, FlagsExtra, BuyCount, BuyPrice, SellPrice, InventoryType, "
     //                                              13              14           15          16             17               18                19              20
                                              "AllowableClass, AllowableRace, ItemLevel, RequiredLevel, RequiredSkill, RequiredSkillRank, requiredspell, requiredhonorrank, "
     //                                              21                      22                       23               24        25          26             27           28
@@ -2055,7 +2055,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.ItemId                    = entry;
         itemTemplate.Class                     = uint32(fields[1].GetUInt8());
         itemTemplate.SubClass                  = uint32(fields[2].GetUInt8());
-        itemTemplate.Unk0                      = fields[3].GetInt32();
+        itemTemplate.SoundOverrideSubclass     = int32(fields[3].GetInt8());
         itemTemplate.Name1                     = fields[4].GetString();
         itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
         itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
@@ -2171,11 +2171,11 @@ void ObjectMgr::LoadItemTemplates()
                     itemTemplate.Class = dbcitem->Class;
             }
 
-            if (itemTemplate.Unk0 != dbcitem->Unk0)
+            if (itemTemplate.SoundOverrideSubclass != dbcitem->SoundOverrideSubclass)
             {
-                sLog->outError(LOG_FILTER_SQL, "Item (Entry: %u) does not have a correct Unk0 (%i), must be %i .", entry, itemTemplate.Unk0, dbcitem->Unk0);
+                sLog->outError(LOG_FILTER_SQL, "Item (Entry: %u) does not have a correct SoundOverrideSubclass (%i), must be %i .", entry, itemTemplate.SoundOverrideSubclass, dbcitem->SoundOverrideSubclass);
                 if (enforceDBCAttributes)
-                    itemTemplate.Unk0 = dbcitem->Unk0;
+                    itemTemplate.SoundOverrideSubclass = dbcitem->SoundOverrideSubclass;
             }
             if (itemTemplate.Material != dbcitem->Material)
             {
@@ -8603,6 +8603,41 @@ void ObjectMgr::LoadFactionChangeReputations()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change reputation pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadFactionChangeTitles()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 faction change title pairs. DB table `player_factionchange_title` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 alliance = fields[0].GetUInt32();
+        uint32 horde = fields[1].GetUInt32();
+
+        if (!sCharTitlesStore.LookupEntry(alliance))
+            sLog->outError(LOG_FILTER_SQL, "Title %u referenced in `player_factionchange_title` does not exist, pair skipped!", alliance);
+        else if (!sCharTitlesStore.LookupEntry(horde))
+            sLog->outError(LOG_FILTER_SQL, "Title %u referenced in `player_factionchange_title` does not exist, pair skipped!", horde);
+        else
+            FactionChange_Titles[alliance] = horde;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)

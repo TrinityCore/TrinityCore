@@ -4,7 +4,7 @@
 /**
  *  @file    TP_Reactor.h
  *
- *  $Id: TP_Reactor.h 82723 2008-09-16 09:35:44Z johnnyw $
+ *  $Id: TP_Reactor.h 94454 2011-09-08 17:36:56Z johnnyw $
  *
  *  The ACE_TP_Reactor (aka, Thread Pool Reactor) uses the
  *  Leader/Followers pattern to demultiplex events among a pool of
@@ -131,7 +131,7 @@ private:
 
   /// Flag that indicate whether the thread that created this object
   /// owns the token or not. A value of false indicates that this class
-  /// hasnt got the token (and hence the thread) and a value of true
+  /// hasn't got the token (and hence the thread) and a value of true
   /// vice-versa.
   bool owner_;
 

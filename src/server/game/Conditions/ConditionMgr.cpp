@@ -83,7 +83,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_ACHIEVEMENT:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = player->GetAchievementMgr().HasAchieved(ConditionValue1);
+                condMeets = player->HasAchieved(ConditionValue1);
             break;
         }
         case CONDITION_TEAM:
@@ -223,6 +223,9 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                         case RELATION_PASSENGER_OF:
                             condMeets = unit->IsOnVehicle(toUnit);
                             break;
+                        case RELATION_CREATED_BY:
+                            condMeets = unit->GetCreatorGUID() == toUnit->GetGUID();
+                            break;
                     }
                 }
             }
@@ -277,6 +280,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         {
             if (Player* player = object->ToPlayer())
                 condMeets = player->HasTitle(ConditionValue1);
+            break;
+        }
+        case CONDITION_SPAWNMASK:
+        {
+            condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
             break;
         }
         default:
@@ -429,6 +437,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             break;
         case CONDITION_TITLE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_SPAWNMASK:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -1842,9 +1853,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             break;
         }
-        case CONDITION_UNUSED_19:
-            sLog->outError(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
-            return false;
+        case CONDITION_SPAWNMASK:
+        {
+            if (cond->ConditionValue1 > SPAWNMASK_RAID_ALL)
+            {
+                sLog->outError(LOG_FILTER_SQL, "SpawnMask condition has non existing SpawnMask in value1 (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
         case CONDITION_UNUSED_20:
             sLog->outError(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_20 in `conditions` table - ignoring");
             return false;

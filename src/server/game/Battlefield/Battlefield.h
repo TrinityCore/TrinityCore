@@ -211,9 +211,6 @@ class Battlefield : public ZoneScript
         /// Call this to init the Battlefield
         virtual bool SetupBattlefield() { return true; }
 
-        /// Generate packet which contain all worldstatedata of area
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
-
         /// Update data of a worldstate to all players present in zone
         void SendUpdateWorldState(uint32 field, uint32 value);
 
@@ -330,7 +327,8 @@ class Battlefield : public ZoneScript
         virtual void DoCompleteOrIncrementAchievement(uint32 /*achievement*/, Player* /*player*/, uint8 /*incrementNumber = 1*/) {};
 
         /// Send all worldstate data to all player in zone.
-        virtual void SendInitWorldStatesToAll() {};
+        virtual void SendInitWorldStatesToAll() = 0;
+        virtual void FillInitialWorldStates(WorldPacket& /*data*/) = 0;
 
         /// Return if we can use mount in battlefield
         bool CanFlyIn() { return !m_isActive; }

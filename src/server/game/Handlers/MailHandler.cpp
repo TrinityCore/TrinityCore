@@ -246,7 +246,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
     player->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
     player->ModifyMoney(-int32(reqmoney));
-    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
+    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
 
     bool needItemDelay = false;
 
@@ -500,6 +500,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
         player->RemoveMItem(it->GetGUIDLow());
 
         uint32 count = it->GetCount();                      // save counts before store and possible merge with deleting
+        it->SetState(ITEM_UNCHANGED);                       // need to set this state, otherwise item cannot be removed later, if neccessary
         player->MoveItemToInventory(dest, it, true);
 
         player->SaveInventoryAndGoldToDB(trans);

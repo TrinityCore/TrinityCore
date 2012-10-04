@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_signal.h
  *
- *  $Id: OS_NS_signal.h 87097 2009-10-14 14:42:24Z olli $
+ *  $Id: OS_NS_signal.h 93481 2011-03-04 14:59:09Z olli $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -33,10 +33,10 @@
 #endif
 #define ACE_EXPORT_MACRO ACE_Export
 
-#if defined (__Lynx__)
-// LynxOS defines pthread_sigmask() in pthread.h
+#if defined (__Lynx__) || defined (__OpenBSD__)
+// LynxOS and OpenBSD define pthread_sigmask() in pthread.h
 # include "ace/os_include/os_pthread.h"
-#endif /* __Lynx__ */
+#endif /* __Lynx__ || OpenBSD */
 
 /*
  * We inline and undef some functions that may be implemented

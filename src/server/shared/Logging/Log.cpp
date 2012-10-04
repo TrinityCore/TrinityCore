@@ -88,8 +88,8 @@ void Log::CreateAppenderFromConfig(const char* name)
     std::string options = "Appender.";
     options.append(name);
     options = ConfigMgr::GetStringDefault(options.c_str(), "");
-    Tokens tokens(options, ',');
-    Tokens::iterator iter = tokens.begin();
+    Tokenizer tokens(options, ',');
+    Tokenizer::const_iterator iter = tokens.begin();
 
     if (tokens.size() < 2)
     {
@@ -181,8 +181,8 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
     }
 
-    Tokens tokens(options, ',');
-    Tokens::iterator iter = tokens.begin();
+    Tokenizer tokens(options, ',');
+    Tokenizer::const_iterator iter = tokens.begin();
 
     if (tokens.size() != 3)
     {
@@ -281,9 +281,12 @@ void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list ar
 
 void Log::write(LogMessage* msg)
 {
-    msg->text.append("\n");
-    Logger* logger = GetLoggerByType(msg->type);
-    worker->enqueue(new LogOperation(logger, msg));
+    if (worker)
+    {
+        msg->text.append("\n");
+        Logger* logger = GetLoggerByType(msg->type);
+        worker->enqueue(new LogOperation(logger, msg));
+    }
 }
 
 std::string Log::GetTimestampStr()
@@ -481,6 +484,7 @@ void Log::Close()
 void Log::LoadFromConfig()
 {
     Close();
+    worker = new LogWorker();
     AppenderId = 0;
     m_logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
     if (!m_logsDir.empty())
@@ -488,5 +492,4 @@ void Log::LoadFromConfig()
             m_logsDir.push_back('/');
     ReadAppendersFromConfig();
     ReadLoggersFromConfig();
-    worker = new LogWorker();
 }

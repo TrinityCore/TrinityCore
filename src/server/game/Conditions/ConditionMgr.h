@@ -49,7 +49,7 @@ enum ConditionTypes
     CONDITION_RACE                  = 16,                   // race             0              0                  true if player's race is equal to race
     CONDITION_ACHIEVEMENT           = 17,                   // achievement_id   0              0                  true if achievement is complete
     CONDITION_TITLE                 = 18,                   // title id         0              0                  true if player has title
-    CONDITION_UNUSED_19             = 19,                   //
+    CONDITION_SPAWNMASK             = 19,                   // spawnMask        0              0                  true if in spawnMask
     CONDITION_UNUSED_20             = 20,                   //
     CONDITION_UNUSED_21             = 21,                   //
     CONDITION_MAPID                 = 22,                   // map_id           0              0                  true if in map_id
@@ -144,6 +144,7 @@ enum RelationType
     RELATION_IN_RAID_OR_PARTY,
     RELATION_OWNED_BY,
     RELATION_PASSENGER_OF,
+    RELATION_CREATED_BY,
     RELATION_MAX
 };
 

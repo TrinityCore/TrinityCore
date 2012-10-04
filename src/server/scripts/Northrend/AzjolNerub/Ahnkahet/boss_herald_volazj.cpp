@@ -44,16 +44,13 @@ enum Creatures
     MOB_TWISTED_VISAGE                            = 30625
 };
 
-//not in db
+
 enum Yells
 {
-    SAY_AGGRO                                     = -1619030,
-    SAY_SLAY_1                                    = -1619031,
-    SAY_SLAY_2                                    = -1619032,
-    SAY_SLAY_3                                    = -1619033,
-    SAY_DEATH_1                                   = -1619034,
-    SAY_DEATH_2                                   = -1619035,
-    SAY_PHASE                                     = -1619036
+    SAY_AGGRO   = 0,
+    SAY_SLAY    = 1,
+    SAY_DEATH   = 2,
+    SAY_PHASE   = 3
 };
 
 enum Achievements
@@ -177,7 +174,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (instance)
             {
@@ -300,7 +297,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH_1, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_HERALD_VOLAZJ, DONE);
@@ -311,7 +308,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
     };
 

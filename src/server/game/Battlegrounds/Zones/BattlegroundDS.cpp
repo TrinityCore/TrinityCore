@@ -16,13 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundDS.h"
+#include "ObjectAccessor.h"
 #include "Language.h"
 #include "Player.h"
-#include "Object.h"
-#include "ObjectMgr.h"
 #include "WorldPacket.h"
+#include "GameObject.h"
 
 BattlegroundDS::BattlegroundDS()
 {
@@ -147,11 +146,7 @@ void BattlegroundDS::StartingEventOpenDoors()
 void BattlegroundDS::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundDSScore* score = new BattlegroundDSScore;
-
-    PlayerScores[player->GetGUID()] = score;
-
+    PlayerScores[player->GetGUID()] = new BattlegroundScore;
     UpdateArenaWorldState();
 }
 
@@ -181,18 +176,18 @@ void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    switch (Trigger)
+    switch (trigger)
     {
         case 5347:
         case 5348:
             // Remove effects of Demonic Circle Summon
-            if (Source->HasAura(48018))
-                Source->RemoveAurasDueToSpell(48018);
+            if (player->HasAura(48018))
+                player->RemoveAurasDueToSpell(48018);
 
             // Someone has get back into the pipes and the knockback has already been performed,
             // so we reset the knockback count for kicking the player again into the arena.
@@ -200,8 +195,7 @@ void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
                 setPipeKnockBackCount(0);
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
 }
