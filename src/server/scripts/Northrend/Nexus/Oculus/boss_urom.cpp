@@ -38,7 +38,8 @@ enum Spells
     SPELL_SUMMON_MENAGERIE_3                      = 50496,
     SPELL_TELEPORT                                = 51112, //Teleports to the center of Oculus
     SPELL_TIME_BOMB                               = 51121, //Deals arcane damage to a random player, and after 6 seconds, deals zone damage to nearby equal to the health missing of the target afflicted by the debuff.
-    SPELL_TIME_BOMB_2                             = 59376
+    SPELL_TIME_BOMB_2                             = 59376,
+    SPELL_EVOCATE                                 = 51602 // He always cast it on reset or after teleportation
 };
 
 enum Yells
@@ -103,10 +104,9 @@ public:
 
         void Reset()
         {
-            if (instance->GetBossState(DATA_VAROS_EVENT) != DONE)
-                DoCast(SPELL_ARCANE_SHIELD);
-
-            _Reset();
+            me->CastSpell(me, SPELL_EVOCATE);
+			
+			_Reset();
 
             if (instance->GetData(DATA_UROM_PLATAFORM) == 0)
             {
@@ -307,14 +307,17 @@ public:
                 case SPELL_SUMMON_MENAGERIE:
                     me->SetHomePosition(968.66f, 1042.53f, 527.32f, 0.077f);
                     LeaveCombat();
+                    me->CastSpell(me, SPELL_EVOCATE);
                     break;
                 case SPELL_SUMMON_MENAGERIE_2:
                     me->SetHomePosition(1164.02f, 1170.85f, 527.321f, 3.66f);
                     LeaveCombat();
+                    me->CastSpell(me, SPELL_EVOCATE);
                     break;
                 case SPELL_SUMMON_MENAGERIE_3:
                     me->SetHomePosition(1118.31f, 1080.377f, 508.361f, 4.25f);
                     LeaveCombat();
+                    me->CastSpell(me, SPELL_EVOCATE);
                     break;
                 case SPELL_TELEPORT:
                     //! Unconfirmed, previous below
