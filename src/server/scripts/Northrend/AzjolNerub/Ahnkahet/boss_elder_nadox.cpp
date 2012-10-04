@@ -25,7 +25,7 @@ enum Yells
     SAY_SLAY        = 1,
     SAY_DEATH       = 2,
     SAY_EGG_SAC     = 3,
-    EMOTE_HATCHES   = 4 
+    EMOTE_HATCHES   = 4
 };
 
 enum Spells
