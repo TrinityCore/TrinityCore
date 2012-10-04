@@ -71,6 +71,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 leviathanChestGUID;
             uint64 LeviathanGUID;
             uint64 LeviathanGateGUID;
+            uint64 LeviathanDoorGUID;   // used for the laser door behind leviathan only
             std::list<uint64> LeviathanDoorGUIDList;
 
             // Ignis
@@ -199,6 +200,7 @@ class instance_ulduar : public InstanceMapScript
                 leviathanChestGUID  = 0;
                 LeviathanGUID       = 0;
                 LeviathanGateGUID   = 0;
+                LeviathanDoorGUID   = 0;
 
                 // Ignis
                 IgnisGUID = 0;
@@ -500,6 +502,9 @@ class instance_ulduar : public InstanceMapScript
                     // Flame Leviathan
                     case NPC_LEVIATHAN:
                         LeviathanGUID = creature->GetGUID();
+                        // if no colossus is alive and we wiped
+                        if (GetData(DATA_COLOSSUS) == 2)
+                            creature->GetMotionMaster()->MovePoint(1, Center);
                         break;
 
                     // Ignis
@@ -729,10 +734,17 @@ class instance_ulduar : public InstanceMapScript
                     // Leviathan related
                     case GO_LEVIATHAN_DOOR:
                         AddDoor(gameObject, true);
+                        // we need only the laser behind leviathan
+                        if (gameObject->GetPositionX() > 200.f)
+                        {
+                            if ((GetBossState(BOSS_LEVIATHAN) == IN_PROGRESS) || (GetBossState(BOSS_LEVIATHAN) == NOT_STARTED && GetData(DATA_COLOSSUS) == 2))
+                                gameObject->SetGoState(GO_STATE_READY);
+                            LeviathanDoorGUID = gameObject->GetGUID();
+                        }
                         break;
                     case GO_LEVIATHAN_GATE:
                         LeviathanGateGUID = gameObject->GetGUID();
-                        if (GetBossState(BOSS_LEVIATHAN) == DONE)
+                        if ((GetBossState(BOSS_LEVIATHAN) == DONE) || (GetBossState(BOSS_LEVIATHAN) == NOT_STARTED && GetData(DATA_COLOSSUS) == 2))
                             gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                         break;
                     case GO_LEVIATHAN_CHEST_10:
@@ -982,6 +994,14 @@ class instance_ulduar : public InstanceMapScript
                         {
                             if (GameObject* gameObject = instance->GetGameObject(*i))
                                 gameObject->SetGoState(state == IN_PROGRESS ? GO_STATE_READY : GO_STATE_ACTIVE );
+                        }
+
+                        if (GameObject* gameObject = instance->GetGameObject(LeviathanDoorGUID))
+                        {
+                            if (state == NOT_STARTED || state == IN_PROGRESS)
+                                gameObject->SetGoState(GO_STATE_READY);
+                            else
+                                gameObject->SetGoState(GO_STATE_ACTIVE);
                         }
 
                         if (state == DONE)

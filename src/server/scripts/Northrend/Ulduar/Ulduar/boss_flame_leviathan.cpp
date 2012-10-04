@@ -214,11 +214,6 @@ Position const Misc[]=
     {266.699f, 66.632f, 409.81f, 0.0f}
 };
 
-Position const Center =
-{
-    354.8771f, -12.90240f, 409.803650f, 0.0f
-};
-
 Position const InfernoStart =
 {
     390.93f, -13.91f, 409.81f, 0.0f
@@ -280,7 +275,8 @@ class boss_flame_leviathan : public CreatureScript
                 Shutout = Unbroken = true;                                          // Achievs
                 checkUnbrokenOnReset = false;
                 DoCast(SPELL_INVIS_AND_STEALTH_DETECT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+                if (instance->GetData(DATA_COLOSSUS) != 2)
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             }           
 
             void Reset()
@@ -289,15 +285,16 @@ class boss_flame_leviathan : public CreatureScript
                 Shutdown = 0;
                 Pursued = false;
                 pursueTarget = 0;
-                me->SetReactState(REACT_DEFENSIVE);
+                me->SetReactState(REACT_AGGRESSIVE);
                 if (checkUnbrokenOnReset) // A fight was already performed, the raid got wiped before starting this Reset() call -> Unbroken can only be done on first try!
                     SetData(DATA_UNBROKEN, 0);
+                me->SetHomePosition(Center.GetPositionX(), Center.GetPositionY(), Center.GetPositionZ(), Center.GetOrientation());
             }
 
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                me->SetReactState(REACT_PASSIVE);   // Enforce react-type, unless PURSUE gehts active.
+                me->SetReactState(REACT_AGGRESSIVE);
                 events.ScheduleEvent(EVENT_PURSUE, 1);
                 events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
@@ -306,6 +303,14 @@ class boss_flame_leviathan : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON, 1*IN_MILLISECONDS);
                 PerformTowerCheck();
                 checkUnbrokenOnReset = true;
+            }
+
+            void EnterEvadeMode()
+            {
+                me->GetMotionMaster()->MovePoint(1, Center);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+                instance->SetBossState(BOSS_LEVIATHAN, FAIL);
+                BossAI::EnterEvadeMode();
             }
 
             bool HaveActiveTowers() const
@@ -667,7 +672,6 @@ class boss_flame_leviathan : public CreatureScript
                     case ACTION_MOVE_TO_CENTER_POSITION: // Triggered by 2 Collossus near door
                         if (!me->isDead())
                         {
-                            me->SetHomePosition(Center.GetPositionX(), Center.GetPositionY(), Center.GetPositionZ(), 0);
                             me->GetMotionMaster()->MoveCharge(Center.GetPositionX(), Center.GetPositionY(), Center.GetPositionZ()); //position center
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
