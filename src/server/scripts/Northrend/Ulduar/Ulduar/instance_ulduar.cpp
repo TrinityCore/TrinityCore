@@ -548,6 +548,11 @@ class instance_ulduar : public InstanceMapScript
                             creature->setActive(false);
                             creature->SetVisible(false);
                         }
+
+                        // make sure algalon is spawned after a crash, if he should be
+                        if (AlgalonCountdown < 62)
+                            if (Creature* algalon = creature->SummonCreature(NPC_ALGALON, 1632.668f, -302.7656f, 417.3211f, 1.530165f))
+                                algalon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         break;
 
                     // Kologarn
@@ -704,9 +709,8 @@ class instance_ulduar : public InstanceMapScript
                     // Algalon
                     case NPC_ALGALON:
                         AlgalonGUID = creature->GetGUID();
-                        creature->SetReactState(REACT_DEFENSIVE);   // Maybe move this to script
                         if (AlgalonCountdown < 62)
-                        { 
+                        {
                             creature->setFaction(7);
                             creature->setActive(true);
                         }
@@ -963,7 +967,7 @@ class instance_ulduar : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
-                
+
                 if (UlduarBosses(type) <= BOSS_ALGALON)
                     if (GetBossState(UlduarBosses(type)) != DONE)
                         InstanceScript::SetBossState(UlduarBosses(type), state);
