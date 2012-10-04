@@ -21,6 +21,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
+#include "CombatAI.h"
 #include "oculus.h"
 
 #define GOSSIP_ITEM_DRAKES         "So where do we go from here?"
