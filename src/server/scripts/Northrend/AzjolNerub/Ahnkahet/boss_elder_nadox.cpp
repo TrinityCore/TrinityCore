@@ -155,7 +155,7 @@ class boss_elder_nadox : public CreatureScript
                             break;
                         case EVENT_RAGE:
                             DoCast(H_SPELL_BROOD_RAGE);
-                            events.ScheduleEvent(EVENT_RAGE, urand(50*IN_MILLISECONDS0, 10*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_RAGE, urand(50*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                             break;
                         case EVENT_SUMMON_SWARMER:
                             DoCast(me, SPELL_SUMMON_SWARMERS);
