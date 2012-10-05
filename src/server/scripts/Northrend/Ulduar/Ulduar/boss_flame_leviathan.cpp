@@ -1483,7 +1483,7 @@ class npc_freyas_ward : public CreatureScript
                 me->setActive(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                summonTimer = 5*IN_MILLISECONDS;
+                summonTimer = 30*IN_MILLISECONDS;
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
@@ -1498,6 +1498,7 @@ class npc_freyas_ward : public CreatureScript
                             trigger->CastSpell(target, SPELL_FREYAS_WARD, true);
                         trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
                         summonTimer = 30*IN_MILLISECONDS;
+                        me->DespawnOrUnsummon(1000);
                     }
                     else
                         summonTimer = 5*IN_MILLISECONDS;
