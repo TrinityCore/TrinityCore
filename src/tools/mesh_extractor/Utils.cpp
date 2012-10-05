@@ -484,3 +484,21 @@ char* Utils::GetPlainName(const char* FileName)
         FileName = temp + 1;
     return (char*)FileName;
 }
+
+WMOGroupHeader WMOGroupHeader::Read( FILE* stream )
+{
+    WMOGroupHeader ret;
+    fread(&ret.OffsetGroupName, sizeof(uint32), 1, stream);
+    fread(&ret.OffsetDescriptiveName, sizeof(uint32), 1, stream);
+    fread(&ret.Flags, sizeof(uint32), 1, stream);
+    ret.BoundingBox[0] = Vector3::Read(stream);
+    ret.BoundingBox[1] = Vector3::Read(stream);
+    fread(&ret.OffsetPortals, sizeof(uint32), 1, stream);
+    fread(&ret.CountPortals, sizeof(uint32), 1, stream);
+    fread(&ret.CountBatches, sizeof(uint16), 4, stream);
+    fread(&ret.Fogs, sizeof(uint8), 4, stream);
+    fread(&ret.LiquidTypeRelated, sizeof(uint32), 1, stream);
+    fread(&ret.WmoId, sizeof(uint32), 1, stream);
+    
+    return ret;
+}

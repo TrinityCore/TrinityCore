@@ -289,6 +289,25 @@ public:
     static H2OInformation Read(FILE* stream);
 };
 
+class WMOGroupHeader
+{
+public:
+    WMOGroupHeader() {}
+
+    uint32 OffsetGroupName;
+    uint32 OffsetDescriptiveName;
+    uint32 Flags;
+    Vector3 BoundingBox[2];
+    uint32 OffsetPortals;
+    uint32 CountPortals;
+    uint16 CountBatches[4];
+    uint8 Fogs[4];
+    uint32 LiquidTypeRelated;
+    uint32 WmoId;
+
+    static WMOGroupHeader Read(FILE* stream);
+};
+
 // Dummy class to act as an interface.
 class IDefinition
 {

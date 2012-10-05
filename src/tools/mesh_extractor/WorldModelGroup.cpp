@@ -1,8 +1,9 @@
 #include "WorldModelGroup.h"
 #include "ChunkedData.h"
 #include "Chunk.h"
+#include "Utils.h"
 
-WorldModelGroup::WorldModelGroup( std::string path, int groupIndex ) : GroupIndex(groupIndex), IsBad(false)
+WorldModelGroup::WorldModelGroup( std::string path, int groupIndex ) : GroupIndex(groupIndex), IsBad(false), MOBA(NULL)
 {
     Data = new ChunkedData(path);
     if (!Data->Stream)
@@ -14,16 +15,20 @@ WorldModelGroup::WorldModelGroup( std::string path, int groupIndex ) : GroupInde
     int32 firstSub = mainChunk->FindSubChunkOffset("MOPY");
     if (firstSub == -1)
         return;
+
+    Name = Utils::GetPlainName(path.c_str());
+
     FILE* stream = mainChunk->GetStream();
     fseek(stream, firstSub, SEEK_SET);
     SubData = new ChunkedData(stream, mainChunk->Length - firstSub);
 
-    ReadBoundingBox();
+    ReadHeader();
     ReadMaterials();
     ReadTriangles();
     ReadVertices();
     ReadNormals();
     ReadLiquid();
+    ReadBatches();
 }
 
 void WorldModelGroup::ReadNormals()
@@ -108,15 +113,23 @@ void WorldModelGroup::ReadMaterials()
     }
 }
 
-void WorldModelGroup::ReadBoundingBox()
+void WorldModelGroup::ReadHeader()
 {
     Chunk* chunk = Data->GetChunkByName("MOGP");
     if (!chunk)
         return;
 
     FILE* stream = chunk->GetStream();
-    fseek(stream, 8, SEEK_CUR);
-    fread(&Flags, sizeof(uint32), 1, stream);
-    BoundingBox[0] = Vector3::Read(stream);
-    BoundingBox[1] = Vector3::Read(stream);
+    Header = WMOGroupHeader::Read(stream);
+}
+
+void WorldModelGroup::ReadBatches()
+{
+    Chunk* chunk = Data->GetChunkByName("MOBA");
+    if (!chunk)
+        return;
+
+    MOBALength = chunk->Length / 2;
+    MOBA = new uint16[MOBALength];
+    fread(MOBA, sizeof(uint16), MOBALength, chunk->GetStream());
 }

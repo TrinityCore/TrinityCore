@@ -10,13 +10,17 @@ public:
     ChunkedData* Data;
     ChunkedData* SubData;
     int GroupIndex;
-    Vector3 BoundingBox[2];
-    uint32 Flags;
+    std::string Name;
+    WMOGroupHeader Header;
+
     std::vector<uint8> TriangleFlags;
     std::vector<uint8> TriangleMaterials;
     std::vector<Triangle<uint16> > Triangles;
     std::vector<Vector3> Vertices;
     std::vector<Vector3> Normals;
+    // @ToDo: Research.
+    uint16* MOBA;
+    uint32 MOBALength;
 
     bool HasLiquidData;
     bool IsBad;
@@ -28,6 +32,7 @@ private:
     void ReadVertices();
     void ReadTriangles();
     void ReadMaterials();
-    void ReadBoundingBox();
+    void ReadHeader();
+    void ReadBatches();
 };
 #endif
