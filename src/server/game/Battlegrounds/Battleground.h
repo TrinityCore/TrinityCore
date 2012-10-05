@@ -104,6 +104,7 @@ enum BattlegroundSpells
 
 enum BattlegroundTimeIntervals
 {
+    CHECK_PLAYER_POSITION_INVERVAL  = 1000,                 // ms
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
@@ -232,11 +233,6 @@ enum BattlegroundWinner
     WINNER_NONE             = 2
 };
 
-enum BattlegroundTeamId
-{
-    BG_TEAM_ALLIANCE        = 0,
-    BG_TEAM_HORDE           = 1
-};
 #define BG_TEAMS_COUNT  2
 
 enum BattlegroundStartingEvents
@@ -278,20 +274,20 @@ enum GroupJoinBattlegroundResult
     ERR_IN_NON_RANDOM_BG                    = -15           // Can't queue for Random Battleground while in another Battleground queue.
 };
 
-class BattlegroundScore
+struct BattlegroundScore
 {
-    public:
-        BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0),
-            BonusHonor(0), DamageDone(0), HealingDone(0)
-        {}
-        virtual ~BattlegroundScore() {}                     //virtual destructor is used when deleting score from scores map
+    BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0),
+        DamageDone(0), HealingDone(0)
+    { }
 
-        uint32 KillingBlows;
-        uint32 Deaths;
-        uint32 HonorableKills;
-        uint32 BonusHonor;
-        uint32 DamageDone;
-        uint32 HealingDone;
+    virtual ~BattlegroundScore() { }                        //virtual destructor is used when deleting score from scores map
+
+    uint32 KillingBlows;
+    uint32 Deaths;
+    uint32 HonorableKills;
+    uint32 BonusHonor;
+    uint32 DamageDone;
+    uint32 HealingDone;
 };
 
 enum BGHonorMode
@@ -324,17 +320,14 @@ class Battleground
             return true;
         }
         virtual void Reset();                               // resets all common properties for battlegrounds, must be implemented and called in BG subclass
-        virtual void StartingEventCloseDoors() {}
-        virtual void StartingEventOpenDoors() {}
-        virtual void ResetBGSubclass()                      // must be implemented in BG subclass
-        {
-        }
+        virtual void StartingEventCloseDoors() { }
+        virtual void StartingEventOpenDoors() { }
+        virtual void ResetBGSubclass() { }                  // must be implemented in BG subclass
 
         virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) {}
 
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
-        bool IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const;
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
 
         /* Battleground */
@@ -437,12 +430,13 @@ class Battleground
         void SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O);
         void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
         {
-            BattlegroundTeamId idx = GetTeamIndexByTeamId(TeamID);
+            TeamId idx = GetTeamIndexByTeamId(TeamID);
             X = m_TeamStartLocX[idx];
             Y = m_TeamStartLocY[idx];
             Z = m_TeamStartLocZ[idx];
             O = m_TeamStartLocO[idx];
         }
+
         void SetStartMaxDist(float startMaxDist) { m_StartMaxDist = startMaxDist; }
         float GetStartMaxDist() const { return m_StartMaxDist; }
 
@@ -475,12 +469,12 @@ class Battleground
         void SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 strId1 = 0, int32 strId2 = 0);
 
         // Raid Group
-        Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[BG_TEAM_ALLIANCE] : m_BgRaids[BG_TEAM_HORDE]; }
+        Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }
         void SetBgRaid(uint32 TeamID, Group* bg_raid);
 
         virtual void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
-        static BattlegroundTeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE; }
+        static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
         uint32 GetAlivePlayersCountByTeam(uint32 Team) const;   // used in arenas to correctly handle death in spirit of redemption / last stand etc. (killer = killed) cases
         void UpdatePlayersCountByTeam(uint32 Team, bool remove)
@@ -566,13 +560,12 @@ class Battleground
         bool ToBeDeleted() const { return m_SetDeleteThis; }
         void SetDeleteThis() { m_SetDeleteThis = true; }
 
-        // virtual score-array - get's used in bg-subclasses
-        int32 m_TeamScores[BG_TEAMS_COUNT];
-
         void RewardXPAtKill(Player* killer, Player* victim);
         bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
 
         virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
+        virtual void SetDroppedFlagGUID(uint64 /*guid*/, int32 /*team*/ = -1) {}
+        uint32 GetTeamScore(uint32 TeamID) const;
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
@@ -589,6 +582,7 @@ class Battleground
         void _ProcessProgress(uint32 diff);
         void _ProcessLeave(uint32 diff);
         void _ProcessJoin(uint32 diff);
+        void _CheckSafePositions(uint32 diff);
 
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
@@ -610,6 +604,8 @@ class Battleground
         bool   m_IsRandom;
 
         BGHonorMode m_HonorMode;
+        int32 m_TeamScores[BG_TEAMS_COUNT];
+
     private:
         // Battleground
         BattlegroundTypeId m_TypeID;
@@ -649,7 +645,7 @@ class Battleground
          *
          * @see Update(), PostUpdateImpl().
          */
-        virtual bool PreUpdateImpl(uint32 /* diff */) { return true; };
+        virtual bool PreUpdateImpl(uint32 /* diff */) { return true; }
 
         /**
          * @brief Post-update hook.
@@ -662,7 +658,7 @@ class Battleground
          *
          * @see Update(), PreUpdateImpl().
          */
-        virtual void PostUpdateImpl(uint32 /* diff */) { };
+        virtual void PostUpdateImpl(uint32 /* diff */) { }
 
         // Player lists
         std::vector<uint64> m_ResurrectQueue;               // Player GUID
@@ -705,4 +701,3 @@ class Battleground
         uint32 ScriptId;
 };
 #endif
-
