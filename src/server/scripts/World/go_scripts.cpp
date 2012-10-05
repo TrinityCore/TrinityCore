@@ -53,6 +53,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "GameObjectAI.h"
 
 /*######
 ## go_cat_figurine
