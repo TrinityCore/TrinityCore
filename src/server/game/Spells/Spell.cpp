@@ -5747,7 +5747,7 @@ SpellCastResult Spell::CheckRange(bool strict)
     {
         // check needed by 68766 51693 - both spells are cast on enemies and have 0 max range
         // these are triggered by other spells - possibly we should omit range check in that case?
-        if (m_spellInfo->RangeEntry->ID == 1)
+        if (m_spellInfo->RangeEntry && m_spellInfo->RangeEntry->ID == 1)
             return SPELL_CAST_OK;
 
         range_type = m_spellInfo->RangeEntry->type;
