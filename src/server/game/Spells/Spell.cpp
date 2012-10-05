@@ -1652,7 +1652,7 @@ void Spell::SelectImplicitTrajTargets()
 
         const float size = std::max((*itr)->GetObjectSize() * 0.7f, 1.0f); // 1/sqrt(3)
         // TODO: all calculation should be based on src instead of m_caster
-        const float objDist2d = m_targets.GetSrcPos()->GetExactDist2d(*itr) * cos(m_targets.GetSrcPos()->GetRelativeAngle(*itr));
+        const float objDist2d = m_targets.GetSrcPos()->GetExactDist2d(*itr) * std::cos(m_targets.GetSrcPos()->GetRelativeAngle(*itr));
         const float dz = (*itr)->GetPositionZ() - m_targets.GetSrcPos()->m_positionZ;
 
         DEBUG_TRAJ(sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::SelectTrajTargets: check %u, dist between %f %f, height between %f %f.", (*itr)->GetEntry(), objDist2d - size, objDist2d + size, dz - size, dz + size);)
@@ -1720,8 +1720,8 @@ void Spell::SelectImplicitTrajTargets()
 
     if (m_targets.GetSrcPos()->GetExactDist2d(m_targets.GetDstPos()) > bestDist)
     {
-        float x = m_targets.GetSrcPos()->m_positionX + cos(m_caster->GetOrientation()) * bestDist;
-        float y = m_targets.GetSrcPos()->m_positionY + sin(m_caster->GetOrientation()) * bestDist;
+        float x = m_targets.GetSrcPos()->m_positionX + std::cos(m_caster->GetOrientation()) * bestDist;
+        float y = m_targets.GetSrcPos()->m_positionY + std::sin(m_caster->GetOrientation()) * bestDist;
         float z = m_targets.GetSrcPos()->m_positionZ + bestDist * (a * bestDist + b);
 
         if (itr != targets.end())
@@ -6384,7 +6384,7 @@ void Spell::Delayed() // only called in DealDamage()
     if (delayReduce >= 100)
         return;
 
-    AddPctN(delaytime, -delayReduce);
+    AddPct(delaytime, -delayReduce);
 
     if (m_timer + delaytime > m_casttime)
     {
@@ -6412,14 +6412,14 @@ void Spell::DelayedChannel()
         return;
 
     //check pushback reduce
-    int32 delaytime = CalculatePctN(m_spellInfo->GetDuration(), 25); // channeling delay is normally 25% of its time per hit
+    int32 delaytime = CalculatePct(m_spellInfo->GetDuration(), 25); // channeling delay is normally 25% of its time per hit
     int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
     m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
 
-    AddPctN(delaytime, -delayReduce);
+    AddPct(delaytime, -delayReduce);
 
     if (m_timer <= delaytime)
     {

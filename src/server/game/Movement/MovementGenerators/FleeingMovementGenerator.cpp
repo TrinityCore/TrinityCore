@@ -100,8 +100,8 @@ bool FleeingMovementGenerator<T>::_getPoint(T* owner, float &x, float &y, float 
     float curr_x, curr_y, curr_z;
     owner->GetPosition(curr_x, curr_y, curr_z);
 
-    x = curr_x + dist*cos(angle);
-    y = curr_y + dist*sin(angle);
+    x = curr_x + dist * std::cos(angle);
+    y = curr_y + dist * std::sin(angle);
     z = curr_z;
 
     owner->UpdateAllowedPositionZ(x, y, z);

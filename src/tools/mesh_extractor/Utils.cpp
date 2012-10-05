@@ -19,7 +19,7 @@ const float Constants::UnitSize = Constants::ChunkSize / 8.0f;
 const float Constants::Origin[] = { -Constants::MaxXY, 0.0f, -Constants::MaxXY };
 const float Constants::PI = 3.1415926f;
 const float Constants::MaxStandableHeight = 1.5f;
-const char* Constants::VMAPMagic =  "VMAP042";
+const char* Constants::VMAPMagic =  "VMAP041";
 bool Constants::ToWoWCoords = false;
 
 void Utils::CreateDir( const std::string& Path )

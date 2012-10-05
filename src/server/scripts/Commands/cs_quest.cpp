@@ -39,12 +39,12 @@ public:
             { "complete",       SEC_ADMINISTRATOR,  false, &HandleQuestComplete,               "", NULL },
             { "remove",         SEC_ADMINISTRATOR,  false, &HandleQuestRemove,                 "", NULL },
             { "reward",         SEC_ADMINISTRATOR,  false, &HandleQuestReward,                 "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
             { "quest",          SEC_ADMINISTRATOR,  false, NULL,                  "", questCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         return commandTable;
     }
