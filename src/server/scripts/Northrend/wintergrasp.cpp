@@ -591,7 +591,7 @@ public:
             if (Unit* target = GetHitUnit())
             {
                 target->GetPosition(loc);
-                SetExplTargetDest(loc)
+                SetExplTargetDest(loc);
             }
         }
 
