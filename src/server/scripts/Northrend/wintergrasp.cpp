@@ -585,19 +585,19 @@ public:
     {
         PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger_SpellScript);
 
-        WorldLocation& loc;
         void HandleDummy(SpellEffIndex /*effindex*/)
         {
             if (Unit* target = GetHitUnit())
             {
-                target->GetPosition(loc);
-                SetExplTargetDest(loc)
+                WorldLocation loc;
+                target->GetPosition(&loc);
+                SetExplTargetDest(loc);
             }
         }
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_defender_teleport_trigger_SpellScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_defender_teleport_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
