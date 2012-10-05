@@ -255,7 +255,12 @@ class boss_steelbreaker : public CreatureScript
             {
                 DoScriptText(RAND(SAY_STEELBREAKER_DEATH_1, SAY_STEELBREAKER_DEATH_2), me);
                 if (IsEncounterComplete(instance, me))
-                    instance->SetData(BOSS_ASSEMBLY_OF_IRON, DONE);
+                {
+                    instance->SetBossState(BOSS_ASSEMBLY_OF_IRON, DONE);
+                    instance->SetBossState(BOSS_STEELBREAKER, DONE);
+                    instance->SetBossState(BOSS_MOLGEIM, DONE);
+                    instance->SetBossState(BOSS_BRUNDIR, DONE);
+                }
                 else
                     me->SetLootRecipient(NULL);
 
@@ -379,7 +384,12 @@ class boss_runemaster_molgeim : public CreatureScript
             {
                 DoScriptText(RAND(SAY_MOLGEIM_DEATH_1, SAY_MOLGEIM_DEATH_2), me);
                 if (IsEncounterComplete(instance, me))
-                    instance->SetData(BOSS_ASSEMBLY_OF_IRON, DONE);
+                {
+                    instance->SetBossState(BOSS_ASSEMBLY_OF_IRON, DONE);
+                    instance->SetBossState(BOSS_STEELBREAKER, DONE);
+                    instance->SetBossState(BOSS_MOLGEIM, DONE);
+                    instance->SetBossState(BOSS_BRUNDIR, DONE);
+                }
                 else
                     me->SetLootRecipient(NULL);
 
@@ -620,7 +630,12 @@ class boss_stormcaller_brundir : public CreatureScript
             {
                 DoScriptText(RAND(SAY_BRUNDIR_DEATH_1, SAY_BRUNDIR_DEATH_2), me);
                 if (IsEncounterComplete(instance, me))
-                    instance->SetData(BOSS_ASSEMBLY_OF_IRON, DONE);
+                {
+                    instance->SetBossState(BOSS_ASSEMBLY_OF_IRON, DONE);
+                    instance->SetBossState(BOSS_STEELBREAKER, DONE);
+                    instance->SetBossState(BOSS_MOLGEIM, DONE);
+                    instance->SetBossState(BOSS_BRUNDIR, DONE);
+                }
                 else
                     me->SetLootRecipient(NULL);
 
