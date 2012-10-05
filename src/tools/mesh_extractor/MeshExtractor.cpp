@@ -170,13 +170,62 @@ void ExtractGameobjectModels()
             fclose(output);
             delete[] indices;
             delete[] vertices;
+
+            uint32 displayId = (*itr)->Values[0];
+            uint32 pathLength = fileName.size();
+            fwrite(&displayId, sizeof(uint32), 1, modelList);
+            fwrite(&pathLength, sizeof(uint32), 1, modelList);
+            fwrite(fileName.c_str(), sizeof(char), pathLength, modelList);
         }
         else if (extension == "wmo")
         {
-            //WorldModelRoot model(path);
+            WorldModelRoot model(path);
+
+            FILE* output = fopen((baseBuildingsPath + fileName).c_str(), "wb");
+            if (!output)
+            {
+                printf("Could not create file %s, please check that you have write permissions\n", (baseBuildingsPath + fileName).c_str());
+                continue;
+            }
+
+            fwrite(Constants::VMAPMagic, 1, 8, output);
+            uint32 numVertices = 0;
+            fwrite(&numVertices, sizeof(uint32), 1, output); // will be filled later
+            fwrite(&model.Header.CountGroups, sizeof(uint32), 1, output);
+            fwrite(&model.Header.WmoId, sizeof(uint32), 1, output);
+
+            uint32 i = 0;
+            for (std::vector<WorldModelGroup>::iterator itr2 = model.Groups.begin(); itr2 != model.Groups.end(); ++itr2)
+            {
+                fwrite(&itr2->Header.Flags, sizeof(uint32), 1, output);
+                fwrite(&itr2->Header.WmoId, sizeof(uint32), 1, output);
+                fwrite(&itr2->Header.BoundingBox[0], sizeof(uint32), 1, output);
+                fwrite(&itr2->Header.BoundingBox[1], sizeof(uint32), 1, output);
+                uint32 LiquidFlags = itr2->HasLiquidData ? 1 : 0;
+                fwrite(&LiquidFlags, sizeof(uint32), 1, output);
+
+                fwrite("GRP ", sizeof(char), 4, output);
+                uint32 k = 0;
+                uint32 mobaBatch = itr2->MOBALength / 12;
+                uint32* MobaEx = new uint32[mobaBatch*4];
+
+                for(uint32 i = 8; i < itr2->MOBALength; i += 12)
+                    MobaEx[k++] = itr2->MOBA[i];
+
+                int mobaSizeGrp = mobaBatch * 4 + 4;
+                fwrite(&mobaSizeGrp, 4, 1, output);
+                fwrite(&mobaBatch, 4, 1, output);
+                fwrite(MobaEx, 4, k, output);
+                delete[] MobaEx;
+
+                // Note: still not finished
+            }
+
+            fclose(output);
         }
     }
 
+    fclose(modelList);
     printf("GameObject models extraction finished!");
     Constants::ToWoWCoords = false;
 }
@@ -252,7 +301,7 @@ void PrintUsage()
         printf("- %u to extract DBCs\n", Constants::EXTRACT_FLAG_DBC);
         printf("- %u to extract Maps (Not yet implemented)\n", Constants::EXTRACT_FLAG_MAPS);
         printf("- %u to extract VMaps (Not yet implemented)\n", Constants::EXTRACT_FLAG_VMAPS);
-        printf("- %u to extract GameObject models (Not yet finished)\n", Constants::EXTRACT_FLAG_GOB_MODELS);
+        printf("- %u to extract GameObject models (Not yet finished, you need to run VMapAssembler on the extracted files)\n", Constants::EXTRACT_FLAG_GOB_MODELS);
         printf("- %u to extract MMaps (Not yet finished)\n", Constants::EXTRACT_FLAG_MMAPS);
     }
 }
