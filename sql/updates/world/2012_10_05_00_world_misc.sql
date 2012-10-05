@@ -38,7 +38,7 @@ INSERT INTO `lfg_entrances` (`dungeonId`,`name`,`position_x`,`position_y`,`posit
 (163,'Scarlet Monastery - Armory',1610.83,-323.433,18.6738,6.28022),
 (164,'Scarlet Monastery - Cathedral',855.683,1321.5,18.6709,0.001747),
 (165,'Scarlet Monastery - Library',255.346,-209.09,18.6773,6.26656),
-(272,'Maraudon - Purple Crystals',752.91,-616.53,-33.11,1.37)
+(272,'Maraudon - Purple Crystals',752.91,-616.53,-33.11,1.37),
 (273,'Maraudon - Pristine Waters',495.701904,17.337202,-96.31284,3.118538), -- guessed
 (274,'Stratholme - Service Entrance',3593.15,-3646.56,138.5,5.33),
 (285,'The Headless Horseman',1797.517212,1347.381104,18.8876,3.142), -- guessed
