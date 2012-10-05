@@ -521,7 +521,7 @@ class boss_algalon_the_observer : public CreatureScript
                         if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN))
                             wormHole->m_Events.AddEvent(new SummonUnleashedDarkMatter(wormHole), wormHole->m_Events.CalculateTime(i >= 2 ? 8000 : 6000));
                 }
-                else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePctF<int32>(int32(me->GetMaxHealth()), 2.5f) && !_fightWon)
+                else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePct<int32>(int32(me->GetMaxHealth()), 2.5f) && !_fightWon)
                 {
                     _fightWon = true;
                     damage = 0;
