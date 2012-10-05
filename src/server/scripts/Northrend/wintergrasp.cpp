@@ -541,6 +541,11 @@ public:
     }
 };
 
+enum WgTeleport
+{
+    SPELL_WINTERGRASP_TELEPORT_TRIGGER = 54643,
+};
+
 class spell_wintergrasp_defender_teleport : public SpellScriptLoader
 {
 public:
@@ -554,7 +559,7 @@ public:
         {
             if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
                 if (Player* target = GetExplTargetUnit()->ToPlayer())
-                    if (target->GetTeamId() != wg->GetDefenderTeam())
+                    if (target->GetTeamId() != wg->GetDefenderTeam() || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
                         return SPELL_FAILED_BAD_TARGETS;
             return SPELL_CAST_OK;
         }
@@ -571,6 +576,37 @@ public:
     }
 };
 
+class spell_wintergrasp_defender_teleport_trigger : public SpellScriptLoader
+{
+public:
+    spell_wintergrasp_defender_teleport_trigger() : SpellScriptLoader("spell_wintergrasp_defender_teleport_trigger") { }
+
+    class spell_wintergrasp_defender_teleport_trigger_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger_SpellScript);
+
+        WorldLocation& loc;
+        void HandleDummy(SpellEffIndex /*effindex*/)
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                target->GetPosition(loc);
+                SetExplTargetDest(loc)
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_defender_teleport_trigger_SpellScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_wintergrasp_defender_teleport_trigger_SpellScript();
+    }
+};
+
 void AddSC_wintergrasp()
 {
     new npc_wg_queue();
@@ -582,4 +618,5 @@ void AddSC_wintergrasp()
     new spell_wintergrasp_grab_passenger();
     new achievement_wg_didnt_stand_a_chance();
     new spell_wintergrasp_defender_teleport();
+    new spell_wintergrasp_defender_teleport_trigger();
 }
