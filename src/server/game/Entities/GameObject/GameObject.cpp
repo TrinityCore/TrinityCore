@@ -1080,7 +1080,8 @@ void GameObject::Use(Unit* user)
         if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
 
-        AI()->GossipHello(playerUser);
+        if (AI()->GossipHello(playerUser))
+            return;
     }
 
     // If cooldown data present in template

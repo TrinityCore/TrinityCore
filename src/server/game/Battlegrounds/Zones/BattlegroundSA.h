@@ -19,13 +19,12 @@
 #ifndef __BATTLEGROUNDSA_H
 #define __BATTLEGROUNDSA_H
 
-class Battleground;
+#include "Battleground.h"
 
-class BattlegroundSAScore : public BattlegroundScore
+struct BattlegroundSAScore : public BattlegroundScore
 {
-    public:
-        BattlegroundSAScore(): demolishers_destroyed(0), gates_destroyed(0) {};
-        virtual ~BattlegroundSAScore() {};
+    BattlegroundSAScore(): demolishers_destroyed(0), gates_destroyed(0) { }
+    ~BattlegroundSAScore() { }
     uint8 demolishers_destroyed;
     uint8 gates_destroyed;
 };
@@ -444,25 +443,25 @@ class BattlegroundSA : public Battleground
 
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
-        virtual void AddPlayer(Player* player);
+        void AddPlayer(Player* player);
         /// Called when battle start
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
         /// Called for ini battleground, after that the first player be entered
-        virtual bool SetupBattleground();
-        virtual void Reset();
+        bool SetupBattleground();
+        void Reset();
         /// Called for generate packet contain worldstate data
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPacket& data);
         /// Called when a player deal damage to building (door)
-        virtual void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType);
+        void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType);
         /// Called when a player kill a unit in bg
-        virtual void HandleKillUnit(Creature* creature, Player* killer);
+        void HandleKillUnit(Creature* creature, Player* killer);
         /// Return the nearest graveyard where player can respawn
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         /// Called when a player click on flag (graveyard flag)
-        virtual void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
+        void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
         /// Called when a player use a gamobject (relic)
-        virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
+        void EventPlayerUsedGO(Player* Source, GameObject* object);
         /// Return gate id, relative to bg data, according to gameobject id
         uint32 getGateIdFromDamagedOrDestroyEventId(uint32 id)
         {
