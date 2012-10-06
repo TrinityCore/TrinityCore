@@ -77,7 +77,7 @@ class boss_elder_nadox : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                summons.DespawnAll();                
+                summons.DespawnAll();
 
                 AmountHealthModifier = 1;
                 GuardianDied = false;
@@ -133,7 +133,7 @@ class boss_elder_nadox : public CreatureScript
                 Talk(SAY_DEATH);
 
                 summons.DespawnAll();
-                
+
                 if (instance)
                     instance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
             }
