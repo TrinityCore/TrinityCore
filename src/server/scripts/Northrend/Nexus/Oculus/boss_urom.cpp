@@ -105,8 +105,8 @@ public:
         void Reset()
         {
             me->CastSpell(me, SPELL_EVOCATE);
-			
-			_Reset();
+
+            _Reset();
 
             if (instance->GetData(DATA_UROM_PLATAFORM) == 0)
             {
