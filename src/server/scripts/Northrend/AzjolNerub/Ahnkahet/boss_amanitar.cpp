@@ -44,7 +44,7 @@ enum event
 {
     EVENT_SPAWN = 1,
     EVENT_MINI,
-    EVENT_ROOT,  
+    EVENT_ROOT,
     EVENT_BASH,
     EVENT_BOLT,
     EVENT_AURA
@@ -58,13 +58,13 @@ public:
     struct boss_amanitarAI : public BossAI
     {
         boss_amanitarAI(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
-        
+
         void Reset()
         {
             _Reset();
-            
+
             me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);            
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             summons.DespawnAll();
 
             if (instance)
@@ -119,7 +119,7 @@ public:
                     {
                         trigger->DisappearAndDie();
                     }
-                    else  
+                    else
                     {
                         u = 1 - u;
                         trigger->DisappearAndDie();
@@ -143,7 +143,7 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_SPAWN:  
+                    case EVENT_SPAWN:
                         SpawnAdds();
                         events.ScheduleEvent(EVENT_SPAWN, 20*IN_MILLISECONDS);
                         break;
@@ -151,7 +151,7 @@ public:
                         DoCast(SPELL_MINI);
                         events.ScheduleEvent(EVENT_MINI, urand(25,30)*IN_MILLISECONDS);
                         break;
-                    case EVENT_ROOT:                
+                    case EVENT_ROOT:
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_ENTANGLING_ROOTS,true);
                         events.ScheduleEvent(EVENT_ROOT, urand(10,15)*IN_MILLISECONDS);
                         break;
@@ -192,7 +192,7 @@ public:
         {
             events.Reset();
             events.ScheduleEvent(EVENT_AURA, 1*IN_MILLISECONDS);
-            
+
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             DoCast(SPELL_PUTRID_MUSHROOM);
 
