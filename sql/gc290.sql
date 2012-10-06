@@ -1391,3 +1391,17 @@ UPDATE creature_template SET difficulty_entry_3 = 37291 WHERE entry = 14772;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37291;
 UPDATE creature_template SET difficulty_entry_3 = 37468 WHERE entry = 14777;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37468;
+
+-- Creating Arena_logs table
+DROP TABLE IF EXISTS `arena_logs`;
+CREATE TABLE `arena_logs` (
+  `team1` int(10) unsigned NOT NULL DEFAULT '0',
+  `team1_members` varchar(60) CHARACTER SET latin1 NOT NULL DEFAULT '',
+  `team1_rating_change` int(11) NOT NULL DEFAULT '0',
+  `team2` int(10) unsigned NOT NULL DEFAULT '0',
+  `team2_members` varchar(60) CHARACTER SET latin1 NOT NULL DEFAULT '',
+  `team2_rating_change` int(11) NOT NULL DEFAULT '0',
+  `winner` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`team1`,`team2`,`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
