@@ -21,6 +21,7 @@
 #include "SpellScript.h"
 #include "Map.h"
 #include "Creature.h"
+#include "GameObjectAI.h"
 
 #define RSScriptName "instance_ruby_sanctum"
 uint32 const EncounterCount = 4;
@@ -36,17 +37,22 @@ enum DataTypes
     DATA_HALION                             = 3,
 
     // Etc
-    DATA_XERESTRASZA                        = 4,
-    DATA_CRYSTAL_CHANNEL_TARGET             = 5,
-    DATA_BALTHARUS_SHARED_HEALTH            = 6,
-    DATA_ZARITHIAN_SPAWN_STALKER_1          = 7,
-    DATA_ZARITHIAN_SPAWN_STALKER_2          = 8,
-    DATA_HALION_CONTROLLER                  = 9,
-    DATA_BURNING_TREE_1                     = 10,
-    DATA_BURNING_TREE_2                     = 11,
-    DATA_BURNING_TREE_3                     = 12,
-    DATA_BURNING_TREE_4                     = 13,
-    DATA_FLAME_RING                         = 14,
+    DATA_TWILIGHT_HALION                    = 4,
+    DATA_XERESTRASZA                        = 5,
+    DATA_CRYSTAL_CHANNEL_TARGET             = 6,
+    DATA_BALTHARUS_SHARED_HEALTH            = 7,
+    DATA_ZARITHRIAN_SPAWN_STALKER_1         = 8,
+    DATA_ZARITHRIAN_SPAWN_STALKER_2         = 9,
+    DATA_HALION_CONTROLLER                  = 10,
+    DATA_ORB_CARRIER                        = 11,
+    DATA_ORB_ROTATION_FOCUS                 = 12,
+    DATA_BURNING_TREE_1                     = 13,
+    DATA_BURNING_TREE_2                     = 14,
+    DATA_BURNING_TREE_3                     = 15,
+    DATA_BURNING_TREE_4                     = 16,
+    DATA_FLAME_RING                         = 17,
+    DATA_TWILIGHT_FLAME_RING                = 18,
+    DATA_COMBAT_STALKER                     = 19,
 };
 
 enum SharedActions
@@ -66,14 +72,14 @@ enum CreaturesIds
     // General Zarithrian
     NPC_GENERAL_ZARITHRIAN                  = 39746,
     NPC_ONYX_FLAMECALLER                    = 39814,
-    NPC_ZARITHIAN_SPAWN_STALKER             = 39794,
+    NPC_ZARITHRIAN_SPAWN_STALKER            = 39794,
 
     // Saviana Ragefire
     NPC_SAVIANA_RAGEFIRE                    = 39747,
 
     // Halion
     NPC_HALION                              = 39863,
-    NPC_HALION_TWILIGHT                     = 40142,
+    NPC_TWILIGHT_HALION                     = 40142,
     NPC_HALION_CONTROLLER                   = 40146,
     NPC_LIVING_INFERNO                      = 40681,
     NPC_LIVING_EMBER                        = 40683,
@@ -81,6 +87,8 @@ enum CreaturesIds
     NPC_ORB_ROTATION_FOCUS                  = 40091,
     NPC_SHADOW_ORB_N                        = 40083,
     NPC_SHADOW_ORB_S                        = 40100,
+    NPC_SHADOW_ORB_E                        = 40468, // Not sure which entry is east and west.
+    NPC_SHADOW_ORB_W                        = 40469,
     NPC_METEOR_STRIKE_MARK                  = 40029,
     NPC_METEOR_STRIKE_NORTH                 = 40041,
     NPC_METEOR_STRIKE_EAST                  = 40042,
@@ -88,6 +96,8 @@ enum CreaturesIds
     NPC_METEOR_STRIKE_SOUTH                 = 40044,
     NPC_METEOR_STRIKE_FLAME                 = 40055,
     NPC_COMBUSTION                          = 40001,
+    NPC_CONSUMPTION                         = 40135,
+    NPC_COMBAT_STALKER                      = 40151,
 
     // Xerestrasza
     NPC_XERESTRASZA                         = 40429,
@@ -101,6 +111,7 @@ enum GameObjectsIds
     GO_FIRE_FIELD                           = 203005,
     GO_FLAME_WALLS                          = 203006,
     GO_FLAME_RING                           = 203007,
+    GO_TWILIGHT_FLAME_RING                  = 203624,
     GO_BURNING_TREE_1                       = 203034,
     GO_BURNING_TREE_2                       = 203035,
     GO_BURNING_TREE_3                       = 203036,
@@ -114,6 +125,11 @@ enum WorldStatesRS
     WORLDSTATE_CORPOREALITY_TOGGLE   = 5051,
 };
 
+enum InstanceSpell
+{
+    SPELL_BERSERK                       = 26662,
+};
+
 template<class AI>
 CreatureAI* GetRubySanctumAI(Creature* creature)
 {
@@ -121,6 +137,17 @@ CreatureAI* GetRubySanctumAI(Creature* creature)
         if (instance->GetInstanceScript())
             if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
                 return new AI(creature);
+    return NULL;
+}
+
+template<class AI>
+GameObjectAI* GetRubySanctumAI(GameObject* go)
+{
+    if (InstanceMap* instance = go->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
+                return new AI(go);
+
     return NULL;
 }
 
