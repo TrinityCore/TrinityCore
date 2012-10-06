@@ -293,7 +293,7 @@ void GameObject::Update(uint32 diff)
                     else if (Unit* owner = GetOwner())
                     {
                         if (owner->isInCombat())
-                            m_cooldownTime = time(NULL) + 1;
+                            m_cooldownTime = time(NULL) + goInfo->trap.startDelay;
                     }
                     m_lootState = GO_READY;
                     break;
