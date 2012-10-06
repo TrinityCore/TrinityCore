@@ -277,27 +277,31 @@ class spell_hun_masters_call : public SpellScriptLoader
                 return true;
             }
 
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* ally = GetHitUnit())
+                    if (Player* caster = GetCaster()->ToPlayer())
+                        if (Pet* target = caster->GetPet())
+                        {
+                            TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
+                            target->CastSpell(ally, GetEffectValue(), castMask);
+                            target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
+                        }
+            }
+
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
                 {
                     // Cannot be processed while pet is dead
                     TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
-                    target->CastSpell(target, GetEffectValue(), castMask);
                     target->CastSpell(target, HUNTER_SPELL_MASTERS_CALL_TRIGGERED, castMask);
-                    // there is a possibility that this effect should access effect 0 (dummy) target, but i dubt that
-                    // it's more likely that on on retail it's possible to call target selector based on dbc values
-                    // anyways, we're using GetExplTargetUnit() here and it's ok
-                    if (Unit* ally = GetExplTargetUnit())
-                    {
-                        target->CastSpell(ally, GetEffectValue(), castMask);
-                        target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
-                    }
                 }
             }
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
