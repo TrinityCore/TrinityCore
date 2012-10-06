@@ -123,7 +123,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
     sLFGMgr->SetState(guid, LFG_STATE_NONE);
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
-        if ((method == GROUP_REMOVEMETHOD_LEAVE && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON && sLFGMgr->GetDungeon(gguid,false)))
+        if (method == GROUP_REMOVEMETHOD_LEAVE && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON && sLFGMgr->GetDungeon(gguid, false))
             player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, true);
         /*
         else if (group->isLfgKickActive())
