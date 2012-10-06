@@ -137,7 +137,7 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
 
 bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
 {
-    player->TeleportTo(GetMapId(), 763.5f, -284, 28.276f, 2.422f, false);
+    player->TeleportTo(GetMapId(), 763.5f, -284, 28.276f, 2.422f);
     return true;
 }
 
