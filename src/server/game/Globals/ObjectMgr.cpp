@@ -5481,7 +5481,7 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
             if (!mount_id)
             {
                 sLog->outError(LOG_FILTER_SQL, "No displayid found for the taxi mount with the entry %u! Can't load it!", mount_entry);
-                return false;
+                return 0;
             }
         }
     }

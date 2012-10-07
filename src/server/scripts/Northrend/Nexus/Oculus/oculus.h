@@ -35,15 +35,22 @@ enum Data64
     DATA_EREGOS
 };
 
-enum Bosses
+enum Bosses_NPCs
 {
     NPC_DRAKOS                  = 27654,
     NPC_VAROS                   = 27447,
     NPC_UROM                    = 27655,
     NPC_EREGOS                  = 27656,
 
-    NPC_AZURE_RING_GUARDIAN     = 28236,
-    NPC_CENTRIFUGE_CONSTRUCT    = 27641,
+    NPC_AZURE_RING_GUARDIAN         = 28236,
+    NPC_CENTRIFUGE_CONSTRUCT        = 27641,
+    NPC_RUBY_DRAKE_VEHICLE          = 27756,
+    NPC_EMERALD_DRAKE_VEHICLE       = 27692,
+    NPC_AMBER_DRAKE_VEHICLE         = 27755,
+    NPC_VERDISA                     = 27657,
+    NPC_BELGARISTRASZ               = 27658,
+    NPC_ETERNOS                     = 27659,
+    NPC_GREATER_WHELP               = 28276
 };
 
 enum GameObjects
