@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "SpellMgr.h"
 #include "scarlet_monastery.h"
+#include "LFGMgr.h"
 
 //this texts are already used by 3975 and 3976
 enum Says
@@ -562,6 +563,13 @@ public:
                 CAST_AI(mob_wisp_invis::mob_wisp_invisAI, wisp->AI())->SetType(4);
             if (instance)
                 instance->SetData(DATA_HORSEMAN_EVENT, DONE);
+
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
+            if (!players.isEmpty())
+                for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+                    if (Player* player = i->getSource())
+                        if (player->IsAtGroupRewardDistance(me))
+                            sLFGMgr->RewardDungeonDoneFor(285, player);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)

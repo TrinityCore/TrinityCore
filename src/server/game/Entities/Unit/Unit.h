@@ -795,21 +795,21 @@ enum MeleeHitOutcome
 
 class DispelInfo
 {
-private:
-    Unit* const m_dispeller;
-    uint32 const m_dispellerSpellId;
-    uint8 m_chargesRemoved;
 public:
-    explicit DispelInfo(Unit* _dispeller, uint32 _dispellerSpellId, uint8 _chargesRemoved) :
-    m_dispeller(_dispeller), m_dispellerSpellId(_dispellerSpellId), m_chargesRemoved(_chargesRemoved) {}
+    explicit DispelInfo(Unit* dispeller, uint32 dispellerSpellId, uint8 chargesRemoved) :
+    _dispellerUnit(dispeller), _dispellerSpell(dispellerSpellId), _chargesRemoved(chargesRemoved) {}
 
-    Unit* GetDispeller() { return m_dispeller; }
-    uint32 GetDispellerSpellId() const { return m_dispellerSpellId; }
-    uint8 GetRemovedCharges() const { return m_chargesRemoved; }
+    Unit* GetDispeller() const { return _dispellerUnit; }
+    uint32 GetDispellerSpellId() const { return _dispellerSpell; }
+    uint8 GetRemovedCharges() const { return _chargesRemoved; }
     void SetRemovedCharges(uint8 amount)
     {
-        m_chargesRemoved = amount;
+        _chargesRemoved = amount;
     }
+private:
+    Unit* _dispellerUnit;
+    uint32 _dispellerSpell;
+    uint8 _chargesRemoved;
 };
 
 struct CleanDamage
