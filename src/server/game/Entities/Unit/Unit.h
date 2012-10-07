@@ -807,7 +807,7 @@ public:
     }
 private:
     Unit* _dispellerUnit;
-    uint32 const _dispellerSpell;
+    uint32 _dispellerSpell;
     uint8 _chargesRemoved;
 };
 

@@ -431,6 +431,12 @@ enum UlduarArea
     AREA_FORMATION_GROUNDS  = 4652
 };
 
+// leviathans spawn position after wipe
+Position const Center =
+{
+    354.8771f, -12.90240f, 409.803650f, 3.05873f
+};
+
 template<class AI>
 CreatureAI* GetUlduarAI(Creature* creature)
 {

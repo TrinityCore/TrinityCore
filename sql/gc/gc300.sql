@@ -98,8 +98,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- Trial of the Crusader shaman heroism/bloodlust
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (65983, 65980);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(65983, 'spell_sha_heroism'),
-(65980, 'spell_sha_bloodlust');
+(65983, 'spell_toc_heroism'),
+(65980, 'spell_toc_bloodlust');
 
 -- impale scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id`=65919;
@@ -347,6 +347,12 @@ INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `
 -- Leviathan vehicles should not regen hp
 UPDATE `creature_addon` SET `auras`=52455 WHERE `guid` IN (136093, 136094, 136239, 136240, 136268, 136269);
 
+-- adding the lightning door behind leviathan
+-- delete only the lightning door behind leviathan, not all
+DELETE FROM `gameobject` WHERE `id`=194905 AND `position_x` > 200;
+INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(194905, 603, 3, 1, 401.308, -13.8236, 409.524, 3.14159, 0, 0, -1, 0, 25, 0, 0);
+
 -- XT002
 -- Add additional target selection script, i.e. a SpellScript that is used aside the AuraScript that already got attached to
 -- these spells.
@@ -393,7 +399,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- spawning Prospector Doren
 DELETE FROM `creature` WHERE `id`=33956;
 INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-(33956, 603, 1, 1, 0, 0, 1438.6, 114.639, 423.642, 2.11325, 120, 0, 0, 75600, 0, 0, 0, 0, 0);
+(33956, 603, 3, 1, 0, 0, 1438.6, 114.639, 423.642, 2.11325, 120, 0, 0, 75600, 0, 0, 0, 0, 0);
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10084,10087,10088,10418,10419,10089,10420,10421,10090,10422,10423,10091,10424,10425);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
@@ -1385,3 +1391,17 @@ UPDATE creature_template SET difficulty_entry_3 = 37291 WHERE entry = 14772;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37291;
 UPDATE creature_template SET difficulty_entry_3 = 37468 WHERE entry = 14777;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37468;
+
+-- Creating Arena_logs table
+DROP TABLE IF EXISTS `arena_logs`;
+CREATE TABLE `arena_logs` (
+  `team1` int(10) unsigned NOT NULL DEFAULT '0',
+  `team1_members` varchar(60) CHARACTER SET latin1 NOT NULL DEFAULT '',
+  `team1_rating_change` int(11) NOT NULL DEFAULT '0',
+  `team2` int(10) unsigned NOT NULL DEFAULT '0',
+  `team2_members` varchar(60) CHARACTER SET latin1 NOT NULL DEFAULT '',
+  `team2_rating_change` int(11) NOT NULL DEFAULT '0',
+  `winner` int(10) unsigned NOT NULL DEFAULT '0',
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`team1`,`team2`,`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

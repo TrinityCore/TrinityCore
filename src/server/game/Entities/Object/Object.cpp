@@ -859,6 +859,10 @@ void Object::_SetUpdateBits(UpdateMask* updateMask, Player* target) const
     for (uint16 index = 0; index < m_valuesCount; ++index, ++indexes)
         if (_fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (*indexes && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
             updateMask->SetBit(index);
+
+    // always update this field to prevent problems with shapeshifting
+    if (GetTypeId() == TYPEID_PLAYER)
+        updateMask->SetBit(UNIT_FIELD_BYTES_2);
 }
 
 void Object::_SetCreateBits(UpdateMask* updateMask, Player* target) const

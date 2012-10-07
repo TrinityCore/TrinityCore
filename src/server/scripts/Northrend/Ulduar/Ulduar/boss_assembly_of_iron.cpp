@@ -211,6 +211,11 @@ void PostEncounterStuff(InstanceScript* inst)
             p->CombatStop(true);
     }
 
+    inst->SetBossState(BOSS_ASSEMBLY_OF_IRON, DONE);
+    inst->SetBossState(BOSS_STEELBREAKER, DONE);
+    inst->SetBossState(BOSS_MOLGEIM, DONE);
+    inst->SetBossState(BOSS_BRUNDIR, DONE);
+
     // Open door to Kologarn
     inst->HandleGameObject(inst->GetData64(GO_KOLOGARN_DOOR), true);
 }

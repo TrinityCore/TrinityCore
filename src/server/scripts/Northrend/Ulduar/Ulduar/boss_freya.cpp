@@ -317,7 +317,8 @@ class npc_iron_roots : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_DEATH_GRIP, true);
                 me->setFaction(FACTION_HOSTILE);
-                me->SetReactState(REACT_PASSIVE); 
+                me->SetReactState(REACT_PASSIVE);
+                Reset();
             }
 
             void Reset()
@@ -1417,6 +1418,7 @@ class npc_ancient_water_spirit : public CreatureScript
                 if (instance)
                     if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                         waveCount = Freya->AI()->GetData(DATA_TRIO_WAVE_COUNT);
+                Reset();
             }
 
             void Reset()
@@ -1582,6 +1584,7 @@ class npc_snaplasher : public CreatureScript
                 if (instance)
                     if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_FREYA)))
                         waveCount = Freya->AI()->GetData(DATA_TRIO_WAVE_COUNT);
+                Reset();
             }
 
             void Reset()
@@ -1746,6 +1749,7 @@ class npc_sun_beam : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(SPELL_FREYA_UNSTABLE_ENERGY);
+                Reset();
             }
 
             void Reset()

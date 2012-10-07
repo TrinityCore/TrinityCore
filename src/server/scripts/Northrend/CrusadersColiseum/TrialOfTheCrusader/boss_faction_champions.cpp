@@ -2366,6 +2366,88 @@ class spell_faction_champion_death_grip : public SpellScriptLoader
         }
 };
 
+class spell_toc_bloodlust : public SpellScriptLoader
+{
+    public:
+        spell_toc_bloodlust() : SpellScriptLoader("spell_toc_bloodlust") { }
+
+        class spell_toc_bloodlust_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_toc_bloodlust_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(AURA_SATED))
+                    return false;
+                return true;
+            }
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(true, AURA_SATED));
+            }
+
+            void ApplyDebuff()
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(target, AURA_SATED, true);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_toc_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_toc_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                AfterHit += SpellHitFn(spell_toc_bloodlust_SpellScript::ApplyDebuff);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_toc_bloodlust_SpellScript();
+        }
+};
+
+class spell_toc_heroism : public SpellScriptLoader
+{
+    public:
+        spell_toc_heroism() : SpellScriptLoader("spell_toc_heroism") { }
+
+        class spell_toc_heroism_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_toc_heroism_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(AURA_EXHAUSTION))
+                    return false;
+                return true;
+            }
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(true, AURA_EXHAUSTION));
+            }
+
+            void ApplyDebuff()
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(target, AURA_EXHAUSTION, true);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_toc_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_toc_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                AfterHit += SpellHitFn(spell_toc_heroism_SpellScript::ApplyDebuff);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_toc_heroism_SpellScript();
+        }
+};
+
 void AddSC_boss_faction_champions()
 {
     new boss_toc_champion_controller();
@@ -2387,4 +2469,6 @@ void AddSC_boss_faction_champions()
     new mob_toc_pet_hunter();
     new spell_faction_champion_warl_unstable_affliction();
     new spell_faction_champion_death_grip();
+    new spell_toc_bloodlust();
+    new spell_toc_heroism();
 }
