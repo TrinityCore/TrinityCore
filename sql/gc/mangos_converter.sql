@@ -426,4 +426,4 @@ order by A.guid, A.bag, A.slot, A.item, A.item_template*/
 
 -- cleaning up old (completed and rewarded) quests from quest log
 -- SELECT A.* FROM character_queststatus AS A INNER JOIN character_queststatus_rewarded AS B ON A.guid = B.guid WHERE A.guid < 70000 AND A.status = 1 AND A.quest IN (SELECT quest FROM character_queststatus_rewarded WHERE guid = A.guid) GROUP BY A.guid, A.quest;
--- DELETE A FROM character_queststatus AS A LEFT JOIN character_queststatus_rewarded AS B ON A.guid = B.guid WHERE A.status = 1 AND A.quest IN (SELECT quest FROM character_queststatus_rewarded WHERE guid = A.guid);
+DELETE A FROM character_queststatus AS A LEFT JOIN character_queststatus_rewarded AS B ON A.guid = B.guid WHERE A.status = 1 AND A.quest IN (SELECT quest FROM character_queststatus_rewarded WHERE guid = A.guid);
