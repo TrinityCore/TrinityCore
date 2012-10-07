@@ -1483,7 +1483,7 @@ class npc_freyas_ward : public CreatureScript
                 me->setActive(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                summonTimer = 30*IN_MILLISECONDS;
+                summonTimer = 5*IN_MILLISECONDS;
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
