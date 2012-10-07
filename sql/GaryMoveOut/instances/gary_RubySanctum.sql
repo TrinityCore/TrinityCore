@@ -33,7 +33,6 @@ UPDATE `gameobject_template` SET `flags`=32, `faction`=35, `ScriptName`="go_twil
 UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35,`faction_A`=14,`faction_H`=14,`exp`=2 WHERE `entry` IN (39863, 39864, 39944, 39945, 40142); -- Halion
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion',`flags_extra`=`flags_extra`|0x1 WHERE `entry`=39863; -- Halion
 UPDATE `creature_template` SET `mindmg`=422,`maxdmg`=586,`attackpower`=642,`dmg_multiplier`=7.5 WHERE `entry` IN (40417, 40418, 40419, 40420, 40421, 40422, 40423, 40424); -- Trashs
-UPDATE `creature_template` SET `RegenHealth`=0 WHERE entry IN (39863,40142,39864,39944,39945,40143,40144,40145);
 
 -- Trahs respawn time
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751, 39746, 39747);
@@ -50,7 +49,7 @@ UPDATE `creature_template` SET `faction_A`=14,`faction_H`=14,`exp`=2,`mindmg`=50
 -- Orb rotation focus
 UPDATE `creature_template` SET `modelid1`=11686, `modelid2`=169, `scale`=1, `unit_flags`=0x2000100 WHERE `entry`=40091;
 
-UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=718,`unit_flags`=0x2000100 WHERE `entry`=40081; -- 40081 - Orb Carrier 
+UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=718,`unit_flags`=0x2000100 WHERE `entry`=40081; -- 40081 - Orb Carrier
 UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=718,`unit_flags`=0x2000100 WHERE `entry`=40470; -- 40470 - Orb Carrier (1)
 UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=746,`unit_flags`=0x2000100 WHERE `entry`=40471; -- 40471 - Orb Carrier (2)
 UPDATE `creature_template` SET `InhabitType`=7,`modelid1`=11686,`modelid2`=169,`VehicleId`=746,`unit_flags`=0x2000100 WHERE `entry`=40472; -- 40472 - Orb Carrier (3)
@@ -74,6 +73,9 @@ UPDATE `creature_template` SET `faction_H`=14,`faction_A`=14,`unit_flags`=0x2000
 UPDATE `creature_template` SET `InhabitType`=0x4,`speed_walk`=1.2,`speed_run`=0.428571432828903,`VehicleId`=718,`minlevel`=80,`maxlevel`=80,`faction_H`=14,`faction_A`=14,`unit_flags`=0x2000100 WHERE `entry`=40081; -- Orb Carrier
 UPDATE `creature_template` SET `speed_walk`=2.2,`speed_run`=0.785714268684387,`minlevel`=80,`maxlevel`=80,`faction_H`=14,`faction_A`=14,`unit_flags`=0x2000100 WHERE `entry`=40091; -- Orb Rotation Focus
 UPDATE `creature_template` SET `flags_extra`=130,`ScriptName`= 'npc_halion_controller',`exp`=2,`speed_walk`=2.8,`speed_run`=1,`minlevel`=80,`maxlevel`=80,`faction_A`=14,`faction_H`=14,`unit_flags`=0x2000100 WHERE `entry`=40146; -- 40146 - Halion Controller
+
+UPDATE `creature_template` SET `ScriptName`="npc_living_ember" WHERE `entry`=40683;
+UPDATE `creature_template` SET `ScriptName`="npc_living_inferno" WHERE `entry`=40681;
 
 UPDATE `creature_model_info` SET `bounding_radius`=1, `combat_reach`=2 WHERE `modelid`=16946;
 UPDATE `creature_model_info` SET `combat_reach`=18 WHERE `modelid`=31952; -- Halion
@@ -127,8 +129,8 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13,1,75886,0,0,31,0,3,40683,0,0,0, "", "Blazing Aura can only target Living Embers"),
 (13,1,75886,0,0,31,0,3,40684,0,0,0, "", "Blazing Aura can only target Living Embers"),
-(13,3,75509,0,0,31,0,3,40142,0,0,0, "", "Twilight Mending can only target Halion"),
-(13,3,75509,0,0,31,0,3,39863,0,0,0, "", "Twilight Mending can only target Halion"),
+(13,1,75509,0,0,31,0,3,40142,0,0,0, "", "Twilight Mending can only target Halion"),
+(13,2,75509,0,0,31,0,3,39863,0,0,0, "", "Twilight Mending can only target Halion"),
 (13,1,74758,0,0,31,0,3,40091,0,0,0, "", "Track Rotation can only target Orb Rotation Focus");
 
 -- 2012_09_30_03_world_creature_text.sql
@@ -137,25 +139,27 @@ DELETE FROM `creature_text` WHERE `entry`=40142;
 DELETE FROM `creature_text` WHERE `entry`=40146;
 DELETE FROM `creature_text` WHERE `entry`=40083;
 DELETE FROM `creature_text` WHERE `entry`=40146;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES 
-(39863,0,0, 'Meddlesome insects! You are too late. The Ruby Sanctum is lost!',14,0,100,1,0,17499, 'Halion'),
-(39863,1,0, 'Your world teeters on the brink of annihilation. You will ALL bear witness to the coming of a new age of DESTRUCTION!',14,0,100,0,0,17500, 'Halion'),
-(39863,2,0, 'The heavens burn!',14,0,100,0,0,17505, 'Halion'),
-(39863,3,0, 'You will find only suffering within the realm of twilight! Enter if you dare!',14,0,100,0,0,17507, 'Halion'),
-(39863,4,0, 'Relish this victory, mortals, for it will be your last! This world will burn with the master''s return!',14,0,100,0,0,17503, 'Halion'),
-(39863,5,0, 'Another "hero" falls.',14,0,100,0,0,17501, 'Halion'),
-(39863,6,0, 'Not good enough.',14,0,100,0,0,17504, 'Halion'),
-(39863,7,0, 'Your efforts force %s further out of the physical realm!',41,0,100,0,0,0, 'Halion'),
-(39863,8,0, 'Your companions'' efforts force %s further into the physical realm!',41,0,100,0,0,0, 'Halion'),
-(40142,0,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
-(40142,1,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17508, 'Halion'),
-(40142,2,0, 'Your companions'' efforts force %s further into the twilight realm!',41,0,100,0,0,0, 'Halion'),
-(40142,3,0, 'Your efforts force %s further out of the twilight realm!',41,0,100,0,0,0, 'Halion'),
-(40083,0,0, 'The orbiting spheres pulse with dark energy!',41,0,100,0,0,0, 'Shadow Orb'),
-(40146,0,0, 'Without pressure in both realms, %s begins to regenerate.',41,0,100,0,0,0, 'Halion Controller');
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
+(39863,0,0, 'Without pressure in both realms, %s begins to regenerate.',41,0,100,0,0,0, 'Halion'),
+(39863,1,0, 'Meddlesome insects! You are too late. The Ruby Sanctum is lost!',14,0,100,1,0,17499, 'Halion'),
+(39863,2,0, 'Your world teeters on the brink of annihilation. You will ALL bear witness to the coming of a new age of DESTRUCTION!',14,0,100,0,0,17500, 'Halion'),
+(39863,3,0, 'The heavens burn!',14,0,100,0,0,17505, 'Halion'),
+(39863,4,0, 'You will find only suffering within the realm of twilight! Enter if you dare!',14,0,100,0,0,17507, 'Halion'),
+(39863,5,0, 'Relish this victory, mortals, for it will be your last! This world will burn with the master''s return!',14,0,100,0,0,17503, 'Halion'),
+(39863,6,0, 'Another "hero" falls.',14,0,100,0,0,17501, 'Halion'),
+(39863,7,0, 'Not good enough.',14,0,100,0,0,17504, 'Halion'),
+(39863,8,0, 'Your efforts force %s further out of the physical realm!',41,0,100,0,0,0, 'Halion'),
+(39863,9,0, 'Your companions'' efforts force %s further into the physical realm!',41,0,100,0,0,0, 'Halion'),
+(40142,0,0, 'Without pressure in both realms, %s begins to regenerate.',41,0,100,0,0,0, 'Halion'),
+(40142,1,0, 'Beware the shadow!',14,0,100,0,0,17506, 'Halion'),
+(40142,2,0, 'I am the light and the darkness! Cower, mortals, before the herald of Deathwing!',14,0,100,0,0,17508, 'Halion'),
+(40142,3,0, 'Your companions'' efforts force %s further into the twilight realm!',41,0,100,0,0,0, 'Halion'),
+(40142,4,0, 'Your efforts force %s further out of the twilight realm!',41,0,100,0,0,0, 'Halion'),
+(40083,0,0, 'The orbiting spheres pulse with dark energy!',41,0,100,0,0,0, 'Shadow Orb');
 
 -- 2012_09_30_04_world_misc_spawns.sql
 SET @GUID = 42639;  -- Requires one   (creature)
+SET @GUID2 = 42651;
 SET @OGUID = 5286; -- Requires three (gameobject)
 
 DELETE FROM `gameobject` WHERE `id`=203624;
@@ -165,7 +169,7 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`
 DELETE FROM `creature` WHERE `id` IN (40081,40091); -- ,40151);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@GUID,40091,724,1,0x20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0),
-(@GUID+1,40081,724,1,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0);
+(@GUID2,40081,724,1,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0);
 
 SET @PATH = @GUID * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@GUID;
