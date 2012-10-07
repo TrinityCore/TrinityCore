@@ -98,8 +98,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 -- Trial of the Crusader shaman heroism/bloodlust
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (65983, 65980);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(65983, 'spell_sha_heroism'),
-(65980, 'spell_sha_bloodlust');
+(65983, 'spell_toc_heroism'),
+(65980, 'spell_toc_bloodlust');
 
 -- impale scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id`=65919;
