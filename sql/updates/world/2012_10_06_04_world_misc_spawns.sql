@@ -1,4 +1,5 @@
 SET @GUID = 42639;  -- Requires one   (creature)
+SET @GUID2 = 42651;
 SET @OGUID = 5286; -- Requires three (gameobject)
 
 DELETE FROM `gameobject` WHERE `id`=203624;
@@ -8,7 +9,7 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`
 DELETE FROM `creature` WHERE `id` IN (40081,40091); -- ,40151);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@GUID,40091,724,1,0x20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0),
-(@GUID+1,40081,724,1,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0);
+(@GUID2,40081,724,1,0x20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0);
 
 SET @PATH = @GUID * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@GUID;
