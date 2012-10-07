@@ -23,6 +23,7 @@
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
+#include "GameEventMgr.h"
 #include "InstanceScript.h"
 
 void BuildPlayerLockDungeonBlock(WorldPacket& data, const LfgLockMap& lock)
@@ -158,16 +159,25 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFD_PLAYER_LOCK_INFO_REQUEST [" UI64FMTD "]", guid);
 
     // Get Random dungeons that can be done at a certain level and expansion
-    // FIXME - Should return seasonals (when not disabled)
     LfgDungeonSet randomDungeons;
     uint8 level = GetPlayer()->getLevel();
     uint8 expansion = GetPlayer()->GetSession()->Expansion();
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
-        if (dungeon && dungeon->type == LFG_TYPE_RANDOM && dungeon->expansion <= expansion &&
-            dungeon->minlevel <= level && level <= dungeon->maxlevel)
+        if (dungeon && dungeon->expansion <= expansion && dungeon->minlevel <= level && level <= dungeon->maxlevel)
+        {
+            if (dungeon->flags & LFG_FLAG_SEASONAL)
+            {
+                if (HolidayIds holiday = sLFGMgr->GetDungeonSeason(dungeon->ID))
+                    if (!IsHolidayActive(holiday))
+                        continue;
+            }
+            else if (dungeon->type != LFG_TYPE_RANDOM)
+                continue;
+
             randomDungeons.insert(dungeon->Entry());
+        }
     }
 
     // Get player locked Dungeons

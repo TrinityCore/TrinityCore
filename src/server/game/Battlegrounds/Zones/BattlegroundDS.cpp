@@ -21,6 +21,7 @@
 #include "Language.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "GameObject.h"
 
 BattlegroundDS::BattlegroundDS()
 {
@@ -201,7 +202,7 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
 
 bool BattlegroundDS::HandlePlayerUnderMap(Player* player)
 {
-    player->TeleportTo(GetMapId(), 1299.046f, 784.825f, 9.338f, 2.422f, false);
+    player->TeleportTo(GetMapId(), 1299.046f, 784.825f, 9.338f, 2.422f);
     return true;
 }
 

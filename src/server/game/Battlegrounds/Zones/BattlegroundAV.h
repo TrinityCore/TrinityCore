@@ -1514,12 +1514,12 @@ enum BG_AV_Objectives
 
 struct BG_AV_NodeInfo
 {
-    uint16       TotalOwner;
-    uint16       Owner;
-    uint16       PrevOwner;
     BG_AV_States State;
     BG_AV_States PrevState;
     uint32       Timer;
+    uint16       TotalOwner;
+    uint16       Owner;
+    uint16       PrevOwner;
     bool         Tower;
 };
 
