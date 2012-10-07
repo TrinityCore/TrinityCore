@@ -999,7 +999,7 @@ bool BfCapturePoint::Update(uint32 diff)
 
     // get the difference of numbers
     float fact_diff = ((float) m_activePlayers[0].size() - (float) m_activePlayers[1].size()) * diff / BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL;
-    if (!fact_diff)
+    if (G3D::fuzzyEq(fact_diff, 0.0f))
         return false;
 
     uint32 Challenger = 0;
@@ -1069,7 +1069,7 @@ bool BfCapturePoint::Update(uint32 diff)
         m_team = TEAM_NEUTRAL;
     }
 
-    if (m_value != oldValue)
+    if (G3D::fuzzyNe(m_value, oldValue))
         SendChangePhase();
 
     if (m_OldState != m_State)
