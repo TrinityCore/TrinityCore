@@ -11,6 +11,8 @@
 #                                                                                          #
 ############################################################################################
 
+[58] --> Fix [Warlock] Chaos Bolt.
+         - "Chaos Bolt cannot be resisted, and pierces through all absorption effects."
 [57] --> Removes Master's Call stun immunity.
 [56] --> [ICC] Fix Lich King.
 [55] --> Fix Earthbind totem effect and Wandering plague.
