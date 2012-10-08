@@ -1631,7 +1631,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     uint8 playerClass = nameData->m_class;
     uint8 level = nameData->m_level;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_AT_LOGIN_TITLES);
     stmt->setUInt32(0, lowGuid);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1644,9 +1644,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     }
 
     Field* fields = result->Fetch();
-    uint32 at_loginFlags = fields[2].GetUInt16();
+    uint32 at_loginFlags = fields[0].GetUInt16();
+    char const* knownTitlesStr = fields[1].GetCString();
     uint32 used_loginFlag = ((recv_data.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
-    char const* knownTitlesStr = fields[3].GetCString();
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {
