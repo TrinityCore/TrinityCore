@@ -7591,7 +7591,7 @@ SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spell_id)
 }
 
 // this allows calculating base reputations to offline players, just by race and class
-int32 ObjectMgr::GetBaseReputation(FactionEntry const* factionEntry, uint8 race, uint32 playerClass)
+int32 ObjectMgr::GetBaseReputation(FactionEntry const* factionEntry, uint8 race, uint8 playerClass)
 {
     if (!factionEntry)
         return 0;
@@ -7599,13 +7599,12 @@ int32 ObjectMgr::GetBaseReputation(FactionEntry const* factionEntry, uint8 race,
     uint32 raceMask = (1 << (race - 1));
     uint32 classMask = (1 << (playerClass-1));
 
-    for (int i=0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
-        if ((factionEntry->BaseRepRaceMask[i] & raceMask  ||
-            (factionEntry->BaseRepRaceMask[i] == 0  &&
-             factionEntry->BaseRepClassMask[i] != 0)) &&
-            (factionEntry->BaseRepClassMask[i] & classMask ||
-             factionEntry->BaseRepClassMask[i] == 0))
+        if ((!factionEntry->BaseRepClassMask[i] ||
+            factionEntry->BaseRepClassMask[i] & classMask) &&
+            (!factionEntry->BaseRepRaceMask[i] ||
+            factionEntry->BaseRepRaceMask[i] & raceMask))
             return factionEntry->BaseRepValue[i];
     }
 
