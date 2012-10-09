@@ -1,62 +1,3 @@
--- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
--- CLEANUP for people that ran queries in this file before commit gc174, to make these things like at clean trinity
-
-UPDATE `creature_template` SET `modelid1`=169, `modelid2`=16946 WHERE `entry`=34854;
-UPDATE `creature_template` SET `modelid1`=1126 WHERE `entry` IN (34606, 34649);
-UPDATE `creature_template` SET `modelid1`=19725 WHERE `entry`=34854;
-UPDATE `creature_template` SET `modelid2`=1126 WHERE `entry`=34660;
-UPDATE `creature_template` SET `unit_flags`=`unit_flags` |32768, `dynamicflags`= `dynamicflags` |8,`type_flags`=`type_flags` |524288 WHERE `entry` IN (33329, 33995);
-UPDATE `creature_template` SET `unit_flags`= 33554432 WHERE `entry`=33661;
-UPDATE `creature_template` SET `speed_walk`= 1 WHERE `entry` IN (32865, 33147);
-UPDATE `creature_template` SET `baseattacktime`= 2000 WHERE `entry`=33147;
-UPDATE `creature_template` SET `modelid2`=16925 WHERE `entry`=32879;
-UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry`=32879;
-UPDATE `creature_template` SET `unit_flags`=32768, `dynamicflags`=8 WHERE `entry` IN (32885,32883,32908,32907,32882,32886);
-UPDATE `creature_template` SET `modelid1`=169, `modelid2`=16925 WHERE `entry` IN (33378, 32892);
-UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry` IN (33725, 33054);
-UPDATE `creature_template` SET `unit_flags`=256 WHERE `entry` IN (32872, 32873, 32874);
-UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry`=32879;
-UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=34143;
-UPDATE `creature_template` SET `modelid1`= 1126 WHERE `entry` IN (33990,33991);
-UPDATE `creature_template` SET `modelid2`= 1126 WHERE `entry` IN (33881,33882);
-UPDATE `creature_template` SET `minlevel`=1, `maxlevel`=1 WHERE `entry`=33990;
-UPDATE `creature_template` SET `modelid1`= 169 WHERE `entry` IN (34188,34189, 33233, 34129, 34153);
-UPDATE `creature_template` SET `unit_flags`=16384 WHERE `entry`=33264;
-UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry`=33233;
-UPDATE `creature_template` SET `modelid1`= 169, `modelid2`=23258 WHERE `entry` IN (33050, 33395, 33170, 33402);
-UPDATE `creature_template` SET `modelid1`= 19725, `modelid2`=28549 WHERE `entry`=33292;
-UPDATE `creature_template` SET `modelid1`= 1126, `modelid2`=28549 WHERE `entry`=34194;
-UPDATE `creature_template` SET `mindmg`= 356, `maxdmg`=503, `minlevel`=76, `maxlevel`=76 WHERE `entry`=32879;
-UPDATE `creature_template` SET `minlevel`=1, `maxlevel`=1, `faction_A`=35, `faction_H`=35, `mindmg`=2, `maxdmg`=2, `attackpower`=24, `dmg_multiplier`=1, `unit_flags`=0, `InhabitType`=3, `ScriptName`='npc_yogg_saron_encounter_controller' WHERE `entry`=29224;
-UPDATE `creature` SET `spawndist`=0 WHERE `id`=32865;
-UPDATE `creature` SET `MovementType`=0, `spawndist`=0 WHERE `id`=32865;
-UPDATE `gameobject_template` SET `flags`=16 WHERE `entry`=194312;
-UPDATE `gameobject_template` SET `type`=0, `faction`=0, `data1`=1845, `data4`=33914 WHERE `entry`=194264;
-UPDATE `gameobject_template` SET `flags`=48 WHERE `entry` IN (194912, 194914);
-UPDATE `gameobject` SET `rotation2`=0, `spawntimesecs`=180, `animprogress`=255 WHERE `id`=194264;
-DELETE FROM `gameobject_template` WHERE `entry`=194438;
-DELETE FROM `gameobject` WHERE `id`=194438;
-DELETE FROM `waypoint_data` WHERE `id` IN (34496, 34497);
-DELETE FROM `creature` WHERE `id`=33856;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `position_x`, `position_y`, `position_z`, `spawntimesecs`, `curhealth`) VALUES 
-(137621,33856,603,3,1,16925,2703.93,2569.32,364.397,180,4120),
-(137622,33856,603,3,1,16925,2715.33,2569.23,364.397,180,4120),
-(137623,33856,603,3,1,16925,2726.85,2569.28,364.397,180,4120),
-(137624,33856,603,3,1,16925,2765.24,2534.38,364.397,180,4120),
-(137625,33856,603,3,1,16925,2759.54,2544.3,364.397,180,4120),
-(137626,33856,603,3,1,16925,2753.82,2554.22,364.397,180,4120),
-(137627,33856,603,3,1,16925,2764.95,2604.11,364.397,180,4120),
-(137628,33856,603,3,1,16925,2759.19,2594.26,364.397,180,4120),
-(137629,33856,603,3,1,16925,2753.56,2584.3,364.397,180,4120);
-
-UPDATE `gameobject_template` SET `type`=0, `faction`=0, `data1`=1845, `data4`=33914 WHERE `entry`=194264;
-DELETE FROM `gameobject_scripts` WHERE `id`=55194;
-UPDATE `gameobject` SET `rotation2`=0, `spawntimesecs`=180, `animprogress`=255 WHERE `id`=194264;
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (66336, 67076, 67077, 67078);
-
--- END OF CLEANUP
--- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 -- hand of sacrifice scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id`=6940;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -1303,39 +1244,6 @@ INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
 (27894, 52455),
 (32795, 52455);
 
--- Title converter
-DROP TABLE IF EXISTS `player_factionchange_titles`;
-CREATE TABLE `player_factionchange_titles` (
- `alliance_id` int(8) NOT NULL,
- `horde_id` int(8) NOT NULL,
- PRIMARY KEY (`alliance_id`,`horde_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-DELETE FROM `player_factionchange_titles` WHERE `alliance_id` IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,48,75,113,126,146,147,148,149);
-INSERT INTO `player_factionchange_titles` (`alliance_id`,`horde_id`) VALUES
-(1, 15),
-(2, 16),
-(3, 17),
-(4, 18),
-(5, 19),
-(6, 20),
-(7, 21),
-(8, 22),
-(9, 23),
-(10, 24),
-(11, 25),
-(12, 26),
-(13, 27),
-(14, 28),
-(48, 47),
-(75, 76),
-(113, 153),
-(126, 127),
-(146, 152),
-(147, 154),
-(148, 151),
-(149, 150);
-
 ###################
 -- Alterac Valley #
 ###################
@@ -1391,17 +1299,3 @@ UPDATE creature_template SET difficulty_entry_3 = 37291 WHERE entry = 14772;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37291;
 UPDATE creature_template SET difficulty_entry_3 = 37468 WHERE entry = 14777;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37468;
-
--- Creating Arena_logs table
-DROP TABLE IF EXISTS `arena_logs`;
-CREATE TABLE `arena_logs` (
-  `team1` int(10) unsigned NOT NULL DEFAULT '0',
-  `team1_members` varchar(60) CHARACTER SET latin1 NOT NULL DEFAULT '',
-  `team1_rating_change` int(11) NOT NULL DEFAULT '0',
-  `team2` int(10) unsigned NOT NULL DEFAULT '0',
-  `team2_members` varchar(60) CHARACTER SET latin1 NOT NULL DEFAULT '',
-  `team2_rating_change` int(11) NOT NULL DEFAULT '0',
-  `winner` int(10) unsigned NOT NULL DEFAULT '0',
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`team1`,`team2`,`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
