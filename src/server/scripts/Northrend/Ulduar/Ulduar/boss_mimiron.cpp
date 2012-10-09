@@ -436,7 +436,7 @@ class boss_mimiron : public CreatureScript
                             return;
                         case EVENT_FLAME:
                             for (uint8 i = 0; i < 3; ++i)
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                     DoCast(target, SPELL_SUMMON_FLAMES_INITIAL, true);
                             events.ScheduleEvent(EVENT_FLAME, 30000);
                             return;
@@ -1494,7 +1494,7 @@ class boss_vx_001 : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_RAPID_BURST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 if (Creature* BurstTarget = me->SummonCreature(NPC_BURST_TARGET, *target, TEMPSUMMON_TIMED_DESPAWN, 3100))
                                     DoCast(BurstTarget, SPELL_RAPID_BURST);
                             events.RescheduleEvent(EVENT_RAPID_BURST, 5000, 0, PHASE_VX001_SOLO__GLOBAL_2);
@@ -1527,7 +1527,7 @@ class boss_vx_001 : public CreatureScript
                             spinning = false;
                             return;
                         case EVENT_ROCKET_STRIKE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             {
                                 if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
                                 {
@@ -1541,7 +1541,7 @@ class boss_vx_001 : public CreatureScript
                                     missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                             }
                             if (phase == PHASE_VX001_ASSEMBLED__GLOBAL_4)
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 {
                                     if (Creature* pTemp = me->SummonCreature(NPC_MIMIRON_FOCUS, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
                                     {
@@ -1561,7 +1561,7 @@ class boss_vx_001 : public CreatureScript
                             events.RescheduleEvent(EVENT_HEAT_WAVE, 10000, 0, PHASE_VX001_SOLO__GLOBAL_2);
                             return;
                         case EVENT_HAND_PULSE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_HAND_PULSE);
                             events.RescheduleEvent(EVENT_HAND_PULSE, urand(3000, 4000), 0 , PHASE_VX001_ASSEMBLED__GLOBAL_4);
                             return;
@@ -1862,7 +1862,7 @@ class boss_aerial_unit : public CreatureScript
                             {
                                 if (me->getVictim()->IsWithinDist3d(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 30))
                                     DoCastVictim(SPELL_PLASMA_BALL);
-                                else if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                                else if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 0.0f, true))
                                     DoCast(target, SPELL_PLASMA_BALL);
                             }
                             events.RescheduleEvent(EVENT_PLASMA_BALL, 2000);

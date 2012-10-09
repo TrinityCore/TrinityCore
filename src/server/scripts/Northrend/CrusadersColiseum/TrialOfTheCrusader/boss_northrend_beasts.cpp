@@ -389,7 +389,7 @@ public:
                                 }
                             }
                         }
-                        else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         {
                             m_uiTargetGUID = target2->GetGUID();
                             me->GetMotionMaster()->MoveJump(target2->GetPositionX(), target2->GetPositionY(), target2->GetPositionZ(), 15.0f, 15.0f);
@@ -409,7 +409,7 @@ public:
                 {
                     case EVENT_FIRE_BOMB:
                         if (me->GetVehicleBase())
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach()))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach(), true))
                                 DoCast(target, SPELL_FIRE_BOMB, true);
                         events.ScheduleEvent(EVENT_FIRE_BOMB, 20*IN_MILLISECONDS);
                         return;
@@ -632,7 +632,7 @@ struct boss_jormungarAI : public ScriptedAI
                             Submerge();
                             return;
                         case EVENT_SPRAY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, spraySpell);
                             events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
                             return;
@@ -1022,7 +1022,7 @@ public:
                                 events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                                 return;
                             case EVENT_ARCTIC_BREATH:
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                     DoCast(target, SPELL_ARCTIC_BREATH);
                                 events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                                 return;
@@ -1050,7 +1050,7 @@ public:
                     m_uiStage = 2;
                     break;
                 case 2:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
                         me->StopMoving();
                         me->AttackStop();

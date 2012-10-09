@@ -377,7 +377,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
         if (IsHeroic() && m_uiTouchTimer <= uiDiff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, m_uiOtherEssenceSpellId))
                 me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
             m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
         }

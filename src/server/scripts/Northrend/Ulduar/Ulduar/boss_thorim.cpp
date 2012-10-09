@@ -601,7 +601,7 @@ class boss_thorim : public CreatureScript
                             Talk(SAY_AGGRO_2);
                             break;
                         case EVENT_STORMHAMMER:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                                 DoCast(target, SPELL_STORMHAMMER, true);
                             events.ScheduleEvent(EVENT_STORMHAMMER, urand(15, 20) *IN_MILLISECONDS, 0, PHASE_ARENA_ADDS);
                             break;
@@ -641,7 +641,7 @@ class boss_thorim : public CreatureScript
                             events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 26000, 0, PHASE_ARENA);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(7, 15) *IN_MILLISECONDS, 0, PHASE_ARENA);
                             break;
@@ -1218,7 +1218,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
                                 events.ScheduleEvent(EVENT_SECONDARY_SKILL, urand(2000, 4000));
                             break;
                         case EVENT_CHARGE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                                 DoCast(target, SPELL_CHARGE);
                             events.ScheduleEvent(EVENT_CHARGE, 12000);
                             break;
@@ -1571,7 +1571,7 @@ class npc_ancient_rune_giant : public CreatureScript
                             events.ScheduleEvent(EVENT_STOMP, urand(10000, 12000));
                             return;
                         case EVENT_DETONATION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             {
                                 DoCast(target, SPELL_RUNE_DETONATION);
                                 events.ScheduleEvent(EVENT_DETONATION, urand(10000, 12000));
@@ -1650,12 +1650,12 @@ class npc_sif : public CreatureScript
                     switch (event)
                     {
                         case EVENT_FROSTBOLT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
                                 DoCast(target, SPELL_FROSTBOLT);
                             events.ScheduleEvent(EVENT_FROSTBOLT, 4000);
                             return;
                         case EVENT_FROSTBOLT_VOLLEY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             {
                                 DoResetThreat();
                                 me->AddThreat(target, std::numeric_limits<float>::max());

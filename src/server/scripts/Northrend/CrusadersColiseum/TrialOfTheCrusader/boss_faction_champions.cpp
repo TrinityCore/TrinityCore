@@ -663,7 +663,7 @@ class mob_toc_shaman : public CreatureScript
                             events.ScheduleEvent(EVENT_BLOODLUST_HEROISM, 300*IN_MILLISECONDS);
                             return;
                         case EVENT_HEX:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
                                 DoCast(target, SPELL_HEX);
                             events.ScheduleEvent(EVENT_HEX, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
@@ -802,7 +802,7 @@ class mob_toc_paladin : public CreatureScript
                                 events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_HAMMER_OF_JUSTICE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.0f, true))
                                 DoCast(target, SPELL_HAMMER_OF_JUSTICE);
                             events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 40*IN_MILLISECONDS);
                             return;
@@ -895,7 +895,7 @@ class mob_toc_priest : public CreatureScript
                             events.ScheduleEvent(EVENT_FLASH_HEAL, urand(3*IN_MILLISECONDS, 5*IN_MILLISECONDS));
                             return;
                         case EVENT_DISPEL:
-                            if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f) : DoSelectLowestHpFriendly(40.0f))
+                            if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_DISPEL);
                             events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
@@ -999,12 +999,12 @@ class mob_toc_shadow_priest : public CreatureScript
                             events.ScheduleEvent(EVENT_SILENCE, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         case EVENT_VAMPIRIC_TOUCH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                                 DoCast(target, SPELL_VAMPIRIC_TOUCH);
                             events.ScheduleEvent(EVENT_VAMPIRIC_TOUCH, urand(10*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
                         case EVENT_SW_PAIN:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                                 DoCast(target, SPELL_SW_PAIN);
                             events.ScheduleEvent(EVENT_SW_PAIN, urand(10*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
@@ -1026,7 +1026,7 @@ class mob_toc_shadow_priest : public CreatureScript
                                 events.ScheduleEvent(EVENT_DISPERSION, 20*IN_MILLISECONDS);
                             return;
                         case EVENT_DISPEL:
-                            if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f) : DoSelectLowestHpFriendly(40.0f))
+                            if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_DISPEL);
                             events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
@@ -1125,22 +1125,22 @@ class mob_toc_warlock : public CreatureScript
                             events.ScheduleEvent(EVENT_HELLFIRE, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
                         case EVENT_CORRUPTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
                                 DoCast(target, SPELL_CORRUPTION);
                             events.ScheduleEvent(EVENT_CORRUPTION, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         case EVENT_CURSE_OF_AGONY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
                                 DoCast(target, SPELL_CURSE_OF_AGONY);
                             events.ScheduleEvent(EVENT_CURSE_OF_AGONY, urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
                         case EVENT_CURSE_OF_EXHAUSTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f))
                                 DoCast(target, SPELL_CURSE_OF_EXHAUSTION);
                             events.ScheduleEvent(EVENT_CURSE_OF_EXHAUSTION, urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
                         case EVENT_FEAR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 20.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
                                 DoCast(target, SPELL_FEAR);
                             events.ScheduleEvent(EVENT_FEAR, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
@@ -1149,7 +1149,7 @@ class mob_toc_warlock : public CreatureScript
                             events.ScheduleEvent(EVENT_SEARING_PAIN, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         case EVENT_UNSTABLE_AFFLICTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                                 DoCast(target, SPELL_UNSTABLE_AFFLICTION);
                             events.ScheduleEvent(EVENT_UNSTABLE_AFFLICTION, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
@@ -1268,7 +1268,7 @@ class mob_toc_mage : public CreatureScript
                                 events.ScheduleEvent(EVENT_ICE_BLOCK, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_POLYMORPH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
                                 DoCastAOE(SPELL_POLYMORPH);
                             events.ScheduleEvent(EVENT_POLYMORPH, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
@@ -1395,7 +1395,7 @@ class mob_toc_hunter : public CreatureScript
                             events.ScheduleEvent(EVENT_WING_CLIP, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         case EVENT_WYVERN_STING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 35.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 35.0f, true))
                                 DoCast(target, SPELL_WYVERN_STING);
                             events.ScheduleEvent(EVENT_WYVERN_STING, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
@@ -1477,12 +1477,12 @@ class mob_toc_boomkin : public CreatureScript
                     switch (event)
                     {
                         case EVENT_CYCLONE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
                                 DoCast(target, SPELL_CYCLONE);
                             events.ScheduleEvent(EVENT_CYCLONE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         case EVENT_ENTANGLING_ROOTS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                                 DoCast(SPELL_ENTANGLING_ROOTS);
                             events.ScheduleEvent(EVENT_ENTANGLING_ROOTS, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
@@ -1842,7 +1842,7 @@ class mob_toc_rogue : public CreatureScript
                             events.ScheduleEvent(EVENT_FAN_OF_KNIVES, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         case EVENT_BLIND:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
                                 DoCast(target, SPELL_BLIND);
                             events.ScheduleEvent(EVENT_BLIND, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
@@ -2131,7 +2131,7 @@ class mob_toc_retro_paladin : public CreatureScript
                             events.ScheduleEvent(EVENT_JUDGEMENT_OF_COMMAND, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_REPENTANCE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
                                 DoCast(target, SPELL_REPENTANCE);
                             events.ScheduleEvent(EVENT_REPENTANCE, 60*IN_MILLISECONDS);
                             return;
