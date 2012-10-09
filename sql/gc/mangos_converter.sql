@@ -32,6 +32,7 @@ DELETE FROM ip_banned;
 INSERT INTO ip_banned SELECT * FROM convert_mg_auth.ip_banned;
 
 -- logs
+DELETE FROM logs;
 
 -- realmcharacters
 DELETE FROM realmcharacters;
@@ -51,12 +52,14 @@ DELETE FROM account_data;
 INSERT INTO account_data SELECT * FROM convert_mg_characters.account_data;
 
 -- account_instance_times
+DELETE FROM account_instance_times;
 
 -- account_tutorial
 DELETE FROM account_tutorial;
 INSERT INTO account_tutorial SELECT * FROM convert_mg_characters.character_tutorial;
 
 -- addons
+DELETE FROM addons;
 
 -- auctionhouse
 -- delete weird items and items put by AHbot
@@ -66,17 +69,40 @@ INSERT INTO auctionhouse (id, auctioneerguid, itemguid, itemowner, buyoutprice, 
 SELECT                    id, houseid,        itemguid, itemowner, buyoutprice, time, buyguid, lastbid, startbid, deposit FROM convert_mg_characters.auction;
 
 -- bugreport
+DELETE FROM bugreport;
+
 -- corpse
+DELETE FROM corpse;
+
 -- creature_respawn
+DELETE FROM creature_respawn;
+
 -- game_event_condition_save
+DELETE FROM game_event_condition_save;
+
 -- game_event_save
+DELETE FROM game_event_save;
+
 -- gameobject_respawn
+DELETE FROM gameobject_respawn;
+
 -- gm_subsurveys
+DELETE FROM gm_surveys;
+
 -- gm_surveys
+DELETE FROM gm_surveys;
+
 -- gm_tickets
+DELETE FROM gm_tickets;
+
 -- group_instance
+DELETE FROM group_instance;
+
 -- group_member
+DELETE FROM group_member;
+
 -- groups
+DELETE FROM groups;
 
 -- guild
 DELETE FROM guild;
@@ -111,6 +137,7 @@ DELETE FROM guild_rank;
 INSERT INTO guild_rank SELECT * FROM convert_mg_characters.guild_rank;
 
 -- channels
+DELETE FROM channels;
 
 -- character_account_data
 DELETE FROM character_account_data;
@@ -129,8 +156,13 @@ DELETE FROM character_achievement_progress;
 INSERT INTO character_achievement_progress SELECT * FROM convert_mg_characters.character_achievement_progress;
 
 -- character_arena_stats
+DELETE FROM character_arena_stats;
+
 -- character_aura
+DELETE FROM character_aura;
+
 -- character_banned
+DELETE FROM character_banned;
 
 -- character_battleground_data
 DELETE FROM character_battleground_data;
@@ -167,6 +199,7 @@ DELETE FROM character_homebind;
 INSERT INTO character_homebind SELECT * FROM convert_mg_characters.character_homebind;
 
 -- character_instance
+DELETE FROM character_instance;
 
 -- character_inventory
 -- in case of conflicts here check the queries at the bottom of this file
@@ -196,7 +229,10 @@ DELETE FROM character_queststatus_rewarded;
 INSERT INTO character_queststatus_rewarded SELECT c.guid, c.quest FROM convert_mg_characters.character_queststatus c WHERE c.status = 1 AND c.rewarded = 1;
 
 -- character_queststatus_seasonal
+DELETE FROM character_queststatus_seasonal;
+
 -- character_queststatus_weekly
+DELETE FROM character_queststatus_weekly;
 
 -- character_reputation
 DELETE FROM character_reputation;
@@ -215,8 +251,13 @@ DELETE FROM character_spell;
 INSERT INTO character_spell SELECT * FROM convert_mg_characters.character_spell;
 
 -- character_spell_cooldown
+DELETE FROM character_spell_cooldown;
+
 -- character_stats
+DELETE FROM character_stats;
+
 -- character_talent
+DELETE FROM character_talent;
 
 -- characters
 DELETE FROM characters;
@@ -228,7 +269,10 @@ zone, death_expire_time, taxi_path, 0          , totalHonorPoints, todayHonorPoi
 UPDATE characters SET at_login = at_login | 4;
 
 -- instance
+DELETE FROM instance;
+
 -- instance_reset
+DELETE FROM instance_reset;
 
 -- item_instance
 -- DROP Trinity table and use mangos one
@@ -360,13 +404,17 @@ SET @allowedFlags := 0x00000001 | 0x00000008 | 0x00000200 | 0x00001000 | 0x00008
 UPDATE `item_instance` SET `flags` = (`flags` & @allowedFlags);
 
 -- item_refund_instance
+DELETE FROM item_refund_instance;
 
 -- item_soulbound_trade_data
 DELETE FROM item_soulbound_trade_data;
 INSERT INTO item_soulbound_trade_data SELECT * FROM convert_mg_characters.item_soulbound_trade_data;
 
 -- lag_reports
+DELETE FROM lag_reports;
+
 -- lfg_data
+DELETE FROM lfg_data;
 
 -- mail
 DELETE FROM mail;
@@ -377,6 +425,7 @@ DELETE FROM mail_items;
 INSERT INTO mail_items SELECT mail_id, item_guid, receiver FROM convert_mg_characters.mail_items;
 
 -- pet_aura
+DELETE FROM pet_aura;
 
 -- pet_spell
 DELETE FROM pet_spell;
@@ -386,6 +435,7 @@ INSERT INTO pet_spell SELECT guid, spell, active FROM convert_mg_characters.pet_
 DELETE A FROM pet_spell A LEFT JOIN character_pet B ON A.guid = B.id WHERE A.guid NOT IN (SELECT id FROM character_pet);
 
 -- pet_spell_cooldown
+DELETE FROM pet_spell_cooldown;
 
 -- petition
 DELETE FROM petition;
@@ -396,9 +446,16 @@ DELETE FROM petition_sign;
 INSERT INTO petition_sign SELECT * FROM convert_mg_characters.petition_sign;
 
 -- pool_quest_save
+DELETE FROM pool_quest_save;
+
 -- reserved_name
+DELETE FROM reserved_name;
+
 -- warden_action
+DELETE FROM warden_action;
+
 -- worldstates
+DELETE FROM worldstates;
 
 -- checks for case of problems with character_inventory, handle it manually
 -- my advise is leaving only the item with the highest guid at the conflicting slot
