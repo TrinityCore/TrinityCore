@@ -250,7 +250,7 @@ class ActivateLivingConstellation : public BasicEvent
                 return true;    // delete event
 
             _owner->CastSpell((Unit*)NULL, SPELL_TRIGGER_3_ADDS, TRIGGERED_FULL_MASK);
-            _owner->m_Events.AddEvent(this, execTime + urand(45000, 50000));
+            _owner->m_Events.AddEvent(this, execTime + urand(45*IN_MILLISECONDS, 50*IN_MILLISECONDS));
             return false;
         }
 
@@ -286,7 +286,7 @@ class SummonUnleashedDarkMatter : public BasicEvent
         bool Execute(uint64 execTime, uint32 /*diff*/)
         {
             _caster->CastSpell((Unit*)NULL, SPELL_SUMMON_UNLEASHED_DARK_MATTER, TRIGGERED_FULL_MASK);
-            _caster->m_Events.AddEvent(this, execTime + 30000);
+            _caster->m_Events.AddEvent(this, execTime + 30*IN_MILLISECONDS);
             return false;
         }
 
@@ -324,7 +324,7 @@ class boss_algalon_the_observer : public CreatureScript
                     if (!_hasYelled)
                     {
                         _hasYelled = true;
-                        events.ScheduleEvent(EVENT_UNLOCK_YELL, 1000);
+                        events.ScheduleEvent(EVENT_UNLOCK_YELL, 1*IN_MILLISECONDS);
                         Talk(SAY_ALGALON_KILL);
                     }
                 }
@@ -348,26 +348,26 @@ class boss_algalon_the_observer : public CreatureScript
                         init.Launch();
                         events.Reset();
                         events.SetPhase(PHASE_ROLE_PLAY);
-                        events.ScheduleEvent(EVENT_INTRO_1, 5000, 0, PHASE_ROLE_PLAY);
-                        events.ScheduleEvent(EVENT_INTRO_2, 15000, 0, PHASE_ROLE_PLAY);
-                        events.ScheduleEvent(EVENT_INTRO_3, 23000, 0, PHASE_ROLE_PLAY);
-                        events.ScheduleEvent(EVENT_INTRO_FINISH, 36000, 0, PHASE_ROLE_PLAY);
+                        events.ScheduleEvent(EVENT_INTRO_1, 5*IN_MILLISECONDS, 0, PHASE_ROLE_PLAY);
+                        events.ScheduleEvent(EVENT_INTRO_2, 15*IN_MILLISECONDS, 0, PHASE_ROLE_PLAY);
+                        events.ScheduleEvent(EVENT_INTRO_3, 23*IN_MILLISECONDS, 0, PHASE_ROLE_PLAY);
+                        events.ScheduleEvent(EVENT_INTRO_FINISH, 36*IN_MILLISECONDS, 0, PHASE_ROLE_PLAY);
                         break;
                     }
                     case ACTION_ASCEND:
                         events.SetPhase(PHASE_BIG_BANG);
                         events.CancelEvent(EVENT_RESUME_UPDATING);
-                        events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1500);
+                        events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1.5*IN_MILLISECONDS);
                         break;
                     case EVENT_DESPAWN_ALGALON:
                         events.Reset();
                         events.SetPhase(PHASE_ROLE_PLAY);
                         if (me->isInCombat())
                             events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1);
-                        events.ScheduleEvent(EVENT_DESPAWN_ALGALON_1, 5000);
-                        events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17000);
-                        events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26000);
-                        me->DespawnOrUnsummon(34000);
+                        events.ScheduleEvent(EVENT_DESPAWN_ALGALON_1, 5*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26*IN_MILLISECONDS);
+                        me->DespawnOrUnsummon(34*IN_MILLISECONDS);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC);
                         break;
                     case ACTION_INIT_ALGALON:
@@ -393,7 +393,7 @@ class boss_algalon_the_observer : public CreatureScript
                 {
                     Talk(SAY_ALGALON_AGGRO);
                     _EnterCombat();
-                    introDelay = 8000;
+                    introDelay = 8*IN_MILLISECONDS;
                 }
                 else
                 {
@@ -404,19 +404,19 @@ class boss_algalon_the_observer : public CreatureScript
 
                     me->setActive(true);
                     DoZoneInCombat();
-                    introDelay = 26000;
+                    introDelay = 26*IN_MILLISECONDS;
                     summons.DespawnEntry(NPC_AZEROTH);
                     instance->SetData(EVENT_DESPAWN_ALGALON, 0);
-                    events.ScheduleEvent(EVENT_START_COMBAT, 18000);
+                    events.ScheduleEvent(EVENT_START_COMBAT, 18*IN_MILLISECONDS);
                 }
 
                 events.ScheduleEvent(EVENT_INTRO_TIMER_DONE, introDelay);
-                events.ScheduleEvent(EVENT_QUANTUM_STRIKE, 3500 + introDelay);
-                events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500 + introDelay);
-                events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 18000 + introDelay);
-                events.ScheduleEvent(EVENT_BIG_BANG, 90000 + introDelay);
-                events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 360000 + introDelay);
-                events.ScheduleEvent(EVENT_COSMIC_SMASH, 25000 + introDelay);
+                events.ScheduleEvent(EVENT_QUANTUM_STRIKE, 3.5*IN_MILLISECONDS + introDelay);
+                events.ScheduleEvent(EVENT_PHASE_PUNCH, 15.5*IN_MILLISECONDS + introDelay);
+                events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 18*IN_MILLISECONDS + introDelay);
+                events.ScheduleEvent(EVENT_BIG_BANG, 90*IN_MILLISECONDS + introDelay);
+                events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 360*IN_MILLISECONDS + introDelay);
+                events.ScheduleEvent(EVENT_COSMIC_SMASH, 25*IN_MILLISECONDS + introDelay);
 
                 std::list<Creature*> stalkers;
                 me->GetCreatureListWithEntryInGrid(stalkers, NPC_ALGALON_STALKER, 200.0f);
@@ -434,15 +434,15 @@ class boss_algalon_the_observer : public CreatureScript
                 else if (pointId == POINT_ALGALON_OUTRO)
                 {
                     me->SetFacingTo(1.605703f);
-                    events.ScheduleEvent(EVENT_OUTRO_3, 1200);
-                    events.ScheduleEvent(EVENT_OUTRO_4, 2400);
-                    events.ScheduleEvent(EVENT_OUTRO_5, 8500);
-                    events.ScheduleEvent(EVENT_OUTRO_6, 15500);
-                    events.ScheduleEvent(EVENT_OUTRO_7, 55500);
-                    events.ScheduleEvent(EVENT_OUTRO_8, 73500);
-                    events.ScheduleEvent(EVENT_OUTRO_9, 85500);
-                    events.ScheduleEvent(EVENT_OUTRO_10, 108500);
-                    events.ScheduleEvent(EVENT_OUTRO_11, 123500);
+                    events.ScheduleEvent(EVENT_OUTRO_3, 1.2*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_4, 2.4*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_5, 8.5*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_6, 15.5*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_7, 55.5*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_8, 73.5*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_9, 85.5*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_10, 108.5*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_11, 123.5*IN_MILLISECONDS);
                 }
             }
 
@@ -473,7 +473,7 @@ class boss_algalon_the_observer : public CreatureScript
                         summon->CastSpell(summon, SPELL_COSMIC_SMASH_VISUAL_STATE, TRIGGERED_FULL_MASK);
                         break;
                     case NPC_ALGALON_STALKER_ASTEROID_TARGET_02:
-                        summon->m_Events.AddEvent(new CosmicSmashDamageEvent(summon), summon->m_Events.CalculateTime(3250));
+                        summon->m_Events.AddEvent(new CosmicSmashDamageEvent(summon), summon->m_Events.CalculateTime(3.25*IN_MILLISECONDS));
                         break;
                     case NPC_WORM_HOLE:
                         summon->SetReactState(REACT_PASSIVE);
@@ -519,7 +519,7 @@ class boss_algalon_the_observer : public CreatureScript
                         (*itr)->m_Events.KillAllEvents(true);
                     for (uint32 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
                         if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN))
-                            wormHole->m_Events.AddEvent(new SummonUnleashedDarkMatter(wormHole), wormHole->m_Events.CalculateTime(i >= 2 ? 8000 : 6000));
+                            wormHole->m_Events.AddEvent(new SummonUnleashedDarkMatter(wormHole), wormHole->m_Events.CalculateTime(i >= 2 ? 8*IN_MILLISECONDS : 6*IN_MILLISECONDS));
                 }
                 else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePct<int32>(int32(me->GetMaxHealth()), 2.5f) && !_fightWon)
                 {
@@ -533,9 +533,9 @@ class boss_algalon_the_observer : public CreatureScript
                     events.Reset();
                     summons.DespawnAll();
                     events.SetPhase(PHASE_ROLE_PLAY);
-                    events.ScheduleEvent(EVENT_OUTRO_START, 1500);
-                    events.ScheduleEvent(EVENT_OUTRO_1, 7200);
-                    events.ScheduleEvent(EVENT_OUTRO_2, 8700);
+                    events.ScheduleEvent(EVENT_OUTRO_START, 1.5*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_1, 7.2*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_OUTRO_2, 8.7*IN_MILLISECONDS);
                 }
             }
 
@@ -593,25 +593,25 @@ class boss_algalon_the_observer : public CreatureScript
                             if (!stalkers.empty())
                             {
                                 Unit* stalker = Trinity::Containers::SelectRandomContainerElement(stalkers);
-                                stalker->m_Events.AddEvent(new ActivateLivingConstellation(stalker), stalker->m_Events.CalculateTime(urand(45000, 50000)));
+                                stalker->m_Events.AddEvent(new ActivateLivingConstellation(stalker), stalker->m_Events.CalculateTime(urand(45*IN_MILLISECONDS, 50*IN_MILLISECONDS)));
                             }
                             break;
                         }
                         case EVENT_QUANTUM_STRIKE:
                             DoCastVictim(SPELL_QUANTUM_STRIKE);
-                            events.ScheduleEvent(EVENT_QUANTUM_STRIKE, urand(3000, 5000));
-                            break;
+                            events.ScheduleEvent(EVENT_QUANTUM_STRIKE, urand(3*IN_MILLISECONDS, 5*IN_MILLISECONDS));
+                            return;
                         case EVENT_PHASE_PUNCH:
                             DoCastVictim(SPELL_PHASE_PUNCH);
-                            events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500);
-                            break;
+                            events.ScheduleEvent(EVENT_PHASE_PUNCH, 15.5*IN_MILLISECONDS);
+                            return;
                         case EVENT_SUMMON_COLLAPSING_STAR:
                             Talk(SAY_ALGALON_COLLAPSING_STAR);
                             Talk(EMOTE_ALGALON_COLLAPSING_STAR);
                             for (uint32 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
                                 me->SummonCreature(NPC_COLLAPSING_STAR, CollapsingStarPos[i], TEMPSUMMON_CORPSE_DESPAWN);
-                            events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 60000);
-                            break;
+                            events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 60*IN_MILLISECONDS);
+                            return;
                         case EVENT_BIG_BANG:
                         {
                             Talk(SAY_ALGALON_BIG_BANG);
@@ -622,9 +622,9 @@ class boss_algalon_the_observer : public CreatureScript
                             for (std::list<Creature*>::iterator itr = constellations.begin(); itr != constellations.end(); ++itr)
                                 (*itr)->AI()->DoAction(ACTION_BIG_BANG);
                             DoCastAOE(SPELL_BIG_BANG);
-                            events.ScheduleEvent(EVENT_BIG_BANG, 90500);
-                            events.ScheduleEvent(EVENT_RESUME_UPDATING, 9500);
-                            break;
+                            events.ScheduleEvent(EVENT_BIG_BANG, 90.5*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_RESUME_UPDATING, 9.5*IN_MILLISECONDS);
+                            return;
                         }
                         case EVENT_RESUME_UPDATING:
                             events.SetPhase(0);
@@ -632,16 +632,16 @@ class boss_algalon_the_observer : public CreatureScript
                         case EVENT_ASCEND_TO_THE_HEAVENS:
                             Talk(SAY_ALGALON_ASCEND);
                             DoCastAOE(SPELL_ASCEND_TO_THE_HEAVENS);
-                            events.ScheduleEvent(EVENT_EVADE, 2500);
-                            break;
+                            events.ScheduleEvent(EVENT_EVADE, 2.5*IN_MILLISECONDS);
+                            return;
                         case EVENT_EVADE:
                             EnterEvadeMode();
                             break;
                         case EVENT_COSMIC_SMASH:
                             Talk(EMOTE_ALGALON_COSMIC_SMASH);
                             DoCastAOE(SPELL_COSMIC_SMASH);
-                            events.ScheduleEvent(EVENT_COSMIC_SMASH, 25500);
-                            break;
+                            events.ScheduleEvent(EVENT_COSMIC_SMASH, 25.5*IN_MILLISECONDS);
+                            return;
                         case EVENT_UNLOCK_YELL:
                             _hasYelled = false;
                             break;
@@ -665,7 +665,7 @@ class boss_algalon_the_observer : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             break;
                         case EVENT_OUTRO_5:
-                            if (Creature* brann = DoSummon(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos[0], 131500, TEMPSUMMON_TIMED_DESPAWN))
+                            if (Creature* brann = DoSummon(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos[0], 131.5*IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
                                 brann->AI()->DoAction(ACTION_OUTRO);
                             break;
                         case EVENT_OUTRO_6:
@@ -687,7 +687,7 @@ class boss_algalon_the_observer : public CreatureScript
                         case EVENT_OUTRO_11:
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             DoCast(me, SPELL_TELEPORT);
-                            me->DespawnOrUnsummon(1500);
+                            me->DespawnOrUnsummon(1.5*IN_MILLISECONDS);
                             break;
                     }
                 }
@@ -723,7 +723,7 @@ class npc_living_constellation : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 2500);
+                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 2.5*IN_MILLISECONDS);
                 _isActive = false;
             }
 
@@ -751,8 +751,8 @@ class npc_living_constellation : public CreatureScript
                         break;
                     case ACTION_BIG_BANG:
                         _events.SetPhase(PHASE_BIG_BANG);
-                        _events.DelayEvents(9500);
-                        _events.ScheduleEvent(EVENT_RESUME_UPDATING, 9500);
+                        _events.DelayEvents(9.5*IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_RESUME_UPDATING, 9.5*IN_MILLISECONDS);
                         break;
                 }
             }
@@ -782,7 +782,7 @@ class npc_living_constellation : public CreatureScript
                     {
                         case EVENT_ARCANE_BARRAGE:
                             DoCastAOE(SPELL_ARCANE_BARRAGE);
-                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 2500);
+                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 2.5*IN_MILLISECONDS);
                             break;
                         case EVENT_RESUME_UPDATING:
                             _events.SetPhase(0);
@@ -882,8 +882,8 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                         break;
                     case ACTION_OUTRO:
                         me->GetMotionMaster()->MovePoint(POINT_BRANN_OUTRO, BrannOutroPos[1]);
-                        _events.ScheduleEvent(EVENT_BRANN_OUTRO_1, 89500);
-                        _events.ScheduleEvent(EVENT_BRANN_OUTRO_2, 116500);
+                        _events.ScheduleEvent(EVENT_BRANN_OUTRO_1, 89.5*IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_BRANN_OUTRO_2, 116.5*IN_MILLISECONDS);
                         break;
                 }
             }
@@ -898,13 +898,13 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                 switch (pointId)
                 {
                     case 2:
-                        delay = 8000;
+                        delay = 8*IN_MILLISECONDS;
                         me->SetWalk(true);
                         break;
                     case 5:
                         me->SetWalk(false);
                         Talk(SAY_BRANN_ALGALON_INTRO_1);
-                        _events.ScheduleEvent(EVENT_SUMMON_ALGALON, 7500);
+                        _events.ScheduleEvent(EVENT_SUMMON_ALGALON, 7.5*IN_MILLISECONDS);
                         return;
                     case 9:
                         me->DespawnOrUnsummon(1);
@@ -994,7 +994,7 @@ class go_celestial_planetarium_access : public GameObjectScript
 
                 // Start Algalon event
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                _events.ScheduleEvent(EVENT_DESPAWN_CONSOLE, 5000);
+                _events.ScheduleEvent(EVENT_DESPAWN_CONSOLE, 5*IN_MILLISECONDS);
                 if (Creature* brann = go->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannIntroSpawnPos))
                     brann->AI()->DoAction(ACTION_START_INTRO);
 
