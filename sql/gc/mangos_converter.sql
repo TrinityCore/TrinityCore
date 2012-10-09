@@ -61,6 +61,15 @@ INSERT INTO account_tutorial SELECT * FROM convert_mg_characters.character_tutor
 -- addons
 DELETE FROM addons;
 
+-- arena_logs
+DELETE FROM arena_logs;
+
+-- arena_team
+DELETE FROM arena_team;
+
+-- arena_team_member
+DELETE FROM arena_team_member;
+
 -- auctionhouse
 -- delete weird items and items put by AHbot
 DELETE FROM convert_mg_characters.auction WHERE itemguid = 0 OR itemowner = 0;
