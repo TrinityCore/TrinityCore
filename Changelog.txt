@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[61] --> Fix Death Knight: Death and Decay.
 [60] --> Fix Priest: Shadowfiend.
 [59] --> Fix Sap removes Stealth.
 [58] --> Fix [Warlock] Chaos Bolt.
