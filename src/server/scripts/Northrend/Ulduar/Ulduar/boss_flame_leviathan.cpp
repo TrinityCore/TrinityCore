@@ -675,6 +675,7 @@ class boss_flame_leviathan : public CreatureScript
                             me->GetMotionMaster()->MoveCharge(Center.GetPositionX(), Center.GetPositionY(), Center.GetPositionZ()); //position center
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+                            me->SetInCombatWithZone();
                             return;
                         }
                         break;
@@ -736,6 +737,12 @@ class npc_flame_leviathan_defense_cannon : public CreatureScript
         {
             npc_flame_leviathan_defense_cannonAI(Creature* creature) : ScriptedAI(creature) {}
 
+            void InitializeAI()
+            {
+                instance = me->GetInstanceScript();
+                Reset();
+            }
+
             void Reset()
             {
                 NapalmTimer = 5*IN_MILLISECONDS;
@@ -744,6 +751,10 @@ class npc_flame_leviathan_defense_cannon : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                // TODO: accessory is being spawned even if the parent vehicle is dead, needs core fix
+                if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
+                    me->DespawnOrUnsummon();
+
                 if (!UpdateVictim())
                     return;
 
@@ -767,6 +778,7 @@ class npc_flame_leviathan_defense_cannon : public CreatureScript
 
             private:
                 uint32 NapalmTimer;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -786,6 +798,12 @@ class npc_flame_leviathan_seat : public CreatureScript
             {
                 ASSERT(vehicle);
             }
+
+            void InitializeAI()
+            {
+                instance = me->GetInstanceScript();
+                Reset();
+            }
         
             void Reset()
             {
@@ -801,6 +819,13 @@ class npc_flame_leviathan_seat : public CreatureScript
                 target->ApplySpellImmune(0, IMMUNITY_ID, 62912, apply); // Thorims Hammer
                 target->ApplySpellImmune(0, IMMUNITY_ID, 62910, apply); // Mimirons Inferno
                 target->ApplySpellImmune(0, IMMUNITY_ID, 62297, apply); // Hodirs Fury
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                // TODO: accessory is being spawned even if the parent vehicle is dead, needs core fix
+                if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
+                    me->DespawnOrUnsummon();
             }
 
             void PassengerBoarded(Unit* who, int8 seatId, bool apply)
@@ -857,6 +882,7 @@ class npc_flame_leviathan_seat : public CreatureScript
 
             private:
                 Vehicle* vehicle;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1477,6 +1503,12 @@ class npc_freyas_ward : public CreatureScript
         {
             npc_freyas_wardAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
+            void InitializeAI()
+            {
+                instance = me->GetInstanceScript();
+                Reset();
+            }
+
             void Reset()
             {
                 me->AddAura(SPELL_GREEN_SKYBEAM, me);
@@ -1509,11 +1541,15 @@ class npc_freyas_ward : public CreatureScript
                 if (!me->HasAura(AURA_DUMMY_GREEN))
                     me->CastSpell(me, AURA_DUMMY_GREEN, true);
 
+                if (instance->GetBossState(BOSS_LEVIATHAN) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 UpdateVictim();
             }
 
             private:
                 uint32 summonTimer;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
