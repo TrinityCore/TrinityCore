@@ -172,3 +172,9 @@ comment) VALUES
 (2070, -1784, 1, 'Sap(rank 2) removes Stealth'),
 (11297, -1784, 1, 'Sap(rank 3) removes Stealth'),
 (51724, -1784, 1, 'Sap(rank 4) removes Stealth');
+
+-- Priest: Shadowfiend, http://old.wowhead.com/spell=34433
+DELETE FROM `spell_proc_event` WHERE `entry` = 28305;
+INSERT INTO `spell_proc_event` VALUES (28305, 0, 0, 0, 0, 0, 0, 65536, 0, 0, 0);
+-- Move Shadowfiend's Mana Leech Aura from spellscript to creature addon.
+UPDATE `creature_template_addon` SET `auras`= '28305' WHERE `entry`=19668;

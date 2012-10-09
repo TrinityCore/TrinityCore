@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[60] --> Fix Priest: Shadowfiend.
 [59] --> Fix Sap removes Stealth.
 [58] --> Fix [Warlock] Chaos Bolt.
          - "Chaos Bolt cannot be resisted, and pierces through all absorption effects."
