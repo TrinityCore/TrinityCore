@@ -1386,14 +1386,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL:
                 SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer);
                 break;
-            // std case: not exist in DBC, not triggered in code as result
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_ARMOR:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_STAT:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_RATING:
-                break;
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
@@ -3038,8 +3030,6 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
             return "HONORABLE_KILLS_GUILD";
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             return "KILL_CREATURE_TYPE_GUILD";
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
-            return "WIN_ARENA";
         default:
             return "MISSING_TYPE";
     }
