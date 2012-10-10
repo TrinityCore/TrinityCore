@@ -1239,11 +1239,11 @@ DELETE FROM creature_loot_template WHERE item >= 45442 AND item <= 45446 AND ent
 DELETE FROM reference_loot_template WHERE item >= 45867 AND item <= 45871 AND entry = 34357;
 DELETE FROM creature_loot_template WHERE item >= 45867 AND item <= 45871 AND entry = 33293;
 INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid) VALUES
-(33293, 45867, 100, 2, 1),
-(33293, 45868, 100, 2, 1),
-(33293, 45869, 100, 2, 1),
-(33293, 45870, 100, 2, 1),
-(33293, 45871, 100, 2, 1);
+(33293, 45867, 0, 2, 1),
+(33293, 45868, 0, 2, 1),
+(33293, 45869, 0, 2, 1),
+(33293, 45870, 0, 2, 1),
+(33293, 45871, 0, 2, 1);
 
 -- Assembly of Iron - Steelbreaker
 UPDATE creature_loot_template SET lootmode = 2 WHERE entry = 32867 AND item IN (45447, 45448, 45449, 45456);
