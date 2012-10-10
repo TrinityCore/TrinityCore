@@ -660,7 +660,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             std::string IP_str = GetRemoteAddress();
             sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass());
+            sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
 
             newChar.CleanupsBeforeDelete();
             delete createInfo;
@@ -1625,10 +1625,14 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
 
     uint32 lowGuid = GUID_LOPART(guid);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
+    // get the players old (at this moment current) race
+    CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGuid);
+    uint8 oldRace = nameData->m_race;
+    uint8 playerClass = nameData->m_class;
+    uint8 level = nameData->m_level;
 
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_AT_LOGIN_TITLES);
     stmt->setUInt32(0, lowGuid);
-
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -1640,11 +1644,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     }
 
     Field* fields = result->Fetch();
-    uint32 playerClass = uint32(fields[0].GetUInt8());
-    uint32 level = uint32(fields[1].GetUInt8());
-    uint32 at_loginFlags = fields[2].GetUInt16();
+    uint32 at_loginFlags = fields[0].GetUInt16();
+    char const* knownTitlesStr = fields[1].GetCString();
     uint32 used_loginFlag = ((recv_data.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
-    char const* knownTitlesStr = fields[3].GetCString();
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {
@@ -2003,16 +2005,47 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         {
             uint32 reputation_alliance = it->first;
             uint32 reputation_horde = it->second;
+            uint32 newReputation = (team == TEAM_ALLIANCE) ? reputation_alliance : reputation_horde;
+            uint32 oldReputation = (team == TEAM_ALLIANCE) ? reputation_horde : reputation_alliance;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REP_BY_FACTION);
-            stmt->setUInt32(0, uint16(team == TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
+            // select old standing set in db
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_REP_BY_FACTION);
+            stmt->setUInt32(0, oldReputation);
+            stmt->setUInt32(1, lowGuid);
+            PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+            if (!result)
+            {
+                WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+                data << uint8(CHAR_CREATE_ERROR);
+                SendPacket(&data);
+                return;
+            }
+
+            Field* fields = result->Fetch();
+            int32 oldDBRep = fields[0].GetInt32();
+            FactionEntry const* factionEntry = sFactionStore.LookupEntry(oldReputation);
+
+            // old base reputation
+            int32 oldBaseRep = sObjectMgr->GetBaseReputation(factionEntry, oldRace, playerClass);
+
+            // new base reputation
+            int32 newBaseRep = sObjectMgr->GetBaseReputation(sFactionStore.LookupEntry(newReputation), race, playerClass);
+
+            // final reputation shouldnt change
+            int32 FinalRep = oldDBRep + oldBaseRep;
+            int32 newDBRep = FinalRep - newBaseRep;
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REP_BY_FACTION);
+            stmt->setUInt32(0, newReputation);
             stmt->setUInt32(1, lowGuid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REP_FACTION_CHANGE);
-            stmt->setUInt16(0, uint16(team == TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
-            stmt->setUInt16(1, uint16(team == TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
-            stmt->setUInt32(2, lowGuid);
+            stmt->setUInt16(0, uint16(newReputation));
+            stmt->setInt32(1, newDBRep);
+            stmt->setUInt16(2, uint16(oldReputation));
+            stmt->setUInt32(3, lowGuid);
             trans->Append(stmt);
         }
 
