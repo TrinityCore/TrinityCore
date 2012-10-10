@@ -2381,6 +2381,36 @@ class npc_frost_bomb : public CreatureScript
         }
 };
 
+class spell_frost_bomb : public SpellScriptLoader
+{
+    public:
+        spell_frost_bomb() : SpellScriptLoader("spell_frost_bomb") {}
+
+        class spell_frost_bomb_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_frost_bomb_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (WorldObject* _target = Trinity::Containers::SelectRandomContainerElement(targets))
+                {
+                    targets.clear();
+                    targets.push_back(_target);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_bomb_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_frost_bomb_SpellScript();
+        }
+};
+
 /************************************************************************/
 /*                          Achievements                                */
 /************************************************************************/
@@ -2465,6 +2495,7 @@ void AddSC_boss_mimiron()
 
     new spell_rapid_burst();
     new spell_proximity_mines();
+    new spell_frost_bomb();
     
     new go_not_push_button();
 

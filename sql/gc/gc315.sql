@@ -184,7 +184,7 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=63322;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (63322, 'spell_saronite_vapors');
 
--- leviathan tower buffs
+-- Leviathan tower buffs
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (64482, 65075, 65076, 65077);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (64482, 'spell_leviathan_tower_buff'),
@@ -192,12 +192,12 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (65076, 'spell_leviathan_tower_buff'),
 (65077, 'spell_leviathan_tower_buff');
 
--- thorim berserk
+-- Thorim berserk
 DELETE FROM `spell_script_names` WHERE `spell_id`=62560;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62560, 'spell_thorim_berserk');
 
--- thorim Charge orb targeting
+-- Thorim Charge orb targeting
 DELETE FROM `spell_script_names` WHERE `spell_id`=62016;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62016, 'spell_thorim_charge_orb_targeting');
@@ -236,6 +236,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62907, 'spell_freyas_ward_summon'),
 (63847, 'spell_leviathan_flame_vents'),
 (64677, 'spell_shield_generator');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=64623;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(64623, 'spell_frost_bomb');
 
 -- Renamed - the resulting effect is called "Pursued", not "Pursue"
 UPDATE `spell_script_names` SET `ScriptName`='spell_pursued' WHERE `spell_id`=62374;
@@ -513,7 +517,7 @@ INSERT INTO `vehicle_template_accessory` VALUES
 (33432, 34071, 3, 1, 'Leviathan Mk II turret', 8, 0);
 -- Leviathan skills and skill-helper
 UPDATE `creature_template` SET `ScriptName`='npc_proximity_mine' WHERE `entry`=34362;
-UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` = 28831;
+UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` IN (28831, 28841);
 
 -- VX-001
 UPDATE `creature_template` SET `flags_extra`=`flags_extra` |1, `vehicleid`=371, `ScriptName`='boss_vx_001' WHERE `entry`=33651;
