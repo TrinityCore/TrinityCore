@@ -1094,11 +1094,16 @@ class instance_ulduar : public InstanceMapScript
                             HandleGameObject(HodirIceDoorGUID, true);
                             HandleGameObject(HodirStoneDoorGUID, true);
                             HandleGameObject(HodirInDoorGUID, true);
-                            if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
-                                if (GetData(DATA_HODIR_RARE_CACHE))
+                            if (GetData(DATA_HODIR_RARE_CACHE))
+                            {
+                                if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
                                     HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
-                                HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
+                            }
+                            else
+                            {
+                                if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
+                                    HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
+                            }
 
                             if (Creature* hodir = instance->GetCreature(HodirImageGUID))
                             {

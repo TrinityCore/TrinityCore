@@ -397,6 +397,9 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 (10239, 12, 1, 0, ''), 
 (10239, 11, 0, 0, 'achievement_staying_buffed_all_winter_25');
 
+-- adding hodir a weapon in 25m mode
+UPDATE `creature_template` SET `equipment_id`=1842 WHERE `entry`=32845;
+
 -- Thorim
 UPDATE `creature_template` SET `ScriptName`='boss_thorim' WHERE `entry`=32865;
 UPDATE `creature_template` SET `equipment_id`=1844 WHERE `entry`=33147;
@@ -1235,10 +1238,10 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 
 -- Ulduar loot corrections
 -- XT002 Deconstructor
-DELETE FROM creature_loot_template WHERE item >= 45442 AND item <= 45446 AND entry = 33293;
-DELETE FROM reference_loot_template WHERE item >= 45867 AND item <= 45871 AND entry = 34357;
-DELETE FROM creature_loot_template WHERE item >= 45867 AND item <= 45871 AND entry = 33293;
-INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid) VALUES
+DELETE FROM `creature_loot_template` WHERE `item`>=45442 AND `item`<=45446 AND `entry`=33293;
+DELETE FROM `reference_loot_template` WHERE `item`>=45867 AND `item`<=45871 AND `entry`=34357;
+DELETE FROM `creature_loot_template` WHERE `item`>=45867 AND `item`<=45871 AND `entry`=33293;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`) VALUES
 (33293, 45867, 0, 2, 1),
 (33293, 45868, 0, 2, 1),
 (33293, 45869, 0, 2, 1),
@@ -1246,8 +1249,14 @@ INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, 
 (33293, 45871, 0, 2, 1);
 
 -- Assembly of Iron - Steelbreaker
-UPDATE creature_loot_template SET lootmode = 2 WHERE entry = 32867 AND item IN (45447, 45448, 45449, 45456);
-UPDATE creature_loot_template SET lootmode = 2 WHERE entry = 33693 AND item IN (45241, 45242, 45243, 45244, 45245, 45607);
+UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=32867 AND `item` IN (45447, 45448, 45449, 45456);
+UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=33693 AND `item` IN (45241, 45242, 45243, 45244, 45245, 45607);
+
+-- Hodir - spawning hardmode caches
+DELETE FROM `gameobject` WHERE `id` IN (194200, 194201);
+INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(194200, 603, 1, 1, 2035.75, -195.046, 432.687, 3.68744, 0, 0, 0.962987, -0.269548, 604800, 255, 1),
+(194201, 603, 2, 1, 2035.75, -195.046, 432.687, 3.68744, 0, 0, 0.962987, -0.269548, 604800, 255, 1);
 
 ###########################
 -- Strand of the Ancients #
