@@ -875,7 +875,10 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_VEZAX_DOOR:
                         VezaxDoorGUID = gameObject->GetGUID();
-                        HandleGameObject(0, false, gameObject);
+                        if (GetBossState(BOSS_VEZAX) == DONE)
+                            HandleGameObject(0, true, gameObject);
+                        else
+                            HandleGameObject(0, false, gameObject);
                         break;
 
                     // Yogg-Saron related
