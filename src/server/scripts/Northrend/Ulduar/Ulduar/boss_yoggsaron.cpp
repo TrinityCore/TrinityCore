@@ -1418,10 +1418,14 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                             if (Creature* yogg = ObjectAccessor::GetCreature(*me, guidYogg))
                             {
                                 yogg->SetLootMode(LOOT_MODE_DEFAULT);
-                                if (keeperActiveCnt <= 1)
+                                if (keeperActiveCnt <= 3)
                                     yogg->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                                if (keeperActiveCnt == 0)
+                                if (keeperActiveCnt <= 2)
                                     yogg->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                                if (keeperActiveCnt <= 1)
+                                    yogg->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                                if (keeperActiveCnt == 0)
+                                    yogg->AddLootMode(LOOT_MODE_HARD_MODE_4);
                                 yogg->AI()->SetData(ACTION_DO_CHANGE_PHASE, PHASE_SARA);
                             }
                         }
