@@ -1234,6 +1234,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33242, 0, 0, 'Golganneth, lend me your strengh! Grant my mortal allies the power of thunder!', 14, 0, 100, 0, 0, 15750, 'Thorim SAY_YS_HELP');
 
 -- Ulduar loot corrections
+-- XT002 Deconstructor
 DELETE FROM creature_loot_template WHERE item >= 45442 AND item <= 45446 AND entry = 33293;
 DELETE FROM reference_loot_template WHERE item >= 45867 AND item <= 45871 AND entry = 34357;
 DELETE FROM creature_loot_template WHERE item >= 45867 AND item <= 45871 AND entry = 33293;
@@ -1243,6 +1244,10 @@ INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, 
 (33293, 45869, 100, 2, 1),
 (33293, 45870, 100, 2, 1),
 (33293, 45871, 100, 2, 1);
+
+-- Assembly of Iron - Steelbreaker
+UPDATE creature_loot_template SET lootmode = 2 WHERE entry = 32867 AND item IN (45447, 45448, 45449, 45456);
+UPDATE creature_loot_template SET lootmode = 2 WHERE entry = 33693 AND item IN (45241, 45242, 45243, 45244, 45245, 45607);
 
 ###########################
 -- Strand of the Ancients #

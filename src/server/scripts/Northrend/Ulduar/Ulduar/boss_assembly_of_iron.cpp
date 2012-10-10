@@ -386,6 +386,7 @@ class boss_steelbreaker : public CreatureScript
                 Talk(SAY_STEELBREAKER_DEATH);
                 if (IsEncounterComplete(instance, me))
                 {
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                     _JustDied();
                     PostEncounterStuff(instance);
                     instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CREDIT_MARKER);
