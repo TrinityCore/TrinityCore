@@ -225,7 +225,8 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA              = 32
         struct
         {
-            uint32  mapID;                                  // 3 Reference to Map.dbc
+            uint32 mapID;                                   // 3 Reference to Map.dbc
+            uint32 count;                                   // 4 Number of times that the arena must be won.
         } win_arena;
 
         // ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA             = 33
