@@ -17,10 +17,8 @@
 
 /*
     TODO:
-        Fix void zone damage
         If the boss is to close to a scrap pile -> no summon  -- Needs retail confirmation
         make the life sparks visible...     /? Need test
-        Codestyle
 */
 
 #include "ScriptMgr.h"
@@ -293,6 +291,8 @@ class boss_xt002 : public CreatureScript
             void JustDied(Unit* /*victim*/)
             {
                 Talk(SAY_DEATH);
+                if (hardMode)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                 _JustDied();
             }
 

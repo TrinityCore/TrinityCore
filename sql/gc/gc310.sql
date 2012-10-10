@@ -1233,6 +1233,17 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33244, 0, 0, 'Combat matrix enhanced. Behold wonderous rapidity!', 14, 0, 100, 0, 0, 15630, 'Mimiron SAY_YS_HELP'),
 (33242, 0, 0, 'Golganneth, lend me your strengh! Grant my mortal allies the power of thunder!', 14, 0, 100, 0, 0, 15750, 'Thorim SAY_YS_HELP');
 
+-- Ulduar loot corrections
+DELETE FROM creature_loot_template WHERE item >= 45442 AND item <= 45446 AND entry = 33293;
+DELETE FROM reference_loot_template WHERE item >= 45867 AND item <= 45871 AND entry = 34357;
+DELETE FROM creature_loot_template WHERE item >= 45867 AND item <= 45871 AND entry = 33293;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid) VALUES
+(33293, 45867, 100, 2, 1),
+(33293, 45868, 100, 2, 1),
+(33293, 45869, 100, 2, 1),
+(33293, 45870, 100, 2, 1),
+(33293, 45871, 100, 2, 1);
+
 ###########################
 -- Strand of the Ancients #
 ###########################
