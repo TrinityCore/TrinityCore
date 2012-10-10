@@ -1263,8 +1263,7 @@ INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `
 (194201, 603, 2, 1, 2035.75, -195.046, 432.687, 3.68744, 0, 0, 0.962987, -0.269548, 604800, 255, 1);
 
 -- Thorim (no need to add custom lootmode, hardmode cache is spawned only when it should)
-UPDATE gameobject_loot_template SET lootmode = 1 WHERE entry IN (26955, 26956, 27074);
-DELETE FROM gameobject_loot_template WHERE item IN (45570, 45470, 45471, 45472, 45473, 45474) AND entry = 26956;
+UPDATE `gameobject_loot_template` SET `lootmode`=1 WHERE `entry` IN (26955, 26956, 27074);
 
 ###########################
 -- Strand of the Ancients #
