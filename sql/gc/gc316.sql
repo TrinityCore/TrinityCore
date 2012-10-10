@@ -517,7 +517,7 @@ INSERT INTO `vehicle_template_accessory` VALUES
 (33432, 34071, 3, 1, 'Leviathan Mk II turret', 8, 0);
 -- Leviathan skills and skill-helper
 UPDATE `creature_template` SET `ScriptName`='npc_proximity_mine' WHERE `entry`=34362;
-UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` IN (28831, 28841);
+UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` IN (28831, 28841, 28979);
 
 -- VX-001
 UPDATE `creature_template` SET `flags_extra`=`flags_extra` |1, `vehicleid`=371, `ScriptName`='boss_vx_001' WHERE `entry`=33651;
