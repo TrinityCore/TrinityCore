@@ -24,6 +24,14 @@ UPDATE `gameobject_template` SET `flags`=`flags` &~16 WHERE `entry`=193426;
 -- despawn Skadi's drake, hes spawned via core
 DELETE FROM `creature` WHERE `id`=26893;
 
+-- minor Dalaran images edit
+DELETE FROM `creature` WHERE `id` IN (31584, 31622, 31631, 31634);
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(104503, 31584, 571, 1, 1, 0, 0, 5701.41, 585.792, 652.632, 4.01827, 300, 0, 0, 168512, 0, 0, 0, 0, 0),
+(108043, 31622, 571, 1, 1, 0, 0, 5704.07, 583.587, 652.632, 4.03398, 300, 0, 0, 337025, 0, 0, 0, 0, 0),
+(109066, 31631, 571, 1, 1, 0, 0, 5769.25, 530.56, 652.633, 3.99314, 300, 0, 0, 48700, 0, 0, 0, 0, 0),
+(109724, 31634, 571, 1, 1, 0, 0, 5772.38, 528.269, 652.632, 4.02134, 300, 0, 0, 50400, 0, 0, 0, 0, 0);
+
 ##########################
 -- TRIAL OF THE CRUSADER #
 ##########################
