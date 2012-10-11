@@ -32,9 +32,14 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (109066, 31631, 571, 1, 1, 0, 0, 5769.25, 530.56, 652.633, 3.99314, 300, 0, 0, 48700, 0, 0, 0, 0, 0),
 (109724, 31634, 571, 1, 1, 0, 0, 5772.38, 528.269, 652.632, 4.02134, 300, 0, 0, 50400, 0, 0, 0, 0, 0);
 
-##########################
--- TRIAL OF THE CRUSADER #
-##########################
+-- queries for correcting missing equipment_id at other than 10m normal brackets
+UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_1;
+UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_2;
+UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_3;
+
+###########################
+-- TRIAL OF THE CRUSADER ##
+###########################
 
 -- Trial of the Crusader Death knight Death grip scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (66017, 68753, 68754, 68755);
