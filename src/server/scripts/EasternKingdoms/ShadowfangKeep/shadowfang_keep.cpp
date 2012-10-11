@@ -168,7 +168,7 @@ public:
 
         void Reset()
         {
-            uiDarkOffering = urand(290, 10);
+            uiDarkOffering = urand(200, 1000);
         }
 
         void UpdateAI(uint32 const uiDiff)

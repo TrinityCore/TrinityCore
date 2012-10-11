@@ -278,7 +278,7 @@ public:
                 eternos->GetMotionMaster()->MovePoint(0, 943.202f, 1059.35f, 359.967f);
             if (Creature* verdisa = instance->GetCreature(verdisaGUID))
                 verdisa->SetWalk(true),
-                verdisa->GetMotionMaster()->MovePoint(0, 949.188f, 1032.91f, 359.967f); 
+                verdisa->GetMotionMaster()->MovePoint(0, 949.188f, 1032.91f, 359.967f);
         }
 
         void GreaterWhelps()

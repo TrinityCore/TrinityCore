@@ -598,9 +598,16 @@ void KillRewarder::_RewardGroup()
 
             // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
             for (GroupReference* itr = _group->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
                 if (Player* member = itr->getSource())
+                {
                     if (member->IsAtGroupRewardDistance(_victim))
+                    {
                         _RewardPlayer(member, isDungeon);
+                        member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, _victim);
+                    }
+                }
+            }
         }
     }
 }
@@ -1572,6 +1579,16 @@ void Player::Update(uint32 p_time)
     // check every second
     if (now > m_Last_tick + 1)
         UpdateSoulboundTradeItems();
+        
+    // If mute expired, remove it from the DB
+    if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
+    {
+        GetSession()->m_muteTime = 0;
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        stmt->setInt64(0, 0); // Set the mute time to 0
+        stmt->setUInt32(1, GetSession()->GetAccountId());
+        LoginDatabase.Execute(stmt);
+    }
 
     if (!m_timedquests.empty())
     {
@@ -7696,21 +7713,19 @@ void Player::DuelComplete(DuelCompleteType type)
             break;
         case DUEL_WON:
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL, 1);
-            if (duel->opponent)
-            {
-                 duel->opponent->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL, 1);
+            duel->opponent->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL, 1);
 
-                //Credit for quest Death's Challenge
-                if (getClass() == CLASS_DEATH_KNIGHT && duel->opponent->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE)
-                    duel->opponent->CastSpell(duel->opponent, 52994, true);
-            }
+            // Credit for quest Death's Challenge
+            if (getClass() == CLASS_DEATH_KNIGHT && duel->opponent->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE)
+                duel->opponent->CastSpell(duel->opponent, 52994, true);
+
             break;
         default:
             break;
     }
 
     // Victory emote spell
-    if (type != DUEL_INTERRUPTED && duel->opponent)
+    if (type != DUEL_INTERRUPTED)
         duel->opponent->CastSpell(duel->opponent, 52852, true);
 
     //Remove Duel Flag object
@@ -9205,6 +9220,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 4100:  // The Culling of Stratholme
             NumberOfFields = 13;
             break;
+        case 4987:  // The Ruby Sanctum
+            NumberOfFields = 3;
+            break;
         case 4273:  // Ulduar
             NumberOfFields = 10;
             break;
@@ -9729,6 +9747,17 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4294) << uint32(1); // 22 BG_IC_WORKSHOP_UNCONTROLLED
                 data << uint32(4243) << uint32(1); // 23 unknown
                 data << uint32(4345) << uint32(1); // 24 unknown
+            }
+            break;
+        // The Ruby Sanctum
+        case 4987:
+            if (instance && mapid == 724)
+                instance->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(5049) << uint32(50);             // 9  WORLDSTATE_CORPOREALITY_MATERIAL
+                data << uint32(5050) << uint32(50);             // 10 WORLDSTATE_CORPOREALITY_TWILIGHT
+                data << uint32(5051) << uint32(0);              // 11 WORLDSTATE_CORPOREALITY_TOGGLE
             }
             break;
         // Icecrown Citadel
@@ -20965,6 +20994,9 @@ void Player::ContinueTaxiFlight()
     sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Restart character %u taxi flight", GetGUIDLow());
 
     uint32 mountDisplayId = sObjectMgr->GetTaxiMountDisplayId(sourceNode, GetTeam(), true);
+    if (!mountDisplayId)
+        return;
+
     uint32 path = m_taxi.GetCurrentTaxiPath();
 
     // search appropriate start path node

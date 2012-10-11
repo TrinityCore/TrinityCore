@@ -177,7 +177,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
         case AV_QUEST_H_COMMANDER3:
             m_Team_QuestStatus[team][3]++;
             RewardReputationToTeam(team, 1, player->GetTeam());
-            if (m_Team_QuestStatus[team][1] == 120)
+            if (m_Team_QuestStatus[team][3] == 120)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_BOSS1:
