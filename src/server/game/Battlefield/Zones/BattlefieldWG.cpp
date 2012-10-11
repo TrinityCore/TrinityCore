@@ -188,29 +188,6 @@ bool BattlefieldWG::SetupBattlefield()
         go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[GetDefenderTeam()]);
     }
 
-    // Spawn banners in the keep
-    for (uint8 i = 0; i < WG_KEEPGAMEOBJECT_MAX; i++)
-    {
-        if (GameObject* go = SpawnGameObject(WGKeepGameObject[i].entryHorde, WGKeepGameObject[i].x, WGKeepGameObject[i].y, WGKeepGameObject[i].z, WGKeepGameObject[i].o))
-        {
-            go->SetRespawnTime(GetDefenderTeam()? RESPAWN_ONE_DAY : RESPAWN_IMMEDIATELY);
-            m_KeepGameObject[1].insert(go);
-        }
-        if (GameObject* go = SpawnGameObject(WGKeepGameObject[i].entryAlliance, WGKeepGameObject[i].x, WGKeepGameObject[i].y, WGKeepGameObject[i].z, WGKeepGameObject[i].o))
-        {
-            go->SetRespawnTime(GetDefenderTeam()? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
-            m_KeepGameObject[0].insert(go);
-        }
-    }
-
-    // Show defender banner in keep
-    for (GameObjectSet::const_iterator itr = m_KeepGameObject[GetDefenderTeam()].begin(); itr != m_KeepGameObject[GetDefenderTeam()].end(); ++itr)
-        (*itr)->SetRespawnTime(RESPAWN_IMMEDIATELY);
-
-    // Hide attackant banner in keep
-    for (GameObjectSet::const_iterator itr = m_KeepGameObject[GetAttackerTeam()].begin(); itr != m_KeepGameObject[GetAttackerTeam()].end(); ++itr)
-        (*itr)->SetRespawnTime(RESPAWN_ONE_DAY);
-
     UpdateCounterVehicle(true);
     return true;
 }
