@@ -1734,7 +1734,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     Field* fields = result->Fetch();
     uint32 at_loginFlags = fields[0].GetUInt16();
     char const* knownTitlesStr = fields[1].GetCString();
-    uint32 used_loginFlag = ((recv_data.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
+    uint32 used_loginFlag = ((recvData.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {

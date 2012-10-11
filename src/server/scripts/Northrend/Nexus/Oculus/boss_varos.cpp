@@ -20,7 +20,6 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "oculus.h"
-#include "MapManager.h"
 
 enum Says
 {
