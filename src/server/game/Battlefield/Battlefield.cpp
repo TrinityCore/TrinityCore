@@ -34,13 +34,12 @@
 
 Battlefield::Battlefield()
 {
-    m_Guid = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
-
     m_Timer = 0;
     m_IsEnabled = true;
     m_isActive = false;
     m_DefenderTeam = TEAM_NEUTRAL;
 
+    m_Guid = 0;
     m_TypeId = 0;
     m_BattleId = 0;
     m_ZoneId = 0;
