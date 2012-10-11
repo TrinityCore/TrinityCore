@@ -108,8 +108,8 @@ enum BattlegroundTimeIntervals
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
-    INVITE_ACCEPT_WAIT_TIME         = 40000,                // ms
-    TIME_TO_AUTOREMOVE              = 120000,               // ms
+    INVITE_ACCEPT_WAIT_TIME         = 90000,                // ms
+    TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
     RESPAWN_IMMEDIATELY             = 0,                    // secs
@@ -257,23 +257,33 @@ enum BattlegroundStartingEventsIds
 
 enum GroupJoinBattlegroundResult
 {
-    // positive values are indexes in BattlemasterList.dbc
-    ERR_GROUP_JOIN_BATTLEGROUND_FAIL        = 0,            // Your group has joined a battleground queue, but you are not eligible (showed for non existing BattlemasterList.dbc indexes)
-    ERR_BATTLEGROUND_NONE                   = -1,           // not show anything
-    ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS   = -2,           // You cannot join the battleground yet because you or one of your party members is flagged as a Deserter.
-    ERR_ARENA_TEAM_PARTY_SIZE               = -3,           // Incorrect party size for this arena.
-    ERR_BATTLEGROUND_TOO_MANY_QUEUES        = -4,           // You can only be queued for 2 battles at once
-    ERR_BATTLEGROUND_CANNOT_QUEUE_FOR_RATED = -5,           // You cannot queue for a rated match while queued for other battles
-    ERR_BATTLEDGROUND_QUEUED_FOR_RATED      = -6,           // You cannot queue for another battle while queued for a rated arena match
-    ERR_BATTLEGROUND_TEAM_LEFT_QUEUE        = -7,           // Your team has left the arena queue
-    ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND    = -8,           // You can't do that in a battleground.
-    ERR_BATTLEGROUND_JOIN_XP_GAIN           = -9,           // wtf, doesn't exist in client...
-    ERR_BATTLEGROUND_JOIN_RANGE_INDEX       = -10,          // Cannot join the queue unless all members of your party are in the same battleground level range.
-    ERR_BATTLEGROUND_JOIN_TIMED_OUT         = -11,          // %s was unavailable to join the queue. (uint64 guid exist in client cache)
-    ERR_BATTLEGROUND_JOIN_FAILED            = -12,          // Join as a group failed (uint64 guid doesn't exist in client cache)
-    ERR_LFG_CANT_USE_BATTLEGROUND           = -13,          // You cannot queue for a battleground or arena while using the dungeon system.
-    ERR_IN_RANDOM_BG                        = -14,          // Can't do that while in a Random Battleground queue.
-    ERR_IN_NON_RANDOM_BG                    = -15           // Can't queue for Random Battleground while in another Battleground queue.
+    ERR_BATTLEGROUND_NONE                           = 0,
+    ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS           = 2,        // You cannot join the battleground yet because you or one of your party members is flagged as a Deserter.
+    ERR_ARENA_TEAM_PARTY_SIZE                       = 3,        // Incorrect party size for this arena.
+    ERR_BATTLEGROUND_TOO_MANY_QUEUES                = 4,        // You can only be queued for 2 battles at once
+    ERR_BATTLEGROUND_CANNOT_QUEUE_FOR_RATED         = 5,        // You cannot queue for a rated match while queued for other battles
+    ERR_BATTLEDGROUND_QUEUED_FOR_RATED              = 6,        // You cannot queue for another battle while queued for a rated arena match
+    ERR_BATTLEGROUND_TEAM_LEFT_QUEUE                = 7,        // Your team has left the arena queue
+    ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND            = 8,        // You can't do that in a battleground.
+    ERR_BATTLEGROUND_JOIN_XP_GAIN                   = 9,        // wtf, doesn't exist in client...
+    ERR_BATTLEGROUND_JOIN_RANGE_INDEX               = 10,       // Cannot join the queue unless all members of your party are in the same battleground level range.
+    ERR_BATTLEGROUND_JOIN_TIMED_OUT                 = 11,       // %s was unavailable to join the queue. (uint64 guid exist in client cache)
+    //ERR_BATTLEGROUND_JOIN_TIMED_OUT               = 12,       // same as 11
+    //ERR_BATTLEGROUND_TEAM_LEFT_QUEUE              = 13,       // same as 7
+    ERR_LFG_CANT_USE_BATTLEGROUND                   = 14,       // You cannot queue for a battleground or arena while using the dungeon system.
+    ERR_IN_RANDOM_BG                                = 15,       // Can't do that while in a Random Battleground queue.
+    ERR_IN_NON_RANDOM_BG                            = 16,       // Can't queue for Random Battleground while in another Battleground queue.
+    ERR_BG_DEVELOPER_ONLY                           = 17,
+    ERR_BATTLEGROUND_INVITATION_DECLINED            = 18,
+    ERR_MEETING_STONE_NOT_FOUND                     = 19,
+    ERR_WARGAME_REQUEST_FAILURE                     = 20,
+    ERR_BATTLEFIELD_TEAM_PARTY_SIZE                 = 22,
+    ERR_NOT_ON_TOURNAMENT_REALM                     = 23,
+    ERR_BATTLEGROUND_PLAYERS_FROM_DIFFERENT_REALMS  = 24,
+    ERR_REMOVE_FROM_PVP_QUEUE_GRANT_LEVEL           = 33,
+    ERR_REMOVE_FROM_PVP_QUEUE_FACTION_CHANGE        = 34,
+    ERR_BATTLEGROUND_JOIN_FAILED                    = 35,
+    ERR_BATTLEGROUND_DUPE_QUEUE                     = 43
 };
 
 struct BattlegroundScore
@@ -341,8 +351,8 @@ class Battleground
         uint32 GetInstanceID() const        { return m_InstanceID; }
         BattlegroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
-        uint32 GetStartTime() const         { return m_StartTime; }
-        uint32 GetEndTime() const           { return m_EndTime; }
+        uint32 GetElapsedTime() const       { return m_StartTime; }
+        uint32 GetRemainingTime() const     { return m_EndTime; }
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
         uint32 GetMinPlayers() const        { return m_MinPlayers; }
@@ -361,6 +371,7 @@ class Battleground
         bool IsRandom() const { return m_IsRandom; }
 
         // Set methods:
+        void SetGuid(uint64 newGuid)        { m_Guid = newGuid; }
         void SetName(char const* Name)      { m_Name = Name; }
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
@@ -369,8 +380,8 @@ class Battleground
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(BattlegroundStatus Status) { m_Status = Status; }
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }
-        void SetStartTime(uint32 Time)      { m_StartTime = Time; }
-        void SetEndTime(uint32 Time)        { m_EndTime = Time; }
+        void SetElapsedTime(uint32 Time)        { m_StartTime = Time; }
+        void SetRemainingTime(uint32 Time)      { m_EndTime = Time; }
         void SetLastResurrectTime(uint32 Time) { m_LastResurrectTime = Time; }
         void SetMaxPlayers(uint32 MaxPlayers) { m_MaxPlayers = MaxPlayers; }
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
