@@ -37,6 +37,9 @@ UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_
 UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_2;
 UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_3;
 
+-- adding immunities to some northrend heroic bosses
+UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask |1|2|4|8|16|32|64|256|512|1024|2048|4096|8192|65536|131072|262144|524288|4194304|8388608|67108864|536870912 WHERE entry IN (30258,31463,29120,31610,31134,31506,29307,31365,29573,31367,27654,31558,29932,29315,31507,29306,31368,28586,31533,26687,30774,28921,31611,29311,31464,29313,31508,28546,31537,29310,31465,27483,31349,27977,31381,29312,31509,27656,31561,28923,31538,27655,31560,27975,31384,29305,30530,29316,31510,29308,31469,27978,31386,29304,31370,27447,31559,28587,31536,29266,31511,29314,31512);
+
 ###########################
 -- TRIAL OF THE CRUSADER ##
 ###########################
