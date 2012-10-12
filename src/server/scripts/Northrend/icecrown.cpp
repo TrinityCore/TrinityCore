@@ -454,13 +454,13 @@ class npc_tournament_training_dummy : public CreatureScript
                     case EVENT_DUMMY_RECAST_DEFEND:
                         switch (me->GetEntry())
                         {
-                         case NPC_CHARGE_TARGET:
+                            case NPC_CHARGE_TARGET:
                             {
                                 if (!me->HasAura(SPELL_CHARGE_DEFEND))
                                     DoCast(SPELL_CHARGE_DEFEND);
                                 break;
                             }
-                         case NPC_RANGED_TARGET:
+                            case NPC_RANGED_TARGET:
                             {
                                 Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
                                 if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
