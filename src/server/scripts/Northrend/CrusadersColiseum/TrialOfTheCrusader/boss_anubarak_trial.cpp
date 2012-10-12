@@ -33,6 +33,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
+#include <limits>
 
 enum Yells
 {
@@ -787,7 +788,7 @@ public:
             // make sure the Spine will really follow the one he should
             me->getThreatManager().clearReferences();
             me->SetInCombatWithZone();
-            me->getThreatManager().addThreat(who, 10000.f);
+            me->getThreatManager().addThreat(who, std::numeric_limits<float>::max());
             me->GetMotionMaster()->Clear(true);
             me->GetMotionMaster()->MoveChase(who);
             me->TauntApply(who);
