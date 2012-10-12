@@ -32,6 +32,10 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
 
+//global define faction in cpp
+#define FACTION_FRIENDLY        = 35
+#define FACTION_HOSTILE         = 14
+
 /*######
 ## npc_arete
 ######*/
@@ -202,16 +206,16 @@ public:
             if (uiType != POINT_MOTION_TYPE)
                 return;
 
-            me->setFaction(14);
+            me->setFaction(FACTION_HOSTILE);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+        void DamageTaken(Unit* doneby, uint32& uiDamage)
         {
-            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            if (uiDamage > me->GetHealth() && doneby->GetTypeId() == TYPEID_PLAYER)
             {
                 uiDamage = 0;
-                pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
-                me->setFaction(35);
+                doneby->CastSpell(doneby, SPELL_KILL_CREDIT, true);
+                me->setFaction(FACTION_FRIENDLY);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 EnterEvadeMode();
@@ -450,13 +454,13 @@ class npc_tournament_training_dummy : public CreatureScript
                     case EVENT_DUMMY_RECAST_DEFEND:
                         switch (me->GetEntry())
                         {
-                            case NPC_CHARGE_TARGET:
+                         case NPC_CHARGE_TARGET:
                             {
                                 if (!me->HasAura(SPELL_CHARGE_DEFEND))
                                     DoCast(SPELL_CHARGE_DEFEND);
                                 break;
                             }
-                            case NPC_RANGED_TARGET:
+                         case NPC_RANGED_TARGET:
                             {
                                 Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
                                 if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
@@ -493,6 +497,307 @@ class npc_tournament_training_dummy : public CreatureScript
 
 };
 
+/*######
+## npc_valiant
+######*/
+
+enum valiantChampion
+{
+    SPELL_REFRESH_MOUNT         = 66483,
+    SPELL_GIVE_VALIANT_MARK_1   = 62724,
+    SPELL_GIVE_VALIANT_MARK_2   = 62770,
+    SPELL_GIVE_VALIANT_MARK_3   = 62771,
+    SPELL_GIVE_VALIANT_MARK_4   = 62995,
+    SPELL_GIVE_VALIANT_MARK_5   = 62996,
+    SPELL_GIVE_CHAMPION_MARK    = 63596,
+    SPELL_AURA_PERIODIC         = 64223,
+    SPELL_BESTED_DARNASSUS      = 64805,
+    SPELL_BESTED_GNOMEREGAN     = 64809,
+    SPELL_BESTED_IRONFORGE      = 64810,
+    SPELL_BESTED_ORGRIMMAR      = 64811,
+    SPELL_BESTED_SENJIN         = 64812,
+    SPELL_BESTED_SILVERMOON     = 64813,
+    SPELL_BESTED_STORMWIND      = 64814,
+    SPELL_BESTED_EXODAR         = 64808,
+    SPELL_BESTED_UNDERCITY      = 64816,
+    SPELL_BESTED_THUNDERBLUFF   = 64815,
+    SPELL_AURA_TOURNAMENT_MOUNT = 63034,
+};
+
+static const uint32 QuestTheGrandMelee[] = {13665,13745,13750,13756,13761,13767,13772,13777,13782,13787};
+static const uint32 QuestAmongTheChampions[] = {13790,13793,13811,13814};
+
+#define GOSSIP_MELEE_FIGHT      "I'am ready to fight!"
+
+class npc_valiant : public CreatureScript
+{
+public:
+   npc_valiant() : CreatureScript("npc_valiant") { }
+
+   struct npc_valiantAI : public ScriptedAI
+   {
+       npc_valiantAI(Creature* creature) : ScriptedAI(creature) {}
+
+       uint32 uiChargeTimer;
+       uint32 uiShieldBreakerTimer;
+       uint64 guidAttacker;
+       bool chargeing;
+
+       void Reset()
+       {
+           uiChargeTimer = 7*IN_MILLISECONDS;
+           uiShieldBreakerTimer = 10*IN_MILLISECONDS;
+
+           me->setFaction(FACTION_FRIENDLY);
+       }
+
+       void EnterCombat(Unit* attacker)
+       {
+           guidAttacker = attacker->GetGUID();
+           DoCast(me,SPELL_AURA_PERIODIC,true);
+           if (Aura* aur = me->AddAura(SPELL_RANGED_DEFEND,me))
+               aur->ModStackAmount(1);
+       }
+
+       void MovementInform(uint32 uiType, uint32 uiId)
+       {
+           if (uiType != POINT_MOTION_TYPE)
+               return;
+
+           if (uiId != 1)
+               return;
+
+           chargeing = false;
+
+           DoCastVictim(SPELL_CHARGE);
+           if (me->getVictim())
+               me->GetMotionMaster()->MoveChase(me->getVictim());
+       }
+
+       void DamageTaken(Unit* doneby, uint32& uiDamage)
+       {
+           if (uiDamage > me->GetHealth() && doneby->GetTypeId() == TYPEID_PLAYER)
+           {
+               uiDamage = 0;
+
+               if (doneby->HasAura(SPELL_AURA_TOURNAMENT_MOUNT))
+               {
+                   switch(me->GetEntry())
+                   {
+                       case 33559: // Darnassus
+                       case 33562: // Exodar
+                       case 33558: // Gnomeregan
+                       case 33564: // Ironforge
+                       case 33306: // Orgrimmar
+                       case 33285: // Sen'jin
+                       case 33382: // Silvermoon
+                       case 33561: // Stormwind
+                       case 33383: // Thunder Bluff
+                       case 33384: // Undercity
+                       {
+                           doneby->CastSpell(doneby,SPELL_GIVE_VALIANT_MARK_1,true);
+                           break;
+                       }
+                       case 33738: // Darnassus
+                       case 33739: // Exodar
+                       case 33740: // Gnomeregan
+                       case 33743: // Ironforge
+                       case 33744: // Orgrimmar
+                       case 33745: // Sen'jin
+                       case 33746: // Silvermoon
+                       case 33747: // Stormwind
+                       case 33748: // Thunder Bluff
+                       case 33749: // Undercity
+                       {
+                           doneby->CastSpell(doneby,SPELL_GIVE_CHAMPION_MARK,true);
+                           break;
+                       }
+                   }
+
+                   switch(me->GetEntry())
+                   {
+                       case 33738: // Darnassus
+                           doneby->CastSpell(doneby,SPELL_BESTED_DARNASSUS,true); break;
+                       case 33739: // Exodar
+                           doneby->CastSpell(doneby,SPELL_BESTED_EXODAR,true); break;
+                       case 33740: // Gnomeregan
+                           doneby->CastSpell(doneby,SPELL_BESTED_GNOMEREGAN,true); break;
+                       case 33743: // Ironforge
+                           doneby->CastSpell(doneby,SPELL_BESTED_IRONFORGE,true); break;
+                       case 33744: // Orgrimmar
+                           doneby->CastSpell(doneby,SPELL_BESTED_ORGRIMMAR,true); break;
+                       case 33745: // Sen'jin
+                           doneby->CastSpell(doneby,SPELL_BESTED_SENJIN,true); break;
+                       case 33746: // Silvermoon
+                           doneby->CastSpell(doneby,SPELL_BESTED_SILVERMOON,true); break;
+                       case 33747: // Stormwind
+                           doneby->CastSpell(doneby,SPELL_BESTED_STORMWIND,true); break;
+                       case 33748: // Thunder Bluff
+                           doneby->CastSpell(doneby,SPELL_BESTED_THUNDERBLUFF,true); break;
+                       case 33749: // Undercity
+                           doneby->CastSpell(doneby,SPELL_BESTED_UNDERCITY,true); break;
+                   }
+               }
+
+               me->setFaction(FACTION_FRIENDLY);
+               EnterEvadeMode();
+               me->CastSpell(me,SPELL_REFRESH_MOUNT,true);
+           }
+       }
+
+       void UpdateAI(const uint32 uiDiff)
+       {
+           if (!UpdateVictim())
+               return;
+
+           if (uiChargeTimer <= uiDiff)
+           {
+               chargeing = true;
+               float x,y,z;
+               me->GetNearPoint(me, x, y, z, 1.0f, 15.0f, float(2 * M_PI * rand_norm()));
+               me->GetMotionMaster()->MovePoint(1,x,y,z);
+
+               uiChargeTimer = 15*IN_MILLISECONDS;
+           } else uiChargeTimer -= uiDiff;
+
+           if (uiShieldBreakerTimer <= uiDiff)
+           {
+               DoCastVictim(SPELL_SHIELD_BREAKER);
+               uiShieldBreakerTimer = 10*IN_MILLISECONDS;
+           } else uiShieldBreakerTimer -= uiDiff;
+
+           if (me->isAttackReady())
+           {
+               DoCast(me->getVictim(), SPELL_PLAYER_THRUST, true);
+               me->resetAttackTimer();
+           }
+
+           if (Player* player = Player::GetPlayer(*me,guidAttacker))
+                if (!player->HasAura(SPELL_AURA_TOURNAMENT_MOUNT))
+                    EnterEvadeMode();
+       }
+   };
+
+   CreatureAI *GetAI(Creature* creature) const
+   {
+       return new npc_valiantAI(creature);
+   }
+
+   bool MakeDuel(Player* player, uint32 npcID)
+   {
+       switch (npcID)
+       {
+           case 33738: // Darnassus
+               return !player->HasAura(SPELL_BESTED_DARNASSUS);
+           case 33739: // Exodar
+               return !player->HasAura(SPELL_BESTED_EXODAR);
+           case 33740: // Gnomeregan
+               return !player->HasAura(SPELL_BESTED_GNOMEREGAN);
+           case 33743: // Ironforge
+               return !player->HasAura(SPELL_BESTED_IRONFORGE);
+           case 33744: // Orgrimmar
+               return !player->HasAura(SPELL_BESTED_ORGRIMMAR);
+           case 33745: // Sen'jin
+               return !player->HasAura(SPELL_BESTED_SENJIN);
+           case 33746: // Silvermoon
+               return !player->HasAura(SPELL_BESTED_SILVERMOON);
+           case 33747: // Stormwind
+               return !player->HasAura(SPELL_BESTED_STORMWIND);
+           case 33748: // Thunder Bluff
+               return !player->HasAura(SPELL_BESTED_THUNDERBLUFF);
+           case 33749: // Undercity
+               return !player->HasAura(SPELL_BESTED_UNDERCITY);
+       }
+       return true;
+   }
+
+   void AddMeleeFightGossip(Player* player)
+   {
+       if (!player)
+           return;
+
+       if (player->HasAura(SPELL_AURA_TOURNAMENT_MOUNT) &&((player->GetQuestStatus(QuestTheGrandMelee[urand(0,9)])) == QUEST_STATUS_INCOMPLETE))
+       {
+           player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MELEE_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+       }
+   }
+
+
+   bool OnGossipHello(Player* player, Creature* creature)
+   {
+       switch(creature->GetEntry())
+       {
+           case 33559: // Darnassus
+           case 33562: // Exodar
+           case 33558: // Gnomeregan
+           case 33564: // Ironforge
+           case 33561: // Stormwind
+           {
+               if (player->GetTeamId() == TEAM_ALLIANCE)
+                   AddMeleeFightGossip(player);
+               break;
+           }
+           case 33306: // Orgrimmar
+           case 33285: // Sen'jin
+           case 33382: // Silvermoon
+           case 33383: // Thunder Bluff
+           case 33384: // Undercity
+           {
+               if (player->GetTeamId() == TEAM_HORDE)
+                   AddMeleeFightGossip(player);
+               break;
+           }
+           case 33738: // Darnassus
+           case 33739: // Exodar
+           case 33740: // Gnomeregan
+           case 33743: // Ironforge
+           case 33744: // Orgrimmar
+           case 33745: // Sen'jin
+           case 33746: // Silvermoon
+           case 33747: // Stormwind
+           case 33748: // Thunder Bluff
+           case 33749: // Undercity
+           {
+               if (player->HasAura(SPELL_AURA_TOURNAMENT_MOUNT) && ((player->GetQuestStatus(QuestAmongTheChampions[urand(0,3)])) == QUEST_STATUS_INCOMPLETE))
+               {
+                   if (MakeDuel(player,creature->GetEntry()))
+                       player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MELEE_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+               }
+               break;
+           }
+       }
+
+       player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+       return true;
+   }
+
+   bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+   {
+       player->PlayerTalkClass->ClearMenus();
+       player->CLOSE_GOSSIP_MENU();
+       if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+       {
+           creature->setFaction(FACTION_HOSTILE);
+           creature->AI()->AttackStart(player->GetVehicleCreatureBase());
+           creature->AddThreat(player, 0.0f);
+           creature->SetInCombatWith(player);
+           player->SetInCombatWith(creature);
+           return true;
+       }
+
+       if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
+       {
+           creature->setFaction(FACTION_HOSTILE);
+           creature->AI()->AttackStart(player->GetVehicleCreatureBase());
+           creature->AddThreat(player, 0.0f);
+           creature->SetInCombatWith(player);
+           player->SetInCombatWith(creature);
+           return true;
+       }
+       return true;
+   }
+};
+
 void AddSC_icecrown()
 {
     new npc_arete;
@@ -501,4 +806,5 @@ void AddSC_icecrown()
     new npc_guardian_pavilion;
     new npc_vereth_the_cunning;
     new npc_tournament_training_dummy;
+    new npc_valiant();
 }
