@@ -75,6 +75,7 @@
 #include <cmath>
 #include "AccountMgr.h"
 #include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
@@ -513,10 +514,14 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
         for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
             AddPct(xp, (*i)->GetAmount());
 
-        // 4.2.3. Give XP to player.
+        // 4.2.3. Calculate expansion penalty
+        if (_victim->GetTypeId() == TYPEID_UNIT && player->GetLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
+            xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
+        
+        // 4.2.4. Give XP to player.
         player->GiveXP(xp, _victim, _groupRate);
         if (Pet* pet = player->GetPet())
-            // 4.2.4. If player has pet, reward pet with XP (100% for single player, 50% for group case).
+            // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
             pet->GivePetXP(_group ? xp / 2 : xp);
     }
 }
