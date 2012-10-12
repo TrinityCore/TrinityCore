@@ -2140,8 +2140,6 @@ class npc_shadowfiend : public CreatureScript
                     if (Unit* owner = me->ToTempSummon()->GetSummoner())
                         if (owner->HasAura(GLYPH_OF_SHADOWFIEND))
                             owner->CastSpell(owner, GLYPH_OF_SHADOWFIEND_MANA, true);
-
-                PetAI::JustDied(killer);
             }
         };
 
