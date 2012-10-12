@@ -1299,7 +1299,8 @@ INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
 (32795, 52455);
 
 -- adding sota vehicle immunities + really prevent them regenerating
-UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` |2|8|16|32|64|256|512|1024|2048|4096|8192|65536|262144|8388608|67108864|268435456, `RegenHealth`=0 WHERE `entry` IN (27894, 32795, 28781, 32796);
+UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` |2|8|16|32|64|256|512|1024|2048|4096|8192|65536|262144|8388608|67108864|268435456, `RegenHealth`=0 WHERE `entry` IN (27894, 32795, 28781, 32796);
+UPDATE `creature_template` SET `speed_run`=0.985714 WHERE `entry` IN (28781, 32796);
 
 ###################
 -- Alterac Valley #
