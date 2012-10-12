@@ -1158,6 +1158,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PVP_TOKEN_COUNT] = ConfigMgr::GetIntDefault("PvPToken.ItemCount", 1);
     if (m_int_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
         m_int_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
+    m_bool_configs[CONFIG_PVP_DUEL_COOLDOWN] = ConfigMgr::GetBoolDefault("ResetDuelCooldown", false);
 
     m_bool_configs[CONFIG_NO_RESET_TALENT_COST] = ConfigMgr::GetBoolDefault("NoResetTalentsCost", false);
     m_bool_configs[CONFIG_SHOW_KICK_IN_WORLD] = ConfigMgr::GetBoolDefault("ShowKickInWorld", false);
@@ -2988,7 +2989,7 @@ void World::LoadCharacterNameData()
 {
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character name data");
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class FROM characters WHERE deleteDate IS NULL");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level FROM characters WHERE deleteDate IS NULL");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "No character name data loaded, empty query");
@@ -3001,20 +3002,21 @@ void World::LoadCharacterNameData()
     {
         Field* fields = result->Fetch();
         AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
-            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/);
+            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/);
         ++count;
     } while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters", count);
 }
 
-void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass)
+void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
     CharacterNameData& data = _characterNameDataMap[guid];
     data.m_name = name;
     data.m_race = race;
     data.m_gender = gender;
     data.m_class = playerClass;
+    data.m_level = level;
 }
 
 void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
@@ -3030,6 +3032,15 @@ void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 
 
     if (race != RACE_NONE)
         itr->second.m_race = race;
+}
+
+void World::UpdateCharacterNameDataLevel(uint32 guid, uint8 level)
+{
+    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
+    if (itr == _characterNameDataMap.end())
+        return;
+
+    itr->second.m_level = level;
 }
 
 CharacterNameData const* World::GetCharacterNameData(uint32 guid) const

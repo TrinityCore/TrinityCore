@@ -26,7 +26,6 @@ EndScriptData */
 // Known bugs:
 // Anubarak - underground phase partially not worked
 //          - tele after impale hit a permafrost doesn't work (the entire tele spell should be better)
-// Burrow   - visual is vanishing
 // Burrower - Spider Frenzy not working as it should (frenzy not stacking)
 // Scarab   - Kill credit isn't crediting?
 // FrostSph - often they are casting Permafrost a little above the ground
@@ -239,7 +238,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
             switch (summoned->GetEntry())
             {
                 case NPC_BURROW:
@@ -440,7 +439,7 @@ public:
             m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             DoCast(me, SPELL_ACID_MANDIBLE);
             me->SetInCombatWithZone();
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 me->AddThreat(target, 20000.0f);
             if (!me->isInCombat())
                 me->DisappearAndDie();
@@ -563,7 +562,7 @@ public:
                         events.ScheduleEvent(EVENT_SUBMERGE, 20*IN_MILLISECONDS);
                         return;
                     case EVENT_SHADOW_STRIKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             DoCast(target, SPELL_SHADOW_STRIKE);
                         events.ScheduleEvent(EVENT_SHADOW_STRIKE, 20*IN_MILLISECONDS, 0, PHASE_GROUND);
                         return;
@@ -687,7 +686,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
             {
                 StartChase(target);
                 Talk(EMOTE_SPIKE, who->GetGUID());
@@ -718,7 +717,7 @@ public:
                             DoCast(me, SPELL_SPIKE_SPEED1);
                             DoCast(me, SPELL_SPIKE_TRAIL);
                             m_Phase = PHASE_IMPALE_NORMAL;
-                            if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 StartChase(target2);
                                 Talk(EMOTE_SPIKE, target2->GetGUID());

@@ -86,7 +86,7 @@ public:
             uiConsumeTimer = 15*IN_MILLISECONDS;
             uiAuraCountTimer = 15500;
             uiCrushTimer = urand(1*IN_MILLISECONDS, 5*IN_MILLISECONDS);
-            uiInfectedWoundTimer = urand(60*IN_MILLISECONDS, 10*IN_MILLISECONDS);
+            uiInfectedWoundTimer = urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             uiExplodeCorpseTimer = 3*IN_MILLISECONDS;
             uiSpawnTimer = urand(30*IN_MILLISECONDS, 40*IN_MILLISECONDS);
 

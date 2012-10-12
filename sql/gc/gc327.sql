@@ -24,9 +24,22 @@ UPDATE `gameobject_template` SET `flags`=`flags` &~16 WHERE `entry`=193426;
 -- despawn Skadi's drake, hes spawned via core
 DELETE FROM `creature` WHERE `id`=26893;
 
-##########################
--- TRIAL OF THE CRUSADER #
-##########################
+-- minor Dalaran images edit
+DELETE FROM `creature` WHERE `id` IN (31584, 31622, 31631, 31634);
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(104503, 31584, 571, 1, 1, 0, 0, 5701.41, 585.792, 652.632, 4.01827, 300, 0, 0, 168512, 0, 0, 0, 0, 0),
+(108043, 31622, 571, 1, 1, 0, 0, 5704.07, 583.587, 652.632, 4.03398, 300, 0, 0, 337025, 0, 0, 0, 0, 0),
+(109066, 31631, 571, 1, 1, 0, 0, 5769.25, 530.56, 652.633, 3.99314, 300, 0, 0, 48700, 0, 0, 0, 0, 0),
+(109724, 31634, 571, 1, 1, 0, 0, 5772.38, 528.269, 652.632, 4.02134, 300, 0, 0, 50400, 0, 0, 0, 0, 0);
+
+-- queries for correcting missing equipment_id at other than 10m normal brackets
+UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_1;
+UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_2;
+UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_3;
+
+###########################
+-- TRIAL OF THE CRUSADER ##
+###########################
 
 -- Trial of the Crusader Death knight Death grip scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (66017, 68753, 68754, 68755);
@@ -184,7 +197,7 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=63322;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (63322, 'spell_saronite_vapors');
 
--- leviathan tower buffs
+-- Leviathan tower buffs
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (64482, 65075, 65076, 65077);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (64482, 'spell_leviathan_tower_buff'),
@@ -192,12 +205,12 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (65076, 'spell_leviathan_tower_buff'),
 (65077, 'spell_leviathan_tower_buff');
 
--- thorim berserk
+-- Thorim berserk
 DELETE FROM `spell_script_names` WHERE `spell_id`=62560;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62560, 'spell_thorim_berserk');
 
--- thorim Charge orb targeting
+-- Thorim Charge orb targeting
 DELETE FROM `spell_script_names` WHERE `spell_id`=62016;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62016, 'spell_thorim_charge_orb_targeting');
@@ -236,6 +249,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (62907, 'spell_freyas_ward_summon'),
 (63847, 'spell_leviathan_flame_vents'),
 (64677, 'spell_shield_generator');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=64623;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(64623, 'spell_frost_bomb');
 
 -- Renamed - the resulting effect is called "Pursued", not "Pursue"
 UPDATE `spell_script_names` SET `ScriptName`='spell_pursued' WHERE `spell_id`=62374;
@@ -397,6 +414,9 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 (10239, 12, 1, 0, ''), 
 (10239, 11, 0, 0, 'achievement_staying_buffed_all_winter_25');
 
+-- adding hodir a weapon in 25m mode
+UPDATE `creature_template` SET `equipment_id`=1842 WHERE `entry`=32845;
+
 -- Thorim
 UPDATE `creature_template` SET `ScriptName`='boss_thorim' WHERE `entry`=32865;
 UPDATE `creature_template` SET `equipment_id`=1844 WHERE `entry`=33147;
@@ -450,7 +470,11 @@ DELETE FROM `creature` WHERE `id` IN (32882,32908,32885,32886,32907,32883); -- N
 UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|64|256|512|1024|2048|4096|8192|65536|131072|524288|4194304|8388608|33554432|67108864|536870912, `flags_extra`=1, `ScriptName`='npc_runic_colossus' WHERE `entry`=32872;
 UPDATE `creature_template` SET `mechanic_immune_mask`= 1|2|4|8|16|64|256|512|1024|2048|4096|8192|65536|131072|524288|4194304|8388608|33554432|67108864|536870912, `flags_extra`=1, `ScriptName`='npc_ancient_rune_giant' WHERE `entry`=32873;
 UPDATE `creature_template` SET `mechanic_immune_mask`= 1|2|4|8|16|64|256|512|1024|2048|4096|8192|65536|131072|524288|4194304|8388608|33554432|67108864|536870912, `flags_extra`=1, `ScriptName`='npc_sif' WHERE `entry`=33196;
+
+-- updating giant and Sif immunities
+UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|64|256|512|1024|2048|4096|8192|65536|131072|524288|4194304|8388608|33554432|67108864|536870912 WHERE `entry` IN (33149, 33148, 33196);
 UPDATE `creature_template` SET `ScriptName`='npc_thorim_arena_phase_add' WHERE `entry` IN (32876, 32904, 32878, 32877, 32874, 32875, 33110);
+
 DELETE FROM `creature_addon` WHERE `guid` IN (136059, 136816);
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (136059, 0, 0, 0, 1, 0, '40775'),
@@ -510,7 +534,7 @@ INSERT INTO `vehicle_template_accessory` VALUES
 (33432, 34071, 3, 1, 'Leviathan Mk II turret', 8, 0);
 -- Leviathan skills and skill-helper
 UPDATE `creature_template` SET `ScriptName`='npc_proximity_mine' WHERE `entry`=34362;
-UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` = 28831;
+UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` IN (28831, 28841, 28979);
 
 -- VX-001
 UPDATE `creature_template` SET `flags_extra`=`flags_extra` |1, `vehicleid`=371, `ScriptName`='boss_vx_001' WHERE `entry`=33651;
@@ -683,9 +707,6 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2
 
 -- Stormcaller Brundir (stun and interrupt immunities are handled in scripts)
 UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912, `flags_extra`=1 WHERE `entry` IN (32857, 33694);
-
--- updating giant immunities
-UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|64|256|512|1024|2048|4096|8192|65536|131072|524288|4194304|8388608|33554432|67108864|536870912 WHERE `entry` IN (33149, 33148);
 
 -- assigning 25m version of Brain of Yogg-Saron to the normal version
 UPDATE `creature_template` SET `difficulty_entry_1`=33954 WHERE `entry`=33890;
@@ -1233,6 +1254,31 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33244, 0, 0, 'Combat matrix enhanced. Behold wonderous rapidity!', 14, 0, 100, 0, 0, 15630, 'Mimiron SAY_YS_HELP'),
 (33242, 0, 0, 'Golganneth, lend me your strengh! Grant my mortal allies the power of thunder!', 14, 0, 100, 0, 0, 15750, 'Thorim SAY_YS_HELP');
 
+-- Ulduar loot corrections
+-- XT002 Deconstructor
+DELETE FROM `creature_loot_template` WHERE `item`>=45442 AND `item`<=45446 AND `entry`=33293;
+DELETE FROM `reference_loot_template` WHERE `item`>=45867 AND `item`<=45871 AND `entry`=34357;
+DELETE FROM `creature_loot_template` WHERE `item`>=45867 AND `item`<=45871 AND `entry`=33293;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`) VALUES
+(33293, 45867, 0, 2, 1),
+(33293, 45868, 0, 2, 1),
+(33293, 45869, 0, 2, 1),
+(33293, 45870, 0, 2, 1),
+(33293, 45871, 0, 2, 1);
+
+-- Assembly of Iron - Steelbreaker
+UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=32867 AND `item` IN (45447, 45448, 45449, 45456);
+UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=33693 AND `item` IN (45241, 45242, 45243, 45244, 45245, 45607);
+
+-- Hodir - spawning hardmode caches
+DELETE FROM `gameobject` WHERE `id` IN (194200, 194201);
+INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(194200, 603, 1, 1, 2035.75, -195.046, 432.687, 3.68744, 0, 0, 0.962987, -0.269548, 604800, 255, 1),
+(194201, 603, 2, 1, 2035.75, -195.046, 432.687, 3.68744, 0, 0, 0.962987, -0.269548, 604800, 255, 1);
+
+-- Thorim (no need to add custom lootmode, hardmode cache is spawned only when it should)
+UPDATE `gameobject_loot_template` SET `lootmode`=1 WHERE `entry` IN (26955, 26956, 27074);
+
 ###########################
 -- Strand of the Ancients #
 ###########################
@@ -1299,3 +1345,6 @@ UPDATE creature_template SET difficulty_entry_3 = 37291 WHERE entry = 14772;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37291;
 UPDATE creature_template SET difficulty_entry_3 = 37468 WHERE entry = 14777;
 UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37468;
+
+-- misc battleground queries
+UPDATE battleground_template SET MinPlayersPerTeam = 5 WHERE id IN (3, 7, 9, 32);

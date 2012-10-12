@@ -182,12 +182,12 @@ public:
                         events.ScheduleEvent(EVENT_FEL_FIREBALL, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                         return;
                     case EVENT_FEL_LIGHTNING:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true, -SPELL_LORD_HITTIN))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_LORD_HITTIN))
                             DoCast(target, SPELL_FEL_LIGHTING);
                         events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                         return;
                     case EVENT_INCINERATE_FLESH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true, -SPELL_LORD_HITTIN))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_LORD_HITTIN))
                         {
                             Talk(EMOTE_INCINERATE, target->GetGUID());
                             Talk(SAY_INCINERATE);
@@ -200,7 +200,7 @@ public:
                         events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
                         return;
                     case EVENT_LEGION_FLAME:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true, -SPELL_LORD_HITTIN))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_LORD_HITTIN))
                         {
                             Talk(EMOTE_LEGION_FLAME, target->GetGUID());
                             DoCast(target, SPELL_LEGION_FLAME);
@@ -371,7 +371,7 @@ public:
 
             if (m_uiFelStreakTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     DoCast(target, SPELL_FEL_STREAK);
                 m_uiFelStreakTimer = 30*IN_MILLISECONDS;
             } else m_uiFelStreakTimer -= uiDiff;
@@ -495,7 +495,7 @@ public:
 
             if (m_uiSpinningStrikeTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     DoCast(target, SPELL_SPINNING_STRIKE);
                 m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
             } else m_uiSpinningStrikeTimer -= uiDiff;
