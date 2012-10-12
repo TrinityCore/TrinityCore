@@ -294,7 +294,7 @@ class boss_flame_leviathan : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                me->SetReactState(REACT_AGGRESSIVE);
+                me->SetReactState(REACT_PASSIVE);   // Enforce react-type, unless PURSUE gets active.
                 events.ScheduleEvent(EVENT_PURSUE, 1);
                 events.ScheduleEvent(EVENT_MISSILE, urand(1.5*IN_MILLISECONDS, 4*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
