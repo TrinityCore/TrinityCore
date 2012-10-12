@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[63] --> Fix Evade (Test).
 [62] --> Core/Maps: Merge some changes to GetHeight Calculation.
 [61] --> Fix Death Knight: Death and Decay.
 [60] --> Fix Priest: Shadowfiend.
