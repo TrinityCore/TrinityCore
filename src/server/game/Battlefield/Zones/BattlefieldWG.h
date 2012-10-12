@@ -582,7 +582,7 @@ struct WintergraspBuildingSpawnData
 struct WintergraspRebuildableBuildingData
 {
     uint32 entry;
-    uint64 Guid
+    uint64 Guid;
     uint32 WorldState;
     float x;
     float y;
