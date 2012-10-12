@@ -163,6 +163,11 @@ UPDATE `creature_template` SET `flags_extra`=`flags_extra` | 256 WHERE `entry` I
 34474,35731,35732,35733,
 34475,35737,35738,35739);
 
+-- correcting faction champions dmg multipliers
+UPDATE `creature_template` SET `dmg_multiplier`=10.8 WHERE `entry` IN (34445,34459,34447,34455,34453,34458,34454,34448,34441,34450,35610,35465,34451,34449,34444,34456,34460,34461,34463,34465,34466,34467,34468,34469,34470,34473,34474,34475);
+UPDATE `creature_template` SET `dmg_multiplier`=16.1 WHERE `entry` IN (35705,35706,35686,35687,35683,35684,35680,35681,35718,35719,35692,35693,35711,35712,35724,35725,34442,34443,35695,35696,35774,35775,36301,36302,35671,35672,35689,35690,35740,35741,35708,35709,35702,35703,35743,35744,35734,35735,35746,35747,35665,35666,35662,35663,35721,35722,35714,35715,35728,35729,35674,35675,35731,35732,35737,35738);
+UPDATE `creature_template` SET `dmg_multiplier`=21.5 WHERE `entry` IN (35707,35688,35685,35682,35720,35694,35713,35726,35749,35697,35776,36303,35673,35691,35742,35710,35704,35745,35736,35748,35667,35664,35723,35716,35730,35676,35733,35739);
+
 -- ToC warlock pet db corrections
 UPDATE `creature_template` SET `minlevel`=80, `maxlevel`=80, `exp`=2, `faction_A`=16, `faction_H`=16, `mindmg`=417, `maxdmg`=582, `attackpower`=608, `unit_class`=2, `dynamicflags`=8, `minrangedmg`=341, `maxrangedmg`=506, `rangedattackpower`=80 WHERE `entry` IN (36301, 36302, 36303);
 UPDATE `creature_template` SET `faction_A`=16, `faction_H`=16, `difficulty_entry_1`=36301, `difficulty_entry_2`=36302, `difficulty_entry_3`=36303 WHERE `entry`=35465;
