@@ -74,7 +74,7 @@ enum KologarnSpells
     SPELL_KOLOGARN_PACIFY               = 63726,
     SPELL_KOLOGARN_UNK_0                = 65219,   // Not found in DBC
 
-    SPELL_BERSERK                       = 47008  // guess
+    SPELL_BERSERK                       = 47008    // guess
 };
 
 #define SPELL_ARM_DEAD_DAMAGE           RAID_MODE(SPELL_ARM_DEAD_DAMAGE_10, SPELL_ARM_DEAD_DAMAGE_25)
@@ -180,12 +180,12 @@ class boss_kologarn : public CreatureScript
                 Talk(SAY_AGGRO);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
-                events.ScheduleEvent(EVENT_SMASH, 5000);
-                events.ScheduleEvent(EVENT_SWEEP, 19000);
-                events.ScheduleEvent(EVENT_STONE_GRIP, 25000);
-                events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21000);
-                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                events.ScheduleEvent(EVENT_MELEE_CHECK, 6*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SMASH, 5*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SWEEP, 19*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_STONE_GRIP, 25*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);
 
                 for (uint8 i = 0; i < 2; ++i)   // 2 -> 2 arms
                     if (Unit* arm = vehicle->GetPassenger(i))
@@ -224,7 +224,7 @@ class boss_kologarn : public CreatureScript
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
             {
-                bool isEncounterInProgress = instance->GetBossState(BOSS_KOLOGARN) == IN_PROGRESS;
+                bool isEncounterInProgress = (instance->GetBossState(BOSS_KOLOGARN) == IN_PROGRESS);
                 if (who->GetEntry() == NPC_LEFT_ARM)
                 {
                     haveLeftArm = apply;
@@ -232,7 +232,7 @@ class boss_kologarn : public CreatureScript
                     {
                         who->ToCreature()->DisappearAndDie();
                         Talk(SAY_LEFT_ARM_GONE);
-                        events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
+                        events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40*IN_MILLISECONDS);
                     }
                 }
                 else if (who->GetEntry() == NPC_RIGHT_ARM)
@@ -242,7 +242,7 @@ class boss_kologarn : public CreatureScript
                     {
                         who->ToCreature()->DisappearAndDie();
                         Talk(SAY_RIGHT_ARM_GONE);
-                        events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
+                        events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40*IN_MILLISECONDS);
                     }
                 }
 
@@ -262,7 +262,7 @@ class boss_kologarn : public CreatureScript
                     }
 
                     if (!haveRightArm && !haveLeftArm)
-                        events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);
+                        events.ScheduleEvent(EVENT_STONE_SHOUT, 5*IN_MILLISECONDS);
 
                     if (instance)
                         instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);   // !apply = passenger got lost
@@ -412,7 +412,7 @@ class boss_kologarn : public CreatureScript
                         case EVENT_MELEE_CHECK:
                             if (!me->IsWithinMeleeRange(me->getVictim()))
                                 DoCast(SPELL_PETRIFY_BREATH);
-                            events.ScheduleEvent(EVENT_MELEE_CHECK, 1 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_MELEE_CHECK, 1*IN_MILLISECONDS);
                             return;
                         case EVENT_SWEEP:           // Cast for left arm
                             if (haveLeftArm)
@@ -423,7 +423,7 @@ class boss_kologarn : public CreatureScript
                                     Talk(SAY_SHOCKWAVE);
                                 }  
                             }
-                            events.ScheduleEvent(EVENT_SWEEP, 25 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SWEEP, 25*IN_MILLISECONDS);
                             return;
                         case EVENT_STONE_GRIP:      // Cast for right arm
                             if (haveRightArm)
@@ -432,7 +432,7 @@ class boss_kologarn : public CreatureScript
                                 Talk(EMOTE_STONE);
                                 Talk(SAY_GRAB_PLAYER);
                             }
-                            events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_STONE_GRIP, 25*IN_MILLISECONDS);
                             return;
                         case EVENT_SMASH:
                             if (haveLeftArm && haveRightArm)
@@ -443,7 +443,7 @@ class boss_kologarn : public CreatureScript
                             return;
                         case EVENT_STONE_SHOUT:
                             DoCast(SPELL_STONE_SHOUT);
-                            events.ScheduleEvent(EVENT_STONE_SHOUT, 2 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_STONE_SHOUT, 2*IN_MILLISECONDS);
                             return;
                         case EVENT_ENRAGE:
                             DoCast(SPELL_BERSERK);
@@ -468,7 +468,7 @@ class boss_kologarn : public CreatureScript
                                 eyebeamTargetUnit->CastSpell(eyebeamTargetUnit, 63343, true, NULL, NULL, me->GetGUID());
                                 eyebeamTargetUnit->CastSpell(eyebeamTargetUnit, 63701, true, NULL, NULL, me->GetGUID());
                             }
-                            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
                         default:
                             return;
@@ -819,7 +819,11 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
 class spell_ulduar_stone_grip : public SpellScriptLoader
 {
     private:
-        enum { SPELL_SQUEEZED_LIFELESS = 64708 };
+        enum
+        {
+            SPELL_SQUEEZED_LIFELESS = 64708
+        };
+
     public:
         spell_ulduar_stone_grip() : SpellScriptLoader("spell_ulduar_stone_grip") {}
 

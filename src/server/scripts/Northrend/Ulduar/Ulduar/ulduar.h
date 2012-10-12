@@ -133,7 +133,7 @@ enum UlduarBossDeadFlags
     DEAD_ALGALON          = (1 << 13)
 };
 
-enum UlduarNPCs // TODO: Check if we also need the heroic-entries for the boss-NPCs
+enum UlduarNPCs
 {
     NPC_LEVIATHAN               = 33113,
     NPC_SALVAGED_DEMOLISHER     = 33109,

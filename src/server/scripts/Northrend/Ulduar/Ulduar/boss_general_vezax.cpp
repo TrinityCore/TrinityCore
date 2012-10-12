@@ -124,11 +124,11 @@ class boss_general_vezax : public CreatureScript
                 _EnterCombat();
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_AURA_OF_DESPAIR);
-                events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 10000));
-                events.ScheduleEvent(EVENT_SEARING_FLAMES, 12000);
-                events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 40000));
-                events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, 30000);
-                events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, 60000);
+                events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_SEARING_FLAMES, 12*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35*IN_MILLISECONDS, 40*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, 30*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, 1*MINUTE*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS);
             }
 
@@ -149,22 +149,22 @@ class boss_general_vezax : public CreatureScript
                         case EVENT_SHADOW_CRASH:
                             if (Unit* target = CheckPlayersInRange(RAID_MODE(4, 9), 15.0f, 50.0f))
                                 DoCast(target, SPELL_SHADOW_CRASH);
-                            events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 12000));
+                            events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             return;
                         case EVENT_SEARING_FLAMES:
                             DoCastAOE(SPELL_SEARING_FLAMES);
-                            events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14000, 17500));
+                            events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14*IN_MILLISECONDS, 17.5*IN_MILLISECONDS));
                             return;
                         case EVENT_MARK_OF_THE_FACELESS:
                             if (Unit* target = CheckPlayersInRange(RAID_MODE(4, 9), 15.0f, 50.0f))
                                 DoCast(target, SPELL_MARK_OF_THE_FACELESS);
-                            events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));
+                            events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35*IN_MILLISECONDS, 45*IN_MILLISECONDS));
                             return;
                         case EVENT_SURGE_OF_DARKNESS:
                             Talk(EMOTE_SURGE_OF_DARKNESS);
                             Talk(SAY_SURGE_OF_DARKNESS);
                             DoCast(me, SPELL_SURGE_OF_DARKNESS);
-                            events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, urand(50000, 70000));
+                            events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, urand(50*IN_MILLISECONDS, 70*IN_MILLISECONDS));
                             return;
                         case EVENT_SUMMON_SARONITE_VAPOR:
                             DoCast(me, SPELL_SUMMON_SARONITE_VAPORS, true);   // Spells summons 33488 in a random place in 40 meters
@@ -176,7 +176,7 @@ class boss_general_vezax : public CreatureScript
                                 events.CancelEvent(EVENT_SUMMON_SARONITE_VAPOR);
                             }
                             else
-                                events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, urand(30000, 35000));
+                                events.ScheduleEvent(EVENT_SUMMON_SARONITE_VAPOR, urand(30*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
                         case EVENT_BERSERK:
                             Talk(SAY_BERSERK);
@@ -222,7 +222,7 @@ class boss_general_vezax : public CreatureScript
                     case NPC_SARONITE_ANIMUS:
                         notHardModed = false;
                         me->RemoveAurasDueToSpell(SPELL_SARONITE_BARRIER);
-                        events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(7000, 12000));
+                        events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(7*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                         break;
                     default:
                         break;
@@ -339,7 +339,7 @@ class boss_saronite_animus : public CreatureScript
             {
                 DoCast(me, SPELL_VISUAL_SARONITE_ANIMUS);
                 events.Reset();
-                events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
+                events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3*IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff)
@@ -358,7 +358,7 @@ class boss_saronite_animus : public CreatureScript
                     {
                         case EVENT_PROFOUND_OF_DARKNESS:
                             DoCastAOE(SPELL_PROFOUND_OF_DARKNESS, true);
-                            events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, RAID_MODE(7000, 3000));
+                            events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, RAID_MODE(7*IN_MILLISECONDS, 3*IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -381,7 +381,7 @@ class boss_saronite_animus : public CreatureScript
 class npc_saronite_vapors : public CreatureScript
 {
     private:
-        enum
+        enum DeathGrip
         {
             SPELL_DEATH_GRIP = 49560
         };
@@ -418,7 +418,7 @@ class npc_saronite_vapors : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_RANDOM_MOVE, urand(3000, 4500));
+                events.ScheduleEvent(EVENT_RANDOM_MOVE, urand(3*IN_MILLISECONDS, 4.5*IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 const diff)
@@ -434,7 +434,7 @@ class npc_saronite_vapors : public CreatureScript
                     {
                         case EVENT_RANDOM_MOVE:
                             me->GetMotionMaster()->MoveRandom(30.0f);
-                            events.ScheduleEvent(EVENT_RANDOM_MOVE, urand(4000, 5000));
+                            events.ScheduleEvent(EVENT_RANDOM_MOVE, urand(4*IN_MILLISECONDS, 5*IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -457,7 +457,7 @@ class npc_saronite_vapors : public CreatureScript
                     me->SetHealth(me->GetMaxHealth());
                     me->RemoveAllAuras();
                     DoCast(me, SPELL_SARONITE_VAPORS);
-                    me->DespawnOrUnsummon(30000);
+                    me->DespawnOrUnsummon(30*IN_MILLISECONDS);
 
                     if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(BOSS_VEZAX)))
                         Vezax->AI()->DoAction(ACTION_VAPORS_DIE);

@@ -37,6 +37,9 @@ UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_
 UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_2;
 UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_3;
 
+-- adding immunities to some northrend heroic bosses
+UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask |1|2|4|8|16|32|64|256|512|1024|2048|4096|8192|65536|131072|262144|524288|4194304|8388608|67108864|536870912 WHERE entry IN (30258,31463,29120,31610,31134,31506,29307,31365,29573,31367,27654,31558,29932,29315,31507,29306,31368,28586,31533,26687,30774,28921,31611,29311,31464,29313,31508,28546,31537,29310,31465,27483,31349,27977,31381,29312,31509,27656,31561,28923,31538,27655,31560,27975,31384,29305,30530,29316,31510,29308,31469,27978,31386,29304,31370,27447,31559,28587,31536,29266,31511,29314,31512);
+
 ###########################
 -- TRIAL OF THE CRUSADER ##
 ###########################
@@ -162,6 +165,11 @@ UPDATE `creature_template` SET `flags_extra`=`flags_extra` | 256 WHERE `entry` I
 34473,35674,35675,35676,
 34474,35731,35732,35733,
 34475,35737,35738,35739);
+
+-- correcting faction champions dmg multipliers
+UPDATE `creature_template` SET `dmg_multiplier`=10.8 WHERE `entry` IN (34445,34459,34447,34455,34453,34458,34454,34448,34441,34450,35610,35465,34451,34449,34444,34456,34460,34461,34463,34465,34466,34467,34468,34469,34470,34473,34474,34475);
+UPDATE `creature_template` SET `dmg_multiplier`=16.1 WHERE `entry` IN (35705,35706,35686,35687,35683,35684,35680,35681,35718,35719,35692,35693,35711,35712,35724,35725,34442,34443,35695,35696,35774,35775,36301,36302,35671,35672,35689,35690,35740,35741,35708,35709,35702,35703,35743,35744,35734,35735,35746,35747,35665,35666,35662,35663,35721,35722,35714,35715,35728,35729,35674,35675,35731,35732,35737,35738);
+UPDATE `creature_template` SET `dmg_multiplier`=21.5 WHERE `entry` IN (35707,35688,35685,35682,35720,35694,35713,35726,35749,35697,35776,36303,35673,35691,35742,35710,35704,35745,35736,35748,35667,35664,35723,35716,35730,35676,35733,35739);
 
 -- ToC warlock pet db corrections
 UPDATE `creature_template` SET `minlevel`=80, `maxlevel`=80, `exp`=2, `faction_A`=16, `faction_H`=16, `mindmg`=417, `maxdmg`=582, `attackpower`=608, `unit_class`=2, `dynamicflags`=8, `minrangedmg`=341, `maxrangedmg`=506, `rangedattackpower`=80 WHERE `entry` IN (36301, 36302, 36303);
@@ -1289,6 +1297,10 @@ INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
 (32796, 52455),
 (27894, 52455),
 (32795, 52455);
+
+-- adding sota vehicle immunities + really prevent them regenerating
+UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` |2|8|16|32|64|256|512|1024|2048|4096|8192|65536|262144|8388608|67108864|268435456, `RegenHealth`=0 WHERE `entry` IN (27894, 32795, 28781, 32796);
+UPDATE `creature_template` SET `speed_run`=0.985714 WHERE `entry` IN (28781, 32796);
 
 ###################
 -- Alterac Valley #

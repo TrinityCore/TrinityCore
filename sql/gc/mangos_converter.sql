@@ -275,7 +275,7 @@ zone, death_expire_time, taxi_path, arenaPoints, totalHonorPoints, todayHonorPoi
 SELECT                  guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, position_x, position_y, position_z, map, 0,           dungeon_difficulty, orientation, taximask, online, cinematic, totaltime, leveltime, logout_time, is_logout_resting, rest_bonus, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login,
 zone, death_expire_time, taxi_path, arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, health, power1, power2, power3, power4, power5, power6, power7, 0, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels, deleteInfos_Account, deleteInfos_Name, deleteDate FROM convert_mg_characters.characters;
 -- even tho people dont have talents, we have to reset them at login to clean up spells they shouldnt have
-UPDATE characters SET at_login = at_login | 4;
+UPDATE characters SET at_login = at_login | 4 | 16;
 
 -- instance
 DELETE FROM instance;
@@ -478,7 +478,7 @@ AND A.bag=C.bag
 AND A.slot=C.slot
 AND A.guid=C.guid
 AND A.item=C.item
-order by A.guid, A.bag, A.slot, A.item, A.item_template*/
+ORDER BY A.guid, A.bag, A.slot, A.item, A.item_template*/
 
 /*SELECT A.guid, A.bag, A.slot, A.item, A.item_template  FROM character_inventory AS A INNER JOIN character_inventory AS B INNER JOIN character_inventory AS C
 WHERE A.guid = B.guid
@@ -488,7 +488,7 @@ AND A.bag = C.bag
 AND A.slot = C.slot
 AND A.guid = C.guid
 AND A.item <> C.item
-order by A.guid, A.bag, A.slot, A.item, A.item_template*/
+ORDER BY A.guid, A.bag, A.slot, A.item, A.item_template*/
 
 -- cleaning up old (completed and rewarded) quests from quest log
 -- SELECT A.* FROM character_queststatus AS A INNER JOIN character_queststatus_rewarded AS B ON A.guid = B.guid WHERE A.guid < 70000 AND A.status = 1 AND A.quest IN (SELECT quest FROM character_queststatus_rewarded WHERE guid = A.guid) GROUP BY A.guid, A.quest;

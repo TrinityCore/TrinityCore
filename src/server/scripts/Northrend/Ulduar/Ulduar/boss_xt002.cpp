@@ -155,7 +155,7 @@ const Position spawnLocations[] =
     { 796.0f, -94.0f, 412.0f, 0.0 }, // Lower right
     { 796.0f,  57.0f, 412.0f, 0.0 }, // Lower left
     { 890.0f, -82.0f, 412.0f, 0.0 }, // Upper right
-    { 894.0f,  62.0f, 412.0f, 0.0 }, // Upper left
+    { 894.0f,  62.0f, 412.0f, 0.0 }  // Upper left
 };
 /*-------------------------------------------------------
  *
@@ -171,14 +171,16 @@ class boss_xt002 : public CreatureScript
             PHASE_ONE = 1,
             PHASE_TWO
         };
+
         enum XT002HeartPhase
         {
             PHASE_AT_100_PERCT      = 100,
             PHASE_ABOVE_75_PERCT    = 75,
             PHASE_ABOVE_50_PERCT    = 50,
             PHASE_ABOVE_25_PERCT    = 25,
-            PHASE_ABOVE_0_PERCT     = 0,
+            PHASE_ABOVE_0_PERCT     = 0
         };
+
         enum XT002Events
         {
             EVENT_TYMPANIC_TANTRUM = 1,
@@ -192,21 +194,23 @@ class boss_xt002 : public CreatureScript
             EVENT_SPAWN_ADDS,
             EVENT_OVERLOAD_VISUAL
         };
+
         enum AchievementCredits
         {
             ACHIEV_MUST_DECONSTRUCT_FASTER = 21027
         };
+
         enum Timers
         {
-            TIMER_TYMPANIC_TANTRUM_MIN = 32000,
-            TIMER_TYMPANIC_TANTRUM_MAX = 36000,
-            TIMER_SEARING_LIGHT        = 20000,
-            TIMER_GRAVITY_BOMB         = 20000,
-            TIMER_HEART_PHASE          = 30000,
-            TIMER_ENERGY_ORB_MIN       = 9000,
-            TIMER_ENERGY_ORB_MAX       = 10000,
-            TIMER_ENRAGE               = 600000,
-            TIMER_VOID_ZONE            = 3000,
+            TIMER_TYMPANIC_TANTRUM_MIN = 32*IN_MILLISECONDS,
+            TIMER_TYMPANIC_TANTRUM_MAX = 36*IN_MILLISECONDS,
+            TIMER_SEARING_LIGHT        = 20*IN_MILLISECONDS,
+            TIMER_GRAVITY_BOMB         = 20*IN_MILLISECONDS,
+            TIMER_HEART_PHASE          = 30*IN_MILLISECONDS,
+            TIMER_ENERGY_ORB_MIN       = 9*IN_MILLISECONDS,
+            TIMER_ENERGY_ORB_MAX       = 10*IN_MILLISECONDS,
+            TIMER_ENRAGE               = 10*MINUTE*IN_MILLISECONDS,
+            TIMER_VOID_ZONE            = 3*IN_MILLISECONDS
         };
 
     public:
@@ -390,7 +394,7 @@ class boss_xt002 : public CreatureScript
                             {
                                 case 0:
                                     // Spawn Pummeller
-                                    me->SummonCreature(NPC_XM024_PUMMELLER, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                                    me->SummonCreature(NPC_XM024_PUMMELLER, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*MINUTE*IN_MILLISECONDS);
                                     break;
                                 case 1:
                                 {
@@ -401,13 +405,13 @@ class boss_xt002 : public CreatureScript
                                         me->SummonCreature(NPC_XS013_SCRAPBOT,
                                             frand(spawnLocations[pos].GetPositionX() - 3.0f, spawnLocations[pos].GetPositionX() + 3.0f),
                                             frand(spawnLocations[pos].GetPositionY() - 3.0f, spawnLocations[pos].GetPositionY() + 3.0f),
-                                            spawnLocations[pos].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                                            spawnLocations[pos].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*MINUTE*IN_MILLISECONDS);
                                     }
                                     break;
                                 }
                                 case 2:
                                     // Spawn Boombot
-                                    me->SummonCreature(NPC_XE321_BOOMBOT, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                                    me->SummonCreature(NPC_XE321_BOOMBOT, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*MINUTE*IN_MILLISECONDS);
                                     break;
                                 default:
                                     break;
@@ -418,7 +422,7 @@ class boss_xt002 : public CreatureScript
                         case EVENT_OVERLOAD_VISUAL:
                             if (Unit* toyPile = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_TOY_PILE_0 + urand(0, 3))))
                                 me->CastSpell(toyPile, SPELL_ENERGY_ORB, true);
-                            events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1000, 3000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS), 0, PHASE_TWO);
                             return;
                         default:
                             return;
@@ -486,7 +490,7 @@ class boss_xt002 : public CreatureScript
                 // Start "end of phase 2 timer"
                 events.SetPhase(PHASE_TWO);
                 events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE, 0, PHASE_TWO);
-                events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1000, 3000), 0, PHASE_TWO);
+                events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS), 0, PHASE_TWO);
                 // Hordeguides: Add-spawn is running in phase 2
                 events.ScheduleEvent(EVENT_SPAWN_ADDS, 2*IN_MILLISECONDS, 0, PHASE_TWO);
             }
@@ -676,9 +680,9 @@ class mob_pummeller : public CreatureScript
         enum 
         { 
             EVENT_ARCING_SMASH = 1, EVENT_TRAMPLE, EVENT_UPPERCUT, // 1,2,3...
-            TIMER_ARCING_SMASH = 7000,
-            TIMER_TRAMPLE      = 2000,
-            TIMER_UPPERCUT     = 7000
+            TIMER_ARCING_SMASH = 7*IN_MILLISECONDS,
+            TIMER_TRAMPLE      = 2*IN_MILLISECONDS,
+            TIMER_UPPERCUT     = 7*IN_MILLISECONDS
         };
 
     public:
@@ -856,7 +860,11 @@ class mob_boombot : public CreatureScript
 class mob_life_spark : public CreatureScript
 {
     private:
-        enum { TIMER_SHOCK = 12000 };
+        enum
+        {
+            TIMER_SHOCK = 12*IN_MILLISECONDS
+        };
+
     public:
         mob_life_spark() : CreatureScript("mob_life_spark") {}
 
@@ -1277,7 +1285,6 @@ void AddSC_boss_xt002()
     new mob_scrapbot();
     new mob_pummeller();
     new mob_boombot();
-
     new mob_life_spark();
     new mob_void_zone();
     new boss_xt002();
