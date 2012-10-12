@@ -137,7 +137,7 @@ class boss_auriaya : public CreatureScript
 
                 // Guardians are despawned by _Reset, but since they walk around with Auriaya, summon them again.
                 for (uint8 i = 0; i < SENTRY_NUMBER; i++)
-                    if (Creature* sentry = me->SummonCreature(NPC_SANCTUM_SENTRY, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000)) // 30 secs equal the automated respawn time (due to script)
+                    if (Creature* sentry = me->SummonCreature(NPC_SANCTUM_SENTRY, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS)) // 30 secs equal the automated respawn time (due to script)
                     {
                         sentry->GetMotionMaster()->MoveFollow(me, (i < 2) ? 0.5f : 4.0f, M_PI - i - 1.5f);
                         summons.Summon(sentry);
@@ -149,11 +149,11 @@ class boss_auriaya : public CreatureScript
                 _EnterCombat();
                 Talk(SAY_AGGRO);
                 summons.DoZoneInCombat();
-                events.ScheduleEvent(EVENT_SONIC_SCREECH, urand(45000, 65000));
-                events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(30000, 50000));
-                events.ScheduleEvent(EVENT_ACTIVATE_DEFENDER, urand(40000, 55000));
-                events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(45000, 55000));
-                events.ScheduleEvent(EVENT_BERSERK, 600000);
+                events.ScheduleEvent(EVENT_SONIC_SCREECH, urand(45*IN_MILLISECONDS, 65*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(30*IN_MILLISECONDS, 50*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_ACTIVATE_DEFENDER, urand(40*IN_MILLISECONDS, 55*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(45*IN_MILLISECONDS, 55*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit* /*who*/)
@@ -222,7 +222,7 @@ class boss_auriaya : public CreatureScript
                             break;
                         }
                         me->SummonCreature(NPC_SEEPING_TRIGGER, *summon);
-                        events.ScheduleEvent(EVENT_RESPAWN_DEFENDER, 30000);
+                        events.ScheduleEvent(EVENT_RESPAWN_DEFENDER, 30*IN_MILLISECONDS);
                         break;
                     case NPC_SANCTUM_SENTRY:
                         SetData(DATA_CRAZY_CAT_LADY, 0);
@@ -255,12 +255,12 @@ class boss_auriaya : public CreatureScript
                     {
                         case EVENT_SONIC_SCREECH:
                             DoCast(SPELL_SONIC_SCREECH);
-                            events.ScheduleEvent(EVENT_SONIC_SCREECH, urand(40000, 60000));
+                            events.ScheduleEvent(EVENT_SONIC_SCREECH, urand(40*IN_MILLISECONDS, 60*IN_MILLISECONDS));
                             return;
                         case EVENT_TERRIFYING_SCREECH:
                             Talk(EMOTE_FEAR);
                             DoCast(SPELL_TERRIFYING_SCREECH);
-                            events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(30000, 50000));
+                            events.ScheduleEvent(EVENT_TERRIFYING_SCREECH, urand(30*IN_MILLISECONDS, 50*IN_MILLISECONDS));
                             events.ScheduleEvent(EVENT_SENTINEL_BLAST, 1*IN_MILLISECONDS);
                             return;
                         case EVENT_SENTINEL_BLAST:
@@ -285,7 +285,7 @@ class boss_auriaya : public CreatureScript
                         case EVENT_SUMMON_SWARMING_GUARDIAN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_SUMMON_SWARMING_GUARDIAN);
-                            events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(30000, 45000));
+                            events.ScheduleEvent(EVENT_SUMMON_SWARMING_GUARDIAN, urand(30*IN_MILLISECONDS, 45*IN_MILLISECONDS));
                             return;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);
@@ -324,7 +324,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
             {
                 me->SetDisplayId(MODEL_INVISIBLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
-                me->DespawnOrUnsummon(600000);
+                me->DespawnOrUnsummon(10*MINUTE*IN_MILLISECONDS);
                 DoCast(me, SPELL_SEEPING_FERAL_ESSENCE);
             }
 
@@ -362,8 +362,8 @@ class npc_sanctum_sentry : public CreatureScript
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_RIP, urand(4000, 8000));
-                events.ScheduleEvent(EVENT_POUNCE, urand(12000, 15000));
+                events.ScheduleEvent(EVENT_RIP, urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_POUNCE, urand(12*IN_MILLISECONDS, 15*IN_MILLISECONDS));
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -393,7 +393,7 @@ class npc_sanctum_sentry : public CreatureScript
                     {
                         case EVENT_RIP:
                             DoCastVictim(SPELL_RIP_FLESH);
-                            events.ScheduleEvent(EVENT_RIP, urand(12000, 15000));
+                            events.ScheduleEvent(EVENT_RIP, urand(12*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             break;
                         case EVENT_POUNCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -403,7 +403,7 @@ class npc_sanctum_sentry : public CreatureScript
                                 me->AI()->AttackStart(target);
                                 DoCast(target, SPELL_SAVAGE_POUNCE);
                             }
-                            events.ScheduleEvent(EVENT_POUNCE, urand(12000, 17000));
+                            events.ScheduleEvent(EVENT_POUNCE, urand(12*IN_MILLISECONDS, 17*IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -443,8 +443,8 @@ class npc_feral_defender : public CreatureScript
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_FERAL_POUNCE, 5000);
-                events.ScheduleEvent(EVENT_RUSH, 10000);
+                events.ScheduleEvent(EVENT_FERAL_POUNCE, 5*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_RUSH, 10*IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff)
@@ -469,7 +469,7 @@ class npc_feral_defender : public CreatureScript
                                 me->AI()->AttackStart(target);
                                 DoCast(target, SPELL_FERAL_POUNCE);
                             }
-                            events.ScheduleEvent(EVENT_FERAL_POUNCE, urand(10000, 12000));
+                            events.ScheduleEvent(EVENT_FERAL_POUNCE, urand(10*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             break;
                         case EVENT_RUSH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -479,7 +479,7 @@ class npc_feral_defender : public CreatureScript
                                 me->AI()->AttackStart(target);
                                 DoCast(target, SPELL_FERAL_RUSH);
                             }
-                            events.ScheduleEvent(EVENT_RUSH, urand(10000, 12000));
+                            events.ScheduleEvent(EVENT_RUSH, urand(10*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             break;
                         default:
                             break;

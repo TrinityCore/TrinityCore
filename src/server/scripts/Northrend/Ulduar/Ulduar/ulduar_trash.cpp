@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "ulduar.h"
 #include "InstanceScript.h"
+#include <limits>
 
 /************************************************************************/
 /*                       Predicates                                     */
@@ -176,7 +177,7 @@ class npc_ironwork_cannon : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_FLAME_CANNON, 1200);
+                events.ScheduleEvent(EVENT_FLAME_CANNON, 1.2*IN_MILLISECONDS);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
@@ -192,9 +193,9 @@ class npc_ironwork_cannon : public CreatureScript
                     switch (event)
                     {
                         case EVENT_FLAME_CANNON:
-                            if ( Unit* dest = SelectTarget(SELECT_TARGET_RANDOM, 0, RangeCheck(me, 30.0f, 200.0f)) )
+                            if (Unit* dest = SelectTarget(SELECT_TARGET_RANDOM, 0, RangeCheck(me, 30.0f, 200.0f)))
                                 DoCast(dest, SPELL_FLAME_CANNON);
-                            events.ScheduleEvent(EVENT_FLAME_CANNON, 1500);
+                            events.ScheduleEvent(EVENT_FLAME_CANNON, 1.5*IN_MILLISECONDS);
                             break;
                         default:
                             break;
@@ -319,16 +320,16 @@ class npc_runeforged_sentry : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_FLAMING_RUNE, 10000);
-                events.ScheduleEvent(EVENT_LAVA_BURST, urand(10000, 15000));
-                events.ScheduleEvent(EVENT_RUNED_FLAME_JETS, urand(15000, 20000));
+                events.ScheduleEvent(EVENT_FLAMING_RUNE, 10*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_LAVA_BURST, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_RUNED_FLAME_JETS, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
-                        me->SetRespawnTime(604800); // Once the levi died, we will not spawn again
+                        me->SetRespawnTime(WEEK); // Once the levi died, we will not spawn again
             }
 
             void UpdateAI(uint32 const diff)
@@ -347,15 +348,15 @@ class npc_runeforged_sentry : public CreatureScript
                     {
                         case EVENT_FLAMING_RUNE:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_FLAMING_RUNE);
-                            events.ScheduleEvent(EVENT_FLAMING_RUNE, 10000);
+                            events.ScheduleEvent(EVENT_FLAMING_RUNE, 10*IN_MILLISECONDS);
                             break;
                         case EVENT_LAVA_BURST:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_LAVA_BURST);
-                            events.ScheduleEvent(EVENT_LAVA_BURST, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_LAVA_BURST, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             break;
                         case EVENT_RUNED_FLAME_JETS:
                             DoCastVictim(SPELL_RUNED_FLAME_JETS);
-                            events.ScheduleEvent(EVENT_RUNED_FLAME_JETS, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_RUNED_FLAME_JETS, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -652,10 +653,8 @@ class npc_misguided_nymph : public CreatureScript
 
         enum Spells
         {
-            SPELL_BIND_LIFE_10       = 63082,
-            SPELL_BIND_LIFE_25       = 63559,
-            SPELL_FROST_SPEAR_10     = 63111,
-            SPELL_FROST_SPEAR_25     = 63562,
+            SPELL_BIND_LIFE          = 63082,
+            SPELL_FROST_SPEAR        = 63111,
             SPELL_WINTERS_EMBRACE_10 = 63136,
             SPELL_WINTERS_EMBRACE_25 = 63564
         };
@@ -688,11 +687,11 @@ class npc_misguided_nymph : public CreatureScript
                     {
                         case EVENT_BIND_LIFE:
                             if (me->GetHealthPct() < 80.0f)
-                                DoCast(me, RAID_MODE(SPELL_BIND_LIFE_10, SPELL_BIND_LIFE_25));
+                                DoCast(me, SPELL_BIND_LIFE);
                             events.ScheduleEvent(EVENT_BIND_LIFE, 6*IN_MILLISECONDS);
                             break;
                         case EVENT_FROST_SPEAR:
-                            DoCastVictim( RAID_MODE(SPELL_FROST_SPEAR_10, SPELL_FROST_SPEAR_25), true);
+                            DoCastVictim(SPELL_FROST_SPEAR, true);
                             events.ScheduleEvent(EVENT_FROST_SPEAR, 8*IN_MILLISECONDS);
                             break;
                         case EVENT_WINTERS_EMBRACE:
@@ -855,10 +854,8 @@ class npc_mangrove_ent : public CreatureScript
         enum Spells
         {
             SPELL_HURRICANE      = 63272,
-            SPELL_NOURISH_10     = 63242,
-            SPELL_NOURISH_25     = 63556,
-            SPELL_TRANQUILITY_10 = 63241,
-            SPELL_TRANQUILITY_25 = 63554
+            SPELL_NOURISH        = 63242,
+            SPELL_TRANQUILITY    = 63241,
         };
 
     public:
@@ -895,20 +892,20 @@ class npc_mangrove_ent : public CreatureScript
                             events.ScheduleEvent(EVENT_HURRICANE, 10*IN_MILLISECONDS);
                             break;
                         case EVENT_NOURISH:
-                            {
-                                std::list<Unit*> allies;
-                                Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 40.0f);
-                                Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, allies, checker);
-                                me->VisitNearbyObject(40.0f, searcher);
-                                allies.push_back(me->ToUnit());                // Add me to list
-                                allies.sort(Trinity::HealthPctOrderPred());     // Sort ascending to current hp-percentage - the target with the lowest hp should be healed
-                                DoCast( (*allies.begin()), RAID_MODE(SPELL_NOURISH_10, SPELL_NOURISH_25) );
-                                events.ScheduleEvent(EVENT_NOURISH, 1500);      // Cast takes 1500ms
-                            }
-                            break;
+                        {
+                            std::list<Unit*> allies;
+                            Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 40.0f);
+                            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, allies, checker);
+                            me->VisitNearbyObject(40.0f, searcher);
+                            allies.push_back(me->ToUnit());                // Add me to list
+                            allies.sort(Trinity::HealthPctOrderPred());     // Sort ascending to current hp-percentage - the target with the lowest hp should be healed
+                            DoCast((*allies.begin()), SPELL_NOURISH);
+                            events.ScheduleEvent(EVENT_NOURISH, 1500);      // Cast takes 1500ms
+                        }
+                        break;
                         case EVENT_TRANQUILITY:
                             events.DelayEvents(10*IN_MILLISECONDS);
-                            DoCast(RAID_MODE(SPELL_TRANQUILITY_10, SPELL_TRANQUILITY_25));
+                            DoCast(SPELL_TRANQUILITY);
                             events.ScheduleEvent(EVENT_TRANQUILITY, 30*IN_MILLISECONDS);
                             break;
                         default:
@@ -939,8 +936,7 @@ class npc_ironroot_lasher : public CreatureScript
 
         enum Spells
         {
-            SPELL_IRONROOT_THORNS_10 = 63240,
-            SPELL_IRONROOT_THORNS_25 = 63553
+            SPELL_IRONROOT_THORNS   = 63240
         };
 
     public:
@@ -968,16 +964,16 @@ class npc_ironroot_lasher : public CreatureScript
                     switch (event)
                     {
                         case EVENT_IRONROOT_THORNS:
-                            {
-                                std::list<Unit*> allies;
-                                Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 40.0f);
-                                Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, allies, checker);
-                                me->VisitNearbyObject(40.0f, searcher);
-                                allies.push_back(me->ToUnit());
-                                DoCast( Trinity::Containers::SelectRandomContainerElement(allies), RAID_MODE(SPELL_IRONROOT_THORNS_10, SPELL_IRONROOT_THORNS_25) );
-                                events.ScheduleEvent(EVENT_IRONROOT_THORNS, 2*IN_MILLISECONDS);
-                                break;
-                            }
+                        {
+                            std::list<Unit*> allies;
+                            Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 40.0f);
+                            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, allies, checker);
+                            me->VisitNearbyObject(40.0f, searcher);
+                            allies.push_back(me->ToUnit());
+                            DoCast(Trinity::Containers::SelectRandomContainerElement(allies), SPELL_IRONROOT_THORNS);
+                            events.ScheduleEvent(EVENT_IRONROOT_THORNS, 2*IN_MILLISECONDS);
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -1145,7 +1141,7 @@ class npc_faceless_horror : public CreatureScript
             SPELL_DEATH_GRIP_FH = 64429,
             SPELL_SHADOW_CRASH  = 63722,
             SPELL_VOID_BARRIER  = 63710,
-            SPELL_VOID_WAVE     = 63703,
+            SPELL_VOID_WAVE     = 63703
         };
 
     public:
@@ -1174,7 +1170,7 @@ class npc_faceless_horror : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->GetHealthPct()<30.0f && events.GetNextEventTime(EVENT_VOID_BARRIER_BEGIN)==0 && events.GetNextEventTime(EVENT_VOID_BARRIER_END)==0) // If on low health and skills not yet scheduled...
+                if (me->GetHealthPct() < 30.0f && !events.GetNextEventTime(EVENT_VOID_BARRIER_BEGIN) && !events.GetNextEventTime(EVENT_VOID_BARRIER_END)) // If on low health and skills not yet scheduled...
                 {
                     events.ScheduleEvent(EVENT_VOID_BARRIER_BEGIN, 0);
                 }
@@ -1187,16 +1183,14 @@ class npc_faceless_horror : public CreatureScript
                             DoResetThreat();
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
-                                me->AddThreat(target, 10000.0f);
+                                me->AddThreat(target, std::numeric_limits<float>::max());
                                 DoCast(target, SPELL_DEATH_GRIP_FH, true);
                             }
                             events.ScheduleEvent(EVENT_DEATH_GRIP, urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                             break;
                         case EVENT_SHADOW_CRASH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, RangeCheck(me, 10.0f, 70.0f)))
-                            {
                                 DoCast(target, SPELL_SHADOW_CRASH);
-                            }
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(6*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             break;
                         case EVENT_VOID_BARRIER_BEGIN:
@@ -1243,7 +1237,7 @@ class npc_twilight_adherent : public CreatureScript
             SPELL_BLINK             = 64662,
             SPELL_GREATER_HEAL      = 63760,
             SPELL_PSYCHIC_SCREAM    = 13704,
-            SPELL_RENEW             = 37978,
+            SPELL_RENEW             = 37978
         };
 
     public:
@@ -1618,7 +1612,7 @@ class npc_twilight_guardian : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_CONCUSSION_BLOW, urand(3*IN_MILLISECONDS, 6*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DEVASTATE, urand(1500, 2500));
+                events.ScheduleEvent(EVENT_DEVASTATE, urand(1.5*IN_MILLISECONDS, 2.5*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_THUNDERCLAP, urand (5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
             }
 
@@ -1638,14 +1632,14 @@ class npc_twilight_guardian : public CreatureScript
                             DoResetThreat();
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
-                                me->AddThreat(target, 1000.0f);
+                                me->AddThreat(target, std::numeric_limits<float>::max());
                                 AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_CONCUSSION_BLOW, urand(3*IN_MILLISECONDS, 6*IN_MILLISECONDS));
                             break;
                         case EVENT_DEVASTATE:
                             DoCastVictim(SPELL_DEVASTATE);
-                            events.ScheduleEvent(EVENT_DEVASTATE, urand(1500, 2500));
+                            events.ScheduleEvent(EVENT_DEVASTATE, urand(1.5*IN_MILLISECONDS, 2.5*IN_MILLISECONDS));
                             break;
                         case EVENT_THUNDERCLAP:
                             DoCast(SPELL_THUNDERCLAP);
@@ -1778,7 +1772,7 @@ class npc_twilight_shadowblade : public CreatureScript
             {
                 if (Player* player = target->ToPlayer())
                     if (me->IsWithinDist(player, 25.0f))
-                        events.ScheduleEvent(EVENT_SHADOWSTEP, 500);
+                        events.ScheduleEvent(EVENT_SHADOWSTEP, 0.5*IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1806,7 +1800,7 @@ class npc_twilight_shadowblade : public CreatureScript
                             {
                                 DoCast(target, SPELL_SHADOWSTEP);
                                 AttackStart(target);
-                                events.ScheduleEvent(EVENT_BACKSTAB, 300);
+                                events.ScheduleEvent(EVENT_BACKSTAB, 0.3*IN_MILLISECONDS);
                             }
                             events.ScheduleEvent(EVENT_SHADOWSTEP, urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             break;
@@ -1879,7 +1873,7 @@ class npc_boomer_xp : public CreatureScript
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_BOOM_BOT_PERIODIC)
-                    me->DespawnOrUnsummon(1000);
+                    me->DespawnOrUnsummon(1*IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*killer*/)
