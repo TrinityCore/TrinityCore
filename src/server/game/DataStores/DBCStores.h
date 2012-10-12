@@ -52,6 +52,8 @@ enum ContentLevels
     MAX_CONTENT
 };
 
+uint32 GetMaxLevelForExpansion(uint32 expansion);
+
 ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
