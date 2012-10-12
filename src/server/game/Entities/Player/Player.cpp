@@ -7756,13 +7756,6 @@ void Player::DuelComplete(DuelCompleteType type)
             ++i;
     }
 
-    // reset player cooldowns after duel if set so
-    if (sWorld->getBoolConfig(CONFIG_PVP_DUEL_COOLDOWN))
-    {
-        duel->initiator->RemoveArenaSpellCooldowns(true);
-        duel->opponent->RemoveArenaSpellCooldowns(true);
-    }
-
     // cleanup combo points
     if (GetComboTarget() == duel->opponent->GetGUID())
         ClearComboPoints();

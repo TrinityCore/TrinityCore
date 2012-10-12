@@ -2574,15 +2574,6 @@ PvPToken.ItemID = 29434
 PvPToken.ItemCount = 1
 
 #
-#    ResetDuelCooldown
-#        Description: Reset player cooldowns after a duel
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-#
-
-ResetDuelCooldown = 0
-
-#
 #    NoResetTalentsCost
 #        Description: Resetting talents doesn't cost anything.
 #        Default:     0 - (Disabled)
