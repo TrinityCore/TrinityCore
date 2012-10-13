@@ -39,7 +39,7 @@ ArenaTeam::~ArenaTeam()
 {
 }
 
-bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
+bool ArenaTeam::Create(uint64 captainGuid, uint8 slot, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
 {
     // Check if captain is present
     if (!ObjectAccessor::FindPlayer(captainGuid))
@@ -54,7 +54,7 @@ bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string teamName, uin
 
     // Assign member variables
     CaptainGuid = captainGuid;
-    Type = type;
+    Type = ArenaTeam::GetTypeBySlot(slot);
     TeamName = teamName;
     BackgroundColor = backgroundColor;
     EmblemStyle = emblemStyle;
@@ -523,6 +523,20 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
             break;
     }
     sLog->outError(LOG_FILTER_ARENAS, "FATAL: Unknown arena team type %u for some arena team", type);
+    return 0xFF;
+}
+
+uint8 ArenaTeam::GetTypeBySlot(uint8 slot)
+{
+    switch (slot)
+    {
+        case 0: return ARENA_TYPE_2v2;
+        case 1: return ARENA_TYPE_3v3;
+        case 2: return ARENA_TYPE_5v5;
+        default:
+            break;
+    }
+    sLog->outError(LOG_FILTER_ARENAS, "FATAL: Unknown arena team slot %u for some arena team", slot);
     return 0xFF;
 }
 

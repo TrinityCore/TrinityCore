@@ -74,6 +74,28 @@ void WorldSession::HandleArenaTeamRosterOpcode(WorldPacket & recvData)
         arenaTeam->Roster(this);
 }
 
+void WorldSession::HandleArenaTeamCreateOpcode(WorldPacket & recv_data)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ARENA_TEAM_CREATE");
+
+    uint32 slot, icon, iconcolor, border, bordercolor, background;
+    std::string name;
+
+    recv_data >> slot >> iconcolor  >> bordercolor  >> border >> background >> icon;
+    name = recv_data.ReadString(recv_data.ReadBits(8));
+
+    ArenaTeam* at = new ArenaTeam;
+    if (!at->Create(GUID_LOPART(_player->GetGUIDLow()), slot, name, background, icon, iconcolor, border, bordercolor))
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "ArenaTeamHandler: arena team create failed.");
+        delete at;
+        return;
+    }
+
+    // register team and add captain
+    sArenaTeamMgr->AddArenaTeam(at);
+}
+
 void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ARENA_TEAM_INVITE");
