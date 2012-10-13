@@ -3488,7 +3488,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 72015: // Frostbolt Volley (only heroic)
             case 72016: // Frostbolt Volley (only heroic)
-                spellInfo->EffectRadiusIndex[2] = 23; // 40 yards
+                spellInfo->EffectRadiusIndex[2] = EFFECT_RADIUS_40_YARDS;
                 break;
             case 70936: // Summon Suppressor (needs target selection script)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
