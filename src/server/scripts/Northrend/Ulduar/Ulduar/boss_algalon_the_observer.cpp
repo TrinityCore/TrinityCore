@@ -959,6 +959,56 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
         }
 };
 
+class npc_algalon_asteroid_target : public CreatureScript
+{
+    enum Events
+    {
+        EVENT_COSMIC_SMASH  = 1
+    };
+
+    public:
+        npc_algalon_asteroid_target() : CreatureScript("npc_algalon_asteroid_target") { }
+
+        struct npc_algalon_asteroid_targetAI : public Scripted_NoMovementAI
+        {
+            npc_algalon_asteroid_targetAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            {
+            }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_PASSIVE);
+                events.ScheduleEvent(EVENT_COSMIC_SMASH, 4*IN_MILLISECONDS);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                events.Update(diff);
+
+                while (uint32 event = events.ExecuteEvent())
+                {
+                    switch (event)
+                    {
+                        case EVENT_COSMIC_SMASH:
+                            DoCast(SPELL_COSMIC_SMASH_TRIGGERED);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            private:
+                EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_algalon_asteroid_targetAI(creature);
+        }
+};
+
 class go_celestial_planetarium_access : public GameObjectScript
 {
     public:
@@ -1365,7 +1415,10 @@ void AddSC_boss_algalon_the_observer()
     new npc_living_constellation();
     new npc_collapsing_star();
     new npc_brann_bronzebeard_algalon();
+    new npc_algalon_asteroid_target();
+
     new go_celestial_planetarium_access();
+
     new spell_algalon_phase_punch();
     new spell_algalon_arcane_barrage();
     new spell_algalon_trigger_3_adds();
@@ -1375,5 +1428,6 @@ void AddSC_boss_algalon_the_observer()
     new spell_algalon_cosmic_smash();
     new spell_algalon_cosmic_smash_damage();
     new spell_algalon_supermassive_fail();
+
     new achievement_he_feeds_on_your_tears();
 }

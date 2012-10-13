@@ -274,6 +274,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_flame_leviathan_safety_containe
 UPDATE `creature_template` SET `ScriptName`='npc_liquid_pyrite' WHERE `entry`=33189;
 UPDATE `creature_template` SET `ScriptName`='npc_freya_ward_of_life' WHERE `entry`=34275;
 UPDATE `creature_template` SET `ScriptName`='npc_runeforged_sentry' WHERE `entry`=34234;
+UPDATE `creature_template` SET `ScriptName`='npc_algalon_asteroid_target' WHERE `entry`=33104;
 
 -- Mimirons Inferno Bunny - it should walk around.
 DELETE FROM `waypoints` WHERE `entry`=33370;
