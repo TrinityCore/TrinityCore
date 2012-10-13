@@ -46,7 +46,7 @@ enum Yells
     SAY_INFERNAL_ERUPTION   = 8,
     SAY_KILL_PLAYER         = 9,
     SAY_DEATH               = 10,
-    SAY_BERSERK             = 11,
+    SAY_BERSERK             = 11
 };
 
 enum Summons
@@ -55,7 +55,7 @@ enum Summons
     NPC_INFERNAL_VOLCANO = 34813,
     NPC_FEL_INFERNAL     = 34815, // immune to all CC on Heroic (stuns, banish, interrupt, etc)
     NPC_NETHER_PORTAL    = 34825,
-    NPC_MISTRESS_OF_PAIN = 34826,
+    NPC_MISTRESS_OF_PAIN = 34826
 };
 
 enum BossSpells
@@ -80,7 +80,7 @@ enum BossSpells
     SPELL_MISTRESS_KISS               = 66336,
     SPELL_FEL_INFERNO                 = 67047,
     SPELL_FEL_STREAK                  = 66494,
-    SPELL_LORD_HITTIN                 = 66326,  // special effect preventing more specific spells be cast on the same player within 10 seconds
+    SPELL_LORD_HITTIN                 = 66326   // special effect preventing more specific spells be cast on the same player within 10 seconds
 };
 
 /*######
@@ -102,9 +102,9 @@ class boss_jaraxxus : public CreatureScript
 public:
     boss_jaraxxus() : CreatureScript("boss_jaraxxus") { }
 
-    struct boss_jaraxxusAI : public ScriptedAI
+    struct boss_jaraxxusAI : public BossAI
     {
-        boss_jaraxxusAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        boss_jaraxxusAI(Creature* creature) : BossAI(creature, TYPE_JARAXXUS), Summons(me)
         {
             instance = creature->GetInstanceScript();
         }
@@ -114,6 +114,7 @@ public:
 
         void Reset()
         {
+            events.Reset();
             events.ScheduleEvent(EVENT_FEL_FIREBALL, 5*IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
             events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
@@ -129,8 +130,8 @@ public:
             if (instance)
                 instance->SetData(TYPE_JARAXXUS, FAIL);
             DoCast(me, SPELL_JARAXXUS_CHAINS);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_PASSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetReactState(REACT_DEFENSIVE);
         }
 
         void KilledUnit(Unit* who)
@@ -160,6 +161,7 @@ public:
             me->SetInCombatWithZone();
             if (instance)
                 instance->SetData(TYPE_JARAXXUS, IN_PROGRESS);
+            me->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
             Talk(SAY_AGGRO);
         }
 
@@ -224,8 +226,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-        private:
-            EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const
