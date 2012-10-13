@@ -81,9 +81,14 @@ public:
             //}
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
+        static ChatCommand npcInfoCommandTable[] =
+        {
+            { "",               SEC_ADMINISTRATOR,  false, &HandleNpcInfoCommand,              "", NULL },
+            { "guid",           SEC_ADMINISTRATOR,  false, &HandleNpcInfoGuidCommand,          "", NULL }
+        };
         static ChatCommand npcCommandTable[] =
         {
-            { "info",           SEC_ADMINISTRATOR,  false, &HandleNpcInfoCommand,              "", NULL },
+            { "info",           SEC_ADMINISTRATOR,  false, NULL,                "", npcInfoCommandTable },
             { "move",           SEC_GAMEMASTER,     false, &HandleNpcMoveCommand,              "", NULL },
             { "playemote",      SEC_ADMINISTRATOR,  false, &HandleNpcPlayEmoteCommand,         "", NULL },
             { "say",            SEC_MODERATOR,      false, &HandleNpcSayCommand,               "", NULL },
@@ -579,6 +584,25 @@ public:
         return true;
     }
 
+    static bool HandleNpcInfoGuidCommand(ChatHandler* handler, const char* args)
+    {
+        if (!args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+        uint32 npcGuid = atoi(args);
+        Creature* creature = sObjectAccessor->GetCreature(*player, MAKE_NEW_GUID(npcGuid, 0, HIGHGUID_UNIT));
+        if (!creature)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, npcGuid);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        SendNpcInfo(handler, creature);
+        return true;
+    }
+
     static bool HandleNpcInfoCommand(ChatHandler* handler, const char* /*args*/)
     {
         Creature* target = handler->getSelectedCreature();
@@ -590,6 +614,12 @@ public:
             return false;
         }
 
+        SendNpcInfo(handler, target);
+        return true;
+    }
+
+    static void SendNpcInfo(ChatHandler* handler, Creature* target)
+    {
         uint32 faction = target->getFaction();
         uint32 npcflags = target->GetUInt32Value(UNIT_NPC_FLAGS);
         uint32 displayid = target->GetDisplayId();
@@ -620,8 +650,6 @@ public:
 
         if (npcflags & UNIT_NPC_FLAG_TRAINER)
             handler->SendSysMessage(LANG_NPCINFO_TRAINER);
-
-        return true;
     }
 
     //move selected creature
