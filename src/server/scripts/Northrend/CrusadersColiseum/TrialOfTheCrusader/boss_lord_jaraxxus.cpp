@@ -105,13 +105,9 @@ class boss_jaraxxus : public CreatureScript
 
         struct boss_jaraxxusAI : public BossAI
         {
-            boss_jaraxxusAI(Creature* creature) : BossAI(creature, BOSS_JARAXXUS), Summons(me)
+            boss_jaraxxusAI(Creature* creature) : BossAI(creature, BOSS_JARAXXUS)
             {
-                instance = creature->GetInstanceScript();
             }
-
-            InstanceScript* instance;
-            SummonList Summons;
 
             void Reset()
             {
@@ -123,7 +119,7 @@ class boss_jaraxxus : public CreatureScript
                 events.ScheduleEvent(EVENT_LEGION_FLAME, 30*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUMMONO_NETHER_PORTAL, 1*MINUTE*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 2*MINUTE*IN_MILLISECONDS);
-                Summons.DespawnAll();
+                summons.DespawnAll();
             }
 
             void JustReachedHome()
@@ -145,7 +141,7 @@ class boss_jaraxxus : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                Summons.DespawnAll();
+                summons.DespawnAll();
                 Talk(SAY_DEATH);
                 if (instance)
                     instance->SetBossState(BOSS_JARAXXUS, DONE);
@@ -153,14 +149,12 @@ class boss_jaraxxus : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                Summons.Summon(summoned);
+                summons.Summon(summoned);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                me->SetInCombatWithZone();
-                if (instance)
-                    instance->SetBossState(BOSS_JARAXXUS, IN_PROGRESS);
+                _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
@@ -235,48 +229,43 @@ class boss_jaraxxus : public CreatureScript
 
 class mob_legion_flame : public CreatureScript
 {
-public:
-    mob_legion_flame() : CreatureScript("mob_legion_flame") { }
+    public:
+        mob_legion_flame() : CreatureScript("mob_legion_flame") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_legion_flameAI(creature);
-    }
-
-    struct mob_legion_flameAI : public Scripted_NoMovementAI
-    {
-        mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        struct mob_legion_flameAI : public Scripted_NoMovementAI
         {
-            instanceScript = creature->GetInstanceScript();
-        }
+            mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            {
+                instanceScript = creature->GetInstanceScript();
+            }
 
-        InstanceScript* instanceScript;
+            InstanceScript* instanceScript;
 
-        void Reset()
+            void Reset()
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetInCombatWithZone();
+                DoCast(SPELL_LEGION_FLAME_EFFECT);
+            }
+
+            void UpdateAI(const uint32 /*uiDiff*/)
+            {
+                UpdateVictim();
+                if (instanceScript->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetInCombatWithZone();
-            DoCast(SPELL_LEGION_FLAME_EFFECT);
+            return new mob_legion_flameAI(creature);
         }
-
-        void UpdateAI(const uint32 /*uiDiff*/)
-        {
-            UpdateVictim();
-            if (instanceScript->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
-                me->DespawnOrUnsummon();
-        }
-    };
 };
 
 class mob_infernal_volcano : public CreatureScript
 {
     public:
         mob_infernal_volcano() : CreatureScript("mob_infernal_volcano") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_infernal_volcanoAI(creature);
-        }
 
         struct mob_infernal_volcanoAI : public Scripted_NoMovementAI
         {
@@ -321,17 +310,22 @@ class mob_infernal_volcano : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/) {}
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_infernal_volcanoAI(creature);
+        }
 };
 
 class mob_fel_infernal : public CreatureScript
 {
+    enum Events
+    {
+        EVENT_FEL_STREAK    = 1
+    };
+
     public:
         mob_fel_infernal() : CreatureScript("mob_fel_infernal") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_fel_infernalAI(creature);
-        }
 
         struct mob_fel_infernalAI : public ScriptedAI
         {
@@ -340,12 +334,9 @@ class mob_fel_infernal : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-            uint32 m_uiFelStreakTimer;
-
             void Reset()
             {
-                m_uiFelStreakTimer = 30*IN_MILLISECONDS;
+                events.ScheduleEvent(EVENT_FEL_STREAK, 30*IN_MILLISECONDS);
                 me->SetInCombatWithZone();
             }
 
@@ -366,27 +357,40 @@ class mob_fel_infernal : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (m_uiFelStreakTimer <= uiDiff)
+                events.Update(uiDiff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                        DoCast(target, SPELL_FEL_STREAK);
-                    m_uiFelStreakTimer = 30*IN_MILLISECONDS;
-                } else m_uiFelStreakTimer -= uiDiff;
+                    switch (event)
+                    {
+                        case EVENT_FEL_STREAK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            DoCast(target, SPELL_FEL_STREAK);
+                            events.ScheduleEvent(EVENT_FEL_STREAK, 30*IN_MILLISECONDS);
+                            break;
+                    }
+                }
 
                 DoMeleeAttackIfReady();
             }
+            private:
+                EventMap events;
+                InstanceScript* instance;
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_fel_infernalAI(creature);
+        }
 };
 
 class mob_nether_portal : public CreatureScript
 {
     public:
         mob_nether_portal() : CreatureScript("mob_nether_portal") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_nether_portalAI(creature);
-        }
 
         struct mob_nether_portalAI : public ScriptedAI
         {
@@ -431,17 +435,24 @@ class mob_nether_portal : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/) {}
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_nether_portalAI(creature);
+        }
 };
 
 class mob_mistress_of_pain : public CreatureScript
 {
+    enum Events
+    {
+        EVENT_SHIVAN_SLASH      = 1,
+        EVENT_SPINNING_STRIKE,
+        EVENT_MISTRESS_KISS
+    };
+
     public:
         mob_mistress_of_pain() : CreatureScript("mob_mistress_of_pain") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_mistress_of_painAI(creature);
-        }
 
         struct mob_mistress_of_painAI : public ScriptedAI
         {
@@ -452,16 +463,12 @@ class mob_mistress_of_pain : public CreatureScript
                     instance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, INCREASE);
             }
 
-            InstanceScript* instance;
-            uint32 m_uiShivanSlashTimer;
-            uint32 m_uiSpinningStrikeTimer;
-            uint32 m_uiMistressKissTimer;
-
             void Reset()
             {
-                m_uiShivanSlashTimer = 30*IN_MILLISECONDS;
-                m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
-                m_uiMistressKissTimer = 15*IN_MILLISECONDS;
+                events.ScheduleEvent(EVENT_SHIVAN_SLASH, 30*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SPINNING_STRIKE, 30*IN_MILLISECONDS);
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_MISTRESS_KISS, 15*IN_MILLISECONDS);
                 me->SetInCombatWithZone();
             }
 
@@ -482,28 +489,42 @@ class mob_mistress_of_pain : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (m_uiShivanSlashTimer <= uiDiff)
-                {
-                    DoCastVictim(SPELL_SHIVAN_SLASH);
-                    m_uiShivanSlashTimer = 30*IN_MILLISECONDS;
-                } else m_uiShivanSlashTimer -= uiDiff;
+                events.Update(uiDiff);
 
-                if (m_uiSpinningStrikeTimer <= uiDiff)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                        DoCast(target, SPELL_SPINNING_STRIKE);
-                    m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
-                } else m_uiSpinningStrikeTimer -= uiDiff;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-                if (IsHeroic() && m_uiMistressKissTimer <= uiDiff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCast(me, SPELL_MISTRESS_KISS);
-                    m_uiMistressKissTimer = 30*IN_MILLISECONDS;
-                } else m_uiMistressKissTimer -= uiDiff;
+                    switch (eventId)
+                    {
+                        case EVENT_SHIVAN_SLASH:
+                            DoCastVictim(SPELL_SHIVAN_SLASH);
+                            events.ScheduleEvent(EVENT_SHIVAN_SLASH, 30*IN_MILLISECONDS);
+                            return;
+                        case EVENT_SPINNING_STRIKE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                DoCast(target, SPELL_SPINNING_STRIKE);
+                            events.ScheduleEvent(EVENT_SPINNING_STRIKE, 30*IN_MILLISECONDS);
+                            return;
+                        case EVENT_MISTRESS_KISS:
+                            DoCast(me, SPELL_MISTRESS_KISS);
+                            events.ScheduleEvent(EVENT_MISTRESS_KISS, 30*IN_MILLISECONDS);
+                            return;
+                    }
+                }
 
                 DoMeleeAttackIfReady();
             }
+            private:
+                InstanceScript* instance;
+                EventMap events;
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_mistress_of_painAI(creature);
+        }
 };
 
 enum MistressKiss
@@ -623,6 +644,7 @@ void AddSC_boss_jaraxxus()
     new mob_fel_infernal();
     new mob_nether_portal();
     new mob_mistress_of_pain();
+
     new spell_mistress_kiss();
     new spell_mistress_kiss_area();
 }
