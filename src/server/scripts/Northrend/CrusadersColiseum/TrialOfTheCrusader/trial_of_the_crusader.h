@@ -7,12 +7,12 @@
 
 enum
 {
-    TYPE_BEASTS                 = 0,
-    TYPE_JARAXXUS               = 1,
-    TYPE_CRUSADERS              = 2,
-    TYPE_VALKIRIES              = 3,
-    TYPE_LICH_KING              = 4,
-    TYPE_ANUBARAK               = 5,
+    BOSS_BEASTS                 = 0,
+    BOSS_JARAXXUS               = 1,
+    BOSS_CRUSADERS              = 2,
+    BOSS_VALKIRIES              = 3,
+    BOSS_LICH_KING              = 4,    // not really a boss but oh well
+    BOSS_ANUBARAK               = 5,
     MAX_ENCOUNTERS              = 6,
 
     TYPE_COUNTER                = 8,

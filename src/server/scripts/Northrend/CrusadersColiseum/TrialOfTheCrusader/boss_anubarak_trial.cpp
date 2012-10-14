@@ -214,7 +214,7 @@ class boss_anubarak_trial : public CreatureScript
             void JustReachedHome()
             {
                 if (instance)
-                    instance->SetData(TYPE_ANUBARAK, FAIL);
+                    instance->SetBossState(BOSS_ANUBARAK, FAIL);
                 //Summon Scarab Swarms neutral at random places
                 for (int i=0; i < 10; i++)
                     if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
@@ -226,7 +226,7 @@ class boss_anubarak_trial : public CreatureScript
                 Summons.DespawnAll();
                 Talk(SAY_DEATH);
                 if (instance)
-                    instance->SetData(TYPE_ANUBARAK, DONE);
+                    instance->SetBossState(BOSS_ANUBARAK, DONE);
 
                 // despawn frostspheres and Burrowers on death
                 std::list<Creature*> AddList;
@@ -273,7 +273,7 @@ class boss_anubarak_trial : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetInCombatWithZone();
                 if (instance)
-                    instance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
+                    instance->SetBossState(BOSS_ANUBARAK, IN_PROGRESS);
                 //Despawn Scarab Swarms neutral
                 EntryCheckPredicate pred(NPC_SCARAB);
                 Summons.DoAction(ACTION_SCARAB_SUBMERGE, pred);

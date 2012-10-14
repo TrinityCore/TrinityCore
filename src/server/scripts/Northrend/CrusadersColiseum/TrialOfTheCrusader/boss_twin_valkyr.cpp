@@ -198,7 +198,7 @@ struct boss_twin_baseAI : public ScriptedAI
     void JustReachedHome()
     {
         if (instance)
-            instance->SetData(TYPE_VALKIRIES, FAIL);
+            instance->SetBossState(BOSS_VALKIRIES, FAIL);
 
         Summons.DespawnAll();
         me->DespawnOrUnsummon();
@@ -264,13 +264,13 @@ struct boss_twin_baseAI : public ScriptedAI
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                    instance->SetData(TYPE_VALKIRIES, DONE);
+                    instance->SetBossState(BOSS_VALKIRIES, DONE);
                     Summons.DespawnAll();
                 }
                 else
                 {
                     me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    instance->SetData(TYPE_VALKIRIES, SPECIAL);
+                    instance->SetBossState(BOSS_VALKIRIES, SPECIAL);
                 }
             }
         }
@@ -293,7 +293,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 me->AddAura(m_uiMyEmphatySpellId, pSister);
                 pSister->SetInCombatWithZone();
             }
-            instance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
+            instance->SetBossState(BOSS_VALKIRIES, IN_PROGRESS);
         }
 
         Talk(SAY_AGGRO);

@@ -105,7 +105,7 @@ class boss_jaraxxus : public CreatureScript
 
         struct boss_jaraxxusAI : public BossAI
         {
-            boss_jaraxxusAI(Creature* creature) : BossAI(creature, TYPE_JARAXXUS), Summons(me)
+            boss_jaraxxusAI(Creature* creature) : BossAI(creature, BOSS_JARAXXUS), Summons(me)
             {
                 instance = creature->GetInstanceScript();
             }
@@ -129,10 +129,9 @@ class boss_jaraxxus : public CreatureScript
             void JustReachedHome()
             {
                 if (instance)
-                    instance->SetData(TYPE_JARAXXUS, FAIL);
+                    instance->SetBossState(BOSS_JARAXXUS, FAIL);
                 DoCast(me, SPELL_JARAXXUS_CHAINS);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                me->SetReactState(REACT_DEFENSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void KilledUnit(Unit* who)
@@ -149,7 +148,7 @@ class boss_jaraxxus : public CreatureScript
                 Summons.DespawnAll();
                 Talk(SAY_DEATH);
                 if (instance)
-                    instance->SetData(TYPE_JARAXXUS, DONE);
+                    instance->SetBossState(BOSS_JARAXXUS, DONE);
             }
 
             void JustSummoned(Creature* summoned)
@@ -161,8 +160,7 @@ class boss_jaraxxus : public CreatureScript
             {
                 me->SetInCombatWithZone();
                 if (instance)
-                    instance->SetData(TYPE_JARAXXUS, IN_PROGRESS);
-                me->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
+                    instance->SetBossState(BOSS_JARAXXUS, IN_PROGRESS);
                 Talk(SAY_AGGRO);
             }
 
@@ -264,7 +262,7 @@ public:
         void UpdateAI(const uint32 /*uiDiff*/)
         {
             UpdateVictim();
-            if (instanceScript->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
+            if (instanceScript->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
         }
     };
@@ -359,7 +357,7 @@ class mob_fel_infernal : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (instance && instance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
+                if (instance && instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -475,7 +473,7 @@ class mob_mistress_of_pain : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (instance && instance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
+                if (instance && instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;

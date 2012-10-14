@@ -215,7 +215,7 @@ class boss_toc_champion_controller : public CreatureScript
                                 m_uiChampionsFailed++;
                                 if (m_uiChampionsFailed + m_uiChampionsKilled >= Summons.size())
                                 {
-                                    instance->SetData(TYPE_CRUSADERS, FAIL);
+                                    instance->SetBossState(BOSS_CRUSADERS, FAIL);
                                     Summons.DespawnAll();
                                     me->DespawnOrUnsummon();
                                 }
@@ -228,16 +228,16 @@ class boss_toc_champion_controller : public CreatureScript
                                     m_uiChampionsKilled = 0;
                                     m_bInProgress = true;
                                     Summons.DoZoneInCombat();
-                                    instance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
+                                    instance->SetBossState(BOSS_CRUSADERS, IN_PROGRESS);
                                 }
                                 break;
                             case DONE:
                                 m_uiChampionsKilled++;
                                 if (m_uiChampionsKilled == 1)
-                                    instance->SetData(TYPE_CRUSADERS, SPECIAL);
+                                    instance->SetBossState(BOSS_CRUSADERS, SPECIAL);
                                 else if (m_uiChampionsKilled >= Summons.size())
                                 {
-                                    instance->SetData(TYPE_CRUSADERS, DONE);
+                                    instance->SetBossState(BOSS_CRUSADERS, DONE);
                                     Summons.DespawnAll();
                                     me->DespawnOrUnsummon();
                                 }
