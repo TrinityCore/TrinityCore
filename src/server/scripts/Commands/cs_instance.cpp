@@ -218,7 +218,7 @@ public:
         int32 field = atoi(field_str);
         int32 value = atoi(value_str);
 
-        ((InstanceMap*)map)->GetInstanceScript()->SetData(field, value);
+        ((InstanceMap*)map)->GetInstanceScript()->SetBossState(field, (EncounterState)value);
         handler->PSendSysMessage("Instance data field %i is now set to %i.", field, value);
         return true;
     }
@@ -246,7 +246,7 @@ public:
 
         int32 field = atoi (args);
 
-        int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetData(field);
+        int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
         handler->PSendSysMessage("Instance data for field %i is %i.", field, value);
         return true;
     }
