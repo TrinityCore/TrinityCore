@@ -145,15 +145,19 @@ class OrbsDespawner : public BasicEvent
         Creature* _creature;
 };
 
-struct boss_twin_baseAI : public ScriptedAI
+struct boss_twin_baseAI : public BossAI
 {
-    boss_twin_baseAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+    enum Events
     {
-        instance = creature->GetInstanceScript();
-    }
+        EVENT_SPECIAL_ABILITY   = 1,
+        EVENT_SPIKE,
+        EVENT_TOUCH,
+        EVENT_BERSERK
+    };
 
-    InstanceScript* instance;
-    SummonList Summons;
+    boss_twin_baseAI(Creature* creature) : BossAI(creature, BOSS_VALKIRIES)
+    {
+    }
 
     AuraStateType  m_uiAuraState;
 
@@ -161,10 +165,6 @@ struct boss_twin_baseAI : public ScriptedAI
     bool   m_bIsBerserk;
 
     uint32 m_uiWeapon;
-    uint32 m_uiSpecialAbilityTimer;
-    uint32 m_uiSpikeTimer;
-    uint32 m_uiTouchTimer;
-    uint32 m_uiBerserkTimer;
 
     int32 m_uiVortexEmote;
     uint32 m_uiSisterNpcId;
@@ -187,12 +187,18 @@ struct boss_twin_baseAI : public ScriptedAI
         me->SetFlying(true); */
         m_bIsBerserk = false;
 
-        m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
-        m_uiSpikeTimer = 20*IN_MILLISECONDS;
-        m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
-        m_uiBerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
+        events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 1*MINUTE*IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_SPIKE, 20*IN_MILLISECONDS);
 
-        Summons.DespawnAll();
+        if (IsHeroic())
+        {
+            events.ScheduleEvent(EVENT_TOUCH, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_BERSERK, 6*MINUTE*IN_MILLISECONDS);
+        }
+        else
+            events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS);
+
+        summons.DespawnAll();
     }
 
     void JustReachedHome()
@@ -200,7 +206,7 @@ struct boss_twin_baseAI : public ScriptedAI
         if (instance)
             instance->SetBossState(BOSS_VALKIRIES, FAIL);
 
-        Summons.DespawnAll();
+        summons.DespawnAll();
         me->DespawnOrUnsummon();
     }
 
@@ -214,6 +220,8 @@ struct boss_twin_baseAI : public ScriptedAI
             case 1:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
+                break;
+            default:
                 break;
         }
     }
@@ -230,7 +238,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void JustSummoned(Creature* summoned)
     {
-        Summons.Summon(summoned);
+        summons.Summon(summoned);
     }
 
     void SummonedCreatureDespawn(Creature* summoned)
@@ -248,8 +256,10 @@ struct boss_twin_baseAI : public ScriptedAI
             case NPC_BULLET_CONTROLLER:
                 me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
                 break;
+            default:
+                break;
         }
-        Summons.Despawn(summoned);
+        summons.Despawn(summoned);
     }
 
     void JustDied(Unit* /*killer*/)
@@ -264,8 +274,8 @@ struct boss_twin_baseAI : public ScriptedAI
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                    instance->SetBossState(BOSS_VALKIRIES, DONE);
-                    Summons.DespawnAll();
+                    _JustDied();
+                    summons.DespawnAll();
                 }
                 else
                 {
@@ -274,7 +284,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 }
             }
         }
-        Summons.DespawnAll();
+        summons.DespawnAll();
     }
 
     // Called when sister pointer needed
@@ -310,6 +320,8 @@ struct boss_twin_baseAI : public ScriptedAI
             case ACTION_PACT:
                 m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 1 : 2;
                 break;
+            default:
+                break;
         }
     }
 
@@ -325,6 +337,8 @@ struct boss_twin_baseAI : public ScriptedAI
         if (!instance || !UpdateVictim())
             return;
 
+        events.Update(uiDiff);
+
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
@@ -333,65 +347,64 @@ struct boss_twin_baseAI : public ScriptedAI
             case 0:
                 break;
             case 1: // Vortex
-                if (m_uiSpecialAbilityTimer <= uiDiff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (Creature* pSister = GetSister())
-                        pSister->AI()->DoAction(ACTION_VORTEX);
-                    Talk(m_uiVortexEmote);
-                    DoCastAOE(m_uiVortexSpellId);
-                    m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    switch (eventId)
+                    {
+                        case EVENT_SPECIAL_ABILITY:
+                            if (Creature* pSister = GetSister())
+                                pSister->AI()->DoAction(ACTION_VORTEX);
+                            Talk(m_uiVortexEmote);
+                            DoCastAOE(m_uiVortexSpellId);
+                            m_uiStage = 0;
+                            events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 1*MINUTE*IN_MILLISECONDS);
+                            return;
+                    }
                 }
-                else
-                    m_uiSpecialAbilityTimer -= uiDiff;
                 break;
             case 2: // Shield+Pact
-                if (m_uiSpecialAbilityTimer <= uiDiff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    Talk(EMOTE_TWINK_PACT);
-                    Talk(SAY_TWINK_PACT);
-                    if (Creature* pSister = GetSister())
+                    switch (eventId)
                     {
-                        pSister->AI()->DoAction(ACTION_PACT);
-                        pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
+                        case EVENT_SPECIAL_ABILITY:
+                            Talk(EMOTE_TWINK_PACT);
+                            Talk(SAY_TWINK_PACT);
+                            if (Creature* pSister = GetSister())
+                            {
+                                pSister->AI()->DoAction(ACTION_PACT);
+                                pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
+                            }
+                            DoCast(me, m_uiShieldSpellId);
+                            DoCast(me, m_uiTwinPactSpellId);
+                            m_uiStage = 0;
+                            events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 1*MINUTE*IN_MILLISECONDS);
+                            return;
                     }
-                    DoCast(me, m_uiShieldSpellId);
-                    DoCast(me, m_uiTwinPactSpellId);
-                    m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
                 }
-                else
-                    m_uiSpecialAbilityTimer -= uiDiff;
                 break;
             default:
                 break;
         }
 
-        if (m_uiSpikeTimer <= uiDiff)
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            DoCastVictim(m_uiSpikeSpellId);
-            m_uiSpikeTimer = 20*IN_MILLISECONDS;
+            switch (eventId)
+            {
+                case EVENT_SPIKE:
+                    DoCastVictim(m_uiSpikeSpellId);
+                    events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 20*IN_MILLISECONDS);
+                    return;
+                case EVENT_TOUCH:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, m_uiOtherEssenceSpellId))
+                        me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
+                    events.ScheduleEvent(EVENT_SPECIAL_ABILITY, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                case EVENT_BERSERK:
+                    DoCast(me, SPELL_BERSERK);
+                    Talk(SAY_BERSERK);
+                    return;
+            }
         }
-        else
-            m_uiSpikeTimer -= uiDiff;
-
-        if (IsHeroic() && m_uiTouchTimer <= uiDiff)
-        {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, m_uiOtherEssenceSpellId))
-                me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
-            m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
-        }
-        else
-            m_uiTouchTimer -= uiDiff;
-
-        if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
-        {
-            DoCast(me, SPELL_BERSERK);
-            Talk(SAY_BERSERK);
-            m_bIsBerserk = true;
-        }
-        else
-            m_uiBerserkTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -406,21 +419,14 @@ class boss_fjola : public CreatureScript
     public:
         boss_fjola() : CreatureScript("boss_fjola") { }
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_fjolaAI(creature);
-        }
-
         struct boss_fjolaAI : public boss_twin_baseAI
         {
             boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature)
             {
-                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-
-            void Reset() {
+            void Reset()
+            {
                 SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 m_uiStage = 0;
                 m_uiWeapon = EQUIP_MAIN_1;
@@ -468,6 +474,11 @@ class boss_fjola : public CreatureScript
                 boss_twin_baseAI::JustReachedHome();
             }
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_fjolaAI(creature);
+        }
 };
 
 /*######
@@ -479,16 +490,12 @@ class boss_eydis : public CreatureScript
     public:
         boss_eydis() : CreatureScript("boss_eydis") { }
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_eydisAI(creature);
-        }
-
         struct boss_eydisAI : public boss_twin_baseAI
         {
             boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
-            void Reset() {
+            void Reset()
+            {
                 SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 m_uiStage = 1;
                 m_uiWeapon = EQUIP_MAIN_2;
@@ -506,6 +513,11 @@ class boss_eydis : public CreatureScript
                 boss_twin_baseAI::Reset();
             }
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_eydisAI(creature);
+        }
 };
 
 #define ESSENCE_REMOVE 0
@@ -555,13 +567,17 @@ class mob_essence_of_twin : public CreatureScript
 
 struct mob_unleashed_ballAI : public ScriptedAI
 {
+    enum Events
+    {
+        EVENT_RECHECK_DISTANCE  = 1
+    };
+
     mob_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
         instance = creature->GetInstanceScript();
     }
 
     InstanceScript* instance;
-    uint32 m_uiRangeCheckTimer;
 
     void MoveToNextPoint()
     {
@@ -585,7 +601,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
         me->SetCanFly(true);
         SetCombatMovement(false);
         MoveToNextPoint();
-        m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
+        events.ScheduleEvent(EVENT_RECHECK_DISTANCE, 0.5*IN_MILLISECONDS);
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -601,8 +617,12 @@ struct mob_unleashed_ballAI : public ScriptedAI
                 else
                     me->DisappearAndDie();
                 break;
+            default:
+                break;
         }
     }
+    private:
+        EventMap events;
 };
 
 class mob_unleashed_dark : public CreatureScript
@@ -610,28 +630,31 @@ class mob_unleashed_dark : public CreatureScript
     public:
         mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_unleashed_darkAI(creature);
-        }
-
         struct mob_unleashed_darkAI : public mob_unleashed_ballAI
         {
             mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (m_uiRangeCheckTimer < uiDiff)
+                events.Update(uiDiff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (me->SelectNearestPlayer(3.0f))
-                        {
-                            DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
-                            me->GetMotionMaster()->MoveIdle();
-                            me->DespawnOrUnsummon(1*IN_MILLISECONDS);
-                        }
-                    m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
+                    switch (eventId)
+                    {
+                        case EVENT_RECHECK_DISTANCE:
+                            if (me->SelectNearestPlayer(3.0f))
+                            {
+                                DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
+                                me->GetMotionMaster()->MoveIdle();
+                                me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_RECHECK_DISTANCE, 0.5*IN_MILLISECONDS);
+                            }
+                            return;
+                        default:
+                            return;
+                    }
                 }
-                else m_uiRangeCheckTimer -= uiDiff;
             }
 
             void SpellHitTarget(Unit* who, SpellInfo const* spell)
@@ -656,7 +679,14 @@ class mob_unleashed_dark : public CreatureScript
                     }
                 }
             }
+            private:
+                EventMap events;
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_unleashed_darkAI(creature);
+        }
 };
 
 class mob_unleashed_light : public CreatureScript
@@ -664,28 +694,31 @@ class mob_unleashed_light : public CreatureScript
     public:
         mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_unleashed_lightAI(creature);
-        }
-
         struct mob_unleashed_lightAI : public mob_unleashed_ballAI
         {
             mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (m_uiRangeCheckTimer < uiDiff)
+                events.Update(uiDiff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (me->SelectNearestPlayer(3.0f))
-                        {
-                            DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
-                            me->GetMotionMaster()->MoveIdle();
-                            me->DespawnOrUnsummon(1*IN_MILLISECONDS);
-                        }
-                    m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
+                    switch (eventId)
+                    {
+                        case EVENT_RECHECK_DISTANCE:
+                            if (me->SelectNearestPlayer(3.0f))
+                            {
+                                DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
+                                me->GetMotionMaster()->MoveIdle();
+                                me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_RECHECK_DISTANCE, 0.5*IN_MILLISECONDS);
+                            }
+                            return;
+                        default:
+                            return;
+                    }
                 }
-                else m_uiRangeCheckTimer -= uiDiff;
             }
 
             void SpellHitTarget(Unit* who, SpellInfo const* spell)
@@ -710,18 +743,20 @@ class mob_unleashed_light : public CreatureScript
                     }
                 }
             }
+            private:
+                EventMap events;
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_unleashed_lightAI(creature);
+        }
 };
 
 class mob_bullet_controller : public CreatureScript
 {
     public:
         mob_bullet_controller() : CreatureScript("mob_bullet_controller") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_bullet_controllerAI(creature);
-        }
 
         struct mob_bullet_controllerAI : public Scripted_NoMovementAI
         {
@@ -740,6 +775,11 @@ class mob_bullet_controller : public CreatureScript
                 UpdateVictim();
             }
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_bullet_controllerAI(creature);
+        }
 };
 
 class spell_powering_up : public SpellScriptLoader

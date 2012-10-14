@@ -196,6 +196,9 @@ DELETE FROM `conditions` WHERE `SourceEntry`=66636;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
 (13, 1, 66636, 31, 3, 34796, 'Rising Anger');
 
+-- Twins loot correction
+UPDATE `creature_loot_template` SET `maxcount`=1 WHERE `entry`=34497 AND `mincountOrRef` IN (-34296, -34302);
+
 ###########
 -- ULDUAR #
 ###########
