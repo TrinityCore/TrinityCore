@@ -1903,8 +1903,6 @@ public:
         npc_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) {}
 
         uint32 despawnTimer;
-        Unit* owner;
-        Unit* target;
 
         void InitializeAI()
         {
@@ -1912,13 +1910,19 @@ public:
             uint64 ownerGuid = me->GetOwnerGUID();
             if (!ownerGuid)
                 return;
-
-            owner = me->GetOwner();
-
             // Not needed to be despawned now
             despawnTimer = 0;
-
-            target = NULL;
+            // Find victim of Summon Gargoyle spell
+            std::list<Unit*> targets;
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+            me->VisitNearbyObject(30, searcher);
+            for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                if ((*iter)->GetAura(49206, ownerGuid))
+                {
+                    me->Attack((*iter), false);
+                    break;
+                }
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1950,8 +1954,8 @@ public:
             me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_ASCENDING|MOVEMENTFLAG_FLYING);
             me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
             me->SetSpeed(MOVE_RUN, 0.75f, true);
-            float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());
-            float y = me->GetPositionY() + 20 * std::sin(me->GetOrientation());
+            float x = me->GetPositionX() + 20 * cos(me->GetOrientation());
+            float y = me->GetPositionY() + 20 * sin(me->GetOrientation());
             float z = me->GetPositionZ() + 40;
             me->GetMotionMaster()->Clear(false);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
@@ -1970,29 +1974,6 @@ public:
                     me->DespawnOrUnsummon();
                 return;
             }
-
-            if (!target)
-            {
-                // Find victim of Summon Gargoyle spell
-                std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(30, searcher);
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                {
-                    if ((*iter)->HasAura(49206, me->GetOwnerGUID()))
-                    {
-                        target = (*iter);
-                        AttackStart(target);
-                        break;
-                    }
-                }
-            }
-            else if (target && target->isAlive())
-            {
-                AttackStart(target);
-            }
-
             CasterAI::UpdateAI(diff);
         }
     };
