@@ -198,6 +198,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 -- Twins loot correction
 UPDATE `creature_loot_template` SET `maxcount`=1 WHERE `entry`=34497 AND `mincountOrRef` IN (-34296, -34302);
+-- Anubarak loot correction
+UPDATE `creature_loot_template` SET `maxcount`=2 WHERE `entry`=34564 AND `mincountOrRef` IN (-34298, -34304);
 
 ###########
 -- ULDUAR #
