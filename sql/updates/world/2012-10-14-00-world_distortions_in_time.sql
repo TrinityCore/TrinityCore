@@ -1,7 +1,7 @@
 -- Area conditions for Plant Chieftains Totem
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=17 AND `SourceEntry`=56765;
 INSERT INTO `conditions`(`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ErrorTextId`,`Comment`) VALUES
-(17,56765,29,30446,10,64,'Plant Chieftains Totem only useable next to Rift');
+(17,56765,29,30446,15,64,'Plant Chieftains Totem only useable next to Rift');
 
 -- Apply Close Rift to The Chieftain's Totem
 DELETE FROM `creature_template_addon` WHERE `entry`=30444;

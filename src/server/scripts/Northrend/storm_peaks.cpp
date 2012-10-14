@@ -586,7 +586,7 @@ class spell_close_rift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/)
             {
-                return (bool) sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT);
+                return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT);
             }
 
             void HandlePeriodic(AuraEffect const* /* aurEff */)
