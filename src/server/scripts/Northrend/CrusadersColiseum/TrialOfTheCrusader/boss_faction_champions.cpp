@@ -56,11 +56,6 @@ class boss_toc_champion_controller : public CreatureScript
     public:
         boss_toc_champion_controller() : CreatureScript("boss_toc_champion_controller") { }
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_toc_champion_controllerAI (creature);
-        }
-
         struct boss_toc_champion_controllerAI : public ScriptedAI
         {
             boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
@@ -70,6 +65,7 @@ class boss_toc_champion_controller : public CreatureScript
 
             InstanceScript* instance;
             SummonList Summons;
+
             uint32 m_uiChampionsNotStarted;
             uint32 m_uiChampionsFailed;
             uint32 m_uiChampionsKilled;
@@ -106,7 +102,7 @@ class boss_toc_champion_controller : public CreatureScript
                     healersSubtracted = 1;
                 for (uint8 i = 0; i < healersSubtracted; ++i)
                 {
-                    uint8 pos = urand(0, vHealersEntries.size()-1);
+                    uint8 pos = urand(0, vHealersEntries.size() - 1);
                     switch (vHealersEntries[pos])
                     {
                         case NPC_ALLIANCE_DRUID_RESTORATION:
@@ -133,13 +129,15 @@ class boss_toc_champion_controller : public CreatureScript
                         case NPC_HORDE_SHAMAN_RESTORATION:
                             vOtherEntries.push_back(NPC_HORDE_SHAMAN_ENHANCEMENT);
                             break;
+                        default:
+                            break;
                     }
-                    vHealersEntries.erase(vHealersEntries.begin()+pos);
+                    vHealersEntries.erase(vHealersEntries.begin() + pos);
                 }
 
                 if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                     for (uint8 i = 0; i < 4; ++i)
-                        vOtherEntries.erase(vOtherEntries.begin()+urand(0, vOtherEntries.size()-1));
+                        vOtherEntries.erase(vOtherEntries.begin() + urand(0, vOtherEntries.size() - 1));
 
                 std::vector<uint32> vChampionEntries;
                 vChampionEntries.clear();
@@ -242,22 +240,28 @@ class boss_toc_champion_controller : public CreatureScript
                                     me->DespawnOrUnsummon();
                                 }
                                 break;
+                            default:
+                                break;
                         }
+                        break;
+                    default:
                         break;
                 }
             }
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_toc_champion_controllerAI (creature);
+        }
 };
 
-struct boss_faction_championsAI : public ScriptedAI
+struct boss_faction_championsAI : public BossAI
 {
-    boss_faction_championsAI(Creature* creature, uint32 aitype) : ScriptedAI(creature)
+    boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, BOSS_CRUSADERS)
     {
-        instance = creature->GetInstanceScript();
         mAIType = aitype;
     }
-
-    InstanceScript* instance;
 
     uint64 championControllerGUID;
     uint32 mAIType;
@@ -267,8 +271,8 @@ struct boss_faction_championsAI : public ScriptedAI
     void Reset()
     {
         championControllerGUID = 0;
-        CCTimer = rand()%10000;
-        ThreatTimer = 5000;
+        CCTimer = rand() % 10*IN_MILLISECONDS;
+        ThreatTimer = 5*IN_MILLISECONDS;
     }
 
     void JustReachedHome()
@@ -281,9 +285,9 @@ struct boss_faction_championsAI : public ScriptedAI
 
     float CalculateThreat(float distance, float armor, uint32 health)
     {
-        float dist_mod = (mAIType == AI_MELEE || mAIType == AI_PET) ? 15.0f/(15.0f + distance) : 1.0f;
+        float dist_mod = (mAIType == AI_MELEE || mAIType == AI_PET) ? 15.0f / (15.0f + distance) : 1.0f;
         float armor_mod = (mAIType == AI_MELEE || mAIType == AI_PET) ? armor / 16635.0f : 0.0f;
-        float eh = (health+1) * (1.0f + armor_mod);
+        float eh = (health + 1) * (1.0f + armor_mod);
         return dist_mod * 30000.0f / eh;
     }
 
@@ -295,7 +299,7 @@ struct boss_faction_championsAI : public ScriptedAI
             Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
             if (unit && me->getThreatManager().getThreat(unit))
             {
-                if (unit->GetTypeId()==TYPEID_PLAYER)
+                if (unit->GetTypeId() == TYPEID_PLAYER)
                 {
                     float threat = CalculateThreat(me->GetDistance2d(unit), (float)unit->GetArmor(), unit->GetHealth());
                     me->getThreatManager().modifyThreatPercent(unit, -100);
@@ -309,8 +313,6 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         if (me->getPowerType() == POWER_MANA)
             me->ModifyPower(POWER_MANA, me->GetMaxPower(POWER_MANA) / 3);
-        //else if (me->getPowerType() == POWER_ENERGY)
-        //    me->ModifyPower(POWER_ENERGY, 100);
     }
 
     void RemoveCC()
@@ -334,7 +336,7 @@ struct boss_faction_championsAI : public ScriptedAI
     void EnterCombat(Unit* /*who*/)
     {
         DoCast(me, SPELL_ANTI_AOE, true);
-        me->SetInCombatWithZone();
+        _EnterCombat();
         if (instance)
             if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
@@ -374,7 +376,7 @@ struct boss_faction_championsAI : public ScriptedAI
         std::list<Creature*>::const_iterator itr = lst.begin();
         if (lst.empty())
             return NULL;
-        advance(itr, rand()%lst.size());
+        advance(itr, rand() % lst.size());
         return (*itr);
     }
 
@@ -398,7 +400,7 @@ struct boss_faction_championsAI : public ScriptedAI
         std::list<HostileReference*>::const_iterator iter;
         uint32 count = 0;
         Unit* target;
-        for (iter = tList.begin(); iter!=tList.end(); ++iter)
+        for (iter = tList.begin(); iter != tList.end(); ++iter)
         {
             target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
                 if (target && me->GetDistance2d(target) < distance)
@@ -432,7 +434,7 @@ struct boss_faction_championsAI : public ScriptedAI
         {
             UpdatePower();
             UpdateThreat();
-            ThreatTimer = 4000;
+            ThreatTimer = 4*IN_MILLISECONDS;
         }
         else ThreatTimer -= uiDiff;
 
@@ -441,7 +443,7 @@ struct boss_faction_championsAI : public ScriptedAI
             if (CCTimer < uiDiff)
             {
                 RemoveCC();
-                CCTimer = 8000+rand()%2000;
+                CCTimer = 8*IN_MILLISECONDS + rand() % 2*IN_MILLISECONDS;
             }
             else CCTimer -= uiDiff;
         }
@@ -462,7 +464,7 @@ enum eDruidSpells
     SPELL_TRANQUILITY       = 66086,
     SPELL_BARKSKIN          = 65860, //1 min cd
     SPELL_THORNS            = 66068,
-    SPELL_NATURE_GRASP      = 66071, //1 min cd, self buff
+    SPELL_NATURE_GRASP      = 66071  //1 min cd, self buff
 };
 
 class mob_toc_druid : public CreatureScript
@@ -557,12 +559,11 @@ class mob_toc_druid : public CreatureScript
                             DoCast(me, SPELL_NATURE_GRASP);
                             events.ScheduleEvent(EVENT_NATURE_GRASP, 60*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -676,11 +677,11 @@ class mob_toc_shaman : public CreatureScript
                                 DoCast(target, SPELL_EARTH_SHOCK);
                             events.ScheduleEvent(EVENT_EARTH_SHOCK, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -805,12 +806,11 @@ class mob_toc_paladin : public CreatureScript
                                 DoCast(target, SPELL_HAMMER_OF_JUSTICE);
                             events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 40*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -913,11 +913,11 @@ class mob_toc_priest : public CreatureScript
                                 DoCast(target, SPELL_PENANCE);
                             events.ScheduleEvent(EVENT_PENANCE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1034,12 +1034,12 @@ class mob_toc_shadow_priest : public CreatureScript
                                 DoCastAOE(SPELL_PSYCHIC_SCREAM);
                             events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_MIND_FLAY);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1152,12 +1152,12 @@ class mob_toc_warlock : public CreatureScript
                                 DoCast(target, SPELL_UNSTABLE_AFFLICTION);
                             events.ScheduleEvent(EVENT_UNSTABLE_AFFLICTION, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_SHADOW_BOLT);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1268,15 +1268,15 @@ class mob_toc_mage : public CreatureScript
                             return;
                         case EVENT_POLYMORPH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
-                                DoCastAOE(SPELL_POLYMORPH);
+                                DoCast(target, SPELL_POLYMORPH);
                             events.ScheduleEvent(EVENT_POLYMORPH, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                            return;
+                        default:
                             return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_FROSTBOLT);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1318,9 +1318,7 @@ class mob_toc_hunter : public CreatureScript
 
         struct mob_toc_hunterAI : public boss_faction_championsAI
         {
-            mob_toc_hunterAI(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED), Summons(me) {}
-
-            SummonList Summons;
+            mob_toc_hunterAI(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED) {}
 
             void Reset()
             {
@@ -1398,12 +1396,12 @@ class mob_toc_hunter : public CreatureScript
                                 DoCast(target, SPELL_WYVERN_STING);
                             events.ScheduleEvent(EVENT_WYVERN_STING, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_SHOOT);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1514,12 +1512,12 @@ class mob_toc_boomkin : public CreatureScript
                             else
                                 events.ScheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_WRATH);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1642,11 +1640,11 @@ class mob_toc_warrior : public CreatureScript
                             else
                                 events.ScheduleEvent(EVENT_RETALIATION, 10*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1676,7 +1674,7 @@ class mob_toc_dk : public CreatureScript
         EVENT_FROST_STRIKE,
         EVENT_ICEBOUND_FORTITUDE,
         EVENT_ICY_TOUCH,
-        EVENT_STRANGULATE,
+        EVENT_STRANGULATE
     };
 
     public:
@@ -1757,11 +1755,11 @@ class mob_toc_dk : public CreatureScript
                             else
                                 events.ScheduleEvent(EVENT_STRANGULATE, 10*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1883,11 +1881,11 @@ class mob_toc_rogue : public CreatureScript
                             DoCastVictim(SPELL_WOUND_POISON);
                             events.ScheduleEvent(EVENT_WOUND_POISON, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1920,9 +1918,8 @@ class mob_toc_enh_shaman : public CreatureScript
 
         struct mob_toc_enh_shamanAI : public boss_faction_championsAI
         {
-            mob_toc_enh_shamanAI(Creature* creature) : boss_faction_championsAI(creature, AI_MELEE), Summons(me) {}
+            mob_toc_enh_shamanAI(Creature* creature) : boss_faction_championsAI(creature, AI_MELEE) {}
 
-            SummonList Summons;
             uint8  m_uiTotemCount;
             float  m_fTotemOldCenterX, m_fTotemOldCenterY;
 
@@ -1940,12 +1937,12 @@ class mob_toc_enh_shaman : public CreatureScript
                 m_fTotemOldCenterX = me->GetPositionX();
                 m_fTotemOldCenterY = me->GetPositionY();
                 SetEquipmentSlots(false, 51803, 48013, EQUIP_NO_CHANGE);
-                Summons.DespawnAll();
+                summons.DespawnAll();
             }
 
             void JustSummoned(Creature* summoned)
             {
-                Summons.Summon(summoned);
+                summons.Summon(summoned);
             }
 
             void SummonedCreatureDespawn(Creature* /*pSummoned*/)
@@ -1974,7 +1971,7 @@ class mob_toc_enh_shaman : public CreatureScript
             void JustDied(Unit* killer)
             {
                 boss_faction_championsAI::JustDied(killer);
-                Summons.DespawnAll();
+                summons.DespawnAll();
             }
 
             void UpdateAI(const uint32 diff)
@@ -2027,11 +2024,11 @@ class mob_toc_enh_shaman : public CreatureScript
                             DoCastVictim(SPELL_WINDFURY);
                             events.ScheduleEvent(EVENT_WINDFURY, urand(20*IN_MILLISECONDS, 60*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2156,11 +2153,11 @@ class mob_toc_retro_paladin : public CreatureScript
                             else
                                 events.ScheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2220,11 +2217,11 @@ class mob_toc_pet_warlock : public CreatureScript
                             DoCast(SPELL_SPELL_LOCK);
                             events.ScheduleEvent(EVENT_SPELL_LOCK, urand(24*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2274,11 +2271,11 @@ class mob_toc_pet_hunter : public CreatureScript
                             DoCastVictim(SPELL_CLAW);
                             events.ScheduleEvent(EVENT_CLAW, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
