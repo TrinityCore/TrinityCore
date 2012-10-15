@@ -730,6 +730,11 @@ class boss_flame_leviathan : public CreatureScript
 
 class npc_flame_leviathan_defense_cannon : public CreatureScript
 {
+    enum Events
+    {
+        EVENT_NAPALM    = 1
+    };
+
     public:
         npc_flame_leviathan_defense_cannon() : CreatureScript("npc_flame_leviathan_defense_cannon") {}
 
@@ -745,7 +750,7 @@ class npc_flame_leviathan_defense_cannon : public CreatureScript
 
             void Reset()
             {
-                NapalmTimer = 5*IN_MILLISECONDS;
+                events.ScheduleEvent(EVENT_NAPALM, 5*IN_MILLISECONDS);
                 DoCast(me, AURA_STEALTH_DETECTION);
             }
 
@@ -758,15 +763,22 @@ class npc_flame_leviathan_defense_cannon : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (NapalmTimer <= diff)
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        if (CanAIAttack(target))
-                            DoCast(target, SPELL_NAPALM, true);
-                    NapalmTimer = 5*IN_MILLISECONDS;
+                    switch (eventId)
+                    {
+                        case EVENT_NAPALM:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (CanAIAttack(target))
+                                    DoCast(target, SPELL_NAPALM, true);
+                            events.ScheduleEvent(EVENT_NAPALM, 5*IN_MILLISECONDS);
+                            return;
+                        default:
+                            return;
+                    }
                 }
-                else
-                    NapalmTimer -= diff;
             }
 
             bool CanAIAttack(Unit const* who) const
@@ -777,8 +789,8 @@ class npc_flame_leviathan_defense_cannon : public CreatureScript
             }
 
             private:
-                uint32 NapalmTimer;
                 InstanceScript* instance;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1005,6 +1017,11 @@ class npc_flame_leviathan_safety_container : public CreatureScript
 
 class npc_mechanolift : public CreatureScript
 {
+    enum Events
+    {
+        EVENT_MOVE  = 1
+    };
+
     public:
         npc_mechanolift() : CreatureScript("npc_mechanolift") {}
 
@@ -1019,7 +1036,7 @@ class npc_mechanolift : public CreatureScript
             {
                 me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
                 me->SetVisible(true);
-                MoveTimer = 0;
+                events.ScheduleEvent(EVENT_MOVE, 1*IN_MILLISECONDS);
                 me->GetMotionMaster()->MoveRandom(50);
             }
 
@@ -1061,24 +1078,30 @@ class npc_mechanolift : public CreatureScript
             // We are a lift, that tries to transport containers. As there isn't any other (yet known) way to handle this, it's done using a passenger <-> vehicle relation.
             void UpdateAI(const uint32 diff)
             {
-                if (MoveTimer <= diff)
-                {
-                    if (me->GetVehicleKit()->HasEmptySeat(-1))
-                    {
-                        Creature* container = me->FindNearestCreature(NPC_CONTAINER, 50, true);
-                        if (container)
-                            if (!container->GetVehicle())
-                                me->GetMotionMaster()->MovePoint(1, container->GetPositionX(), container->GetPositionY(), container->GetPositionZ());
-                    }
+                events.Update(diff);
 
-                    MoveTimer = 30*IN_MILLISECONDS; //check next 30 seconds
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MOVE:
+                            if (me->GetVehicleKit()->HasEmptySeat(-1))
+                            {
+                                Creature* container = me->FindNearestCreature(NPC_CONTAINER, 50, true);
+                                if (container)
+                                    if (!container->GetVehicle())
+                                        me->GetMotionMaster()->MovePoint(1, container->GetPositionX(), container->GetPositionY(), container->GetPositionZ());
+                            }
+                            events.ScheduleEvent(EVENT_MOVE, 30*IN_MILLISECONDS);
+                            return;
+                        default:
+                            return;
+                    }
                 }
-                else
-                    MoveTimer -= diff;
             }
 
             private:
-                uint32 MoveTimer;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1091,7 +1114,8 @@ class npc_liquid_pyrite : public CreatureScript
 {
     enum
     {
-        DISPLAY_ID_DAMAGED_PYRITE_CONTAINER = 28783
+        DISPLAY_ID_DAMAGED_PYRITE_CONTAINER = 28783,
+        EVENT_DESPAWN   = 1
     };
 
     public:
@@ -1105,7 +1129,7 @@ class npc_liquid_pyrite : public CreatureScript
             {
                 DoCast(me, SPELL_LIQUID_PYRITE, true);
                 me->SetDisplayId(28476);
-                despawnTimer = 5*IN_MILLISECONDS;
+                events.ScheduleEvent(EVENT_DESPAWN, 5*IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 type, uint32 /*id*/)
@@ -1125,18 +1149,22 @@ class npc_liquid_pyrite : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (despawnTimer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (me->GetVehicle())
-                        me->DisappearAndDie();
-                    despawnTimer = 5*IN_MILLISECONDS;
+                    switch (eventId)
+                    {
+                        case EVENT_DESPAWN:
+                            if (me->GetVehicle())
+                            me->DisappearAndDie();
+                            return;
+                        default:
+                            return;
+                    }
                 }
-                else
-                    despawnTimer -= diff;
             }
 
             private:
-                uint32 despawnTimer;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1191,6 +1219,11 @@ class npc_pool_of_tar : public CreatureScript
 
 class npc_colossus : public CreatureScript
 {
+    enum Event
+    {
+        EVENT_GROUND_SLAM   = 1
+    };
+
     public:
         npc_colossus() : CreatureScript("npc_colossus") {}
 
@@ -1203,7 +1236,7 @@ class npc_colossus : public CreatureScript
 
             void Reset()
             {
-                groundSlamTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_GROUND_SLAM, urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS));
             }
 
             void JustDied(Unit* /*Who*/)
@@ -1219,20 +1252,28 @@ class npc_colossus : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (groundSlamTimer <= diff)
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCastVictim(SPELL_GROUND_SLAM);
-                    groundSlamTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
+                    switch (eventId)
+                    {
+                        case EVENT_GROUND_SLAM:
+                            DoCastVictim(SPELL_GROUND_SLAM);
+                            events.ScheduleEvent(EVENT_GROUND_SLAM, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            return;
+                        default:
+                            return;
+                    }
                 }
-                else
-                    groundSlamTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
 
             private:
                 InstanceScript* instance;
-                uint32 groundSlamTimer;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1245,7 +1286,7 @@ class npc_thorims_hammer : public CreatureScript
 {
     enum ThorimsHammerEvents
     {
-        EVENT_LIGHTNING_SKYBEAM,        // urand(2, 10) *IN_MILLISECONDS
+        EVENT_LIGHTNING_SKYBEAM     = 1,        // urand(2, 10) *IN_MILLISECONDS
         EVENT_SUMMON_THORIMS_BEACON,    // 4*IN_MILLISECONDS after previous event
         EVENT_DROP_AURAS_AND_WAIT,      // same
         // 30 seconds of waiting
@@ -1288,9 +1329,10 @@ class npc_thorims_hammer : public CreatureScript
                     me->CastSpell(me, AURA_DUMMY_BLUE, true);
 
                 events.Update(diff);
-                while (uint32 event = events.ExecuteEvent())
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_LIGHTNING_SKYBEAM:
                             me->AddAura(SPELL_LIGHTNING_SKYBEAM, me);
@@ -1337,6 +1379,11 @@ class npc_thorims_hammer : public CreatureScript
 
 class npc_mimirons_inferno : public CreatureScript
 {
+    enum Event
+    {
+        EVENT_INFERNO   = 1
+    };
+
     public:
         npc_mimirons_inferno() : CreatureScript("npc_mimirons_inferno") {}
 
@@ -1349,7 +1396,7 @@ class npc_mimirons_inferno : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->CastSpell(me, AURA_DUMMY_YELLOW, true);
                 me->SetReactState(REACT_PASSIVE);
-                infernoTimer = 2*IN_MILLISECONDS;
+                events.ScheduleEvent(EVENT_INFERNO, 2*IN_MILLISECONDS);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
@@ -1363,26 +1410,32 @@ class npc_mimirons_inferno : public CreatureScript
                     Start(false, true, 0, NULL, false, true);
                 else
                 {
-                    if (infernoTimer <= diff)
+                    while (uint32 eventId = events.ExecuteEvent())
                     {
-                        if (Creature* trigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 30.0f, 0, 2*IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
+                        switch (eventId)
                         {
-                            // TODO: Check if this works properly, the spell's target selection is somehow curious oÔ
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
-                                trigger->CastSpell(target, SPELL_MIMIRONS_INFERNO, true);
-                            infernoTimer = 2*IN_MILLISECONDS;
-                            trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
+                            case EVENT_INFERNO:
+                                if (Creature* trigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 30.0f, 0, 2*IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
+                                {
+                                    // TODO: Check if this works properly, the spell's target selection is somehow curious oÔ
+                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
+                                        trigger->CastSpell(target, SPELL_MIMIRONS_INFERNO, true);
+                                    events.ScheduleEvent(EVENT_INFERNO, 2*IN_MILLISECONDS);
+                                    trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
+                                }
+                                return;
+                            default:
+                                return;
                         }
                     }
-                    else
-                        infernoTimer -= diff;
+
 
                     if (!me->HasAura(AURA_DUMMY_YELLOW))
                         me->CastSpell(me, AURA_DUMMY_YELLOW, true);
                 }
             }
         private:
-            uint32 infernoTimer;
+            EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1395,7 +1448,7 @@ class npc_hodirs_fury : public CreatureScript
 {
     enum HodirsFuryEvents
     {
-        EVENT_SELECT_TARGET_AND_FOLLOW,
+        EVENT_SELECT_TARGET_AND_FOLLOW  = 1,
         EVENT_STOP_FOLLOWING,
         EVENT_SUMMON_HODIRS_BEACON
     };
@@ -1498,6 +1551,11 @@ class npc_hodirs_fury : public CreatureScript
 
 class npc_freyas_ward : public CreatureScript
 {
+    enum Events
+    {
+        EVENT_SUMMON    = 1
+    };
+
     public:
         npc_freyas_ward() : CreatureScript("npc_freyas_ward") {}
 
@@ -1517,28 +1575,33 @@ class npc_freyas_ward : public CreatureScript
                 me->setActive(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                summonTimer = 5*IN_MILLISECONDS;
+                events.ScheduleEvent(EVENT_SUMMON, 5*IN_MILLISECONDS);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (summonTimer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (Creature* trigger = DoSummonFlyer(NPC_FREYA_BEACON, me, 50.0f, 0, 10*IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
+                    switch (eventId)
                     {
-                        // TODO: Check if this is the correct spell, only the triggered one does something :o
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
-                            trigger->CastSpell(target, SPELL_FREYAS_WARD, true);
-                        trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
-                        summonTimer = 30*IN_MILLISECONDS;
-                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                        case EVENT_SUMMON:
+                            if (Creature* trigger = DoSummonFlyer(NPC_FREYA_BEACON, me, 50.0f, 0, 10*IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
+                            {
+                                // TODO: Check if this is the correct spell, only the triggered one does something :o
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
+                                    trigger->CastSpell(target, SPELL_FREYAS_WARD, true);
+                                trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
+                                sLog->outError(LOG_FILTER_SQL, "SUMMONING");
+                                me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                            }
+                            else
+                                events.ScheduleEvent(EVENT_SUMMON, 5*IN_MILLISECONDS);
+                            return;
+                        default:
+                            return;
                     }
-                    else
-                        summonTimer = 5*IN_MILLISECONDS;
                 }
-                else
-                    summonTimer -= diff;
 
                 if (!me->HasAura(AURA_DUMMY_GREEN))
                     me->CastSpell(me, AURA_DUMMY_GREEN, true);
@@ -1550,7 +1613,7 @@ class npc_freyas_ward : public CreatureScript
             }
 
             private:
-                uint32 summonTimer;
+                EventMap events;
                 InstanceScript* instance;
         };
 
@@ -1562,6 +1625,11 @@ class npc_freyas_ward : public CreatureScript
 
 class npc_freya_ward_of_life : public CreatureScript
 {
+    enum Events
+    {
+        EVENT_LASH  = 1
+    };
+
     public:
         npc_freya_ward_of_life() : CreatureScript("npc_freya_ward_of_life") {}
 
@@ -1572,7 +1640,7 @@ class npc_freya_ward_of_life : public CreatureScript
             void Reset()
             {
                 me->setActive(true);
-                lashTimer = urand(2*IN_MILLISECONDS, 8*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_LASH, urand(2*IN_MILLISECONDS, 8*IN_MILLISECONDS));
                 me->GetMotionMaster()->MoveRandom(100);
             }
 
@@ -1581,19 +1649,24 @@ class npc_freya_ward_of_life : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (lashTimer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCast(SPELL_LASH);
-                    lashTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
+                    switch (eventId)
+                    {
+                        case EVENT_LASH:
+                            DoCast(SPELL_LASH);
+                            events.ScheduleEvent(EVENT_LASH, urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS));
+                            return;
+                        default:
+                            return;
+                    }
                 }
-                else
-                    lashTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
 
             private:
-                uint32 lashTimer;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
