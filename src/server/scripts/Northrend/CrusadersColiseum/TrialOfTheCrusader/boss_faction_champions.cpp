@@ -63,14 +63,6 @@ class boss_toc_champion_controller : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-            SummonList Summons;
-
-            uint32 m_uiChampionsNotStarted;
-            uint32 m_uiChampionsFailed;
-            uint32 m_uiChampionsKilled;
-            bool   m_bInProgress;
-
             void Reset()
             {
                 m_uiChampionsNotStarted = 0;
@@ -248,6 +240,13 @@ class boss_toc_champion_controller : public CreatureScript
                         break;
                 }
             }
+            private:
+                InstanceScript* instance;
+                SummonList Summons;
+                uint32 m_uiChampionsNotStarted;
+                uint32 m_uiChampionsFailed;
+                uint32 m_uiChampionsKilled;
+                bool   m_bInProgress;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -258,21 +257,23 @@ class boss_toc_champion_controller : public CreatureScript
 
 struct boss_faction_championsAI : public BossAI
 {
+    enum Events
+    {
+        EVENT_THREAT    = 1,
+        EVENT_REMOVE_CC
+    };
+
     boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, BOSS_CRUSADERS)
     {
         mAIType = aitype;
     }
 
-    uint64 championControllerGUID;
-    uint32 mAIType;
-    uint32 ThreatTimer;
-    uint32 CCTimer;
-
     void Reset()
     {
+        events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_REMOVE_CC, rand() % 10*IN_MILLISECONDS);
         championControllerGUID = 0;
-        CCTimer = rand() % 10*IN_MILLISECONDS;
-        ThreatTimer = 5*IN_MILLISECONDS;
     }
 
     void JustReachedHome()
@@ -430,26 +431,41 @@ struct boss_faction_championsAI : public BossAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (ThreatTimer < uiDiff)
-        {
-            UpdatePower();
-            UpdateThreat();
-            ThreatTimer = 4*IN_MILLISECONDS;
-        }
-        else ThreatTimer -= uiDiff;
+        events.Update(uiDiff);
 
-        if (mAIType != AI_PET)
+        while (uint32 event = events.ExecuteEvent())
         {
-            if (CCTimer < uiDiff)
+            switch (event)
             {
-                RemoveCC();
-                CCTimer = 8*IN_MILLISECONDS + rand() % 2*IN_MILLISECONDS;
+                case EVENT_THREAT:
+                    UpdatePower();
+                    UpdateThreat();
+                    events.ScheduleEvent(EVENT_THREAT, 4*IN_MILLISECONDS);
+                    return;
+                case EVENT_REMOVE_CC:
+                    if (mAIType != AI_PET)
+                    {
+                        if (me->HasBreakableByDamageCrowdControlAura())
+                        {
+                            RemoveCC();
+                            events.ScheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
+                        }
+                        else
+                            events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
+                    }
+                    return;
+                default:
+                    return;
             }
-            else CCTimer -= uiDiff;
         }
 
-        if (mAIType == AI_MELEE || mAIType == AI_PET) DoMeleeAttackIfReady();
+        if (mAIType == AI_MELEE || mAIType == AI_PET)
+            DoMeleeAttackIfReady();
     }
+
+    private:
+        uint64 championControllerGUID;
+        uint32 mAIType;
 };
 
 /********************************************************************

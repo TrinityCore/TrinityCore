@@ -141,7 +141,7 @@ class boss_jaraxxus : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                summons.DespawnAll();
+                _JustDied();
                 Talk(SAY_DEATH);
                 if (instance)
                     instance->SetBossState(BOSS_JARAXXUS, DONE);
@@ -239,8 +239,6 @@ class mob_legion_flame : public CreatureScript
                 instanceScript = creature->GetInstanceScript();
             }
 
-            InstanceScript* instanceScript;
-
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -254,6 +252,8 @@ class mob_legion_flame : public CreatureScript
                 if (instanceScript->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
+            private:
+                InstanceScript* instanceScript;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -273,10 +273,6 @@ class mob_infernal_volcano : public CreatureScript
             {
                 instance = creature->GetInstanceScript();
             }
-
-            InstanceScript* instance;
-
-            SummonList Summons;
 
             void Reset()
             {
@@ -309,6 +305,11 @@ class mob_infernal_volcano : public CreatureScript
             }
 
             void UpdateAI(uint32 const /*diff*/) {}
+
+            private:
+                InstanceScript* instance;
+                SummonList Summons;
+
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -399,10 +400,6 @@ class mob_nether_portal : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-
-            SummonList Summons;
-
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
@@ -434,6 +431,10 @@ class mob_nether_portal : public CreatureScript
             }
 
             void UpdateAI(uint32 const /*diff*/) {}
+
+            private:
+                InstanceScript* instance;
+                SummonList Summons;
         };
 
         CreatureAI* GetAI(Creature* creature) const

@@ -968,7 +968,9 @@ class npc_varian_toc : public CreatureScript
                             instance->SetData(TYPE_EVENT, 4040);
                             break;
                     }
-                } else m_uiUpdateTimer -= uiDiff;
+                }
+                else
+                    m_uiUpdateTimer -= uiDiff;
                 instance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
             }
         };

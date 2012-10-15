@@ -162,6 +162,8 @@ class boss_gormok : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -217,9 +219,9 @@ class boss_gormok : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    switch (eventId)
+                    switch (event)
                     {
                         case EVENT_IMPALE:
                             DoCastVictim(SPELL_IMPALE);
@@ -281,11 +283,6 @@ class mob_snobold_vassal : public CreatureScript
                     instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
             }
 
-            InstanceScript* instance;
-            uint64 m_uiBossGUID;
-            uint64 m_uiTargetGUID;
-            bool   m_bTargetDied;
-
             void Reset()
             {
                 events.ScheduleEvent(EVENT_BATTER, 5*IN_MILLISECONDS);
@@ -330,6 +327,8 @@ class mob_snobold_vassal : public CreatureScript
                         if (m_bTargetDied)
                             me->DespawnOrUnsummon();
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -357,6 +356,8 @@ class mob_snobold_vassal : public CreatureScript
                         break;
                     case ACTION_DISABLE_FIRE_BOMB:
                         events.CancelEvent(EVENT_FIRE_BOMB);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -423,6 +424,8 @@ class mob_snobold_vassal : public CreatureScript
                             DoCastVictim(SPELL_BATTER);
                             events.ScheduleEvent(EVENT_BATTER, 10*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
 
@@ -435,6 +438,10 @@ class mob_snobold_vassal : public CreatureScript
             }
             private:
                 EventMap events;
+                InstanceScript* instance;
+                uint64 m_uiBossGUID;
+                uint64 m_uiTargetGUID;
+                bool   m_bTargetDied;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -455,8 +462,6 @@ class npc_firebomb : public CreatureScript
                 instanceScript = creature->GetInstanceScript();
             }
 
-            InstanceScript* instanceScript;
-
             void Reset()
             {
                 DoCast(me, SPELL_FIRE_BOMB_DOT, true);
@@ -470,6 +475,9 @@ class npc_firebomb : public CreatureScript
                 if (instanceScript->GetData(TYPE_NORTHREND_BEASTS) != GORMOK_IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
+
+            private:
+                InstanceScript* instanceScript;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -588,6 +596,8 @@ struct boss_jormungarAI : public BossAI
                         case EVENT_EMERGE:
                             Emerge();
                             return;
+                        default:
+                            return;
                     }
                 }
             case PHASE_MOBILE:
@@ -704,18 +714,19 @@ struct boss_jormungarAI : public BossAI
         }
     }
 
-    uint32 otherWormEntry;
-    uint32 modelStationary;
-    uint32 modelMobile;
+    protected:
+        uint32 otherWormEntry;
+        uint32 modelStationary;
+        uint32 modelMobile;
 
-    uint32 biteSpell;
-    uint32 spewSpell;
-    uint32 spitSpell;
-    uint32 spraySpell;
+        uint32 biteSpell;
+        uint32 spewSpell;
+        uint32 spitSpell;
+        uint32 spraySpell;
 
-    Phases phase;
-    bool enraged;
-    bool wasMobile;
+        Phases phase;
+        bool enraged;
+        bool wasMobile;
 };
 
 class boss_acidmaw : public CreatureScript
@@ -761,8 +772,6 @@ class boss_dreadscale : public CreatureScript
                 instanceScript = creature->GetInstanceScript();
             }
 
-            InstanceScript* instanceScript;
-
             void Reset()
             {
                 boss_jormungarAI::Reset();
@@ -793,6 +802,8 @@ class boss_dreadscale : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -809,6 +820,8 @@ class boss_dreadscale : public CreatureScript
 
                 boss_jormungarAI::JustReachedHome();
             }
+            private:
+                InstanceScript* instanceScript;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -829,9 +842,6 @@ class mob_slime_pool : public CreatureScript
                 instanceScript = creature->GetInstanceScript();
             }
 
-            InstanceScript* instanceScript;
-
-            bool casted;
             void Reset()
             {
                 casted = false;
@@ -849,6 +859,10 @@ class mob_slime_pool : public CreatureScript
                 if (instanceScript->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_IN_PROGRESS && instanceScript->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_SPECIAL)
                     me->DespawnOrUnsummon();
             }
+            private:
+                InstanceScript* instanceScript;
+                bool casted;
+
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -876,14 +890,6 @@ class boss_icehowl : public CreatureScript
             boss_icehowlAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
             {
             }
-
-            float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
-            uint64 m_uiTrampleTargetGUID;
-            bool   m_bMovementStarted;
-            bool   m_bMovementFinish;
-            bool   m_bTrampleCasted;
-            uint8  m_uiStage;
-            Unit*  target;
 
             void Reset()
             {
@@ -1144,6 +1150,15 @@ class boss_icehowl : public CreatureScript
                         break;
                 }
             }
+
+            private:
+                float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
+                uint64 m_uiTrampleTargetGUID;
+                bool   m_bMovementStarted;
+                bool   m_bMovementFinish;
+                bool   m_bTrampleCasted;
+                uint8  m_uiStage;
+                Unit*  target;
         };
 
         CreatureAI* GetAI(Creature* creature) const

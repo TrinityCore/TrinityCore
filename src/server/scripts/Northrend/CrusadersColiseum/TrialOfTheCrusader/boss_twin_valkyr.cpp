@@ -159,24 +159,6 @@ struct boss_twin_baseAI : public BossAI
     {
     }
 
-    AuraStateType  m_uiAuraState;
-
-    uint8  m_uiStage;
-    bool   m_bIsBerserk;
-
-    uint32 m_uiWeapon;
-
-    int32 m_uiVortexEmote;
-    uint32 m_uiSisterNpcId;
-    uint32 m_uiMyEmphatySpellId;
-    uint32 m_uiOtherEssenceSpellId;
-    uint32 m_uiSurgeSpellId;
-    uint32 m_uiVortexSpellId;
-    uint32 m_uiShieldSpellId;
-    uint32 m_uiTwinPactSpellId;
-    uint32 m_uiSpikeSpellId;
-    uint32 m_uiTouchSpellId;
-
     void Reset()
     {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -359,6 +341,8 @@ struct boss_twin_baseAI : public BossAI
                             m_uiStage = 0;
                             events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 1*MINUTE*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
                 break;
@@ -379,6 +363,8 @@ struct boss_twin_baseAI : public BossAI
                             DoCast(me, m_uiTwinPactSpellId);
                             m_uiStage = 0;
                             events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 1*MINUTE*IN_MILLISECONDS);
+                            return;
+                        default:
                             return;
                     }
                 }
@@ -403,11 +389,32 @@ struct boss_twin_baseAI : public BossAI
                     DoCast(me, SPELL_BERSERK);
                     Talk(SAY_BERSERK);
                     return;
+                default:
+                    return;
             }
         }
 
         DoMeleeAttackIfReady();
     }
+
+    protected:
+        AuraStateType  m_uiAuraState;
+
+        uint8  m_uiStage;
+        bool   m_bIsBerserk;
+
+        uint32 m_uiWeapon;
+
+        int32 m_uiVortexEmote;
+        uint32 m_uiSisterNpcId;
+        uint32 m_uiMyEmphatySpellId;
+        uint32 m_uiOtherEssenceSpellId;
+        uint32 m_uiSurgeSpellId;
+        uint32 m_uiVortexSpellId;
+        uint32 m_uiShieldSpellId;
+        uint32 m_uiTwinPactSpellId;
+        uint32 m_uiSpikeSpellId;
+        uint32 m_uiTouchSpellId;
 };
 
 /*######
@@ -577,8 +584,6 @@ struct mob_unleashed_ballAI : public ScriptedAI
         instance = creature->GetInstanceScript();
     }
 
-    InstanceScript* instance;
-
     void MoveToNextPoint()
     {
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
@@ -623,6 +628,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
     }
     private:
         EventMap events;
+        InstanceScript* instance;
 };
 
 class mob_unleashed_dark : public CreatureScript
