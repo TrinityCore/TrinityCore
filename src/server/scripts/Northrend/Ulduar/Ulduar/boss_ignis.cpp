@@ -36,10 +36,8 @@ enum Yells
 
 enum Spells
 {
-    SPELL_FLAME_JETS_10         = 62680,
-    SPELL_FLAME_JETS_25         = 63472,
-    SPELL_SCORCH_10             = 62546,
-    SPELL_SCORCH_25             = 63474,
+    SPELL_FLAME_JETS            = 62680,
+    SPELL_SCORCH                = 62546,
     SPELL_SLAG_POT              = 62717,
     SPELL_SLAG_POT_DAMAGE       = 65722,
     SPELL_SLAG_IMBUED           = 62836,
@@ -59,8 +57,6 @@ enum Spells
     SPELL_FREEZE_ANIM           = 63354
 };
 
-#define SPELL_FLAME_JETS RAID_MODE(SPELL_FLAME_JETS_10, SPELL_FLAME_JETS_25)
-#define SPELL_SCORCH RAID_MODE(SPELL_SCORCH_10, SPELL_SCORCH_25)
 #define SPELL_BRITTLE RAID_MODE(SPELL_BRITTLE_10, SPELL_BRITTLE_25)
 
 enum Events
@@ -460,11 +456,6 @@ class npc_iron_construct : public CreatureScript
 
 class npc_scorch_ground : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_HEAT  = 1
-    };
-
     public:
         npc_scorch_ground() : CreatureScript("npc_scorch_ground") { }
 
@@ -496,34 +487,30 @@ class npc_scorch_ground : public CreatureScript
                 heat = false;
                 DoCast(me, SPELL_GROUND);
                 constructGUID = 0;
-                events.ScheduleEvent(EVENT_HEAT, 0);
+                heatTimer = 0;
             }
 
             void UpdateAI(const uint32 uiDiff)
             {
-                while (uint32 eventId = events.ExecuteEvent())
+                if (heat)
                 {
-                    switch (eventId)
+                    if (heatTimer <= uiDiff)
                     {
-                        case EVENT_HEAT:
+                        Creature* construct = me->GetCreature(*me, constructGUID);
+                        if (construct && !construct->HasAura(SPELL_MOLTEN))
                         {
-                            Creature* construct = me->GetCreature(*me, constructGUID);
-                            if (construct && !construct->HasAura(SPELL_MOLTEN))
-                            {
-                                me->AddAura(SPELL_HEAT, construct);
-                                events.ScheduleEvent(EVENT_HEAT, 1*IN_MILLISECONDS);
-                            }
-                            return;
+                            me->AddAura(SPELL_HEAT, construct);
+                            heatTimer = 1*IN_MILLISECONDS;
                         }
-                        default:
-                            return;
                     }
+                    else
+                        heatTimer -= uiDiff;
                 }
             }
 
         private:
             uint64 constructGUID;
-            EventMap events;
+            uint32 heatTimer;
             bool heat;
         };
 
@@ -664,6 +651,4 @@ void AddSC_boss_ignis()
     new spell_ignis_activate_construct();
 }
 
-#undef SPELL_FLAME_JETS
-#undef SPELL_SCORCH
 #undef SPELL_BRITTLE 

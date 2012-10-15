@@ -583,7 +583,6 @@ class boss_razorscale : public CreatureScript
                                 events.ScheduleEvent(EVENT_SUMMON, 45*IN_MILLISECONDS, 0, PHASE_FLIGHT);
                                 return;
                             case EVENT_BERSERK:
-                                sLog->outError(LOG_FILTER_SQL, "BERSERK");
                                 DoCast(me, SPELL_BERSERK);
                                 return;
                             default:
@@ -657,11 +656,6 @@ class boss_razorscale : public CreatureScript
 
 class npc_expedition_commander : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_ATTACK_START  = 1
-    };
-
     public:
         npc_expedition_commander() : CreatureScript("npc_expedition_commander") { }
 
@@ -677,7 +671,7 @@ class npc_expedition_commander : public CreatureScript
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_ATTACK_START, 0);
+                AttackStartTimer = 0;
                 Phase = 0;
                 Greet = false;
                 summons.DespawnAll();
@@ -713,76 +707,67 @@ class npc_expedition_commander : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const Diff)
             {
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (AttackStartTimer <= Diff)
                 {
-                    switch (eventId)
+                    switch (Phase)
                     {
-                        case EVENT_ATTACK_START:
-                        {
-                            switch (Phase)
+                        case 1:
+                            instance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
+                            summons.DespawnAll();
+                            AttackStartTimer = 1*IN_MILLISECONDS;
+                            Phase = 2;
+                            break;
+                        case 2:
+                            for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
                             {
-                                case 1:
-                                    instance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
-                                    summons.DespawnAll();
-                                    AttackStartTimer = 1*IN_MILLISECONDS;
-                                    Phase = 2;
-                                    break;
-                                case 2:
-                                    for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                                    {
-                                        Engineer[n] = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS);
-                                        Engineer[n]->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                        Engineer[n]->SetSpeed(MOVE_RUN, 0.5f);
-                                        Engineer[n]->SetHomePosition(PosEngRepair[n]);
-                                        Engineer[n]->GetMotionMaster()->MoveTargetedHome();
-                                    }
-                                    Engineer[0]->AI()->Talk(SAY_AGGRO);
-                                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_RAZORSCALE_CONTROL) : 0))
-                                        controller->AI()->DoAction(ACTION_PLACE_BROKEN_HARPOON);
-                                    Phase = 3;
-                                    AttackStartTimer = 14*IN_MILLISECONDS;
-                                    break;
-                                case 3:
-                                    for (uint8 n = 0; n < 4; n++)
-                                    {
-                                        Defender[n] = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS);
-                                        Defender[n]->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                        Defender[n]->SetHomePosition(PosDefCombat[n]);
-                                        Defender[n]->GetMotionMaster()->MoveTargetedHome();
-                                    }
-                                    Phase = 4;
-                                    break;
-                                case 4:
-                                    for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                                        Engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
-                                    for (uint8 n = 0; n < 4; ++n)
-                                        Defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
-                                    Engineer[0]->AI()->Talk(SAY_AGGRO);
-                                    AttackStartTimer = 16*IN_MILLISECONDS;
-                                    Phase = 5;
-                                    break;
-                                case 5:
-                                    if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_RAZORSCALE) : 0))
-                                    {
-                                        Razorscale->AI()->DoAction(ACTION_EVENT_START);
-                                        me->SetInCombatWith(Razorscale);
-                                    }
-                                    Engineer[0]->AI()->Talk(SAY_AGGRO);
-                                    Phase = 6;
-                                    break;
-                                default:
-                                    break;
+                                Engineer[n] = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS);
+                                Engineer[n]->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                Engineer[n]->SetSpeed(MOVE_RUN, 0.5f);
+                                Engineer[n]->SetHomePosition(PosEngRepair[n]);
+                                Engineer[n]->GetMotionMaster()->MoveTargetedHome();
                             }
-                        }
+                            Engineer[0]->AI()->Talk(SAY_AGGRO);
+                            if (Creature* controller = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_RAZORSCALE_CONTROL) : 0))
+                                controller->AI()->DoAction(ACTION_PLACE_BROKEN_HARPOON);
+                            Phase = 3;
+                            AttackStartTimer = 14*IN_MILLISECONDS;
+                            break;
+                        case 3:
+                            for (uint8 n = 0; n < 4; n++)
+                            {
+                                Defender[n] = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS);
+                                Defender[n]->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                Defender[n]->SetHomePosition(PosDefCombat[n]);
+                                Defender[n]->GetMotionMaster()->MoveTargetedHome();
+                            }
+                            Phase = 4;
+                            break;
+                        case 4:
+                            for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
+                                Engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                            for (uint8 n = 0; n < 4; ++n)
+                                Defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                            Engineer[0]->AI()->Talk(SAY_AGGRO);
+                            AttackStartTimer = 16*IN_MILLISECONDS;
+                            Phase = 5;
+                            break;
+                        case 5:
+                            if (Creature* Razorscale = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_RAZORSCALE) : 0))
+                            {
+                                Razorscale->AI()->DoAction(ACTION_EVENT_START);
+                                me->SetInCombatWith(Razorscale);
+                            }
+                            Engineer[0]->AI()->Talk(SAY_AGGRO);
+                            Phase = 6;
+                            break;
+                        default:
+                            break;
                     }
                 }
+                else
+                    AttackStartTimer -= Diff;
             }
 
             private:
@@ -792,7 +777,6 @@ class npc_expedition_commander : public CreatureScript
                 uint32 AttackStartTimer;
                 Creature* Engineer[4];
                 Creature* Defender[4];
-                EventMap events;
         };
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
@@ -1010,11 +994,6 @@ class npc_darkrune_watcher : public CreatureScript
 
 class npc_darkrune_guardian : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_STORM = 1
-    };
-
     public:
         npc_darkrune_guardian() : CreatureScript("npc_darkrune_guardian") { }
 
@@ -1022,9 +1001,11 @@ class npc_darkrune_guardian : public CreatureScript
         {
             npc_darkrune_guardianAI(Creature* creature) : ScriptedAI(creature){}
 
+            uint32 StormTimer;
+
             void Reset()
             {
-                events.ScheduleEvent(EVENT_STORM, urand(3*IN_MILLISECONDS, 6*IN_MILLISECONDS));
+                StormTimer = urand(3*IN_MILLISECONDS, 6*IN_MILLISECONDS);
                 killedByBreath = false;
             }
 
@@ -1047,30 +1028,19 @@ class npc_darkrune_guardian : public CreatureScript
                     return;
                 }
 
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (StormTimer <= diff)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_STORM:
-                            DoCast(me->getVictim(), SPELL_STORMSTRIKE);
-                            events.ScheduleEvent(EVENT_STORM, urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS));
-                            return;
-                        default:
-                            return;
-                    }
+                    DoCast(me->getVictim(), SPELL_STORMSTRIKE);
+                    StormTimer = urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS);
                 }
+                else
+                    StormTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
 
             private:
                 bool killedByBreath;
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
