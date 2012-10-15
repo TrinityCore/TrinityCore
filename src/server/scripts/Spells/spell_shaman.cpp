@@ -52,51 +52,6 @@ enum ShamanSpells
     SHAMAN_LAVA_FLOWS_TRIGGERED_R1         = 64694,
 };
 
-// 51474 - Astral shift
-/// Updated 4.3.4
-class spell_sha_astral_shift : public SpellScriptLoader
-{
-    public:
-        spell_sha_astral_shift() : SpellScriptLoader("spell_sha_astral_shift") { }
-
-        class spell_sha_astral_shift_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_astral_shift_AuraScript);
-
-            uint32 absorbPct;
-
-            bool Load()
-            {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                return true;
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
-            {
-                // reduces all damage taken while stun, fear or silence
-                if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || ((GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
-                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-            }
-
-            void Register()
-            {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_astral_shift_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_sha_astral_shift_AuraScript::Absorb, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_astral_shift_AuraScript();
-        }
-};
-
 // 1535 Fire Nova
 /// Updated 4.3.4
 class spell_sha_fire_nova : public SpellScriptLoader
@@ -734,7 +689,6 @@ class spell_sha_sentry_totem : public SpellScriptLoader
 
 void AddSC_shaman_spell_scripts()
 {
-    new spell_sha_astral_shift();
     new spell_sha_fire_nova();
     new spell_sha_mana_tide_totem();
     new spell_sha_earthbind_totem();
