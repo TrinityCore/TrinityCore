@@ -36,47 +36,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
         {
             instance_trial_of_the_crusader_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-            uint32 TrialCounter;
-            uint32 EventStage;
-            uint32 EventTimer;
-            uint32 EventNPCId;
-            uint32 NorthrendBeasts;
-            std::string SaveDataBuffer;
-            bool   NeedSave;
-
-            uint64 BarrentGUID;
-            uint64 TirionGUID;
-            uint64 TirionFordringGUID;
-            uint64 FizzlebangGUID;
-            uint64 GarroshGUID;
-            uint64 VarianGUID;
-
-            uint64 GormokGUID;
-            uint64 AcidmawGUID;
-            uint64 DreadscaleGUID;
-            uint64 IcehowlGUID;
-            uint64 JaraxxusGUID;
-            uint64 ChampionsControllerGUID;
-            uint64 DarkbaneGUID;
-            uint64 LightbaneGUID;
-            uint64 AnubarakGUID;
-
-            uint64 CrusadersCacheGUID;
-            uint64 FloorGUID;
-
-            uint64 TributeChestGUID;
-
-            uint64 MainGateDoorGUID;
-            uint64 EastPortcullisGUID;
-            uint64 WebDoorGUID;
-
-            // Achievement stuff
-            uint32 NotOneButTwoJormungarsTimer;
-            uint32 ResilienceWillFixItTimer;
-            uint8  SnoboldCount;
-            uint8  MistressOfPainCount;
-            bool   TributeToImmortalityElegible;
-
             void Initialize()
             {
                 SetBossNumber(MAX_ENCOUNTERS);
@@ -732,6 +691,48 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 return false;
             }
+
+            private:
+                uint32 TrialCounter;
+                uint32 EventStage;
+                uint32 EventTimer;
+                uint32 EventNPCId;
+                uint32 NorthrendBeasts;
+                std::string SaveDataBuffer;
+                bool   NeedSave;
+
+                uint64 BarrentGUID;
+                uint64 TirionGUID;
+                uint64 TirionFordringGUID;
+                uint64 FizzlebangGUID;
+                uint64 GarroshGUID;
+                uint64 VarianGUID;
+
+                uint64 GormokGUID;
+                uint64 AcidmawGUID;
+                uint64 DreadscaleGUID;
+                uint64 IcehowlGUID;
+                uint64 JaraxxusGUID;
+                uint64 ChampionsControllerGUID;
+                uint64 DarkbaneGUID;
+                uint64 LightbaneGUID;
+                uint64 AnubarakGUID;
+
+                uint64 CrusadersCacheGUID;
+                uint64 FloorGUID;
+
+                uint64 TributeChestGUID;
+
+                uint64 MainGateDoorGUID;
+                uint64 EastPortcullisGUID;
+                uint64 WebDoorGUID;
+
+                // Achievement stuff
+                uint32 NotOneButTwoJormungarsTimer;
+                uint32 ResilienceWillFixItTimer;
+                uint8  SnoboldCount;
+                uint8  MistressOfPainCount;
+                bool   TributeToImmortalityElegible;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

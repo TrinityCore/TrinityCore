@@ -242,9 +242,6 @@ class boss_lich_king_toc : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-            uint32 m_uiUpdateTimer;
-
             void Reset()
             {
                 m_uiUpdateTimer = 0;
@@ -252,7 +249,7 @@ class boss_lich_king_toc : public CreatureScript
                 if (Creature* summoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 60000))
                 {
                     summoned->CastSpell(summoned, 51807, false);
-                    summoned->SetDisplayId(11686);
+                    summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
                 }
                 if (instance)
                     instance->SetBossState(BOSS_LICH_KING, IN_PROGRESS);
@@ -352,6 +349,11 @@ class boss_lich_king_toc : public CreatureScript
 
                 instance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
             }
+
+            private:
+                InstanceScript* instance;
+                uint32 m_uiUpdateTimer;
+
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -371,12 +373,6 @@ class npc_fizzlebang_toc : public CreatureScript
             {
                 instance = me->GetInstanceScript();
             }
-
-            InstanceScript* instance;
-            SummonList Summons;
-            uint32 m_uiUpdateTimer;
-            uint64 m_uiPortalGUID;
-            uint64 m_uiTriggerGUID;
 
             void JustDied(Unit* killer)
             {
@@ -451,7 +447,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             {
                                 m_uiTriggerGUID = pTrigger->GetGUID();
                                 pTrigger->SetObjectScale(2.0f);
-                                pTrigger->SetDisplayId(22862);
+                                pTrigger->SetDisplayId(pTrigger->ToCreature()->GetCreatureTemplate()->Modelid1);
                                 pTrigger->CastSpell(pTrigger, SPELL_WILFRED_PORTAL, false);
                             }
                             instance->SetData(TYPE_EVENT, 1132);
@@ -523,6 +519,13 @@ class npc_fizzlebang_toc : public CreatureScript
                     m_uiUpdateTimer -= uiDiff;
                 instance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
             }
+            private:
+                InstanceScript* instance;
+                SummonList Summons;
+                uint32 m_uiUpdateTimer;
+                uint64 m_uiPortalGUID;
+                uint64 m_uiTriggerGUID;
+
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -542,9 +545,6 @@ class npc_tirion_toc : public CreatureScript
             {
                 instance = me->GetInstanceScript();
             }
-
-            InstanceScript* instance;
-            uint32 m_uiUpdateTimer;
 
             void Reset() {}
 
@@ -708,7 +708,7 @@ class npc_tirion_toc : public CreatureScript
                         //Crusaders battle end
                         case 3100:
                             Talk(SAY_STAGE_2_06);
-                            m_uiUpdateTimer = 5000;
+                            m_uiUpdateTimer = 5*IN_MILLISECONDS;
                             instance->SetData(TYPE_EVENT, 0);
                             break;
                         case 4000:
@@ -809,6 +809,9 @@ class npc_tirion_toc : public CreatureScript
                     m_uiUpdateTimer -= uiDiff;
                 instance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
             }
+            private:
+                InstanceScript* instance;
+                uint32 m_uiUpdateTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -828,9 +831,6 @@ class npc_garrosh_toc : public CreatureScript
             {
                 instance = me->GetInstanceScript();
             }
-
-            InstanceScript* instance;
-            uint32 m_uiUpdateTimer;
 
             void Reset() {}
 
@@ -891,6 +891,9 @@ class npc_garrosh_toc : public CreatureScript
                     m_uiUpdateTimer -= uiDiff;
                 instance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
             }
+            private:
+                InstanceScript* instance;
+                uint32 m_uiUpdateTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -910,9 +913,6 @@ class npc_varian_toc : public CreatureScript
             {
                 instance = me->GetInstanceScript();
             }
-
-            InstanceScript* instance;
-            uint32 m_uiUpdateTimer;
 
             void Reset() {}
 
@@ -973,6 +973,9 @@ class npc_varian_toc : public CreatureScript
                     m_uiUpdateTimer -= uiDiff;
                 instance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
             }
+            private:
+                InstanceScript* instance;
+                uint32 m_uiUpdateTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
