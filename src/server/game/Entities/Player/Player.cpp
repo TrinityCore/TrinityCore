@@ -1564,6 +1564,16 @@ void Player::Update(uint32 p_time)
     // check every second
     if (now > m_Last_tick + 1)
         UpdateSoulboundTradeItems();
+        
+    // If mute expired, remove it from the DB
+    if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
+    {
+        GetSession()->m_muteTime = 0;
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        stmt->setInt64(0, 0); // Set the mute time to 0
+        stmt->setUInt32(1, GetSession()->GetAccountId());
+        LoginDatabase.Execute(stmt);
+    }
 
     if (!m_timedquests.empty())
     {
