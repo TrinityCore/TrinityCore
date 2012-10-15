@@ -2085,11 +2085,17 @@ struct FlameLeviathanPursuedTargetSelector
     {
         // check area
         if (object->ToUnit()->GetAreaId() != AREA_FORMATION_GROUNDS)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Levi true 1");
             return true;
+        }
 
         // ignore players loaded on leviathan seats
         if (object->ToUnit()->GetVehicleBase() && object->ToUnit()->GetVehicleBase()->GetEntry() == NPC_SEAT)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Levi true 2");
             return true;
+        }
 
         // if target is creature
         Creature* creatureTarget = object->ToCreature();
@@ -2099,22 +2105,28 @@ struct FlameLeviathanPursuedTargetSelector
             if (creatureTarget->GetEntry() != VEHICLE_DEMOLISHER &&
                 creatureTarget->GetEntry() != VEHICLE_SIEGE &&
                 creatureTarget->GetEntry() != VEHICLE_CHOPPER)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Levi true 3");
                 return true;
+            }
 
             // must be a valid vehicle installation
             Vehicle* vehicle = creatureTarget->GetVehicleKit();
             if (!vehicle)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Levi true 4");
                 return true;
+            }
 
             // vehicle must be in use by player
             bool playerFound = false;
             for (SeatMap::const_iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end() && !playerFound; ++itr)
                 if (IS_PLAYER_GUID(itr->second.Passenger))
                     playerFound = true;
-
+            sLog->outError(LOG_FILTER_SQL, "Levi false 1");
             return !playerFound;
         }
-
+        sLog->outError(LOG_FILTER_SQL, "Levi false 2");
         return false;
     }
 };
@@ -2148,7 +2160,10 @@ class spell_pursued : public SpellScriptLoader
                 if (targets.empty())
                 {
                     if (Creature* caster = GetCaster()->ToCreature())
+                    {
+                        sLog->outError(LOG_FILTER_SQL, "Leviathan evading");
                         caster->AI()->EnterEvadeMode();
+                    }
                     return;
                 }
 
@@ -2222,6 +2237,7 @@ class spell_pursued : public SpellScriptLoader
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursued_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pursued_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
                 //OnUnitTargetSelect += SpellUnitTargetFn(spell_pursue_SpellScript::FilterTargetsSubsequently, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_pursued_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
