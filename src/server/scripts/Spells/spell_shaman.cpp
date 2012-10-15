@@ -31,7 +31,7 @@ enum ShamanSpells
 {
     SHAMAN_SPELL_GLYPH_OF_MANA_TIDE        = 55441,
     SHAMAN_SPELL_MANA_TIDE_TOTEM           = 39609,
-    SHAMAN_SPELL_FIRE_NOVA_R1              = 1535,
+    SHAMAN_SPELL_FLAME_SHOCK               = 8050,
     SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1    = 8349,
     SHAMAN_SPELL_SATED                     = 57724,
     SHAMAN_SPELL_EXHAUSTION                = 57723,
@@ -53,6 +53,7 @@ enum ShamanSpells
 };
 
 // 51474 - Astral shift
+/// Updated 4.3.4
 class spell_sha_astral_shift : public SpellScriptLoader
 {
     public:
@@ -76,10 +77,10 @@ class spell_sha_astral_shift : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 // reduces all damage taken while stun, fear or silence
-                if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
+                if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || ((GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
                     absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
             }
 
@@ -97,6 +98,7 @@ class spell_sha_astral_shift : public SpellScriptLoader
 };
 
 // 1535 Fire Nova
+/// Updated 4.3.4
 class spell_sha_fire_nova : public SpellScriptLoader
 {
     public:
@@ -106,46 +108,21 @@ class spell_sha_fire_nova : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_fire_nova_SpellScript);
 
-            bool Validate(SpellInfo const* spellEntry)
-            {
-                if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_FIRE_NOVA_R1) || sSpellMgr->GetFirstSpellInChain(SHAMAN_SPELL_FIRE_NOVA_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
-                    return false;
-
-                uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
-                if (!sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank, true))
-                    return false;
-                return true;
-            }
-
-            SpellCastResult CheckFireTotem()
-            {
-                // fire totem
-                if (!GetCaster()->m_SummonSlot[1])
-                {
-                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_FIRE_TOTEM);
-                    return SPELL_FAILED_CUSTOM_ERROR;
-                }
-
-                return SPELL_CAST_OK;
-            }
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
                 {
-                    uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
-                    if (uint32 spellId = sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank))
+                    if (target->HasAura(SHAMAN_SPELL_FLAME_SHOCK))
                     {
-                        Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
-                        if (totem && totem->isTotem())
-                            caster->CastSpell(totem, spellId, true);
+                        caster->CastSpell(target, SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, true);
+                        target->RemoveAurasDueToSpell(SHAMAN_SPELL_FLAME_SHOCK);
                     }
                 }
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_sha_fire_nova_SpellScript::CheckFireTotem);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
