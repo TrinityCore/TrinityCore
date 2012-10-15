@@ -1592,7 +1592,6 @@ class npc_freyas_ward : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
                                     trigger->CastSpell(target, SPELL_FREYAS_WARD, true);
                                 trigger->SetDisplayId(trigger->GetCreatureTemplate()->Modelid2);
-                                sLog->outError(LOG_FILTER_SQL, "SUMMONING");
                                 me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                             }
                             else
