@@ -24,10 +24,8 @@ enum AuriayaSpells
 {
     // Auriaya
     SPELL_TERRIFYING_SCREECH        = 64386,
-    SPELL_SENTINEL_BLAST_10         = 64389,
-    SPELL_SENTINEL_BLAST_25         = 64678,
-    SPELL_SONIC_SCREECH_10          = 64422,
-    SPELL_SONIC_SCREECH_25          = 64688,
+    SPELL_SENTINEL_BLAST            = 64389,
+    SPELL_SONIC_SCREECH             = 64422,
     SPELL_SUMMON_SWARMING_GUARDIAN  = 64396,
     SPELL_ACTIVATE_DEFENDER         = 64449,
     SPELL_DEFENDER_TRIGGER          = 64448,
@@ -35,33 +33,17 @@ enum AuriayaSpells
     SPELL_BERSERK                   = 47008,
 
     // Feral Defender
-    SPELL_FERAL_RUSH_10             = 64496,
-    SPELL_FERAL_RUSH_25             = 64674,
-    SPELL_FERAL_POUNCE_10           = 64478,
-    SPELL_FERAL_POUNCE_25           = 64669,
-    SPELL_SEEPING_FERAL_ESSENCE_10  = 64458,
-    SPELL_SEEPING_FERAL_ESSENCE_25  = 64676,
+    SPELL_FERAL_RUSH                = 64496,
+    SPELL_FERAL_POUNCE              = 64478,
+    SPELL_SEEPING_FERAL_ESSENCE     = 64458,
     SPELL_SUMMON_ESSENCE            = 64457,
     SPELL_FERAL_ESSENCE             = 64455,
 
     // Sanctum Sentry
-    SPELL_SAVAGE_POUNCE_10          = 64666,
-    SPELL_SAVAGE_POUNCE_25          = 64374,
-    SPELL_RIP_FLESH_10              = 64375,
-    SPELL_RIP_FLESH_25              = 64667,
+    SPELL_SAVAGE_POUNCE             = 64666,
+    SPELL_RIP_FLESH                 = 64375,
     SPELL_STRENGHT_OF_THE_PACK      = 64369  // Triggers 64381
 };
-
-#define SPELL_SENTINEL_BLAST RAID_MODE(SPELL_SENTINEL_BLAST_10, SPELL_SENTINEL_BLAST_25)
-#define SPELL_SONIC_SCREECH RAID_MODE(SPELL_SONIC_SCREECH_10, SPELL_SONIC_SCREECH_25)
-
-#define SPELL_FERAL_RUSH RAID_MODE(SPELL_FERAL_RUSH_10, SPELL_FERAL_RUSH_25)
-#define SPELL_FERAL_POUNCE RAID_MODE(SPELL_FERAL_POUNCE_10, SPELL_FERAL_POUNCE_25)
-
-#define SPELL_SEEPING_FERAL_ESSENCE RAID_MODE(SPELL_SEEPING_FERAL_ESSENCE_10, SPELL_SEEPING_FERAL_ESSENCE_25)
-
-#define SPELL_SAVAGE_POUNCE RAID_MODE(SPELL_SAVAGE_POUNCE_10, SPELL_SAVAGE_POUNCE_25)
-#define SPELL_RIP_FLESH RAID_MODE(SPELL_RIP_FLESH_10, SPELL_RIP_FLESH_25)
 
 enum AuriayaNPCs
 {
@@ -271,7 +253,7 @@ class boss_auriaya : public CreatureScript
                             DoCast(SPELL_DEFENDER_TRIGGER);
                             if (Creature* trigger = me->FindNearestCreature(NPC_FERAL_DEFENDER_TRIGGER, 50.0f))
                             {
-                                trigger->SetDisplayId(11686);
+                                trigger->SetDisplayId(MODEL_INVISIBLE);
                                 DoCast(trigger, SPELL_ACTIVATE_DEFENDER, true);
                             }
                             return;
@@ -615,19 +597,10 @@ void AddSC_boss_auriaya()
     new npc_auriaya_seeping_trigger();
     new npc_feral_defender();
     new npc_sanctum_sentry();
+
     new spell_auriaya_strenght_of_the_pack();
     new spell_auriaya_sentinel_blast();
+
     new achievement_nine_lives();
     new achievement_crazy_cat_lady();
 }
-
-#undef SPELL_SENTINEL_BLAST 
-#undef SPELL_SONIC_SCREECH 
-
-#undef SPELL_FERAL_RUSH 
-#undef SPELL_FERAL_POUNCE 
-
-#undef SPELL_SEEPING_FERAL_ESSENCE 
-
-#undef SPELL_SAVAGE_POUNCE 
-#undef SPELL_RIP_FLESH
