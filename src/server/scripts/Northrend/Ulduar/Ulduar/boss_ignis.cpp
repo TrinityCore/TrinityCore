@@ -460,6 +460,11 @@ class npc_iron_construct : public CreatureScript
 
 class npc_scorch_ground : public CreatureScript
 {
+    enum Events
+    {
+        EVENT_HEAT  = 1
+    };
+
     public:
         npc_scorch_ground() : CreatureScript("npc_scorch_ground") { }
 
@@ -491,30 +496,34 @@ class npc_scorch_ground : public CreatureScript
                 heat = false;
                 DoCast(me, SPELL_GROUND);
                 constructGUID = 0;
-                heatTimer = 0;
+                events.ScheduleEvent(EVENT_HEAT, 0);
             }
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (heat)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (heatTimer <= uiDiff)
+                    switch (eventId)
                     {
-                        Creature* construct = me->GetCreature(*me, constructGUID);
-                        if (construct && !construct->HasAura(SPELL_MOLTEN))
+                        case EVENT_HEAT:
                         {
-                            me->AddAura(SPELL_HEAT, construct);
-                            heatTimer = 1*IN_MILLISECONDS;
+                            Creature* construct = me->GetCreature(*me, constructGUID);
+                            if (construct && !construct->HasAura(SPELL_MOLTEN))
+                            {
+                                me->AddAura(SPELL_HEAT, construct);
+                                events.ScheduleEvent(EVENT_HEAT, 1*IN_MILLISECONDS);
+                            }
+                            return;
                         }
+                        default:
+                            return;
                     }
-                    else
-                        heatTimer -= uiDiff;
                 }
             }
 
         private:
             uint64 constructGUID;
-            uint32 heatTimer;
+            EventMap events;
             bool heat;
         };
 
