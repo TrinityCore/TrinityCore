@@ -540,73 +540,73 @@ class boss_steelbreaker : public CreatureScript
 
 class spell_steelbreaker_static_disruption : public SpellScriptLoader
 {
-public:
-    spell_steelbreaker_static_disruption() : SpellScriptLoader("spell_steelbreaker_static_disruption") {}
+    public:
+        spell_steelbreaker_static_disruption() : SpellScriptLoader("spell_steelbreaker_static_disruption") {}
 
-    class spell_steelbreaker_static_disruption_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_steelbreaker_static_disruption_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/)
+        class spell_steelbreaker_static_disruption_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_STATIC_DISRUPTION_CHECKED_10))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_STATIC_DISRUPTION_CHECKED_25))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_steelbreaker_static_disruption_SpellScript);
 
-        void HandleTriggerMissile(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (caster && target)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                uint32 id = uint32(caster->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? SPELL_STATIC_DISRUPTION_CHECKED_10 : SPELL_STATIC_DISRUPTION_CHECKED_25);
-                caster->CastSpell(target, id, true);
+                if (!sSpellMgr->GetSpellInfo(SPELL_STATIC_DISRUPTION_CHECKED_10))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_STATIC_DISRUPTION_CHECKED_25))
+                    return false;
+                return true;
             }
-        }
 
-        void Register()
+            void HandleTriggerMissile(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (caster && target)
+                {
+                    uint32 id = uint32(caster->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? SPELL_STATIC_DISRUPTION_CHECKED_10 : SPELL_STATIC_DISRUPTION_CHECKED_25);
+                    caster->CastSpell(target, id, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_steelbreaker_static_disruption_SpellScript::HandleTriggerMissile, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_steelbreaker_static_disruption_SpellScript::HandleTriggerMissile, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+            return new spell_steelbreaker_static_disruption_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_steelbreaker_static_disruption_SpellScript();
-    }
 };
 
 class spell_steelbreaker_electrical_charge : public SpellScriptLoader
 {
-public:
-    spell_steelbreaker_electrical_charge() : SpellScriptLoader("spell_steelbreaker_electrical_charge") {}
+    public:
+        spell_steelbreaker_electrical_charge() : SpellScriptLoader("spell_steelbreaker_electrical_charge") {}
 
-    class spell_steelbreaker_electrical_charge_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_steelbreaker_electrical_charge_AuraScript);
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        class spell_steelbreaker_electrical_charge_AuraScript : public AuraScript
         {
-            Unit* target = GetTarget();
-            Unit* caster = GetCaster();
-            if (target && target->ToPlayer() && caster && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
-                target->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
-        }
+            PrepareAuraScript(spell_steelbreaker_electrical_charge_AuraScript);
 
-        void Register()
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                Unit* caster = GetCaster();
+                if (target && target->ToPlayer() && caster && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                    target->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_steelbreaker_electrical_charge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_steelbreaker_electrical_charge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            return new spell_steelbreaker_electrical_charge_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_steelbreaker_electrical_charge_AuraScript();
-    }
 };
 
 /************************************************************************/
