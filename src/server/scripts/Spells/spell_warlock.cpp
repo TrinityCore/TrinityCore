@@ -654,6 +654,7 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
 };
 
 // 755 Health Funnel
+/// Updated 4.3.4
 class spell_warl_health_funnel : public SpellScriptLoader
 {
 public:
