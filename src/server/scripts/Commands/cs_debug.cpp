@@ -90,6 +90,7 @@ public:
             { "areatriggers",   SEC_ADMINISTRATOR,  false, &HandleDebugAreaTriggersCommand,    "", NULL },
             { "los",            SEC_MODERATOR,      false, &HandleDebugLoSCommand,             "", NULL },
             { "moveflags",      SEC_ADMINISTRATOR,  false, &HandleDebugMoveflagsCommand,       "", NULL },
+            { "phase",          SEC_MODERATOR,      false, &HandleDebugPhaseCommand,           "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -948,8 +949,21 @@ public:
         if (!*args)
             return false;
 
-        uint32 PhaseShift = atoi(args);
-        handler->GetSession()->SendSetPhaseShift(PhaseShift);
+        char* t = strtok((char*)args, " ");
+        char* p = strtok(NULL, " ");
+
+        if (!t)
+            return false;
+
+        std::set<uint32> terrainswap;
+        std::set<uint32> phaseId;
+
+        terrainswap.insert((uint32)atoi(t));
+
+        if (p)
+            phaseId.insert((uint32)atoi(p));
+
+        handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap);
         return true;
     }
 
@@ -1328,6 +1342,17 @@ public:
         sLog->outInfo(LOG_FILTER_SQL_DEV, "(@PATH, XX, %.3f, %.3f, %.5f, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
         handler->PSendSysMessage("Waypoint SQL written to SQL Developer log");
+        return true;
+    }
+
+    static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        Player* player = handler->GetSession()->GetPlayer();
+        if(unit && unit->GetTypeId() == TYPEID_PLAYER)
+            player = unit->ToPlayer();
+
+        player->GetPhaseMgr().SendDebugReportToPlayer(handler->GetSession()->GetPlayer());
         return true;
     }
 };
