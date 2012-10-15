@@ -1808,27 +1808,21 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
 
     Unit* target = aurApp->GetTarget();
 
-    // no-phase is also phase state so same code for apply and remove
-    uint32 newPhase = 0;
-    Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
-    if (!phases.empty())
-        for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-            newPhase |= (*itr)->GetMiscValue();
-
     if (Player* player = target->ToPlayer())
     {
-        if (!newPhase)
-            newPhase = PHASEMASK_NORMAL;
-
-        // GM-mode have mask 0xFFFFFFFF
-        if (player->isGameMaster())
-            newPhase = 0xFFFFFFFF;
-
-        player->SetPhaseMask(newPhase, false);
-        player->GetSession()->SendSetPhaseShift(newPhase);
+        if (apply)
+            player->GetPhaseMgr().RegisterPhasingAuraEffect(this);
+        else
+            player->GetPhaseMgr().UnRegisterPhasingAuraEffect(this);
     }
     else
     {
+        uint32 newPhase = 0;
+        Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
+        if (!phases.empty())
+            for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+                newPhase |= (*itr)->GetMiscValue();
+
         if (!newPhase)
         {
             newPhase = PHASEMASK_NORMAL;
