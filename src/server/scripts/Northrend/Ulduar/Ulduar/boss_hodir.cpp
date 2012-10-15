@@ -47,8 +47,7 @@ enum HodirYells
 enum HodirSpells
 {
     // Hodir
-    SPELL_FROZEN_BLOWS_10                        = 62478,
-    SPELL_FROZEN_BLOWS_25                        = 63512,
+    SPELL_FROZEN_BLOWS                           = 62478,
     SPELL_FLASH_FREEZE                           = 61968,
     SPELL_FLASH_FREEZE_VISUAL                    = 62148,
     SPELL_BITING_COLD                            = 62038,
@@ -75,8 +74,7 @@ enum HodirSpells
 
     // Shamans
     SPELL_LAVA_BURST                             = 61924,
-    SPELL_STORM_CLOUD_10                         = 65123,
-    SPELL_STORM_CLOUD_25                         = 65133,
+    SPELL_STORM_CLOUD                            = 65123,
     SPELL_STORM_POWER_10                         = 63711,
     SPELL_STORM_POWER_25                         = 65134,
     // Mages
@@ -91,8 +89,6 @@ enum HodirSpells
     SPELL_DISPEL_MAGIC                           = 63499
 };
 
-#define SPELL_FROZEN_BLOWS RAID_MODE(SPELL_FROZEN_BLOWS_10, SPELL_FROZEN_BLOWS_25)
-#define SPELL_STORM_CLOUD RAID_MODE(SPELL_STORM_CLOUD_10, SPELL_STORM_CLOUD_25)
 #define SPELL_STORM_POWER RAID_MODE(SPELL_STORM_POWER_10, SPELL_STORM_POWER_25)
 
 enum HodirNPC
@@ -384,7 +380,7 @@ class boss_hodir : public CreatureScript
                     me->SetControlled(true, UNIT_STATE_STUNNED);
                     me->CombatStop(true);
 
-                    me->setFaction(35);
+                    me->setFaction(FACTION_FRIENDLY);
                     me->DespawnOrUnsummon(10*IN_MILLISECONDS);
 
                     _JustDied();
@@ -463,7 +459,7 @@ class boss_hodir : public CreatureScript
                         if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                             if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
                                 if ((target->GetTypeId() == TYPEID_PLAYER) && (BitingColdAura->GetStackAmount() > 2))
-                                        me->AI()->SetData(DATA_GETTING_COLD_IN_HERE, 0);
+                                    me->AI()->SetData(DATA_GETTING_COLD_IN_HERE, 0);
                     gettingColdInHereTimer = 2*IN_MILLISECONDS;
                 }
                 else
@@ -1056,36 +1052,36 @@ class spell_biting_cold : public SpellScriptLoader
 
 class spell_biting_cold_dot : public SpellScriptLoader
 {
-public:
-    spell_biting_cold_dot() : SpellScriptLoader("spell_biting_cold_dot") {}
+    public:
+        spell_biting_cold_dot() : SpellScriptLoader("spell_biting_cold_dot") {}
 
-    class spell_biting_cold_dot_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_biting_cold_dot_AuraScript);
-
-        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+        class spell_biting_cold_dot_AuraScript : public AuraScript
         {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
+            PrepareAuraScript(spell_biting_cold_dot_AuraScript);
 
-            int32 damage = int32(200 * pow(2.0f, GetStackAmount()));
-            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
 
-            if (caster->isMoving())
-                caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);
-        }
+                int32 damage = int32(200 * pow(2.0f, GetStackAmount()));
+                caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
 
-        void Register()
+                if (caster->isMoving())
+                    caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_biting_cold_dot_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_biting_cold_dot_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            return new spell_biting_cold_dot_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_biting_cold_dot_AuraScript();
-    }
 };
 
 class achievement_staying_buffed_all_winter : public AchievementCriteriaScript
@@ -1114,12 +1110,12 @@ void AddSC_boss_hodir()
     new npc_toasty_fire();
     new npc_ice_block();
     new npc_flash_freeze();
+
     new spell_biting_cold();
     new spell_biting_cold_dot();
+
     new achievement_staying_buffed_all_winter("achievement_staying_buffed_all_winter");
     new achievement_staying_buffed_all_winter("achievement_staying_buffed_all_winter_25");
 }
 
-#undef SPELL_FROZEN_BLOWS
-#undef SPELL_STORM_CLOUD
 #undef SPELL_STORM_POWER
