@@ -135,6 +135,7 @@ class boss_anubarak_trial : public CreatureScript
         EVENT_PENETRATING_COLD,
         EVENT_SUMMON_NERUBIAN,
         EVENT_SUBMERGE,
+        EVENT_EMERGE,
         EVENT_PURSUING_SPIKE,
         EVENT_SUMMON_SCARAB,
         EVENT_SUMMON_FROST_SPHERE,
@@ -160,6 +161,7 @@ class boss_anubarak_trial : public CreatureScript
 
             void Reset()
             {
+                phase = PHASE_MELEE;
                 events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
                 events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
                 events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 10*IN_MILLISECONDS, 0, PHASE_MELEE);
@@ -169,7 +171,6 @@ class boss_anubarak_trial : public CreatureScript
                 if (!IsHeroic())
                     events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, 20*IN_MILLISECONDS);
 
-                phase = PHASE_MELEE;
                 m_bIntro = true;
                 m_bReachedPhase3 = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -281,9 +282,9 @@ class boss_anubarak_trial : public CreatureScript
                 switch (phase)
                 {
                     case PHASE_MELEE:
-                        while (uint32 event = events.ExecuteEvent())
+                        while (uint32 eventId = events.ExecuteEvent())
                         {
-                            switch (event)
+                            switch (eventId)
                             {
                                 case EVENT_FREEZE_SLASH:
                                     DoCastVictim(SPELL_FREEZE_SLASH);
@@ -301,7 +302,6 @@ class boss_anubarak_trial : public CreatureScript
                                 case EVENT_SUBMERGE:
                                     if (!m_bReachedPhase3 && !me->HasAura(SPELL_BERSERK))
                                         phase = PHASE_SUBMERGING;
-                                    events.ScheduleEvent(EVENT_SUBMERGE, 1*MINUTE*IN_MILLISECONDS, 0, PHASE_MELEE);
                                     return;
                                 default:
                                     return;
@@ -316,11 +316,12 @@ class boss_anubarak_trial : public CreatureScript
                         phase = PHASE_SUBMERGED;
                         events.ScheduleEvent(EVENT_PURSUING_SPIKE, 2*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
                         events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                        events.ScheduleEvent(EVENT_EMERGE, 1*MINUTE*IN_MILLISECONDS);
                         break;
                     case PHASE_SUBMERGED:
-                        while (uint32 event = events.ExecuteEvent())
+                        while (uint32 eventId = events.ExecuteEvent())
                         {
-                            switch (event)
+                            switch (eventId)
                             {
                                 case EVENT_PURSUING_SPIKE:
                                     DoCast(SPELL_SPIKE_CALL);
@@ -346,7 +347,7 @@ class boss_anubarak_trial : public CreatureScript
                                     m_uiSummonScarabTimer = 90*IN_MILLISECONDS;*/
                                     return;
                                 }
-                                case EVENT_SUBMERGE:
+                                case EVENT_EMERGE:
                                     phase = PHASE_EMERGING;
                                     events.ScheduleEvent(EVENT_SUBMERGE, 80*IN_MILLISECONDS, 0, PHASE_MELEE);
                                     return;
@@ -371,13 +372,13 @@ class boss_anubarak_trial : public CreatureScript
                         break;
                 }
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_SUMMON_FROST_SPHERE:
                             SummonFrostSphere();
-                            events.ScheduleEvent(EVENT_SUBMERGE, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK);
@@ -408,8 +409,8 @@ class boss_anubarak_trial : public CreatureScript
 
             private:
                 std::list<uint64> m_vBurrowGUID;
-                bool   m_bIntro;
-                bool   m_bReachedPhase3;
+                bool m_bIntro;
+                bool m_bReachedPhase3;
                 Phases phase;
         };
 
@@ -421,11 +422,6 @@ class boss_anubarak_trial : public CreatureScript
 
 class mob_swarm_scarab : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_DETERMINATION = 1
-    };
-
     public:
         mob_swarm_scarab() : CreatureScript("mob_swarm_scarab") { }
 
@@ -439,7 +435,7 @@ class mob_swarm_scarab : public CreatureScript
             void Reset()
             {
                 me->SetCorpseDelay(0);
-                events.ScheduleEvent(EVENT_DETERMINATION, 1*MINUTE*IN_MILLISECONDS);
+                m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
                 DoCast(me, SPELL_ACID_MANDIBLE);
                 me->SetInCombatWithZone();
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -471,24 +467,21 @@ class mob_swarm_scarab : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                /* Bosskillers don't recognize */
+                if (m_uiDeterminationTimer <= uiDiff)
                 {
-                    switch (event)
-                    {
-                        case EVENT_DETERMINATION:
-                            DoCast(me, SPELL_DETERMINATION);
-                            events.ScheduleEvent(EVENT_DETERMINATION, urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS));
-                            return;
-                        default:
-                            return;
-                    }
+                    DoCast(me, SPELL_DETERMINATION);
+                    m_uiDeterminationTimer = urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS);
                 }
+                else
+                    m_uiDeterminationTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
             }
+
             private:
                 InstanceScript* instance;
-                EventMap events;
+                uint32 m_uiDeterminationTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -545,9 +538,9 @@ class mob_nerubian_burrower : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_SUBMERGE:
                             if (me->HasAura(SPELL_SUBMERGE_EFFECT))
@@ -671,11 +664,6 @@ class mob_frost_sphere : public CreatureScript
 
 class mob_anubarak_spike : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_PHASE_SWITCH  = 1
-    };
-
     public:
         mob_anubarak_spike() : CreatureScript("mob_anubarak_spike") { }
 
@@ -689,7 +677,7 @@ class mob_anubarak_spike : public CreatureScript
             void Reset()
             {
                 m_Phase = PHASE_NO_MOVEMENT;
-                events.ScheduleEvent(EVENT_PHASE_SWITCH, 1*IN_MILLISECONDS);
+                m_PhaseSwitchTimer = 1;
                 // make sure the spike has everyone on threat list
                 me->SetInCombatWithZone();
             }
@@ -706,7 +694,6 @@ class mob_anubarak_spike : public CreatureScript
                     StartChase(target);
                     Talk(EMOTE_SPIKE, who->GetGUID());
                 }
-
             }
 
             void DamageTaken(Unit* /*who*/, uint32& uiDamage)
@@ -722,41 +709,39 @@ class mob_anubarak_spike : public CreatureScript
                     return;
                 }
 
-                events.Update(uiDiff);
-
-                while (uint32 event = events.ExecuteEvent())
+                if (m_PhaseSwitchTimer)
                 {
-                    switch (event)
+                    if (m_PhaseSwitchTimer <= uiDiff)
                     {
-                        case EVENT_PHASE_SWITCH:
+                        switch (m_Phase)
                         {
-                            switch (m_Phase)
-                            {
-                                case PHASE_NO_MOVEMENT:
-                                    DoCast(me, SPELL_SPIKE_SPEED1);
-                                    DoCast(me, SPELL_SPIKE_TRAIL);
-                                    m_Phase = PHASE_IMPALE_NORMAL;
-                                    if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                    {
-                                        StartChase(target2);
-                                        Talk(EMOTE_SPIKE, target2->GetGUID());
-                                    }
-                                    events.ScheduleEvent(EVENT_PHASE_SWITCH, 7*IN_MILLISECONDS);
-                                    return;
-                                case PHASE_IMPALE_NORMAL:
-                                    DoCast(me, SPELL_SPIKE_SPEED2);
-                                    m_Phase = PHASE_IMPALE_MIDDLE;
-                                    events.ScheduleEvent(EVENT_PHASE_SWITCH, 7*IN_MILLISECONDS);
-                                    return;
-                                case PHASE_IMPALE_MIDDLE:
-                                    DoCast(me, SPELL_SPIKE_SPEED3);
-                                    m_Phase = PHASE_IMPALE_FAST;
-                                    return;
-                                default:
-                                    return;
-                            }
+                            case PHASE_NO_MOVEMENT:
+                                DoCast(me, SPELL_SPIKE_SPEED1);
+                                DoCast(me, SPELL_SPIKE_TRAIL);
+                                m_Phase = PHASE_IMPALE_NORMAL;
+                                if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                {
+                                    StartChase(target2);
+                                    Talk(EMOTE_SPIKE, target2->GetGUID());
+                                }
+                                m_PhaseSwitchTimer = 7000;
+                                return;
+
+                            case PHASE_IMPALE_NORMAL:
+                                DoCast(me, SPELL_SPIKE_SPEED2);
+                                m_Phase = PHASE_IMPALE_MIDDLE;
+                                m_PhaseSwitchTimer = 7000;
+                                return;
+
+                            case PHASE_IMPALE_MIDDLE:
+                                DoCast(me, SPELL_SPIKE_SPEED3);
+                                m_Phase = PHASE_IMPALE_FAST;
+                                m_PhaseSwitchTimer = 0;
+                                return;
                         }
                     }
+                    else
+                        m_PhaseSwitchTimer -= uiDiff;
                 }
             }
 
@@ -794,7 +779,7 @@ class mob_anubarak_spike : public CreatureScript
 
                     // After the spikes hit the icy surface they can't move for about ~5 seconds
                     m_Phase = PHASE_NO_MOVEMENT;
-                    events.ScheduleEvent(EVENT_PHASE_SWITCH, 5*IN_MILLISECONDS);
+                    m_PhaseSwitchTimer = 5*IN_MILLISECONDS;
                     SetCombatMovement(false);
                     me->GetMotionMaster()->MoveIdle();
                     me->GetMotionMaster()->Clear();
@@ -816,7 +801,7 @@ class mob_anubarak_spike : public CreatureScript
 
             private:
                 InstanceScript* instance;
-                EventMap events;
+                uint32 m_PhaseSwitchTimer;
                 PursuingSpikesPhases m_Phase;
         };
 
