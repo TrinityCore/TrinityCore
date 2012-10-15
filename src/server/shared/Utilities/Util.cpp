@@ -150,6 +150,37 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
     return ss.str();
 }
 
+int64 MoneyStringToMoney(const std::string& moneyString)
+{
+    int64 money = 0;
+
+    if (!(std::count(moneyString.begin(), moneyString.end(), 'g') == 1 ||
+        std::count(moneyString.begin(), moneyString.end(), 's') == 1 ||
+        std::count(moneyString.begin(), moneyString.end(), 'c') == 1))
+        return 0; // Bad format
+
+    Tokenizer tokens(moneyString, ' ');
+    for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+    {
+        std::string tokenString(*itr);
+        uint32 gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
+        uint32 sCount = std::count(tokenString.begin(), tokenString.end(), 's');
+        uint32 cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
+        if (gCount + sCount + cCount != 1)
+            return 0;
+
+        uint64 amount = atol(*itr);
+        if (gCount == 1)
+            money += amount * 100 * 100;
+        else if (sCount == 1)
+            money += amount * 100;
+        else if (cCount == 1)
+            money += amount;
+    }
+
+    return money;
+}
+
 uint32 TimeStringToSecs(const std::string& timestring)
 {
     uint32 secs       = 0;
