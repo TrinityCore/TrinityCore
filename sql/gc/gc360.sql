@@ -588,6 +588,9 @@ DELETE FROM `creature` WHERE `id` IN (33110, 32874, 32875);
 -- Algalons Celestial Planetarium Access is spawned via core
 DELETE FROM `gameobject` WHERE `id`=194752;
 
+-- correcting quest chain leading to Algalon
+UPDATE `quest_template` SET `PrevQuestId`=13607, `NextQuestId`=13614, `ExclusiveGroup`=-13609 WHERE `Id` IN (13606, 13609, 13610, 13611);
+
 -- Achievement "Firefighter" (3180 / 3189)
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10450, 10463);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
