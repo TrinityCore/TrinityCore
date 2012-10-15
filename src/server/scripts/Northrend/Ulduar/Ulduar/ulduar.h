@@ -435,7 +435,7 @@ enum UlduarFactions
 {
     FACTION_HOSTILE = 14,
     FACTION_FRIENDLY = 35
-}
+};
 
 // leviathans spawn position after wipe
 Position const Center =
