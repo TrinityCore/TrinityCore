@@ -271,7 +271,7 @@ struct boss_faction_championsAI : public BossAI
     void Reset()
     {
         events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
-        if (IsHeroic())
+        if (IsHeroic() && (mAIType != AI_PET))
             events.ScheduleEvent(EVENT_REMOVE_CC, rand() % 10*IN_MILLISECONDS);
         championControllerGUID = 0;
     }
@@ -443,16 +443,13 @@ struct boss_faction_championsAI : public BossAI
                     events.ScheduleEvent(EVENT_THREAT, 4*IN_MILLISECONDS);
                     return;
                 case EVENT_REMOVE_CC:
-                    if (mAIType != AI_PET)
+                    if (me->HasBreakableByDamageCrowdControlAura())
                     {
-                        if (me->HasBreakableByDamageCrowdControlAura())
-                        {
-                            RemoveCC();
-                            events.ScheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
-                        }
-                        else
-                            events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
+                        RemoveCC();
+                        events.ScheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
                     }
+                    else
+                        events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
                     return;
                 default:
                     return;
