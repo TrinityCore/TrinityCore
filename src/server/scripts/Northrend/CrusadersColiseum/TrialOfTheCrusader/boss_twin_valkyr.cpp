@@ -574,11 +574,6 @@ class mob_essence_of_twin : public CreatureScript
 
 struct mob_unleashed_ballAI : public ScriptedAI
 {
-    enum Events
-    {
-        EVENT_RECHECK_DISTANCE  = 1
-    };
-
     mob_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
         instance = creature->GetInstanceScript();
@@ -606,7 +601,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
         me->SetCanFly(true);
         SetCombatMovement(false);
         MoveToNextPoint();
-        events.ScheduleEvent(EVENT_RECHECK_DISTANCE, 0.5*IN_MILLISECONDS);
+        m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -622,13 +617,12 @@ struct mob_unleashed_ballAI : public ScriptedAI
                 else
                     me->DisappearAndDie();
                 break;
-            default:
-                break;
         }
     }
     private:
-        EventMap events;
         InstanceScript* instance;
+    protected:
+        uint32 m_uiRangeCheckTimer;
 };
 
 class mob_unleashed_dark : public CreatureScript
@@ -642,25 +636,18 @@ class mob_unleashed_dark : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                events.Update(uiDiff);
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (m_uiRangeCheckTimer < uiDiff)
                 {
-                    switch (eventId)
+                    if (me->SelectNearestPlayer(3.0f))
                     {
-                        case EVENT_RECHECK_DISTANCE:
-                            if (me->SelectNearestPlayer(3.0f))
-                            {
-                                DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
-                                me->GetMotionMaster()->MoveIdle();
-                                me->DespawnOrUnsummon(1*IN_MILLISECONDS);
-                                events.ScheduleEvent(EVENT_RECHECK_DISTANCE, 0.5*IN_MILLISECONDS);
-                            }
-                            return;
-                        default:
-                            return;
+                        DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
+                        me->GetMotionMaster()->MoveIdle();
+                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
+                    m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
                 }
+                else
+                    m_uiRangeCheckTimer -= uiDiff;
             }
 
             void SpellHitTarget(Unit* who, SpellInfo const* spell)
@@ -685,8 +672,6 @@ class mob_unleashed_dark : public CreatureScript
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -706,25 +691,18 @@ class mob_unleashed_light : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                events.Update(uiDiff);
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (m_uiRangeCheckTimer < uiDiff)
                 {
-                    switch (eventId)
+                    if (me->SelectNearestPlayer(3.0f))
                     {
-                        case EVENT_RECHECK_DISTANCE:
-                            if (me->SelectNearestPlayer(3.0f))
-                            {
-                                DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
-                                me->GetMotionMaster()->MoveIdle();
-                                me->DespawnOrUnsummon(1*IN_MILLISECONDS);
-                                events.ScheduleEvent(EVENT_RECHECK_DISTANCE, 0.5*IN_MILLISECONDS);
-                            }
-                            return;
-                        default:
-                            return;
+                        DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
+                        me->GetMotionMaster()->MoveIdle();
+                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
+                    m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
                 }
+                else
+                    m_uiRangeCheckTimer -= uiDiff;
             }
 
             void SpellHitTarget(Unit* who, SpellInfo const* spell)
@@ -749,8 +727,6 @@ class mob_unleashed_light : public CreatureScript
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const

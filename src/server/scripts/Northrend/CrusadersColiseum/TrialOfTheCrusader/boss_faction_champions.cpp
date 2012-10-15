@@ -433,9 +433,9 @@ struct boss_faction_championsAI : public BossAI
     {
         events.Update(uiDiff);
 
-        while (uint32 event = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (event)
+            switch (eventId)
             {
                 case EVENT_THREAT:
                     UpdatePower();
@@ -526,9 +526,9 @@ class mob_toc_druid : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_LIFEBLOOM:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -643,9 +643,9 @@ class mob_toc_shaman : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_HEALING_WAVE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -762,9 +762,9 @@ class mob_toc_paladin : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_HAND_OF_FREEDOM:
                             if (Unit* target = SelectRandomFriendlyMissingBuff(SPELL_HAND_OF_FREEDOM))
@@ -887,9 +887,9 @@ class mob_toc_priest : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_RENEW:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -1001,9 +1001,9 @@ class mob_toc_shadow_priest : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_SILENCE:
                             if (Unit* target = SelectEnemyCaster(true))
@@ -1127,9 +1127,9 @@ class mob_toc_warlock : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_HELLFIRE:
                             if (EnemiesInRange(10.0f) >= 2)
@@ -1238,9 +1238,9 @@ class mob_toc_mage : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_ARCANE_BARRAGE:
                             DoCastVictim(SPELL_ARCANE_BARRAGE);
@@ -1364,9 +1364,9 @@ class mob_toc_hunter : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_AIMED_SHOT:
                             DoCastVictim(SPELL_AIMED_SHOT);
@@ -1482,9 +1482,9 @@ class mob_toc_boomkin : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_CYCLONE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
@@ -1603,9 +1603,9 @@ class mob_toc_warrior : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_BLADESTORM:
                             DoCastVictim(SPELL_BLADESTORM);
@@ -1721,9 +1721,9 @@ class mob_toc_dk : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_CHAINS_OF_ICE:
                             DoCastVictim(SPELL_CHAINS_OF_ICE);
@@ -1841,9 +1841,9 @@ class mob_toc_rogue : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_FAN_OF_KNIVES:
                             if (EnemiesInRange(10.0f) >= 2)
@@ -1998,9 +1998,9 @@ class mob_toc_enh_shaman : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_EARTH_SHOCK:
                             if (Unit* target = SelectEnemyCaster(true))
@@ -2113,9 +2113,9 @@ class mob_toc_retro_paladin : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_AVENGING_WRATH:
                             DoCast(SPELL_AVENGING_WRATH);
@@ -2218,9 +2218,9 @@ class mob_toc_pet_warlock : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_DEVOUR_MAGIC:
                             DoCastVictim(SPELL_DEVOUR_MAGIC);
@@ -2250,11 +2250,6 @@ enum eHunterPetSpells
 
 class mob_toc_pet_hunter : public CreatureScript
 {
-    enum
-    {
-        EVENT_CLAW = 1
-    };
-
     public:
         mob_toc_pet_hunter() : CreatureScript("mob_toc_pet_hunter") { }
 
@@ -2265,7 +2260,7 @@ class mob_toc_pet_hunter : public CreatureScript
             void Reset()
             {
                 boss_faction_championsAI::Reset();
-                events.ScheduleEvent(EVENT_CLAW, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
+                m_uiClawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             }
 
             void UpdateAI(const uint32 diff)
@@ -2273,22 +2268,18 @@ class mob_toc_pet_hunter : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
                 boss_faction_championsAI::UpdateAI(diff);
 
-                while (uint32 event = events.ExecuteEvent())
+                if (m_uiClawTimer <= diff)
                 {
-                    switch (event)
-                    {
-                        case EVENT_CLAW:
-                            DoCastVictim(SPELL_CLAW);
-                            events.ScheduleEvent(EVENT_CLAW, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
-                            return;
-                        default:
-                            return;
-                    }
+                    DoCastVictim(SPELL_CLAW);
+                    m_uiClawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
                 }
+                else
+                    m_uiClawTimer -= diff;
             }
+            private:
+                uint32 m_uiClawTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const

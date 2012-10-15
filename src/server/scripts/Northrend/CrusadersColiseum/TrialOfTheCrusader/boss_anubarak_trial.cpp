@@ -137,9 +137,7 @@ class boss_anubarak_trial : public CreatureScript
         EVENT_SUBMERGE,
         EVENT_EMERGE,
         EVENT_PURSUING_SPIKE,
-        EVENT_SUMMON_SCARAB,
-        EVENT_SUMMON_FROST_SPHERE,
-        EVENT_BERSERK
+        EVENT_SUMMON_SCARAB
     };
 
     enum Phases
@@ -166,10 +164,10 @@ class boss_anubarak_trial : public CreatureScript
                 events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
                 events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 10*IN_MILLISECONDS, 0, PHASE_MELEE);
                 events.ScheduleEvent(EVENT_SUBMERGE, 80*IN_MILLISECONDS, 0, PHASE_MELEE);
-                events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS);
+                m_uiBerserkTimer = 10*MINUTE*IN_MILLISECONDS;
 
                 if (!IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, 20*IN_MILLISECONDS);
+                    m_uiFrostSphereTimer = 20*IN_MILLISECONDS;
 
                 m_bIntro = true;
                 m_bReachedPhase3 = false;
@@ -372,21 +370,18 @@ class boss_anubarak_trial : public CreatureScript
                         break;
                 }
 
-                while (uint32 eventId = events.ExecuteEvent())
+                if (!IsHeroic() && m_uiFrostSphereTimer <= uiDiff)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_SUMMON_FROST_SPHERE:
-                            SummonFrostSphere();
-                            events.ScheduleEvent(EVENT_SUMMON_FROST_SPHERE, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                            return;
-                        case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
-                            return;
-                        default:
-                            return;
-                    }
+                    SummonFrostSphere();
+                    m_uiFrostSphereTimer = urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS);
                 }
+                else
+                    m_uiFrostSphereTimer -= uiDiff;
+
+                if (m_uiBerserkTimer <= uiDiff && !me->HasAura(SPELL_BERSERK))
+                    DoCast(me, SPELL_BERSERK);
+                else
+                    m_uiBerserkTimer -= uiDiff;
 
                 if (HealthBelowPct(30) && phase == PHASE_MELEE && !m_bReachedPhase3)
                 {
@@ -412,6 +407,8 @@ class boss_anubarak_trial : public CreatureScript
                 bool m_bIntro;
                 bool m_bReachedPhase3;
                 Phases phase;
+                uint32 m_uiFrostSphereTimer;
+                uint32 m_uiBerserkTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const

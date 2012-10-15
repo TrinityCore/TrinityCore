@@ -219,9 +219,9 @@ class boss_gormok : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_IMPALE:
                             DoCastVictim(SPELL_IMPALE);
@@ -403,9 +403,9 @@ class mob_snobold_vassal : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_FIRE_BOMB:
                             if (me->GetVehicleBase())
@@ -589,9 +589,9 @@ struct boss_jormungarAI : public BossAI
         switch (phase)
         {
             case PHASE_SUBMERGED:
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_EMERGE:
                             Emerge();
@@ -601,9 +601,9 @@ struct boss_jormungarAI : public BossAI
                     }
                 }
             case PHASE_MOBILE:
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_SUBMERGE:
                             Submerge();
@@ -637,9 +637,9 @@ struct boss_jormungarAI : public BossAI
                 return;
             case PHASE_STATIONARY:
             {
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_SUBMERGE:
                             Submerge();
@@ -1009,9 +1009,9 @@ class boss_icehowl : public CreatureScript
                 {
                     case 0:
                     {
-                        while (uint32 event = events.ExecuteEvent())
+                        while (uint32 eventId = events.ExecuteEvent())
                         {
-                            switch (event)
+                            switch (eventId)
                             {
                                 case EVENT_FEROCIOUS_BUTT:
                                     DoCastVictim(SPELL_FEROCIOUS_BUTT);
@@ -1064,9 +1064,9 @@ class boss_icehowl : public CreatureScript
                             m_uiStage = 6;
                         break;
                     case 3:
-                        while (uint32 event = events.ExecuteEvent())
+                        while (uint32 eventId = events.ExecuteEvent())
                         {
-                            switch (event)
+                            switch (eventId)
                             {
                                 case EVENT_TRAMPLE:
                                 {

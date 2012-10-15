@@ -168,9 +168,9 @@ class boss_jaraxxus : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_FEL_FIREBALL:
                             DoCastVictim(SPELL_FEL_FIREBALL);
@@ -320,11 +320,6 @@ class mob_infernal_volcano : public CreatureScript
 
 class mob_fel_infernal : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_FEL_STREAK    = 1
-    };
-
     public:
         mob_fel_infernal() : CreatureScript("mob_fel_infernal") { }
 
@@ -337,15 +332,9 @@ class mob_fel_infernal : public CreatureScript
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_FEL_STREAK, 30*IN_MILLISECONDS);
+                m_uiFelStreakTimer = 30*IN_MILLISECONDS;
                 me->SetInCombatWithZone();
             }
-
-            /*void SpellHitTarget(Unit* target, const SpellInfo* pSpell)
-            {
-                if (pSpell->Id == SPELL_FEL_STREAK)
-                    DoCastAOE(SPELL_FEL_INFERNO); //66517
-            }*/
 
             void UpdateAI(const uint32 uiDiff)
             {
@@ -358,27 +347,19 @@ class mob_fel_infernal : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(uiDiff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 event = events.ExecuteEvent())
+                if (m_uiFelStreakTimer <= uiDiff)
                 {
-                    switch (event)
-                    {
-                        case EVENT_FEL_STREAK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, SPELL_FEL_STREAK);
-                            events.ScheduleEvent(EVENT_FEL_STREAK, 30*IN_MILLISECONDS);
-                            break;
-                    }
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        DoCast(target, SPELL_FEL_STREAK);
+                    m_uiFelStreakTimer = 30*IN_MILLISECONDS;
                 }
+                else
+                    m_uiFelStreakTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
             }
             private:
-                EventMap events;
+                uint32 m_uiFelStreakTimer;
                 InstanceScript* instance;
         };
 
