@@ -431,6 +431,12 @@ enum UlduarArea
     AREA_FORMATION_GROUNDS  = 4652
 };
 
+enum UlduarFactions
+{
+    FACTION_HOSTILE = 14,
+    FACTION_FRIENDLY = 35
+}
+
 // leviathans spawn position after wipe
 Position const Center =
 {

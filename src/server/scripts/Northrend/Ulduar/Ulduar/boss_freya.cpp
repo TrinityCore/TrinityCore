@@ -88,10 +88,8 @@ enum FreyaSpells
     SPELL_ATTUNED_TO_NATURE                      = 62519,
     SPELL_TOUCH_OF_EONAR_10                      = 62528,
     SPELL_TOUCH_OF_EONAR_25                      = 62892,
-    SPELL_SUNBEAM_10                             = 62623,
-    SPELL_SUNBEAM_25                             = 62872,
-    SPELL_FREYA_GROUND_TREMOR_10                 = 62437,
-    SPELL_FREYA_GROUND_TREMOR_25                 = 62859,
+    SPELL_SUNBEAM                                = 62623,
+    SPELL_FREYA_GROUND_TREMOR                    = 62437,
     SPELL_ROOTS_FREYA_10                         = 62438,
     SPELL_ROOTS_FREYA_25                         = 62861,
     SPELL_STONEBARK_ESSENCE                      = 62483,
@@ -101,27 +99,23 @@ enum FreyaSpells
 
     // Stonebark
     SPELL_FISTS_OF_STONE                         = 62344,
-    SPELL_GROUND_TREMOR_10                       = 62325,
-    SPELL_GROUND_TREMOR_25                       = 62932,
+    SPELL_GROUND_TREMOR                          = 62325,
     SPELL_PETRIFIED_BARK_10                      = 62337,
     SPELL_PETRIFIED_BARK_25                      = 62933,
     SPELL_PETRIFIED_BARK_DMG                     = 62379,
 
     // Ironbranch
-    SPELL_IMPALE_10                              = 62310,
-    SPELL_IMPALE_25                              = 62928,
+    SPELL_IMPALE                                 = 62310,
     SPELL_IRON_ROOTS_10                          = 62283,
     SPELL_IRON_ROOTS_25                          = 62930,
-    SPELL_THORN_SWARM_10                         = 62285,
-    SPELL_THORN_SWARM_25                         = 62931,
+    SPELL_THORN_SWARM                            = 62285,
 
     // Brightleaf
     SPELL_FLUX_AURA                              = 62239,
     SPELL_FLUX                                   = 62262,
     SPELL_FLUX_PLUS                              = 62251,
     SPELL_FLUX_MINUS                             = 62252,
-    SPELL_SOLAR_FLARE_10                         = 62240,
-    SPELL_SOLAR_FLARE_25                         = 62920,
+    SPELL_SOLAR_FLARE                            = 62240,
     SPELL_UNSTABLE_SUN_BEAM_SUMMON               = 62207, // Trigger 62221
 
     // Stack Removing of Attuned to Nature
@@ -140,26 +134,21 @@ enum FreyaSpells
     SPELL_SUMMON_ANCIENT_CONSERVATOR             = 62685,
 
     // Detonating Lasher
-    SPELL_DETONATE_10                            = 62598,
-    SPELL_DETONATE_25                            = 62937,
+    SPELL_DETONATE                               = 62598,
     SPELL_FLAME_LASH                             = 62608,
 
     // Ancient Water Spirit
     SPELL_TIDAL_WAVE_EFFECT                      = 62654,
-    SPELL_TIDAL_WAVE_10                          = 62653,
-    SPELL_TIDAL_WAVE_25                          = 62935,
+    SPELL_TIDAL_WAVE                             = 62653,
     SPELL_WATER_REVIVE_VISUAL                    = 62849,
 
     // Storm Lasher
-    SPELL_LIGHTNING_LASH_10                      = 62648,
-    SPELL_LIGHTNING_LASH_25                      = 62939,
-    SPELL_STORMBOLT_10                           = 62649,
-    SPELL_STORMBOLT_25                           = 62938,
+    SPELL_LIGHTNING_LASH                         = 62648,
+    SPELL_STORMBOLT                              = 62649,
     SPELL_STORM_REVIVE_VISUAL                    = 62851,
 
     // Snaplasher
-    SPELL_HARDENED_BARK_10                       = 62664,
-    SPELL_HARDENED_BARK_25                       = 64191,
+    SPELL_HARDENED_BARK                          = 62664,
     SPELL_LASHER_REVIVE_VISUAL                   = 62848,
     SPELL_BARK_AURA                              = 62663,
 
@@ -179,8 +168,7 @@ enum FreyaSpells
     SPELL_POTENT_PHEROMONES                      = 62541,
 
     // Eonar's Gift
-    SPELL_LIFEBINDERS_GIFT_10                    = 62584,
-    SPELL_LIFEBINDERS_GIFT_25                    = 64185,
+    SPELL_LIFEBINDERS_GIFT                       = 62584,
     SPELL_PHEROMONES                             = 62619,
     SPELL_EONAR_VISUAL                           = 62579,
     SPELL_SUMMON_EONAR_GIFT                      = 62572,
@@ -204,8 +192,7 @@ enum FreyaSpells
     SPELL_FREYA_UNSTABLE_SUNBEAM                 = 62450, // Or maybe 62866?
 
     // Sun Beam
-    SPELL_FREYA_UNSTABLE_ENERGY_10               = 62451,
-    SPELL_FREYA_UNSTABLE_ENERGY_25               = 62865,
+    SPELL_FREYA_UNSTABLE_ENERGY                  = 62451,
     SPELL_FREYA_UNSTABLE_ENERGY_VISUAL           = 62216,
 
     // Attuned To Nature spells
@@ -215,23 +202,10 @@ enum FreyaSpells
 };
 
 #define SPELL_TOUCH_OF_EONAR RAID_MODE(SPELL_TOUCH_OF_EONAR_10, SPELL_TOUCH_OF_EONAR_25)
-#define SPELL_SUNBEAM RAID_MODE(SPELL_SUNBEAM_10, SPELL_SUNBEAM_25)
-#define SPELL_FREYA_UNSTABLE_ENERGY RAID_MODE(SPELL_FREYA_UNSTABLE_ENERGY_10, SPELL_FREYA_UNSTABLE_ENERGY_25)
 #define SPELL_IRON_ROOTS RAID_MODE(SPELL_IRON_ROOTS_10, SPELL_IRON_ROOTS_25)
-#define SPELL_FREYA_GROUND_TREMOR RAID_MODE(SPELL_FREYA_GROUND_TREMOR_10, SPELL_FREYA_GROUND_TREMOR_25)
-#define SPELL_LIFEBINDERS_GIFT RAID_MODE(SPELL_LIFEBINDERS_GIFT_10, SPELL_LIFEBINDERS_GIFT_25)
-#define SPELL_DETONATE RAID_MODE(SPELL_DETONATE_10, SPELL_DETONATE_25)
-#define SPELL_TIDAL_WAVE RAID_MODE(SPELL_TIDAL_WAVE_10, SPELL_TIDAL_WAVE_25)
-#define SPELL_LIGHTNING_LASH RAID_MODE(SPELL_LIGHTNING_LASH_10, SPELL_LIGHTNING_LASH_25)
-#define SPELL_STORMBOLT RAID_MODE(SPELL_STORMBOLT_10, SPELL_STORMBOLT_25)
-#define SPELL_HARDENED_BARK RAID_MODE(SPELL_HARDENED_BARK_10, SPELL_HARDENED_BARK_25)
 #define SPELL_NATURES_FURY RAID_MODE(SPELL_NATURES_FURY_10, SPELL_NATURES_FURY_25)
-#define SPELL_SOLAR_FLARE RAID_MODE(SPELL_SOLAR_FLARE_10, SPELL_SOLAR_FLARE_25)
 #define SPELL_UNSTABLE_ENERGY RAID_MODE(SPELL_UNSTABLE_ENERGY_10, SPELL_UNSTABLE_ENERGY_25)
-#define SPELL_IMPALE RAID_MODE(SPELL_IMPALE_10, SPELL_IMPALE_25)
-#define SPELL_THORN_SWARM RAID_MODE(SPELL_THORN_SWARM_10, SPELL_THORN_SWARM_25)
 #define SPELL_ROOTS_FREYA RAID_MODE(SPELL_ROOTS_FREYA_10, SPELL_ROOTS_FREYA_25)
-#define SPELL_GROUND_TREMOR RAID_MODE(SPELL_GROUND_TREMOR_10, SPELL_GROUND_TREMOR_25)
 #define SPELL_PETRIFIED_BARK RAID_MODE(SPELL_PETRIFIED_BARK_10, SPELL_PETRIFIED_BARK_25)
 
 enum FreyaNpcs
@@ -293,16 +267,15 @@ enum Data
     DATA_TRIO_WAVE_COUNT
 };
 
-#define WAVE_TIME                                60000 // Normal wave is one minute
-#define TIME_DIFFERENCE                          10000 // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
+#define WAVE_TIME                                1*MINUTE*IN_MILLISECONDS // Normal wave is one minute
+#define TIME_DIFFERENCE                          10*IN_MILLISECONDS // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
 
 class npc_iron_roots : public CreatureScript
 {
     private:
         enum
         {
-            SPELL_DEATH_GRIP = 49560,
-            FACTION_HOSTILE = 14
+            SPELL_DEATH_GRIP = 49560
         };
 
     public:
@@ -387,7 +360,7 @@ class boss_freya : public CreatureScript
                 EncounterFinished = EncounterFinished || (instance->GetBossState(BOSS_FREYA) == DONE);
                 if (EncounterFinished) // May be called during fight if Freya gets outfight... hm, should _not_ happen regularly
                 {
-                    me->setFaction(35);
+                    me->setFaction(FACTION_FRIENDLY);
                     return;
                 }
                 _Reset();
@@ -447,8 +420,8 @@ class boss_freya : public CreatureScript
                 const uint32 summonSpell[2][4] =
                 {
                     /*          0Elder, 1Elder, 2Elder, 3Elder killed */
-                    /* 10N */   {62957,  62955,  62953,  62950},
-                    /* 25N */   {62958,  62956,  62954,  62952}
+                    /* 10N */    {62957, 62955, 62953, 62950},
+                    /* 25N */    {62958, 62956, 62954, 62952}
                 };
                 me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);   // GetDifficulty should return 0 or 1 (numeric)
 
@@ -456,7 +429,7 @@ class boss_freya : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAllAuras();
                 me->AttackStop();
-                me->setFaction(35);
+                me->setFaction(FACTION_FRIENDLY);
                 me->DeleteThreatList();
                 me->CombatStop(true);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
@@ -480,7 +453,7 @@ class boss_freya : public CreatureScript
                             Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
                         }
                 }
-                me->DespawnOrUnsummon(7500);
+                me->DespawnOrUnsummon(7.5*IN_MILLISECONDS);
                 _JustDied();
             }
 
@@ -2039,29 +2012,29 @@ class spell_essence_targeting_ironbranch : public SpellScriptLoader
 
 class spell_essence_targeting_brightleaf : public SpellScriptLoader
 {
-public:
-    spell_essence_targeting_brightleaf() : SpellScriptLoader("spell_elder_brightleaf_essence_targeting") {}
+    public:
+        spell_essence_targeting_brightleaf() : SpellScriptLoader("spell_elder_brightleaf_essence_targeting") {}
 
-    class spell_essence_targeting_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_essence_targeting_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& targets)
+        class spell_essence_targeting_SpellScript : public SpellScript
         {
-            targets.remove_if(IsNoAllyOfNature());
-        }
+            PrepareSpellScript(spell_essence_targeting_SpellScript);
 
-        void Register()
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(IsNoAllyOfNature());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_essence_targeting_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+            return new spell_essence_targeting_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_essence_targeting_SpellScript();
-    }
 };
 
 
@@ -2257,56 +2230,56 @@ class achievement_getting_back_to_nature : public AchievementCriteriaScript
 
 class achievement_knock_on_wood : public AchievementCriteriaScript
 {
-   public:
-       achievement_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
+    public:
+        achievement_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
 
-       bool OnCheck(Player* /*player*/, Unit* target)
-       {
-           if (!target)
-               return false;
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
 
-           if (Creature* Freya = target->ToCreature())
-               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 1)
-                   return true;
+            if (Creature* Freya = target->ToCreature())
+                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 1)
+                    return true;
 
-           return false;
-       }
+            return false;
+        }
 };
 
 class achievement_knock_knock_on_wood : public AchievementCriteriaScript
 {
-   public:
-       achievement_knock_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
+    public:
+        achievement_knock_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
 
-       bool OnCheck(Player* /*player*/, Unit* target)
-       {
-           if (!target)
-               return false;
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
 
-           if (Creature* Freya = target->ToCreature())
-               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 2)
-                   return true;
+            if (Creature* Freya = target->ToCreature())
+                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 2)
+                    return true;
 
-           return false;
-       }
+            return false;
+        }
 };
 
 class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
 {
-   public:
-       achievement_knock_knock_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
+    public:
+        achievement_knock_knock_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
 
-       bool OnCheck(Player* /*player*/, Unit* target)
-       {
-           if (!target)
-               return false;
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
 
-           if (Creature* Freya = target->ToCreature())
-               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) == 3)
-                   return true;
+            if (Creature* Freya = target->ToCreature())
+                if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) == 3)
+                    return true;
 
-           return false;
-       }
+            return false;
+        }
 };
 
 void AddSC_boss_freya()
@@ -2332,33 +2305,21 @@ void AddSC_boss_freya()
     new spell_aggregation_pheromones_targeting();       // more or less for NPCs that are always in this area
     new spell_freya_attuned_to_nature_dose_reduction();
     new spell_freya_iron_roots();
-    new spell_elder_brightleaf_unstable_sun_beam(); 
-    new achievement_getting_back_to_nature("achievement_getting_back_to_nature");           // 10m 2982 [10445] 
+    new spell_elder_brightleaf_unstable_sun_beam();
+
+    new achievement_getting_back_to_nature("achievement_getting_back_to_nature");           // 10m 2982 [10445]
     new achievement_getting_back_to_nature("achievement_getting_back_to_nature_25");        // 25m 2983 [10758]
-    new achievement_knock_on_wood("achievement_knock_on_wood");                             // 10m 3177 [10447] 
+    new achievement_knock_on_wood("achievement_knock_on_wood");                             // 10m 3177 [10447]
     new achievement_knock_on_wood("achievement_knock_on_wood_25");                          // 25m 3185 [10459]
-    new achievement_knock_knock_on_wood("achievement_knock_knock_on_wood");                 // 10m 3178 [10448] 
+    new achievement_knock_knock_on_wood("achievement_knock_knock_on_wood");                 // 10m 3178 [10448]
     new achievement_knock_knock_on_wood("achievement_knock_knock_on_wood_25");              // 25m 3186 [10460]
-    new achievement_knock_knock_knock_on_wood("achievement_knock_knock_knock_on_wood");     // 10m 3179 [10449] 
+    new achievement_knock_knock_knock_on_wood("achievement_knock_knock_knock_on_wood");     // 10m 3179 [10449]
     new achievement_knock_knock_knock_on_wood("achievement_knock_knock_knock_on_wood_25");  // 25m 3187 [10461]
 }
 
 #undef SPELL_TOUCH_OF_EONAR
-#undef SPELL_SUNBEAM
-#undef SPELL_FREYA_UNSTABLE_ENERGY
 #undef SPELL_IRON_ROOTS
-#undef SPELL_FREYA_GROUND_TREMOR
-#undef SPELL_LIFEBINDERS_GIFT
-#undef SPELL_DETONATE
-#undef SPELL_TIDAL_WAVE
-#undef SPELL_LIGHTNING_LASH
-#undef SPELL_STORMBOLT
-#undef SPELL_HARDENED_BARK
 #undef SPELL_NATURES_FURY
-#undef SPELL_SOLAR_FLARE
 #undef SPELL_UNSTABLE_ENERGY
-#undef SPELL_IMPALE
-#undef SPELL_THORN_SWARM
 #undef SPELL_ROOTS_FREYA
-#undef SPELL_GROUND_TREMOR
-#undef SPELL_PETRIFIED_BAR
+#undef SPELL_PETRIFIED_BARK
