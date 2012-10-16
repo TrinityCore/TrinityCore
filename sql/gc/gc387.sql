@@ -135,8 +135,8 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=66010;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 (66010, 25771, 0, 'Divine Shield - Forbearance');
 
--- add taunt immunity to toc10/25 faction champions
-UPDATE `creature_template` SET `flags_extra`=`flags_extra` & ~256 WHERE `entry` IN
+-- make all Diminishing returns rules apply in faction champions
+UPDATE `creature_template` SET `flags_extra`=`flags_extra` | 1048576 WHERE `entry` IN
 (34445,35705,35706,35707,
 34459,35686,35687,35688,
 34447,35683,35684,35685,
