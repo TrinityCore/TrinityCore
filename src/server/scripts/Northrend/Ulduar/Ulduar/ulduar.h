@@ -478,4 +478,17 @@ class PlayerOrPetCheck
         }
 };
 
+class NoPlayerOrPetCheck
+{
+    public:
+        bool operator() (WorldObject* unit)
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit->ToCreature()->isPet())
+                    return false;
+
+            return true;
+        }
+};
+
 #endif

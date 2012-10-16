@@ -1862,30 +1862,26 @@ class spell_thorim_runic_fortification : public SpellScriptLoader
     public:
         spell_thorim_runic_fortification() : SpellScriptLoader("spell_thorim_runic_fortification") { }
 
-        class spell_thorim_runic_fortification_AuraScript : public AuraScript
+        class spell_thorim_runic_fortification_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_thorim_runic_fortification_AuraScript);
+            PrepareSpellScript(spell_thorim_runic_fortification_SpellScript);
 
-            bool CheckAreaTarget(Unit* target)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (target->GetTypeId() != TYPEID_PLAYER)
-                {
-                    for (uint8 i = 0; i < 8; i++)
-                        if (target->GetEntry() == ArenaAddEntries[i])
-                            return true;
-                }
-                return false;
+                targets.remove_if(NoPlayerOrPetCheck());
             }
 
             void Register()
             {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_thorim_runic_fortification_AuraScript::CheckAreaTarget);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_thorim_runic_fortification_AuraScript();
+            return new spell_thorim_runic_fortification_SpellScript();
         }
 };
 
