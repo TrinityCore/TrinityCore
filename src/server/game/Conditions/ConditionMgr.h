@@ -19,7 +19,6 @@
 #ifndef TRINITY_CONDITIONMGR_H
 #define TRINITY_CONDITIONMGR_H
 
-#include "LootMgr.h"
 #include <ace/Singleton.h>
 
 class Player;

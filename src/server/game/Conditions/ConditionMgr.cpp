@@ -698,7 +698,7 @@ ConditionList ConditionMgr::GetConditionsForPhaseDefinition(uint32 zone, uint32 
         if (i != (*itr).second.end())
         {
             cond = (*i).second;
-            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u spell %u", zone, entry);
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
         }
     }
 
@@ -1595,7 +1595,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ACHIEVEMENT:
         {
-            AchievementEntry const* achievement = sAchievementStore.LookupEntry(cond->ConditionValue1);
+            AchievementEntry const* achievement = sAchievementMgr->GetAchievement(cond->ConditionValue1);
             if (!achievement)
             {
                 sLog->outError(LOG_FILTER_SQL, "Achivement condition has non existing achivement id (%u), skipped", cond->ConditionValue1);
