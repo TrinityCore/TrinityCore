@@ -1373,6 +1373,8 @@ UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, fac
 
 -- misc battleground queries
 UPDATE battleground_template SET MinPlayersPerTeam = 5 WHERE id IN (3, 7, 9, 32);
+-- make AV need only 10 people per side
+UPDATE battleground_template SET MinPlayersPerTeam = 10 WHERE id = 1;
 
 ###################
 -- Misc things #
