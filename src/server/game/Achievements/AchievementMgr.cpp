@@ -3355,5 +3355,5 @@ AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementI
 
 AchievementCriteriaEntry const* AchievementGlobalMgr::GetAchievementCriteria(uint32 criteriaId) const
 {
-    return sAchievementMgr->GetAchievementCriteria(criteriaId);
+    return sAchievementCriteriaStore.LookupEntry(criteriaId);
 }
