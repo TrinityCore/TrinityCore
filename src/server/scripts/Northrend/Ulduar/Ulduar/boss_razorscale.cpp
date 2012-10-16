@@ -374,7 +374,7 @@ class boss_razorscale : public CreatureScript
                 HarpoonCounter = 0;
                 if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXPEDITION_COMMANDER) : 0))
                     commander->AI()->DoAction(ACTION_COMMANDER_RESET);
-                events.ScheduleEvent(EVENT_BERSERK, 1*MINUTE*IN_MILLISECONDS, 0, PHASE_PERMAGROUND | PHASE_GROUND | PHASE_FLIGHT);
+                events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS, 0, PHASE_PERMAGROUND | PHASE_GROUND | PHASE_FLIGHT);
                 events.ScheduleEvent(EVENT_FLIGHT, 0, 0, PHASE_GROUND);
             }
 
