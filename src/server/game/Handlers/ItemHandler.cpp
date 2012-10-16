@@ -691,6 +691,8 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         uint8 bag = NULL_BAG;
         if (bagItem && bagItem->IsBag())
             bag = bagItem->GetSlot();
+		else if (bagGuid == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
+			bag = INVENTORY_SLOT_BAG_0;
 
         GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagSlot);
     }
