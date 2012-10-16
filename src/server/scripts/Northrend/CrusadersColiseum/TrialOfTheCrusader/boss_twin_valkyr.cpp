@@ -147,14 +147,6 @@ class OrbsDespawner : public BasicEvent
 
 struct boss_twin_baseAI : public BossAI
 {
-    enum Events
-    {
-        EVENT_SPECIAL_ABILITY   = 1,
-        EVENT_SPIKE,
-        EVENT_TOUCH,
-        EVENT_BERSERK
-    };
-
     boss_twin_baseAI(Creature* creature) : BossAI(creature, BOSS_VALKIRIES)
     {
     }
@@ -169,16 +161,10 @@ struct boss_twin_baseAI : public BossAI
         me->SetFlying(true); */
         m_bIsBerserk = false;
 
-        events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 1*MINUTE*IN_MILLISECONDS);
-        events.ScheduleEvent(EVENT_SPIKE, 20*IN_MILLISECONDS);
-
-        if (IsHeroic())
-        {
-            events.ScheduleEvent(EVENT_TOUCH, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_BERSERK, 6*MINUTE*IN_MILLISECONDS);
-        }
-        else
-            events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS);
+        m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
+        m_uiSpikeTimer = 20*IN_MILLISECONDS;
+        m_uiTouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+        m_uiBerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
 
         summons.DespawnAll();
     }
@@ -255,9 +241,7 @@ struct boss_twin_baseAI : public BossAI
                 {
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-
                     _JustDied();
-                    summons.DespawnAll();
                 }
                 else
                 {
@@ -319,8 +303,6 @@ struct boss_twin_baseAI : public BossAI
         if (!instance || !UpdateVictim())
             return;
 
-        events.Update(uiDiff);
-
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
@@ -329,70 +311,65 @@ struct boss_twin_baseAI : public BossAI
             case 0:
                 break;
             case 1: // Vortex
-                while (uint32 eventId = events.ExecuteEvent())
+                if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_SPECIAL_ABILITY:
-                            if (Creature* pSister = GetSister())
-                                pSister->AI()->DoAction(ACTION_VORTEX);
-                            Talk(m_uiVortexEmote);
-                            DoCastAOE(m_uiVortexSpellId);
-                            m_uiStage = 0;
-                            events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 1*MINUTE*IN_MILLISECONDS);
-                            return;
-                        default:
-                            return;
-                    }
+                    if (Creature* pSister = GetSister())
+                        pSister->AI()->DoAction(ACTION_VORTEX);
+                    Talk(m_uiVortexEmote);
+                    DoCastAOE(m_uiVortexSpellId);
+                    m_uiStage = 0;
+                    m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
                 }
+                else
+                    m_uiSpecialAbilityTimer -= uiDiff;
                 break;
-            case 2: // Shield+Pact
-                while (uint32 eventId = events.ExecuteEvent())
+            case 2: // Shield + Pact
+                if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
-                    switch (eventId)
+                    Talk(EMOTE_TWINK_PACT);
+                    Talk(SAY_TWINK_PACT);
+                    if (Creature* pSister = GetSister())
                     {
-                        case EVENT_SPECIAL_ABILITY:
-                            Talk(EMOTE_TWINK_PACT);
-                            Talk(SAY_TWINK_PACT);
-                            if (Creature* pSister = GetSister())
-                            {
-                                pSister->AI()->DoAction(ACTION_PACT);
-                                pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
-                            }
-                            DoCast(me, m_uiShieldSpellId);
-                            DoCast(me, m_uiTwinPactSpellId);
-                            m_uiStage = 0;
-                            events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 1*MINUTE*IN_MILLISECONDS);
-                            return;
-                        default:
-                            return;
+                        pSister->AI()->DoAction(ACTION_PACT);
+                        pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
                     }
+                    DoCast(me, m_uiShieldSpellId);
+                    DoCast(me, m_uiTwinPactSpellId);
+                    m_uiStage = 0;
+                    m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
                 }
+                else
+                    m_uiSpecialAbilityTimer -= uiDiff;
                 break;
             default:
                 break;
         }
 
-        while (uint32 eventId = events.ExecuteEvent())
+        if (m_uiSpikeTimer <= uiDiff)
         {
-            switch (eventId)
-            {
-                case EVENT_SPIKE:
-                    DoCastVictim(m_uiSpikeSpellId);
-                    events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 20*IN_MILLISECONDS);
-                    return;
-                case EVENT_TOUCH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, m_uiOtherEssenceSpellId))
-                        me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
-                    events.ScheduleEvent(EVENT_SPECIAL_ABILITY, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
-                case EVENT_BERSERK:
-                    DoCast(me, SPELL_BERSERK);
-                    Talk(SAY_BERSERK);
-                    return;
-                default:
-                    return;
-            }
+            DoCastVictim(m_uiSpikeSpellId);
+            m_uiSpikeTimer = 20*IN_MILLISECONDS;
         }
+        else
+            m_uiSpikeTimer -= uiDiff;
+
+        if (IsHeroic() && m_uiTouchTimer <= uiDiff)
+        {
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, m_uiOtherEssenceSpellId))
+                me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
+            m_uiTouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+        }
+        else
+            m_uiTouchTimer -= uiDiff;
+
+        if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
+        {
+            DoCast(me, SPELL_BERSERK);
+            Talk(SAY_BERSERK);
+            m_bIsBerserk = true;
+        }
+        else
+            m_uiBerserkTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -404,6 +381,10 @@ struct boss_twin_baseAI : public BossAI
         bool   m_bIsBerserk;
 
         uint32 m_uiWeapon;
+        uint32 m_uiSpecialAbilityTimer;
+        uint32 m_uiSpikeTimer;
+        uint32 m_uiTouchTimer;
+        uint32 m_uiBerserkTimer;
 
         int32 m_uiVortexEmote;
         uint32 m_uiSisterNpcId;
@@ -616,6 +597,8 @@ struct mob_unleashed_ballAI : public ScriptedAI
                     MoveToNextPoint();
                 else
                     me->DisappearAndDie();
+                break;
+            default:
                 break;
         }
     }
