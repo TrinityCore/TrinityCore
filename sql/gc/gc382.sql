@@ -546,6 +546,10 @@ UPDATE `creature_template` SET `ScriptName`='boss_leviathan_mk_turret' WHERE `en
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=33432;
 INSERT INTO `vehicle_template_accessory` VALUES
 (33432, 34071, 3, 1, 'Leviathan Mk II turret', 8, 0);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=33432;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(33432, 46598, 1, 0);
+
 -- Leviathan skills and skill-helper
 UPDATE `creature_template` SET `ScriptName`='npc_proximity_mine' WHERE `entry`=34362;
 UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` IN (28831, 28841, 28979);

@@ -989,7 +989,7 @@ class boss_leviathan_mk : public CreatureScript
                         break;
                     case DO_LEVIATHAN_ASSEMBLED:                            // Assemble and self-repair share some stuff, so the fallthrough is intended!
                         me->SetHealth( (me->GetMaxHealth() >> 1) );
-                        break;
+                        // no break here
                     case DO_LEVIATHAN_SELF_REPAIR_END:
                         if (gotMimironHardMode)
                             if (!me->HasAura(SPELL_EMERGENCY_MODE))
@@ -1189,7 +1189,7 @@ class npc_proximity_mine : public CreatureScript
 
                 if (Player* player = who->ToPlayer())
                     if (!player->isGameMaster())
-                        if (!boomLocked && me->GetDistance2d(player) < 3.0f)
+                        if (!boomLocked && me->GetDistance2d(player) < 2.0f)
                         {
                             DoCastAOE(SPELL_EXPLOSION);
                             boomLocked = true;
@@ -1471,13 +1471,28 @@ class boss_vx_001 : public CreatureScript
                             me->SetOrientation(orient);
                         }
                         else
+                        {
                             me->SetFacingTo(orient);
+                            me->SetOrientation(orient);
+                        }
 
                         float x, y;
-                        me->GetNearPoint2D(x, y, 10.0f, me->GetOrientation());
-                        if (Creature* temp = me->SummonCreature(NPC_BURST_TARGET, x, y, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 0.5*IN_MILLISECONDS))
-                            me->SetTarget(temp->GetGUID());
 
+                        me->GetNearPoint2D(x, y, 10.0f, orient);
+                        if (Creature* temp = me->SummonCreature(NPC_BURST_TARGET, x, y, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 0.5*IN_MILLISECONDS))
+                        {
+                            me->SetTarget(temp->GetGUID());
+                            if (me->IsVehicle())
+                            {
+                                // mimiron himself casts the spell, so lets turn him
+                                if (Unit* mimiron = me->GetVehicleKit()->GetPassenger(1))
+                                {
+                                    mimiron->SetFacingTo(orient);
+                                    mimiron->SetOrientation(orient);
+                                    mimiron->SetTarget(temp->GetGUID());
+                                }
+                            }
+                        }
                         spinTimer = 0.25*IN_MILLISECONDS;
                     }
                     else
@@ -1495,15 +1510,26 @@ class boss_vx_001 : public CreatureScript
                             events.RescheduleEvent(EVENT_RAPID_BURST, 5*IN_MILLISECONDS, 0, PHASE_VX001_SOLO__GLOBAL_2);
                             return;
                         case EVENT_LASER_BARRAGE:
+                        {
+                            float orient = float(2 * M_PI * rand_norm());
+                            me->SetOrientation(orient);
+                            me->SetFacingTo(orient);
                             me->SetReactState(REACT_PASSIVE);
                             if (Creature* leviathan = me->GetVehicleCreatureBase())
                             {
-                                float orient = float(2 * M_PI * rand_norm());
                                 leviathan->CastSpell(leviathan, SPELL_SELF_STUN, true); // temporary
                                 leviathan->SetFacingTo(orient);
-                                me->SetOrientation(orient);
                                 if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
                                     AerialUnit->SetFacingTo(orient);
+                            }
+                            // mimiron himself casts the spell, so turn him too
+                            if (me->IsVehicle())
+                            {
+                                if (Unit* mimiron = me->GetVehicleKit()->GetPassenger(1))
+                                {
+                                    mimiron->SetOrientation(orient);
+                                    mimiron->SetFacingTo(orient);
+                                }
                             }
                             direction = RAND(true, false);
                             spinning = true;
@@ -1512,6 +1538,7 @@ class boss_vx_001 : public CreatureScript
                             events.RescheduleEvent(EVENT_LASER_BARRAGE, 1*MINUTE*IN_MILLISECONDS, 0, phase);
                             events.RescheduleEvent(EVENT_LASER_BARRAGE_END, 14*IN_MILLISECONDS, 0, phase);
                             return;
+                        }
                         case EVENT_LASER_BARRAGE_END:
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (me->getVictim())
