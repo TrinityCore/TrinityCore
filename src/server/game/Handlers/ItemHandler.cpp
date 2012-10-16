@@ -781,7 +781,8 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                 price -= CalculatePct(price, priceMod);
 
-            itemsData << uint32(count++ + 1);        // client expects counting to start at 1
+			++count;
+            itemsData << uint32(slot + 1);        // client expects counting to start at 1
             itemsData << uint32(itemTemplate->MaxDurability);
 
             if (vendorItem->ExtendedCost != 0)
@@ -812,7 +813,8 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
             uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
 
-            itemsData << uint32(count++ + 1);        // client expects counting to start at 1
+			++count;
+            itemsData << uint32(slot + 1);			 // client expects counting to start at 1
             itemsData << uint32(0);                  // max durability
 
             if (vendorItem->ExtendedCost != 0)
