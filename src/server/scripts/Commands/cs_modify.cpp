@@ -1026,12 +1026,13 @@ public:
             }
             else
             {
+                uint32 moneyToAddMsg = moneyToAdd * -1;
                 if (newmoney > MAX_MONEY_AMOUNT)
                     newmoney = MAX_MONEY_AMOUNT;
 
-                handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, uint32(abs(moneyToAdd)), handler->GetNameLink(target).c_str());
+                handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, moneyToAddMsg, handler->GetNameLink(target).c_str());
                 if (handler->needReportToTarget(target))
-                    (ChatHandler(target)).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), uint32(abs(moneyToAdd)));
+                    (ChatHandler(target)).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), moneyToAddMsg);
                 target->SetMoney(newmoney);
             }
         }
