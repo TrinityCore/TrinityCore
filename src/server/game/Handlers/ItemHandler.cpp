@@ -691,8 +691,8 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         uint8 bag = NULL_BAG;
         if (bagItem && bagItem->IsBag())
             bag = bagItem->GetSlot();
-		else if (bagGuid == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
-			bag = INVENTORY_SLOT_BAG_0;
+        else if (bagGuid == GetPlayer()->GetGUID()) // The client sends the player guid when trying to store an item in the default backpack
+            bag = INVENTORY_SLOT_BAG_0;
 
         GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagSlot);
     }
@@ -781,7 +781,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                 price -= CalculatePct(price, priceMod);
 
-			++count;
+            ++count;
             itemsData << uint32(slot + 1);        // client expects counting to start at 1
             itemsData << uint32(itemTemplate->MaxDurability);
 
@@ -813,7 +813,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
             uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
 
-			++count;
+            ++count;
             itemsData << uint32(slot + 1);			 // client expects counting to start at 1
             itemsData << uint32(0);                  // max durability
 
