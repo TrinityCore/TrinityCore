@@ -564,7 +564,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
         }
 };
 
-enum eCloseRift
+enum CloseRift
 {
     SPELL_DESPAWN_RIFT          = 61665
 };
@@ -580,7 +580,7 @@ class spell_close_rift : public SpellScriptLoader
 
             bool Load()
             {
-                counter = 0;
+                _counter = 0;
                 return true;
             }
 
@@ -591,7 +591,7 @@ class spell_close_rift : public SpellScriptLoader
 
             void HandlePeriodic(AuraEffect const* /* aurEff */)
             {
-                if (++counter == 5)
+                if (++_counter == 5)
                     GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);
             }
 
@@ -601,7 +601,7 @@ class spell_close_rift : public SpellScriptLoader
             }
 
         private:
-            uint8 counter;
+            uint8 _counter;
 
         };
 
