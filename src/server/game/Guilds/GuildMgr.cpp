@@ -547,7 +547,7 @@ void GuildMgr::LoadGuildRewards()
             continue;
         }
 
-        if (reward.AchievementId != 0 && (!sAchievementStore.LookupEntry(reward.AchievementId)))
+        if (reward.AchievementId != 0 && (!sAchievementMgr->GetAchievement(reward.AchievementId)))
         {
             sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards constains not existing achievement entry %u", reward.AchievementId);
             continue;

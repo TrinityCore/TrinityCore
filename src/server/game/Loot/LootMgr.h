@@ -99,7 +99,6 @@ enum LootSlotType
 
 class Player;
 class LootStore;
-class ConditionMgr;
 
 struct LootStoreItem
 {

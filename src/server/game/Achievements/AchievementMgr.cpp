@@ -1423,7 +1423,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_UNK148:
             case ACHIEVEMENT_CRITERIA_TYPE_UNK149:
             case ACHIEVEMENT_CRITERIA_TYPE_UNK150:
-            case ACHIEVEMENT_CRITERIA_TYPE_TOTAL:
                 break;                                   // Not implemented yet :(
         }
 
@@ -3356,5 +3355,5 @@ AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementI
 
 AchievementCriteriaEntry const* AchievementGlobalMgr::GetAchievementCriteria(uint32 criteriaId) const
 {
-    return sAchievementCriteriaStore.LookupEntry(criteriaId);
+    return sAchievementMgr->GetAchievementCriteria(criteriaId);
 }

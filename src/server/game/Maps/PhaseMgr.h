@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "ConditionMgr.h"
 
 class ObjectMgr;
 class Player;
@@ -85,7 +86,7 @@ typedef UNORDERED_MAP<uint32 /*spellId*/, PhaseInfo> PhaseInfoContainer;
 
 struct PhaseData
 {
-    PhaseData(Player* _player) : player(_player), _PhasemaskThroughDefinitions(0), _PhasemaskThroughAuras(0), _CustomPhasemask(0) {}
+    PhaseData(Player* _player) : _PhasemaskThroughDefinitions(0), _PhasemaskThroughAuras(0), _CustomPhasemask(0), player(_player) {}
 
     uint32 _PhasemaskThroughDefinitions;
     uint32 _PhasemaskThroughAuras;

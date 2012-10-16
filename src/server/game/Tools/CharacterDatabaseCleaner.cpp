@@ -22,6 +22,7 @@
 #include "Database/DatabaseEnv.h"
 #include "SpellMgr.h"
 #include "DBCStores.h"
+#include "AchievementMgr.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {
@@ -108,7 +109,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
 
 bool CharacterDatabaseCleaner::AchievementProgressCheck(uint32 criteria)
 {
-    return sAchievementCriteriaStore.LookupEntry(criteria);
+    return sAchievementMgr->GetAchievementCriteria(criteria);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterAchievementProgress()
