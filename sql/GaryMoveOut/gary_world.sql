@@ -178,3 +178,6 @@ DELETE FROM `spell_proc_event` WHERE `entry` = 28305;
 INSERT INTO `spell_proc_event` VALUES (28305, 0, 0, 0, 0, 0, 0, 65536, 0, 0, 0);
 -- Move Shadowfiend's Mana Leech Aura from spellscript to creature addon.
 UPDATE `creature_template_addon` SET `auras`= '28305' WHERE `entry`=19668;
+
+-- Argent Tournament
+UPDATE `creature_template` SET `ScriptName` = 'npc_valiant' WHERE entry IN (33559,33562,33558,33564,33306,33285,33382,33561,33383,33384,33738,33739,33740,33743,33744,33745,33746,33747,33748,33749);
