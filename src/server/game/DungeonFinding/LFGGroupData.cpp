@@ -18,14 +18,16 @@
 #include "LFG.h"
 #include "LFGGroupData.h"
 
-LfgGroupData::LfgGroupData():
-m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE), m_Dungeon(0),
-m_VotesNeeded(LFG_GROUP_KICK_VOTES_NEEDED), m_KicksLeft(LFG_GROUP_MAX_KICKS)
-{
-}
+LfgGroupData::LfgGroupData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
+    m_Dungeon(0), m_KicksLeft(LFG_GROUP_MAX_KICKS)
+{ }
 
 LfgGroupData::~LfgGroupData()
+{ }
+
+bool LfgGroupData::IsLfgGroup()
 {
+    return m_OldState != LFG_STATE_NONE;
 }
 
 void LfgGroupData::SetState(LfgState state)
@@ -36,7 +38,7 @@ void LfgGroupData::SetState(LfgState state)
         case LFG_STATE_DUNGEON:
         case LFG_STATE_FINISHED_DUNGEON:
             m_OldState = state;
-                    // No break on purpose
+            // No break on purpose
         default:
             m_State = state;
     }
@@ -69,11 +71,6 @@ uint32 LfgGroupData::GetDungeon(bool asId /* = true */) const
         return (m_Dungeon & 0x00FFFFFF);
     else
         return m_Dungeon;
-}
-
-uint8 LfgGroupData::GetVotesNeeded() const
-{
-    return m_VotesNeeded;
 }
 
 uint8 LfgGroupData::GetKicksLeft() const

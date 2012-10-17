@@ -39,12 +39,12 @@ void LFGPlayerScript::OnLevelChanged(Player* player, uint8 /*oldLevel*/)
 
 void LFGPlayerScript::OnLogout(Player* player)
 {
-    sLFGMgr->Leave(player);
+    uint64 guid = player->GetGUID();
+    sLFGMgr->LeaveLfg(player);
     LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
     player->GetSession()->SendLfgUpdateParty(updateData);
     player->GetSession()->SendLfgUpdatePlayer(updateData);
-    player->GetSession()->SendLfgUpdateSearch(false);
-    uint64 guid = player->GetGUID();
+    player->GetSession()->SendLfgLfrList(false);
     // TODO - Do not remove, add timer before deleting
     sLFGMgr->RemovePlayerData(guid);
 }
@@ -85,11 +85,11 @@ void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
 
     // TODO - if group is queued and new player is added convert to rolecheck without notify the current players queued
     if (sLFGMgr->GetState(gguid) == LFG_STATE_QUEUED)
-        sLFGMgr->Leave(NULL, group);
+        sLFGMgr->LeaveLfg(NULL, group);
 
     if (sLFGMgr->GetState(guid) == LFG_STATE_QUEUED)
         if (Player* player = ObjectAccessor::FindPlayer(guid))
-            sLFGMgr->Leave(player);
+            sLFGMgr->LeaveLfg(player);
 }
 
 void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, char const* reason)
@@ -102,7 +102,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
     if (sLFGMgr->GetState(gguid) == LFG_STATE_QUEUED)
     {
         // TODO - Do not remove, just remove the one leaving and rejoin queue with all other data
-        sLFGMgr->Leave(NULL, group);
+        sLFGMgr->LeaveLfg(NULL, group);
     }
 
     if (!group->isLFGGroup())
@@ -119,16 +119,14 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
     }
 
     uint32 state = sLFGMgr->GetState(gguid);
-    sLFGMgr->ClearState(guid);
+    sLFGMgr->ClearState(guid, "OnRemoveMember");
     sLFGMgr->SetState(guid, LFG_STATE_NONE);
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         if (method == GROUP_REMOVEMETHOD_LEAVE && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON && sLFGMgr->GetDungeon(gguid, false))
             player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, true);
-        /*
-        else if (group->isLfgKickActive())
+        //else if (state == LFG_STATE_BOOT)
             // Update internal kick cooldown of kicked
-        */
 
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
         player->GetSession()->SendLfgUpdateParty(updateData);
@@ -176,5 +174,5 @@ void LFGGroupScript::OnInviteMember(Group* group, uint64 guid)
         return;
 
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnInviteMember [" UI64FMTD "]: invite [" UI64FMTD "] leader [" UI64FMTD "]", gguid, guid, group->GetLeaderGUID());
-    sLFGMgr->Leave(NULL, group);
+    sLFGMgr->LeaveLfg(NULL, group);
 }
