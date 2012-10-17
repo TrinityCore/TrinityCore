@@ -1020,7 +1020,6 @@ class boss_icehowl : public CreatureScript
                                 case EVENT_ARCTIC_BREATH:
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                         DoCast(target, SPELL_ARCTIC_BREATH);
-                                    events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                                     return;
                                 case EVENT_WHIRL:
                                     DoCastAOE(SPELL_WHIRL);
@@ -1144,6 +1143,7 @@ class boss_icehowl : public CreatureScript
                         me->GetMotionMaster()->MoveChase(me->getVictim());
                         AttackStart(me->getVictim());
                         events.ScheduleEvent(EVENT_MASSIVE_CRASH, 40*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                         m_uiStage = 0;
                         break;
                     default:
