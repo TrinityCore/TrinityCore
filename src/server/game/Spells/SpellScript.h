@@ -586,7 +586,7 @@ class AuraScript : public _SpellScript
             uint8 _currentScriptState;
             bool _defaultActionPrevented;
             ScriptStateStore(uint8 currentScriptState, AuraApplication const* auraApplication, bool defaultActionPrevented)
-                : _currentScriptState(currentScriptState), _auraApplication(auraApplication), _defaultActionPrevented(defaultActionPrevented)
+                : _auraApplication(auraApplication), _currentScriptState(currentScriptState), _defaultActionPrevented(defaultActionPrevented)
             {}
         };
         typedef std::stack<ScriptStateStore> ScriptStateStack;
