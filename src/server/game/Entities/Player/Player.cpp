@@ -23488,10 +23488,14 @@ WorldObject* Player::GetViewpoint() const
     return NULL;
 }
 
-bool Player::CanUseBattlegroundObject()
+bool Player::CanUseBattlegroundObject(GameObject* gameobject)
 {
-    // TODO : some spells gives player ForceReaction to one faction (ReputationMgr::ApplyForceReaction)
-    // maybe gameobject code should handle that ForceReaction usage
+    FactionTemplateEntry const* playerFaction = getFactionTemplateEntry();
+    FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
+
+    if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
+        return false;
+
     // BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
     // Note: Mount, stealth and invisibility will be removed when used
     return (!isTotalImmune() &&                            // Damage immune
