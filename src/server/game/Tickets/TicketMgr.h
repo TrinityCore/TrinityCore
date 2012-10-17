@@ -142,6 +142,9 @@ public:
     std::string FormatMessageString(ChatHandler& handler, bool detailed = false) const;
     std::string FormatMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName) const;
 
+    void SetChatLog(std::list<uint32> time, std::string const& log);
+    std::string GetChatLog() const { return _chatLog; }
+
 private:
     uint32 _id;
     uint64 _playerGuid;
@@ -160,7 +163,9 @@ private:
     GMTicketEscalationStatus _escalatedStatus;
     bool _viewed;
     bool _needResponse; // TODO: find out the use of this, and then store it in DB
+    bool _haveTicket;
     std::string _response;
+    std::string _chatLog; // No need to store in db, will be refreshed every session client side
 };
 typedef std::map<uint32, GmTicket*> GmTicketList;
 

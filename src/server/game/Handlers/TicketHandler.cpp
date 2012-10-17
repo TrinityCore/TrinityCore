@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "zlib.h"
 #include "Language.h"
 #include "WorldPacket.h"
 #include "Common.h"
@@ -26,7 +27,7 @@
 #include "WorldSession.h"
 #include "Util.h"
 
-void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recvData)
+void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 {
     // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
     if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
@@ -43,6 +44,45 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recvData)
     if (!sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
         GmTicket* ticket = new GmTicket(GetPlayer(), recvData);
+
+        uint32 count;
+        std::list<uint32> times;
+        uint32 decompressedSize;
+        std::string chatLog;
+
+        recvData >> count;
+
+        for (uint32 i = 0; i < count; i++)
+        {
+            uint32 time;
+            recvData >> time;
+            times.push_back(time);
+        }
+
+        recvData >> decompressedSize;
+
+        if (count && decompressedSize && decompressedSize < 0xFFFF)
+        {
+            uint32 pos = recvData.rpos();
+            ByteBuffer dest;
+            dest.resize(decompressedSize);
+
+            uLongf realSize = decompressedSize;
+            if (uncompress(const_cast<uint8*>(dest.contents()), &realSize, const_cast<uint8*>(recvData.contents() + pos), recvData.size() - pos) == Z_OK)
+            {
+                dest >> chatLog;
+                ticket->SetChatLog(times, chatLog);
+            }
+            else
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_GMTICKET_CREATE possibly corrupt. Uncompression failed.");
+                recvData.rfinish();
+                return;
+            }
+
+            recvData.rfinish(); // Will still have compressed data in buffer.
+        }
+
         sTicketMgr->AddTicket(ticket);
         sTicketMgr->UpdateLastChange();
 
