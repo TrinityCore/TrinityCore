@@ -69,6 +69,11 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
                     if (GetBossState(i) == IN_PROGRESS)
                         return true;
+
+                // Special state is also set at Faction Champions after first champ dead, encounter is still in combat
+                if (GetBossState(BOSS_CRUSADERS) == SPECIAL)
+                    return true;
+
                 return false;
             }
 

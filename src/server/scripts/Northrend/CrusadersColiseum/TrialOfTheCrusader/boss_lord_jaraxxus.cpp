@@ -117,8 +117,8 @@ class boss_jaraxxus : public CreatureScript
                 events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_LEGION_FLAME, 30*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMONO_NETHER_PORTAL, 1*MINUTE*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 2*MINUTE*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMONO_NETHER_PORTAL, 20*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 80*IN_MILLISECONDS);
                 summons.DespawnAll();
             }
 

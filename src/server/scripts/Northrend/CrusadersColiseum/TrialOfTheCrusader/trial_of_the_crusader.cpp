@@ -181,7 +181,7 @@ class npc_announcer_toc10 : public CreatureScript
                 {
                     jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
                     jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    jaraxxus->SetReactState(REACT_AGGRESSIVE);
+                    jaraxxus->SetReactState(REACT_DEFENSIVE);
                     jaraxxus->SetInCombatWithZone();
                 }
                 else
