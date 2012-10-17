@@ -32,10 +32,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
 
-//global define faction in cpp
-#define FACTION_FRIENDLY        = 35
-#define FACTION_HOSTILE         = 14
-
 /*######
 ## npc_arete
 ######*/
@@ -176,7 +172,9 @@ enum eArgentValiant
 {
     SPELL_CHARGE                = 63010,
     SPELL_SHIELD_BREAKER        = 65147,
-    SPELL_KILL_CREDIT           = 63049
+    SPELL_KILL_CREDIT           = 63049,
+    FACTION_FRIENDLY            = 35,
+    FACTION_HOSTILE             = 14
 };
 
 class npc_argent_valiant : public CreatureScript
