@@ -272,7 +272,7 @@ struct boss_faction_championsAI : public BossAI
     {
         events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
         if (IsHeroic() && (mAIType != AI_PET))
-            events.ScheduleEvent(EVENT_REMOVE_CC, rand() % 10*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
         championControllerGUID = 0;
     }
 
@@ -446,10 +446,10 @@ struct boss_faction_championsAI : public BossAI
                     if (me->HasBreakableByDamageCrowdControlAura())
                     {
                         RemoveCC();
-                        events.ScheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
+                        events.RescheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
                     }
                     else
-                        events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
+                        events.RescheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
                     return;
                 default:
                     return;
@@ -558,10 +558,10 @@ class mob_toc_druid : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(me, SPELL_BARKSKIN);
-                                events.ScheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_THORNS:
                             if (Creature* target = SelectRandomFriendlyMissingBuff(SPELL_THORNS))
@@ -775,10 +775,10 @@ class mob_toc_paladin : public CreatureScript
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
                             {
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_CLEANSE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -806,13 +806,13 @@ class mob_toc_paladin : public CreatureScript
                                 if (!target->HasAura(SPELL_FORBEARANCE))
                                 {
                                     DoCast(target, SPELL_HAND_OF_PROTECTION);
-                                    events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
                                 }
                                 else
-                                    events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_HAMMER_OF_JUSTICE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.0f, true))
@@ -1032,10 +1032,10 @@ class mob_toc_shadow_priest : public CreatureScript
                             if (HealthBelowPct(40))
                             {
                                 DoCast(me, SPELL_DISPERSION);
-                                events.ScheduleEvent(EVENT_DISPERSION, 180*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DISPERSION, 180*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DISPERSION, 20*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DISPERSION, 20*IN_MILLISECONDS);
                             return;
                         case EVENT_DISPEL:
                             if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
@@ -1274,10 +1274,10 @@ class mob_toc_mage : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(SPELL_ICE_BLOCK);
-                                events.ScheduleEvent(EVENT_ICE_BLOCK, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICE_BLOCK, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_ICE_BLOCK, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICE_BLOCK, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_POLYMORPH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
@@ -1376,10 +1376,10 @@ class mob_toc_hunter : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(SPELL_DETERRENCE);
-                                events.ScheduleEvent(EVENT_DETERRENCE, 150*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DETERRENCE, 150*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DETERRENCE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DETERRENCE, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_DISENGAGE:
                             if (EnemiesInRange(10.0f) >= 2)
@@ -1520,10 +1520,10 @@ class mob_toc_boomkin : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(me, SPELL_BARKSKIN);
-                                events.ScheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
                             return;
                         default:
                             return;
@@ -1639,19 +1639,19 @@ class mob_toc_warrior : public CreatureScript
                             if (me->getVictim()->HasAuraWithMechanic(1<<MECHANIC_IMMUNE_SHIELD))
                             {
                                 DoCastVictim(SPELL_SHATTERING_THROW);
-                                events.ScheduleEvent(EVENT_SHATTERING_THROW, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHATTERING_THROW, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_SHATTERING_THROW, 3*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHATTERING_THROW, 3*IN_MILLISECONDS);
                             return;
                         case EVENT_RETALIATION:
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_RETALIATION);
-                                events.ScheduleEvent(EVENT_RETALIATION, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_RETALIATION, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_RETALIATION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_RETALIATION, 10*IN_MILLISECONDS);
                             return;
                         default:
                             return;
@@ -1737,10 +1737,10 @@ class mob_toc_dk : public CreatureScript
                             if (me->IsInRange(me->getVictim(), 5.0f, 30.0f, false))
                             {
                                 DoCast(me->getVictim(), SPELL_DEATH_GRIP);
-                                events.ScheduleEvent(EVENT_DEATH_GRIP, 35*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DEATH_GRIP, 35*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DEATH_GRIP, 3*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DEATH_GRIP, 3*IN_MILLISECONDS);
                             return;
                         case EVENT_FROST_STRIKE:
                             DoCastVictim(SPELL_FROST_STRIKE);
@@ -1750,10 +1750,10 @@ class mob_toc_dk : public CreatureScript
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_ICEBOUND_FORTITUDE);
-                                events.ScheduleEvent(EVENT_ICEBOUND_FORTITUDE, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_ICEBOUND_FORTITUDE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_ICY_TOUCH:
                             DoCastVictim(SPELL_ICY_TOUCH);
@@ -1763,10 +1763,10 @@ class mob_toc_dk : public CreatureScript
                             if (Unit* target = SelectEnemyCaster(false))
                             {
                                 DoCast(target, SPELL_STRANGULATE);
-                                events.ScheduleEvent(EVENT_STRANGULATE, 120*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_STRANGULATE, 120*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_STRANGULATE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_STRANGULATE, 10*IN_MILLISECONDS);
                             return;
                         default:
                             return;
@@ -1859,28 +1859,28 @@ class mob_toc_rogue : public CreatureScript
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_CLOAK);
-                                events.ScheduleEvent(EVENT_CLOAK, 90*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_CLOAK, 90*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_CLOAK, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_CLOAK, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_BLADE_FLURRY:
                             if (EnemiesInRange(10.0f) >= 2)
                             {
                                 DoCast(SPELL_BLADE_FLURRY);
-                                events.ScheduleEvent(EVENT_BLADE_FLURRY, 120*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 120*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_BLADE_FLURRY, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_SHADOWSTEP:
                             if (me->IsInRange(me->getVictim(), 10.0f, 40.0f, false))
                             {
                                 DoCast(me->getVictim(), SPELL_SHADOWSTEP);
-                                events.ScheduleEvent(EVENT_SHADOWSTEP, 30*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHADOWSTEP, 30*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_SHADOWSTEP, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHADOWSTEP, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_HEMORRHAGE:
                             DoCastVictim(SPELL_HEMORRHAGE);
@@ -2149,22 +2149,22 @@ class mob_toc_retro_paladin : public CreatureScript
                                 if (!target->HasAura(SPELL_FORBEARANCE))
                                 {
                                     DoCast(target, SPELL_HAND_OF_PROTECTION);
-                                    events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
                                 }
                                 else
-                                    events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_DIVINE_SHIELD:
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
                             {
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
                             return;
                         default:
                             return;
