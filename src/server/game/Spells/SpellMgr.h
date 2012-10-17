@@ -495,7 +495,8 @@ struct SpellArea
     int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it must not be applied in other case
     uint32 raceMask;                                        // can be applied only to races
     Gender gender;                                          // can be applied only to gender
-    bool questStartCanActive;                               // if true then quest start can be active (not only rewarded)
+    uint32 questStartStatus;                                // QuestStatus that quest_start must have in order to keep the spell
+    uint32 questEndStatus;                                  // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
     bool autocast;                                          // if true then auto applied at area enter, in other case just allowed to cast
 
     // helpers
@@ -681,7 +682,7 @@ class SpellMgr
 
         // Spell area
         SpellAreaMapBounds GetSpellAreaMapBounds(uint32 spell_id) const;
-        SpellAreaForQuestMapBounds GetSpellAreaForQuestMapBounds(uint32 quest_id, bool active) const;
+        SpellAreaForQuestMapBounds GetSpellAreaForQuestMapBounds(uint32 quest_id) const;
         SpellAreaForQuestMapBounds GetSpellAreaForQuestEndMapBounds(uint32 quest_id) const;
         SpellAreaForAuraMapBounds GetSpellAreaForAuraMapBounds(uint32 spell_id) const;
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
@@ -740,7 +741,6 @@ class SpellMgr
         EnchantCustomAttribute     mEnchantCustomAttr;
         SpellAreaMap               mSpellAreaMap;
         SpellAreaForQuestMap       mSpellAreaForQuestMap;
-        SpellAreaForQuestMap       mSpellAreaForActiveQuestMap;
         SpellAreaForQuestMap       mSpellAreaForQuestEndMap;
         SpellAreaForAuraMap        mSpellAreaForAuraMap;
         SpellAreaForAreaMap        mSpellAreaForAreaMap;
