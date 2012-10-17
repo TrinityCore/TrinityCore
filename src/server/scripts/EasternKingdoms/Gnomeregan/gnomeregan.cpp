@@ -86,9 +86,9 @@ const Position SpawnPosition[] =
     {-490.554f, -89.114f, -148.055f, 3.230f},
     {-495.240f, -90.808f, -149.493f, 3.238f},
     {-494.195f, -89.553f, -149.131f, 3.254f},
-    {-511.3304f, -139.9622f, -152.4761f},
-    {-510.6754f, -139.4371f, -152.6167f},
-    {-511.8976f, -139.3562f, -152.4785f}
+    {-511.3304f, -139.9622f, -152.4761f, 0.7504908f},
+    {-510.6754f, -139.4371f, -152.6167f, 3.33359f},
+    {-511.8976f, -139.3562f, -152.4785f, 3.961899f}
 };
 
 class npc_blastmaster_emi_shortfuse : public CreatureScript
@@ -415,9 +415,9 @@ public:
                     me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 10:
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17].GetPositionX(), SpawnPosition[17].GetPositionY(), SpawnPosition[17].GetPositionZ(), 0.7504908f, 0, 0, 0, 0, 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18].GetPositionX(), SpawnPosition[18].GetPositionY(), SpawnPosition[18].GetPositionZ(), 3.33359f, 0, 0, 0, 0, 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19].GetPositionX(), SpawnPosition[19].GetPositionY(), SpawnPosition[19].GetPositionZ(), 3.961899f, 0, 0, 0, 0, 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17].GetPositionX(), SpawnPosition[17].GetPositionY(), SpawnPosition[17].GetPositionZ(), SpawnPosition[17].GetOrientation(), 0, 0, 0, 0, 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18].GetPositionX(), SpawnPosition[18].GetPositionY(), SpawnPosition[18].GetPositionZ(), SpawnPosition[18].GetOrientation(), 0, 0, 0, 0, 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19].GetPositionX(), SpawnPosition[19].GetPositionY(), SpawnPosition[19].GetPositionZ(), SpawnPosition[19].GetOrientation(), 0, 0, 0, 0, 7200);
                     break;
             }
         }
