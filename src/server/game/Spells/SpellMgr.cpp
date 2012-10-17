@@ -81,7 +81,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             else if (spellproto->Id == 47481)
                 return DIMINISHING_CONTROLLED_STUN;
             // ToC Icehowl Arctic Breath
-            else if (spellproto->Id == 72848)
+            else if (spellproto->SpellVisual[0] == 14153)
                 return DIMINISHING_NONE;
             break;
         }
