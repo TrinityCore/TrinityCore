@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[66] --> Scripts/Headless Horseman: Cleanup.
 [65] --> [ICC][Lich King] Fix Val'kyr Shadowguard.
 [64] --> Fix Quests Argent Tournament.
 [63] --> Fix Evade (Test).
