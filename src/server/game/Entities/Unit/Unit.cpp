@@ -6345,7 +6345,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (GetTypeId() != TYPEID_PLAYER)
                 {
                     beaconTarget = triggeredByAura->GetBase()->GetCaster();
-                    if (beaconTarget == this || !(beaconTarget->GetAura(53563, victim->GetGUID())))
+                    if (!beaconTarget || beaconTarget == this || !(beaconTarget->GetAura(53563, victim->GetGUID())))
                         return false;
                     basepoints0 = int32(damage);
                     triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
