@@ -749,7 +749,7 @@ class ObjectMgr
             return NULL;
         }
 
-        int32 GetBaseReputation(FactionEntry const* factionEntry, uint8 race, uint8 playerClass);
+        int32 GetBaseReputationOff(FactionEntry const* factionEntry, uint8 race, uint8 playerClass);
 
         RepSpilloverTemplate const* GetRepSpilloverTemplate(uint32 factionId) const
         {
