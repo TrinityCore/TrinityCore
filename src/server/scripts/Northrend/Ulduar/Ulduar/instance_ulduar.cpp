@@ -1001,9 +1001,9 @@ class instance_ulduar : public InstanceMapScript
 
                         if (GameObject* gameObject = instance->GetGameObject(LeviathanDoorGUID))
                         {
-                            if (state == NOT_STARTED || state == IN_PROGRESS)
+                            /*if (state == NOT_STARTED || state == IN_PROGRESS)
                                 gameObject->SetGoState(GO_STATE_READY);
-                            else
+                            else*/
                                 gameObject->SetGoState(GO_STATE_ACTIVE);
                         }
 

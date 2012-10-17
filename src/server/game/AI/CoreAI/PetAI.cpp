@@ -71,6 +71,8 @@ void PetAI::_stopAttack()
     }
 
     me->AttackStop();
+    me->InterruptNonMeleeSpells(false);
+    me->SendMeleeAttackStop(); // Should stop pet's attack button from flashing
     me->GetCharmInfo()->SetIsCommandAttack(false);
     HandleReturnMovement();
 }
@@ -89,7 +91,8 @@ void PetAI::UpdateAI(const uint32 diff)
         m_updateAlliesTimer -= diff;
 
     // me->getVictim() can't be used for check in case stop fighting, me->getVictim() clear at Unit death etc.
-    if (me->getVictim())
+    // Must also check if victim is alive
+    if (me->getVictim() && me->getVictim()->isAlive())
     {
         // is only necessary to stop casting, the pet must not exit combat
         if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
@@ -121,10 +124,16 @@ void PetAI::UpdateAI(const uint32 diff)
             if (nextTarget)
                 AttackStart(nextTarget);
             else
+            {
+                me->GetCharmInfo()->SetIsCommandAttack(false);
                 HandleReturnMovement();
+            }
         }
         else
+        {
+            me->GetCharmInfo()->SetIsCommandAttack(false);
             HandleReturnMovement();
+        }
     }
     else if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW)) // no charm info and no victim
         HandleReturnMovement();
@@ -301,7 +310,7 @@ void PetAI::KilledUnit(Unit* victim)
     // Can't use _stopAttack() because that activates movement handlers and ignores
     // next target selection
     me->AttackStop();
-    me->GetCharmInfo()->SetIsCommandAttack(false);
+    me->InterruptNonMeleeSpells(false);
     me->SendMeleeAttackStop();  // Stops the pet's 'Attack' button from flashing
 
     Unit* nextTarget = SelectNextTarget();
@@ -309,7 +318,10 @@ void PetAI::KilledUnit(Unit* victim)
     if (nextTarget)
         AttackStart(nextTarget);
     else
+    {
+        me->GetCharmInfo()->SetIsCommandAttack(false);
         HandleReturnMovement(); // Return
+    }
 }
 
 void PetAI::AttackStart(Unit* target)

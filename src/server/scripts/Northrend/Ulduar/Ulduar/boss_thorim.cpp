@@ -29,8 +29,7 @@ enum Spells
     SPELL_CHARGE_ORB            = 62016,
     SPELL_SUMMON_LIGHTNING_ORB  = 62391,
     SPELL_TOUCH_OF_DOMINION     = 62565,
-    SPELL_CHAIN_LIGHTNING_10    = 62131,
-    SPELL_CHAIN_LIGHTNING_25    = 64390,
+    SPELL_CHAIN_LIGHTNING       = 62131,
     SPELL_LIGHTNING_CHARGE      = 62279,
     SPELL_LIGHTNING_DESTRUCTION = 62393,
     SPELL_LIGHTNING_RELEASE     = 62466,
@@ -39,8 +38,6 @@ enum Spells
     SPELL_BERSERK_PHASE_1       = 62560,
     SPELL_BERSERK_PHASE_2       = 26662
 };
-
-#define SPELL_CHAIN_LIGHTNING RAID_MODE(SPELL_CHAIN_LIGHTNING_10, SPELL_CHAIN_LIGHTNING_25)
 
 enum Events // Only start > 0 is relevant
 {
@@ -320,9 +317,9 @@ class npc_thorim_controller : public CreatureScript
 
                 events.Update(diff);
                 // MoveInLineOfSight does not seem to work here, so...
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_CHECK_PLAYER_IN_RANGE:
                             if (!gotActivated)
@@ -438,7 +435,7 @@ class boss_thorim : public CreatureScript
                 gotEncounterFinished = gotEncounterFinished || (instance->GetBossState(BOSS_THORIM) == DONE);
                 if (gotEncounterFinished) // May be called during fight if Thorim gets outfight... hm, should _not_ happen regularly
                 {
-                    me->setFaction(35);
+                    me->setFaction(FACTION_FRIENDLY);
                     return;
                 }
 
@@ -482,7 +479,7 @@ class boss_thorim : public CreatureScript
 
                 gotEncounterFinished = true;
                 Talk(SAY_DEATH);
-                me->setFaction(35);
+                me->setFaction(FACTION_FRIENDLY);
                 me->DespawnOrUnsummon(7*IN_MILLISECONDS);
                 me->RemoveAllAuras();
                 me->RemoveAllAttackers();
@@ -621,7 +618,7 @@ class boss_thorim : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON_WARBRINGER, 20*IN_MILLISECONDS, 0, PHASE_ARENA_ADDS);
                             break;
                         case EVENT_SUMMON_EVOKER:
-                            me->SummonCreature(ArenaAddEntries[2], Pos[rand()%7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS);
+                            me->SummonCreature(ArenaAddEntries[2], Pos[rand() % 7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS);
                             events.ScheduleEvent(EVENT_SUMMON_EVOKER, urand(23*IN_MILLISECONDS, 27*IN_MILLISECONDS), 0, PHASE_ARENA_ADDS);
                             break;
                         case EVENT_SUMMON_COMMONER:
@@ -949,9 +946,9 @@ class npc_thorim_pre_phase_add : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_CHECK_PLAYER_IN_RANGE:
                             if (!me->isInCombat())
@@ -1040,10 +1037,9 @@ enum ArenaAddsSpells
     //SPELL_GREATER_HEAL_10       = 62334,  // Used from previous definition
     //SPELL_GREATER_HEAL_25       = 62442,
     // Some tertiary skills
-    SPELL_RUNIC_MENDING_10      = 62328,
-    SPELL_RUNIC_MENDING_25      = 62446
+    SPELL_RUNIC_MENDING         = 62328
 };
-#define SPELL_RUNIC_MENDING     RAID_MODE(SPELL_RUNIC_MENDING_10, SPELL_RUNIC_MENDING_25)
+
 enum ArenaAddIndex
 {
     INDEX_DARK_RUNE_CHAMPION = 0,
@@ -1190,9 +1186,9 @@ class npc_thorim_arena_phase_add : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_PRIMARY_SKILL:
                             if (Unit* target = amIhealer ? (me->GetHealthPct() > 40 ? DoSelectLowestHpFriendly(40) : me) : me->getVictim())
@@ -1372,9 +1368,9 @@ class npc_runic_colossus : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_BARRIER:
                             Talk(EMOTE_BARRIER);
@@ -1444,7 +1440,7 @@ class npc_runic_smash : public CreatureScript
             npc_runic_smashAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 me->SetReactState(REACT_PASSIVE);
-                me->SetDisplayId(16925);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
@@ -1562,9 +1558,9 @@ class npc_ancient_rune_giant : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_STOMP:
                             DoCast(me, SPELL_STOMP);
@@ -1645,9 +1641,9 @@ class npc_sif : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_FROSTBOLT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
@@ -1866,30 +1862,26 @@ class spell_thorim_runic_fortification : public SpellScriptLoader
     public:
         spell_thorim_runic_fortification() : SpellScriptLoader("spell_thorim_runic_fortification") { }
 
-        class spell_thorim_runic_fortification_AuraScript : public AuraScript
+        class spell_thorim_runic_fortification_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_thorim_runic_fortification_AuraScript);
+            PrepareSpellScript(spell_thorim_runic_fortification_SpellScript);
 
-            bool CheckAreaTarget(Unit* target)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (target->GetTypeId() != TYPEID_PLAYER)
-                {
-                    for (uint8 i = 0; i < 8; i++)
-                        if (target->GetEntry() == ArenaAddEntries[i])
-                            return true;
-                }
-                return false;
+                targets.remove_if(NoPlayerOrPetCheck());
             }
 
             void Register()
             {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_thorim_runic_fortification_AuraScript::CheckAreaTarget);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_runic_fortification_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_thorim_runic_fortification_AuraScript();
+            return new spell_thorim_runic_fortification_SpellScript();
         }
 };
 
@@ -1921,13 +1913,12 @@ void AddSC_boss_thorim()
     new npc_ancient_rune_giant();
     new npc_sif();
     new npc_lightning_orb();
+
     new spell_stormhammer_targeting();
     new spell_thorim_berserk();
     new spell_thorim_charge_orb_targeting();
     new spell_thorim_lightning_destruction();
     new spell_thorim_runic_fortification();
+
     new go_thorim_lever();
 }
-
-#undef SPELL_CHAIN_LIGHTNING
-#undef SPELL_RUNIC_MENDING

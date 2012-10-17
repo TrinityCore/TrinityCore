@@ -34,7 +34,7 @@ EndScriptData */
 
 enum Yells
 {
-    SAY_KILL_PLAYER     = 6,
+    SAY_KILL_PLAYER     = 6
 };
 
 enum eAIs
@@ -42,234 +42,238 @@ enum eAIs
     AI_MELEE    = 0,
     AI_RANGED   = 1,
     AI_HEALER   = 2,
-    AI_PET      = 3,
+    AI_PET      = 3
 };
 
 enum eSpells
 {
     SPELL_ANTI_AOE      = 68595,
-    SPELL_PVP_TRINKET   = 65547,
+    SPELL_PVP_TRINKET   = 65547
 };
 
 class boss_toc_champion_controller : public CreatureScript
 {
-public:
-    boss_toc_champion_controller() : CreatureScript("boss_toc_champion_controller") { }
+    public:
+        boss_toc_champion_controller() : CreatureScript("boss_toc_champion_controller") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_toc_champion_controllerAI (creature);
-    }
-
-    struct boss_toc_champion_controllerAI : public ScriptedAI
-    {
-        boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        struct boss_toc_champion_controllerAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-        SummonList Summons;
-        uint32 m_uiChampionsNotStarted;
-        uint32 m_uiChampionsFailed;
-        uint32 m_uiChampionsKilled;
-        bool   m_bInProgress;
-
-        void Reset()
-        {
-            m_uiChampionsNotStarted = 0;
-            m_uiChampionsFailed = 0;
-            m_uiChampionsKilled = 0;
-            m_bInProgress = false;
-        }
-
-        std::vector<uint32> SelectChampions(Team playerTeam)
-        {
-            std::vector<uint32> vHealersEntries;
-            vHealersEntries.clear();
-            vHealersEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_DRUID_RESTORATION : NPC_ALLIANCE_DRUID_RESTORATION);
-            vHealersEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_PALADIN_HOLY : NPC_ALLIANCE_PALADIN_HOLY);
-            vHealersEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_PRIEST_DISCIPLINE : NPC_ALLIANCE_PRIEST_DISCIPLINE);
-            vHealersEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_SHAMAN_RESTORATION : NPC_ALLIANCE_SHAMAN_RESTORATION);
-
-            std::vector<uint32> vOtherEntries;
-            vOtherEntries.clear();
-            vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_DEATH_KNIGHT : NPC_ALLIANCE_DEATH_KNIGHT);
-            vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_HUNTER : NPC_ALLIANCE_HUNTER);
-            vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_MAGE : NPC_ALLIANCE_MAGE);
-            vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_ROGUE : NPC_ALLIANCE_ROGUE);
-            vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARLOCK : NPC_ALLIANCE_WARLOCK);
-            vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
-
-            uint8 healersSubtracted = 2;
-            if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                healersSubtracted = 1;
-            for (uint8 i = 0; i < healersSubtracted; ++i)
+            boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
             {
-                uint8 pos = urand(0, vHealersEntries.size()-1);
-                switch (vHealersEntries[pos])
-                {
-                    case NPC_ALLIANCE_DRUID_RESTORATION:
-                        vOtherEntries.push_back(NPC_ALLIANCE_DRUID_BALANCE);
-                        break;
-                    case NPC_HORDE_DRUID_RESTORATION:
-                        vOtherEntries.push_back(NPC_HORDE_DRUID_BALANCE);
-                        break;
-                    case NPC_ALLIANCE_PALADIN_HOLY:
-                        vOtherEntries.push_back(NPC_ALLIANCE_PALADIN_RETRIBUTION);
-                        break;
-                    case NPC_HORDE_PALADIN_HOLY:
-                        vOtherEntries.push_back(NPC_HORDE_PALADIN_RETRIBUTION);
-                        break;
-                    case NPC_ALLIANCE_PRIEST_DISCIPLINE:
-                        vOtherEntries.push_back(NPC_ALLIANCE_PRIEST_SHADOW);
-                        break;
-                    case NPC_HORDE_PRIEST_DISCIPLINE:
-                        vOtherEntries.push_back(NPC_HORDE_PRIEST_SHADOW);
-                        break;
-                    case NPC_ALLIANCE_SHAMAN_RESTORATION:
-                        vOtherEntries.push_back(NPC_ALLIANCE_SHAMAN_ENHANCEMENT);
-                        break;
-                    case NPC_HORDE_SHAMAN_RESTORATION:
-                        vOtherEntries.push_back(NPC_HORDE_SHAMAN_ENHANCEMENT);
-                        break;
-                }
-                vHealersEntries.erase(vHealersEntries.begin()+pos);
+                instance = creature->GetInstanceScript();
             }
 
-            if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                for (uint8 i = 0; i < 4; ++i)
-                    vOtherEntries.erase(vOtherEntries.begin()+urand(0, vOtherEntries.size()-1));
-
-            std::vector<uint32> vChampionEntries;
-            vChampionEntries.clear();
-            for (uint8 i = 0; i < vHealersEntries.size(); ++i)
-                vChampionEntries.push_back(vHealersEntries[i]);
-            for (uint8 i = 0; i < vOtherEntries.size(); ++i)
-                vChampionEntries.push_back(vOtherEntries[i]);
-
-            return vChampionEntries;
-        }
-
-        void SummonChampions(Team playerTeam)
-        {
-            std::vector<Position> vChampionJumpOrigin;
-            if (playerTeam == ALLIANCE)
-                for (uint8 i = 0; i < 5; i++)
-                    vChampionJumpOrigin.push_back(FactionChampionLoc[i]);
-            else
-                for (uint8 i = 5; i < 10; i++)
-                    vChampionJumpOrigin.push_back(FactionChampionLoc[i]);
-
-            std::vector<Position> vChampionJumpTarget;
-            for (uint8 i = 10; i < 20; i++)
-                vChampionJumpTarget.push_back(FactionChampionLoc[i]);
-            std::vector<uint32> vChampionEntries = SelectChampions(playerTeam);
-
-            for (uint8 i = 0; i < vChampionEntries.size(); ++i)
+            void Reset()
             {
-                uint8 pos = urand(0, vChampionJumpTarget.size()-1);
-                if (Creature* temp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    Summons.Summon(temp);
-                    temp->SetReactState(REACT_PASSIVE);
-                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                    if (playerTeam == ALLIANCE)
-                    {
-                        temp->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
-                        temp->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
-                        temp->SetOrientation(0);
-                    }
-                    else
-                    {
-                        temp->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
-                        temp->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
-                        temp->SetOrientation(3);
-                    }
-                }
-                vChampionJumpTarget.erase(vChampionJumpTarget.begin()+pos);
+                m_uiChampionsNotStarted = 0;
+                m_uiChampionsFailed = 0;
+                m_uiChampionsKilled = 0;
+                m_bInProgress = false;
             }
-        }
 
-        void SetData(uint32 uiType, uint32 uiData)
-        {
-            switch (uiType)
+            std::vector<uint32> SelectChampions(Team playerTeam)
             {
-                case 0:
-                    SummonChampions((Team)uiData);
-                    break;
-                case 1:
-                    for (std::list<uint64>::iterator i = Summons.begin(); i != Summons.end(); ++i)
+                std::vector<uint32> vHealersEntries;
+                vHealersEntries.clear();
+                vHealersEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_DRUID_RESTORATION : NPC_ALLIANCE_DRUID_RESTORATION);
+                vHealersEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_PALADIN_HOLY : NPC_ALLIANCE_PALADIN_HOLY);
+                vHealersEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_PRIEST_DISCIPLINE : NPC_ALLIANCE_PRIEST_DISCIPLINE);
+                vHealersEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_SHAMAN_RESTORATION : NPC_ALLIANCE_SHAMAN_RESTORATION);
+
+                std::vector<uint32> vOtherEntries;
+                vOtherEntries.clear();
+                vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_DEATH_KNIGHT : NPC_ALLIANCE_DEATH_KNIGHT);
+                vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_HUNTER : NPC_ALLIANCE_HUNTER);
+                vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_MAGE : NPC_ALLIANCE_MAGE);
+                vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_ROGUE : NPC_ALLIANCE_ROGUE);
+                vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARLOCK : NPC_ALLIANCE_WARLOCK);
+                vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
+
+                uint8 healersSubtracted = 2;
+                if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+                    healersSubtracted = 1;
+                for (uint8 i = 0; i < healersSubtracted; ++i)
+                {
+                    uint8 pos = urand(0, vHealersEntries.size() - 1);
+                    switch (vHealersEntries[pos])
                     {
-                        if (Creature* temp = Unit::GetCreature(*me, *i))
+                        case NPC_ALLIANCE_DRUID_RESTORATION:
+                            vOtherEntries.push_back(NPC_ALLIANCE_DRUID_BALANCE);
+                            break;
+                        case NPC_HORDE_DRUID_RESTORATION:
+                            vOtherEntries.push_back(NPC_HORDE_DRUID_BALANCE);
+                            break;
+                        case NPC_ALLIANCE_PALADIN_HOLY:
+                            vOtherEntries.push_back(NPC_ALLIANCE_PALADIN_RETRIBUTION);
+                            break;
+                        case NPC_HORDE_PALADIN_HOLY:
+                            vOtherEntries.push_back(NPC_HORDE_PALADIN_RETRIBUTION);
+                            break;
+                        case NPC_ALLIANCE_PRIEST_DISCIPLINE:
+                            vOtherEntries.push_back(NPC_ALLIANCE_PRIEST_SHADOW);
+                            break;
+                        case NPC_HORDE_PRIEST_DISCIPLINE:
+                            vOtherEntries.push_back(NPC_HORDE_PRIEST_SHADOW);
+                            break;
+                        case NPC_ALLIANCE_SHAMAN_RESTORATION:
+                            vOtherEntries.push_back(NPC_ALLIANCE_SHAMAN_ENHANCEMENT);
+                            break;
+                        case NPC_HORDE_SHAMAN_RESTORATION:
+                            vOtherEntries.push_back(NPC_HORDE_SHAMAN_ENHANCEMENT);
+                            break;
+                        default:
+                            break;
+                    }
+                    vHealersEntries.erase(vHealersEntries.begin() + pos);
+                }
+
+                if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+                    for (uint8 i = 0; i < 4; ++i)
+                        vOtherEntries.erase(vOtherEntries.begin() + urand(0, vOtherEntries.size() - 1));
+
+                std::vector<uint32> vChampionEntries;
+                vChampionEntries.clear();
+                for (uint8 i = 0; i < vHealersEntries.size(); ++i)
+                    vChampionEntries.push_back(vHealersEntries[i]);
+                for (uint8 i = 0; i < vOtherEntries.size(); ++i)
+                    vChampionEntries.push_back(vOtherEntries[i]);
+
+                return vChampionEntries;
+            }
+
+            void SummonChampions(Team playerTeam)
+            {
+                std::vector<Position> vChampionJumpOrigin;
+                if (playerTeam == ALLIANCE)
+                    for (uint8 i = 0; i < 5; i++)
+                        vChampionJumpOrigin.push_back(FactionChampionLoc[i]);
+                else
+                    for (uint8 i = 5; i < 10; i++)
+                        vChampionJumpOrigin.push_back(FactionChampionLoc[i]);
+
+                std::vector<Position> vChampionJumpTarget;
+                for (uint8 i = 10; i < 20; i++)
+                    vChampionJumpTarget.push_back(FactionChampionLoc[i]);
+                std::vector<uint32> vChampionEntries = SelectChampions(playerTeam);
+
+                for (uint8 i = 0; i < vChampionEntries.size(); ++i)
+                {
+                    uint8 pos = urand(0, vChampionJumpTarget.size()-1);
+                    if (Creature* temp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        Summons.Summon(temp);
+                        temp->SetReactState(REACT_PASSIVE);
+                        temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        if (playerTeam == ALLIANCE)
                         {
-                            temp->SetReactState(REACT_AGGRESSIVE);
-                            temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                            temp->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
+                            temp->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
+                            temp->SetOrientation(0);
+                        }
+                        else
+                        {
+                            temp->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
+                            temp->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
+                            temp->SetOrientation(3);
                         }
                     }
-                    break;
-                case 2:
-                    switch (uiData)
-                    {
-                        case FAIL:
-                            m_uiChampionsFailed++;
-                            if (m_uiChampionsFailed + m_uiChampionsKilled >= Summons.size())
-                            {
-                                instance->SetData(TYPE_CRUSADERS, FAIL);
-                                Summons.DespawnAll();
-                                me->DespawnOrUnsummon();
-                            }
-                            break;
-                        case IN_PROGRESS:
-                            if (!m_bInProgress)
-                            {
-                                m_uiChampionsNotStarted = 0;
-                                m_uiChampionsFailed = 0;
-                                m_uiChampionsKilled = 0;
-                                m_bInProgress = true;
-                                Summons.DoZoneInCombat();
-                                instance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
-                            }
-                            break;
-                        case DONE:
-                            m_uiChampionsKilled++;
-                            if (m_uiChampionsKilled == 1)
-                                instance->SetData(TYPE_CRUSADERS, SPECIAL);
-                            else if (m_uiChampionsKilled >= Summons.size())
-                            {
-                                instance->SetData(TYPE_CRUSADERS, DONE);
-                                Summons.DespawnAll();
-                                me->DespawnOrUnsummon();
-                            }
-                            break;
-                    }
-                    break;
+                    vChampionJumpTarget.erase(vChampionJumpTarget.begin()+pos);
+                }
             }
-        }
-    };
 
+            void SetData(uint32 uiType, uint32 uiData)
+            {
+                switch (uiType)
+                {
+                    case 0:
+                        SummonChampions((Team)uiData);
+                        break;
+                    case 1:
+                        for (std::list<uint64>::iterator i = Summons.begin(); i != Summons.end(); ++i)
+                        {
+                            if (Creature* temp = Unit::GetCreature(*me, *i))
+                            {
+                                temp->SetReactState(REACT_AGGRESSIVE);
+                                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                            }
+                        }
+                        break;
+                    case 2:
+                        switch (uiData)
+                        {
+                            case FAIL:
+                                m_uiChampionsFailed++;
+                                if (m_uiChampionsFailed + m_uiChampionsKilled >= Summons.size())
+                                {
+                                    instance->SetBossState(BOSS_CRUSADERS, FAIL);
+                                    Summons.DespawnAll();
+                                    me->DespawnOrUnsummon();
+                                }
+                                break;
+                            case IN_PROGRESS:
+                                if (!m_bInProgress)
+                                {
+                                    m_uiChampionsNotStarted = 0;
+                                    m_uiChampionsFailed = 0;
+                                    m_uiChampionsKilled = 0;
+                                    m_bInProgress = true;
+                                    Summons.DoZoneInCombat();
+                                    instance->SetBossState(BOSS_CRUSADERS, IN_PROGRESS);
+                                }
+                                break;
+                            case DONE:
+                                m_uiChampionsKilled++;
+                                if (m_uiChampionsKilled == 1)
+                                    instance->SetBossState(BOSS_CRUSADERS, SPECIAL);
+                                else if (m_uiChampionsKilled >= Summons.size())
+                                {
+                                    instance->SetBossState(BOSS_CRUSADERS, DONE);
+                                    Summons.DespawnAll();
+                                    me->DespawnOrUnsummon();
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            private:
+                InstanceScript* instance;
+                SummonList Summons;
+                uint32 m_uiChampionsNotStarted;
+                uint32 m_uiChampionsFailed;
+                uint32 m_uiChampionsKilled;
+                bool   m_bInProgress;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_toc_champion_controllerAI (creature);
+        }
 };
 
-struct boss_faction_championsAI : public ScriptedAI
+struct boss_faction_championsAI : public BossAI
 {
-    boss_faction_championsAI(Creature* creature, uint32 aitype) : ScriptedAI(creature)
+    enum Events
     {
-        instance = creature->GetInstanceScript();
+        EVENT_THREAT    = 1,
+        EVENT_REMOVE_CC
+    };
+
+    boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, BOSS_CRUSADERS)
+    {
         mAIType = aitype;
     }
 
-    InstanceScript* instance;
-
-    uint64 championControllerGUID;
-    uint32 mAIType;
-    uint32 ThreatTimer;
-    uint32 CCTimer;
-
     void Reset()
     {
+        events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
+        if (IsHeroic() && (mAIType != AI_PET))
+            events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
         championControllerGUID = 0;
-        CCTimer = rand()%10000;
-        ThreatTimer = 5000;
     }
 
     void JustReachedHome()
@@ -282,9 +286,9 @@ struct boss_faction_championsAI : public ScriptedAI
 
     float CalculateThreat(float distance, float armor, uint32 health)
     {
-        float dist_mod = (mAIType == AI_MELEE || mAIType == AI_PET) ? 15.0f/(15.0f + distance) : 1.0f;
+        float dist_mod = (mAIType == AI_MELEE || mAIType == AI_PET) ? 15.0f / (15.0f + distance) : 1.0f;
         float armor_mod = (mAIType == AI_MELEE || mAIType == AI_PET) ? armor / 16635.0f : 0.0f;
-        float eh = (health+1) * (1.0f + armor_mod);
+        float eh = (health + 1) * (1.0f + armor_mod);
         return dist_mod * 30000.0f / eh;
     }
 
@@ -296,7 +300,7 @@ struct boss_faction_championsAI : public ScriptedAI
             Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
             if (unit && me->getThreatManager().getThreat(unit))
             {
-                if (unit->GetTypeId()==TYPEID_PLAYER)
+                if (unit->GetTypeId() == TYPEID_PLAYER)
                 {
                     float threat = CalculateThreat(me->GetDistance2d(unit), (float)unit->GetArmor(), unit->GetHealth());
                     me->getThreatManager().modifyThreatPercent(unit, -100);
@@ -310,8 +314,6 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         if (me->getPowerType() == POWER_MANA)
             me->ModifyPower(POWER_MANA, me->GetMaxPower(POWER_MANA) / 3);
-        //else if (me->getPowerType() == POWER_ENERGY)
-        //    me->ModifyPower(POWER_ENERGY, 100);
     }
 
     void RemoveCC()
@@ -335,7 +337,7 @@ struct boss_faction_championsAI : public ScriptedAI
     void EnterCombat(Unit* /*who*/)
     {
         DoCast(me, SPELL_ANTI_AOE, true);
-        me->SetInCombatWithZone();
+        _EnterCombat();
         if (instance)
             if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
@@ -375,7 +377,7 @@ struct boss_faction_championsAI : public ScriptedAI
         std::list<Creature*>::const_iterator itr = lst.begin();
         if (lst.empty())
             return NULL;
-        advance(itr, rand()%lst.size());
+        advance(itr, rand() % lst.size());
         return (*itr);
     }
 
@@ -399,7 +401,7 @@ struct boss_faction_championsAI : public ScriptedAI
         std::list<HostileReference*>::const_iterator iter;
         uint32 count = 0;
         Unit* target;
-        for (iter = tList.begin(); iter!=tList.end(); ++iter)
+        for (iter = tList.begin(); iter != tList.end(); ++iter)
         {
             target = Unit::GetUnit(*me, (*iter)->getUnitGuid());
                 if (target && me->GetDistance2d(target) < distance)
@@ -429,26 +431,38 @@ struct boss_faction_championsAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (ThreatTimer < uiDiff)
-        {
-            UpdatePower();
-            UpdateThreat();
-            ThreatTimer = 4000;
-        }
-        else ThreatTimer -= uiDiff;
+        events.Update(uiDiff);
 
-        if (mAIType != AI_PET)
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            if (CCTimer < uiDiff)
+            switch (eventId)
             {
-                RemoveCC();
-                CCTimer = 8000+rand()%2000;
+                case EVENT_THREAT:
+                    UpdatePower();
+                    UpdateThreat();
+                    events.ScheduleEvent(EVENT_THREAT, 4*IN_MILLISECONDS);
+                    return;
+                case EVENT_REMOVE_CC:
+                    if (me->HasBreakableByDamageCrowdControlAura())
+                    {
+                        RemoveCC();
+                        events.RescheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
+                    }
+                    else
+                        events.RescheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
+                    return;
+                default:
+                    return;
             }
-            else CCTimer -= uiDiff;
         }
 
-        if (mAIType == AI_MELEE || mAIType == AI_PET) DoMeleeAttackIfReady();
+        if (mAIType == AI_MELEE || mAIType == AI_PET)
+            DoMeleeAttackIfReady();
     }
+
+    private:
+        uint64 championControllerGUID;
+        uint32 mAIType;
 };
 
 /********************************************************************
@@ -463,7 +477,7 @@ enum eDruidSpells
     SPELL_TRANQUILITY       = 66086,
     SPELL_BARKSKIN          = 65860, //1 min cd
     SPELL_THORNS            = 66068,
-    SPELL_NATURE_GRASP      = 66071, //1 min cd, self buff
+    SPELL_NATURE_GRASP      = 66071  //1 min cd, self buff
 };
 
 class mob_toc_druid : public CreatureScript
@@ -477,7 +491,7 @@ class mob_toc_druid : public CreatureScript
         EVENT_TRANQUILITY,
         EVENT_BARKSKIN,
         EVENT_THORNS,
-        EVENT_NATURE_GRASP,
+        EVENT_NATURE_GRASP
     };
 
     public:
@@ -512,9 +526,9 @@ class mob_toc_druid : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_LIFEBLOOM:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -544,10 +558,10 @@ class mob_toc_druid : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(me, SPELL_BARKSKIN);
-                                events.ScheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_THORNS:
                             if (Creature* target = SelectRandomFriendlyMissingBuff(SPELL_THORNS))
@@ -558,12 +572,11 @@ class mob_toc_druid : public CreatureScript
                             DoCast(me, SPELL_NATURE_GRASP);
                             events.ScheduleEvent(EVENT_NATURE_GRASP, 60*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -583,7 +596,7 @@ enum eShamanSpells
     SPELL_EARTH_SHIELD          = 66063,
     SPELL_EARTH_SHOCK           = 65973,
     AURA_EXHAUSTION             = 57723,
-    AURA_SATED                  = 57724,
+    AURA_SATED                  = 57724
 };
 
 class mob_toc_shaman : public CreatureScript
@@ -596,7 +609,7 @@ class mob_toc_shaman : public CreatureScript
         EVENT_BLOODLUST_HEROISM,
         EVENT_HEX,
         EVENT_EARTH_SHIELD,
-        EVENT_EARTH_SHOCK,
+        EVENT_EARTH_SHOCK
     };
 
     public:
@@ -630,9 +643,9 @@ class mob_toc_shaman : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_HEALING_WAVE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -677,11 +690,11 @@ class mob_toc_shaman : public CreatureScript
                                 DoCast(target, SPELL_EARTH_SHOCK);
                             events.ScheduleEvent(EVENT_EARTH_SHOCK, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -700,7 +713,7 @@ enum ePaladinSpells
     SPELL_HOLY_SHOCK          = 66114,
     SPELL_HAND_OF_PROTECTION  = 66009,
     SPELL_HAMMER_OF_JUSTICE   = 66613,
-    SPELL_FORBEARANCE         = 25771,
+    SPELL_FORBEARANCE         = 25771
 };
 
 class mob_toc_paladin : public CreatureScript
@@ -714,7 +727,7 @@ class mob_toc_paladin : public CreatureScript
         EVENT_HOLY_LIGHT,
         EVENT_HOLY_SHOCK,
         EVENT_HAND_OF_PROTECTION,
-        EVENT_HAMMER_OF_JUSTICE,
+        EVENT_HAMMER_OF_JUSTICE
     };
 
     public:
@@ -749,9 +762,9 @@ class mob_toc_paladin : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_HAND_OF_FREEDOM:
                             if (Unit* target = SelectRandomFriendlyMissingBuff(SPELL_HAND_OF_FREEDOM))
@@ -762,10 +775,10 @@ class mob_toc_paladin : public CreatureScript
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
                             {
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_CLEANSE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -793,25 +806,24 @@ class mob_toc_paladin : public CreatureScript
                                 if (!target->HasAura(SPELL_FORBEARANCE))
                                 {
                                     DoCast(target, SPELL_HAND_OF_PROTECTION);
-                                    events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
                                 }
                                 else
-                                    events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_HAMMER_OF_JUSTICE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.0f, true))
                                 DoCast(target, SPELL_HAMMER_OF_JUSTICE);
                             events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 40*IN_MILLISECONDS);
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -828,7 +840,7 @@ enum ePriestSpells
     SPELL_DISPEL            = 65546,
     SPELL_PSYCHIC_SCREAM    = 65543,
     SPELL_MANA_BURN         = 66100,
-    SPELL_PENANCE           = 66097,
+    SPELL_PENANCE           = 66097
 };
 
 class mob_toc_priest : public CreatureScript
@@ -841,7 +853,7 @@ class mob_toc_priest : public CreatureScript
         EVENT_DISPEL,
         EVENT_PSYCHIC_SCREAM,
         EVENT_MANA_BURN,
-        EVENT_PENANCE,
+        EVENT_PENANCE
     };
 
     public:
@@ -875,9 +887,9 @@ class mob_toc_priest : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_RENEW:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -914,11 +926,11 @@ class mob_toc_priest : public CreatureScript
                                 DoCast(target, SPELL_PENANCE);
                             events.ScheduleEvent(EVENT_PENANCE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -939,7 +951,7 @@ enum eShadowPriestSpells
     SPELL_MIND_BLAST        = 65492,
     SPELL_HORROR            = 65545,
     SPELL_DISPERSION        = 65544,
-    SPELL_SHADOWFORM        = 16592,
+    SPELL_SHADOWFORM        = 16592
 };
 
 class mob_toc_shadow_priest : public CreatureScript
@@ -953,7 +965,7 @@ class mob_toc_shadow_priest : public CreatureScript
         EVENT_HORROR,
         EVENT_DISPERSION,
         EVENT_DISPEL,
-        EVENT_PSYCHIC_SCREAM,
+        EVENT_PSYCHIC_SCREAM
     };
 
     public:
@@ -989,9 +1001,9 @@ class mob_toc_shadow_priest : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_SILENCE:
                             if (Unit* target = SelectEnemyCaster(true))
@@ -1020,10 +1032,10 @@ class mob_toc_shadow_priest : public CreatureScript
                             if (HealthBelowPct(40))
                             {
                                 DoCast(me, SPELL_DISPERSION);
-                                events.ScheduleEvent(EVENT_DISPERSION, 180*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DISPERSION, 180*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DISPERSION, 20*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DISPERSION, 20*IN_MILLISECONDS);
                             return;
                         case EVENT_DISPEL:
                             if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
@@ -1035,12 +1047,12 @@ class mob_toc_shadow_priest : public CreatureScript
                                 DoCastAOE(SPELL_PSYCHIC_SCREAM);
                             events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_MIND_FLAY);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1060,7 +1072,7 @@ enum WarlockSpells
     SPELL_SHADOW_BOLT                = 65821,
     SPELL_UNSTABLE_AFFLICTION        = 65812, // 15s
     SPELL_UNSTABLE_AFFLICTION_DISPEL = 65813,
-    SPELL_SUMMON_FELHUNTER           = 67514,
+    SPELL_SUMMON_FELHUNTER           = 67514
 };
 
 class mob_toc_warlock : public CreatureScript
@@ -1073,7 +1085,7 @@ class mob_toc_warlock : public CreatureScript
         EVENT_CURSE_OF_EXHAUSTION,
         EVENT_FEAR,
         EVENT_SEARING_PAIN,
-        EVENT_UNSTABLE_AFFLICTION,
+        EVENT_UNSTABLE_AFFLICTION
     };
 
     public:
@@ -1115,9 +1127,9 @@ class mob_toc_warlock : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_HELLFIRE:
                             if (EnemiesInRange(10.0f) >= 2)
@@ -1153,12 +1165,12 @@ class mob_toc_warlock : public CreatureScript
                                 DoCast(target, SPELL_UNSTABLE_AFFLICTION);
                             events.ScheduleEvent(EVENT_UNSTABLE_AFFLICTION, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_SHADOW_BOLT);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1177,7 +1189,7 @@ enum eMageSpells
     SPELL_FROST_NOVA        = 65792, //25s
     SPELL_FROSTBOLT         = 65807,
     SPELL_ICE_BLOCK         = 65802, //5min
-    SPELL_POLYMORPH         = 65801, //15s
+    SPELL_POLYMORPH         = 65801  //15s
 };
 
 class mob_toc_mage : public CreatureScript
@@ -1191,7 +1203,7 @@ class mob_toc_mage : public CreatureScript
         EVENT_COUNTERSPELL,
         EVENT_FROST_NOVA,
         EVENT_ICE_BLOCK,
-        EVENT_POLYMORPH,
+        EVENT_POLYMORPH
     };
 
     public:
@@ -1226,9 +1238,9 @@ class mob_toc_mage : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_ARCANE_BARRAGE:
                             DoCastVictim(SPELL_ARCANE_BARRAGE);
@@ -1262,22 +1274,22 @@ class mob_toc_mage : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(SPELL_ICE_BLOCK);
-                                events.ScheduleEvent(EVENT_ICE_BLOCK, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICE_BLOCK, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_ICE_BLOCK, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICE_BLOCK, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_POLYMORPH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
-                                DoCastAOE(SPELL_POLYMORPH);
+                                DoCast(target, SPELL_POLYMORPH);
                             events.ScheduleEvent(EVENT_POLYMORPH, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                            return;
+                        default:
                             return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_FROSTBOLT);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1297,7 +1309,7 @@ enum eHunterSpells
     SPELL_STEADY_SHOT       = 65867, //3s
     SPELL_WING_CLIP         = 66207, //6s
     SPELL_WYVERN_STING      = 65877, //60s
-    SPELL_CALL_PET          = 67777,
+    SPELL_CALL_PET          = 67777
 };
 
 class mob_toc_hunter : public CreatureScript
@@ -1311,7 +1323,7 @@ class mob_toc_hunter : public CreatureScript
         EVENT_FROST_TRAP,
         EVENT_STEADY_SHOT,
         EVENT_WING_CLIP,
-        EVENT_WYVERN_STING,
+        EVENT_WYVERN_STING
     };
 
     public:
@@ -1319,9 +1331,7 @@ class mob_toc_hunter : public CreatureScript
 
         struct mob_toc_hunterAI : public boss_faction_championsAI
         {
-            mob_toc_hunterAI(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED), Summons(me) {}
-
-            SummonList Summons;
+            mob_toc_hunterAI(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED) {}
 
             void Reset()
             {
@@ -1354,9 +1364,9 @@ class mob_toc_hunter : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_AIMED_SHOT:
                             DoCastVictim(SPELL_AIMED_SHOT);
@@ -1366,10 +1376,10 @@ class mob_toc_hunter : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(SPELL_DETERRENCE);
-                                events.ScheduleEvent(EVENT_DETERRENCE, 150*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DETERRENCE, 150*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DETERRENCE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DETERRENCE, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_DISENGAGE:
                             if (EnemiesInRange(10.0f) >= 2)
@@ -1399,12 +1409,12 @@ class mob_toc_hunter : public CreatureScript
                                 DoCast(target, SPELL_WYVERN_STING);
                             events.ScheduleEvent(EVENT_WYVERN_STING, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_SHOOT);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1422,7 +1432,7 @@ enum eBoomkinSpells
     SPELL_INSECT_SWARM      = 65855,
     SPELL_MOONFIRE          = 65856, //5s
     SPELL_STARFIRE          = 65854,
-    SPELL_WRATH             = 65862,
+    SPELL_WRATH             = 65862
 };
 
 class mob_toc_boomkin : public CreatureScript
@@ -1436,7 +1446,7 @@ class mob_toc_boomkin : public CreatureScript
         EVENT_INSECT_SWARM,
         EVENT_MOONFIRE,
         EVENT_STARFIRE,
-        EVENT_BARKSKIN,
+        EVENT_BARKSKIN
     };
 
     public:
@@ -1472,9 +1482,9 @@ class mob_toc_boomkin : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_CYCLONE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
@@ -1510,17 +1520,17 @@ class mob_toc_boomkin : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(me, SPELL_BARKSKIN);
-                                events.ScheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
+                            return;
+                        default:
                             return;
                     }
                 }
                 DoSpellAttackIfReady(SPELL_WRATH);
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1542,7 +1552,7 @@ enum eWarriorSpells
     SPELL_OVERPOWER             = 65924,
     SPELL_SUNDER_ARMOR          = 65936,
     SPELL_SHATTERING_THROW      = 65940,
-    SPELL_RETALIATION           = 65932,
+    SPELL_RETALIATION           = 65932
 };
 
 class mob_toc_warrior : public CreatureScript
@@ -1557,7 +1567,7 @@ class mob_toc_warrior : public CreatureScript
         EVENT_OVERPOWER,
         EVENT_SUNDER_ARMOR,
         EVENT_SHATTERING_THROW,
-        EVENT_RETALIATION,
+        EVENT_RETALIATION
     };
 
     public:
@@ -1593,9 +1603,9 @@ class mob_toc_warrior : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_BLADESTORM:
                             DoCastVictim(SPELL_BLADESTORM);
@@ -1629,25 +1639,25 @@ class mob_toc_warrior : public CreatureScript
                             if (me->getVictim()->HasAuraWithMechanic(1<<MECHANIC_IMMUNE_SHIELD))
                             {
                                 DoCastVictim(SPELL_SHATTERING_THROW);
-                                events.ScheduleEvent(EVENT_SHATTERING_THROW, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHATTERING_THROW, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_SHATTERING_THROW, 3*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHATTERING_THROW, 3*IN_MILLISECONDS);
                             return;
                         case EVENT_RETALIATION:
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_RETALIATION);
-                                events.ScheduleEvent(EVENT_RETALIATION, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_RETALIATION, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_RETALIATION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_RETALIATION, 10*IN_MILLISECONDS);
+                            return;
+                        default:
                             return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1664,7 +1674,7 @@ enum eDeathKnightSpells
     SPELL_FROST_STRIKE        = 66047, //6sec
     SPELL_ICEBOUND_FORTITUDE  = 66023, //1min
     SPELL_ICY_TOUCH           = 66021, //8sec
-    SPELL_STRANGULATE         = 66018, //2min
+    SPELL_STRANGULATE         = 66018  //2min
 };
 
 class mob_toc_dk : public CreatureScript
@@ -1677,7 +1687,7 @@ class mob_toc_dk : public CreatureScript
         EVENT_FROST_STRIKE,
         EVENT_ICEBOUND_FORTITUDE,
         EVENT_ICY_TOUCH,
-        EVENT_STRANGULATE,
+        EVENT_STRANGULATE
     };
 
     public:
@@ -1711,9 +1721,9 @@ class mob_toc_dk : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_CHAINS_OF_ICE:
                             DoCastVictim(SPELL_CHAINS_OF_ICE);
@@ -1727,10 +1737,10 @@ class mob_toc_dk : public CreatureScript
                             if (me->IsInRange(me->getVictim(), 5.0f, 30.0f, false))
                             {
                                 DoCast(me->getVictim(), SPELL_DEATH_GRIP);
-                                events.ScheduleEvent(EVENT_DEATH_GRIP, 35*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DEATH_GRIP, 35*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DEATH_GRIP, 3*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DEATH_GRIP, 3*IN_MILLISECONDS);
                             return;
                         case EVENT_FROST_STRIKE:
                             DoCastVictim(SPELL_FROST_STRIKE);
@@ -1740,10 +1750,10 @@ class mob_toc_dk : public CreatureScript
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_ICEBOUND_FORTITUDE);
-                                events.ScheduleEvent(EVENT_ICEBOUND_FORTITUDE, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_ICEBOUND_FORTITUDE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_ICY_TOUCH:
                             DoCastVictim(SPELL_ICY_TOUCH);
@@ -1753,23 +1763,22 @@ class mob_toc_dk : public CreatureScript
                             if (Unit* target = SelectEnemyCaster(false))
                             {
                                 DoCast(target, SPELL_STRANGULATE);
-                                events.ScheduleEvent(EVENT_STRANGULATE, 120*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_STRANGULATE, 120*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_STRANGULATE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_STRANGULATE, 10*IN_MILLISECONDS);
+                            return;
+                        default:
                             return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_toc_dkAI (creature);
         }
-
 };
 
 enum eRogueSpells
@@ -1781,7 +1790,7 @@ enum eRogueSpells
     SPELL_SHADOWSTEP            = 66178, //30sec
     SPELL_HEMORRHAGE            = 65954,
     SPELL_EVISCERATE            = 65957,
-    SPELL_WOUND_POISON          = 65962,
+    SPELL_WOUND_POISON          = 65962
 };
 
 class mob_toc_rogue : public CreatureScript
@@ -1795,7 +1804,7 @@ class mob_toc_rogue : public CreatureScript
         EVENT_SHADOWSTEP,
         EVENT_HEMORRHAGE,
         EVENT_EVISCERATE,
-        EVENT_WOUND_POISON,
+        EVENT_WOUND_POISON
     };
 
     public:
@@ -1832,9 +1841,9 @@ class mob_toc_rogue : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_FAN_OF_KNIVES:
                             if (EnemiesInRange(10.0f) >= 2)
@@ -1850,28 +1859,28 @@ class mob_toc_rogue : public CreatureScript
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_CLOAK);
-                                events.ScheduleEvent(EVENT_CLOAK, 90*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_CLOAK, 90*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_CLOAK, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_CLOAK, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_BLADE_FLURRY:
                             if (EnemiesInRange(10.0f) >= 2)
                             {
                                 DoCast(SPELL_BLADE_FLURRY);
-                                events.ScheduleEvent(EVENT_BLADE_FLURRY, 120*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 120*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_BLADE_FLURRY, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_SHADOWSTEP:
                             if (me->IsInRange(me->getVictim(), 10.0f, 40.0f, false))
                             {
                                 DoCast(me->getVictim(), SPELL_SHADOWSTEP);
-                                events.ScheduleEvent(EVENT_SHADOWSTEP, 30*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHADOWSTEP, 30*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_SHADOWSTEP, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHADOWSTEP, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_HEMORRHAGE:
                             DoCastVictim(SPELL_HEMORRHAGE);
@@ -1885,11 +1894,11 @@ class mob_toc_rogue : public CreatureScript
                             DoCastVictim(SPELL_WOUND_POISON);
                             events.ScheduleEvent(EVENT_WOUND_POISON, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1902,7 +1911,7 @@ enum eEnhShamanSpells
 {
     SPELL_LAVA_LASH         = 65974,
     SPELL_STORMSTRIKE       = 65970,
-    SPELL_WINDFURY          = 65976,
+    SPELL_WINDFURY          = 65976
 };
 
 class mob_toc_enh_shaman : public CreatureScript
@@ -1914,7 +1923,7 @@ class mob_toc_enh_shaman : public CreatureScript
         EVENT_STORMSTRIKE,
         EVENT_BLOODLUST_HEROISM,
         EVENT_DEPLOY_TOTEM,
-        EVENT_WINDFURY,
+        EVENT_WINDFURY
     };
 
     public:
@@ -1922,9 +1931,8 @@ class mob_toc_enh_shaman : public CreatureScript
 
         struct mob_toc_enh_shamanAI : public boss_faction_championsAI
         {
-            mob_toc_enh_shamanAI(Creature* creature) : boss_faction_championsAI(creature, AI_MELEE), Summons(me) {}
+            mob_toc_enh_shamanAI(Creature* creature) : boss_faction_championsAI(creature, AI_MELEE) {}
 
-            SummonList Summons;
             uint8  m_uiTotemCount;
             float  m_fTotemOldCenterX, m_fTotemOldCenterY;
 
@@ -1942,12 +1950,12 @@ class mob_toc_enh_shaman : public CreatureScript
                 m_fTotemOldCenterX = me->GetPositionX();
                 m_fTotemOldCenterY = me->GetPositionY();
                 SetEquipmentSlots(false, 51803, 48013, EQUIP_NO_CHANGE);
-                Summons.DespawnAll();
+                summons.DespawnAll();
             }
 
             void JustSummoned(Creature* summoned)
             {
-                Summons.Summon(summoned);
+                summons.Summon(summoned);
             }
 
             void SummonedCreatureDespawn(Creature* /*pSummoned*/)
@@ -1976,7 +1984,7 @@ class mob_toc_enh_shaman : public CreatureScript
             void JustDied(Unit* killer)
             {
                 boss_faction_championsAI::JustDied(killer);
-                Summons.DespawnAll();
+                summons.DespawnAll();
             }
 
             void UpdateAI(const uint32 diff)
@@ -1990,9 +1998,9 @@ class mob_toc_enh_shaman : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_EARTH_SHOCK:
                             if (Unit* target = SelectEnemyCaster(true))
@@ -2029,11 +2037,11 @@ class mob_toc_enh_shaman : public CreatureScript
                             DoCastVictim(SPELL_WINDFURY);
                             events.ScheduleEvent(EVENT_WINDFURY, urand(20*IN_MILLISECONDS, 60*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2050,7 +2058,7 @@ enum eRetroPaladinSpells
     SPELL_HAMMER_OF_JUSTICE_RET = 66007, //40sec cd
     SPELL_JUDGEMENT_OF_COMMAND  = 66005, //8sec cd
     SPELL_REPENTANCE            = 66008, //60sec cd
-    SPELL_SEAL_OF_COMMAND       = 66004, //no cd
+    SPELL_SEAL_OF_COMMAND       = 66004  //no cd
 };
 
 class mob_toc_retro_paladin : public CreatureScript
@@ -2064,7 +2072,7 @@ class mob_toc_retro_paladin : public CreatureScript
         EVENT_JUDGEMENT_OF_COMMAND,
         EVENT_REPENTANCE,
         EVENT_HAND_OF_PROTECTION,
-        EVENT_DIVINE_SHIELD,
+        EVENT_DIVINE_SHIELD
     };
 
     public:
@@ -2105,9 +2113,9 @@ class mob_toc_retro_paladin : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_AVENGING_WRATH:
                             DoCast(SPELL_AVENGING_WRATH);
@@ -2141,28 +2149,28 @@ class mob_toc_retro_paladin : public CreatureScript
                                 if (!target->HasAura(SPELL_FORBEARANCE))
                                 {
                                     DoCast(target, SPELL_HAND_OF_PROTECTION);
-                                    events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
                                 }
                                 else
-                                    events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_DIVINE_SHIELD:
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
                             {
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
+                            return;
+                        default:
                             return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2174,7 +2182,7 @@ class mob_toc_retro_paladin : public CreatureScript
 enum eWarlockPetSpells
 {
     SPELL_DEVOUR_MAGIC   = 67518,
-    SPELL_SPELL_LOCK     = 67519,
+    SPELL_SPELL_LOCK     = 67519
 };
 
 class mob_toc_pet_warlock : public CreatureScript
@@ -2182,7 +2190,7 @@ class mob_toc_pet_warlock : public CreatureScript
     enum
     {
         EVENT_DEVOUR_MAGIC = 1,
-        EVENT_SPELL_LOCK,
+        EVENT_SPELL_LOCK
     };
 
     public:
@@ -2210,9 +2218,9 @@ class mob_toc_pet_warlock : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_DEVOUR_MAGIC:
                             DoCastVictim(SPELL_DEVOUR_MAGIC);
@@ -2222,11 +2230,11 @@ class mob_toc_pet_warlock : public CreatureScript
                             DoCast(SPELL_SPELL_LOCK);
                             events.ScheduleEvent(EVENT_SPELL_LOCK, urand(24*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
-            private:
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2237,16 +2245,11 @@ class mob_toc_pet_warlock : public CreatureScript
 
 enum eHunterPetSpells
 {
-    SPELL_CLAW  = 67793,
+    SPELL_CLAW  = 67793
 };
 
 class mob_toc_pet_hunter : public CreatureScript
 {
-    enum
-    {
-        EVENT_CLAW = 1,
-    };
-
     public:
         mob_toc_pet_hunter() : CreatureScript("mob_toc_pet_hunter") { }
 
@@ -2257,7 +2260,7 @@ class mob_toc_pet_hunter : public CreatureScript
             void Reset()
             {
                 boss_faction_championsAI::Reset();
-                events.ScheduleEvent(EVENT_CLAW, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
+                m_uiClawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             }
 
             void UpdateAI(const uint32 diff)
@@ -2265,22 +2268,18 @@ class mob_toc_pet_hunter : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
                 boss_faction_championsAI::UpdateAI(diff);
 
-                while (uint32 event = events.ExecuteEvent())
+                if (m_uiClawTimer <= diff)
                 {
-                    switch (event)
-                    {
-                        case EVENT_CLAW:
-                            DoCastVictim(SPELL_CLAW);
-                            events.ScheduleEvent(EVENT_CLAW, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
-                            return;
-                    }
+                    DoCastVictim(SPELL_CLAW);
+                    m_uiClawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
                 }
+                else
+                    m_uiClawTimer -= diff;
             }
             private:
-                EventMap events;
+                uint32 m_uiClawTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2325,7 +2324,7 @@ class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
 
 enum DeathGripPull
 {
-    SPELL_DEATH_GRIP_PULL = 64431,
+    SPELL_DEATH_GRIP_PULL = 64431
 };
 
 class spell_faction_champion_death_grip : public SpellScriptLoader
@@ -2467,6 +2466,7 @@ void AddSC_boss_faction_champions()
     new mob_toc_retro_paladin();
     new mob_toc_pet_warlock();
     new mob_toc_pet_hunter();
+
     new spell_faction_champion_warl_unstable_affliction();
     new spell_faction_champion_death_grip();
     new spell_toc_bloodlust();

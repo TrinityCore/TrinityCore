@@ -48,13 +48,13 @@ enum Yells
     SAY_TWINK_PACT          = 5,
     SAY_KILL_PLAYER         = 6,
     SAY_BERSERK             = 7,
-    SAY_DEATH               = 8,
+    SAY_DEATH               = 8
 };
 
 enum Equipment
 {
     EQUIP_MAIN_1         = 9423,
-    EQUIP_MAIN_2         = 37377,
+    EQUIP_MAIN_2         = 37377
 };
 
 enum Summons
@@ -62,7 +62,7 @@ enum Summons
     NPC_BULLET_CONTROLLER        = 34743,
 
     NPC_BULLET_DARK              = 34628,
-    NPC_BULLET_LIGHT             = 34630,
+    NPC_BULLET_LIGHT             = 34630
 };
 
 enum BossSpells
@@ -93,7 +93,7 @@ enum BossSpells
     SPELL_POWER_TWINS           = 65879,
     SPELL_BERSERK               = 64238,
     SPELL_POWERING_UP           = 67590,
-    SPELL_SURGE_OF_SPEED        = 65828,
+    SPELL_SURGE_OF_SPEED        = 65828
 };
 
 #define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
@@ -145,37 +145,11 @@ class OrbsDespawner : public BasicEvent
         Creature* _creature;
 };
 
-struct boss_twin_baseAI : public ScriptedAI
+struct boss_twin_baseAI : public BossAI
 {
-    boss_twin_baseAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+    boss_twin_baseAI(Creature* creature) : BossAI(creature, BOSS_VALKIRIES)
     {
-        instance = creature->GetInstanceScript();
     }
-
-    InstanceScript* instance;
-    SummonList Summons;
-
-    AuraStateType  m_uiAuraState;
-
-    uint8  m_uiStage;
-    bool   m_bIsBerserk;
-
-    uint32 m_uiWeapon;
-    uint32 m_uiSpecialAbilityTimer;
-    uint32 m_uiSpikeTimer;
-    uint32 m_uiTouchTimer;
-    uint32 m_uiBerserkTimer;
-
-    int32 m_uiVortexEmote;
-    uint32 m_uiSisterNpcId;
-    uint32 m_uiMyEmphatySpellId;
-    uint32 m_uiOtherEssenceSpellId;
-    uint32 m_uiSurgeSpellId;
-    uint32 m_uiVortexSpellId;
-    uint32 m_uiShieldSpellId;
-    uint32 m_uiTwinPactSpellId;
-    uint32 m_uiSpikeSpellId;
-    uint32 m_uiTouchSpellId;
 
     void Reset()
     {
@@ -187,20 +161,20 @@ struct boss_twin_baseAI : public ScriptedAI
         me->SetFlying(true); */
         m_bIsBerserk = false;
 
-        m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+        m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
         m_uiSpikeTimer = 20*IN_MILLISECONDS;
-        m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
+        m_uiTouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
         m_uiBerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
 
-        Summons.DespawnAll();
+        summons.DespawnAll();
     }
 
     void JustReachedHome()
     {
         if (instance)
-            instance->SetData(TYPE_VALKIRIES, FAIL);
+            instance->SetBossState(BOSS_VALKIRIES, FAIL);
 
-        Summons.DespawnAll();
+        summons.DespawnAll();
         me->DespawnOrUnsummon();
     }
 
@@ -214,6 +188,8 @@ struct boss_twin_baseAI : public ScriptedAI
             case 1:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
+                break;
+            default:
                 break;
         }
     }
@@ -230,7 +206,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void JustSummoned(Creature* summoned)
     {
-        Summons.Summon(summoned);
+        summons.Summon(summoned);
     }
 
     void SummonedCreatureDespawn(Creature* summoned)
@@ -248,8 +224,10 @@ struct boss_twin_baseAI : public ScriptedAI
             case NPC_BULLET_CONTROLLER:
                 me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
                 break;
+            default:
+                break;
         }
-        Summons.Despawn(summoned);
+        summons.Despawn(summoned);
     }
 
     void JustDied(Unit* /*killer*/)
@@ -263,18 +241,16 @@ struct boss_twin_baseAI : public ScriptedAI
                 {
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     pSister->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-
-                    instance->SetData(TYPE_VALKIRIES, DONE);
-                    Summons.DespawnAll();
+                    _JustDied();
                 }
                 else
                 {
                     me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    instance->SetData(TYPE_VALKIRIES, SPECIAL);
+                    instance->SetBossState(BOSS_VALKIRIES, SPECIAL);
                 }
             }
         }
-        Summons.DespawnAll();
+        summons.DespawnAll();
     }
 
     // Called when sister pointer needed
@@ -293,7 +269,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 me->AddAura(m_uiMyEmphatySpellId, pSister);
                 pSister->SetInCombatWithZone();
             }
-            instance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
+            instance->SetBossState(BOSS_VALKIRIES, IN_PROGRESS);
         }
 
         Talk(SAY_AGGRO);
@@ -309,6 +285,8 @@ struct boss_twin_baseAI : public ScriptedAI
                 break;
             case ACTION_PACT:
                 m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 1 : 2;
+                break;
+            default:
                 break;
         }
     }
@@ -340,12 +318,12 @@ struct boss_twin_baseAI : public ScriptedAI
                     Talk(m_uiVortexEmote);
                     DoCastAOE(m_uiVortexSpellId);
                     m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
                 break;
-            case 2: // Shield+Pact
+            case 2: // Shield + Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
                     Talk(EMOTE_TWINK_PACT);
@@ -358,7 +336,7 @@ struct boss_twin_baseAI : public ScriptedAI
                     DoCast(me, m_uiShieldSpellId);
                     DoCast(me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
@@ -379,7 +357,7 @@ struct boss_twin_baseAI : public ScriptedAI
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, m_uiOtherEssenceSpellId))
                 me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
-            m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
+            m_uiTouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
         }
         else
             m_uiTouchTimer -= uiDiff;
@@ -395,6 +373,29 @@ struct boss_twin_baseAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
+    protected:
+        AuraStateType  m_uiAuraState;
+
+        uint8  m_uiStage;
+        bool   m_bIsBerserk;
+
+        uint32 m_uiWeapon;
+        uint32 m_uiSpecialAbilityTimer;
+        uint32 m_uiSpikeTimer;
+        uint32 m_uiTouchTimer;
+        uint32 m_uiBerserkTimer;
+
+        int32 m_uiVortexEmote;
+        uint32 m_uiSisterNpcId;
+        uint32 m_uiMyEmphatySpellId;
+        uint32 m_uiOtherEssenceSpellId;
+        uint32 m_uiSurgeSpellId;
+        uint32 m_uiVortexSpellId;
+        uint32 m_uiShieldSpellId;
+        uint32 m_uiTwinPactSpellId;
+        uint32 m_uiSpikeSpellId;
+        uint32 m_uiTouchSpellId;
 };
 
 /*######
@@ -403,72 +404,69 @@ struct boss_twin_baseAI : public ScriptedAI
 
 class boss_fjola : public CreatureScript
 {
-public:
-    boss_fjola() : CreatureScript("boss_fjola") { }
+    public:
+        boss_fjola() : CreatureScript("boss_fjola") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_fjolaAI(creature);
-    }
-
-    struct boss_fjolaAI : public boss_twin_baseAI
-    {
-        boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature)
+        struct boss_fjolaAI : public boss_twin_baseAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        void Reset() {
-            SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-            m_uiStage = 0;
-            m_uiWeapon = EQUIP_MAIN_1;
-            m_uiAuraState = AURA_STATE_UNKNOWN22;
-            m_uiVortexEmote = EMOTE_VORTEX;
-            m_uiSisterNpcId = NPC_DARKBANE;
-            m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
-            m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
-            m_uiSurgeSpellId = SPELL_LIGHT_SURGE;
-            m_uiVortexSpellId = SPELL_LIGHT_VORTEX;
-            m_uiShieldSpellId = SPELL_LIGHT_SHIELD;
-            m_uiTwinPactSpellId = SPELL_LIGHT_TWIN_PACT;
-            m_uiTouchSpellId = SPELL_LIGHT_TOUCH;
-            m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
-
-            if (instance)
+            boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature)
             {
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
-            }
-            boss_twin_baseAI::Reset();
-        }
-
-        void EnterCombat(Unit* who)
-        {
-            if (instance)
-            {
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
             }
 
-            me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
-            boss_twin_baseAI::EnterCombat(who);
-        }
+            void Reset()
+            {
+                SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
+                m_uiStage = 0;
+                m_uiWeapon = EQUIP_MAIN_1;
+                m_uiAuraState = AURA_STATE_UNKNOWN22;
+                m_uiVortexEmote = EMOTE_VORTEX;
+                m_uiSisterNpcId = NPC_DARKBANE;
+                m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
+                m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
+                m_uiSurgeSpellId = SPELL_LIGHT_SURGE;
+                m_uiVortexSpellId = SPELL_LIGHT_VORTEX;
+                m_uiShieldSpellId = SPELL_LIGHT_SHIELD;
+                m_uiTwinPactSpellId = SPELL_LIGHT_TWIN_PACT;
+                m_uiTouchSpellId = SPELL_LIGHT_TOUCH;
+                m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
 
-        void EnterEvadeMode()
-        {
-            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
-            boss_twin_baseAI::EnterEvadeMode();
-        }
+                if (instance)
+                {
+                    instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+                }
+                boss_twin_baseAI::Reset();
+            }
 
-        void JustReachedHome()
-        {
-            if (instance)
+            void EnterCombat(Unit* who)
+            {
+                if (instance)
+                {
+                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
+                }
+
+                me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
+                boss_twin_baseAI::EnterCombat(who);
+            }
+
+            void EnterEvadeMode()
+            {
                 instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                boss_twin_baseAI::EnterEvadeMode();
+            }
 
-            boss_twin_baseAI::JustReachedHome();
+            void JustReachedHome()
+            {
+                if (instance)
+                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+
+                boss_twin_baseAI::JustReachedHome();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_fjolaAI(creature);
         }
-    };
-
 };
 
 /*######
@@ -477,37 +475,37 @@ public:
 
 class boss_eydis : public CreatureScript
 {
-public:
-    boss_eydis() : CreatureScript("boss_eydis") { }
+    public:
+        boss_eydis() : CreatureScript("boss_eydis") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_eydisAI(creature);
-    }
+        struct boss_eydisAI : public boss_twin_baseAI
+        {
+            boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
-    struct boss_eydisAI : public boss_twin_baseAI
-    {
-        boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
+            void Reset()
+            {
+                SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
+                m_uiStage = 1;
+                m_uiWeapon = EQUIP_MAIN_2;
+                m_uiAuraState = AURA_STATE_UNKNOWN19;
+                m_uiVortexEmote = EMOTE_VORTEX;
+                m_uiSisterNpcId = NPC_LIGHTBANE;
+                m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
+                m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
+                m_uiSurgeSpellId = SPELL_DARK_SURGE;
+                m_uiVortexSpellId = SPELL_DARK_VORTEX;
+                m_uiShieldSpellId = SPELL_DARK_SHIELD;
+                m_uiTwinPactSpellId = SPELL_DARK_TWIN_PACT;
+                m_uiTouchSpellId = SPELL_DARK_TOUCH;
+                m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
+                boss_twin_baseAI::Reset();
+            }
+        };
 
-        void Reset() {
-            SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-            m_uiStage = 1;
-            m_uiWeapon = EQUIP_MAIN_2;
-            m_uiAuraState = AURA_STATE_UNKNOWN19;
-            m_uiVortexEmote = EMOTE_VORTEX;
-            m_uiSisterNpcId = NPC_LIGHTBANE;
-            m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
-            m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
-            m_uiSurgeSpellId = SPELL_DARK_SURGE;
-            m_uiVortexSpellId = SPELL_DARK_VORTEX;
-            m_uiShieldSpellId = SPELL_DARK_SHIELD;
-            m_uiTwinPactSpellId = SPELL_DARK_TWIN_PACT;
-            m_uiTouchSpellId = SPELL_DARK_TOUCH;
-            m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
-            boss_twin_baseAI::Reset();
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_eydisAI(creature);
         }
-    };
-
 };
 
 #define ESSENCE_REMOVE 0
@@ -562,9 +560,6 @@ struct mob_unleashed_ballAI : public ScriptedAI
         instance = creature->GetInstanceScript();
     }
 
-    InstanceScript* instance;
-    uint32 m_uiRangeCheckTimer;
-
     void MoveToNextPoint()
     {
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
@@ -587,7 +582,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
         me->SetCanFly(true);
         SetCombatMovement(false);
         MoveToNextPoint();
-        m_uiRangeCheckTimer = 500;
+        m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -603,147 +598,153 @@ struct mob_unleashed_ballAI : public ScriptedAI
                 else
                     me->DisappearAndDie();
                 break;
+            default:
+                break;
         }
     }
+    private:
+        InstanceScript* instance;
+    protected:
+        uint32 m_uiRangeCheckTimer;
 };
 
 class mob_unleashed_dark : public CreatureScript
 {
-public:
-    mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
+    public:
+        mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_unleashed_darkAI(creature);
-    }
-
-    struct mob_unleashed_darkAI : public mob_unleashed_ballAI
-    {
-        mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
-
-        void UpdateAI(const uint32 uiDiff)
+        struct mob_unleashed_darkAI : public mob_unleashed_ballAI
         {
-            if (m_uiRangeCheckTimer < uiDiff)
+            mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
+
+            void UpdateAI(const uint32 uiDiff)
             {
-                if (me->SelectNearestPlayer(3.0f))
+                if (m_uiRangeCheckTimer < uiDiff)
+                {
+                    if (me->SelectNearestPlayer(3.0f))
                     {
                         DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
                         me->GetMotionMaster()->MoveIdle();
-                        me->DespawnOrUnsummon(1000);
+                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
-                m_uiRangeCheckTimer = 500;
+                    m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
+                }
+                else
+                    m_uiRangeCheckTimer -= uiDiff;
             }
-            else m_uiRangeCheckTimer -= uiDiff;
-        }
 
-        void SpellHitTarget(Unit* who, SpellInfo const* spell)
-        {
-            if (spell->Id == SPELL_UNLEASHED_DARK_HELPER)
+            void SpellHitTarget(Unit* who, SpellInfo const* spell)
             {
-                if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
+                if (spell->Id == SPELL_UNLEASHED_DARK_HELPER)
                 {
-                    // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
-                    Aura* pAura = who->GetAura(SPELL_POWERING_UP_HELPER);
-                    if (pAura)
+                    if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
                     {
-                        pAura->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
-                        who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
-                    }
-                    else
-                    {
-                        who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
-                        if (Aura* pTemp = who->GetAura(SPELL_POWERING_UP_HELPER))
-                            pTemp->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                        // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
+                        Aura* pAura = who->GetAura(SPELL_POWERING_UP_HELPER);
+                        if (pAura)
+                        {
+                            pAura->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                            who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
+                        }
+                        else
+                        {
+                            who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
+                            if (Aura* pTemp = who->GetAura(SPELL_POWERING_UP_HELPER))
+                                pTemp->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                        }
                     }
                 }
             }
-        }
-    };
+        };
 
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_unleashed_darkAI(creature);
+        }
 };
 
 class mob_unleashed_light : public CreatureScript
 {
-public:
-    mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }
+    public:
+        mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_unleashed_lightAI(creature);
-    }
-
-    struct mob_unleashed_lightAI : public mob_unleashed_ballAI
-    {
-        mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
-
-        void UpdateAI(const uint32 uiDiff)
+        struct mob_unleashed_lightAI : public mob_unleashed_ballAI
         {
-            if (m_uiRangeCheckTimer < uiDiff)
+            mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
+
+            void UpdateAI(const uint32 uiDiff)
             {
-                if (me->SelectNearestPlayer(3.0f))
+                if (m_uiRangeCheckTimer < uiDiff)
+                {
+                    if (me->SelectNearestPlayer(3.0f))
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
                         me->GetMotionMaster()->MoveIdle();
-                        me->DespawnOrUnsummon(1000);
+                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
-                m_uiRangeCheckTimer = 500;
+                    m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
+                }
+                else
+                    m_uiRangeCheckTimer -= uiDiff;
             }
-            else m_uiRangeCheckTimer -= uiDiff;
-        }
 
-        void SpellHitTarget(Unit* who, SpellInfo const* spell)
-        {
-            if (spell->Id == SPELL_UNLEASHED_LIGHT_HELPER)
+            void SpellHitTarget(Unit* who, SpellInfo const* spell)
             {
-                if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
+                if (spell->Id == SPELL_UNLEASHED_LIGHT_HELPER)
                 {
-                    // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
-                    Aura* pAura = who->GetAura(SPELL_POWERING_UP_HELPER);
-                    if (pAura)
+                    if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
                     {
-                        pAura->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
-                        who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
-                    }
-                    else
-                    {
-                        who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
-                        if (Aura* pTemp = who->GetAura(SPELL_POWERING_UP_HELPER))
-                            pTemp->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                        // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
+                        Aura* pAura = who->GetAura(SPELL_POWERING_UP_HELPER);
+                        if (pAura)
+                        {
+                            pAura->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                            who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
+                        }
+                        else
+                        {
+                            who->CastSpell(who, SPELL_POWERING_UP_HELPER, true);
+                            if (Aura* pTemp = who->GetAura(SPELL_POWERING_UP_HELPER))
+                                pTemp->ModStackAmount(int(spell->Effects[EFFECT_0].CalcValue() * 0.001) - 1);
+                        }
                     }
                 }
             }
-        }
-    };
+        };
 
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_unleashed_lightAI(creature);
+        }
 };
 
 class mob_bullet_controller : public CreatureScript
 {
-public:
-    mob_bullet_controller() : CreatureScript("mob_bullet_controller") { }
+    public:
+        mob_bullet_controller() : CreatureScript("mob_bullet_controller") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_bullet_controllerAI(creature);
-    }
-
-    struct mob_bullet_controllerAI : public Scripted_NoMovementAI
-    {
-        mob_bullet_controllerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        struct mob_bullet_controllerAI : public Scripted_NoMovementAI
         {
-            Reset();
-        }
+            mob_bullet_controllerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            {
+                Reset();
+            }
 
-        void Reset()
-        {
-            DoCastAOE(SPELL_CONTROLLER_PERIODIC);
-        }
+            void Reset()
+            {
+                DoCastAOE(SPELL_CONTROLLER_PERIODIC);
+            }
 
-        void UpdateAI(const uint32 /*uiDiff*/)
+            void UpdateAI(const uint32 /*uiDiff*/)
+            {
+                UpdateVictim();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            UpdateVictim();
+            return new mob_bullet_controllerAI(creature);
         }
-    };
 };
 
 class spell_powering_up : public SpellScriptLoader
@@ -965,6 +966,7 @@ void AddSC_boss_twin_valkyr()
     new mob_unleashed_dark();
     new mob_essence_of_twin();
     new mob_bullet_controller();
+
     new spell_powering_up();
     new spell_valkyr_essences();
     new spell_power_of_the_twins();

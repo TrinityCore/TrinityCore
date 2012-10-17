@@ -168,8 +168,8 @@ class boss_xt002 : public CreatureScript
         // Internal definitions
         enum XT002Phase
         {
-            PHASE_ONE = 1,
-            PHASE_TWO
+            PHASE_ACTIVE = 1,
+            PHASE_PASSIVE
         };
 
         enum XT002HeartPhase
@@ -232,10 +232,10 @@ class boss_xt002 : public CreatureScript
                 SetPhaseOne();
                 me->GetMotionMaster()->MovePath(WAYPOINT_XT, true);
                 transferHealth = 0;
-                phase = PHASE_ONE;
+                phase = PHASE_ACTIVE;
                 heartPhase = PHASE_AT_100_PERCT;
                 events.Reset();
-                events.SetPhase(PHASE_ONE);
+                events.SetPhase(PHASE_ACTIVE);
 
                 if (!instance)
                     return;
@@ -258,11 +258,11 @@ class boss_xt002 : public CreatureScript
                 Talk(SAY_AGGRO);
                 _EnterCombat();
 
-                events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE, 0, PHASE_ACTIVE);
+                events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ACTIVE);
+                events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT, 0, PHASE_ACTIVE);
                 // Due to Hordeguides, the first Tympanic Tantrum gets scheduled after ~1min.
-                events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX)*2, 0, PHASE_ONE);                               
+                events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX)*2, 0, PHASE_ACTIVE);                               
 
                 if (!instance)
                     return;
@@ -302,7 +302,7 @@ class boss_xt002 : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
-                if (!hardMode && phase == PHASE_ONE && HealthBelowPct(heartPhase))
+                if (!hardMode && phase == PHASE_ACTIVE && HealthBelowPct(heartPhase))
                     ExposeHeart();
             }
 
@@ -355,20 +355,18 @@ class boss_xt002 : public CreatureScript
                         case EVENT_SEARING_LIGHT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_SEARING_LIGHT);
-
-                            events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT, 0, PHASE_ACTIVE);
                             return;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_GRAVITY_BOMB);
-
-                            events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ACTIVE);
                             return;
                         case EVENT_TYMPANIC_TANTRUM:
                             Talk(SAY_TYMPANIC_TANTRUM);
                             Talk(EMOTE_TYMPANIC);
                             DoCast(SPELL_TYMPANIC_TANTRUM);
-                            events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX), 0, PHASE_ACTIVE);
                             return;
                         case EVENT_DISPOSE_HEART:
                             SetPhaseOne();
@@ -416,20 +414,20 @@ class boss_xt002 : public CreatureScript
                                 default:
                                     break;
                             }
-                            events.ScheduleEvent(EVENT_SPAWN_ADDS, 4*IN_MILLISECONDS, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_SPAWN_ADDS, 4*IN_MILLISECONDS, 0, PHASE_PASSIVE);
                             return;
                         }
                         case EVENT_OVERLOAD_VISUAL:
                             if (Unit* toyPile = ObjectAccessor::GetUnit(*me, instance->GetData64(DATA_TOY_PILE_0 + urand(0, 3))))
                                 me->CastSpell(toyPile, SPELL_ENERGY_ORB, true);
-                            events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS), 0, PHASE_PASSIVE);
                             return;
                         default:
                             return;
                     }
                 }
 
-                if (phase == PHASE_ONE)
+                if (phase == PHASE_ACTIVE)
                     DoMeleeAttackIfReady();
             }
 
@@ -485,14 +483,14 @@ class boss_xt002 : public CreatureScript
                 events.CancelEvent(EVENT_TYMPANIC_TANTRUM);
 
                 // Phase 2 has officially started
-                phase = PHASE_TWO;
+                phase = PHASE_PASSIVE;
                 RecalcHeartPhase();
                 // Start "end of phase 2 timer"
-                events.SetPhase(PHASE_TWO);
-                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE, 0, PHASE_TWO);
-                events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS), 0, PHASE_TWO);
+                events.SetPhase(PHASE_PASSIVE);
+                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE, 0, PHASE_PASSIVE);
+                events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS), 0, PHASE_PASSIVE);
                 // Hordeguides: Add-spawn is running in phase 2
-                events.ScheduleEvent(EVENT_SPAWN_ADDS, 2*IN_MILLISECONDS, 0, PHASE_TWO);
+                events.ScheduleEvent(EVENT_SPAWN_ADDS, 2*IN_MILLISECONDS, 0, PHASE_PASSIVE);
             }
 
             void SetPhaseOne()
@@ -505,12 +503,12 @@ class boss_xt002 : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                phase = PHASE_ONE;
-                events.SetPhase(PHASE_ONE);
+                phase = PHASE_ACTIVE;
+                events.SetPhase(PHASE_ACTIVE);
                 
-                events.RescheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT / 2, 0, PHASE_ONE);
-                events.RescheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ONE);
-                events.RescheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX)*2, 0, PHASE_ONE);
+                events.RescheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT / 2, 0, PHASE_ACTIVE);
+                events.RescheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ACTIVE);
+                events.RescheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX)*2, 0, PHASE_ACTIVE);
 
                 /* Uncomment when XT works well as vehicle
                 Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
@@ -608,6 +606,11 @@ class mob_xt002_heart : public CreatureScript
  *///----------------------------------------------------
 class mob_scrapbot : public CreatureScript
 {
+    enum Event
+    {
+        EVENT_RANGE_CHECK   = 1
+    };
+
     public:
         mob_scrapbot() : CreatureScript("mob_scrapbot") {}
 
@@ -621,8 +624,7 @@ class mob_scrapbot : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-
-                rangeCheckTimer = 500;
+                events.ScheduleEvent(EVENT_RANGE_CHECK, 0.5*IN_MILLISECONDS);
 
                 if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
@@ -633,34 +635,44 @@ class mob_scrapbot : public CreatureScript
                 if (instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
-                if (rangeCheckTimer <= diff)
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
+                    switch (eventId)
                     {
-                        if (!casted && xt002->isAlive())
-                            if (me->IsWithinMeleeRange(xt002))
+                        case EVENT_RANGE_CHECK:
+                            if (Creature* xt002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
                             {
-                                casted = true;
-                                Talk(EMOTE_REPAIR);
-                                xt002->CastSpell(xt002, SPELL_HEAL_XT002, true);
-                                xt002->AI()->DoAction(ACTION_XT002_REACHED);
-                                /*
-                                DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
-                                // Unapply vehicle aura again
-                                xt002->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
-                                */
-                                me->DespawnOrUnsummon();
+                                if (!casted && xt002->isAlive())
+                                    if (me->IsWithinMeleeRange(xt002))
+                                    {
+                                        casted = true;
+                                        Talk(EMOTE_REPAIR);
+                                        xt002->CastSpell(xt002, SPELL_HEAL_XT002, true);
+                                        xt002->AI()->DoAction(ACTION_XT002_REACHED);
+                                        /*
+                                        DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
+                                        // Unapply vehicle aura again
+                                        xt002->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
+                                        */
+                                        me->DespawnOrUnsummon();
+                                    }
                             }
+                            return;
+                        default:
+                            return;
                     }
                 }
-                else
-                    rangeCheckTimer -= diff;
             }
 
             private:
                 InstanceScript* instance;
-                uint32 rangeCheckTimer;
                 bool casted;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -679,7 +691,9 @@ class mob_pummeller : public CreatureScript
     private:
         enum 
         { 
-            EVENT_ARCING_SMASH = 1, EVENT_TRAMPLE, EVENT_UPPERCUT, // 1,2,3...
+            EVENT_ARCING_SMASH = 1,
+            EVENT_TRAMPLE,
+            EVENT_UPPERCUT,
             TIMER_ARCING_SMASH = 7*IN_MILLISECONDS,
             TIMER_TRAMPLE      = 2*IN_MILLISECONDS,
             TIMER_UPPERCUT     = 7*IN_MILLISECONDS
@@ -715,9 +729,9 @@ class mob_pummeller : public CreatureScript
                 if (me->IsWithinMeleeRange(me->getVictim()))
                 {
                     events.Update(diff);
-                    while (uint32 event = events.ExecuteEvent())
+                    while (uint32 eventId = events.ExecuteEvent())
                     {
-                        switch (event)
+                        switch (eventId)
                         {
                             case EVENT_ARCING_SMASH:
                                 DoCast(me->getVictim(), SPELL_ARCING_SMASH);
@@ -862,7 +876,8 @@ class mob_life_spark : public CreatureScript
     private:
         enum
         {
-            TIMER_SHOCK = 12*IN_MILLISECONDS
+            TIMER_SHOCK = 12*IN_MILLISECONDS,
+            EVENT_SHOCK
         };
 
     public:
@@ -875,7 +890,7 @@ class mob_life_spark : public CreatureScript
             void Reset()
             {
                 DoCast(me, SPELL_STATIC_CHARGED);
-                shockTimer = 0; // first one is immediate.
+                events.ScheduleEvent(EVENT_SHOCK, 0); // first one is immediate.
             }
 
             void UpdateAI(const uint32 diff)
@@ -883,19 +898,30 @@ class mob_life_spark : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (shockTimer <= diff)
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (me->IsWithinMeleeRange(me->getVictim()))
+                    switch (eventId)
                     {
-                        DoCast(me->getVictim(), SPELL_SHOCK);
-                        shockTimer = TIMER_SHOCK;
+                        case EVENT_SHOCK:
+                            if (me->IsWithinMeleeRange(me->getVictim()))
+                            {
+                                DoCast(me->getVictim(), SPELL_SHOCK);
+                                events.ScheduleEvent(EVENT_SHOCK, TIMER_SHOCK);
+                            }
+                            return;
+                        default:
+                            return;
                     }
                 }
-                else shockTimer -= diff;
             }
 
             private:
-                uint32 shockTimer;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -906,41 +932,58 @@ class mob_life_spark : public CreatureScript
 
 class mob_void_zone : public CreatureScript
 {
-public:
-    mob_void_zone() : CreatureScript("mob_void_zone") {}
-
-    struct mob_void_zoneAI : public Scripted_NoMovementAI
+    enum Event
     {
-        mob_void_zoneAI(Creature* creature) : Scripted_NoMovementAI(creature)
-        {
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void Reset()
-        {
-            consumptionTimer = 3*IN_MILLISECONDS;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (consumptionTimer <= diff)
-            {
-                int32 dmg = RAID_MODE<uint32>(5000, 7500);
-                me->CastCustomSpell(me, SPELL_CONSUMPTION, &dmg, 0, 0, false);
-                consumptionTimer = 3*IN_MILLISECONDS;
-            }
-            else
-                consumptionTimer -= diff;
-        }
-
-    private:
-        uint32 consumptionTimer;
+        EVENT_CONSUMPTION   = 1
     };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_void_zoneAI(creature);
-    }
+    public:
+        mob_void_zone() : CreatureScript("mob_void_zone") {}
+
+        struct mob_void_zoneAI : public Scripted_NoMovementAI
+        {
+            mob_void_zoneAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            {
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Reset()
+            {
+                events.ScheduleEvent(EVENT_CONSUMPTION, 3*IN_MILLISECONDS);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CONSUMPTION:
+                        {
+                            int32 dmg = RAID_MODE<uint32>(5000, 7500);
+                            me->CastCustomSpell(me, SPELL_CONSUMPTION, &dmg, 0, 0, false);
+                            events.ScheduleEvent(EVENT_CONSUMPTION, 3*IN_MILLISECONDS);
+                            return;
+                        }
+                        default:
+                            return;
+                    }
+                }
+            }
+
+        private:
+            EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_void_zoneAI(creature);
+        }
 };
 
 class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader

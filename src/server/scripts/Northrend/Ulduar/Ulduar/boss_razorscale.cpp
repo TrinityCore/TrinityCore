@@ -37,7 +37,7 @@ enum CommanderSays
 enum EngineerSays
 {
     SAY_AGGRO                                   = 0,
-    SAY_TURRETS                                 = 1,
+    SAY_TURRETS                                 = 1
 };
 
 enum RazorscaleControllerEmote
@@ -374,6 +374,8 @@ class boss_razorscale : public CreatureScript
                 HarpoonCounter = 0;
                 if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXPEDITION_COMMANDER) : 0))
                     commander->AI()->DoAction(ACTION_COMMANDER_RESET);
+                events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS, 0, PHASE_PERMAGROUND | PHASE_GROUND | PHASE_FLIGHT);
+                events.ScheduleEvent(EVENT_FLIGHT, 0, 0, PHASE_GROUND);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -384,9 +386,7 @@ class boss_razorscale : public CreatureScript
                 phase = PHASE_GROUND;
                 events.SetPhase(PHASE_GROUND);
                 FlyCount = 0;
-                EnrageTimer = 15*MINUTE*IN_MILLISECONDS; // 15 minutes
                 Enraged = false;
-                events.ScheduleEvent(EVENT_FLIGHT, 0, 0, PHASE_GROUND);
             }
 
             void JustDied(Unit* /*who*/)
@@ -452,14 +452,6 @@ class boss_razorscale : public CreatureScript
                 if (HealthBelowPct(50) && !PermaGround)
                     EnterPermaGround();
 
-                if (EnrageTimer <= diff && !Enraged)
-                {
-                    DoCast(me, SPELL_BERSERK);
-                    Enraged = true;
-                }
-                else
-                    EnrageTimer -= diff;
-
                 if (HarpoonCounter == RAID_MODE(2, 4))
                 {
                     HarpoonCounter = 0;
@@ -513,6 +505,9 @@ class boss_razorscale : public CreatureScript
                                     controller->CastSpell(controller, SPELL_FLAMED, true);
                                 events.CancelEvent(EVENT_BUFFET);
                                 return;
+                            case EVENT_BERSERK:
+                                DoCast(me, SPELL_BERSERK);
+                                return;
                             default:
                                 return;
                         }
@@ -551,6 +546,9 @@ class boss_razorscale : public CreatureScript
                                 DoCast(me->getVictim(), SPELL_FUSEARMOR);
                                 events.ScheduleEvent(EVENT_FUSE, 10*IN_MILLISECONDS, 0, PHASE_PERMAGROUND);
                                 return;
+                            case EVENT_BERSERK:
+                                DoCast(me, SPELL_BERSERK);
+                                return;
                             default:
                                 return;
                         }
@@ -584,6 +582,9 @@ class boss_razorscale : public CreatureScript
                                 SummonMoleMachines();
                                 events.ScheduleEvent(EVENT_SUMMON, 45*IN_MILLISECONDS, 0, PHASE_FLIGHT);
                                 return;
+                            case EVENT_BERSERK:
+                                DoCast(me, SPELL_BERSERK);
+                                return;
                             default:
                                 return;
                         }
@@ -616,7 +617,7 @@ class boss_razorscale : public CreatureScript
             {
                 // Adds will come in waves from mole machines. One mole can spawn a Dark Rune Watcher with 1-2 Guardians, or a lone Sentinel. 
                 // 10m mode spawns 2 moles, 25m 4
-                uint8 amount = RAID_MODE(urand(1,2), urand(3,4));
+                uint8 amount = RAID_MODE(2, 4);
                 for (uint8 n = 0; n < amount; n++)
                 {
                     float x = float(irand(540, 640));       // Safe range is between 500 and 650
@@ -641,7 +642,6 @@ class boss_razorscale : public CreatureScript
             }
             private:
                 Phases phase;
-                uint32 EnrageTimer;
                 uint8 FlyCount;
                 uint8 HarpoonCounter;
                 bool PermaGround;
@@ -667,13 +667,7 @@ class npc_expedition_commander : public CreatureScript
                 Greet = false;
             }
 
-            InstanceScript* instance;
-            SummonList summons;
-            bool Greet;
-            uint32 AttackStartTimer;
             uint8  Phase;
-            Creature* Engineer[4];
-            Creature* Defender[4];
 
             void Reset()
             {
@@ -775,6 +769,14 @@ class npc_expedition_commander : public CreatureScript
                 else
                     AttackStartTimer -= Diff;
             }
+
+            private:
+                InstanceScript* instance;
+                SummonList summons;
+                bool Greet;
+                uint32 AttackStartTimer;
+                Creature* Engineer[4];
+                Creature* Defender[4];
         };
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
@@ -850,9 +852,9 @@ class npc_mole_machine_trigger : public CreatureScript
             {
                 events.Update(diff);
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_SUMMON_GOB:
                             DoCast(SPELL_SUMMON_MOLE_MACHINE);
@@ -941,9 +943,6 @@ class npc_darkrune_watcher : public CreatureScript
         {
             npc_darkrune_watcherAI(Creature* creature) : ScriptedAI(creature){}
 
-            uint32 ChainTimer;
-            uint32 LightTimer;
-
             void Reset()
             {
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
@@ -963,9 +962,9 @@ class npc_darkrune_watcher : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {
                         case EVENT_CHAIN_LIGHTNING:                            
                             DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
@@ -1087,9 +1086,9 @@ class npc_darkrune_sentinel : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 event = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (event)
+                    switch (eventId)
                     {   
                         case EVENT_HEROIC_STRIKE:
                             DoCast(me->getVictim(), SPELL_HEROIC_STRIKE);

@@ -81,7 +81,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             else if (spellproto->Id == 47481)
                 return DIMINISHING_CONTROLLED_STUN;
             // ToC Icehowl Arctic Breath
-            else if (spellproto->Id == 72848)
+            else if (spellproto->SpellVisual[0] == 14153)
                 return DIMINISHING_NONE;
             break;
         }
@@ -3531,6 +3531,10 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 71085: // Mana Void (periodic aura)
                 spellInfo->DurationIndex = 9; // 30 seconds (missing)
+                break;
+            case 72015: // Frostbolt Volley (only heroic)
+            case 72016: // Frostbolt Volley (only heroic)
+                spellInfo->EffectRadiusIndex[2] = EFFECT_RADIUS_40_YARDS;
                 break;
             case 70936: // Summon Suppressor (needs target selection script)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;

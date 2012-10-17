@@ -431,6 +431,12 @@ enum UlduarArea
     AREA_FORMATION_GROUNDS  = 4652
 };
 
+enum UlduarFactions
+{
+    FACTION_HOSTILE = 14,
+    FACTION_FRIENDLY = 35
+};
+
 // leviathans spawn position after wipe
 Position const Center =
 {
@@ -469,6 +475,19 @@ class PlayerOrPetCheck
                     return true;
 
             return false;
+        }
+};
+
+class NoPlayerOrPetCheck
+{
+    public:
+        bool operator() (WorldObject* unit)
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit->ToCreature()->isPet())
+                    return false;
+
+            return true;
         }
 };
 

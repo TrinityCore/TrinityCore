@@ -47,7 +47,7 @@ enum Yells
     SAY_KILL_PLAYER         = 7,
     SAY_DEATH               = 8,
 
-    EMOTE_SPIKE             = 0,
+    EMOTE_SPIKE             = 0
 };
 
 enum Summons
@@ -129,355 +129,362 @@ enum PursuingSpikesPhases
 
 class boss_anubarak_trial : public CreatureScript
 {
-public:
-    boss_anubarak_trial() : CreatureScript("boss_anubarak_trial") { }
-
-    CreatureAI* GetAI(Creature* creature) const
+    enum Events
     {
-        return new boss_anubarak_trialAI(creature);
+        EVENT_FREEZE_SLASH      = 1,
+        EVENT_PENETRATING_COLD,
+        EVENT_SUMMON_NERUBIAN,
+        EVENT_SUBMERGE,
+        EVENT_EMERGE,
+        EVENT_PURSUING_SPIKE,
+        EVENT_SUMMON_SCARAB
     };
 
-    struct boss_anubarak_trialAI : public ScriptedAI
+    enum Phases
     {
-        boss_anubarak_trialAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        PHASE_MELEE     = 1,
+        PHASE_SUBMERGING,
+        PHASE_SUBMERGED,
+        PHASE_EMERGING
+    };
+
+    public:
+        boss_anubarak_trial() : CreatureScript("boss_anubarak_trial") { }
+
+        struct boss_anubarak_trialAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        SummonList Summons;
-        std::list<uint64> m_vBurrowGUID;
-
-        uint32 m_uiFreezeSlashTimer;
-        uint32 m_uiPenetratingColdTimer;
-        uint32 m_uiSummonNerubianTimer;
-        uint32 m_uiSubmergeTimer;
-        uint32 m_uiPursuingSpikeTimer;
-        uint32 m_uiSummonScarabTimer;
-        uint32 m_uiSummonFrostSphereTimer;
-        uint32 m_uiBerserkTimer;
-
-        uint8  m_uiStage;
-        bool   m_bIntro;
-        bool   m_bReachedPhase3;
-        uint8  m_uiScarabSummoned;
-
-        void Reset()
-        {
-            m_uiFreezeSlashTimer = 15*IN_MILLISECONDS;
-            m_uiPenetratingColdTimer = 20*IN_MILLISECONDS;
-            m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
-            m_uiSubmergeTimer = 80*IN_MILLISECONDS;
-
-            m_uiPursuingSpikeTimer = 2*IN_MILLISECONDS;
-            m_uiSummonScarabTimer = 2*IN_MILLISECONDS;
-
-            m_uiSummonFrostSphereTimer = 20*IN_MILLISECONDS;
-
-            m_uiBerserkTimer = 10*MINUTE*IN_MILLISECONDS;
-            m_uiStage = 0;
-            m_uiScarabSummoned = 0;
-            m_bIntro = true;
-            m_bReachedPhase3 = false;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            // clean up spawned Frost Spheres
-            std::list<Creature*> FrostSphereList;
-            me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
-            if (!FrostSphereList.empty())
-                for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
-                    (*itr)->DespawnOrUnsummon();
-
-            Summons.DespawnAll();
-            m_vBurrowGUID.clear();
-        }
-
-        void KilledUnit(Unit* who)
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            boss_anubarak_trialAI(Creature* creature) : BossAI(creature, BOSS_ANUBARAK)
             {
-                Talk(SAY_KILL_PLAYER);
+            }
+
+            void Reset()
+            {
+                phase = PHASE_MELEE;
+                events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
+                events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
+                events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 10*IN_MILLISECONDS, 0, PHASE_MELEE);
+                events.ScheduleEvent(EVENT_SUBMERGE, 80*IN_MILLISECONDS, 0, PHASE_MELEE);
+                m_uiBerserkTimer = 10*MINUTE*IN_MILLISECONDS;
+
+                if (!IsHeroic())
+                    m_uiFrostSphereTimer = 20*IN_MILLISECONDS;
+
+                m_bIntro = true;
+                m_bReachedPhase3 = false;
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                // clean up spawned Frost Spheres
+                std::list<Creature*> FrostSphereList;
+                me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
+                if (!FrostSphereList.empty())
+                    for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
+                        (*itr)->DespawnOrUnsummon();
+
+                summons.DespawnAll();
+                m_vBurrowGUID.clear();
+            }
+
+            void KilledUnit(Unit* who)
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                {
+                    Talk(SAY_KILL_PLAYER);
+                    if (instance)
+                        instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                }
+            }
+
+            void MoveInLineOfSight(Unit* /*who*/)
+            {
+                if (!m_bIntro)
+                {
+                    Talk(SAY_INTRO);
+                    m_bIntro = false;
+                }
+            }
+
+            void JustReachedHome()
+            {
                 if (instance)
-                    instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
-            }
-        }
-
-        void MoveInLineOfSight(Unit* /*who*/)
-        {
-            if (!m_bIntro)
-            {
-                Talk(SAY_INTRO);
-                m_bIntro = false;
-            }
-        }
-
-        void JustReachedHome()
-        {
-            if (instance)
-                instance->SetData(TYPE_ANUBARAK, FAIL);
-            //Summon Scarab Swarms neutral at random places
-            for (int i=0; i < 10; i++)
-                if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
-                    temp->setFaction(31);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            Summons.DespawnAll();
-            Talk(SAY_DEATH);
-            if (instance)
-                instance->SetData(TYPE_ANUBARAK, DONE);
-
-            // despawn frostspheres and Burrowers on death
-            std::list<Creature*> AddList;
-            me->GetCreatureListWithEntryInGrid(AddList, NPC_FROST_SPHERE, 150.0f);
-            me->GetCreatureListWithEntryInGrid(AddList, NPC_BURROWER, 150.0f);
-            if (!AddList.empty())
-                for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); itr++)
-                    (*itr)->DespawnOrUnsummon();
-        }
-
-        void JustSummoned(Creature* summoned)
-        {
-            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-            switch (summoned->GetEntry())
-            {
-                case NPC_BURROW:
-                    m_vBurrowGUID.push_back(summoned->GetGUID());
-                    summoned->SetReactState(REACT_PASSIVE);
-                    summoned->CastSpell(summoned, SPELL_CHURNING_GROUND, false);
-                    summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
-                    break;
-                case NPC_SPIKE:
-                    summoned->CombatStart(target);
-                    summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid1);
-                    Talk(EMOTE_SPIKE, target->GetGUID());
-                    break;
-            }
-            Summons.Summon(summoned);
-        }
-
-        void SummonedCreatureDespawn(Creature* summoned)
-        {
-            switch (summoned->GetEntry())
-            {
-                case NPC_SPIKE:
-                    m_uiPursuingSpikeTimer = 2*IN_MILLISECONDS;
-                    break;
-            }
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            Talk(SAY_AGGRO);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetInCombatWithZone();
-            if (instance)
-                instance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
-            //Despawn Scarab Swarms neutral
-            EntryCheckPredicate pred(NPC_SCARAB);
-            Summons.DoAction(ACTION_SCARAB_SUBMERGE, pred);
-            //Spawn Burrow
-            for (int i=0; i < 4; i++)
-                me->SummonCreature(NPC_BURROW, AnubarakLoc[i+2]);
-            //Spawn Frost Spheres
-            for (int i=0; i < 6; i++)
-                SummonFrostSphere();
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            switch (m_uiStage)
-            {
-                case 0:
-                    if (m_uiFreezeSlashTimer <= uiDiff)
-                    {
-                        DoCastVictim(SPELL_FREEZE_SLASH);
-                        m_uiFreezeSlashTimer = 15*IN_MILLISECONDS;
-                    } else m_uiFreezeSlashTimer -= uiDiff;
-
-                    if (m_uiPenetratingColdTimer <= uiDiff)
-                    {
-                        me->CastCustomSpell(SPELL_PENETRATING_COLD, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5, 2, 5));
-                        m_uiPenetratingColdTimer = 20*IN_MILLISECONDS;
-                    } else m_uiPenetratingColdTimer -= uiDiff;
-
-                    if (m_uiSummonNerubianTimer <= uiDiff && (IsHeroic() || !m_bReachedPhase3))
-                    {
-                        me->CastCustomSpell(SPELL_SUMMON_BURROWER, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
-                        m_uiSummonNerubianTimer = 45*IN_MILLISECONDS;
-                    } else m_uiSummonNerubianTimer -= uiDiff;
-
-                    if (m_uiSubmergeTimer <= uiDiff && !m_bReachedPhase3 && !me->HasAura(SPELL_BERSERK))
-                    {
-                        m_uiStage = 1;
-                        m_uiSubmergeTimer = 60*IN_MILLISECONDS;
-                    } else m_uiSubmergeTimer -= uiDiff;
-                    break;
-                case 1:
-                    DoCast(me, SPELL_SUBMERGE_ANUBARAK);
-                    DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    Talk(EMOTE_BURROWER);
-                    m_uiScarabSummoned = 0;
-                    m_uiSummonScarabTimer = 4*IN_MILLISECONDS;
-                    m_uiStage = 2;
-                    break;
-                case 2:
-                    if (m_uiPursuingSpikeTimer <= uiDiff)
-                    {
-                        DoCast(SPELL_SPIKE_CALL);
-                        // Just to make sure it won't happen again in this phase
-                        m_uiPursuingSpikeTimer = 90*IN_MILLISECONDS;
-                    } else m_uiPursuingSpikeTimer -= uiDiff;
-
-                    if (m_uiSummonScarabTimer <= uiDiff)
-                    {
-                        /* WORKAROUND
-                         * - The correct implementation is more likely the comment below but it needs spell knowledge
-                         */
-                        std::list<uint64>::iterator i = m_vBurrowGUID.begin();
-                        uint32 at = urand(0, m_vBurrowGUID.size()-1);
-                        for (uint32 k = 0; k < at; k++)
-                            ++i;
-                        if (Creature* pBurrow = Unit::GetCreature(*me, *i))
-                            pBurrow->CastSpell(pBurrow, 66340, false);
-                        m_uiScarabSummoned++;
-                        m_uiSummonScarabTimer = 4*IN_MILLISECONDS;
-                        if (m_uiScarabSummoned == 4) m_uiSummonScarabTimer = RAID_MODE(4, 20)*IN_MILLISECONDS;
-
-                        /*It seems that this spell have something more that needs to be taken into account
-                        //Need more sniff info
-                        DoCast(SPELL_SUMMON_BEATLES);
-                        // Just to make sure it won't happen again in this phase
-                        m_uiSummonScarabTimer = 90*IN_MILLISECONDS;*/
-                    } else m_uiSummonScarabTimer -= uiDiff;
-
-                    if (m_uiSubmergeTimer <= uiDiff)
-                    {
-                        m_uiStage = 3;
-                        m_uiSubmergeTimer = 80*IN_MILLISECONDS;
-                    } else m_uiSubmergeTimer -= uiDiff;
-                    break;
-                case 3:
-                    m_uiStage = 0;
-                    DoCast(SPELL_SPIKE_TELE);
-                    Summons.DespawnEntry(NPC_SPIKE);
-                    me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    DoCast(me, SPELL_EMERGE_ANUBARAK);
-                    m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
-                    m_uiSummonScarabTimer = 2*IN_MILLISECONDS;
-                    break;
+                    instance->SetBossState(BOSS_ANUBARAK, FAIL);
+                //Summon Scarab Swarms neutral at random places
+                for (int i = 0; i < 10; i++)
+                    if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
+                        temp->setFaction(31);
             }
 
-            if (!IsHeroic())
+            void JustDied(Unit* /*killer*/)
             {
-                if (m_uiSummonFrostSphereTimer <= uiDiff)
+                _JustDied();
+                Talk(SAY_DEATH);
+
+                // despawn frostspheres and Burrowers on death
+                std::list<Creature*> AddList;
+                me->GetCreatureListWithEntryInGrid(AddList, NPC_FROST_SPHERE, 150.0f);
+                me->GetCreatureListWithEntryInGrid(AddList, NPC_BURROWER, 150.0f);
+                if (!AddList.empty())
+                    for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); itr++)
+                        (*itr)->DespawnOrUnsummon();
+            }
+
+            void JustSummoned(Creature* summoned)
+            {
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                switch (summoned->GetEntry())
+                {
+                    case NPC_BURROW:
+                        m_vBurrowGUID.push_back(summoned->GetGUID());
+                        summoned->SetReactState(REACT_PASSIVE);
+                        summoned->CastSpell(summoned, SPELL_CHURNING_GROUND, false);
+                        summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
+                        break;
+                    case NPC_SPIKE:
+                        summoned->CombatStart(target);
+                        summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid1);
+                        Talk(EMOTE_SPIKE, target->GetGUID());
+                        break;
+                    default:
+                        break;
+                }
+                summons.Summon(summoned);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+
+                //Despawn Scarab Swarms neutral
+                EntryCheckPredicate pred(NPC_SCARAB);
+                summons.DoAction(ACTION_SCARAB_SUBMERGE, pred);
+
+                //Spawn Burrow
+                for (int i = 0; i < 4; i++)
+                    me->SummonCreature(NPC_BURROW, AnubarakLoc[i + 2]);
+
+                //Spawn Frost Spheres
+                for (int i = 0; i < 6; i++)
+                    SummonFrostSphere();
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(uiDiff);
+
+                switch (phase)
+                {
+                    case PHASE_MELEE:
+                        while (uint32 eventId = events.ExecuteEvent())
+                        {
+                            switch (eventId)
+                            {
+                                case EVENT_FREEZE_SLASH:
+                                    DoCastVictim(SPELL_FREEZE_SLASH);
+                                    events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
+                                    return;
+                                case EVENT_PENETRATING_COLD:
+                                    me->CastCustomSpell(SPELL_PENETRATING_COLD, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5, 2, 5));
+                                    events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, 0, PHASE_MELEE);
+                                    return;
+                                case EVENT_SUMMON_NERUBIAN:
+                                    if (IsHeroic() || !m_bReachedPhase3)
+                                        me->CastCustomSpell(SPELL_SUMMON_BURROWER, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
+                                    events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 45*IN_MILLISECONDS, 0, PHASE_MELEE);
+                                    return;
+                                case EVENT_SUBMERGE:
+                                    if (!m_bReachedPhase3 && !me->HasAura(SPELL_BERSERK))
+                                        phase = PHASE_SUBMERGING;
+                                    return;
+                                default:
+                                    return;
+                            }
+                        }
+                        break;
+                    case PHASE_SUBMERGING:
+                        DoCast(me, SPELL_SUBMERGE_ANUBARAK);
+                        DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        Talk(EMOTE_BURROWER);
+                        phase = PHASE_SUBMERGED;
+                        events.ScheduleEvent(EVENT_PURSUING_SPIKE, 2*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                        events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                        events.ScheduleEvent(EVENT_EMERGE, 1*MINUTE*IN_MILLISECONDS);
+                        break;
+                    case PHASE_SUBMERGED:
+                        while (uint32 eventId = events.ExecuteEvent())
+                        {
+                            switch (eventId)
+                            {
+                                case EVENT_PURSUING_SPIKE:
+                                    DoCast(SPELL_SPIKE_CALL);
+                                    return;
+                                case EVENT_SUMMON_SCARAB:
+                                {
+                                    /* WORKAROUND
+                                     * - The correct implementation is more likely the comment below but it needs spell knowledge
+                                     */
+                                    std::list<uint64>::iterator i = m_vBurrowGUID.begin();
+                                    uint32 at = urand(0, m_vBurrowGUID.size()-1);
+                                    for (uint32 k = 0; k < at; k++)
+                                        ++i;
+                                    if (Creature* pBurrow = Unit::GetCreature(*me, *i))
+                                        pBurrow->CastSpell(pBurrow, 66340, false);
+
+                                    events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+
+                                    /*It seems that this spell have something more that needs to be taken into account
+                                    //Need more sniff info
+                                    DoCast(SPELL_SUMMON_BEATLES);
+                                    // Just to make sure it won't happen again in this phase
+                                    m_uiSummonScarabTimer = 90*IN_MILLISECONDS;*/
+                                    return;
+                                }
+                                case EVENT_EMERGE:
+                                    phase = PHASE_EMERGING;
+                                    events.ScheduleEvent(EVENT_SUBMERGE, 80*IN_MILLISECONDS, 0, PHASE_MELEE);
+                                    return;
+                                default:
+                                    return;
+                            }
+                        }
+                        break;
+                    case PHASE_EMERGING:
+                        phase = PHASE_MELEE;
+                        DoCast(SPELL_SPIKE_TELE);
+                        summons.DespawnEntry(NPC_SPIKE);
+                        me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        DoCast(me, SPELL_EMERGE_ANUBARAK);
+                        events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
+                        events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
+                        events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 10*IN_MILLISECONDS, 0, PHASE_MELEE);
+                        events.ScheduleEvent(EVENT_SUBMERGE, 80*IN_MILLISECONDS, 0, PHASE_MELEE);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (!IsHeroic() && m_uiFrostSphereTimer <= uiDiff)
                 {
                     SummonFrostSphere();
-                    m_uiSummonFrostSphereTimer = urand(20, 30)*IN_MILLISECONDS;
-                } else m_uiSummonFrostSphereTimer -= uiDiff;
+                    m_uiFrostSphereTimer = urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS);
+                }
+                else
+                    m_uiFrostSphereTimer -= uiDiff;
+
+                if (m_uiBerserkTimer <= uiDiff && !me->HasAura(SPELL_BERSERK))
+                    DoCast(me, SPELL_BERSERK);
+                else
+                    m_uiBerserkTimer -= uiDiff;
+
+                if (HealthBelowPct(30) && phase == PHASE_MELEE && !m_bReachedPhase3)
+                {
+                    m_bReachedPhase3 = true;
+                    DoCastAOE(SPELL_LEECHING_SWARM);
+                    Talk(EMOTE_LEECHING_SWARM);
+                    Talk(SAY_LEECHING_SWARM);
+                }
+
+                DoMeleeAttackIfReady();
             }
 
-            if (HealthBelowPct(30) && m_uiStage == 0 && !m_bReachedPhase3)
+            void SummonFrostSphere()
             {
-                m_bReachedPhase3 = true;
-                DoCastAOE(SPELL_LEECHING_SWARM);
-                Talk(EMOTE_LEECHING_SWARM);
-                Talk(SAY_LEECHING_SWARM);
+                float x = frand(700.f, 780.f);
+                float y = frand(105.f, 165.f);
+                float z = 155.6f;
+                me->SummonCreature(NPC_FROST_SPHERE, x, y, z);
             }
 
-            if (m_uiBerserkTimer <= uiDiff && !me->HasAura(SPELL_BERSERK))
-            {
-                DoCast(me, SPELL_BERSERK);
-            } else m_uiBerserkTimer -= uiDiff;
+            private:
+                std::list<uint64> m_vBurrowGUID;
+                bool m_bIntro;
+                bool m_bReachedPhase3;
+                Phases phase;
+                uint32 m_uiFrostSphereTimer;
+                uint32 m_uiBerserkTimer;
+        };
 
-            DoMeleeAttackIfReady();
-        }
-
-        void SummonFrostSphere()
+        CreatureAI* GetAI(Creature* creature) const
         {
-            float x = frand(700.f, 780.f);
-            float y = frand(105.f, 165.f);
-            float z = 155.6f;
-            me->SummonCreature(NPC_FROST_SPHERE, x, y, z);
-        }
-    };
-
+            return new boss_anubarak_trialAI(creature);
+        };
 };
 
 class mob_swarm_scarab : public CreatureScript
 {
-public:
-    mob_swarm_scarab() : CreatureScript("mob_swarm_scarab") { }
+    public:
+        mob_swarm_scarab() : CreatureScript("mob_swarm_scarab") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_swarm_scarabAI(creature);
-    };
-
-    struct mob_swarm_scarabAI : public ScriptedAI
-    {
-        mob_swarm_scarabAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_swarm_scarabAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        uint32 m_uiDeterminationTimer;
-
-        void Reset()
-        {
-            me->SetCorpseDelay(0);
-            m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
-            DoCast(me, SPELL_ACID_MANDIBLE);
-            me->SetInCombatWithZone();
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                me->AddThreat(target, 20000.0f);
-            if (!me->isInCombat())
-                me->DisappearAndDie();
-        }
-
-        void DoAction(const int32 actionId)
-        {
-            switch (actionId)
+            mob_swarm_scarabAI(Creature* creature) : ScriptedAI(creature)
             {
-                case ACTION_SCARAB_SUBMERGE:
-                    DoCast(SPELL_SUBMERGE_EFFECT);
-                    me->DespawnOrUnsummon(1000);
-                    break;
+                instance = creature->GetInstanceScript();
             }
-        }
 
-        void JustDied(Unit* killer)
-        {
-            DoCast(killer, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            /* Bosskillers don't recognize */
-            if (m_uiDeterminationTimer <= uiDiff)
+            void Reset()
             {
-                DoCast(me, SPELL_DETERMINATION);
-                m_uiDeterminationTimer = urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS);
-            } else m_uiDeterminationTimer -= uiDiff;
+                me->SetCorpseDelay(0);
+                m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
+                DoCast(me, SPELL_ACID_MANDIBLE);
+                me->SetInCombatWithZone();
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    me->AddThreat(target, 20000.0f);
+                if (!me->isInCombat())
+                    me->DisappearAndDie();
+            }
 
-            DoMeleeAttackIfReady();
-        }
-    };
+            void DoAction(const int32 actionId)
+            {
+                switch (actionId)
+                {
+                    case ACTION_SCARAB_SUBMERGE:
+                        DoCast(SPELL_SUBMERGE_EFFECT);
+                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
+            void JustDied(Unit* killer)
+            {
+                DoCast(killer, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                /* Bosskillers don't recognize */
+                if (m_uiDeterminationTimer <= uiDiff)
+                {
+                    DoCast(me, SPELL_DETERMINATION);
+                    m_uiDeterminationTimer = urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS);
+                }
+                else
+                    m_uiDeterminationTimer -= uiDiff;
+
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                InstanceScript* instance;
+                uint32 m_uiDeterminationTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_swarm_scarabAI(creature);
+        };
 };
 
 class mob_nerubian_burrower : public CreatureScript
@@ -494,91 +501,90 @@ class mob_nerubian_burrower : public CreatureScript
         EVENT_SHADOW_STRIKE
     };
 
-public:
-    mob_nerubian_burrower() : CreatureScript("mob_nerubian_burrower") { }
+    public:
+        mob_nerubian_burrower() : CreatureScript("mob_nerubian_burrower") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_nerubian_burrowerAI(creature);
-    };
-
-    struct mob_nerubian_burrowerAI : public ScriptedAI
-    {
-        mob_nerubian_burrowerAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_nerubian_burrowerAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        void Reset()
-        {
-            me->SetCorpseDelay(0);
-            events.ScheduleEvent(EVENT_SUBMERGE, 30*IN_MILLISECONDS, 0, PHASE_GROUND);
-            if (IsHeroic())
-                events.ScheduleEvent(EVENT_SHADOW_STRIKE, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS), 0, PHASE_GROUND);
-            DoCast(me, SPELL_EXPOSE_WEAKNESS);
-            DoCast(me, SPELL_SPIDER_FRENZY);
-            me->SetInCombatWithZone();
-            phase = PHASE_GROUND;
-            if (!me->isInCombat())
-                me->DisappearAndDie();
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim() && !me->HasAura(SPELL_SUBMERGE_EFFECT))
-                return;
-
-            events.Update(uiDiff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 event = events.ExecuteEvent())
+            mob_nerubian_burrowerAI(Creature* creature) : ScriptedAI(creature)
             {
-                switch (event)
-                {
-                    case EVENT_SUBMERGE:
-                        if (me->HasAura(SPELL_SUBMERGE_EFFECT))
-                        {
-                            me->RemoveAurasDueToSpell(SPELL_SUBMERGE_EFFECT);
-                            DoCast(me, SPELL_EMERGE_EFFECT);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                            me->CombatStart(me->SelectNearestTarget());
-                            if (IsHeroic())
-                                events.ScheduleEvent(EVENT_SHADOW_STRIKE, 20*IN_MILLISECONDS, 0, PHASE_GROUND);
-                            phase = PHASE_GROUND;
-                        }
-                        else
-                        {
-                            if (!me->HasAura(SPELL_PERMAFROST_HELPER))
-                            {
-                                DoCast(me, SPELL_SUBMERGE_EFFECT);
-                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                                me->CombatStop();
-                                phase = PHASE_SUBMERGED;
-                            }
-                        }
-                        events.ScheduleEvent(EVENT_SUBMERGE, 20*IN_MILLISECONDS);
-                        return;
-                    case EVENT_SHADOW_STRIKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, SPELL_SHADOW_STRIKE);
-                        events.ScheduleEvent(EVENT_SHADOW_STRIKE, 20*IN_MILLISECONDS, 0, PHASE_GROUND);
-                        return;
-                    default:
-                        break;
-                }
+                instance = creature->GetInstanceScript();
             }
 
-            DoMeleeAttackIfReady();
-        }
-        private:
-            Phases phase;
-            EventMap events;
-    };
+            void Reset()
+            {
+                me->SetCorpseDelay(0);
+                events.ScheduleEvent(EVENT_SUBMERGE, 30*IN_MILLISECONDS, 0, PHASE_GROUND);
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_SHADOW_STRIKE, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS), 0, PHASE_GROUND);
+                DoCast(me, SPELL_EXPOSE_WEAKNESS);
+                DoCast(me, SPELL_SPIDER_FRENZY);
+                me->SetInCombatWithZone();
+                phase = PHASE_GROUND;
+                if (!me->isInCombat())
+                    me->DisappearAndDie();
+            }
 
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim() && !me->HasAura(SPELL_SUBMERGE_EFFECT))
+                    return;
+
+                events.Update(uiDiff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SUBMERGE:
+                            if (me->HasAura(SPELL_SUBMERGE_EFFECT))
+                            {
+                                me->RemoveAurasDueToSpell(SPELL_SUBMERGE_EFFECT);
+                                DoCast(me, SPELL_EMERGE_EFFECT);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                                me->CombatStart(me->SelectNearestTarget());
+                                if (IsHeroic())
+                                    events.ScheduleEvent(EVENT_SHADOW_STRIKE, 20*IN_MILLISECONDS, 0, PHASE_GROUND);
+                                phase = PHASE_GROUND;
+                            }
+                            else
+                            {
+                                if (!me->HasAura(SPELL_PERMAFROST_HELPER))
+                                {
+                                    DoCast(me, SPELL_SUBMERGE_EFFECT);
+                                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                                    me->CombatStop();
+                                    phase = PHASE_SUBMERGED;
+                                }
+                            }
+                            events.ScheduleEvent(EVENT_SUBMERGE, 20*IN_MILLISECONDS);
+                            return;
+                        case EVENT_SHADOW_STRIKE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                DoCast(target, SPELL_SHADOW_STRIKE);
+                            events.ScheduleEvent(EVENT_SHADOW_STRIKE, 20*IN_MILLISECONDS, 0, PHASE_GROUND);
+                            return;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            private:
+                Phases phase;
+                EventMap events;
+                InstanceScript* instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_nerubian_burrowerAI(creature);
+        };
 };
 
 class mob_frost_sphere : public CreatureScript
@@ -638,11 +644,13 @@ class mob_frost_sphere : public CreatureScript
                         DoCast(SPELL_PERMAFROST);
                         me->SetObjectScale(2.0f);
                         break;
+                    default:
+                        break;
                 }
             }
 
-        private:
-            bool _isFalling;
+            private:
+                bool _isFalling;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -653,147 +661,151 @@ class mob_frost_sphere : public CreatureScript
 
 class mob_anubarak_spike : public CreatureScript
 {
-public:
-    mob_anubarak_spike() : CreatureScript("mob_anubarak_spike") { }
+    public:
+        mob_anubarak_spike() : CreatureScript("mob_anubarak_spike") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_anubarak_spikeAI(creature);
-    };
-
-    struct mob_anubarak_spikeAI : public ScriptedAI
-    {
-        mob_anubarak_spikeAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_anubarak_spikeAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-        uint32 m_PhaseSwitchTimer;
-        PursuingSpikesPhases m_Phase;
-
-        void Reset()
-        {
-            m_Phase = PHASE_NO_MOVEMENT;
-            m_PhaseSwitchTimer = 1;
-            // make sure the spike has everyone on threat list
-            me->SetInCombatWithZone();
-        }
-
-        bool CanAIAttack(Unit const* victim) const
-        {
-            return victim->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        void EnterCombat(Unit* who)
-        {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+            mob_anubarak_spikeAI(Creature* creature) : ScriptedAI(creature)
             {
-                StartChase(target);
-                Talk(EMOTE_SPIKE, who->GetGUID());
+                instance = creature->GetInstanceScript();
             }
 
-        }
-
-        void DamageTaken(Unit* /*who*/, uint32& uiDamage)
-        {
-            uiDamage = 0;
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
+            void Reset()
             {
-                me->DisappearAndDie();
-                return;
+                m_Phase = PHASE_NO_MOVEMENT;
+                m_PhaseSwitchTimer = 1;
+                // make sure the spike has everyone on threat list
+                me->SetInCombatWithZone();
             }
 
-            if (m_PhaseSwitchTimer)
+            bool CanAIAttack(Unit const* victim) const
             {
-                if (m_PhaseSwitchTimer <= uiDiff)
+                return victim->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                {
+                    StartChase(target);
+                    Talk(EMOTE_SPIKE, who->GetGUID());
+                }
+            }
+
+            void DamageTaken(Unit* /*who*/, uint32& uiDamage)
+            {
+                uiDamage = 0;
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                if (!UpdateVictim())
+                {
+                    me->DisappearAndDie();
+                    return;
+                }
+
+                if (m_PhaseSwitchTimer)
+                {
+                    if (m_PhaseSwitchTimer <= uiDiff)
+                    {
+                        switch (m_Phase)
+                        {
+                            case PHASE_NO_MOVEMENT:
+                                DoCast(me, SPELL_SPIKE_SPEED1);
+                                DoCast(me, SPELL_SPIKE_TRAIL);
+                                m_Phase = PHASE_IMPALE_NORMAL;
+                                if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                {
+                                    StartChase(target2);
+                                    Talk(EMOTE_SPIKE, target2->GetGUID());
+                                }
+                                m_PhaseSwitchTimer = 7000;
+                                return;
+
+                            case PHASE_IMPALE_NORMAL:
+                                DoCast(me, SPELL_SPIKE_SPEED2);
+                                m_Phase = PHASE_IMPALE_MIDDLE;
+                                m_PhaseSwitchTimer = 7000;
+                                return;
+
+                            case PHASE_IMPALE_MIDDLE:
+                                DoCast(me, SPELL_SPIKE_SPEED3);
+                                m_Phase = PHASE_IMPALE_FAST;
+                                m_PhaseSwitchTimer = 0;
+                                return;
+                        }
+                    }
+                    else
+                        m_PhaseSwitchTimer -= uiDiff;
+                }
+            }
+
+            void MoveInLineOfSight(Unit* pWho)
+            {
+                if (!pWho)
+                    return;
+
+                if (pWho->GetEntry() != NPC_FROST_SPHERE)
+                    return;
+
+                if (m_Phase == PHASE_NO_MOVEMENT)
+                    return;
+
+                if (me->IsWithinDist(pWho, 7.0f))
                 {
                     switch (m_Phase)
                     {
-                        case PHASE_NO_MOVEMENT:
-                            DoCast(me, SPELL_SPIKE_SPEED1);
-                            DoCast(me, SPELL_SPIKE_TRAIL);
-                            m_Phase = PHASE_IMPALE_NORMAL;
-                            if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            {
-                                StartChase(target2);
-                                Talk(EMOTE_SPIKE, target2->GetGUID());
-                            }
-                            m_PhaseSwitchTimer = 7000;
-                            return;
-
                         case PHASE_IMPALE_NORMAL:
-                            DoCast(me, SPELL_SPIKE_SPEED2);
-                            m_Phase = PHASE_IMPALE_MIDDLE;
-                            m_PhaseSwitchTimer = 7000;
-                            return;
-
+                            me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED1);
+                            break;
                         case PHASE_IMPALE_MIDDLE:
-                            DoCast(me, SPELL_SPIKE_SPEED3);
-                            m_Phase = PHASE_IMPALE_FAST;
-                            m_PhaseSwitchTimer = 0;
-                            return;
+                            me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED2);
+                            break;
+                        case PHASE_IMPALE_FAST:
+                            me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED3);
+                            break;
+                        default:
+                            break;
                     }
-                } else m_PhaseSwitchTimer -= uiDiff;
-            }
-        }
 
-        void MoveInLineOfSight(Unit* pWho)
-        {
-            if (!pWho)
-                return;
+                    me->CastSpell(me, SPELL_SPIKE_FAIL, true);
 
-            if (pWho->GetEntry() != NPC_FROST_SPHERE)
-                return;
+                    pWho->ToCreature()->DespawnOrUnsummon(3*IN_MILLISECONDS);
 
-            if (m_Phase == PHASE_NO_MOVEMENT)
-                return;
-
-            if (me->IsWithinDist(pWho, 7.0f))
-            {
-                switch (m_Phase)
-                {
-                    case PHASE_IMPALE_NORMAL:
-                        me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED1);
-                        break;
-                    case PHASE_IMPALE_MIDDLE:
-                        me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED2);
-                        break;
-                    case PHASE_IMPALE_FAST:
-                        me->RemoveAurasDueToSpell(SPELL_SPIKE_SPEED3);
-                        break;
+                    // After the spikes hit the icy surface they can't move for about ~5 seconds
+                    m_Phase = PHASE_NO_MOVEMENT;
+                    m_PhaseSwitchTimer = 5*IN_MILLISECONDS;
+                    SetCombatMovement(false);
+                    me->GetMotionMaster()->MoveIdle();
+                    me->GetMotionMaster()->Clear();
                 }
-
-                me->CastSpell(me, SPELL_SPIKE_FAIL, true);
-
-                pWho->ToCreature()->DespawnOrUnsummon(3000);
-
-                // After the spikes hit the icy surface they can't move for about ~5 seconds
-                m_Phase = PHASE_NO_MOVEMENT;
-                m_PhaseSwitchTimer = 5000;
-                SetCombatMovement(false);
-                me->GetMotionMaster()->MoveIdle();
-                me->GetMotionMaster()->Clear();
             }
-        }
 
-        void StartChase(Unit* who)
+            void StartChase(Unit* who)
+            {
+                DoCast(who, SPELL_MARK);
+                me->SetSpeed(MOVE_RUN, 0.5f);
+                // make sure the Spine will really follow the one he should
+                me->getThreatManager().clearReferences();
+                me->SetInCombatWithZone();
+                me->getThreatManager().addThreat(who, std::numeric_limits<float>::max());
+                me->GetMotionMaster()->Clear(true);
+                me->GetMotionMaster()->MoveChase(who);
+                me->TauntApply(who);
+            }
+
+            private:
+                InstanceScript* instance;
+                uint32 m_PhaseSwitchTimer;
+                PursuingSpikesPhases m_Phase;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            DoCast(who, SPELL_MARK);
-            me->SetSpeed(MOVE_RUN, 0.5f);
-            // make sure the Spine will really follow the one he should
-            me->getThreatManager().clearReferences();
-            me->SetInCombatWithZone();
-            me->getThreatManager().addThreat(who, std::numeric_limits<float>::max());
-            me->GetMotionMaster()->Clear(true);
-            me->GetMotionMaster()->MoveChase(who);
-            me->TauntApply(who);
-        }
-    };
+            return new mob_anubarak_spikeAI(creature);
+        };
 };
 
 class spell_impale : public SpellScriptLoader

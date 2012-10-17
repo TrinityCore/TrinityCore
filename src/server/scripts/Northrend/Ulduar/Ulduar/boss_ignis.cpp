@@ -36,10 +36,8 @@ enum Yells
 
 enum Spells
 {
-    SPELL_FLAME_JETS_10         = 62680,
-    SPELL_FLAME_JETS_25         = 63472,
-    SPELL_SCORCH_10             = 62546,
-    SPELL_SCORCH_25             = 63474,
+    SPELL_FLAME_JETS            = 62680,
+    SPELL_SCORCH                = 62546,
     SPELL_SLAG_POT              = 62717,
     SPELL_SLAG_POT_DAMAGE       = 65722,
     SPELL_SLAG_IMBUED           = 62836,
@@ -59,8 +57,6 @@ enum Spells
     SPELL_FREEZE_ANIM           = 63354
 };
 
-#define SPELL_FLAME_JETS RAID_MODE(SPELL_FLAME_JETS_10, SPELL_FLAME_JETS_25)
-#define SPELL_SCORCH RAID_MODE(SPELL_SCORCH_10, SPELL_SCORCH_25)
 #define SPELL_BRITTLE RAID_MODE(SPELL_BRITTLE_10, SPELL_BRITTLE_25)
 
 enum Events
@@ -655,6 +651,4 @@ void AddSC_boss_ignis()
     new spell_ignis_activate_construct();
 }
 
-#undef SPELL_FLAME_JETS
-#undef SPELL_SCORCH
 #undef SPELL_BRITTLE 

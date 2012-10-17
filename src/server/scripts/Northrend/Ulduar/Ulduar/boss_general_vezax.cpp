@@ -316,12 +316,6 @@ class boss_general_vezax : public CreatureScript
 
 class boss_saronite_animus : public CreatureScript
 {
-    private:
-        enum MyEvents
-        {
-            EVENT_PROFOUND_OF_DARKNESS = 1
-        };
-
     public:
         boss_saronite_animus() : CreatureScript("npc_saronite_animus") {}
 
@@ -338,8 +332,7 @@ class boss_saronite_animus : public CreatureScript
             void Reset()
             {
                 DoCast(me, SPELL_VISUAL_SARONITE_ANIMUS);
-                events.Reset();
-                events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3*IN_MILLISECONDS);
+                profoundTimer = 3*IN_MILLISECONDS;
             }
 
             void UpdateAI(uint32 const diff)
@@ -347,29 +340,20 @@ class boss_saronite_animus : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (profoundTimer <= diff)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_PROFOUND_OF_DARKNESS:
-                            DoCastAOE(SPELL_PROFOUND_OF_DARKNESS, true);
-                            events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, RAID_MODE(7*IN_MILLISECONDS, 3*IN_MILLISECONDS));
-                            break;
-                        default:
-                            break;
-                    }
+                    DoCastAOE(SPELL_PROFOUND_OF_DARKNESS, true);
+                    profoundTimer = RAID_MODE(7*IN_MILLISECONDS, 3*IN_MILLISECONDS);
                 }
+                else
+                    profoundTimer -= diff;
+
                 DoMeleeAttackIfReady();
             }
 
             private:
                 InstanceScript* instance;
-                EventMap events;
+                uint32 profoundTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -384,11 +368,6 @@ class npc_saronite_vapors : public CreatureScript
         enum DeathGrip
         {
             SPELL_DEATH_GRIP = 49560
-        };
-
-        enum MyEvents
-        {
-            EVENT_RANDOM_MOVE = 1
         };
 
         enum Emote
@@ -417,8 +396,7 @@ class npc_saronite_vapors : public CreatureScript
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_RANDOM_MOVE, urand(3*IN_MILLISECONDS, 4.5*IN_MILLISECONDS));
+                randomMoveTimer = urand(3*IN_MILLISECONDS, 4.5*IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff)
@@ -426,20 +404,13 @@ class npc_saronite_vapors : public CreatureScript
                 if (instance->GetBossState(BOSS_VEZAX) != IN_PROGRESS)
                     me->DisappearAndDie();
                     
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (randomMoveTimer <= diff)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_RANDOM_MOVE:
-                            me->GetMotionMaster()->MoveRandom(30.0f);
-                            events.ScheduleEvent(EVENT_RANDOM_MOVE, urand(4*IN_MILLISECONDS, 5*IN_MILLISECONDS));
-                            break;
-                        default:
-                            break;
-                    }
+                    me->GetMotionMaster()->MoveRandom(30.0f);
+                    randomMoveTimer = urand(4*IN_MILLISECONDS, 5*IN_MILLISECONDS);
                 }
+                else
+                    randomMoveTimer -= diff;
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage)
@@ -466,7 +437,7 @@ class npc_saronite_vapors : public CreatureScript
 
             private:
                 InstanceScript* instance;
-                EventMap events;
+                uint32 randomMoveTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const

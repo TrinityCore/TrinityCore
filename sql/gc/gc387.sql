@@ -135,8 +135,8 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=66010;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 (66010, 25771, 0, 'Divine Shield - Forbearance');
 
--- add taunt immunity to toc10/25 faction champions
-UPDATE `creature_template` SET `flags_extra`=`flags_extra` | 256 WHERE `entry` IN
+-- make all Diminishing returns rules apply in faction champions
+UPDATE `creature_template` SET `flags_extra`=`flags_extra` | 1048576 WHERE `entry` IN
 (34445,35705,35706,35707,
 34459,35686,35687,35688,
 34447,35683,35684,35685,
@@ -195,6 +195,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `conditions` WHERE `SourceEntry`=66636;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `Comment`) VALUES
 (13, 1, 66636, 31, 3, 34796, 'Rising Anger');
+
+-- Twins loot correction
+UPDATE `creature_loot_template` SET `maxcount`=1 WHERE `entry`=34497 AND `mincountOrRef` IN (-34296, -34302);
+-- Anubarak loot correction
+UPDATE `creature_loot_template` SET `maxcount`=2 WHERE `entry`=34564 AND `mincountOrRef` IN (-34298, -34304);
 
 ###########
 -- ULDUAR #
@@ -274,6 +279,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_flame_leviathan_safety_containe
 UPDATE `creature_template` SET `ScriptName`='npc_liquid_pyrite' WHERE `entry`=33189;
 UPDATE `creature_template` SET `ScriptName`='npc_freya_ward_of_life' WHERE `entry`=34275;
 UPDATE `creature_template` SET `ScriptName`='npc_runeforged_sentry' WHERE `entry`=34234;
+UPDATE `creature_template` SET `ScriptName`='npc_algalon_asteroid_target' WHERE `entry`=33104;
 
 -- Mimirons Inferno Bunny - it should walk around.
 DELETE FROM `waypoints` WHERE `entry`=33370;
@@ -540,6 +546,10 @@ UPDATE `creature_template` SET `ScriptName`='boss_leviathan_mk_turret' WHERE `en
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=33432;
 INSERT INTO `vehicle_template_accessory` VALUES
 (33432, 34071, 3, 1, 'Leviathan Mk II turret', 8, 0);
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=33432;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(33432, 46598, 1, 0);
+
 -- Leviathan skills and skill-helper
 UPDATE `creature_template` SET `ScriptName`='npc_proximity_mine' WHERE `entry`=34362;
 UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` IN (28831, 28841, 28979);
@@ -581,6 +591,9 @@ DELETE FROM `creature` WHERE `id` IN (33110, 32874, 32875);
 
 -- Algalons Celestial Planetarium Access is spawned via core
 DELETE FROM `gameobject` WHERE `id`=194752;
+
+-- correcting quest chain leading to Algalon
+UPDATE `quest_template` SET `PrevQuestId`=13607, `NextQuestId`=13614, `ExclusiveGroup`=-13609 WHERE `Id` IN (13606, 13609, 13610, 13611);
 
 -- Achievement "Firefighter" (3180 / 3189)
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (10450, 10463);
@@ -1320,13 +1333,13 @@ UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 11, facti
 UPDATE creature_template SET difficulty_entry_3 = 37450 WHERE entry = 13331;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 11, faction_H = 11, speed_walk = 1.28, mindmg = 613, maxdmg = 823, attackpower = 751, baseattacktime = 2000, dynamicflags = 8, MovementType = 1 WHERE entry = 37450;
 UPDATE creature_template SET difficulty_entry_3 = 37250 WHERE entry = 13422;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 11, faction_H = 11, speed_walk = 1.27, mindmg = 653, maxdmg = 846, attackpower = 786, baseattacktime = 2000, dynamicflags = 8, MovementType = 1 WHERE entry = 37250;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 11, faction_H = 11, speed_walk = 1.27, mindmg = 653, maxdmg = 846, attackpower = 786, baseattacktime = 2000, dynamicflags = 8, MovementType = 1 WHERE entry = 37250;
 UPDATE creature_template SET difficulty_entry_3 = 37410 WHERE entry = 13358;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1216, faction_H = 1216, speed_walk = 1.27, mindmg = 613, maxdmg = 830, attackpower = 752, baseattacktime = 2000, unit_flags = 4608, dynamicflags = 8, minrangedmg = 467, maxrangedmg = 723, rangedattackpower = 167, equipment_id = 170 WHERE entry = 37410;
 UPDATE creature_template SET difficulty_entry_3 = 37243 WHERE entry = 11949;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1216, faction_H = 1216, speed_walk = 1.8, mindmg = 570, maxdmg = 813, attackpower = 832, dmg_multiplier = 70, baseattacktime = 2000, unit_class = 2, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 325, mechanic_immune_mask = 617299803 WHERE entry = 37243;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1216, faction_H = 1216, speed_walk = 1.8, mindmg = 570, maxdmg = 813, attackpower = 832, dmg_multiplier = 70, baseattacktime = 2000, unit_class = 2, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 325, mechanic_immune_mask = 617299803 WHERE entry = 37243;
 UPDATE creature_template SET difficulty_entry_3 = 37444 WHERE entry = 11948;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, exp = 1, faction_A = 1216, faction_H = 1216, speed_walk = 1.78, mindmg = 723, maxdmg = 845, attackpower = 970, dmg_multiplier = 70, baseattacktime = 2000, dynamicflags = 8, MovementType = 1, equipment_id = 2383, mechanic_immune_mask = 617299803 WHERE entry = 37444;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, exp = 1, faction_A = 1216, faction_H = 1216, speed_walk = 1.78, mindmg = 723, maxdmg = 845, attackpower = 970, dmg_multiplier = 70, baseattacktime = 2000, dynamicflags = 8, MovementType = 1, equipment_id = 2383, mechanic_immune_mask = 617299803 WHERE entry = 37444;
 UPDATE creature_template SET difficulty_entry_3 = 37300 WHERE entry = 12053;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.26, mindmg = 553, maxdmg = 738, attackpower = 635, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 1876 WHERE entry = 37300;
 UPDATE creature_template SET difficulty_entry_3 = 37384 WHERE entry = 13328;
@@ -1334,29 +1347,54 @@ UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 85, facti
 UPDATE creature_template SET difficulty_entry_3 = 37451 WHERE entry = 13332;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 85, faction_H = 85, speed_walk = 1.28, mindmg = 613, maxdmg = 831, attackpower = 754, baseattacktime = 2000, dynamicflags = 8 WHERE entry = 37451;
 UPDATE creature_template SET difficulty_entry_3 = 37251 WHERE entry = 13421;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 32, faction_H = 32, speed_walk = 1.27, mindmg = 610, maxdmg = 813, attackpower = 845, baseattacktime = 2000, dynamicflags = 8 WHERE entry = 37251;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 32, faction_H = 32, speed_walk = 1.27, mindmg = 610, maxdmg = 813, attackpower = 845, baseattacktime = 2000, dynamicflags = 8 WHERE entry = 37251;
 UPDATE creature_template SET difficulty_entry_3 = 37297 WHERE entry = 13358;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.27, mindmg = 623, maxdmg = 834, attackpower = 731, baseattacktime = 2000, unit_flags = 4608, dynamicflags = 8, minrangedmg = 423, maxrangedmg = 720, rangedattackpower = 167, MovementType = 1, equipment_id = 953 WHERE entry = 37297;
 UPDATE creature_template SET difficulty_entry_3 = 37244 WHERE entry = 11947;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.8, mindmg = 631, maxdmg = 840, attackpower = 810, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4160, dynamicflags = 8, MovementType = 1, equipment_id = 1552, mechanic_immune_mask = 617299803 WHERE entry = 37244;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.8, mindmg = 631, maxdmg = 840, attackpower = 810, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4160, dynamicflags = 8, MovementType = 1, equipment_id = 1552, mechanic_immune_mask = 617299803 WHERE entry = 37244;
 UPDATE creature_template SET difficulty_entry_3 = 37283 WHERE entry = 11946;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, npcflag = 1, speed_walk = 1.78, mindmg = 678, maxdmg = 871, attackpower = 852, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2384, mechanic_immune_mask = 617299803 WHERE entry = 37283;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, npcflag = 1, speed_walk = 1.78, mindmg = 678, maxdmg = 871, attackpower = 852, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2384, mechanic_immune_mask = 617299803 WHERE entry = 37283;
 UPDATE creature_template SET difficulty_entry_3 = 37287 WHERE entry = 14763;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 759, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37287;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 759, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37287;
 UPDATE creature_template SET difficulty_entry_3 = 37285 WHERE entry = 14762;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 750, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37285;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 750, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37285;
 UPDATE creature_template SET difficulty_entry_3 = 37327 WHERE entry = 14764;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 615, maxdmg = 820, attackpower = 743, dmg_multiplier = 13, baseattacktime = 2000, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37327;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 615, maxdmg = 820, attackpower = 743, dmg_multiplier = 13, baseattacktime = 2000, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37327;
 UPDATE creature_template SET difficulty_entry_3 = 37407 WHERE entry = 14765;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 615, maxdmg = 821, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, dynamicflags = 8, MovementType = 1 WHERE entry = 37407;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 615, maxdmg = 821, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, dynamicflags = 8, MovementType = 1 WHERE entry = 37407;
 UPDATE creature_template SET difficulty_entry_3 = 37326 WHERE entry = 14773;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 613, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37326;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 613, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37326;
 UPDATE creature_template SET difficulty_entry_3 = 37435 WHERE entry = 14776;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37435;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37435;
 UPDATE creature_template SET difficulty_entry_3 = 37291 WHERE entry = 14772;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37291;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37291;
 UPDATE creature_template SET difficulty_entry_3 = 37468 WHERE entry = 14777;
-UPDATE creature_template SET minlevel = 85, maxlevel = 85, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37468;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37468;
 
 -- misc battleground queries
 UPDATE battleground_template SET MinPlayersPerTeam = 5 WHERE id IN (3, 7, 9, 32);
+-- make AV need only 10 people per side
+UPDATE battleground_template SET MinPlayersPerTeam = 10 WHERE id = 1;
+
+###################
+-- Misc things #
+###################
+
+-- making heroic version of Drakkari Guardian and bat selectable too
+UPDATE `creature_template` SET `unit_flags` = `unit_flags` & ~33554432 WHERE `entry` = 31339;
+UPDATE `creature_template` SET `unit_flags` = `unit_flags` & ~33554432 WHERE `entry` = 27490;
+
+-- One aura removes other
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`IN (57055, 56648);
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
+(57055, -56648, 2, 'Remove Potent Fungus - Amanitar encounter'),
+(56648, -57055, 2, 'Remove Mini - Amanitar encounter');
+
+-- First RDF reward changed from EoF to EoT
+UPDATE `quest_template` SET RewardItemId1 = 47241 WHERE Id = 24788;
+
+-- Weekly raid quests "X Must Die!" reward changed from 5 x EoF + 5 x EoT to 10 x EoT only
+UPDATE `quest_template` SET RewardItemId1 = 47241, RewardItemId2 = 0, RewardItemCount1 = 10, RewardItemCount2 = 0 WHERE id IN(24579, 24582, 24583, 24584, 24590, 24580, 24581, 24587, 24585, 24588, 24586, 24589);
+
+-- Tainted Helboar Meat should not have quest dependency
+UPDATE `creature_loot_template` SET ChanceOrQuestChance =100 WHERE item = 23270 AND entry IN(16992, 16879, 16863, 16880);

@@ -320,7 +320,7 @@ ADD `charges` text NOT NULL AFTER `duration`,
 ADD `flags` int(10) unsigned NOT NULL default '0' AFTER `charges`,
 ADD `enchantments` text NOT NULL AFTER `flags`,
 ADD `randomPropertyId` bigint(20) NOT NULL default '0' AFTER `enchantments`,
-ADD `durability` int(10) unsigned NOT NULL default '0' AFTER `randomPropertyId`,
+ADD `durability` smallint(5) unsigned NOT NULL default '0' AFTER `randomPropertyId`,
 ADD `playedTime` int(10) unsigned NOT NULL default '0' AFTER `durability`;
 
 -- Temporarily change delimiter to prevent SQL syntax errors

@@ -41,8 +41,7 @@ enum Yells
    SAY_V07TRON_ACTIVATE                        = 11,
    SAY_V07TRON_SLAY                            = 12,
    SAY_V07TRON_DEATH                           = 13,
-   SAY_BERSERK                                 = 14,
-   SAY_YS_HELP                                 = 15
+   SAY_BERSERK                                 = 14
 };
 
 enum Spells
@@ -54,8 +53,7 @@ enum Spells
    // Leviathan MK II
    SPELL_MINES_SPAWN                           = 65347,
    SPELL_FLAME_SUPPRESSANT_MK                  = 64570,
-   SPELL_NAPALM_SHELL_10                       = 63666,
-   SPELL_NAPALM_SHELL_25                       = 65026,
+   SPELL_NAPALM_SHELL                          = 63666,
    SPELL_PLASMA_BLAST                          = 62997,
    SPELL_PROXIMITY_MINES                       = 63027,
    SPELL_SHOCK_BLAST                           = 63631,
@@ -77,10 +75,8 @@ enum Spells
    SPELL_ROCKET_STRIKE_AURA                    = 64064,
    SPELL_ROCKET_STRIKE_DMG                     = 63041,
    SPELL_SPINNING_UP                           = 63414,
-   SPELL_HEAT_WAVE_10                          = 63677,
-   SPELL_HEAT_WAVE_25                          = 64533,
-   SPELL_HAND_PULSE_10                         = 64348,
-   SPELL_HAND_PULSE_25                         = 64537,
+   SPELL_HEAT_WAVE                             = 63677,
+   SPELL_HAND_PULSE                            = 64348,
 
    // Aerial Command Unit
    SPELL_PLASMA_BALL                           = 63689,
@@ -105,10 +101,6 @@ enum Spells
    SPELL_WATER_SPRAY                           = 64619,
    SPELL_RIDE_VEHICLE                          = 46598
 };
-
-#define SPELL_NAPALM_SHELL RAID_MODE(SPELL_NAPALM_SHELL_10, SPELL_NAPALM_SHELL_25)
-#define SPELL_HEAT_WAVE RAID_MODE(SPELL_HEAT_WAVE_10, SPELL_HEAT_WAVE_25)
-#define SPELL_HAND_PULSE RAID_MODE(SPELL_HAND_PULSE_10, SPELL_HAND_PULSE_25)
 
 enum Actions
 {
@@ -365,7 +357,7 @@ class boss_mimiron : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAllAuras();
                 me->AttackStop();
-                me->setFaction(35);
+                me->setFaction(FACTION_FRIENDLY);
                 me->DeleteThreatList();
                 me->CombatStop(true);
                 if (instance)
@@ -390,7 +382,7 @@ class boss_mimiron : public CreatureScript
                 if (gotHardMode)
                     events.ScheduleEvent(EVENT_FLAME, 5*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_ENRAGE, gotHardMode ? 10*MINUTE*IN_MILLISECONDS : 15*MINUTE*IN_MILLISECONDS); // Enrage in 10 (hard mode) or 15 min
-                events.ScheduleEvent(EVENT_STEP_1, 100, 0, phase);
+                events.ScheduleEvent(EVENT_STEP_1, 0.1*IN_MILLISECONDS, 0, phase);
 
                 if (GameObject* go = me->FindNearestGameObject(GO_BIG_RED_BUTTON, 200.0f))
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -565,13 +557,13 @@ class boss_mimiron : public CreatureScript
                                         {
                                             instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_ACTIVE_ALTERNATIVE);
                                             VX_001->SetVisible(true);
-                                            VX_001->setFaction(35);
+                                            VX_001->setFaction(FACTION_FRIENDLY);
                                             VX_001->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                             for (uint8 n = 5; n < 7; ++n)
                                             {
                                                 if (Creature* Rocket = VX_001->SummonCreature(NPC_ROCKET, VX_001->GetPositionX(), VX_001->GetPositionY(), VX_001->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
                                                 {
-                                                    Rocket->setFaction(14);
+                                                    Rocket->setFaction(FACTION_HOSTILE);
                                                     Rocket->SetReactState(REACT_PASSIVE);
                                                     Rocket->EnterVehicle(VX_001, n);
                                                 }
@@ -997,6 +989,7 @@ class boss_leviathan_mk : public CreatureScript
                         break;
                     case DO_LEVIATHAN_ASSEMBLED:                            // Assemble and self-repair share some stuff, so the fallthrough is intended!
                         me->SetHealth( (me->GetMaxHealth() >> 1) );
+                        // no break here
                     case DO_LEVIATHAN_SELF_REPAIR_END:
                         if (gotMimironHardMode)
                             if (!me->HasAura(SPELL_EMERGENCY_MODE))
@@ -1196,7 +1189,7 @@ class npc_proximity_mine : public CreatureScript
 
                 if (Player* player = who->ToPlayer())
                     if (!player->isGameMaster())
-                        if (!boomLocked && me->GetDistance2d(player) < 3.0f)
+                        if (!boomLocked && me->GetDistance2d(player) < 2.0f)
                         {
                             DoCastAOE(SPELL_EXPLOSION);
                             boomLocked = true;
@@ -1362,7 +1355,7 @@ class boss_vx_001 : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                         phase = PHASE_VX001_SOLO__GLOBAL_2;
                         events.SetPhase(phase);
-                        me->setFaction(14);
+                        me->setFaction(FACTION_HOSTILE);
                         me->SetInCombatWithZone();
                         break;
                     case DO_VX001_ASSEMBLED:                                // Reassemble and heal share some stuff, fallthrough is intended
@@ -1478,13 +1471,28 @@ class boss_vx_001 : public CreatureScript
                             me->SetOrientation(orient);
                         }
                         else
+                        {
                             me->SetFacingTo(orient);
+                            me->SetOrientation(orient);
+                        }
 
                         float x, y;
-                        me->GetNearPoint2D(x, y, 10.0f, me->GetOrientation());
-                        if (Creature* temp = me->SummonCreature(NPC_BURST_TARGET, x, y, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 0.5*IN_MILLISECONDS))
-                            me->SetTarget(temp->GetGUID());
 
+                        me->GetNearPoint2D(x, y, 10.0f, orient);
+                        if (Creature* temp = me->SummonCreature(NPC_BURST_TARGET, x, y, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 0.5*IN_MILLISECONDS))
+                        {
+                            me->SetTarget(temp->GetGUID());
+                            if (me->IsVehicle())
+                            {
+                                // mimiron himself casts the spell, so lets turn him
+                                if (Unit* mimiron = me->GetVehicleKit()->GetPassenger(1))
+                                {
+                                    mimiron->SetFacingTo(orient);
+                                    mimiron->SetOrientation(orient);
+                                    mimiron->SetTarget(temp->GetGUID());
+                                }
+                            }
+                        }
                         spinTimer = 0.25*IN_MILLISECONDS;
                     }
                     else
@@ -1502,15 +1510,26 @@ class boss_vx_001 : public CreatureScript
                             events.RescheduleEvent(EVENT_RAPID_BURST, 5*IN_MILLISECONDS, 0, PHASE_VX001_SOLO__GLOBAL_2);
                             return;
                         case EVENT_LASER_BARRAGE:
+                        {
+                            float orient = float(2 * M_PI * rand_norm());
+                            me->SetOrientation(orient);
+                            me->SetFacingTo(orient);
                             me->SetReactState(REACT_PASSIVE);
                             if (Creature* leviathan = me->GetVehicleCreatureBase())
                             {
-                                float orient = float(2 * M_PI * rand_norm());
                                 leviathan->CastSpell(leviathan, SPELL_SELF_STUN, true); // temporary
                                 leviathan->SetFacingTo(orient);
-                                me->SetOrientation(orient);
                                 if (Creature* AerialUnit = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
                                     AerialUnit->SetFacingTo(orient);
+                            }
+                            // mimiron himself casts the spell, so turn him too
+                            if (me->IsVehicle())
+                            {
+                                if (Unit* mimiron = me->GetVehicleKit()->GetPassenger(1))
+                                {
+                                    mimiron->SetOrientation(orient);
+                                    mimiron->SetFacingTo(orient);
+                                }
                             }
                             direction = RAND(true, false);
                             spinning = true;
@@ -1519,6 +1538,7 @@ class boss_vx_001 : public CreatureScript
                             events.RescheduleEvent(EVENT_LASER_BARRAGE, 1*MINUTE*IN_MILLISECONDS, 0, phase);
                             events.RescheduleEvent(EVENT_LASER_BARRAGE_END, 14*IN_MILLISECONDS, 0, phase);
                             return;
+                        }
                         case EVENT_LASER_BARRAGE_END:
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (me->getVictim())
@@ -1604,11 +1624,11 @@ class boss_vx_001 : public CreatureScript
 
 class npc_rocket_strike : public CreatureScript
 {
-public:
-    npc_rocket_strike() : CreatureScript("npc_rocket_strike") {}
+    public:
+        npc_rocket_strike() : CreatureScript("npc_rocket_strike") {}
 
-    struct npc_rocket_strikeAI : public Scripted_NoMovementAI
-    {
+        struct npc_rocket_strikeAI : public Scripted_NoMovementAI
+        {
             npc_rocket_strikeAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
             void InitializeAI()
@@ -1631,14 +1651,14 @@ public:
                 }
             }
 
-    private:
-        bool casted;
-    };
+        private:
+            bool casted;
+        };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_rocket_strikeAI(creature);
-    }
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_rocket_strikeAI(creature);
+        }
 };
 
 class spell_rapid_burst : public SpellScriptLoader
@@ -2049,7 +2069,7 @@ class npc_emergency_bot : public CreatureScript
 
             void InitializeAI()
             {
-                me->setFaction(14);
+                me->setFaction(FACTION_HOSTILE);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_DEATH_GRIP, true);
                 me->SetReactState(REACT_PASSIVE);
@@ -2512,7 +2532,3 @@ void AddSC_boss_mimiron()
     new achievement_set_up_us_the_bomb__rocket_strikes("achievement_set_up_us_the_bomb__rockets");
     new achievement_set_up_us_the_bomb__rocket_strikes("achievement_set_up_us_the_bomb__rockets_25");
 }
-
-#undef SPELL_NAPALM_SHELL
-#undef SPELL_HEAT_WAVE
-#undef SPELL_HAND_PULSE

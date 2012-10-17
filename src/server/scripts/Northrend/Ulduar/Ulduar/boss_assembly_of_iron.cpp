@@ -43,10 +43,8 @@ enum AssemblySpells
     SPELL_IRON_BOOT_FLASK              = 58501,
 
     // Steelbreaker
-    SPELL_HIGH_VOLTAGE_10              = 61890,
-    SPELL_HIGH_VOLTAGE_25              = 63498,
-    SPELL_FUSION_PUNCH_10              = 61903,
-    SPELL_FUSION_PUNCH_25              = 63493,
+    SPELL_HIGH_VOLTAGE                 = 61890,
+    SPELL_FUSION_PUNCH                 = 61903,
     SPELL_STATIC_DISRUPTION_10         = 61911,
     SPELL_STATIC_DISRUPTION_CHECKED_10 = 61912, // Checked = spell works as target-check-trigger
     SPELL_STATIC_DISRUPTION_25         = 63494,
@@ -59,9 +57,8 @@ enum AssemblySpells
     SPELL_ELECTRICAL_CHARGE_TRIGGERED  = 61902,
 
     // Runemaster Molgeim
-    SPELL_SHIELD_OF_RUNES_10           = 62274,
+    SPELL_SHIELD_OF_RUNES              = 62274,
     SPELL_SHIELD_OF_RUNES_10_BUFF      = 62277,
-    SPELL_SHIELD_OF_RUNES_25           = 63489,
     SPELL_SHIELD_OF_RUNES_25_BUFF      = 63967,
     SPELL_SUMMON_RUNE_OF_POWER         = 63513,
     SPELL_RUNE_OF_POWER                = 61974,
@@ -70,8 +67,7 @@ enum AssemblySpells
     SPELL_RUNE_OF_SUMMONING_VIS        = 62019, // Visual
     SPELL_RUNE_OF_SUMMONING_SUMMON     = 62020, // Spell that summons
     SPELL_LIGHTNING_ELEMENTAL_PASSIVE  = 62052, // Basic spell
-    SPELL_LIGHTNING_BLAST_10           = 62054, // Triggered by SPELL_LIGHTNING_BLAST
-    SPELL_LIGHTNING_BLAST_25           = 63491,
+    SPELL_LIGHTNING_BLAST              = 62054, // Triggered by SPELL_LIGHTNING_BLAST
 
     // Stormcaller Brundir
     SPELL_CHAIN_LIGHTNING_10           = 61879,
@@ -89,15 +85,11 @@ enum AssemblySpells
 };
 
 // Steelbreaker
-#define SPELL_HIGH_VOLTAGE RAID_MODE(SPELL_HIGH_VOLTAGE_10, SPELL_HIGH_VOLTAGE_25)
-#define SPELL_FUSION_PUNCH RAID_MODE(SPELL_FUSION_PUNCH_10, SPELL_FUSION_PUNCH_25)
 #define SPELL_STATIC_DISRUPTION RAID_MODE(SPELL_STATIC_DISRUPTION_10, SPELL_STATIC_DISRUPTION_25)
 #define SPELL_OVERWHELMING_POWER RAID_MODE(SPELL_OVERWHELMING_POWER_10, SPELL_OVERWHELMING_POWER_25)
 
 // Molgeim
-#define SPELL_SHIELD_OF_RUNES RAID_MODE(SPELL_SHIELD_OF_RUNES_10, SPELL_SHIELD_OF_RUNES_25)
 #define SPELL_SHIELD_OF_RUNES_BUFF RAID_MODE(SPELL_SHIELD_OF_RUNES_10_BUFF, SPELL_SHIELD_OF_RUNES_25_BUFF)
-#define SPELL_LIGHTNING_BLAST RAID_MODE(SPELL_LIGHTNING_BLAST_10, SPELL_LIGHTNING_BLAST_25)
 
 // Brundir
 #define SPELL_CHAIN_LIGHTNING RAID_MODE(SPELL_CHAIN_LIGHTNING_10, SPELL_CHAIN_LIGHTNING_25)
@@ -540,73 +532,73 @@ class boss_steelbreaker : public CreatureScript
 
 class spell_steelbreaker_static_disruption : public SpellScriptLoader
 {
-public:
-    spell_steelbreaker_static_disruption() : SpellScriptLoader("spell_steelbreaker_static_disruption") {}
+    public:
+        spell_steelbreaker_static_disruption() : SpellScriptLoader("spell_steelbreaker_static_disruption") {}
 
-    class spell_steelbreaker_static_disruption_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_steelbreaker_static_disruption_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/)
+        class spell_steelbreaker_static_disruption_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_STATIC_DISRUPTION_CHECKED_10))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_STATIC_DISRUPTION_CHECKED_25))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_steelbreaker_static_disruption_SpellScript);
 
-        void HandleTriggerMissile(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            if (caster && target)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                uint32 id = uint32(caster->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? SPELL_STATIC_DISRUPTION_CHECKED_10 : SPELL_STATIC_DISRUPTION_CHECKED_25);
-                caster->CastSpell(target, id, true);
+                if (!sSpellMgr->GetSpellInfo(SPELL_STATIC_DISRUPTION_CHECKED_10))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_STATIC_DISRUPTION_CHECKED_25))
+                    return false;
+                return true;
             }
-        }
 
-        void Register()
+            void HandleTriggerMissile(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (caster && target)
+                {
+                    uint32 id = uint32(caster->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? SPELL_STATIC_DISRUPTION_CHECKED_10 : SPELL_STATIC_DISRUPTION_CHECKED_25);
+                    caster->CastSpell(target, id, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_steelbreaker_static_disruption_SpellScript::HandleTriggerMissile, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_steelbreaker_static_disruption_SpellScript::HandleTriggerMissile, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+            return new spell_steelbreaker_static_disruption_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_steelbreaker_static_disruption_SpellScript();
-    }
 };
 
 class spell_steelbreaker_electrical_charge : public SpellScriptLoader
 {
-public:
-    spell_steelbreaker_electrical_charge() : SpellScriptLoader("spell_steelbreaker_electrical_charge") {}
+    public:
+        spell_steelbreaker_electrical_charge() : SpellScriptLoader("spell_steelbreaker_electrical_charge") {}
 
-    class spell_steelbreaker_electrical_charge_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_steelbreaker_electrical_charge_AuraScript);
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        class spell_steelbreaker_electrical_charge_AuraScript : public AuraScript
         {
-            Unit* target = GetTarget();
-            Unit* caster = GetCaster();
-            if (target && target->ToPlayer() && caster && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
-                target->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
-        }
+            PrepareAuraScript(spell_steelbreaker_electrical_charge_AuraScript);
 
-        void Register()
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                Unit* caster = GetCaster();
+                if (target && target->ToPlayer() && caster && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                    target->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_steelbreaker_electrical_charge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_steelbreaker_electrical_charge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            return new spell_steelbreaker_electrical_charge_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_steelbreaker_electrical_charge_AuraScript();
-    }
 };
 
 /************************************************************************/
@@ -1393,15 +1385,11 @@ void AddSC_boss_assembly_of_iron()
 }
 
 // Steelbreaker
-#undef SPELL_HIGH_VOLTAGE 
-#undef SPELL_FUSION_PUNCH 
 #undef SPELL_STATIC_DISRUPTION 
 #undef SPELL_OVERWHELMING_POWER 
 
 // Molgeim
-#undef SPELL_SHIELD_OF_RUNES 
 #undef SPELL_SHIELD_OF_RUNES_BUFF 
-#undef SPELL_LIGHTNING_BLAST 
 
 // Brundir
 #undef SPELL_CHAIN_LIGHTNING

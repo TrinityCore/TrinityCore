@@ -51,7 +51,7 @@ enum Texts
     SAY_ALGALON_DESPAWN_1           = 17,
     SAY_ALGALON_DESPAWN_2           = 18,
     SAY_ALGALON_DESPAWN_3           = 19,
-    SAY_ALGALON_KILL                = 20,
+    SAY_ALGALON_KILL                = 20
 };
 
 enum Spells
@@ -95,7 +95,7 @@ enum Spells
 
     // Worm Hole
     SPELL_WORM_HOLE_TRIGGER             = 65251,
-    SPELL_SUMMON_UNLEASHED_DARK_MATTER  = 64450,
+    SPELL_SUMMON_UNLEASHED_DARK_MATTER  = 64450
 };
 
 uint32 const PhasePunchAlphaId[5] = {64435, 64434, 64428, 64421, 64417};
@@ -147,7 +147,7 @@ enum Events
     EVENT_DESPAWN_ALGALON_3         = 38,
 
     // Living Constellation
-    EVENT_ARCANE_BARRAGE            = 39,
+    EVENT_ARCANE_BARRAGE            = 39
 };
 
 enum Actions
@@ -157,7 +157,7 @@ enum Actions
     ACTION_ACTIVATE_STAR    = 2,
     ACTION_BIG_BANG         = 3,
     ACTION_ASCEND           = 4,
-    ACTION_OUTRO            = 5,
+    ACTION_OUTRO            = 5
 };
 
 enum Points
@@ -168,7 +168,7 @@ enum Points
     POINT_BRANN_OUTRO_END       = 11,
 
     POINT_ALGALON_LAND          = 1,
-    POINT_ALGALON_OUTRO         = 2,
+    POINT_ALGALON_OUTRO         = 2
 };
 
 enum EncounterPhases
@@ -178,13 +178,13 @@ enum EncounterPhases
     PHASE_BIG_BANG           = 2,
 
     PHASE_MASK_NO_UPDATE     = (1 << PHASE_ROLE_PLAY) | (1 << PHASE_BIG_BANG),
-    PHASE_MASK_NO_CAST_CHECK = 1 << PHASE_ROLE_PLAY,
+    PHASE_MASK_NO_CAST_CHECK = 1 << PHASE_ROLE_PLAY
 };
 
 enum AchievmentInfo
 {
     EVENT_ID_SUPERMASSIVE_START = 21697,
-    DATA_HAS_FED_ON_TEARS       = 30043005,
+    DATA_HAS_FED_ON_TEARS       = 30043005
 };
 
 
@@ -200,7 +200,7 @@ Position const BrannIntroWaypoint[MAX_BRANN_WAYPOINTS_INTRO] =
     {1631.497f, -214.2221f, 418.1152f, 0.0f},
     {1632.676f, -190.5927f, 425.8831f, 0.0f},
     {1632.814f, -173.9334f, 427.2621f, 0.0f},
-    {1635.000f, -169.5145f, 427.2523f, 0.0f},
+    {1635.000f, -169.5145f, 427.2523f, 0.0f}
 };
 Position const AlgalonSummonPos = {1632.531f, -304.8516f, 450.1123f, 1.530165f};
 Position const AlgalonLandPos   = {1632.668f, -302.7656f, 417.3211f, 1.530165f};
@@ -218,7 +218,7 @@ Position const ConstellationPos[LIVING_CONSTELLATION_COUNT] =
     {1592.242f, -325.5323f, 446.9508f, 0.226893f},
     {1635.821f, -363.3442f, 424.3459f, 1.466077f},
     {1672.188f, -357.2484f, 436.7337f, 2.338741f},
-    {1615.800f, -348.0065f, 442.9586f, 1.134464f},
+    {1615.800f, -348.0065f, 442.9586f, 1.134464f}
 };
 
 #define COLLAPSING_STAR_COUNT 4
@@ -227,14 +227,14 @@ Position const CollapsingStarPos[COLLAPSING_STAR_COUNT] =
     {1649.438f, -319.8127f, 418.3941f, 1.082104f},
     {1647.005f, -288.6790f, 417.3955f, 3.490659f},
     {1622.451f, -321.1563f, 417.6188f, 4.677482f},
-    {1615.060f, -291.6816f, 417.7796f, 3.490659f},
+    {1615.060f, -291.6816f, 417.7796f, 3.490659f}
 };
 Position const AlgalonOutroPos = {1633.64f, -317.78f, 417.3211f, 0.0f};
 Position const BrannOutroPos[3] =
 {
     {1632.023f, -243.7434f, 417.9118f, 0.0f},
     {1631.986f, -297.7831f, 417.3210f, 0.0f},
-    {1633.832f, -216.2948f, 417.0463f, 0.0f},
+    {1633.832f, -216.2948f, 417.0463f, 0.0f}
 };
 
 class ActivateLivingConstellation : public BasicEvent
@@ -574,10 +574,10 @@ class boss_algalon_the_observer : public CreatureScript
                             break;
                         case EVENT_INTRO_TIMER_DONE:
                         {
+                            me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_NORMAL);
                             me->SetSheath(SHEATH_STATE_MELEE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC);
-                            me->SetReactState(REACT_DEFENSIVE);
                             DoCastAOE(SPELL_SUPERMASSIVE_FAIL, true);
                             //! Workaround for Creature::_IsTargetAcceptable returning false
                             //! for creatures that start combat in REACT_PASSIVE and UNIT_FLAG_NOT_SELECTABLE
@@ -956,6 +956,56 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return GetUlduarAI<npc_brann_bronzebeard_algalonAI>(creature);
+        }
+};
+
+class npc_algalon_asteroid_target : public CreatureScript
+{
+    enum Events
+    {
+        EVENT_COSMIC_SMASH  = 1
+    };
+
+    public:
+        npc_algalon_asteroid_target() : CreatureScript("npc_algalon_asteroid_target") { }
+
+        struct npc_algalon_asteroid_targetAI : public Scripted_NoMovementAI
+        {
+            npc_algalon_asteroid_targetAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            {
+            }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_PASSIVE);
+                events.ScheduleEvent(EVENT_COSMIC_SMASH, 4*IN_MILLISECONDS);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                events.Update(diff);
+
+                while (uint32 event = events.ExecuteEvent())
+                {
+                    switch (event)
+                    {
+                        case EVENT_COSMIC_SMASH:
+                            DoCast(SPELL_COSMIC_SMASH_TRIGGERED);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            private:
+                EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_algalon_asteroid_targetAI(creature);
         }
 };
 
@@ -1365,7 +1415,10 @@ void AddSC_boss_algalon_the_observer()
     new npc_living_constellation();
     new npc_collapsing_star();
     new npc_brann_bronzebeard_algalon();
+    new npc_algalon_asteroid_target();
+
     new go_celestial_planetarium_access();
+
     new spell_algalon_phase_punch();
     new spell_algalon_arcane_barrage();
     new spell_algalon_trigger_3_adds();
@@ -1375,5 +1428,6 @@ void AddSC_boss_algalon_the_observer()
     new spell_algalon_cosmic_smash();
     new spell_algalon_cosmic_smash_damage();
     new spell_algalon_supermassive_fail();
+
     new achievement_he_feeds_on_your_tears();
 }
