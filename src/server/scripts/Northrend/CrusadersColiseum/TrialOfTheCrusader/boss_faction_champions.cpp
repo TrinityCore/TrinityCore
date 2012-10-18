@@ -504,10 +504,10 @@ class mob_toc_druid : public CreatureScript
             void Reset()
             {
                 boss_faction_championsAI::Reset();
-                events.ScheduleEvent(EVENT_LIFEBLOOM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_NOURISH, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_REGROWTH, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_REJUVENATION, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_LIFEBLOOM, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_NOURISH, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_REGROWTH, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_REJUVENATION, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_TRANQUILITY, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_BARKSKIN, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_THORNS, 2*IN_MILLISECONDS);
@@ -533,26 +533,26 @@ class mob_toc_druid : public CreatureScript
                         case EVENT_LIFEBLOOM:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_LIFEBLOOM);
-                            events.ScheduleEvent(EVENT_LIFEBLOOM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_LIFEBLOOM, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_NOURISH:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_NOURISH);
-                            events.ScheduleEvent(EVENT_NOURISH, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_NOURISH, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_REGROWTH:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_REGROWTH);
-                            events.ScheduleEvent(EVENT_REGROWTH, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_REGROWTH, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_REJUVENATION:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_REJUVENATION);
-                            events.ScheduleEvent(EVENT_REJUVENATION, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_REJUVENATION, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_TRANQUILITY:
                             DoCastAOE(SPELL_TRANQUILITY);
-                            events.ScheduleEvent(EVENT_TRANQUILITY, urand(25*IN_MILLISECONDS, 50*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_TRANQUILITY, urand(15*IN_MILLISECONDS, 40*IN_MILLISECONDS));
                             return;
                         case EVENT_BARKSKIN:
                             if (HealthBelowPct(30))
@@ -623,8 +623,8 @@ class mob_toc_shaman : public CreatureScript
             {
                 boss_faction_championsAI::Reset();
                 events.ScheduleEvent(EVENT_HEALING_WAVE, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_RIPTIDE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_SPIRIT_CLEANSE, urand(15*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_RIPTIDE, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_SPIRIT_CLEANSE, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_BLOODLUST_HEROISM, 20*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_HEX, urand(5*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_EARTH_SHIELD, 1*IN_MILLISECONDS);
@@ -655,7 +655,7 @@ class mob_toc_shaman : public CreatureScript
                         case EVENT_RIPTIDE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_RIPTIDE);
-                            events.ScheduleEvent(EVENT_RIPTIDE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_RIPTIDE, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_SPIRIT_CLEANSE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -683,7 +683,7 @@ class mob_toc_shaman : public CreatureScript
                         case EVENT_EARTH_SHIELD:
                             if (Creature* target = SelectRandomFriendlyMissingBuff(SPELL_EARTH_SHIELD))
                                 DoCast(target, SPELL_EARTH_SHIELD);
-                            events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(35*IN_MILLISECONDS, 60*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
                         case EVENT_EARTH_SHOCK:
                             if (Unit* target = SelectEnemyCaster(true))
@@ -744,8 +744,8 @@ class mob_toc_paladin : public CreatureScript
                 events.ScheduleEvent(EVENT_DIVINE_SHIELD, 20*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_CLEANSE, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FLASH_OF_LIGHT, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_HOLY_LIGHT, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_HOLY_SHOCK, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_HOLY_LIGHT, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_HOLY_SHOCK, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 50771, 47079, EQUIP_NO_CHANGE);
@@ -793,12 +793,12 @@ class mob_toc_paladin : public CreatureScript
                         case EVENT_HOLY_LIGHT:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_HOLY_LIGHT);
-                            events.ScheduleEvent(EVENT_HOLY_LIGHT, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_HOLY_LIGHT, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                             return;
                         case EVENT_HOLY_SHOCK:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_HOLY_SHOCK);
-                            events.ScheduleEvent(EVENT_HOLY_SHOCK, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_HOLY_SHOCK, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_HAND_OF_PROTECTION:
                             if (Unit* target = DoSelectLowestHpFriendly(30.0f))
@@ -866,8 +866,8 @@ class mob_toc_priest : public CreatureScript
             void Reset()
             {
                 boss_faction_championsAI::Reset();
-                events.ScheduleEvent(EVENT_RENEW, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_SHIELD, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_RENEW, urand(3*IN_MILLISECONDS, 10*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_SHIELD, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FLASH_HEAL, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
@@ -894,7 +894,7 @@ class mob_toc_priest : public CreatureScript
                         case EVENT_RENEW:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_RENEW);
-                            events.ScheduleEvent(EVENT_RENEW, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_RENEW, urand(3*IN_MILLISECONDS, 5*IN_MILLISECONDS));
                             return;
                         case EVENT_SHIELD:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
