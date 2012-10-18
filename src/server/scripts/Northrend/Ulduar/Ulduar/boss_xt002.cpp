@@ -234,7 +234,6 @@ class boss_xt002 : public CreatureScript
                 transferHealth = 0;
                 phase = PHASE_ACTIVE;
                 heartPhase = PHASE_AT_100_PERCT;
-                events.Reset();
                 events.SetPhase(PHASE_ACTIVE);
 
                 if (!instance)
@@ -248,7 +247,6 @@ class boss_xt002 : public CreatureScript
                     if (Unit* heart = me->SummonCreature(NPC_XT002_HEART, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()))
                         heart->EnterVehicle(me, HEART_VEHICLE_SEAT);
                 }
-
 
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }

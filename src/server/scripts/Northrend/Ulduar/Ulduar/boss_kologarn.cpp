@@ -161,7 +161,6 @@ class boss_kologarn : public CreatureScript
                 rubbleCount = 0;
                 eyebeamTarget = 0;
                 me->SetReactState(REACT_DEFENSIVE);
-                summons.DespawnAll();
 
                 Creature* leftHand = me->FindNearestCreature(NPC_LEFT_ARM, 20.f);
                 if (leftHand)
