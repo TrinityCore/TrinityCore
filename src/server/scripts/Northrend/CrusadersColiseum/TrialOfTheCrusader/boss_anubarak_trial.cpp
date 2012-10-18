@@ -159,6 +159,7 @@ class boss_anubarak_trial : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 phase = PHASE_MELEE;
                 events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
                 events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
@@ -179,7 +180,6 @@ class boss_anubarak_trial : public CreatureScript
                     for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
                         (*itr)->DespawnOrUnsummon();
 
-                summons.DespawnAll();
                 m_vBurrowGUID.clear();
             }
 
