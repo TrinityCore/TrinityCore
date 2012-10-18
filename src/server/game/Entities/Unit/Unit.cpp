@@ -9456,7 +9456,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         return false;
 
     // if the aggressor is evading
-    if (ToCreature()->IsInEvadeMode())
+    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsInEvadeMode())
         return false;
 
     // player cannot attack in mount state
