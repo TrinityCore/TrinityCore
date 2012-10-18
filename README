@@ -38,6 +38,11 @@ parches y/o código que contiene dentro este emulador de manera resumida:
 #########
 #ReanEmu#
 #########
+Milestone0.0: Reiniciando el repo y readaptando cosas varias, inclusion de nuevos
+              developers en git y la inclusion de texto de planeacion para union 
+              eficiente de codigo reestructurando modo de trabajo y organizando 
+              carpetas, branches, etc, adicion de codigo utilitario en general 
+              para complemento del nucleo y funciones de soporte.
 
 
 ############################
