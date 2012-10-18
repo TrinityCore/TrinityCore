@@ -39,7 +39,7 @@ enum LfgRoles
 enum LfgUpdateType
 {
     LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
-    LFG_UPDATETYPE_LEADER                        = 1,
+    LFG_UPDATETYPE_LEADER_UNK1                   = 1,      // FIXME: At group leave
     LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
     LFG_UPDATETYPE_JOIN_PROPOSAL                 = 5,
     LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,
@@ -51,7 +51,7 @@ enum LfgUpdateType
     LFG_UPDATETYPE_PROPOSAL_BEGIN                = 13,
     LFG_UPDATETYPE_CLEAR_LOCK_LIST               = 14,
     LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 15,
-    LFG_UPDATETYPE_GROUP_DISBAND                 = 16
+    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 16,     // FIXME: Sometimes at group disband
 };
 
 enum LfgState
@@ -69,7 +69,6 @@ enum LfgState
 /// Instance lock types
 enum LfgLockStatusType
 {
-    LFG_LOCKSTATUS_OK                            = 0,      // Internal use only
     LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION        = 1,
     LFG_LOCKSTATUS_TOO_LOW_LEVEL                 = 2,
     LFG_LOCKSTATUS_TOO_HIGH_LEVEL                = 3,
@@ -92,18 +91,12 @@ enum LfgAnswer
     LFG_ANSWER_AGREE                             = 1
 };
 
-/// Dungeon and reason why player can't join
-struct LfgLockStatus
-{
-    uint32 dungeon;                                        ///< Dungeon Id
-    LfgLockStatusType lockstatus;                          ///< Lock type
-};
-
 typedef std::set<uint32> LfgDungeonSet;
 typedef std::map<uint32, uint32> LfgLockMap;
 typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
 typedef std::set<uint64> LfgGuidSet;
 typedef std::list<uint64> LfgGuidList;
 typedef std::map<uint64, uint8> LfgRolesMap;
+typedef std::map<uint64, uint64> LfgGroupsMap;
 
 #endif
