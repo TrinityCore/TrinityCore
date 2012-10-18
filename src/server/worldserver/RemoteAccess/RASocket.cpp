@@ -30,6 +30,9 @@
 #include "World.h"
 #include "SHA1.h"
 
+std::set<RASocket*> RASocket::connectedClients;
+ACE_Thread_Mutex RASocket::listLock;
+
 RASocket::RASocket()
 {
     _minLevel = ConfigMgr::GetIntDefault("RA.MinLevel", 3);
@@ -60,6 +63,8 @@ int RASocket::handle_close(ACE_HANDLE, ACE_Reactor_Mask)
     peer().close_reader();
     wait();
     destroy();
+    ACE_GUARD_RETURN (ACE_Thread_Mutex, Guard2, RASocket::listLock, -1);
+    RASocket::connectedClients.erase(this);
     return 0;
 }
 
@@ -178,8 +183,6 @@ int RASocket::check_access_level(const std::string& user)
 
     AccountMgr::normalizeString(safeUser);
 
-
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS);
     stmt->setString(0, safeUser);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -257,6 +260,8 @@ int RASocket::authenticate()
         return -1;
 
     sLog->outDebug(LOG_FILTER_REMOTECOMMAND, "User login: %s", user.c_str());
+    ACE_GUARD_RETURN(ACE_Thread_Mutex,Guard,RASocket::listLock,-1);
+    RASocket::connectedClients.insert(this);
 
     return 0;
 }
@@ -409,4 +414,60 @@ void RASocket::commandFinished(void* callbackArg, bool /*success*/)
         sLog->outDebug(LOG_FILTER_REMOTECOMMAND, "Failed to enqueue command end message. Error is %s", ACE_OS::strerror(errno));
         mb->release();
     }
+}
+
+int RASocket::sendf(const char* msg)
+{
+    ACE_GUARD_RETURN (ACE_Thread_Mutex, Guard, outBufferLock, -1);
+
+    if (closing_)
+        return -1;
+
+    int msgLen = strlen(msg);
+
+    if (msgLen + outputBufferLen > RA_BUFF_SIZE)
+        return -1;
+
+    ACE_OS::memcpy(outputBuffer+outputBufferLen, msg, msgLen);
+    outputBufferLen += msgLen;
+
+    if (!outActive)
+    {
+        if (reactor ()->schedule_wakeup(this, ACE_Event_Handler::WRITE_MASK) == -1)
+        {
+            sLog->outError (LOG_FILTER_WORLDSERVER, "RASocket::sendf error while schedule_wakeup");
+            return -1;
+        }
+        outActive = true;
+    }
+    output(msg);
+    return 0;
+}
+
+int RASocket::output( const char * szText )
+{
+    send(szText);
+    return 1;
+}
+
+void RASocket::raprint( const char * szText )
+{
+    if( !szText )
+        return;
+
+    #ifdef RA_CRYPT
+
+    char *megabuffer = mangos_strdup(szText);
+    unsigned int sz=strlen(megabuffer);
+    Encrypt(megabuffer,sz);
+    send(r,megabuffer,sz,0);
+    delete [] megabuffer;
+
+    #else
+    //aquire lock
+    ACE_GUARD(ACE_Thread_Mutex,Guard,RASocket::listLock);
+    for(std::set<RASocket*>::iterator list_iter = RASocket::connectedClients.begin(); list_iter != RASocket::connectedClients.end(); ++list_iter)
+        (*list_iter)->sendf(szText);
+
+    #endif
 }
