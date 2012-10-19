@@ -165,7 +165,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recv_data
     LFGDungeonMap& LfgDungeons = sLFGMgr->GetLFGDungeonMap();
     for (LFGDungeonMap::const_iterator itr = LfgDungeons.begin(); itr != LfgDungeons.end(); ++itr)
     {
-        LFGDungeonEntry const& dungeon = itr->second;
+        LFGDungeonData const& dungeon = itr->second;
         if ((dungeon.type == LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))
             && dungeon.expansion <= expansion && dungeon.minlevel <= level && level <= dungeon.maxlevel)
             randomDungeons.insert(dungeon.Entry());
@@ -403,7 +403,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck& roleCheck)
     {
         for (LfgDungeonSet::iterator it = dungeons.begin(); it != dungeons.end(); ++it)
         {
-            LFGDungeonEntry const* dungeon = sLFGMgr->GetLFGDungeon(*it);
+            LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(*it);
             data << uint32(dungeon ? dungeon->Entry() : 0); // Dungeon
         }
     }
@@ -552,7 +552,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, LfgProposal const& p
             dungeonEntry = (*playerDungeons.begin());
     }
 
-    if (LFGDungeonEntry const* dungeon = sLFGMgr->GetLFGDungeon(dungeonEntry))
+    if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonEntry))
         dungeonEntry = dungeon->Entry();
 
     data << uint32(dungeonEntry);                          // Dungeon
