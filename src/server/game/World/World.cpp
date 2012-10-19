@@ -1467,14 +1467,15 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Vehicle Accessories...");
     sObjectMgr->LoadVehicleAccessories();                       // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG entrance positions...");
+    sLFGMgr->LoadLFGDungeons();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Dungeon boss data...");
     sObjectMgr->LoadInstanceEncounters();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG rewards...");
     sLFGMgr->LoadRewards();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG entrance positions...");
-    sLFGMgr->LoadEntrancePositions();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();

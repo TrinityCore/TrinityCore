@@ -2429,7 +2429,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const;
         bool isTotalImmunity();
-        bool CanUseBattlegroundObject();
+        bool CanUseBattlegroundObject(GameObject* gameobject);
         bool isTotalImmune();
         bool CanCaptureTowerPoint();
 
@@ -2548,6 +2548,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveAtLoginFlag(AtLoginFlags flags, bool persist = false);
 
         bool isUsingLfg();
+        bool inRandomLfgDungeon();
 
         typedef std::set<uint32> DFQuestsDoneList;
         DFQuestsDoneList m_DFQuests;
