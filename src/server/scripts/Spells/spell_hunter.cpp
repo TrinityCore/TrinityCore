@@ -32,6 +32,7 @@
 enum HunterSpells
 {
     HUNTER_SPELL_READINESS                       = 23989,
+    DRAENEI_SPELL_GIFT_OF_THE_NAARU              = 59543,
     HUNTER_SPELL_BESTIAL_WRATH                   = 19574,
     HUNTER_PET_SPELL_LAST_STAND_TRIGGERED        = 53479,
     HUNTER_PET_HEART_OF_THE_PHOENIX              = 55709,
@@ -340,6 +341,7 @@ class spell_hun_readiness : public SpellScriptLoader
                         spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
                         spellInfo->Id != HUNTER_SPELL_READINESS &&
                         spellInfo->Id != HUNTER_SPELL_BESTIAL_WRATH &&
+                        spellInfo->Id != DRAENEI_SPELL_GIFT_OF_THE_NAARU &&
                         spellInfo->GetRecoveryTime() > 0)
                         caster->RemoveSpellCooldown((itr++)->first, true);
                     else

@@ -224,7 +224,7 @@ public:
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
         stmt->setUInt32(0, delInfo.lowGuid);
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-            sWorld->AddCharacterNameData(delInfo.lowGuid, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8());
+            sWorld->AddCharacterNameData(delInfo.lowGuid, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
     }
 
     static void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel, ChatHandler* handler)

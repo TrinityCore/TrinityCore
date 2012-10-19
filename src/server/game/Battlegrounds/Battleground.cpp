@@ -523,20 +523,23 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     player->ResetAllPowers();
-                    // remove auras with duration lower than 30s
-                    Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                    if (!player->isGameMaster())
                     {
-                        AuraApplication * aurApp = iter->second;
-                        Aura* aura = aurApp->GetBase();
-                        if (!aura->IsPermanent()
-                            && aura->GetDuration() <= 30*IN_MILLISECONDS
-                            && aurApp->IsPositive()
-                            && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
-                            && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                            player->RemoveAura(iter);
-                        else
-                            ++iter;
+                        // remove auras with duration lower than 30s
+                        Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();
+                        for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                        {
+                            AuraApplication * aurApp = iter->second;
+                            Aura* aura = aurApp->GetBase();
+                            if (!aura->IsPermanent()
+                                && aura->GetDuration() <= 30*IN_MILLISECONDS
+                                && aurApp->IsPositive()
+                                && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+                                && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
+                                player->RemoveAura(iter);
+                            else
+                                ++iter;
+                        }
                     }
                 }
 
@@ -856,6 +859,7 @@ void Battleground::EndBattleground(uint32 winner)
                 // update achievement BEFORE personal rating update
                 uint32 rating = player->GetArenaPersonalRating(winnerArenaTeam->GetSlot());
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
+                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
 
                 winnerArenaTeam->MemberWon(player, loserMatchmakerRating, winnerMatchmakerChange);
             }
