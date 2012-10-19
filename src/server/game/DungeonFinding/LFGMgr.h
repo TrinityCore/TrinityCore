@@ -25,8 +25,6 @@
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
 
-class LFGPlayerScript;
-class LFGGroupScript;
 class Group;
 class Player;
 
@@ -406,9 +404,6 @@ class LFGMgr
         LfgPlayerDataMap m_Players;                        ///< Player data
         LfgGroupDataMap m_Groups;                          ///< Group data
         LfgGuidList m_teleport;                            ///< Players being teleported
-
-        LFGPlayerScript *m_lfgPlayerScript;
-        LFGGroupScript *m_lfgGroupScript;
 };
 
 #define sLFGMgr ACE_Singleton<LFGMgr, ACE_Null_Mutex>::instance()
