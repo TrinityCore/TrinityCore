@@ -604,11 +604,6 @@ class mob_xt002_heart : public CreatureScript
  *///----------------------------------------------------
 class mob_scrapbot : public CreatureScript
 {
-    enum Event
-    {
-        EVENT_RANGE_CHECK   = 1
-    };
-
     public:
         mob_scrapbot() : CreatureScript("mob_scrapbot") {}
 
@@ -622,7 +617,8 @@ class mob_scrapbot : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-                events.ScheduleEvent(EVENT_RANGE_CHECK, 0.5*IN_MILLISECONDS);
+
+                rangeCheckTimer = 0.5*IN_MILLISECONDS;
 
                 if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
@@ -633,44 +629,34 @@ class mob_scrapbot : public CreatureScript
                 if (instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (rangeCheckTimer <= diff)
                 {
-                    switch (eventId)
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
                     {
-                        case EVENT_RANGE_CHECK:
-                            if (Creature* xt002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
+                        if (!casted && xt002->isAlive())
+                            if (me->IsWithinMeleeRange(xt002))
                             {
-                                if (!casted && xt002->isAlive())
-                                    if (me->IsWithinMeleeRange(xt002))
-                                    {
-                                        casted = true;
-                                        Talk(EMOTE_REPAIR);
-                                        xt002->CastSpell(xt002, SPELL_HEAL_XT002, true);
-                                        xt002->AI()->DoAction(ACTION_XT002_REACHED);
-                                        /*
-                                        DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
-                                        // Unapply vehicle aura again
-                                        xt002->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
-                                        */
-                                        me->DespawnOrUnsummon();
-                                    }
+                                casted = true;
+                                Talk(EMOTE_REPAIR);
+                                xt002->CastSpell(xt002, SPELL_HEAL_XT002, true);
+                                xt002->AI()->DoAction(ACTION_XT002_REACHED);
+                                /*
+                                DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
+                                // Unapply vehicle aura again
+                                xt002->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
+                                */
+                                me->DespawnOrUnsummon();
                             }
-                            return;
-                        default:
-                            return;
                     }
                 }
+                else
+                    rangeCheckTimer -= diff;
             }
 
             private:
                 InstanceScript* instance;
+                uint32 rangeCheckTimer;
                 bool casted;
-                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -874,8 +860,7 @@ class mob_life_spark : public CreatureScript
     private:
         enum
         {
-            TIMER_SHOCK = 12*IN_MILLISECONDS,
-            EVENT_SHOCK
+            TIMER_SHOCK = 12*IN_MILLISECONDS
         };
 
     public:
@@ -888,7 +873,7 @@ class mob_life_spark : public CreatureScript
             void Reset()
             {
                 DoCast(me, SPELL_STATIC_CHARGED);
-                events.ScheduleEvent(EVENT_SHOCK, 0); // first one is immediate.
+                shockTimer = 0; // first one is immediate.
             }
 
             void UpdateAI(const uint32 diff)
@@ -896,30 +881,21 @@ class mob_life_spark : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (shockTimer <= diff)
                 {
-                    switch (eventId)
+                    if (me->IsWithinMeleeRange(me->getVictim()))
                     {
-                        case EVENT_SHOCK:
-                            if (me->IsWithinMeleeRange(me->getVictim()))
-                            {
-                                DoCast(me->getVictim(), SPELL_SHOCK);
-                                events.ScheduleEvent(EVENT_SHOCK, TIMER_SHOCK);
-                            }
-                            return;
-                        default:
-                            return;
+                        DoCast(me->getVictim(), SPELL_SHOCK);
+                        shockTimer = TIMER_SHOCK;
                     }
                 }
+                else shockTimer -= diff;
+
+                DoMeleeAttackIfReady();
             }
 
             private:
-                EventMap events;
+                uint32 shockTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -930,11 +906,6 @@ class mob_life_spark : public CreatureScript
 
 class mob_void_zone : public CreatureScript
 {
-    enum Event
-    {
-        EVENT_CONSUMPTION   = 1
-    };
-
     public:
         mob_void_zone() : CreatureScript("mob_void_zone") {}
 
@@ -947,35 +918,23 @@ class mob_void_zone : public CreatureScript
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_CONSUMPTION, 3*IN_MILLISECONDS);
+                consumptionTimer = 3*IN_MILLISECONDS;
             }
 
             void UpdateAI(const uint32 diff)
             {
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                if (consumptionTimer <= diff)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_CONSUMPTION:
-                        {
-                            int32 dmg = RAID_MODE<uint32>(5000, 7500);
-                            me->CastCustomSpell(me, SPELL_CONSUMPTION, &dmg, 0, 0, false);
-                            events.ScheduleEvent(EVENT_CONSUMPTION, 3*IN_MILLISECONDS);
-                            return;
-                        }
-                        default:
-                            return;
-                    }
+                    int32 dmg = RAID_MODE<uint32>(5000, 7500);
+                    me->CastCustomSpell(me, SPELL_CONSUMPTION, &dmg, 0, 0, false);
+                    consumptionTimer = 3*IN_MILLISECONDS;
                 }
+                else
+                    consumptionTimer -= diff;
             }
 
         private:
-            EventMap events;
+            uint32 consumptionTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1077,25 +1036,25 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
 
 class BombTargetSelector : public std::unary_function<Unit *, bool>
 {
-public:
-    BombTargetSelector(Creature* me, const WorldObject* victim) : _me(me), _victim(victim) {}
+    public:
+        BombTargetSelector(Creature* me, const WorldObject* victim) : _me(me), _victim(victim) {}
 
-    bool operator() (WorldObject* target)
-    {
-        /* 
-            Decision rule:
-            - If currently checked target is out current target, check if there are more targets in our threat-list.
-                - If there are, cut off the current target (in most cases, the tank).
-                - Otherwise - which would appear when only one player is in the list - we do not remove it from the list.
-        */
-        if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
-            return true;
+        bool operator() (WorldObject* target)
+        {
+            /*
+                Decision rule:
+                - If currently checked target is out current target, check if there are more targets in our threat-list.
+                    - If there are, cut off the current target (in most cases, the tank).
+                    - Otherwise - which would appear when only one player is in the list - we do not remove it from the list.
+            */
+            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+                return true;
 
-        return false;
-    }
+            return false;
+        }
 
-    Creature* _me;
-    WorldObject const* _victim;
+        Creature* _me;
+        WorldObject const* _victim;
 };
 
 class spell_xt002_gravity_bomb_aura_target : public SpellScriptLoader
