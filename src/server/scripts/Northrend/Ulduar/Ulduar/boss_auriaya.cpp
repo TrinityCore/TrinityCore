@@ -260,8 +260,11 @@ class boss_auriaya : public CreatureScript
                         case EVENT_RESPAWN_DEFENDER:
                             if (defenderLives > 0)
                             {
-                                if (Creature* corpse = me->FindNearestCreature(NPC_FERAL_DEFENDER, 100.0f, false))
-                                    corpse->Respawn();
+                                if (Creature* defender = me->FindNearestCreature(NPC_FERAL_DEFENDER, 100.0f, false))
+                                {
+                                    defender->Respawn();
+                                    defender->SetAuraStack(SPELL_FERAL_ESSENCE, defender, defenderLives);
+                                }
                             }
                             return;
                         case EVENT_SUMMON_SWARMING_GUARDIAN:
