@@ -523,7 +523,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
 
             WorldPacket data;
 
-            if (method == GROUP_REMOVEMETHOD_KICK)
+            if (method == GROUP_REMOVEMETHOD_KICK || method == GROUP_REMOVEMETHOD_KICK_LFG)
             {
                 data.Initialize(SMSG_GROUP_UNINVITE, 0);
                 player->GetSession()->SendPacket(&data);
