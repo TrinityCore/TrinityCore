@@ -103,9 +103,10 @@ class spell_sha_mana_tide : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
+                ///@TODO: Exclude the "short term" buffs from the stat value
                 if (Unit* caster = GetCaster())
                     if (Unit* owner = caster->GetOwner())
-                        amount = CalculatePct(owner->GetCreateStat(STAT_SPIRIT), aurEff->GetAmount());
+                        amount = CalculatePct(owner->GetStat(STAT_SPIRIT), aurEff->GetAmount());
             }
 
             void Register()
