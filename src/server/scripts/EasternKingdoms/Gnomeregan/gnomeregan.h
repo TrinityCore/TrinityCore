@@ -21,7 +21,8 @@
 enum eGameObjects
 {
     GO_CAVE_IN_LEFT     = 146085,
-    GO_CAVE_IN_RIGHT    = 146086
+    GO_CAVE_IN_RIGHT    = 146086,
+    GO_RED_ROCKET       = 103820
 };
 
 enum eCreatures

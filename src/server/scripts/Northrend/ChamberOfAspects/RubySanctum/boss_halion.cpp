@@ -696,7 +696,7 @@ class npc_halion_controller : public CreatureScript
                                 halion->AI()->Talk(SAY_INTRO);
                             break;
                         case EVENT_TWILIGHT_MENDING:
-                            if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                            if (ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION))) // Just check if physical Halion is spawned
                                 if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                     twilightHalion->CastSpell((Unit*)NULL, SPELL_TWILIGHT_MENDING, true);
                             break;
@@ -1115,7 +1115,7 @@ class npc_combustion_consumption : public CreatureScript
         struct npc_combustion_consumptionAI : public Scripted_NoMovementAI
         {
             npc_combustion_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
-                   _summonerGuid(0), _instance(creature->GetInstanceScript())
+                   _instance(creature->GetInstanceScript()), _summonerGuid(0)
             {
                 switch (me->GetEntry())
                 {

@@ -30,40 +30,41 @@ Script Data End */
 
 #define GOSSIP_START_EVENT "I am ready to being"
 
-enum eBlastmasterEmiShortfuse
+enum BlastmasterEmi
 {
     GOSSIP_TEXT_EMI     = 1693,
 
-    SAY_BLASTMASTER_0   = -1090000,
-    SAY_BLASTMASTER_1   = -1090001,
-    SAY_BLASTMASTER_2   = -1090002,
-    SAY_BLASTMASTER_3   = -1090003,
-    SAY_BLASTMASTER_4   = -1090004,
-    SAY_BLASTMASTER_5   = -1090005,
-    SAY_BLASTMASTER_6   = -1090006,
-    SAY_BLASTMASTER_7   = -1090007,
-    SAY_BLASTMASTER_8   = -1090008,
-    SAY_BLASTMASTER_9   = -1090009,
-    SAY_BLASTMASTER_10  = -1090010,
-    SAY_BLASTMASTER_11  = -1090011,
-    SAY_BLASTMASTER_12  = -1090012,
-    SAY_BLASTMASTER_13  = -1090013,
-    SAY_BLASTMASTER_14  = -1090014,
-    SAY_BLASTMASTER_15  = -1090015,
-    SAY_BLASTMASTER_16  = -1090016,
-    SAY_BLASTMASTER_17  = -1090017,
-    SAY_BLASTMASTER_18  = -1090018,
-    SAY_BLASTMASTER_19  = -1090019,
-    SAY_BLASTMASTER_20  = -1090020,
-    SAY_BLASTMASTER_21  = -1090021,
-    SAY_BLASTMASTER_22  = -1090022,
-    SAY_BLASTMASTER_23  = -1090023,
-    SAY_BLASTMASTER_24  = -1090024,
-    SAY_BLASTMASTER_25  = -1090025,
-    SAY_BLASTMASTER_26  = -1090026,
-    SAY_BLASTMASTER_27  = -1090027,
+    SAY_BLASTMASTER_0   = 0,
+    SAY_BLASTMASTER_1   = 1,
+    SAY_BLASTMASTER_2   = 2,
+    SAY_BLASTMASTER_3   = 3,
+    SAY_BLASTMASTER_4   = 4,
+    SAY_BLASTMASTER_5   = 5,
+    SAY_BLASTMASTER_6   = 6,
+    SAY_BLASTMASTER_7   = 7,
+    SAY_BLASTMASTER_8   = 8,
+    SAY_BLASTMASTER_9   = 9,
+    SAY_BLASTMASTER_10  = 10,
+    SAY_BLASTMASTER_11  = 11,
+    SAY_BLASTMASTER_12  = 12,
+    SAY_BLASTMASTER_13  = 13,
+    SAY_BLASTMASTER_14  = 14,
+    SAY_BLASTMASTER_15  = 15,
+    SAY_BLASTMASTER_16  = 16,
+    SAY_BLASTMASTER_17  = 17,
+    SAY_BLASTMASTER_18  = 18,
+    SAY_BLASTMASTER_19  = 19,
+    SAY_BLASTMASTER_20  = 20,
+    SAY_BLASTMASTER_21  = 21,
+    SAY_BLASTMASTER_22  = 22,
+    SAY_BLASTMASTER_23  = 23,
+    SAY_BLASTMASTER_24  = 24,
+    SAY_BLASTMASTER_25  = 25,
+    SAY_BLASTMASTER_26  = 26,
+    SAY_BLASTMASTER_27  = 27,
+    SAY_BLASTMASTER_28  = 28,
 
-    SAY_GRUBBIS         = -1090028
+    SAY_GRUBBIS         = 0
 };
 
 const Position SpawnPosition[] =
@@ -78,13 +79,16 @@ const Position SpawnPosition[] =
     {-552.534f, -110.012f, -153.577f, 0.747f},
     {-550.708f, -116.436f, -153.103f, 0.679f},
     {-554.030f, -115.983f, -152.635f, 0.695f},
-    {-494.595f, -87.516f, 149.116f, 3.344f},
+    {-494.595f, -87.516f, -149.116f, 3.344f},
     {-493.349f, -90.845f, -148.882f, 3.717f},
     {-491.995f, -87.619f, -148.197f, 3.230f},
     {-490.732f, -90.739f, -148.091f, 3.230f},
     {-490.554f, -89.114f, -148.055f, 3.230f},
     {-495.240f, -90.808f, -149.493f, 3.238f},
-    {-494.195f, -89.553f, -149.131f, 3.254f}
+    {-494.195f, -89.553f, -149.131f, 3.254f},
+    {-511.3304f, -139.9622f, -152.4761f, 0.7504908f},
+    {-510.6754f, -139.4371f, -152.6167f, 3.33359f},
+    {-511.8976f, -139.3562f, -152.4785f, 3.961899f}
 };
 
 class npc_blastmaster_emi_shortfuse : public CreatureScript
@@ -305,7 +309,7 @@ public:
                     break;
                 case 14:
                     SetInFace(false);
-                    DoScriptText(SAY_BLASTMASTER_26, me);
+                    Talk(SAY_BLASTMASTER_26);
                     SetEscortPaused(true);
                     NextStep(5000, false, 20);
                     break;
@@ -318,8 +322,8 @@ public:
             {
                 case 1:
                     SetEscortPaused(true);
-                    DoScriptText(SAY_BLASTMASTER_0, me);
-                    NextStep(1500, true);
+                    Talk(SAY_BLASTMASTER_0);
+                    NextStep(2000, true);
                     break;
                 case 2:
                     if (!instance)
@@ -368,7 +372,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    DoScriptText(SAY_BLASTMASTER_19, me);
+                    Talk(SAY_BLASTMASTER_19);
                     break;
                 case 4:
                     if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0, 0, 0, 0, 0, 1000))
@@ -381,7 +385,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    DoScriptText(SAY_BLASTMASTER_15, me);
+                    Talk(SAY_BLASTMASTER_15);
                     break;
                 case 6:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
@@ -406,9 +410,14 @@ public:
                     }
                     break;
                 case 9:
-                    if (Creature* pGrubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000))
-                        DoScriptText(SAY_GRUBBIS, pGrubbis);
+                    if (Creature* grubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000))
+                        grubbis->AI()->Talk(SAY_GRUBBIS);
                     me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    break;
+                case 10:
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17].GetPositionX(), SpawnPosition[17].GetPositionY(), SpawnPosition[17].GetPositionZ(), SpawnPosition[17].GetOrientation(), 0, 0, 0, 0, 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18].GetPositionX(), SpawnPosition[18].GetPositionY(), SpawnPosition[18].GetPositionZ(), SpawnPosition[18].GetOrientation(), 0, 0, 0, 0, 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19].GetPositionX(), SpawnPosition[19].GetPositionY(), SpawnPosition[19].GetPositionZ(), SpawnPosition[19].GetOrientation(), 0, 0, 0, 0, 7200);
                     break;
             }
         }
@@ -422,29 +431,29 @@ public:
                     switch (uiPhase)
                     {
                         case 1:
-                            DoScriptText(SAY_BLASTMASTER_1, me);
-                            NextStep(1500, true);
+                            Talk(SAY_BLASTMASTER_1);
+                            NextStep(2000, true);
                             break;
                         case 2:
                             SetEscortPaused(false);
                             NextStep(0, false, 0);
                             break;
                         case 3:
-                            DoScriptText(SAY_BLASTMASTER_2, me);
+                            Talk(SAY_BLASTMASTER_2);
                             SetEscortPaused(false);
                             NextStep(0, false, 0);
                             break;
                         case 4:
-                            DoScriptText(SAY_BLASTMASTER_3, me);
+                            Talk(SAY_BLASTMASTER_3);
                             NextStep(3000, true);
                             break;
                         case 5:
-                            DoScriptText(SAY_BLASTMASTER_4, me);
+                            Talk(SAY_BLASTMASTER_4);
                             NextStep(3000, true);
                             break;
                         case 6:
                             SetInFace(true);
-                            DoScriptText(SAY_BLASTMASTER_5, me);
+                            Talk(SAY_BLASTMASTER_5);
                             Summon(1);
                             if (instance)
                                 if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
@@ -452,12 +461,12 @@ public:
                             NextStep(3000, true);
                             break;
                         case 7:
-                            DoScriptText(SAY_BLASTMASTER_6, me);
+                            Talk(SAY_BLASTMASTER_6);
                             SetEscortPaused(false);
                             NextStep(0, false, 0);
                             break;
                         case 8:
-                            me->HandleEmoteCommand(EMOTE_STATE_WORK);
+                            me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING);
                             NextStep(25000, true);
                             break;
                         case 9:
@@ -469,28 +478,28 @@ public:
                             NextStep(0, false);
                             break;
                         case 11:
-                            DoScriptText(SAY_BLASTMASTER_17, me);
+                            Talk(SAY_BLASTMASTER_17);
                             NextStep(5000, true);
                             break;
                         case 12:
-                            DoScriptText(SAY_BLASTMASTER_18, me);
+                            Talk(SAY_BLASTMASTER_18);
                             NextStep(5000, true);
                             break;
                         case 13:
-                            DoScriptText(SAY_BLASTMASTER_20, me);
+                            Talk(SAY_BLASTMASTER_20);
                             CaveDestruction(true);
                             NextStep(8000, true);
                             break;
                         case 14:
-                            DoScriptText(SAY_BLASTMASTER_21, me);
+                            Talk(SAY_BLASTMASTER_21);
                             NextStep(8500, true);
                             break;
                         case 15:
-                            DoScriptText(SAY_BLASTMASTER_22, me);
+                            Talk(SAY_BLASTMASTER_22);
                             NextStep(2000, true);
                             break;
                         case 16:
-                            DoScriptText(SAY_BLASTMASTER_23, me);
+                            Talk(SAY_BLASTMASTER_23);
                             SetInFace(false);
                             if (instance)
                                 if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
@@ -499,7 +508,7 @@ public:
                             break;
                         case 17:
                             SetEscortPaused(false);
-                            DoScriptText(SAY_BLASTMASTER_24, me);
+                            Talk(SAY_BLASTMASTER_24);
                             Summon(6);
                             NextStep(0, false);
                             break;
@@ -510,11 +519,11 @@ public:
                         case 19:
                             SetInFace(false);
                             Summon(8);
-                            DoScriptText(SAY_BLASTMASTER_25, me);
+                            Talk(SAY_BLASTMASTER_25);
                             NextStep(0, false);
                             break;
                         case 20:
-                            DoScriptText(SAY_BLASTMASTER_27, me);
+                            Talk(SAY_BLASTMASTER_27);
                             NextStep(2000, true);
                             break;
                         case 21:
@@ -523,7 +532,12 @@ public:
                             break;
                         case 22:
                             CaveDestruction(false);
-                            DoScriptText(SAY_BLASTMASTER_20, me);
+                            Talk(SAY_BLASTMASTER_20);
+                            NextStep(2000, true);
+                            break;
+                        case 23:
+                            Summon(10);
+                            Talk(SAY_BLASTMASTER_28);
                             NextStep(0, false);
                             break;
                     }
