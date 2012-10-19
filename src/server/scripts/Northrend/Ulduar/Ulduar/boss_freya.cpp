@@ -444,7 +444,7 @@ class boss_freya : public CreatureScript
                 for (uint8 n = 0; n < 3; ++n)
                 {
                     Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
-                    if (Elder[n]->isAlive())
+                    if (Elder[n] && Elder[n]->isAlive())
                     {
                         Elder[n]->RemoveAllAuras();
                         Elder[n]->AttackStop();
@@ -465,7 +465,7 @@ class boss_freya : public CreatureScript
                 for (uint8 n = 0; n < 3; ++n)
                 {
                     Elder[n] == ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
-                    if (Elder[n]->isAlive())
+                    if (Elder[n] && Elder[n]->isAlive())
                     {
                         me->AddAura(SPELL_DRAINED_OF_POWER, Elder[n]);
                         Elder[n]->CastSpell(me, SPELL_IRONBRANCH_ESSENCE, true);
