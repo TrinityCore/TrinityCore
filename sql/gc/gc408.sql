@@ -1288,7 +1288,8 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (33293, 45871, 0, 2, 1);
 
 -- Assembly of Iron - Steelbreaker
-UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=32867 AND `item` IN (45447, 45448, 45449, 45456);
+UPDATE `creature_template` SET `item`=45455 WHERE `item`=25455 AND `entry`=32867;
+UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=32867 AND `item` IN (45447, 45448, 45449, 45456, 45455);
 UPDATE `creature_loot_template` SET `lootmode`=2 WHERE `entry`=33693 AND `item` IN (45241, 45242, 45243, 45244, 45245, 45607);
 
 -- Hodir - spawning hardmode caches
