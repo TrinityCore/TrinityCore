@@ -31,17 +31,20 @@
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
 
-LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
-    m_options(sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE)),
-    m_lfgPlayerScript(new LFGPlayerScript()), m_lfgGroupScript(new LFGGroupScript())
-{ }
+LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1)
+{
+    m_options = sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE);
+    if (m_options)
+    {
+        new LFGPlayerScript();
+        new LFGGroupScript();
+    }
+}
 
 LFGMgr::~LFGMgr()
 {
     for (LfgRewardMap::iterator itr = m_RewardMap.begin(); itr != m_RewardMap.end(); ++itr)
         delete itr->second;
-    delete m_lfgPlayerScript;
-    delete m_lfgGroupScript;
 }
 
 void LFGMgr::_LoadFromDB(Field* fields, uint64 guid)
