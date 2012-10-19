@@ -726,6 +726,9 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|2
 33890, 33954  -- Brain of Yogg-Saron
 );
 
+-- General Vezax shouldnt be immune to interrupt
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` & ~33554432 WHERE `entry` IN (33271, 33449);
+
 -- Stormcaller Brundir (stun and interrupt immunities are handled in scripts)
 UPDATE `creature_template` SET `mechanic_immune_mask`=1|2|4|8|16|32|64|256|512|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912, `flags_extra`=1 WHERE `entry` IN (32857, 33694);
 
