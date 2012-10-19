@@ -703,13 +703,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         sLog->outDebug(LOG_FILTER_UNITS, "DealDamage: victim just died");
 
         if (victim->GetTypeId() == TYPEID_PLAYER && victim != this)
-        {
             victim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
-
-            // call before auras are removed
-            if (Player* killer = GetCharmerOrOwnerPlayerOrPlayerItself())
-                killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, victim);
-        }
 
         Kill(victim, durabilityLoss);
     }
@@ -2302,6 +2296,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Ranged attacks can only miss, resist and deflect
     if (attType == RANGED_ATTACK)
     {
+        canParry = false;
+        canDodge = false;
+
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
@@ -6637,33 +6634,34 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return false;
                 triggered_spell_id = 0;
                 Unit* beaconTarget = NULL;
-                if (this->GetTypeId() != TYPEID_PLAYER)
+                if (GetTypeId() != TYPEID_PLAYER)
                 {
                     beaconTarget = triggeredByAura->GetBase()->GetCaster();
-                    if (beaconTarget == this || !(beaconTarget->GetAura(53563, victim->GetGUID())))
+                    if (!beaconTarget || beaconTarget == this || !(beaconTarget->GetAura(53563, victim->GetGUID())))
                         return false;
                     basepoints0 = int32(damage);
                     triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
                 }
                 else
                 {    // Check Party/Raid Group
-                    if (Group *group = this->ToPlayer()->GetGroup())
+                    if (Group* group = ToPlayer()->GetGroup())
                     {
-                        for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                         {
-                            Player* Member = itr->getSource();
-
-                            // check if it was heal by paladin which casted this beacon of light
-                            if (Member->GetAura(53563, victim->GetGUID()))
+                            if (Player* member = itr->getSource())
                             {
-                                // do not proc when target of beacon of light is healed
-                                if (Member == this)
-                                    return false;
+                                // check if it was heal by paladin which casted this beacon of light
+                                if (member->GetAura(53563, victim->GetGUID()))
+                                {
+                                    // do not proc when target of beacon of light is healed
+                                    if (member == this)
+                                        return false;
 
-                                beaconTarget = Member;
-                                basepoints0 = int32(damage);
-                                triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
-                                break;
+                                    beaconTarget = member;
+                                    basepoints0 = int32(damage);
+                                    triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -6674,8 +6672,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
                     return true;
                 }
-                else
-                    return false;
+                
+                return false;
             }
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
@@ -13661,6 +13659,9 @@ void Unit::SetLevel(uint8 lvl)
     // group update
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetGroup())
         ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        sWorld->UpdateCharacterNameDataLevel(ToPlayer()->GetGUIDLow(), lvl);
 }
 
 void Unit::SetHealth(uint32 val)
