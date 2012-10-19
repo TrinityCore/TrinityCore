@@ -974,7 +974,7 @@ class npc_thorim_pre_phase_add : public CreatureScript
                                 events.ScheduleEvent(EVENT_PRIMARY_SKILL, urand(2*IN_MILLISECONDS, 3*IN_MILLISECONDS));
                             break;
                         case EVENT_SECONDARY_SKILL:
-                            if (Unit* target = amIHealer ? (me->GetHealthPct() > 40? DoSelectLowestHpFriendly(40) : me) : me->getVictim())
+                            if (amIHealer ? (me->GetHealthPct() > 40? DoSelectLowestHpFriendly(40) : me) : me->getVictim())
                             {
                                 DoCast(myHelper(myIndex, PrePhaseAddHelper::INDEX_SECONDARY));
                                 events.ScheduleEvent(EVENT_PRIMARY_SKILL, urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS));

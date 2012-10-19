@@ -821,7 +821,7 @@ class npc_flame_leviathan_seat : public CreatureScript
                 target->ApplySpellImmune(0, IMMUNITY_ID, 62297, apply); // Hodirs Fury
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 // TODO: accessory is being spawned even if the parent vehicle is dead, needs core fix
                 if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
@@ -2490,11 +2490,11 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                 return true;
             }
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Spell* baseSpell = GetSpell();
                 SpellCastTargets targets = baseSpell->m_targets;
-                int32 damage = GetEffectValue();
+                //int32 damage = GetEffectValue();
                 /*if (targets.HasTraj())
                     if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(damage - 1))

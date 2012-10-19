@@ -872,6 +872,8 @@ class npc_mole_machine_trigger : public CreatureScript
                                     // Emulator for DoCast(SPELL_SUMMON_IRON_DWARVES_2); -> SpellScript did not work!
                                     me->CastSpell(me, SPELL_SUMMON_IRON_VRYKUL, false);
                                     break;
+                                default:
+                                    break;
                             }
                             break;
                         case EVENT_DISSAPPEAR:
@@ -1095,11 +1097,11 @@ class npc_darkrune_sentinel : public CreatureScript
                             events.ScheduleEvent(EVENT_HEROIC_STRIKE, urand(4*IN_MILLISECONDS, 6*IN_MILLISECONDS));
                             return;
                         case EVENT_WHIRLWIND:
-                            DoCast(me, SPELL_WHIRLWIND);
+                            DoCast(SPELL_WHIRLWIND);
                             events.ScheduleEvent(EVENT_WHIRLWIND, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         case EVENT_BATTLE_SHOUT:
-                            DoCast(me, SPELL_BATTLE_SHOUT);
+                            DoCast(SPELL_BATTLE_SHOUT);
                             events.ScheduleEvent(EVENT_BATTLE_SHOUT, urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS)); // Spell duration 25 secs
                             return;
                         default:

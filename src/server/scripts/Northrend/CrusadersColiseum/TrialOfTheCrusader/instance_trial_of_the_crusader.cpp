@@ -252,6 +252,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 DoRespawnGameObject(CrusadersCacheGUID, 7*DAY);
                                 EventStage = 3100;
                                 break;
+                            default:
+                                break;
                         }
                         break;
                     case BOSS_VALKIRIES:
@@ -274,6 +276,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 else
                                     EventStage = 4030;
                                 break;
+                            default:
+                                break;
                         }
                         break;
                     case BOSS_LICH_KING:
@@ -285,6 +289,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 EventStage = 6000;
                                 break;
                             case SPECIAL:
+                            {
                                 uint32 tributeChest = 0;
                                 if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                                 {
@@ -324,6 +329,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                     if (Creature* tirion =  instance->GetCreature(TirionGUID))
                                         if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, 0, 0, 0, 0, WEEK))
                                             chest->SetRespawnTime(chest->GetRespawnDelay());
+                                break;
+                            }
+                            default:
                                 break;
                         }
                         break;

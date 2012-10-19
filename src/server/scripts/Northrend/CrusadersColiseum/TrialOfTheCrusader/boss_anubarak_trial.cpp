@@ -721,19 +721,19 @@ class mob_anubarak_spike : public CreatureScript
                                     StartChase(target2);
                                     Talk(EMOTE_SPIKE, target2->GetGUID());
                                 }
-                                m_PhaseSwitchTimer = 7000;
+                                m_PhaseSwitchTimer = 7*IN_MILLISECONDS;
                                 return;
-
                             case PHASE_IMPALE_NORMAL:
                                 DoCast(me, SPELL_SPIKE_SPEED2);
                                 m_Phase = PHASE_IMPALE_MIDDLE;
-                                m_PhaseSwitchTimer = 7000;
+                                m_PhaseSwitchTimer = 7*IN_MILLISECONDS;
                                 return;
-
                             case PHASE_IMPALE_MIDDLE:
                                 DoCast(me, SPELL_SPIKE_SPEED3);
                                 m_Phase = PHASE_IMPALE_FAST;
                                 m_PhaseSwitchTimer = 0;
+                                return;
+                            default:
                                 return;
                         }
                     }

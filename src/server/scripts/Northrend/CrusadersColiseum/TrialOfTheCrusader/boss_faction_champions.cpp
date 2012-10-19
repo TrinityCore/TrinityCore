@@ -782,7 +782,7 @@ class mob_toc_paladin : public CreatureScript
                             return;
                         case EVENT_CLEANSE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
-                                DoCast(me, SPELL_CLEANSE);
+                                DoCast(target, SPELL_CLEANSE);
                             events.ScheduleEvent(EVENT_CLEANSE, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
                         case EVENT_FLASH_OF_LIGHT:
@@ -1493,7 +1493,7 @@ class mob_toc_boomkin : public CreatureScript
                             return;
                         case EVENT_ENTANGLING_ROOTS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
-                                DoCast(SPELL_ENTANGLING_ROOTS);
+                                DoCast(target, SPELL_ENTANGLING_ROOTS);
                             events.ScheduleEvent(EVENT_ENTANGLING_ROOTS, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         case EVENT_FAERIE_FIRE:
