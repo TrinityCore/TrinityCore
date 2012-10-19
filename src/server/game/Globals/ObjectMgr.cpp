@@ -47,6 +47,7 @@
 #include "PoolMgr.h"
 #include "DB2Structure.h"
 #include "DB2Stores.h"
+#include "LFGMgr.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -4978,7 +4979,7 @@ void ObjectMgr::LoadInstanceEncounters()
             continue;
         }
 
-        if (lastEncounterDungeon && !sLFGDungeonStore.LookupEntry(lastEncounterDungeon))
+        if (lastEncounterDungeon && !sLFGMgr->GetLFGDungeon(lastEncounterDungeon))
         {
             sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", entry, dungeonEncounter->encounterName, lastEncounterDungeon);
             continue;
