@@ -202,10 +202,12 @@ public:
     }
 
 };
+
 enum GordunniTrap
 {
     GO_GORDUNNI_DIRT_MOUND = 144064,
 };
+
 class spell_gordunni_trap : public SpellScriptLoader
 {
     public:
