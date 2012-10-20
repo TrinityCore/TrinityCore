@@ -112,8 +112,8 @@ class ulduar_teleporter : public GameObjectScript
                 {
                     if (instance->GetData(DATA_COLOSSUS) == 2) //count of 2 collossus death
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Formation Grounds", GOSSIP_SENDER_MAIN, GROUNDS);
-                    if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Colossal Forge", GOSSIP_SENDER_MAIN, FORGE);
+                    //if (instance->GetBossState(BOSS_LEVIATHAN) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Colossal Forge", GOSSIP_SENDER_MAIN, FORGE);
                     if (instance->GetBossState(BOSS_XT002) == DONE)
                     {
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Scrapyard", GOSSIP_SENDER_MAIN, SCRAPYARD);
