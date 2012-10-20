@@ -5,4 +5,4 @@ INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=11757;
 INSERT INTO `conditions`(`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`Comment`) VALUES
-(11757,1,13,31,5,144050,'Digging for Cobalt targets Gordunni Trap');
+(13,1,11757,31,5,144050,'Digging for Cobalt targets Gordunni Trap');
