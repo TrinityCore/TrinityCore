@@ -1,3 +1,4 @@
+#include "ContinentBuilder.h"
 #include "TileBuilder.h"
 #include "Geometry.h"
 #include "Constants.h"
@@ -11,8 +12,10 @@
 
 #include "ace/Synch.h"
 
-TileBuilder::TileBuilder(std::string world, int x, int y, uint32 mapId) : _Geometry(NULL), World(world), X(x), Y(y), MapId(mapId), DataSize(0)
+TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, int y, uint32 mapId) : _Geometry(NULL), World(world), X(x), Y(y), MapId(mapId), DataSize(0), cBuilder(_cBuilder)
 {
+    /*
+        Test, non-working values
     // Cell Size = TileSize / TileVoxelSize
     // 1800 = TileVoxelSize
     Config.cs = Constants::TileSize / 1800;
@@ -35,6 +38,26 @@ TileBuilder::TileBuilder(std::string world, int x, int y, uint32 mapId) : _Geome
     Config.height = 1800 + Config.borderSize * 2;
     Config.maxVertsPerPoly = 6;
     Config.maxSimplificationError = 1.3f;
+    */
+
+    // All are in UNIT metrics!
+    memset(&Config, 0, sizeof(rcConfig));
+
+    Config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
+    Config.cs = Constants::BaseUnitDim;
+    Config.ch = Constants::BaseUnitDim;
+    Config.walkableSlopeAngle = 60.0f;
+    Config.tileSize = Constants::VertexPerTile;
+    Config.walkableRadius = 1;
+    Config.borderSize = Config.walkableRadius + 3;
+    Config.maxEdgeLen = Constants::VertexPerTile + 1;        //anything bigger than tileSize
+    Config.walkableHeight = 3;
+    Config.walkableClimb = 2;                      // keep less than walkableHeight
+    Config.minRegionArea = rcSqr(60);
+    Config.mergeRegionArea = rcSqr(50);
+    Config.maxSimplificationError = 2.0f;       // eliminates most jagged edges (tinny polygons)
+    Config.detailSampleDist = Config.cs * 64;
+    Config.detailSampleMaxError = Config.ch * 2;
 
     Context = new rcContext;
 }
@@ -104,84 +127,101 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
     _Geometry->Vertices.clear();
     _Geometry->Triangles.clear();
 
-    float bbMin[3];
-    float bbMax[3];
-    // CalculateTileBounds(bbMin, bbMax, navMeshParams);
-    rcCalcBounds(vertices, numVerts, bbMin, bbMax);
-    // _Geometry->CalculateMinMaxHeight(bbMin[1], bbMax[1]);
+    
+    rcVcopy(Config.bmin, cBuilder->bmin);
+    rcVcopy(Config.bmax, cBuilder->bmax);
+    
+    // this sets the dimensions of the heightfield - should maybe happen before border padding
+    rcCalcGridSize(Config.bmin, Config.bmax, Config.cs, &Config.width, &Config.height);
+    
+    // Initialize per tile config.
+    rcConfig tileCfg = Config;
+    tileCfg.width = Config.tileSize + Config.borderSize * 2;
+    tileCfg.height = Config.tileSize + Config.borderSize * 2;
 
-    /*bbMin[0] -= Config.borderSize * Config.cs;
-    bbMin[2] -= Config.borderSize * Config.cs;
-    bbMax[0] += Config.borderSize * Config.cs;
-    bbMax[0] += Config.borderSize * Config.cs;*/
+    // merge per tile poly and detail meshes
+    rcPolyMesh** pmmerge = new rcPolyMesh*[Constants::TilesPerMap * Constants::TilesPerMap];
+    rcPolyMeshDetail** dmmerge = new rcPolyMeshDetail*[Constants::TilesPerMap * Constants::TilesPerMap];
 
+    int nmerge = 0;
+    for (int y = 0; y < Constants::TilesPerMap; ++y)
+    {
+        for (int x = 0; x < Constants::TilesPerMap; ++x)
+        {
+            // Calculate the per tile bounding box.
+            tileCfg.bmin[0] = Config.bmin[0] + float(x * Config.tileSize - Config.borderSize) * Config.cs;
+            tileCfg.bmin[2] = Config.bmin[2] + float(y * Config.tileSize - Config.borderSize) * Config.cs;
+            tileCfg.bmax[0] = Config.bmin[0] + float((x + 1) * Config.tileSize + Config.borderSize) * Config.cs;
+            tileCfg.bmax[2] = Config.bmin[2] + float((y + 1) * Config.tileSize + Config.borderSize) * Config.cs;
+            
+            
+            rcHeightfield* hf = rcAllocHeightfield();
+            rcCreateHeightfield(Context, *hf, tileCfg.width, tileCfg.height, tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch);
+            rcClearUnwalkableTriangles(Context, tileCfg.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
+            rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, Config.walkableClimb);
 
-    rcHeightfield* hf = rcAllocHeightfield();
-    int height, width;
-    rcCalcGridSize(bbMin, bbMax, Config.cs, &width, &height);
-    printf("Config values: Height: %i, Width: %i. Calculated values: Height: %i, Width: %i\n", Config.height, Config.width, height, width);
-    rcCreateHeightfield(Context, *hf, width, height, bbMin, bbMax, Config.cs, Config.ch);
-    rcClearUnwalkableTriangles(Context, Config.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
-    rcRasterizeTriangles(Context, vertices, numVerts, triangles, areas, numTris, *hf, Config.walkableClimb);
+            // Once all geometry is rasterized, we do initial pass of filtering to
+            // remove unwanted overhangs caused by the conservative rasterization
+            // as well as filter spans where the character cannot possibly stand.
+            rcFilterLowHangingWalkableObstacles(Context, Config.walkableClimb, *hf);
+            rcFilterLedgeSpans(Context, tileCfg.walkableHeight, tileCfg.walkableClimb, *hf);
+            rcFilterWalkableLowHeightSpans(Context, tileCfg.walkableHeight, *hf);
 
-    printf("[%02i,%02i] Triangles rasterized!\n", X, Y);
+            // Compact the heightfield so that it is faster to handle from now on.
+            // This will result in more cache coherent data as well as the neighbours
+            // between walkable cells will be calculated.
+            rcCompactHeightfield* chf = rcAllocCompactHeightfield();
+            rcBuildCompactHeightfield(Context, tileCfg.walkableHeight, tileCfg.walkableClimb, *hf, *chf);
 
-    // Once all geometry is rasterized, we do initial pass of filtering to
-    // remove unwanted overhangs caused by the conservative rasterization
-    // as well as filter spans where the character cannot possibly stand.
-    rcFilterLowHangingWalkableObstacles(Context, Config.walkableClimb, *hf);
-    rcFilterLedgeSpans(Context, Config.walkableHeight, Config.walkableClimb, *hf);
-    rcFilterWalkableLowHeightSpans(Context, Config.walkableHeight, *hf);
+            rcFreeHeightField(hf);
 
-    printf("[%02i,%02i] Filtering done!\n", X, Y);
+            // Erode the walkable area by agent radius.
+            rcErodeWalkableArea(Context, Config.walkableRadius, *chf);
+            // Prepare for region partitioning, by calculating distance field along the walkable surface.
+            rcBuildDistanceField(Context, *chf);
+            // Partition the walkable surface into simple regions without holes.
+            rcBuildRegions(Context, *chf, tileCfg.borderSize, tileCfg.minRegionArea, tileCfg.mergeRegionArea);
 
-    // Compact the heightfield so that it is faster to handle from now on.
-    // This will result in more cache coherent data as well as the neighbours
-    // between walkable cells will be calculated.
-    rcCompactHeightfield* chf = rcAllocCompactHeightfield();
-    rcBuildCompactHeightfield(Context, Config.walkableHeight, Config.walkableClimb, *hf, *chf);
+            // Create contours.
+            rcContourSet* cset = rcAllocContourSet();
+            rcBuildContours(Context, *chf, tileCfg.maxSimplificationError, tileCfg.maxEdgeLen, *cset);
 
-    rcFreeHeightField(hf);
+            // Build polygon navmesh from the contours.
+            rcPolyMesh* pmesh = rcAllocPolyMesh();
+            rcBuildPolyMesh(Context, *cset, tileCfg.maxVertsPerPoly, *pmesh);
 
-    printf("[%02i,%02i] Heightfield compressed!\n", X, Y);
+            // Build detail mesh.
+            rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
+            rcBuildPolyMeshDetail(Context, *pmesh, *chf, tileCfg.detailSampleDist, tileCfg.detailSampleMaxError, *dmesh);
 
-    // Erode the walkable area by agent radius.
-    rcErodeWalkableArea(Context, Config.walkableRadius, *chf);
-    // Prepare for region partitioning, by calculating distance field along the walkable surface.
-    rcBuildDistanceField(Context, *chf);
-    // Partition the walkable surface into simple regions without holes.
-    rcBuildRegions(Context, *chf, Config.borderSize, Config.minRegionArea, Config.mergeRegionArea);
+            // Free memory
+            rcFreeCompactHeightfield(chf);
+            rcFreeContourSet(cset);
+            
+            pmmerge[nmerge] = pmesh;
+            dmmerge[nmerge] = dmesh;
+            ++nmerge;
+        }
+    }
 
-    printf("[%02i,%02i] Regions built!\n", X, Y);
-
-    // Create contours.
-    rcContourSet* cset = rcAllocContourSet();
-    rcBuildContours(Context, *chf, Config.maxSimplificationError, Config.maxEdgeLen, *cset);
-
-    // Build polygon navmesh from the contours.
     rcPolyMesh* pmesh = rcAllocPolyMesh();
-    rcBuildPolyMesh(Context, *cset, Config.maxVertsPerPoly, *pmesh);
-
-    printf("[%02i,%02i] Polymesh built!\n", X, Y);
-
-    // Build detail mesh.
+    rcMergePolyMeshes(Context, pmmerge, nmerge, *pmesh);
+    
     rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
-    rcBuildPolyMeshDetail(Context, *pmesh, *chf, Config.detailSampleDist, Config.detailSampleMaxError, *dmesh);
-
-    printf("[%02i,%02i] Polymesh detail built!\n", X, Y);
-
-    rcFreeCompactHeightfield(chf);
-    rcFreeContourSet(cset);
-
-    /*
-    * Removed with RecastNavigation v292
+    rcMergePolyMeshDetails(Context, dmmerge, nmerge, *dmesh);
+    
+    delete[] pmmerge;
+    delete[] dmmerge;
+    
+    printf("[%02i,%02i] Meshes merged!\n", X, Y);
+    
     // Remove padding from the polymesh data. (Remove this odditity)
     for (int i = 0; i < pmesh->nverts; ++i)
     {
         unsigned short* v = &pmesh->verts[i * 3];
         v[0] -= (unsigned short)Config.borderSize;
         v[2] -= (unsigned short)Config.borderSize;
-    }*/
+    }
 
     // Set flags according to area types (e.g. Swim for Water)
     for (int i = 0; i < pmesh->npolys; i++)
@@ -192,14 +232,8 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
             pmesh->flags[i] = Constants::POLY_FLAG_SWIM;
     }
 
-    // get original bounds
-    /*float* tilebMin;
-    float* tilebMax;
-    CalculateTileBounds(tilebMin, tilebMax, navMeshParams);
-    tilebMin[1] = bbMin[1];
-    tilebMax[1] = bbMax[1];*/
-
     dtNavMeshCreateParams params;
+    memset(&params, 0, sizeof(params));
     // PolyMesh data
     params.verts = pmesh->verts;
     params.vertCount = pmesh->nverts;
@@ -214,32 +248,39 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
     params.detailVertsCount = dmesh->nverts;
     params.detailTris = dmesh->tris;
     params.detailTriCount = dmesh->ntris;
-    // Copy bounding box
-    /*params.bmin[0] = tilebMin[0];
-    params.bmin[1] = tilebMin[1];
-    params.bmin[2] = tilebMin[2];
-    params.bmax[0] = tilebMax[0];
-    params.bmax[1] = tilebMax[1];
-    params.bmax[2] = tilebMax[2];*/
     rcVcopy(params.bmin, pmesh->bmin);
     rcVcopy(params.bmax, pmesh->bmax);
     // General settings
     params.ch = Config.ch;
     params.cs = Config.cs;
-    params.walkableClimb = Config.walkableClimb;
-    params.walkableHeight = Config.walkableHeight;
-    params.walkableRadius = Config.walkableRadius;
-    params.tileX = X;
-    params.tileY = Y;
-    int _x = (((pmesh->bmin[0] + pmesh->bmax[0]) / 2) - Constants::Origin[0]) / Constants::TileSize;
-    int _y = (((pmesh->bmin[2] + pmesh->bmax[2]) / 2) - Constants::Origin[2]) / Constants::TileSize;
-    printf("[%02i,%02i] Generated with TileX: %i and TileY: %i\nbmin[0] %f bmin[1] %f bmin[2] %f bmax[0] %f bmax[1] %f bmax[2] %f\n", X, Y, _x, _y, params.bmin[0], params.bmin[1], params.bmin[2], params.bmax[0], params.bmax[1], params.bmax[2]);
-    params.buildBvTree = true;
-    params.tileLayer = 0;
+    params.walkableClimb = Constants::BaseUnitDim * Config.walkableClimb;
+    params.walkableHeight = Constants::BaseUnitDim * Config.walkableHeight;
+    params.walkableRadius = Constants::BaseUnitDim * Config.walkableRadius;
+    params.tileX = (((cBuilder->bmin[0] + cBuilder->bmax[0]) / 2) - navMeshParams.orig[0]) / Constants::TileSize;
+    params.tileY = (((cBuilder->bmin[2] + cBuilder->bmax[2]) / 2) - navMeshParams.orig[2]) / Constants::TileSize;
 
+    rcVcopy(params.bmin, cBuilder->bmin);
+    rcVcopy(params.bmax, cBuilder->bmax);
+        
     // Offmesh-connection settings
     params.offMeshConCount = 0; // none for now
+    
+    params.tileSize = Constants::VertexPerMap;
 
+    if (!params.polyCount || !params.polys || Constants::TilesPerMap * Constants::TilesPerMap == params.polyCount)
+    {
+        // we have flat tiles with no actual geometry - don't build those, its useless
+        // keep in mind that we do output those into debug info
+        // drop tiles with only exact count - some tiles may have geometry while having less tiles
+        printf("[%02i,%02i] No polygons to build on tile, skipping.\n", X, Y);
+        rcFreePolyMesh(pmesh);
+        rcFreePolyMeshDetail(dmesh);
+        delete areas;
+        delete triangles;
+        delete vertices;
+        return NULL;
+    }
+    
     int navDataSize;
     uint8* navData;
     printf("[%02i,%02i] Creating the navmesh with %i vertices, %i polys, %i triangles!\n", X, Y, pmesh->nverts, pmesh->npolys, dmesh->ntris);
@@ -248,13 +289,9 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
     // Free some memory
     rcFreePolyMesh(pmesh);
     rcFreePolyMeshDetail(dmesh);
-    //delete tilebMax;
-    //delete tilebMin;
     delete areas;
     delete triangles;
     delete vertices;
-    //delete bbMax;
-    //delete bbMin;
 
     if (result)
     {
