@@ -32,12 +32,13 @@ public:
 
     enum ExtractFlags
     {
-        EXTRACT_FLAG_DBC            = 1,
-        EXTRACT_FLAG_MAPS           = 2,
-        EXTRACT_FLAG_VMAPS          = 4,
-        EXTRACT_FLAG_GOB_MODELS     = 8,
-        EXTRACT_FLAG_MMAPS          = 16,
-        EXTRACT_FLAG_ALLOWED        = EXTRACT_FLAG_DBC | EXTRACT_FLAG_MAPS | EXTRACT_FLAG_VMAPS | EXTRACT_FLAG_GOB_MODELS | EXTRACT_FLAG_MMAPS
+        EXTRACT_FLAG_DBC            = 0x01,
+        EXTRACT_FLAG_MAPS           = 0x02,
+        EXTRACT_FLAG_VMAPS          = 0x04,
+        EXTRACT_FLAG_GOB_MODELS     = 0x08,
+        EXTRACT_FLAG_MMAPS          = 0x10,
+        EXTRACT_FLAG_TEST           = 0x20,
+        EXTRACT_FLAG_ALLOWED        = EXTRACT_FLAG_DBC | EXTRACT_FLAG_MAPS | EXTRACT_FLAG_VMAPS | EXTRACT_FLAG_GOB_MODELS | EXTRACT_FLAG_MMAPS | EXTRACT_FLAG_TEST
     };
 
     static const float TileSize;
@@ -49,6 +50,10 @@ public:
     static const float MaxStandableHeight;
     static bool ToWoWCoords;
     static const char* VMAPMagic;
+    static const float BaseUnitDim;
+    static const int VertexPerMap;
+    static const int VertexPerTile;
+    static const int TilesPerMap;
 };
 
 #endif

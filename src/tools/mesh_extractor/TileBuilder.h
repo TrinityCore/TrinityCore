@@ -5,12 +5,13 @@
 
 #include "Geometry.h"
 
+class ContinentBuilder;
 class WDT;
 
 class TileBuilder
 {
 public:
-    TileBuilder(std::string world, int x, int y, uint32 mapId);
+    TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, int y, uint32 mapId);
     ~TileBuilder();
 
     void CalculateTileBounds(float*& bmin, float*& bmax, dtNavMeshParams& navMeshParams);
@@ -24,5 +25,6 @@ public:
     rcContext* Context;
     Geometry* _Geometry;
     uint32 DataSize;
+    ContinentBuilder* cBuilder;
 };
 #endif
