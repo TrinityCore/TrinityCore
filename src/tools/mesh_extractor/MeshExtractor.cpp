@@ -6,6 +6,10 @@
 #include "Constants.h"
 #include "Model.h"
 
+#include "Recast.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
+
 #include <set>
 
 #include "Common.h"
@@ -306,6 +310,19 @@ void PrintUsage()
     }
 }
 
+void LoadTile(dtNavMesh*& navMesh, const char* tile)
+{
+    FILE* f = fopen(tile, "rb");
+    MmapTileHeader header;
+    fread(&header, sizeof(MmapTileHeader), 1, f);
+    uint8* nav = new uint8[header.size];
+    fread(nav, header.size, 1, f);
+
+    dtStatus res = navMesh->addTile(nav, header.size, DT_TILE_FREE_DATA, 0, NULL);
+
+    fclose(f);
+}
+
 int main(int argc, char* argv[])
 {
     system("pause");
@@ -331,6 +348,71 @@ int main(int argc, char* argv[])
 
     if (extractFlags & Constants::EXTRACT_FLAG_GOB_MODELS)
         ExtractGameobjectModels();
+
+    if (extractFlags & Constants::EXTRACT_FLAG_TEST)
+    {
+        float start[] = { 0.0f, 0.0f, 0.0f };
+        float end[] = { 0.0f, 0.0f, 0.0f };
+
+        //
+        float m_spos[3];
+        m_spos[0] = -1.0f * start[1];
+        m_spos[1] = start[2];
+        m_spos[2] = -1.0f * start[0];
+
+        //
+        float m_epos[3];
+        m_epos[0] = -1.0f * end[1];
+        m_epos[1] = end[2];
+        m_epos[2] = -1.0f * end[0];
+
+        //
+        dtQueryFilter m_filter;
+        m_filter.setIncludeFlags(0xffff) ;
+        m_filter.setExcludeFlags(0);
+
+        //
+        float m_polyPickExt[3];
+        m_polyPickExt[0] = 2;
+        m_polyPickExt[1] = 4;
+        m_polyPickExt[2] = 2;
+
+        //
+        dtPolyRef m_startRef;
+        dtPolyRef m_endRef;
+
+        FILE* mmap = fopen(".mmap", "rb");
+        dtNavMeshParams params;
+        fread(&params, sizeof(dtNavMeshParams), 1, mmap);
+        fclose(mmap);
+
+        dtNavMesh* navMesh = new dtNavMesh();
+        dtNavMeshQuery* navMeshQuery = new dtNavMeshQuery();
+
+        navMesh->init(&params);
+        LoadTile(navMesh, ".mmtile");
+        LoadTile(navMesh, ".mmtile");
+        LoadTile(navMesh, ".mmtile");
+        LoadTile(navMesh, ".mmtile");
+        LoadTile(navMesh, ".mmtile");
+        LoadTile(navMesh, ".mmtile");
+
+        navMeshQuery->init(navMesh, 2048);
+
+        float nearestPt[3];
+
+        dtStatus status = navMeshQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, nearestPt);
+        status = navMeshQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, nearestPt);
+
+        //
+        if ( !m_startRef || !m_endRef )
+        {
+            std::cerr << "Could not find any nearby poly's (" << m_startRef << "," << m_endRef << ")" << std::endl;
+            return 0;
+        }
+
+        printf("Found!");
+    }
    
     return 0;
 }

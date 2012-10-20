@@ -14,15 +14,16 @@ private:
     std::string Continent;
     bool debug;
     dtNavMeshParams Params;
+    ContinentBuilder* cBuilder;
 public:
-    BuilderThread(bool deb, dtNavMeshParams& params) : Free(true), debug(deb), Params(params) {}
+    BuilderThread(ContinentBuilder* _cBuilder, bool deb, dtNavMeshParams& params) : Free(true), debug(deb), Params(params), cBuilder(_cBuilder) {}
     void SetData(int x, int y, int map, std::string cont) { X = x; Y = y; MapId = map; Continent = cont; }
 
     int svc()
     {
         Free = false;
         printf("[%02i,%02i] Building tile\n", X, Y);
-        TileBuilder builder(Continent, X, Y, MapId);
+        TileBuilder builder(cBuilder, Continent, X, Y, MapId);
         char buff[100];
         sprintf(buff, "mmaps/%03u%02u%02u.mmtile", MapId, Y, X);
         FILE* f = fopen(buff, "r");
@@ -57,7 +58,7 @@ public:
     bool Free;
 };
 
-void getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax)
+void ContinentBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax)
 {
     // this is for elevation
     if (verts && vertCount)
@@ -75,6 +76,19 @@ void getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, floa
     bmin[2] = bmax[2] - Constants::TileSize;
 }
 
+void ContinentBuilder::CalculateTileBounds()
+{
+    for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
+    {
+        tileXMax = std::max(itr->X, tileXMax);
+        tileXMin = std::min(itr->X, tileXMin);
+
+        tileYMax = std::max(itr->Y, tileYMax);
+        tileYMin = std::min(itr->Y, tileYMin);
+    }
+    getTileBounds(tileXMax, tileYMax, NULL, 0, bmin, bmax);
+}
+
 void ContinentBuilder::Build(bool debug)
 {
     char buff[50];
@@ -86,33 +100,19 @@ void ContinentBuilder::Build(bool debug)
         return;
     }
 
-    int tileXMin = 64, tileYMin = 64, tileXMax = 0, tileYMax = 0;
-    for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
-    {
-        tileXMax = std::max(itr->X, tileXMax);
-        tileXMin = std::min(itr->X, tileXMin);
-
-        tileYMax = std::max(itr->Y, tileYMax);
-        tileYMin = std::min(itr->Y, tileYMin);
-    }
-
-    float bmin[3], bmax[3];
-    getTileBounds(tileXMax, tileYMax, NULL, 0, bmin, bmax);
-
+    CalculateTileBounds();
+    
     dtNavMeshParams params;
-    params.maxPolys = 32768;
+    params.maxPolys = 1 << STATIC_POLY_BITS;
     params.maxTiles = TileMap->TileTable.size();
-    // rcVcopy(params.orig, bmin);
-    params.orig[0] = Constants::Origin[0];
-    params.orig[1] = 0;
-    params.orig[2] = Constants::Origin[2];
+    rcVcopy(params.orig, bmin);
     params.tileHeight = Constants::TileSize;
     params.tileWidth = Constants::TileSize;
     fwrite(&params, sizeof(dtNavMeshParams), 1, mmap);
     fclose(mmap);
     std::vector<BuilderThread*> Threads;
     for (uint32 i = 0; i < NumberOfThreads; ++i)
-        Threads.push_back(new BuilderThread(debug, params));
+        Threads.push_back(new BuilderThread(this, debug, params));
     printf("Map %s ( %i ) has %i tiles. Building them with %i threads\n", Continent.c_str(), MapId, TileMap->TileTable.size(), NumberOfThreads);
     for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
     {
