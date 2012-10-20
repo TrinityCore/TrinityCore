@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_gregan_brewspewer
@@ -201,6 +202,37 @@ public:
     }
 
 };
+enum GordunniTrap
+{
+    GO_GORDUNNI_DIRT_MOUND = 144064,
+};
+class spell_gordunni_trap : public SpellScriptLoader
+{
+    public:
+        spell_gordunni_trap() : SpellScriptLoader("spell_gordunni_trap") { }
+
+        class spell_gordunni_trap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gordunni_trap_SpellScript);
+
+            void HandleDummy()
+            {
+                if (Unit* caster = GetCaster())
+                    if (GameObject* chest = caster->SummonGameObject(GO_GORDUNNI_DIRT_MOUND, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                        chest->SetSpellId(GetSpellInfo()->Id);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_gordunni_trap_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gordunni_trap_SpellScript();
+        }
+};
 
 /*######
 ## AddSC
@@ -211,4 +243,5 @@ void AddSC_feralas()
     new npc_gregan_brewspewer();
     new npc_oox22fe();
     new npc_screecher_spirit();
+    new spell_gordunni_trap();
 }
