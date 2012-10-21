@@ -2746,8 +2746,7 @@ void ObjectMgr::LoadFakeItems()
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 fake items. DB table `fake_items` is empty.");
-        sLog->outString();
+        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 fake items. DB table `fake_items` is empty.");
         return;
     }
 
@@ -2763,7 +2762,6 @@ void ObjectMgr::LoadFakeItems()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u fake items.", _fakeItemsStore.size());
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING);
 }
 
 
