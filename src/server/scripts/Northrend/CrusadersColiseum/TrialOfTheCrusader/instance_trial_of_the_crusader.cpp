@@ -286,10 +286,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         switch (state)
                         {
                             case DONE:
-                                EventStage = 6000;
-                                break;
-                            case SPECIAL:
                             {
+                                EventStage = 6000;
                                 uint32 tributeChest = 0;
                                 if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                                 {
@@ -325,6 +323,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                         }
                                     }
                                 }
+
                                 if (tributeChest)
                                     if (Creature* tirion =  instance->GetCreature(TirionGUID))
                                         if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, 0, 0, 0, 0, WEEK))
