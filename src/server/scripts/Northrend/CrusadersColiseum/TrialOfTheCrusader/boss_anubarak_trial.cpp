@@ -461,6 +461,9 @@ class mob_swarm_scarab : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
+                if (instance && instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
+                    me->DisappearAndDie();
+
                 if (!UpdateVictim())
                     return;
 
@@ -527,6 +530,9 @@ class mob_nerubian_burrower : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
+                if (instance && instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
+                    me->DisappearAndDie();
+
                 if (!UpdateVictim() && !me->HasAura(SPELL_SUBMERGE_EFFECT))
                     return;
 
