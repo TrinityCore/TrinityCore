@@ -2821,16 +2821,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
               break;
          //SPELL CAN NOT CRIT!
-            case 10890:  // Psychic Scream
-            spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS;
-            spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_10_YARDS;
-            spellInfo->speed = 100;
-            break;
-            case 1543:  // Flare
-            spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_8_YARDS;
-            spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_8_YARDS;
-            spellInfo->speed = 80;
-            break;
 
 //Saqirmdev Tool Fixes
             case 53: // Backstab

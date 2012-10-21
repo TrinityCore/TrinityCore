@@ -431,8 +431,8 @@ class npc_arena_spectator : public CreatureScript
                 if (!sBattlegroundMgr->IsArenaType((BattlegroundTypeId)i))
                     continue;
 
-                BattlegroundSet bgs = sBattlegroundMgr->GetBattlegroundsByType((BattlegroundTypeId)i);
-                for (BattlegroundSet::iterator itr = bgs.begin(); itr != bgs.end(); ++itr)
+                BattlegroundDataContainer bgs = sBattlegroundMgr->GetBattlegroundsByType((BattlegroundTypeId)i);
+                for (BattlegroundDataContainer::iterator itr = bgs.begin(); itr != bgs.end(); ++itr)
                 {
                     Battleground* arena = itr->second;
 
