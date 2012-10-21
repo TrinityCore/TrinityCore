@@ -54,15 +54,6 @@ enum BlastmasterEmi
     SAY_BLASTMASTER_17  = 17,
     SAY_BLASTMASTER_18  = 18,
     SAY_BLASTMASTER_19  = 19,
-    SAY_BLASTMASTER_20  = 20,
-    SAY_BLASTMASTER_21  = 21,
-    SAY_BLASTMASTER_22  = 22,
-    SAY_BLASTMASTER_23  = 23,
-    SAY_BLASTMASTER_24  = 24,
-    SAY_BLASTMASTER_25  = 25,
-    SAY_BLASTMASTER_26  = 26,
-    SAY_BLASTMASTER_27  = 27,
-    SAY_BLASTMASTER_28  = 28,
 
     SAY_GRUBBIS         = 0
 };
@@ -304,12 +295,12 @@ public:
                     NextStep(25000, false, 18);
                     break;
                 case 13:
-                    Summon(7);
+                    Summon(6);
                     NextStep(25000, false, 19);
                     break;
                 case 14:
                     SetInFace(false);
-                    Talk(SAY_BLASTMASTER_26);
+                    Talk(SAY_BLASTMASTER_17);
                     SetEscortPaused(true);
                     NextStep(5000, false, 20);
                     break;
@@ -372,7 +363,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    Talk(SAY_BLASTMASTER_19);
+                    Talk(SAY_BLASTMASTER_7);
                     break;
                 case 4:
                     if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0, 0, 0, 0, 0, 1000))
@@ -382,39 +373,33 @@ public:
                     }
                     break;
                 case 5:
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    Talk(SAY_BLASTMASTER_15);
-                    break;
-                case 6:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[11], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[12], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[13], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
-                case 7:
+                case 6:
                     if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0, 0, 0, 0, 0, 1000))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
-                        Summon(6);
+                        Summon(5);
                     }
                     break;
-                case 8:
+                case 7:
                     if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0, 0, 0, 0, 0, 1000))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
                     }
                     break;
-                case 9:
+                case 8:
                     if (Creature* grubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000))
                         grubbis->AI()->Talk(SAY_GRUBBIS);
                     me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
-                case 10:
+                case 9:
                     me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17].GetPositionX(), SpawnPosition[17].GetPositionY(), SpawnPosition[17].GetPositionZ(), SpawnPosition[17].GetOrientation(), 0, 0, 0, 0, 7200);
                     me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18].GetPositionX(), SpawnPosition[18].GetPositionY(), SpawnPosition[18].GetPositionZ(), SpawnPosition[18].GetOrientation(), 0, 0, 0, 0, 7200);
                     me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19].GetPositionX(), SpawnPosition[19].GetPositionY(), SpawnPosition[19].GetPositionZ(), SpawnPosition[19].GetOrientation(), 0, 0, 0, 0, 7200);
@@ -475,31 +460,32 @@ public:
                             break;
                         case 10:
                             Summon(4);
+                            Talk(SAY_BLASTMASTER_8);
                             NextStep(0, false);
                             break;
                         case 11:
-                            Talk(SAY_BLASTMASTER_17);
+                            Talk(SAY_BLASTMASTER_9);
                             NextStep(5000, true);
                             break;
                         case 12:
-                            Talk(SAY_BLASTMASTER_18);
+                            Talk(SAY_BLASTMASTER_10);
                             NextStep(5000, true);
                             break;
                         case 13:
-                            Talk(SAY_BLASTMASTER_20);
+                            Talk(SAY_BLASTMASTER_11);
                             CaveDestruction(true);
                             NextStep(8000, true);
                             break;
                         case 14:
-                            Talk(SAY_BLASTMASTER_21);
+                            Talk(SAY_BLASTMASTER_12);
                             NextStep(8500, true);
                             break;
                         case 15:
-                            Talk(SAY_BLASTMASTER_22);
+                            Talk(SAY_BLASTMASTER_13);
                             NextStep(2000, true);
                             break;
                         case 16:
-                            Talk(SAY_BLASTMASTER_23);
+                            Talk(SAY_BLASTMASTER_14);
                             SetInFace(false);
                             if (instance)
                                 if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
@@ -508,36 +494,36 @@ public:
                             break;
                         case 17:
                             SetEscortPaused(false);
-                            Talk(SAY_BLASTMASTER_24);
-                            Summon(6);
+                            Talk(SAY_BLASTMASTER_15);
+                            Summon(5);
                             NextStep(0, false);
                             break;
                         case 18:
-                            Summon(7);
+                            Summon(6);
                             NextStep(0, false);
                             break;
                         case 19:
                             SetInFace(false);
-                            Summon(8);
-                            Talk(SAY_BLASTMASTER_25);
+                            Summon(7);
+                            Talk(SAY_BLASTMASTER_16);
                             NextStep(0, false);
                             break;
                         case 20:
-                            Talk(SAY_BLASTMASTER_27);
+                            Talk(SAY_BLASTMASTER_18);
                             NextStep(2000, true);
                             break;
                         case 21:
-                            Summon(9);
+                            Summon(8);
                             NextStep(0, false);
                             break;
                         case 22:
                             CaveDestruction(false);
-                            Talk(SAY_BLASTMASTER_20);
-                            NextStep(2000, true);
+                            Talk(SAY_BLASTMASTER_11);
+                            NextStep(3000, true);
                             break;
                         case 23:
-                            Summon(10);
-                            Talk(SAY_BLASTMASTER_28);
+                            Summon(9);
+                            Talk(SAY_BLASTMASTER_19);
                             NextStep(0, false);
                             break;
                     }
