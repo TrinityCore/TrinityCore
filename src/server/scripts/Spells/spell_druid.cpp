@@ -158,7 +158,6 @@ enum EclipseSpells
     SPELL_DRUID_SOLAR_ECLIPSE_MARKER     = 67483, // Will make the yellow arrow on eclipse bar point to the yellow side (solar)
     SPELL_DRUID_SOLAR_ECLIPSE            = 48517,
     SPELL_DRUID_LUNAR_ECLIPSE            = 48518,
-    TALENT_TREE_BALANCE                  = 752,
 };
 
 // Wrath, Starfire, and Starsurge
@@ -191,7 +190,7 @@ public:
             Player* caster = GetCaster()->ToPlayer();
 
             // No boomy, no deal.
-            if (caster->GetPrimaryTalentTree(caster->GetActiveSpec()) != TALENT_TREE_BALANCE)
+            if (caster->GetPrimaryTalentTree(caster->GetActiveSpec()) != TALENT_TREE_DRUID_BALANCE)
                 return;
 
             switch(GetSpellInfo()->Id)
