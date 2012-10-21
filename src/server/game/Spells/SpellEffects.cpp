@@ -549,7 +549,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                         unitTarget->RemoveAuraFromStack(spellId);
 
                                 damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);
+                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.11f * combo);
                             }
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
@@ -820,12 +820,36 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                 // Glyph of Mirror Image
                 if (m_caster->HasAura(63093))
                    m_caster->CastSpell(m_caster, 65047, true); // Mirror Image
-
                 break;
             }
+
+          case 35009: // Invisible
+			m_caster->CombatStop();
+				return;
+          
+
+          case 58984: // Shadowmeld
+           {
+               m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+               m_caster->InterruptSpell(CURRENT_CHANNELED_SPELL);  // break channeled spells
+               m_caster->AttackStop();
+               ((Player*)m_caster)->SendAttackSwingCancelAttack();
+               m_caster->CombatStop();
+				 return;
+           }
+
+             case 49560: // Death Grip
+				 if(unitTarget->HasAura(19263))
+					 return;
+
             // Vanish (not exist)
             case 18461:
             {
+                m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+                unitTarget->InterruptSpell(CURRENT_CHANNELED_SPELL);  // break channeled spells
+                m_caster->AttackStop();
+                m_caster->CombatStop();
+                ((Player*)m_caster)->SendAttackSwingCancelAttack();
                 unitTarget->RemoveMovementImpairingAuras();
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
@@ -5110,11 +5134,12 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
+    if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
         {
             Position pos;
             unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
+
             m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         }
         else

@@ -204,11 +204,22 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
                 else
                     caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
             }
+            
+            SpellCastResult HandleCheckCast() {
+                Unit *caster = GetCaster();
+                if (caster->GetPetGUID())
+                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                if (caster->GetCharmGUID())
+                    return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                
+                return SPELL_CAST_OK;
+            }
 
             void Register()
             {
                 // add dummy effect spell handler to Summon Water Elemental
                 OnEffectHit += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_mage_summon_water_elemental_SpellScript::HandleCheckCast);
             }
         };
 

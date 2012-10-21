@@ -24,6 +24,11 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
+// SAQIRMDEV USEFULL FIXES! A SAQIRM JE PAN
+void AddSC_transmogrify_script();
+//void AddSC_arena_spectator_script();
+void AddSC_utility_commandscript();
+
 // spells
 void AddSC_deathknight_spell_scripts();
 void AddSC_druid_spell_scripts();
@@ -1269,6 +1274,9 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
+    AddSC_transmogrify_script();
+  //  AddSC_arena_spectator_script();
+    AddSC_utility_commandscript();
 
 #endif
 }

@@ -1061,9 +1061,12 @@ SpellAreaMapBounds SpellMgr::GetSpellAreaMapBounds(uint32 spell_id) const
     return SpellAreaMapBounds(mSpellAreaMap.lower_bound(spell_id), mSpellAreaMap.upper_bound(spell_id));
 }
 
-SpellAreaForQuestMapBounds SpellMgr::GetSpellAreaForQuestMapBounds(uint32 quest_id) const
+SpellAreaForQuestMapBounds SpellMgr::GetSpellAreaForQuestMapBounds(uint32 quest_id, bool active) const
 {
-    return SpellAreaForQuestMapBounds(mSpellAreaForQuestMap.lower_bound(quest_id), mSpellAreaForQuestMap.upper_bound(quest_id));
+    if (active)
+        return SpellAreaForQuestMapBounds(mSpellAreaForActiveQuestMap.lower_bound(quest_id), mSpellAreaForActiveQuestMap.upper_bound(quest_id));
+    else
+        return SpellAreaForQuestMapBounds(mSpellAreaForQuestMap.lower_bound(quest_id), mSpellAreaForQuestMap.upper_bound(quest_id));
 }
 
 SpellAreaForQuestMapBounds SpellMgr::GetSpellAreaForQuestEndMapBounds(uint32 quest_id) const
@@ -1096,11 +1099,11 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             return false;
 
     if (questStart)                              // not in expected required quest state
-        if (!player || (((1 << player->GetQuestStatus(questStart)) & questStartStatus) == 0))
+        if (!player || ((!questStartCanActive || !player->IsActiveQuest(questStart)) && !player->GetQuestRewardStatus(questStart)))
             return false;
 
     if (questEnd)                                // not in expected forbidden quest state
-        if (!player || (((1 << player->GetQuestStatus(questEnd)) & questEndStatus) == 0))
+        if (!player || player->GetQuestRewardStatus(questEnd))
             return false;
 
     if (auraSpell)                               // not have expected aura
@@ -2430,11 +2433,12 @@ void SpellMgr::LoadSpellAreas()
 
     mSpellAreaMap.clear();                                  // need for reload case
     mSpellAreaForQuestMap.clear();
+    mSpellAreaForActiveQuestMap.clear();
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
 
-    //                                                  0     1         2              3               4                 5          6          7       8         9
-    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
+    //                                                  0     1         2              3               4           5          6        7       8
+    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_active, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
 
     if (!result)
     {
@@ -2453,13 +2457,12 @@ void SpellMgr::LoadSpellAreas()
         spellArea.spellId             = spell;
         spellArea.areaId              = fields[1].GetUInt32();
         spellArea.questStart          = fields[2].GetUInt32();
-        spellArea.questStartStatus    = fields[3].GetUInt32();
-        spellArea.questEndStatus      = fields[4].GetUInt32();
-        spellArea.questEnd            = fields[5].GetUInt32();
-        spellArea.auraSpell           = fields[6].GetInt32();
-        spellArea.raceMask            = fields[7].GetUInt32();
-        spellArea.gender              = Gender(fields[8].GetUInt8());
-        spellArea.autocast            = fields[9].GetBool();
+        spellArea.questStartCanActive = fields[3].GetBool();
+        spellArea.questEnd            = fields[4].GetUInt32();
+        spellArea.auraSpell           = fields[5].GetInt32();
+        spellArea.raceMask            = fields[6].GetUInt32();
+        spellArea.gender              = Gender(fields[7].GetUInt8());
+        spellArea.autocast            = fields[8].GetBool();
 
         if (SpellInfo const* spellInfo = GetSpellInfo(spell))
         {
@@ -2491,7 +2494,7 @@ void SpellMgr::LoadSpellAreas()
                     continue;
 
                 // duplicate by requirements
-                ok = false;
+                ok =false;
                 break;
             }
 
@@ -2519,6 +2522,12 @@ void SpellMgr::LoadSpellAreas()
             if (!sObjectMgr->GetQuestTemplate(spellArea.questEnd))
             {
                 sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_area` have wrong end quest (%u) requirement", spell, spellArea.questEnd);
+                continue;
+            }
+
+            if (spellArea.questEnd == spellArea.questStart && !spellArea.questStartCanActive)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_area` have quest (%u) requirement for start and end in same time", spell, spellArea.questEnd);
                 continue;
             }
         }
@@ -2596,7 +2605,12 @@ void SpellMgr::LoadSpellAreas()
 
         // for search at quest start/reward
         if (spellArea.questStart)
-            mSpellAreaForQuestMap.insert(SpellAreaForQuestMap::value_type(spellArea.questStart, sa));
+        {
+            if (spellArea.questStartCanActive)
+                mSpellAreaForActiveQuestMap.insert(SpellAreaForQuestMap::value_type(spellArea.questStart, sa));
+            else
+                mSpellAreaForQuestMap.insert(SpellAreaForQuestMap::value_type(spellArea.questStart, sa));
+        }
 
         // for search at quest start/reward
         if (spellArea.questEnd)
@@ -2782,6 +2796,47 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52743: // Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
+//Saqirmdev Tool Fixes
+
+         //SPELL IGNORE LOS (NOT WORKING FOR ALL)
+            case 48955: // Refer A Friend Summon Effect
+            case 2825: // Bloodlust
+            case 19185: // Entrapment
+            case 64803: // Entrapment
+            case 64804: // Entrapment
+            case 8172: // Totem of Cleansing
+            case 8145: // Totem of Tremor
+            case 55362: // Living Bomb Explode
+            case 32182: // Herosim
+            case 64843: // Divine Hymn
+            case 64844: // Divine Hymn (Trigger)
+            case 44461: //Living Bomb 
+            case 55361: //Living Bomb
+            case 19388: //Entrapment
+            case 19387: //Entrapment
+            case 19184: //entrapment
+            case 52865: //Combat Fix
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+              break;
+         //SPELL IGNORE LOS (NOT WORKING FOR ALL)
+
+         //SPELL CAN NOT IN INVISIbLE/STEALT
+        case 52212: // Death Knight: Death and Decay trigger spell
+            spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+             break;
+         //SPELL CAN NOT IN INVISIbLE/STEALT
+       
+         //SPELL CAN NOT CRIT!
+            case 48788: //Lay of Hand Rank 5 
+            case 27154: //Lay of Hand Rank 4 
+            case 10310: //Lay of Hand Rank 3 
+            case 2800: //Lay of Hand Rank 2 
+            case 633: //Lay of Hand Rank 1  
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+              break;
+         //SPELL CAN NOT CRIT!
+
+//Saqirmdev Tool Fixes
             case 53: // Backstab
             case 2589:
             case 2590:
@@ -2975,6 +3030,16 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
+            case 10890:  // Psychic Scream
+            spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS;
+            spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_10_YARDS;
+            spellInfo->speed = 100;
+            break;
+            case 1543:  // Flare
+            spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_8_YARDS;
+            spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_8_YARDS;
+            spellInfo->speed = 80;
+            break;
             case 42730:
                 spellInfo->EffectTriggerSpell[EFFECT_1] = 42739;
                 break;
@@ -3159,6 +3224,21 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_7_YARDS;
+                break;
+                case 18754: // Improved succubus - problems with apply if target is pet 
+                                    spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;    // it's affects duration of seduction, let's minimize affection 
+                                    spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.22;           // reduce cast time of seduction by 22%  
+                                    spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER; 
+                                    break; 
+                                case 18755: 
+                                    spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER; 
+                                    spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.44;           //  reduce cast time of seduction by 44% 
+                                    spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER; 
+                                    break; 
+                                case 18756: 
+                                    spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER; 
+                                    spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.66;           //  reduce cast time of seduction by 66% 
+                                    spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;  
                 break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
@@ -3471,10 +3551,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 71085: // Mana Void (periodic aura)
                 spellInfo->DurationIndex = 9; // 30 seconds (missing)
-                break;
-            case 72015: // Frostbolt Volley (only heroic)
-            case 72016: // Frostbolt Volley (only heroic)
-                spellInfo->EffectRadiusIndex[2] = EFFECT_RADIUS_40_YARDS;
                 break;
             case 70936: // Summon Suppressor (needs target selection script)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
