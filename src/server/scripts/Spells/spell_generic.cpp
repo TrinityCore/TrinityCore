@@ -1581,12 +1581,12 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
                     }
 
 
-                    LFGDungeonEntry const* randomDungeon = sLFGMgr->GetLFGDungeon(*itr);
+                    LFGDungeonData const* randomDungeon = sLFGMgr->GetLFGDungeon(*itr);
                     if (Group* group = owner->GetGroup())
                         if (Map const* map = owner->GetMap())
                             if (group->isLFGGroup())
                                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
-                                    if (LFGDungeonEntry const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
+                                    if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
                                         if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
                                             if (randomDungeon && randomDungeon->type == LFG_TYPE_RANDOM)
                                                 return; // in correct dungeon

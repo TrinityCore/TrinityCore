@@ -1116,6 +1116,19 @@ void GameObject::Use(Unit* user)
             player->SendPreparedGossip(this);
             return;
         }
+        case GAMEOBJECT_TYPE_TRAP:                          //6
+        {
+            GameObjectTemplate const* goInfo = GetGOInfo();
+            if (goInfo->trap.spellId)
+                CastSpell(user, goInfo->trap.spellId);
+
+            m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));   // template or 4 seconds
+
+            if (goInfo->trap.type == 1)         // Deactivate after trigger
+                SetLootState(GO_JUST_DEACTIVATED);
+
+            return;
+        }
         //Sitting: Wooden bench, chairs enzz
         case GAMEOBJECT_TYPE_CHAIR:                         //7
         {

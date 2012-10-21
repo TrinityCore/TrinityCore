@@ -1347,7 +1347,7 @@ struct ItemSetEntry
     uint32    required_skill_value;                         // 36       m_requiredSkillRank
 };
 
-struct LFGDungeonEntryDbc
+struct LFGDungeonEntry
 {
     uint32  ID;                                             // 0
     char*   name;                                           // 1

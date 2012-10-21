@@ -27,7 +27,9 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 void AddSC_feralas()
 {
+
 }

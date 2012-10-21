@@ -25,8 +25,6 @@
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
 
-class LFGPlayerScript;
-class LFGGroupScript;
 class Group;
 class Player;
 
@@ -117,7 +115,7 @@ enum LfgRoleCheckState
 };
 
 // Forward declaration (just to have all typedef together)
-struct LFGDungeonEntry;
+struct LFGDungeonData;
 struct LfgReward;
 struct LfgQueueInfo;
 struct LfgRoleCheck;
@@ -136,7 +134,7 @@ typedef std::map<uint64, LfgProposalPlayer> LfgProposalPlayerMap;
 typedef std::map<uint64, LfgPlayerBoot> LfgPlayerBootMap;
 typedef std::map<uint64, LfgGroupData> LfgGroupDataMap;
 typedef std::map<uint64, LfgPlayerData> LfgPlayerDataMap;
-typedef UNORDERED_MAP<uint32, LFGDungeonEntry> LFGDungeonMap;
+typedef UNORDERED_MAP<uint32, LFGDungeonData> LFGDungeonMap;
 
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
@@ -251,12 +249,12 @@ struct LfgPlayerBoot
     std::string reason;                                    ///< kick reason
 };
 
-struct LFGDungeonEntry
+struct LFGDungeonData
 {
-    LFGDungeonEntry(): id(0), name(""), map(0), type(0), expansion(0), group(0), minlevel(0),
+    LFGDungeonData(): id(0), name(""), map(0), type(0), expansion(0), group(0), minlevel(0),
         maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
         { }
-    LFGDungeonEntry(LFGDungeonEntryDbc const* dbc): id(dbc->ID), name(dbc->name), map(dbc->map),
+    LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name), map(dbc->map),
         type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
         minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
         seasonal(dbc->flags & LFG_FLAG_SEASONAL), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
@@ -358,7 +356,7 @@ class LFGMgr
         static char const * GetStateString(LfgState state);
 
         void LoadLFGDungeons(bool reload = false);
-        LFGDungeonEntry const* GetLFGDungeon(uint32 id);
+        LFGDungeonData const* GetLFGDungeon(uint32 id);
         LFGDungeonMap& GetLFGDungeonMap();
 
         void ClearState(uint64 guid, char const *debugMsg);
@@ -406,9 +404,6 @@ class LFGMgr
         LfgPlayerDataMap m_Players;                        ///< Player data
         LfgGroupDataMap m_Groups;                          ///< Group data
         LfgGuidList m_teleport;                            ///< Players being teleported
-
-        LFGPlayerScript *m_lfgPlayerScript;
-        LFGGroupScript *m_lfgGroupScript;
 };
 
 #define sLFGMgr ACE_Singleton<LFGMgr, ACE_Null_Mutex>::instance()
