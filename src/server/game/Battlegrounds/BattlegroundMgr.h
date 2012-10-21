@@ -90,8 +90,6 @@ class BattlegroundMgr
         Battleground* GetBattlegroundTemplate(BattlegroundTypeId bgTypeId);
         Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
 
-        BattlegroundContainer GetBattlegroundsByType(BattlegroundTypeId bgTypeId);
-
         void AddBattleground(Battleground* bg);
         void RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 instanceId);
         void AddToBGFreeSlotQueue(BattlegroundTypeId bgTypeId, Battleground* bg);
@@ -113,7 +111,6 @@ class BattlegroundMgr
 
         void SetHolidayWeekends(uint32 mask);
 
-        bool IsArenaTypes(uint32 bgTypeId) const;
         bool isArenaTesting() const { return m_ArenaTesting; }
         bool isTesting() const { return m_Testing; }
 

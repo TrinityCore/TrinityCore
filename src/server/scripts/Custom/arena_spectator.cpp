@@ -428,9 +428,6 @@ class npc_arena_spectator : public CreatureScript
             bool haveNextPage = false;
             for (uint8 i = BATTLEGROUND_NA; i <= BATTLEGROUND_RV; ++i)
             {
-                if (!sBattlegroundMgr->IsArenaTypes((BattlegroundTypeId)i))
-                    continue;
-
                 BattlegroundContainer bgs = sBattlegroundMgr->GetBattlegroundsByType((BattlegroundTypeId)i);
                 for (BattlegroundContainer::iterator itr = bgs.begin(); itr != bgs.end(); ++itr)
                 {
