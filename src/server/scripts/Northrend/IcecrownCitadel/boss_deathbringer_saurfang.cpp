@@ -474,7 +474,10 @@ class boss_deathbringer_saurfang : public CreatureScript
                             events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BOILING_BLOOD:
-                            DoCast(me, SPELL_BOILING_BLOOD);
+                            // hackfix for wrong Boiling Blood applying
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                                target->AddAura(SPELL_BOILING_BLOOD, target);
+                            //DoCast(me, SPELL_BOILING_BLOOD);
                             events.ScheduleEvent(EVENT_BOILING_BLOOD, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BERSERK:
