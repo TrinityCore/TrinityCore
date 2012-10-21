@@ -11684,7 +11684,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     bool lootedObjectInDungeon = false;
     Map const* map = lootedObject->GetMap();
     if (uint32 dungeonId = sLFGMgr->GetDungeon(GetGroup()->GetGUID(), true))
-        if (LFGDungeonEntry const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
+        if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
             if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
                 lootedObjectInDungeon = true;
 
@@ -23573,7 +23573,7 @@ bool Player::inRandomLfgDungeon()
         const LfgDungeonSet& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
         if (!dungeons.empty())
         {
-             LFGDungeonEntry const* dungeon = sLFGMgr->GetLFGDungeon(*dungeons.begin());
+             LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(*dungeons.begin());
              if (dungeon && (dungeon->type == LFG_TYPE_RANDOM || dungeon->seasonal))
                  return true;
         }

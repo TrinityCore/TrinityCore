@@ -998,6 +998,21 @@ enum TrinityStrings
     LANG_WORLD_CLOSED                    = 7523,
     LANG_WORLD_OPENED                    = 7524,
 
+    LANG_LFG_STATE_NONE                 = 9986,
+    LANG_LFG_STATE_ROLECHECK            = 9987,
+    LANG_LFG_STATE_QUEUED               = 9988,
+    LANG_LFG_STATE_PROPOSAL             = 9989,
+    LANG_LFG_STATE_BOOT                 = 9990,
+    LANG_LFG_STATE_DUNGEON              = 9991,
+    LANG_LFG_STATE_FINISHED_DUNGEON     = 9992,
+    LANG_LFG_STATE_RAIDBROWSER          = 9993,
+    LANG_LFG_ROLE_TANK                  = 9994,
+    LANG_LFG_ROLE_HEALER                = 9995,
+    LANG_LFG_ROLE_DAMAGE                = 9996,
+    LANG_LFG_ROLE_LEADER                = 9997,
+    LANG_LFG_ROLE_NONE                  = 9998,
+    LANG_LFG_ERROR                      = 9999,
+
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
     // opvp hp
@@ -1085,21 +1100,6 @@ enum TrinityStrings
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
     LANG_INVALID_REALMID                = 11001,
-
-    LANG_LFG_STATE_NONE                 = 11002,
-    LANG_LFG_STATE_ROLECHECK            = 11003,
-    LANG_LFG_STATE_QUEUED               = 11004,
-    LANG_LFG_STATE_PROPOSAL             = 11005,
-    LANG_LFG_STATE_BOOT                 = 11006,
-    LANG_LFG_STATE_DUNGEON              = 11007,
-    LANG_LFG_STATE_FINISHED_DUNGEON     = 11008,
-    LANG_LFG_STATE_RAIDBROWSER          = 11009,
-    LANG_LFG_ROLE_TANK                  = 11010,
-    LANG_LFG_ROLE_HEALER                = 11011,
-    LANG_LFG_ROLE_DAMAGE                = 11012,
-    LANG_LFG_ROLE_LEADER                = 11013,
-    LANG_LFG_ROLE_NONE                  = 11014,
-    LANG_LFG_ERROR                      = 11015,
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

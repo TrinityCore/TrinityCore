@@ -631,7 +631,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
         if (isLFGGroup() && GetMembersCount() == 1)
         {
             Player* Leader = ObjectAccessor::FindPlayer(GetLeaderGUID());
-            LFGDungeonEntry const* dungeon = sLFGMgr->GetLFGDungeon(sLFGMgr->GetDungeon(GetGUID()));
+            LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(sLFGMgr->GetDungeon(GetGUID()));
             if ((Leader && dungeon && Leader->isAlive() && Leader->GetMapId() != uint32(dungeon->map)) || !dungeon)
             {
                 Disband();
