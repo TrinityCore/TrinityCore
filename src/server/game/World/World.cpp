@@ -1400,9 +1400,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");
     sObjectMgr->LoadEquipmentTemplates();
 
-    sLog->outString("Loading fake items...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading fake items...");
     sObjectMgr->LoadFakeItems();
-
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
