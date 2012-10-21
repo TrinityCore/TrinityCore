@@ -1344,7 +1344,8 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 
 -- Algalon's Sack of Ulduar Spoils (10m)
 DELETE FROM `creature_loot_template` WHERE `entry`=45875;
-INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+DELETE FROM `item_loot_template` WHERE `entry`=45875;
+INSERT INTO `item_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (45875, 45087, 100, 1, 0, 1, 1),
 (45875, 47241, 100, 1, 0, 5, 5);
 
