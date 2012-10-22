@@ -234,14 +234,14 @@ int RASocket::check_password(const std::string& user, const std::string& pass)
 
 int RASocket::authenticate()
 {
-    if (send(std::string("Username: ")) == -1)
+    if (send(std::string("Username:\r\n")) == -1)
         return -1;
 
     std::string user;
     if (recv_line(user) == -1)
         return -1;
 
-    if (send(std::string("Password: ")) == -1)
+    if (send(std::string("Password:\r\n")) == -1)
         return -1;
 
     std::string pass;
