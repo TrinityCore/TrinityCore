@@ -31,8 +31,8 @@ enum Yells
     SAY_PLAYER_DEATH            = 4,
     SAY_DEATH                   = 5,
 
-	// Head of the Horseman
-    SAY_LOST_HEAD               = 0,
+    // Head of the Horseman
+    SAY_LOST_HEAD               = 0
 };
 
 enum Actions
@@ -62,10 +62,10 @@ enum Spells
     SPELL_BURNING               = 42971,
 
     SPELL_FLYING_HEAD           = 42399,
-	SPELL_HEAD                  = 42413,
+    SPELL_HEAD                  = 42413,
     SPELL_HEAD_LANDS            = 42400,
  // SPELL_CREATE_PUMPKIN_TREATS = 42754,
-    SPELL_RHYME_BIG             = 42909,
+    SPELL_RHYME_BIG             = 42909
 };
 
 uint32 randomLaugh[]            = {11965, 11975, 11976};
@@ -179,7 +179,7 @@ class boss_headless_horseman : public CreatureScript
                 Talk(SAY_DEATH);
                 _summons.DespawnAll();
 
-			    Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
                     for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                         if (Player* player = i->getSource())
@@ -270,7 +270,7 @@ class boss_headless_horseman : public CreatureScript
                                 _phase = 1;
                                 _wpReached = true;
                                 me->SetVisible(true);
-								Talk(SAY_ENTRANCE);
+                                Talk(SAY_ENTRANCE);
                             }
                         }
                         _introTimer = 3*IN_MILLISECONDS;
@@ -350,6 +350,8 @@ class boss_headless_horseman : public CreatureScript
                         else
                             _summonTimer -= diff;
                         break;
+                    default:
+                        break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -411,9 +413,15 @@ class npc_horseman_head : public CreatureScript
 
                 switch (_phase)
                 {
-                    case 1: healthPct = 66; break;
-                    case 2: healthPct = 33; break;
-                    default: healthPct = 1; break;
+                    case 1:
+                        healthPct = 66;
+                        break;
+                    case 2:
+                        healthPct = 33;
+                        break;
+                    default:
+                        healthPct = 1;
+                        break;
                 }
 
                 if (me->HealthBelowPctDamaged(healthPct, damage) || damage >= me->GetHealth())

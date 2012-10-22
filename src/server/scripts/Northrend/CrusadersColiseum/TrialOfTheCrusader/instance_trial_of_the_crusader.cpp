@@ -91,7 +91,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 if (GetBossState(BOSS_LICH_KING) == DONE)
                 {
                     Creature* anubArak = Unit::GetCreature(*player, GetData64(NPC_ANUBARAK));
-                    if (!anubArak || !anubArak->isAlive())
+                    if (!anubArak)
                         anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
                     if (GameObject* floor = GameObject::GetGameObject(*player, GetData64(GO_ARGENT_COLISEUM_FLOOR)))
@@ -252,6 +252,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 DoRespawnGameObject(CrusadersCacheGUID, 7*DAY);
                                 EventStage = 3100;
                                 break;
+                            default:
+                                break;
                         }
                         break;
                     case BOSS_VALKIRIES:
@@ -274,6 +276,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 else
                                     EventStage = 4030;
                                 break;
+                            default:
+                                break;
                         }
                         break;
                     case BOSS_LICH_KING:
@@ -282,9 +286,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         switch (state)
                         {
                             case DONE:
+                            {
                                 EventStage = 6000;
-                                break;
-                            case SPECIAL:
                                 uint32 tributeChest = 0;
                                 if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                                 {
@@ -320,10 +323,14 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                         }
                                     }
                                 }
+
                                 if (tributeChest)
                                     if (Creature* tirion =  instance->GetCreature(TirionGUID))
                                         if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, 0, 0, 0, 0, WEEK))
                                             chest->SetRespawnTime(chest->GetRespawnDelay());
+                                break;
+                            }
+                            default:
                                 break;
                         }
                         break;

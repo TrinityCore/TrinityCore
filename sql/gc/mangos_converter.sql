@@ -319,7 +319,7 @@ ADD `duration` int(10) unsigned NOT NULL AFTER `count`,
 ADD `charges` text NOT NULL AFTER `duration`,
 ADD `flags` int(10) unsigned NOT NULL default '0' AFTER `charges`,
 ADD `enchantments` text NOT NULL AFTER `flags`,
-ADD `randomPropertyId` bigint(20) NOT NULL default '0' AFTER `enchantments`,
+ADD `randomPropertyId` smallint(5) NOT NULL default '0' AFTER `enchantments`,  	-- might have to be increased while converting
 ADD `durability` smallint(5) unsigned NOT NULL default '0' AFTER `randomPropertyId`,
 ADD `playedTime` int(10) unsigned NOT NULL default '0' AFTER `durability`;
 

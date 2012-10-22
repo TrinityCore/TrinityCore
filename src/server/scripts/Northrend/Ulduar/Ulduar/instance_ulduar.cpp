@@ -166,6 +166,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 AlgalonDoor1GUID;
             uint64 AlgalonDoor2GUID;
             uint64 AlgalonAccessGUID;
+            uint64 AlgalonChestGUID;
 
             // Creatures
             uint64 KeeperGUIDs[3];
@@ -292,6 +293,7 @@ class instance_ulduar : public InstanceMapScript
                 AlgalonDoor1GUID        = 0;
                 AlgalonDoor2GUID        = 0;
                 AlgalonAccessGUID       = 0;
+                AlgalonChestGUID        = 0;
 
                 // Creatures
                 std::fill(KeeperGUIDs, KeeperGUIDs + 3, 0);
@@ -933,6 +935,10 @@ class instance_ulduar : public InstanceMapScript
                             gameObject->SetGoState(GO_STATE_ACTIVE);
                         }
                         break;
+                    case GO_GIFT_OF_THE_OBSERVER_10:
+                    case GO_GIFT_OF_THE_OBSERVER_25:
+                        AlgalonChestGUID = gameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -1170,11 +1176,12 @@ class instance_ulduar : public InstanceMapScript
                             case DONE:
                                 AlgalonCountdown = 0;
                                 DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 0);
-                                SaveToDB();
                                 HandleGameObject(AlgalonGlobeGUID, false);
                                 HandleGameObject(AlgalonBridgeGUID, false);
                                 HandleGameObject(AlgalonBridgeVisualGUID, false);
                                 HandleGameObject(AlgalonBridgeDoorGUID, true);
+                                if (GameObject* chest = instance->GetGameObject(AlgalonChestGUID))
+                                    chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
                             default:
                                 break;
@@ -1187,9 +1194,8 @@ class instance_ulduar : public InstanceMapScript
                     GetBossState(BOSS_MIMIRON) == DONE &&
                     GetBossState(BOSS_HODIR) == DONE &&
                     GetBossState(BOSS_THORIM) == DONE)
-                    if (GameObject* go = instance->GetGameObject(WayToYoggGUID))
+                    if (instance->GetGameObject(WayToYoggGUID))
                         HandleGameObject(WayToYoggGUID, true);
-                        //go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
 
                 return true;
             }

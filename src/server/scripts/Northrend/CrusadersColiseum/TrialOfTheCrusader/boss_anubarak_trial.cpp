@@ -159,6 +159,7 @@ class boss_anubarak_trial : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 phase = PHASE_MELEE;
                 events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
                 events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, PHASE_MELEE);
@@ -179,7 +180,6 @@ class boss_anubarak_trial : public CreatureScript
                     for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
                         (*itr)->DespawnOrUnsummon();
 
-                summons.DespawnAll();
                 m_vBurrowGUID.clear();
             }
 
@@ -461,6 +461,9 @@ class mob_swarm_scarab : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
+                if (instance && instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
+                    me->DisappearAndDie();
+
                 if (!UpdateVictim())
                     return;
 
@@ -527,6 +530,9 @@ class mob_nerubian_burrower : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
+                if (instance && instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
+                    me->DisappearAndDie();
+
                 if (!UpdateVictim() && !me->HasAura(SPELL_SUBMERGE_EFFECT))
                     return;
 
@@ -721,19 +727,19 @@ class mob_anubarak_spike : public CreatureScript
                                     StartChase(target2);
                                     Talk(EMOTE_SPIKE, target2->GetGUID());
                                 }
-                                m_PhaseSwitchTimer = 7000;
+                                m_PhaseSwitchTimer = 7*IN_MILLISECONDS;
                                 return;
-
                             case PHASE_IMPALE_NORMAL:
                                 DoCast(me, SPELL_SPIKE_SPEED2);
                                 m_Phase = PHASE_IMPALE_MIDDLE;
-                                m_PhaseSwitchTimer = 7000;
+                                m_PhaseSwitchTimer = 7*IN_MILLISECONDS;
                                 return;
-
                             case PHASE_IMPALE_MIDDLE:
                                 DoCast(me, SPELL_SPIKE_SPEED3);
                                 m_Phase = PHASE_IMPALE_FAST;
                                 m_PhaseSwitchTimer = 0;
+                                return;
+                            default:
                                 return;
                         }
                     }

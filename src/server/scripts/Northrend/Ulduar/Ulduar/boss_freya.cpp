@@ -443,15 +443,15 @@ class boss_freya : public CreatureScript
                 Creature* Elder[3];
                 for (uint8 n = 0; n < 3; ++n)
                 {
-                    if(Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n)))
-                        if (Elder[n]->isAlive())
-                        {
-                            Elder[n]->RemoveAllAuras();
-                            Elder[n]->AttackStop();
-                            Elder[n]->CombatStop(true);
-                            Elder[n]->DeleteThreatList();
-                            Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
-                        }
+                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
+                    if (Elder[n] && Elder[n]->isAlive())
+                    {
+                        Elder[n]->RemoveAllAuras();
+                        Elder[n]->AttackStop();
+                        Elder[n]->CombatStop(true);
+                        Elder[n]->DeleteThreatList();
+                        Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
+                    }
                 }
                 me->DespawnOrUnsummon(7.5*IN_MILLISECONDS);
                 _JustDied();
@@ -464,17 +464,17 @@ class boss_freya : public CreatureScript
                 Creature* Elder[3];
                 for (uint8 n = 0; n < 3; ++n)
                 {
-                    if (Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n)))
-                        if (Elder[n]->isAlive())
-                        {
-                            me->AddAura(SPELL_DRAINED_OF_POWER, Elder[n]);
-                            Elder[n]->CastSpell(me, SPELL_IRONBRANCH_ESSENCE, true);
-                            Elder[n]->RemoveLootMode(LOOT_MODE_DEFAULT); //! Why?
-                            Elder[n]->AI()->AttackStart(who);
-                            Elder[n]->AddThreat(who, 250.0f);
-                            Elder[n]->SetInCombatWith(who);
-                            ++elderCount;
-                        }
+                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
+                    if (Elder[n] && Elder[n]->isAlive())
+                    {
+                        me->AddAura(SPELL_DRAINED_OF_POWER, Elder[n]);
+                        Elder[n]->CastSpell(me, SPELL_IRONBRANCH_ESSENCE, true);
+                        Elder[n]->RemoveLootMode(LOOT_MODE_DEFAULT); //! Why?
+                        Elder[n]->AI()->AttackStart(who);
+                        Elder[n]->AddThreat(who, 250.0f);
+                        Elder[n]->SetInCombatWith(who);
+                        ++elderCount;
+                    }
                 }
 
                 // Note: The events below get scheduled until they are cancelled, i.e. by a dying elder (@see SetGUID)

@@ -1175,7 +1175,7 @@ class npc_proximity_mine : public CreatureScript
                 if (!target || !spell)
                     return;
 
-                if (Player* player = target->ToPlayer())
+                if (target->ToPlayer())
                     if (spell->Id == SPELL_EXPLOSION)
                         if (InstanceScript* instance = me->GetInstanceScript())
                             if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
@@ -1439,7 +1439,7 @@ class boss_vx_001 : public CreatureScript
                         if (!target || !spell)
                             return;
 
-                        if (Player* player = target->ToPlayer())
+                        if (target->ToPlayer())
                             if (spell->Id == SPELL_ROCKET_STRIKE)
                                 if (InstanceScript* instance = me->GetInstanceScript())
                                     if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
@@ -2147,7 +2147,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 if (!target || !spell)
                     return;
 
-                if (Player* player = target->ToPlayer())
+                if (target->ToPlayer())
                     if (spell->Id == SPELL_BOOM_BOT || spell->Id == SPELL_BOOM_BOT_PERIODIC)
                         if (InstanceScript* instance = me->GetInstanceScript())
                             if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
