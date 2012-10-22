@@ -104,13 +104,13 @@ extern int main(int argc, char **argv)
             if (strcmp(argv[c], "install") == 0)
             {
                 if (WinServiceInstall())
-                    printf("Installing service");
+                    printf("Installing service\n");
                 return 1;
             }
             else if (strcmp(argv[c], "uninstall") == 0)
             {
                 if (WinServiceUninstall())
-                    printf("Uninstalling service");
+                    printf("Uninstalling service\n");
                 return 1;
             }
             else
@@ -131,8 +131,8 @@ extern int main(int argc, char **argv)
 
     if (!ConfigMgr::Load(cfg_file))
     {
-        printf("Invalid or missing configuration file : %s", cfg_file);
-        printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!");
+        printf("Invalid or missing configuration file : %s\n", cfg_file);
+        printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!\n");
         return 1;
     }
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);
