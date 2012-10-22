@@ -117,6 +117,7 @@ class BattlegroundMgr
 
         bool isArenaTesting() const { return m_ArenaTesting; }
         bool isTesting() const { return m_Testing; }
+        bool IsArenaType(BattlegroundTypeId bgTypeId);
 
         static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType);
         static BattlegroundTypeId BGTemplateId(BattlegroundQueueTypeId bgQueueTypeId);
@@ -141,7 +142,7 @@ class BattlegroundMgr
     private:
         bool CreateBattleground(CreateBattlegroundData& data);
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
-        static bool IsArenaType(BattlegroundTypeId bgTypeId);
+       // static bool IsArenaType(BattlegroundTypeId bgTypeId);
         BattlegroundTypeId GetRandomBG(BattlegroundTypeId id);
 
         typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
