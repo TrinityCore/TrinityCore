@@ -45,7 +45,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                 OrbCarrierGUID           = 0;
                 OrbRotationFocusGUID     = 0;
                 HalionControllerGUID     = 0;
-                CombatStalkerGUID        = 0;
                 CrystalChannelTargetGUID = 0;
                 XerestraszaGUID          = 0;
                 BaltharusSharedHealth    = 0;
@@ -54,6 +53,13 @@ class instance_ruby_sanctum : public InstanceMapScript
 
                 memset(ZarithrianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
+            }
+
+            void OnPlayerEnter(Player* /*player*/)
+            {
+                if (!GetData64(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
+                    if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                        halionController->AI()->DoAction(ACTION_INTRO_HALION);
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -83,9 +89,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case NPC_ORB_ROTATION_FOCUS:
                         OrbRotationFocusGUID = creature->GetGUID();
-                        break;
-                    case NPC_COMBAT_STALKER:
-                        CombatStalkerGUID = creature->GetGUID();
                         break;
                     case NPC_BALTHARUS_TARGET:
                         CrystalChannelTargetGUID = creature->GetGUID();
@@ -195,8 +198,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return FlameRingGUID;
                     case DATA_TWILIGHT_FLAME_RING:
                         return TwilightFlameRingGUID;
-                    case DATA_COMBAT_STALKER:
-                        return CombatStalkerGUID;
                     default:
                         break;
                 }
@@ -207,14 +208,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             bool SetBossState(uint32 type, EncounterState state)
             {
                 if (!InstanceScript::SetBossState(type, state))
-                {
-                    // Summon Halion on instance loading if conditions are met. Without those lines,
-                    // InstanceScript::SetBossState returns false, thus preventing the switch from being called.
-                    if (type == DATA_HALION && state != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE && !GetData64(DATA_HALION_CONTROLLER))
-                        if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-                            halionController->AI()->DoAction(ACTION_INTRO_HALION);
                     return false;
-                }
 
                 switch (type)
                 {
@@ -353,7 +347,6 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 BurningTreeGUID[4];
             uint64 FlameRingGUID;
             uint64 TwilightFlameRingGUID;
-            uint64 CombatStalkerGUID;
 
             uint32 BaltharusSharedHealth;
         };
