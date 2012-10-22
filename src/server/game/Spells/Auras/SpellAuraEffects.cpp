@@ -717,7 +717,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             break;
         case SPELL_AURA_MOUNTED:
             if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(uint32(GetMiscValueB())))
+            {
                 amount = mountCapability->Id;
+                m_canBeRecalculated = false;
+            }
             break;
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
         {
@@ -2809,7 +2812,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
             target->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
             // remove speed aura
-            if (MountCapabilityEntry const* mountCapability = target->GetMountCapability(uint32(GetMiscValueB())))
+            if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
                 target->RemoveAurasDueToSpell(mountCapability->SpeedModSpell, target->GetGUID());
         }
     }
