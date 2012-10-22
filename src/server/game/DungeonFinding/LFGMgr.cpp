@@ -318,11 +318,9 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     for (LFGDungeonMap::iterator itr = m_LfgDungeonMap.begin(); itr != m_LfgDungeonMap.end(); ++itr)
     {
         LFGDungeonData& dungeon = itr->second;
-        if (dungeon.type == LFG_TYPE_RANDOM)
-            continue;
 
         // No teleport coords in database, load from areatriggers
-        if (dungeon.x == 0.0f && dungeon.y == 0.0f && dungeon.z == 0.0f)
+        if (dungeon.type != LFG_TYPE_RANDOM && dungeon.x == 0.0f && dungeon.y == 0.0f && dungeon.z == 0.0f)
         {
             AreaTrigger const* at = sObjectMgr->GetMapEntranceTrigger(dungeon.map);
             if (!at)
@@ -401,7 +399,9 @@ void LFGMgr::Update(uint32 diff)
                 uint64 pguid = itVotes->first;
                 if (pguid != boot.victim)
                     SendLfgBootProposalUpdate(pguid, boot);
+                SetState(pguid, LFG_STATE_DUNGEON);
             }
+            SetState(itBoot->first, LFG_STATE_DUNGEON);
             m_Boots.erase(itBoot);
         }
     }
