@@ -86,7 +86,7 @@ extern int main(int argc, char **argv)
         {
             if (++c >= argc)
             {
-                printf("Runtime-Error: -c option requires an input argument");
+                printf("Runtime-Error: -c option requires an input argument\n");
                 usage(argv[0]);
                 return 1;
             }
@@ -98,8 +98,8 @@ extern int main(int argc, char **argv)
 
     if (!ConfigMgr::Load(cfg_file))
     {
-        printf("Invalid or missing configuration file : %s", cfg_file);
-        printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!");
+        printf("Invalid or missing configuration file : %s\n", cfg_file);
+        printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!\n");
         return 1;
     }
 

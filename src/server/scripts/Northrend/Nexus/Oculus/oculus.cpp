@@ -232,7 +232,7 @@ public:
     {
         npc_verdisa_beglaristrasz_eternosAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id)
         {
             // When Belgaristraz finish his moving say grateful text
             if (me->GetEntry() == NPC_BELGARISTRASZ)
