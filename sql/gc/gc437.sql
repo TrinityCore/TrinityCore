@@ -1596,3 +1596,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `
 
 -- remove the ICC-wise buffs
 DELETE FROM `spell_area` WHERE `spell` IN (73822, 73828);
+
+####################
+-- Forge of Souls ##
+####################
+-- Unleashed Soul template correction
+UPDATE creature_template SET difficulty_entry_1 = 37678, mindmg = 422, maxdmg = 586, attackpower = 642 WHERE entry = 36595;
+UPDATE creature_template SET minlevel = 80, maxlevel = 80, exp = 2, faction_A = 14, faction_H = 14, speed_walk = 1.11111, speed_run = 0.71429, mindmg = 422, maxdmg = 586, attackpower = 642, dmg_multiplier = 3, baseattacktime = 2000, unit_flags = 33554432, dynamicflags = 8 WHERE entry = 37678;
