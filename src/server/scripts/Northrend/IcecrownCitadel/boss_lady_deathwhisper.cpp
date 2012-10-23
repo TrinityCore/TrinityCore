@@ -455,7 +455,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_SHADOW_BOLT);
                             events.ScheduleEvent(EVENT_P1_SHADOW_BOLT, urand(5*IN_MILLISECONDS, 8*IN_MILLISECONDS), 0, PHASE_ONE);
-                            break;
+                            return;
                         case EVENT_P1_REANIMATE_CULTIST:
                             ReanimateCultist();
                             break;
@@ -466,7 +466,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         case EVENT_P2_FROSTBOLT:
                             DoCastVictim(SPELL_FROSTBOLT);
                             events.ScheduleEvent(EVENT_P2_FROSTBOLT, urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS), 0, PHASE_TWO);
-                            break;
+                            return;
                         case EVENT_P2_FROSTBOLT_VOLLEY:
                             DoCastAOE(SPELL_FROSTBOLT_VOLLEY);
                             events.ScheduleEvent(EVENT_P2_FROSTBOLT_VOLLEY, urand(13*IN_MILLISECONDS, 15*IN_MILLISECONDS), 0, PHASE_TWO);
@@ -688,7 +688,6 @@ class npc_cult_fanatic : public CreatureScript
                             break;
                         case EVENT_CULTIST_DARK_MARTYRDOM:
                             DoCast(me, SPELL_DARK_MARTYRDOM_FANATIC);
-                            Events.ScheduleEvent(EVENT_CULTIST_DARK_MARTYRDOM, urand(16*IN_MILLISECONDS, 21*IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -991,37 +990,6 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
         }
 };
 
-class spell_cultist_dark_martyrdom : public SpellScriptLoader
-{
-    public:
-        spell_cultist_dark_martyrdom() : SpellScriptLoader("spell_cultist_dark_martyrdom") { }
-
-        class spell_cultist_dark_martyrdom_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_cultist_dark_martyrdom_SpellScript);
-
-            void HandleEffect(SpellEffIndex /*effIndex*/)
-            {
-                if (GetCaster()->isSummon())
-                    if (Unit* owner = GetCaster()->ToTempSummon()->GetSummoner())
-                        owner->GetAI()->SetGUID(GetCaster()->GetGUID(), GUID_CULTIST);
-
-                GetCaster()->Kill(GetCaster());
-                GetCaster()->SetDisplayId(uint32(GetCaster()->GetEntry() == NPC_CULT_FANATIC ? 38009 : 38010));
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_cultist_dark_martyrdom_SpellScript::HandleEffect, EFFECT_2, SPELL_EFFECT_FORCE_DESELECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_cultist_dark_martyrdom_SpellScript();
-        }
-};
-
 void AddSC_boss_lady_deathwhisper()
 {
     new boss_lady_deathwhisper();
@@ -1031,5 +999,4 @@ void AddSC_boss_lady_deathwhisper()
     new npc_darnavan();
 
     new spell_deathwhisper_mana_barrier();
-    new spell_cultist_dark_martyrdom();
 }
