@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "World.h"
+#include "GroupMgr.h"
 
 /**
    Given a list of guids returns the concatenation using | as delimiter
@@ -536,4 +537,45 @@ void LfgQueue::UpdateQueueTimers(time_t currTime)
 time_t LfgQueue::GetJoinTime(uint64 guid)
 {
     return m_QueueDataMap[guid].joinTime;
+}
+
+LfgCompatibleMap const& LfgQueue::GetCompatibleMap()
+{
+    return m_CompatibleMap;
+}
+
+std::string LfgQueue::DumpQueueInfo() const
+{
+    uint32 players = 0;
+    uint32 groups = 0;
+    uint32 playersInGroup = 0;
+
+    for (uint8 i = 0; i < 2; ++i)
+    {
+        LfgGuidList const& queue = i ? m_newToQueue : m_currentQueue;
+        for (LfgGuidList::const_iterator it = queue.begin(); it != queue.end(); ++it)
+        {
+            uint64 guid = *it;
+            if (IS_GROUP(guid))
+            {
+                groups++;
+                if (Group const* group = sGroupMgr->GetGroupByGUID(GUID_LOPART(guid)))
+                    playersInGroup += group->GetMembersCount();
+                else
+                    playersInGroup += 2; // Shouldn't happen but just in case
+            }
+            else
+                players++;
+        }
+    }
+    std::ostringstream o;
+    o << "Queued Players: " << players << "(in group: " << playersInGroup << ") Groups: " << groups << "\n";
+    return o.str();
+}
+
+std::string LfgQueue::DumpCompatibleInfo() const
+{
+    std::ostringstream o;
+    o << "Compatible Map size: " << m_CompatibleMap.size() << "\n";
+    return o.str();
 }
