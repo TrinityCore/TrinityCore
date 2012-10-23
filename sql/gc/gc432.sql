@@ -1533,6 +1533,9 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 ######################
 -- ICECROWN CITADEL ##
 ######################
+-- scriptname typo
+DELETE FROM `spell_script_names` WHERE `spell_id`=71236 AND `ScriptName` = 'spell_cultist_dark_martyrdom';
+
 -- rough moneyloot update for first 2 bosses
 UPDATE `creature_template` SET `mingold`=2020000, `maxgold`=2220000 WHERE `entry` IN (36612, 37957, 37958, 37959, 36855, 38106, 38296, 38297);
 
