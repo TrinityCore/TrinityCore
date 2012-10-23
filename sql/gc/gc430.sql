@@ -1535,3 +1535,58 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 ######################
 -- rough moneyloot update for first 2 bosses
 UPDATE `creature_template` SET `mingold`=2020000, `maxgold`=2220000 WHERE `entry` IN (36612, 37957, 37958, 37959, 36855, 38106, 38296, 38297);
+
+-- Deathbound Ward
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=37007;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=37007;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(37007, 0, 0, 0, 5000, 10000, 15000, 25000, 11, 71022, 1, 'Deathbound Ward - Cast Disrupting Shout'),
+(37007, 1, 0, 0, 3000, 7000, 6000, 15000, 11, 71021, 1, 'Deathbound Ward - Cast Saber Lash');
+
+-- Ancient Skeletal Soldier
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=37012;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=37012;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(37012, 0, 0, 0, 5000, 10000, 15000, 25000, 11, 70964, 2, 'Ancient Skeletal Soldier - Cast Shield Bash');
+
+-- Servant of the Throne
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36724;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36724;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36724, 0, 0, 0, 6000, 10000, 15000, 25000, 11, 71029, 2, 'Servant of the Throne - Cast Glacial Blast');
+
+-- Deathspeaker Servant
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36805;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36805;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36805, 0, 0, 0, 1000, 2000, 2000, 4000, 11, 69576, 2, 'Deathspeaker Servant - Cast Chaos Bolt'),
+(36805, 1, 0, 0, 5000, 10000, 15000, 69405, 11, 69405, 5, 'Deathspeaker Servant - Cast Consuming Shadows'),
+(36805, 2, 0, 0, 5000, 10000, 15000, 25000, 11, 69404, 5, 'Deathspeaker Servant - Cast Curse of Agony');
+
+-- Deathspeaker Zealot
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36808;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36808;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36808, 0, 0, 0, 3000, 5000, 5000, 10000, 11, 69492, 2, 'Deathspeaker Zealot - Cast Shadow Cleave');
+
+-- Deathspeaker Attendant
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36811;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36811;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36811, 0, 0, 0, 1000, 2000, 2000, 4000, 11, 69387, 2, 'Deathspeaker Attendant - Cast Shadow Bolt'),
+(36811, 1, 0, 0, 4000, 6000, 10000, 15000, 11, 69355, 2, 'Deathspeaker Attendant - Cast Shadow Nova');
+
+-- Deathspeaker Disciple
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36807;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36807;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36807, 0, 0, 0, 3000, 5000, 5000, 15000, 11, 69391, 19, 'Deathspeaker Disciple - Cast Dark Blessing'),
+(36807, 1, 0, 0, 1000, 2000, 2000, 4000, 11, 69387, 2, 'Deathspeaker Disciple - Cast Shadow Bolt'),
+(36807, 2, 0, 0, 4000, 6000, 10000, 15000, 11, 69389, 19, 'Deathspeaker Disciple - Cast Shadow Mend');
+
+-- Deathspeaker High Priest
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36829;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36829;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36829, 0, 4, 1, 0, 0, 0, 0, 11, 69491, 1, 'Deathspeaker High Priest - Cast Aura of Darkness'),
+(36829, 1, 0, 0, 4000, 6000, 15000, 20000, 11, 69483, 2, 'Deathspeaker High Priest - Cast Shadow Nova');
