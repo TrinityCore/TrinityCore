@@ -108,50 +108,52 @@ enum Spells
 enum EventTypes
 {
     // Lady Deathwhisper
-    EVENT_INTRO_2                       = 1,
-    EVENT_INTRO_3                       = 2,
-    EVENT_INTRO_4                       = 3,
-    EVENT_INTRO_5                       = 4,
-    EVENT_INTRO_6                       = 5,
-    EVENT_INTRO_7                       = 6,
-    EVENT_BERSERK                       = 7,
-    EVENT_DEATH_AND_DECAY               = 8,
-    EVENT_DOMINATE_MIND_H               = 9,
+    EVENT_INTRO_2                   = 1,
+    EVENT_INTRO_3,
+    EVENT_INTRO_4,
+    EVENT_INTRO_5,
+    EVENT_INTRO_6,
+    EVENT_INTRO_7,
+    EVENT_BERSERK,
+    EVENT_DEATH_AND_DECAY,
+    EVENT_DOMINATE_MIND_H,
 
     // Phase 1 only
-    EVENT_P1_SUMMON_WAVE                = 10,
-    EVENT_P1_SHADOW_BOLT                = 11,
-    EVENT_P1_EMPOWER_CULTIST            = 12,
-    EVENT_P1_REANIMATE_CULTIST          = 13,
+    EVENT_P1_SUMMON_WAVE,
+    EVENT_P1_SHADOW_BOLT,
+    EVENT_P1_EMPOWER_CULTIST,
+    EVENT_P1_REANIMATE_CULTIST,
 
     // Phase 2 only
-    EVENT_P2_SUMMON_WAVE                = 14,
-    EVENT_P2_FROSTBOLT                  = 15,
-    EVENT_P2_FROSTBOLT_VOLLEY           = 16,
-    EVENT_P2_TOUCH_OF_INSIGNIFICANCE    = 17,
-    EVENT_P2_SUMMON_SHADE               = 18,
+    EVENT_P2_SUMMON_WAVE,
+    EVENT_P2_FROSTBOLT,
+    EVENT_P2_FROSTBOLT_VOLLEY,
+    EVENT_P2_TOUCH_OF_INSIGNIFICANCE,
+    EVENT_P2_SUMMON_SHADE,
 
     // Shared adds events
-    EVENT_CULTIST_DARK_MARTYRDOM        = 19,
+    EVENT_CULTIST_DARK_MARTYRDOM,
 
     // Cult Fanatic
-    EVENT_FANATIC_NECROTIC_STRIKE       = 20,
-    EVENT_FANATIC_SHADOW_CLEAVE         = 21,
-    EVENT_FANATIC_VAMPIRIC_MIGHT        = 22,
+    EVENT_FANATIC_NECROTIC_STRIKE,
+    EVENT_FANATIC_SHADOW_CLEAVE,
+    EVENT_FANATIC_VAMPIRIC_MIGHT,
+    EVENT_FANATIC_MARTYRDOM_DONE,
 
     // Cult Adherent
-    EVENT_ADHERENT_FROST_FEVER          = 23,
-    EVENT_ADHERENT_DEATHCHILL           = 24,
-    EVENT_ADHERENT_CURSE_OF_TORPOR      = 25,
-    EVENT_ADHERENT_SHORUD_OF_THE_OCCULT = 26,
+    EVENT_ADHERENT_FROST_FEVER,
+    EVENT_ADHERENT_DEATHCHILL,
+    EVENT_ADHERENT_CURSE_OF_TORPOR,
+    EVENT_ADHERENT_SHORUD_OF_THE_OCCULT,
+    EVENT_ADHERENT_MARTYRDOM_DONE,
 
     // Darnavan
-    EVENT_DARNAVAN_BLADESTORM           = 27,
-    EVENT_DARNAVAN_CHARGE               = 28,
-    EVENT_DARNAVAN_INTIMIDATING_SHOUT   = 29,
-    EVENT_DARNAVAN_MORTAL_STRIKE        = 30,
-    EVENT_DARNAVAN_SHATTERING_THROW     = 31,
-    EVENT_DARNAVAN_SUNDER_ARMOR         = 32
+    EVENT_DARNAVAN_BLADESTORM,
+    EVENT_DARNAVAN_CHARGE,
+    EVENT_DARNAVAN_INTIMIDATING_SHOUT,
+    EVENT_DARNAVAN_MORTAL_STRIKE,
+    EVENT_DARNAVAN_SHATTERING_THROW,
+    EVENT_DARNAVAN_SUNDER_ARMOR
 };
 
 enum Phases
@@ -397,10 +399,6 @@ class boss_lady_deathwhisper : public CreatureScript
                     target = SelectTarget(SELECT_TARGET_RANDOM);                        // Wave adds
 
                 summon->AI()->AttackStart(target);                                      // CAN be NULL
-                if (summon->GetEntry() == NPC_REANIMATED_FANATIC)
-                    summon->CastSpell(summon, SPELL_FANATIC_S_DETERMINATION, true);
-                else if (summon->GetEntry() == NPC_REANIMATED_ADHERENT)
-                    summon->CastSpell(summon, SPELL_ADHERENT_S_DETERMINATION, true);
             }
 
             void UpdateAI(uint32 const diff)
@@ -654,7 +652,6 @@ class npc_cult_fanatic : public CreatureScript
                     me->UpdateEntry(NPC_DEFORMED_FANATIC);
                 else if (spell->Id == SPELL_DARK_TRANSFORMATION_T)
                 {
-                    Events.CancelEvent(EVENT_CULTIST_DARK_MARTYRDOM);
                     me->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_DARK_TRANSFORMATION);
                 }
@@ -677,18 +674,23 @@ class npc_cult_fanatic : public CreatureScript
                         case EVENT_FANATIC_NECROTIC_STRIKE:
                             DoCastVictim(SPELL_NECROTIC_STRIKE);
                             Events.ScheduleEvent(SPELL_NECROTIC_STRIKE, urand(11*IN_MILLISECONDS, 13*IN_MILLISECONDS));
-                            break;
+                            return;
                         case EVENT_FANATIC_SHADOW_CLEAVE:
                             DoCastVictim(SPELL_SHADOW_CLEAVE);
                             Events.ScheduleEvent(EVENT_FANATIC_SHADOW_CLEAVE, urand(9.5*IN_MILLISECONDS, 11*IN_MILLISECONDS));
-                            break;
+                            return;
                         case EVENT_FANATIC_VAMPIRIC_MIGHT:
                             DoCast(me, SPELL_VAMPIRIC_MIGHT);
                             Events.ScheduleEvent(EVENT_FANATIC_VAMPIRIC_MIGHT, urand(20*IN_MILLISECONDS, 27*IN_MILLISECONDS));
-                            break;
+                            return;
                         case EVENT_CULTIST_DARK_MARTYRDOM:
                             DoCast(me, SPELL_DARK_MARTYRDOM_FANATIC);
-                            break;
+                            Events.ScheduleEvent(EVENT_FANATIC_MARTYRDOM_DONE, 1*IN_MILLISECONDS);
+                            return;
+                        case EVENT_FANATIC_MARTYRDOM_DONE:
+                            DoCast(me, SPELL_FANATIC_S_DETERMINATION, true);
+                            me->SetEntry(NPC_REANIMATED_FANATIC);
+                            return;
                         default:
                             break;
                     }
@@ -733,7 +735,6 @@ class npc_cult_adherent : public CreatureScript
                     me->UpdateEntry(NPC_EMPOWERED_ADHERENT);
                 else if (spell->Id == SPELL_DARK_EMPOWERMENT_T)
                 {
-                    Events.CancelEvent(EVENT_CULTIST_DARK_MARTYRDOM);
                     me->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_DARK_EMPOWERMENT);
                 }
@@ -756,27 +757,31 @@ class npc_cult_adherent : public CreatureScript
                         case EVENT_ADHERENT_FROST_FEVER:
                             DoCastVictim(SPELL_FROST_FEVER);
                             Events.ScheduleEvent(EVENT_ADHERENT_FROST_FEVER, urand(9*IN_MILLISECONDS, 13*IN_MILLISECONDS));
-                            break;
+                            return;
                         case EVENT_ADHERENT_DEATHCHILL:
                             if (me->GetEntry() == NPC_EMPOWERED_ADHERENT)
                                 DoCastVictim(SPELL_DEATHCHILL_BLAST);
                             else
                                 DoCastVictim(SPELL_DEATHCHILL_BOLT);
                             Events.ScheduleEvent(EVENT_ADHERENT_DEATHCHILL, urand(9*IN_MILLISECONDS, 13*IN_MILLISECONDS));
-                            break;
+                            return;
                         case EVENT_ADHERENT_CURSE_OF_TORPOR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_CURSE_OF_TORPOR);
                             Events.ScheduleEvent(EVENT_ADHERENT_CURSE_OF_TORPOR, urand(9*IN_MILLISECONDS, 13*IN_MILLISECONDS));
-                            break;
+                            return;
                         case EVENT_ADHERENT_SHORUD_OF_THE_OCCULT:
                             DoCast(me, SPELL_SHORUD_OF_THE_OCCULT);
                             Events.ScheduleEvent(EVENT_ADHERENT_SHORUD_OF_THE_OCCULT, urand(27*IN_MILLISECONDS, 32*IN_MILLISECONDS));
-                            break;
+                            return;
                         case EVENT_CULTIST_DARK_MARTYRDOM:
                             DoCast(me, SPELL_DARK_MARTYRDOM_ADHERENT);
-                            Events.ScheduleEvent(EVENT_CULTIST_DARK_MARTYRDOM, urand(16*IN_MILLISECONDS, 21*IN_MILLISECONDS));
-                            break;
+                            Events.ScheduleEvent(EVENT_ADHERENT_MARTYRDOM_DONE, 1*IN_MILLISECONDS);
+                            return;
+                        case EVENT_ADHERENT_MARTYRDOM_DONE:
+                            DoCast(me, SPELL_ADHERENT_S_DETERMINATION, true);
+                            me->SetEntry(NPC_REANIMATED_ADHERENT);
+                            return;
                         default:
                             break;
                     }
