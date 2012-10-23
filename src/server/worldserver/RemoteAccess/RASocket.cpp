@@ -430,6 +430,7 @@ int RASocket::sendf(const char* msg)
 
     ACE_OS::memcpy(outputBuffer+outputBufferLen, msg, msgLen);
     outputBufferLen += msgLen;
+    output(msg);
 
     if (!outActive)
     {
@@ -440,7 +441,6 @@ int RASocket::sendf(const char* msg)
         }
         outActive = true;
     }
-    output(msg);
     return 0;
 }
 
