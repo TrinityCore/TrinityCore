@@ -65,3 +65,19 @@ INSERT INTO npc_text (ID, text0_0, em0_1) VALUES
 DELETE FROM creature_template WHERE entry = '190001'; 
 INSERT INTO creature_template (entry, modelid1, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, Health_mod, Mana_mod, Armor_mod, faction_A, faction_H, npcflag, speed_walk, speed_run, scale, rank, dmg_multiplier, unit_class, unit_flags, type, type_flags, InhabitType, RegenHealth, flags_extra, ScriptName) VALUES 
 ('190001', '15998', "Transmogrify Master", "", 'Speak', '50000', 71, 71, 1.56, 1.56, 1.56, 35, 35, 3, 1, 1.14286, 1.25, 1, 1, 1, 2, 7, 138936390, 3, 1, 2, 'npc_transmogrify'); 
+
+?»?-- Spellscript and conditions for spells of quest Gordunni Cobalt
+DELETE FROM `spell_script_names` WHERE `spell_id`=19395;
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES
+(19395,'spell_gordunni_trap');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=11757;
+INSERT INTO `conditions`(`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`Comment`) VALUES
+(13,1,11757,31,5,144050,'Digging for Cobalt targets Gordunni Trap');
+
+
+UPDATE `creature` SET `spawnMask`=15 WHERE `id` IN(40091, 40081);
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN(39863, 40142);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13,2,75886,0,0,31,0,3,40683,0,0,0, '', 'Blazing Aura can only target Living Embers');
