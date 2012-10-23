@@ -31,14 +31,11 @@
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
 
-LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1)
+LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
+    m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))
 {
-    m_options = sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE);
-    if (m_options)
-    {
-        new LFGPlayerScript();
-        new LFGGroupScript();
-    }
+    new LFGPlayerScript();
+    new LFGGroupScript();
 }
 
 LFGMgr::~LFGMgr()
@@ -353,7 +350,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
 
 void LFGMgr::Update(uint32 diff)
 {
-    if (!m_options)
+    if (!isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
     time_t currTime = time(NULL);
@@ -1892,6 +1889,27 @@ bool LFGMgr::AllQueued(const LfgGuidList& check)
     return true;
 }
 
+// Only for debugging purposes
+void LFGMgr::Clean()
+{
+    m_Queues.clear();
+}
+
+bool LFGMgr::isOptionEnabled(uint32 option)
+{
+    return m_options & option;
+}
+
+uint32 LFGMgr::GetOptions()
+{
+    return m_options;
+}
+
+void LFGMgr::SetOptions(uint32 options)
+{
+    m_options = options;
+}
+
 bool LFGMgr::IsSeasonActive(uint32 dungeonId)
 {
     switch (dungeonId)
@@ -1906,4 +1924,26 @@ bool LFGMgr::IsSeasonActive(uint32 dungeonId)
             return IsHolidayActive(HOLIDAY_LOVE_IS_IN_THE_AIR);
     }
     return false;
+}
+
+std::string LFGMgr::DumpQueueInfo(bool /*full*/)
+{
+    uint32 size = uint32(m_Queues.size());
+    std::ostringstream o;
+
+    o << "Number of Queues: " << size << "\n";
+    for (LfgQueueMap::const_iterator itr = m_Queues.begin(); itr != m_Queues.end(); ++itr)
+    {
+        std::string const& queued = itr->second.DumpQueueInfo();
+        std::string const& compatibles = itr->second.DumpCompatibleInfo();
+        o << queued << compatibles;
+        /*
+        if (full)
+        {
+            LfgCompatibleMap const& compatibles = itr->second.GetCompatibleMap();
+        }
+        */
+    }
+
+    return o.str();
 }
