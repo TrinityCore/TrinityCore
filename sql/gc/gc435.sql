@@ -1,3 +1,8 @@
+-- CLEANUP
+-- make SotA demolishers snareable
+UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` & ~1024 WHERE `entry` IN (28781, 32796);
+-- END OF CLEANUP
+
 -- hand of sacrifice scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id`=6940;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -1361,7 +1366,7 @@ INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
 (32795, 52455);
 
 -- adding sota vehicle immunities + really prevent them regenerating
-UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` |2|8|16|32|64|256|512|1024|2048|4096|8192|65536|262144|8388608|67108864|268435456, `RegenHealth`=0 WHERE `entry` IN (27894, 32795, 28781, 32796);
+UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` |2|8|16|32|64|256|512|2048|4096|8192|65536|262144|8388608|67108864|268435456, `RegenHealth`=0 WHERE `entry` IN (27894, 32795, 28781, 32796);
 UPDATE `creature_template` SET `speed_run`=0.985714 WHERE `entry` IN (28781, 32796);
 
 ###################
@@ -1425,9 +1430,9 @@ UPDATE battleground_template SET MinPlayersPerTeam = 5 WHERE id IN (3, 7, 9, 32)
 -- make AV need only 10 people per side
 UPDATE battleground_template SET MinPlayersPerTeam = 10 WHERE id = 1;
 
-###################
--- Misc things #
-###################
+#################
+-- Misc things ##
+#################
 
 -- making heroic version of Drakkari Guardian and bat selectable too
 UPDATE `creature_template` SET `unit_flags` = `unit_flags` & ~33554432 WHERE `entry` = 31339;
@@ -1439,14 +1444,14 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (57055, -56648, 2, 'Remove Potent Fungus - Amanitar encounter'),
 (56648, -57055, 2, 'Remove Mini - Amanitar encounter');
 
--- First RDF reward changed from EoF to EoT
-UPDATE `quest_template` SET RewardItemId1 = 47241 WHERE Id = 24788;
+-- First RDF reward changed from EoF to 1 EoT
+UPDATE `quest_template` SET `RewardItemId1` = 47241, `RewardItemCount1` = 1 WHERE `Id` = 24788;
 
 -- Weekly raid quests "X Must Die!" reward changed from 5 x EoF + 5 x EoT to 10 x EoT only
-UPDATE `quest_template` SET RewardItemId1 = 47241, RewardItemId2 = 0, RewardItemCount1 = 10, RewardItemCount2 = 0 WHERE id IN(24579, 24582, 24583, 24584, 24590, 24580, 24581, 24587, 24585, 24588, 24586, 24589);
+UPDATE `quest_template` SET `RewardItemId1` = 47241, `RewardItemId2` = 0, `RewardItemCount1` = 10, `RewardItemCount2` = 0 WHERE `id` IN(24579, 24582, 24583, 24584, 24590, 24580, 24581, 24587, 24585, 24588, 24586, 24589);
 
 -- Tainted Helboar Meat should not have quest dependency
-UPDATE `creature_loot_template` SET ChanceOrQuestChance =100 WHERE item = 23270 AND entry IN(16992, 16879, 16863, 16880);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` =100 WHERE `item` = 23270 AND `entry` IN(16992, 16879, 16863, 16880);
 
 #######################
 -- HEADLESS HORSEMAN ##
@@ -1528,5 +1533,66 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 ######################
 -- ICECROWN CITADEL ##
 ######################
+-- cleanup spell_cultist_dark_martyrdrom scriptname
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_cultist_dark_martyrdrom' OR ScriptName = 'spell_cultist_dark_martyrdom';
+
 -- rough moneyloot update for first 2 bosses
 UPDATE `creature_template` SET `mingold`=2020000, `maxgold`=2220000 WHERE `entry` IN (36612, 37957, 37958, 37959, 36855, 38106, 38296, 38297);
+
+-- Deathbound Ward
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=37007;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=37007;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(37007, 0, 0, 0, 5000, 10000, 15000, 25000, 11, 71022, 1, 'Deathbound Ward - Cast Disrupting Shout'),
+(37007, 1, 0, 0, 3000, 7000, 6000, 15000, 11, 71021, 1, 'Deathbound Ward - Cast Saber Lash');
+
+-- Ancient Skeletal Soldier
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=37012;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=37012;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(37012, 0, 0, 0, 5000, 10000, 15000, 25000, 11, 70964, 2, 'Ancient Skeletal Soldier - Cast Shield Bash');
+
+-- Servant of the Throne
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36724;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36724;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36724, 0, 0, 0, 6000, 10000, 15000, 25000, 11, 71029, 2, 'Servant of the Throne - Cast Glacial Blast');
+
+-- Deathspeaker Servant
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36805;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36805;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36805, 0, 0, 0, 1000, 2000, 2000, 4000, 11, 69576, 2, 'Deathspeaker Servant - Cast Chaos Bolt'),
+(36805, 1, 0, 0, 5000, 10000, 15000, 69405, 11, 69405, 5, 'Deathspeaker Servant - Cast Consuming Shadows'),
+(36805, 2, 0, 0, 5000, 10000, 15000, 25000, 11, 69404, 5, 'Deathspeaker Servant - Cast Curse of Agony');
+
+-- Deathspeaker Zealot
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36808;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36808;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36808, 0, 0, 0, 3000, 5000, 5000, 10000, 11, 69492, 2, 'Deathspeaker Zealot - Cast Shadow Cleave');
+
+-- Deathspeaker Attendant
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36811;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36811;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36811, 0, 0, 0, 1000, 2000, 2000, 4000, 11, 69387, 2, 'Deathspeaker Attendant - Cast Shadow Bolt'),
+(36811, 1, 0, 0, 4000, 6000, 10000, 15000, 11, 69355, 2, 'Deathspeaker Attendant - Cast Shadow Nova');
+
+-- Deathspeaker Disciple
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36807;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36807;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36807, 0, 0, 0, 3000, 5000, 5000, 15000, 11, 69391, 19, 'Deathspeaker Disciple - Cast Dark Blessing'),
+(36807, 1, 0, 0, 1000, 2000, 2000, 4000, 11, 69387, 2, 'Deathspeaker Disciple - Cast Shadow Bolt'),
+(36807, 2, 0, 0, 4000, 6000, 10000, 15000, 11, 69389, 19, 'Deathspeaker Disciple - Cast Shadow Mend');
+
+-- Deathspeaker High Priest
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=36829;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=36829;
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
+(36829, 0, 4, 1, 0, 0, 0, 0, 11, 69491, 1, 'Deathspeaker High Priest - Cast Aura of Darkness'),
+(36829, 1, 0, 0, 4000, 6000, 15000, 20000, 11, 69483, 2, 'Deathspeaker High Priest - Cast Shadow Nova');
+
+-- remove the ICC-wise buffs
+DELETE FROM `spell_area` WHERE `spell` IN (73822, 73828);

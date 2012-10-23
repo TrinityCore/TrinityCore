@@ -611,7 +611,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         NotOneButTwoJormungarsTimer -= diff;
                 }
 
-                if (GetBossState(BOSS_CRUSADERS) == IN_PROGRESS && ResilienceWillFixItTimer)
+                if (GetBossState(BOSS_CRUSADERS) == SPECIAL && ResilienceWillFixItTimer)
                 {
                     if (ResilienceWillFixItTimer <= diff)
                         ResilienceWillFixItTimer = 0;

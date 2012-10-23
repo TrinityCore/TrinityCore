@@ -23,6 +23,7 @@
 #include "World.h"
 #include "DatabaseEnv.h"
 #include "AccountMgr.h"
+#include "../worldserver/RemoteAccess/RASocket.h"
 
 Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
  : m_announce(true), m_ownership(true), m_name(name), m_password(""), m_flags(0), m_channelId(channel_id), m_ownerGUID(0), m_Team(Team)
@@ -656,6 +657,10 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         data << uint8(player ? player->GetChatTag() : 0);
 
         SendToAll(&data, !players[p].IsModerator() ? p : false);
+
+        char msg[256];
+        snprintf( ( char* )msg, 256, "MSG %s %s %s\n", GetName().c_str(), player->GetName(), what );
+        RASocket::raprint(msg);
     }
 }
 
