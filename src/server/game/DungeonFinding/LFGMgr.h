@@ -28,6 +28,12 @@
 class Group;
 class Player;
 
+enum LfgOptions
+{
+    LFG_OPTION_ENABLE_DUNGEON_FINDER             = 0x01,
+    LFG_OPTION_ENABLE_RAID_BROWSER               = 0x02,
+};
+
 enum LFGMgrEnum
 {
     LFG_TIME_ROLECHECK                           = 40 * IN_MILLISECONDS,
@@ -346,11 +352,17 @@ class LFGMgr
         bool IsTeleported(uint64 guid);
 
         bool AllQueued(LfgGuidList const& check);
+        void Clean();
+
         static bool HasIgnore(uint64 guid1, uint64 guid2);
         static void SendLfgQueueStatus(uint64 guid, LfgQueueStatusData const& data);
 
+        bool isOptionEnabled(uint32 option);
+        uint32 GetOptions();
+        void SetOptions(uint32 options);
         bool IsSeasonActive(uint32 dungeonId);
 
+        std::string DumpQueueInfo(bool full = false);
         static std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
         static std::string GetRolesString(uint8 roles);
         static char const * GetStateString(LfgState state);
