@@ -1289,37 +1289,37 @@ class go_wind_stone : public GameObjectScript
             {
                 case TEMPLAR:
                 {
-                    if (player->HasItemCount(ITEM_TEMPLAR_FIRE, 1))
+                    if (player->HasItemCount(ITEM_TEMPLAR_FIRE))
                         result |= FIRE;
-                    if (player->HasItemCount(ITEM_TEMPLAR_WATER, 1))
+                    if (player->HasItemCount(ITEM_TEMPLAR_WATER))
                         result |= WATER;
-                    if (player->HasItemCount(ITEM_TEMPLAR_EARTH, 1))
+                    if (player->HasItemCount(ITEM_TEMPLAR_EARTH))
                         result |= EARTH;
-                    if (player->HasItemCount(ITEM_TEMPLAR_AIR, 1))
+                    if (player->HasItemCount(ITEM_TEMPLAR_AIR))
                         result |= AIR;
                     break;
                 }
                 case DUKE:
                 {
-                    if (player->HasItemCount(ITEM_DUKE_FIRE, 1))
+                    if (player->HasItemCount(ITEM_DUKE_FIRE))
                         result |= FIRE;
-                    if (player->HasItemCount(ITEM_DUKE_WATER, 1))
+                    if (player->HasItemCount(ITEM_DUKE_WATER))
                         result |= WATER;
-                    if (player->HasItemCount(ITEM_DUKE_EARTH, 1))
+                    if (player->HasItemCount(ITEM_DUKE_EARTH))
                         result |= EARTH;
-                    if (player->HasItemCount(ITEM_DUKE_AIR, 1))
+                    if (player->HasItemCount(ITEM_DUKE_AIR))
                         result |= AIR;
                     break;
                 }
                 case ROYAL:
                 {
-                    if (player->HasItemCount(ITEM_ROYAL_FIRE, 1))
+                    if (player->HasItemCount(ITEM_ROYAL_FIRE))
                         result |= FIRE;
-                    if (player->HasItemCount(ITEM_ROYAL_WATER, 1))
+                    if (player->HasItemCount(ITEM_ROYAL_WATER))
                         result |= WATER;
-                    if (player->HasItemCount(ITEM_ROYAL_EARTH, 1))
+                    if (player->HasItemCount(ITEM_ROYAL_EARTH))
                         result |= EARTH;
-                    if (player->HasItemCount(ITEM_ROYAL_AIR, 1))
+                    if (player->HasItemCount(ITEM_ROYAL_AIR))
                         result |= AIR;
                     break;
                 }

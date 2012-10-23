@@ -493,10 +493,10 @@ void LFGMgr::InitializeLockedDungeons(Player* player, uint8 level /* = 0 */)
             else
                 if (ar->item)
                 {
-                    if (!player->HasItemCount(ar->item, 1) && (!ar->item2 || !player->HasItemCount(ar->item2, 1)))
+                    if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))
                         lockData = LFG_LOCKSTATUS_MISSING_ITEM;
                 }
-                else if (ar->item2 && !player->HasItemCount(ar->item2, 1))
+                else if (ar->item2 && !player->HasItemCount(ar->item2))
                     lockData = LFG_LOCKSTATUS_MISSING_ITEM;
         }
 
