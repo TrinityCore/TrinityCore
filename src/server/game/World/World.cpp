@@ -1200,7 +1200,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WARDEN_CLIENT_RESPONSE_DELAY] = ConfigMgr::GetIntDefault("Warden.ClientResponseDelay", 600);
 
     // Dungeon finder
-    m_bool_configs[CONFIG_DUNGEON_FINDER_ENABLE] = ConfigMgr::GetBoolDefault("DungeonFinder.Enable", false);
+    m_int_configs[CONFIG_LFG_OPTIONSMASK] = ConfigMgr::GetIntDefault("DungeonFinder.OptionsMask", 1);
 
     // DBC_ItemAttributes
     m_bool_configs[CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES] = ConfigMgr::GetBoolDefault("DBC.EnforceItemAttributes", true);
@@ -1490,15 +1490,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Vehicle Accessories...");
     sObjectMgr->LoadVehicleAccessories();                       // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Dungeon boss data...");
-    sObjectMgr->LoadInstanceEncounters();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG rewards...");
-    sLFGMgr->LoadRewards();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG entrance positions...");
-    sLFGMgr->LoadEntrancePositions();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
 
@@ -1516,6 +1507,15 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger script names...");
     sObjectMgr->LoadAreaTriggerScripts();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG entrance positions..."); // Must be after areatriggers
+    sLFGMgr->LoadLFGDungeons();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Dungeon boss data...");
+    sObjectMgr->LoadInstanceEncounters();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG rewards...");
+    sLFGMgr->LoadRewards();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Graveyard-zone links...");
     sObjectMgr->LoadGraveyardZones();

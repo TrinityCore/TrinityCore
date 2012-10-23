@@ -249,7 +249,7 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
             {
-                if (!player->HasItemCount(24573, 1))
+                if (!player->HasItemCount(24573))
                 {
                     ItemPosCountVec dest;
                     uint32 itemId = 24573;
