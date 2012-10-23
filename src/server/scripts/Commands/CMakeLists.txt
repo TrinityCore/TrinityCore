@@ -27,6 +27,7 @@ set(scripts_STAT_SRCS
   Commands/cs_honor.cpp
   Commands/cs_instance.cpp
   Commands/cs_learn.cpp
+  Commands/cs_lfg.cpp
   Commands/cs_list.cpp
   Commands/cs_lookup.cpp
   Commands/cs_message.cpp
