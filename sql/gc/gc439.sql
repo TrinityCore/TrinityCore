@@ -1601,5 +1601,17 @@ DELETE FROM `spell_area` WHERE `spell` IN (73822, 73828);
 -- Forge of Souls ##
 ####################
 -- Unleashed Soul template correction
-UPDATE creature_template SET difficulty_entry_1 = 37678, mindmg = 100, maxdmg = 200, attackpower = 642 WHERE entry = 36595;
-UPDATE creature_template SET minlevel = 80, maxlevel = 80, exp = 2, faction_A = 14, faction_H = 14, speed_walk = 1.11111, speed_run = 0.71429, mindmg = 100, maxdmg = 200, attackpower = 642, dmg_multiplier = 3, baseattacktime = 2000, unit_flags = 33554432, dynamicflags = 8 WHERE entry = 37678;
+UPDATE `creature_template` SET `difficulty_entry_1` = 37678, `mindmg` = 100, `maxdmg` = 200, `attackpower` = 642 WHERE `entry` = 36595;
+UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `exp` = 2, `faction_A` = 14, `faction_H` = 14, `speed_walk` = 1.11111, `speed_run` = 0.71429, `mindmg` = 100, `maxdmg` = 200, `attackpower` = 642, `dmg_multiplier` = 3, `baseattacktime` = 2000, `unit_flags` = 33554432, `dynamicflags` = 8 WHERE `entry` = 37678;
+
+-- Bronjahm texts
+DELETE FROM `script_texts` WHERE `npc_entry` = 36497;
+DELETE FROM `creature_text` WHERE `entry` = 36497;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(36497, 0, 0, 'More souls to power the engine!', 14, 0, 100, 0, 0, 0, 'Bronjahm SAY_AGGRO_1'),
+(36497, 0, 1, 'Finally...a captive audience!', 14, 0, 100, 0, 0, 16595, 'Bronjahm SAY_AGGRO_2'),
+(36497, 1, 0, 'I will sever the soul from your body!', 14, 0, 100, 0, 0, 16600, 'Bronjahm SAY_CORRUPT_SOUL'),
+(36497, 2, 0, 'The vortex of the harvested calls to you!', 14, 0, 100, 0, 0, 16599, 'Bronjahm SAY_SOUL_STORM'),
+(36497, 3, 0, 'Another soul to strengthen the host!', 14, 0, 100, 0, 0, 16597, 'Bronjahm SAY_SLAY_1'),
+(36497, 3, 1, 'Fodder for the engine!', 14, 0, 100, 0, 0, 16596, 'Bronjahm SAY_SLAY_2'),
+(36497, 4, 0, 'My soul for you, master.', 14, 0, 100, 0, 0, 16598, 'Bronjahm SAY_DEATH');
