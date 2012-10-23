@@ -1590,3 +1590,6 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=36829;
 INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `comment`) VALUES
 (36829, 0, 4, 1, 0, 0, 0, 0, 11, 69491, 1, 'Deathspeaker High Priest - Cast Aura of Darkness'),
 (36829, 1, 0, 0, 4000, 6000, 15000, 20000, 11, 69483, 2, 'Deathspeaker High Priest - Cast Shadow Nova');
+
+-- remove the ICC-wise buffs
+DELETE FROM `spell_area` WHERE `spell` IN (73822, 73828);
