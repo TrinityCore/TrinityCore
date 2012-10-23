@@ -19,6 +19,8 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "Vehicle.h"
 #include "CombatAI.h"
 

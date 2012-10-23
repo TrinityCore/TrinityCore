@@ -1639,7 +1639,7 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
     {
         if (item_id)
         {
-            if (!player->HasItemCount(item_id, 1))
+            if (!player->HasItemCount(item_id))
                 return;
 
             // remove reagent
