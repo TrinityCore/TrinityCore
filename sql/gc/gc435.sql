@@ -1430,9 +1430,9 @@ UPDATE battleground_template SET MinPlayersPerTeam = 5 WHERE id IN (3, 7, 9, 32)
 -- make AV need only 10 people per side
 UPDATE battleground_template SET MinPlayersPerTeam = 10 WHERE id = 1;
 
-###################
--- Misc things #
-###################
+#################
+-- Misc things ##
+#################
 
 -- making heroic version of Drakkari Guardian and bat selectable too
 UPDATE `creature_template` SET `unit_flags` = `unit_flags` & ~33554432 WHERE `entry` = 31339;
@@ -1444,14 +1444,14 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (57055, -56648, 2, 'Remove Potent Fungus - Amanitar encounter'),
 (56648, -57055, 2, 'Remove Mini - Amanitar encounter');
 
--- First RDF reward changed from EoF to EoT
-UPDATE `quest_template` SET RewardItemId1 = 47241 WHERE Id = 24788;
+-- First RDF reward changed from EoF to 1 EoT
+UPDATE `quest_template` SET `RewardItemId1` = 47241, `RewardItemCount1` = 1 WHERE `Id` = 24788;
 
 -- Weekly raid quests "X Must Die!" reward changed from 5 x EoF + 5 x EoT to 10 x EoT only
-UPDATE `quest_template` SET RewardItemId1 = 47241, RewardItemId2 = 0, RewardItemCount1 = 10, RewardItemCount2 = 0 WHERE id IN(24579, 24582, 24583, 24584, 24590, 24580, 24581, 24587, 24585, 24588, 24586, 24589);
+UPDATE `quest_template` SET `RewardItemId1` = 47241, `RewardItemId2` = 0, `RewardItemCount1` = 10, `RewardItemCount2` = 0 WHERE `id` IN(24579, 24582, 24583, 24584, 24590, 24580, 24581, 24587, 24585, 24588, 24586, 24589);
 
 -- Tainted Helboar Meat should not have quest dependency
-UPDATE `creature_loot_template` SET ChanceOrQuestChance =100 WHERE item = 23270 AND entry IN(16992, 16879, 16863, 16880);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` =100 WHERE `item` = 23270 AND `entry` IN(16992, 16879, 16863, 16880);
 
 #######################
 -- HEADLESS HORSEMAN ##
