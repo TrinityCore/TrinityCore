@@ -557,7 +557,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
     _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote)
+void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string const& friendNote)
 {
     if (!GetPlayer())
         return;

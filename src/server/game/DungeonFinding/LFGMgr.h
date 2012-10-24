@@ -156,7 +156,7 @@ struct LfgJoinResultData
 struct LfgUpdateData
 {
     LfgUpdateData(LfgUpdateType _type = LFG_UPDATETYPE_DEFAULT): updateType(_type), comment("") {}
-    LfgUpdateData(LfgUpdateType _type, LfgDungeonSet const& _dungeons, std::string _comment):
+    LfgUpdateData(LfgUpdateType _type, LfgDungeonSet const& _dungeons, std::string const& _comment):
         updateType(_type), dungeons(_dungeons), comment(_comment) {}
 
     LfgUpdateType updateType;
