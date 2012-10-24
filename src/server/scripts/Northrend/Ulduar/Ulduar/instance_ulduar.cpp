@@ -825,6 +825,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_RARE_CACHE_OF_WINTER_HERO:
                     case GO_HODIR_RARE_CACHE_OF_WINTER:
                         HodirRareCacheGUID = gameObject->GetGUID();
+                        gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_HODIR_CHEST_HERO:
                     case GO_HODIR_CHEST:
