@@ -222,18 +222,17 @@ class Quest
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
         uint32 GetSrcSpell() const { return SourceSpellid; }
-        std::string GetTitle() const { return Title; }
-        std::string GetDetails() const { return Details; }
-        std::string GetObjectives() const { return Objectives; }
-        std::string GetOfferRewardText() const { return OfferRewardText; }
-        std::string GetRequestItemsText() const { return RequestItemsText; }
-        std::string GetEndText() const { return EndText; }
-        std::string GetCompletedText() const { return CompletedText; }
+        std::string const& GetTitle() const { return Title; }
+        std::string const& GetDetails() const { return Details; }
+        std::string const& GetObjectives() const { return Objectives; }
+        std::string const& GetOfferRewardText() const { return OfferRewardText; }
+        std::string const& GetRequestItemsText() const { return RequestItemsText; }
+        std::string const& GetEndText() const { return EndText; }
+        std::string const& GetCompletedText() const { return CompletedText; }
         int32  GetRewOrReqMoney() const;
         uint32 GetRewHonorAddition() const { return RewardHonor; }
         float GetRewHonorMultiplier() const { return RewardHonorMultiplier; }
-        uint32 GetRewMoneyMaxLevel() const { return RewardMoneyMaxLevel; }
-                                                            // use in XP calculation at client
+        uint32 GetRewMoneyMaxLevel() const { return RewardMoneyMaxLevel; } // use in XP calculation at client
         uint32 GetRewSpell() const { return RewardSpell; }
         int32  GetRewSpellCast() const { return RewardSpellCast; }
         uint32 GetRewMailTemplateId() const { return RewardMailTemplateId; }

@@ -246,7 +246,7 @@ class Channel
     public:
         uint32 m_Team;
         Channel(const std::string& name, uint32 channel_id, uint32 Team = 0);
-        std::string GetName() const { return m_name; }
+        std::string const& GetName() const { return m_name; }
         uint32 GetChannelId() const { return m_channelId; }
         bool IsConstant() const { return m_channelId != 0; }
         bool IsAnnounce() const { return m_announce; }

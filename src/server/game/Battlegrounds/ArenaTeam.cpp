@@ -36,8 +36,7 @@ ArenaTeam::ArenaTeam()
 }
 
 ArenaTeam::~ArenaTeam()
-{
-}
+{ }
 
 bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
 {
@@ -284,14 +283,15 @@ void ArenaTeam::SetCaptain(uint64 guid)
     CharacterDatabase.Execute(stmt);
 
     // Enable remove/promote buttons
-    Player* newCaptain = ObjectAccessor::FindPlayer(guid);
-    if (newCaptain)
+    if (Player* newCaptain = ObjectAccessor::FindPlayer(guid))
     {
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
-        char const* oldCaptainName = oldCaptain ? oldCaptain->GetName() : "";
-        uint32 oldCaptainLowGuid = oldCaptain ? oldCaptain->GetGUIDLow() : 0;
-        sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
-                        oldCaptainName, oldCaptainLowGuid, newCaptain->GetName(), newCaptain->GetGUIDLow(), GetId(), GetType());
+        if (oldCaptain)
+        {
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
+                oldCaptain->GetName().c_str(), oldCaptain->GetGUIDLow(), newCaptain->GetName().c_str(),
+                newCaptain->GetGUIDLow(), GetId(), GetType());
+        }
     }
 }
 
@@ -299,13 +299,11 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
 {
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
-    {
         if (itr->Guid == guid)
         {
             Members.erase(itr);
             break;
         }
-    }
 
     // Inform player and remove arena team info from player data
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -314,7 +312,7 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
         // delete all info regarding this team
         for (uint32 i = 0; i < ARENA_TEAM_END; ++i)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
-        sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
+        sLog->outDebug(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId());
     }
 
     // Only used for single member deletion, for arena team disband we use a single query for more efficiency
@@ -336,10 +334,10 @@ void ArenaTeam::Disband(WorldSession* session)
     // Broadcast update
     if (session)
     {
-        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName(), GetName(), "");
+        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName().c_str(), GetName(), "");
 
         if (Player* player = session->GetPlayer())
-            sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
+            sLog->outDebug(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId());
     }
 
     // Update database
