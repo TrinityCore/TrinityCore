@@ -290,6 +290,12 @@ class npc_ice_block : public CreatureScript
                 }
             }
 
+            void UpdateAI(uint32 const /*diff*/)
+            {
+                if (instance && instance->GetBossState(BOSS_HODIR) == DONE)
+                    me->DespawnOrUnsummon();
+            }
+
             private:
                 InstanceScript* instance;
                 uint64 targetGUID;
