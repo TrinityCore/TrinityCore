@@ -86,7 +86,7 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i < 6; i++)
         GateStatus[i] = BG_SA_GATE_OK;
 
-    for (uint8 i = 0; i < BG_SA_BOAT_ONE; i++)
+    for (uint8 i = 0; i <= BG_SA_PORTAL_DEFFENDER_RED; i++)
     {
         if (!AddObject(i, BG_SA_ObjEntries[i], BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1], BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
@@ -113,7 +113,7 @@ bool BattlegroundSA::ResetObjs()
             return false;
     }
 
-    for (uint8 i = BG_SA_SIGIL_1; i <= BG_SA_SIGIL_5; i++)
+    for (uint8 i = BG_SA_SIGIL_1; i <= BG_SA_LEFT_FLAGPOLE; i++)
     {
         if (!AddObject(i, BG_SA_ObjEntries[i],
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
