@@ -147,7 +147,6 @@ class npc_announcer_toc10 : public CreatureScript
             uint8 i = 0;
             for (; i < NUM_MESSAGES; ++i)
             {
-                if (instanceScript->GetBossState(_GossipMessage[i].encounter) != DONE)
                 if ((!_GossipMessage[i].state && instanceScript->GetBossState(_GossipMessage[i].encounter) != DONE)
                     || (_GossipMessage[i].state && instanceScript->GetBossState(_GossipMessage[i].encounter) == DONE))
                 {

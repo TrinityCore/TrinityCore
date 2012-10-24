@@ -88,7 +88,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
 
                 // make sure Anub'arak isnt missing and floor is destroyed after a crash
-                if (GetBossState(BOSS_LICH_KING) == DONE)
+                if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter)
                 {
                     Creature* anubArak = Unit::GetCreature(*player, GetData64(NPC_ANUBARAK));
                     if (!anubArak)
@@ -103,6 +103,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 if (!guid)
                     return;
+
                 if (GameObject* go = instance->GetGameObject(guid))
                     go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             }
@@ -362,6 +363,16 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                                 if (Player* player = itr->getSource())
                                     player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
+
+                            // if theres no more attemps allowed
+                            if (!TrialCounter)
+                            {
+                                if (Unit* announcer = instance->GetCreature(GetData64(NPC_BARRENT)))
+                                    announcer->ToCreature()->DespawnOrUnsummon();
+
+                                if (Creature* anubArak = instance->GetCreature(GetData64(NPC_ANUBARAK)))
+                                    anubArak->DespawnOrUnsummon();
+                            }
                         }
                         NeedSave = true;
                         EventStage = (type == BOSS_BEASTS ? 666 : 0);
