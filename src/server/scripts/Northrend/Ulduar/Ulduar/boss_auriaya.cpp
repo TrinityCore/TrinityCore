@@ -434,6 +434,9 @@ class npc_feral_defender : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                if (instance && instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+
                 if (!UpdateVictim())
                     return;
 

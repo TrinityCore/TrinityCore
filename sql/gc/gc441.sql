@@ -590,6 +590,9 @@ DELETE FROM `creature` WHERE `id`=33121;
 
 -- Auriaya Sanctum Sentries are spawned via scripts
 DELETE FROM `creature` WHERE `id`=34014;
+-- correct damage of Sanctum sentries and Feral Defender
+UPDATE `creature_template` SET `dmg_multiplier` = 7.5 WHERE `entry` IN (34035, 34014);
+UPDATE `creature_template` SET `dmg_multiplier` = 13 WHERE `entry` IN (34171, 34166);
 
 -- Thorim tunnel adds are spawned via scripts
 DELETE FROM `creature` WHERE `id` IN (33110, 32874, 32875);
