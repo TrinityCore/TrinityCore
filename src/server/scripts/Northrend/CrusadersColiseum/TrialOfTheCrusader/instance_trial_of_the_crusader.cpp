@@ -122,6 +122,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 {
                     case NPC_BARRENT:
                         BarrentGUID = creature->GetGUID();
+                        if (!TrialCounter)
+                            creature->DespawnOrUnsummon();
                         break;
                     case NPC_TIRION:
                         TirionGUID = creature->GetGUID();
