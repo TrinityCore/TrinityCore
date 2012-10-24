@@ -73,7 +73,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
         return;
     }
 
-    Player* player = sObjectAccessor->FindPlayerByName(membername.c_str());
+    Player* player = sObjectAccessor->FindPlayerByName(membername);
 
     // no player
     if (!player)
@@ -210,7 +210,7 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
 
     if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow());
         return;
     }
 
@@ -265,9 +265,8 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
         return;
 
     // report
-    std::string name = std::string(GetPlayer()->GetName());
-    WorldPacket data(SMSG_GROUP_DECLINE, name.length());
-    data << name.c_str();
+    WorldPacket data(SMSG_GROUP_DECLINE, GetPlayer()->GetName().length());
+    data << GetPlayer()->GetName();
     leader->GetSession()->SendPacket(&data);
 }
 
@@ -283,7 +282,8 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.",
+            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow());
         return;
     }
 
@@ -333,7 +333,8 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recv_data)
     // can't uninvite yourself
     if (GetPlayer()->GetName() == membername)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.",
+            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow());
         return;
     }
 
@@ -586,7 +587,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
     if (!group->HasFreeSlotSubGroup(groupNr))
         return;
 
-    Player* movedPlayer = sObjectAccessor->FindPlayerByName(name.c_str());
+    Player* movedPlayer = sObjectAccessor->FindPlayerByName(name);
     uint64 guid;
     if (movedPlayer)
     {

@@ -660,7 +660,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             std::string IP_str = GetRemoteAddress();
             sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
+            sWorld->AddCharacterNameData(newChar.GetGUIDLow(), newChar.GetName(), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
 
             newChar.CleanupsBeforeDelete();
             delete createInfo;
@@ -863,7 +863,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         else
         {
             // remove wrong guild data
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.", pCurrChar->GetName(), pCurrChar->GetGUIDLow(), pCurrChar->GetGuildId());
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.", pCurrChar->GetName().c_str(), pCurrChar->GetGUIDLow(), pCurrChar->GetGuildId());
             pCurrChar->SetInGuild(0);
         }
     }
@@ -914,7 +914,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 
     sObjectAccessor->AddObject(pCurrChar);
-    //sLog->outDebug("Player %s added to Map.", pCurrChar->GetName());
+    //sLog->outDebug("Player %s added to Map.", pCurrChar->GetName().c_str());
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
@@ -1002,7 +1002,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     std::string IP_str = GetRemoteAddress();
     sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Login Character:[%s] (GUID: %u) Level: %d",
-        GetAccountId(), IP_str.c_str(), pCurrChar->GetName(), pCurrChar->GetGUIDLow(), pCurrChar->getLevel());
+        GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUIDLow(), pCurrChar->getLevel());
 
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1081,14 +1081,14 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_HELM for %s", _player->GetName());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_HELM for %s", _player->GetName().c_str());
     recv_data.read_skip<uint8>(); // unknown, bool?
     _player->ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
 }
 
 void WorldSession::HandleShowingCloakOpcode(WorldPacket& recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_CLOAK for %s", _player->GetName());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_CLOAK for %s", _player->GetName().c_str());
     recv_data.read_skip<uint8>(); // unknown, bool?
     _player->ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
 }
