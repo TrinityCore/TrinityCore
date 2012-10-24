@@ -1394,7 +1394,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
     if (out)
     {
         sLog->outDebug(LOG_FILTER_LFG, "TeleportPlayer: Player %s is being teleported out. Current Map %u - Expected Map %u",
-            player->GetName(), player->GetMapId(), uint32(dungeon->map));
+            player->GetName().c_str(), player->GetMapId(), uint32(dungeon->map));
         if (player->GetMapId() == uint32(dungeon->map))
         {
             player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
@@ -1466,7 +1466,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         player->GetSession()->SendLfgTeleportError(uint8(error));
 
     sLog->outDebug(LOG_FILTER_LFG, "TeleportPlayer: Player %s is being teleported in. Result: %u",
-        player->GetName(), error);
+        player->GetName().c_str(), error);
 }
 
 /**

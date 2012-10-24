@@ -72,7 +72,7 @@ class example_gossip_codebox : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
+        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, char const* code)
         {
             player->PlayerTalkClass->ClearMenus();
             if (sender == GOSSIP_SENDER_MAIN)
@@ -80,7 +80,7 @@ class example_gossip_codebox : public CreatureScript
                 switch (action)
                 {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    if (std::strcmp(code, player->GetName()) != 0)
+                    if (player->GetName() != code)
                     {
                         DoScriptText(SAY_WRONG, creature);
                         creature->CastSpell(player, SPELL_POLYMORPH, true);
