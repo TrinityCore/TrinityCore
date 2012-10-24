@@ -1,4 +1,4 @@
-﻿-- Spellscript and conditions for spells of quest Gordunni Cobalt
+-- Spellscript and conditions for spells of quest Gordunni Cobalt
 DELETE FROM `spell_script_names` WHERE `spell_id`=19395;
 INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES
 (19395,'spell_gordunni_trap');
