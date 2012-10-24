@@ -47,10 +47,10 @@ enum Spells
 enum Events
 {
     EVENT_MAGIC_BANE    = 1,
-    EVENT_SHADOW_BOLT   = 2,
-    EVENT_CORRUPT_SOUL  = 3,
-    EVENT_SOULSTORM     = 4,
-    EVENT_FEAR          = 5
+    EVENT_SHADOW_BOLT,
+    EVENT_CORRUPT_SOUL,
+    EVENT_SOULSTORM,
+    EVENT_FEAR
 };
 
 enum CombatPhases
