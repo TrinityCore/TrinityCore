@@ -655,7 +655,7 @@ class WorldObject : public Object, public WorldLocation
         InstanceScript* GetInstanceScript();
 
         std::string const& GetName() const { return m_name; }
-        void SetName(const std::string& newname) { m_name=newname; }
+        void SetName(std::string const& newname) { m_name=newname; }
 
         virtual std::string const& GetNameForLocaleIdx(LocaleConstant /*locale_idx*/) const { return m_name; }
 
@@ -743,7 +743,7 @@ class WorldObject : public Object, public WorldLocation
         void MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossEmote = false);
         void MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisper = false);
         void MonsterYellToZone(int32 textId, uint32 language, uint64 TargetGuid);
-        void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, std::string const &name, uint64 TargetGuid) const;
+        void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, std::string const& name, uint64 TargetGuid) const;
 
         void PlayDistanceSound(uint32 sound_id, Player* target = NULL);
         void PlayDirectSound(uint32 sound_id, Player* target = NULL);

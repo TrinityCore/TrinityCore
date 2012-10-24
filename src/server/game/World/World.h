@@ -605,19 +605,19 @@ class World
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
         /// Set a new Message of the Day
-        void SetMotd(const std::string& motd);
+        void SetMotd(std::string const& motd);
         /// Get the current Message of the Day
         const char* GetMotd() const;
 
         /// Set the string for new characters (first login)
-        void SetNewCharString(std::string str) { m_newCharString = str; }
+        void SetNewCharString(std::string const& str) { m_newCharString = str; }
         /// Get the string for new characters (first login)
-        const std::string& GetNewCharString() const { return m_newCharString; }
+        std::string const& GetNewCharString() const { return m_newCharString; }
 
         LocaleConstant GetDefaultDbcLocale() const { return m_defaultDbcLocale; }
 
         /// Get the path where data (dbc, maps) are stored on disk
-        std::string GetDataPath() const { return m_dataPath; }
+        std::string const& GetDataPath() const { return m_dataPath; }
 
         /// When server started?
         time_t const& GetStartTime() const { return m_startTime; }
