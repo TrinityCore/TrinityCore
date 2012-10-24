@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "CreatureAIImpl.h"
 #include "Log.h"
@@ -786,6 +787,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 he->SetHealth(1);
 
             he->duel->opponent->CombatStopWithPets(true);
+			if (sWorld->getBoolConfig(CONFIG_DUEL_REWARD_SPELL_ENABLED))  
+            he->duel->opponent->CastSpell(he, sWorld->getIntConfig(CONFIG_DUEL_REWARD_SPELL_CAST), true); 
             he->CombatStopWithPets(true);
 
             he->CastSpell(he, 7267, true);                  // beg
@@ -12573,6 +12576,9 @@ void Unit::SetVisible(bool x)
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 {
+    //if (this->ToPlayer())
+    //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
+
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
@@ -13706,7 +13712,7 @@ void Unit::SetMaxHealth(uint32 val)
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)
-    {
+    {  
         if (ToPlayer()->GetGroup())
             ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_MAX_HP);
     }
@@ -16649,6 +16655,9 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
+    //if (this->ToPlayer())
+    //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
+
     Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
         player = (Player*)this;

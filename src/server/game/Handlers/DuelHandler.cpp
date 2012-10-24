@@ -69,6 +69,9 @@ void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
         GetPlayer()->CombatStopWithPets(true);
         if (GetPlayer()->duel->opponent)
             GetPlayer()->duel->opponent->CombatStopWithPets(true);
+			
+		if (sWorld->getBoolConfig(CONFIG_DUEL_REWARD_SPELL_ENABLED))  
+            GetPlayer()->duel->opponent->CastSpell(GetPlayer(), sWorld->getIntConfig(CONFIG_DUEL_REWARD_SPELL_CAST), true);
 
         GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
         GetPlayer()->DuelComplete(DUEL_WON);

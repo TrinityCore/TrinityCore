@@ -20,6 +20,7 @@
     \ingroup world
 */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Config.h"
@@ -1216,6 +1217,34 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WINTERGRASP_NOBATTLETIME] = ConfigMgr::GetIntDefault("Wintergrasp.NoBattleTimer", 150);
     m_int_configs[CONFIG_WINTERGRASP_RESTART_AFTER_CRASH] = ConfigMgr::GetIntDefault("Wintergrasp.CrashRestartTimer", 10);
 
+    //Reset Duel Cooldown 
+    m_bool_configs[CONFIG_DUEL_RESET_COOLDOWN_ON_START] = ConfigMgr::GetBoolDefault("DuelReset.Cooldown.OnStart", false); 
+    m_bool_configs[CONFIG_DUEL_RESET_COOLDOWN_ON_FINISH] = ConfigMgr::GetBoolDefault("DuelReset.Cooldown.OnFinish", false); 
+    m_bool_configs[CONFIG_DUEL_RESET_COOLDOWN_ONLY_IN_ELWYNN_AND_DUROTAR] = ConfigMgr::GetBoolDefault("DuelReset.Cooldown.Only.in.Elwynn.and.Durotar", false); 
+    m_bool_configs[CONFIG_DUEL_RESET_COOLDOWN_MAX_ENERGY_ON_START] = ConfigMgr::GetBoolDefault("DuelReset.Cooldown.Max.Energy.OnStart", false); 
+    m_bool_configs[CONFIG_DUEL_RESET_COOLDOWN_RESET_ENERGY_ON_START] = ConfigMgr::GetBoolDefault("DuelReset.Cooldown.Reset.Energy.OnStart", false);
+	
+ 	//GM Login
+ 	m_bool_configs[CONFIG_GMLOGIN_ENABLED] = ConfigMgr::GetBoolDefault("Gm.Login.Enable", true);
+	
+ 	//Anticheat
+    m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = ConfigMgr::GetBoolDefault("Anticheat.Enable", true);
+    m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = ConfigMgr::GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
+    m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = ConfigMgr::GetIntDefault("Anticheat.DetectionsEnabled",31);
+    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
+ 	
+	// Player can join LFG anywhere
+    m_bool_configs[CONFIG_LFG_LOCATION_ALL] = ConfigMgr::GetBoolDefault("LFG.Location.All", true);
+	
+    // Gm chat blue	
+    m_bool_configs[CONFIG_GM_BLUE_CHAT_ENABLE] = ConfigMgr::GetBoolDefault("Gm.Chat.Blue.Enable", false);	
+	
+	//????????? ?????? ??? ????????? ????? ?? ??????????
+	m_bool_configs[CONFIG_DUEL_REWARD_SPELL_ENABLED] = ConfigMgr::GetBoolDefault("DuelRewardSpell.Enabled", 0);  
+    m_int_configs[CONFIG_DUEL_REWARD_SPELL_CAST] = ConfigMgr::GetIntDefault("DuelRewardSpell.Cast", 0);  
+    if(m_int_configs[CONFIG_DUEL_REWARD_SPELL_CAST] < 0)  
+       m_int_configs[CONFIG_DUEL_REWARD_SPELL_CAST] = 41232;
+	
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
@@ -1391,6 +1420,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");
     sObjectMgr->LoadEquipmentTemplates();
+	
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading fake items...");
+	sObjectMgr->LoadFakeItems();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
@@ -2749,6 +2781,8 @@ void World::ResetDailyQuests()
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
+
+    sAnticheatMgr->ResetDailyReportStates();
 }
 
 void World::LoadDBAllowedSecurityLevel()

@@ -400,6 +400,8 @@ typedef UNORDERED_MAP<uint32, PointOfInterestLocale> PointOfInterestLocaleContai
 typedef std::multimap<uint32, uint32> QuestRelations;
 typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
 
+typedef std::map<uint32, uint32> FakeItemsContainer;
+
 struct PetLevelInfo
 {
     PetLevelInfo() : health(0), mana(0) { for (uint8 i=0; i < MAX_STATS; ++i) stats[i] = 0; }
@@ -639,6 +641,10 @@ class ObjectMgr
             return NULL;
         }
 
+        uint32 GetFakeItemEntry(uint32 itemGuid);
+        void SetFekeItem(uint32 itemGuid, uint32 fakeEntry);
+        void RemoveFakeItem(uint32 itemGuid);
+
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId);
 
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
@@ -863,6 +869,7 @@ class ObjectMgr
         void LoadItemLocales();
         void LoadItemSetNames();
         void LoadItemSetNameLocales();
+        void LoadFakeItems();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -1271,6 +1278,7 @@ class ObjectMgr
         ItemTemplateContainer _itemTemplateStore;
         ItemLocaleContainer _itemLocaleStore;
         ItemSetNameLocaleContainer _itemSetNameLocaleStore;
+        FakeItemsContainer _fakeItemsStore;
         QuestLocaleContainer _questLocaleStore;
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;

@@ -1075,6 +1075,8 @@ class Player : public Unit, public GridObject<Player>
         explicit Player (WorldSession* session);
         ~Player();
 
+        //AnticheatData anticheatData;
+
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
         void AddToWorld();
@@ -2875,6 +2877,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
+		
 };
 
 void AddItemsSetItem(Player*player, Item* item);

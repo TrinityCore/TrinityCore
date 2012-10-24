@@ -127,6 +127,7 @@ void Battleground::BroadcastWorker(Do& _do)
             _do(player);
 }
 
+
 Battleground::Battleground()
 {
     m_TypeID            = BATTLEGROUND_TYPE_NONE;
@@ -1267,8 +1268,8 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        // drop flag and handle other cleanups
-        RemovePlayer(player, guid, GetPlayerTeam(guid));
+            // drop flag and handle other cleanups
+            RemovePlayer(player, guid, GetPlayerTeam(guid));
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())

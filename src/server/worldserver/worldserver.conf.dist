@@ -1136,6 +1136,45 @@ AccountInstancesPerHour = 5
 ###################################################################################################
 
 ###################################################################################################
+#  ANTICHEAT
+#
+#     Anticheat.Enable
+#        Description: Enables or disables the Anticheat System functionality
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Anticheat.Enable = 1
+
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+
+Anticheat.ReportsForIngameWarnings = 70
+
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+
+Anticheat.DetectionsEnabled = 31
+
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+
+Anticheat.MaxReportsForDailyReport = 70
+
+#
+###################################################################################################
+
+###################################################################################################
 # WARDEN SETTINGS
 #
 #    Warden.Enabled
@@ -2823,4 +2862,78 @@ Logger.Opcodes=41,6,Console Server
 Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 
 #
+###################################################################################################
+
+################################################################################################### 
+# DUEL RESET COOLDOWN BY DIMITRO 
+# 
+#     DuelReset.Cooldown.OnStart 
+#     Reseting cooldown and restore health to start of duel. 
+#     Default: 0 - Disable 
+#              1 - Enable 
+# 
+ 
+DuelReset.Cooldown.OnStart = 0 
+ 
+#     DuelReset.Cooldown.OnFinish 
+#     Reseting cooldown and restore health to finish of duel. 
+#     Default: 0 - Disable 
+#              1 - Enable 
+#
+ 
+DuelReset.Cooldown.OnFinish = 0 
+
+#     DuelReset.Cooldown.Only.in.Elwynn.and.Durotar 
+#     Reseting cooldown only in Elwynn forest and Durotar locations. 
+#     Default: 0 - Disable 
+#              1 - Enable 
+# 
+ 
+DuelReset.Cooldown.Only.in.Elwynn.and.Durotar = 0 
+ 
+#     DuelReset.Cooldown.Max.Energy.OnStart 
+#     Sets rage, mana and runic power to max on duel start. 
+#     Default: 0 - Disable 
+#              1 - Enable 
+# 
+ 
+DuelReset.Cooldown.Max.Energy.OnStart = 0 
+ 
+#     DuelReset.Cooldown.Reset.Energy.OnStart 
+#     Resets rage and runic power on duel start. 
+#     Default: 0 - Disable 
+#              1 - Enable 
+# 
+ 
+DuelReset.Cooldown.Reset.Energy.OnStart = 0 
+
+# 
+# Includes satellite to search for work elsewhere LFG 
+# Default: 0 - Disable 
+# 1 - Enable 
+ 
+LFG.Location.All = 0 
+
+# Gm.Chat	
+#	
+#    Gm.Chat.Blue.Enable	
+#        Description: Gm.Chat.Blue	
+#        Default:     0 - (Disable)	
+#                     1 - (Enable)	
+#		
+	
+Gm.Chat.Blue.Enable = 0
+
+#   DuelRewardSpell.Enabled 
+#   DuelRewardSpell.Cast 
+#    Description: At the end of the duel cast include. 
+#    Description: You can insert any spell. 
+#    Default:     0 - (Disabled) 
+#                 1 - (Enabled) 
+#    Default:     (41232) 
+ 
+DuelRewardSpell.Enabled = 0
+DuelRewardSpell.Cast = 41232  
+ 
+# 
 ###################################################################################################

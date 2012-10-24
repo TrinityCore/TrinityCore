@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "Language.h"
 #include "DatabaseEnv.h"
@@ -1527,6 +1528,8 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
+    //sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
+
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
@@ -2083,6 +2086,8 @@ void Player::SendTeleportAckPacket()
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+    //sAnticheatMgr->DisableAnticheatDetection(this,true);
+
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         sLog->outError(LOG_FILTER_MAPS, "TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).",
@@ -5549,6 +5554,10 @@ void Player::RepopAtGraveyard()
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
 {
+    // Player can join LFG anywhere 
+    if (channel->flags & CHANNEL_DBC_FLAG_LFG && sWorld->getBoolConfig(CONFIG_LFG_LOCATION_ALL)) 
+        return true;
+
     if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
         return false;
 
@@ -12372,7 +12381,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
+        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), (pItem->GetFakeDisplayEntry()) ? pItem->GetFakeDisplayEntry() : pItem->GetEntry());
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
     }
@@ -18836,6 +18845,12 @@ void Player::SaveToDB(bool create /*=false*/)
         _SaveStats(trans);
 
     CharacterDatabase.CommitTransaction(trans);
+
+    // we save the data here to prevent spamming
+    sAnticheatMgr->SavePlayerData(this);
+
+    // in this way we prevent to spam the db by each report made!
+    // sAnticheatMgr->SavePlayerData(this);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
