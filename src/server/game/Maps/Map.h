@@ -207,6 +207,30 @@ public:
 #pragma pack(push, 1)
 #endif
 
+class DynamicLOSObject
+{
+    public:
+        DynamicLOSObject();
+        bool IsBetween(float x, float y, float z, float x2, float y2, float z2);
+        bool IsInside(float x, float y);
+        bool IsOverOrUnder(float z);
+        float GetDistance(float x, float y);
+        bool IsActive();
+        void SetActiveState(bool state);
+        void SetCoordinates(float x, float y);
+        void SetZ(float z);
+        void SetRadius(float r);
+        void SetHeight(float h);
+        bool HasHeightInfo();
+    private:
+        float _x;
+        float _y;
+        float _z;
+        float _height;
+        float _radius;
+        bool _active;
+};
+
 struct InstanceTemplate
 {
     uint32 Parent;
@@ -475,6 +499,21 @@ class Map : public GridRefManager<NGridType>
 
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
+    /*
+     **********************
+     * DYNAMIC LOS SYSTEM *
+     **********************
+    */
+    public:
+        uint32 AddDynLOSObject(float x, float y, float radius);
+        uint32 AddDynLOSObject(float x, float y, float z, float radius, float height);
+        void SetDynLOSObjectState(uint32 id, bool state);
+        bool GetDynLOSObjectState(uint32 id);
+        bool IsInDynLOS(float x, float y, float z, float x2, float y2, float z2);
+    private:
+        std::map<uint32, DynamicLOSObject*> m_dynamicLOSObjects;
+        uint32 m_dynamicLOSCounter;
+    /* END */
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
