@@ -162,7 +162,7 @@ class boss_lord_marrowgar : public CreatureScript
                             if (IsHeroic() || !me->HasAura(SPELL_BONE_STORM))
                                 DoCast(me, SPELL_BONE_SPIKE_GRAVEYARD);
                             events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS), EVENT_GROUP_SPECIAL);
-                            break;
+                            return;
                         case EVENT_COLDFLAME:
                             _coldflameLastPos.Relocate(me);
                             _coldflameTarget = 0LL;
@@ -180,7 +180,7 @@ class boss_lord_marrowgar : public CreatureScript
                             events.DelayEvents(3*IN_MILLISECONDS, EVENT_GROUP_SPECIAL);
                             events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3.05*IN_MILLISECONDS);
                             events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(90*IN_MILLISECONDS, 95*IN_MILLISECONDS));
-                            break;
+                            return;
                         case EVENT_BONE_STORM_BEGIN:
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
                                 pStorm->SetDuration(int32(_boneStormDuration));
@@ -319,7 +319,7 @@ class npc_coldflame : public CreatureScript
                 }
 
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 450);
+                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 1*IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff)
@@ -332,7 +332,7 @@ class npc_coldflame : public CreatureScript
                     me->GetNearPosition(newPos, 5.5f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     DoCast(SPELL_COLDFLAME_SUMMON);
-                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 450);
+                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 1*IN_MILLISECONDS);
                 }
             }
 
@@ -376,7 +376,7 @@ class npc_bone_spike : public CreatureScript
             void IsSummonedBy(Unit* summoner)
             {
                 DoCast(summoner, SPELL_IMPALED);
-                summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
+                //summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
                 _events.ScheduleEvent(EVENT_FAIL_BONED, 8*IN_MILLISECONDS);
                 _hasTrappedUnit = true;
             }
