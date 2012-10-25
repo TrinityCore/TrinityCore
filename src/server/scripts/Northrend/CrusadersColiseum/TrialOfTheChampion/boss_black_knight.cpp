@@ -190,7 +190,7 @@ public:
                 me->GetMotionMaster()->MovePoint(1, 743.396f, 635.411f, 411.575f);
                 me->setFaction(14);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             uiPhase = PHASE_UNDEAD;
@@ -302,7 +302,7 @@ public:
                             break;
                         case 5:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->AI()->AttackStart(me->getVictim());
                             Phase = NORMAL;
@@ -378,7 +378,7 @@ public:
                         {
                             bSummonArmy = true;
                             me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
-                            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             DoCast(me, SPELL_ARMY_DEAD);
                         }
 
@@ -401,7 +401,7 @@ public:
                                     DoCast(target, SPELL_DESECRATION);
                             }
 
-                            uiDesecrationTimer = urand(15000,16000);
+                            uiDesecrationTimer = urand(15000, 16000);
                         }
                         else
                             uiDesecrationTimer -= uiDiff;

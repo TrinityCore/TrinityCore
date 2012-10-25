@@ -159,7 +159,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
             hasBeenInCombat = false;
             SetDespawnAtEnd(false);
             uiWaypointPath = 0;
-            uiCheckTimer=5000;
+            uiCheckTimer = 5000;
             pInstance = creature->GetInstanceScript();
         }
 
@@ -184,10 +184,10 @@ class generic_vehicleAI_toc5 : public CreatureScript
         {
             combatCheckTimer = 500;
             uiShieldBreakerTimer = 8000;
-            uiBuffTimer = urand(30000,60000);
-            uiTimerSpell1= urand(4000,10000);
-            uiTimerSpell2= urand(4000,10000);
-            uiTimerSpell3= urand(1000,2000);
+            uiBuffTimer = urand(30000, 60000);
+            uiTimerSpell1 = urand(4000, 10000);
+            uiTimerSpell2 = urand(4000, 10000);
+            uiTimerSpell3 = urand(1000, 2000);
             uiDefendTimer = urand(30000, 60000);
         }
 
@@ -230,12 +230,12 @@ class generic_vehicleAI_toc5 : public CreatureScript
             }
 
             if (uiType <= 3)
-                Start(false,true,0,NULL);
+                Start(false, true, 0, NULL);
         }
 
         void WaypointReached(uint32 i)
         {
-            switch(i)
+            switch (i)
             {
                 case 2:
                     if ((pInstance && uiWaypointPath == 3) || uiWaypointPath == 2)
@@ -492,7 +492,7 @@ class boss_warrior_toc5 : public CreatureScript
 
     struct boss_warrior_toc5AI : public BossAI
     {
-        boss_warrior_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
+        boss_warrior_toc5AI(Creature* creature) : BossAI(creature, BOSS_GRAND_CHAMPIONS)
         {
             pInstance = creature->GetInstanceScript();
 
@@ -506,7 +506,7 @@ class boss_warrior_toc5 : public CreatureScript
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -526,7 +526,7 @@ class boss_warrior_toc5 : public CreatureScript
 
         void Reset()
         {
-            uiBladeStormTimer = urand(15000,20000);
+            uiBladeStormTimer = urand(15000, 20000);
             uiInterceptTimer  = 7000;
             uiMortalStrikeTimer = urand(8000, 12000);
         }
@@ -560,13 +560,13 @@ class boss_warrior_toc5 : public CreatureScript
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
+                    me->SetHomePosition(739.678f, 662.541f, 413.395f, 4.49f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                        me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
+                        me->SetHomePosition(746.71f, 661.02f, 412.695f, 4.6f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                        me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+                        me->SetHomePosition(754.34f, 660.70f, 413.395f, 4.79f);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -594,11 +594,11 @@ class boss_warrior_toc5 : public CreatureScript
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
                         Player* player = itr->getSource();
-                        if (player && !player->isGameMaster() && me->IsInRange(player,8.0f,25.0f,false))
+                        if (player && !player->isGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
                             DoResetThreat();
-                            me->AddThreat(player,5.0f);
-                            DoCast(player,SPELL_INTERCEPT);
+                            me->AddThreat(player, 5.0f);
+                            DoCast(player, SPELL_INTERCEPT);
                             break;
                         }
                     }
@@ -612,7 +612,7 @@ class boss_warrior_toc5 : public CreatureScript
             if (uiBladeStormTimer <= uiDiff)
             {
                 DoCastVictim(SPELL_BLADESTORM);
-                uiBladeStormTimer = urand(15000,25000);
+                uiBladeStormTimer = urand(15000, 25000);
             }
             else
                 uiBladeStormTimer -= uiDiff;
@@ -620,7 +620,7 @@ class boss_warrior_toc5 : public CreatureScript
             if (uiMortalStrikeTimer <= uiDiff)
             {
                 DoCastVictim(DUNGEON_MODE(SPELL_MORTAL_STRIKE, SPELL_MORTAL_STRIKE_H));
-                uiMortalStrikeTimer = urand(8000,12000);
+                uiMortalStrikeTimer = urand(8000, 12000);
             }
             else
                 uiMortalStrikeTimer -= uiDiff;
@@ -641,7 +641,7 @@ class boss_warrior_toc5 : public CreatureScript
                 }
 
                 EnterEvadeMode();
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
              }
@@ -683,7 +683,7 @@ class boss_mage_toc5 : public CreatureScript
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -737,13 +737,13 @@ class boss_mage_toc5 : public CreatureScript
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
+                    me->SetHomePosition(739.678f, 662.541f, 413.395f, 4.49f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                        me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
+                        me->SetHomePosition(746.71f, 661.02f, 412.695f, 4.6f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                        me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+                        me->SetHomePosition(754.34f, 660.70f, 413.395f, 4.79f);
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
@@ -768,7 +768,7 @@ class boss_mage_toc5 : public CreatureScript
 
             if (uiFireBallTimer <= uiDiff)
             {
-                DoCastVictim(DUNGEON_MODE(SPELL_FIREBALL,SPELL_FIREBALL_H));
+                DoCastVictim(DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H));
                 uiFireBallTimer = 17000;
             }
             else
@@ -776,8 +776,8 @@ class boss_mage_toc5 : public CreatureScript
 
             if (uiPolymorphTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, DUNGEON_MODE(SPELL_POLYMORPH,SPELL_POLYMORPH_H));
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, DUNGEON_MODE(SPELL_POLYMORPH, SPELL_POLYMORPH_H));
                 uiPolymorphTimer = 22000;
             }
             else
@@ -785,7 +785,7 @@ class boss_mage_toc5 : public CreatureScript
 
             if (uiBlastWaveTimer <= uiDiff)
             {
-                DoCastAOE(DUNGEON_MODE(SPELL_BLAST_WAVE,SPELL_BLAST_WAVE_H),false);
+                DoCastAOE(DUNGEON_MODE(SPELL_BLAST_WAVE, SPELL_BLAST_WAVE_H), false);
                 uiBlastWaveTimer = 30000;
             }
             else
@@ -816,9 +816,9 @@ class boss_mage_toc5 : public CreatureScript
                 }
 
                 EnterEvadeMode();
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
-                me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
+                me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
             }
         }
 
@@ -860,7 +860,7 @@ class boss_shaman_toc5 : public CreatureScript
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -890,8 +890,8 @@ class boss_shaman_toc5 : public CreatureScript
         {
             _EnterCombat();
             hasBeenInCombat = true;
-            DoCast(me,SPELL_EARTH_SHIELD);
-            DoCast(who,SPELL_HEX_OF_MENDING);
+            DoCast(me, SPELL_EARTH_SHIELD);
+            DoCast(who, SPELL_HEX_OF_MENDING);
         };
 
         void JustReachedHome()
@@ -916,13 +916,13 @@ class boss_shaman_toc5 : public CreatureScript
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
+                    me->SetHomePosition(739.678f, 662.541f, 413.395f, 4.49f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                        me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
+                        me->SetHomePosition(746.71f, 661.02f, 412.695f, 4.6f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                        me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+                        me->SetHomePosition(754.34f, 660.70f, 413.395f, 4.79f);
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
@@ -947,8 +947,8 @@ class boss_shaman_toc5 : public CreatureScript
 
             if (uiChainLightningTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
-                    DoCast(target,DUNGEON_MODE(SPELL_CHAIN_LIGHTNING,SPELL_CHAIN_LIGHTNING_H));
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target,DUNGEON_MODE(SPELL_CHAIN_LIGHTNING, SPELL_CHAIN_LIGHTNING_H));
 
                 uiChainLightningTimer = 23000;
             }
@@ -962,10 +962,10 @@ class boss_shaman_toc5 : public CreatureScript
                 if (!bChance)
                 {
                     if (Unit* pFriend = DoSelectLowestHpFriendly(40))
-                        DoCast(pFriend,DUNGEON_MODE(SPELL_HEALING_WAVE,SPELL_HEALING_WAVE_H));
+                        DoCast(pFriend,DUNGEON_MODE(SPELL_HEALING_WAVE, SPELL_HEALING_WAVE_H));
                 }
                 else
-                    DoCast(me,DUNGEON_MODE(SPELL_HEALING_WAVE,SPELL_HEALING_WAVE_H));
+                    DoCast(me,DUNGEON_MODE(SPELL_HEALING_WAVE, SPELL_HEALING_WAVE_H));
 
                 uiHealingWaveTimer = 19000;
             }
@@ -976,16 +976,16 @@ class boss_shaman_toc5 : public CreatureScript
             {
                 DoCast(me,SPELL_EARTH_SHIELD);
 
-                uiEartShieldTimer = urand(40000,45000);
+                uiEartShieldTimer = urand(40000, 45000);
             }
             else
                 uiEartShieldTimer -= uiDiff;
 
             if (uiHexMendingTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_HEX_OF_MENDING,true);
+                DoCastVictim(SPELL_HEX_OF_MENDING, true);
 
-                uiHexMendingTimer = urand(30000,35000);
+                uiHexMendingTimer = urand(30000, 35000);
             }
             else
                 uiHexMendingTimer -= uiDiff;
@@ -1005,9 +1005,9 @@ class boss_shaman_toc5 : public CreatureScript
                 }
 
                 EnterEvadeMode();
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
-                me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
+                me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
             }
         }
 
@@ -1021,7 +1021,7 @@ class boss_shaman_toc5 : public CreatureScript
 
             //what a nonsense! -.-
             if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                pInstance->HandleGameObject(pGO->GetGUID(),true);
+                pInstance->HandleGameObject(pGO->GetGUID(), true);
         }
     };
 
@@ -1039,7 +1039,7 @@ class boss_hunter_toc5 : public CreatureScript
 
     struct boss_hunter_toc5AI : public BossAI
     {
-        boss_hunter_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
+        boss_hunter_toc5AI(Creature* creature) : BossAI(creature, BOSS_GRAND_CHAMPIONS)
         {
             pInstance = creature->GetInstanceScript();
 
@@ -1053,7 +1053,7 @@ class boss_hunter_toc5 : public CreatureScript
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -1091,7 +1091,7 @@ class boss_hunter_toc5 : public CreatureScript
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                      if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
-                     return; //se almeno un player e vivo, esce
+                     return;
                 }
 
                 if(pInstance)
@@ -1100,7 +1100,7 @@ class boss_hunter_toc5 : public CreatureScript
                 {
                    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
                    if(GO)
-                      pInstance->HandleGameObject(GO->GetGUID(),true);
+                      pInstance->HandleGameObject(GO->GetGUID(), true);
                 }
 
                 me->RemoveFromWorld();
@@ -1135,13 +1135,13 @@ class boss_hunter_toc5 : public CreatureScript
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
+                    me->SetHomePosition(739.678f, 662.541f, 413.395f, 4.49f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                        me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
+                        me->SetHomePosition(746.71f, 661.02f, 412.695f, 4.6f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                        me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+                        me->SetHomePosition(754.34f, 660.70f, 413.395f, 4.79f);
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
@@ -1187,10 +1187,10 @@ class boss_hunter_toc5 : public CreatureScript
 
             if (uiShootTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST,0,30.0f))
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
                 {
                     uiTargetGUID = target->GetGUID();
-                    DoCast(target, DUNGEON_MODE(SPELL_SHOOT,SPELL_SHOOT_H));
+                    DoCast(target, DUNGEON_MODE(SPELL_SHOOT, SPELL_SHOOT_H));
                 }
 
                 uiShootTimer = 19000;
@@ -1205,9 +1205,9 @@ class boss_hunter_toc5 : public CreatureScript
                 me->InterruptNonMeleeSpells(true);
                 Unit* target = Unit::GetUnit(*me, uiTargetGUID);
 
-                if (target && me->IsInRange(target,5.0f,30.0f,false))
+                if (target && me->IsInRange(target, 5.0f, 30.0f, false))
                 {
-                    DoCast(target,SPELL_MULTI_SHOT);
+                    DoCast(target, SPELL_MULTI_SHOT);
                 }
                 else
                 {
@@ -1217,9 +1217,9 @@ class boss_hunter_toc5 : public CreatureScript
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             Player* player = itr->getSource();
-                            if (player && !player->isGameMaster() && me->IsInRange(player,5.0f,30.0f,false))
+                            if (player && !player->isGameMaster() && me->IsInRange(player, 5.0f, 30.0f, false))
                             {
-                                DoCast(target,SPELL_MULTI_SHOT);
+                                DoCast(target, SPELL_MULTI_SHOT);
                                 break;
                             }
                         }
@@ -1246,9 +1246,9 @@ class boss_hunter_toc5 : public CreatureScript
                 }
 
                 EnterEvadeMode();
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
-                me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
+                me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
             }
         }
 
@@ -1261,7 +1261,7 @@ class boss_hunter_toc5 : public CreatureScript
 
             //what a nonsense! -.-
             if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                pInstance->HandleGameObject(pGO->GetGUID(),true);
+                pInstance->HandleGameObject(pGO->GetGUID(), true);
         }
     };
 
@@ -1279,7 +1279,7 @@ class boss_rouge_toc5 : public CreatureScript
 
     struct boss_rouge_toc5AI : public BossAI
     {
-        boss_rouge_toc5AI(Creature* creature) : BossAI(creature,BOSS_GRAND_CHAMPIONS)
+        boss_rouge_toc5AI(Creature* creature) : BossAI(creature, BOSS_GRAND_CHAMPIONS)
         {
             pInstance = creature->GetInstanceScript();
 
@@ -1294,7 +1294,7 @@ class boss_rouge_toc5 : public CreatureScript
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         InstanceScript* pInstance;
@@ -1323,7 +1323,7 @@ class boss_rouge_toc5 : public CreatureScript
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                      if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
-                        return; //se almeno un player e vivo, esce
+                        return;
                 }
                 if(pInstance)
                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
@@ -1331,7 +1331,7 @@ class boss_rouge_toc5 : public CreatureScript
                 {
                    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
                    if(GO)
-                      pInstance->HandleGameObject(GO->GetGUID(),true);
+                      pInstance->HandleGameObject(GO->GetGUID(), true);
                 }
 
                 me->RemoveFromWorld();
@@ -1365,13 +1365,13 @@ class boss_rouge_toc5 : public CreatureScript
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678f,662.541f,413.395f,4.49f);
+                    me->SetHomePosition(739.678f, 662.541f, 413.395f, 4.49f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                        me->SetHomePosition(746.71f,661.02f,412.695f,4.6f);
+                        me->SetHomePosition(746.71f, 661.02f, 412.695f, 4.6f);
                 else
                     if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                        me->SetHomePosition(754.34f,660.70f,413.395f,4.79f);
+                        me->SetHomePosition(754.34f, 660.70f, 413.395f, 4.79f);
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
@@ -1396,7 +1396,7 @@ class boss_rouge_toc5 : public CreatureScript
 
             if (uiEviscerateTimer <= uiDiff)
             {
-                DoCast(me->getVictim(),DUNGEON_MODE(SPELL_EVISCERATE,SPELL_EVISCERATE_H));
+                DoCast(me->getVictim(),DUNGEON_MODE(SPELL_EVISCERATE, SPELL_EVISCERATE_H));
                 uiEviscerateTimer = 12000;
             }
              else
@@ -1404,7 +1404,7 @@ class boss_rouge_toc5 : public CreatureScript
 
             if (uiFanKivesTimer <= uiDiff)
             {
-                DoCastAOE(SPELL_FAN_OF_KNIVES,false);
+                DoCastAOE(SPELL_FAN_OF_KNIVES, false);
                 uiFanKivesTimer = 20000;
             }
             else
@@ -1412,8 +1412,8 @@ class boss_rouge_toc5 : public CreatureScript
 
             if (uiPosionBottleTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_POISON_BOTTLE);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                DoCast(target, SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             }
             else
@@ -1434,9 +1434,9 @@ class boss_rouge_toc5 : public CreatureScript
                 }
 
                 EnterEvadeMode();
-                me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(35);
-                me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
+                me->GetMotionMaster()->MovePoint(0, 746.843f, 695.68f, 412.339f);
             }
         }
 
@@ -1449,7 +1449,7 @@ class boss_rouge_toc5 : public CreatureScript
 
             //where's the sense in that?
             if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                pInstance->HandleGameObject(pGO->GetGUID(),true);
+                pInstance->HandleGameObject(pGO->GetGUID(), true);
         }
     };
 

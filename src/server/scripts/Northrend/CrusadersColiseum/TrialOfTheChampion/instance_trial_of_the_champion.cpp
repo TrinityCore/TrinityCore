@@ -220,7 +220,7 @@ public:
                     break;
                 case NPC_JAEREN_AN:
                     if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(NPC_ARELAS_AN,ALLIANCE);
+                        creature->UpdateEntry(NPC_ARELAS_AN, ALLIANCE);
                     break;
                 case VEHICLE_ARGENT_WARHORSE:
                 case VEHICLE_ARGENT_BATTLEWORG:
@@ -276,7 +276,7 @@ public:
                         {
                             if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
                             {
-                                pAnnouncer->AI()->SetData(DATA_RESET,0);
+                                pAnnouncer->AI()->SetData(DATA_RESET, 0);
                                 m_auiEncounter[0] = uiData;
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -309,25 +309,25 @@ public:
                     {
                         if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                         {
-                            pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f, 619.487f, 411.171f);
+                            pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                             pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT,746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0,90000000);
+                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
                         }
                     }
                     break;
                 case DATA_AGGRO_DONE:
                     uiAgroDone = uiData;
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
-                    {                                     
+                    {
                         DoScriptText(SAY_START11, pAnnouncer);
-                        pAnnouncer->SetVisible(false);                  
+                        pAnnouncer->SetVisible(false);
                     }
                     break;
                 case DATA_AGRO_DONE:
                     uiAggroDone = uiData;
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {  
-                        pAnnouncer->SetVisible(false);                          
+                        pAnnouncer->SetVisible(false);
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:
@@ -341,9 +341,9 @@ public:
                     {
                         if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                         {
-                            pAnnouncer->GetMotionMaster()->MovePoint(0,748.309f, 619.487f, 411.171f);
+                            pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                             pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT,746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0,90000000);
+                            pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
                         }
                     }
                     break;
@@ -410,11 +410,11 @@ public:
             std::ostringstream saveStream;
 
             saveStream << "T C " << m_auiEncounter[0]
-                << " " << m_auiEncounter[1]
-                << " " << m_auiEncounter[2]
-                << " " << m_auiEncounter[3]
-                << " " << uiGrandChampionsDeaths
-                << " " << uiMovementDone;
+                       << " " << m_auiEncounter[1]
+                       << " " << m_auiEncounter[2]
+                       << " " << m_auiEncounter[3]
+                       << " " << uiGrandChampionsDeaths
+                       << " " << uiMovementDone;
 
             str_data = saveStream.str();
 
@@ -451,7 +451,9 @@ public:
 
                 uiGrandChampionsDeaths = data4;
                 uiMovementDone = data5;
-            } else OUT_LOAD_INST_DATA_FAIL;
+            }
+            else
+                OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
