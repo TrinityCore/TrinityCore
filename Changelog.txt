@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[68] --> Alternate script Gunship by fiveofeight.
 [67] --> Add Scripts/Trial Of The Champion.
 [66] --> Scripts/Headless Horseman: Cleanup.
 [65] --> [ICC][Lich King] Fix Val'kyr Shadowguard.
@@ -56,7 +57,7 @@
 [28] --> [ICC] Changes:
                 - Dark nucleus lose aggro without a reason.
                 - Svalna & Crok: add spell Divine Surge, try to fix position problem, misc...
-	           by Thainification.
+               by Thainification.
 [27] --> Fix player on transports.
 [26] --> Fix Pick Lock.
 [25] --> Fix pet not returning on target death by other player.

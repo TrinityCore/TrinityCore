@@ -111,6 +111,9 @@ enum DataTypes
     DATA_HIGHLORD_TIRION_FORDRING   = 37,
     DATA_ARTHAS_PLATFORM            = 38,
     DATA_TERENAS_MENETHIL           = 39,
+    DATA_FIRST_SQUAD_STATE          = 40,
+    DATA_SECOND_SQUAD_STATE         = 41,
+    DATA_SPIRE_FROSTWYRM_STATE      = 42,
 };
 
 enum CreaturesIds
@@ -163,6 +166,11 @@ enum CreaturesIds
     NPC_EMPOWERED_ADHERENT                      = 38136,
     NPC_REANIMATED_ADHERENT                     = 38010,
     NPC_VENGEFUL_SHADE                          = 38222,
+
+    // Ramparts
+    NPC_SPIRE_FROSTWYRM                         = 37230,
+    NPC_KORKRON_INVOKER                         = 37033,
+    NPC_SKYBREAKER_SORCERER                     = 37026,
 
     // Deathbringer Saurfang
     NPC_DEATHBRINGER_SAURFANG                   = 37813,
@@ -297,6 +305,16 @@ enum GameObjectsIds
     // Lady Deathwhisper
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
+
+    // Gunship Battle
+    GO_CAPITAN_CHEST_A_10N                  = 201872,
+    GO_CAPITAN_CHEST_A_10H                  = 201873,
+    GO_CAPITAN_CHEST_A_25N                  = 201874,
+    GO_CAPITAN_CHEST_A_25H                  = 201875,
+    GO_CAPITAN_CHEST_H_10N                  = 202177,
+    GO_CAPITAN_CHEST_H_10H                  = 202178,
+    GO_CAPITAN_CHEST_H_25N                  = 202180,
+    GO_CAPITAN_CHEST_H_25H                  = 202179,
 
     // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,
