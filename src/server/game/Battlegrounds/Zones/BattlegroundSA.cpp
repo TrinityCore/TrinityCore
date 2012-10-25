@@ -86,13 +86,13 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i < 6; i++)
         GateStatus[i] = BG_SA_GATE_OK;
 
-    for (uint8 i = 0; i < BG_SA_BOAT_ONE; i++)
+    for (uint8 i = 0; i <= BG_SA_PORTAL_DEFFENDER_RED; i++)
     {
         if (!AddObject(i, BG_SA_ObjEntries[i], BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1], BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
     }
 
-    for (uint8 i = BG_SA_BOAT_ONE; i < BG_SA_SIGIL_1; i++)
+    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
         uint32 boatid = 0;
         switch (i)
@@ -113,7 +113,7 @@ bool BattlegroundSA::ResetObjs()
             return false;
     }
 
-    for (uint8 i = BG_SA_SIGIL_1; i < BG_SA_CENTRAL_FLAG; i++)
+    for (uint8 i = BG_SA_SIGIL_1; i <= BG_SA_LEFT_FLAGPOLE; i++)
     {
         if (!AddObject(i, BG_SA_ObjEntries[i],
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
@@ -141,7 +141,7 @@ bool BattlegroundSA::ResetObjs()
     OverrideGunFaction();
     DemolisherStartState(true);
 
-    for (uint8 i = 0; i <= BG_SA_TITAN_RELIC; i++)
+    for (uint8 i = 0; i <= BG_SA_PORTAL_DEFFENDER_RED; i++)
     {
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
@@ -182,22 +182,13 @@ bool BattlegroundSA::ResetObjs()
     }
 
     //GY capture points
-    for (uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_PORTAL_DEFFENDER_BLUE; i++)
+    for (uint8 i = BG_SA_CENTRAL_FLAG; i <= BG_SA_LEFT_FLAG; i++)
     {
         AddObject(i, (BG_SA_ObjEntries[i] - (Attackers == TEAM_ALLIANCE ? 1 : 0)),
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0, 0, 0, 0, RESPAWN_ONE_DAY);
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
-    }
-
-    for (uint8 i = BG_SA_PORTAL_DEFFENDER_BLUE; i < BG_SA_BOMB; i++)
-    {
-        AddObject(i, BG_SA_ObjEntries[i],
-            BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
-            BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
-            0, 0, 0, 0, RESPAWN_ONE_DAY);
-        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
     }
 
     for (uint8 i = BG_SA_BOMB; i < BG_SA_MAXOBJ; i++)
@@ -657,7 +648,7 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
             }
 
             if (i < 5)
-                DelObject(i+9);
+                DelObject(i + 14);
             UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
             if (rewardHonor)
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
@@ -973,4 +964,3 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
         player->GetSession()->SendPacket(&packet);
     }
 }
-
