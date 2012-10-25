@@ -391,9 +391,10 @@ INSERT INTO `conditions`(`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeO
 (20,5502,8,925,'Show quest mark 5502 - Quest 925 needs to be rewarded');
 
 -- Home of the bear-men
-SET @GUID_GRIZZLEMAW_TRIGGER_1 = 3019842;
-SET @GUID_GRIZZLEMAW_TRIGGER_2 = 3019843;
-SET @GUID_GRIZZLEMAW_TRIGGER_3 = 3106167;
+SET @GUIDS = 85179;
+SET @GUID_GRIZZLEMAW_TRIGGER_1 = @GUIDS + 0;
+SET @GUID_GRIZZLEMAW_TRIGGER_2 = @GUIDS + 1;
+SET @GUID_GRIZZLEMAW_TRIGGER_3 = @GUIDS + 2;
 
 UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_grizzlemaw_cw_trigger',`flags_extra`=0 WHERE `entry`=36209;
 
@@ -404,7 +405,7 @@ INSERT INTO `creature`(`guid`,`id`,`map`,`position_x`,`position_y`,`position_z`)
 (@GUID_GRIZZLEMAW_TRIGGER_3,36209,571,3923.109,-3763.967,165.362);
 
 -- Elder Kekek
-SET @GUID_KEKEK = 3019845;
+SET @GUID_KEKEK = @GUIDS + 3;
 SET @TEXT_ELDER_KEKEK_1 = 1;
 
 UPDATE `creature_template` SET `ScriptName`='npc_elder_kekek' WHERE `entry`=34387;
@@ -429,7 +430,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`text`,`type`,`emote`) VALUE
 (27990,@TEXT_KRASUS_8,"Rest assured, Kekek, she is the queen of the dragons. We often take the forms of smaller beings when we work with them.",12,0);
 
 -- High Oracle Soo Roo
-SET @GUID_SOO_ROO = 3019824;
+SET @GUID_SOO_ROO = @GUIDS + 4;
 SET @TEXT_SOO_ROO_1 = 1;
 
 UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_high_oracle_soo_roo' WHERE `entry`=34386;
@@ -450,7 +451,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`text`,`type`,`emote`) VALUE
 (27986,@TEXT_NESINGWARY_1,"Well, lad, you can start by readin' The Green Hills of Stranglethorn. Then, maybe you can join me on one of my safaris. What do you say?",12,0);
 
 -- Snowfall Glade Playmate
-SET @GUID_SNOWFALL_GLADE_PLAYMATE = 3019844;
+SET @GUID_SNOWFALL_GLADE_PLAYMATE = @GUIDS + 5;
 SET @TEXT_SNOWFALL_GLADE_PLAYMATE_1 = 1;
 SET @TEXT_SNOWFALL_GLADE_PLAYMATE_2 = 2;
 
@@ -466,7 +467,7 @@ INSERT INTO `creature`(`guid`,`id`,`map`,`position_x`,`position_y`,`position_z`,
 (@GUID_SNOWFALL_GLADE_PLAYMATE,34490,571,3325.193,1026.451,138.1712,2.062184);
 
 -- Winterfin Playmate
-SET @GUID_WINTERFIN_PLAYMATE = 3019823;
+SET @GUID_WINTERFIN_PLAYMATE = @GUIDS + 6;
 SET @TEXT_WINTERFIN_PLAYMATE_1 = 1;
 SET @TEXT_WINTERFIN_PLAYMATE_2 = 2;
 
@@ -482,7 +483,7 @@ INSERT INTO `creature`(`guid`,`id`,`map`,`position_x`,`position_y`,`position_z`,
 (@GUID_WINTERFIN_PLAYMATE,34489,571,4382.502,6066.199,0.724562,3.571894);
 
 -- Biggest Tree Ever
-SET @GUID_BIGGEST_TREE_TRIGGER = 3019825;
+SET @GUID_BIGGEST_TREE_TRIGGER = @GUIDS + 7;
 
 UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_the_biggest_tree',`flags_extra`=0 WHERE `entry`=34381;
 
@@ -521,11 +522,11 @@ INSERT INTO `quest_poi_points`(`questId`,`x`,`y`) VALUES
 (13955,3530,271);
 
 -- NPC areatriggers
-SET @GUID_AERIS_LANDING_TRIGGER = 3019827;
-SET @GUID_SILVERMOON_TRIGGER_01 = 3019838;
-SET @GUID_AUCHINDOUN_TRIGGER = 3019828;
-SET @GUID_SPOREGGAR_TRIGGER = 3019829;
-SET @GUID_THRONE_OF_ELEMENTS_TRIGGER = 3019830;
+SET @GUID_AERIS_LANDING_TRIGGER = @GUIDS + 8;
+SET @GUID_SILVERMOON_TRIGGER_01 = @GUIDS + 9;
+SET @GUID_AUCHINDOUN_TRIGGER = @GUIDS + 10;
+SET @GUID_SPOREGGAR_TRIGGER = @GUIDS + 11;
+SET @GUID_THRONE_OF_ELEMENTS_TRIGGER = @GUIDS + 12;
 
 UPDATE `creature_template` SET `InhabitType`=7,`flags_extra`=0,`unit_flags`=33554432,`ScriptName`='npc_cw_area_trigger',`AIName`='' WHERE `entry` IN (22905,22851,22838,22866,22831,22829,22872,22839);
 
