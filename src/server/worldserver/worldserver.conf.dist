@@ -2662,6 +2662,15 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#    CustomArenaLogs
+#        Description: Use custom arena logs, done by gc only for website arena log purposes, doesnt effect anything ingame
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+CustomArenaLogs = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################

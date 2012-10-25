@@ -1217,6 +1217,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WINTERGRASP_NOBATTLETIME] = ConfigMgr::GetIntDefault("Wintergrasp.NoBattleTimer", 150);
     m_int_configs[CONFIG_WINTERGRASP_RESTART_AFTER_CRASH] = ConfigMgr::GetIntDefault("Wintergrasp.CrashRestartTimer", 10);
 
+    // custom arena logs just for webpage purposes
+    m_bool_configs[CONFIG_CUSTOM_ARENA_LOGS] = ConfigMgr::GetBoolDefault("CustomArenaLogs", false);
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
