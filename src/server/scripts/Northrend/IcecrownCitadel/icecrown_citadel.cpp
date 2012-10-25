@@ -601,9 +601,9 @@ class npc_rotting_frost_giant : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
-                _events.ScheduleEvent(EVENT_STOMP, urand(5000, 8000));
-                _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(10000, 15000));
+                _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_STOMP, urand(5*IN_MILLISECONDS, 8*IN_MILLISECONDS));
+                _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
             }
 
             void JustDied(Unit* /*killer*/)
@@ -626,21 +626,21 @@ class npc_rotting_frost_giant : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DEATH_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                             {
                                 Talk(EMOTE_DEATH_PLAGUE_WARNING, target->GetGUID());
                                 DoCast(target, SPELL_DEATH_PLAGUE);
                             }
-                            _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
+                            _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15*IN_MILLISECONDS);
                             break;
                         case EVENT_STOMP:
                             DoCastVictim(SPELL_STOMP);
-                            _events.ScheduleEvent(EVENT_STOMP, urand(15000, 18000));
-                            break;
+                            _events.ScheduleEvent(EVENT_STOMP, urand(15*IN_MILLISECONDS, 18*IN_MILLISECONDS));
+                            return;
                         case EVENT_ARCTIC_BREATH:
                             DoCastVictim(SPELL_ARCTIC_BREATH);
-                            _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(26000, 33000));
-                            break;
+                            _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(26*IN_MILLISECONDS, 33*IN_MILLISECONDS));
+                            return;
                         default:
                             break;
                     }
@@ -2150,6 +2150,7 @@ void AddSC_icecrown_citadel()
     new npc_frostwing_vrykul();
     new npc_impaling_spear();
     new npc_arthas_teleport_visual();
+
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
     new spell_frost_giant_death_plague();
@@ -2158,6 +2159,7 @@ void AddSC_icecrown_citadel()
     new spell_svalna_revive_champion();
     new spell_svalna_remove_spear();
     new spell_icc_soul_missile();
+
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
     new at_icc_start_blood_quickening();
