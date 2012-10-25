@@ -16,7 +16,6 @@
  */
 
 #include "ScriptPCH.h"
-#include "event.h"
 
 void AddSC_event_childrens_week();
 
