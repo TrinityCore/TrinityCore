@@ -404,7 +404,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     uint32 team = 0;
 
     recvData >> eventId >> inviteId >> name >> status >> rank;
-    if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
+    if (Player* player = sObjectAccessor->FindPlayerByName(name))
     {
         invitee = player->GetGUID();
         team = player->GetTeam();
