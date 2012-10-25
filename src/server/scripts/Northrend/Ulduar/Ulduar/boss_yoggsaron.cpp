@@ -1427,6 +1427,8 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                         SpawnClouds(false);
                         brainEventsCount = 0;
                         events.ScheduleEvent(EVENT_DESCENT_TO_MADNESS_BEGIN, 1.5*MINUTE*IN_MILLISECONDS, 0, newPhase);
+                        if (Creature* sara = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_SARA)))
+                            sara->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     case PHASE_YOGG:
                         if (Creature* sara = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_SARA)))

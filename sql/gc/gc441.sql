@@ -590,6 +590,9 @@ DELETE FROM `creature` WHERE `id`=33121;
 
 -- Auriaya Sanctum Sentries are spawned via scripts
 DELETE FROM `creature` WHERE `id`=34014;
+-- correct damage of Sanctum sentries and Feral Defender
+UPDATE `creature_template` SET `dmg_multiplier` = 7.5 WHERE `entry` IN (34035, 34014);
+UPDATE `creature_template` SET `dmg_multiplier` = 13 WHERE `entry` IN (34171, 34166);
 
 -- Thorim tunnel adds are spawned via scripts
 DELETE FROM `creature` WHERE `id` IN (33110, 32874, 32875);
@@ -1596,3 +1599,48 @@ INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `
 
 -- remove the ICC-wise buffs
 DELETE FROM `spell_area` WHERE `spell` IN (73822, 73828);
+
+####################
+-- Forge of Souls ##
+####################
+-- Unleashed Soul template correction
+UPDATE `creature_template` SET `difficulty_entry_1` = 37678, `mindmg` = 100, `maxdmg` = 200, `attackpower` = 642 WHERE `entry` = 36595;
+UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `exp` = 2, `faction_A` = 14, `faction_H` = 14, `speed_walk` = 1.11111, `speed_run` = 0.71429, `mindmg` = 100, `maxdmg` = 200, `attackpower` = 642, `dmg_multiplier` = 3, `baseattacktime` = 2000, `unit_flags` = 33554432, `dynamicflags` = 8 WHERE `entry` = 37678;
+
+-- Bronjahm texts
+DELETE FROM `script_texts` WHERE `npc_entry` = 36497;
+DELETE FROM `creature_text` WHERE `entry` = 36497;
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(36497, 0, 0, 'More souls to power the engine!', 14, 0, 100, 0, 0, 0, 'Bronjahm SAY_AGGRO_1'),
+(36497, 0, 1, 'Finally...a captive audience!', 14, 0, 100, 0, 0, 16595, 'Bronjahm SAY_AGGRO_2'),
+(36497, 1, 0, 'I will sever the soul from your body!', 14, 0, 100, 0, 0, 16600, 'Bronjahm SAY_CORRUPT_SOUL'),
+(36497, 2, 0, 'The vortex of the harvested calls to you!', 14, 0, 100, 0, 0, 16599, 'Bronjahm SAY_SOUL_STORM'),
+(36497, 3, 0, 'Another soul to strengthen the host!', 14, 0, 100, 0, 0, 16597, 'Bronjahm SAY_SLAY_1'),
+(36497, 3, 1, 'Fodder for the engine!', 14, 0, 100, 0, 0, 16596, 'Bronjahm SAY_SLAY_2'),
+(36497, 4, 0, 'My soul for you, master.', 14, 0, 100, 0, 0, 16598, 'Bronjahm SAY_DEATH');
+
+-- Devourer of Souls texts
+DELETE FROM `script_texts` WHERE `npc_entry` IN (36502, 38160, 38161);
+DELETE FROM `creature_text` WHERE `entry` IN (36502, 38160, 38161);
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(36502, 0, 0, 'You dare look upon the host of souls? I SHALL DEVOUR YOU WHOLE!', 14, 0, 100, 0, 0, 16884, 'Devourer of Souls SAY_FACE_ANGER_AGGRO'),
+(36502, 0, 1, 'You dare look upon the host of souls? I SHALL DEVOUR YOU WHOLE!', 14, 0, 100, 0, 0, 16890, 'Devourer of Souls SAY_FACE_DESIRE_AGGRO'),
+(36502, 1, 0, 'Damnation!', 14, 0, 100, 0, 0, 16885, 'Devourer of Souls SAY_FACE_ANGER_SLAY_1'),
+(36502, 1, 1, 'Doomed for eternity!', 14, 0, 100, 0, 0, 16886, 'Devourer of Souls SAY_FACE_ANGER_SLAY_2'),
+(36502, 2, 0, 'Damnation!', 14, 0, 100, 0, 0, 16896, 'Devourer of Souls SAY_FACE_SORROW_SLAY_1'),
+(36502, 2, 1, 'Doomed for eternity!', 14, 0, 100, 0, 0, 16897, 'Devourer of Souls SAY_FACE_SORROW_SLAY_2'),
+(36502, 3, 0, 'Damnation!', 14, 0, 100, 0, 0, 16891, 'Devourer of Souls SAY_FACE_DESIRE_SLAY_1'),
+(36502, 3, 1, 'Doomed for eternity!', 14, 0, 100, 0, 0, 16892, 'Devourer of Souls SAY_FACE_DESIRE_SLAY_2'),
+(36502, 4, 0, 'The swell of souls will not be abated! You only delay the inevitable!', 14, 0, 100, 0, 0, 16887, 'Devourer of Souls SAY_FACE_ANGER_DEATH'),
+(36502, 4, 1, 'The swell of souls will not be abated! You only delay the inevitable!', 14, 0, 100, 0, 0, 16898, 'Devourer of Souls SAY_FACE_SORROW_DEATH'),
+(36502, 4, 2, 'The swell of souls will not be abated! You only delay the inevitable!', 14, 0, 100, 0, 0, 16893, 'Devourer of Souls SAY_FACE_DESIRE_DEATH'),
+(36502, 5, 0, 'Devourer of Souls begins to cast Mirrored Soul!', 41, 0, 100, 0, 0, 0, 'Devourer of Souls EMOTE_MIRRORED_SOUL'),
+(36502, 6, 0, 'Devourer of Souls begins to Unleash Souls!', 41, 0, 100, 0, 0, 0, 'Devourer of Souls EMOTE_UNLEASH_SOUL'),
+(36502, 7, 0, 'SUFFERING! ANGUISH! CHAOS! RISE AND FEED!', 14, 0, 100, 0, 0, 16888, 'Devourer of Souls SAY_FACE_ANGER_UNLEASH_SOUL'),
+(36502, 7, 1, 'SUFFERING! ANGUISH! CHAOS! RISE AND FEED!', 14, 0, 100, 0, 0, 16899, 'Devourer of Souls SAY_FACE_SORROW_UNLEASH_SOUL'),
+(36502, 7, 2, 'SUFFERING! ANGUISH! CHAOS! RISE AND FEED!', 14, 0, 100, 0, 0, 16894, 'Devourer of Souls SAY_FACE_DESIRE_UNLEASH_SOUL'),
+(36502, 8, 0, 'Devourer of Souls begins to cast Wailing Souls!', 41, 0, 100, 0, 0, 0, 'Devourer of Souls EMOTE_WAILING_SOUL'),
+(36502, 9, 0, 'Stare into the abyss, and see your end!', 14, 0, 100, 0, 0, 16889, 'Devourer of Souls SAY_FACE_ANGER_WAILING_SOUL'),
+(36502, 9, 1, 'Stare into the abyss, and see your end!', 14, 0, 100, 0, 0, 16895, 'Devourer of Souls SAY_FACE_DESIRE_WAILING_SOUL'),
+(38160, 0, 0, 'Excellent work, champions! We shall set up our base camp in these chambers. My mages will get the Scourge transport device working shortly. Step inside it when you are ready for your next mission. I will meet you on the other side.', 14, 0, 100, 0, 0, 16625, 'Jaina SAY_JAINA_OUTRO'),
+(38161, 0, 0, 'Excellent work, champions! We shall set up our base camp in these chambers. My mages will get the Scourge transport device working shortly. Step inside it when you are ready for your next mission. I will meet you on the other side.', 14, 0, 100, 0, 0, 17044, 'Sylvanas SAY_SYLVANAS_OUTRO');
