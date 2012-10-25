@@ -74,12 +74,11 @@ class HashMapHolder
         static LockType* GetLock() { return &i_lock; }
 
     private:
-
         //Non instanceable only static
         HashMapHolder() {}
 
         static LockType i_lock;
-        static MapType  m_objectMap;
+        static MapType m_objectMap;
 };
 
 class ObjectAccessor
@@ -120,9 +119,7 @@ class ObjectAccessor
         static Player* GetObjectInWorld(uint64 guid, Player* /*typeSpecifier*/)
         {
             Player* player = HashMapHolder<Player>::Find(guid);
-            if (player && player->IsInWorld())
-                return player;
-            return NULL;
+            return player && player->IsInWorld() ? player : NULL;
         }
 
         static Unit* GetObjectInWorld(uint64 guid, Unit* /*typeSpecifier*/)
@@ -193,7 +190,7 @@ class ObjectAccessor
         static Player* FindPlayer(uint64);
         static Creature* FindCreature(uint64);
         static Unit* FindUnit(uint64);
-        static Player* FindPlayerByName(const char* name);
+        static Player* FindPlayerByName(std::string const& name);
 
         // when using this, you must use the hashmapholder's lock
         static HashMapHolder<Player>::MapType const& GetPlayers()

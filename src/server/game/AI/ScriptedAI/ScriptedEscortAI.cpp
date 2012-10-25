@@ -438,7 +438,7 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
 
     if (WaypointList.empty())
     {
-        sLog->outError(LOG_FILTER_SQL, "TSCR: EscortAI (script: %s, creature entry: %u) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).",
+        sLog->outError(LOG_FILTER_TSCR, "EscortAI (script: %s, creature entry: %u) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).",
             me->GetScriptName().c_str(), me->GetEntry(), quest ? quest->GetQuestId() : 0);
         return;
     }

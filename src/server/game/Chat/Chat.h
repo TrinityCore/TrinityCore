@@ -128,7 +128,7 @@ class ChatHandler
     protected:
         explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) {}      // for CLI subclass
         static bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand);
-        bool ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcmd);
+        bool ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd, char const* subcmd);
 
     private:

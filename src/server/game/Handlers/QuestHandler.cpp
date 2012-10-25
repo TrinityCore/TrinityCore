@@ -289,7 +289,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
 
     if (reward >= QUEST_REWARD_CHOICES_COUNT)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", _player->GetName(), _player->GetGUIDLow(), reward);
+        sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", _player->GetName().c_str(), _player->GetGUIDLow(), reward);
         return;
     }
 
@@ -309,7 +309,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
             (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete()))
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "HACK ALERT: Player %s (guid: %u) is trying to complete quest (id: %u) but he has no right to do it!",
-                           _player->GetName(), _player->GetGUIDLow(), questId);
+                           _player->GetName().c_str(), _player->GetGUIDLow(), questId);
             return;
         }
         if (_player->CanRewardQuest(quest, reward, true))
@@ -501,7 +501,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
         if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [guid: %u] tried to complete quest [entry: %u] without being in possession of the quest!",
-                          _player->GetName(), _player->GetGUIDLow(), questId);
+                          _player->GetName().c_str(), _player->GetGUIDLow(), questId);
             return;
         }
         // TODO: need a virtual function
