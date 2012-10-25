@@ -31,8 +31,8 @@ enum Yells
     SAY_PLAYER_DEATH            = 4,
     SAY_DEATH                   = 5,
 
-    // Head of the Horseman
-    SAY_LOST_HEAD               = 0
+	// Head of the Horseman
+    SAY_LOST_HEAD               = 0,
 };
 
 enum Actions
@@ -46,11 +46,13 @@ enum Entries
     NPC_PULSING_PUMPKIN         = 23694,
     NPC_PUMPKIN_FIEND           = 23545,
     NPC_SIR_THOMAS              = 23904,
+    PUMPKIN_FIEND               = 23545,
     GO_PUMPKIN_SHRINE           = 186267
 };
 
 enum Spells
 {
+    // Horseman Body
     SPELL_SUMMON_PUMPKIN        = 52236,
     SPELL_IMMUNED               = 42556,
     SPELL_BODY_REGEN            = 42403,
@@ -61,11 +63,24 @@ enum Spells
     SPELL_CONFLAGRATION         = 42380,
     SPELL_BURNING               = 42971,
 
+    // Horseman Head
     SPELL_FLYING_HEAD           = 42399,
-    SPELL_HEAD                  = 42413,
+	SPELL_HEAD                  = 42413,
     SPELL_HEAD_LANDS            = 42400,
  // SPELL_CREATE_PUMPKIN_TREATS = 42754,
-    SPELL_RHYME_BIG             = 42909
+    SPELL_EARTHQUKE             = 42909,
+
+    // Pumpkin Fiend
+    SPELL_PUMPKIN_AURA          = 42280,
+    SPELL_PUMPKIN_AURA_GREEN    = 42294,
+    SPELL_SQUASH_SOUL           = 42514,
+    SPELL_SPROUTING             = 42281,
+    SPELL_SPROUT_BODY           = 42285,
+
+    // Effects
+    SPELL_WISP_BLUE             = 42821,
+    SPELL_WISP_FLIGHT_PORT      = 42818,
+    SPELL_SMOKE                 = 42355,
 };
 
 uint32 randomLaugh[]            = {11965, 11975, 11976};
@@ -80,14 +95,6 @@ static Position flightPos[]=
     {1777.449f, 1364.652f, 25.1f, 2.911f},
     {1770.126f, 1361.402f, 20.7f, 4.093f},
     {1772.743f, 1354.941f, 18.4f, 5.841f}
-};
-
-static const char* Text[]=
-{
-    "Horseman rise...",
-    "Your time is nigh...",
-    "You felt death once...",
-    "Now, know demise!"
 };
 
 #define GOSSIP_OPTION "Call the Headless Horseman."
@@ -124,7 +131,7 @@ class boss_headless_horseman : public CreatureScript
                 _introTimer = 1*IN_MILLISECONDS;
                 _laughTimer = 7*IN_MILLISECONDS;
                 _cleaveTimer = 3*IN_MILLISECONDS;
-                _summonTimer = 1*IN_MILLISECONDS;
+                _summonTimer = 6*IN_MILLISECONDS;
                 _conflagTimer = 4*IN_MILLISECONDS;
 
                 me->SummonGameObject(GO_PUMPKIN_SHRINE, 1776.27f, 1348.74f, 20.4116f, 0, 0, 0, 0.00518764f, -0.999987f, 0);
@@ -168,10 +175,7 @@ class boss_headless_horseman : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
-                _summons.Summon(summon);
-                summon->SetInCombatWithZone();
-
-                // Talk(SAY_SPROUTING_PUMPKINS);
+                _summons.Summon(summon);                    
             }
 
             void JustDied(Unit* /*killer*/)
@@ -179,7 +183,7 @@ class boss_headless_horseman : public CreatureScript
                 Talk(SAY_DEATH);
                 _summons.DespawnAll();
 
-                Map::PlayerList const& players = me->GetMap()->GetPlayers();
+			    Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
                     for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                         if (Player* player = i->getSource())
@@ -256,29 +260,11 @@ class boss_headless_horseman : public CreatureScript
 
                 if (_phase == 0)
                 {
-                    if (_introTimer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        {
-                            if (_introCount < 3)
-                                target->ToPlayer()->Say(Text[_introCount], 0);
-                            else
-                            {
-                                DoCast(me, SPELL_RHYME_BIG, true);
-                                target->ToPlayer()->Say(Text[_introCount], 0);
-                                target->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
-                                _phase = 1;
-                                _wpReached = true;
-                                me->SetVisible(true);
-                                Talk(SAY_ENTRANCE);
-                            }
-                        }
-                        _introTimer = 3*IN_MILLISECONDS;
-                        ++_introCount;
-                    }
-                    else
-                        _introTimer -= diff;
-
+                    _phase = 1;
+                    _wpReached = true;
+                    me->SetVisible(true);
+                    Talk(SAY_ENTRANCE);
+                    DoCast(me, SPELL_EARTHQUKE);
                     return;
                 }
 
@@ -335,7 +321,8 @@ class boss_headless_horseman : public CreatureScript
                         if (_conflagTimer <= diff)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
-                                DoCast(target, SPELL_CONFLAGRATION);
+                                DoCast(target, SPELL_CONFLAGRATION, true);
+                                Talk(SAY_CONFLAGRATION);
                             _conflagTimer = urand(8, 12) *IN_MILLISECONDS;
                         }
                         else
@@ -344,13 +331,12 @@ class boss_headless_horseman : public CreatureScript
                     case 3:
                         if (_summonTimer <= diff)
                         {
-                            //DoCast(me, SPELL_SUMMON_PUMPKIN, true);
+                            DoCast(me, SPELL_SUMMON_PUMPKIN, false);
+                            Talk(SAY_SPROUTING_PUMPKINS);
                             _summonTimer = 15*IN_MILLISECONDS;
                         }
                         else
                             _summonTimer -= diff;
-                        break;
-                    default:
                         break;
                 }
 
@@ -413,15 +399,9 @@ class npc_horseman_head : public CreatureScript
 
                 switch (_phase)
                 {
-                    case 1:
-                        healthPct = 66;
-                        break;
-                    case 2:
-                        healthPct = 33;
-                        break;
-                    default:
-                        healthPct = 1;
-                        break;
+                    case 1: healthPct = 66; break;
+                    case 2: healthPct = 33; break;
+                    default: healthPct = 1; break;
                 }
 
                 if (me->HealthBelowPctDamaged(healthPct, damage) || damage >= me->GetHealth())
@@ -451,6 +431,82 @@ class npc_horseman_head : public CreatureScript
         {
             return new npc_horseman_headAI(creature);
         }
+};
+
+class mob_pulsing_pumpkin : public CreatureScript
+{
+public:
+    mob_pulsing_pumpkin() : CreatureScript("mob_pulsing_pumpkin") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_pulsing_pumpkinAI (creature);
+    }
+
+    struct mob_pulsing_pumpkinAI : public ScriptedAI
+    {
+        mob_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) 
+        {
+        }
+
+        bool sprouted;
+        uint64 debuffGUID;
+
+        void Reset()
+        {
+            sprouted = false;
+            DoCast(me, SPELL_PUMPKIN_AURA_GREEN, false);
+            DoCast(me, SPELL_PUMPKIN_AURA, true);
+            DoCast(me, SPELL_SPROUTING, false);
+            sprouted = false;
+        }
+
+        void EnterCombat(Unit* /*who*/) {}
+
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+        {
+            if (spell->Id == SPELL_SPROUTING)
+            {
+                sprouted = true;
+                me->RemoveAllAuras();
+                DoCast(me, SPELL_SPROUT_BODY, true);
+                if (Unit* unit = me->SelectNearestTarget())
+	                AttackStart(unit);
+                me->UpdateEntry(PUMPKIN_FIEND);
+            }
+        }
+
+        void Despawn()
+        {
+            if (!debuffGUID)
+                return;
+
+            Unit* debuff = Unit::GetUnit(*me, debuffGUID);
+            if (debuff)
+            {
+                debuff->SetVisible(false);
+                debuffGUID = 0;
+            }
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (!sprouted)
+                Despawn();
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            if (!who || !me->IsValidAttackTarget(who) || me->getVictim())
+                return;
+        }
+
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            if (sprouted && UpdateVictim())
+                DoMeleeAttackIfReady();
+        }
+    };
 };
 
 class go_pumpkin_shrine : public GameObjectScript
@@ -490,5 +546,6 @@ void AddSC_boss_headless_horseman()
 {
     new boss_headless_horseman();
     new npc_horseman_head();
+    new mob_pulsing_pumpkin();
     new go_pumpkin_shrine();
 }

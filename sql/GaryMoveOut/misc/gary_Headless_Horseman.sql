@@ -5,7 +5,6 @@ DELETE FROM `gameobject_questrelation` WHERE `id`=186267;
 -- Scriptnames
 UPDATE `gameobject_template` SET `ScriptName`='go_pumpkin_shrine' WHERE `entry`=186267;
 UPDATE `creature_template` SET `ScriptName`='npc_horseman_head' WHERE `entry`=23775;
-UPDATE `creature_template` SET `ScriptName`='' WHERE `entry` IN (23686, 24034, 23694); -- temp?
 
 -- Headless Horseman Climax - Heal Body conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=43306;
