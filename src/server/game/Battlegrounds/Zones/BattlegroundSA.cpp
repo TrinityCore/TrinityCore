@@ -648,7 +648,7 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
             }
 
             if (i < 5)
-                DelObject(i+9);
+                DelObject(i + 14);
             UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
             if (rewardHonor)
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
