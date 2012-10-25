@@ -1,4 +1,4 @@
-﻿-- Orphan Matron Aria
+-- Orphan Matron Aria
 UPDATE `creature_template` SET `AIName`='SmartAI',`ScriptName`='' WHERE `entry`=34365;
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=34365 AND `source_type`=0;
