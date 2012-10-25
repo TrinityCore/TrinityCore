@@ -1385,11 +1385,19 @@ void LFGMgr::UpdateBoot(uint64 guid, bool accept)
 */
 void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*/)
 {
-    Group* grp = player->GetGroup();
-    uint64 gguid = grp->GetGUID();
-    LFGDungeonData const* dungeon = GetLFGDungeon(GetDungeon(gguid));
+    LFGDungeonData const* dungeon = NULL;
+    Group* group = player->GetGroup();
+
+    if (group && group->isLFGGroup())
+        dungeon = GetLFGDungeon(GetDungeon(group->GetGUID()));
+
     if (!dungeon)
+    {
+        sLog->outDebug(LOG_FILTER_LFG, "TeleportPlayer: Player %s not in group/lfggroup or dungeon not found!",
+            player->GetName().c_str());
+		player->GetSession()->SendLfgTeleportError(uint8(LFG_TELEPORTERROR_INVALID_LOCATION));
         return;
+	}
 
     if (out)
     {
@@ -1406,9 +1414,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
 
     LfgTeleportError error = LFG_TELEPORTERROR_OK;
 
-    if (!grp || !grp->isLFGGroup())                        // should never happen, but just in case...
-        error = LFG_TELEPORTERROR_INVALID_LOCATION;
-    else if (!player->isAlive())
+    if (!player->isAlive())
         error = LFG_TELEPORTERROR_PLAYER_DEAD;
     else if (player->IsFalling() || player->HasUnitState(UNIT_STATE_JUMPING))
         error = LFG_TELEPORTERROR_FALLING;
@@ -1429,7 +1435,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         if (!fromOpcode)
         {
             // Select a player inside to be teleported to
-            for (GroupReference* itr = grp->GetFirstMember(); itr != NULL && !mapid; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL && !mapid; itr = itr->next())
             {
                 Player* plrg = itr->getSource();
                 if (plrg && plrg != player && plrg->GetMapId() == uint32(dungeon->map))
@@ -1439,6 +1445,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
                     y = plrg->GetPositionY();
                     z = plrg->GetPositionZ();
                     orientation = plrg->GetOrientation();
+                    break;
                 }
             }
         }
