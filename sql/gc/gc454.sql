@@ -1456,6 +1456,11 @@ UPDATE `quest_template` SET `RewardItemId1` = 47241, `RewardItemId2` = 0, `Rewar
 -- Tainted Helboar Meat should not have quest dependency
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` =100 WHERE `item` = 23270 AND `entry` IN(16992, 16879, 16863, 16880);
 
+-- correct arena queues
+DELETE FROM `battleground_template` WHERE `id` = 6;
+INSERT INTO `battleground_template` (`id`, `MinPlayersPerTeam`, `MaxPlayersPerTeam`, `MinLvl`, `MaxLvl`, `AllianceStartLoc`, `AllianceStartO`, `HordeStartLoc`, `HordeStartO`, `StartMaxDist`, `Weight`, `ScriptName`, `Comment`) VALUES
+(6, 0, 2, 10, 80, 0, 0, 0, 0, 0, 1, "", "All Arena");
+
 #######################
 -- HEADLESS HORSEMAN ##
 #######################
