@@ -169,7 +169,6 @@ public:
 
         void Cleanup();
     };
-
 };
 
 class boss_malchezaar : public CreatureScript
@@ -314,14 +313,14 @@ public:
             if (!info)
                 return;
 
-            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
             std::vector<Unit*> targets;
 
             if (t_list.empty())
                 return;
 
             //begin + 1, so we don't target the one with the highest threat
-            std::list<HostileReference*>::const_iterator itr = t_list.begin();
+            ThreatContainer::StorageType::const_iterator itr = t_list.begin();
             std::advance(itr, 1);
             for (; itr != t_list.end(); ++itr) //store the threat list in a different container
                 if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
@@ -483,14 +482,12 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_SUNDER_ARMOR);
                     SunderArmorTimer = urand(10000, 18000);
-
                 } else SunderArmorTimer -= diff;
 
                 if (Cleave_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_CLEAVE);
                     Cleave_Timer = urand(6000, 12000);
-
                 } else Cleave_Timer -= diff;
             }
             else
@@ -602,15 +599,14 @@ public:
             positions.push_back(point);
         }
     };
-
 };
 
 void netherspite_infernal::netherspite_infernalAI::Cleanup()
 {
-    Unit* pMalchezaar = Unit::GetUnit(*me, malchezaar);
+    Creature *pMalchezaar = Unit::GetCreature(*me, malchezaar);
 
     if (pMalchezaar && pMalchezaar->isAlive())
-        CAST_AI(boss_malchezaar::boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(me, point);
+        CAST_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);
 }
 
 void AddSC_boss_malchezaar()

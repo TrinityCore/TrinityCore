@@ -46,9 +46,9 @@ EndScriptData */
 #define SOUND_AKAMA_LEAVE     11390
 
 // Self explanatory
-const char*  SAY_KILL1        = "Who shall be next to taste my blades?!";
+char const*  SAY_KILL1        = "Who shall be next to taste my blades?!";
 #define SOUND_KILL1           11473
-const char*  SAY_KILL2        = "This is too easy!";
+char const*  SAY_KILL2        = "This is too easy!";
 #define SOUND_KILL2           11472
 
 // I think I'll fly now and let my subordinates take you on
@@ -254,7 +254,6 @@ struct Yells
 };
 
 static const Yells Conversation[22] =
-
 {
     {11463, "Akama... your duplicity is hardly surprising. I should have slaughtered you and your malformed brethren long ago.", ILLIDAN_STORMRAGE, 8000, 0, true},
     {0,     "", ILLIDAN_STORMRAGE, 5000, 396, true},
@@ -464,7 +463,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /************************************** Illidan's AI* **************************************/
@@ -614,7 +612,8 @@ public:
 
         void DeleteFromThreatList(uint64 TargetGUID)
         {
-            for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
+            ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
             {
                 if ((*itr)->getUnitGuid() == TargetGUID)
                 {
@@ -1151,7 +1150,6 @@ public:
             }
         }
     };
-
 };
 
 /********************************** End of Illidan AI* *****************************************/
@@ -1378,7 +1376,6 @@ public:
                     DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_akama_illidan : public CreatureScript
@@ -1491,9 +1488,9 @@ public:
 
         void KillAllElites()
         {
-            std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const &threatList = me->getThreatManager().getThreatList();
             std::vector<Unit*> eliteList;
-            for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+            for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
             {
                 Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->GetEntry() == ILLIDARI_ELITE)
@@ -1649,7 +1646,8 @@ public:
 
         void HandleChannelSequence()
         {
-            Unit* Channel = NULL, *Spirit[2] = { NULL, NULL };
+            Unit* Channel = NULL;
+            Unit* Spirit[2] = { NULL, NULL };
             if (ChannelCount <= 5)
             {
                 Channel = Unit::GetUnit(*me, ChannelGUID);
@@ -1840,7 +1838,6 @@ public:
     {
         return new npc_akama_illidanAI(creature);
     }
-
 };
 
 void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
@@ -2000,7 +1997,6 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
                 Akama->SetPosition(x, y, z, 0.0f);
                 Akama->MonsterMoveWithSpeed(x, y, z, 0); // Illidan must not die until Akama arrives.
                 Akama->GetMotionMaster()->MoveChase(me);
-
             }
         }
         break;
@@ -2194,7 +2190,6 @@ public:
                 me->SetDisplayId(21431);// appear when hit by Illidan's glaive
         }
     };
-
 };
 
 class mob_parasitic_shadowfiend : public CreatureScript
