@@ -59,7 +59,8 @@ enum Yells
     SAY_REQUEST_AID                                        = -1533103, //start of phase 3
     SAY_ANSWER_REQUEST                                     = -1533104  //lich king answer
 };
-enum Event
+
+enum Events
 {
     EVENT_NONE,
     EVENT_BOLT,
@@ -607,13 +608,17 @@ public:
                         case EVENT_DETONATE:
                         {
                             std::vector<Unit*> unitList;
-                            std::list<HostileReference*> *threatList = &me->getThreatManager().getThreatList();
-                            for (std::list<HostileReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
+                            ThreatContainer::StorageType const &threatList = me->getThreatManager().getThreatList();
+                            for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                             {
-                                if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
-                                    && (*itr)->getTarget()->getPowerType() == POWER_MANA
-                                    && (*itr)->getTarget()->GetPower(POWER_MANA))
-                                    unitList.push_back((*itr)->getTarget());
+                                Unit * const target = (*itr)->getTarget();
+
+                                if (target->GetTypeId() == TYPEID_PLAYER
+                                        && target->getPowerType() == POWER_MANA
+                                        && target->GetPower(POWER_MANA))
+                                {
+                                    unitList.push_back(target);
+                                }
                             }
 
                             if (!unitList.empty())
@@ -654,7 +659,6 @@ public:
     {
         return new boss_kelthuzadAI (creature);
     }
-
 };
 
 class at_kelthuzad_center : public AreaTriggerScript
