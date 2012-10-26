@@ -5658,7 +5658,7 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
 	};
 	uint8 CCDArraySize = 7;
 
-    const uint32 delayForInstantSpells = 126;
+    const uint32 delayForInstantSpells = 129;
     const uint32 delayForInstantSpells2 = 50;
     const uint32 delayForInstantSpells3 = 160;
     const uint32 delayForInstantSpells4 = 230;

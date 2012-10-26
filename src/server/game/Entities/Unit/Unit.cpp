@@ -590,8 +590,6 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
     return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM, excludeAura));
 }
 
@@ -851,6 +849,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             he->duel->opponent->CombatStopWithPets(true);
             he->CombatStopWithPets(true);
 
+            he->duel->opponent->CastSpell(he->duel->opponent, 17683, true);                  // beg
             he->CastSpell(he, 7267, true);                  // beg
             he->DuelComplete(DUEL_WON);
         }
@@ -1549,7 +1548,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
         if (victim->getLevel() < 60)
             maxArmorPen = float(400 + 85 * victim->getLevel());
         else
-            maxArmorPen = 400 + 85 * victim->getLevel() + 4.5f * 85 * (victim->getLevel() - 59);
+            maxArmorPen = 2000 + 85 * victim->getLevel() + 4.5f * 85 * (victim->getLevel() - 59);
 
         // Cap armor penetration to this number
         maxArmorPen = std::min((armor + maxArmorPen) / 3, armor);
@@ -8050,22 +8049,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
             }
             break;
         }
-        case SPELLFAMILY_SHAMAN:
-        {
-            switch (dummySpell->Id)
-            {
-                // Grounding Totem
-                case 8178:
-                {
-                    *handled = true;
-                    // uncomment it when we will implement proc from taken non-damaging spells
-                    /*if (victim != this)
-                        return true;*/
-                    break;
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_MAGE:
         {
             // Combustion
@@ -10981,6 +10964,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 case 64844: // Divine Hymn
                 case 71607: // Item - Bauble of True Blood 10m
                 case 71646: // Item - Bauble of True Blood 25m
+                case 60526: // Item - Living Ice Crystal
                     break;
                 default:
                     return false;
@@ -17819,7 +17803,7 @@ void Unit::SendMovementHover()
     WorldPacket data(MSG_MOVE_HOVER, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, true);
+    SendMessageToSet(&data, false);
 }
 
 void Unit::SendMovementWaterWalking()
@@ -17830,7 +17814,7 @@ void Unit::SendMovementWaterWalking()
     WorldPacket data(MSG_MOVE_WATER_WALK, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, true);
+    SendMessageToSet(&data, false);
 }
 
 void Unit::SendMovementFeatherFall()
@@ -17841,7 +17825,7 @@ void Unit::SendMovementFeatherFall()
     WorldPacket data(MSG_MOVE_FEATHER_FALL, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, true);
+    SendMessageToSet(&data, false);
 }
 
 void Unit::SendMovementGravityChange()
@@ -17849,7 +17833,7 @@ void Unit::SendMovementGravityChange()
     WorldPacket data(MSG_MOVE_GRAVITY_CHNG, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, true);
+    SendMessageToSet(&data, false);
 }
 
 void Unit::SendMovementCanFlyChange()
@@ -17874,7 +17858,7 @@ void Unit::SendMovementCanFlyChange()
     WorldPacket data(MSG_MOVE_UPDATE_CAN_FLY, 64);
     data.append(GetPackGUID());
     BuildMovementPacket(&data);
-    SendMessageToSet(&data, true);
+    SendMessageToSet(&data, false);
 }
 
 void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
