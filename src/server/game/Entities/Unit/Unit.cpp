@@ -8050,6 +8050,22 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
             }
             break;
         }
+        case SPELLFAMILY_SHAMAN:
+        {
+            switch (dummySpell->Id)
+            {
+                // Grounding Totem
+                case 8178:
+                {
+                    *handled = true;
+                    // uncomment it when we will implement proc from taken non-damaging spells
+                    /*if (victim != this)
+                        return true;*/
+                    break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_MAGE:
         {
             // Combustion
@@ -16996,9 +17012,21 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
 {
     switch (getRace())
     {
-         // Alliance
-        case RACE_HUMAN:
-        case RACE_GNOME:
+        case RACE_ORC:
+        {
+            switch (totemType)
+            {
+                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                    return 30758;
+                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                    return 30757;
+                case SUMMON_TYPE_TOTEM_WATER:   // water
+                    return 30759;
+                case SUMMON_TYPE_TOTEM_AIR:     // air
+                    return 30756;
+            }
+            break;
+        }
         case RACE_DWARF:
         {
             switch (totemType)
@@ -17014,36 +17042,18 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
             }
             break;
         }
-        case RACE_NIGHTELF:
-        case RACE_DRAENEI:
+        case RACE_TROLL:
         {
             switch (totemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
-                    return 19074;
+                    return 30762;
                 case SUMMON_TYPE_TOTEM_EARTH:   // earth
-                    return 19073;
+                    return 30761;
                 case SUMMON_TYPE_TOTEM_WATER:   // water
-                    return 19075;
+                    return 30763;
                 case SUMMON_TYPE_TOTEM_AIR:     // air
-                    return 19071;
-            }
-            break;
-        }
-         //Horde
-        case RACE_ORC:
-        case RACE_UNDEAD_PLAYER:
-        {
-            switch (totemType)
-            {
-                case SUMMON_TYPE_TOTEM_FIRE:    // fire
-                    return 30758;
-                case SUMMON_TYPE_TOTEM_EARTH:   // earth
-                    return 30757;
-                case SUMMON_TYPE_TOTEM_WATER:   // water
-                    return 30759;
-                case SUMMON_TYPE_TOTEM_AIR:     // air
-                    return 30756;
+                    return 30760;
             }
             break;
         }
@@ -17062,19 +17072,18 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
             }
             break;
         }
-        case RACE_TROLL:
-        case RACE_BLOODELF:
+        case RACE_DRAENEI:
         {
             switch (totemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
-                    return 30762;
+                    return 19074;
                 case SUMMON_TYPE_TOTEM_EARTH:   // earth
-                    return 30761;
+                    return 19073;
                 case SUMMON_TYPE_TOTEM_WATER:   // water
-                    return 30763;
+                    return 19075;
                 case SUMMON_TYPE_TOTEM_AIR:     // air
-                    return 30760;
+                    return 19071;
             }
             break;
         }
