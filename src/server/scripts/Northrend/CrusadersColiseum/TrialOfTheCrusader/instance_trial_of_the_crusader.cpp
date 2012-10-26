@@ -32,29 +32,40 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             void Initialize()
             {
                 SetBossNumber(MAX_ENCOUNTERS);
-
                 TrialCounter = 50;
                 EventStage = 0;
-
-                TirionFordringGUID = 0;
-
-                TributeChestGUID = 0;
-
-                MainGateDoorGUID = 0;
-                EastPortcullisGUID = 0;
-                WebDoorGUID = 0;
-
                 NorthrendBeasts = NOT_STARTED;
-
                 EventTimer = 1000;
-
                 NotOneButTwoJormungarsTimer = 0;
                 ResilienceWillFixItTimer = 0;
                 SnoboldCount = 0;
                 MistressOfPainCount = 0;
                 TributeToImmortalityElegible = true;
-
                 NeedSave = false;
+                EventNPCId = 0;
+
+                TirionFordringGUID = 0;
+                BarrentGUID = 0;
+                TirionGUID = 0;
+                FizzlebangGUID = 0;
+                GarroshGUID = 0;
+                VarianGUID = 0;
+                GormokGUID = 0;
+                AcidmawGUID = 0;
+                DreadscaleGUID = 0;
+                IcehowlGUID = 0;
+                JaraxxusGUID = 0;
+                ChampionsControllerGUID = 0;
+                DarkbaneGUID = 0;
+                LightbaneGUID = 0;
+                AnubarakGUID = 0;
+
+                TributeChestGUID = 0;
+                MainGateDoorGUID = 0;
+                EastPortcullisGUID = 0;
+                WebDoorGUID = 0;
+                CrusadersCacheGUID = 0;
+                FloorGUID = 0;
             }
 
             bool IsEncounterInProgress() const
@@ -721,14 +732,14 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 return false;
             }
 
-            private:
+            protected:
                 uint32 TrialCounter;
                 uint32 EventStage;
                 uint32 EventTimer;
                 uint32 EventNPCId;
                 uint32 NorthrendBeasts;
-                std::string SaveDataBuffer;
                 bool   NeedSave;
+                std::string SaveDataBuffer;
 
                 uint64 BarrentGUID;
                 uint64 TirionGUID;
@@ -749,9 +760,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 uint64 CrusadersCacheGUID;
                 uint64 FloorGUID;
-
                 uint64 TributeChestGUID;
-
                 uint64 MainGateDoorGUID;
                 uint64 EastPortcullisGUID;
                 uint64 WebDoorGUID;

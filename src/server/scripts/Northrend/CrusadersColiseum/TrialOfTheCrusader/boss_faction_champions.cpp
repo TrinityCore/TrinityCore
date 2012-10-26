@@ -48,17 +48,17 @@ class boss_toc_champion_controller : public CreatureScript
 
         struct boss_toc_champion_controllerAI : public ScriptedAI
         {
-            boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+            boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
-                instance = creature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
             {
-                m_uiChampionsNotStarted = 0;
-                m_uiChampionsFailed = 0;
-                m_uiChampionsKilled = 0;
-                m_bInProgress = false;
+                _championsNotStarted = 0;
+                _championsFailed = 0;
+                _championsKilled = 0;
+                _inProgress = false;
             }
 
             std::vector<uint32> SelectChampions(Team playerTeam)
@@ -80,7 +80,7 @@ class boss_toc_champion_controller : public CreatureScript
                 vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
 
                 uint8 healersSubtracted = 2;
-                if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+                if (_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || _instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
                     healersSubtracted = 1;
                 for (uint8 i = 0; i < healersSubtracted; ++i)
                 {
@@ -117,7 +117,7 @@ class boss_toc_champion_controller : public CreatureScript
                     vHealersEntries.erase(vHealersEntries.begin() + pos);
                 }
 
-                if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+                if (_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || _instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                     for (uint8 i = 0; i < 4; ++i)
                         vOtherEntries.erase(vOtherEntries.begin() + urand(0, vOtherEntries.size() - 1));
 
@@ -151,7 +151,7 @@ class boss_toc_champion_controller : public CreatureScript
                     uint8 pos = urand(0, vChampionJumpTarget.size()-1);
                     if (Creature* temp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        Summons.Summon(temp);
+                        _summons.Summon(temp);
                         temp->SetReactState(REACT_PASSIVE);
                         temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                         if (playerTeam == ALLIANCE)
@@ -179,7 +179,7 @@ class boss_toc_champion_controller : public CreatureScript
                         SummonChampions((Team)uiData);
                         break;
                     case 1:
-                        for (std::list<uint64>::iterator i = Summons.begin(); i != Summons.end(); ++i)
+                        for (std::list<uint64>::iterator i = _summons.begin(); i != _summons.end(); ++i)
                         {
                             if (Creature* temp = Unit::GetCreature(*me, *i))
                             {
@@ -192,33 +192,33 @@ class boss_toc_champion_controller : public CreatureScript
                         switch (uiData)
                         {
                             case FAIL:
-                                m_uiChampionsFailed++;
-                                if (m_uiChampionsFailed + m_uiChampionsKilled >= Summons.size())
+                                _championsFailed++;
+                                if (_championsFailed + _championsKilled >= _summons.size())
                                 {
-                                    instance->SetBossState(BOSS_CRUSADERS, FAIL);
-                                    Summons.DespawnAll();
+                                    _instance->SetBossState(BOSS_CRUSADERS, FAIL);
+                                    _summons.DespawnAll();
                                     me->DespawnOrUnsummon();
                                 }
                                 break;
                             case IN_PROGRESS:
-                                if (!m_bInProgress)
+                                if (!_inProgress)
                                 {
-                                    m_uiChampionsNotStarted = 0;
-                                    m_uiChampionsFailed = 0;
-                                    m_uiChampionsKilled = 0;
-                                    m_bInProgress = true;
-                                    Summons.DoZoneInCombat();
-                                    instance->SetBossState(BOSS_CRUSADERS, IN_PROGRESS);
+                                    _championsNotStarted = 0;
+                                    _championsFailed = 0;
+                                    _championsKilled = 0;
+                                    _inProgress = true;
+                                    _summons.DoZoneInCombat();
+                                    _instance->SetBossState(BOSS_CRUSADERS, IN_PROGRESS);
                                 }
                                 break;
                             case DONE:
-                                m_uiChampionsKilled++;
-                                if (m_uiChampionsKilled == 1)
-                                    instance->SetBossState(BOSS_CRUSADERS, SPECIAL);
-                                else if (m_uiChampionsKilled >= Summons.size())
+                                _championsKilled++;
+                                if (_championsKilled == 1)
+                                    _instance->SetBossState(BOSS_CRUSADERS, SPECIAL);
+                                else if (_championsKilled >= _summons.size())
                                 {
-                                    instance->SetBossState(BOSS_CRUSADERS, DONE);
-                                    Summons.DespawnAll();
+                                    _instance->SetBossState(BOSS_CRUSADERS, DONE);
+                                    _summons.DespawnAll();
                                     me->DespawnOrUnsummon();
                                 }
                                 break;
@@ -231,12 +231,12 @@ class boss_toc_champion_controller : public CreatureScript
                 }
             }
             private:
-                InstanceScript* instance;
-                SummonList Summons;
-                uint32 m_uiChampionsNotStarted;
-                uint32 m_uiChampionsFailed;
-                uint32 m_uiChampionsKilled;
-                bool   m_bInProgress;
+                InstanceScript* _instance;
+                SummonList _summons;
+                uint32 _championsNotStarted;
+                uint32 _championsFailed;
+                uint32 _championsKilled;
+                bool   _inProgress;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -250,20 +250,19 @@ struct boss_faction_championsAI : public BossAI
     enum Events
     {
         EVENT_THREAT    = 1,
-        EVENT_REMOVE_CC
+        EVENT_REMOVE_CC = 2
     };
 
     boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, BOSS_CRUSADERS)
     {
-        mAIType = aitype;
+        _aiType = aitype;
     }
 
     void Reset()
     {
-        m_events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
-        if (IsHeroic() && (mAIType != AI_PET))
-            m_events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
-        championControllerGUID = 0;
+        _events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
+        if (IsHeroic() && (_aiType != AI_PET))
+            _events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
     }
 
     void JustReachedHome()
@@ -276,8 +275,8 @@ struct boss_faction_championsAI : public BossAI
 
     float CalculateThreat(float distance, float armor, uint32 health)
     {
-        float dist_mod = (mAIType == AI_MELEE || mAIType == AI_PET) ? 15.0f / (15.0f + distance) : 1.0f;
-        float armor_mod = (mAIType == AI_MELEE || mAIType == AI_PET) ? armor / 16635.0f : 0.0f;
+        float dist_mod = (_aiType == AI_MELEE || _aiType == AI_PET) ? 15.0f / (15.0f + distance) : 1.0f;
+        float armor_mod = (_aiType == AI_MELEE || _aiType == AI_PET) ? armor / 16635.0f : 0.0f;
         float eh = (health + 1) * (1.0f + armor_mod);
         return dist_mod * 30000.0f / eh;
     }
@@ -318,7 +317,7 @@ struct boss_faction_championsAI : public BossAI
 
     void JustDied(Unit* /*killer*/)
     {
-        if (mAIType != AI_PET)
+        if (_aiType != AI_PET)
             if (instance)
                 if (Creature* pChampionController = Unit::GetCreature((*me), instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
@@ -411,7 +410,7 @@ struct boss_faction_championsAI : public BossAI
             me->SetInCombatWith(who);
             who->SetInCombatWith(me);
 
-            if (mAIType == AI_MELEE || mAIType == AI_PET)
+            if (_aiType == AI_MELEE || _aiType == AI_PET)
                 DoStartMovement(who);
             else
                 DoStartMovement(who, 20.0f);
@@ -421,40 +420,39 @@ struct boss_faction_championsAI : public BossAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        m_events.Update(uiDiff);
+        _events.Update(uiDiff);
 
-        while (uint32 eventId = m_events.ExecuteEvent())
+        while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_THREAT:
                     UpdatePower();
                     UpdateThreat();
-                    m_events.ScheduleEvent(EVENT_THREAT, 4*IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_THREAT, 4*IN_MILLISECONDS);
                     return;
                 case EVENT_REMOVE_CC:
                     if (me->HasBreakableByDamageCrowdControlAura())
                     {
                         RemoveCC();
-                        m_events.RescheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
+                        _events.RescheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
                     }
                     else
-                        m_events.RescheduleEvent(EVENT_REMOVE_CC, 3*IN_MILLISECONDS);
+                        _events.RescheduleEvent(EVENT_REMOVE_CC, 3*IN_MILLISECONDS);
                     return;
                 default:
                     return;
             }
         }
 
-        if (mAIType == AI_MELEE || mAIType == AI_PET)
+        if (_aiType == AI_MELEE || _aiType == AI_PET)
             DoMeleeAttackIfReady();
     }
 
     private:
-        uint64 championControllerGUID;
-        uint32 mAIType;
-        // make sure that every bosses separate events doesnt mix with m_events
-        EventMap m_events;
+        uint32 _aiType;
+        // make sure that every bosses separate events dont mix with these _events
+        EventMap _events;
 };
 
 /********************************************************************
@@ -476,14 +474,14 @@ class mob_toc_druid : public CreatureScript
 {
     enum
     {
-        EVENT_LIFEBLOOM = 1,
-        EVENT_NOURISH,
-        EVENT_REGROWTH,
-        EVENT_REJUVENATION,
-        EVENT_TRANQUILITY,
-        EVENT_BARKSKIN,
-        EVENT_THORNS,
-        EVENT_NATURE_GRASP
+        EVENT_LIFEBLOOM     = 1,
+        EVENT_NOURISH       = 2,
+        EVENT_REGROWTH      = 3,
+        EVENT_REJUVENATION  = 4,
+        EVENT_TRANQUILITY   = 5,
+        EVENT_BARKSKIN      = 6,
+        EVENT_THORNS        = 7,
+        EVENT_NATURE_GRASP  = 8
     };
 
     public:
@@ -595,13 +593,13 @@ class mob_toc_shaman : public CreatureScript
 {
     enum
     {
-        EVENT_HEALING_WAVE = 1,
-        EVENT_RIPTIDE,
-        EVENT_SPIRIT_CLEANSE,
-        EVENT_BLOODLUST_HEROISM,
-        EVENT_HEX,
-        EVENT_EARTH_SHIELD,
-        EVENT_EARTH_SHOCK
+        EVENT_HEALING_WAVE          = 1,
+        EVENT_RIPTIDE               = 2,
+        EVENT_SPIRIT_CLEANSE        = 3,
+        EVENT_BLOODLUST_HEROISM     = 4,
+        EVENT_HEX                   = 5,
+        EVENT_EARTH_SHIELD          = 6,
+        EVENT_EARTH_SHOCK           = 7
     };
 
     public:
@@ -712,14 +710,14 @@ class mob_toc_paladin : public CreatureScript
 {
     enum
     {
-        EVENT_HAND_OF_FREEDOM = 1,
-        EVENT_DIVINE_SHIELD,
-        EVENT_CLEANSE,
-        EVENT_FLASH_OF_LIGHT,
-        EVENT_HOLY_LIGHT,
-        EVENT_HOLY_SHOCK,
-        EVENT_HAND_OF_PROTECTION,
-        EVENT_HAMMER_OF_JUSTICE
+        EVENT_HAND_OF_FREEDOM       = 1,
+        EVENT_DIVINE_SHIELD         = 2,
+        EVENT_CLEANSE               = 3,
+        EVENT_FLASH_OF_LIGHT        = 4,
+        EVENT_HOLY_LIGHT            = 5,
+        EVENT_HOLY_SHOCK            = 6,
+        EVENT_HAND_OF_PROTECTION    = 7,
+        EVENT_HAMMER_OF_JUSTICE     = 8
     };
 
     public:
@@ -839,13 +837,13 @@ class mob_toc_priest : public CreatureScript
 {
     enum
     {
-        EVENT_RENEW = 1,
-        EVENT_SHIELD,
-        EVENT_FLASH_HEAL,
-        EVENT_DISPEL,
-        EVENT_PSYCHIC_SCREAM,
-        EVENT_MANA_BURN,
-        EVENT_PENANCE
+        EVENT_RENEW             = 1,
+        EVENT_SHIELD            = 2,
+        EVENT_FLASH_HEAL        = 3,
+        EVENT_DISPEL            = 4,
+        EVENT_PSYCHIC_SCREAM    = 5,
+        EVENT_MANA_BURN         = 6,
+        EVENT_PENANCE           = 7
     };
 
     public:
@@ -950,14 +948,14 @@ class mob_toc_shadow_priest : public CreatureScript
 {
     enum
     {
-        EVENT_SILENCE = 1,
-        EVENT_VAMPIRIC_TOUCH,
-        EVENT_SW_PAIN,
-        EVENT_MIND_BLAST,
-        EVENT_HORROR,
-        EVENT_DISPERSION,
-        EVENT_DISPEL,
-        EVENT_PSYCHIC_SCREAM
+        EVENT_SILENCE           = 1,
+        EVENT_VAMPIRIC_TOUCH    = 2,
+        EVENT_SW_PAIN           = 3,
+        EVENT_MIND_BLAST        = 4,
+        EVENT_HORROR            = 5,
+        EVENT_DISPERSION        = 6,
+        EVENT_DISPEL            = 7,
+        EVENT_PSYCHIC_SCREAM    = 8
     };
 
     public:
@@ -1071,13 +1069,13 @@ class mob_toc_warlock : public CreatureScript
 {
     enum
     {
-        EVENT_HELLFIRE = 1,
-        EVENT_CORRUPTION,
-        EVENT_CURSE_OF_AGONY,
-        EVENT_CURSE_OF_EXHAUSTION,
-        EVENT_FEAR,
-        EVENT_SEARING_PAIN,
-        EVENT_UNSTABLE_AFFLICTION
+        EVENT_HELLFIRE              = 1,
+        EVENT_CORRUPTION            = 2,
+        EVENT_CURSE_OF_AGONY        = 3,
+        EVENT_CURSE_OF_EXHAUSTION   = 4,
+        EVENT_FEAR                  = 5,
+        EVENT_SEARING_PAIN          = 6,
+        EVENT_UNSTABLE_AFFLICTION   = 7
     };
 
     public:
@@ -1085,9 +1083,7 @@ class mob_toc_warlock : public CreatureScript
 
         struct mob_toc_warlockAI : public boss_faction_championsAI
         {
-            mob_toc_warlockAI(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED), Summons(me) {}
-
-            SummonList Summons;
+            mob_toc_warlockAI(Creature* creature) : boss_faction_championsAI(creature, AI_RANGED) {}
 
             void Reset()
             {
@@ -1188,14 +1184,14 @@ class mob_toc_mage : public CreatureScript
 {
     enum
     {
-        EVENT_ARCANE_BARRAGE = 1,
-        EVENT_ARCANE_BLAST,
-        EVENT_ARCANE_EXPLOSION,
-        EVENT_BLINK,
-        EVENT_COUNTERSPELL,
-        EVENT_FROST_NOVA,
-        EVENT_ICE_BLOCK,
-        EVENT_POLYMORPH
+        EVENT_ARCANE_BARRAGE        = 1,
+        EVENT_ARCANE_BLAST          = 2,
+        EVENT_ARCANE_EXPLOSION      = 3,
+        EVENT_BLINK                 = 4,
+        EVENT_COUNTERSPELL          = 5,
+        EVENT_FROST_NOVA            = 6,
+        EVENT_ICE_BLOCK             = 7,
+        EVENT_POLYMORPH             = 8
     };
 
     public:
@@ -1308,14 +1304,14 @@ class mob_toc_hunter : public CreatureScript
 {
     enum
     {
-        EVENT_AIMED_SHOT = 1,
-        EVENT_DETERRENCE,
-        EVENT_DISENGAGE,
-        EVENT_EXPLOSIVE_SHOT,
-        EVENT_FROST_TRAP,
-        EVENT_STEADY_SHOT,
-        EVENT_WING_CLIP,
-        EVENT_WYVERN_STING
+        EVENT_AIMED_SHOT        = 1,
+        EVENT_DETERRENCE        = 2,
+        EVENT_DISENGAGE         = 3,
+        EVENT_EXPLOSIVE_SHOT    = 4,
+        EVENT_FROST_TRAP        = 5,
+        EVENT_STEADY_SHOT       = 6,
+        EVENT_WING_CLIP         = 7,
+        EVENT_WYVERN_STING      = 8
     };
 
     public:
@@ -1431,14 +1427,14 @@ class mob_toc_boomkin : public CreatureScript
 {
     enum
     {
-        EVENT_CYCLONE = 1,
-        EVENT_ENTANGLING_ROOTS,
-        EVENT_FAERIE_FIRE,
-        EVENT_FORCE_OF_NATURE,
-        EVENT_INSECT_SWARM,
-        EVENT_MOONFIRE,
-        EVENT_STARFIRE,
-        EVENT_BARKSKIN
+        EVENT_CYCLONE           = 1,
+        EVENT_ENTANGLING_ROOTS  = 2,
+        EVENT_FAERIE_FIRE       = 3,
+        EVENT_FORCE_OF_NATURE   = 4,
+        EVENT_INSECT_SWARM      = 5,
+        EVENT_MOONFIRE          = 6,
+        EVENT_STARFIRE          = 7,
+        EVENT_BARKSKIN          = 8
     };
 
     public:
@@ -1551,15 +1547,15 @@ class mob_toc_warrior : public CreatureScript
 {
     enum
     {
-        EVENT_BLADESTORM = 1,
-        EVENT_INTIMIDATING_SHOUT,
-        EVENT_MORTAL_STRIKE,
-        EVENT_CHARGE,
-        EVENT_DISARM,
-        EVENT_OVERPOWER,
-        EVENT_SUNDER_ARMOR,
-        EVENT_SHATTERING_THROW,
-        EVENT_RETALIATION
+        EVENT_BLADESTORM            = 1,
+        EVENT_INTIMIDATING_SHOUT    = 2,
+        EVENT_MORTAL_STRIKE         = 3,
+        EVENT_CHARGE                = 4,
+        EVENT_DISARM                = 5,
+        EVENT_OVERPOWER             = 6,
+        EVENT_SUNDER_ARMOR          = 7,
+        EVENT_SHATTERING_THROW      = 8,
+        EVENT_RETALIATION           = 9
     };
 
     public:
@@ -1673,13 +1669,13 @@ class mob_toc_dk : public CreatureScript
 {
     enum
     {
-        EVENT_CHAINS_OF_ICE = 1,
-        EVENT_DEATH_COIL,
-        EVENT_DEATH_GRIP,
-        EVENT_FROST_STRIKE,
-        EVENT_ICEBOUND_FORTITUDE,
-        EVENT_ICY_TOUCH,
-        EVENT_STRANGULATE
+        EVENT_CHAINS_OF_ICE         = 1,
+        EVENT_DEATH_COIL            = 2,
+        EVENT_DEATH_GRIP            = 3,
+        EVENT_FROST_STRIKE          = 4,
+        EVENT_ICEBOUND_FORTITUDE    = 5,
+        EVENT_ICY_TOUCH             = 6,
+        EVENT_STRANGULATE           = 7
     };
 
     public:
@@ -1789,14 +1785,14 @@ class mob_toc_rogue : public CreatureScript
 {
     enum
     {
-        EVENT_FAN_OF_KNIVES = 1,
-        EVENT_BLIND,
-        EVENT_CLOAK,
-        EVENT_BLADE_FLURRY,
-        EVENT_SHADOWSTEP,
-        EVENT_HEMORRHAGE,
-        EVENT_EVISCERATE,
-        EVENT_WOUND_POISON
+        EVENT_FAN_OF_KNIVES     = 1,
+        EVENT_BLIND             = 2,
+        EVENT_CLOAK             = 3,
+        EVENT_BLADE_FLURRY      = 4,
+        EVENT_SHADOWSTEP        = 5,
+        EVENT_HEMORRHAGE        = 6,
+        EVENT_EVISCERATE        = 7,
+        EVENT_WOUND_POISON      = 8
     };
 
     public:
@@ -1910,12 +1906,12 @@ class mob_toc_enh_shaman : public CreatureScript
 {
     enum
     {
-        EVENT_EARTH_SHOCK = 1,
-        EVENT_LAVA_LASH,
-        EVENT_STORMSTRIKE,
-        EVENT_BLOODLUST_HEROISM,
-        EVENT_DEPLOY_TOTEM,
-        EVENT_WINDFURY
+        EVENT_EARTH_SHOCK           = 1,
+        EVENT_LAVA_LASH             = 2,
+        EVENT_STORMSTRIKE           = 3,
+        EVENT_BLOODLUST_HEROISM     = 4,
+        EVENT_DEPLOY_TOTEM          = 5,
+        EVENT_WINDFURY              = 6
     };
 
     public:
@@ -1924,9 +1920,6 @@ class mob_toc_enh_shaman : public CreatureScript
         struct mob_toc_enh_shamanAI : public boss_faction_championsAI
         {
             mob_toc_enh_shamanAI(Creature* creature) : boss_faction_championsAI(creature, AI_MELEE) {}
-
-            uint8  m_uiTotemCount;
-            float  m_fTotemOldCenterX, m_fTotemOldCenterY;
 
             void Reset()
             {
@@ -1938,9 +1931,9 @@ class mob_toc_enh_shaman : public CreatureScript
                 events.ScheduleEvent(EVENT_DEPLOY_TOTEM, 1*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_WINDFURY, urand(20*IN_MILLISECONDS, 50*IN_MILLISECONDS));
 
-                m_uiTotemCount = 0;
-                m_fTotemOldCenterX = me->GetPositionX();
-                m_fTotemOldCenterY = me->GetPositionY();
+                _totemCount = 0;
+                _totemOldCenterX = me->GetPositionX();
+                _totemOldCenterY = me->GetPositionY();
                 SetEquipmentSlots(false, 51803, 48013, EQUIP_NO_CHANGE);
                 summons.DespawnAll();
             }
@@ -1952,14 +1945,14 @@ class mob_toc_enh_shaman : public CreatureScript
 
             void SummonedCreatureDespawn(Creature* /*pSummoned*/)
             {
-                --m_uiTotemCount;
+                --_totemCount;
             }
 
             void DeployTotem()
             {
-                m_uiTotemCount = 4;
-                m_fTotemOldCenterX = me->GetPositionX();
-                m_fTotemOldCenterY = me->GetPositionY();
+                _totemCount = 4;
+                _totemOldCenterX = me->GetPositionX();
+                _totemOldCenterY = me->GetPositionY();
                 /*
                 -Windfury (16% melee haste)
                 -Grounding (redirects one harmful magic spell to the totem)
@@ -2021,7 +2014,7 @@ class mob_toc_enh_shaman : public CreatureScript
                             events.ScheduleEvent(EVENT_BLOODLUST_HEROISM, 300*IN_MILLISECONDS);
                             return;
                         case EVENT_DEPLOY_TOTEM:
-                            if (m_uiTotemCount < 4 || me->GetDistance2d(m_fTotemOldCenterX, m_fTotemOldCenterY) > 20.0f)
+                            if (_totemCount < 4 || me->GetDistance2d(_totemOldCenterX, _totemOldCenterY) > 20.0f)
                                 DeployTotem();
                             events.ScheduleEvent(EVENT_DEPLOY_TOTEM, 1*IN_MILLISECONDS);
                             return;
@@ -2034,6 +2027,9 @@ class mob_toc_enh_shaman : public CreatureScript
                     }
                 }
             }
+            private:
+                uint8  _totemCount;
+                float  _totemOldCenterX, _totemOldCenterY;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2057,14 +2053,14 @@ class mob_toc_retro_paladin : public CreatureScript
 {
     enum
     {
-        EVENT_AVENGING_WRATH = 1,
-        EVENT_CRUSADER_STRIKE,
-        EVENT_DIVINE_STORM,
-        EVENT_HAMMER_OF_JUSTICE_RET,
-        EVENT_JUDGEMENT_OF_COMMAND,
-        EVENT_REPENTANCE,
-        EVENT_HAND_OF_PROTECTION,
-        EVENT_DIVINE_SHIELD
+        EVENT_AVENGING_WRATH            = 1,
+        EVENT_CRUSADER_STRIKE           = 2,
+        EVENT_DIVINE_STORM              = 3,
+        EVENT_HAMMER_OF_JUSTICE_RET     = 4,
+        EVENT_JUDGEMENT_OF_COMMAND      = 5,
+        EVENT_REPENTANCE                = 6,
+        EVENT_HAND_OF_PROTECTION        = 7,
+        EVENT_DIVINE_SHIELD             = 8
     };
 
     public:
@@ -2181,8 +2177,8 @@ class mob_toc_pet_warlock : public CreatureScript
 {
     enum
     {
-        EVENT_DEVOUR_MAGIC = 1,
-        EVENT_SPELL_LOCK
+        EVENT_DEVOUR_MAGIC  = 1,
+        EVENT_SPELL_LOCK    = 2
     };
 
     public:
@@ -2252,7 +2248,7 @@ class mob_toc_pet_hunter : public CreatureScript
             void Reset()
             {
                 boss_faction_championsAI::Reset();
-                m_uiClawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
+                _clawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             }
 
             void UpdateAI(const uint32 diff)
@@ -2262,16 +2258,16 @@ class mob_toc_pet_hunter : public CreatureScript
 
                 boss_faction_championsAI::UpdateAI(diff);
 
-                if (m_uiClawTimer <= diff)
+                if (_clawTimer <= diff)
                 {
                     DoCastVictim(SPELL_CLAW);
-                    m_uiClawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
+                    _clawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
                 }
                 else
-                    m_uiClawTimer -= diff;
+                    _clawTimer -= diff;
             }
             private:
-                uint32 m_uiClawTimer;
+                uint32 _clawTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const

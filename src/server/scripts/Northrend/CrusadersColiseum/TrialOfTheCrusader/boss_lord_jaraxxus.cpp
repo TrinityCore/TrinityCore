@@ -78,13 +78,13 @@ class boss_jaraxxus : public CreatureScript
 {
     enum
     {
-        EVENT_FEL_FIREBALL = 1,
-        EVENT_FEL_LIGHTNING,
-        EVENT_INCINERATE_FLESH,
-        EVENT_NETHER_POWER,
-        EVENT_LEGION_FLAME,
-        EVENT_SUMMONO_NETHER_PORTAL,
-        EVENT_SUMMON_INFERNAL_ERUPTION
+        EVENT_FEL_FIREBALL              = 1,
+        EVENT_FEL_LIGHTNING             = 2,
+        EVENT_INCINERATE_FLESH          = 3,
+        EVENT_NETHER_POWER              = 4,
+        EVENT_LEGION_FLAME              = 5,
+        EVENT_SUMMONO_NETHER_PORTAL     = 6,
+        EVENT_SUMMON_INFERNAL_ERUPTION  = 7
     };
 
     public:
@@ -221,7 +221,7 @@ class mob_legion_flame : public CreatureScript
         {
             mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                instance = creature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
@@ -234,11 +234,11 @@ class mob_legion_flame : public CreatureScript
             void UpdateAI(const uint32 /*uiDiff*/)
             {
                 UpdateVictim();
-                if (instance && instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
             private:
-                InstanceScript* instance;
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -254,9 +254,8 @@ class mob_infernal_volcano : public CreatureScript
 
         struct mob_infernal_volcanoAI : public Scripted_NoMovementAI
         {
-            mob_infernal_volcanoAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+            mob_infernal_volcanoAI(Creature* creature) : Scripted_NoMovementAI(creature), _summons(me)
             {
-                instance = creature->GetInstanceScript();
             }
 
             void Reset()
@@ -268,7 +267,7 @@ class mob_infernal_volcano : public CreatureScript
                 else
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
 
-                Summons.DespawnAll();
+                _summons.DespawnAll();
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
@@ -278,7 +277,7 @@ class mob_infernal_volcano : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                Summons.Summon(summoned);
+                _summons.Summon(summoned);
                 // makes immediate corpse despawn of summoned Felflame Infernals
                 summoned->SetCorpseDelay(0);
             }
@@ -292,8 +291,7 @@ class mob_infernal_volcano : public CreatureScript
             void UpdateAI(uint32 const /*diff*/) {}
 
             private:
-                InstanceScript* instance;
-                SummonList Summons;
+                SummonList _summons;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -311,18 +309,18 @@ class mob_fel_infernal : public CreatureScript
         {
             mob_fel_infernalAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = creature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
             {
-                m_uiFelStreakTimer = 30*IN_MILLISECONDS;
+                _felStreakTimer = 30*IN_MILLISECONDS;
                 me->SetInCombatWithZone();
             }
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (instance && instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -331,20 +329,20 @@ class mob_fel_infernal : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (m_uiFelStreakTimer <= uiDiff)
+                if (_felStreakTimer <= uiDiff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         DoCast(target, SPELL_FEL_STREAK);
-                    m_uiFelStreakTimer = 30*IN_MILLISECONDS;
+                    _felStreakTimer = 30*IN_MILLISECONDS;
                 }
                 else
-                    m_uiFelStreakTimer -= uiDiff;
+                    _felStreakTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
             }
             private:
-                uint32 m_uiFelStreakTimer;
-                InstanceScript* instance;
+                uint32 _felStreakTimer;
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -360,9 +358,8 @@ class mob_nether_portal : public CreatureScript
 
         struct mob_nether_portalAI : public ScriptedAI
         {
-            mob_nether_portalAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+            mob_nether_portalAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
-                instance = creature->GetInstanceScript();
             }
 
             void Reset()
@@ -374,7 +371,7 @@ class mob_nether_portal : public CreatureScript
                 else
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
 
-                Summons.DespawnAll();
+                _summons.DespawnAll();
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
@@ -384,7 +381,7 @@ class mob_nether_portal : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                Summons.Summon(summoned);
+                _summons.Summon(summoned);
                 // makes immediate corpse despawn of summoned Mistress of Pain
                 summoned->SetCorpseDelay(0);
             }
@@ -398,8 +395,7 @@ class mob_nether_portal : public CreatureScript
             void UpdateAI(uint32 const /*diff*/) {}
 
             private:
-                InstanceScript* instance;
-                SummonList Summons;
+                SummonList _summons;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -413,8 +409,8 @@ class mob_mistress_of_pain : public CreatureScript
     enum Events
     {
         EVENT_SHIVAN_SLASH      = 1,
-        EVENT_SPINNING_STRIKE,
-        EVENT_MISTRESS_KISS
+        EVENT_SPINNING_STRIKE   = 2,
+        EVENT_MISTRESS_KISS     = 3
     };
 
     public:
@@ -424,29 +420,29 @@ class mob_mistress_of_pain : public CreatureScript
         {
             mob_mistress_of_painAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = creature->GetInstanceScript();
-                if (instance)
-                    instance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, INCREASE);
+                _instance = creature->GetInstanceScript();
+                if (_instance)
+                    _instance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, INCREASE);
             }
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_SHIVAN_SLASH, 30*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SPINNING_STRIKE, 30*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_SHIVAN_SLASH, 30*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_SPINNING_STRIKE, 30*IN_MILLISECONDS);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_MISTRESS_KISS, 15*IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_MISTRESS_KISS, 15*IN_MILLISECONDS);
                 me->SetInCombatWithZone();
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                if (instance)
-                    instance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, DECREASE);
+                if (_instance)
+                    _instance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, DECREASE);
             }
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (instance && instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -455,27 +451,27 @@ class mob_mistress_of_pain : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(uiDiff);
+                _events.Update(uiDiff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_SHIVAN_SLASH:
                             DoCastVictim(SPELL_SHIVAN_SLASH);
-                            events.ScheduleEvent(EVENT_SHIVAN_SLASH, 30*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_SHIVAN_SLASH, 30*IN_MILLISECONDS);
                             return;
                         case EVENT_SPINNING_STRIKE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_SPINNING_STRIKE);
-                            events.ScheduleEvent(EVENT_SPINNING_STRIKE, 30*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_SPINNING_STRIKE, 30*IN_MILLISECONDS);
                             return;
                         case EVENT_MISTRESS_KISS:
                             DoCast(me, SPELL_MISTRESS_KISS);
-                            events.ScheduleEvent(EVENT_MISTRESS_KISS, 30*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_MISTRESS_KISS, 30*IN_MILLISECONDS);
                             return;
                         default:
                             break;
@@ -485,8 +481,8 @@ class mob_mistress_of_pain : public CreatureScript
                 DoMeleeAttackIfReady();
             }
             private:
-                InstanceScript* instance;
-                EventMap events;
+                InstanceScript* _instance;
+                EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
