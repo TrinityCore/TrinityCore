@@ -116,7 +116,7 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
     }
 }
 
-void FollowerAI::JustDied(Unit* /*pKiller*/)
+void FollowerAI::JustDied(Unit* /*killer*/)
 {
     if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || !m_uiLeaderGUID || !m_pQuestForFollow)
         return;
@@ -305,7 +305,7 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
 
     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    sLog->outDebug(LOG_FILTER_TSCR, "FollowerAI start follow %s (GUID " UI64FMTD ")", player->GetName(), m_uiLeaderGUID);
+    sLog->outDebug(LOG_FILTER_TSCR, "FollowerAI start follow %s (GUID " UI64FMTD ")", player->GetName().c_str(), m_uiLeaderGUID);
 }
 
 Player* FollowerAI::GetLeaderForFollower()
