@@ -98,6 +98,11 @@ INSERT INTO `spell_script_names` VALUES
 (67204, 'spell_twin_vortex'),
 (67205, 'spell_twin_vortex');
 
+-- Gormoks Fire Bomb scriptname
+DELETE FROM `spell_script_names` WHERE `spell_id`=66313;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(66313, 'spell_gormok_fire_bomb');
+
 -- correcting hitbox of Anub'Arak
 UPDATE `creature_model_info` SET `bounding_radius`=1.085, `combat_reach`=10.5 WHERE `modelid`=29268;
 

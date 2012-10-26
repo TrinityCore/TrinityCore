@@ -25,7 +25,6 @@ EndScriptData */
 // Known bugs:
 // Gormok - Snobolled (creature at back)
 // Snakes - miss the 1-hitkill from emerging
-//        - visual changes between mobile and stationary models seems not to work sometimes
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -66,7 +65,8 @@ enum BeastSummons
 {
     NPC_SNOBOLD_VASSAL   = 34800,
     NPC_FIRE_BOMB        = 34854,
-    NPC_SLIME_POOL       = 35176
+    NPC_SLIME_POOL       = 35176,
+    MAX_SNOBOLDS         = 4
 };
 
 enum BossSpells
@@ -189,7 +189,7 @@ class boss_gormok : public CreatureScript
                 me->SetInCombatWithZone();
                 instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
 
-                for (uint8 i = 0; i < 4; i++)
+                for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
                 {
                     if (Creature* pSnobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
@@ -204,7 +204,7 @@ class boss_gormok : public CreatureScript
             {
                 // despawn the remaining passengers on death
                 if (damage >= me->GetHealth())
-                    for (uint8 i = 0; i < 4; ++i)
+                    for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
                         if (Unit* pSnobold = me->GetVehicleKit()->GetPassenger(i))
                             pSnobold->ToCreature()->DespawnOrUnsummon();
             }
@@ -232,7 +232,7 @@ class boss_gormok : public CreatureScript
                             events.ScheduleEvent(EVENT_STAGGERING_STOMP, 15*IN_MILLISECONDS);
                             return;
                         case EVENT_THROW:
-                            for (uint8 i = 0; i < 4; ++i)
+                            for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
                             {
                                 if (Unit* pSnobold = me->GetVehicleKit()->GetPassenger(i))
                                 {
@@ -295,7 +295,6 @@ class mob_snobold_vassal : public CreatureScript
                     m_uiBossGUID = instance->GetData64(NPC_GORMOK);
                 //Workaround for Snobold
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                //me->SetReactState(REACT_PASSIVE);
             }
 
             void EnterEvadeMode()
@@ -341,12 +340,6 @@ class mob_snobold_vassal : public CreatureScript
                     instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell)
-            {
-                if (spell->Id == SPELL_FIRE_BOMB)
-                    me->SummonCreature(NPC_FIRE_BOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-            }
-
             void DoAction(int32 const action)
             {
                 switch (action)
@@ -379,7 +372,8 @@ class mob_snobold_vassal : public CreatureScript
                                 SetCombatMovement(false);
                                 m_bTargetDied = true;
 
-                                for (uint8 i = 0; i < 4; i++)
+                                // looping through Gormoks seats
+                                for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
                                 {
                                     if (!gormok->GetVehicleKit()->GetPassenger(i))
                                     {
@@ -410,7 +404,7 @@ class mob_snobold_vassal : public CreatureScript
                         case EVENT_FIRE_BOMB:
                             if (me->GetVehicleBase())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach(), true))
-                                    DoCast(target, SPELL_FIRE_BOMB, true);
+                                    me->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), SPELL_FIRE_BOMB, true);
                             events.ScheduleEvent(EVENT_FIRE_BOMB, 20*IN_MILLISECONDS);
                             return;
                         case EVENT_HEAD_CRACK:
@@ -420,6 +414,7 @@ class mob_snobold_vassal : public CreatureScript
                             events.ScheduleEvent(EVENT_HEAD_CRACK, 30*IN_MILLISECONDS);
                             return;
                         case EVENT_BATTER:
+                            // commented out while SPELL_SNOBOLLED gets fixed
                             //if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
                             DoCastVictim(SPELL_BATTER);
                             events.ScheduleEvent(EVENT_BATTER, 10*IN_MILLISECONDS);
@@ -428,9 +423,6 @@ class mob_snobold_vassal : public CreatureScript
                             return;
                     }
                 }
-
-                if (instance->GetData(TYPE_NORTHREND_BEASTS) == FAIL)
-                    me->DespawnOrUnsummon();
 
                 // do melee attack only when not on Gormoks back
                 if (!me->GetVehicleBase())
@@ -545,6 +537,7 @@ struct boss_jormungarAI : public BossAI
 
     void JustReachedHome()
     {
+        // prevent losing 2 attempts at once on heroics
         if (instance && instance->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
             instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
 
@@ -571,7 +564,7 @@ struct boss_jormungarAI : public BossAI
         if (!UpdateVictim())
             return;
 
-        if (instance && instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !enraged)
+        if (!enraged && instance && instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
         {
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -584,7 +577,6 @@ struct boss_jormungarAI : public BossAI
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-
 
         switch (phase)
         {
@@ -868,6 +860,36 @@ class mob_slime_pool : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_slime_poolAI(creature);
+        }
+};
+
+class spell_gormok_fire_bomb : public SpellScriptLoader
+{
+    public:
+        spell_gormok_fire_bomb() : SpellScriptLoader("spell_gormok_fire_bomb") {}
+
+        class spell_gormok_fire_bomb_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gormok_fire_bomb_SpellScript);
+
+            void TriggerFireBomb(SpellEffIndex /*effIndex*/)
+            {
+                if (const WorldLocation* pos = GetExplTargetDest())
+                {
+                    if (Unit* caster = GetCaster())
+                        caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30*IN_MILLISECONDS);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_gormok_fire_bomb_SpellScript::TriggerFireBomb, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gormok_fire_bomb_SpellScript();
         }
 };
 
@@ -1172,8 +1194,11 @@ void AddSC_boss_northrend_beasts()
     new boss_gormok();
     new mob_snobold_vassal();
     new npc_firebomb();
+    new spell_gormok_fire_bomb();
+
     new boss_acidmaw();
     new boss_dreadscale();
     new mob_slime_pool();
+
     new boss_icehowl();
 }
