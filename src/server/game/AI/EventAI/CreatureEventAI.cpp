@@ -520,10 +520,10 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             break;
         case ACTION_T_THREAT_ALL_PCT:
         {
-            std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::iterator i = threatList.begin(); i != threatList.end(); ++i)
-                if (Unit* Temp = Unit::GetUnit(*me, (*i)->getUnitGuid()))
-                    me->getThreatManager().modifyThreatPercent(Temp, action.threat_all_pct.percent);
+            ThreatContainer::StorageType const& threatList = me->getThreatManager().getThreatList();
+            for (ThreatContainer::StorageType::const_iterator i = threatList.begin(); i != threatList.end(); ++i)
+                if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
+                    me->getThreatManager().modifyThreatPercent(unit, action.threat_all_pct.percent);
             break;
         }
         case ACTION_T_QUEST_EVENT:
@@ -634,11 +634,11 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             break;
         case ACTION_T_CAST_EVENT_ALL:
         {
-            std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::iterator i = threatList.begin(); i != threatList.end(); ++i)
-                if (Unit* Temp = Unit::GetUnit(*me, (*i)->getUnitGuid()))
-                    if (Temp->GetTypeId() == TYPEID_PLAYER)
-                        Temp->ToPlayer()->CastedCreatureOrGO(action.cast_event_all.creatureId, me->GetGUID(), action.cast_event_all.spellId);
+            ThreatContainer::StorageType const& threatList = me->getThreatManager().getThreatList();
+            for (ThreatContainer::StorageType::const_iterator i = threatList.begin(); i != threatList.end(); ++i)
+                if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
+                    if (unit->GetTypeId() == TYPEID_PLAYER)
+                        unit->ToPlayer()->CastedCreatureOrGO(action.cast_event_all.creatureId, me->GetGUID(), action.cast_event_all.spellId);
             break;
         }
         case ACTION_T_REMOVEAURASFROMSPELL:
@@ -884,11 +884,11 @@ void CreatureEventAI::Reset()
                     (*i).Enabled = true;
                 break;
             }
-            //default:
-            //TODO: enable below code line / verify this is correct to enable events previously disabled (ex. aggro yell), instead of enable this in void EnterCombat()
-            //(*i).Enabled = true;
-            //(*i).Time = 0;
-            //break;
+            default:
+                //TODO: enable below code line / verify this is correct to enable events previously disabled (ex. aggro yell), instead of enable this in void EnterCombat()
+                //(*i).Enabled = true;
+                //(*i).Time = 0;
+                break;
         }
     }
 }

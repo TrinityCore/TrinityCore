@@ -171,7 +171,6 @@ public:
            DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Original Leotheras the Blind AI
@@ -263,7 +262,6 @@ public:
                 Creature* binder = me->SummonCreature(MOB_SPELLBINDER, nx, ny, z, o, TEMPSUMMON_DEAD_DESPAWN, 0);
                 if (binder)
                     SpellBinderGUID[i] = binder->GetGUID();
-
             }
         }
         void MoveInLineOfSight(Unit* who)
@@ -525,9 +523,9 @@ public:
                 //Summon Inner Demon
                 if (InnerDemons_Timer <= diff)
                 {
-                    std::list<HostileReference*>& ThreatList = me->getThreatManager().getThreatList();
+                    ThreatContainer::StorageType const & ThreatList = me->getThreatManager().getThreatList();
                     std::vector<Unit*> TargetList;
-                    for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
+                    for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                     {
                         Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                         if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->getVictim()->GetGUID() && TargetList.size()<5)
@@ -602,7 +600,6 @@ public:
             }
         }
     };
-
 };
 
 //Leotheras the Blind Demon Form AI
@@ -812,7 +809,6 @@ public:
 
         void JustDied(Unit* /*killer*/) {}
     };
-
 };
 
 void AddSC_boss_leotheras_the_blind()
