@@ -99,8 +99,8 @@ enum BossSpells
 
 enum Actions
 {
-    ACTION_VORTEX,
-    ACTION_PACT
+    ACTION_VORTEX   = 0,
+    ACTION_PACT     = 1
 };
 
 /*######
@@ -148,16 +148,16 @@ struct boss_twin_baseAI : public BossAI
     {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
-        me->ModifyAuraState(m_uiAuraState, true);
+        me->ModifyAuraState(AuraState, true);
         /* Uncomment this once that they are floating above the ground
         me->SetLevitate(true);
         me->SetFlying(true); */
-        m_bIsBerserk = false;
+        IsBerserk = false;
 
-        m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
-        m_uiSpikeTimer = 20*IN_MILLISECONDS;
-        m_uiTouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-        m_uiBerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
+        SpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
+        SpikeTimer = 20*IN_MILLISECONDS;
+        TouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+        BerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
 
         summons.DespawnAll();
     }
@@ -249,7 +249,7 @@ struct boss_twin_baseAI : public BossAI
     // Called when sister pointer needed
     Creature* GetSister()
     {
-        return Unit::GetCreature((*me), instance->GetData64(m_uiSisterNpcId));
+        return Unit::GetCreature((*me), instance->GetData64(SisterNpcId));
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -259,14 +259,14 @@ struct boss_twin_baseAI : public BossAI
         {
             if (Creature* pSister = GetSister())
             {
-                me->AddAura(m_uiMyEmphatySpellId, pSister);
+                me->AddAura(MyEmphatySpellId, pSister);
                 pSister->SetInCombatWithZone();
             }
             instance->SetBossState(BOSS_VALKIRIES, IN_PROGRESS);
         }
 
         Talk(SAY_AGGRO);
-        DoCast(me, m_uiSurgeSpellId);
+        DoCast(me, SurgeSpellId);
     }
 
     void DoAction(const int32 action)
@@ -274,10 +274,10 @@ struct boss_twin_baseAI : public BossAI
         switch (action)
         {
             case ACTION_VORTEX:
-                m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 2 : 1;
+                Stage = me->GetEntry() == NPC_LIGHTBANE ? 2 : 1;
                 break;
             case ACTION_PACT:
-                m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 1 : 2;
+                Stage = me->GetEntry() == NPC_LIGHTBANE ? 1 : 2;
                 break;
             default:
                 break;
@@ -286,7 +286,7 @@ struct boss_twin_baseAI : public BossAI
 
     void EnableDualWield(bool mode = true)
     {
-        SetEquipmentSlots(false, m_uiWeapon, mode ? m_uiWeapon : int32(EQUIP_UNEQUIP), EQUIP_UNEQUIP);
+        SetEquipmentSlots(false, Weapon, mode ? Weapon : int32(EQUIP_UNEQUIP), EQUIP_UNEQUIP);
         me->SetCanDualWield(mode);
         me->UpdateDamagePhysical(mode ? OFF_ATTACK : BASE_ATTACK);
     }
@@ -299,25 +299,25 @@ struct boss_twin_baseAI : public BossAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        switch (m_uiStage)
+        switch (Stage)
         {
             case 0:
                 break;
             case 1: // Vortex
-                if (m_uiSpecialAbilityTimer <= uiDiff)
+                if (SpecialAbilityTimer <= uiDiff)
                 {
                     if (Creature* pSister = GetSister())
                         pSister->AI()->DoAction(ACTION_VORTEX);
-                    Talk(m_uiVortexEmote);
-                    DoCastAOE(m_uiVortexSpellId);
-                    m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
+                    Talk(VortexEmote);
+                    DoCastAOE(VortexSpellId);
+                    Stage = 0;
+                    SpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
                 }
                 else
-                    m_uiSpecialAbilityTimer -= uiDiff;
+                    SpecialAbilityTimer -= uiDiff;
                 break;
             case 2: // Shield + Pact
-                if (m_uiSpecialAbilityTimer <= uiDiff)
+                if (SpecialAbilityTimer <= uiDiff)
                 {
                     Talk(EMOTE_TWINK_PACT);
                     Talk(SAY_TWINK_PACT);
@@ -326,69 +326,69 @@ struct boss_twin_baseAI : public BossAI
                         pSister->AI()->DoAction(ACTION_PACT);
                         pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
                     }
-                    DoCast(me, m_uiShieldSpellId);
-                    DoCast(me, m_uiTwinPactSpellId);
-                    m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
+                    DoCast(me, ShieldSpellId);
+                    DoCast(me, TwinPactSpellId);
+                    Stage = 0;
+                    SpecialAbilityTimer = 1*MINUTE*IN_MILLISECONDS;
                 }
                 else
-                    m_uiSpecialAbilityTimer -= uiDiff;
+                    SpecialAbilityTimer -= uiDiff;
                 break;
             default:
                 break;
         }
 
-        if (m_uiSpikeTimer <= uiDiff)
+        if (SpikeTimer <= uiDiff)
         {
-            DoCastVictim(m_uiSpikeSpellId);
-            m_uiSpikeTimer = 20*IN_MILLISECONDS;
+            DoCastVictim(SpikeSpellId);
+            SpikeTimer = 20*IN_MILLISECONDS;
         }
         else
-            m_uiSpikeTimer -= uiDiff;
+            SpikeTimer -= uiDiff;
 
-        if (IsHeroic() && m_uiTouchTimer <= uiDiff)
+        if (IsHeroic() && TouchTimer <= uiDiff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, m_uiOtherEssenceSpellId))
-                me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
-            m_uiTouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, OtherEssenceSpellId))
+                me->CastCustomSpell(TouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
+            TouchTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
         }
         else
-            m_uiTouchTimer -= uiDiff;
+            TouchTimer -= uiDiff;
 
-        if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
+        if (!IsBerserk && BerserkTimer <= uiDiff)
         {
             DoCast(me, SPELL_BERSERK);
             Talk(SAY_BERSERK);
-            m_bIsBerserk = true;
+            IsBerserk = true;
         }
         else
-            m_uiBerserkTimer -= uiDiff;
+            BerserkTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
 
     protected:
-        AuraStateType  m_uiAuraState;
+        AuraStateType AuraState;
 
-        uint8  m_uiStage;
-        bool   m_bIsBerserk;
+        uint8  Stage;
+        bool   IsBerserk;
 
-        uint32 m_uiWeapon;
-        uint32 m_uiSpecialAbilityTimer;
-        uint32 m_uiSpikeTimer;
-        uint32 m_uiTouchTimer;
-        uint32 m_uiBerserkTimer;
+        uint32 Weapon;
+        uint32 SpecialAbilityTimer;
+        uint32 SpikeTimer;
+        uint32 TouchTimer;
+        uint32 BerserkTimer;
 
-        int32 m_uiVortexEmote;
-        uint32 m_uiSisterNpcId;
-        uint32 m_uiMyEmphatySpellId;
-        uint32 m_uiOtherEssenceSpellId;
-        uint32 m_uiSurgeSpellId;
-        uint32 m_uiVortexSpellId;
-        uint32 m_uiShieldSpellId;
-        uint32 m_uiTwinPactSpellId;
-        uint32 m_uiSpikeSpellId;
-        uint32 m_uiTouchSpellId;
+        int32 VortexEmote;
+        uint32 SisterNpcId;
+        uint32 MyEmphatySpellId;
+        uint32 OtherEssenceSpellId;
+        uint32 SurgeSpellId;
+        uint32 VortexSpellId;
+        uint32 ShieldSpellId;
+        uint32 TwinPactSpellId;
+        uint32 SpikeSpellId;
+        uint32 TouchSpellId;
 };
 
 /*######
@@ -409,19 +409,19 @@ class boss_fjola : public CreatureScript
             void Reset()
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-                m_uiStage = 0;
-                m_uiWeapon = EQUIP_MAIN_1;
-                m_uiAuraState = AURA_STATE_UNKNOWN22;
-                m_uiVortexEmote = EMOTE_VORTEX;
-                m_uiSisterNpcId = NPC_DARKBANE;
-                m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
-                m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
-                m_uiSurgeSpellId = SPELL_LIGHT_SURGE;
-                m_uiVortexSpellId = SPELL_LIGHT_VORTEX;
-                m_uiShieldSpellId = SPELL_LIGHT_SHIELD;
-                m_uiTwinPactSpellId = SPELL_LIGHT_TWIN_PACT;
-                m_uiTouchSpellId = SPELL_LIGHT_TOUCH;
-                m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
+                Stage = 0;
+                Weapon = EQUIP_MAIN_1;
+                AuraState = AURA_STATE_UNKNOWN22;
+                VortexEmote = EMOTE_VORTEX;
+                SisterNpcId = NPC_DARKBANE;
+                MyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
+                OtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
+                SurgeSpellId = SPELL_LIGHT_SURGE;
+                VortexSpellId = SPELL_LIGHT_VORTEX;
+                ShieldSpellId = SPELL_LIGHT_SHIELD;
+                TwinPactSpellId = SPELL_LIGHT_TWIN_PACT;
+                TouchSpellId = SPELL_LIGHT_TOUCH;
+                SpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
 
                 if (instance)
                     instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
@@ -474,19 +474,19 @@ class boss_eydis : public CreatureScript
             void Reset()
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-                m_uiStage = 1;
-                m_uiWeapon = EQUIP_MAIN_2;
-                m_uiAuraState = AURA_STATE_UNKNOWN19;
-                m_uiVortexEmote = EMOTE_VORTEX;
-                m_uiSisterNpcId = NPC_LIGHTBANE;
-                m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
-                m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
-                m_uiSurgeSpellId = SPELL_DARK_SURGE;
-                m_uiVortexSpellId = SPELL_DARK_VORTEX;
-                m_uiShieldSpellId = SPELL_DARK_SHIELD;
-                m_uiTwinPactSpellId = SPELL_DARK_TWIN_PACT;
-                m_uiTouchSpellId = SPELL_DARK_TOUCH;
-                m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
+                Stage = 1;
+                Weapon = EQUIP_MAIN_2;
+                AuraState = AURA_STATE_UNKNOWN19;
+                VortexEmote = EMOTE_VORTEX;
+                SisterNpcId = NPC_LIGHTBANE;
+                MyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
+                OtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
+                SurgeSpellId = SPELL_DARK_SURGE;
+                VortexSpellId = SPELL_DARK_VORTEX;
+                ShieldSpellId = SPELL_DARK_SHIELD;
+                TwinPactSpellId = SPELL_DARK_TWIN_PACT;
+                TouchSpellId = SPELL_DARK_TOUCH;
+                SpikeSpellId = SPELL_DARK_TWIN_SPIKE;
                 boss_twin_baseAI::Reset();
             }
         };
@@ -546,7 +546,6 @@ struct mob_unleashed_ballAI : public ScriptedAI
 {
     mob_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
-        instance = creature->GetInstanceScript();
     }
 
     void MoveToNextPoint()
@@ -571,7 +570,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
         me->SetCanFly(true);
         SetCombatMovement(false);
         MoveToNextPoint();
-        m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
+        RangeCheckTimer = 0.5*IN_MILLISECONDS;
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -591,10 +590,9 @@ struct mob_unleashed_ballAI : public ScriptedAI
                 break;
         }
     }
-    private:
-        InstanceScript* instance;
+
     protected:
-        uint32 m_uiRangeCheckTimer;
+        uint32 RangeCheckTimer;
 };
 
 class mob_unleashed_dark : public CreatureScript
@@ -608,7 +606,7 @@ class mob_unleashed_dark : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (m_uiRangeCheckTimer < uiDiff)
+                if (RangeCheckTimer < uiDiff)
                 {
                     if (me->SelectNearestPlayer(3.0f))
                     {
@@ -616,10 +614,10 @@ class mob_unleashed_dark : public CreatureScript
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
-                    m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
+                    RangeCheckTimer = 0.5*IN_MILLISECONDS;
                 }
                 else
-                    m_uiRangeCheckTimer -= uiDiff;
+                    RangeCheckTimer -= uiDiff;
             }
 
             void SpellHitTarget(Unit* who, SpellInfo const* spell)
@@ -663,7 +661,7 @@ class mob_unleashed_light : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if (m_uiRangeCheckTimer < uiDiff)
+                if (RangeCheckTimer < uiDiff)
                 {
                     if (me->SelectNearestPlayer(3.0f))
                     {
@@ -671,10 +669,10 @@ class mob_unleashed_light : public CreatureScript
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
-                    m_uiRangeCheckTimer = 0.5*IN_MILLISECONDS;
+                    RangeCheckTimer = 0.5*IN_MILLISECONDS;
                 }
                 else
-                    m_uiRangeCheckTimer -= uiDiff;
+                    RangeCheckTimer -= uiDiff;
             }
 
             void SpellHitTarget(Unit* who, SpellInfo const* spell)
