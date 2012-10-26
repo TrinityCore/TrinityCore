@@ -288,7 +288,7 @@ public:
             return 0;
         }
 
-        void Load(const char* chrIn)
+        void Load(char const* chrIn)
         {
             if (!chrIn)
             {
@@ -308,7 +308,6 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_karazhan()
