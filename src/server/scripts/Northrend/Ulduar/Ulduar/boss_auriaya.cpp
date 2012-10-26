@@ -68,8 +68,8 @@ enum AuriayaYells
 
 enum AuriayaActions
 {
-    ACTION_CRAZY_CAT_LADY                        = 0,
-    ACTION_RESPAWN_DEFENDER
+    ACTION_CRAZY_CAT_LADY                       = 0,
+    ACTION_RESPAWN_DEFENDER                     = 1
 };
 
 #define SENTRY_NUMBER                            RAID_MODE<uint8>(2, 4)
@@ -83,20 +83,28 @@ enum Data
     MODEL_INVISIBLE = 11686
 };
 
+enum Events
+{
+    // Auriaya
+    EVENT_SONIC_SCREECH                 = 1,
+    EVENT_SENTINEL_BLAST                = 2,
+    EVENT_TERRIFYING_SCREECH            = 3,
+    EVENT_SUMMON_SWARMING_GUARDIAN      = 4,
+    EVENT_ACTIVATE_DEFENDER             = 5,
+    EVENT_RESPAWN_DEFENDER              = 6,
+    EVENT_BERSERK                       = 7,
+
+    // Sanctum Sentry
+    EVENT_RIP                           = 8,
+    EVENT_POUNCE                        = 9,
+
+    // Feral Defender
+    EVENT_FERAL_POUNCE                  = 10,
+    EVENT_RUSH                          = 11
+};
+
 class boss_auriaya : public CreatureScript
 {
-    enum AuriayaEvents
-    {
-        // Auriaya
-        EVENT_SONIC_SCREECH          = 1,
-        EVENT_SENTINEL_BLAST,
-        EVENT_TERRIFYING_SCREECH,
-        EVENT_SUMMON_SWARMING_GUARDIAN,
-        EVENT_ACTIVATE_DEFENDER,
-        EVENT_RESPAWN_DEFENDER,
-        EVENT_BERSERK
-    };
-
     public:
         boss_auriaya() : CreatureScript("boss_auriaya") {}
 
@@ -113,9 +121,9 @@ class boss_auriaya : public CreatureScript
             void Reset()
             {
                 _Reset();
-                defenderLives = 9;
-                crazyCatLady = true;
-                nineLives = false;
+                _defenderLives = 9;
+                _crazyCatLady = true;
+                _nineLives = false;
 
                 // Guardians are despawned by _Reset, but since they walk around with Auriaya, summon them again.
                 for (uint8 i = 0; i < SENTRY_NUMBER; i++)
@@ -158,7 +166,7 @@ class boss_auriaya : public CreatureScript
                 {
                     if (!summoned->isInCombat() && me->getVictim())
                         summoned->AI()->AttackStart(me->getVictim());
-                    summoned->SetAuraStack(SPELL_FERAL_ESSENCE, summoned, defenderLives);
+                    summoned->SetAuraStack(SPELL_FERAL_ESSENCE, summoned, _defenderLives);
                     DoZoneInCombat(summoned);
                 }
             }
@@ -168,9 +176,9 @@ class boss_auriaya : public CreatureScript
                 switch (type)
                 {
                     case DATA_NINE_LIVES:
-                        return nineLives ? 1 : 0;
+                        return _nineLives ? 1 : 0;
                     case DATA_CRAZY_CAT_LADY:
-                        return crazyCatLady ? 1 : 0;
+                        return _crazyCatLady ? 1 : 0;
                     default:
                         break;
                 }
@@ -182,10 +190,10 @@ class boss_auriaya : public CreatureScript
                 switch (id)
                 {
                     case DATA_NINE_LIVES:
-                        nineLives = data ? true : false;
+                        _nineLives = data ? true : false;
                         break;
                     case DATA_CRAZY_CAT_LADY:
-                        crazyCatLady = data ? true : false;
+                        _crazyCatLady = data ? true : false;
                         break;
                     default:
                         break;
@@ -197,8 +205,8 @@ class boss_auriaya : public CreatureScript
                 switch (summon->GetEntry())
                 {
                     case NPC_FERAL_DEFENDER:
-                        --defenderLives;
-                        if (!defenderLives)
+                        --_defenderLives;
+                        if (!_defenderLives)
                         {
                             SetData(DATA_NINE_LIVES, 1);
                             break;
@@ -258,12 +266,12 @@ class boss_auriaya : public CreatureScript
                             }
                             return;
                         case EVENT_RESPAWN_DEFENDER:
-                            if (defenderLives > 0)
+                            if (_defenderLives > 0)
                             {
                                 if (Creature* defender = me->FindNearestCreature(NPC_FERAL_DEFENDER, 100.0f, false))
                                 {
                                     defender->Respawn();
-                                    defender->SetAuraStack(SPELL_FERAL_ESSENCE, defender, defenderLives);
+                                    defender->SetAuraStack(SPELL_FERAL_ESSENCE, defender, _defenderLives);
                                 }
                             }
                             return;
@@ -285,9 +293,9 @@ class boss_auriaya : public CreatureScript
             }
 
             private:
-                uint8 defenderLives;
-                bool crazyCatLady;
-                bool nineLives;
+                uint8 _defenderLives;
+                bool _crazyCatLady;
+                bool _nineLives;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -303,7 +311,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
         struct npc_auriaya_seeping_triggerAI : public ScriptedAI
         {
-            npc_auriaya_seeping_triggerAI(Creature* creature) : ScriptedAI(creature), instance(me->GetInstanceScript()) {}
+            npc_auriaya_seeping_triggerAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) {}
 
             void Reset()
             {
@@ -315,12 +323,12 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/)
             {
-                if (instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
+                if (_instance && _instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
 
             private:
-                InstanceScript* instance;
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -331,24 +339,17 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
 class npc_sanctum_sentry : public CreatureScript
 {
-    private:
-        enum
-        {
-            EVENT_RIP = 1,
-            EVENT_POUNCE
-        };
-
     public:
         npc_sanctum_sentry() : CreatureScript("npc_sanctum_sentry") {}
 
         struct npc_sanctum_sentryAI : public ScriptedAI
         {
-            npc_sanctum_sentryAI(Creature* creature) : ScriptedAI(creature), instance(me->GetInstanceScript()) {}
+            npc_sanctum_sentryAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) {}
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_RIP, urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_POUNCE, urand(12*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                _events.ScheduleEvent(EVENT_RIP, urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS));
+                _events.ScheduleEvent(EVENT_POUNCE, urand(12*IN_MILLISECONDS, 15*IN_MILLISECONDS));
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -367,18 +368,18 @@ class npc_sanctum_sentry : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_RIP:
                             DoCastVictim(SPELL_RIP_FLESH);
-                            events.ScheduleEvent(EVENT_RIP, urand(12*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_RIP, urand(12*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             break;
                         case EVENT_POUNCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -388,7 +389,7 @@ class npc_sanctum_sentry : public CreatureScript
                                 me->AI()->AttackStart(target);
                                 DoCast(target, SPELL_SAVAGE_POUNCE);
                             }
-                            events.ScheduleEvent(EVENT_POUNCE, urand(12*IN_MILLISECONDS, 17*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_POUNCE, urand(12*IN_MILLISECONDS, 17*IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -398,10 +399,9 @@ class npc_sanctum_sentry : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            // Moved "JustDied" behavior to SummonedCreatureDies
             private:
-                InstanceScript* instance;
-                EventMap events;
+                InstanceScript* _instance;
+                EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -412,40 +412,33 @@ class npc_sanctum_sentry : public CreatureScript
 
 class npc_feral_defender : public CreatureScript
 {
-    private:
-        enum
-        {
-            EVENT_FERAL_POUNCE = 1,
-            EVENT_RUSH
-        };
-
     public:
         npc_feral_defender() : CreatureScript("npc_feral_defender") {}
 
         struct npc_feral_defenderAI : public ScriptedAI
         {
-            npc_feral_defenderAI(Creature* creature) : ScriptedAI(creature), instance(me->GetInstanceScript()) {}
+            npc_feral_defenderAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) {}
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_FERAL_POUNCE, 5*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_RUSH, 10*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_FERAL_POUNCE, 5*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_RUSH, 10*IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (instance && instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
+                if (_instance && _instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -457,7 +450,7 @@ class npc_feral_defender : public CreatureScript
                                 me->AI()->AttackStart(target);
                                 DoCast(target, SPELL_FERAL_POUNCE);
                             }
-                            events.ScheduleEvent(EVENT_FERAL_POUNCE, urand(10*IN_MILLISECONDS, 12*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_FERAL_POUNCE, urand(10*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             break;
                         case EVENT_RUSH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -467,7 +460,7 @@ class npc_feral_defender : public CreatureScript
                                 me->AI()->AttackStart(target);
                                 DoCast(target, SPELL_FERAL_RUSH);
                             }
-                            events.ScheduleEvent(EVENT_RUSH, urand(10*IN_MILLISECONDS, 12*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_RUSH, urand(10*IN_MILLISECONDS, 12*IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -481,12 +474,11 @@ class npc_feral_defender : public CreatureScript
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
                 // dont despawn the corpse
-                // Moved other behavior to SummonedCreatureDies
             }
 
             private:
-                InstanceScript* instance;
-                EventMap events;
+                InstanceScript* _instance;
+                EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const

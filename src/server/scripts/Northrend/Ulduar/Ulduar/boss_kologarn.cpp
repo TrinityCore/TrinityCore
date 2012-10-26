@@ -22,14 +22,6 @@
 #include "ulduar.h"
 #include "Vehicle.h"
 
-/* ScriptData
-SDName: boss_kologarn
-SD%Complete: 90
-SDComment: TODO: Achievements
-SDCategory: Ulduar
-EndScriptData */
-
-// Maybe I will spent those manually...
 enum Achiev
 {
     ACHIEVEMENT_RUBBLE_AND_ROLL_10   = 2959,
@@ -42,20 +34,13 @@ enum Achiev
 
 enum KologarnSpells
 {
-    SPELL_ARM_DEAD_DAMAGE_10            = 63629,
-    SPELL_ARM_DEAD_DAMAGE_25            = 63979,
-    SPELL_TWO_ARM_SMASH_10              = 63356,
-    SPELL_TWO_ARM_SMASH_25              = 64003,
-    SPELL_ONE_ARM_SMASH_10              = 63573,
-    SPELL_ONE_ARM_SMASH_25              = 64006,
-    SPELL_ARM_SWEEP_10                  = 63766,
-    SPELL_ARM_SWEEP_25                  = 63983,
-    SPELL_STONE_SHOUT_10                = 63716,
-    SPELL_STONE_SHOUT_25                = 64005,
-    SPELL_PETRIFY_BREATH_10             = 62030,
-    SPELL_PETRIFY_BREATH_25             = 63980,
-    SPELL_STONE_GRIP_10                 = 62166,
-    SPELL_STONE_GRIP_25                 = 63981,
+    SPELL_ARM_DEAD_DAMAGE               = 63629,
+    SPELL_TWO_ARM_SMASH                 = 63356,
+    SPELL_ONE_ARM_SMASH                 = 63573,
+    SPELL_ARM_SWEEP                     = 63766,
+    SPELL_STONE_SHOUT                   = 63716,
+    SPELL_PETRIFY_BREATH                = 62030,
+    SPELL_STONE_GRIP                    = 62166,
     SPELL_STONE_GRIP_DOT_10             = 64290,
     SPELL_STONE_GRIP_DOT_25             = 64292,
     SPELL_STONE_GRIP_CANCEL             = 65594,
@@ -63,8 +48,7 @@ enum KologarnSpells
     SPELL_FALLING_RUBBLE                = 63821,
     SPELL_ARM_ENTER_VEHICLE             = 65343,
     SPELL_ARM_ENTER_VISUAL              = 64753,
-    SPELL_FOCUSED_EYEBEAM_PERIODIC_10   = 63347,
-    SPELL_FOCUSED_EYEBEAM_PERIODIC_25   = 63977,
+    SPELL_FOCUSED_EYEBEAM_PERIODIC      = 63347,
     SPELL_SUMMON_FOCUSED_EYEBEAM        = 63342,
     SPELL_FOCUSED_EYEBEAM_VISUAL        = 63369,
     SPELL_FOCUSED_EYEBEAM_VISUAL_LEFT   = 63676,
@@ -74,37 +58,31 @@ enum KologarnSpells
     SPELL_KOLOGARN_PACIFY               = 63726,
     SPELL_KOLOGARN_UNK_0                = 65219,   // Not found in DBC
 
-    SPELL_BERSERK                       = 47008    // guess
+    SPELL_BERSERK                       = 47008,   // guess
+    SPELL_SQUEEZED_LIFELESS             = 64708
 };
 
-#define SPELL_ARM_DEAD_DAMAGE           RAID_MODE(SPELL_ARM_DEAD_DAMAGE_10, SPELL_ARM_DEAD_DAMAGE_25)
-#define SPELL_TWO_ARM_SMASH             RAID_MODE(SPELL_TWO_ARM_SMASH_10, SPELL_TWO_ARM_SMASH_25)
-#define SPELL_ONE_ARM_SMASH             RAID_MODE(SPELL_ONE_ARM_SMASH_10, SPELL_ONE_ARM_SMASH_25)
-#define SPELL_ARM_SWEEP                 RAID_MODE(SPELL_ARM_SWEEP_10, SPELL_ARM_SWEEP_25)
-#define SPELL_STONE_SHOUT               RAID_MODE(SPELL_STONE_SHOUT_10, SPELL_STONE_SHOUT_25)
-#define SPELL_PETRIFY_BREATH            RAID_MODE(SPELL_PETRIFY_BREATH_10, SPELL_PETRIFY_BREATH_25)
-#define SPELL_STONE_GRIP                RAID_MODE(SPELL_STONE_GRIP_10, SPELL_STONE_GRIP_25)
-#define SPELL_FOCUSED_EYEBEAM_PERIODIC  RAID_MODE(SPELL_FOCUSED_EYEBEAM_PERIODIC_10, SPELL_FOCUSED_EYEBEAM_PERIODIC_25)
 #define SPELL_STONE_GRIP_DOT            RAID_MODE(SPELL_STONE_GRIP_DOT_10, SPELL_STONE_GRIP_DOT_25)
 
 enum NPCs
 {
     NPC_RUBBLE_STALKER    = 33809,
+    NPC_RUBBLE_STALKER_25 = 33942,
     NPC_ARM_SWEEP_STALKER = 33661
 };
 
 enum Events
 {
-    EVENT_INSTALL_ACCESSORIES = 1,
-    EVENT_MELEE_CHECK,
-    EVENT_SMASH,
-    EVENT_SWEEP,
-    EVENT_STONE_SHOUT,
-    EVENT_STONE_GRIP,
-    EVENT_FOCUSED_EYEBEAM,
-    EVENT_RESPAWN_LEFT_ARM,
-    EVENT_RESPAWN_RIGHT_ARM,
-    EVENT_ENRAGE
+    EVENT_INSTALL_ACCESSORIES   = 1,
+    EVENT_MELEE_CHECK           = 2,
+    EVENT_SMASH                 = 3,
+    EVENT_SWEEP                 = 4,
+    EVENT_STONE_SHOUT           = 5,
+    EVENT_STONE_GRIP            = 6,
+    EVENT_FOCUSED_EYEBEAM       = 7,
+    EVENT_RESPAWN_LEFT_ARM      = 8,
+    EVENT_RESPAWN_RIGHT_ARM     = 9,
+    EVENT_ENRAGE                = 10
 };
 
 enum Yells
@@ -139,10 +117,10 @@ class boss_kologarn : public CreatureScript
 
         struct boss_kologarnAI : public BossAI
         {
-            boss_kologarnAI(Creature* creature) : BossAI(creature, BOSS_KOLOGARN), vehicle(creature->GetVehicleKit()),
-                haveLeftArm(false), haveRightArm(false)
+            boss_kologarnAI(Creature* creature) : BossAI(creature, BOSS_KOLOGARN), _vehicle(creature->GetVehicleKit()),
+                _haveLeftArm(false), _haveRightArm(false)
             {
-                ASSERT(vehicle);
+                ASSERT(_vehicle);
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
@@ -157,9 +135,9 @@ class boss_kologarn : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-                armDied = false;
-                rubbleCount = 0;
-                eyebeamTarget = 0;
+                _armDied = false;
+                _rubbleCount = 0;
+                _eyebeamTarget = 0;
                 me->SetReactState(REACT_DEFENSIVE);
 
                 Creature* leftHand = me->FindNearestCreature(NPC_LEFT_ARM, 20.f);
@@ -187,7 +165,7 @@ class boss_kologarn : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);
 
                 for (uint8 i = 0; i < 2; ++i)   // 2 -> 2 arms
-                    if (Unit* arm = vehicle->GetPassenger(i))
+                    if (Unit* arm = _vehicle->GetPassenger(i))
                         if (!arm->isInCombat()) // avoid cyclical activation: His arms are calling Kologarn if they get in combat and he is not.
                             arm->ToCreature()->SetInCombatWithZone();
 
@@ -204,7 +182,7 @@ class boss_kologarn : public CreatureScript
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning - it's the bridge to inner Ulduar.
 
                 for (uint8 i = 0; i < 2; ++i)
-                    if (Unit* arm = vehicle->GetPassenger(i))
+                    if (Unit* arm = _vehicle->GetPassenger(i))
                         arm->ExitVehicle();
 
                 summons.DespawnAll();
@@ -223,10 +201,10 @@ class boss_kologarn : public CreatureScript
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
             {
-                bool isEncounterInProgress = (instance->GetBossState(BOSS_KOLOGARN) == IN_PROGRESS);
+                bool isEncounterInProgress = (instance && instance->GetBossState(BOSS_KOLOGARN) == IN_PROGRESS);
                 if (who->GetEntry() == NPC_LEFT_ARM)
                 {
-                    haveLeftArm = apply;
+                    _haveLeftArm = apply;
                     if (!apply && isEncounterInProgress)
                     {
                         who->ToCreature()->DisappearAndDie();
@@ -236,7 +214,7 @@ class boss_kologarn : public CreatureScript
                 }
                 else if (who->GetEntry() == NPC_RIGHT_ARM)
                 {
-                    haveRightArm = apply;
+                    _haveRightArm = apply;
                     if (!apply && isEncounterInProgress)
                     {
                         who->ToCreature()->DisappearAndDie();
@@ -250,7 +228,7 @@ class boss_kologarn : public CreatureScript
 
                 if (!apply)
                 {
-                    armDied = true;
+                    _armDied = true;
                     who->CastSpell(me, SPELL_ARM_DEAD_DAMAGE, true);
                     me->LowerPlayerDamageReq(RAID_MODE<uint32>(543855, 2300925));   // Reduce requirements for players to get the loot - since the spell does a lot of damage
 
@@ -260,7 +238,7 @@ class boss_kologarn : public CreatureScript
                         rubbleStalker->CastSpell(rubbleStalker, SPELL_SUMMON_RUBBLE, true);
                     }
 
-                    if (!haveRightArm && !haveLeftArm)
+                    if (!_haveRightArm && !_haveLeftArm)
                         events.ScheduleEvent(EVENT_STONE_SHOUT, 5*IN_MILLISECONDS);
 
                     if (instance)
@@ -327,14 +305,14 @@ class boss_kologarn : public CreatureScript
             void SummonedCreatureDespawn(Creature* summon)
             {
                 if (summon->GetEntry() == NPC_RUBBLE)
-                    --rubbleCount;
+                    --_rubbleCount;
                 summons.Despawn(summon);
             }
 
             void SummonedCreatureDies(Creature* summon, Unit* /* killer */)
             {
                 if (summon->GetEntry() == NPC_RUBBLE)
-                    --rubbleCount;
+                    --_rubbleCount;
                 summons.Despawn(summon);
             }
 
@@ -353,7 +331,7 @@ class boss_kologarn : public CreatureScript
                     case NPC_RUBBLE:
                         summons.Summon(summon);
                         summon->SetInCombatWithZone();
-                        ++rubbleCount;
+                        ++_rubbleCount;
                         return;
                     default:
                         return;
@@ -367,9 +345,9 @@ class boss_kologarn : public CreatureScript
                 summon->ClearUnitState(UNIT_STATE_CASTING);
 
                 // Victim gets 67351
-                if (eyebeamTarget)
+                if (_eyebeamTarget)
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*summon, eyebeamTarget))
+                    if (Unit* target = ObjectAccessor::GetUnit(*summon, _eyebeamTarget))
                     {
                         summon->Attack(target, false);
                         summon->GetMotionMaster()->MoveChase(target);
@@ -382,11 +360,11 @@ class boss_kologarn : public CreatureScript
                 switch (type)
                 {
                     case DATA_RUBBLE_AND_ROLL:
-                        return (rubbleCount >= 25) ? 1 : 0;
+                        return (_rubbleCount >= 25) ? 1 : 0;
                     case DATA_DISARMED:
-                        return (!haveRightArm && !haveLeftArm) ? 1 : 0;
+                        return (!_haveRightArm && !_haveLeftArm) ? 1 : 0;
                     case DATA_WITH_OPEN_ARMS:
-                        return armDied ? 0 : 1;
+                        return _armDied ? 0 : 1;
                     default:
                         break;
                 }
@@ -414,7 +392,7 @@ class boss_kologarn : public CreatureScript
                             events.ScheduleEvent(EVENT_MELEE_CHECK, 1*IN_MILLISECONDS);
                             return;
                         case EVENT_SWEEP:           // Cast for left arm
-                            if (haveLeftArm)
+                            if (_haveLeftArm)
                             {
                                 if (Creature* target = me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true))
                                 {
@@ -425,7 +403,7 @@ class boss_kologarn : public CreatureScript
                             events.ScheduleEvent(EVENT_SWEEP, 25*IN_MILLISECONDS);
                             return;
                         case EVENT_STONE_GRIP:      // Cast for right arm
-                            if (haveRightArm)
+                            if (_haveRightArm)
                             {
                                 DoCast(SPELL_STONE_GRIP);
                                 Talk(EMOTE_STONE);
@@ -434,9 +412,9 @@ class boss_kologarn : public CreatureScript
                             events.ScheduleEvent(EVENT_STONE_GRIP, 25*IN_MILLISECONDS);
                             return;
                         case EVENT_SMASH:
-                            if (haveLeftArm && haveRightArm)
+                            if (_haveLeftArm && _haveRightArm)
                                 DoCastVictim(SPELL_TWO_ARM_SMASH);
-                            else if (haveLeftArm || haveRightArm)
+                            else if (_haveLeftArm || _haveRightArm)
                                 DoCastVictim(SPELL_ONE_ARM_SMASH);
                             events.ScheduleEvent(EVENT_SMASH, 15 * IN_MILLISECONDS);
                             return;
@@ -461,8 +439,8 @@ class boss_kologarn : public CreatureScript
                         case EVENT_FOCUSED_EYEBEAM:
                             if (Player* eyebeamTargetUnit = GetEyeBeamTarget())
                             {
-                                eyebeamTarget = eyebeamTargetUnit->GetGUID();
-                                Talk(WHISPER_EYEBEAM, eyebeamTarget);
+                                _eyebeamTarget = eyebeamTargetUnit->GetGUID();
+                                Talk(WHISPER_EYEBEAM, _eyebeamTarget);
 
                                 eyebeamTargetUnit->CastSpell(eyebeamTargetUnit, 63343, true, NULL, NULL, me->GetGUID());
                                 eyebeamTargetUnit->CastSpell(eyebeamTargetUnit, 63701, true, NULL, NULL, me->GetGUID());
@@ -495,11 +473,11 @@ class boss_kologarn : public CreatureScript
             }
 
             private:
-                Vehicle* vehicle;
-                bool haveLeftArm, haveRightArm;
-                bool armDied;
-                uint64 eyebeamTarget;
-                uint8 rubbleCount;
+                Vehicle* _vehicle;
+                bool _haveLeftArm, _haveRightArm;
+                bool _armDied;
+                uint64 _eyebeamTarget;
+                uint8 _rubbleCount;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -773,12 +751,6 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 
 class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
 {
-    private:
-        enum
-        {
-            NPC_RUBBLE_STALKER_25 = 33942
-        };
-
     public:
         spell_ulduar_stone_grip_absorb() : SpellScriptLoader("spell_ulduar_stone_grip_absorb") {}
 
@@ -817,12 +789,6 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
 
 class spell_ulduar_stone_grip : public SpellScriptLoader
 {
-    private:
-        enum
-        {
-            SPELL_SQUEEZED_LIFELESS = 64708
-        };
-
     public:
         spell_ulduar_stone_grip() : SpellScriptLoader("spell_ulduar_stone_grip") {}
 
@@ -978,12 +944,4 @@ void AddSC_boss_kologarn()
     new achievement_with_open_arms("achievement_with_open_arms_25");
 }
 
-#undef SPELL_ARM_DEAD_DAMAGE
-#undef SPELL_TWO_ARM_SMASH
-#undef SPELL_ONE_ARM_SMASH
-#undef SPELL_ARM_SWEEP
-#undef SPELL_STONE_SHOUT
-#undef SPELL_PETRIFY_BREATH
-#undef SPELL_STONE_GRIP
-#undef SPELL_FOCUSED_EYEBEAM_PERIODIC
 #undef SPELL_STONE_GRIP_DOT
