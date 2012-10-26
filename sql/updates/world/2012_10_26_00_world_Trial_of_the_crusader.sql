@@ -17,7 +17,7 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=65919;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (65919, 'spell_impale');
 
--- firebomb scriptname and modelid (ToC Gormok encounter)
+-- firebomb scriptname (ToC Gormok encounter)
 UPDATE `creature_template` SET `ScriptName`="npc_firebomb" WHERE `entry`=34854;
 
 -- frost sphere corrections
