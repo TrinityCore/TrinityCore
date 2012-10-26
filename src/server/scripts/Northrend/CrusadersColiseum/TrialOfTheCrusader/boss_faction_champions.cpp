@@ -16,16 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: faction_champions
-SD%Complete: ??%
-SDComment: Scripts by Selector, modified by /dev/rsa
-SDCategory: Crusader Coliseum
-EndScriptData */
-
-// Known bugs:
-// All - untested
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -270,9 +260,9 @@ struct boss_faction_championsAI : public BossAI
 
     void Reset()
     {
-        events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
+        m_events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
         if (IsHeroic() && (mAIType != AI_PET))
-            events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
+            m_events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
         championControllerGUID = 0;
     }
 
@@ -431,25 +421,25 @@ struct boss_faction_championsAI : public BossAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        events.Update(uiDiff);
+        m_events.Update(uiDiff);
 
-        while (uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = m_events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_THREAT:
                     UpdatePower();
                     UpdateThreat();
-                    events.ScheduleEvent(EVENT_THREAT, 4*IN_MILLISECONDS);
+                    m_events.ScheduleEvent(EVENT_THREAT, 4*IN_MILLISECONDS);
                     return;
                 case EVENT_REMOVE_CC:
                     if (me->HasBreakableByDamageCrowdControlAura())
                     {
                         RemoveCC();
-                        events.RescheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
+                        m_events.RescheduleEvent(EVENT_REMOVE_CC, 2*MINUTE*IN_MILLISECONDS);
                     }
                     else
-                        events.RescheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
+                        m_events.RescheduleEvent(EVENT_REMOVE_CC, 3*IN_MILLISECONDS);
                     return;
                 default:
                     return;
@@ -463,6 +453,8 @@ struct boss_faction_championsAI : public BossAI
     private:
         uint64 championControllerGUID;
         uint32 mAIType;
+        // make sure that every bosses separate events doesnt mix with m_events
+        EventMap m_events;
 };
 
 /********************************************************************
@@ -561,7 +553,7 @@ class mob_toc_druid : public CreatureScript
                                 events.RescheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 3*IN_MILLISECONDS);
                             return;
                         case EVENT_THORNS:
                             if (Creature* target = SelectRandomFriendlyMissingBuff(SPELL_THORNS))
@@ -663,7 +655,7 @@ class mob_toc_shaman : public CreatureScript
                             events.ScheduleEvent(EVENT_SPIRIT_CLEANSE, urand(15*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
                         case EVENT_BLOODLUST_HEROISM:
-                            if (me->getFaction()) //Am i alliance?
+                            if (me->getFaction()) // alliance = 1
                             {
                                 if (!me->HasAura(AURA_EXHAUSTION))
                                     DoCastAOE(SPELL_HEROISM);
@@ -676,7 +668,7 @@ class mob_toc_shaman : public CreatureScript
                             events.ScheduleEvent(EVENT_BLOODLUST_HEROISM, 300*IN_MILLISECONDS);
                             return;
                         case EVENT_HEX:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_HEX);
                             events.ScheduleEvent(EVENT_HEX, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
@@ -778,7 +770,7 @@ class mob_toc_paladin : public CreatureScript
                                 events.RescheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_CLEANSE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -809,7 +801,7 @@ class mob_toc_paladin : public CreatureScript
                                     events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
                                 }
                                 else
-                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 3*IN_MILLISECONDS);
                             }
                             else
                                 events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
@@ -1035,7 +1027,7 @@ class mob_toc_shadow_priest : public CreatureScript
                                 events.RescheduleEvent(EVENT_DISPERSION, 180*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DISPERSION, 20*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DISPERSION, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_DISPEL:
                             if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
@@ -1277,10 +1269,10 @@ class mob_toc_mage : public CreatureScript
                                 events.RescheduleEvent(EVENT_ICE_BLOCK, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_ICE_BLOCK, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICE_BLOCK, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_POLYMORPH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_POLYMORPH);
                             events.ScheduleEvent(EVENT_POLYMORPH, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
@@ -1405,7 +1397,7 @@ class mob_toc_hunter : public CreatureScript
                             events.ScheduleEvent(EVENT_WING_CLIP, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         case EVENT_WYVERN_STING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 35.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_WYVERN_STING);
                             events.ScheduleEvent(EVENT_WYVERN_STING, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
@@ -1487,7 +1479,7 @@ class mob_toc_boomkin : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CYCLONE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_CYCLONE);
                             events.ScheduleEvent(EVENT_CYCLONE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
@@ -1523,7 +1515,7 @@ class mob_toc_boomkin : public CreatureScript
                                 events.RescheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_BARKSKIN, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BARKSKIN, 5*IN_MILLISECONDS);
                             return;
                         default:
                             return;
@@ -1651,7 +1643,7 @@ class mob_toc_warrior : public CreatureScript
                                 events.RescheduleEvent(EVENT_RETALIATION, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_RETALIATION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_RETALIATION, 5*IN_MILLISECONDS);
                             return;
                         default:
                             return;
@@ -1753,7 +1745,7 @@ class mob_toc_dk : public CreatureScript
                                 events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICEBOUND_FORTITUDE, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_ICY_TOUCH:
                             DoCastVictim(SPELL_ICY_TOUCH);
@@ -1766,7 +1758,7 @@ class mob_toc_dk : public CreatureScript
                                 events.RescheduleEvent(EVENT_STRANGULATE, 120*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_STRANGULATE, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_STRANGULATE, 5*IN_MILLISECONDS);
                             return;
                         default:
                             return;
@@ -1851,7 +1843,7 @@ class mob_toc_rogue : public CreatureScript
                             events.ScheduleEvent(EVENT_FAN_OF_KNIVES, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         case EVENT_BLIND:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_BLIND);
                             events.ScheduleEvent(EVENT_BLIND, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
@@ -1862,7 +1854,7 @@ class mob_toc_rogue : public CreatureScript
                                 events.RescheduleEvent(EVENT_CLOAK, 90*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_CLOAK, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_CLOAK, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_BLADE_FLURRY:
                             if (EnemiesInRange(10.0f) >= 2)
@@ -1871,7 +1863,7 @@ class mob_toc_rogue : public CreatureScript
                                 events.RescheduleEvent(EVENT_BLADE_FLURRY, 120*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_BLADE_FLURRY, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_SHADOWSTEP:
                             if (me->IsInRange(me->getVictim(), 10.0f, 40.0f, false))
@@ -2139,7 +2131,7 @@ class mob_toc_retro_paladin : public CreatureScript
                             events.ScheduleEvent(EVENT_JUDGEMENT_OF_COMMAND, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_REPENTANCE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_REPENTANCE);
                             events.ScheduleEvent(EVENT_REPENTANCE, 60*IN_MILLISECONDS);
                             return;
@@ -2152,10 +2144,10 @@ class mob_toc_retro_paladin : public CreatureScript
                                     events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
                                 }
                                 else
-                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 5*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_DIVINE_SHIELD:
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
@@ -2164,7 +2156,7 @@ class mob_toc_retro_paladin : public CreatureScript
                                 events.RescheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 5*IN_MILLISECONDS);
                             return;
                         default:
                             return;

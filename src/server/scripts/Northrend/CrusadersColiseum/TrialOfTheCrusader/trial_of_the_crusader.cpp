@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Trial Of the crusader
-SD%Complete: ??%
-SDComment: event script based on /dev/rsa
-SDCategory: trial_of_the_crusader
-EndScriptData */
-
 //Known Bugs:
 // - Need better implementation of Gossip and correct gossip text and option
 
@@ -245,7 +238,7 @@ class boss_lich_king_toc : public CreatureScript
             {
                 m_uiUpdateTimer = 0;
                 me->SetReactState(REACT_PASSIVE);
-                if (Creature* summoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                if (Creature* summoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 1*MINUTE*IN_MILLISECONDS))
                 {
                     summoned->CastSpell(summoned, 51807, false);
                     summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
@@ -259,6 +252,7 @@ class boss_lich_king_toc : public CreatureScript
             {
                 if (uiType != POINT_MOTION_TYPE || !instance)
                     return;
+
                 switch (uiId)
                 {
                     case 0:
@@ -266,6 +260,8 @@ class boss_lich_king_toc : public CreatureScript
                         break;
                     case 1:
                         instance->SetData(TYPE_EVENT, 5050);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -335,11 +331,12 @@ class boss_lich_king_toc : public CreatureScript
                                 if (!temp || !temp->isAlive())
                                     temp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
-
-                            instance->SetData(TYPE_EVENT, 0);
+                                instance->SetData(TYPE_EVENT, 0);
                             }
                             me->DespawnOrUnsummon();
                             m_uiUpdateTimer = 20*IN_MILLISECONDS;
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -352,7 +349,6 @@ class boss_lich_king_toc : public CreatureScript
             private:
                 InstanceScript* instance;
                 uint32 m_uiUpdateTimer;
-
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -405,8 +401,10 @@ class npc_fizzlebang_toc : public CreatureScript
                         {
                             instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
                             instance->SetData(TYPE_EVENT, 1120);
-                            instance->SetData(TYPE_EVENT_TIMER, 1000);
+                            instance->SetData(TYPE_EVENT_TIMER, 1*IN_MILLISECONDS);
                         }
+                        break;
+                    default:
                         break;
                 }
             }
@@ -802,6 +800,8 @@ class npc_tirion_toc : public CreatureScript
                             m_uiUpdateTimer = 5*IN_MILLISECONDS;
                             instance->SetData(TYPE_EVENT, 6030);
                             break;
+                        default:
+                            break;
                     }
                 }
                 else
@@ -884,6 +884,8 @@ class npc_garrosh_toc : public CreatureScript
                             m_uiUpdateTimer = 5*IN_MILLISECONDS;
                             instance->SetData(TYPE_EVENT, 4040);
                             break;
+                        default:
+                            break;
                     }
                 }
                 else
@@ -965,6 +967,8 @@ class npc_varian_toc : public CreatureScript
                             Talk(SAY_STAGE_3_03a);
                             m_uiUpdateTimer = 5*IN_MILLISECONDS;
                             instance->SetData(TYPE_EVENT, 4040);
+                            break;
+                        default:
                             break;
                     }
                 }

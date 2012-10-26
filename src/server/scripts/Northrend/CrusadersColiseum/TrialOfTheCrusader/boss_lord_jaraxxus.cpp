@@ -16,19 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: trial_of_the_crusader
-SD%Complete: ??%
-SDComment: based on /dev/rsa
-SDCategory: Crusader Coliseum
-EndScriptData */
-
-// Known bugs:
-// Some visuals aren't appearing right sometimes
-//
-// TODO:
-// Redone summon's scripts in SAI
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
@@ -111,7 +98,7 @@ class boss_jaraxxus : public CreatureScript
 
             void Reset()
             {
-                events.Reset();
+                _Reset();
                 events.ScheduleEvent(EVENT_FEL_FIREBALL, 5*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
@@ -119,11 +106,11 @@ class boss_jaraxxus : public CreatureScript
                 events.ScheduleEvent(EVENT_LEGION_FLAME, 30*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUMMONO_NETHER_PORTAL, 20*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 80*IN_MILLISECONDS);
-                summons.DespawnAll();
             }
 
             void JustReachedHome()
             {
+                _JustReachedHome();
                 if (instance)
                     instance->SetBossState(BOSS_JARAXXUS, FAIL);
                 DoCast(me, SPELL_JARAXXUS_CHAINS);
@@ -143,8 +130,6 @@ class boss_jaraxxus : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetBossState(BOSS_JARAXXUS, DONE);
             }
 
             void JustSummoned(Creature* summoned)
@@ -236,7 +221,7 @@ class mob_legion_flame : public CreatureScript
         {
             mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                instanceScript = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             void Reset()
@@ -249,11 +234,11 @@ class mob_legion_flame : public CreatureScript
             void UpdateAI(const uint32 /*uiDiff*/)
             {
                 UpdateVictim();
-                if (instanceScript->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (instance && instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
             private:
-                InstanceScript* instanceScript;
+                InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -309,7 +294,6 @@ class mob_infernal_volcano : public CreatureScript
             private:
                 InstanceScript* instance;
                 SummonList Summons;
-
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -493,6 +477,8 @@ class mob_mistress_of_pain : public CreatureScript
                             DoCast(me, SPELL_MISTRESS_KISS);
                             events.ScheduleEvent(EVENT_MISTRESS_KISS, 30*IN_MILLISECONDS);
                             return;
+                        default:
+                            break;
                     }
                 }
 

@@ -16,19 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_anubarak_trial
-SD%Complete: ??%
-SDComment: based on /dev/rsa
-SDCategory:
-EndScriptData */
-
 // Known bugs:
 // Anubarak - underground phase partially not worked
 //          - tele after impale hit a permafrost doesn't work (the entire tele spell should be better)
-// Burrower - Spider Frenzy not working as it should (frenzy not stacking)
 // Scarab   - Kill credit isn't crediting?
-// FrostSph - often they are casting Permafrost a little above the ground
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -122,9 +113,9 @@ enum MovementPoints
 enum PursuingSpikesPhases
 {
     PHASE_NO_MOVEMENT = 0,
-    PHASE_IMPALE_NORMAL = 1,
-    PHASE_IMPALE_MIDDLE = 2,
-    PHASE_IMPALE_FAST = 3
+    PHASE_IMPALE_NORMAL,
+    PHASE_IMPALE_MIDDLE,
+    PHASE_IMPALE_FAST
 };
 
 class boss_anubarak_trial : public CreatureScript
@@ -254,15 +245,15 @@ class boss_anubarak_trial : public CreatureScript
                 Talk(SAY_AGGRO);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
-                //Despawn Scarab Swarms neutral
+                // Despawn Scarab Swarms neutral
                 EntryCheckPredicate pred(NPC_SCARAB);
                 summons.DoAction(ACTION_SCARAB_SUBMERGE, pred);
 
-                //Spawn Burrow
+                // Spawn Burrow
                 for (int i = 0; i < 4; i++)
                     me->SummonCreature(NPC_BURROW, AnubarakLoc[i + 2]);
 
-                //Spawn Frost Spheres
+                // Spawn 6 Frost Spheres at start
                 for (int i = 0; i < 6; i++)
                     SummonFrostSphere();
             }

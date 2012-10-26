@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: trial_of_the_crusader
-SD%Complete: ??%
-SDComment: based on /dev/rsa
-SDCategory: Crusader Coliseum
-EndScriptData */
-
 // Known bugs:
 //    - They should be floating but they aren't respecting the floor =(
 //    - Hardcoded bullets spawner
@@ -156,7 +149,7 @@ struct boss_twin_baseAI : public BossAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->ModifyAuraState(m_uiAuraState, true);
-        /* Uncomment this once that they are flying above the ground
+        /* Uncomment this once that they are floating above the ground
         me->SetLevitate(true);
         me->SetFlying(true); */
         m_bIsBerserk = false;
@@ -431,18 +424,14 @@ class boss_fjola : public CreatureScript
                 m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
 
                 if (instance)
-                {
                     instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
-                }
                 boss_twin_baseAI::Reset();
             }
 
             void EnterCombat(Unit* who)
             {
                 if (instance)
-                {
                     instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
-                }
 
                 me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
                 boss_twin_baseAI::EnterCombat(who);

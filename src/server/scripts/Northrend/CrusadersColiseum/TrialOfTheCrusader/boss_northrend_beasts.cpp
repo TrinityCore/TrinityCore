@@ -15,16 +15,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/* ScriptData
-SDName: northrend_beasts
-SD%Complete: 90%
-SDComment: based on /dev/rsa
-SDCategory:
-EndScriptData */
 
 // Known bugs:
 // Gormok - Snobolled (creature at back)
-// Snakes - miss the 1-hitkill from emerging
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
