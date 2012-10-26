@@ -156,7 +156,7 @@ public:
         sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : -1);
         sTicketMgr->UpdateLastChange();
 
-        std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName() : "Console", NULL, NULL, NULL);
+        std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
         // Inform player, who submitted this ticket, that it is closed
@@ -206,7 +206,7 @@ public:
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(), NULL, NULL);
-        msg += handler->PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player ? player->GetName() : "Console", comment);
+        msg += handler->PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player ? player->GetName().c_str() : "Console", comment);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
         return true;
@@ -258,7 +258,7 @@ public:
             return true;
         }
 
-        std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName() : "Console");
+        std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console");
         handler->SendGlobalGMSysMessage(msg.c_str());
 
         sTicketMgr->RemoveTicket(ticket->GetId());
@@ -389,7 +389,7 @@ public:
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(),
-            handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName() : "Console", NULL);
+            handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
         return true;
@@ -427,7 +427,7 @@ public:
 
         // Detect target's GUID
         uint64 guid = 0;
-        if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
+        if (Player* player = sObjectAccessor->FindPlayerByName(name))
             guid = player->GetGUID();
         else
             guid = sObjectMgr->GetPlayerGUIDByName(name);

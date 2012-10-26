@@ -29,7 +29,7 @@ void GetPlayerInfo(ChatHandler* handler, Player* player)
     LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(guid);
 
     char const * const state = sLFGMgr->GetStateString(sLFGMgr->GetState(guid));
-    handler->PSendSysMessage(LANG_LFG_PLAYER_INFO, player->GetName(),
+    handler->PSendSysMessage(LANG_LFG_PLAYER_INFO, player->GetName().c_str(),
         state, uint8(dungeons.size()), sLFGMgr->ConcatenateDungeons(dungeons).c_str(),
         sLFGMgr->GetRolesString(sLFGMgr->GetRoles(guid)).c_str(), sLFGMgr->GetComment(guid).c_str());
 }

@@ -72,6 +72,8 @@ class _SpellScript
         {
             public:
                 EffectHook(uint8 _effIndex);
+                virtual ~EffectHook() { }
+
                 uint8 GetAffectedEffectsMask(SpellInfo const* spellEntry);
                 bool IsEffectAffected(SpellInfo const* spellEntry, uint8 effIndex);
                 virtual bool CheckEffect(SpellInfo const* spellEntry, uint8 effIndex) = 0;
@@ -83,7 +85,7 @@ class _SpellScript
         class EffectNameCheck
         {
             public:
-                EffectNameCheck(uint16 _effName) {effName = _effName;};
+                EffectNameCheck(uint16 _effName) { effName = _effName; }
                 bool Check(SpellInfo const* spellEntry, uint8 effIndex);
                 std::string ToString();
             private:
@@ -118,7 +120,7 @@ class _SpellScript
         virtual bool Load() { return true; }
         // Function called when script is destroyed
         // use for: deallocating memory allocated by script
-        virtual void Unload() {}
+        virtual void Unload() { }
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls
