@@ -825,7 +825,7 @@ enum SpellEffects
     SPELL_EFFECT_JUMP_DEST                          = 42,
     SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER         = 43,
     SPELL_EFFECT_SKILL_STEP                         = 44,
-    SPELL_EFFECT_ADD_HONOR                          = 45,
+    SPELL_EFFECT_PLAY_MOVIE                         = 45,
     SPELL_EFFECT_SPAWN                              = 46,
     SPELL_EFFECT_TRADE_SKILL                        = 47,
     SPELL_EFFECT_STEALTH                            = 48,
