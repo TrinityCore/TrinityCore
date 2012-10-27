@@ -26,7 +26,6 @@ void AddSC_example_misc();
 void AddSC_example_commandscript();
 void AddSC_DuelReset();
 void AddSC_gm_login();
-void AddSC_transmogrify_script();
 void AddSC_npc_arena_setup();
 
 // spells
@@ -1281,7 +1280,6 @@ void AddCustomScripts()
     /* This is where custom scripts should be added. */
 	AddSC_DuelReset();
 	AddSC_gm_login();
-	AddSC_transmogrify_script();
 	AddSC_npc_arena_setup();
 
 #endif
