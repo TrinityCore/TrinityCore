@@ -10,6 +10,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  Custom/npc_gc_vendor.cpp
 )
 
 message("  -> Prepared: Custom")
