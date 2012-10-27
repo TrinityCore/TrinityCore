@@ -1599,6 +1599,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `
 -- remove the ICC-wise buffs
 DELETE FROM `spell_area` WHERE `spell` IN (73822, 73828);
 
+-- adding the regular ICC trash drop to The Damned
+UPDATE `creature_template` SET `lootid`=100002 WHERE `entry` IN (37011, 38061);
+
 ####################
 -- Forge of Souls ##
 ####################
