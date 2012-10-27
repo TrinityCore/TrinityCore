@@ -13,9 +13,12 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (65980, 'spell_toc_bloodlust');
 
 -- impale scriptname
-DELETE FROM `spell_script_names` WHERE `spell_id`=65919;
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (65919, 67858, 67859, 67860);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(65919, 'spell_impale');
+(65919, 'spell_impale'),
+(67858, 'spell_impale'),
+(67859, 'spell_impale'),
+(67860, 'spell_impale');
 
 -- firebomb scriptname (ToC Gormok encounter)
 UPDATE `creature_template` SET `ScriptName`="npc_firebomb" WHERE `entry`=34854;
@@ -34,18 +37,6 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-67177, -67180, 0, 'Dark Essence 10M H'),
 (-67178, -67181, 0, 'Dark Essence 25M H'),
 (-65684, -65827, 0, 'Dark Essence 10M');
-
--- Dark / Light Vortex scriptname
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (66059, 67155, 67156, 67157, 66048, 67203, 67204, 67205);
-INSERT INTO `spell_script_names` VALUES
-(66059, 'spell_twin_vortex'),
-(67155, 'spell_twin_vortex'),
-(67156, 'spell_twin_vortex'),
-(67157, 'spell_twin_vortex'),
-(66048, 'spell_twin_vortex'),
-(67203, 'spell_twin_vortex'),
-(67204, 'spell_twin_vortex'),
-(67205, 'spell_twin_vortex');
 
 -- Gormoks Fire Bomb scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id`=66313;

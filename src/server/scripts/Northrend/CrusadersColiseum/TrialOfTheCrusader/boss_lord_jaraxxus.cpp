@@ -62,31 +62,35 @@ enum BossSpells
     SPELL_BERSERK                     = 64238, // unused
 
     // Mistress of Pain spells
-    SPELL_SHIVAN_SLASH                = 67098,
-    SPELL_SPINNING_STRIKE             = 66283,
-    SPELL_MISTRESS_KISS               = 66336,
-    SPELL_FEL_INFERNO                 = 67047,
-    SPELL_FEL_STREAK                  = 66494,
-    SPELL_LORD_HITTIN                 = 66326   // special effect preventing more specific spells be cast on the same player within 10 seconds
+    SPELL_SHIVAN_SLASH                  = 67098,
+    SPELL_SPINNING_STRIKE               = 66283,
+    SPELL_MISTRESS_KISS                 = 66336,
+    SPELL_FEL_INFERNO                   = 67047,
+    SPELL_FEL_STREAK                    = 66494,
+    SPELL_LORD_HITTIN                   = 66326,   // special effect preventing more specific spells be cast on the same player within 10 seconds
+    SPELL_MISTRESS_KISS_DEBUFF          = 66334,
+    SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359
 };
 
-/*######
-## boss_jaraxxus
-######*/
+enum Events
+{
+    // Lord Jaraxxus
+    EVENT_FEL_FIREBALL              = 1,
+    EVENT_FEL_LIGHTNING             = 2,
+    EVENT_INCINERATE_FLESH          = 3,
+    EVENT_NETHER_POWER              = 4,
+    EVENT_LEGION_FLAME              = 5,
+    EVENT_SUMMONO_NETHER_PORTAL     = 6,
+    EVENT_SUMMON_INFERNAL_ERUPTION  = 7,
+
+    // Mistress of Pain
+    EVENT_SHIVAN_SLASH              = 8,
+    EVENT_SPINNING_STRIKE           = 9,
+    EVENT_MISTRESS_KISS             = 10
+};
 
 class boss_jaraxxus : public CreatureScript
 {
-    enum
-    {
-        EVENT_FEL_FIREBALL              = 1,
-        EVENT_FEL_LIGHTNING             = 2,
-        EVENT_INCINERATE_FLESH          = 3,
-        EVENT_NETHER_POWER              = 4,
-        EVENT_LEGION_FLAME              = 5,
-        EVENT_SUMMONO_NETHER_PORTAL     = 6,
-        EVENT_SUMMON_INFERNAL_ERUPTION  = 7
-    };
-
     public:
         boss_jaraxxus() : CreatureScript("boss_jaraxxus") { }
 
@@ -143,12 +147,12 @@ class boss_jaraxxus : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                events.Update(uiDiff);
+                events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -231,7 +235,7 @@ class mob_legion_flame : public CreatureScript
                 DoCast(SPELL_LEGION_FLAME_EFFECT);
             }
 
-            void UpdateAI(const uint32 /*uiDiff*/)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 UpdateVictim();
                 if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
@@ -318,7 +322,7 @@ class mob_fel_infernal : public CreatureScript
                 me->SetInCombatWithZone();
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(const uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 {
@@ -329,14 +333,14 @@ class mob_fel_infernal : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (_felStreakTimer <= uiDiff)
+                if (_felStreakTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         DoCast(target, SPELL_FEL_STREAK);
                     _felStreakTimer = 30*IN_MILLISECONDS;
                 }
                 else
-                    _felStreakTimer -= uiDiff;
+                    _felStreakTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
@@ -406,13 +410,6 @@ class mob_nether_portal : public CreatureScript
 
 class mob_mistress_of_pain : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_SHIVAN_SLASH      = 1,
-        EVENT_SPINNING_STRIKE   = 2,
-        EVENT_MISTRESS_KISS     = 3
-    };
-
     public:
         mob_mistress_of_pain() : CreatureScript("mob_mistress_of_pain") { }
 
@@ -440,7 +437,7 @@ class mob_mistress_of_pain : public CreatureScript
                     _instance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, DECREASE);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(const uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
                 {
@@ -451,7 +448,7 @@ class mob_mistress_of_pain : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                _events.Update(uiDiff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -489,11 +486,6 @@ class mob_mistress_of_pain : public CreatureScript
         {
             return new mob_mistress_of_painAI(creature);
         }
-};
-
-enum MistressKiss
-{
-    SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359
 };
 
 class spell_mistress_kiss : public SpellScriptLoader
@@ -537,11 +529,6 @@ class spell_mistress_kiss : public SpellScriptLoader
         {
             return new spell_mistress_kiss_AuraScript();
         }
-};
-
-enum MistressKissDebuff
-{
-    SPELL_MISTRESS_KISS_DEBUFF  = 66334
 };
 
 class spell_mistress_kiss_area : public SpellScriptLoader

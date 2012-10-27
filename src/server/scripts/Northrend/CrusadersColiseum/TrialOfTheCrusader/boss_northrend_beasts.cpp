@@ -109,15 +109,49 @@ enum MyActions
     ACTION_DISABLE_FIRE_BOMB    = 2
 };
 
+enum Events
+{
+    // Gormok
+    EVENT_IMPALE                = 1,
+    EVENT_STAGGERING_STOMP      = 2,
+    EVENT_THROW                 = 3,
+
+    // Snobold
+    EVENT_FIRE_BOMB             = 4,
+    EVENT_BATTER                = 5,
+    EVENT_HEAD_CRACK            = 6,
+
+    // Acidmaw & Dreadscale
+    EVENT_BITE                  = 7,
+    EVENT_SPEW                  = 8,
+    EVENT_SLIME_POOL            = 9,
+    EVENT_SPIT                  = 10,
+    EVENT_SPRAY                 = 11,
+    EVENT_SWEEP                 = 12,
+    EVENT_SUBMERGE              = 13,
+    EVENT_EMERGE                = 14,
+    EVENT_SUMMON_ACIDMAW        = 15,
+
+    // Icehowl
+    EVENT_FEROCIOUS_BUTT        = 16,
+    EVENT_MASSIVE_CRASH         = 17,
+    EVENT_WHIRL                 = 18,
+    EVENT_ARCTIC_BREATH         = 19,
+    EVENT_TRAMPLE               = 20
+};
+
+enum Phases
+{
+    PHASE_MOBILE            = 1,
+    PHASE_STATIONARY        = 2,
+    PHASE_SUBMERGED         = 3,
+
+    PHASE_MASK_MOBILE       = 1 << PHASE_MOBILE,
+    PHASE_MASK_STATIONARY   = 1 << PHASE_STATIONARY
+};
+
 class boss_gormok : public CreatureScript
 {
-    enum Events
-    {
-        EVENT_IMPALE                = 1,
-        EVENT_STAGGERING_STOMP      = 2,
-        EVENT_THROW                 = 3
-    };
-
     public:
         boss_gormok() : CreatureScript("boss_gormok") { }
 
@@ -257,13 +291,6 @@ class boss_gormok : public CreatureScript
 
 class mob_snobold_vassal : public CreatureScript
 {
-    enum MyEvents
-    {
-        EVENT_FIRE_BOMB     = 1,
-        EVENT_BATTER        = 2,
-        EVENT_HEAD_CRACK    = 3
-    };
-
     public:
         mob_snobold_vassal() : CreatureScript("mob_snobold_vassal") { }
 
@@ -473,26 +500,6 @@ class npc_firebomb : public CreatureScript
 
 struct boss_jormungarAI : public BossAI
 {
-    enum Phases
-    {
-        PHASE_MOBILE            = 0,
-        PHASE_STATIONARY        = 1,
-        PHASE_SUBMERGED         = 2
-    };
-
-    enum
-    {
-        EVENT_BITE              = 1,
-        EVENT_SPEW              = 2,
-        EVENT_SLIME_POOL        = 3,
-        EVENT_SPIT              = 4,
-        EVENT_SPRAY             = 5,
-        EVENT_SWEEP             = 6,
-        EVENT_SUBMERGE          = 7,
-        EVENT_EMERGE            = 8,
-        EVENT_SUMMON_ACIDMAW    = 9
-    };
-
     boss_jormungarAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
     {
     }
@@ -501,12 +508,12 @@ struct boss_jormungarAI : public BossAI
     {
         Enraged = false;
 
-        events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
-        events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
-        events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
-        events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
-        events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
-        events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, PHASE_MOBILE);
+        events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+        events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+        events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+        events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, 0, PHASE_MOBILE);
     }
 
     void JustDied(Unit* /*killer*/)
@@ -571,92 +578,62 @@ struct boss_jormungarAI : public BossAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        switch (Phase)
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            case PHASE_SUBMERGED:
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_EMERGE:
-                            Emerge();
-                            return;
-                        default:
-                            return;
-                    }
-                }
-            case PHASE_MOBILE:
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SUBMERGE:
-                            Submerge();
-                            return;
-                        case EVENT_BITE:
-                            DoCastVictim(BiteSpell);
-                            events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
-                            return;
-                        case EVENT_SPEW:
-                            DoCastAOE(SpewSpell);
-                            events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
-                            return;
-                        case EVENT_SLIME_POOL:
-                            DoCast(me, SUMMON_SLIME_POOL);
-                            events.ScheduleEvent(EVENT_SLIME_POOL, 30*IN_MILLISECONDS, 0, PHASE_MOBILE);
-                            return;
-                        case EVENT_SUMMON_ACIDMAW:
-                            if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
-                            {
-                                acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                acidmaw->SetReactState(REACT_AGGRESSIVE);
-                                acidmaw->SetInCombatWithZone();
-                                acidmaw->CastSpell(acidmaw, SPELL_EMERGE_0);
-                            }
-                            return;
-                        default:
-                            return;
-                    }
-                }
-                DoMeleeAttackIfReady();
-                return;
-            case PHASE_STATIONARY:
+            switch (eventId)
             {
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_EMERGE:
+                    Emerge();
+                    return;
+                case EVENT_SUBMERGE:
+                    Submerge();
+                    return;
+                case EVENT_BITE:
+                    DoCastVictim(BiteSpell);
+                    events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+                    return;
+                case EVENT_SPEW:
+                    DoCastAOE(SpewSpell);
+                    events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+                    return;
+                case EVENT_SLIME_POOL:
+                    DoCast(me, SUMMON_SLIME_POOL);
+                    events.ScheduleEvent(EVENT_SLIME_POOL, 30*IN_MILLISECONDS, 0, PHASE_MOBILE);
+                    return;
+                case EVENT_SUMMON_ACIDMAW:
+                    if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        case EVENT_SUBMERGE:
-                            Submerge();
-                            return;
-                        case EVENT_SPRAY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SpraySpell);
-                            events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-                            return;
-                        case EVENT_SWEEP:
-                            DoCastAOE(SPELL_SWEEP_0);
-                            events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-                            return;
-                        default:
-                            return;
+                        acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        acidmaw->SetReactState(REACT_AGGRESSIVE);
+                        acidmaw->SetInCombatWithZone();
+                        acidmaw->CastSpell(acidmaw, SPELL_EMERGE_0);
                     }
-                }
-                DoSpellAttackIfReady(SpitSpell);
-                return;
+                    return;
+                case EVENT_SPRAY:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        DoCast(target, SpraySpell);
+                    events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+                    return;
+                case EVENT_SWEEP:
+                    DoCastAOE(SPELL_SWEEP_0);
+                    events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+                    return;
+                default:
+                    return;
             }
-            default:
-                break;
         }
+        if (events.GetPhaseMask() & PHASE_MASK_MOBILE)
+            DoMeleeAttackIfReady();
+        if (events.GetPhaseMask() & PHASE_MASK_STATIONARY)
+            DoSpellAttackIfReady(SpitSpell);
     }
-
 
     void Submerge()
     {
         DoCast(me, SPELL_SUBMERGE_0);
         me->RemoveAurasDueToSpell(SPELL_EMERGE_0);
         me->SetInCombatWithZone();
-        Phase = PHASE_SUBMERGED;
+        events.SetPhase(PHASE_SUBMERGED);
         events.ScheduleEvent(EVENT_EMERGE, 5*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
@@ -677,12 +654,11 @@ struct boss_jormungarAI : public BossAI
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             SetCombatMovement(false);
             me->SetDisplayId(ModelStationary);
-            Phase = PHASE_STATIONARY;
-            events.DelayEvents(45*IN_MILLISECONDS, 2);
+            events.SetPhase(PHASE_STATIONARY);
             events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_STATIONARY);
-            events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
-            events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
-            events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
         }
         else
         {
@@ -690,12 +666,11 @@ struct boss_jormungarAI : public BossAI
             SetCombatMovement(true);
             me->GetMotionMaster()->MoveChase(me->getVictim());
             me->SetDisplayId(ModelMobile);
-            Phase = PHASE_MOBILE;
-            events.DelayEvents(45*IN_MILLISECONDS, 1);
+            events.SetPhase(PHASE_MOBILE);
             events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, 0, PHASE_MOBILE);
         }
     }
 
@@ -767,7 +742,7 @@ class boss_dreadscale : public CreatureScript
                 ModelMobile = MODEL_DREADSCALE_MOBILE;
                 OtherWormEntry = NPC_ACIDMAW;
 
-                Phase = PHASE_MOBILE;
+                events.SetPhase(PHASE_MOBILE);
                 events.ScheduleEvent(EVENT_SUMMON_ACIDMAW, 3*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
                 WasMobile = false;
@@ -885,15 +860,6 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
 
 class boss_icehowl : public CreatureScript
 {
-    enum
-    {
-        EVENT_FEROCIOUS_BUTT    = 1,
-        EVENT_MASSIVE_CRASH     = 2,
-        EVENT_WHIRL             = 3,
-        EVENT_ARCTIC_BREATH     = 4,
-        EVENT_TRAMPLE           = 5
-    };
-
     public:
         boss_icehowl() : CreatureScript("boss_icehowl") { }
 
