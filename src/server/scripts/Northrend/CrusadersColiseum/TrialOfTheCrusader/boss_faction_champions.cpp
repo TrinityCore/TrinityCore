@@ -37,8 +37,304 @@ enum eAIs
 
 enum eSpells
 {
-    SPELL_ANTI_AOE      = 68595,
-    SPELL_PVP_TRINKET   = 65547
+    // generic
+    SPELL_ANTI_AOE                  = 68595,
+    SPELL_PVP_TRINKET               = 65547,
+
+    // druid healer
+    SPELL_LIFEBLOOM                 = 66093,
+    SPELL_NOURISH                   = 66066,
+    SPELL_REGROWTH                  = 66067,
+    SPELL_REJUVENATION              = 66065,
+    SPELL_TRANQUILITY               = 66086,
+    SPELL_BARKSKIN                  = 65860,
+    SPELL_THORNS                    = 66068,
+    SPELL_NATURE_GRASP              = 66071,
+
+    // shaman healer
+    SPELL_HEALING_WAVE              = 66055,
+    SPELL_RIPTIDE                   = 66053,
+    SPELL_SPIRIT_CLEANSE            = 66056, //friendly only
+    SPELL_HEROISM                   = 65983,
+    SPELL_BLOODLUST                 = 65980,
+    SPELL_HEX                       = 66054,
+    SPELL_EARTH_SHIELD              = 66063,
+    SPELL_EARTH_SHOCK               = 65973,
+    AURA_EXHAUSTION                 = 57723,
+    AURA_SATED                      = 57724,
+
+    // paladin healer
+    SPELL_HAND_OF_FREEDOM           = 68757,
+    SPELL_DIVINE_SHIELD             = 66010,
+    SPELL_CLEANSE                   = 66116,
+    SPELL_FLASH_OF_LIGHT            = 66113,
+    SPELL_HOLY_LIGHT                = 66112,
+    SPELL_HOLY_SHOCK                = 66114,
+    SPELL_HAND_OF_PROTECTION        = 66009,
+    SPELL_HAMMER_OF_JUSTICE         = 66613,
+    SPELL_FORBEARANCE               = 25771,
+
+    // priest healer
+    SPELL_RENEW                     = 66177,
+    SPELL_SHIELD                    = 66099,
+    SPELL_FLASH_HEAL                = 66104,
+    SPELL_DISPEL                    = 65546,
+    SPELL_PSYCHIC_SCREAM            = 65543,
+    SPELL_MANA_BURN                 = 66100,
+    SPELL_PENANCE                   = 66097,
+
+    // priest dps
+    SPELL_SILENCE                   = 65542,
+    SPELL_VAMPIRIC_TOUCH            = 65490,
+    SPELL_SW_PAIN                   = 65541,
+    SPELL_MIND_FLAY                 = 65488,
+    SPELL_MIND_BLAST                = 65492,
+    SPELL_HORROR                    = 65545,
+    SPELL_DISPERSION                = 65544,
+    SPELL_SHADOWFORM                = 16592,
+
+    // warlock
+    SPELL_HELLFIRE                   = 65816,
+    SPELL_CORRUPTION                 = 65810,
+    SPELL_CURSE_OF_AGONY             = 65814,
+    SPELL_CURSE_OF_EXHAUSTION        = 65815,
+    SPELL_FEAR                       = 65809,
+    SPELL_SEARING_PAIN               = 65819,
+    SPELL_SHADOW_BOLT                = 65821,
+    SPELL_UNSTABLE_AFFLICTION        = 65812,
+    SPELL_UNSTABLE_AFFLICTION_DISPEL = 65813,
+    SPELL_SUMMON_FELHUNTER           = 67514,
+
+    // mage
+    SPELL_ARCANE_BARRAGE            = 65799,
+    SPELL_ARCANE_BLAST              = 65791,
+    SPELL_ARCANE_EXPLOSION          = 65800,
+    SPELL_BLINK                     = 65793,
+    SPELL_COUNTERSPELL              = 65790,
+    SPELL_FROST_NOVA                = 65792,
+    SPELL_FROSTBOLT                 = 65807,
+    SPELL_ICE_BLOCK                 = 65802,
+    SPELL_POLYMORPH                 = 65801,
+
+    // hunter
+    SPELL_AIMED_SHOT                = 65883,
+    SPELL_DETERRENCE                = 65871,
+    SPELL_DISENGAGE                 = 65869,
+    SPELL_EXPLOSIVE_SHOT            = 65866,
+    SPELL_FROST_TRAP                = 65880,
+    SPELL_SHOOT                     = 65868,
+    SPELL_STEADY_SHOT               = 65867,
+    SPELL_WING_CLIP                 = 66207,
+    SPELL_WYVERN_STING              = 65877,
+    SPELL_CALL_PET                  = 67777,
+
+    // druid dps
+    SPELL_CYCLONE                   = 65859,
+    SPELL_ENTANGLING_ROOTS          = 65857,
+    SPELL_FAERIE_FIRE               = 65863,
+    SPELL_FORCE_OF_NATURE           = 65861,
+    SPELL_INSECT_SWARM              = 65855,
+    SPELL_MOONFIRE                  = 65856,
+    SPELL_STARFIRE                  = 65854,
+    SPELL_WRATH                     = 65862,
+
+    // warrior
+    SPELL_BLADESTORM                = 65947,
+    SPELL_INTIMIDATING_SHOUT        = 65930,
+    SPELL_MORTAL_STRIKE             = 65926,
+    SPELL_CHARGE                    = 68764,
+    SPELL_DISARM                    = 65935,
+    SPELL_OVERPOWER                 = 65924,
+    SPELL_SUNDER_ARMOR              = 65936,
+    SPELL_SHATTERING_THROW          = 65940,
+    SPELL_RETALIATION               = 65932,
+
+    // death knight
+    SPELL_CHAINS_OF_ICE             = 66020,
+    SPELL_DEATH_COIL                = 66019,
+    SPELL_DEATH_GRIP                = 66017,
+    SPELL_FROST_STRIKE              = 66047,
+    SPELL_ICEBOUND_FORTITUDE        = 66023,
+    SPELL_ICY_TOUCH                 = 66021,
+    SPELL_STRANGULATE               = 66018,
+    SPELL_DEATH_GRIP_PULL           = 64431,    // used at spellscript
+
+    // rogue
+    SPELL_FAN_OF_KNIVES             = 65955,
+    SPELL_BLIND                     = 65960,
+    SPELL_CLOAK                     = 65961,
+    SPELL_BLADE_FLURRY              = 65956,
+    SPELL_SHADOWSTEP                = 66178,
+    SPELL_HEMORRHAGE                = 65954,
+    SPELL_EVISCERATE                = 65957,
+    SPELL_WOUND_POISON              = 65962,
+
+    // shaman dps (some spells taken from shaman healer)
+    SPELL_LAVA_LASH                 = 65974,
+    SPELL_STORMSTRIKE               = 65970,
+    SPELL_WINDFURY                  = 65976,
+
+    // paladin dps
+    SPELL_AVENGING_WRATH            = 66011,
+    SPELL_CRUSADER_STRIKE           = 66003,
+    SPELL_DIVINE_STORM              = 66006,
+    SPELL_HAMMER_OF_JUSTICE_RET     = 66007,
+    SPELL_JUDGEMENT_OF_COMMAND      = 66005,
+    SPELL_REPENTANCE                = 66008,
+    SPELL_SEAL_OF_COMMAND           = 66004,
+
+    // warlock pet
+    SPELL_DEVOUR_MAGIC              = 67518,
+    SPELL_SPELL_LOCK                = 67519,
+
+    // hunter pet
+    SPELL_CLAW                      = 67793
+};
+
+enum Events
+{
+    // generic
+    EVENT_THREAT                    = 1,
+    EVENT_REMOVE_CC                 = 2,
+
+    // druid healer
+    EVENT_LIFEBLOOM                 = 1,
+    EVENT_NOURISH                   = 2,
+    EVENT_REGROWTH                  = 3,
+    EVENT_REJUVENATION              = 4,
+    EVENT_TRANQUILITY               = 5,
+    EVENT_HEAL_BARKSKIN                  = 6,
+    EVENT_THORNS                    = 7,
+    EVENT_NATURE_GRASP              = 8,
+
+    // shaman healer
+    EVENT_HEALING_WAVE              = 1,
+    EVENT_RIPTIDE                   = 2,
+    EVENT_SPIRIT_CLEANSE            = 3,
+    EVENT_HEAL_BLOODLUST_HEROISM    = 4,
+    EVENT_HEX                       = 5,
+    EVENT_EARTH_SHIELD              = 6,
+    EVENT_HEAL_EARTH_SHOCK          = 7,
+
+    // paladin healer
+    EVENT_HAND_OF_FREEDOM           = 1,
+    EVENT_HEAL_DIVINE_SHIELD        = 2,
+    EVENT_CLEANSE                   = 3,
+    EVENT_FLASH_OF_LIGHT            = 4,
+    EVENT_HOLY_LIGHT                = 5,
+    EVENT_HOLY_SHOCK                = 6,
+    EVENT_HEAL_HAND_OF_PROTECTION   = 7,
+    EVENT_HAMMER_OF_JUSTICE         = 8,
+
+    // priest healer
+    EVENT_RENEW                     = 1,
+    EVENT_SHIELD                    = 2,
+    EVENT_FLASH_HEAL                = 3,
+    EVENT_HEAL_DISPEL               = 4,
+    EVENT_HEAL_PSYCHIC_SCREAM       = 5,
+    EVENT_MANA_BURN                 = 6,
+    EVENT_PENANCE                   = 7,
+
+    // priest dps
+    EVENT_SILENCE                   = 1,
+    EVENT_VAMPIRIC_TOUCH            = 2,
+    EVENT_SW_PAIN                   = 3,
+    EVENT_MIND_BLAST                = 4,
+    EVENT_HORROR                    = 5,
+    EVENT_DISPERSION                = 6,
+    EVENT_DPS_DISPEL                = 7,
+    EVENT_DPS_PSYCHIC_SCREAM        = 8,
+
+    // warlock
+    EVENT_HELLFIRE                  = 1,
+    EVENT_CORRUPTION                = 2,
+    EVENT_CURSE_OF_AGONY            = 3,
+    EVENT_CURSE_OF_EXHAUSTION       = 4,
+    EVENT_FEAR                      = 5,
+    EVENT_SEARING_PAIN              = 6,
+    EVENT_UNSTABLE_AFFLICTION       = 7,
+
+    // mage
+    EVENT_ARCANE_BARRAGE            = 1,
+    EVENT_ARCANE_BLAST              = 2,
+    EVENT_ARCANE_EXPLOSION          = 3,
+    EVENT_BLINK                     = 4,
+    EVENT_COUNTERSPELL              = 5,
+    EVENT_FROST_NOVA                = 6,
+    EVENT_ICE_BLOCK                 = 7,
+    EVENT_POLYMORPH                 = 8,
+
+    // hunter
+    EVENT_AIMED_SHOT                = 1,
+    EVENT_DETERRENCE                = 2,
+    EVENT_DISENGAGE                 = 3,
+    EVENT_EXPLOSIVE_SHOT            = 4,
+    EVENT_FROST_TRAP                = 5,
+    EVENT_STEADY_SHOT               = 6,
+    EVENT_WING_CLIP                 = 7,
+    EVENT_WYVERN_STING              = 8,
+
+    // druid dps
+    EVENT_CYCLONE                   = 1,
+    EVENT_ENTANGLING_ROOTS          = 2,
+    EVENT_FAERIE_FIRE               = 3,
+    EVENT_FORCE_OF_NATURE           = 4,
+    EVENT_INSECT_SWARM              = 5,
+    EVENT_MOONFIRE                  = 6,
+    EVENT_STARFIRE                  = 7,
+    EVENT_DPS_BARKSKIN              = 8,
+
+    // warrior
+    EVENT_BLADESTORM                = 1,
+    EVENT_INTIMIDATING_SHOUT        = 2,
+    EVENT_MORTAL_STRIKE             = 3,
+    EVENT_WARR_CHARGE               = 4,
+    EVENT_DISARM                    = 5,
+    EVENT_OVERPOWER                 = 6,
+    EVENT_SUNDER_ARMOR              = 7,
+    EVENT_SHATTERING_THROW          = 8,
+    EVENT_RETALIATION               = 9,
+
+    // death knight
+    EVENT_CHAINS_OF_ICE             = 1,
+    EVENT_DEATH_COIL                = 2,
+    EVENT_DEATH_GRIP                = 3,
+    EVENT_FROST_STRIKE              = 4,
+    EVENT_ICEBOUND_FORTITUDE        = 5,
+    EVENT_ICY_TOUCH                 = 6,
+    EVENT_STRANGULATE               = 7,
+
+    // rogue
+    EVENT_FAN_OF_KNIVES             = 1,
+    EVENT_BLIND                     = 2,
+    EVENT_CLOAK                     = 3,
+    EVENT_BLADE_FLURRY              = 4,
+    EVENT_SHADOWSTEP                = 5,
+    EVENT_HEMORRHAGE                = 6,
+    EVENT_EVISCERATE                = 7,
+    EVENT_WOUND_POISON              = 8,
+
+    // shaman dps
+    EVENT_DPS_EARTH_SHOCK           = 1,
+    EVENT_LAVA_LASH                 = 2,
+    EVENT_STORMSTRIKE               = 3,
+    EVENT_DPS_BLOODLUST_HEROISM     = 4,
+    EVENT_DEPLOY_TOTEM              = 5,
+    EVENT_WINDFURY                  = 6,
+
+    // paladin dps
+    EVENT_AVENGING_WRATH            = 1,
+    EVENT_CRUSADER_STRIKE           = 2,
+    EVENT_DIVINE_STORM              = 3,
+    EVENT_HAMMER_OF_JUSTICE_RET     = 4,
+    EVENT_JUDGEMENT_OF_COMMAND      = 5,
+    EVENT_REPENTANCE                = 6,
+    EVENT_DPS_HAND_OF_PROTECTION    = 7,
+    EVENT_DPS_DIVINE_SHIELD         = 8,
+
+    // warlock pet
+    EVENT_DEVOUR_MAGIC              = 1,
+    EVENT_SPELL_LOCK                = 2
 };
 
 class boss_toc_champion_controller : public CreatureScript
@@ -247,12 +543,6 @@ class boss_toc_champion_controller : public CreatureScript
 
 struct boss_faction_championsAI : public BossAI
 {
-    enum Events
-    {
-        EVENT_THREAT    = 1,
-        EVENT_REMOVE_CC = 2
-    };
-
     boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, BOSS_CRUSADERS)
     {
         _aiType = aitype;
@@ -418,9 +708,9 @@ struct boss_faction_championsAI : public BossAI
         }
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 diff)
     {
-        _events.Update(uiDiff);
+        _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -458,32 +748,8 @@ struct boss_faction_championsAI : public BossAI
 /********************************************************************
                             HEALERS
 ********************************************************************/
-enum eDruidSpells
-{
-    SPELL_LIFEBLOOM         = 66093,
-    SPELL_NOURISH           = 66066,
-    SPELL_REGROWTH          = 66067,
-    SPELL_REJUVENATION      = 66065,
-    SPELL_TRANQUILITY       = 66086,
-    SPELL_BARKSKIN          = 65860, //1 min cd
-    SPELL_THORNS            = 66068,
-    SPELL_NATURE_GRASP      = 66071  //1 min cd, self buff
-};
-
 class mob_toc_druid : public CreatureScript
 {
-    enum
-    {
-        EVENT_LIFEBLOOM     = 1,
-        EVENT_NOURISH       = 2,
-        EVENT_REGROWTH      = 3,
-        EVENT_REJUVENATION  = 4,
-        EVENT_TRANQUILITY   = 5,
-        EVENT_BARKSKIN      = 6,
-        EVENT_THORNS        = 7,
-        EVENT_NATURE_GRASP  = 8
-    };
-
     public:
         mob_toc_druid() : CreatureScript("mob_toc_druid") { }
 
@@ -499,7 +765,7 @@ class mob_toc_druid : public CreatureScript
                 events.ScheduleEvent(EVENT_REGROWTH, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_REJUVENATION, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_TRANQUILITY, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_BARKSKIN, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_HEAL_BARKSKIN, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_THORNS, 2*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_NATURE_GRASP, urand(3*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 51799, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
@@ -544,14 +810,14 @@ class mob_toc_druid : public CreatureScript
                             DoCastAOE(SPELL_TRANQUILITY);
                             events.ScheduleEvent(EVENT_TRANQUILITY, urand(15*IN_MILLISECONDS, 40*IN_MILLISECONDS));
                             return;
-                        case EVENT_BARKSKIN:
+                        case EVENT_HEAL_BARKSKIN:
                             if (HealthBelowPct(30))
                             {
                                 DoCast(me, SPELL_BARKSKIN);
-                                events.RescheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_BARKSKIN, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_BARKSKIN, 3*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_BARKSKIN, 3*IN_MILLISECONDS);
                             return;
                         case EVENT_THORNS:
                             if (Creature* target = SelectRandomFriendlyMissingBuff(SPELL_THORNS))
@@ -575,33 +841,8 @@ class mob_toc_druid : public CreatureScript
         }
 };
 
-enum eShamanSpells
-{
-    SPELL_HEALING_WAVE          = 66055,
-    SPELL_RIPTIDE               = 66053,
-    SPELL_SPIRIT_CLEANSE        = 66056, //friendly only
-    SPELL_HEROISM               = 65983,
-    SPELL_BLOODLUST             = 65980,
-    SPELL_HEX                   = 66054,
-    SPELL_EARTH_SHIELD          = 66063,
-    SPELL_EARTH_SHOCK           = 65973,
-    AURA_EXHAUSTION             = 57723,
-    AURA_SATED                  = 57724
-};
-
 class mob_toc_shaman : public CreatureScript
 {
-    enum
-    {
-        EVENT_HEALING_WAVE          = 1,
-        EVENT_RIPTIDE               = 2,
-        EVENT_SPIRIT_CLEANSE        = 3,
-        EVENT_BLOODLUST_HEROISM     = 4,
-        EVENT_HEX                   = 5,
-        EVENT_EARTH_SHIELD          = 6,
-        EVENT_EARTH_SHOCK           = 7
-    };
-
     public:
         mob_toc_shaman() : CreatureScript("mob_toc_shaman") { }
 
@@ -615,10 +856,10 @@ class mob_toc_shaman : public CreatureScript
                 events.ScheduleEvent(EVENT_HEALING_WAVE, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_RIPTIDE, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SPIRIT_CLEANSE, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_BLOODLUST_HEROISM, 20*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_HEAL_BLOODLUST_HEROISM, 20*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_HEX, urand(5*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_EARTH_SHIELD, 1*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_EARTH_SHOCK, urand(5*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_HEAL_EARTH_SHOCK, urand(5*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
@@ -652,7 +893,7 @@ class mob_toc_shaman : public CreatureScript
                                 DoCast(target, SPELL_SPIRIT_CLEANSE);
                             events.ScheduleEvent(EVENT_SPIRIT_CLEANSE, urand(15*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
-                        case EVENT_BLOODLUST_HEROISM:
+                        case EVENT_HEAL_BLOODLUST_HEROISM:
                             if (me->getFaction()) // alliance = 1
                             {
                                 if (!me->HasAura(AURA_EXHAUSTION))
@@ -663,7 +904,7 @@ class mob_toc_shaman : public CreatureScript
                                 if (!me->HasAura(AURA_SATED))
                                     DoCastAOE(SPELL_BLOODLUST);
                             }
-                            events.ScheduleEvent(EVENT_BLOODLUST_HEROISM, 300*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_HEAL_BLOODLUST_HEROISM, 5*MINUTE*IN_MILLISECONDS);
                             return;
                         case EVENT_HEX:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
@@ -675,10 +916,10 @@ class mob_toc_shaman : public CreatureScript
                                 DoCast(target, SPELL_EARTH_SHIELD);
                             events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
-                        case EVENT_EARTH_SHOCK:
+                        case EVENT_HEAL_EARTH_SHOCK:
                             if (Unit* target = SelectEnemyCaster(true))
                                 DoCast(target, SPELL_EARTH_SHOCK);
-                            events.ScheduleEvent(EVENT_EARTH_SHOCK, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_HEAL_EARTH_SHOCK, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         default:
                             return;
@@ -693,33 +934,8 @@ class mob_toc_shaman : public CreatureScript
         }
 };
 
-enum ePaladinSpells
-{
-    SPELL_HAND_OF_FREEDOM     = 68757, //25 sec cd
-    SPELL_DIVINE_SHIELD       = 66010, //5 min cd
-    SPELL_CLEANSE             = 66116,
-    SPELL_FLASH_OF_LIGHT      = 66113,
-    SPELL_HOLY_LIGHT          = 66112,
-    SPELL_HOLY_SHOCK          = 66114,
-    SPELL_HAND_OF_PROTECTION  = 66009,
-    SPELL_HAMMER_OF_JUSTICE   = 66613,
-    SPELL_FORBEARANCE         = 25771
-};
-
 class mob_toc_paladin : public CreatureScript
 {
-    enum
-    {
-        EVENT_HAND_OF_FREEDOM       = 1,
-        EVENT_DIVINE_SHIELD         = 2,
-        EVENT_CLEANSE               = 3,
-        EVENT_FLASH_OF_LIGHT        = 4,
-        EVENT_HOLY_LIGHT            = 5,
-        EVENT_HOLY_SHOCK            = 6,
-        EVENT_HAND_OF_PROTECTION    = 7,
-        EVENT_HAMMER_OF_JUSTICE     = 8
-    };
-
     public:
         mob_toc_paladin() : CreatureScript("mob_toc_paladin") { }
 
@@ -731,12 +947,12 @@ class mob_toc_paladin : public CreatureScript
             {
                 boss_faction_championsAI::Reset();
                 events.ScheduleEvent(EVENT_HAND_OF_FREEDOM, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DIVINE_SHIELD, 20*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 20*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_CLEANSE, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FLASH_OF_LIGHT, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HOLY_LIGHT, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HOLY_SHOCK, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 50771, 47079, EQUIP_NO_CHANGE);
             }
@@ -761,14 +977,14 @@ class mob_toc_paladin : public CreatureScript
                                 DoCast(target, SPELL_HAND_OF_FREEDOM);
                             events.ScheduleEvent(EVENT_HAND_OF_FREEDOM, urand(15*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             return;
-                        case EVENT_DIVINE_SHIELD:
+                        case EVENT_HEAL_DIVINE_SHIELD:
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
                             {
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 5*MINUTE*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_CLEANSE:
                             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
@@ -790,19 +1006,19 @@ class mob_toc_paladin : public CreatureScript
                                 DoCast(target, SPELL_HOLY_SHOCK);
                             events.ScheduleEvent(EVENT_HOLY_SHOCK, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
-                        case EVENT_HAND_OF_PROTECTION:
+                        case EVENT_HEAL_HAND_OF_PROTECTION:
                             if (Unit* target = DoSelectLowestHpFriendly(30.0f))
                             {
                                 if (!target->HasAura(SPELL_FORBEARANCE))
                                 {
                                     DoCast(target, SPELL_HAND_OF_PROTECTION);
-                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 5*MINUTE*IN_MILLISECONDS);
                                 }
                                 else
-                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 3*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 3*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 10*IN_MILLISECONDS);
                             return;
                         case EVENT_HAMMER_OF_JUSTICE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.0f, true))
@@ -822,30 +1038,8 @@ class mob_toc_paladin : public CreatureScript
         }
 };
 
-enum ePriestSpells
-{
-    SPELL_RENEW             = 66177,
-    SPELL_SHIELD            = 66099,
-    SPELL_FLASH_HEAL        = 66104,
-    SPELL_DISPEL            = 65546,
-    SPELL_PSYCHIC_SCREAM    = 65543,
-    SPELL_MANA_BURN         = 66100,
-    SPELL_PENANCE           = 66097
-};
-
 class mob_toc_priest : public CreatureScript
 {
-    enum
-    {
-        EVENT_RENEW             = 1,
-        EVENT_SHIELD            = 2,
-        EVENT_FLASH_HEAL        = 3,
-        EVENT_DISPEL            = 4,
-        EVENT_PSYCHIC_SCREAM    = 5,
-        EVENT_MANA_BURN         = 6,
-        EVENT_PENANCE           = 7
-    };
-
     public:
         mob_toc_priest() : CreatureScript("mob_toc_priest") { }
 
@@ -859,8 +1053,8 @@ class mob_toc_priest : public CreatureScript
                 events.ScheduleEvent(EVENT_RENEW, urand(3*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SHIELD, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FLASH_HEAL, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_HEAL_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_HEAL_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_MANA_BURN, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_PENANCE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
@@ -896,15 +1090,15 @@ class mob_toc_priest : public CreatureScript
                                 DoCast(target, SPELL_FLASH_HEAL);
                             events.ScheduleEvent(EVENT_FLASH_HEAL, urand(3*IN_MILLISECONDS, 5*IN_MILLISECONDS));
                             return;
-                        case EVENT_DISPEL:
+                        case EVENT_HEAL_DISPEL:
                             if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_DISPEL);
-                            events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_HEAL_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
-                        case EVENT_PSYCHIC_SCREAM:
+                        case EVENT_HEAL_PSYCHIC_SCREAM:
                             if (EnemiesInRange(10.0f) >= 2)
                                 DoCastAOE(SPELL_PSYCHIC_SCREAM);
-                            events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_HEAL_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         case EVENT_MANA_BURN:
                             if (Unit* target = SelectEnemyCaster(false))
@@ -932,32 +1126,8 @@ class mob_toc_priest : public CreatureScript
 /********************************************************************
                             RANGED
 ********************************************************************/
-enum eShadowPriestSpells
-{
-    SPELL_SILENCE           = 65542,
-    SPELL_VAMPIRIC_TOUCH    = 65490,
-    SPELL_SW_PAIN           = 65541,
-    SPELL_MIND_FLAY         = 65488,
-    SPELL_MIND_BLAST        = 65492,
-    SPELL_HORROR            = 65545,
-    SPELL_DISPERSION        = 65544,
-    SPELL_SHADOWFORM        = 16592
-};
-
 class mob_toc_shadow_priest : public CreatureScript
 {
-    enum
-    {
-        EVENT_SILENCE           = 1,
-        EVENT_VAMPIRIC_TOUCH    = 2,
-        EVENT_SW_PAIN           = 3,
-        EVENT_MIND_BLAST        = 4,
-        EVENT_HORROR            = 5,
-        EVENT_DISPERSION        = 6,
-        EVENT_DISPEL            = 7,
-        EVENT_PSYCHIC_SCREAM    = 8
-    };
-
     public:
         mob_toc_shadow_priest() : CreatureScript("mob_toc_shadow_priest") { }
 
@@ -974,8 +1144,8 @@ class mob_toc_shadow_priest : public CreatureScript
                 events.ScheduleEvent(EVENT_MIND_BLAST, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_HORROR, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_DISPERSION, urand(20*IN_MILLISECONDS, 40*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_DPS_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_DPS_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 50040, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 DoCast(me, SPELL_SHADOWFORM);
             }
@@ -1027,15 +1197,15 @@ class mob_toc_shadow_priest : public CreatureScript
                             else
                                 events.RescheduleEvent(EVENT_DISPERSION, 5*IN_MILLISECONDS);
                             return;
-                        case EVENT_DISPEL:
+                        case EVENT_DPS_DISPEL:
                             if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true) : DoSelectLowestHpFriendly(40.0f))
                                 DoCast(target, SPELL_DISPEL);
-                            events.ScheduleEvent(EVENT_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_DPS_DISPEL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
-                        case EVENT_PSYCHIC_SCREAM:
+                        case EVENT_DPS_PSYCHIC_SCREAM:
                             if (EnemiesInRange(10.0f) >= 2)
                                 DoCastAOE(SPELL_PSYCHIC_SCREAM);
-                            events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_DPS_PSYCHIC_SCREAM, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         default:
                             return;
@@ -1051,33 +1221,8 @@ class mob_toc_shadow_priest : public CreatureScript
         }
 };
 
-enum WarlockSpells
-{
-    SPELL_HELLFIRE                   = 65816,
-    SPELL_CORRUPTION                 = 65810,
-    SPELL_CURSE_OF_AGONY             = 65814,
-    SPELL_CURSE_OF_EXHAUSTION        = 65815,
-    SPELL_FEAR                       = 65809, // 8s
-    SPELL_SEARING_PAIN               = 65819,
-    SPELL_SHADOW_BOLT                = 65821,
-    SPELL_UNSTABLE_AFFLICTION        = 65812, // 15s
-    SPELL_UNSTABLE_AFFLICTION_DISPEL = 65813,
-    SPELL_SUMMON_FELHUNTER           = 67514
-};
-
 class mob_toc_warlock : public CreatureScript
 {
-    enum
-    {
-        EVENT_HELLFIRE              = 1,
-        EVENT_CORRUPTION            = 2,
-        EVENT_CURSE_OF_AGONY        = 3,
-        EVENT_CURSE_OF_EXHAUSTION   = 4,
-        EVENT_FEAR                  = 5,
-        EVENT_SEARING_PAIN          = 6,
-        EVENT_UNSTABLE_AFFLICTION   = 7
-    };
-
     public:
         mob_toc_warlock() : CreatureScript("mob_toc_warlock") { }
 
@@ -1167,33 +1312,8 @@ class mob_toc_warlock : public CreatureScript
         }
 };
 
-enum eMageSpells
-{
-    SPELL_ARCANE_BARRAGE    = 65799, //3s
-    SPELL_ARCANE_BLAST      = 65791,
-    SPELL_ARCANE_EXPLOSION  = 65800,
-    SPELL_BLINK             = 65793, //15s
-    SPELL_COUNTERSPELL      = 65790, //24s
-    SPELL_FROST_NOVA        = 65792, //25s
-    SPELL_FROSTBOLT         = 65807,
-    SPELL_ICE_BLOCK         = 65802, //5min
-    SPELL_POLYMORPH         = 65801  //15s
-};
-
 class mob_toc_mage : public CreatureScript
 {
-    enum
-    {
-        EVENT_ARCANE_BARRAGE        = 1,
-        EVENT_ARCANE_BLAST          = 2,
-        EVENT_ARCANE_EXPLOSION      = 3,
-        EVENT_BLINK                 = 4,
-        EVENT_COUNTERSPELL          = 5,
-        EVENT_FROST_NOVA            = 6,
-        EVENT_ICE_BLOCK             = 7,
-        EVENT_POLYMORPH             = 8
-    };
-
     public:
         mob_toc_mage() : CreatureScript("mob_toc_mage") { }
 
@@ -1262,7 +1382,7 @@ class mob_toc_mage : public CreatureScript
                             if (HealthBelowPct(30))
                             {
                                 DoCast(SPELL_ICE_BLOCK);
-                                events.RescheduleEvent(EVENT_ICE_BLOCK, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_ICE_BLOCK, 5*MINUTE*IN_MILLISECONDS);
                             }
                             else
                                 events.RescheduleEvent(EVENT_ICE_BLOCK, 5*IN_MILLISECONDS);
@@ -1286,34 +1406,8 @@ class mob_toc_mage : public CreatureScript
         }
 };
 
-enum eHunterSpells
-{
-    SPELL_AIMED_SHOT        = 65883,
-    SPELL_DETERRENCE        = 65871, //90s
-    SPELL_DISENGAGE         = 65869, //30s
-    SPELL_EXPLOSIVE_SHOT    = 65866,
-    SPELL_FROST_TRAP        = 65880, //30s
-    SPELL_SHOOT             = 65868, //1.7s
-    SPELL_STEADY_SHOT       = 65867, //3s
-    SPELL_WING_CLIP         = 66207, //6s
-    SPELL_WYVERN_STING      = 65877, //60s
-    SPELL_CALL_PET          = 67777
-};
-
 class mob_toc_hunter : public CreatureScript
 {
-    enum
-    {
-        EVENT_AIMED_SHOT        = 1,
-        EVENT_DETERRENCE        = 2,
-        EVENT_DISENGAGE         = 3,
-        EVENT_EXPLOSIVE_SHOT    = 4,
-        EVENT_FROST_TRAP        = 5,
-        EVENT_STEADY_SHOT       = 6,
-        EVENT_WING_CLIP         = 7,
-        EVENT_WYVERN_STING      = 8
-    };
-
     public:
         mob_toc_hunter() : CreatureScript("mob_toc_hunter") { }
 
@@ -1411,32 +1505,8 @@ class mob_toc_hunter : public CreatureScript
         }
 };
 
-enum eBoomkinSpells
-{
-    SPELL_CYCLONE           = 65859, //6s
-    SPELL_ENTANGLING_ROOTS  = 65857, //10s
-    SPELL_FAERIE_FIRE       = 65863,
-    SPELL_FORCE_OF_NATURE   = 65861, //180s
-    SPELL_INSECT_SWARM      = 65855,
-    SPELL_MOONFIRE          = 65856, //5s
-    SPELL_STARFIRE          = 65854,
-    SPELL_WRATH             = 65862
-};
-
 class mob_toc_boomkin : public CreatureScript
 {
-    enum
-    {
-        EVENT_CYCLONE           = 1,
-        EVENT_ENTANGLING_ROOTS  = 2,
-        EVENT_FAERIE_FIRE       = 3,
-        EVENT_FORCE_OF_NATURE   = 4,
-        EVENT_INSECT_SWARM      = 5,
-        EVENT_MOONFIRE          = 6,
-        EVENT_STARFIRE          = 7,
-        EVENT_BARKSKIN          = 8
-    };
-
     public:
         mob_toc_boomkin() : CreatureScript("mob_toc_boomkin") { }
 
@@ -1454,7 +1524,7 @@ class mob_toc_boomkin : public CreatureScript
                 events.ScheduleEvent(EVENT_INSECT_SWARM, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_MOONFIRE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_STARFIRE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_BARKSKIN, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_DPS_BARKSKIN, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
 
                 SetEquipmentSlots(false, 50966, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
@@ -1504,14 +1574,14 @@ class mob_toc_boomkin : public CreatureScript
                             DoCastVictim(SPELL_STARFIRE);
                             events.ScheduleEvent(EVENT_STARFIRE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                             return;
-                        case EVENT_BARKSKIN:
+                        case EVENT_DPS_BARKSKIN:
                             if (HealthBelowPct(30))
                             {
                                 DoCast(me, SPELL_BARKSKIN);
-                                events.RescheduleEvent(EVENT_BARKSKIN, 60*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_BARKSKIN, 60*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_BARKSKIN, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_BARKSKIN, 5*IN_MILLISECONDS);
                             return;
                         default:
                             return;
@@ -1530,34 +1600,8 @@ class mob_toc_boomkin : public CreatureScript
 /********************************************************************
                             MELEE
 ********************************************************************/
-enum eWarriorSpells
-{
-    SPELL_BLADESTORM            = 65947,
-    SPELL_INTIMIDATING_SHOUT    = 65930,
-    SPELL_MORTAL_STRIKE         = 65926,
-    SPELL_CHARGE                = 68764,
-    SPELL_DISARM                = 65935,
-    SPELL_OVERPOWER             = 65924,
-    SPELL_SUNDER_ARMOR          = 65936,
-    SPELL_SHATTERING_THROW      = 65940,
-    SPELL_RETALIATION           = 65932
-};
-
 class mob_toc_warrior : public CreatureScript
 {
-    enum
-    {
-        EVENT_BLADESTORM            = 1,
-        EVENT_INTIMIDATING_SHOUT    = 2,
-        EVENT_MORTAL_STRIKE         = 3,
-        EVENT_CHARGE                = 4,
-        EVENT_DISARM                = 5,
-        EVENT_OVERPOWER             = 6,
-        EVENT_SUNDER_ARMOR          = 7,
-        EVENT_SHATTERING_THROW      = 8,
-        EVENT_RETALIATION           = 9
-    };
-
     public:
         mob_toc_warrior() : CreatureScript("mob_toc_warrior") { }
 
@@ -1571,7 +1615,7 @@ class mob_toc_warrior : public CreatureScript
                 events.ScheduleEvent(EVENT_BLADESTORM, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_INTIMIDATING_SHOUT, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_CHARGE, 1*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_WARR_CHARGE, 1*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_DISARM, urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_OVERPOWER, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SUNDER_ARMOR, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
@@ -1607,9 +1651,9 @@ class mob_toc_warrior : public CreatureScript
                             DoCastVictim(SPELL_MORTAL_STRIKE);
                             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
-                        case EVENT_CHARGE:
+                        case EVENT_WARR_CHARGE:
                             DoCastVictim(SPELL_CHARGE);
-                            events.ScheduleEvent(EVENT_CHARGE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_WARR_CHARGE, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         case EVENT_DISARM:
                             DoCastVictim(SPELL_DISARM);
@@ -1627,7 +1671,7 @@ class mob_toc_warrior : public CreatureScript
                             if (me->getVictim()->HasAuraWithMechanic(1<<MECHANIC_IMMUNE_SHIELD))
                             {
                                 DoCastVictim(SPELL_SHATTERING_THROW);
-                                events.RescheduleEvent(EVENT_SHATTERING_THROW, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_SHATTERING_THROW, 5*MINUTE*IN_MILLISECONDS);
                             }
                             else
                                 events.RescheduleEvent(EVENT_SHATTERING_THROW, 3*IN_MILLISECONDS);
@@ -1636,7 +1680,7 @@ class mob_toc_warrior : public CreatureScript
                             if (HealthBelowPct(50))
                             {
                                 DoCast(SPELL_RETALIATION);
-                                events.RescheduleEvent(EVENT_RETALIATION, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_RETALIATION, 5*MINUTE*IN_MILLISECONDS);
                             }
                             else
                                 events.RescheduleEvent(EVENT_RETALIATION, 5*IN_MILLISECONDS);
@@ -1654,30 +1698,8 @@ class mob_toc_warrior : public CreatureScript
         }
 };
 
-enum eDeathKnightSpells
-{
-    SPELL_CHAINS_OF_ICE       = 66020, //8sec
-    SPELL_DEATH_COIL          = 66019, //5sec
-    SPELL_DEATH_GRIP          = 66017, //35sec
-    SPELL_FROST_STRIKE        = 66047, //6sec
-    SPELL_ICEBOUND_FORTITUDE  = 66023, //1min
-    SPELL_ICY_TOUCH           = 66021, //8sec
-    SPELL_STRANGULATE         = 66018  //2min
-};
-
 class mob_toc_dk : public CreatureScript
 {
-    enum
-    {
-        EVENT_CHAINS_OF_ICE         = 1,
-        EVENT_DEATH_COIL            = 2,
-        EVENT_DEATH_GRIP            = 3,
-        EVENT_FROST_STRIKE          = 4,
-        EVENT_ICEBOUND_FORTITUDE    = 5,
-        EVENT_ICY_TOUCH             = 6,
-        EVENT_STRANGULATE           = 7
-    };
-
     public:
         mob_toc_dk() : CreatureScript("mob_toc_dk") { }
 
@@ -1769,32 +1791,8 @@ class mob_toc_dk : public CreatureScript
         }
 };
 
-enum eRogueSpells
-{
-    SPELL_FAN_OF_KNIVES         = 65955, //2sec
-    SPELL_BLIND                 = 65960, //2min
-    SPELL_CLOAK                 = 65961, //90sec
-    SPELL_BLADE_FLURRY          = 65956, //2min
-    SPELL_SHADOWSTEP            = 66178, //30sec
-    SPELL_HEMORRHAGE            = 65954,
-    SPELL_EVISCERATE            = 65957,
-    SPELL_WOUND_POISON          = 65962
-};
-
 class mob_toc_rogue : public CreatureScript
 {
-    enum
-    {
-        EVENT_FAN_OF_KNIVES     = 1,
-        EVENT_BLIND             = 2,
-        EVENT_CLOAK             = 3,
-        EVENT_BLADE_FLURRY      = 4,
-        EVENT_SHADOWSTEP        = 5,
-        EVENT_HEMORRHAGE        = 6,
-        EVENT_EVISCERATE        = 7,
-        EVENT_WOUND_POISON      = 8
-    };
-
     public:
         mob_toc_rogue() : CreatureScript("mob_toc_rogue") { }
 
@@ -1895,25 +1893,8 @@ class mob_toc_rogue : public CreatureScript
         }
 };
 
-enum eEnhShamanSpells
-{
-    SPELL_LAVA_LASH         = 65974,
-    SPELL_STORMSTRIKE       = 65970,
-    SPELL_WINDFURY          = 65976
-};
-
 class mob_toc_enh_shaman : public CreatureScript
 {
-    enum
-    {
-        EVENT_EARTH_SHOCK           = 1,
-        EVENT_LAVA_LASH             = 2,
-        EVENT_STORMSTRIKE           = 3,
-        EVENT_BLOODLUST_HEROISM     = 4,
-        EVENT_DEPLOY_TOTEM          = 5,
-        EVENT_WINDFURY              = 6
-    };
-
     public:
         mob_toc_enh_shaman() : CreatureScript("mob_toc_enh_shaman") { }
 
@@ -1924,10 +1905,10 @@ class mob_toc_enh_shaman : public CreatureScript
             void Reset()
             {
                 boss_faction_championsAI::Reset();
-                events.ScheduleEvent(EVENT_EARTH_SHOCK, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_DPS_EARTH_SHOCK, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_LAVA_LASH, urand(3*IN_MILLISECONDS, 5*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_STORMSTRIKE, urand(2*IN_MILLISECONDS, 5*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_BLOODLUST_HEROISM, 20*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_DPS_BLOODLUST_HEROISM, 20*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_DEPLOY_TOTEM, 1*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_WINDFURY, urand(20*IN_MILLISECONDS, 50*IN_MILLISECONDS));
 
@@ -1987,10 +1968,10 @@ class mob_toc_enh_shaman : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_EARTH_SHOCK:
+                        case EVENT_DPS_EARTH_SHOCK:
                             if (Unit* target = SelectEnemyCaster(true))
                                 DoCast(target, SPELL_EARTH_SHOCK);
-                            events.ScheduleEvent(EVENT_EARTH_SHOCK, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_DPS_EARTH_SHOCK, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_LAVA_LASH:
                             DoCastVictim(SPELL_LAVA_LASH);
@@ -2000,7 +1981,7 @@ class mob_toc_enh_shaman : public CreatureScript
                             DoCastVictim(SPELL_STORMSTRIKE);
                             events.ScheduleEvent(EVENT_STORMSTRIKE, urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                             return;
-                        case EVENT_BLOODLUST_HEROISM:
+                        case EVENT_DPS_BLOODLUST_HEROISM:
                             if (me->getFaction()) //Am i alliance?
                             {
                                 if (!me->HasAura(AURA_EXHAUSTION))
@@ -2011,7 +1992,7 @@ class mob_toc_enh_shaman : public CreatureScript
                                 if (!me->HasAura(AURA_SATED))
                                     DoCastAOE(SPELL_BLOODLUST);
                             }
-                            events.ScheduleEvent(EVENT_BLOODLUST_HEROISM, 300*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_DPS_BLOODLUST_HEROISM, 5*MINUTE*IN_MILLISECONDS);
                             return;
                         case EVENT_DEPLOY_TOTEM:
                             if (_totemCount < 4 || me->GetDistance2d(_totemOldCenterX, _totemOldCenterY) > 20.0f)
@@ -2038,31 +2019,8 @@ class mob_toc_enh_shaman : public CreatureScript
         }
 };
 
-enum eRetroPaladinSpells
-{
-    SPELL_AVENGING_WRATH        = 66011, //3min cd
-    SPELL_CRUSADER_STRIKE       = 66003, //6sec cd
-    SPELL_DIVINE_STORM          = 66006, //10sec cd
-    SPELL_HAMMER_OF_JUSTICE_RET = 66007, //40sec cd
-    SPELL_JUDGEMENT_OF_COMMAND  = 66005, //8sec cd
-    SPELL_REPENTANCE            = 66008, //60sec cd
-    SPELL_SEAL_OF_COMMAND       = 66004  //no cd
-};
-
 class mob_toc_retro_paladin : public CreatureScript
 {
-    enum
-    {
-        EVENT_AVENGING_WRATH            = 1,
-        EVENT_CRUSADER_STRIKE           = 2,
-        EVENT_DIVINE_STORM              = 3,
-        EVENT_HAMMER_OF_JUSTICE_RET     = 4,
-        EVENT_JUDGEMENT_OF_COMMAND      = 5,
-        EVENT_REPENTANCE                = 6,
-        EVENT_HAND_OF_PROTECTION        = 7,
-        EVENT_DIVINE_SHIELD             = 8
-    };
-
     public:
         mob_toc_retro_paladin() : CreatureScript("mob_toc_retro_paladin") { }
 
@@ -2079,8 +2037,8 @@ class mob_toc_retro_paladin : public CreatureScript
                 events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE_RET, urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_JUDGEMENT_OF_COMMAND, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_REPENTANCE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DIVINE_SHIELD, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_DPS_DIVINE_SHIELD, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 47519, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
@@ -2131,28 +2089,28 @@ class mob_toc_retro_paladin : public CreatureScript
                                 DoCast(target, SPELL_REPENTANCE);
                             events.ScheduleEvent(EVENT_REPENTANCE, 60*IN_MILLISECONDS);
                             return;
-                        case EVENT_HAND_OF_PROTECTION:
+                        case EVENT_DPS_HAND_OF_PROTECTION:
                             if (Unit* target = DoSelectLowestHpFriendly(30.0f))
                             {
                                 if (!target->HasAura(SPELL_FORBEARANCE))
                                 {
                                     DoCast(target, SPELL_HAND_OF_PROTECTION);
-                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 300*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5*MINUTE*IN_MILLISECONDS);
                                 }
                                 else
-                                    events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 5*IN_MILLISECONDS);
+                                    events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_HAND_OF_PROTECTION, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_HAND_OF_PROTECTION, 5*IN_MILLISECONDS);
                             return;
-                        case EVENT_DIVINE_SHIELD:
+                        case EVENT_DPS_DIVINE_SHIELD:
                             if (HealthBelowPct(30) && !me->HasAura(SPELL_FORBEARANCE))
                             {
                                 DoCast(me, SPELL_DIVINE_SHIELD);
-                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 300*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_DIVINE_SHIELD, 5*MINUTE*IN_MILLISECONDS);
                             }
                             else
-                                events.RescheduleEvent(EVENT_DIVINE_SHIELD, 5*IN_MILLISECONDS);
+                                events.RescheduleEvent(EVENT_DPS_DIVINE_SHIELD, 5*IN_MILLISECONDS);
                             return;
                         default:
                             return;
@@ -2167,20 +2125,8 @@ class mob_toc_retro_paladin : public CreatureScript
         }
 };
 
-enum eWarlockPetSpells
-{
-    SPELL_DEVOUR_MAGIC   = 67518,
-    SPELL_SPELL_LOCK     = 67519
-};
-
 class mob_toc_pet_warlock : public CreatureScript
 {
-    enum
-    {
-        EVENT_DEVOUR_MAGIC  = 1,
-        EVENT_SPELL_LOCK    = 2
-    };
-
     public:
         mob_toc_pet_warlock() : CreatureScript("mob_toc_pet_warlock") { }
 
@@ -2229,11 +2175,6 @@ class mob_toc_pet_warlock : public CreatureScript
         {
             return new mob_toc_pet_warlockAI (creature);
         }
-};
-
-enum eHunterPetSpells
-{
-    SPELL_CLAW  = 67793
 };
 
 class mob_toc_pet_hunter : public CreatureScript
@@ -2308,11 +2249,6 @@ class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
         {
             return new spell_faction_champion_warl_unstable_affliction_AuraScript();
         }
-};
-
-enum DeathGripPull
-{
-    SPELL_DEATH_GRIP_PULL = 64431
 };
 
 class spell_faction_champion_death_grip : public SpellScriptLoader
