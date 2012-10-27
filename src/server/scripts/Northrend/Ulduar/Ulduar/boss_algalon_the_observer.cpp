@@ -978,7 +978,7 @@ class go_celestial_planetarium_access : public GameObjectScript
                         if (!lock->Index[i])
                             continue;
 
-                        if (player->HasItemCount(lock->Index[i], 1))
+                        if (player->HasItemCount(lock->Index[i]))
                         {
                             hasKey = true;
                             break;

@@ -677,28 +677,28 @@ public:
         switch (go->GetEntry())
         {
             case MATRIX_PUNCHOGRAPH_3005_A:
-                if (player->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
+                if (player->HasItemCount(ITEM_WHITE_PUNCH_CARD))
                 {
                     player->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
                     player->CastSpell(player, SPELL_YELLOW_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_B:
-                if (player->HasItemCount(ITEM_YELLOW_PUNCH_CARD, 1))
+                if (player->HasItemCount(ITEM_YELLOW_PUNCH_CARD))
                 {
                     player->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
                     player->CastSpell(player, SPELL_BLUE_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_C:
-                if (player->HasItemCount(ITEM_BLUE_PUNCH_CARD, 1))
+                if (player->HasItemCount(ITEM_BLUE_PUNCH_CARD))
                 {
                     player->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
                     player->CastSpell(player, SPELL_RED_PUNCH_CARD, true);
                 }
                 break;
             case MATRIX_PUNCHOGRAPH_3005_D:
-                if (player->HasItemCount(ITEM_RED_PUNCH_CARD, 1))
+                if (player->HasItemCount(ITEM_RED_PUNCH_CARD))
                 {
                     player->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
                     player->CastSpell(player, SPELL_PRISMATIC_PUNCH_CARD, true);
@@ -884,7 +884,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
-        if (player->HasItemCount(ITEM_CUERGOS_KEY, 1))
+        if (player->HasItemCount(ITEM_CUERGOS_KEY))
             return false;
 
         player->CastSpell(player, SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB, true);
@@ -910,7 +910,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (!player->HasItemCount(ITEM_TELEPORTER_POWER_PACK, 1))
+        if (!player->HasItemCount(ITEM_TELEPORTER_POWER_PACK))
             return false;
 
         go->SummonCreature(NPC_IMAGE_WIND_TRADER, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
@@ -998,7 +998,7 @@ class go_soulwell : public GameObjectScript
                     return true;
 
                 // Don't try to add a stone if we already have one.
-                if (player->HasItemCount(_stoneId, 1))
+                if (player->HasItemCount(_stoneId))
                 {
                     if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(_stoneSpell))
                         Spell::SendCastResult(player, spell, 0, SPELL_FAILED_TOO_MANY_OF_ITEM);
@@ -1007,7 +1007,7 @@ class go_soulwell : public GameObjectScript
 
                 owner->CastSpell(player, _stoneSpell, true);
                 // Item has to actually be created to remove a charge on the well.
-                if (player->HasItemCount(_stoneId, 1))
+                if (player->HasItemCount(_stoneId))
                     go->AddUse();
 
                 return false;
@@ -1158,7 +1158,7 @@ public:
                 go->CastSpell(target, SPELL_INDISPOSED_III);
             }
             go->CastSpell(player, SPELL_INDISPOSED);
-            if (player->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER, 1))
+            if (player->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER))
                 go->CastSpell(player, SPELL_CREATE_AMBERSEEDS);
             return true;
         }

@@ -5911,7 +5911,7 @@ SpellCastResult Spell::CheckItems()
     else
     {
         uint32 itemid = m_CastItem->GetEntry();
-        if (!p_caster->HasItemCount(itemid, 1))
+        if (!p_caster->HasItemCount(itemid))
             return SPELL_FAILED_ITEM_NOT_READY;
 
         ItemTemplate const* proto = m_CastItem->GetTemplate();
@@ -6063,7 +6063,7 @@ SpellCastResult Spell::CheckItems()
         {
             if (m_spellInfo->Totem[i] != 0)
             {
-                if (p_caster->HasItemCount(m_spellInfo->Totem[i], 1))
+                if (p_caster->HasItemCount(m_spellInfo->Totem[i]))
                 {
                     totems -= 1;
                     continue;
@@ -6100,7 +6100,7 @@ SpellCastResult Spell::CheckItems()
                         {
                             if (!(m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (m_spellInfo->SpellFamilyFlags[0] & 0x40000000)))
                                 return SPELL_FAILED_TOO_MANY_OF_ITEM;
-                            else if (!(p_caster->HasItemCount(m_spellInfo->Effects[i].ItemType, 1)))
+                            else if (!(p_caster->HasItemCount(m_spellInfo->Effects[i].ItemType)))
                                 return SPELL_FAILED_TOO_MANY_OF_ITEM;
                             else
                                 p_caster->CastSpell(m_caster, m_spellInfo->Effects[EFFECT_1].CalcValue(), false);        // move this to anywhere
@@ -6279,7 +6279,7 @@ SpellCastResult Spell::CheckItems()
                     case ITEM_SUBCLASS_WEAPON_THROWN:
                     {
                         uint32 ammo = pItem->GetEntry();
-                        if (!m_caster->ToPlayer()->HasItemCount(ammo, 1))
+                        if (!m_caster->ToPlayer()->HasItemCount(ammo))
                             return SPELL_FAILED_NO_AMMO;
                     };
                     break;
