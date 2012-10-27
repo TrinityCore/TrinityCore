@@ -13,6 +13,8 @@ set(scripts_STAT_SRCS
    Custom/duel_reset.cpp
    Custom/gm_login.cpp
    Custom/npc_arena_teamTop.cpp
+   Custom/Transmogrification.cpp
+   Custom/Transmogrification.h
 )
 
 message("  -> Prepared: Custom")
