@@ -2786,6 +2786,8 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                        39 - Battlefield
 #                        40 - Server Loading
 #                        41 - Opcodes (just id and name sent / received)
+#                        42 - SOAP
+#
 #                     LogLevel
 #                         0 - (Disabled)
 #                         1 - (Trace)
