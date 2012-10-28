@@ -1,7 +1,8 @@
 -- CLEANUP
 -- make SotA demolishers snareable
-UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` & ~1024 WHERE `entry` IN (28781, 32796);
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (66059, 67155, 67156, 67157, 66048, 67203, 67204, 67205);
+UPDATE `creature_template` SET `lootid`=37011 WHERE `entry` = 37011;
+UPDATE `creature_template` SET `lootid`=38061 WHERE `entry` = 38061;
 -- END OF CLEANUP
 
 -- hand of sacrifice scriptname
@@ -1599,9 +1600,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `
 
 -- remove the ICC-wise buffs
 DELETE FROM `spell_area` WHERE `spell` IN (73822, 73828);
-
--- adding the regular ICC trash drop to The Damned
-UPDATE `creature_template` SET `lootid`=100002 WHERE `entry` IN (37011, 38061);
 
 ####################
 -- Forge of Souls ##
