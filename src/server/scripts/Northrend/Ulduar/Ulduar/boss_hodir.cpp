@@ -71,12 +71,14 @@ enum HodirSpells
     // Druids
     SPELL_WRATH                                  = 62793,
     SPELL_STARLIGHT                              = 62807,
+    AURA_MOONKIN                                 = 24907,
 
     // Shamans
     SPELL_LAVA_BURST                             = 61924,
     SPELL_STORM_CLOUD                            = 65123,
     SPELL_STORM_POWER_10                         = 63711,
     SPELL_STORM_POWER_25                         = 65134,
+
     // Mages
     SPELL_FIREBALL                               = 61909,
     SPELL_CONJURE_FIRE                           = 62823,
@@ -110,19 +112,33 @@ enum HodirGameObjects
 enum HodirEvents
 {
     // Hodir
-    EVENT_FREEZE                = 1,
-    EVENT_FLASH_FREEZE,
-    EVENT_FLASH_FREEZE_EFFECT,
-    EVENT_ICICLE,
-    EVENT_BLOWS,
-    EVENT_RARE_CACHE,
-    EVENT_BERSERK
+    EVENT_FREEZE                                = 1,
+    EVENT_FLASH_FREEZE                          = 2,
+    EVENT_FLASH_FREEZE_EFFECT                   = 3,
+    EVENT_ICICLE                                = 4,
+    EVENT_BLOWS                                 = 5,
+    EVENT_RARE_CACHE                            = 6,
+    EVENT_BERSERK                               = 7,
+
+    // priest
+    EVENT_HEAL                                  = 8,
+    EVENT_DISPEL_MAGIC                          = 9,
+
+    // shaman
+    EVENT_STORM_CLOUD                           = 10,
+
+    // Druid
+    EVENT_STARLIGHT                             = 11,
+
+    // Mage
+    EVENT_CONJURE_FIRE                          = 12,
+    EVENT_MELT_ICE                              = 13,
 };
 
 enum HodirActions
 {
-    ACTION_I_HAVE_THE_COOLEST_FRIENDS,
-    ACTION_CHEESE_THE_FREEZE
+    ACTION_I_HAVE_THE_COOLEST_FRIENDS           = 1,
+    ACTION_CHEESE_THE_FREEZE                    = 2
 };
 
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
@@ -163,7 +179,7 @@ class npc_flash_freeze : public CreatureScript
 
         struct npc_flash_freezeAI : public Scripted_NoMovementAI
         {
-            npc_flash_freezeAI(Creature* creature) : Scripted_NoMovementAI(creature), instance(me->GetInstanceScript())
+            npc_flash_freezeAI(Creature* creature) : Scripted_NoMovementAI(creature), _instance(me->GetInstanceScript())
             {
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
@@ -171,36 +187,36 @@ class npc_flash_freeze : public CreatureScript
 
             void Reset()
             {
-                targetGUID = 0;
-                checkDespawnTimer = 1*IN_MILLISECONDS;
+                _targetGUID = 0;
+                _checkDespawnTimer = 1*IN_MILLISECONDS;
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if ((me->getVictim() && me->getVictim()->GetGUID() != targetGUID) || (instance && instance->GetBossState(BOSS_HODIR) != IN_PROGRESS))
+                if ((me->getVictim() && me->getVictim()->GetGUID() != _targetGUID) || (_instance && _instance->GetBossState(BOSS_HODIR) != IN_PROGRESS))
                     me->DespawnOrUnsummon();
 
                 if (!UpdateVictim() || me->getVictim()->HasAura(SPELL_BLOCK_OF_ICE) || me->getVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
 
-                if (checkDespawnTimer <= diff)
+                if (_checkDespawnTimer <= diff)
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
                         if (!target->isAlive())
                             me->DisappearAndDie();
-                    checkDespawnTimer = 2.5*IN_MILLISECONDS;
+                    _checkDespawnTimer = 2.5*IN_MILLISECONDS;
                 }
                 else
-                    checkDespawnTimer -= diff;
+                    _checkDespawnTimer -= diff;
             }
 
             void IsSummonedBy(Unit* summoner)
             {
-                targetGUID = summoner->GetGUID();
+                _targetGUID = summoner->GetGUID();
                 me->SetInCombatWith(summoner);
                 me->AddThreat(summoner, 250.0f);
 
-                if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
                 {
                     // Freeze only players and helper npcs
                     bool freeze = false;
@@ -223,15 +239,15 @@ class npc_flash_freeze : public CreatureScript
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                     if (target->GetTypeId() == TYPEID_PLAYER)
-                        if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
+                        if (Creature* Hodir = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_HODIR) : 0))
                             Hodir->AI()->DoAction(ACTION_CHEESE_THE_FREEZE);
                 }
             }
 
             private:
-                InstanceScript* instance;
-                uint64 targetGUID;
-                uint32 checkDespawnTimer;
+                InstanceScript* _instance;
+                uint64 _targetGUID;
+                uint32 _checkDespawnTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -249,20 +265,20 @@ class npc_ice_block : public CreatureScript
         {
             npc_ice_blockAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                instance = me->GetInstanceScript();
+                _instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                targetGUID = 0;
+                _targetGUID = 0;
             }            
 
             void IsSummonedBy(Unit* summoner)
             {
-                targetGUID = summoner->GetGUID();
+                _targetGUID = summoner->GetGUID();
                 summoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetInCombatWith(summoner);
                 me->AddThreat(summoner, 250.0f);
                 summoner->AddThreat(me, 250.0f);
-                if (Creature* target = ObjectAccessor::GetCreature(*me, targetGUID))
+                if (Creature* target = ObjectAccessor::GetCreature(*me, _targetGUID))
                 {
                     DoCast(target, SPELL_FLASH_FREEZE_HELPER, true);
                     // Prevents to have Ice Block on other place than target is
@@ -272,11 +288,11 @@ class npc_ice_block : public CreatureScript
 
             void DamageTaken(Unit* who, uint32& /*damage*/)
             {
-                if (Creature* Helper = ObjectAccessor::GetCreature(*me, targetGUID))
+                if (Creature* Helper = ObjectAccessor::GetCreature(*me, _targetGUID))
                 {
                     Helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
 
-                    if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
+                    if (Creature* Hodir = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_HODIR) : 0))
                     {
                         if (!Hodir->isInCombat())
                         {
@@ -292,13 +308,13 @@ class npc_ice_block : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/)
             {
-                if (instance && instance->GetBossState(BOSS_HODIR) == DONE)
+                if (_instance && _instance->GetBossState(BOSS_HODIR) == DONE)
                     me->DespawnOrUnsummon();
             }
 
             private:
-                InstanceScript* instance;
-                uint64 targetGUID;
+                InstanceScript* _instance;
+                uint64 _targetGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -317,14 +333,14 @@ class boss_hodir : public CreatureScript
             boss_hodirAI(Creature* creature) : BossAI(creature, BOSS_HODIR)
             {
                 me->SetReactState(REACT_DEFENSIVE);
-                gotEncounterFinished = false;
+                _gotEncounterFinished = false;
             }            
 
             void Reset()
             {
                 _Reset();
                 me->SetReactState(REACT_DEFENSIVE);
-                gotEncounterFinished = gotEncounterFinished || (instance->GetBossState(BOSS_HODIR) == DONE);
+                _gotEncounterFinished = _gotEncounterFinished || (instance->GetBossState(BOSS_HODIR) == DONE);
                 instance->HandleGameObject(instance->GetData64(GO_HODIR_IN_DOOR_STONE), true);
 
                 // Note: NPC translation alliance -> horde is performed by OnCreatureCreate (instance-script)
@@ -339,11 +355,11 @@ class boss_hodir : public CreatureScript
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_BITING_COLD, true);
 
-                gettingColdInHereTimer = 2*IN_MILLISECONDS;
-                gettingColdInHere = true;
-                cheeseTheFreeze = true;
-                iHaveTheCoolestFriends = true;
-                iCouldSayThatThisCacheWasRare = true;
+                _gettingColdInHereTimer = 2*IN_MILLISECONDS;
+                _gettingColdInHere = true;
+                _cheeseTheFreeze = true;
+                _iHaveTheCoolestFriends = true;
+                _iCouldSayThatThisCacheWasRare = true;
                 instance->HandleGameObject(instance->GetData64(GO_HODIR_IN_DOOR_STONE), false);
 
                 events.ScheduleEvent(EVENT_ICICLE, 2*IN_MILLISECONDS);
@@ -365,15 +381,15 @@ class boss_hodir : public CreatureScript
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
-                    if (gotEncounterFinished)
+                    if (_gotEncounterFinished)
                         return;
 
-                    gotEncounterFinished = true;
+                    _gotEncounterFinished = true;
                     Talk(SAY_DEATH);
-                    if (iCouldSayThatThisCacheWasRare)
+                    if (_iCouldSayThatThisCacheWasRare)
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
 
-                    if (gettingColdInHere)
+                    if (_gettingColdInHere)
                         instance->DoCompleteAchievement(ACHIEVEMENT_GETTING_COLD_IN_HERE);
 
                     me->RemoveAllAuras();
@@ -402,20 +418,20 @@ class boss_hodir : public CreatureScript
 
                 events.Update(diff);
 
-                if (gettingColdInHere)
+                if (_gettingColdInHere)
                 {
-                    if (gettingColdInHereTimer <= diff)
+                    if (_gettingColdInHereTimer <= diff)
                     {
                         std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
                         for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                             if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                                 if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
                                     if ((target->GetTypeId() == TYPEID_PLAYER) && (BitingColdAura->GetStackAmount() > 2))
-                                        gettingColdInHere = false;
-                        gettingColdInHereTimer = 2*IN_MILLISECONDS;
+                                        _gettingColdInHere = false;
+                        _gettingColdInHereTimer = 2*IN_MILLISECONDS;
                     }
                     else
-                        gettingColdInHereTimer -= diff;
+                        _gettingColdInHereTimer -= diff;
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -462,7 +478,7 @@ class boss_hodir : public CreatureScript
                             return;
                         case EVENT_RARE_CACHE:
                             Talk(SAY_HARD_MODE_FAILED);
-                            iCouldSayThatThisCacheWasRare = false;
+                            _iCouldSayThatThisCacheWasRare = false;
                             instance->SetData(DATA_HODIR_RARE_CACHE, 0);
                             events.CancelEvent(EVENT_RARE_CACHE);
                             return;
@@ -484,10 +500,10 @@ class boss_hodir : public CreatureScript
                 switch (action)
                 {
                     case ACTION_I_HAVE_THE_COOLEST_FRIENDS:
-                        iHaveTheCoolestFriends = false;
+                        _iHaveTheCoolestFriends = false;
                         break;
                     case ACTION_CHEESE_THE_FREEZE:
-                        cheeseTheFreeze = false;
+                        _cheeseTheFreeze = false;
                         break;
                     default:
                         break;
@@ -517,12 +533,12 @@ class boss_hodir : public CreatureScript
             }
 
             private:
-                uint32 gettingColdInHereTimer;
-                bool gettingColdInHere;
-                bool cheeseTheFreeze;
-                bool iHaveTheCoolestFriends;
-                bool iCouldSayThatThisCacheWasRare;
-                bool gotEncounterFinished;
+                uint32 _gettingColdInHereTimer;
+                bool _gettingColdInHere;
+                bool _cheeseTheFreeze;
+                bool _iHaveTheCoolestFriends;
+                bool _iCouldSayThatThisCacheWasRare;
+                bool _gotEncounterFinished;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -547,12 +563,12 @@ class npc_icicle : public CreatureScript
 
             void Reset()
             {
-                icicleTimer = 2.5*IN_MILLISECONDS;
+                _icicleTimer = 2.5*IN_MILLISECONDS;
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (icicleTimer <= diff)
+                if (_icicleTimer <= diff)
                 {
                     if (me->GetEntry() == NPC_ICICLE_SNOWDRIFT)
                     {
@@ -564,14 +580,14 @@ class npc_icicle : public CreatureScript
                         DoCast(me, SPELL_ICICLE_FALL);
                         DoCast(me, SPELL_FALL_DAMAGE, true);
                     }
-                    icicleTimer = 10*IN_MILLISECONDS;
+                    _icicleTimer = 10*IN_MILLISECONDS;
                 }
                 else
-                    icicleTimer -= diff;
+                    _icicleTimer -= diff;
             }
 
             private:
-                uint32 icicleTimer;
+                uint32 _icicleTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -596,23 +612,23 @@ class npc_snowpacked_icicle : public CreatureScript
 
             void Reset()
             {
-                despawnTimer = 12*IN_MILLISECONDS;
+                _despawnTimer = 12*IN_MILLISECONDS;
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (despawnTimer <= diff)
+                if (_despawnTimer <= diff)
                 {
                     if (GameObject* Snowdrift = me->FindNearestGameObject(GO_SNOWDRIFT, 2.0f))
                         me->RemoveGameObject(Snowdrift, true);
                     me->DespawnOrUnsummon();
                 }
                 else
-                    despawnTimer -= diff;
+                    _despawnTimer -= diff;
             }
 
             private:
-                uint32 despawnTimer;
+                uint32 _despawnTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -623,25 +639,18 @@ class npc_snowpacked_icicle : public CreatureScript
 
 class npc_hodir_priest : public CreatureScript
 {
-    private:
-        enum
-        {
-            EVENT_HEAL = 1,
-            EVENT_DISPEL_MAGIC
-        };
-
     public:
         npc_hodir_priest() : CreatureScript("npc_hodir_priest") {}
 
         struct npc_hodir_priestAI : public ScriptedAI
         {
-            npc_hodir_priestAI(Creature* creature) : ScriptedAI(creature), instance(me->GetInstanceScript()) {}
+            npc_hodir_priestAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) {}
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_HEAL, urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_HEAL, urand(4*IN_MILLISECONDS, 8*IN_MILLISECONDS));
+                _events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
             }
 
             void AttackStart(Unit* who)
@@ -654,7 +663,7 @@ class npc_hodir_priest : public CreatureScript
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -662,13 +671,13 @@ class npc_hodir_priest : public CreatureScript
                 if (HealthBelowPct(30))
                     DoCast(me, SPELL_GREATER_HEAL);
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_HEAL:
                             DoCastAOE(SPELL_GREATER_HEAL);
-                            events.ScheduleEvent(EVENT_HEAL, urand(7.5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_HEAL, urand(7.5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                             return;
                         case EVENT_DISPEL_MAGIC:
                         {
@@ -680,7 +689,7 @@ class npc_hodir_priest : public CreatureScript
                             for (std::list<Unit*>::iterator itr = allies.begin(); itr != allies.end(); ++itr)
                                 if ((*itr)->HasAura(SPELL_FREEZE))
                                     DoCast(*itr, SPELL_DISPEL_MAGIC, true);
-                            events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         }
                         default:
@@ -693,13 +702,13 @@ class npc_hodir_priest : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
             private:
-                InstanceScript* instance;
-                EventMap events;
+                InstanceScript* _instance;
+                EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -710,23 +719,17 @@ class npc_hodir_priest : public CreatureScript
 
 class npc_hodir_shaman : public CreatureScript
 {
-    private:
-        enum
-        {
-            EVENT_STORM_CLOUD = 1
-        };
-
     public:
         npc_hodir_shaman() : CreatureScript("npc_hodir_shaman") {}
 
         struct npc_hodir_shamanAI : public ScriptedAI
         {
-            npc_hodir_shamanAI(Creature* creature) : ScriptedAI(creature), instance(me->GetInstanceScript()) {}
+            npc_hodir_shamanAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) {}
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_STORM_CLOUD, urand(10*IN_MILLISECONDS, 12.5*IN_MILLISECONDS));
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_STORM_CLOUD, urand(10*IN_MILLISECONDS, 12.5*IN_MILLISECONDS));
             }
 
             void AttackStart(Unit* who)
@@ -739,12 +742,12 @@ class npc_hodir_shaman : public CreatureScript
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -758,10 +761,10 @@ class npc_hodir_shaman : public CreatureScript
                                 {
                                     std::list<Unit*>::iterator iter = allies.begin();
                                     DoCast((*iter), SPELL_STORM_CLOUD, true);
-                                    events.ScheduleEvent(EVENT_STORM_CLOUD, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                                    _events.ScheduleEvent(EVENT_STORM_CLOUD, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                                 }
                                 else
-                                    events.ScheduleEvent(EVENT_STORM_CLOUD, urand(2*IN_MILLISECONDS, 3*IN_MILLISECONDS)); // No target found, check again in a short period of time
+                                    _events.ScheduleEvent(EVENT_STORM_CLOUD, urand(2*IN_MILLISECONDS, 3*IN_MILLISECONDS)); // No target found, check again in a short period of time
                             
                             }
                             break;
@@ -775,13 +778,13 @@ class npc_hodir_shaman : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
             private:
-                InstanceScript* instance;
-                EventMap events;
+                InstanceScript* _instance;
+                EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -792,28 +795,17 @@ class npc_hodir_shaman : public CreatureScript
 
 class npc_hodir_druid : public CreatureScript
 {
-    private:
-        enum Event
-        {
-            EVENT_STARLIGHT = 1
-        };
-
-        enum Aura
-        {
-            AURA_MOONKIN = 24907
-        };
-
     public:
         npc_hodir_druid() : CreatureScript("npc_hodir_druid") {}
 
         struct npc_hodir_druidAI : public ScriptedAI
         {
-            npc_hodir_druidAI(Creature* creature) : ScriptedAI(creature), instance(me->GetInstanceScript()) {}
+            npc_hodir_druidAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) {}
 
             void Reset()
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_STARLIGHT, urand(15*IN_MILLISECONDS, 17.5*IN_MILLISECONDS));
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_STARLIGHT, urand(15*IN_MILLISECONDS, 17.5*IN_MILLISECONDS));
             }
 
             void AttackStart(Unit* who)
@@ -826,19 +818,19 @@ class npc_hodir_druid : public CreatureScript
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_STARLIGHT:
                             // This was somehow senseless - the spell persists ~1 min, thus refreshing it every half a minute is ... curious.
                             DoCast(me, SPELL_STARLIGHT, true);
-                            events.ScheduleEvent(EVENT_STARLIGHT, urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_STARLIGHT, urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                             break;
                         default:
                             break;
@@ -853,13 +845,13 @@ class npc_hodir_druid : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
+                if (Creature* Hodir = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
             private:
-                InstanceScript* instance;
-                EventMap events;
+                InstanceScript* _instance;
+                EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -870,29 +862,22 @@ class npc_hodir_druid : public CreatureScript
 
 class npc_hodir_mage : public CreatureScript
 {
-    private:
-        enum
-        {
-            EVENT_CONJURE_FIRE = 1,
-            EVENT_MELT_ICE
-        };
-
     public:
         npc_hodir_mage() : CreatureScript("npc_hodir_mage") {}
 
         struct npc_hodir_mageAI : public ScriptedAI
         {
-            npc_hodir_mageAI(Creature* creature) : ScriptedAI(creature), summons(me)
+            npc_hodir_mageAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
-                instance = me->GetInstanceScript();
+                _instance = me->GetInstanceScript();
             }
 
             void Reset()
             {
-                events.Reset();
-                summons.DespawnAll();
-                events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(10*IN_MILLISECONDS, 12.5*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_MELT_ICE, 5*IN_MILLISECONDS);
+                _events.Reset();
+                _summons.DespawnAll();
+                _events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(10*IN_MILLISECONDS, 12.5*IN_MILLISECONDS));
+                _events.ScheduleEvent(EVENT_MELT_ICE, 5*IN_MILLISECONDS);
             }
 
             void AttackStart(Unit* who)
@@ -903,13 +888,13 @@ class npc_hodir_mage : public CreatureScript
             void JustSummoned(Creature* summoned)
             {
                 if (summoned->GetEntry() == NPC_TOASTY_FIRE)
-                    summons.Summon(summoned);
+                    _summons.Summon(summoned);
             }
 
             void SummonedCreatureDespawn(Creature* summoned)
             {
                 if (summoned->GetEntry() == NPC_TOASTY_FIRE)
-                    summons.Despawn(summoned);
+                    _summons.Despawn(summoned);
             }
 
             void UpdateAI(uint32 const diff)
@@ -917,26 +902,26 @@ class npc_hodir_mage : public CreatureScript
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_CONJURE_FIRE:
-                            if (summons.size() >= RAID_MODE<uint64>(2, 4))
+                            if (_summons.size() >= RAID_MODE<uint64>(2, 4))
                                 break;
                             // The fire is gets positioned at a random coordinate.
                             DoCast(me, SPELL_CONJURE_FIRE, true);
-                            events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS));
                             return;
                         case EVENT_MELT_ICE:
                             if (Creature* FlashFreeze = me->FindNearestCreature(NPC_FLASH_FREEZE, 50.0f, true))
                                 DoCast(FlashFreeze, SPELL_MELT_ICE, true);
-                            events.ScheduleEvent(EVENT_MELT_ICE, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
+                            _events.ScheduleEvent(EVENT_MELT_ICE, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         default:
                             return;
@@ -948,14 +933,14 @@ class npc_hodir_mage : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                  if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
+                  if (Creature* Hodir = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_HODIR) : 0))
                     Hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
             private:
-                InstanceScript* instance;
-                EventMap events;
-                SummonList summons;
+                InstanceScript* _instance;
+                EventMap _events;
+                SummonList _summons;
         };
 
         CreatureAI* GetAI(Creature* creature) const

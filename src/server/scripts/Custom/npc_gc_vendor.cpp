@@ -20,7 +20,6 @@ enum
     GOSSIP_TEXTID_FAIL_C            = 70009,        //"You do not have enough GC Tokens to use this customization option. You can get more GC Tokens through voting system and ingame events. Also you can donate and get this option change as a gift! Visit gamingconsortium.org for more info."
     GOSSIP_TEXTID_CONTACT_GM        = 70010,        //"In order to choose this reward you need to contact a gm.."
 
-
     SHOW_MAIN_MENU                  = 500,
     SHOW_CUSTOMIZATION_SUCCESS_MENU = 400,
     SHOW_CUSTOMIZATION_FAIL_MENU    = 300,
