@@ -361,9 +361,9 @@ class npc_gc_vendor : public CreatureScript
 
             if (itemId && sWorld->getBoolConfig(CONFIG_GC_TOKEN_VENDOR))
             {
-                /*  1 - name change
-                    2 - race change
-                    3 - faction change */
+                /*  itemId 1 - name change
+                           2 - race change
+                           3 - faction change */
                 bool faction = false;   // 0 - alliance, 1 - horde
                 faction = player->GetTeamId();
                 if (faction)    // if we are horde
@@ -797,7 +797,6 @@ class npc_gc_vendor : public CreatureScript
                     break;
             }
         }
-
 
         void GossipFunItemTrade(Player* player, Creature* creature, uint32 funItemId)
         {
