@@ -2189,7 +2189,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
         if (dist < 1.0f)
             dist = 1.0f;
-        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1150.0f);
+        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1100.0f);
 
         // Calculate minimum incoming time
         if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
@@ -5226,6 +5226,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
                     return SPELL_FAILED_OUT_OF_RANGE;
+                else if (!result)
+                    return SPELL_FAILED_NOPATH;
 
                       break;
 

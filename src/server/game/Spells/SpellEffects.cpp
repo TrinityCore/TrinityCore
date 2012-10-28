@@ -5128,10 +5128,11 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 {
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
-    {
         if (!unitTarget)
             return;
+
+    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+    {
 
         float angle = unitTarget->GetRelativeAngle(m_caster);
         Position pos;
