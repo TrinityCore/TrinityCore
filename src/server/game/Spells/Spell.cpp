@@ -2187,9 +2187,9 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         // TODO: this is a hack
         float dist = m_caster->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
-        if (dist < 5.0f)
-            dist = 5.0f;
-        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1000.0f);
+        if (dist < 1.0f)
+            dist = 1.0f;
+        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1150.0f);
 
         // Calculate minimum incoming time
         if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
@@ -5210,25 +5210,26 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 Unit* target = m_targets.GetUnitTarget();
 
-                if (!target)
-                    return SPELL_FAILED_DONT_REPORT;
-
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     if (!target->isAlive())
                         return SPELL_FAILED_BAD_TARGETS;
+
+                if (!target)
+                    return SPELL_FAILED_DONT_REPORT;
 
                 Position pos;
                 target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
 
                 m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
+                m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
                     return SPELL_FAILED_OUT_OF_RANGE;
-                else if (!result)
-                    return SPELL_FAILED_NOPATH;
 
-                break;
+                      break;
+
+     
             }
             case SPELL_EFFECT_SKINNING:
             {

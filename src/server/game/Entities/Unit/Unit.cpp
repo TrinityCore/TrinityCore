@@ -16777,7 +16777,11 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ);
     }
     else
-    {
+    {    
+    // Bladestorm
+        if (player->HasAura(46924))
+            return;
+
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
 

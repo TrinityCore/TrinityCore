@@ -549,7 +549,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                         unitTarget->RemoveAuraFromStack(spellId);
 
                                 damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.11f * combo);
+                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1065f * combo);
                             }
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
@@ -566,7 +566,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
                         {
                             float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.085f));
+                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.08f));
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
                             if (m_caster->HasAura(37169))
@@ -830,12 +830,11 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
           case 58984: // Shadowmeld
            {
-               m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
-               m_caster->InterruptSpell(CURRENT_CHANNELED_SPELL);  // break channeled spells
+               m_caster->CombatStop();
+               unitTarget->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+               unitTarget->InterruptSpell(CURRENT_CHANNELED_SPELL);  // break channeled spells
                m_caster->AttackStop();
                ((Player*)m_caster)->SendAttackSwingCancelAttack();
-               m_caster->CombatStop();
-				 return;
            }
 
              case 49560: // Death Grip
@@ -3355,7 +3354,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 }
 
                 if (found)
-                    totalDamagePercentMod *= 1.2f;          // 120% if poisoned
+                    totalDamagePercentMod *= 1.16f;          // 116% if poisoned
             }
             break;
         }
@@ -5129,25 +5128,25 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 {
-    if (!unitTarget)
-        return;
-
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-    if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
-        {
-            Position pos;
-            unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-            unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
+        if (!unitTarget)
+            return;
 
-            m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-        }
-        else
-            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath);
+        float angle = unitTarget->GetRelativeAngle(m_caster);
+        Position pos;
+
+        unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+        unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), angle);
+
+        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize());
     }
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
+        if (!unitTarget)
+            return;
+
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->Attack(unitTarget, true);

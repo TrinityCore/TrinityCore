@@ -239,8 +239,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     InitStatsForLevel(petlevel);
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
 
-    SynchronizeLevelWithOwner();
-
     SetReactState(ReactStates(fields[6].GetUInt8()));
     SetCanModifyStats(true);
 
@@ -354,6 +352,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         owner->ToPlayer()->SetLastPetNumber(pet_number);
 
     m_loading = false;
+
+    SynchronizeLevelWithOwner();
 
     return true;
 }
