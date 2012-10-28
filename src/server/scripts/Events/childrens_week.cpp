@@ -165,7 +165,7 @@ class npc_winterfin_playmate : public CreatureScript
                         if (player->GetQuestStatus(QUEST_PLAYMATE_ORACLE) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if (orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE))
+                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
                                 phase = 1;
                         }
             }
@@ -262,7 +262,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
                         if (player->GetQuestStatus(QUEST_PLAYMATE_WOLVAR) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if (orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR))
+                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR)))
                                 phase = 1;
                         }
             }
@@ -361,7 +361,7 @@ class npc_the_biggest_tree : public CreatureScript
                         if (player->GetQuestStatus(QUEST_THE_BIGGEST_TREE_EVER) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if (orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE))
+                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
                                 phase = 1;
                         }
             }
@@ -446,7 +446,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
                         if (player->GetQuestStatus(QUEST_THE_BRONZE_DRAGONSHRINE_ORACLE) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if (orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE))
+                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
                                 phase = 1;
                         }
             }
@@ -533,7 +533,7 @@ class npc_elder_kekek : public CreatureScript
                         if (player->GetQuestStatus(QUEST_THE_BRONZE_DRAGONSHRINE_WOLVAR) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if (orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR))
+                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR)))
                                 phase = 1;
                         }
             }
@@ -620,7 +620,7 @@ class npc_the_etymidian : public CreatureScript
                         if (player->GetQuestStatus(QUEST_MEETING_A_GREAT_ONE) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if (orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE))
+                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
                                 phase = 1;
                         }
             }
@@ -732,13 +732,13 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                     {
                         if (player->GetQuestStatus(QUEST_THE_DRAGON_QUEEN_ORACLE) == QUEST_STATUS_INCOMPLETE)
                         {
-                            if (orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE))
+                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
                                 phase = 1;
                                 playerGUID = player->GetGUID();
                         }
                         else if (player->GetQuestStatus(QUEST_THE_DRAGON_QUEEN_WOLVAR) == QUEST_STATUS_INCOMPLETE)
                         {
-                            if (orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR))
+                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR)))
                                 phase = 7;
                                 playerGUID = player->GetGUID();
                         }

@@ -82,7 +82,7 @@ static Position flightPos[]=
     {1772.743f, 1354.941f, 18.4f, 5.841f}
 };
 
-static const char* Text[]=
+static char const* Text[]=
 {
     "Horseman rise...",
     "Your time is nigh...",
