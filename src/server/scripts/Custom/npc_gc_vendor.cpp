@@ -240,7 +240,7 @@ class npc_gc_vendor : public CreatureScript
             return false;
         }
 
-        void GossipMenuPreview(Player* player, Creature* creature, uint16 menuId)
+        void GossipMenuPreview(Player* player, Creature* creature, uint16 menuId, uint32 itemId = 0)
         {
             player->PlayerTalkClass->ClearMenus();
             switch (menuId)
@@ -357,6 +357,19 @@ class npc_gc_vendor : public CreatureScript
 
                 default:
                     break;
+            }
+
+            if (itemId && sWorld->getBoolConfig(CONFIG_GC_TOKEN_VENDOR))
+            {
+                /*  1 - name change
+                    2 - race change
+                    3 - faction change */
+                bool faction = false;   // 0 - alliance, 1 - horde
+                faction = player->GetTeamId();
+                if (faction)    // if we are horde
+                    CharacterDatabase.PExecute("UPDATE `gc_custom`.`token_rewards` SET `total` = `total` + 1, `horde` = `horde` + 1 WHERE `itemId` = %i", itemId);
+                else            // if we are alliance
+                    CharacterDatabase.PExecute("UPDATE `gc_custom`.`token_rewards` SET `total` = `total` + 1, `alliance` = `alliance` + 1 WHERE `itemId` = %i", itemId);
             }
         }
 
@@ -570,62 +583,63 @@ class npc_gc_vendor : public CreatureScript
                 // 500 GC Tokens
                 case 11101: // "X-51 Nether-Rocket" //49285
                     if (HandleItemExchange(player, 49285, 1, 500))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49285);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 11102: // "X-51 Nether-Rocket X-TREME" //49286
                     if (HandleItemExchange(player, 49286, 1, 500))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49286);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 11103: // "Blazing Hippogryph" //54069
                     if (HandleItemExchange(player, 54069, 1, 500))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 54069);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 11104: // "X-53 Touring Rocket" //54860
                     if (HandleItemExchange(player, 54860, 1, 500))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
-                    else GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 54860);
+                    else
+                        GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 // 400 GC Tokens
                 case 11201: // "Reins of the Swift Spectral Tiger" //49284
                     if (HandleItemExchange(player, 49284, 1, 400))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49284);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 11202: // "Big Battle Bear" //49282
                     if (HandleItemExchange(player, 49282, 1, 400))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49282);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 11203: // "Wooly White Rhino" //54068
                     if (HandleItemExchange(player, 54068, 1, 400))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 54068);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 11204: // "Swift Zhevra" //37719
                     if (HandleItemExchange(player, 37719, 1, 400))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 37719);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 // 300 GC Tokens
                 case 11301: // "Riding Turtle" //23720
                     if (HandleItemExchange(player, 23720, 1, 300))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 23720);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 11302: // "Reins of the Spectral Tiger" //49283
                     if (HandleItemExchange(player, 49283, 1, 300))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49283);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
@@ -642,140 +656,140 @@ class npc_gc_vendor : public CreatureScript
                 // 200 GC Tokens
                 case 12101: // "Blue Murloc Egg" //20371
                     if (HandleItemExchange(player, 20371, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 20371);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12102: // "Diablo Stone" //13584
                     if (HandleItemExchange(player, 13584, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 13584);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12103: // "Frosty's Collar" //39286
                     if (HandleItemExchange(player, 39286, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 39286);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12104: // "Lurky's Egg" //30360
                     if (HandleItemExchange(player, 30360, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 30360);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12105: // "Mini Thor" //56806
                     if (HandleItemExchange(player, 56806, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 56806);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12106: // "Netherwhelp's Collar" //25535
                     if (HandleItemExchange(player, 25535, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 25535);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12107: // "Panda Collar" //13583
                     if (HandleItemExchange(player, 13583, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 13583);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12108: // "Pink Murloc Egg" //22114
                     if (HandleItemExchange(player, 22114, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 22114);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12109: // "Tyrael's Hilt" //39656
                     if (HandleItemExchange(player, 39656, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 39656);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12110: // "Zergling Leash" //13582
                     if (HandleItemExchange(player, 13582, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 13582);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                     // 100 GC Tokens
                 case 12201: // "Dragon Kite" //34493
                     if (HandleItemExchange(player, 34493, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 34493);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12202: // "Hippogryph Hatchling" //23713
                     if (HandleItemExchange(player, 23713, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 23713);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12203: // "Tuskarr Kite" //49287
                     if (HandleItemExchange(player, 49287, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49287);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12204: // "Banana Charm" //32588
                     if (HandleItemExchange(player, 32588, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 32588);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12205: // "Gryphon Hatchling" //49662
                     if (HandleItemExchange(player, 49662, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49662);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12206: // "Heavy Murloc Egg" //46802
                     if (HandleItemExchange(player, 46802, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 46802);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12207: // "Lil' Phylactery" //49693
                     if (HandleItemExchange(player, 49693, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49693);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12208: // "Lil' XT" //54847
                     if (HandleItemExchange(player, 54847, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 54847);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12209: // "Pandaren Monk" //49665
                     if (HandleItemExchange(player, 49665, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49665);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12210: // "Rocket Chicken" //34492
                     if (HandleItemExchange(player, 34492, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 34492);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12211: // "Soul-Trader Beacon" //38050
                     if (HandleItemExchange(player, 38050, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 38050);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12212: // "Spectral Tiger Cub" //49343
                     if (HandleItemExchange(player, 49343, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49343);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 12213: // "Wind Rider Cub" //49663
                     if (HandleItemExchange(player, 49663, 1, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49663);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
@@ -793,86 +807,86 @@ class npc_gc_vendor : public CreatureScript
                 // 200 GC Tokens
                 case 13101: // "Goblin Weather Machine-Prototype 01-B" //35227
                     if (HandleItemExchange(player, 35227, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 35227);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13102: // "Carved Ogre Idol" //49704
                     if (HandleItemExchange(player, 49704, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49704);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13103: // "Perpetual Purple Firework" //49703
                     if (HandleItemExchange(player, 49703, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 49703);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13104: // "Fishing Chair" //33223
                     if (HandleItemExchange(player, 33223, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 33223);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13105: //"Paper Flying Machine Kit" //34499
                     if (HandleItemExchange(player, 34499, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 34499);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13106: // "Picnic Basket" //32566
                     if (HandleItemExchange(player, 32566, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 32566);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13107: // "Goblin Gumbo Kettle" //33219
                     if (HandleItemExchange(player, 33219, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 33219);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13108: // "Imp in a Ball" //32542
                     if (HandleItemExchange(player, 32542, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 32542);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13109: // "Murloc Costume" //33079
                     if (HandleItemExchange(player, 33079, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 33079);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13110: // "Epic Purple Shirt" //45037
                     if (HandleItemExchange(player, 45037, 1, 200))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 45037);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 // 100 GC Tokens (Consumables) 
                 case 13201: // "Papa Hummel's Old-Fashioned Pet Biscuit(x250)" //35223
                     if (HandleItemExchange(player, 35223, 250, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 35223);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13202: // "Party G.R.E.N.A.D.E.(x250)" //38577
                     if (HandleItemExchange(player, 38577, 250, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 38577);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13203: // "Path of Cenarius(x250)" //46779
                     if (HandleItemExchange(player, 46779, 250, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 46779);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
                 case 13204: // "Path of Illidan(x250)" //38233
                     if (HandleItemExchange(player, 38233, 250, 100))
-                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_SUCCESS_MENU, 38233);
                     else
                         GossipMenuPreview(player, creature, SHOW_FAIL_MENU);
                     break;
@@ -960,19 +974,19 @@ class npc_gc_vendor : public CreatureScript
                 // Customization Handling
                 case 14101:    // Name Change Handling
                     if (HandleCustomizationChange(player, 500, 1))
-                        GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_SUCCESS_MENU, 1);
                     else
                         GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_FAIL_MENU);
                     break;
                 case 14201: // Race Change Handling
                     if (HandleCustomizationChange(player, 600, 2))
-                        GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_SUCCESS_MENU, 2);
                     else
                         GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_FAIL_MENU);
                     break;
                 case 14202: // Faction Change Handling
                     if (HandleCustomizationChange(player, 600, 3))
-                        GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_SUCCESS_MENU);
+                        GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_SUCCESS_MENU, 3);
                     else
                         GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_FAIL_MENU);
                     break;
