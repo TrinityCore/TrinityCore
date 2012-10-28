@@ -217,6 +217,8 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "SERVER LOADING";
         case LOG_FILTER_OPCODES:
             return "OPCODE";
+        case LOG_FILTER_SOAP:
+            return "SOAP";
         default:
             break;
     }
