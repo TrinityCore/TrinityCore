@@ -18,6 +18,8 @@ enum
     GOSSIP_TEXTID_CONFIRM_FACTION   = 70007,        //"Character Faction change includes Faction change, Race change, Name change, Gender change and Look change.  Are you sure you want to use this customization option?"        
     GOSSIP_TEXTID_SUCCESS_C         = 70008,        //"Thank you $N. Your customization will be applied on next login. Relog to apply changes."
     GOSSIP_TEXTID_FAIL_C            = 70009,        //"You do not have enough GC Tokens to use this customization option. You can get more GC Tokens through voting system and ingame events. Also you can donate and get this option change as a gift! Visit gamingconsortium.org for more info."
+    GOSSIP_TEXTID_CONTACT_GM        = 70010,        //"In order to choose this reward you need to contact a gm.."
+
 
     SHOW_MAIN_MENU                  = 500,
     SHOW_CUSTOMIZATION_SUCCESS_MENU = 400,
@@ -31,8 +33,10 @@ enum
     SHOW_CUSTOMIZATION_MENU         = 4000,
 
     SHOW_CUSTOMIZE_NAME             = 4101,
+    SHOW_TRANSFER_CHAR              = 4102,
     SHOW_CUSTOMIZE_RACE             = 4201,
     SHOW_CUSTOMIZE_FACTION          = 4202,
+    SHOW_RESTORE_FROM_DB            = 4203,
 
     HANDLE_VALUE                    = 10000,
 };
@@ -162,9 +166,11 @@ enum
 #define ANSWER_CUSTOMIZE_4_0_0_0 "Character Customization"
 #define ANSWER_CUSTOMIZE_4_1_0_0 "500 GC Tokens"
 #define ANSWER_CUSTOMIZE_NAME "Appearance and Name change"
+#define ANSWER_TRANSFER_CHAR "Char transfer between accounts"
 #define ANSWER_CUSTOMIZE_4_2_0_0 "600 GC Tokens"
 #define ANSWER_CUSTOMIZE_RACE "Race change"
 #define ANSWER_CUSTOMIZE_FACTION "Faction change"
+#define ANSWER_RESTORE_FROM_DB "Restore a deleted char"
 
 class npc_gc_vendor : public CreatureScript
 {
@@ -318,12 +324,13 @@ class npc_gc_vendor : public CreatureScript
                     break;
 
                 case SHOW_CUSTOMIZATION_MENU:
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, ANSWER_CUSTOMIZE_4_1_0_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SHOW_CUSTOMIZATION_MENU);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, ANSWER_CUSTOMIZE_NAME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4101);
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, ANSWER_CUSTOMIZE_4_2_0_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SHOW_CUSTOMIZATION_MENU);
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, ANSWER_CUSTOMIZE_RACE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4201);
-                    if (player->GetTeam() != HORDE)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, ANSWER_CUSTOMIZE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4202);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, ANSWER_CUSTOMIZE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4202);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, ANSWER_RESTORE_FROM_DB, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4203);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, ANSWER_CUSTOMIZE_4_1_0_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SHOW_CUSTOMIZATION_MENU);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, ANSWER_CUSTOMIZE_NAME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4101);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, ANSWER_TRANSFER_CHAR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4102);
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, ANSWER_BACK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + SHOW_MAIN_MENU);
                     player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_MENU, creature->GetGUID());
                     break;
@@ -342,6 +349,11 @@ class npc_gc_vendor : public CreatureScript
 
                 case SHOW_CUSTOMIZATION_FAIL_MENU:
                     player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_FAIL_C, creature->GetGUID());
+                    break;
+
+                case SHOW_RESTORE_FROM_DB:
+                case SHOW_TRANSFER_CHAR:
+                    player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CONTACT_GM, creature->GetGUID());
                     break;
 
                 default:
@@ -873,6 +885,7 @@ class npc_gc_vendor : public CreatureScript
             GossipMenuPreview(player, creature, SHOW_MAIN_MENU);
             return true;
         }
+
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
@@ -910,14 +923,20 @@ class npc_gc_vendor : public CreatureScript
                 case 4000:
                     GossipMenuPreview(player, creature, SHOW_CUSTOMIZATION_MENU);
                     break;
-                case 4101: // Name Change
+                case 4101:  // Name Change
                     GossipCustomizationConfirm(player, creature, SHOW_CUSTOMIZE_NAME);
                     break;
-                case 4201: // Race Change
+                case 4102:  // Transfer char between accounts
+                    GossipMenuPreview(player, creature, SHOW_TRANSFER_CHAR);
+                    break;
+                case 4201:  // Race Change
                     GossipCustomizationConfirm(player, creature, SHOW_CUSTOMIZE_RACE);
                     break;
-                case 4202:  //Faction Change
+                case 4202:  // Faction Change
                     GossipCustomizationConfirm(player, creature, SHOW_CUSTOMIZE_FACTION);
+                    break;
+                case 4203:  // Restore from db
+                    GossipMenuPreview(player, creature, SHOW_RESTORE_FROM_DB);
                     break;
 
                 // Mounts Trade Handling
