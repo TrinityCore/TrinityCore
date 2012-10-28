@@ -763,67 +763,54 @@ class spell_valkyr_essences : public SpellScriptLoader
                     {
                         if (uint32 poweringUp = sSpellMgr->GetSpellIdForDifficulty(SPELL_POWERING_UP, owner))
                         {
-                            // check if we receive dark dmg while having dark aura or light dmg with light aura, others dont matter
-                            if ((dmgInfo.GetSchoolMask() == SPELL_SCHOOL_MASK_SHADOW && owner->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1)) ||    // dark damage
-                                (dmgInfo.GetSchoolMask() == SPELL_SCHOOL_MASK_FIRE && owner->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1)))        // light damage
+                            if (urand(0, 99) < 5)
+                                GetTarget()->CastSpell(GetTarget(), spellId, true);
+
+                            // Twin Vortex part
+                            uint32 lightVortex = sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHT_VORTEX_DAMAGE, owner);
+                            uint32 darkVortex = sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_VORTEX_DAMAGE, owner);
+                            int32 stacksCount = int32(dmgInfo.GetSpellInfo()->Effects[EFFECT_0].CalcValue()) * 0.001 - 1;
+
+                            if (lightVortex && darkVortex && stacksCount)
                             {
-                                if (urand(0, 99) < 5)
-                                    GetTarget()->CastSpell(GetTarget(), spellId, true);
-
-                                uint32 darkEssence = sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_ESSENCE, owner);
-                                uint32 lightEssence = sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHT_ESSENCE, owner);
-
-                                if (!darkEssence || !lightEssence)
-                                    return;
-
-                                // Twin Vortex part
-                                uint32 lightVortex = sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHT_VORTEX_DAMAGE, owner);
-                                uint32 darkVortex = sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_VORTEX_DAMAGE, owner);
-                                int32 stacksCount = int32(dmgInfo.GetSpellInfo()->Effects[EFFECT_0].CalcValue()) * 0.001 - 1;
-
-                                if (lightVortex && darkVortex && stacksCount)
+                                if (dmgInfo.GetSpellInfo()->Id == darkVortex || dmgInfo.GetSpellInfo()->Id == lightVortex)
                                 {
-                                    if ((dmgInfo.GetSpellInfo()->Id == darkVortex && owner->HasAura(darkEssence)) ||
-                                        (dmgInfo.GetSpellInfo()->Id == lightVortex && owner->HasAura(lightEssence)))
+                                    Aura* pAura = owner->GetAura(poweringUp);
+                                    if (pAura)
                                     {
-                                        Aura* pAura = owner->GetAura(poweringUp);
-                                        if (pAura)
-                                        {
-                                            pAura->ModStackAmount(stacksCount);
-                                            owner->CastSpell(owner, poweringUp, true);
-                                        }
-                                        else
-                                        {
-                                            owner->CastSpell(owner, poweringUp, true);
-                                            if (Aura* pTemp = owner->GetAura(poweringUp))
-                                                pTemp->ModStackAmount(stacksCount);
-                                        }
+                                        pAura->ModStackAmount(stacksCount);
+                                        owner->CastSpell(owner, poweringUp, true);
+                                    }
+                                    else
+                                    {
+                                        owner->CastSpell(owner, poweringUp, true);
+                                        if (Aura* pTemp = owner->GetAura(poweringUp))
+                                            pTemp->ModStackAmount(stacksCount);
                                     }
                                 }
+                            }
 
-                                // Picking floating balls
-                                uint32 unleashedDark = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNLEASHED_DARK, owner);
-                                uint32 unleashedLight = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNLEASHED_LIGHT, owner);
+                            // Picking floating balls
+                            uint32 unleashedDark = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNLEASHED_DARK, owner);
+                            uint32 unleashedLight = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNLEASHED_LIGHT, owner);
 
-                                if (unleashedDark && unleashedLight)
+                            if (unleashedDark && unleashedLight)
+                            {
+                                if (dmgInfo.GetSpellInfo()->Id == unleashedDark || dmgInfo.GetSpellInfo()->Id == unleashedLight)
                                 {
-                                    if ((dmgInfo.GetSpellInfo()->Id == unleashedDark && owner->HasAura(darkEssence)) ||
-                                        (dmgInfo.GetSpellInfo()->Id == unleashedLight && owner->HasAura(lightEssence)))
+                                    // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
+                                    Aura* pAura = owner->GetAura(poweringUp);
+                                    if (pAura)
                                     {
-                                        // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
-                                        Aura* pAura = owner->GetAura(poweringUp);
-                                        if (pAura)
-                                        {
-                                            // 2 lines together add the correct amount of buff stacks
-                                            pAura->ModStackAmount(stacksCount);
-                                            owner->CastSpell(owner, poweringUp, true);
-                                        }
-                                        else
-                                        {
-                                            owner->CastSpell(owner, poweringUp, true);
-                                            if (Aura* pTemp = owner->GetAura(poweringUp))
-                                                pTemp->ModStackAmount(stacksCount);
-                                        }
+                                        // 2 lines together add the correct amount of buff stacks
+                                        pAura->ModStackAmount(stacksCount);
+                                        owner->CastSpell(owner, poweringUp, true);
+                                    }
+                                    else
+                                    {
+                                        owner->CastSpell(owner, poweringUp, true);
+                                        if (Aura* pTemp = owner->GetAura(poweringUp))
+                                            pTemp->ModStackAmount(stacksCount);
                                     }
                                 }
                             }
