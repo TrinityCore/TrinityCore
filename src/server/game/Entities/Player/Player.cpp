@@ -8821,11 +8821,11 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 else
                     group = "in group";
                 sLog->outCommand(GetSession()->GetAccountId(), "GM %s (Account: %u) opened GO (GUID: %u) X: %f Y: %f Z: %f Map: %u [%s]",
-                    GetName(), GetSession()->GetAccountId(), GUID_LOPART(guid), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), group.c_str());
+                    GetName().c_str(), GetSession()->GetAccountId(), GUID_LOPART(guid), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), group.c_str());
             }
             else
                 sLog->outCommand(GetSession()->GetAccountId(), "GM %s (Account: %u) opened GO (GUID: %u) X: %f Y: %f Z: %f Map: %u",
-                    GetName(), GetSession()->GetAccountId(), GUID_LOPART(guid), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
+                    GetName().c_str(), GetSession()->GetAccountId(), GUID_LOPART(guid), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
         }
         GameObject* go = GetMap()->GetGameObject(guid);
 
