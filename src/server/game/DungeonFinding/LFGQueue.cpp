@@ -244,8 +244,15 @@ LfgCompatibility LfgQueue::FindNewGroups(LfgGuidList& check, LfgGuidList& all)
     LfgCompatibility compatibles = GetCompatibles(strGuids);
 
     sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::FindNewGroup: (%s): %s - all(%s)", strGuids.c_str(), GetCompatibleString(compatibles), ConcatenateGuids(all).c_str());
-    if (compatibles == LFG_COMPATIBILITY_PENDING || compatibles == LFG_COMPATIBLES_BAD_STATES) // Not previously cached, calculate
+    if (compatibles == LFG_COMPATIBILITY_PENDING) // Not previously cached, calculate
         compatibles = CheckCompatibility(check);
+
+    if (compatibles == LFG_COMPATIBLES_BAD_STATES && sLFGMgr->AllQueued(check))
+    {
+        sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::FindNewGroup: (%s) compatibles (cached) changed from bad states to match", strGuids.c_str());
+        SetCompatibles(strGuids, LFG_COMPATIBLES_MATCH);
+        return LFG_COMPATIBLES_MATCH;
+    }
 
     if (compatibles != LFG_COMPATIBLES_WITH_LESS_PLAYERS)
         return compatibles;
@@ -366,7 +373,7 @@ LfgCompatibility LfgQueue::CheckCompatibility(LfgGuidList check)
                 for (itPlayer = proposalRoles.begin(); itPlayer != proposalRoles.end(); ++itPlayer)
                 {
                     if (itRoles->first == itPlayer->first)
-                        sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: ERROR! Player multiple times in queue! [" UI64FMTD "]", itRoles->first);
+                        sLog->outError(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: ERROR! Player multiple times in queue! [" UI64FMTD "]", itRoles->first);
                     else if (sLFGMgr->HasIgnore(itRoles->first, itPlayer->first))
                         break;
                 }
@@ -559,23 +566,24 @@ std::string LfgQueue::DumpQueueInfo() const
             if (IS_GROUP(guid))
             {
                 groups++;
-                if (Group const* group = sGroupMgr->GetGroupByGUID(GUID_LOPART(guid)))
-                    playersInGroup += group->GetMembersCount();
-                else
-                    playersInGroup += 2; // Shouldn't happen but just in case
+                playersInGroup += sLFGMgr->GetPlayerCount(guid);
             }
             else
                 players++;
         }
     }
     std::ostringstream o;
-    o << "Queued Players: " << players << "(in group: " << playersInGroup << ") Groups: " << groups << "\n";
+    o << "Queued Players: " << players << " (in group: " << playersInGroup << ") Groups: " << groups << "\n";
     return o.str();
 }
 
-std::string LfgQueue::DumpCompatibleInfo() const
+std::string LfgQueue::DumpCompatibleInfo(bool full /* = false */) const
 {
     std::ostringstream o;
     o << "Compatible Map size: " << m_CompatibleMap.size() << "\n";
+    if (full)
+        for (LfgCompatibleMap::const_iterator itr = m_CompatibleMap.begin(); itr != m_CompatibleMap.end(); ++itr)
+            o << "(" << itr->first << "): " << GetCompatibleString(itr->second) << "\n";
+
     return o.str();
 }
