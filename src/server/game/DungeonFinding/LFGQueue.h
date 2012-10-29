@@ -73,9 +73,9 @@ struct LfgWaitTime
     uint32 number;                                         ///< Number of people used to get that wait time
 };
 
-typedef std::map<uint32, LfgWaitTime> LfgWaitTimesMap;
-typedef std::map<std::string, LfgCompatibilityData> LfgCompatibleMap;
-typedef std::map<uint64, LfgQueueData> LfgQueueDataMap;
+typedef std::map<uint32, LfgWaitTime> LfgWaitTimesContainer;
+typedef std::map<std::string, LfgCompatibilityData> LfgCompatibleContainer;
+typedef std::map<uint64, LfgQueueData> LfgQueueDataContainer;
 
 /**
     Stores all data related to queue
@@ -122,22 +122,22 @@ class LFGQueue
 
         void SetCompatibilityData(std::string const& key, LfgCompatibilityData const& compatibles);
         LfgCompatibilityData* GetCompatibilityData(std::string const& key);
-        void FindBestCompatibleInQueue(LfgQueueDataMap::iterator itrQueue);
-        void UpdateBestCompatibleInQueue(LfgQueueDataMap::iterator itrQueue, std::string const& key, LfgRolesMap const& roles);
+        void FindBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue);
+        void UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue, std::string const& key, LfgRolesMap const& roles);
 
         LfgCompatibility FindNewGroups(LfgGuidList& check, LfgGuidList& all);
         LfgCompatibility CheckCompatibility(LfgGuidList check);
 
         // Queue
-        LfgQueueDataMap m_QueueDataMap;                    ///< Queued groups
-        LfgCompatibleMap m_CompatibleMap;                  ///< Compatible dungeons
+        LfgQueueDataContainer QueueDataStore;              ///< Queued groups
+        LfgCompatibleContainer CompatibleMapStore;         ///< Compatible dungeons
 
-        LfgWaitTimesMap m_waitTimesAvg;                    ///< Average wait time to find a group queuing as multiple roles
-        LfgWaitTimesMap m_waitTimesTank;                   ///< Average wait time to find a group queuing as tank
-        LfgWaitTimesMap m_waitTimesHealer;                 ///< Average wait time to find a group queuing as healer
-        LfgWaitTimesMap m_waitTimesDps;                    ///< Average wait time to find a group queuing as dps
-        LfgGuidList m_currentQueue;                        ///< Ordered list. Used to find groups
-        LfgGuidList m_newToQueue;                          ///< New groups to add to queue
+        LfgWaitTimesContainer waitTimesAvgStore;           ///< Average wait time to find a group queuing as multiple roles
+        LfgWaitTimesContainer waitTimesTankStore;          ///< Average wait time to find a group queuing as tank
+        LfgWaitTimesContainer waitTimesHealerStore;        ///< Average wait time to find a group queuing as healer
+        LfgWaitTimesContainer waitTimesDpsStore;           ///< Average wait time to find a group queuing as dps
+        LfgGuidList currentQueueStore;                     ///< Ordered list. Used to find groups
+        LfgGuidList newToQueueStore;                       ///< New groups to add to queue
 };
 
 #endif
