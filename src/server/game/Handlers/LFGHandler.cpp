@@ -162,8 +162,8 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recv_data
     uint8 level = GetPlayer()->getLevel();
     uint8 expansion = GetPlayer()->GetSession()->Expansion();
 
-    LFGDungeonMap& LfgDungeons = sLFGMgr->GetLFGDungeonMap();
-    for (LFGDungeonMap::const_iterator itr = LfgDungeons.begin(); itr != LfgDungeons.end(); ++itr)
+    LFGDungeonContainer& LfgDungeons = sLFGMgr->GetLFGDungeonMap();
+    for (LFGDungeonContainer::const_iterator itr = LfgDungeons.begin(); itr != LfgDungeons.end(); ++itr)
     {
         LFGDungeonData const& dungeon = itr->second;
         if ((dungeon.type == LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))
@@ -513,7 +513,7 @@ void WorldSession::SendLfgBootProposalUpdate(const LfgPlayerBoot& boot)
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
     uint32 secsleft = uint8((boot.cancelTime - time(NULL)) / 1000);
-    for (LfgAnswerMap::const_iterator it = boot.votes.begin(); it != boot.votes.end(); ++it)
+    for (LfgAnswerContainer::const_iterator it = boot.votes.begin(); it != boot.votes.end(); ++it)
     {
         if (it->second != LFG_ANSWER_PENDING)
         {
@@ -565,7 +565,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, LfgProposal const& p
     data << uint8(silent);                                 // Show proposal window
     data << uint8(proposal.players.size());                // Group size
 
-    for (LfgProposalPlayerMap::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
+    for (LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
     {
         LfgProposalPlayer const& player = it->second;
         data << uint32(player.role);                       // Role
