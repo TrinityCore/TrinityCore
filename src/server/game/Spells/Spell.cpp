@@ -5657,7 +5657,7 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
 	};
 	uint8 CCDArraySize = 7;
 
-    const uint32 delayForInstantSpells = 129;
+    const uint32 delayForInstantSpells = 130;
     const uint32 delayForInstantSpells2 = 50;
     const uint32 delayForInstantSpells3 = 160;
     const uint32 delayForInstantSpells4 = 230;
@@ -5681,10 +5681,15 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
             if (_spell->Id == 49576)
                 return NOdelayForInstantSpells;
 				break;
+        case SPELLFAMILY_DRUID:
+         //Psychic Scream
+          if (_spell->id == 10890)
+              return delayForInstantSpells;
+		break;
         case SPELLFAMILY_ROGUE:
             // Blind
             if (_spell->Id == 2094)
-                return delayForInstantSpells;
+                return delayForInstantSpells3;
             // CheapShot
             if (_spell->Id == 1833)
                 return NOdelayForInstantSpells;

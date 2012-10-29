@@ -829,8 +829,10 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
           
 
           case 58984: // Shadowmeld
-               m_caster->CombatStop();
-                    return;
+         {
+                m_caster->CombatStop();
+                return;
+         }
 
              case 49560: // Death Grip
 				 if(unitTarget->HasAura(19263))
