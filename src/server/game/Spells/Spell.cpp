@@ -5681,7 +5681,7 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
             if (_spell->Id == 49576)
                 return NOdelayForInstantSpells;
 				break;
-        case SPELLFAMILY_DRUID:
+        case SPELLFAMILY_PRIEST:
          //Psychic Scream
           if (_spell->id == 10890)
               return delayForInstantSpells;
