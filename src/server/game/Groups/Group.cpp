@@ -222,8 +222,7 @@ void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, 
 
     SubGroupCounterIncrease(subgroup);
 
-    if (isLFGGroup())
-		sLFGMgr->SetupGroupMember(member.guid, GetGUID());
+    sLFGMgr->SetupGroupMember(member.guid, GetGUID());
 }
 
 void Group::ConvertToLFG()
