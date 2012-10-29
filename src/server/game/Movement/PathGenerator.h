@@ -34,6 +34,8 @@ class Unit;
 // I think we can safely cut those down even more
 #define MAX_PATH_LENGTH         74
 #define MAX_POINT_PATH_LENGTH   74
+#define MAX_PATH_LENGTH         64
+#define MAX_POINT_PATH_LENGTH   64
 
 #define SMOOTH_PATH_STEP_SIZE   4.0f
 #define SMOOTH_PATH_SLOP        0.3f
@@ -73,6 +75,7 @@ class PathGenerator
 
         PointsArray& GetPath() { return _pathPoints; }
         PathType GetPathType() const { return _type; }
+
 
     private:
 

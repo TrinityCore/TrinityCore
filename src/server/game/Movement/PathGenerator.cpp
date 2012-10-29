@@ -187,16 +187,16 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
         sLog->outDebug(LOG_FILTER_MAPS, "++ BuildPolyPath :: (startPoly == 0 || endPoly == 0)\n");
         BuildShortcut();
         bool path = _sourceUnit->GetTypeId() == TYPEID_UNIT && _sourceUnit->ToCreature()->CanFly();
-
         bool waterPath = _sourceUnit->GetTypeId() == TYPEID_UNIT && _sourceUnit->ToCreature()->canSwim();
         if (waterPath)
         {
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
             for (uint32 i = 0; i < _pathPoints.size(); ++i)
             {
-                ZLiquidStatus status = _sourceUnit->GetBaseMap()->getLiquidStatus(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, MAP_ALL_LIQUIDS, NULL);
-                // One of the points is not in the water, cancel movement.
-                if (status == LIQUID_MAP_NO_WATER)
+                LiquidData data;  	
+                _sourceUnit->GetBaseMap()->getLiquidStatus(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, MAP_ALL_LIQUIDS, &data);                // One of the points is not in the water, cancel movement.
+                             // One of the points is not in the water, cancel movement.
+                 if (data.type_flags == MAP_LIQUID_TYPE_NO_WATER)
                 {
                     waterPath = false;
                     break;
@@ -348,6 +348,7 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
                 _type = PATHFIND_NOPATH;
                 return;
             }
+
         }
 
         // generate suffix
@@ -491,16 +492,39 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
 
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
     }
+      
+        if (_sourceUnit->GetMapId() == 562)
+        {
+            float startEndDist = Dist3DSqr(GetStartPosition(), GetEndPosition());   
+
+            if (startEndDist < 2000.0f && endPoint[2] <= 6233.803223f)      // southeast pillar
+            {
+                _pathPoints.resize(4);
+                _pathPoints[0] = GetStartPosition();
+                _pathPoints[1] = Vector3(6234.210449f, 256.270325f, 10.881308f);
+                _pathPoints[2] = Vector3(6231.031738f, 252.578079f, 11.178062f);
+                _pathPoints[3] = GetEndPosition();
+            }
+            else if (startEndDist < 2000.0f && endPoint[2] >= 6246.201660f) // northwest pillar
+            {
+                _pathPoints.resize(4);
+                _pathPoints[0] = GetStartPosition();
+                _pathPoints[1] = Vector3(6243.187500f, 267.516754f, 10.913185f);
+                _pathPoints[2] = Vector3(6246.213867f, 271.452026f, 11.224197f);
+                _pathPoints[3] = GetEndPosition();
+            }
+         }
 
     sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", _type, pointCount, _polyLength);
 }
+
 
 void PathGenerator::NormalizePath()
 {
     for (uint32 i = 0; i < _pathPoints.size(); ++i)
         _sourceUnit->UpdateAllowedPositionZ(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
-}
 
+}
 void PathGenerator::BuildShortcut()
 {
     sLog->outDebug(LOG_FILTER_MAPS, "++ BuildShortcut :: making shortcut\n");

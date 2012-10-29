@@ -290,3 +290,8 @@ UPDATE `creature` SET `position_z`=69.505 WHERE `guid`=131072;
 
 REPLACE INTO battleground_template (id, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName, Comment) values
 (6,0,2,10,80,0,0,0,0,0,1,'','All Arena');
+
+
+INSERT INTO spell_linked_spell (spell_trigger, spell_effect, type, comment) VALUES
+(7744, 72757, 0, 'Will of the Forsaken Cooldown Trigger (WOTF)'),
+(42292, 72752, 0, 'Will of the Forsaken Cooldown Trigger');

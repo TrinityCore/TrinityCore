@@ -849,7 +849,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             he->duel->opponent->CombatStopWithPets(true);
             he->CombatStopWithPets(true);
 
-            he->duel->opponent->CastSpell(he->duel->opponent, 17683, true);                  // beg
+            he->CastSpell(he, 43978, true);                  // beg
             he->CastSpell(he, 7267, true);                  // beg
             he->DuelComplete(DUEL_WON);
         }

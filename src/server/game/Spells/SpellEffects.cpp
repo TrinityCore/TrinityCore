@@ -829,13 +829,8 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
           
 
           case 58984: // Shadowmeld
-           {
                m_caster->CombatStop();
-               unitTarget->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
-               unitTarget->InterruptSpell(CURRENT_CHANNELED_SPELL);  // break channeled spells
-               m_caster->AttackStop();
-               ((Player*)m_caster)->SendAttackSwingCancelAttack();
-           }
+                    return;
 
              case 49560: // Death Grip
 				 if(unitTarget->HasAura(19263))
@@ -5128,26 +5123,16 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 {
-        if (!unitTarget)
-            return;
+    if (!unitTarget)
+        return;
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-
-        float angle = unitTarget->GetRelativeAngle(m_caster);
-        Position pos;
-
-        unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-        unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), angle);
-
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize());
+            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath);
     }
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
-        if (!unitTarget)
-            return;
-
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->Attack(unitTarget, true);

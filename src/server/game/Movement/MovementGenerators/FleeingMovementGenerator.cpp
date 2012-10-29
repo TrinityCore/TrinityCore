@@ -25,8 +25,8 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
-#define MIN_QUIET_DISTANCE 28.0f
-#define MAX_QUIET_DISTANCE 43.0f
+#define MIN_QUIET_DISTANCE 1.0f
+#define MAX_QUIET_DISTANCE 25.0f
 
 template<class T>
 void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
