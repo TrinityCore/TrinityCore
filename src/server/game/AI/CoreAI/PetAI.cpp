@@ -108,7 +108,8 @@ void PetAI::UpdateAI(const uint32 diff)
             return;
         }
 
-        DoMeleeAttackIfReady();
+        if (me->getVictim()->IsVisible() && me->GetOwner()->getVictim() && me->GetOwner()->getVictim()->IsVisible())
+            DoMeleeAttackIfReady();
     }
     else if (owner && me->GetCharmInfo()) //no victim
     {
