@@ -1626,6 +1626,18 @@ uint32 LFGMgr::GetDungeon(uint64 guid, bool asId /*= true */)
     return dungeon;
 }
 
+uint32 LFGMgr::GetDungeonMapId(uint64 guid)
+{
+    uint32 dungeonId = m_Groups[guid].GetDungeon(true);
+    uint32 mapId = 0;
+    if (dungeonId)
+        if (LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId))
+            mapId = dungeon->map;
+
+    sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::GetDungeonMapId: [" UI64FMTD "] = %u (DungeonId = %u)", guid, mapId, dungeonId);
+    return mapId;
+}
+
 uint8 LFGMgr::GetRoles(uint64 guid)
 {
     uint8 roles = m_Players[guid].GetRoles();
@@ -1798,9 +1810,14 @@ void LFGMgr::SetGroup(uint64 guid, uint64 group)
     m_Players[guid].SetGroup(group);
 }
 
-const LfgGuidSet& LFGMgr::GetPlayers(uint64 guid)
+LfgGuidSet const& LFGMgr::GetPlayers(uint64 guid)
 {
     return m_Groups[guid].GetPlayers();
+}
+
+uint8 LFGMgr::GetPlayerCount(uint64 guid)
+{
+    return m_Groups[guid].GetPlayerCount();
 }
 
 uint64 LFGMgr::GetLeader(uint64 guid)
@@ -1885,7 +1902,7 @@ LfgQueue& LFGMgr::GetQueue(uint64 guid)
     return m_Queues[queueId];
 }
 
-bool LFGMgr::AllQueued(const LfgGuidList& check)
+bool LFGMgr::AllQueued(LfgGuidList const& check)
 {
     if (check.empty())
         return false;
@@ -1933,7 +1950,7 @@ bool LFGMgr::IsSeasonActive(uint32 dungeonId)
     return false;
 }
 
-std::string LFGMgr::DumpQueueInfo(bool /*full*/)
+std::string LFGMgr::DumpQueueInfo(bool full)
 {
     uint32 size = uint32(m_Queues.size());
     std::ostringstream o;
@@ -1942,15 +1959,19 @@ std::string LFGMgr::DumpQueueInfo(bool /*full*/)
     for (LfgQueueMap::const_iterator itr = m_Queues.begin(); itr != m_Queues.end(); ++itr)
     {
         std::string const& queued = itr->second.DumpQueueInfo();
-        std::string const& compatibles = itr->second.DumpCompatibleInfo();
+        std::string const& compatibles = itr->second.DumpCompatibleInfo(full);
         o << queued << compatibles;
-        /*
-        if (full)
-        {
-            LfgCompatibleMap const& compatibles = itr->second.GetCompatibleMap();
-        }
-        */
     }
 
     return o.str();
+}
+
+void LFGMgr::SetupGroupMember(uint64 guid, uint64 gguid)
+{
+	LfgDungeonSet dungeons;
+	dungeons.insert(GetDungeon(gguid));
+	SetSelectedDungeons(guid, dungeons);
+	SetState(guid, GetState(gguid));
+	SetGroup(guid, gguid);
+	AddPlayerToGroup(gguid, guid);
 }

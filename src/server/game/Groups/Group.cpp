@@ -112,6 +112,7 @@ bool Group::Create(Player* leader)
 
     if (!isLFGGroup())
         m_lootMethod = GROUP_LOOT;
+
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
     m_looterGuid = leaderGuid;
 
@@ -222,12 +223,7 @@ void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, 
     SubGroupCounterIncrease(subgroup);
 
     if (isLFGGroup())
-    {
-        LfgDungeonSet Dungeons;
-        Dungeons.insert(sLFGMgr->GetDungeon(GetGUID()));
-        sLFGMgr->SetSelectedDungeons(member.guid, Dungeons);
-        sLFGMgr->SetState(member.guid, sLFGMgr->GetState(GetGUID()));
-    }
+		sLFGMgr->SetupGroupMember(member.guid, GetGUID());
 }
 
 void Group::ConvertToLFG()
@@ -601,9 +597,9 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
 
         if (isLFGGroup() && GetMembersCount() == 1)
         {
-            Player* Leader = ObjectAccessor::FindPlayer(GetLeaderGUID());
-            LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(sLFGMgr->GetDungeon(GetGUID()));
-            if ((Leader && dungeon && Leader->isAlive() && Leader->GetMapId() != uint32(dungeon->map)) || !dungeon)
+            Player* leader = ObjectAccessor::FindPlayer(GetLeaderGUID());
+            uint32 mapId = sLFGMgr->GetDungeonMapId(GetGUID());
+            if (!mapId || !leader || (leader->isAlive() && leader->GetMapId() != mapId))
             {
                 Disband();
                 return false;

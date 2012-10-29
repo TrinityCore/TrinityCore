@@ -114,9 +114,9 @@ public:
         return true;
     }
 
-    static bool HandleLfgQueueInfoCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleLfgQueueInfoCommand(ChatHandler* handler, char const* args)
     {
-        handler->SendSysMessage(sLFGMgr->DumpQueueInfo().c_str());
+        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(*args).c_str());
         return true;
     }
 

@@ -110,7 +110,7 @@ class LfgQueue
         // Just for debugging purposes
         LfgCompatibleMap const& GetCompatibleMap();
         std::string DumpQueueInfo() const;
-        std::string DumpCompatibleInfo() const;
+        std::string DumpCompatibleInfo(bool full = false) const;
     private:
         void AddToNewQueue(uint64 guid);
         void AddToCurrentQueue(uint64 guid);
