@@ -256,7 +256,7 @@ class spell_tricky_treat : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster()
+                Unit* caster = GetCaster();
                 if (caster->HasAura(SPELL_TRICKY_TREAT_TRIGGER) && caster->GetAuraCount(SPELL_TRICKY_TREAT_SPEED) > 3 && roll_chance_i(33))
                     caster->CastSpell(caster, SPELL_UPSET_TUMMY, true);
             }
