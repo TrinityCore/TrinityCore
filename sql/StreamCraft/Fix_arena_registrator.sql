@@ -1,0 +1,2 @@
+REPLACE INTO battleground_template (id, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName, Comment) values
+(6,0,2,10,80,0,0,0,0,0,1,'','All Arena');
