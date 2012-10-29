@@ -1615,7 +1615,6 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
 
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
 {
-    // TODO: Move queries to prepared statements
     uint64 guid;
     std::string newname;
     uint8 gender, skin, face, hairStyle, hairColor, facialHair, race;
@@ -1731,6 +1730,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     trans->Append(stmt);
 
     sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race);
+
+    if (oldRace == race)
+        return;
 
     TeamId team = TEAM_ALLIANCE;
 
