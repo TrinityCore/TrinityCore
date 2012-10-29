@@ -60,6 +60,21 @@ void LFGPlayerScript::OnLogin(Player* player)
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
+    // Temporal: Trying to determine when group data and LFG data gets desynched
+    uint64 guid = player->GetGUID();
+    uint64 gguid = sLFGMgr->GetGroup(guid);
+
+    if (Group const* group = player->GetGroup())
+    {
+		uint64 gguid2 = group->GetGUID();
+		if (gguid != gguid2)
+		{
+			sLog->outError(LOG_FILTER_LFG, "%s on group %u but LFG has group %u saved... Fixing.",
+			    player->GetSession()->GetPlayerInfo().c_str(), GUID_LOPART(gguid2), GUID_LOPART(gguid));
+            sLFGMgr->SetupGroupMember(guid, group->GetGUID());
+		}
+	}
+
     sLFGMgr->InitializeLockedDungeons(player);
     sLFGMgr->SetTeam(player->GetGUID(), player->GetTeam());
     // TODO - Restore LfgPlayerData and send proper status to player if it was in a group

@@ -328,7 +328,6 @@ class LFGMgr
         void SetGroup(uint64 guid, uint64 group);
         void SetLeader(uint64 gguid, uint64 leader);
         void SetState(uint64 guid, LfgState state);
-        void SetSelectedDungeons(uint64 guid, LfgDungeonSet const& dungeons);
 
         void _LoadFromDB(Field* fields, uint64 guid);
         void _SaveToDB(uint64 guid, uint32 db_guid);
@@ -341,6 +340,7 @@ class LFGMgr
         LfgLockMap const& GetLockedDungeons(uint64 guid);
         LfgDungeonSet const& GetSelectedDungeons(uint64 guid);
         uint32 GetDungeon(uint64 guid, bool asId = true);
+        uint32 GetDungeonMapId(uint64 guid);
         LfgState GetState(uint64 guid);
         uint8 GetKicksLeft(uint64 gguid);
         uint64 GetLeader(uint64 guid);
@@ -348,6 +348,7 @@ class LFGMgr
         uint8 GetRoles(uint64 guid);
         std::string const& GetComment(uint64 gguid);
         LfgGuidSet const& GetPlayers(uint64 guid);
+        uint8 GetPlayerCount(uint64 guid);
 
         bool IsTeleported(uint64 guid);
 
@@ -370,13 +371,15 @@ class LFGMgr
         void LoadLFGDungeons(bool reload = false);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
         LFGDungeonMap& GetLFGDungeonMap();
-    private:
-
-        uint8 GetTeam(uint64 guid);
+        void SetupGroupMember(uint64 guid, uint64 gguid);
         uint64 GetGroup(uint64 guid);
+
+    private:
+        uint8 GetTeam(uint64 guid);
         void RestoreState(uint64 guid, char const *debugMsg);
         void ClearState(uint64 guid, char const *debugMsg);
         void SetDungeon(uint64 guid, uint32 dungeon);
+        void SetSelectedDungeons(uint64 guid, LfgDungeonSet const& dungeons);
         void SetLockedDungeons(uint64 guid, LfgLockMap const& lock);
         void DecreaseKicksLeft(uint64 guid);
 
