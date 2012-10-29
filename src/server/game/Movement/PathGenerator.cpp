@@ -500,7 +500,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         {
 
              //Your Position & Target Position
-            if (startEndDist < 2000.0f && endPoint[2] <= 6230.803223f && endPoint[1] >= 10.000000)      // southeast pillar
+            if (startEndDist < 2000.0f && endPoint[2] <= 6231.503223f && endPoint[1] >= 10.000000f)      // southeast pillar
             {
               //  Path X,y,z
                 _pathPoints.resize(4);
@@ -518,7 +518,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6243.146484f, 267.531030f, 11.400000f);
                 _pathPoints[3] = GetEndPosition();
             }
-            else if (startEndDist < 2000.0f && endPoint[2] <= 6244.201660f && endPoint[2] <= 6233.201660f && endPoint[1] >= 10.000000f) // northwest pillar on to
+            else if (startEndDist < 2000.0f && endPoint[2] <= 6244.201660f && endPoint[2] <= 6233.201660f && endPoint[1] >= 5.000000f) // northwest pillar on to
             {
                 //  Path X,y,z
                 _pathPoints.resize(4);
@@ -527,7 +527,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6245.985352f, 271.076599f, 11.400000f);
                 _pathPoints[3] = GetEndPosition();
             }
-            else if (startEndDist < 2000.0f && endPoint[2] >= 6240.201660f && endPoint[2] >= 6230.201660f && endPoint[1] >= 10.000000f) // northwest pillar on to
+            else if (startEndDist < 2000.0f && endPoint[2] >= 6240.201660f && endPoint[2] >= 6230.201660f && endPoint[1] >= 5.000000f) // shoutest pillar on to
             {
                 //  Path X,y,z
                 _pathPoints.resize(4);
@@ -543,7 +543,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         {
 
              //Your Position & Target Position
-            if (startEndDist < 2000.0f && endPoint[0] >= 809.003223f && endPoint[2] >= 1333.033223f && endPoint[1] >= 10.000000)      // Canal 1#
+            if (startEndDist < 2000.0f && endPoint[0] >= 809.003223f && endPoint[2] >= 1331.033223f && endPoint[1] >= 10.000000)      // Canal 1#
             {
               //  Path X,y,z
                 _pathPoints.resize(4);
@@ -552,7 +552,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(1328.749268f, 816.602539f, 3.4000000f);
                 _pathPoints[3] = GetEndPosition();
             }
-            else if (startEndDist < 2000.0f && endPoint[0] <= 764.003223f && endPoint[2] <= 1250.904785f && endPoint[1] >= 10.000000)      // Canal 1#
+            else if (startEndDist < 2000.0f && endPoint[0] <= 764.003223f && endPoint[2] <= 1248.904785f && endPoint[1] >= 10.000000)      // Canal 1#
             {
                 //  Path X,y,z
                 _pathPoints.resize(4);
