@@ -518,30 +518,6 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6243.146484f, 267.531030f, 11.400000f);
                 _pathPoints[3] = GetEndPosition();
             }
-
-
-   /* TEMPOTARY REMOVED!
-     else if (startEndDist < 2000.0f && endPoint[2] <= 6244.201660f && endPoint[2] <= 6233.201660f && endPoint[1] >= 5.000000f) // Shout pillar on to
-            {
-                //  Path X,y,z
-                _pathPoints.resize(4);
-                _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(6243.146484f, 267.531030f, 11.400000f);
-                _pathPoints[2] = Vector3(6245.985352f, 271.076599f, 11.400000f);
-                _pathPoints[3] = GetEndPosition();
-            }
-            else if (startEndDist < 2000.0f && endPoint[2] >= 6240.201660f && endPoint[2] <= 6230.201660f && endPoint[1] >= 5.000000f) // northwest pillar on to
-            {
-                //  Path X,y,z
-                _pathPoints.resize(4);
-                _pathPoints[0] = GetStartPosition();
-                _pathPoints[2] = Vector3(6243.146484f, 267.531030f, 11.400000f);
-                _pathPoints[1] = Vector3(6245.985352f, 271.076599f, 11.400000f);
-                _pathPoints[3] = GetEndPosition();
-            }   
-          TEMPOTARY REMOVED     */
-
-
       }
 
        //Dalaran Sewer
@@ -563,35 +539,6 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[0] = GetStartPosition();
                 _pathPoints[1] = Vector3(1250.425395f, 764.971680f, 12.000000f); 
                 _pathPoints[2] = Vector3(1255.425395f, 764.971680f, 3.3559000f);
-                _pathPoints[3] = GetEndPosition();
-            }
-
-
-            else if (endPoint[0] >= 809.003223f && endPoint[2] >= 1333.033223f && endPoint[1] >= 9.000000)      // Canal 1#TEST
-            {
-              //  Path X,y,z
-                _pathPoints.resize(4);
-                _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(1332.749268f, 817.274780f, 12.355900f);
-                _pathPoints[2] = Vector3(1328.749268f, 816.602539f, 3.4000000f);
-                _pathPoints[3] = GetEndPosition();
-            }
-            else if (endPoint[0] >= 809.003223f && endPoint[2] <= 1333.033223f && endPoint[1] >= 9.000000)      // Canal 1#TEST
-            {
-              //  Path X,y,z
-                _pathPoints.resize(4);
-                _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(1332.749268f, 817.274780f, 12.355900f);
-                _pathPoints[2] = Vector3(1328.749268f, 816.602539f, 3.4000000f);
-                _pathPoints[3] = GetEndPosition();
-            }
-            else if (endPoint[0] <= 809.003223f && endPoint[2] >= 1333.033223f && endPoint[1] >= 9.000000)      // Canal 1#TEST
-            {
-              //  Path X,y,z
-                _pathPoints.resize(4);
-                _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(1332.749268f, 817.274780f, 12.355900f);
-                _pathPoints[2] = Vector3(1328.749268f, 816.602539f, 3.4000000f);
                 _pathPoints[3] = GetEndPosition();
             }
          }
