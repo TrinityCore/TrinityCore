@@ -5738,7 +5738,7 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
                 return delayForInstantSpells2;
             // Cyclone
             if (_spell->Id == 33786)
-                return delayForInstantSpells2;
+                return delayForInstantSpells3;
             // Pounce
             if (_spell->Id == 9005)
                 return NOdelayForInstantSpells;

@@ -498,9 +498,9 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         //Blade edge arena (mapid)
         if (_sourceUnit->GetMapId() == 562)
         {
-
+252.290146 247.541016
              //Your Position & Target Position
-            if (startEndDist < 2000.0f && endPoint[2] <= 6230.803223f && startPoint[2] >= 6230.803223 && endPoint[1] >= 10.000000 && startPoint[1] >= 10.000000)      // southeast pillar
+            if (startEndDist < 2000.0f && endPoint[2] <= 6230.803223f && startPoint[2] >= 6230.803223f && endPoint[1] >= 10.000000 && startPoint[1] >= 10.000000f && endPoint[0] >= 247.547917f && endPoint[0] <= 252.298940f)      // southeast pillar
             {
               //  Path X,y,z
                 _pathPoints.resize(4);
@@ -509,7 +509,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6231.472656f, 252.849335f, 11.400018f);
                 _pathPoints[3] = GetEndPosition();
             }
-            else if (startEndDist < 2000.0f && endPoint[2] >= 6246.201660f && startPoint[2] <= 6246.201660f && endPoint[1] >= 10.000000f && startPoint[1] >= 10.000000) // northwest pillar
+            else if (startEndDist < 2000.0f && endPoint[2] >= 6246.201660f && startPoint[2] <= 6246.201660f && endPoint[1] >= 10.000000f && startPoint[1] >= 10.000000f && endPoint[0] >= 217.677917f && endPoint[0] <= 276.888794f) // northwest pillar
             {
                 //  Path X,y,z
                 _pathPoints.resize(4);
@@ -518,7 +518,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6246.985352f, 271.076599f, 11.400000f);
                 _pathPoints[3] = GetEndPosition();
             }
-            if (startEndDist < 2000.0f && startPoint[2] <= 6230.803223f && endPoint[2] >= 6230.803223 && endPoint[1] >= 10.000000 && startPoint[1] >= 10.000000)      // southeast pillar
+            if (startEndDist < 2000.0f && startPoint[2] <= 6230.803223f && endPoint[2] >= 6230.803223f && endPoint[1] >= 10.000000 && startPoint[1] >= 10.000000f && startPoint[0] >= 247.547917f && startPoint[0] <= 252.298940f)      // southeast pillar
             {
               //  Path X,y,z
                 _pathPoints.resize(4);
@@ -527,7 +527,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6234.506836f, 256.696106f, 11.400018f);
                 _pathPoints[3] = GetEndPosition();
             }
-            else if (startEndDist < 2000.0f && startPoint[2] >= 6246.201660f && endPoint[2] <= 6246.201660f && endPoint[1] >= 10.000000f && startPoint[1] >= 10.000000) // northwest pillar
+            else if (startEndDist < 2000.0f && startPoint[2] >= 6246.201660f && endPoint[2] <= 6246.201660f && endPoint[1] >= 10.000000f && startPoint[1] >= 10.000000f && startPoint[0] >= 217.677917f && startPoint[0] <= 276.888.794f) // northwest pillar
             {
                 //  Path X,y,z
                 _pathPoints.resize(4);
@@ -541,23 +541,25 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
        //Dalaran Sewer
        if (_sourceUnit->GetMapId() == 617)
         {
-            if (startPoint[2] >= 1330.033223f && startPoint[1] >= 9.000000)      // Canal 1#
+            if (startPoint[2] >= 1330.033223f && startPoint[1] >= 9.000000f)      // Canal 1#
             {
               //  Path X,y,z
                 _pathPoints.resize(4);
                 _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(1332.749268f, 817.274780f, 10.355900f);
-                _pathPoints[2] = Vector3(1328.749268f, 816.602539f, 3.4000000f);
-                _pathPoints[3] = GetEndPosition();
+                _pathPoints[1] = Vector3(1332.749268f, 816.274780f, 8.355900f);
+                _pathPoints[2] = Vector3(1325.749268f, 816.602539f, 5.4000000f);
+                _pathPoints[3] = Vector3(1328.749268f, 816.602539f, 3.4000000f);
+                _pathPoints[4] = GetEndPosition();
             }
-            else if (startPoint[2] <= 1253.904785f && startPoint[1] >= 9.000000)      // Canal 2#
+            else if (startPoint[2] <= 1253.904785f && startPoint[1] >= 9.000000f)      // Canal 2#
             {
                 //  Path X,y,z
                 _pathPoints.resize(4);
                 _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(1252.425395f, 764.971680f, 10.000000f); 
-                _pathPoints[2] = Vector3(1257.425395f, 764.971680f, 3.3559000f);
-                _pathPoints[3] = GetEndPosition();
+                _pathPoints[1] = Vector3(1252.425395f, 764.971680f, 8.000000f); 
+                _pathPoints[3] = Vector3(1255.425395f, 764.971680f, 5.3559000f);
+                _pathPoints[3] = Vector3(1257.425395f, 764.971680f, 3.3559000f);
+                _pathPoints[4] = GetEndPosition();
             }
          }
      //Custom Point for Bugged Zone 
