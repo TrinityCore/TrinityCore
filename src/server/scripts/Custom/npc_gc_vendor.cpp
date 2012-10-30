@@ -6,19 +6,19 @@ enum
 {
     GC_TOKEN                        = 22726,
 
-    GOSSIP_TEXTID_MENU              = 70000,        //"Hello $N! All these items are obtainable via donation system aswell!"
-    GOSSIP_TEXTID_CHOOSE            = 70001,        //"Visit Fufu, Mumu and Zuzu if you need preview of these items!"
+    GOSSIP_TEXTID_MENU              = 70000,
+    GOSSIP_TEXTID_CHOOSE            = 70001,
 
-    GOSSIP_TEXTID_CONFIRM           = 70002,        //"Are you sure you want to buy selected item?"
-    GOSSIP_TEXTID_SUCCESS           = 70003,        //"Trade was successful! Thank you $N!"
-    GOSSIP_TEXTID_FAIL              = 70004,        //"Your trade was unsuccessful.Please make sure that following requirements are met:Right amount of GC Tokens, Enough inventory space, Item you want to buy is not unique-type. You can get more GC Tokens through voting system and ingame events. Also you can donate and get this item as a gift! Visit gamingconsortium.org for more info."
+    GOSSIP_TEXTID_CONFIRM           = 70002,
+    GOSSIP_TEXTID_SUCCESS           = 70003,
+    GOSSIP_TEXTID_FAIL              = 70004,
 
-    GOSSIP_TEXTID_CONFIRM_NAME      = 70005,        //"Character Name change includes Name change, Gender change and Look change. Are you sure you want to use this customization option?"
-    GOSSIP_TEXTID_CONFIRM_RACE      = 70006,        //"Character Race change includes Race change, Name change, Gender change and Look change. Are you sure you want to use this customization option?"
-    GOSSIP_TEXTID_CONFIRM_FACTION   = 70007,        //"Character Faction change includes Faction change, Race change, Name change, Gender change and Look change.  Are you sure you want to use this customization option?"        
-    GOSSIP_TEXTID_SUCCESS_C         = 70008,        //"Thank you $N. Your customization will be applied on next login. Relog to apply changes."
-    GOSSIP_TEXTID_FAIL_C            = 70009,        //"You do not have enough GC Tokens to use this customization option. You can get more GC Tokens through voting system and ingame events. Also you can donate and get this option change as a gift! Visit gamingconsortium.org for more info."
-    GOSSIP_TEXTID_CONTACT_GM        = 70010,        //"In order to choose this reward you need to contact a gm.."
+    GOSSIP_TEXTID_CONFIRM_NAME      = 70005,
+    GOSSIP_TEXTID_CONFIRM_RACE      = 70006,
+    GOSSIP_TEXTID_CONFIRM_FACTION   = 70007,
+    GOSSIP_TEXTID_SUCCESS_C         = 70008,
+    GOSSIP_TEXTID_FAIL_C            = 70009,
+    GOSSIP_TEXTID_CONTACT_GM        = 70010,
 
     SHOW_MAIN_MENU                  = 500,
     SHOW_CUSTOMIZATION_SUCCESS_MENU = 400,
@@ -165,11 +165,11 @@ enum
 #define ANSWER_CUSTOMIZE_4_0_0_0 "Character Customization"
 #define ANSWER_CUSTOMIZE_4_1_0_0 "500 GC Tokens"
 #define ANSWER_CUSTOMIZE_NAME "Appearance and Name change"
-#define ANSWER_TRANSFER_CHAR "Char transfer between accounts"
+#define ANSWER_TRANSFER_CHAR "Character transfer between accounts"
 #define ANSWER_CUSTOMIZE_4_2_0_0 "600 GC Tokens"
 #define ANSWER_CUSTOMIZE_RACE "Race change"
 #define ANSWER_CUSTOMIZE_FACTION "Faction change"
-#define ANSWER_RESTORE_FROM_DB "Restore a deleted char"
+#define ANSWER_RESTORE_FROM_DB "Restore a deleted character"
 
 class npc_gc_vendor : public CreatureScript
 {
