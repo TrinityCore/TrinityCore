@@ -46,7 +46,7 @@ uint32 RandomLaugh[] = {11965, 11975, 11976};
 enum Entry
 {
     HH_MOUNTED                  = 23682,
-    HH_DISMOUNTED               = 23800,  // unhorsed?? wtf type of engrish was that?
+    HH_DISMOUNTED               = 23800,
     HEAD                        = 23775,
     PULSING_PUMPKIN             = 23694,
     PUMPKIN_FIEND               = 23545,
@@ -127,7 +127,7 @@ static Locations Spawn[]=
     {1765.28f, 1347.46f, 17.55f}     //spawn point for smoke
 };
 
-static const char* Text[]=
+static char const* Text[]=
 {
     "Horseman rise...",
     "Your time is nigh...",
@@ -592,8 +592,8 @@ public:
                 caster->GetMotionMaster()->Clear(false);
                 caster->GetMotionMaster()->MoveFollow(me, 6, float(urand(0, 5)));
                 //DoResetThreat();//not sure if need
-                std::list<HostileReference*>::const_iterator itr;
-                for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
+                ThreatContainer::StorageType threatlist = caster->getThreatManager().getThreatList();
+                for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 {
                     Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (unit && unit->isAlive() && unit != caster)

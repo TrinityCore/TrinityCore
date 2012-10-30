@@ -129,18 +129,18 @@ struct LfgProposal;
 struct LfgProposalPlayer;
 struct LfgPlayerBoot;
 
-typedef std::map<uint8, LfgQueue> LfgQueueMap;
-typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
-typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> LfgRewardMapBounds;
-typedef std::map<uint8, LfgDungeonSet> LfgCachedDungeonMap;
-typedef std::map<uint64, LfgAnswer> LfgAnswerMap;
-typedef std::map<uint64, LfgRoleCheck> LfgRoleCheckMap;
-typedef std::map<uint32, LfgProposal> LfgProposalMap;
-typedef std::map<uint64, LfgProposalPlayer> LfgProposalPlayerMap;
-typedef std::map<uint64, LfgPlayerBoot> LfgPlayerBootMap;
-typedef std::map<uint64, LfgGroupData> LfgGroupDataMap;
-typedef std::map<uint64, LfgPlayerData> LfgPlayerDataMap;
-typedef UNORDERED_MAP<uint32, LFGDungeonData> LFGDungeonMap;
+typedef std::map<uint8, LFGQueue> LfgQueueContainer;
+typedef std::multimap<uint32, LfgReward const*> LfgRewardContainer;
+typedef std::pair<LfgRewardContainer::const_iterator, LfgRewardContainer::const_iterator> LfgRewardContainerBounds;
+typedef std::map<uint8, LfgDungeonSet> LfgCachedDungeonContainer;
+typedef std::map<uint64, LfgAnswer> LfgAnswerContainer;
+typedef std::map<uint64, LfgRoleCheck> LfgRoleCheckContainer;
+typedef std::map<uint32, LfgProposal> LfgProposalContainer;
+typedef std::map<uint64, LfgProposalPlayer> LfgProposalPlayerContainer;
+typedef std::map<uint64, LfgPlayerBoot> LfgPlayerBootContainer;
+typedef std::map<uint64, LfgGroupData> LfgGroupDataContainer;
+typedef std::map<uint64, LfgPlayerData> LfgPlayerDataContainer;
+typedef UNORDERED_MAP<uint32, LFGDungeonData> LFGDungeonContainer;
 
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
@@ -156,7 +156,7 @@ struct LfgJoinResultData
 struct LfgUpdateData
 {
     LfgUpdateData(LfgUpdateType _type = LFG_UPDATETYPE_DEFAULT): updateType(_type), comment("") {}
-    LfgUpdateData(LfgUpdateType _type, LfgDungeonSet const& _dungeons, std::string _comment):
+    LfgUpdateData(LfgUpdateType _type, LfgDungeonSet const& _dungeons, std::string const& _comment):
         updateType(_type), dungeons(_dungeons), comment(_comment) {}
 
     LfgUpdateType updateType;
@@ -231,7 +231,7 @@ struct LfgProposal
     uint32 encounters;                                     ///< Dungeon Encounters
     bool isNew;                                            ///< Determines if it's new group or not
     LfgGuidList queues;                                    ///< Queue Ids to remove/readd
-    LfgProposalPlayerMap players;                          ///< Players data
+    LfgProposalPlayerContainer players;                          ///< Players data
 };
 
 /// Stores all rolecheck info of a group that wants to join
@@ -250,7 +250,7 @@ struct LfgPlayerBoot
 {
     time_t cancelTime;                                     ///< Time left to vote
     bool inProgress;                                       ///< Vote in progress
-    LfgAnswerMap votes;                                    ///< Player votes (-1 not answer | 0 Not agree | 1 agree)
+    LfgAnswerContainer votes;                                    ///< Player votes (-1 not answer | 0 Not agree | 1 agree)
     uint64 victim;                                         ///< Player guid to be kicked (can't vote)
     std::string reason;                                    ///< kick reason
 };
@@ -328,7 +328,6 @@ class LFGMgr
         void SetGroup(uint64 guid, uint64 group);
         void SetLeader(uint64 gguid, uint64 leader);
         void SetState(uint64 guid, LfgState state);
-        void SetSelectedDungeons(uint64 guid, LfgDungeonSet const& dungeons);
 
         void _LoadFromDB(Field* fields, uint64 guid);
         void _SaveToDB(uint64 guid, uint32 db_guid);
@@ -341,6 +340,7 @@ class LFGMgr
         LfgLockMap const& GetLockedDungeons(uint64 guid);
         LfgDungeonSet const& GetSelectedDungeons(uint64 guid);
         uint32 GetDungeon(uint64 guid, bool asId = true);
+        uint32 GetDungeonMapId(uint64 guid);
         LfgState GetState(uint64 guid);
         uint8 GetKicksLeft(uint64 gguid);
         uint64 GetLeader(uint64 guid);
@@ -348,6 +348,7 @@ class LFGMgr
         uint8 GetRoles(uint64 guid);
         std::string const& GetComment(uint64 gguid);
         LfgGuidSet const& GetPlayers(uint64 guid);
+        uint8 GetPlayerCount(uint64 guid);
 
         bool IsTeleported(uint64 guid);
 
@@ -360,32 +361,35 @@ class LFGMgr
         bool isOptionEnabled(uint32 option);
         uint32 GetOptions();
         void SetOptions(uint32 options);
+        LfgState GetLfgStatus(uint64 guid, LfgUpdateData& data);
         bool IsSeasonActive(uint32 dungeonId);
 
         std::string DumpQueueInfo(bool full = false);
         static std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
         static std::string GetRolesString(uint8 roles);
-        static char const * GetStateString(LfgState state);
+        static std::string GetStateString(LfgState state);
 
         void LoadLFGDungeons(bool reload = false);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
-        LFGDungeonMap& GetLFGDungeonMap();
-    private:
-
-        uint8 GetTeam(uint64 guid);
+        LFGDungeonContainer& GetLFGDungeonMap();
+        void SetupGroupMember(uint64 guid, uint64 gguid);
         uint64 GetGroup(uint64 guid);
+
+    private:
+        uint8 GetTeam(uint64 guid);
         void RestoreState(uint64 guid, char const *debugMsg);
         void ClearState(uint64 guid, char const *debugMsg);
         void SetDungeon(uint64 guid, uint32 dungeon);
+        void SetSelectedDungeons(uint64 guid, LfgDungeonSet const& dungeons);
         void SetLockedDungeons(uint64 guid, LfgLockMap const& lock);
         void DecreaseKicksLeft(uint64 guid);
 
         // Proposals
-        void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
+        void RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdateType type);
         void MakeNewGroup(LfgProposal const& proposal);
 
         // Generic
-        LfgQueue &GetQueue(uint64 guid);
+        LFGQueue &GetQueue(uint64 guid);
         LfgDungeonSet const& GetDungeonsByRandom(uint32 randomdungeon);
         LfgType GetDungeonType(uint32 dungeon);
 
@@ -402,18 +406,18 @@ class LFGMgr
         uint32 m_lfgProposalId;                            ///< used as internal counter for proposals
         uint32 m_options;                                  ///< Stores config options
 
-        LfgQueueMap m_Queues;                              ///< Queues
-        LfgCachedDungeonMap m_CachedDungeonMap;            ///< Stores all dungeons by groupType
+        LfgQueueContainer QueuesStore;                     ///< Queues
+        LfgCachedDungeonContainer CachedDungeonMapStore;   ///< Stores all dungeons by groupType
         // Reward System
-        LfgRewardMap m_RewardMap;                          ///< Stores rewards for random dungeons
-        LFGDungeonMap  m_LfgDungeonMap;
+        LfgRewardContainer RewardMapStore;                 ///< Stores rewards for random dungeons
+        LFGDungeonContainer  LfgDungeonStore;
         // Rolecheck - Proposal - Vote Kicks
-        LfgRoleCheckMap m_RoleChecks;                      ///< Current Role checks
-        LfgProposalMap m_Proposals;                        ///< Current Proposals
-        LfgPlayerBootMap m_Boots;                          ///< Current player kicks
-        LfgPlayerDataMap m_Players;                        ///< Player data
-        LfgGroupDataMap m_Groups;                          ///< Group data
-        LfgGuidList m_teleport;                            ///< Players being teleported
+        LfgRoleCheckContainer RoleChecksStore;             ///< Current Role checks
+        LfgProposalContainer ProposalsStore;               ///< Current Proposals
+        LfgPlayerBootContainer BootsStore;                 ///< Current player kicks
+        LfgPlayerDataContainer PlayersStore;               ///< Player data
+        LfgGroupDataContainer GroupsStore;                 ///< Group data
+        LfgGuidList teleportStore;                         ///< Players being teleported
 };
 
 #define sLFGMgr ACE_Singleton<LFGMgr, ACE_Null_Mutex>::instance()

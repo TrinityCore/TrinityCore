@@ -323,11 +323,11 @@ private:
         Member(uint32 guildId, uint64 guid, uint32 rankId) : m_guildId(guildId), m_guid(guid), m_logoutTime(::time(NULL)), m_rankId(rankId) { }
 
         void SetStats(Player* player);
-        void SetStats(const std::string& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId);
+        void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId);
         bool CheckStats() const;
 
-        void SetPublicNote(const std::string& publicNote);
-        void SetOfficerNote(const std::string& officerNote);
+        void SetPublicNote(std::string const& publicNote);
+        void SetOfficerNote(std::string const& officerNote);
 
         std::string GetPublicNote() { return m_publicNote; };
         std::string GetOfficerNote() { return m_officerNote; };
@@ -336,7 +336,7 @@ private:
         void SaveToDB(SQLTransaction& trans) const;
 
         uint64 GetGUID() const { return m_guid; }
-        std::string GetName() const { return m_name; }
+        std::string const& GetName() const { return m_name; }
         uint32 GetAccountId() const { return m_accountId; }
         uint32 GetRankId() const { return m_rankId; }
         uint8 GetClass() const { return m_class; }
@@ -515,7 +515,7 @@ private:
     {
     public:
         RankInfo(uint32 guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
-        RankInfo(uint32 guildId, uint32 rankId, const std::string& name, uint32 rights, uint32 money) :
+        RankInfo(uint32 guildId, uint32 rankId, std::string const& name, uint32 rights, uint32 money) :
             m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights), m_bankMoneyPerDay(money) { }
 
         void LoadFromDB(Field* fields);
@@ -523,8 +523,8 @@ private:
 
         uint32 GetId() const { return m_rankId; }
 
-        std::string GetName() const { return m_name; }
-        void SetName(const std::string& name);
+        std::string const& GetName() const { return m_name; }
+        void SetName(std::string const& name);
 
         uint32 GetRights() const { return m_rights; }
         void SetRights(uint32 rights);
@@ -678,13 +678,13 @@ private:
     typedef std::vector<BankTab*> BankTabs;
 
 public:
-    static void SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, const std::string& param = "");
+    static void SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, std::string const& param = "");
     static void SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode);
 
     Guild();
     ~Guild();
 
-    bool Create(Player* pLeader, const std::string& name);
+    bool Create(Player* pLeader, std::string const& name);
     void Disband();
 
     void SaveToDB();
@@ -693,29 +693,29 @@ public:
     uint32 GetId() const { return m_id; }
     uint64 GetGUID() const { return MAKE_NEW_GUID(m_id, 0, HIGHGUID_GUILD); }
     uint64 GetLeaderGUID() const { return m_leaderGuid; }
-    const std::string& GetName() const { return m_name; }
-    const std::string& GetMOTD() const { return m_motd; }
-    const std::string& GetInfo() const { return m_info; }
+    std::string const& GetName() const { return m_name; }
+    std::string const& GetMOTD() const { return m_motd; }
+    std::string const& GetInfo() const { return m_info; }
 
     // Handle client commands
     void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
     void HandleQuery(WorldSession* session);
     void HandleGuildRanks(WorldSession* session) const;
-    void HandleSetMOTD(WorldSession* session, const std::string& motd);
-    void HandleSetInfo(WorldSession* session, const std::string& info);
+    void HandleSetMOTD(WorldSession* session, std::string const& motd);
+    void HandleSetInfo(WorldSession* session, std::string const& info);
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
-    void HandleSetLeader(WorldSession* session, const std::string& name);
-    void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, const std::string& name, const std::string& icon);
+    void HandleSetLeader(WorldSession* session, std::string const& name);
+    void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon);
     void HandleSetMemberNote(WorldSession* session, std::string const& note, uint64 guid, bool isPublic);
-    void HandleSetRankInfo(WorldSession* session, uint32 rankId, const std::string& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec rightsAndSlots);
+    void HandleSetRankInfo(WorldSession* session, uint32 rankId, std::string const& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec rightsAndSlots);
     void HandleBuyBankTab(WorldSession* session, uint8 tabId);
-    void HandleInviteMember(WorldSession* session, const std::string& name);
+    void HandleInviteMember(WorldSession* session, std::string const& name);
     void HandleAcceptMember(WorldSession* session);
     void HandleLeaveMember(WorldSession* session);
     void HandleRemoveMember(WorldSession* session, uint64 guid);
     void HandleUpdateMemberRank(WorldSession* session, uint64 targetGuid, bool demote);
     void HandleSetMemberRank(WorldSession* session, uint64 targetGuid, uint64 setterGuid, uint32 rank);
-    void HandleAddNewRank(WorldSession* session, const std::string& name);
+    void HandleAddNewRank(WorldSession* session, std::string const& name);
     void HandleRemoveRank(WorldSession* session, uint32 rankId);
     void HandleMemberDepositMoney(WorldSession* session, uint32 amount, bool cashFlow = false);
     bool HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool repair = false);
@@ -746,8 +746,8 @@ public:
     bool Validate();
 
     // Broadcasts
-    void BroadcastToGuild(WorldSession* session, bool officerOnly, const std::string& msg, uint32 language = LANG_UNIVERSAL) const;
-    void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, const std::string& msg, const std::string& prefix) const;
+    void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string const& msg, uint32 language = LANG_UNIVERSAL) const;
+    void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string const& msg, std::string const& prefix) const;
     void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
     void BroadcastPacket(WorldPacket* packet) const;
 
@@ -773,7 +773,7 @@ public:
     void SwapItemsWithInventory(Player* player, bool toChar, uint8 tabId, uint8 slotId, uint8 playerBag, uint8 playerSlotId, uint32 splitedAmount);
 
     // Bank tabs
-    void SetBankTabText(uint8 tabId, const std::string& text);
+    void SetBankTabText(uint8 tabId, std::string const& text);
 
     AchievementMgr<Guild>& GetAchievementMgr() { return m_achievementMgr; }
     AchievementMgr<Guild> const& GetAchievementMgr() const { return m_achievementMgr; }
@@ -836,7 +836,7 @@ private:
         Members::iterator itr = m_members.find(GUID_LOPART(guid));
         return itr != m_members.end() ? itr->second : NULL;
     }
-    inline Member* GetMember(WorldSession* session, const std::string& name)
+    inline Member* GetMember(WorldSession* session, std::string const& name)
     {
         for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (itr->second->GetName() == name)
@@ -859,7 +859,7 @@ private:
     // Creates default guild ranks with names in given locale
     void _CreateDefaultGuildRanks(LocaleConstant loc);
     // Creates new rank
-    void _CreateRank(const std::string& name, uint32 rights);
+    void _CreateRank(std::string const& name, uint32 rights);
     // Update account number when member added/removed from guild
     void _UpdateAccountsNumber();
     bool _IsLeader(Player* player) const;

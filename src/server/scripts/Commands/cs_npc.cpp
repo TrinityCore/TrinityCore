@@ -47,19 +47,19 @@ public:
             { "weapon",         SEC_ADMINISTRATOR,  false, &HandleNpcAddWeaponCommand,         "", NULL },
             //}
             { "",               SEC_GAMEMASTER,     false, &HandleNpcAddCommand,               "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand npcDeleteCommandTable[] =
         {
             { "item",           SEC_GAMEMASTER,     false, &HandleNpcDeleteVendorItemCommand,  "", NULL },
             { "",               SEC_GAMEMASTER,     false, &HandleNpcDeleteCommand,            "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand npcFollowCommandTable[] =
         {
             { "stop",           SEC_GAMEMASTER,     false, &HandleNpcUnFollowCommand,          "", NULL },
             { "",               SEC_GAMEMASTER,     false, &HandleNpcFollowCommand,            "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand npcSetCommandTable[] =
         {
@@ -79,7 +79,7 @@ public:
             { "name",           SEC_GAMEMASTER,     false, &HandleNpcSetNameCommand,           "", NULL },
             { "subname",        SEC_GAMEMASTER,     false, &HandleNpcSetSubNameCommand,        "", NULL },
             //}
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand npcCommandTable[] =
         {
@@ -95,18 +95,18 @@ public:
             { "delete",         SEC_GAMEMASTER,     false, NULL,              "", npcDeleteCommandTable },
             { "follow",         SEC_GAMEMASTER,     false, NULL,              "", npcFollowCommandTable },
             { "set",            SEC_GAMEMASTER,     false, NULL,                 "", npcSetCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
             { "npc",            SEC_MODERATOR,      false, NULL,                    "", npcCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         return commandTable;
     }
 
     //add spawn of creature
-    static bool HandleNpcAddCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcAddCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -231,7 +231,7 @@ public:
     }
 
     //add move for creature
-    static bool HandleNpcAddMoveCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcAddMoveCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -295,7 +295,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcSetAllowMovementCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleNpcSetAllowMovementCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (sWorld->getAllowMovement())
         {
@@ -310,7 +310,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcSetEntryCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetEntryCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -335,7 +335,7 @@ public:
     }
 
     //change level of creature or pet
-    static bool HandleNpcSetLevelCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetLevelCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -376,7 +376,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcDeleteCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcDeleteCommand(ChatHandler* handler, char const* args)
     {
         Creature* unit = NULL;
 
@@ -415,7 +415,7 @@ public:
     }
 
     //del item from vendor list
-    static bool HandleNpcDeleteVendorItemCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcDeleteVendorItemCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -453,7 +453,7 @@ public:
     }
 
     //set faction of creature
-    static bool HandleNpcSetFactionIdCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetFactionIdCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -500,7 +500,7 @@ public:
     }
 
     //set npcflag of creature
-    static bool HandleNpcSetFlagCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetFlagCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -531,7 +531,7 @@ public:
     }
 
     //set data of creature for testing scripting
-    static bool HandleNpcSetDataCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetDataCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -559,12 +559,12 @@ public:
 
         creature->AI()->SetData(data_1, data_2);
         std::string AIorScript = creature->GetAIName() != "" ? "AI type: " + creature->GetAIName() : (creature->GetScriptName() != "" ? "Script Name: " + creature->GetScriptName() : "No AI or Script Name Set");
-        handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID(), creature->GetEntry(), creature->GetName(), data_1, data_2, AIorScript.c_str());
+        handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID(), creature->GetEntry(), creature->GetName().c_str(), data_1, data_2, AIorScript.c_str());
         return true;
     }
 
     //npc follow handling
-    static bool HandleNpcFollowCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleNpcFollowCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
         Creature* creature = handler->getSelectedCreature();
@@ -579,11 +579,11 @@ public:
         // Follow player - Using pet's default dist and angle
         creature->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, creature->GetFollowAngle());
 
-        handler->PSendSysMessage(LANG_CREATURE_FOLLOW_YOU_NOW, creature->GetName());
+        handler->PSendSysMessage(LANG_CREATURE_FOLLOW_YOU_NOW, creature->GetName().c_str());
         return true;
     }
 
-    static bool HandleNpcInfoCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleNpcInfoCommand(ChatHandler* handler, char const* /*args*/)
     {
         Creature* target = handler->getSelectedCreature();
 
@@ -629,7 +629,7 @@ public:
     }
 
     //move selected creature
-    static bool HandleNpcMoveCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcMoveCommand(ChatHandler* handler, char const* args)
     {
         uint32 lowguid = 0;
 
@@ -717,7 +717,7 @@ public:
     }
 
     //play npc emote
-    static bool HandleNpcPlayEmoteCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcPlayEmoteCommand(ChatHandler* handler, char const* args)
     {
         uint32 emote = atoi((char*)args);
 
@@ -746,7 +746,7 @@ public:
     }
 
     //set model of creature
-    static bool HandleNpcSetModelCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetModelCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -782,7 +782,7 @@ public:
     * additional parameter: NODEL - so no waypoints are deleted, if you
     *                       change the movement type
     */
-    static bool HandleNpcSetMoveTypeCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetMoveTypeCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -918,7 +918,7 @@ public:
 
     //npc phasemask handling
     //change phasemask of creature or pet
-    static bool HandleNpcSetPhaseCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetPhaseCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -948,7 +948,7 @@ public:
     }
 
     //set spawn dist of creature
-    static bool HandleNpcSetSpawnDistCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetSpawnDistCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -994,7 +994,7 @@ public:
     }
 
     //spawn time handling
-    static bool HandleNpcSetSpawnTimeCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetSpawnTimeCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1034,7 +1034,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcSayCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSayCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1062,7 +1062,7 @@ public:
     }
 
     //show text emote by creature in chat
-    static bool HandleNpcTextEmoteCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcTextEmoteCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1082,7 +1082,7 @@ public:
     }
 
     //npc unfollow handling
-    static bool HandleNpcUnFollowCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleNpcUnFollowCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
         Creature* creature = handler->getSelectedCreature();
@@ -1097,7 +1097,7 @@ public:
         if (/*creature->GetMotionMaster()->empty() ||*/
             creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
         {
-            handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName());
+            handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1106,7 +1106,7 @@ public:
 
         if (mgen->GetTarget() != player)
         {
-            handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName());
+            handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1114,12 +1114,12 @@ public:
         // reset movement
         creature->GetMotionMaster()->MovementExpired(true);
 
-        handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU_NOW, creature->GetName());
+        handler->PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU_NOW, creature->GetName().c_str());
         return true;
     }
 
     // make npc whisper to player
-    static bool HandleNpcWhisperCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcWhisperCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1146,7 +1146,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcYellCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcYellCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1168,7 +1168,7 @@ public:
     }
 
     // add creature, temp only
-    static bool HandleNpcAddTempSpawnCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcAddTempSpawnCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1188,7 +1188,7 @@ public:
     }
 
     //npc tame handling
-    static bool HandleNpcTameCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleNpcTameCommand(ChatHandler* handler, char const* /*args*/)
     {
         Creature* creatureTarget = handler->getSelectedCreature();
         if (!creatureTarget || creatureTarget->isPet())
@@ -1254,7 +1254,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcAddFormationCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcAddFormationCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1306,7 +1306,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcSetLinkCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcSetLinkCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -1341,7 +1341,7 @@ public:
     }
 
     //TODO: NpcCommands that need to be fixed :
-    static bool HandleNpcAddWeaponCommand(ChatHandler* /*handler*/, const char* /*args*/)
+    static bool HandleNpcAddWeaponCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
         /*if (!*args)
             return false;
@@ -1409,7 +1409,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcSetNameCommand(ChatHandler* /*handler*/, const char* /*args*/)
+    static bool HandleNpcSetNameCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
         /* Temp. disabled
         if (!*args)
@@ -1456,7 +1456,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcSetSubNameCommand(ChatHandler* /*handler*/, const char* /*args*/)
+    static bool HandleNpcSetSubNameCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
         /* Temp. disabled
 

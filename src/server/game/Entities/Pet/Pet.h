@@ -214,7 +214,7 @@ class Pet : public Guardian
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
 
-        Player* GetOwner() { return m_owner; }
+        Player* GetOwner() const { return m_owner; }
     protected:
         Player* m_owner;
         PetType m_petType;
