@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[70] --> Fixed [Item] Wrathful Gladiator's Dreadplate Gauntlets.
 [69] --> Add Npc Top 10 Arena Teams.
 [68] --> Alternate script Gunship by fiveofeight.
 [67] --> Add Scripts/Trial Of The Champion.
