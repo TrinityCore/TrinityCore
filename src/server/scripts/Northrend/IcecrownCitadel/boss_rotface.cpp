@@ -179,15 +179,9 @@ class boss_rotface : public CreatureScript
                         case EVENT_SLIME_SPRAY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-<<<<<<< HEAD
-                                //DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TEMPSUMMON_TIMED_DESPAWN);
-                                Creature* stalker = DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TEMPSUMMON_TIMED_DESPAWN);
-=======
                                 DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8*IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN);
->>>>>>> upstream/master
                                 Talk(EMOTE_SLIME_SPRAY);
-                                //DoCast(me, SPELL_SLIME_SPRAY);
-                                DoCast(stalker, SPELL_SLIME_SPRAY);
+                                DoCast(me, SPELL_SLIME_SPRAY);
                             }
                             events.ScheduleEvent(EVENT_SLIME_SPRAY, 20*IN_MILLISECONDS);
                             break;

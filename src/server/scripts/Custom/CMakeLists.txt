@@ -10,7 +10,6 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-<<<<<<< HEAD
   Custom/hunterpet_vendor.cpp
   Custom/Transmogrification.cpp
   Custom/Transmogrification.h
