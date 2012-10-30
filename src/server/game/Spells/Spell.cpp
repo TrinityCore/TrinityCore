@@ -5683,7 +5683,7 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
 				break;
         case SPELLFAMILY_PRIEST:
          //Psychic Scream
-          if (_spell->id == 10890)
+          if (_spell->Id == 10890)
               return delayForInstantSpells;
 		break;
         case SPELLFAMILY_ROGUE:
