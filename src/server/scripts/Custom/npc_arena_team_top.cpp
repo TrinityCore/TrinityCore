@@ -41,14 +41,14 @@ class npc_arena_team_top : public CreatureScript
                             return false;
 
                         Field * fields = NULL;
-                        player->MonsterWhisper("|cff4169E1Here are the Top 10 2v2 arena teams:|r", player->GetGUID());
+                        player->MonsterWhisper("|cffFFFF00Here are the Top 10 2v2 arena teams:|r", player->GetGUID());
                         do
                         {
                             fields = result->Fetch();
                             string arena_name = fields[0].GetString();
-                            uint32 rating = fields[1].GetUInt32();
+                            string rating = fields[1].GetString();
                             char msg[250];
-                            snprintf(msg, 250, "Team Name: |cffFFFF00%s|r, Team Rating: %u \n", arena_name.c_str(), rating);
+                            snprintf(msg, 250, "|cff00FFE6Team Name:|r |cffFFFF00%s|r, |cff00FFE6Team Rating:|r |cffFFFF00%s|r \n", arena_name.c_str(), rating.c_str());
                             player->MonsterWhisper(msg, player->GetGUID());
                         }
 
@@ -62,14 +62,14 @@ class npc_arena_team_top : public CreatureScript
                             return false;
 
                         Field * fields = NULL;
-                        player->MonsterWhisper("|cff4169E1Here are the Top 10 3v3 arena teams:|r", player->GetGUID());
+                        player->MonsterWhisper("|cffFFFF00Here are the Top 10 3v3 arena teams:|r", player->GetGUID());
                         do
                         {
                             fields = result->Fetch();
                             string arena_name = fields[0].GetString();
-                            uint32 rating = fields[1].GetUInt32();
+                            string rating = fields[1].GetString();
                             char msg[250];
-                            snprintf(msg, 250, "Team Name: |cffFFFF00%s|r, Team Rating: %u \n", arena_name.c_str(), rating);
+                            snprintf(msg, 250, "|cff00FFE6Team Name:|r |cffFFFF00%s|r, |cff00FFE6Team Rating:|r |cffFFFF00%s|r \n", arena_name.c_str(), rating.c_str());
                             player->MonsterWhisper(msg, player->GetGUID());
                         }
 
@@ -83,14 +83,14 @@ class npc_arena_team_top : public CreatureScript
                             return false;
 
                         Field * fields = NULL;
-                        player->MonsterWhisper("|cff4169E1Here are the Top 10 5v5 arena teams:|r", player->GetGUID());
+                        player->MonsterWhisper("|cffFFFF00Here are the Top 10 5v5 arena teams:|r", player->GetGUID());
                         do
                         {
                             fields = result->Fetch();
                             string arena_name = fields[0].GetString();
-                            uint32 rating = fields[1].GetUInt32();
+                            string rating = fields[1].GetString();
                             char msg[250];
-                            snprintf(msg, 250, "Team Name: |cffFFFF00%s|r, Team Rating: %u \n", arena_name.c_str(), rating);
+                            snprintf(msg, 250, "|cff00FFE6Team Name:|r |cffFFFF00%s|r, |cff00FFE6Team Rating:|r |cffFFFF00%s|r \n", arena_name.c_str(), rating.c_str());
                             player->MonsterWhisper(msg, player->GetGUID());
                         }
 
