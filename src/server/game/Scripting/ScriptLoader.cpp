@@ -622,6 +622,7 @@ void AddSC_chat_log();
 
 // custom
 void AddSC_custom();
+void AddSC_crypt_run();
 
 #endif
 
@@ -1285,5 +1286,6 @@ void AddCustomScripts()
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
     AddSC_custom();
+    AddSC_crypt_run();
 #endif
 }

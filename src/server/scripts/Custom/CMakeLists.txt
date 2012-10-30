@@ -11,6 +11,7 @@
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Custom/npc_gc_vendor.cpp
+  Custom/npc_crypt_run.cpp
 )
 
 message("  -> Prepared: Custom")
