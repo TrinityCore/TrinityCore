@@ -498,7 +498,6 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         //Blade edge arena (mapid)
         if (_sourceUnit->GetMapId() == 562)
         {
-252.290146 247.541016
              //Your Position & Target Position
             if (startEndDist < 2000.0f && endPoint[2] <= 6230.803223f && startPoint[2] >= 6230.803223f && endPoint[1] >= 10.000000 && startPoint[1] >= 10.000000f && endPoint[0] >= 247.547917f && endPoint[0] <= 252.298940f)      // southeast pillar
             {
