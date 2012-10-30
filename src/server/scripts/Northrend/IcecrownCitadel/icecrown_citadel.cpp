@@ -365,6 +365,12 @@ enum EventIds
     EVENT_AWAKEN_WARD_4 = 22909,
 };
 
+enum Achievements
+{
+    IM_ON_A_BOAT_10    = 4536,
+    IM_ON_A_BOAT_25    = 4612
+};
+
 Position const FrostWyrmPosH   = {-435.429f, 2077.556f, 219.1148f, 2.623434f};
 Position const FrostWyrmPosA   = {-437.409f, 2349.026f, 219.1148f, 3.510935f};
 
@@ -705,6 +711,7 @@ class npc_rotting_frost_giant : public CreatureScript
                 me->DespawnOrUnsummon(10000);
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
+                    instance->DoCompleteAchievement(RAID_MODE(IM_ON_A_BOAT_10,IM_ON_A_BOAT_25,IM_ON_A_BOAT_10,IM_ON_A_BOAT_25));
                     instance->DoCastSpellOnPlayers(SPELL_ACHIEVEMENT_SHIP);
                     if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                         me->SummonGameObject(RAID_MODE(GO_CAPITAN_CHEST_H_10N, GO_CAPITAN_CHEST_H_25N, GO_CAPITAN_CHEST_H_10H, GO_CAPITAN_CHEST_H_25H), -307.584930f, 2211.561768f, 199.990861f, 0, 0, 0, 0, 0, 100000);
