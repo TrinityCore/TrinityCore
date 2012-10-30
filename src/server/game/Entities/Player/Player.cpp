@@ -25583,7 +25583,7 @@ void Player::HandleRates()
     
     bool hasXPIncreased = player->HasAtLoginFlag(CUSTOMFLAG_DOUBLE_RATE);
      
-    if (player->getLevel() < 60) // check required level
+    if (player->getLevel() < 60 && player->getClass() != CLASS_DEATH_KNIGHT) // check required level and class
     {
         if (hasXPIncreased)
         {
