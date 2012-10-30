@@ -543,7 +543,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
             if (startPoint[2] >= 1330.033223f && startPoint[1] >= 9.000000f)      // Canal 1#
             {
               //  Path X,y,z
-                _pathPoints.resize(4);
+                _pathPoints.resize(5);
                 _pathPoints[0] = GetStartPosition();
                 _pathPoints[1] = Vector3(1332.749268f, 816.274780f, 8.355900f);
                 _pathPoints[2] = Vector3(1325.749268f, 816.602539f, 5.4000000f);
@@ -553,7 +553,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
             else if (startPoint[2] <= 1253.904785f && startPoint[1] >= 9.000000f)      // Canal 2#
             {
                 //  Path X,y,z
-                _pathPoints.resize(4);
+                _pathPoints.resize(5);
                 _pathPoints[0] = GetStartPosition();
                 _pathPoints[1] = Vector3(1252.425395f, 764.971680f, 8.000000f); 
                 _pathPoints[3] = Vector3(1255.425395f, 764.971680f, 5.3559000f);
