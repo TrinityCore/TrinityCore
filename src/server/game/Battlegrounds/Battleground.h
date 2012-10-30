@@ -673,8 +673,6 @@ class Battleground
         // Raid Group
         Group* m_BgRaids[BG_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
 
-        SpectatorList m_Spectators;
-
         // Players count by team
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
 
