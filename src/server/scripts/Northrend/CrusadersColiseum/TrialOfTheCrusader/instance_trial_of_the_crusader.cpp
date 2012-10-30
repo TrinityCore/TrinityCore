@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: instance_trial_of_the_crusader
-SD%Complete: 80%
-SDComment: by /dev/rsa
-SDCategory: Trial of the Crusader
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "trial_of_the_crusader.h"
@@ -39,29 +32,40 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             void Initialize()
             {
                 SetBossNumber(MAX_ENCOUNTERS);
-
                 TrialCounter = 50;
                 EventStage = 0;
-
-                TirionFordringGUID = 0;
-
-                TributeChestGUID = 0;
-
-                MainGateDoorGUID = 0;
-                EastPortcullisGUID = 0;
-                WebDoorGUID = 0;
-
                 NorthrendBeasts = NOT_STARTED;
-
                 EventTimer = 1000;
-
                 NotOneButTwoJormungarsTimer = 0;
                 ResilienceWillFixItTimer = 0;
                 SnoboldCount = 0;
                 MistressOfPainCount = 0;
                 TributeToImmortalityElegible = true;
-
                 NeedSave = false;
+                EventNPCId = 0;
+
+                TirionFordringGUID = 0;
+                BarrentGUID = 0;
+                TirionGUID = 0;
+                FizzlebangGUID = 0;
+                GarroshGUID = 0;
+                VarianGUID = 0;
+                GormokGUID = 0;
+                AcidmawGUID = 0;
+                DreadscaleGUID = 0;
+                IcehowlGUID = 0;
+                JaraxxusGUID = 0;
+                ChampionsControllerGUID = 0;
+                DarkbaneGUID = 0;
+                LightbaneGUID = 0;
+                AnubarakGUID = 0;
+
+                TributeChestGUID = 0;
+                MainGateDoorGUID = 0;
+                EastPortcullisGUID = 0;
+                WebDoorGUID = 0;
+                CrusadersCacheGUID = 0;
+                FloorGUID = 0;
             }
 
             bool IsEncounterInProgress() const
@@ -70,7 +74,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     if (GetBossState(i) == IN_PROGRESS)
                         return true;
 
-                // Special state is also set at Faction Champions after first champ dead, encounter is still in combat
+                // Special state is set at Faction Champions after first champ dead, encounter is still in combat
                 if (GetBossState(BOSS_CRUSADERS) == SPECIAL)
                     return true;
 
@@ -88,7 +92,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
 
                 // make sure Anub'arak isnt missing and floor is destroyed after a crash
-                if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter)
+                if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter && GetBossState(BOSS_ANUBARAK) != DONE)
                 {
                     Creature* anubArak = Unit::GetCreature(*player, GetData64(NPC_ANUBARAK));
                     if (!anubArak)
@@ -112,6 +116,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 if (!guid)
                     return;
+
                 if (GameObject* go = instance->GetGameObject(guid))
                     go->SetGoState(GO_STATE_READY);
             }
@@ -168,6 +173,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case NPC_ANUBARAK:
                         AnubarakGUID = creature->GetGUID();
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -213,6 +220,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case GO_TRIBUTE_CHEST_25H_50:
                     case GO_TRIBUTE_CHEST_25H_99:
                         TributeChestGUID = go->GetGUID();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -435,6 +444,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case FAIL:
                                 SetBossState(BOSS_BEASTS, FAIL);
                                 break;
+                            default:
+                                break;
                         }
                         break;
                     //Achievements
@@ -452,6 +463,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         break;
                     case DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE:
                         TributeToImmortalityElegible = false;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -712,19 +725,21 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         return TrialCounter == 50 && TributeToImmortalityElegible;
                     case A_TRIBUTE_TO_DEDICATED_INSANITY:
                         return false/*uiGrandCrusaderAttemptsLeft == 50 && !bHasAtAnyStagePlayerEquippedTooGoodItem*/;
+                    default:
+                        break;
                 }
 
                 return false;
             }
 
-            private:
+            protected:
                 uint32 TrialCounter;
                 uint32 EventStage;
                 uint32 EventTimer;
                 uint32 EventNPCId;
                 uint32 NorthrendBeasts;
-                std::string SaveDataBuffer;
                 bool   NeedSave;
+                std::string SaveDataBuffer;
 
                 uint64 BarrentGUID;
                 uint64 TirionGUID;
@@ -745,9 +760,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 uint64 CrusadersCacheGUID;
                 uint64 FloorGUID;
-
                 uint64 TributeChestGUID;
-
                 uint64 MainGateDoorGUID;
                 uint64 EastPortcullisGUID;
                 uint64 WebDoorGUID;

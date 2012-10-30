@@ -10,11 +10,13 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+<<<<<<< HEAD
   Custom/hunterpet_vendor.cpp
   Custom/Transmogrification.cpp
   Custom/Transmogrification.h
   Custom/chat_censure.cpp
   Custom/argent_tournament.cpp
+  Custom/npc_gc_vendor.cpp
 )
 
 message("  -> Prepared: Custom")

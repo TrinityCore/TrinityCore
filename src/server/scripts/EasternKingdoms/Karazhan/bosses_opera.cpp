@@ -216,7 +216,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_tito : public CreatureScript
@@ -271,7 +270,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void boss_dorothee::boss_dorotheeAI::SummonTito()
@@ -398,7 +396,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_tinhead : public CreatureScript
@@ -508,7 +505,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_roar : public CreatureScript
@@ -617,7 +613,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_crone : public CreatureScript
@@ -699,7 +694,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_cyclone : public CreatureScript
@@ -743,7 +737,6 @@ public:
             } else MoveTimer -= diff;
         }
     };
-
 };
 
 /**************************************/
@@ -792,7 +785,6 @@ public:
 
         return true;
     }
-
 };
 
 class boss_bigbadwolf : public CreatureScript
@@ -915,10 +907,8 @@ public:
                 DoCast(me->getVictim(), SPELL_WIDE_SWIPE);
                 SwipeTimer = urand(25000, 30000);
             } else SwipeTimer -= diff;
-
         }
     };
-
 };
 
 /**********************************************/
@@ -977,7 +967,7 @@ void PretendToDie(Creature* creature)
     creature->GetMotionMaster()->MovementExpired(false);
     creature->GetMotionMaster()->MoveIdle();
     creature->SetStandState(UNIT_STAND_STATE_DEAD);
-};
+}
 
 void Resurrect(Creature* target)
 {
@@ -992,7 +982,7 @@ void Resurrect(Creature* target)
     }
         else
             target->GetMotionMaster()->Initialize();
-};
+}
 
 class boss_julianne : public CreatureScript
 {
@@ -1114,7 +1104,6 @@ public:
 
         void UpdateAI(const uint32 diff);
     };
-
 };
 
 class boss_romulo : public CreatureScript
@@ -1321,7 +1310,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)

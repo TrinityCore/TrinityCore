@@ -359,30 +359,30 @@ class instance_ulduar : public InstanceMapScript
                     // reward leviathan kill all over the formation grounds area
                     // otherwise, there may occur some problems due to kill-credit since he's killed using vehicles
                     case NPC_LEVIATHAN:
+                    {
+                        Map::PlayerList const& playerList = instance->GetPlayers();
+
+                        if (playerList.isEmpty())
+                            return;
+
+                        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
                         {
-                            Map::PlayerList const& playerList = instance->GetPlayers();
-
-                            if (playerList.isEmpty())
-                                return;
-
-                            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                            if (Player* player = i->getSource())
                             {
-                                if (Player* player = i->getSource())
-                                {
-                                    // has been rewarded
-                                    if (player->IsAtGroupRewardDistance(creature))
-                                        continue;
+                                // has been rewarded
+                                if (player->IsAtGroupRewardDistance(creature))
+                                    continue;
 
-                                    // is somewhere else
-                                    if (player->GetAreaId() != AREA_FORMATION_GROUNDS)
-                                        continue;
+                                // is somewhere else
+                                if (player->GetAreaId() != AREA_FORMATION_GROUNDS)
+                                    continue;
 
-                                    if (player->isAlive() || !player->GetCorpse())
-                                        player->KilledMonsterCredit(NPC_LEVIATHAN, 0);
-                                }
+                                if (player->isAlive() || !player->GetCorpse())
+                                    player->KilledMonsterCredit(NPC_LEVIATHAN, 0);
                             }
                         }
                         break;
+                    }
                     default:
                         break;
                 }
@@ -1008,9 +1008,9 @@ class instance_ulduar : public InstanceMapScript
 
                         if (GameObject* gameObject = instance->GetGameObject(LeviathanDoorGUID))
                         {
-                            /*if (state == NOT_STARTED || state == IN_PROGRESS)
+                            if (state == NOT_STARTED || state == IN_PROGRESS)
                                 gameObject->SetGoState(GO_STATE_READY);
-                            else*/
+                            else
                                 gameObject->SetGoState(GO_STATE_ACTIVE);
                         }
 

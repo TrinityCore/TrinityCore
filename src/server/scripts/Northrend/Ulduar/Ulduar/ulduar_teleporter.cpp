@@ -21,18 +21,6 @@
 #include "ulduar.h"
 #include "InstanceScript.h"
 
-/*
-The teleporter appears to be active and stable.
-
-- Expedition Base Camp
-- Formation Grounds
-- Colossal Forge
-- Scrapyard
-- Antechamber of Ulduar
-- Shattered Walkway
-- Conservatory of Life
-*/
-
 enum UlduarTeleporter
 {
     // Definitions for actions & gossips

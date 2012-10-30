@@ -31,17 +31,12 @@
 enum Spells
 {
     SPELL_TYMPANIC_TANTRUM                      = 62776,
-    SPELL_SEARING_LIGHT_10                      = 63018,
-    SPELL_SEARING_LIGHT_25                      = 65121,
+    SPELL_SEARING_LIGHT                         = 63018,
 
     SPELL_SUMMON_LIFE_SPARK                     = 64210,
     SPELL_SUMMON_VOID_ZONE                      = 64203,
-
-    SPELL_GRAVITY_BOMB_10                       = 63024,
-    SPELL_GRAVITY_BOMB_25                       = 64234,
-
-    SPELL_HEARTBREAK_10                         = 65737,
-    SPELL_HEARTBREAK_25                         = 64193,
+    SPELL_GRAVITY_BOMB                          = 63024,
+    SPELL_HEARTBREAK                            = 65737,
 
     // Cast by 33337 at Heartbreak: (not used)
     SPELL_RECHARGE_PUMMELER                     = 62831,    // Summons 33344
@@ -60,45 +55,37 @@ enum Spells
     SPELL_STAND                                 = 37752,
     SPELL_SUBMERGE                              = 37751,
 
-    //------------------VOID ZONE--------------------
-    SPELL_VOID_ZONE_10                          = 64203,
-    SPELL_VOID_ZONE_25                          = 64235,
-    SPELL_CONSUMPTION_10                        = 64208,
-    SPELL_CONSUMPTION_25                        = 64206,
+    // void zone
+    SPELL_VOID_ZONE                             = 64203,
+    SPELL_CONSUMPTION                           = 64208,
 
     // Life Spark
-    SPELL_STATIC_CHARGED_10                     = 64227,
-    SPELL_STATIC_CHARGED_25                     = 64236,
+    SPELL_STATIC_CHARGED                        = 64227,
     SPELL_SHOCK                                 = 64230,
 
-    //----------------XT-002 HEART-------------------
+    // XT-002 Heart
     SPELL_EXPOSED_HEART                         = 63849,
     SPELL_HEART_RIDE_XT002                      = 63852,
 
-    //---------------XM-024 PUMMELLER----------------
+    // XT-024 Pummeler
     SPELL_ARCING_SMASH                          = 8374,
     SPELL_TRAMPLE                               = 5568,
     SPELL_UPPERCUT                              = 10966,
 
-    // Scrapbot:
+    // Scrapbot
     SPELL_SCRAPBOT_RIDE_VEHICLE                 = 47020,
     SPELL_SUICIDE                               = 7,
 
-    //------------------BOOMBOT-----------------------
+    // Boombot
     SPELL_AURA_BOOMBOT                          = 65032,
     SPELL_BOOM                                  = 62834,
 
-    //-----------------SCRAPBOT-----------------------
+    // Scrapbot
     SPELL_HEAL_XT002                            = 62832,
+
     // Achievement-related spells
     SPELL_ACHIEVEMENT_CREDIT_NERF_SCRAPBOTS     = 65037
 };
-
-#define SPELL_SEARING_LIGHT RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25)
-#define SPELL_GRAVITY_BOMB RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25)
-#define SPELL_HEARTBREAK RAID_MODE(SPELL_HEARTBREAK_10, SPELL_HEARTBREAK_25)
-#define SPELL_CONSUMPTION RAID_MODE(SPELL_CONSUMPTION_10, SPELL_CONSUMPTION_25)
-#define SPELL_STATIC_CHARGED RAID_MODE(SPELL_STATIC_CHARGED_10, SPELL_STATIC_CHARGED_25)
 
 enum Creatures
 {
@@ -112,16 +99,16 @@ enum Creatures
 
 enum Actions
 {
-    ACTION_ENTER_HARD_MODE,
-    ACTION_XT002_REACHED
+    ACTION_ENTER_HARD_MODE  = 0,
+    ACTION_XT002_REACHED    = 1
 };
 
 enum XT002Data
 {
-    DATA_TRANSFERED_HEALTH,
-    DATA_HARD_MODE,
-    DATA_HEALTH_RECOVERED,
-    DATA_GRAVITY_BOMB_CASUALTY
+    DATA_TRANSFERED_HEALTH      = 0,
+    DATA_HARD_MODE              = 1,
+    DATA_HEALTH_RECOVERED       = 2,
+    DATA_GRAVITY_BOMB_CASUALTY  = 3
 };
 
 enum Yells
@@ -145,11 +132,47 @@ enum WaypointID
     WAYPOINT_XT     = 1360540
 };
 
+enum Phases
+{
+    // XT-002 Deconstructor
+    PHASE_ACTIVE            = 1,
+    PHASE_PASSIVE           = 2,
+
+    // Heart Phases
+    PHASE_AT_100_PERCT      = 100,
+    PHASE_ABOVE_75_PERCT    = 75,
+    PHASE_ABOVE_50_PERCT    = 50,
+    PHASE_ABOVE_25_PERCT    = 25,
+    PHASE_ABOVE_0_PERCT     = 0
+};
+
+enum Events
+{
+    // XT-002 Deconstructor
+    EVENT_TYMPANIC_TANTRUM      = 1,
+    EVENT_SEARING_LIGHT         = 2,
+    EVENT_GRAVITY_BOMB          = 3,
+    EVENT_HEART_PHASE           = 4,
+    EVENT_ENERGY_ORB            = 5,
+    EVENT_DISPOSE_HEART         = 6,
+    EVENT_ENRAGE                = 7,
+    EVENT_ENTER_HARD_MODE       = 8,
+    EVENT_SPAWN_ADDS            = 9,
+    EVENT_OVERLOAD_VISUAL       = 10,
+
+    // Pummeler
+    EVENT_ARCING_SMASH          = 11,
+    EVENT_TRAMPLE               = 12,
+    EVENT_UPPERCUT              = 13
+};
+
+enum Achievements
+{
+    ACHIEV_MUST_DECONSTRUCT_FASTER = 21027
+};
+
 #define HEART_VEHICLE_SEAT 0
 
-/************************************************
------------------SPAWN LOCATIONS-----------------
-************************************************/
 const Position spawnLocations[] = 
 {
     { 796.0f, -94.0f, 412.0f, 0.0 }, // Lower right
@@ -157,62 +180,9 @@ const Position spawnLocations[] =
     { 890.0f, -82.0f, 412.0f, 0.0 }, // Upper right
     { 894.0f,  62.0f, 412.0f, 0.0 }  // Upper left
 };
-/*-------------------------------------------------------
- *
- *        XT-002 DECONSTRUCTOR
- *
- *///----------------------------------------------------
+
 class boss_xt002 : public CreatureScript
 {
-    private:
-        // Internal definitions
-        enum XT002Phase
-        {
-            PHASE_ACTIVE = 1,
-            PHASE_PASSIVE
-        };
-
-        enum XT002HeartPhase
-        {
-            PHASE_AT_100_PERCT      = 100,
-            PHASE_ABOVE_75_PERCT    = 75,
-            PHASE_ABOVE_50_PERCT    = 50,
-            PHASE_ABOVE_25_PERCT    = 25,
-            PHASE_ABOVE_0_PERCT     = 0
-        };
-
-        enum XT002Events
-        {
-            EVENT_TYMPANIC_TANTRUM = 1,
-            EVENT_SEARING_LIGHT,
-            EVENT_GRAVITY_BOMB,
-            EVENT_HEART_PHASE,
-            EVENT_ENERGY_ORB,
-            EVENT_DISPOSE_HEART,
-            EVENT_ENRAGE,
-            EVENT_ENTER_HARD_MODE,
-            EVENT_SPAWN_ADDS,
-            EVENT_OVERLOAD_VISUAL
-        };
-
-        enum AchievementCredits
-        {
-            ACHIEV_MUST_DECONSTRUCT_FASTER = 21027
-        };
-
-        enum Timers
-        {
-            TIMER_TYMPANIC_TANTRUM_MIN = 32*IN_MILLISECONDS,
-            TIMER_TYMPANIC_TANTRUM_MAX = 36*IN_MILLISECONDS,
-            TIMER_SEARING_LIGHT        = 20*IN_MILLISECONDS,
-            TIMER_GRAVITY_BOMB         = 20*IN_MILLISECONDS,
-            TIMER_HEART_PHASE          = 30*IN_MILLISECONDS,
-            TIMER_ENERGY_ORB_MIN       = 9*IN_MILLISECONDS,
-            TIMER_ENERGY_ORB_MAX       = 10*IN_MILLISECONDS,
-            TIMER_ENRAGE               = 10*MINUTE*IN_MILLISECONDS,
-            TIMER_VOID_ZONE            = 3*IN_MILLISECONDS
-        };
-
     public:
         boss_xt002() : CreatureScript("boss_xt002") {}
 
@@ -225,15 +195,15 @@ class boss_xt002 : public CreatureScript
                 _Reset();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);  // Just for the case they are still present
 
-                healthRecovered = false;
-                gravityBombCasualty = false;
-                hardMode = false;
+                _healthRecovered = false;
+                _gravityBombCasualty = false;
+                _hardMode = false;
 
                 SetPhaseOne();
                 me->GetMotionMaster()->MovePath(WAYPOINT_XT, true);
-                transferHealth = 0;
-                phase = PHASE_ACTIVE;
-                heartPhase = PHASE_AT_100_PERCT;
+                _transferHealth = 0;
+                _phase = PHASE_ACTIVE;
+                _heartPhase = PHASE_AT_100_PERCT;
                 events.SetPhase(PHASE_ACTIVE);
 
                 if (!instance)
@@ -256,16 +226,16 @@ class boss_xt002 : public CreatureScript
                 Talk(SAY_AGGRO);
                 _EnterCombat();
 
-                events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE, 0, PHASE_ACTIVE);
-                events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ACTIVE);
-                events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT, 0, PHASE_ACTIVE);
+                events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS, 0, PHASE_ACTIVE);
+                events.ScheduleEvent(EVENT_GRAVITY_BOMB, 20*IN_MILLISECONDS, 0, PHASE_ACTIVE);
+                events.ScheduleEvent(EVENT_SEARING_LIGHT, 20*IN_MILLISECONDS, 0, PHASE_ACTIVE);
                 // Due to Hordeguides, the first Tympanic Tantrum gets scheduled after ~1min.
-                events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX)*2, 0, PHASE_ACTIVE);                               
+                events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(32*IN_MILLISECONDS, 36*IN_MILLISECONDS)*2, 0, PHASE_ACTIVE);
 
                 if (!instance)
                     return;
 
-                heartPhase = PHASE_ABOVE_75_PERCT;
+                _heartPhase = PHASE_ABOVE_75_PERCT;
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
@@ -277,7 +247,7 @@ class boss_xt002 : public CreatureScript
                         events.ScheduleEvent(EVENT_ENTER_HARD_MODE, 1);
                         break;
                     case ACTION_XT002_REACHED:
-                        healthRecovered = true;
+                        _healthRecovered = true;
                         break;
                     default:
                         break;
@@ -293,14 +263,14 @@ class boss_xt002 : public CreatureScript
             void JustDied(Unit* /*victim*/)
             {
                 Talk(SAY_DEATH);
-                if (hardMode)
+                if (_hardMode)
                     me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                 _JustDied();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
-                if (!hardMode && phase == PHASE_ACTIVE && HealthBelowPct(heartPhase))
+                if (!_hardMode && _phase == PHASE_ACTIVE && HealthBelowPct(_heartPhase))
                     ExposeHeart();
             }
 
@@ -309,11 +279,11 @@ class boss_xt002 : public CreatureScript
                 switch (type)
                 {
                     case DATA_HARD_MODE:
-                        return hardMode ? 1 : 0;
+                        return _hardMode ? 1 : 0;
                     case DATA_HEALTH_RECOVERED:
-                        return healthRecovered ? 1 : 0;
+                        return _healthRecovered ? 1 : 0;
                     case DATA_GRAVITY_BOMB_CASUALTY:
-                        return gravityBombCasualty ? 1 : 0;
+                        return _gravityBombCasualty ? 1 : 0;
                     default:
                         break;
                 }
@@ -326,10 +296,10 @@ class boss_xt002 : public CreatureScript
                 switch (type)
                 {
                     case DATA_TRANSFERED_HEALTH:
-                        transferHealth = data;
+                        _transferHealth = data;
                         break;
                     case DATA_GRAVITY_BOMB_CASUALTY:
-                        gravityBombCasualty = (data > 0) ? true : false;
+                        _gravityBombCasualty = (data > 0) ? true : false;
                         break;
                     default:
                         break;
@@ -353,18 +323,18 @@ class boss_xt002 : public CreatureScript
                         case EVENT_SEARING_LIGHT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_SEARING_LIGHT);
-                            events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT, 0, PHASE_ACTIVE);
+                            events.ScheduleEvent(EVENT_SEARING_LIGHT, 20*IN_MILLISECONDS, 0, PHASE_ACTIVE);
                             return;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_GRAVITY_BOMB);
-                            events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ACTIVE);
+                            events.ScheduleEvent(EVENT_GRAVITY_BOMB, 20*IN_MILLISECONDS, 0, PHASE_ACTIVE);
                             return;
                         case EVENT_TYMPANIC_TANTRUM:
                             Talk(SAY_TYMPANIC_TANTRUM);
                             Talk(EMOTE_TYMPANIC);
                             DoCast(SPELL_TYMPANIC_TANTRUM);
-                            events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX), 0, PHASE_ACTIVE);
+                            events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(32*IN_MILLISECONDS, 36*IN_MILLISECONDS), 0, PHASE_ACTIVE);
                             return;
                         case EVENT_DISPOSE_HEART:
                             SetPhaseOne();
@@ -377,7 +347,7 @@ class boss_xt002 : public CreatureScript
                             me->SetFullHealth();
                             DoCast(me, SPELL_HEARTBREAK, true);
                             me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                            hardMode = true;
+                            _hardMode = true;
                             SetPhaseOne();
                             return;
                         case EVENT_SPAWN_ADDS:
@@ -425,7 +395,7 @@ class boss_xt002 : public CreatureScript
                     }
                 }
 
-                if (phase == PHASE_ACTIVE)
+                if (_phase == PHASE_ACTIVE)
                     DoMeleeAttackIfReady();
             }
 
@@ -441,13 +411,13 @@ class boss_xt002 : public CreatureScript
                 */
                 float healthPct = me->GetHealthPct();
                 if (healthPct > 75)
-                    heartPhase = PHASE_ABOVE_75_PERCT;
+                    _heartPhase = PHASE_ABOVE_75_PERCT;
                 else if (healthPct > 50)
-                    heartPhase = PHASE_ABOVE_50_PERCT;
+                    _heartPhase = PHASE_ABOVE_50_PERCT;
                 else if (healthPct > 25)
-                    heartPhase = PHASE_ABOVE_25_PERCT;
+                    _heartPhase = PHASE_ABOVE_25_PERCT;
                 else
-                    heartPhase = PHASE_ABOVE_0_PERCT;
+                    _heartPhase = PHASE_ABOVE_0_PERCT;
             }
 
             void ExposeHeart()
@@ -481,11 +451,11 @@ class boss_xt002 : public CreatureScript
                 events.CancelEvent(EVENT_TYMPANIC_TANTRUM);
 
                 // Phase 2 has officially started
-                phase = PHASE_PASSIVE;
+                _phase = PHASE_PASSIVE;
                 RecalcHeartPhase();
                 // Start "end of phase 2 timer"
                 events.SetPhase(PHASE_PASSIVE);
-                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE, 0, PHASE_PASSIVE);
+                events.ScheduleEvent(EVENT_DISPOSE_HEART, 30*IN_MILLISECONDS, 0, PHASE_PASSIVE);
                 events.ScheduleEvent(EVENT_OVERLOAD_VISUAL, urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS), 0, PHASE_PASSIVE);
                 // Hordeguides: Add-spawn is running in phase 2
                 events.ScheduleEvent(EVENT_SPAWN_ADDS, 2*IN_MILLISECONDS, 0, PHASE_PASSIVE);
@@ -501,12 +471,12 @@ class boss_xt002 : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                phase = PHASE_ACTIVE;
+                _phase = PHASE_ACTIVE;
                 events.SetPhase(PHASE_ACTIVE);
                 
-                events.RescheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT / 2, 0, PHASE_ACTIVE);
-                events.RescheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ACTIVE);
-                events.RescheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX)*2, 0, PHASE_ACTIVE);
+                events.RescheduleEvent(EVENT_SEARING_LIGHT, 20*IN_MILLISECONDS / 2, 0, PHASE_ACTIVE);
+                events.RescheduleEvent(EVENT_GRAVITY_BOMB, 20*IN_MILLISECONDS, 0, PHASE_ACTIVE);
+                events.RescheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(32*IN_MILLISECONDS, 36*IN_MILLISECONDS)*2, 0, PHASE_ACTIVE);
 
                 /* Uncomment when XT works well as vehicle
                 Unit* heart = me->GetVehicleKit() ? me->GetVehicleKit()->GetPassenger(HEART_VEHICLE_SEAT) : NULL;
@@ -521,9 +491,9 @@ class boss_xt002 : public CreatureScript
                 heart->RemoveAurasDueToSpell(SPELL_EXPOSED_HEART);
                 heart->EnterVehicle(me, HEART_VEHICLE_SEAT);
 
-                if (!hardMode)
+                if (!_hardMode)
                 {
-                    if (!transferHealth) // Not settled == heart did not die
+                    if (!_transferHealth) // Not settled == heart did not die
                         if ( uint32 healthDiff = (heart->GetMaxHealth() - heart->GetHealth()) )
                         {
                             me->DealDamage(me, healthDiff);
@@ -537,13 +507,13 @@ class boss_xt002 : public CreatureScript
 
             private:
                 // Achievement related
-                bool healthRecovered;       // Did a scrapbot recover XT-002's health during the encounter?
-                bool hardMode;              // Are we in hard mode? Or: was the heart killed during phase 2?
-                bool gravityBombCasualty;   // Did someone die because of Gravity Bomb damage?
+                bool _healthRecovered;       // Did a scrapbot recover XT-002's health during the encounter?
+                bool _hardMode;              // Are we in hard mode? Or: was the heart killed during phase 2?
+                bool _gravityBombCasualty;   // Did someone die because of Gravity Bomb damage?
 
-                XT002Phase phase;
-                XT002HeartPhase heartPhase;
-                uint32 transferHealth;
+                Phases _phase;
+                Phases _heartPhase;
+                uint32 _transferHealth;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -552,11 +522,6 @@ class boss_xt002 : public CreatureScript
         }
 };
 
-/*-------------------------------------------------------
- *
- *        XT-002 HEART
- *
- *///----------------------------------------------------
 class mob_xt002_heart : public CreatureScript
 {
     public:
@@ -566,7 +531,7 @@ class mob_xt002_heart : public CreatureScript
         {
             mob_xt002_heartAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                instance = creature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetVisible(false);
@@ -574,7 +539,7 @@ class mob_xt002_heart : public CreatureScript
 
             void DamageTaken(Unit* /*pDone*/, uint32 &damage)
             {
-                Creature* xt002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002));
+                Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002));
                 if (!xt002 || !xt002->AI())
                     return;
 
@@ -587,8 +552,7 @@ class mob_xt002_heart : public CreatureScript
             }
 
             private:
-                InstanceScript* instance;
-                uint32 damageTaken;
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -597,11 +561,6 @@ class mob_xt002_heart : public CreatureScript
         }
 };
 
-/*-------------------------------------------------------
- *
- *        XS-013 SCRAPBOT
- *
- *///----------------------------------------------------
 class mob_scrapbot : public CreatureScript
 {
     public:
@@ -611,32 +570,32 @@ class mob_scrapbot : public CreatureScript
         {
             mob_scrapbotAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = me->GetInstanceScript();
+                _instance = me->GetInstanceScript();
             }
 
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
 
-                rangeCheckTimer = 0.5*IN_MILLISECONDS;
+                _rangeCheckTimer = 0.5*IN_MILLISECONDS;
 
-                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
+                if (_instance && _instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
-                if (rangeCheckTimer <= diff)
+                if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_XT002)))
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     {
-                        if (!casted && xt002->isAlive())
+                        if (!_casted && xt002->isAlive())
                             if (me->IsWithinMeleeRange(xt002))
                             {
-                                casted = true;
+                                _casted = true;
                                 Talk(EMOTE_REPAIR);
                                 xt002->CastSpell(xt002, SPELL_HEAL_XT002, true);
                                 xt002->AI()->DoAction(ACTION_XT002_REACHED);
@@ -650,13 +609,13 @@ class mob_scrapbot : public CreatureScript
                     }
                 }
                 else
-                    rangeCheckTimer -= diff;
+                    _rangeCheckTimer -= diff;
             }
 
             private:
-                InstanceScript* instance;
-                uint32 rangeCheckTimer;
-                bool casted;
+                InstanceScript* _instance;
+                uint32 _rangeCheckTimer;
+                bool _casted;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -665,24 +624,8 @@ class mob_scrapbot : public CreatureScript
         }
 };
 
-/*-------------------------------------------------------
- *
- *        XM-024 PUMMELLER
- *
- *///----------------------------------------------------
 class mob_pummeller : public CreatureScript
 {
-    private:
-        enum 
-        { 
-            EVENT_ARCING_SMASH = 1,
-            EVENT_TRAMPLE,
-            EVENT_UPPERCUT,
-            TIMER_ARCING_SMASH = 7*IN_MILLISECONDS,
-            TIMER_TRAMPLE      = 2*IN_MILLISECONDS,
-            TIMER_UPPERCUT     = 7*IN_MILLISECONDS
-        };
-
     public:
         mob_pummeller() : CreatureScript("mob_pummeller") {}
 
@@ -690,21 +633,21 @@ class mob_pummeller : public CreatureScript
         {
             mob_pummellerAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = creature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
             {
-                events.ScheduleEvent(EVENT_ARCING_SMASH, TIMER_ARCING_SMASH);
-                events.ScheduleEvent(EVENT_TRAMPLE, TIMER_TRAMPLE);
-                events.ScheduleEvent(EVENT_UPPERCUT, TIMER_UPPERCUT);
+                _events.ScheduleEvent(EVENT_ARCING_SMASH, 7*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_TRAMPLE, 2*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_UPPERCUT, 7*IN_MILLISECONDS);
 
                 me->SetInCombatWithZone();
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
+                if (_instance && _instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (!UpdateVictim())
@@ -712,22 +655,22 @@ class mob_pummeller : public CreatureScript
 
                 if (me->IsWithinMeleeRange(me->getVictim()))
                 {
-                    events.Update(diff);
-                    while (uint32 eventId = events.ExecuteEvent())
+                    _events.Update(diff);
+                    while (uint32 eventId = _events.ExecuteEvent())
                     {
                         switch (eventId)
                         {
                             case EVENT_ARCING_SMASH:
                                 DoCast(me->getVictim(), SPELL_ARCING_SMASH);
-                                events.ScheduleEvent(EVENT_ARCING_SMASH, TIMER_ARCING_SMASH);
+                                _events.ScheduleEvent(EVENT_ARCING_SMASH, 7*IN_MILLISECONDS);
                                 return;
                             case EVENT_TRAMPLE:
                                 DoCast(me->getVictim(), SPELL_TRAMPLE);
-                                events.ScheduleEvent(EVENT_TRAMPLE, TIMER_TRAMPLE);
+                                _events.ScheduleEvent(EVENT_TRAMPLE, 2*IN_MILLISECONDS);
                                 return;
                             case EVENT_UPPERCUT:
                                 DoCast(me->getVictim(), SPELL_UPPERCUT);
-                                events.ScheduleEvent(EVENT_UPPERCUT, TIMER_UPPERCUT);
+                                _events.ScheduleEvent(EVENT_UPPERCUT, 7*IN_MILLISECONDS);
                                 return;
                             default:
                                 return;
@@ -739,8 +682,8 @@ class mob_pummeller : public CreatureScript
             }
 
             private:
-                EventMap events;
-                InstanceScript* instance;
+                EventMap _events;
+                InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -749,11 +692,6 @@ class mob_pummeller : public CreatureScript
         }
 };
 
-/*-------------------------------------------------------
- *
- *        XE-321 BOOMBOT
- *
- *///----------------------------------------------------
 class BoomEvent : public BasicEvent
 {
     public:
@@ -784,12 +722,12 @@ class mob_boombot : public CreatureScript
         {
             mob_boombotAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = creature->GetInstanceScript();
+                _instance = creature->GetInstanceScript();
             }
 
             void Reset()
             {
-                boomed = false;
+                _boomed = false;
                 DoCast(SPELL_AURA_BOOMBOT); // For achievement
 
                 // HACK/workaround:
@@ -804,9 +742,9 @@ class mob_boombot : public CreatureScript
 
             void DamageTaken(Unit* /*who*/, uint32& damage)
             {
-                if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !boomed)
+                if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !_boomed)
                 {
-                    boomed = true; // Prevent recursive calls
+                    _boomed = true; // Prevent recursive calls
 
                     WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
                     data << uint64(me->GetGUID());
@@ -829,7 +767,7 @@ class mob_boombot : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/)
             {
-                if (instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
+                if (_instance && _instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (!UpdateVictim())
@@ -839,8 +777,8 @@ class mob_boombot : public CreatureScript
             }
 
            private:
-                InstanceScript* instance;
-                bool boomed;
+                InstanceScript* _instance;
+                bool _boomed;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -849,20 +787,8 @@ class mob_boombot : public CreatureScript
         }
 };
 
-
-/*-------------------------------------------------------
- *
- *        LIFE SPARK
- *
- *///----------------------------------------------------
 class mob_life_spark : public CreatureScript
 {
-    private:
-        enum
-        {
-            TIMER_SHOCK = 12*IN_MILLISECONDS
-        };
-
     public:
         mob_life_spark() : CreatureScript("mob_life_spark") {}
 
@@ -873,7 +799,7 @@ class mob_life_spark : public CreatureScript
             void Reset()
             {
                 DoCast(me, SPELL_STATIC_CHARGED);
-                shockTimer = 0; // first one is immediate.
+                _shockTimer = 0; // first one is immediate.
             }
 
             void UpdateAI(const uint32 diff)
@@ -881,21 +807,22 @@ class mob_life_spark : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (shockTimer <= diff)
+                if (_shockTimer <= diff)
                 {
                     if (me->IsWithinMeleeRange(me->getVictim()))
                     {
                         DoCast(me->getVictim(), SPELL_SHOCK);
-                        shockTimer = TIMER_SHOCK;
+                        _shockTimer = 12*IN_MILLISECONDS;
                     }
                 }
-                else shockTimer -= diff;
+                else
+                    _shockTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
 
             private:
-                uint32 shockTimer;
+                uint32 _shockTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -918,23 +845,23 @@ class mob_void_zone : public CreatureScript
 
             void Reset()
             {
-                consumptionTimer = 3*IN_MILLISECONDS;
+                _consumptionTimer = 3*IN_MILLISECONDS;
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (consumptionTimer <= diff)
+                if (_consumptionTimer <= diff)
                 {
                     int32 dmg = RAID_MODE<uint32>(5000, 7500);
                     me->CastCustomSpell(me, SPELL_CONSUMPTION, &dmg, 0, 0, false);
-                    consumptionTimer = 3*IN_MILLISECONDS;
+                    _consumptionTimer = 3*IN_MILLISECONDS;
                 }
                 else
-                    consumptionTimer -= diff;
+                    _consumptionTimer -= diff;
             }
 
         private:
-            uint32 consumptionTimer;
+            uint32 _consumptionTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1301,9 +1228,3 @@ void AddSC_boss_xt002()
     new achievement_heartbreaker();
     new achievement_nerf_gravity_bombs();
 }
-
-#undef SPELL_SEARING_LIGHT
-#undef SPELL_GRAVITY_BOMB
-#undef SPELL_HEARTBREAK
-#undef SPELL_CONSUMPTION
-#undef SPELL_STATIC_CHARGED

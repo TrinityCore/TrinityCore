@@ -1,6 +1,6 @@
 -- CLEANUP
 -- make SotA demolishers snareable
-UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` & ~1024 WHERE `entry` IN (28781, 32796);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (66059, 67155, 67156, 67157, 66048, 67203, 67204, 67205);
 -- END OF CLEANUP
 
 -- hand of sacrifice scriptname
@@ -86,17 +86,10 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-67178, -67181, 0, 'Dark Essence 25M H'),
 (-65684, -65827, 0, 'Dark Essence 10M');
 
--- Dark / Light Vortex scriptname
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (66059, 67155, 67156, 67157, 66048, 67203, 67204, 67205);
-INSERT INTO `spell_script_names` VALUES
-(66059, 'spell_twin_vortex'),
-(67155, 'spell_twin_vortex'),
-(67156, 'spell_twin_vortex'),
-(67157, 'spell_twin_vortex'),
-(66048, 'spell_twin_vortex'),
-(67203, 'spell_twin_vortex'),
-(67204, 'spell_twin_vortex'),
-(67205, 'spell_twin_vortex');
+-- Gormoks Fire Bomb scriptname
+DELETE FROM `spell_script_names` WHERE `spell_id`=66313;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(66313, 'spell_gormok_fire_bomb');
 
 -- correcting hitbox of Anub'Arak
 UPDATE `creature_model_info` SET `bounding_radius`=1.085, `combat_reach`=10.5 WHERE `modelid`=29268;
@@ -1167,8 +1160,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32845, 8, 0, 'Hodir gains Frozen Blows!', 41, 0, 100, 0, 0, 0, 'Hodir - EMOTE_BLOW');
 
 -- Mimiron
-DELETE FROM `script_texts` WHERE `npc_entry`=33350;
-DELETE FROM `creature_text` WHERE `entry`=33350;
+DELETE FROM `script_texts` WHERE `npc_entry` IN (33350, 33432);
+DELETE FROM `creature_text` WHERE `entry` IN (33350, 33432);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33350, 0, 0, 'Oh, my! I wasn''t expecting company! The workshop is such a mess! How embarrassing!', 14, 0, 100, 0, 0, 15611, 'Mimiron SAY_AGGRO'),
 (33350, 1, 0, 'Now why would you go and do something like that? Didn''t you see the sign that said ''DO NOT PUSH THIS BUTTON!''? How will we finish testing with the self-destruct mechanism active?', 14, 0, 100, 0, 0, 15629, 'Mimiron SAY_HARDMODE_ON'),
@@ -1188,7 +1181,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33350, 12, 0, 'Prognosis: Negative!', 14, 0, 100, 0, 0, 15625, 'Mimiron SAY_V07TRON_SLAY_1'),
 (33350, 12, 1, 'You''re not going to get up from that one, friend.', 14, 0, 100, 0, 0, 15626, 'Mimiron SAY_V07TRON_SLAY_2'),
 (33350, 13, 0, 'It would appear that I''ve made a slight miscalculation. I allowed my mind to be corrupted by the fiend in the prison, overriding my primary directive. All systems seem to be functional now. Clear.', 14, 0, 100, 0, 0, 15627, 'Mimiron SAY_V07TRON_DEATH'),
-(33350, 14, 0, 'Oh, my! It would seem that we are out of time, my friends!', 14, 0, 100, 0, 0, 15628, 'Mimiron SAY_BERSERK');
+(33350, 14, 0, 'Oh, my! It would seem that we are out of time, my friends!', 14, 0, 100, 0, 0, 15628, 'Mimiron SAY_BERSERK'),
+(33432, 0, 0, 'Leviathan MK II begins to cast Plasma Blast!', 41, 0, 100, 0, 0, 0, 'Leviathan MK II EMOTE_PLASMA_BLAST');
 
 -- Thorim
 DELETE FROM `script_texts` WHERE `npc_entry` IN (33413, 32865, 32872);
@@ -1448,13 +1442,23 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (56648, -57055, 2, 'Remove Mini - Amanitar encounter');
 
 -- First RDF reward changed from EoF to 1 EoT
-UPDATE `quest_template` SET `RewardItemId1` = 47241, `RewardItemCount1` = 1 WHERE `Id` = 24788;
+UPDATE `quest_template` SET `RewardItemId1` = 49426, `RewardItemCount1` = 1 WHERE `Id` = 24788;
 
 -- Weekly raid quests "X Must Die!" reward changed from 5 x EoF + 5 x EoT to 10 x EoT only
 UPDATE `quest_template` SET `RewardItemId1` = 47241, `RewardItemId2` = 0, `RewardItemCount1` = 10, `RewardItemCount2` = 0 WHERE `id` IN(24579, 24582, 24583, 24584, 24590, 24580, 24581, 24587, 24585, 24588, 24586, 24589);
 
 -- Tainted Helboar Meat should not have quest dependency
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` =100 WHERE `item` = 23270 AND `entry` IN(16992, 16879, 16863, 16880);
+
+-- correct arena queues
+DELETE FROM `battleground_template` WHERE `id` = 6;
+INSERT INTO `battleground_template` (`id`, `MinPlayersPerTeam`, `MaxPlayersPerTeam`, `MinLvl`, `MaxLvl`, `AllianceStartLoc`, `AllianceStartO`, `HordeStartLoc`, `HordeStartO`, `StartMaxDist`, `Weight`, `ScriptName`, `Comment`) VALUES
+(6, 0, 2, 10, 80, 0, 0, 0, 0, 0, 1, "", "All Arena");
+
+-- adding ScriptNames to portals in Ebon Hold and spawning them in more phases
+UPDATE `gameobject_template` SET `ScriptName` = 'go_org_portal' WHERE `entry` = 193052;
+UPDATE `gameobject_template` SET `ScriptName` = 'go_sw_portal' WHERE `entry` = 193053;
+UPDATE `gameobject` SET `phaseMask` = 385 WHERE `id` IN (193052, 193053);
 
 #######################
 -- HEADLESS HORSEMAN ##
@@ -1600,12 +1604,27 @@ INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `
 -- remove the ICC-wise buffs
 DELETE FROM `spell_area` WHERE `spell` IN (73822, 73828);
 
+-- adding the regular ICC trash drop to The Damned
+UPDATE `creature_template` SET `lootid`=37011 WHERE `entry` = 37011;
+UPDATE `creature_template` SET `lootid`=38061 WHERE `entry` = 38061;
+DELETE FROM `creature_loot_template` WHERE `entry` IN (37011, 38061);
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(37011, 1, 100, 1, 0, -35069, 1),
+(38061, 1, 100, 1, 0, -35069, 1);
+
+-- reducing the chance of ICC trash droping epics
+UPDATE `reference_loot_template` SET `ChanceOrQuestChance` = 0.3 WHERE `entry` = 35069 AND `mincountOrRef` = -35068;
+UPDATE `reference_loot_template` SET `ChanceOrQuestChance` = 0.2 WHERE `entry` = 35069 AND `mincountOrRef` = -35074;
+
 ####################
 -- Forge of Souls ##
 ####################
 -- Unleashed Soul template correction
 UPDATE `creature_template` SET `difficulty_entry_1` = 37678, `mindmg` = 100, `maxdmg` = 200, `attackpower` = 642 WHERE `entry` = 36595;
 UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `exp` = 2, `faction_A` = 14, `faction_H` = 14, `speed_walk` = 1.11111, `speed_run` = 0.71429, `mindmg` = 100, `maxdmg` = 200, `attackpower` = 642, `dmg_multiplier` = 3, `baseattacktime` = 2000, `unit_flags` = 33554432, `dynamicflags` = 8 WHERE `entry` = 37678;
+
+-- make Bronjahm immune to interrupts
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 33554432 WHERE entry IN (36497, 36498);
 
 -- Bronjahm texts
 DELETE FROM `script_texts` WHERE `npc_entry` = 36497;
