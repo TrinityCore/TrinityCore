@@ -130,3 +130,8 @@ REPLACE INTO battleground_template (id, MinPlayersPerTeam, MaxPlayersPerTeam, Mi
 INSERT INTO spell_linked_spell (spell_trigger, spell_effect, type, comment) VALUES
 (7744, 72757, 0, 'Will of the Forsaken Cooldown Trigger (WOTF)'),
 (42292, 72752, 0, 'Will of the Forsaken Cooldown Trigger');
+
+REPLACE INTO `spell_linked_spell` VALUES (51724, -1784, 1, 'Stealth (Sap Rem.)');
+REPLACE INTO `spell_linked_spell` VALUES (51724, -58984, 1, 'Shadomeld (Sap Rem.)');
+REPLACE INTO `spell_linked_spell` VALUES (51724, -24453, 1, 'Prowl (Sap Rem.)');
+

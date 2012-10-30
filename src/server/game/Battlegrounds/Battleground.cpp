@@ -1262,26 +1262,16 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
+        // drop flag and handle other cleanups
+        RemovePlayer(player, guid, GetPlayerTeam(guid));
 
-        if (!player->isSpectator())
-        {
-            // drop flag and handle other cleanups
-            RemovePlayer(player, guid, GetPlayerTeam(guid));
-            // 1 player is logging out, if it is the last, then end arena!
-            if (isArena())
-                if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                    EndBattleground(GetOtherTeam(player->GetTeam()));
-        }
-    }
-
-    if (!player->isSpectator())
-        player->LeaveBattleground();
-    else
-    {
-        player->TeleportToBGEntryPoint();
-        RemoveSpectator(player->GetGUID());
+        // 1 player is logging out, if it is the last, then end arena!
+        if (isArena())
+            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
+                EndBattleground(GetOtherTeam(player->GetTeam()));
     }
 }
+
 
 // This method should be called only once ... it adds pointer to queue
 void Battleground::AddToBGFreeSlotQueue()
@@ -1419,14 +1409,9 @@ void Battleground::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid
     player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
 }
 
-void Battleground::SendSpectateAddonsMsg(SpectatorAddonMsg msg)
-{
-    if (!HaveSpectators())
-        return;
 
-    for (SpectatorList::iterator itr = m_Spectators.begin(); itr != m_Spectators.end(); ++itr)
-        msg.SendPacket(*itr);
-}
+
+
 
 void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
 {

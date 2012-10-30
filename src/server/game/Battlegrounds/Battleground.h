@@ -22,7 +22,6 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "DBCEnums.h"
-#include "SpectatorAddon.h"
 
 class Creature;
 class GameObject;
@@ -395,13 +394,6 @@ class Battleground
         uint32 GetInvitedCount(uint32 team) const   { return (team == ALLIANCE) ? m_InvitedAlliance : m_InvitedHorde; }
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
-
-        typedef std::set<uint32> SpectatorList;
-        void AddSpectator(uint32 playerId) { m_Spectators.insert(playerId); }
-        void RemoveSpectator(uint32 playerId) { m_Spectators.erase(playerId); }
-        bool HaveSpectators() { return (m_Spectators.size() > 0); }
-        void SendSpectateAddonsMsg(SpectatorAddonMsg msg);
-
 
         bool isArena() const        { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
