@@ -60,6 +60,21 @@ void LFGPlayerScript::OnLogin(Player* player)
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
+    // Temporal: Trying to determine when group data and LFG data gets desynched
+    uint64 guid = player->GetGUID();
+    uint64 gguid = sLFGMgr->GetGroup(guid);
+
+    if (Group const* group = player->GetGroup())
+    {
+        uint64 gguid2 = group->GetGUID();
+        if (gguid != gguid2)
+        {
+            sLog->outError(LOG_FILTER_LFG, "%s on group %u but LFG has group %u saved... Fixing.",
+                player->GetSession()->GetPlayerInfo().c_str(), GUID_LOPART(gguid2), GUID_LOPART(gguid));
+            sLFGMgr->SetupGroupMember(guid, group->GetGUID());
+        }
+    }
+
     sLFGMgr->InitializeLockedDungeons(player);
     sLFGMgr->SetTeam(player->GetGUID(), player->GetTeam());
     // TODO - Restore LfgPlayerData and send proper status to player if it was in a group
@@ -94,7 +109,7 @@ void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
         LfgState gstate = sLFGMgr->GetState(gguid);
         LfgState state = sLFGMgr->GetState(guid);
         sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "] leader " UI64FMTD "] gstate: %u, state: %u", gguid, guid, leader, gstate, state);
-        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
+        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS);
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             if (Player* plrg = itr->getSource())

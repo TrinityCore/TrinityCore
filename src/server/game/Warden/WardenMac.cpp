@@ -152,7 +152,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
     // Verify key
     if (memcmp(buff.contents() + 1, sha1.GetDigest(), 20) != 0)
     {
-        sLog->outWarn(LOG_FILTER_WARDEN, "%s failed hash reply. Action: %s", _session->GetPlayerName(false).c_str(), Penalty().c_str());
+        sLog->outWarn(LOG_FILTER_WARDEN, "%s failed hash reply. Action: %s", _session->GetPlayerInfo().c_str(), Penalty().c_str());
         return;
     }
 

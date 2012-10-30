@@ -127,7 +127,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_demon_chain : public CreatureScript
@@ -165,7 +164,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_fiendish_portal : public CreatureScript
@@ -200,7 +198,6 @@ public:
             summons.DespawnAll();
         }
     };
-
 };
 
 #define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
@@ -245,7 +242,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_terestian_illhoof : public CreatureScript
@@ -422,7 +418,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_terestian_illhoof()

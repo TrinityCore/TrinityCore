@@ -970,7 +970,7 @@ public:
         Player* target = handler->getSelectedPlayer();
 
         // title name have single string arg for player name
-        char const* targetName = target ? target->GetName() : "NAME";
+        char const* targetName = target ? target->GetName().c_str() : "NAME";
 
         std::string namePart = args;
         std::wstring wNamePart;

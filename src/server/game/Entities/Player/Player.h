@@ -1024,7 +1024,7 @@ class PlayerTaxi
         ~PlayerTaxi() {}
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
-        void LoadTaxiMask(const char* data);
+        void LoadTaxiMask(std::string const& data);
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {
@@ -1047,7 +1047,7 @@ class PlayerTaxi
         void AppendTaximaskTo(ByteBuffer& data, bool all);
 
         // Destinations
-        bool LoadTaxiDestinationsFromString(const std::string& values, uint32 team);
+        bool LoadTaxiDestinationsFromString(std::string const& values, uint32 team);
         std::string SaveTaxiDestinationsToString();
 
         void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
@@ -1383,12 +1383,12 @@ class Player : public Unit, public GridObject<Player>
 
         PhaseMgr& GetPhaseMgr() { return phaseMgr; }
 
-        void Say(const std::string& text, const uint32 language);
-        void Yell(const std::string& text, const uint32 language);
-        void TextEmote(const std::string& text);
-        void Whisper(const std::string& text, const uint32 language, uint64 receiver);
-        void WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver);
-        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix = NULL) const;
+        void Say(std::string const& text, const uint32 language);
+        void Yell(std::string const& text, const uint32 language);
+        void TextEmote(std::string const& text);
+        void Whisper(std::string const& text, const uint32 language, uint64 receiver);
+        void WhisperAddon(std::string const& text, std::string const& prefix, Player* receiver);
+        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, std::string const& text, uint32 language, const char* addonPrefix = NULL) const;
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
@@ -1877,7 +1877,7 @@ class Player : public Unit, public GridObject<Player>
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
-        uint32 GetReputation(uint32 factionentry);
+        uint32 GetReputation(uint32 factionentry) const;
         std::string GetGuildName();
 
         // Talents

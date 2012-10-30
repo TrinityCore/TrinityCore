@@ -246,17 +246,17 @@ class Quest
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
         uint32 GetSrcSpell() const { return SourceSpellid; }
-        std::string GetTitle() const { return Title; }
-        std::string GetDetails() const { return Details; }
-        std::string GetObjectives() const { return Objectives; }
-        std::string GetOfferRewardText() const { return OfferRewardText; }
-        std::string GetRequestItemsText() const { return RequestItemsText; }
-        std::string GetEndText() const { return EndText; }
-        std::string GetCompletedText() const { return CompletedText; }
-        std::string GetQuestGiverTextWindow() const { return QuestGiverTextWindow; }
-        std::string GetQuestGiverTargetName() const { return QuestGiverTargetName; }
-        std::string GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
-        std::string GetQuestTurnTargetName() const { return QuestTurnTargetName; }
+        std::string const& GetTitle() const { return Title; }
+        std::string const& GetDetails() const { return Details; }
+        std::string const& GetObjectives() const { return Objectives; }
+        std::string const& GetOfferRewardText() const { return OfferRewardText; }
+        std::string const& GetRequestItemsText() const { return RequestItemsText; }
+        std::string const& GetEndText() const { return EndText; }
+        std::string const& GetCompletedText() const { return CompletedText; }
+        std::string const& GetQuestGiverTextWindow() const { return QuestGiverTextWindow; }
+        std::string const& GetQuestGiverTargetName() const { return QuestGiverTargetName; }
+        std::string const& GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
+        std::string const& GetQuestTurnTargetName() const { return QuestTurnTargetName; }
         int32  GetRewOrReqMoney() const;
         uint32 GetRewHonorAddition() const { return RewardHonor; }
         float GetRewHonorMultiplier() const { return RewardHonorMultiplier; }

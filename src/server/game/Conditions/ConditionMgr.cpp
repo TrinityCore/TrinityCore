@@ -662,7 +662,7 @@ ConditionList ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureId, uint
     CreatureSpellConditionContainer::const_iterator itr = VehicleSpellConditionStore.find(creatureId);
     if (itr != VehicleSpellConditionStore.end())
     {
-            ConditionTypeContainer::const_iterator i = (*itr).second.find(spellId);
+        ConditionTypeContainer::const_iterator i = (*itr).second.find(spellId);
         if (i != (*itr).second.end())
         {
             cond = (*i).second;

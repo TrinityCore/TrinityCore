@@ -60,25 +60,20 @@ void UnitAI::DoMeleeAttackIfReady()
 
 bool UnitAI::DoSpellAttackIfReady(uint32 spell)
 {
-    if (me->HasUnitState(UNIT_STATE_CASTING))
+    if (me->HasUnitState(UNIT_STATE_CASTING) || !me->isAttackReady())
         return true;
 
-    if (me->isAttackReady())
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell))
     {
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell))
+        if (me->IsWithinCombatRange(me->getVictim(), spellInfo->GetMaxRange(false)))
         {
-            if (me->IsWithinCombatRange(me->getVictim(), spellInfo->GetMaxRange(false)))
-            {
-                me->CastSpell(me->getVictim(), spell, false);
-                me->resetAttackTimer();
-            }
-            else
-                return false;
+            me->CastSpell(me->getVictim(), spell, false);
+            me->resetAttackTimer();
+            return true;
         }
-        else
-            return false;
     }
-    return true;
+
+    return false;
 }
 
 Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura)
@@ -101,8 +96,8 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
 {
     if (me->isInCombat())
     {
-        std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-        for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+        ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+        for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                 if (unit->GetTypeId() == TYPEID_PLAYER)
@@ -116,8 +111,8 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
 {
     if (me->isInCombat())
     {
-        std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-        for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+        ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+        for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                 if (unit->GetTypeId() == TYPEID_PLAYER)

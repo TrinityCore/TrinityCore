@@ -49,7 +49,7 @@ enum LfgUpdateType
     LFG_UPDATETYPE_GROUP_FOUND                   = 10,
     LFG_UPDATETYPE_ADDED_TO_QUEUE                = 12,
     LFG_UPDATETYPE_PROPOSAL_BEGIN                = 13,
-    LFG_UPDATETYPE_CLEAR_LOCK_LIST               = 14,
+    LFG_UPDATETYPE_UPDATE_STATUS                 = 14,
     LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 15,
     LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 16,     // FIXME: Sometimes at group disband
 };

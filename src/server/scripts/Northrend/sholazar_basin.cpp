@@ -470,11 +470,27 @@ public:
 
 enum utils
 {
-    NPC_HEMET   = 27986,
-    NPC_HADRIUS = 28047,
-    NPC_TAMARA  = 28568,
-    SPELL_OFFER = 51962,
-    QUEST_ENTRY = 12645,
+    NPC_HEMET                           = 27986,
+    NPC_HADRIUS                         = 28047,
+    NPC_TAMARA                          = 28568,
+    SPELL_OFFER                         = 51962,
+    QUEST_ENTRY                         = 12645,
+};
+
+enum NesingwaryChildrensWeek
+{
+    SPELL_ORPHAN_OUT                    = 58818,
+
+    QUEST_THE_MIGHTY_HEMET_NESINGWARY   = 13957,
+
+    ORPHAN_WOLVAR                       = 33532,
+
+    TEXT_WOLVAR_ORPHAN_6                = 6,
+    TEXT_WOLVAR_ORPHAN_7                = 7,
+    TEXT_WOLVAR_ORPHAN_8                = 8,
+    TEXT_WOLVAR_ORPHAN_9                = 9,
+
+    TEXT_NESINGWARY_1                   = 1,
 };
 
 class npc_jungle_punch_target : public CreatureScript
@@ -486,17 +502,86 @@ public:
     {
         npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint16 sayTimer;
-        uint8 sayStep;
-
         void Reset()
         {
             sayTimer = 3500;
             sayStep = 0;
+            timer = 0;
+            phase = 0;
+            playerGUID = 0;
+            orphanGUID = 0;
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            if (!phase && who && who->GetDistance2d(me) < 10.0f)
+                if (Player* player = who->ToPlayer())
+                    if (player->GetQuestStatus(QUEST_THE_MIGHTY_HEMET_NESINGWARY) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        playerGUID = player->GetGUID();
+                        if (Aura* orphanOut = player->GetAura(SPELL_ORPHAN_OUT))
+                            if (orphanOut->GetCaster() && orphanOut->GetCaster()->GetEntry() == ORPHAN_WOLVAR)
+                            {
+                                orphanGUID = orphanOut->GetCaster()->GetGUID();
+                                phase = 1;
+                            }
+                    }
+        }
+
+        void proceedCwEvent(const uint32 diff)
+        {
+            if (timer <= diff)
+            {
+                Player* player = Player::GetPlayer(*me, playerGUID);
+                Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+
+                if(!orphan || !player)
+                {
+                    Reset();
+                    return;
+                }
+
+                switch(phase)
+                {
+                    case 1:
+                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                        orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_6);
+                        timer = 5000;
+                        break;
+                    case 2:
+                        orphan->SetFacingToObject(me);
+                        orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_7);
+                        timer = 5000;
+                        break;
+                    case 3:
+                        Talk(TEXT_NESINGWARY_1);
+                        timer = 5000;
+                        break;
+                    case 4:
+                        orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_8);
+                        timer = 5000;
+                        break;
+                    case 5:
+                        orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_9);
+                        timer = 5000;
+                        break;
+                    case 6:
+                        orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        player->GroupEventHappens(QUEST_THE_MIGHTY_HEMET_NESINGWARY, me);
+                        Reset();
+                        return;
+                }
+                ++phase;
+            }
+            else
+                timer -= diff;
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
+            if (phase)
+                proceedCwEvent(uiDiff);
+
             if (!sayStep)
                 return;
 
@@ -588,6 +673,14 @@ public:
                 break;
             }
         }
+
+        private:
+            uint16 sayTimer;
+            uint8 sayStep;
+            uint32 timer;
+            int8 phase;
+            uint64 playerGUID;
+            uint64 orphanGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const

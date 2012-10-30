@@ -1874,7 +1874,7 @@ Player* ObjectMgr::GetPlayerByLowGUID(uint32 lowguid) const
 }
 
 // name must be checked to correctness (if received) before call this function
-uint64 ObjectMgr::GetPlayerGUIDByName(std::string name) const
+uint64 ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
 {
     uint64 guid = 0;
 
@@ -7036,7 +7036,7 @@ void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_
     cell_guids.corpses.erase(player_guid);
 }
 
-void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table, bool starter, bool go)
+void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const& table, bool starter, bool go)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -7049,7 +7049,6 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table,
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 quest relations from `%s`, table is empty.", table.c_str());
-
         return;
     }
 
