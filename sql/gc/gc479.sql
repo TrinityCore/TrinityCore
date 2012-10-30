@@ -1455,6 +1455,11 @@ DELETE FROM `battleground_template` WHERE `id` = 6;
 INSERT INTO `battleground_template` (`id`, `MinPlayersPerTeam`, `MaxPlayersPerTeam`, `MinLvl`, `MaxLvl`, `AllianceStartLoc`, `AllianceStartO`, `HordeStartLoc`, `HordeStartO`, `StartMaxDist`, `Weight`, `ScriptName`, `Comment`) VALUES
 (6, 0, 2, 10, 80, 0, 0, 0, 0, 0, 1, "", "All Arena");
 
+-- adding ScriptNames to portals in Ebon Hold and spawning them in more phases
+UPDATE `gameobject_template` SET `ScriptName` = 'go_org_portal' WHERE `entry` = 193052;
+UPDATE `gameobject_template` SET `ScriptName` = 'go_sw_portal' WHERE `entry` = 193053;
+UPDATE `gameobject` SET `phaseMask` = 385 WHERE `id` IN (193052, 193053);
+
 #######################
 -- HEADLESS HORSEMAN ##
 #######################

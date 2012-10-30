@@ -1361,6 +1361,42 @@ public:
     }
 };
 
+/*######
+## go_org_portal //193052
+######*/
+
+class go_org_portal : public GameObjectScript
+{
+    public:
+        go_org_portal() : GameObjectScript("go_org_portal") { }
+
+        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+        {
+            if (pPlayer->GetQuestStatus(13189) == QUEST_STATUS_COMPLETE || pPlayer->GetQuestStatus(13189) == QUEST_STATUS_INCOMPLETE)
+                 pPlayer->CastSpell(pPlayer, 17609, true);
+
+            return true;
+        }
+};
+
+/*######
+## go_sw_portal //193053
+######*/
+
+class go_sw_portal : public GameObjectScript
+{
+    public:
+        go_sw_portal() : GameObjectScript("go_sw_portal") { }
+
+        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+        {
+            if (pPlayer->GetQuestStatus(13188) == QUEST_STATUS_COMPLETE || pPlayer->GetQuestStatus(13188) == QUEST_STATUS_INCOMPLETE)
+                 pPlayer->CastSpell(pPlayer, 17334, true);
+
+            return true;
+        }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1403,4 +1439,6 @@ void AddSC_go_scripts()
     new go_veil_skith_cage;
     new go_frostblade_shrine;
     new go_midsummer_bonfire;
+    new go_org_portal;
+    new go_sw_portal;
 }
