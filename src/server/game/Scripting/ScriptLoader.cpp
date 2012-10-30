@@ -32,6 +32,8 @@ void AddSC_NPC_Transmogrify();
 void AddSC_System_Censure();
 // Argent Tournament quest scripts
 void AddSC_ArgentTournament();
+// Npc Top 10 Arena Teams
+void AddSC_npc_arena_setup();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1308,5 +1310,8 @@ void AddCustomScripts()
     AddSC_ArgentTournament();
     // GC custom
     AddSC_custom();
+    // Npc Top 10 Arena Teams
+    AddSC_npc_arena_setup();
+
 #endif
 }
