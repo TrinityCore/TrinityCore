@@ -499,7 +499,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         if (_sourceUnit->GetMapId() == 562)
         {
              //Your Position & Target Position
-            if (startEndDist < 2000.0f && endPoint[2] <= 6230.803223f && startPoint[2] >= 6230.803223f && endPoint[1] >= 11.000000 && startPoint[1] >= 11.000000f && endPoint[1] <= 12.100000 && startPoint[1] <= 12.100000f && endPoint[0] >= 247.547917f && endPoint[0] <= 252.298940f)      // southeast pillar
+            if (_sourceUnit->GetTypeId() == TYPEID_PLAYER && startEndDist < 2000.0f && endPoint[2] <= 6230.803223f && startPoint[2] >= 6230.803223f && endPoint[1] >= 11.000000 && startPoint[1] >= 11.000000f && endPoint[0] >= 247.547917f && endPoint[0] <= 252.298940f)      // southeast pillar
             {
               //  Path X,y,z
                 _pathPoints.resize(4);
@@ -508,7 +508,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6231.472656f, 252.849335f, 11.400018f);
                 _pathPoints[3] = GetEndPosition();
             }
-            else if (startEndDist < 2000.0f && endPoint[2] >= 6246.201660f && startPoint[2] <= 6246.201660f && endPoint[1] >= 11.000000f && startPoint[1] >= 11.000000f && endPoint[1] <= 12.100000 && startPoint[1] <= 12.100000f  && endPoint[0] >= 217.677917f && endPoint[0] <= 276.888794f) // northwest pillar
+            else if (_sourceUnit->GetTypeId() == TYPEID_PLAYER && startEndDist < 2000.0f && endPoint[2] >= 6246.201660f && startPoint[2] <= 6246.201660f && endPoint[1] >= 11.000000f && startPoint[1] >= 11.000000f && endPoint[0] >= 217.677917f && endPoint[0] <= 276.888794f) // northwest pillar
             {
                 //  Path X,y,z
                 _pathPoints.resize(4);
@@ -517,7 +517,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6246.985352f, 271.076599f, 11.400000f);
                 _pathPoints[3] = GetEndPosition();
             }
-            if (startEndDist < 2000.0f && startPoint[2] <= 6230.803223f && endPoint[2] >= 6230.803223f && endPoint[1] >= 11.000000 && startPoint[1] >= 11.000000f && endPoint[1] <= 12.100000 && startPoint[1] <= 12.100000f  && endPoint[1] <= 12.100000 && startPoint[1] <= 12.100000f  && startPoint[0] >= 247.547917f && startPoint[0] <= 252.298940f)      // southeast pillar
+            if (_sourceUnit->GetTypeId() == TYPEID_PLAYER && startEndDist < 2000.0f && startPoint[2] <= 6230.803223f && endPoint[2] >= 6230.803223f && endPoint[1] >= 11.000000 && startPoint[1] >= 11.000000f && startPoint[0] >= 247.547917f && startPoint[0] <= 252.298940f)      // southeast pillar
             {
               //  Path X,y,z
                 _pathPoints.resize(4);
@@ -526,7 +526,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6234.506836f, 256.696106f, 11.400018f);
                 _pathPoints[3] = GetEndPosition();
             }
-            else if (startEndDist < 2000.0f && startPoint[2] >= 6246.201660f && endPoint[2] <= 6246.201660f && endPoint[1] >= 11.000000f && startPoint[1] >= 11.000000f && endPoint[1] <= 12.100000 && startPoint[1] <= 12.100000f  && startPoint[0] >= 217.677917f && startPoint[0] <= 276.888794f) // northwest pillar
+            else if (_sourceUnit->GetTypeId() == TYPEID_PLAYER && startEndDist < 2000.0f && startPoint[2] >= 6246.201660f && endPoint[2] <= 6246.201660f && endPoint[1] >= 11.000000f && startPoint[1] >= 11.000000f && startPoint[0] >= 217.677917f && startPoint[0] <= 276.888794f) // northwest pillar
             {
                 //  Path X,y,z
                 _pathPoints.resize(4);
