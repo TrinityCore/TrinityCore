@@ -196,7 +196,7 @@ MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
 
 /// ============================================================================================
 
-bool bool MoveSplineInitArgs::Validate(Unit* unit) const
+bool MoveSplineInitArgs::Validate(Unit* unit) const
 {
 #define CHECK(exp) \
     if (!(exp))\
