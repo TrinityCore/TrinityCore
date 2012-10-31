@@ -549,7 +549,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                         unitTarget->RemoveAuraFromStack(spellId);
 
                                 damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.10f * combo);
+                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1055f * combo);
                             }
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
@@ -824,9 +824,12 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
             }
 
           case 35009: // Invisible
-			m_caster->CombatStop();
-				return;
-          
+		   m_caster->CombatStop();
+		      return;
+
+          case 62196: // Shadow. Trigger
+             m_caster->CombatStop();
+                return;
 
           case 58984: // Shadowmeld
              m_caster->CombatStop();
