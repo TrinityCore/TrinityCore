@@ -180,9 +180,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
     {
-        std::string msg="";
-        recvData >> msg;
-
         SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName().c_str());
         return;
     }
