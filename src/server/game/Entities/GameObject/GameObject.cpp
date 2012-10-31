@@ -454,7 +454,8 @@ void GameObject::Update(uint32 diff)
                         VisitNearbyWorldObject(radius, searcher);
                         ok = player;
                     }
-
+                   if (ok)
+                    {
                         // some traps do not have spell but should be triggered
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);

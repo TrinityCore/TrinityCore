@@ -549,7 +549,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                         unitTarget->RemoveAuraFromStack(spellId);
 
                                 damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1065f * combo);
+                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.10f * combo);
                             }
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
@@ -566,7 +566,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
                         {
                             float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.08f));
+                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.075f));
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
                             if (m_caster->HasAura(37169))
@@ -829,14 +829,8 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
           
 
           case 58984: // Shadowmeld
-         {
-                m_caster->CombatStop();
+             m_caster->CombatStop();
                 return;
-         }
-
-             case 49560: // Death Grip
-				 if(unitTarget->HasAura(19263))
-					 return;
 
             // Vanish (not exist)
             case 18461:
