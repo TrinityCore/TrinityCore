@@ -430,15 +430,9 @@ int RASocket::sendf(const char* msg)
 
     ACE_OS::memcpy(outputBuffer+outputBufferLen, msg, msgLen);
     outputBufferLen += msgLen;
-    output(msg);
+    send(msg);
 
     return 0;
-}
-
-int RASocket::output( const char * szText )
-{
-    send(szText);
-    return 1;
 }
 
 void RASocket::raprint( const char * szText )
