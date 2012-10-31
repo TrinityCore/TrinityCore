@@ -871,7 +871,10 @@ class spell_dk_death_grip : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
+                    {
                         target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
+                        target->CastStop();
+                    }
                 }
             }
 

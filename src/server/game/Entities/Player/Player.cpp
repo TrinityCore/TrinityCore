@@ -7689,11 +7689,18 @@ void Player::DuelComplete(DuelCompleteType type)
             ++i;
     }
 
-    // reset player cooldowns after duel if set so
+    // reset player cooldowns and powers after duel if set so
     if (sWorld->getBoolConfig(CONFIG_PVP_DUEL_COOLDOWN))
     {
         duel->initiator->RemoveArenaSpellCooldowns(true);
+        duel->initiator->SetHealth(duel->initiator->GetMaxHealth());
+        if (duel->initiator->getPowerType() == POWER_MANA)
+            duel->initiator->SetPower(POWER_MANA, duel->initiator->GetMaxPower(POWER_MANA));
+
         duel->opponent->RemoveArenaSpellCooldowns(true);
+        duel->opponent->SetHealth(duel->opponent->GetMaxHealth());
+        if (duel->opponent->getPowerType() == POWER_MANA)
+            duel->opponent->SetPower(POWER_MANA, duel->opponent->GetMaxPower(POWER_MANA));
     }
 
     // cleanup combo points
