@@ -1458,7 +1458,7 @@ INSERT INTO `battleground_template` (`id`, `MinPlayersPerTeam`, `MaxPlayersPerTe
 -- adding ScriptNames to portals in Ebon Hold and spawning them in more phases
 UPDATE `gameobject_template` SET `ScriptName` = 'go_org_portal' WHERE `entry` = 193052;
 UPDATE `gameobject_template` SET `ScriptName` = 'go_sw_portal' WHERE `entry` = 193053;
-UPDATE `gameobject` SET `phaseMask` = 385 WHERE `id` IN (193052, 193053);
+UPDATE `gameobject` SET `phaseMask` = 384 WHERE `id` IN (193052, 193053);
 
 -- Removes Master's Call stun immunity. (author garyfisher)
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 54216;
