@@ -319,18 +319,18 @@ class boss_anubarak_trial : public CreatureScript
                             break;
                         }
                         case EVENT_SUBMERGE:
-                        if (!_reachedPhase3 && !me->HasAura(SPELL_BERSERK))
-                        {
-                            DoCast(me, SPELL_SUBMERGE_ANUBARAK);
-                            DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                            Talk(EMOTE_BURROWER);
-                            events.SetPhase(PHASE_SUBMERGED);
-                            events.ScheduleEvent(EVENT_PURSUING_SPIKE, 2*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
-                            events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
-                            events.ScheduleEvent(EVENT_EMERGE, 1*MINUTE*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                            if (!_reachedPhase3 && !me->HasAura(SPELL_BERSERK))
+                            {
+                                DoCast(me, SPELL_SUBMERGE_ANUBARAK);
+                                DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                Talk(EMOTE_BURROWER);
+                                events.SetPhase(PHASE_SUBMERGED);
+                                events.ScheduleEvent(EVENT_PURSUING_SPIKE, 2*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                                events.ScheduleEvent(EVENT_SUMMON_SCARAB, 4*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                                events.ScheduleEvent(EVENT_EMERGE, 1*MINUTE*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
+                            }
                             break;
-                        }
                         case EVENT_PURSUING_SPIKE:
                             DoCast(SPELL_SPIKE_CALL);
                             break;
