@@ -432,15 +432,6 @@ int RASocket::sendf(const char* msg)
     outputBufferLen += msgLen;
     output(msg);
 
-    if (!outActive)
-    {
-        if (reactor ()->schedule_wakeup(this, ACE_Event_Handler::WRITE_MASK) == -1)
-        {
-            sLog->outError (LOG_FILTER_WORLDSERVER, "RASocket::sendf error while schedule_wakeup");
-            return -1;
-        }
-        outActive = true;
-    }
     return 0;
 }
 
