@@ -131,6 +131,11 @@ void GmTicket::WritePacket(WorldPacket& data) const
 
     data << uint8(std::min(_escalatedStatus, TICKET_IN_ESCALATION_QUEUE));                              // escalated data
     data << uint8(_viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED); // whether or not it has been viewed
+
+    // TODO: implement these
+    std::string waitTimeOverrideMessage = "";
+    data << waitTimeOverrideMessage;
+    data << uint32(0); // waitTimeOverrideMinutes
 }
 
 void GmTicket::SendResponse(WorldSession* session) const

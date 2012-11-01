@@ -1243,7 +1243,6 @@ enum Opcodes
     SMSG_SERVER_INFO_RESPONSE                         = 0x74B5,
     SMSG_SERVER_MESSAGE                               = 0x6C04,
     SMSG_SERVER_PERF                                  = 0x74B6,
-    SMSG_SETUP_RESEARCH_HISTORY                       = 0x0000,
     SMSG_SET_AI_ANIM_KIT                              = 0x0000,
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x35B6,
     SMSG_SET_FACTION_ATWAR                            = 0x4216,
