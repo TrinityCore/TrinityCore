@@ -1,4 +1,61 @@
 -- Day of the dead
+DELETE FROM `creature_template_addon` WHERE `entry` = 34383;
+INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(34383,0,0,0,10,NULL);
+
+UPDATE `quest_template` SET `RequiredRaces`=512 WHERE `Id`=14171;
+UPDATE `quest_template` SET `RequiredRaces`=1024 WHERE `Id`=14169;
+
+-- Invisibility aura for Cheerful Spirits
+DELETE FROM `creature_template_addon` WHERE `entry` IN (35256,34435,34435,34478,34481,34484,34479,34483,34476,34477,34480,34482,35260,35261);
+INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(35256,0,0,0,0,0,30628), -- Cheerful Dalaran Spirit
+(34435,0,0,0,0,0,30628), -- Cheerful Human Spirit
+(34478,0,0,0,0,0,30628), -- Cheerful Dwarf Spirit
+(34481,0,0,0,0,0,30628), -- Cheerful Gnome Spirit
+(34484,0,0,0,0,0,30628), -- Cheerful Draenei Spirit
+(34479,0,0,0,0,0,30628), -- Cheerful Night Elf Spirit
+(34483,0,0,0,0,0,30628), -- Cheerful Blood Elf Spirit
+(34476,0,0,0,0,0,30628), -- Cheerful Forsaken Spirit
+(34477,0,0,0,0,0,30628), -- Cheerful Orc Spirit
+(34480,0,0,0,0,0,30628), -- Cheerful Tauren Spirit
+(34482,0,0,0,0,0,30628), -- Cheerful Troll Spirit
+(35260,0,0,0,0,0,30628), -- Cheerful Aldor Spirit
+(35261,0,0,0,0,0,30628); -- Cheerful Scryer Spirit
+
+-- Quest relations
+DELETE FROM `creature_questrelation` WHERE `id` IN (35256,34435,34435,34478,34481,34484,34479,34483,34476,34477,34480,34482,35260,35261);
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES
+(34435,13952),
+(34476,14174),
+(34477,14175),
+(34478,14167),
+(34479,14170),
+(34480,14176),
+(34481,14168),
+(34482,14177),
+(34483,14171),
+(34484,14169),
+(35256,14166),
+(35260,14172),
+(35261,14173);
+
+DELETE FROM `creature_involvedrelation` WHERE `id` IN (35256,34435,34435,34478,34481,34484,34479,34483,34476,34477,34480,34482,35260,35261);
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES
+(34435,13952),
+(34476,14174),
+(34477,14175),
+(34478,14167),
+(34479,14170),
+(34480,14176),
+(34481,14168),
+(34482,14177),
+(34483,14171),
+(34484,14169),
+(35256,14166),
+(35260,14172),
+(35261,14173);
+
 SET @npcguid = 1000000;
 DELETE FROM `creature` WHERE `guid` BETWEEN @npcguid AND @npcguid + 142;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
