@@ -1820,6 +1820,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             case RACE_UNDEAD_PLAYER:
             case RACE_TROLL:
             case RACE_BLOODELF:
+            case RACE_GOBLIN:
                 team = TEAM_HORDE;
                 break;
             default:
@@ -1864,6 +1865,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 case RACE_NIGHTELF:
                     stmt->setUInt16(1, 113);
                     break;
+                case RACE_WORGEN:
+                    stmt->setUInt16(1, 791);
+                    break;
                 case RACE_UNDEAD_PLAYER:
                     stmt->setUInt16(1, 673);
                     break;
@@ -1875,6 +1879,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                     break;
                 case RACE_BLOODELF:
                     stmt->setUInt16(1, 137);
+                    break;
+                case RACE_GOBLIN:
+                    stmt->setUInt16(1, 792);
                     break;
             }
 
@@ -1943,16 +1950,16 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             // Delete record of the faction old completed quests
             {
                 std::ostringstream quests;
-                ObjectMgr::QuestMap const& qTemplates = sObjectMgr->GetQuestTemplates();
-                for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
+                ObjectMgr::QuestMap const& questTemplate = sObjectMgr->GetQuestTemplates();
+                for (ObjectMgr::QuestMap::const_iterator iter = questTemplate.begin(); iter != questTemplate.end(); ++iter)
                 {
-                    Quest *qinfo = iter->second;
-                    uint32 requiredRaces = qinfo->GetRequiredRaces();
+                    Quest* questInfo = iter->second;
+                    uint32 requiredRaces = questInfo->GetRequiredRaces();
                     if (team == TEAM_ALLIANCE)
                     {
                         if (requiredRaces & RACEMASK_ALLIANCE)
                         {
-                            quests << uint32(qinfo->GetQuestId());
+                            quests << uint32(questInfo->GetQuestId());
                             quests << ',';
                         }
                     }
@@ -1960,7 +1967,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                     {
                         if (requiredRaces & RACEMASK_HORDE)
                         {
-                            quests << uint32(qinfo->GetQuestId());
+                            quests << uint32(questInfo->GetQuestId());
                             quests << ',';
                         }
                     }
