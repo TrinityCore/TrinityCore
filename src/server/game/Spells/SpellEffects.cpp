@@ -5845,6 +5845,7 @@ void Spell::EffectPlayMusic(SpellEffIndex effIndex)
 
     WorldPacket data(SMSG_PLAY_MUSIC, 4);
     data << uint32(soundid);
+    data << uint64(unitTarget->GetGUID());
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 

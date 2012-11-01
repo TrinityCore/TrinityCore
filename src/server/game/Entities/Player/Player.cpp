@@ -26087,9 +26087,53 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 
 void Player::SendMovementSetHover(bool apply)
 {
-    WorldPacket data(apply ? SMSG_MOVE_SET_HOVER : SMSG_MOVE_UNSET_HOVER, 12);
-    data.append(GetPackGUID());
-    data << uint32(0);          //! movement counter
+    ObjectGuid guid = GetGUID();
+    WorldPacket data;
+    if (apply)
+    {
+        data.Initialize(SMSG_MOVE_SET_HOVER, 12);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[7]);
+
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[0]);
+        data.WriteByteSeq(guid[7]);
+        data << uint32(0);          // movement counter
+    }
+    else
+    {
+        data.Initialize(SMSG_MOVE_UNSET_HOVER, 12);
+        data.WriteBit(guid[4]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[0]);
+
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[5]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(guid[6]);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(guid[0]);
+        data << uint32(0);          // movement counter
+    }
+
     SendDirectMessage(&data);
 }
 
@@ -26112,9 +26156,7 @@ void Player::SendMovementSetWaterWalking(bool apply)
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[5]);
         data.WriteByteSeq(guid[2]);
-
         data << uint32(0);          //! movement counter
-
         data.WriteByteSeq(guid[7]);
         data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[4]);
@@ -26141,7 +26183,6 @@ void Player::SendMovementSetWaterWalking(bool apply)
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[2]);
-
         data << uint32(0);          //! movement counter
     }
     SendDirectMessage(&data);
@@ -26167,9 +26208,7 @@ void Player::SendMovementSetFeatherFall(bool apply)
         data.WriteByteSeq(guid[5]);
         data.WriteByteSeq(guid[7]);
         data.WriteByteSeq(guid[2]);
-
         data << uint32(0);          //! movement counter
-
         data.WriteByteSeq(guid[0]);
         data.WriteByteSeq(guid[3]);
         data.WriteByteSeq(guid[4]);
