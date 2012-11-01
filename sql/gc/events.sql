@@ -618,8 +618,8 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `position_x`, `position_y`, `posi
 (@objguid+320, 195307, 0, -9328.34, 171.941, 62.8343, 3.00195, 180, 255, 1),
 (@objguid+321, 195307, 1, 1177.22, -4464.5, 22.4542, -2.30383, 180, 255, 1);
 
-DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @objguid AND @objguid + 321;
-INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
+DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @objguid AND @objguid + 321;
+INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
 (51, @objguid),
 (51, @objguid+1),
 (51, @objguid+2),
