@@ -66,7 +66,7 @@ class npc_transmogrify : public CreatureScript
             Item *displayItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, INVENTORY_SLOT_ITEM_START + 1);
             if (!trItem || !displayItem)
             {
-                handler.PSendSysMessage("Put (main)item in the first place in a main bag and (Skin)item in second place in the main bag!");
+                handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
                 return;
             }
 
@@ -74,13 +74,13 @@ class npc_transmogrify : public CreatureScript
             switch (result)
             {
                 case FAKE_ERR_CANT_FIND_ITEM:
-                    handler.PSendSysMessage("Cant find item!");
+                    handler.PSendSysMessage("Item nieje na 1. Mieste!");
                     break;
                 case FAKE_ERR_WRONG_QUALITY:
-                    handler.PSendSysMessage("Item has wrong quality/type!");
+                    handler.PSendSysMessage("Item nieje správny");
                     break;
                 case FAKE_ERR_DIFF_SLOTS:
-                handler.PSendSysMessage("Put (main)item in the first place in a main bag and (Skin)item in second place in the main bag!");
+                handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
                     break;
                 case FAKE_ERR_DIFF_CLASS:
                 case FAKE_ERR_OK:
@@ -103,7 +103,7 @@ class npc_transmogrify : public CreatureScript
             Item *trItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, INVENTORY_SLOT_ITEM_START);
             if (!trItem)
             {
-                handler.PSendSysMessage("Put (main)item in the first place in a main bag and (Skin)item in second place in the main bag!");
+                handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
                 return;
             }
 
