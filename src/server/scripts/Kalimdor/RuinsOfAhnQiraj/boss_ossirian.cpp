@@ -113,7 +113,14 @@ class boss_ossirian : public CreatureScript
                 
                 if (pInstance)
                 {
-                    WeatherMgr::FindWeather(me->GetMap()->GetId())->SetWeather(WEATHER_TYPE_STORM, 1.0f);
+					Map* pMap = me->GetMap();
+					if (!pMap->IsDungeon())
+						return;
+
+					WorldPacket data(SMSG_WEATHER, (4+4+4));
+					data << WEATHER_STATE_HEAVY_SANDSTORM << 1.0f << uint8(0);
+					pMap->SendToPlayers(&data);
+					
                     pInstance->SetData(BOSS_OSSIRIAN, IN_PROGRESS);
                     
                     for(int i = 0; i < NUM_CRYSTALS; ++i)
