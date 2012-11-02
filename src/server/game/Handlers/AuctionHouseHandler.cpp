@@ -33,10 +33,10 @@
 //post-incrementation is always slower than pre-incrementation !
 
 //void called when player click on auctioneer npc
-void WorldSession::HandleAuctionHelloOpcode(WorldPacket & recv_data)
+void WorldSession::HandleAuctionHelloOpcode(WorldPacket & recvData)
 {
     uint64 guid;                                            //NPC guid
-    recv_data >> guid;
+    recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
@@ -113,12 +113,12 @@ void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 }
 
 //this void creates new auction and adds auction to some auctionhouse
-void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
+void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
 {
     uint64 auctioneer;
     uint32 itemsCount, etime, bid, buyout;
-    recv_data >> auctioneer;
-    recv_data >> itemsCount;
+    recvData >> auctioneer;
+    recvData >> itemsCount;
 
     uint64 itemGUIDs[MAX_AUCTION_ITEMS]; // 160 slot = 4x 36 slot bag + backpack 16 slot
     uint32 count[MAX_AUCTION_ITEMS];
@@ -131,16 +131,16 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 
     for (uint32 i = 0; i < itemsCount; ++i)
     {
-        recv_data >> itemGUIDs[i];
-        recv_data >> count[i];
+        recvData >> itemGUIDs[i];
+        recvData >> count[i];
 
         if (!itemGUIDs[i] || !count[i] || count[i] > 1000 )
             return;
     }
 
-    recv_data >> bid;
-    recv_data >> buyout;
-    recv_data >> etime;
+    recvData >> bid;
+    recvData >> buyout;
+    recvData >> etime;
 
     if (!bid || !etime)
         return;
@@ -354,15 +354,15 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 }
 
 //this function is called when client bids or buys out auction
-void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
+void WorldSession::HandleAuctionPlaceBid(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_PLACE_BID");
 
     uint64 auctioneer;
     uint32 auctionId;
     uint32 price;
-    recv_data >> auctioneer;
-    recv_data >> auctionId >> price;
+    recvData >> auctioneer;
+    recvData >> auctionId >> price;
 
     if (!auctionId || !price)
         return;                                             //check for cheaters
@@ -481,14 +481,14 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
 }
 
 //this void is called when auction_owner cancels his auction
-void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
+void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_REMOVE_ITEM");
 
     uint64 auctioneer;
     uint32 auctionId;
-    recv_data >> auctioneer;
-    recv_data >> auctionId;
+    recvData >> auctioneer;
+    recvData >> auctionId;
     //sLog->outDebug("Cancel AUCTION AuctionID: %u", auctionId);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
@@ -558,7 +558,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
 }
 
 //called when player lists his bids
-void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
+void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_BIDDER_ITEMS");
 
@@ -566,12 +566,12 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
     uint32 listfrom;                                        //page of auctions
     uint32 outbiddedCount;                                  //count of outbidded auctions
 
-    recv_data >> guid;
-    recv_data >> listfrom;                                  // not used in fact (this list not have page control in client)
-    recv_data >> outbiddedCount;
-    if (recv_data.size() != (16 + outbiddedCount * 4))
+    recvData >> guid;
+    recvData >> listfrom;                                  // not used in fact (this list not have page control in client)
+    recvData >> outbiddedCount;
+    if (recvData.size() != (16 + outbiddedCount * 4))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Client sent bad opcode!!! with count: %u and size : %lu (must be: %u)", outbiddedCount, (unsigned long)recv_data.size(), (16 + outbiddedCount * 4));
+        sLog->outError(LOG_FILTER_NETWORKIO, "Client sent bad opcode!!! with count: %u and size : %lu (must be: %u)", outbiddedCount, (unsigned long)recvData.size(), (16 + outbiddedCount * 4));
         outbiddedCount = 0;
     }
 
@@ -579,7 +579,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
     if (!creature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListBidderItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
-        recv_data.rfinish();
+        recvData.rfinish();
         return;
     }
 
@@ -598,7 +598,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
     {
         --outbiddedCount;
         uint32 outbiddedAuctionId;
-        recv_data >> outbiddedAuctionId;
+        recvData >> outbiddedAuctionId;
         AuctionEntry* auction = auctionHouse->GetAuction(outbiddedAuctionId);
         if (auction && auction->BuildAuctionInfo(data))
         {
@@ -615,15 +615,15 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
 }
 
 //this void sends player info about his auctions
-void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recv_data)
+void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_OWNER_ITEMS");
 
     uint32 listfrom;
     uint64 guid;
 
-    recv_data >> guid;
-    recv_data >> listfrom;                                  // not used in fact (this list not have page control in client)
+    recvData >> guid;
+    recvData >> listfrom;                                  // not used in fact (this list not have page control in client)
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -652,7 +652,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recv_data)
 }
 
 //this void is called when player clicks on search button
-void WorldSession::HandleAuctionListItems(WorldPacket & recv_data)
+void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_ITEMS");
 
@@ -661,23 +661,23 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recv_data)
     uint32 listfrom, auctionSlotID, auctionMainCategory, auctionSubCategory, quality;
     uint64 guid;
 
-    recv_data >> guid;
-    recv_data >> listfrom;                                  // start, used for page control listing by 50 elements
-    recv_data >> searchedname;
+    recvData >> guid;
+    recvData >> listfrom;                                  // start, used for page control listing by 50 elements
+    recvData >> searchedname;
 
-    recv_data >> levelmin >> levelmax;
-    recv_data >> auctionSlotID >> auctionMainCategory >> auctionSubCategory;
-    recv_data >> quality >> usable;
+    recvData >> levelmin >> levelmax;
+    recvData >> auctionSlotID >> auctionMainCategory >> auctionSubCategory;
+    recvData >> quality >> usable;
 
-    recv_data.read_skip<uint8>();                           // unk
+    recvData.read_skip<uint8>();                           // unk
 
     // this block looks like it uses some lame byte packing or similar...
     uint8 unkCnt;
-    recv_data >> unkCnt;
+    recvData >> unkCnt;
     for (uint8 i = 0; i < unkCnt; i++)
     {
-        recv_data.read_skip<uint8>();
-        recv_data.read_skip<uint8>();
+        recvData.read_skip<uint8>();
+        recvData.read_skip<uint8>();
     }
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
@@ -719,11 +719,11 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAuctionListPendingSales(WorldPacket & recv_data)
+void WorldSession::HandleAuctionListPendingSales(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_PENDING_SALES");
 
-    recv_data.read_skip<uint64>();
+    recvData.read_skip<uint64>();
 
     uint32 count = 0;
 
