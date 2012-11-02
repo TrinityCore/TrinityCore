@@ -105,8 +105,8 @@ class boss_ossirian : public CreatureScript
             
             void DoAction(const int32)
             {
-				OnCrystalUse();
-			}
+                OnCrystalUse();
+            }
             
             void EnterCombat(Unit* who)
             {
