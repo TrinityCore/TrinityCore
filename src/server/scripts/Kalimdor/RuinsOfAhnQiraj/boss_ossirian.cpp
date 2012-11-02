@@ -75,7 +75,6 @@ class boss_ossirian : public CreatureScript
         {
             boss_ossirianAI(Creature* creature) : ScriptedAI(creature)
             {
-                vCrystals.reserve(NUM_CRYSTALS);
                 vTornados.reserve(NUM_TORNADOS);
                 pInstance = creature->GetInstanceScript();
                 m_bSaidIntro = false;
@@ -84,6 +83,7 @@ class boss_ossirian : public CreatureScript
             
             InstanceScript* pInstance;
             
+            GameObject* pCrystal;
             uint8 m_uiCrystalIterator;
             uint32 m_uiSupremeTimer;
             uint32 m_uiStompTimer;
@@ -91,11 +91,11 @@ class boss_ossirian : public CreatureScript
             uint32 m_uiSilenceTimer;
             bool m_bSaidIntro;
             
-            std::vector<GameObject*> vCrystals;
             std::vector<Creature*> vTornados;
             
             void Reset()
             {
+				pCrystal = 0;
                 m_uiCrystalIterator = 0;
                 m_uiSupremeTimer = 45000;
                 m_uiStompTimer   = 30000;
@@ -123,17 +123,6 @@ class boss_ossirian : public CreatureScript
                     
                     pInstance->SetData(BOSS_OSSIRIAN, IN_PROGRESS);
                     
-                    for(int i = 0; i < NUM_CRYSTALS; ++i)
-                    {
-                        GameObject* pCrystal = me->SummonGameObject(GO_OSSIRIAN_CRYSTAL, 
-                                                                    CrystalCoordinates[i][0],
-                                                                    CrystalCoordinates[i][1],
-                                                                    CrystalCoordinates[i][2],
-                                                                    0, 0, 0, 0, 0, -1);
-                        vCrystals.push_back(pCrystal);
-                    }
-                    pInstance->DoRespawnGameObject(vCrystals[m_uiCrystalIterator++]->GetGUID(), -1);
-                    
                     for (int i = 0; i < NUM_TORNADOS; ++i)
                     {
                         Position Point;
@@ -141,6 +130,8 @@ class boss_ossirian : public CreatureScript
                         Creature* pTornado = me->SummonCreature(NPC_SAND_VORTEX, Point, TEMPSUMMON_MANUAL_DESPAWN, -1);
                         vTornados.push_back(pTornado);
                     }
+                    
+                    SpawnNextCrystal();
                 }
             }
             
@@ -162,7 +153,7 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
-                    vCrystals[m_uiCrystalIterator]->UseDoorOrButton();
+                    pCrystal->UseDoorOrButton();
                     CleanupTornados();
                 }
             }
@@ -174,17 +165,28 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, DONE);
-                    vCrystals[m_uiCrystalIterator]->Use(killer);
+                    pCrystal->UseDoorOrButton();
                     CleanupTornados();
                 }
             }
+            
+            void SpawnNextCrystal()
+            {
+				pCrystal = me->SummonGameObject(GO_OSSIRIAN_CRYSTAL, 
+                                                CrystalCoordinates[m_uiCrystalIterator][0],
+                                                CrystalCoordinates[m_uiCrystalIterator][1],
+                                                CrystalCoordinates[m_uiCrystalIterator][2],
+                                                0, 0, 0, 0, 0, -1);
+                ++m_uiCrystalIterator;
+			}
             
             void OnCrystalUse()
             {
                 if (m_uiCrystalIterator == NUM_CRYSTALS)
                     m_uiCrystalIterator = 0;
-                pInstance->DoRespawnGameObject(vCrystals[m_uiCrystalIterator]->GetGUID(), -1);
-                vCrystals[m_uiCrystalIterator]->CastSpell(me, SpellWeakness[urand(0, 4)]);
+                    
+                SpawnNextCrystal();
+                pCrystal->CastSpell(me, SpellWeakness[urand(0, 4)]);
                 ++m_uiCrystalIterator;
                 me->RemoveAurasDueToSpell(SPELL_SUPREME);
                 m_uiSupremeTimer = 45000;
