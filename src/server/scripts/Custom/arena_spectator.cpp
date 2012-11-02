@@ -322,7 +322,7 @@ class arena_spectator_commands : public CommandScript
 enum NpcSpectatorAtions {
     // will be used for scrolling
     NPC_SPECTATOR_ACTION_LIST_GAMES         = 1000,
-    NPC_SPECTATOR_ACTION_LIST_TOP_GAMES     = 1800,
+    NPC_SPECTATOR_ACTION_LIST_TOP_GAMES     = 2000,
 
     // NPC_SPECTATOR_ACTION_SELECTED_PLAYER + player.Guid()
     NPC_SPECTATOR_ACTION_SELECTED_PLAYER    = 3000
@@ -338,8 +338,8 @@ class npc_arena_spectator : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Arena Teams 1800+ mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_TOP_GAMES);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Arena Teams 1000+ mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "1800+ mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_TOP_GAMES);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "1000+ mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES);
             pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
             return true;
         }
@@ -431,8 +431,8 @@ class npc_arena_spectator : public CreatureScript
                 if (!sBattlegroundMgr->IsArenaType((BattlegroundTypeId)i))
                     continue;
 
-                BattlegroundContainer bgs = sBattlegroundMgr->GetBattlegroundsByType(static_cast<BattlegroundTypeId>(i));
-                for (BattlegroundContainer::iterator itr = bgs.begin(); itr != bgs.end(); ++itr)
+                BattlegroundSet bgs = sBattlegroundMgr->GetBattlegroundsByType((BattlegroundTypeId)i);
+                for (BattlegroundSet::iterator itr = bgs.begin(); itr != bgs.end(); ++itr)
                 {
                     Battleground* arena = itr->second;
 
@@ -470,10 +470,10 @@ class npc_arena_spectator : public CreatureScript
             }
 
             if (page > 0)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Prev.", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES + page - 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Prev...", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES + page - 1);
 
             if (haveNextPage)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Next.", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES + page + 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Next...", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES + page + 1);
         }
 };
 
