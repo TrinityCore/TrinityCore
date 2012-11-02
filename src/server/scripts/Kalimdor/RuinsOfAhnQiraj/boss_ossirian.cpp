@@ -44,6 +44,8 @@ enum
     GO_OSSIRIAN_CRYSTAL     = 180619
 };
 
+const uint8 NUM_CRYSTALS = 9;
+
 // You spin me right round, baby
 // right round like a record, baby
 // right round round round
@@ -59,11 +61,10 @@ const float CrystalCoordinates[NUM_CRYSTALS][3] =
     { -9430.37, 1786.86, 85.557 },
     { -9406.73, 1863.13, 85.5558 }
 };
-float RoomRadius = 0; // TODO
+float RoomRadius = 165.0f;
 const uint8 NUM_TORNADOS = 5; // TODO: This number is completly random!
-const uint8 NUM_CRYSTALS = 9;
 const uint32 SpellWeakness[5] = { 25177, 25178, 25180, 25181, 25183 };
-const Position RoomCenter = { 0, 0, 0 }; // TODO
+const Position RoomCenter = { -9343.041992f, 1923.278198f, 85.555984f };
 
 class boss_ossirian : public CreatureScript
 {
@@ -126,7 +127,7 @@ class boss_ossirian : public CreatureScript
                     }
                     pInstance->DoRespawnGameObject(vCrystals[m_uiCrystalIterator++]->GetGUID(), -1);
                     
-                    for (int i = 0; i < NUM_TORNADOS; ++i) // TODO: This number is completly random!
+                    for (int i = 0; i < NUM_TORNADOS; ++i)
                     {
                         Position Point;
                         me->GetRandomPoint(RoomCenter, RoomRadius, Point);
