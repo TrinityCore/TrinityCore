@@ -152,6 +152,8 @@ class boss_ossirian : public CreatureScript
             
             void EnterEvadeMode()
             {
+                ScriptedAI::EnterEvadeMode();
+                
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
