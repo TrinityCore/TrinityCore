@@ -23507,7 +23507,7 @@ WorldObject* Player::GetViewpoint() const
 
 bool Player::CanUseBattlegroundObject(GameObject* gameobject)
 {
-    // It is possible to call this method will a null pointer, only skipping faction check.
+    // It is possible to call this method with a null pointer, only skipping faction check.
     if (gameobject)
     {
         FactionTemplateEntry const* playerFaction = getFactionTemplateEntry();
@@ -23527,9 +23527,8 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject)
 bool Player::CanCaptureTowerPoint()
 {
     return (!HasStealthAura() &&                            // not stealthed
-             !HasInvisibilityAura() &&                      // not invisible
-             isAlive()                                      // live player
-);
+            !HasInvisibilityAura() &&                       // not invisible
+            isAlive());                                     // live player
 }
 
 uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin)
