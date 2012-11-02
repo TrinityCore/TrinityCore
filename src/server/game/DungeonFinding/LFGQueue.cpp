@@ -472,8 +472,6 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
     if (numPlayers != MAXGROUPSIZE)
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: (%s) Compatibles but not enough players(%u)", strGuids.c_str(), numPlayers);
-        LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(check.front());
-
         LfgCompatibilityData data(LFG_COMPATIBLES_WITH_LESS_PLAYERS);
         data.roles = proposalRoles;
 
