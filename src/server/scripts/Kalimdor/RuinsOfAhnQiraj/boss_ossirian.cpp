@@ -176,9 +176,6 @@ class boss_ossirian : public CreatureScript
             
             void SpawnNextCrystal()
             {
-                if(m_uiCrystalIterator == 9)
-                    m_uiCrystalIterator = 0;
-				
                 pCrystal = me->SummonGameObject(GO_OSSIRIAN_CRYSTAL, 
                                                 CrystalCoordinates[m_uiCrystalIterator][0],
                                                 CrystalCoordinates[m_uiCrystalIterator][1],
