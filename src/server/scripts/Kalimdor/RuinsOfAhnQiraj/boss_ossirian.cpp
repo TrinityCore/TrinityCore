@@ -92,7 +92,7 @@ class boss_ossirian : public CreatureScript
             
             void Reset()
             {
-				pCrystal = 0;
+                pCrystal = 0;
                 m_uiCrystalIterator = 0;
                 m_uiSupremeTimer = 45000;
                 m_uiStompTimer   = 30000;
@@ -117,7 +117,7 @@ class boss_ossirian : public CreatureScript
                 {
                     Map* pMap = me->GetMap();
                     if (!pMap->IsDungeon())
-					    return;
+                        return;
 
                     WorldPacket data(SMSG_WEATHER, (4+4+4));
                     data << WEATHER_STATE_HEAVY_SANDSTORM << 1.0f << uint8(0);

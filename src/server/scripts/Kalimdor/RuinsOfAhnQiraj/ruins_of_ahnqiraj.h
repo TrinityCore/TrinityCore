@@ -45,7 +45,7 @@ enum Creatures
 
 enum GameObjects
 {
-	GO_OSSIRIAN_CRYSTAL         = 180619
+    GO_OSSIRIAN_CRYSTAL         = 180619
 };
 
 #endif
