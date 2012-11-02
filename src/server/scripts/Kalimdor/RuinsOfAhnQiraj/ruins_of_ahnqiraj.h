@@ -40,6 +40,12 @@ enum Creatures
     NPC_HIVEZARA_HORNET         = 15934,
     NPC_HIVEZARA_SWARMER        = 15546,
     NPC_HIVEZARA_LARVA          = 15555,
+    NPC_SAND_VORTEX             = 15428
+};
+
+enum GameObjects
+{
+	GO_OSSIRIAN_CRYSTAL         = 180619
 };
 
 #endif

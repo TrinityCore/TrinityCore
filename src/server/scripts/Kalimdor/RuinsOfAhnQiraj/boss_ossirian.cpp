@@ -38,10 +38,7 @@ enum
     SPELL_SUPREME           = 25176,
     SPELL_SUMMON            = 20477,
 
-    SPELL_SAND_STORM        = 25160,
-    
-    NPC_SAND_VORTEX         = 15428,
-    GO_OSSIRIAN_CRYSTAL     = 180619
+    SPELL_SAND_STORM        = 25160
 };
 
 const uint8 NUM_CRYSTALS = 9;
@@ -106,6 +103,11 @@ class boss_ossirian : public CreatureScript
                     pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
             }
             
+            void DoAction(const int32)
+            {
+				OnCrystalUse();
+			}
+            
             void EnterCombat(Unit* who)
             {
                 DoCast(me, SPELL_SUPREME);
@@ -153,7 +155,7 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
-                    pCrystal->UseDoorOrButton();
+                    pCrystal->UseDoorOrButton(); // todo despawn
                     CleanupTornados();
                 }
             }
@@ -165,20 +167,20 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, DONE);
-                    pCrystal->UseDoorOrButton();
+                    pCrystal->UseDoorOrButton(); // todo despawn
                     CleanupTornados();
                 }
             }
             
             void SpawnNextCrystal()
             {
-				pCrystal = me->SummonGameObject(GO_OSSIRIAN_CRYSTAL, 
+                pCrystal = me->SummonGameObject(GO_OSSIRIAN_CRYSTAL, 
                                                 CrystalCoordinates[m_uiCrystalIterator][0],
                                                 CrystalCoordinates[m_uiCrystalIterator][1],
                                                 CrystalCoordinates[m_uiCrystalIterator][2],
                                                 0, 0, 0, 0, 0, -1);
                 ++m_uiCrystalIterator;
-			}
+            }
             
             void OnCrystalUse()
             {
@@ -290,34 +292,8 @@ class npc_sand_vortex : public CreatureScript
         }
 };
 
-typedef boss_ossirian::boss_ossirianAI OssirianAI;
-
-class go_ossirian_crystal : public GameObjectScript
-{
-    public:
-        go_ossirian_crystal() : GameObjectScript("go_ossirian_crystal")
-        {
-        }
-
-        void OnStateChanged(uint32 state, Unit* unit)
-        {
-            InstanceScript* pInstance = unit->GetInstanceScript();
-            
-            if (!pInstance)
-                return;
-
-            if (pInstance->GetData(BOSS_OSSIRIAN) != IN_PROGRESS)
-                return;
-
-            Creature* pOssirian = unit->GetMap()->GetCreature(pInstance->GetData64(BOSS_OSSIRIAN));
-            OssirianAI* pOssirianAI = (OssirianAI*)pOssirian->AI();
-            pOssirianAI->OnCrystalUse();
-        }
-};
-
 void AddSC_boss_ossirian()
 {
     new boss_ossirian();
-    new go_ossirian_crystal();
     new npc_sand_vortex();
 }
