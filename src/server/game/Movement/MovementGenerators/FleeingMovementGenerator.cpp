@@ -21,7 +21,6 @@
 #include "MapManager.h"
 #include "FleeingMovementGenerator.h"
 #include "ObjectAccessor.h"
-#include "PathGenerator.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
@@ -46,20 +45,10 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
 
     owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
 
-    PathGenerator path(owner);
-    path.SetPathLengthLimit(30.0f);
-    bool result = path.CalculatePath(x, y, z);
-    if (!result || path.GetPathType() & PATHFIND_NOPATH)
-    {
-        _nextCheckTime.Reset(urand(1000, 1500));
-        return;
-    }
-
     Movement::MoveSplineInit init(owner);
-    init.MovebyPath(path.GetPath());
+    init.MoveTo(x,y,z);
     init.SetWalk(false);
-    int32 traveltime = init.Launch();
-    _nextCheckTime.Reset(traveltime + urand(800, 1500));
+    init.Launch();
 }
 
 template<class T>
@@ -75,12 +64,12 @@ bool FleeingMovementGenerator<T>::_getPoint(T* owner, float &x, float &y, float 
     float temp_x, temp_y, angle;
     const Map* _map = owner->GetBaseMap();
     // primitive path-finding
-    for (uint8 i = 0; i < 25; ++i)
+    for (uint8 i = 0; i < 18; ++i)
     {
-        if (_only_forward && i > 3)
+        if (_only_forward && i > 2)
             break;
 
-        float distance = MAX_QUIET_DISTANCE;
+        float distance = 5.0f;
 
         switch (i)
         {
@@ -96,92 +85,58 @@ bool FleeingMovementGenerator<T>::_getPoint(T* owner, float &x, float &y, float 
                 distance /= 4;
                 break;
             case 3:
-                angle = _cur_angle;
-                distance /= 8;
+                angle = _cur_angle + static_cast<float>(M_PI/4);
                 break;
             case 4:
-                angle = _cur_angle + static_cast<float>(M_PI/4);
-                break;
-            case 5:
                 angle = _cur_angle - static_cast<float>(M_PI/4);
                 break;
-            case 6:
+            case 5:
                 angle = _cur_angle + static_cast<float>(M_PI/4);
+                distance /= 2;
+                break;
+            case 6:
+                angle = _cur_angle - static_cast<float>(M_PI/4);
                 distance /= 2;
                 break;
             case 7:
-                angle = _cur_angle - static_cast<float>(M_PI/4);
-                distance /= 2;
+                angle = _cur_angle + static_cast<float>(M_PI/2);
                 break;
             case 8:
-                angle = _cur_angle + static_cast<float>(3*M_PI/4);
-                distance /= 8;
-                break;
-            case 9:
-                angle = _cur_angle - static_cast<float>(3*M_PI/4);
-                distance /= 8;
-                break;
-            case 10:
-                angle = _cur_angle + static_cast<float>(M_PI/4);
-                distance /= 8;
-                break;
-            case 11:
-                angle = _cur_angle - static_cast<float>(M_PI/4);
-                distance /= 8;
-                break;
-            case 12:
-                angle = _cur_angle + static_cast<float>(M_PI/2);
-                break;
-            case 13:
                 angle = _cur_angle - static_cast<float>(M_PI/2);
                 break;
-            case 14:
+            case 9:
                 angle = _cur_angle + static_cast<float>(M_PI/2);
                 distance /= 2;
                 break;
-            case 15:
+            case 10:
                 angle = _cur_angle - static_cast<float>(M_PI/2);
+                distance /= 2;
+                break;
+            case 11:
+                angle = _cur_angle + static_cast<float>(M_PI/4);
+                distance /= 4;
+                break;
+            case 12:
+                angle = _cur_angle - static_cast<float>(M_PI/4);
+                distance /= 4;
+                break;
+            case 13:
+                angle = _cur_angle + static_cast<float>(M_PI/2);
+                distance /= 4;
+                break;
+            case 14:
+                angle = _cur_angle - static_cast<float>(M_PI/2);
+                distance /= 4;
+                break;
+            case 15:
+                angle = _cur_angle +  static_cast<float>(3*M_PI/4);
                 distance /= 2;
                 break;
             case 16:
-                angle = _cur_angle + static_cast<float>(M_PI/4);
-                distance /= 4;
+                angle = _cur_angle -  static_cast<float>(3*M_PI/4);
+                distance /= 2;
                 break;
             case 17:
-                angle = _cur_angle - static_cast<float>(M_PI/4);
-                distance /= 4;
-                break;
-            case 18:
-                angle = _cur_angle + static_cast<float>(M_PI/2);
-                distance /= 8;
-                break;
-            case 19:
-                angle = _cur_angle - static_cast<float>(M_PI/2);
-                distance /= 8;
-                break;
-            case 20:
-                angle = _cur_angle +  static_cast<float>(3*M_PI/4);
-                break;
-            case 21:
-                angle = _cur_angle -  static_cast<float>(3*M_PI/4);
-                break;
-            case 22:
-                angle = _cur_angle +  static_cast<float>(3*M_PI/4);
-                distance /= 2;
-                break;
-            case 23:
-                angle = _cur_angle -  static_cast<float>(3*M_PI/4);
-                distance /= 2;
-                break;
-            case 24:
-                angle = _cur_angle + static_cast<float>(3*M_PI/4);
-                distance /= 4;
-                break;
-            case 25:
-                angle = _cur_angle - static_cast<float>(3*M_PI/4);
-                distance /= 4;
-                break;
-            case 26:
                 angle = _cur_angle + static_cast<float>(M_PI);
                 distance /= 2;
                 break;
@@ -191,15 +146,15 @@ bool FleeingMovementGenerator<T>::_getPoint(T* owner, float &x, float &y, float 
                 break;
         }
 
-        temp_x = x + distance * cos(angle);
-        temp_y = y + distance * sin(angle);
+        temp_x = x + distance * std::cos(angle);
+        temp_y = y + distance * std::sin(angle);
         Trinity::NormalizeMapCoord(temp_x);
         Trinity::NormalizeMapCoord(temp_y);
         if (owner->IsWithinLOS(temp_x, temp_y, z))
         {
-            bool is_water_now = _map->IsInWater(x, y, z);
+            bool is_water_now = _map->IsInWater(x,y,z);
 
-            if (is_water_now && _map->IsInWater(temp_x, temp_y, z))
+            if (is_water_now && _map->IsInWater(temp_x,temp_y,z))
             {
                 x = temp_x;
                 y = temp_y;
@@ -217,8 +172,8 @@ bool FleeingMovementGenerator<T>::_getPoint(T* owner, float &x, float &y, float 
 
             if (!(new_z - z) || distance / fabs(new_z - z) > 1.0f)
             {
-                float new_z_left = _map->GetHeight(owner->GetPhaseMask(), temp_x + 1.0f*cos(angle+static_cast<float>(M_PI/2)),temp_y + 1.0f*sin(angle+static_cast<float>(M_PI/2)),z,true);
-                float new_z_right = _map->GetHeight(owner->GetPhaseMask(), temp_x + 1.0f*cos(angle-static_cast<float>(M_PI/2)),temp_y + 1.0f*sin(angle-static_cast<float>(M_PI/2)),z,true);
+                float new_z_left = _map->GetHeight(owner->GetPhaseMask(), temp_x + 1.0f* std::cos(angle+static_cast<float>(M_PI/2)),temp_y + 1.0f* std::sin(angle+static_cast<float>(M_PI/2)),z,true);
+                float new_z_right = _map->GetHeight(owner->GetPhaseMask(), temp_x + 1.0f* std::cos(angle-static_cast<float>(M_PI/2)),temp_y + 1.0f* std::sin(angle-static_cast<float>(M_PI/2)),z,true);
                 if (fabs(new_z_left - new_z) < 1.2f && fabs(new_z_right - new_z) < 1.2f)
                 {
                     x = temp_x;
@@ -334,7 +289,6 @@ void FleeingMovementGenerator<T>::Initialize(T* owner)
 
     owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->AddUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
-    owner->StopMoving();
 
     _Init(owner);
 
@@ -364,7 +318,7 @@ void FleeingMovementGenerator<Creature>::_Init(Creature* owner)
     if (!owner)
         return;
 
-    //owner->SetTargetGuid(ObjectGuid());
+    //owner.SetTargetGuid(ObjectGuid());
     is_water_ok = owner->canSwim();
     is_land_ok  = owner->canWalk();
 }
@@ -380,7 +334,7 @@ template<>
 void FleeingMovementGenerator<Player>::Finalize(Player* owner)
 {
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-    owner->ClearUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
+    owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
     owner->StopMoving();
 }
 
@@ -388,10 +342,9 @@ template<>
 void FleeingMovementGenerator<Creature>::Finalize(Creature* owner)
 {
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-    owner->ClearUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
+    owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
     if (owner->getVictim())
         owner->SetTarget(owner->getVictim()->GetGUID());
-    owner->StopMoving();
 }
 
 template<class T>
@@ -401,7 +354,7 @@ void FleeingMovementGenerator<T>::Reset(T* owner)
 }
 
 template<class T>
-bool FleeingMovementGenerator<T>::Update(T* owner, const uint32& time_diff)
+bool FleeingMovementGenerator<T>::Update(T* owner, const uint32 &time_diff)
 {
     if (!owner || !owner->isAlive())
         return false;
@@ -429,13 +382,12 @@ template void FleeingMovementGenerator<Creature>::_setTargetLocation(Creature*);
 template void FleeingMovementGenerator<Player>::Reset(Player*);
 template void FleeingMovementGenerator<Creature>::Reset(Creature*);
 template bool FleeingMovementGenerator<Player>::Update(Player*, const uint32&);
-template bool FleeingMovementGenerator<Creature>::Update(Creature* , const uint32&);
+template bool FleeingMovementGenerator<Creature>::Update(Creature*, const uint32&);
 
 void TimedFleeingMovementGenerator::Finalize(Unit* owner)
 {
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
-    owner->StopMoving();
     if (Unit* victim = owner->getVictim())
     {
         if (owner->isAlive())
@@ -446,7 +398,7 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner)
     }
 }
 
-bool TimedFleeingMovementGenerator::Update(Unit* owner, const uint32& time_diff)
+bool TimedFleeingMovementGenerator::Update(Unit*  owner, const uint32& time_diff)
 {
     if (!owner->isAlive())
         return false;

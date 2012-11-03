@@ -42,7 +42,7 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
 
         bool is_water_ok   :1;
         bool is_land_ok    :1;
-        bool _only_forward :1;
+        bool _only_forward:1;
 
         float _caster_x;
         float _caster_y;
@@ -57,7 +57,9 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
 class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
 {
     public:
-        TimedFleeingMovementGenerator(uint64 fright, uint32 time) : FleeingMovementGenerator<Creature>(fright), _totalFleeTime(time) {}
+        TimedFleeingMovementGenerator(uint64 fright, uint32 time) :
+            FleeingMovementGenerator<Creature>(fright),
+            _totalFleeTime(time) {}
 
         MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
         bool Update(Unit* , const uint32&);
