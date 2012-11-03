@@ -79,7 +79,6 @@ class boss_ossirian : public CreatureScript
             }
             
             InstanceScript* pInstance;
-            
             GameObject* pCrystal;
             uint8 m_uiCrystalIterator;
             uint32 m_uiSupremeTimer;
@@ -103,9 +102,10 @@ class boss_ossirian : public CreatureScript
                     pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
             }
             
-            void DoAction(const int32)
+            void DoAction(const int32 action)
             {
-                OnCrystalUse();
+                if(action == 0xBEEF)
+                    OnCrystalUse();
             }
             
             void EnterCombat(Unit* who)
@@ -120,7 +120,7 @@ class boss_ossirian : public CreatureScript
                         return;
 
                     WorldPacket data(SMSG_WEATHER, (4+4+4));
-                    data << WEATHER_STATE_HEAVY_SANDSTORM << 1.0f << uint8(0);
+                    data << WEATHER_STATE_HEAVY_SANDSTORM << float(1) << uint8(0); // ??
                     pMap->SendToPlayers(&data);
                     
                     pInstance->SetData(BOSS_OSSIRIAN, IN_PROGRESS);
@@ -130,6 +130,7 @@ class boss_ossirian : public CreatureScript
                         Position Point;
                         me->GetRandomPoint(RoomCenter, RoomRadius, Point);
                         Creature* pTornado = me->SummonCreature(NPC_SAND_VORTEX, Point, TEMPSUMMON_MANUAL_DESPAWN, -1);
+                        pTornado->GetAI()->DoCast(pTornado, SPELL_SAND_STORM);
                         vTornados.push_back(pTornado);
                     }
                     
@@ -157,7 +158,8 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
-                    pCrystal->UseDoorOrButton();
+                    printf("pCrystal: %u", pCrystal); fflush(stdout);
+                    pCrystal->RemoveFromWorld();
                     CleanupTornados();
                 }
             }
@@ -169,7 +171,7 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, DONE);
-                    pCrystal->UseDoorOrButton();
+                    pCrystal->RemoveFromWorld();
                     CleanupTornados();
                 }
             }
@@ -181,8 +183,6 @@ class boss_ossirian : public CreatureScript
                                                 CrystalCoordinates[m_uiCrystalIterator][1],
                                                 CrystalCoordinates[m_uiCrystalIterator][2],
                                                 0, 0, 0, 0, 0, -1);
-                
-                // Its not clickable!?!?
                 ++m_uiCrystalIterator;
             }
             
@@ -217,8 +217,8 @@ class boss_ossirian : public CreatureScript
                     return;
                 
                 // No kiting!
-                if (me->GetDistance(me->getVictim()) > 60.00f && me->GetDistance(me->getVictim()) < 120.00f)
-                    DoCast(me->getVictim(), SPELL_SUMMON);
+                //if (me->GetDistance(me->getVictim()) > 60.00f && me->GetDistance(me->getVictim()) < 120.00f)
+                    //DoCast(me->getVictim(), SPELL_SUMMON);
                 
                 // Supreme mode
                 if (m_uiSupremeTimer <= uiDiff)
@@ -274,29 +274,7 @@ class boss_ossirian : public CreatureScript
         }
 };
 
-class npc_sand_vortex : public CreatureScript
-{
-    public:
-        npc_sand_vortex() : CreatureScript("npc_sand_vortex")
-        {
-        }
-
-        struct npc_sand_vortexAI : public ScriptedAI
-        {            
-            npc_sand_vortexAI(Creature* creature) : ScriptedAI(creature)
-            {
-                DoCast(me, SPELL_SAND_STORM);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_sand_vortexAI (creature);
-        }
-};
-
 void AddSC_boss_ossirian()
 {
     new boss_ossirian();
-    new npc_sand_vortex();
 }

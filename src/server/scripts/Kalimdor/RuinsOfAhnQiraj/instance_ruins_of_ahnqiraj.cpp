@@ -68,7 +68,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             
             void OnGameObjectRemove(GameObject* go)
             {
-                if(go->GetEntry() == GO_OSSIRIAN_CRYSTAL && GetData64(BOSS_OSSIRIAN) == IN_PROGRESS)
+                if(go->GetEntry() == GO_OSSIRIAN_CRYSTAL && GetData(BOSS_OSSIRIAN) == IN_PROGRESS)
                     pOssirian->AI()->DoAction(0xBEEF);
             }
 
