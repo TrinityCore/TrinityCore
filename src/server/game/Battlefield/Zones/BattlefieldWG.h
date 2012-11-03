@@ -63,6 +63,7 @@ enum WintergraspSpells
 
     // Reward spells
     SPELL_VICTORY_REWARD                        = 56902,
+    SPELL_VICTORY_HONOR                         = 61700,
     SPELL_DEFEAT_REWARD                         = 58494,
     SPELL_DAMAGED_TOWER                         = 59135,
     SPELL_DESTROYED_TOWER                       = 59136,

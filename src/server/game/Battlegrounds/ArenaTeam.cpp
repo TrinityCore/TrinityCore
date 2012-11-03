@@ -547,16 +547,18 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
         if (sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) < 6)
             points = (float)rating * 0.22f + 140.0f;
         else
-            points = 344;
+            points = 372;
     }
     else
-        points = 150 + 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
+        points = 100 + 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
 
     // Type penalties for teams < 5v5
     if (Type == ARENA_TEAM_2v2)
-        points *= 0.82f;
+        points *= 0.86f;
     else if (Type == ARENA_TEAM_3v3)
-        points *= 0.96f;
+        points *= 1.02f;
+    else if (Type == ARENA_TEAM_5v5)
+        points *= 1.15f;
 
     return (uint32) points;
 }

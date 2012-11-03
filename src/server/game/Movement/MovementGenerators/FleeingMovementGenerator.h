@@ -25,7 +25,7 @@ template<class T>
 class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovementGenerator<T> >
 {
     public:
-        FleeingMovementGenerator(uint64 fright) : _frightGUID(fright), _nextCheckTime(0) {}
+        FleeingMovementGenerator(uint64 fright) : i_frightGUID(fright), i_nextCheckTime(0) {}
 
         void Initialize(T*);
         void Finalize(T*);
@@ -35,36 +35,26 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
         MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
 
     private:
-        void _setTargetLocation(T* owner);
-        bool _getPoint(T* owner, float &x, float &y, float &z);
-        bool _setMoveData(T* owner);
-        void _Init(T*);
+        void _setTargetLocation(T*);
+        bool _getPoint(T*, float &x, float &y, float &z);
 
-        bool is_water_ok   :1;
-        bool is_land_ok    :1;
-        bool _only_forward :1;
-
-        float _caster_x;
-        float _caster_y;
-        float _caster_z;
-        float _last_distance_from_caster;
-        float _to_distance_from_caster;
-        float _cur_angle;
-        uint64 _frightGUID;
-        TimeTracker _nextCheckTime;
+        uint64 i_frightGUID;
+        TimeTracker i_nextCheckTime;
 };
 
 class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
 {
     public:
-        TimedFleeingMovementGenerator(uint64 fright, uint32 time) : FleeingMovementGenerator<Creature>(fright), _totalFleeTime(time) {}
+        TimedFleeingMovementGenerator(uint64 fright, uint32 time) :
+            FleeingMovementGenerator<Creature>(fright),
+            i_totalFleeTime(time) {}
 
         MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
-        bool Update(Unit* , const uint32&);
-        void Finalize(Unit* );
+        bool Update(Unit*, const uint32&);
+        void Finalize(Unit*);
 
     private:
-        TimeTracker _totalFleeTime;
+        TimeTracker i_totalFleeTime;
 };
 
 #endif
