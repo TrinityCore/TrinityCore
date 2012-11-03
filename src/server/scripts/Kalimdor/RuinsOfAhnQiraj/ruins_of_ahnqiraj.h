@@ -41,7 +41,7 @@ enum Creatures
     NPC_HIVEZARA_SWARMER        = 15546,
     NPC_HIVEZARA_LARVA          = 15555,
     NPC_SAND_VORTEX             = 15428,
-    NPC_OSSIRIAN_TRIGGER		= 15590
+    NPC_OSSIRIAN_TRIGGER        = 15590
 };
 
 enum GameObjects

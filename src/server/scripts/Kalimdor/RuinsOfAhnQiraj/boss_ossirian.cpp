@@ -18,19 +18,15 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
-#include "WeatherMgr.h"
 
 enum
 {
-    SAY_SUPREME_1           = -1509018,
-    SAY_SUPREME_2           = -1509019,
-    SAY_SUPREME_3           = -1509020,
-    SAY_RAND_INTRO_1        = -1509021,
-    SAY_RAND_INTRO_2        = -1509023,
-    SAY_RAND_INTRO_3        = -1509024,
-    SAY_AGGRO               = -1509025,
-    SAY_SLAY                = -1509026,
-    SAY_DEATH               = -1509027,
+    SAY_SUPREME				= 0,
+    SAY_INTRO				= 1,
+    SAY_AGGRO				= 2,
+    SAY_SLAY				= 3,
+    SAY_DEATH				= 4,
+    SAY_KURINAXX_DEATH		= 5, // NYI: Instance yell when Kurinaxx dies
 
     SPELL_SILENCE           = 25195,
     SPELL_CYCLONE           = 25189,
@@ -82,6 +78,7 @@ class boss_ossirian : public CreatureScript
             
             InstanceScript* pInstance;
             Creature* pTrigger;
+            GameObject* pCrystal;
             uint8 m_uiCrystalIterator;
             uint32 m_uiSupremeTimer;
             uint32 m_uiStompTimer;
@@ -93,6 +90,8 @@ class boss_ossirian : public CreatureScript
             
             void Reset()
             {
+				pCrystal = 0;
+				pTrigger = 0;
                 m_uiCrystalIterator = 0;
                 m_uiSupremeTimer = 45000;
                 m_uiStompTimer   = 30000;
@@ -159,7 +158,8 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
-                    pTrigger->FindNearestGameObject(GO_OSSIRIAN_CRYSTAL, 10.0f)->Use(pTrigger);
+                    if(pCrystal)
+                        pCrystal->Use(pTrigger);
                     CleanupTornados();
                 }
             }
@@ -171,7 +171,8 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, DONE);
-                    pTrigger->FindNearestGameObject(GO_OSSIRIAN_CRYSTAL, 10.0f)->Use(pTrigger);
+                    if(pCrystal)
+                        pCrystal->Use(pTrigger);
                     CleanupTornados();
                 }
             }
@@ -183,11 +184,11 @@ class boss_ossirian : public CreatureScript
                                               CrystalCoordinates[m_uiCrystalIterator][1],
                                               CrystalCoordinates[m_uiCrystalIterator][2]);
                 
-                pTrigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL,
-                                           CrystalCoordinates[m_uiCrystalIterator][0],
-                                           CrystalCoordinates[m_uiCrystalIterator][1],
-                                           CrystalCoordinates[m_uiCrystalIterator][2],
-                                           0, 0, 0, 0, 0, -1);
+                pCrystal = pTrigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL,
+                                                      CrystalCoordinates[m_uiCrystalIterator][0],
+                                                      CrystalCoordinates[m_uiCrystalIterator][1],
+                                                      CrystalCoordinates[m_uiCrystalIterator][2],
+                                                      0, 0, 0, 0, 0, -1);
 
                 ++m_uiCrystalIterator;
             }
@@ -208,12 +209,7 @@ class boss_ossirian : public CreatureScript
             {
                 if (!m_bSaidIntro)
                 {
-                    switch (urand(0, 2))
-                    {
-                        case 0: Talk(SAY_RAND_INTRO_1); break;
-                        case 1: Talk(SAY_RAND_INTRO_2); break;
-                        case 2: Talk(SAY_RAND_INTRO_3); break;
-                    }
+                    Talk(SAY_INTRO);
                     m_bSaidIntro = true;
                 }
             }
@@ -233,12 +229,7 @@ class boss_ossirian : public CreatureScript
                     if (!me->HasAura(SPELL_SUPREME))
                         DoCast(me, SPELL_SUPREME);
                         
-                    switch (urand(0, 2))
-                    {
-                        case 0: Talk(SAY_SUPREME_1); break;
-                        case 1: Talk(SAY_SUPREME_2); break;
-                        case 2: Talk(SAY_SUPREME_3); break;
-                    }
+                    Talk(SAY_SUPREME);
                     m_uiSupremeTimer = 45000;
                 }
                 else
