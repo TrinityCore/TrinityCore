@@ -502,7 +502,8 @@ class boss_sindragosa : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
                             {
                                 Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
-                                DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
+                                DoCast(target, SPELL_ICE_TOMB_TARGET, true);
+                                //DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
                                 //DoCast(target, SPELL_FROST_BEACON, true);
                             }
                             events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));

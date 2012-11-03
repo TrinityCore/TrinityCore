@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[78] --> Fix Sindragosa (Test!).
 [77] --> Fix autocast petspells.
 [76] --> Misc fixs: (Test!)
          - Fix Totems LOS.
