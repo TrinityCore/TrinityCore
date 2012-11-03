@@ -571,10 +571,11 @@ enum CombatRating
     CR_WEAPON_SKILL_OFFHAND     = 21,
     CR_WEAPON_SKILL_RANGED      = 22,
     CR_EXPERTISE                = 23,
-    CR_ARMOR_PENETRATION        = 24
+    CR_ARMOR_PENETRATION        = 24,
+    CR_MASTERY                  = 25,
 };
 
-#define MAX_COMBAT_RATING         25
+#define MAX_COMBAT_RATING         26
 
 enum DamageEffectType
 {
