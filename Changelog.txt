@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[75] --> Fix Shaman: Earthbind Totem.
 [74] --> Fix Paladin: Righteous Defense.
 [73] --> Update CCDelay.
 [72] --> Fix Grounding Totem.
