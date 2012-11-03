@@ -19,7 +19,7 @@
 #include "MoveSpline.h"
 #include <sstream>
 #include "Log.h"
-#include "Unit.h"
+#include "Creature.h"
 
 namespace Movement{
 
