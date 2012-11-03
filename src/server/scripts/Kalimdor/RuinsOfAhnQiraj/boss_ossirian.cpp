@@ -90,8 +90,8 @@ class boss_ossirian : public CreatureScript
             
             void Reset()
             {
-				pCrystal = 0;
-				pTrigger = 0;
+                pCrystal = 0;
+                pTrigger = 0;
                 m_uiCrystalIterator = 0;
                 m_uiSupremeTimer = 45000;
                 m_uiStompTimer   = 30000;
