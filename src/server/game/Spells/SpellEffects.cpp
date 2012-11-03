@@ -806,9 +806,27 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
                 break;
             }
+
+            case 35009: // Invisible
+                m_caster->CombatStop();
+            return;
+
+            case 62196: // Shadow. Trigger
+                m_caster->CombatStop();
+            return;
+
+            case 58984: // Shadowmeld
+                m_caster->CombatStop();
+            return;
+
             // Vanish (not exist)
             case 18461:
             {
+                m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+                unitTarget->InterruptSpell(CURRENT_CHANNELED_SPELL); // break channeled spells
+                m_caster->AttackStop();
+                m_caster->CombatStop();
+                ((Player*)m_caster)->SendAttackSwingCancelAttack();
                 unitTarget->RemoveMovementImpairingAuras();
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 

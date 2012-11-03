@@ -11,6 +11,13 @@
 #                                                                                          #
 ############################################################################################
 
+[76] --> Misc fixs: (Test!)
+         - Fix Totems LOS.
+         - Fix combatstop spells Invisible, Shadow. Trigger, Shadowmeld.
+         - Fix Rogue: Vanish.
+         - Fix Mage: Water Elemental.
+         - Modify Max Armor Penetration from 400 to 2000.
+         - Modify resilience.
 [75] --> Fix Shaman: Earthbind Totem.
 [74] --> Fix Paladin: Righteous Defense.
 [73] --> Update CCDelay.

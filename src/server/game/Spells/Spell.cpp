@@ -1362,10 +1362,19 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         dist = objSize + (dist - objSize) * (float)rand_norm();
 
     Position pos;
-    if (targetType.GetTarget() == TARGET_DEST_CASTER_FRONT_LEAP)
-        m_caster->GetFirstCollisionPosition(pos, dist, angle);
-    else
-        m_caster->GetNearPosition(pos, dist, angle);
+    switch (targetType.GetTarget())
+    {
+        case TARGET_DEST_CASTER_FRONT_LEAP:
+        case TARGET_DEST_CASTER_FRONT_LEFT:
+        case TARGET_DEST_CASTER_BACK_LEFT:
+        case TARGET_DEST_CASTER_BACK_RIGHT:
+        case TARGET_DEST_CASTER_FRONT_RIGHT:
+            m_caster->GetFirstCollisionPosition(pos, dist, angle);
+        break;
+        default:
+            m_caster->GetNearPosition(pos, dist, angle);
+        break;
+    }
     m_targets.SetDst(*m_caster);
     m_targets.ModDst(pos);
 }
@@ -2191,7 +2200,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
         float dist = m_caster->GetDistance(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
         if (dist < 5.0f)
             dist = 5.0f;
-        target.timeDelay = uint64(floor(dist / m_spellInfo->Speed * 1000.0f));
+        target.timeDelay = uint64(floor(dist / m_spellInfo->Speed * 1100.0f));
         if (m_delayMoment == 0 || m_delayMoment > target.timeDelay)
             m_delayMoment = target.timeDelay;
     }
@@ -7367,7 +7376,7 @@ void Spell::PrepareTriggersExecutedOnHit()
 // Global cooldowns management
 enum GCDLimits
 {
-    MIN_GCD = 1000,
+    MIN_GCD = 900,
     MAX_GCD = 1500
 };
 
