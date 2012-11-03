@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "SpellScript.h"
+#include "SpellAuras.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle
