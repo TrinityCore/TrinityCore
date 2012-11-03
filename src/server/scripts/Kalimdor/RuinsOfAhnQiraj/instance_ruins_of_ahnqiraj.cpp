@@ -37,8 +37,6 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 _ayamissGUID    = 0;
                 _ossirianGUID   = 0;
             }
-            
-            Creature* pOssirian;
 
             void OnCreatureCreate(Creature* creature)
             {
@@ -60,16 +58,9 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                         _ayamissGUID = creature->GetGUID();
                         break;
                     case NPC_OSSIRIAN:
-                        pOssirian = creature;
                         _ossirianGUID = creature->GetGUID();
                         break;
                 }
-            }
-            
-            void OnGameObjectRemove(GameObject* go)
-            {
-                if(go->GetEntry() == GO_OSSIRIAN_CRYSTAL && GetData(BOSS_OSSIRIAN) == IN_PROGRESS)
-                    pOssirian->AI()->DoAction(0xBEEF);
             }
 
             bool SetBossState(uint32 bossId, EncounterState state)

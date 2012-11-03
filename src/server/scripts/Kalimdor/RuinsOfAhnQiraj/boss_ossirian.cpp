@@ -38,7 +38,8 @@ enum
     SPELL_SUPREME           = 25176,
     SPELL_SUMMON            = 20477,
 
-    SPELL_SAND_STORM        = 25160
+    SPELL_SAND_STORM        = 25160,
+    SPELL_SUMMON_CRYSTAL    = 25192
 };
 
 const uint8 NUM_CRYSTALS = 9;
@@ -58,6 +59,7 @@ const float CrystalCoordinates[NUM_CRYSTALS][3] =
     { -9430.37, 1786.86, 85.557 },
     { -9406.73, 1863.13, 85.5558 }
 };
+
 float RoomRadius = 165.0f;
 const uint8 NUM_TORNADOS = 5; // TODO: This number is completly random!
 const uint32 SpellWeakness[5] = { 25177, 25178, 25180, 25181, 25183 };
@@ -79,7 +81,7 @@ class boss_ossirian : public CreatureScript
             }
             
             InstanceScript* pInstance;
-            GameObject* pCrystal;
+            Creature* pTrigger;
             uint8 m_uiCrystalIterator;
             uint32 m_uiSupremeTimer;
             uint32 m_uiStompTimer;
@@ -91,7 +93,6 @@ class boss_ossirian : public CreatureScript
             
             void Reset()
             {
-                pCrystal = 0;
                 m_uiCrystalIterator = 0;
                 m_uiSupremeTimer = 45000;
                 m_uiStompTimer   = 30000;
@@ -120,7 +121,7 @@ class boss_ossirian : public CreatureScript
                         return;
 
                     WorldPacket data(SMSG_WEATHER, (4+4+4));
-                    data << WEATHER_STATE_HEAVY_SANDSTORM << float(1) << uint8(0); // ??
+                    data << uint32(WEATHER_STATE_HEAVY_SANDSTORM) << float(1) << uint8(0); // ??
                     pMap->SendToPlayers(&data);
                     
                     pInstance->SetData(BOSS_OSSIRIAN, IN_PROGRESS);
@@ -158,8 +159,7 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
-                    printf("pCrystal: %u", pCrystal); fflush(stdout);
-                    pCrystal->RemoveFromWorld();
+                    pTrigger->FindNearestGameObject(GO_OSSIRIAN_CRYSTAL, 10.0f)->Use(pTrigger);
                     CleanupTornados();
                 }
             }
@@ -171,18 +171,24 @@ class boss_ossirian : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetData(BOSS_OSSIRIAN, DONE);
-                    pCrystal->RemoveFromWorld();
+                    pTrigger->FindNearestGameObject(GO_OSSIRIAN_CRYSTAL, 10.0f)->Use(pTrigger);
                     CleanupTornados();
                 }
             }
             
             void SpawnNextCrystal()
             {
-                pCrystal = me->SummonGameObject(GO_OSSIRIAN_CRYSTAL, 
-                                                CrystalCoordinates[m_uiCrystalIterator][0],
-                                                CrystalCoordinates[m_uiCrystalIterator][1],
-                                                CrystalCoordinates[m_uiCrystalIterator][2],
-                                                0, 0, 0, 0, 0, -1);
+                pTrigger = me->SummonCreature(NPC_OSSIRIAN_TRIGGER, 
+                                              CrystalCoordinates[m_uiCrystalIterator][0],
+                                              CrystalCoordinates[m_uiCrystalIterator][1],
+                                              CrystalCoordinates[m_uiCrystalIterator][2]);
+                
+                pTrigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL,
+                                           CrystalCoordinates[m_uiCrystalIterator][0],
+                                           CrystalCoordinates[m_uiCrystalIterator][1],
+                                           CrystalCoordinates[m_uiCrystalIterator][2],
+                                           0, 0, 0, 0, 0, -1);
+
                 ++m_uiCrystalIterator;
             }
             
@@ -191,7 +197,8 @@ class boss_ossirian : public CreatureScript
                 if (m_uiCrystalIterator == NUM_CRYSTALS)
                     m_uiCrystalIterator = 0;
                     
-                pCrystal->CastSpell(me, SpellWeakness[urand(0, 4)]);
+                pTrigger->CastSpell(me, SpellWeakness[urand(0, 4)]);
+                ((TempSummon*)pTrigger)->UnSummon();
                 SpawnNextCrystal();
                 me->RemoveAurasDueToSpell(SPELL_SUPREME);
                 m_uiSupremeTimer = 45000;
@@ -217,8 +224,8 @@ class boss_ossirian : public CreatureScript
                     return;
                 
                 // No kiting!
-                //if (me->GetDistance(me->getVictim()) > 60.00f && me->GetDistance(me->getVictim()) < 120.00f)
-                    //DoCast(me->getVictim(), SPELL_SUMMON);
+                if (me->GetDistance(me->getVictim()) > 60.00f && me->GetDistance(me->getVictim()) < 120.00f)
+                    DoCast(me->getVictim(), SPELL_SUMMON);
                 
                 // Supreme mode
                 if (m_uiSupremeTimer <= uiDiff)
@@ -274,7 +281,33 @@ class boss_ossirian : public CreatureScript
         }
 };
 
+class GO_ossirian_crystal : public GameObjectScript
+{
+    public:
+        GO_ossirian_crystal() : GameObjectScript("go_ossirian_crystal")
+        {
+        }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            InstanceScript* pInstance = player->GetInstanceScript();
+
+            if(!pInstance)
+                return false;
+                
+            Creature* pOssirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
+            
+            if(!pOssirian || pInstance->GetData(BOSS_OSSIRIAN) != IN_PROGRESS)
+                return false;
+            
+            pOssirian->AI()->DoAction(0xBEEF);
+            
+            return true;
+        }
+};
+
 void AddSC_boss_ossirian()
 {
     new boss_ossirian();
+    new GO_ossirian_crystal();
 }
