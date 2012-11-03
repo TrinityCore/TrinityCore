@@ -338,8 +338,8 @@ class npc_arena_spectator : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "1800+ mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_TOP_GAMES);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "1000+ mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Arena Teams 1800+ mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_TOP_GAMES);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Arena Teams 1000+ mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES);
             pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
             return true;
         }
