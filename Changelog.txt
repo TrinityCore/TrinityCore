@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[73] --> Update CCDelay.
 [72] --> Fix Grounding Totem.
 [71] --> Fix Priest: Shadowform.
 [70] --> Fixed [Item] Wrathful Gladiator's Dreadplate Gauntlets.

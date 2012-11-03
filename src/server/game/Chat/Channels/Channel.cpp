@@ -624,7 +624,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
     if (!what)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL) || AccountMgr::IsGMAccount || AccountMgr::IsAdminAccount || IsModeratorAccount)
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL) || AccountMgr::IsGMAccount || AccountMgr::IsAdminAccount || AccountMgr::IsModeratorAccount)
         lang = LANG_UNIVERSAL;
 
     Player* player = ObjectAccessor::FindPlayer(p);
