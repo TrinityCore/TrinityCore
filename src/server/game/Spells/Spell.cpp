@@ -2200,7 +2200,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
         float dist = m_caster->GetDistance(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
         if (dist < 5.0f)
             dist = 5.0f;
-        target.timeDelay = uint64(floor(dist / m_spellInfo->Speed * 1100.0f));
+        target.timeDelay = uint64(floor(dist / m_spellInfo->Speed * 1000.0f));
         if (m_delayMoment == 0 || m_delayMoment > target.timeDelay)
             m_delayMoment = target.timeDelay;
     }
@@ -7376,7 +7376,7 @@ void Spell::PrepareTriggersExecutedOnHit()
 // Global cooldowns management
 enum GCDLimits
 {
-    MIN_GCD = 900,
+    MIN_GCD = 1000,
     MAX_GCD = 1500
 };
 

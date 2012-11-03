@@ -18,8 +18,6 @@
          - Fix combatstop spells Invisible, Shadow. Trigger, Shadowmeld.
          - Fix Rogue: Vanish.
          - Fix Mage: Water Elemental.
-         - Modify Max Armor Penetration from 400 to 2000.
-         - Modify resilience.
          - Fix problem pets. (If you are dismounted, your pet had 1hp.)
 [75] --> Fix Shaman: Earthbind Totem.
 [74] --> Fix Paladin: Righteous Defense.
