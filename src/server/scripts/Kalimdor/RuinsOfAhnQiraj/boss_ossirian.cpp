@@ -21,12 +21,12 @@
 
 enum
 {
-    SAY_SUPREME				= 0,
-    SAY_INTRO				= 1,
-    SAY_AGGRO				= 2,
-    SAY_SLAY				= 3,
-    SAY_DEATH				= 4,
-    SAY_KURINAXX_DEATH		= 5, // NYI: Instance yell when Kurinaxx dies
+    SAY_SUPREME             = 0,
+    SAY_INTRO               = 1,
+    SAY_AGGRO               = 2,
+    SAY_SLAY                = 3,
+    SAY_DEATH               = 4,
+    SAY_KURINAXX_DEATH      = 5, // NYI: Instance yell when Kurinaxx dies
 
     SPELL_SILENCE           = 25195,
     SPELL_CYCLONE           = 25189,
