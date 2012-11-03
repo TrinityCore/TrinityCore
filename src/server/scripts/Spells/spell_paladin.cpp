@@ -44,6 +44,8 @@ enum PaladinSpells
     SPELL_DIVINE_STORM                           = 53385,
     SPELL_DIVINE_STORM_DUMMY                     = 54171,
     SPELL_DIVINE_STORM_HEAL                      = 54172,
+    SPELL_RIGHTEOUS_DEFENCE                      = 31789,
+    SPELL_RIGHTEOUS_DEFENCE_EFFECT_1             = 31790,
 
     SPELL_FORBEARANCE                            = 25771,
     SPELL_AVENGING_WRATH_MARKER                  = 61987,
@@ -506,26 +508,23 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
 
-            SpellCastResult CheckCast()
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
+                if (!sSpellMgr->GetSpellInfo(SPELL_RIGHTEOUS_DEFENCE))
+                    return false;
+                return true;
+            }
 
-                if (Unit* target = GetExplTargetUnit())
-                {
-                    if (!target->IsFriendlyTo(caster) || target->getAttackers().empty())
-                        return SPELL_FAILED_BAD_TARGETS;
-                }
-                else
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
+            void HandleSpellEffectTriggerSpell(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* targetUnit = GetHitUnit())
+                        caster->CastSpell(targetUnit, SPELL_RIGHTEOUS_DEFENCE_EFFECT_1, true);
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleSpellEffectTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
             }
         };
 

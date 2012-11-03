@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[74] --> Fix Paladin: Righteous Defense.
 [73] --> Update CCDelay.
 [72] --> Fix Grounding Totem.
 [71] --> Fix Priest: Shadowform.
