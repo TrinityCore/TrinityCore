@@ -98,7 +98,7 @@ namespace Movement
         if (!args.HasVelocity)
             args.velocity = unit.GetSpeed(SelectSpeedType(moveFlags));
 
-        if (!args.Validate())
+        if (!args.Validate(&unit))
             return;
 
         if (moveFlags & MOVEMENTFLAG_ROOT)

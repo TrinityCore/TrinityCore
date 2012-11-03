@@ -430,24 +430,9 @@ int RASocket::sendf(const char* msg)
 
     ACE_OS::memcpy(outputBuffer+outputBufferLen, msg, msgLen);
     outputBufferLen += msgLen;
-    output(msg);
+    send(msg);
 
-    if (!outActive)
-    {
-        if (reactor ()->schedule_wakeup(this, ACE_Event_Handler::WRITE_MASK) == -1)
-        {
-            sLog->outError (LOG_FILTER_WORLDSERVER, "RASocket::sendf error while schedule_wakeup");
-            return -1;
-        }
-        outActive = true;
-    }
     return 0;
-}
-
-int RASocket::output( const char * szText )
-{
-    send(szText);
-    return 1;
 }
 
 void RASocket::raprint( const char * szText )
