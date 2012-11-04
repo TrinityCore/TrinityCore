@@ -74,7 +74,7 @@ class ChatHandler
         void PSendSysMessage(int32     entry, ...);
         std::string PGetParseString(int32 entry, ...) const;
 
-        int ParseCommands(const char* text);
+        bool ParseCommands(const char* text);
 
         static ChatCommand* getCommandTable();
 
