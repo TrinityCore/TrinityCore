@@ -3119,6 +3119,9 @@ void Player::GiveLevel(uint8 level)
     if (level == oldLevel)
         return;
 
+    if (Guild* guild = GetGuild())
+        guild->UpdateMemberData(this, GUILD_MEMBER_DATA_LEVEL, level);
+
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), level, &info);
 
@@ -7662,6 +7665,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerEnterZone(this, newZone);
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
+        if (Guild* guild = GetGuild())
+            guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
     }
 
     // group update
@@ -23785,11 +23790,15 @@ WorldObject* Player::GetViewpoint() const
 
 bool Player::CanUseBattlegroundObject(GameObject* gameobject)
 {
-    FactionTemplateEntry const* playerFaction = getFactionTemplateEntry();
-    FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
+    // It is possible to call this method with a null pointer, only skipping faction check.
+    if (gameobject)
+    {
+        FactionTemplateEntry const* playerFaction = getFactionTemplateEntry();
+        FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
 
-    if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
-        return false;
+        if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
+            return false;
+    }
 
     // BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
     // Note: Mount, stealth and invisibility will be removed when used
@@ -23801,9 +23810,8 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject)
 bool Player::CanCaptureTowerPoint()
 {
     return (!HasStealthAura() &&                            // not stealthed
-             !HasInvisibilityAura() &&                      // not invisible
-             isAlive()                                      // live player
-);
+            !HasInvisibilityAura() &&                       // not invisible
+            isAlive());                                     // live player
 }
 
 uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin)
@@ -26270,4 +26278,10 @@ void Player::SendMovementSetCollisionHeight(float height)
     data << float(height);
 
     SendDirectMessage(&data);
+}
+
+Guild* Player::GetGuild()
+{
+    uint32 guildId = GetGuildId();
+    return guildId ? sGuildMgr->GetGuildById(guildId) : NULL;
 }

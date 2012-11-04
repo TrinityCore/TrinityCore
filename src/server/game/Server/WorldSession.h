@@ -429,7 +429,6 @@ class WorldSession
         void HandleReorderCharacters(WorldPacket& recvData);
         void HandleOpeningCinematic(WorldPacket& recvData);
 
-
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
 
@@ -728,7 +727,6 @@ class WorldSession
         void HandlePushQuestToParty(WorldPacket& recvPacket);
         void HandleQuestPushResult(WorldPacket& recvPacket);
 
-        bool processChatmessageFurtherAfterSecurityChecks(std::string&, uint32);
         void HandleMessagechatOpcode(WorldPacket& recvPacket);
         void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
         void SendPlayerNotFoundNotice(std::string const& name);

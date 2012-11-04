@@ -312,6 +312,7 @@ enum WorldIntConfigs
     CONFIG_GUILD_BANK_EVENT_LOG_COUNT,
     CONFIG_MIN_LEVEL_STAT_SAVE,
     CONFIG_RANDOM_BG_RESET_HOUR,
+    CONFIG_GUILD_RESET_HOUR,
     CONFIG_CHARDELETE_KEEP_DAYS,
     CONFIG_CHARDELETE_METHOD,
     CONFIG_CHARDELETE_MIN_LEVEL,
@@ -483,8 +484,10 @@ enum RealmZone
 
 enum WorldStates
 {
-    WS_WEEKLY_QUEST_RESET_TIME = 20002,                      // Next weekly reset time
-    WS_BG_DAILY_RESET_TIME     = 20003                       // Next daily BG reset time
+    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                    // Next weekly reset time
+    WS_BG_DAILY_RESET_TIME      = 20003,                    // Next daily BG reset time
+    WS_GUILD_DAILY_RESET_TIME   = 20006,                    // Next guild cap reset time
+    WS_GUILD_WEEKLY_RESET_TIME  = 20007,                    // Next guild week reset time
 };
 
 // DB scripting commands
@@ -794,9 +797,11 @@ class World
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
         void InitRandomBGResetTime();
+        void InitGuildResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetRandomBG();
+        void ResetGuildCap();
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
@@ -857,6 +862,7 @@ class World
         time_t m_NextDailyQuestReset;
         time_t m_NextWeeklyQuestReset;
         time_t m_NextRandomBGReset;
+        time_t m_NextGuildReset;
 
         //Player Queue
         Queue m_QueuedPlayer;

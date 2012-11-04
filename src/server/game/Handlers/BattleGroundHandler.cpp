@@ -266,7 +266,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
     sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEGROUND_PLAYER_POSITIONS Message");
 
