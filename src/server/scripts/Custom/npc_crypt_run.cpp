@@ -44,8 +44,7 @@ enum Texts
 enum Misc
 {
     ITEM_RACING_TOKEN               = 22726,
-    PLAYERS                         = 1,            // Change to players per team as required
-    TOKENS_WON                      = 5,            // Change to tokens won per game
+    PLAYERS                         = 2,            // Change to players per team as required
     PLAYER_MINIMUM_LEVEL            = 80,           // Min player level required to race
     MAP_EASTERN_KINGDOMS            = 0,
     MAP_NORTHREND                   = 571,
@@ -383,7 +382,7 @@ class npc_race_announcer : public CreatureScript
 
                 _hordeFinished = 0;
                 _allianceFinished = 0;
-                _tokenRewards = TOKENS_WON;
+                _tokenRewards = sWorld->getIntConfig(CONFIG_CRYPT_RUN_REWARDS);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 for (uint8 i = 0; i < PLAYERS; ++i)
@@ -821,6 +820,9 @@ class npc_race_announcer : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
+            if (!sWorld->getBoolConfig(CONFIG_CRYPT_RUN_ENABLE))
+                return false;
+
             if (player->getLevel() >= PLAYER_MINIMUM_LEVEL)
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, GOSSIP_ITEM_READY_RACE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
