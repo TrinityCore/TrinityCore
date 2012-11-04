@@ -11,6 +11,11 @@
 #                                                                                          #
 ############################################################################################
 
+[79] --> Core/Resistances:
+          - Remove Holy Resistance from Players
+          - Do not add Holy Resist from Items to Players
+          - Resistance Handling from Holy resist removed
+          Signed-off-by: Pointerxx <marvin.wichmann@web.de>
 [78] --> Fix Sindragosa (Test!).
 [77] --> Fix autocast petspells.
 [76] --> Misc fixs: (Test!)
