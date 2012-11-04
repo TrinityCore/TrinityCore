@@ -1226,7 +1226,7 @@ FakeResult Item::SetFakeDisplay(uint32 iEntry)
         return FAKE_ERR_WRONG_QUALITY;
 
 
-    if (otherTmpl->Quality == ITEM_QUALITY_UNCOMMON || otherTmpl->Quality == ITEM_QUALITY_POOR)
+    if (otherTmpl->Quality == ITEM_QUALITY_COMMON || otherTmpl->Quality == ITEM_QUALITY_POOR)
         return FAKE_ERR_WRONG_QUALITY;
 
     if (m_fakeDisplayEntry != iEntry)

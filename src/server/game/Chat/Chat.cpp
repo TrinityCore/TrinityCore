@@ -425,7 +425,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
     return false;
 }
 
-bool ChatHandler::ParseCommands(const char* text)
+int ChatHandler::ParseCommands(const char* text)
 {
     ASSERT(text);
     ASSERT(*text);
@@ -433,23 +433,23 @@ bool ChatHandler::ParseCommands(const char* text)
     std::string fullcmd = text;
 
     if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS))
-       return false;
+       return 0;
 
     /// chat case (.command or !command format)
     if (m_session)
     {
         if (text[0] != '!' && text[0] != '.')
-            return false;
+            return 0;
     }
 
     /// ignore single . and ! in line
     if (strlen(text) < 2)
-        return false;
+        return 0;
     // original `text` can't be used. It content destroyed in command code processing.
 
     /// ignore messages staring from many dots.
     if ((text[0] == '.' && text[1] == '.') || (text[0] == '!' && text[1] == '!'))
-        return false;
+        return 0;
 
     /// skip first . or ! (in console allowed use command with . and ! and without its)
     if (text[0] == '!' || text[0] == '.')
@@ -458,11 +458,11 @@ bool ChatHandler::ParseCommands(const char* text)
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
         if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
-            return false;
+            return 0;
 
         SendSysMessage(LANG_NO_CMD);
     }
-    return false;
+    return 1;
 }
 
 bool ChatHandler::isValidChatMessage(const char* message)
