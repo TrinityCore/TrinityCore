@@ -867,6 +867,23 @@ enum TrinityStrings
 
     // FREE IDS                           1228-9999
 
+    // Twin Peaks
+    LANG_BG_TP_START_TWO_MINUTES        = 1230,
+    LANG_BG_TP_START_ONE_MINUTE         = 1231,
+    LANG_BG_TP_START_HALF_MINUTE        = 1232,
+    LANG_BG_TP_HAS_BEGUN                = 1233,
+    LANG_BG_TP_CAPTURED_HF              = 1234,
+    LANG_BG_TP_CAPTURED_AF              = 1235,
+    LANG_BG_TP_DROPPED_HF               = 1236,
+    LANG_BG_TP_DROPPED_AF               = 1237,
+    LANG_BG_TP_RETURNED_AF              = 1238,
+    LANG_BG_TP_RETURNED_HF              = 1239,
+    LANG_BG_TP_PICKEDUP_HF              = 1240,
+    LANG_BG_TP_PICKEDUP_AF              = 1241,
+    LANG_BG_TP_F_PLACED                 = 1242,
+    LANG_BG_TP_ALLIANCE_FLAG_RESPAWNED  = 1243,
+    LANG_BG_TP_HORDE_FLAG_RESPAWNED     = 1244,	
+	
     // AV
     LANG_BG_AV_ALLY                     = 1300,
     LANG_BG_AV_HORDE                    = 1301,
