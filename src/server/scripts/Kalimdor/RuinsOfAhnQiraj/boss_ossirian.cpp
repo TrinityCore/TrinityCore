@@ -76,9 +76,9 @@ class boss_ossirian : public CreatureScript
                 Reset();
             }
             
-            std::vector<Creature*> Tornados;
+            std::vector<TempSummon*> Tornados;
             InstanceScript* Instance;
-            Creature* Trigger;
+            TempSummon* Trigger;
             GameObject* Crystal;
             uint8 CrystalIterator;
             uint32 SupremeTimer;
@@ -96,17 +96,24 @@ class boss_ossirian : public CreatureScript
                 StompTimer   = 30000;
                 CycloneTimer = 20000;
                 SilenceTimer = 30000;
+                Tornados.clear();
                 
                 if (Instance)
                     Instance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
             }
 
-            void SpellHit(Unit*, SpellInfo const* spell)
+            void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                for(int i = 0; SpellWeakness[i]; ++i)
+                for (int i = 0; SpellWeakness[i]; ++i)
                 {
-                    if(spell->Id == SpellWeakness[i])
+                    if (spell->Id == SpellWeakness[i])
+                    {
                         me->RemoveAurasDueToSpell(SPELL_SUPREME);
+                        ((TempSummon*)caster)->UnSummon();
+                        Trigger = 0;
+                        Crystal = 0;
+                        SpawnNextCrystal();
+                    }
                 }
             }
             
@@ -117,10 +124,12 @@ class boss_ossirian : public CreatureScript
                     if (CrystalIterator == NUM_CRYSTALS)
                         CrystalIterator = 0;
                     
-                    pTrigger->CastSpell(me, SpellWeakness[urand(0, 4)]);
-                    ((TempSummon*)Trigger)->UnSummon();
-                    SpawnNextCrystal();
-                    SupremeTimer = 45000;
+                    if (Trigger)
+                    {
+                        Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
+                        Trigger = 0;
+                        SupremeTimer = 45000;
+                    }
                 }
             }
             
@@ -145,7 +154,7 @@ class boss_ossirian : public CreatureScript
                     {
                         Position Point;
                         me->GetRandomPoint(RoomCenter, RoomRadius, Point);
-                        Creature* Tornado = me->SummonCreature(NPC_SAND_VORTEX, Point, TEMPSUMMON_MANUAL_DESPAWN, -1);
+                        TempSummon* Tornado = me->SummonCreature(NPC_SAND_VORTEX, Point, TEMPSUMMON_MANUAL_DESPAWN, -1);
                         Tornado->GetAI()->DoCast(Tornado, SPELL_SAND_STORM);
                         Tornados.push_back(Tornado);
                     }
@@ -160,14 +169,13 @@ class boss_ossirian : public CreatureScript
             }
             
             void EnterEvadeMode()
-            {
-                ScriptedAI::EnterEvadeMode();
-                
+            {                
                 if (Instance)
                 {
                     Instance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
                     Cleanup();
                 }
+                ScriptedAI::EnterEvadeMode();
             }
             
             void JustDied(Unit* killer)
@@ -184,11 +192,12 @@ class boss_ossirian : public CreatureScript
             void Cleanup()
             {
                 if (Crystal)
-                    Crystal->Use(Trigger);
-                ((TempSummon*)Trigger)->UnSummon();
+                    Crystal->Use(me);
+                if (Trigger)
+                    Trigger->UnSummon();
                 for (int i = 0; i < NUM_TORNADOS; ++i)
                 {
-                    ((TempSummon*)Tornados[i])->UnSummon();
+                    Tornados[i]->UnSummon();
                 }
             }
             
@@ -278,7 +287,7 @@ class ossirian_crystal : public GameObjectScript
         }
 
         bool OnGossipHello(Player* player, GameObject* go)
-        {
+        {            
             InstanceScript* Instance = player->GetInstanceScript();
 
             if (!Instance)
@@ -288,7 +297,7 @@ class ossirian_crystal : public GameObjectScript
             
             if (!Ossirian)
                 return false;
-            
+
             Ossirian->AI()->DoAction(0xBEEF);
             return true;
         }
