@@ -359,7 +359,7 @@ void GameObject::Update(uint32 diff)
                             Unit* caster = GetOwner();
                             if (caster && caster->GetTypeId() == TYPEID_PLAYER)
                             {
-                                caster->FinishSpell(CURRENT_CHANNELED_SPELL);
+                                caster->ToPlayer()->RemoveGameObject(this, false);
 
                                 WorldPacket data(SMSG_FISH_ESCAPED, 0);
                                 caster->ToPlayer()->GetSession()->SendPacket(&data);
@@ -1360,6 +1360,8 @@ void GameObject::Use(Unit* user)
                             player->SendLoot(GetGUID(), LOOT_FISHING);
                     }
                     // TODO: else: junk
+                    else
+                        m_respawnTime = time(NULL);
 
                     break;
                 }
