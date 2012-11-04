@@ -556,6 +556,7 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
     else if (Type == ARENA_TEAM_3v3)
         points *= 0.88f;
 
+	points *= 1.5;
     return (uint32) points;
 }
 
