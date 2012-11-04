@@ -41,6 +41,27 @@
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 
+bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg, uint32 lang)
+{
+    if (lang != LANG_ADDON)
+    {
+        // strip invisible characters for non-addon messages
+        if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
+            stripLineInvisibleChars(msg);
+
+        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) && AccountMgr::IsPlayerAccount(GetSecurity())
+                && !ChatHandler(this).isValidChatMessage(msg.c_str()))
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName(),
+                    GetPlayer()->GetGUIDLow(), msg.c_str());
+            if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+                KickPlayer();
+            return false;
+        }
+    }
+
+    return true;
+}
 
 void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 {
@@ -92,36 +113,20 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 
     if (lang == LANG_ADDON)
     {
-        // LANG_ADDON is only valid for the following message types
-        switch (type)
+        if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
         {
-            case CHAT_MSG_PARTY:
-            case CHAT_MSG_RAID:
-            case CHAT_MSG_GUILD:
-            case CHAT_MSG_BATTLEGROUND:
-            case CHAT_MSG_WHISPER:
-                if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
-                {
-                    std::string msg = "";
-                    recvData >> msg;
+            std::string msg = "";
+            recv_data >> msg;
 
-                    if (msg.empty())
-                        return;
+            if (msg.empty())
+                return;
 
-                   sScriptMgr->OnPlayerChat(sender, uint32(CHAT_MSG_ADDON), lang, msg);
-                }
-
-                // Disabled addon channel?
-                if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
-                    return;
-
-                break;
-            default:
-                sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid language/message type combination", 
-                                                     GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow());	
-                recvData.rfinish();
-               return;
+            sScriptMgr->OnPlayerChat(sender, uint32(CHAT_MSG_ADDON), lang, msg);
         }
+
+        // Disabled addon channel?
+        if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
+            return;
     }
     // LANG_ADDON should not be changed nor be affected by flood control
     else
@@ -221,25 +226,14 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         if (msg.empty())
             return;
 
-        if (ChatHandler(this).ParseCommands(msg.c_str()))
+        if (ChatHandler(this).ParseCommands(msg.c_str()) > 0)
             return;
 
-        if (lang != LANG_ADDON)
-        {
-            // Strip invisible characters for non-addon messages
-            if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
-                stripLineInvisibleChars(msg);
-            if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) && !ChatHandler(this).isValidChatMessage(msg.c_str()))
-            {
-                sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName().c_str(),
-                    GetPlayer()->GetGUIDLow(), msg.c_str());
+        if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
+            return;
 
-                if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-                    KickPlayer();
-
-                return;
-           }
-        }
+        if (msg.empty())
+            return;
     }
 
     switch (type)
