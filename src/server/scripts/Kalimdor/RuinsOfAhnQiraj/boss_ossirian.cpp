@@ -43,7 +43,7 @@ const uint8 NUM_CRYSTALS = 9;
 // You spin me right round, baby
 // right round like a record, baby
 // right round round round
-const float CrystalCoordinates[NUM_CRYSTALS][3] =
+Position CrystalCoordinates[NUM_CRYSTALS] =
 {
     { -9394.230469, 1951.808594, 85.977333 },
     { -9357.931641, 1930.596802, 85.556198 },
@@ -70,42 +70,58 @@ class boss_ossirian : public CreatureScript
         {
             boss_ossirianAI(Creature* creature) : ScriptedAI(creature)
             {
-                vTornados.reserve(NUM_TORNADOS);
-                pInstance = creature->GetInstanceScript();
-                m_bSaidIntro = false;
+                Tornados.reserve(NUM_TORNADOS);
+                Instance = creature->GetInstanceScript();
+                SaidIntro = false;
                 Reset();
             }
             
-            InstanceScript* pInstance;
-            Creature* pTrigger;
-            GameObject* pCrystal;
-            uint8 m_uiCrystalIterator;
-            uint32 m_uiSupremeTimer;
-            uint32 m_uiStompTimer;
-            uint32 m_uiCycloneTimer;
-            uint32 m_uiSilenceTimer;
-            bool m_bSaidIntro;
-            
-            std::vector<Creature*> vTornados;
+            std::vector<Creature*> Tornados;
+            InstanceScript* Instance;
+            Creature* Trigger;
+            GameObject* Crystal;
+            uint8 CrystalIterator;
+            uint32 SupremeTimer;
+            uint32 StompTimer;
+            uint32 CycloneTimer;
+            uint32 SilenceTimer;
+            bool SaidIntro;
             
             void Reset()
             {
-                pCrystal = 0;
-                pTrigger = 0;
-                m_uiCrystalIterator = 0;
-                m_uiSupremeTimer = 45000;
-                m_uiStompTimer   = 30000;
-                m_uiCycloneTimer = 20000;
-                m_uiSilenceTimer = 30000;
+                Crystal = 0;
+                Trigger = 0;
+                CrystalIterator = 0;
+                SupremeTimer = 45000;
+                StompTimer   = 30000;
+                CycloneTimer = 20000;
+                SilenceTimer = 30000;
                 
-                if (pInstance)
-                    pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
+                if (Instance)
+                    Instance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
+            }
+
+            void SpellHit(Unit*, SpellInfo const* spell)
+            {
+                for(int i = 0; SpellWeakness[i]; ++i)
+                {
+                    if(spell->Id == SpellWeakness[i])
+                        me->RemoveAurasDueToSpell(SPELL_SUPREME);
+                }
             }
             
             void DoAction(const int32 action)
             {
-                if(action == 0xBEEF)
-                    OnCrystalUse();
+                if (action == 0xBEEF)
+                {
+                    if (CrystalIterator == NUM_CRYSTALS)
+                        CrystalIterator = 0;
+                    
+                    pTrigger->CastSpell(me, SpellWeakness[urand(0, 4)]);
+                    ((TempSummon*)Trigger)->UnSummon();
+                    SpawnNextCrystal();
+                    SupremeTimer = 45000;
+                }
             }
             
             void EnterCombat(Unit* who)
@@ -113,36 +129,28 @@ class boss_ossirian : public CreatureScript
                 DoCast(me, SPELL_SUPREME);
                 Talk(SAY_AGGRO);
                 
-                if (pInstance)
+                if (Instance)
                 {
-                    Map* pMap = me->GetMap();
-                    if (!pMap->IsDungeon())
+                    Map* map = me->GetMap();
+                    if (!map->IsDungeon())
                         return;
 
                     WorldPacket data(SMSG_WEATHER, (4+4+4));
                     data << uint32(WEATHER_STATE_HEAVY_SANDSTORM) << float(1) << uint8(0); // ??
-                    pMap->SendToPlayers(&data);
+                    map->SendToPlayers(&data);
                     
-                    pInstance->SetData(BOSS_OSSIRIAN, IN_PROGRESS);
+                    Instance->SetData(BOSS_OSSIRIAN, IN_PROGRESS);
                     
                     for (int i = 0; i < NUM_TORNADOS; ++i)
                     {
                         Position Point;
                         me->GetRandomPoint(RoomCenter, RoomRadius, Point);
-                        Creature* pTornado = me->SummonCreature(NPC_SAND_VORTEX, Point, TEMPSUMMON_MANUAL_DESPAWN, -1);
-                        pTornado->GetAI()->DoCast(pTornado, SPELL_SAND_STORM);
-                        vTornados.push_back(pTornado);
+                        Creature* Tornado = me->SummonCreature(NPC_SAND_VORTEX, Point, TEMPSUMMON_MANUAL_DESPAWN, -1);
+                        Tornado->GetAI()->DoCast(Tornado, SPELL_SAND_STORM);
+                        Tornados.push_back(Tornado);
                     }
                     
                     SpawnNextCrystal();
-                }
-            }
-            
-            void CleanupTornados()
-            {
-                for (int i = 0; i < NUM_TORNADOS; ++i)
-                {
-                    ((TempSummon*)vTornados[i])->UnSummon();
                 }
             }
             
@@ -155,12 +163,10 @@ class boss_ossirian : public CreatureScript
             {
                 ScriptedAI::EnterEvadeMode();
                 
-                if (pInstance)
+                if (Instance)
                 {
-                    pInstance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
-                    if(pCrystal)
-                        pCrystal->Use(pTrigger);
-                    CleanupTornados();
+                    Instance->SetData(BOSS_OSSIRIAN, NOT_STARTED);
+                    Cleanup();
                 }
             }
             
@@ -168,53 +174,45 @@ class boss_ossirian : public CreatureScript
             {
                 Talk(SAY_DEATH);
                 
-                if (pInstance)
+                if (Instance)
                 {
-                    pInstance->SetData(BOSS_OSSIRIAN, DONE);
-                    if(pCrystal)
-                        pCrystal->Use(pTrigger);
-                    CleanupTornados();
+                    Instance->SetData(BOSS_OSSIRIAN, DONE);
+                    Cleanup();
+                }
+            }
+            
+            void Cleanup()
+            {
+                if (Crystal)
+                    Crystal->Use(Trigger);
+                ((TempSummon*)Trigger)->UnSummon();
+                for (int i = 0; i < NUM_TORNADOS; ++i)
+                {
+                    ((TempSummon*)Tornados[i])->UnSummon();
                 }
             }
             
             void SpawnNextCrystal()
             {
-                pTrigger = me->SummonCreature(NPC_OSSIRIAN_TRIGGER, 
-                                              CrystalCoordinates[m_uiCrystalIterator][0],
-                                              CrystalCoordinates[m_uiCrystalIterator][1],
-                                              CrystalCoordinates[m_uiCrystalIterator][2]);
-                
-                pCrystal = pTrigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL,
-                                                      CrystalCoordinates[m_uiCrystalIterator][0],
-                                                      CrystalCoordinates[m_uiCrystalIterator][1],
-                                                      CrystalCoordinates[m_uiCrystalIterator][2],
-                                                      0, 0, 0, 0, 0, -1);
-
-                ++m_uiCrystalIterator;
-            }
-            
-            void OnCrystalUse()
-            {
-                if (m_uiCrystalIterator == NUM_CRYSTALS)
-                    m_uiCrystalIterator = 0;
-                    
-                pTrigger->CastSpell(me, SpellWeakness[urand(0, 4)]);
-                ((TempSummon*)pTrigger)->UnSummon();
-                SpawnNextCrystal();
-                me->RemoveAurasDueToSpell(SPELL_SUPREME);
-                m_uiSupremeTimer = 45000;
+                Trigger = me->GetMap()->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]);
+                Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL,
+                                                    CrystalCoordinates[CrystalIterator].GetPositionX(),
+                                                    CrystalCoordinates[CrystalIterator].GetPositionY(),
+                                                    CrystalCoordinates[CrystalIterator].GetPositionZ(),
+                                                    0, 0, 0, 0, 0, -1);
+                ++CrystalIterator;
             }
             
             void MoveInLineOfSight(Unit* who)
             {
-                if (!m_bSaidIntro)
+                if (!SaidIntro)
                 {
                     Talk(SAY_INTRO);
-                    m_bSaidIntro = true;
+                    SaidIntro = true;
                 }
             }
             
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -224,43 +222,43 @@ class boss_ossirian : public CreatureScript
                     DoCast(me->getVictim(), SPELL_SUMMON);
                 
                 // Supreme mode
-                if (m_uiSupremeTimer <= uiDiff)
+                if (SupremeTimer <= diff)
                 {
                     if (!me->HasAura(SPELL_SUPREME))
                         DoCast(me, SPELL_SUPREME);
                         
                     Talk(SAY_SUPREME);
-                    m_uiSupremeTimer = 45000;
+                    SupremeTimer = 45000;
                 }
                 else
-                    m_uiSupremeTimer -= uiDiff;
+                    SupremeTimer -= diff;
                 
                 // Stomp
-                if (m_uiStompTimer < uiDiff)
+                if (StompTimer < diff)
                 {
                     DoCast(me, SPELL_STOMP);
-                    m_uiStompTimer = 30000;
+                    StompTimer = 30000;
                 }
                 else
-                    m_uiStompTimer -= uiDiff;
+                    StompTimer -= diff;
                 
                 // Cyclone
-                if (m_uiCycloneTimer < uiDiff)
+                if (CycloneTimer < diff)
                 {
                     DoCast(me->getVictim(), SPELL_CYCLONE);
-                    m_uiCycloneTimer = 20000;
+                    CycloneTimer = 20000;
                 }
                 else
-                    m_uiCycloneTimer -= uiDiff;
+                    CycloneTimer -= diff;
                     
                 // Silence
-                if (m_uiSilenceTimer < uiDiff)
+                if (SilenceTimer < diff)
                 {
                     DoCast(me, SPELL_SILENCE);
-                    m_uiSilenceTimer = urand(20000, 30000);
+                    SilenceTimer = urand(20000, 30000);
                 }
                 else 
-                    m_uiSilenceTimer -= uiDiff;
+                    SilenceTimer -= diff;
                     
                 DoMeleeAttackIfReady();
             }
@@ -272,27 +270,26 @@ class boss_ossirian : public CreatureScript
         }
 };
 
-class GO_ossirian_crystal : public GameObjectScript
+class ossirian_crystal : public GameObjectScript
 {
     public:
-        GO_ossirian_crystal() : GameObjectScript("go_ossirian_crystal")
+        ossirian_crystal() : GameObjectScript("go_ossirian_crystal")
         {
         }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
-            InstanceScript* pInstance = player->GetInstanceScript();
+            InstanceScript* Instance = player->GetInstanceScript();
 
-            if(!pInstance)
-                return false;
-                
-            Creature* pOssirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
-            
-            if(!pOssirian || pInstance->GetData(BOSS_OSSIRIAN) != IN_PROGRESS)
+            if (!Instance)
                 return false;
             
-            pOssirian->AI()->DoAction(0xBEEF);
+            Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
             
+            if (!Ossirian)
+                return false;
+            
+            Ossirian->AI()->DoAction(0xBEEF);
             return true;
         }
 };
@@ -300,5 +297,5 @@ class GO_ossirian_crystal : public GameObjectScript
 void AddSC_boss_ossirian()
 {
     new boss_ossirian();
-    new GO_ossirian_crystal();
+    new ossirian_crystal();
 }
