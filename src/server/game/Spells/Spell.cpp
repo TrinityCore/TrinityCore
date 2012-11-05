@@ -5704,7 +5704,7 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
                 return delayForScatters;
             // Wyvern Sting
             if (_spell->Id == 19386)
-                return delayForDisorient;
+                return delayForDisorients;
             break;
         case SPELLFAMILY_MAGE:
             // Deep Freeze
@@ -5748,7 +5748,7 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
         case SPELLFAMILY_ROGUE:
             // Blind
             if (_spell->Id == 2094)
-                return delayForIDisorients;
+                return delayForDisorients;
             // CheapShot
             if (_spell->Id == 1833)
                 return delayForOpenerStuns;
@@ -5819,7 +5819,7 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
 
     for (uint8 i = 0; i < CCDArraySize; ++i)
          if (_spell->HasAura(auraWithCCD[i]))
-             return delayForInstantSpells;
+             return NOdelayForInstantSpells;
 
     return 0;
 }
