@@ -2694,6 +2694,23 @@ CustomArenaLogs = 0
 GCTokenVendorLog = 0
 
 #
+#     CryptRun.Enable
+#        Description: Determines whether custom Crypt run event is enabled or not
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+CryptRun.Enable = 0
+
+#
+#     CryptRun.Reward
+#        Description: Amount of GC tokens rewarded to the race winner
+#        Default:     10
+#
+
+CryptRun.Reward = 10
+
+#
 ###################################################################################################
 
 ###################################################################################################
