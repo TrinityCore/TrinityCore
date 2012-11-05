@@ -499,13 +499,19 @@ class boss_sindragosa : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE_FAR, SindragosaAirPosFar);
                             break;
                         case EVENT_ICE_TOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
+                            std::list<Player*> targets;
+                            SelectRandomTarget(false, &targets);
+                            if (!targets.empty())
                             {
+                                Unit* target = targets();
+                            //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
+                            //{
                                 Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
-                                DoCast(target, SPELL_ICE_TOMB_TARGET, true);
+                                me->CastCustomSpell(target, SPELL_ICE_TOMB_TARGET, DRUID_LIFEBLOOM_FINAL_HEAL, NULL, NULL, NULL, true, NULL, NULL);
+                                //DoCast(target, SPELL_ICE_TOMB_TARGET, true);
                                 //DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
                                 //DoCast(target, SPELL_FROST_BEACON, true);
-                            }
+                            //}
                             events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
                             break;
                         case EVENT_FROST_BOMB:
@@ -559,6 +565,38 @@ class boss_sindragosa : public CreatureScript
             bool _isInAirPhase;
             bool _isThirdPhase;
             bool _summoned;
+
+            // offtank for this encounter is the player standing closest to main tank
+            Player* SelectRandomTarget(bool includeOfftank, std::list<Player*>* targetList = NULL)
+            {
+                std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
+                std::list<Player*> tempTargets;
+
+                if (threatlist.empty())
+                    return NULL;
+
+                for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                    if (Unit* refTarget = (*itr)->getTarget())
+                        if (refTarget != me->getVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank ? true : (refTarget != _offtank)))
+                            tempTargets.push_back(refTarget->ToPlayer());
+
+                if (tempTargets.empty())
+                    return NULL;
+
+                if (targetList)
+                {
+                    *targetList = tempTargets;
+                    return NULL;
+                }
+
+                if (includeOfftank)
+                {
+                    tempTargets.sort(Trinity::ObjectDistanceOrderPred(me->getVictim()));
+                    return tempTargets.front();
+                }
+
+                return Trinity::Containers::SelectRandomContainerElement(tempTargets);
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
