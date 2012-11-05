@@ -661,7 +661,7 @@ ConditionList ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureId, uint
     CreatureSpellConditionContainer::const_iterator itr = VehicleSpellConditionStore.find(creatureId);
     if (itr != VehicleSpellConditionStore.end())
     {
-            ConditionTypeContainer::const_iterator i = (*itr).second.find(spellId);
+        ConditionTypeContainer::const_iterator i = (*itr).second.find(spellId);
         if (i != (*itr).second.end())
         {
             cond = (*i).second;
@@ -737,7 +737,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         Condition* cond = new Condition();
         int32 iSourceTypeOrReferenceId   = fields[0].GetInt32();
         cond->SourceGroup               = fields[1].GetUInt32();
-        cond->SourceEntry               = fields[2].GetUInt32();
+        cond->SourceEntry               = fields[2].GetInt32();
         cond->SourceId                  = fields[3].GetInt32();
         cond->ElseGroup                 = fields[4].GetUInt32();
         int32 iConditionTypeOrReference  = fields[5].GetInt32();

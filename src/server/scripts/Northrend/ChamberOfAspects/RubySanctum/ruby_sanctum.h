@@ -52,7 +52,6 @@ enum DataTypes
     DATA_BURNING_TREE_4                     = 16,
     DATA_FLAME_RING                         = 17,
     DATA_TWILIGHT_FLAME_RING                = 18,
-    DATA_COMBAT_STALKER                     = 19,
 };
 
 enum SharedActions
@@ -97,7 +96,7 @@ enum CreaturesIds
     NPC_METEOR_STRIKE_FLAME                 = 40055,
     NPC_COMBUSTION                          = 40001,
     NPC_CONSUMPTION                         = 40135,
-    NPC_COMBAT_STALKER                      = 40151,
+    NPC_COMBAT_STALKER                      = 40151, // Seen in sniffs but not used, so no wonder.
 
     // Xerestrasza
     NPC_XERESTRASZA                         = 40429,

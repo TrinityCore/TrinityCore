@@ -24,8 +24,9 @@
 #include "DatabaseEnv.h"
 #include "AccountMgr.h"
 
-Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
- : m_announce(true), m_ownership(true), m_name(name), m_password(""), m_flags(0), m_channelId(channel_id), m_ownerGUID(0), m_Team(Team)
+Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team) : m_announce(true),
+    m_ownership(true), m_name(name), m_password(""), m_flags(0), m_channelId(channel_id),
+    m_ownerGUID(0), m_Team(Team)
 {
     m_IsSaved = false;
     // set special flags if built-in channel
@@ -70,10 +71,9 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
                 if (db_BannedList)
                 {
                     Tokenizer tokens(db_BannedList, ' ');
-                    Tokenizer::const_iterator iter;
-                    for (iter = tokens.begin(); iter != tokens.end(); ++iter)
+                    for (Tokenizer::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
                     {
-                        uint64 banned_guid = atol(*iter);
+                        uint64 banned_guid = atol(*i);
                         if (banned_guid)
                         {
                             sLog->outDebug(LOG_FILTER_CHATSYS, "Channel(%s) loaded banned guid:" UI64FMTD "", name.c_str(), banned_guid);
@@ -118,7 +118,6 @@ void Channel::UpdateChannelInDB() const
 
         sLog->outDebug(LOG_FILTER_CHATSYS, "Channel(%s) updated in database", m_name.c_str());
     }
-
 }
 
 void Channel::UpdateChannelUseageInDB() const

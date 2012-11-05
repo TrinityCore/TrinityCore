@@ -440,7 +440,7 @@ void Battlefield::BroadcastPacketToWar(WorldPacket& data) const
                 player->GetSession()->SendPacket(&data);
 }
 
-WorldPacket Battlefield::BuildWarningAnnPacket(std::string msg)
+WorldPacket Battlefield::BuildWarningAnnPacket(std::string const& msg)
 {
     WorldPacket data(SMSG_MESSAGECHAT, 200);
 

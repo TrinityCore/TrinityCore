@@ -32,10 +32,10 @@
 #include "Group.h"
 #include "SpellInfo.h"
 
-void WorldSession::HandleDismissCritter(WorldPacket &recv_data)
+void WorldSession::HandleDismissCritter(WorldPacket &recvData)
 {
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, guid);
 
@@ -44,7 +44,7 @@ void WorldSession::HandleDismissCritter(WorldPacket &recv_data)
     if (!pet)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Vanitypet (guid: %u) does not exist - player '%s' (guid: %u / account: %u) attempted to dismiss it (possibly lagged out)",
-                uint32(GUID_LOPART(guid)), GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), GetAccountId());
+            uint32(GUID_LOPART(guid)), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow(), GetAccountId());
         return;
     }
 
@@ -55,14 +55,14 @@ void WorldSession::HandleDismissCritter(WorldPacket &recv_data)
     }
 }
 
-void WorldSession::HandlePetAction(WorldPacket & recv_data)
+void WorldSession::HandlePetAction(WorldPacket & recvData)
 {
     uint64 guid1;
     uint32 data;
     uint64 guid2;
-    recv_data >> guid1;                                     //pet guid
-    recv_data >> data;
-    recv_data >> guid2;                                     //tag guid
+    recvData >> guid1;                                     //pet guid
+    recvData >> data;
+    recvData >> guid2;                                     //tag guid
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
@@ -73,13 +73,13 @@ void WorldSession::HandlePetAction(WorldPacket & recv_data)
 
     if (!pet)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) doesn't exist for player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) doesn't exist for player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName().c_str());
         return;
     }
 
     if (pet != GetPlayer()->GetFirstControlled())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) does not belong to player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) does not belong to player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName().c_str());
         return;
     }
 
@@ -110,10 +110,10 @@ void WorldSession::HandlePetAction(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandlePetStopAttack(WorldPacket &recv_data)
+void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
 {
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PET_STOP_ATTACK for GUID " UI64FMTD "", guid);
 
@@ -127,7 +127,8 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recv_data)
 
     if (pet != GetPlayer()->GetPet() && pet != GetPlayer()->GetCharm())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetStopAttack: Pet GUID %u isn't a pet or charmed creature of player %s", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetStopAttack: Pet GUID %u isn't a pet or charmed creature of player %s",
+            uint32(GUID_LOPART(guid)), GetPlayer()->GetName().c_str());
         return;
     }
 
@@ -394,15 +395,15 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
     }
 }
 
-void WorldSession::HandlePetNameQuery(WorldPacket & recv_data)
+void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetNameQuery. CMSG_PET_NAME_QUERY");
 
     uint32 petnumber;
     uint64 petguid;
 
-    recv_data >> petnumber;
-    recv_data >> petguid;
+    recvData >> petnumber;
+    recvData >> petguid;
 
     SendPetNameQuery(petguid, petnumber);
 }
@@ -421,11 +422,9 @@ void WorldSession::SendPetNameQuery(uint64 petguid, uint32 petnumber)
         return;
     }
 
-    std::string name = pet->GetName();
-
-    WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+4+name.size()+1));
+    WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+4+pet->GetName().size()+1));
     data << uint32(petnumber);
-    data << name.c_str();
+    data << pet->GetName();
     data << uint32(pet->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP));
 
     if (pet->isPet() && ((Pet*)pet)->GetDeclinedNames())
@@ -463,14 +462,14 @@ bool WorldSession::CheckStableMaster(uint64 guid)
     return true;
 }
 
-void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
+void WorldSession::HandlePetSetAction(WorldPacket & recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetSetAction. CMSG_PET_SET_ACTION");
 
     uint64 petguid;
     uint8  count;
 
-    recv_data >> petguid;
+    recvData >> petguid;
 
     Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
 
@@ -487,7 +486,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
         return;
     }
 
-    count = (recv_data.size() == 24) ? 2 : 1;
+    count = (recvData.size() == 24) ? 2 : 1;
 
     uint32 position[2];
     uint32 data[2];
@@ -495,8 +494,8 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
 
     for (uint8 i = 0; i < count; ++i)
     {
-        recv_data >> position[i];
-        recv_data >> data[i];
+        recvData >> position[i];
+        recvData >> data[i];
 
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
 
@@ -545,7 +544,8 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
         uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data[i]);
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
 
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position[i], spell_id, uint32(act_state));
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X",
+            _player->GetName().c_str(), position[i], spell_id, uint32(act_state));
 
         //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
         if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
@@ -579,7 +579,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandlePetRename(WorldPacket & recv_data)
+void WorldSession::HandlePetRename(WorldPacket & recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename. CMSG_PET_RENAME");
 
@@ -589,9 +589,9 @@ void WorldSession::HandlePetRename(WorldPacket & recv_data)
     std::string name;
     DeclinedName declinedname;
 
-    recv_data >> petguid;
-    recv_data >> name;
-    recv_data >> isdeclined;
+    recvData >> petguid;
+    recvData >> name;
+    recvData >> isdeclined;
 
     Pet* pet = ObjectAccessor::FindPet(petguid);
                                                             // check it!
@@ -625,7 +625,7 @@ void WorldSession::HandlePetRename(WorldPacket & recv_data)
     {
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         {
-            recv_data >> declinedname.name[i];
+            recvData >> declinedname.name[i];
         }
 
         std::wstring wname;
@@ -664,10 +664,10 @@ void WorldSession::HandlePetRename(WorldPacket & recv_data)
     pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }
 
-void WorldSession::HandlePetAbandon(WorldPacket & recv_data)
+void WorldSession::HandlePetAbandon(WorldPacket & recvData)
 {
     uint64 guid;
-    recv_data >> guid;                                      //pet guid
+    recvData >> guid;                                      //pet guid
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetAbandon. CMSG_PET_ABANDON pet guid is %u", GUID_LOPART(guid));
 
     if (!_player->IsInWorld())
@@ -710,13 +710,13 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 
     if (!pet || (pet != _player->GetGuardianPet() && pet != _player->GetCharm()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName().c_str());
         return;
     }
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
     // do not add not learned spells/ passive spells
-    if (!pet->HasSpell(spellid) || spellInfo->IsAutocastable())
+    if (!pet->HasSpell(spellid) || !spellInfo->IsAutocastable())
         return;
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
@@ -755,7 +755,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName().c_str());
         return;
     }
 
@@ -848,33 +848,33 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetLearnTalent(WorldPacket & recv_data)
+void WorldSession::HandlePetLearnTalent(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_LEARN_TALENT");
 
     uint64 guid;
     uint32 talent_id, requested_rank;
-    recv_data >> guid >> talent_id >> requested_rank;
+    recvData >> guid >> talent_id >> requested_rank;
 
     _player->LearnPetTalent(guid, talent_id, requested_rank);
     _player->SendTalentsInfoData(true);
 }
 
-void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket & recv_data)
+void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LEARN_PREVIEW_TALENTS_PET");
 
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     uint32 talentsCount;
-    recv_data >> talentsCount;
+    recvData >> talentsCount;
 
     uint32 talentId, talentRank;
 
     for (uint32 i = 0; i < talentsCount; ++i)
     {
-        recv_data >> talentId >> talentRank;
+        recvData >> talentId >> talentRank;
 
         _player->LearnPetTalent(guid, talentId, talentRank);
     }
