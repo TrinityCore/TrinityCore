@@ -32,18 +32,18 @@ void TCSoapRunnable::run()
     soap.send_timeout = 5;
     if (!soap_valid_socket(soap_bind(&soap, m_host.c_str(), m_port, 100)))
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "TCSoap: couldn't bind to %s:%d", m_host.c_str(), m_port);
+        sLog->outError(LOG_FILTER_SOAP, "Couldn't bind to %s:%d", m_host.c_str(), m_port);
         exit(-1);
     }
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "TCSoap: bound to http://%s:%d", m_host.c_str(), m_port);
+    sLog->outInfo(LOG_FILTER_SOAP, "Bound to http://%s:%d", m_host.c_str(), m_port);
 
     while (!World::IsStopped())
     {
         if (!soap_valid_socket(soap_accept(&soap)))
             continue;   // ran into an accept timeout
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "TCSoap: accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip>>24)&0xFF, (int)(soap.ip>>16)&0xFF, (int)(soap.ip>>8)&0xFF, (int)soap.ip&0xFF);
+        sLog->outDebug(LOG_FILTER_SOAP, "Accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip>>24)&0xFF, (int)(soap.ip>>16)&0xFF, (int)(soap.ip>>8)&0xFF, (int)soap.ip&0xFF);
         struct soap* thread_soap = soap_copy(&soap);// make a safe copy
 
         ACE_Message_Block* mb = new ACE_Message_Block(sizeof(struct soap*));
@@ -78,33 +78,33 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     // security check
     if (!soap->userid || !soap->passwd)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "TCSoap: Client didn't provide login information");
+        sLog->outDebug(LOG_FILTER_SOAP, "Client didn't provide login information");
         return 401;
     }
 
     uint32 accountId = AccountMgr::GetId(soap->userid);
     if (!accountId)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "TCSoap: Client used invalid username '%s'", soap->userid);
+        sLog->outDebug(LOG_FILTER_SOAP, "Client used invalid username '%s'", soap->userid);
         return 401;
     }
 
     if (!AccountMgr::CheckPassword(accountId, soap->passwd))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "TCSoap: invalid password for account '%s'", soap->userid);
+        sLog->outDebug(LOG_FILTER_SOAP, "Invalid password for account '%s'", soap->userid);
         return 401;
     }
 
     if (AccountMgr::GetSecurity(accountId) < SEC_ADMINISTRATOR)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "TCSoap: %s's gmlevel is too low", soap->userid);
+        sLog->outDebug(LOG_FILTER_SOAP, "%s's gmlevel is too low", soap->userid);
         return 403;
     }
 
     if (!command || !*command)
         return soap_sender_fault(soap, "Command mustn't be empty", "The supplied command was an empty string");
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "TCSoap: got command '%s'", command);
+    sLog->outDebug(LOG_FILTER_SOAP, "Got command '%s'", command);
     SOAPCommand connection;
 
     // commands are executed in the world thread. We have to wait for them to be completed
@@ -119,7 +119,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     int acc = connection.pendingCommands.acquire();
     if (acc)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "TCSoap: Error while acquiring lock, acc = %i, errno = %u", acc, errno);
+        sLog->outError(LOG_FILTER_SOAP, "Error while acquiring lock, acc = %i, errno = %u", acc, errno);
     }
 
     // alright, command finished

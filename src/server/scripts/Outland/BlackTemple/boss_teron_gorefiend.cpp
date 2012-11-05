@@ -169,12 +169,12 @@ public:
 
         void CheckPlayers()
         {
-            std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
-            if (m_threatlist.empty())
+            ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
+            if (threatlist.empty())
                 return;                                         // No threat list. Don't continue.
-            std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
+            ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
             std::list<Unit*> targets;
-            for (; itr != m_threatlist.end(); ++itr)
+            for (; itr != threatlist.end(); ++itr)
             {
                 Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->isAlive())
@@ -207,7 +207,6 @@ public:
             } else CheckTeronTimer -= diff;
         }
     };
-
 };
 
 class boss_teron_gorefiend : public CreatureScript
@@ -317,20 +316,20 @@ public:
             return coord;
         }
 
-        void SetThreatList(Creature* Blossom)
+        void SetThreatList(Creature* blossom)
         {
-            if (!Blossom)
+            if (!blossom)
                 return;
 
-            std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
-            std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
-            for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+            ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
+            for (i = threatlist.begin(); i != threatlist.end(); ++i)
             {
                 Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && unit->isAlive())
                 {
                     float threat = DoGetThreat(unit);
-                    Blossom->AddThreat(unit, threat);
+                    blossom->AddThreat(unit, threat);
                 }
             }
         }
@@ -344,26 +343,26 @@ public:
             /**    WHAT IS FULLY NECESSARY FOR GOREFIEND TO BE 100% COMPLETE    *****/
             /************************************************************************/
 
-            Unit* Ghost = NULL;
+            Unit* ghost = NULL;
             if (GhostGUID)
-                Ghost = Unit::GetUnit(*me, GhostGUID);
-            if (Ghost && Ghost->isAlive() && Ghost->HasAura(SPELL_SHADOW_OF_DEATH))
+                ghost = Unit::GetUnit(*me, GhostGUID);
+            if (ghost && ghost->isAlive() && ghost->HasAura(SPELL_SHADOW_OF_DEATH))
             {
                 /*float x, y, z;
-                Ghost->GetPosition(x, y, z);
+                ghost->GetPosition(x, y, z);
                 Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000);
                 if (control)
                 {
-                    CAST_PLR(Ghost)->Possess(control);
-                    Ghost->DealDamage(Ghost, Ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL,
+                    CAST_PLR(ghost)->Possess(control);
+                    ghost->DealDamage(ghost, ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL,
                 false);
                 }*/
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     Creature* Construct = NULL;
-                    float X = CalculateRandomLocation(Ghost->GetPositionX(), 10);
-                    float Y = CalculateRandomLocation(Ghost->GetPositionY(), 10);
-                    Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, Ghost->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                    float X = CalculateRandomLocation(ghost->GetPositionX(), 10);
+                    float Y = CalculateRandomLocation(ghost->GetPositionY(), 10);
+                    Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, ghost->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
                     if (Construct)
                     {
                         Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
@@ -511,7 +510,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_teron_gorefiend()

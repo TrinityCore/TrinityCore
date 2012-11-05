@@ -176,7 +176,7 @@ AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
     return AOR_OK;
 }
 
-uint32 GetId(std::string username)
+uint32 GetId(std::string const& username)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
     stmt->setString(0, username);
@@ -265,7 +265,7 @@ bool normalizeString(std::string& utf8String)
     return WStrToUtf8(buffer, maxLength, utf8String);
 }
 
-std::string CalculateShaPassHash(std::string& name, std::string& password)
+std::string CalculateShaPassHash(std::string const& name, std::string const& password)
 {
     SHA1Hash sha;
     sha.Initialize();

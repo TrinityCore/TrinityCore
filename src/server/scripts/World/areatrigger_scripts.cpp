@@ -235,21 +235,19 @@ enum eWaygate
 
     QUEST_THE_MAKERS_OVERLOOK                   = 12613,
     QUEST_THE_MAKERS_PERCH                      = 12559,
+    QUEST_MEETING_A_GREAT_ONE                   = 13956,
 };
 
 class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
 {
     public:
 
-        AreaTrigger_at_sholazar_waygate()
-            : AreaTriggerScript("at_sholazar_waygate")
-        {
-        }
+        AreaTrigger_at_sholazar_waygate() : AreaTriggerScript("at_sholazar_waygate") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
-            if (player->GetQuestStatus(QUEST_THE_MAKERS_OVERLOOK) == QUEST_STATUS_REWARDED && !player->isDead() &&
-                player->GetQuestStatus(QUEST_THE_MAKERS_PERCH)    == QUEST_STATUS_REWARDED)
+            if (!player->isDead() && (player->GetQuestStatus(QUEST_MEETING_A_GREAT_ONE) != QUEST_STATUS_NONE ||
+                (player->GetQuestStatus(QUEST_THE_MAKERS_OVERLOOK) == QUEST_STATUS_REWARDED && player->GetQuestStatus(QUEST_THE_MAKERS_PERCH) == QUEST_STATUS_REWARDED)))
             {
                 switch (trigger->id)
                 {
@@ -298,76 +296,6 @@ class AreaTrigger_at_nats_landing : public AreaTriggerScript
                     return false;
                 }
             }
-            return true;
-        }
-};
-
-/*######
-## at_bring_your_orphan_to
-######*/
-
-enum BringYourOrphanTo
-{
-    QUEST_DOWN_AT_THE_DOCKS         = 910,
-    QUEST_GATEWAY_TO_THE_FRONTIER   = 911,
-    QUEST_LORDAERON_THRONE_ROOM     = 1800,
-    QUEST_BOUGHT_OF_ETERNALS        = 1479,
-    QUEST_SPOOKY_LIGHTHOUSE         = 1687,
-    QUEST_STONEWROUGHT_DAM          = 1558,
-    QUEST_DARK_PORTAL_H             = 10951,
-    QUEST_DARK_PORTAL_A             = 10952,
-
-    AT_DOWN_AT_THE_DOCKS            = 3551,
-    AT_GATEWAY_TO_THE_FRONTIER      = 3549,
-    AT_LORDAERON_THRONE_ROOM        = 3547,
-    AT_BOUGHT_OF_ETERNALS           = 3546,
-    AT_SPOOKY_LIGHTHOUSE            = 3552,
-    AT_STONEWROUGHT_DAM             = 3548,
-    AT_DARK_PORTAL                  = 4356,
-
-    AURA_ORPHAN_OUT                 = 58818,
-};
-
-class AreaTrigger_at_bring_your_orphan_to : public AreaTriggerScript
-{
-    public:
-        AreaTrigger_at_bring_your_orphan_to() : AreaTriggerScript("at_bring_your_orphan_to") { }
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
-        {
-            uint32 questId = 0;
-
-            if (player->isDead() || !player->HasAura(AURA_ORPHAN_OUT))
-                return false;
-
-            switch (trigger->id)
-            {
-                case AT_DOWN_AT_THE_DOCKS:
-                    questId = QUEST_DOWN_AT_THE_DOCKS;
-                    break;
-                case AT_GATEWAY_TO_THE_FRONTIER:
-                    questId = QUEST_GATEWAY_TO_THE_FRONTIER;
-                    break;
-                case AT_LORDAERON_THRONE_ROOM:
-                    questId = QUEST_LORDAERON_THRONE_ROOM;
-                    break;
-                case AT_BOUGHT_OF_ETERNALS:
-                    questId = QUEST_BOUGHT_OF_ETERNALS;
-                    break;
-                case AT_SPOOKY_LIGHTHOUSE:
-                    questId = QUEST_SPOOKY_LIGHTHOUSE;
-                    break;
-                case AT_STONEWROUGHT_DAM:
-                    questId = QUEST_STONEWROUGHT_DAM;
-                    break;
-                case AT_DARK_PORTAL:
-                    questId = player->GetTeam() == ALLIANCE ? QUEST_DARK_PORTAL_A : QUEST_DARK_PORTAL_H;
-                    break;
-            }
-
-            if (questId && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
-                player->AreaExploredOrEventHappens(questId);
-
             return true;
         }
 };
@@ -505,7 +433,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_last_rites();
     new AreaTrigger_at_sholazar_waygate();
     new AreaTrigger_at_nats_landing();
-    new AreaTrigger_at_bring_your_orphan_to();
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
 }
