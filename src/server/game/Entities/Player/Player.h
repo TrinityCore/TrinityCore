@@ -46,6 +46,7 @@ class Channel;
 class Creature;
 class DynamicObject;
 class Group;
+class Guild;
 class OutdoorPvP;
 class Pet;
 class PlayerMenu;
@@ -911,7 +912,7 @@ class PlayerTaxi
         ~PlayerTaxi() {}
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
-        void LoadTaxiMask(const char* data);
+        void LoadTaxiMask(std::string const& data);
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {
@@ -934,7 +935,7 @@ class PlayerTaxi
         void AppendTaximaskTo(ByteBuffer& data, bool all);
 
         // Destinations
-        bool LoadTaxiDestinationsFromString(const std::string& values, uint32 team);
+        bool LoadTaxiDestinationsFromString(std::string const& values, uint32 team);
         std::string SaveTaxiDestinationsToString();
 
         void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
@@ -1198,11 +1199,11 @@ class Player : public Unit, public GridObject<Player>
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
         uint32 GetPhaseMaskForSpawn() const;                // used for proper set phase for DB at GM-mode creature/GO spawn
 
-        void Say(const std::string& text, const uint32 language);
-        void Yell(const std::string& text, const uint32 language);
-        void TextEmote(const std::string& text);
-        void Whisper(const std::string& text, const uint32 language, uint64 receiver);
-        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language) const;
+        void Say(std::string const& text, const uint32 language);
+        void Yell(std::string const& text, const uint32 language);
+        void TextEmote(std::string const& text);
+        void Whisper(std::string const& text, const uint32 language, uint64 receiver);
+        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, std::string const& text, uint32 language) const;
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
@@ -1239,7 +1240,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, 2); }
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, 2, count); }
-        bool HasItemCount(uint32 item, uint32 count, bool inBankAlso = false) const;
+        bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = NULL);
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
@@ -1256,7 +1257,6 @@ class Player : public Unit, public GridObject<Player>
                 return EQUIP_ERR_ITEM_NOT_FOUND;
             uint32 count = pItem->GetCount();
             return CanStoreItem(bag, slot, dest, pItem->GetEntry(), count, pItem, swap, NULL);
-
         }
         InventoryResult CanStoreItems(Item** pItem, int count) const;
         InventoryResult CanEquipNewItem(uint8 slot, uint16& dest, uint32 item, bool swap) const;
@@ -1661,8 +1661,8 @@ class Player : public Unit, public GridObject<Player>
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
-        uint32 GetReputation(uint32 factionentry);
-        std::string GetGuildName();
+        uint32 GetReputation(uint32 factionentry) const;
+        std::string const& GetGuildName();
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points);
         bool resetTalents(bool no_cost = false);
@@ -1820,9 +1820,10 @@ class Player : public Unit, public GridObject<Player>
 
         void SetInGuild(uint32 GuildId) { SetUInt32Value(PLAYER_GUILDID, GuildId); }
         void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
-        uint8 GetRank() { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
+        uint8 GetRank() const { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
         void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
-        uint32 GetGuildId() { return GetUInt32Value(PLAYER_GUILDID);  }
+        uint32 GetGuildId() const { return GetUInt32Value(PLAYER_GUILDID);  }
+        Guild* GetGuild();
         static uint32 GetGuildIdFromDB(uint64 guid);
         static uint8 GetRankFromDB(uint64 guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }

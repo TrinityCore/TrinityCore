@@ -34,6 +34,17 @@ enum LfgCompatibility
     LFG_COMPATIBLES_MATCH                                  // Must be the last one
 };
 
+struct LfgCompatibilityData
+{
+    LfgCompatibilityData(): compatibility(LFG_COMPATIBILITY_PENDING) { }
+    LfgCompatibilityData(LfgCompatibility _compatibility): compatibility(_compatibility) { }
+    LfgCompatibilityData(LfgCompatibility _compatibility, LfgRolesMap const& _roles):
+        compatibility(_compatibility), roles(_roles) { }
+
+    LfgCompatibility compatibility;
+    LfgRolesMap roles;    
+};
+
 /// Stores player or group queue info
 struct LfgQueueData
 {
@@ -41,26 +52,10 @@ struct LfgQueueData
         healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
         { }
 
-    LfgQueueData(time_t _joinTime, const LfgDungeonSet &_dungeons, const LfgRolesMap &_roles)
-    {
-        joinTime = _joinTime;
-        dungeons = _dungeons;
-        roles = _roles;
-        tanks = LFG_TANKS_NEEDED;
-        healers = LFG_HEALERS_NEEDED;
-        dps = LFG_DPS_NEEDED;
-
-        for (LfgRolesMap::const_iterator it = roles.begin(); it != roles.end(); ++it)
-        {
-            uint8 role = it->second;
-            if (role & PLAYER_ROLE_TANK)
-                --tanks;
-            else if (role & PLAYER_ROLE_HEALER)
-                --healers;
-            else
-                --dps;
-        }
-    }
+    LfgQueueData(time_t _joinTime, const LfgDungeonSet &_dungeons, LfgRolesMap const& _roles):
+        joinTime(_joinTime), tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED),
+        dps(LFG_DPS_NEEDED), dungeons(_dungeons), roles(_roles)
+        { }
 
     time_t joinTime;                                       ///< Player queue join time (to calculate wait times)
     uint8 tanks;                                           ///< Tanks needed
@@ -68,6 +63,7 @@ struct LfgQueueData
     uint8 dps;                                             ///< Dps needed
     LfgDungeonSet dungeons;                                ///< Selected Player/Group Dungeon/s
     LfgRolesMap roles;                                     ///< Selected Player Role/s
+    std::string bestCompatible;                            ///< Best compatible combination of people queued
 };
 
 struct LfgWaitTime
@@ -77,14 +73,14 @@ struct LfgWaitTime
     uint32 number;                                         ///< Number of people used to get that wait time
 };
 
-typedef std::map<uint32, LfgWaitTime> LfgWaitTimesMap;
-typedef std::map<std::string, LfgCompatibility> LfgCompatibleMap;
-typedef std::map<uint64, LfgQueueData> LfgQueueDataMap;
+typedef std::map<uint32, LfgWaitTime> LfgWaitTimesContainer;
+typedef std::map<std::string, LfgCompatibilityData> LfgCompatibleContainer;
+typedef std::map<uint64, LfgQueueData> LfgQueueDataContainer;
 
 /**
     Stores all data related to queue
 */
-class LfgQueue
+class LFGQueue
 {
     public:
 
@@ -108,10 +104,13 @@ class LfgQueue
         uint8 FindGroups();
 
         // Just for debugging purposes
-        LfgCompatibleMap const& GetCompatibleMap();
         std::string DumpQueueInfo() const;
-        std::string DumpCompatibleInfo() const;
+        std::string DumpCompatibleInfo(bool full = false) const;
+
     private:
+        void SetQueueUpdateData(std::string const& strGuids, LfgRolesMap const& proposalRoles);
+        LfgRolesMap const& RemoveFromQueueUpdateData(uint64 guid);
+
         void AddToNewQueue(uint64 guid);
         void AddToCurrentQueue(uint64 guid);
         void RemoveFromNewQueue(uint64 guid);
@@ -121,19 +120,24 @@ class LfgQueue
         LfgCompatibility GetCompatibles(std::string const& key);
         void RemoveFromCompatibles(uint64 guid);
 
+        void SetCompatibilityData(std::string const& key, LfgCompatibilityData const& compatibles);
+        LfgCompatibilityData* GetCompatibilityData(std::string const& key);
+        void FindBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue);
+        void UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue, std::string const& key, LfgRolesMap const& roles);
+
         LfgCompatibility FindNewGroups(LfgGuidList& check, LfgGuidList& all);
         LfgCompatibility CheckCompatibility(LfgGuidList check);
 
         // Queue
-        LfgQueueDataMap m_QueueDataMap;                    ///< Queued groups
-        LfgCompatibleMap m_CompatibleMap;                  ///< Compatible dungeons
+        LfgQueueDataContainer QueueDataStore;              ///< Queued groups
+        LfgCompatibleContainer CompatibleMapStore;         ///< Compatible dungeons
 
-        LfgWaitTimesMap m_waitTimesAvg;                    ///< Average wait time to find a group queuing as multiple roles
-        LfgWaitTimesMap m_waitTimesTank;                   ///< Average wait time to find a group queuing as tank
-        LfgWaitTimesMap m_waitTimesHealer;                 ///< Average wait time to find a group queuing as healer
-        LfgWaitTimesMap m_waitTimesDps;                    ///< Average wait time to find a group queuing as dps
-        LfgGuidList m_currentQueue;                        ///< Ordered list. Used to find groups
-        LfgGuidList m_newToQueue;                          ///< New groups to add to queue
+        LfgWaitTimesContainer waitTimesAvgStore;           ///< Average wait time to find a group queuing as multiple roles
+        LfgWaitTimesContainer waitTimesTankStore;          ///< Average wait time to find a group queuing as tank
+        LfgWaitTimesContainer waitTimesHealerStore;        ///< Average wait time to find a group queuing as healer
+        LfgWaitTimesContainer waitTimesDpsStore;           ///< Average wait time to find a group queuing as dps
+        LfgGuidList currentQueueStore;                     ///< Ordered list. Used to find groups
+        LfgGuidList newToQueueStore;                       ///< New groups to add to queue
 };
 
 #endif

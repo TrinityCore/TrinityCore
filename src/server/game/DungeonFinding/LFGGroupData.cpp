@@ -93,9 +93,14 @@ LfgState LfgGroupData::GetOldState() const
     return m_OldState;
 }
 
-const LfgGuidSet &LfgGroupData::GetPlayers() const
+LfgGuidSet const& LfgGroupData::GetPlayers() const
 {
     return m_Players;
+}
+
+uint8 LfgGroupData::GetPlayerCount() const
+{
+    return m_Players.size();
 }
 
 uint64 LfgGroupData::GetLeader() const

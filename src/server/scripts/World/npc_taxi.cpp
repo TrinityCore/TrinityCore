@@ -77,7 +77,7 @@ public:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SUSURRUS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             break;
         case 20903: // Netherstorm - Protectorate Nether Drake
-            if (player->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(29778, 1))
+            if (player->GetQuestStatus(10438) == QUEST_STATUS_INCOMPLETE && player->HasItemCount(29778))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_NETHER_DRAKE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             break;
         case 18725: // Old Hillsbrad Foothills - Brazen
@@ -203,7 +203,7 @@ public:
             player->ActivateTaxiPathTo(627);                  //TaxiPath 627 (possibly 627+628(152->153->154->155))
             break;
         case GOSSIP_ACTION_INFO_DEF + 2:
-            if (!player->HasItemCount(25853, 1))
+            if (!player->HasItemCount(25853))
                 player->SEND_GOSSIP_MENU(9780, creature->GetGUID());
             else
             {

@@ -111,7 +111,6 @@ public:
                 DoScriptText(SAY_DISARMED, me);
         }
     };
-
 };
 
 class boss_midnight : public CreatureScript
@@ -232,7 +231,6 @@ public:
             CAST_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
         }
     };
-
 };
 
 void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
@@ -284,9 +282,9 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
         if (ChargeTimer <= diff)
         {
             Unit* target = NULL;
-            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
             std::vector<Unit*> target_list;
-            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
             {
                 target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (target && !target->IsWithinDist(me, ATTACK_DISTANCE, false))

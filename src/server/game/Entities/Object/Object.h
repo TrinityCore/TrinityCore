@@ -51,7 +51,7 @@ enum TypeMask
     TYPEMASK_OBJECT         = 0x0001,
     TYPEMASK_ITEM           = 0x0002,
     TYPEMASK_CONTAINER      = 0x0006,                       // TYPEMASK_ITEM | 0x0004
-    TYPEMASK_UNIT           = 0x0008, // creature
+    TYPEMASK_UNIT           = 0x0008,                       // creature
     TYPEMASK_PLAYER         = 0x0010,
     TYPEMASK_GAMEOBJECT     = 0x0020,
     TYPEMASK_DYNAMICOBJECT  = 0x0040,
@@ -325,7 +325,7 @@ class Object
         void _InitValues();
         void _Create(uint32 guidlow, uint32 entry, HighGuid guidhigh);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
-        void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
+        void _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);
 
         void GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOwner, bool& isItemOwner, bool& hasSpecialInfo, bool& isPartyMember) const;
 
@@ -654,10 +654,10 @@ class WorldObject : public Object, public WorldLocation
 
         InstanceScript* GetInstanceScript();
 
-        const char* GetName() const { return m_name.c_str(); }
-        void SetName(const std::string& newname) { m_name=newname; }
+        std::string const& GetName() const { return m_name; }
+        void SetName(std::string const& newname) { m_name=newname; }
 
-        virtual const char* GetNameForLocaleIdx(LocaleConstant /*locale_idx*/) const { return GetName(); }
+        virtual std::string const& GetNameForLocaleIdx(LocaleConstant /*locale_idx*/) const { return m_name; }
 
         float GetDistance(const WorldObject* obj) const
         {
@@ -743,7 +743,7 @@ class WorldObject : public Object, public WorldLocation
         void MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossEmote = false);
         void MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisper = false);
         void MonsterYellToZone(int32 textId, uint32 language, uint64 TargetGuid);
-        void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, char const* name, uint64 TargetGuid) const;
+        void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, std::string const& name, uint64 TargetGuid) const;
 
         void PlayDistanceSound(uint32 sound_id, Player* target = NULL);
         void PlayDirectSound(uint32 sound_id, Player* target = NULL);

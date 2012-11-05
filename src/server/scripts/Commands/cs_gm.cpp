@@ -133,16 +133,17 @@ public:
                     handler->SendSysMessage(LANG_GMS_ON_SRV);
                     handler->SendSysMessage("========================");
                 }
-                char const* name = itr->second->GetName();
+                std::string const& name = itr->second->GetName();
+                uint8 size = name.size();
                 uint8 security = itrSec;
-                uint8 max = ((16 - strlen(name)) / 2);
+                uint8 max = ((16 - size) / 2);
                 uint8 max2 = max;
-                if ((max + max2 + strlen(name)) == 16)
+                if ((max + max2 + size) == 16)
                     max2 = max - 1;
                 if (handler->GetSession())
-                    handler->PSendSysMessage("|    %s GMLevel %u", name, security);
+                    handler->PSendSysMessage("|    %s GMLevel %u", name.c_str(), security);
                 else
-                    handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max2, " ", security);
+                    handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name.c_str(), max2, " ", security);
             }
         }
         if (footer)
