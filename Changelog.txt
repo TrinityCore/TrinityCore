@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[80] --> Update CCDelay by Diton.
 [79] --> Core/Resistances:
           - Remove Holy Resistance from Players
           - Do not add Holy Resist from Items to Players
