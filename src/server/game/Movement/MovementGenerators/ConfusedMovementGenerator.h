@@ -15,28 +15,31 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+ 
 #ifndef TRINITY_CONFUSEDGENERATOR_H
 #define TRINITY_CONFUSEDGENERATOR_H
-
+ 
 #include "MovementGenerator.h"
 #include "Timer.h"
-
+ 
+#define MAX_CONF_WAYPOINTS 24 //! Allows a twelve second confusion if i_nextMove always is the absolute minimum timer.
+ 
 template<class T>
 class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMovementGenerator<T> >
 {
     public:
         explicit ConfusedMovementGenerator() : i_nextMoveTime(0) {}
-
+ 
         void Initialize(T*);
         void Finalize(T*);
         void Reset(T*);
-        bool Update(T*, const uint32&);
-
+        bool Update(T*, const uint32 &);
+ 
         MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
     private:
+        void _InitSpecific(T*, bool &, bool &);
         TimeTracker i_nextMoveTime;
-        float i_x, i_y, i_z;
+        float i_waypoints[MAX_CONF_WAYPOINTS+1][3];
+        uint32 i_nextMove;
 };
 #endif
-
