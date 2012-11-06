@@ -137,7 +137,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
         }
 
-<<<<<<< HEAD
+/* <<<<<<< HEAD */
         if (lang == LANG_ADDON)
         {
             // LANG_ADDON is only valid for the following message types
