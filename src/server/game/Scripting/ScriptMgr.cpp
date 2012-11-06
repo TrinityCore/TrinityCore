@@ -30,6 +30,7 @@
 #include "SpellScript.h"
 #include "GossipDef.h"
 #include "CreatureAI.h"
+#include "sc_npc_teleport.h"
 
 // This is the global static registry of scripts.
 template<class TScript>
@@ -250,6 +251,9 @@ void ScriptMgr::Initialize()
     uint32 oldMSTime = getMSTime();
 
     LoadDatabase();
+
+  // Load TeleNPC2 - maybe not the best place to load it ...
+  LoadNpcTele();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading C++ scripts");
 

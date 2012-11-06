@@ -28,6 +28,7 @@ void AddSC_example_commandscript();
 void AddSC_transmogrify_script();
 void AddSC_arena_spectator_script();
 void AddSC_utility_commandscript();
+void AddSC_npc_teleport();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1267,7 +1268,7 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-
+       void AddSC_EM_trader();
 #endif
 
 void AddCustomScripts()
@@ -1277,6 +1278,8 @@ void AddCustomScripts()
     AddSC_transmogrify_script();
     AddSC_arena_spectator_script();
     AddSC_utility_commandscript();
+    AddSC_EM_trader();
+    AddSC_npc_teleport();
 
 #endif
 }
