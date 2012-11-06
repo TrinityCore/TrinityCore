@@ -272,34 +272,6 @@ void BattlegroundTP::RespawnFlagAfterDrop(uint32 team)
     _bothFlagsKept = false;
 }
 
-void BattlegroundTP::RespawnFlagAfterDrop(uint32 team)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    RespawnFlag(team, false);
-    if (team == ALLIANCE)
-    {
-        SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(LANG_BG_TP_ALLIANCE_FLAG_RESPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-    }
-    else
-    {
-        SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(LANG_BG_TP_HORDE_FLAG_RESPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-    }
-
-    PlaySoundToAll(BG_TP_SOUND_FLAGS_RESPAWNED);
-
-    if (GameObject* obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID(team)))
-        obj->Delete();
-    else
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "unknown droped flag bg, guid: %u", GUID_LOPART(GetDroppedFlagGUID(team)));
-
-    SetDroppedFlagGUID(0, GetTeamIndexByTeamId(team));
-    _bothFlagsKept = false;
-}
-
 void BattlegroundTP::EventPlayerCapturedFlag(Player* Source)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -703,14 +675,14 @@ bool BattlegroundTP::SetupBattleground()
         return false;
     }
 
-    WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MAIN_ALLIANCE);
+    WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_ALLIANCE);
     if (!sg || !AddSpiritGuide(TP_SPIRIT_MAIN_ALLIANCE, sg->x, sg->y, sg->z, 3.641396f, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundTP: Failed to spawn Alliance spirit guide! Battleground not created!");
         return false;
     }
 
-    sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MAIN_HORDE);
+    sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_HORDE);
     if (!sg || !AddSpiritGuide(TP_SPIRIT_MAIN_HORDE, sg->x, sg->y, sg->z, 3.641396f, HORDE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundTP: Failed to spawn Horde spirit guide! Battleground not created!");
@@ -815,14 +787,14 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
     if (player->GetTeam() == ALLIANCE)
     {
         if (GetStatus() == STATUS_IN_PROGRESS)
-            return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MAIN_ALLIANCE);
+            return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_ALLIANCE);
         else
             return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_FLAGROOM_ALLIANCE);
     }
     else
     {
         if (GetStatus() == STATUS_IN_PROGRESS)
-            return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MAIN_HORDE);
+            return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_HORDE);
         else
             return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_FLAGROOM_HORDE);
     }
