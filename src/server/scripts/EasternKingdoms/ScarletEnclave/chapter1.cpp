@@ -332,12 +332,132 @@ public:
 };
 
 /*######
+## npc_eye_of_acherus
+######*/
+
+enum EyeOfAcherus
+{
+    DISPLAYID_EYE_HUGE          = 26320, // Big Blue
+    DISPLAYID_EYE_SMALL         = 25499, // Little green
+
+    SPELL_EYE_PHASEMASK         = 70889,
+    SPELL_EYE_VISUAL            = 51892,
+    SPELL_EYE_FL_BOOST_RUN      = 51923,
+    SPELL_EYE_FL_BOOST_FLY      = 51890,
+    SPELL_EYE_CONTROL           = 51852,
+};
+
+/*enum Texts
+{
+    SAY_EYE_LAUNCHED            = 1,
+    SAY_EYE_UNDER_CONTROL       = 2,
+};*/
+
+#define SAY_EYE_EMOTE1  "The Eye of Acherus launches towards its destination"
+
+#define SAY_EYE_EMOTE2  "The Eye of Acherus is in your control"
+
+static Position Center[]=
+{
+    { 2361.21f, -5660.45f, 496.7444f, 0.0f },
+};
+
+class npc_eye_of_acherus : public CreatureScript
+{
+public:
+    npc_eye_of_acherus() : CreatureScript("npc_eye_of_acherus") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_eye_of_acherusAI(creature);
+    }
+
+    struct npc_eye_of_acherusAI : public ScriptedAI
+    {
+        npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Reset();
+        }
+
+        uint32 startTimer;
+        bool IsActive;
+
+        void Reset()
+        {
+            if (Unit* controller = me->GetCharmer())
+                me->SetLevel(controller->getLevel());
+
+                me->CastSpell(me, SPELL_EYE_FL_BOOST_FLY, true);
+                me->SetDisplayId(DISPLAYID_EYE_HUGE);
+                // need to finish working on texts
+                //Talk(SAY_EYE_LAUNCHED);
+                me->MonsterSay(SAY_EYE_EMOTE1, LANG_UNIVERSAL, 0);
+                me->SetHomePosition(2361.21f, -5660.45f, 496.7444f, 0);
+                me->GetMotionMaster()->MoveCharge(1758.007f, -5876.785f, 166.8667f, 0); //position center
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+
+            IsActive   = false;
+            startTimer = 2000;
+        }
+
+        void AttackStart(Unit *) {}
+        void MoveInLineOfSight(Unit *) {}
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Unit* charmer = me->GetCharmer())
+               charmer->RemoveAurasDueToSpell(SPELL_EYE_CONTROL);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (me->isCharmed())
+            {
+                if (startTimer <=  diff && !IsActive)    // fly to start point
+                {
+                    me->CastSpell(me, SPELL_EYE_PHASEMASK, true);
+                    me->CastSpell(me, SPELL_EYE_VISUAL, true);
+                    me->CastSpell(me, SPELL_EYE_FL_BOOST_FLY, true);
+
+                    me->CastSpell(me, SPELL_EYE_FL_BOOST_RUN, true);
+                    me->SetSpeed(MOVE_FLIGHT, 4.5f, true);
+                    me->GetMotionMaster()->MovePoint(0, 1758.0f, -5876.7f, 166.8f);
+                    return;
+                }
+                else
+                    startTimer -= diff;
+            }
+            else
+                me->DespawnOrUnsummon();
+        }
+
+        void MovementInform(uint32 type, uint32 pointId)
+        {
+            if (type != POINT_MOTION_TYPE || pointId != 0)
+               return;
+
+            // this should never happen
+            me->SetDisplayId(DISPLAYID_EYE_SMALL);
+
+            // this spell does not work if casted before the wp movement.
+            me->CastSpell(me, SPELL_EYE_VISUAL, true);
+            me->CastSpell(me, SPELL_EYE_FL_BOOST_FLY, true);
+            // need to finish working on texts
+            //Talk(SAY_EYE_UNDER_CONTROL);
+            me->MonsterSay(SAY_EYE_EMOTE2, LANG_UNIVERSAL, 0);
+            ((Player*)(me->GetCharmer()))->SetClientControl(me, 1);
+        }
+    };
+};
+
+/*######
 ## npc_death_knight_initiate
 ######*/
 
 #define GOSSIP_ACCEPT_DUEL      "I challenge you, death knight!"
 
-enum eDuelEnums
+enum DuelEnums
 {
     SAY_DUEL_A                  = -1609080,
     SAY_DUEL_B                  = -1609081,
@@ -353,6 +473,8 @@ enum eDuelEnums
     //SPELL_DUEL_TRIGGERED        = 52990,
     SPELL_DUEL_VICTORY          = 52994,
     SPELL_DUEL_FLAG             = 52991,
+	
+	SPELL_GROVEL                = 7267,
 
     QUEST_DEATH_CHALLENGE       = 12733,
     FACTION_HOSTILE             = 2068
@@ -465,9 +587,10 @@ public:
                     {
                         pDoneBy->RemoveGameObject(SPELL_DUEL_FLAG, true);
                         pDoneBy->AttackStop();
+						pDoneBy->getHostileRefManager().deleteReferences();
                         me->CastSpell(pDoneBy, SPELL_DUEL_VICTORY, true);
                         lose = true;
-                        me->CastSpell(me, 7267, true);
+                        me->CastSpell(me, SPELL_GROVEL, true);
                         me->RestoreFaction();
                     }
                 }
@@ -497,13 +620,13 @@ public:
             {
                 if (lose)
                 {
-                    if (!me->HasAura(7267))
+                    if (!me->HasAura(SPELL_GROVEL))
                         EnterEvadeMode();
                     return;
                 }
                 else if (me->getVictim()->GetTypeId() == TYPEID_PLAYER && me->getVictim()->HealthBelowPct(10))
                 {
-                    me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
+                    me->getVictim()->CastSpell(me->getVictim(), SPELL_GROVEL, true); // beg
                     me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                     EnterEvadeMode();
                     return;
@@ -522,7 +645,11 @@ public:
 ## npc_dark_rider_of_acherus
 ######*/
 
-#define DESPAWN_HORSE 52267
+enum DarkRider
+{
+    SPELL_DESPAWN_HORSE    = 52267
+};
+
 #define SAY_DARK_RIDER      "The realm of shadows awaits..."
 
 class npc_dark_rider_of_acherus : public CreatureScript
@@ -568,7 +695,7 @@ public:
                         break;
                     case 1:
                         if (Unit* target = Unit::GetUnit(*me, TargetGUID))
-                            DoCast(target, DESPAWN_HORSE, true);
+                            DoCast(target, SPELL_DESPAWN_HORSE, true);
                         PhaseTimer = 3000;
                         Phase = 2;
                         break;
@@ -608,13 +735,16 @@ public:
 ## npc_salanar_the_horseman
 ######*/
 
-enum eSalanar
+enum SalanarTheHorseman
 {
     REALM_OF_SHADOWS            = 52693,
     EFFECT_STOLEN_HORSE         = 52263,
     DELIVER_STOLEN_HORSE        = 52264,
-    CALL_DARK_RIDER             = 52266,
-    SPELL_EFFECT_OVERTAKE       = 52349
+    CALL_DARK_RIDER             = 52266, 
+    SPELL_EFFECT_OVERTAKE       = 52349,
+    QUEST_REALM_OF_SHADOWS      = 12687,
+    NPC_DARK_RIDER_OF_ACHERUS   = 28654,
+    NPC_SALANAR_THE_HORSEMAN    = 28788
 };
 
 class npc_salanar_the_horseman : public CreatureScript
@@ -645,7 +775,7 @@ public:
                             caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                             caster->setFaction(35);
                             DoCast(caster, CALL_DARK_RIDER, true);
-                            if (Creature* Dark_Rider = me->FindNearestCreature(28654, 15))
+                            if (Creature* Dark_Rider = me->FindNearestCreature(NPC_DARK_RIDER_OF_ACHERUS, 15))
                                 CAST_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
                         }
                     }
@@ -663,10 +793,10 @@ public:
                 {
                     if (charmer->GetTypeId() == TYPEID_PLAYER)
                     {
-                        // for quest Into the Realm of Shadows(12687)
-                        if (me->GetEntry() == 28788 && CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE)
+                        // for quest Into the Realm of Shadows(QUEST_REALM_OF_SHADOWS)
+                        if (me->GetEntry() == NPC_SALANAR_THE_HORSEMAN && CAST_PLR(charmer)->GetQuestStatus(QUEST_REALM_OF_SHADOWS) == QUEST_STATUS_INCOMPLETE)
                         {
-                            CAST_PLR(charmer)->GroupEventHappens(12687, me);
+                            CAST_PLR(charmer)->GroupEventHappens(QUEST_REALM_OF_SHADOWS, me);
                             charmer->RemoveAurasDueToSpell(SPELL_EFFECT_OVERTAKE);
                             CAST_CRE(who)->DespawnOrUnsummon();
                             //CAST_CRE(who)->Respawn(true);
@@ -685,6 +815,11 @@ public:
 /*######
 ## npc_ros_dark_rider
 ######*/
+
+enum RosDarkRider
+{
+    NPC_DEATHCHARGER     = 28782
+};
 
 class npc_ros_dark_rider : public CreatureScript
 {
@@ -707,7 +842,7 @@ public:
 
         void Reset()
         {
-            Creature* deathcharger = me->FindNearestCreature(28782, 30);
+            Creature* deathcharger = me->FindNearestCreature(NPC_DEATHCHARGER, 30);
             if (!deathcharger)
                 return;
 
@@ -720,7 +855,7 @@ public:
 
         void JustDied(Unit* killer)
         {
-            Creature* deathcharger = me->FindNearestCreature(28782, 30);
+            Creature* deathcharger = me->FindNearestCreature(NPC_DEATHCHARGER, 30);
             if (!deathcharger)
                 return;
 
@@ -738,9 +873,14 @@ public:
 // correct way: 52312 52314 52555 ...
 enum SG
 {
-    GHOULS = 28845,
-    GHOSTS = 28846,
+    NPC_SCARLET_GHOULS     = 28845,
+    NPC_SCARLET_GHOSTS     = 28846,
+
+    QUEST_GIFT_THAT_KEEPS_GIVING   = 12698,
+	
+    SPELL_SCARLET_GHOUL_CREDIT     = 52517
 };
+
 class npc_dkc1_gothik : public CreatureScript
 {
 public:
@@ -759,22 +899,22 @@ public:
         {
             ScriptedAI::MoveInLineOfSight(who);
 
-            if (who->GetEntry() == GHOULS && me->IsWithinDistInMap(who, 10.0f))
+            if (who->GetEntry() == NPC_SCARLET_GHOULS && me->IsWithinDistInMap(who, 10.0f))
             {
                 if (Unit* owner = who->GetOwner())
                 {
                     if (owner->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
-                            CAST_CRE(who)->CastSpell(owner, 52517, true);
+                        if (CAST_PLR(owner)->GetQuestStatus(QUEST_GIFT_THAT_KEEPS_GIVING) == QUEST_STATUS_INCOMPLETE)
+                            CAST_CRE(who)->CastSpell(owner, SPELL_SCARLET_GHOUL_CREDIT, true);
 
                         //Todo: Creatures must not be removed, but, must instead
                         //      stand next to Gothik and be commanded into the pit
                         //      and dig into the ground.
                         CAST_CRE(who)->DespawnOrUnsummon();
 
-                        if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_COMPLETE)
-                            owner->RemoveAllMinionsByEntry(GHOULS);
+                        if (CAST_PLR(owner)->GetQuestStatus(QUEST_GIFT_THAT_KEEPS_GIVING) == QUEST_STATUS_COMPLETE)
+                            owner->RemoveAllMinionsByEntry(NPC_SCARLET_GHOULS);
                     }
                 }
             }
@@ -797,7 +937,7 @@ public:
     {
         npc_scarlet_ghoulAI(Creature* creature) : ScriptedAI(creature)
         {
-            // Ghouls should display their Birth Animation
+            // NPC_SCARLET_GHOULS should display their Birth Animation
             // Crawling out of the ground
             //DoCast(me, 35177, true);
             //me->MonsterSay("Mommy?", LANG_UNIVERSAL, 0);
@@ -807,7 +947,7 @@ public:
         void FindMinions(Unit* owner)
         {
             std::list<Creature*> MinionList;
-            owner->GetAllMinionsByEntry(MinionList, GHOULS);
+            owner->GetAllMinionsByEntry(MinionList, NPC_SCARLET_GHOULS);
 
             if (!MinionList.empty())
             {
@@ -833,7 +973,7 @@ public:
                     Player* plrOwner = owner->ToPlayer();
                     if (plrOwner && plrOwner->isInCombat())
                     {
-                        if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == GHOSTS)
+                        if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_SCARLET_GHOULS)
                             AttackStart(plrOwner->getAttackerForHelper());
                         else
                             FindMinions(owner);
@@ -846,7 +986,7 @@ public:
 
             //ScriptedAI::UpdateAI(diff);
             //Check if we have a current target
-            if (me->getVictim()->GetEntry() == GHOSTS)
+            if (me->getVictim()->GetEntry() == NPC_SCARLET_GHOSTS)
             {
                 if (me->isAttackReady())
                 {
@@ -867,8 +1007,11 @@ public:
 ## npc_scarlet_miner_cart
 ####*/
 
-#define SPELL_CART_CHECK     54173
-#define SPELL_CART_DRAG      52465
+enum MinerCart
+{
+    SPELL_CART_CHECK     = 54173,
+    SPELL_CART_DRAG      = 52465
+};
 
 class npc_scarlet_miner_cart : public CreatureScript
 {
@@ -1057,7 +1200,13 @@ public:
 ## go_inconspicuous_mine_car
 ######*/
 
-#define SPELL_CART_SUMM   52463
+enum MineCar
+{
+    SPELL_HIDE_IN_MINE_CAR          = 52463,
+    NPC_SCARLET_MINER               = 28841,
+    NPC_MINE_CAR                    = 28817,
+    QUEST_MASSACRE_AT_LIGHTS_POINT  = 12701
+};
 
 class go_inconspicuous_mine_car : public GameObjectScript
 {
@@ -1066,15 +1215,15 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
-        if (player->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_MASSACRE_AT_LIGHTS_POINT) == QUEST_STATUS_INCOMPLETE)
         {
             // Hack Why Trinity Dont Support Custom Summon Location
-            if (Creature* miner = player->SummonCreature(28841, 2383.869629f, -5900.312500f, 107.996086f, player->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1))
+            if (Creature* miner = player->SummonCreature(NPC_SCARLET_MINER, 2383.869629f, -5900.312500f, 107.996086f, player->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1))
             {
-                player->CastSpell(player, SPELL_CART_SUMM, true);
+                player->CastSpell(player, SPELL_HIDE_IN_MINE_CAR, true);
                 if (Creature* car = player->GetVehicleCreatureBase())
                 {
-                    if (car->GetEntry() == 28817)
+                    if (car->GetEntry() == NPC_MINE_CAR)
                     {
                         car->AI()->SetGUID(miner->GetGUID());
                         CAST_AI(npc_scarlet_miner::npc_scarlet_minerAI, miner->AI())->InitCartQuest(player);
@@ -1094,6 +1243,7 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_unworthy_initiate();
     new npc_unworthy_initiate_anchor();
     new go_acherus_soul_prison();
+	new npc_eye_of_acherus();
     new npc_death_knight_initiate();
     new npc_salanar_the_horseman();
     new npc_dark_rider_of_acherus();
