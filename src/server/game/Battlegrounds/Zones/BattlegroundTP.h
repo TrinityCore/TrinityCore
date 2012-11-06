@@ -70,35 +70,39 @@ enum BG_TP_WorldStates
 
 enum BG_TP_ObjectTypes
 {
-    BG_TP_OBJECT_DOOR_A_1       = 0,
-    BG_TP_OBJECT_DOOR_A_2       = 1,    
-	BG_TP_OBJECT_DOOR_A_3       = 2,    
-	BG_TP_OBJECT_DOOR_H_1       = 3,    
-	BG_TP_OBJECT_DOOR_H_2       = 4,    
-	BG_TP_OBJECT_DOOR_H_3       = 5,    
-	BG_TP_OBJECT_A_FLAG         = 6,    
-	BG_TP_OBJECT_H_FLAG         = 7,    
-	BG_TP_OBJECT_SPEEDBUFF_1    = 8,    
-	BG_TP_OBJECT_SPEEDBUFF_2    = 9,    
-	BG_TP_OBJECT_REGENBUFF_1    = 10,    
-	BG_TP_OBJECT_REGENBUFF_2    = 11,    
-	BG_TP_OBJECT_BERSERKBUFF_1  = 12,    
-	BG_TP_OBJECT_BERSERKBUFF_2  = 13,    
-	BG_TP_OBJECT_MAX            = 14
+    BG_TP_OBJECT_DOOR_A_1        = 0,
+    BG_TP_OBJECT_DOOR_A_2        = 1,
+    BG_TP_OBJECT_DOOR_A_3        = 2,
+    BG_TP_OBJECT_DOOR_A_4        = 3,
+    BG_TP_OBJECT_DOOR_H_1        = 4,
+    BG_TP_OBJECT_DOOR_H_2        = 5,
+    BG_TP_OBJECT_DOOR_H_3        = 6,
+    BG_TP_OBJECT_DOOR_H_4        = 7,
+    BG_TP_OBJECT_A_FLAG          = 8,
+    BG_TP_OBJECT_H_FLAG          = 9,
+    BG_TP_OBJECT_SPEEDBUFF_1     = 10,
+    BG_TP_OBJECT_SPEEDBUFF_2     = 11,
+    BG_TP_OBJECT_REGENBUFF_1     = 12,
+    BG_TP_OBJECT_REGENBUFF_2     = 13,
+    BG_TP_OBJECT_BERSERKBUFF_1   = 14,
+    BG_TP_OBJECT_BERSERKBUFF_2   = 15,
+    BG_TP_OBJECT_MAX             = 16
 };
 
 enum BG_TP_ObjectEntry
 {
-    BG_OBJECT_DOOR_A_1_TP_ENTRY          = 402191,
-    BG_OBJECT_DOOR_A_2_TP_ENTRY          = 402190,    
-	BG_OBJECT_DOOR_A_3_TP_ENTRY          = 402189,    
-	BG_OBJECT_DOOR_H_1_TP_ENTRY          = 402364,    
-	BG_OBJECT_DOOR_H_2_TP_ENTRY          = 402365,    
-	BG_OBJECT_DOOR_H_3_TP_ENTRY          = 402366,    
-	BG_OBJECT_A_FLAG_TP_ENTRY            = 179830,    
-	BG_OBJECT_H_FLAG_TP_ENTRY            = 179831,    
-	BG_OBJECT_A_FLAG_GROUND_TP_ENTRY     = 179785,    
-	BG_OBJECT_H_FLAG_GROUND_TP_ENTRY     = 179786
+    BG_OBJECT_DOOR_A_1_TP_ENTRY        = 206655,
+    BG_OBJECT_DOOR_A_2_TP_ENTRY        = 206654,
+    BG_OBJECT_DOOR_A_3_TP_ENTRY        = 206653,
+    BG_OBJECT_DOOR_A_4_TP_ENTRY        = 206653,
+    BG_OBJECT_DOOR_H_1_TP_ENTRY        = 208205,
+    BG_OBJECT_DOOR_H_2_TP_ENTRY        = 208206,
+    BG_OBJECT_DOOR_H_3_TP_ENTRY        = 208206,
+    BG_OBJECT_DOOR_H_4_TP_ENTRY        = 208207,
+    BG_OBJECT_A_FLAG_TP_ENTRY          = 179830,
+    BG_OBJECT_H_FLAG_TP_ENTRY          = 179831,
+    BG_OBJECT_A_FLAG_GROUND_TP_ENTRY   = 179785,
+    BG_OBJECT_H_FLAG_GROUND_TP_ENTRY   = 179786
 };
 
 enum BG_TP_FlagState

@@ -27,6 +27,8 @@
 #include "World.h"
 #include "WorldPacket.h"
 
+/* Dev Zamalaev */
+
 enum BG_BFG_Rewards
 {
     BG_BFG_MAP_COMPLETE,

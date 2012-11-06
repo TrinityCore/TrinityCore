@@ -23,6 +23,8 @@
 #include "BattlegroundMgr.h"
 #include "Language.h"
 
+/* Dev Zamalaev */
+
 class Battleground;
 
 enum BG_BFG_WorldStates
