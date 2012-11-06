@@ -18,10 +18,8 @@
 #include "Common.h"
 #include "GuildMgr.h"
 
-GuildMgr::GuildMgr()
-{
-    NextGuildId = 1;
-}
+GuildMgr::GuildMgr() : NextGuildId(1)
+{ }
 
 GuildMgr::~GuildMgr()
 {
@@ -114,19 +112,6 @@ uint32 GuildMgr::GetXPForGuildLevel(uint8 level) const
     return 0;
 }
 
-void GuildMgr::ResetExperienceCaps()
-{
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));
-
-    for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        itr->second->ResetDailyExperience();
-}
-
-void GuildMgr::ResetReputationCaps()
-{
-    /// @TODO: Implement
-}
-
 void GuildMgr::LoadGuilds()
 {
     // 1. Load all guilds
@@ -158,6 +143,7 @@ void GuildMgr::LoadGuilds()
                     delete guild;
                     continue;
                 }
+
                 AddGuild(guild);
 
                 ++count;
@@ -209,23 +195,18 @@ void GuildMgr::LoadGuilds()
 
         // Delete orphaned guild member entries before loading the valid ones
         CharacterDatabase.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
+        CharacterDatabase.DirectExecute("DELETE gm FROM guild_member_withdraw gm LEFT JOIN guild_member g ON gm.guid = g.guid WHERE g.guid IS NULL");
 
-                                                     //          0        1        2     3      4        5                   6
-        QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, rank, pnote, offnote, BankResetTimeMoney, BankRemMoney, "
-                                                     //   7                  8                 9                  10                11                 12
-                                                     "BankResetTimeTab0, BankRemSlotsTab0, BankResetTimeTab1, BankRemSlotsTab1, BankResetTimeTab2, BankRemSlotsTab2, "
-                                                     //   13                 14                15                 16                17                 18
-                                                     "BankResetTimeTab3, BankRemSlotsTab3, BankResetTimeTab4, BankRemSlotsTab4, BankResetTimeTab5, BankRemSlotsTab5, "
-                                                     //   19                 20                21                 22
-                                                     "BankResetTimeTab6, BankRemSlotsTab6, BankResetTimeTab7, BankRemSlotsTab7, "
-                                                     //   23      24       25       26      27         28
-                                                     "c.name, c.level, c.class, c.zone, c.account, c.logout_time "
-                                                     "FROM guild_member gm LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");
+                                                //           0        1        2     3      4        5       6       7       8       9       10
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, gm.guid, rank, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
+                                                //    11      12      13       14      15       16       17      18         19
+                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time "
+                                                     "FROM guild_member gm "
+                                                     "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
+                                                     "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");
 
         if (!result)
-        {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild members. DB table `guild_member` is empty.");
-        }
         else
         {
             uint32 count = 0;
@@ -254,7 +235,7 @@ void GuildMgr::LoadGuilds()
         // Delete orphaned guild bank right entries before loading the valid ones
         CharacterDatabase.DirectExecute("DELETE gbr FROM guild_bank_right gbr LEFT JOIN guild g ON gbr.guildId = g.guildId WHERE g.guildId IS NULL");
 
-                                                     //       0        1      2    3        4
+                                                     //      0        1      2    3        4
         QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, rid, gbright, SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
 
         if (!result)
@@ -448,18 +429,20 @@ void GuildMgr::LoadGuilds()
     sLog->outInfo(LOG_FILTER_GENERAL, "Validating data of loaded guilds...");
     {
         uint32 oldMSTime = getMSTime();
+        std::set<Guild*> rm; // temporary storage to avoid modifying GuildStore with RemoveGuild() while iterating
 
         for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
         {
             Guild* guild = itr->second;
-            if (guild)
-            {
-                if (!guild->Validate())
-                {
-                    RemoveGuild(guild->GetId());
-                    delete guild;
-                }
-            }
+            if (guild && !guild->Validate())
+                rm.insert(guild);
+        }
+
+        for (std::set<Guild*>::iterator itr = rm.begin(); itr != rm.end(); ++itr)
+        {
+            Guild* guild = *itr;
+            RemoveGuild(guild->GetId());
+            delete guild;
         }
 
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -564,4 +547,14 @@ void GuildMgr::LoadGuildRewards()
     } while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild reward definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void GuildMgr::ResetTimes(bool week)
+{
+    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));
+    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER_WITHDRAW));
+
+    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        if (Guild* guild = itr->second)
+            guild->ResetTimes(week);
 }
