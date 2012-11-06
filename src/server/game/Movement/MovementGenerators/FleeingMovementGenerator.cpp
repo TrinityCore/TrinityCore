@@ -406,12 +406,8 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, const uint32& time_diff)
     {
         owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
         return true;
-    }
- 
-    i_totalFleeTime.Update(time_diff);
-    if (i_totalFleeTime.Passed())
-        return false;
- 
+    } 
+
     i_totalFleeTime.Update(time_diff);
     if (i_totalFleeTime.Passed())
         return false;
