@@ -33,10 +33,10 @@
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 
-void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
 {
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
     uint8 questStatus = DIALOG_STATUS_NONE;
     uint8 defstatus = DIALOG_STATUS_NONE;
 
@@ -79,10 +79,10 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recv_data)
     _player->PlayerTalkClass->SendQuestGiverStatus(questStatus, guid);
 }
 
-void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket & recv_data)
+void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket & recvData)
 {
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u", GUID_LOPART(guid));
 
@@ -109,12 +109,12 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket & recv_data)
     creature->AI()->sGossipHello(_player);
 }
 
-void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
+void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recvData)
 {
     uint64 guid;
     uint32 questId;
     uint32 unk1;
-    recv_data >> guid >> questId >> unk1;
+    recvData >> guid >> questId >> unk1;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_ACCEPT_QUEST npc = %u, quest = %u, unk1 = %u", uint32(GUID_LOPART(guid)), questId, unk1);
 
@@ -230,12 +230,12 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recv_data)
+void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recvData)
 {
     uint64 guid;
     uint32 questId;
     uint8 unk1;
-    recv_data >> guid >> questId >> unk1;
+    recvData >> guid >> questId >> unk1;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_QUERY_QUEST npc = %u, quest = %u, unk1 = %u", uint32(GUID_LOPART(guid)), questId, unk1);
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
@@ -268,24 +268,24 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleQuestQueryOpcode(WorldPacket & recv_data)
+void WorldSession::HandleQuestQueryOpcode(WorldPacket & recvData)
 {
     if (!_player)
         return;
 
     uint32 questId;
-    recv_data >> questId;
+    recvData >> questId;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_QUERY quest = %u", questId);
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
         _player->PlayerTalkClass->SendQuestQueryResponse(quest);
 }
 
-void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
+void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recvData)
 {
     uint32 questId, reward;
     uint64 guid;
-    recv_data >> guid >> questId >> reward;
+    recvData >> guid >> questId >> reward;
 
     if (reward >= QUEST_REWARD_CHOICES_COUNT)
     {
@@ -365,11 +365,11 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recv_data)
+void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
 {
     uint32 questId;
     uint64 guid;
-    recv_data >> guid >> questId;
+    recvData >> guid >> questId;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_REQUEST_REWARD npc = %u, quest = %u", uint32(GUID_LOPART(guid)), questId);
 
@@ -391,17 +391,17 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recv_data)
         _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
 }
 
-void WorldSession::HandleQuestgiverCancel(WorldPacket& /*recv_data*/)
+void WorldSession::HandleQuestgiverCancel(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_CANCEL");
 
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recv_data)
+void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recvData)
 {
     uint8 slot1, slot2;
-    recv_data >> slot1 >> slot2;
+    recvData >> slot1 >> slot2;
 
     if (slot1 == slot2 || slot1 >= MAX_QUEST_LOG_SIZE || slot2 >= MAX_QUEST_LOG_SIZE)
         return;
@@ -411,10 +411,10 @@ void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recv_data)
     GetPlayer()->SwapQuestSlot(slot1, slot2);
 }
 
-void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
+void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
 {
     uint8 slot;
-    recv_data >> slot;
+    recvData >> slot;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = %u", slot);
 
@@ -444,10 +444,10 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
     }
 }
 
-void WorldSession::HandleQuestConfirmAccept(WorldPacket& recv_data)
+void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 {
     uint32 questId;
-    recv_data >> questId;
+    recvData >> questId;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT quest = %u", questId);
 
@@ -479,12 +479,12 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recv_data)
     }
 }
 
-void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
+void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 {
     uint32 questId;
     uint64 guid;
 
-    recv_data >> guid >> questId;
+    recvData >> guid >> questId;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, quest = %u", uint32(GUID_LOPART(guid)), questId);
 
@@ -760,7 +760,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     SendPacket(&data);
 }
 
-void WorldSession::HandleQueryQuestsCompleted(WorldPacket & /*recv_data*/)
+void WorldSession::HandleQueryQuestsCompleted(WorldPacket & /*recvData*/)
 {
     size_t rew_count = _player->GetRewardedQuestCount();
 
