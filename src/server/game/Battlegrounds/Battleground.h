@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "DBCEnums.h"
+#include "SpectatorAddon.h"
 
 class Creature;
 class GameObject;
@@ -134,12 +135,12 @@ enum BattlegroundBuffObjects
 
 enum BattlegroundRandomRewards
 {
-    BG_REWARD_WINNER_HONOR_FIRST    = 30,
-    BG_REWARD_WINNER_ARENA_FIRST    = 25,
-    BG_REWARD_WINNER_HONOR_LAST     = 15,
+    BG_REWARD_WINNER_HONOR_FIRST    = 60,
+    BG_REWARD_WINNER_ARENA_FIRST    = 50,
+    BG_REWARD_WINNER_HONOR_LAST     = 30,
     BG_REWARD_WINNER_ARENA_LAST     = 0,
-    BG_REWARD_LOSER_HONOR_FIRST     = 5,
-    BG_REWARD_LOSER_HONOR_LAST      = 5
+    BG_REWARD_LOSER_HONOR_FIRST     = 15,
+    BG_REWARD_LOSER_HONOR_LAST      = 15
 };
 
 const uint32 Buff_Entries[3] = { BG_OBJECTID_SPEEDBUFF_ENTRY, BG_OBJECTID_REGENBUFF_ENTRY, BG_OBJECTID_BERSERKERBUFF_ENTRY };
@@ -394,6 +395,13 @@ class Battleground
         uint32 GetInvitedCount(uint32 team) const   { return (team == ALLIANCE) ? m_InvitedAlliance : m_InvitedHorde; }
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
+
+        typedef std::set<uint32> SpectatorList;
+        void AddSpectator(uint32 playerId) { m_Spectators.insert(playerId); }
+        void RemoveSpectator(uint32 playerId) { m_Spectators.erase(playerId); }
+        bool HaveSpectators() { return (m_Spectators.size() > 0); }
+        void SendSpectateAddonsMsg(SpectatorAddonMsg msg);
+
 
         bool isArena() const        { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
@@ -672,6 +680,8 @@ class Battleground
 
         // Raid Group
         Group* m_BgRaids[BG_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
+
+        SpectatorList m_Spectators;
 
         // Players count by team
         uint32 m_PlayersCount[BG_TEAMS_COUNT];

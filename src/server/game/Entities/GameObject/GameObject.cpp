@@ -453,9 +453,12 @@ void GameObject::Update(uint32 diff)
                         VisitNearbyWorldObject(radius, searcher);
                         ok = player;
                     }
-
-                    if (ok)
+                   if (ok)
                     {
+                        if (Player *tmpPlayer = ok->ToPlayer())
+                            if (tmpPlayer->isSpectator())
+                                return;
+
                         // some traps do not have spell but should be triggered
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
@@ -1668,6 +1671,12 @@ void GameObject::Use(Unit* user)
 
 void GameObject::CastSpell(Unit* target, uint32 spellId)
 {
+    if (target)
+        if (Player *tmpPlayer = target->ToPlayer())
+            if (tmpPlayer->isSpectator())
+                return;
+
+
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
         return;

@@ -490,7 +490,7 @@ SpellValue::SpellValue(SpellInfo const* proto)
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID, bool skipCheck) :
 m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)),
 m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster)
-, m_spellValue(new SpellValue(m_spellInfo))
+, m_spellValue(new SpellValue(m_spellInfo)), m_preGeneratedPath(PathGenerator(m_caster))
 {
     m_customError = SPELL_CUSTOM_ERROR_NONE;
     m_skipCheck = skipCheck;
@@ -610,6 +610,7 @@ Spell::~Spell()
 
     if (m_caster && m_caster->GetTypeId() == TYPEID_PLAYER)
         ASSERT(m_caster->ToPlayer()->m_spellModTakingSpell != this);
+
     delete m_spellValue;
 
     CheckEffectExecuteData();
@@ -1433,10 +1434,19 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         dist = objSize + (dist - objSize) * (float)rand_norm();
 
     Position pos;
-    if (targetType.GetTarget() == TARGET_DEST_CASTER_FRONT_LEAP)
-        m_caster->GetFirstCollisionPosition(pos, dist, angle);
-    else
-        m_caster->GetNearPosition(pos, dist, angle);
+            switch (targetType.GetTarget())
+            {	
+                 case TARGET_DEST_CASTER_FRONT_LEAP:
+                 case TARGET_DEST_CASTER_FRONT_LEFT:
+                 case TARGET_DEST_CASTER_BACK_LEFT:
+                 case TARGET_DEST_CASTER_BACK_RIGHT:
+                 case TARGET_DEST_CASTER_FRONT_RIGHT:
+                   m_caster->GetFirstCollisionPosition(pos, dist, angle);
+                   break;
+              default:
+                    m_caster->GetNearPosition(pos, dist, angle);
+                   break;
+            }
     m_targets.SetDst(*m_caster);
     m_targets.ModDst(pos);
 }
@@ -2177,16 +2187,20 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         // TODO: this is a hack
         float dist = m_caster->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
-        if (dist < 5.0f)
-            dist = 5.0f;
-        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1000.0f);
+        if (dist < 1.0f)
+            dist = 1.0f;
+        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1100.0f);
 
         // Calculate minimum incoming time
         if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
             m_delayMoment = targetInfo.timeDelay;
     }
     else
-        targetInfo.timeDelay = 0LL;
+    {
+        targetInfo.timeDelay = GetCCDelay(m_spellInfo);
+        if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
+            m_delayMoment = targetInfo.timeDelay;
+    }
 
     // If target reflect spell back to caster
     if (targetInfo.missCondition == SPELL_MISS_REFLECT)
@@ -2258,7 +2272,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
         float dist = m_caster->GetDistance(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
         if (dist < 5.0f)
             dist = 5.0f;
-        target.timeDelay = uint64(floor(dist / m_spellInfo->Speed * 1000.0f));
+        target.timeDelay = uint64(floor(dist / m_spellInfo->Speed * 1100.0f));
         if (m_delayMoment == 0 || m_delayMoment > target.timeDelay)
             m_delayMoment = target.timeDelay;
     }
@@ -2726,13 +2740,42 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     if (AuraApplication* aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID()))
                         positive = aurApp->IsPositive();
 
-                    duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive, effectMask);
+                   duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive, effectMask);
 
                     // Haste modifies duration of channeled spells
                     if (m_spellInfo->IsChanneled())
                     {
                         if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
                             m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
+							
+				 // Seduction with Improved Succubus talent - fix duration. 
+                        if (m_spellInfo->Id == 6358 && unit->GetTypeId() == TYPEID_PLAYER && m_originalCaster->GetOwner()) 
+                            { 
+                                 float mod = 1.0f; 
+                                 float durationadd = 0.0f; 
+
+                                 if (m_originalCaster->GetOwner()->HasAura(18754)) 
+                                   durationadd += float(1.5*IN_MILLISECONDS*0.22); 
+                                 else if (m_originalCaster->GetOwner()->HasAura(18755)) 
+                                   durationadd += float(1.5*IN_MILLISECONDS*0.44); 
+                                 else if (m_originalCaster->GetOwner()->HasAura(18756)) 
+                                   durationadd += float(1.5*IN_MILLISECONDS*0.66); 
+
+                                 if (durationadd) 
+                                   { 
+                                       switch (m_diminishLevel) 
+                                       { 
+                                         case DIMINISHING_LEVEL_1: break; 
+                                         // lol, we lost 1 second here 
+                                         case DIMINISHING_LEVEL_2: duration += 1000; mod = 0.5f; break; 
+                                         case DIMINISHING_LEVEL_3: duration += 1000; mod = 0.25f; break; 
+                                         case DIMINISHING_LEVEL_IMMUNE: { m_spellAura->Remove(); return SPELL_MISS_IMMUNE; } 
+                                         default: break; 
+                                       } 
+                                 durationadd *= mod; 
+                                 duration += int32(durationadd); 
+                                   } 
+                            }
                     }
                     // and duration of auras affected by SPELL_AURA_PERIODIC_HASTE
                     else if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, aurSpellInfo) || m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
@@ -2748,6 +2791,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             }
         }
     }
+
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
@@ -3045,6 +3089,16 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
 
+    if (GetCaster() && GetSpellInfo())
+        if (Player *tmpPlayer = GetCaster()->ToPlayer())
+            if (tmpPlayer->HaveSpectators())
+            {
+                SpectatorAddonMsg msg;
+                msg.SetPlayer(tmpPlayer->GetName());
+                msg.CastSpell(GetSpellInfo()->Id, GetSpellInfo()->CastTimeEntry->CastTime);
+                tmpPlayer->SendSpectatorAddonMsgToBG(msg);
+            }
+
     //Containers for channeled spells have to be set
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channelled triggers channelled
@@ -3139,6 +3193,8 @@ void Spell::cancel()
 
 void Spell::cast(bool skipCheck)
 {
+
+	
     // update pointers base at GUIDs to prevent access to non-existed already object
     UpdatePointers();
 
@@ -3288,7 +3344,7 @@ void Spell::cast(bool skipCheck)
     SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
+    if (((m_spellInfo->Speed > 0.0f || GetCCDelay(m_spellInfo) > 0) && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -4755,6 +4811,11 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_ONLY_INDOORS;
     }
 
+    if (Player *tmpPlayer = m_caster->ToPlayer())
+        if (tmpPlayer->isSpectator())
+            return SPELL_FAILED_SPELL_UNAVAILABLE;
+
+
     // only check at first call, Stealth auras are already removed at second call
     // for now, ignore triggered spells
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_SHAPESHIFT))
@@ -5139,7 +5200,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                             return SPELL_FAILED_BAD_TARGETS;
                 break;
             }
-            case SPELL_EFFECT_CHARGE:
+        case SPELL_EFFECT_CHARGE:
             {
                 if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
                 {
@@ -5147,12 +5208,30 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
                         m_caster->RemoveMovementImpairingAuras();
                 }
+
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
                     return SPELL_FAILED_ROOTED;
+
+                Unit* target = m_targets.GetUnitTarget();
+
+                if (!target)
+                    return SPELL_FAILED_DONT_REPORT;
+
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Unit* target = m_targets.GetUnitTarget())
-                        if (!target->isAlive())
-                            return SPELL_FAILED_BAD_TARGETS;
+                    if (!target->isAlive())
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                Position pos;
+                target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+                target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
+
+                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
+                bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
+                if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+                else if (!result)
+                    return SPELL_FAILED_NOPATH;
+
                 break;
             }
             case SPELL_EFFECT_SKINNING:
@@ -5568,6 +5647,120 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
 
     return CheckCast(true);
 }
+
+uint32 Spell::GetCCDelay(SpellInfo const* _spell)
+{
+    //Saqirmdev -- Fixes
+    AuraType auraWithCCD[] = {
+		SPELL_AURA_MOD_STUN,
+		SPELL_AURA_MOD_SILENCE,
+		SPELL_AURA_MOD_CONFUSE,
+		SPELL_AURA_MOD_FEAR,
+		SPELL_AURA_MOD_DISARM,
+		SPELL_AURA_MOD_ROOT,
+		SPELL_AURA_MOD_POSSESS
+	};
+	uint8 CCDArraySize = 7;
+
+    const uint32 delayForInstantSpells = 130;
+    const uint32 delayForInstantSpells2 = 50;
+    const uint32 delayForInstantSpells3 = 160;
+    const uint32 delayForInstantSpells4 = 230;
+    const uint32 NOdelayForInstantSpells = 0;
+
+    switch(_spell->SpellFamilyName)
+    {
+        case SPELLFAMILY_HUNTER:
+            // Traps
+            if (_spell->SpellFamilyFlags[0] & 0x8 ||      // Frozen trap
+				_spell->Id == 57879 ||                    // Snake Trap
+                _spell->SpellFamilyFlags[2] & 0x00024000) // Explosive and Immolation Trap
+                return 0;
+
+            // Entrapment
+            if (_spell->SpellIconID == 20)
+                return 0;
+            break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            // Death Grip
+            if (_spell->Id == 49576)
+                return NOdelayForInstantSpells;
+				break;
+        case SPELLFAMILY_PRIEST:
+         //Psychic Scream
+          if (_spell->Id == 10890)
+              return delayForInstantSpells;
+		break;
+        case SPELLFAMILY_ROGUE:
+            // Blind
+            if (_spell->Id == 2094)
+                return delayForInstantSpells3;
+            // CheapShot
+            if (_spell->Id == 1833)
+                return NOdelayForInstantSpells;
+            // Kidney Shot
+            if (_spell->Id == 408)
+                return delayForInstantSpells2;
+            break;
+        case SPELLFAMILY_SHAMAN:
+            // HEX
+            if (_spell->Id == 51514)
+                return delayForInstantSpells3;
+			break;
+        case SPELLFAMILY_MAGE:
+            // Polymorph
+            if (_spell->Id == 12826)
+                return delayForInstantSpells3;
+            // Deep Freeze
+            if (_spell->Id == 44572)
+                return delayForInstantSpells2;
+            // Dragon Breath
+            if (_spell->Id == 42950)
+                return delayForInstantSpells;
+            break;
+        case SPELLFAMILY_WARRIOR:
+            // Intercept
+            if (_spell->Id == 20253)
+                return delayForInstantSpells2;
+            // Charge
+            if (_spell->Id == 7922)
+                return NOdelayForInstantSpells;
+            // Charge trig.
+            if (_spell->Id == 65929)
+                return NOdelayForInstantSpells;
+            break;
+        case SPELLFAMILY_WARLOCK:
+            //DeathCoil
+            if (_spell->Id == 27223)
+                return delayForInstantSpells4;
+		    //Spell Lock - Debuff
+			if (_spell->Id == 24259)
+			    return delayForInstantSpells4;
+           break;
+        case SPELLFAMILY_DRUID:
+            // Feral charge
+            if (_spell->Id == 45334)
+                return delayForInstantSpells2;
+            // Cyclone
+            if (_spell->Id == 33786)
+                return delayForInstantSpells3;
+            // Pounce
+            if (_spell->Id == 9005)
+                return NOdelayForInstantSpells;
+            break;
+    }
+
+    for (uint8 i = 0; i < CCDArraySize; ++i)
+        if (_spell->HasAura(auraWithCCD[i]))
+            return delayForInstantSpells;
+
+    return 0;
+
+}
+
+
+
+    //Saqirmdev -- Fixes
 
 SpellCastResult Spell::CheckCasterAuras() const
 {
@@ -7204,7 +7397,7 @@ void Spell::PrepareTriggersExecutedOnHit()
 // Global cooldowns management
 enum GCDLimits
 {
-    MIN_GCD = 1000,
+    MIN_GCD = 900,
     MAX_GCD = 1500
 };
 
@@ -7372,7 +7565,7 @@ WorldObjectSpellAreaTargetCheck::WorldObjectSpellAreaTargetCheck(float range, Po
 
 bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target)
 {
-    if (!target->IsWithinDist3d(_position, _range))
+    if (!target->IsWithinDist3d(_position, _range) && !(target->ToGameObject() && target->ToGameObject()->IsInRange(_position->GetPositionX(), _position->GetPositionY(), _position->GetPositionZ(), _range)))
         return false;
     return WorldObjectSpellTargetCheck::operator ()(target);
 }

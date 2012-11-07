@@ -186,6 +186,13 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 return DIMINISHING_FEAR;
             break;
         }
+        case SPELLFAMILY_SHAMAN:
+        {
+            // Storm, Earth and Fire - Earthgrab
+            if (spellproto->SpellFamilyFlags[2] & 0x4000)
+                return DIMINISHING_LIMITONLY;
+            break;
+        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Hungering Cold (no flags)
@@ -2782,6 +2789,47 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52743: // Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
+//Saqirmdev Tool Fixes
+
+         //SPELL IGNORE LOS (NOT WORKING FOR ALL)
+            case 48955: // Refer A Friend Summon Effect
+            case 2825: // Bloodlust
+            case 19185: // Entrapment
+            case 64803: // Entrapment
+            case 64804: // Entrapment
+            case 8172: // Totem of Cleansing
+            case 8145: // Totem of Tremor
+            case 55362: // Living Bomb Explode
+            case 32182: // Herosim
+            case 64843: // Divine Hymn
+            case 64844: // Divine Hymn (Trigger)
+            case 44461: //Living Bomb 
+            case 55361: //Living Bomb
+            case 19388: //Entrapment
+            case 19387: //Entrapment
+            case 19184: //entrapment
+            case 52865: //Combat Fix
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+              break;
+         //SPELL IGNORE LOS (NOT WORKING FOR ALL)
+
+         //SPELL CAN NOT IN INVISIbLE/STEALT
+        case 52212: // Death Knight: Death and Decay trigger spell
+            spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+             break;
+         //SPELL CAN NOT IN INVISIbLE/STEALT
+       
+         //SPELL CAN NOT CRIT!
+            case 48788: //Lay of Hand Rank 5 
+            case 27154: //Lay of Hand Rank 4 
+            case 10310: //Lay of Hand Rank 3 
+            case 2800: //Lay of Hand Rank 2 
+            case 633: //Lay of Hand Rank 1  
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+              break;
+         //SPELL CAN NOT CRIT!
+
+//Saqirmdev Tool Fixes
             case 53: // Backstab
             case 2589:
             case 2590:
@@ -3160,6 +3208,21 @@ void SpellMgr::LoadDbcDataCorrections()
             case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_7_YARDS;
                 break;
+                case 18754: // Improved succubus - problems with apply if target is pet 
+                                    spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;    // it's affects duration of seduction, let's minimize affection 
+                                    spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.22;           // reduce cast time of seduction by 22%  
+                                    spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER; 
+                                   break; 
+                                case 18755: 
+                                    spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER; 
+                                    spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.44;           //  reduce cast time of seduction by 44% 
+                                    spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER; 
+                                    break; 
+                               case 18756: 
+                                    spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER; 
+                                    spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.66;           //  reduce cast time of seduction by 66% 
+                                    spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;  
+                break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
             case 48420:
@@ -3244,6 +3307,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 spellInfo->EffectImplicitTargetB[1] = 0;
                 break;
+		case 5171: case 6774: // Slice and Dice
+			spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+            break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
             case 53244: // Marked for Death (Rank 3)

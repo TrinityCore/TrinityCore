@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
+#include "PathGenerator.h"
 
 class Unit;
 class Player;
@@ -384,6 +385,8 @@ class Spell
         SpellCastResult CheckCast(bool strict);
         SpellCastResult CheckPetCast(Unit* target);
 
+        static uint32 GetCCDelay(SpellInfo const* _spell);
+
         // handlers
         void handle_immediate();
         uint64 handle_delayed(uint64 t_offset);
@@ -665,6 +668,7 @@ class Spell
 
         bool m_skipCheck;
         uint8 m_auraScaleMask;
+        PathGenerator m_preGeneratedPath;
 
         ByteBuffer * m_effectExecuteData[MAX_SPELL_EFFECTS];
 

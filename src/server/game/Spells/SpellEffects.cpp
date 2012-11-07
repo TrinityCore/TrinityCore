@@ -63,6 +63,7 @@
 #include "GameObjectAI.h"
 #include "AccountMgr.h"
 #include "InstanceScript.h"
+#include "PathGenerator.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -360,7 +361,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     case 51963:
                     {
                         // about +4 base spell dmg per level
-                        damage = (m_caster->getLevel() - 60) * 4 + 60;
+                        damage = (m_caster->getLevel() - 60) * 4 + 20;
                         break;
                     }
                 }
@@ -548,7 +549,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                         unitTarget->RemoveAuraFromStack(spellId);
 
                                 damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);
+                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1055f * combo);
                             }
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
@@ -565,7 +566,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
                         {
                             float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
+                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.075f));
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
                             if (m_caster->HasAura(37169))
@@ -819,12 +820,29 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                 // Glyph of Mirror Image
                 if (m_caster->HasAura(63093))
                    m_caster->CastSpell(m_caster, 65047, true); // Mirror Image
-
                 break;
             }
+
+          case 35009: // Invisible
+		   m_caster->CombatStop();
+		      return;
+
+          case 62196: // Shadow. Trigger
+             m_caster->CombatStop();
+                return;
+
+          case 58984: // Shadowmeld
+             m_caster->CombatStop();
+                return;
+
             // Vanish (not exist)
             case 18461:
             {
+                m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+                unitTarget->InterruptSpell(CURRENT_CHANNELED_SPELL);  // break channeled spells
+                m_caster->AttackStop();
+                m_caster->CombatStop();
+                ((Player*)m_caster)->SendAttackSwingCancelAttack();
                 unitTarget->RemoveMovementImpairingAuras();
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
@@ -3330,7 +3348,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 }
 
                 if (found)
-                    totalDamagePercentMod *= 1.2f;          // 120% if poisoned
+                    totalDamagePercentMod *= 1.16f;          // 116% if poisoned
             }
             break;
         }
@@ -5104,31 +5122,29 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 {
+    if (!unitTarget)
+        return;
+
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-        if (!unitTarget)
-            return;
-
-        float angle = unitTarget->GetRelativeAngle(m_caster);
-        Position pos;
-
-        unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-        unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), angle);
-
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize());
+        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
+        {
+            Position pos;
+            unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+            unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
+            m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+        }
+        else
+            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath);
     }
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
-        if (!unitTarget)
-            return;
-
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->Attack(unitTarget, true);
     }
 }
-
 void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)

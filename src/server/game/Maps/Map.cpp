@@ -20,6 +20,7 @@
 #include "GridStates.h"
 #include "ScriptMgr.h"
 #include "VMapFactory.h"
+#include "MMapFactory.h"
 #include "MapInstanced.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
@@ -69,6 +70,8 @@ Map::~Map()
 
     if (!m_scriptSchedule.empty())
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
+
+    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
 }
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
@@ -115,6 +118,16 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
     }
 
     return true;
+}
+
+void Map::LoadMMap(int gx, int gy)
+{
+    bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
+
+    if (mmapLoadResult)
+        sLog->outInfo(LOG_FILTER_MAPS, "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+    else
+        sLog->outInfo(LOG_FILTER_MAPS, "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 }
 
 void Map::LoadVMap(int gx, int gy)
@@ -165,18 +178,16 @@ void Map::LoadMap(int gx, int gy, bool reload)
     }
 
     // map file name
-    char *tmp=NULL;
-    int len = sWorld->GetDataPath().length()+strlen("maps/%03u%02u%02u.map")+1;
+    char* tmp = NULL;
+    int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
     tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
+    snprintf(tmp, len, (char *)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
     sLog->outInfo(LOG_FILTER_MAPS, "Loading map %s", tmp);
     // loading data
     GridMaps[gx][gy] = new GridMap();
     if (!GridMaps[gx][gy]->loadData(tmp))
-    {
         sLog->outError(LOG_FILTER_MAPS, "Error loading map file: \n %s\n", tmp);
-    }
-    delete [] tmp;
+    delete[] tmp;
 
     sScriptMgr->OnLoadGridMap(this, GridMaps[gx][gy], gx, gy);
 }
@@ -184,8 +195,12 @@ void Map::LoadMap(int gx, int gy, bool reload)
 void Map::LoadMapAndVMap(int gx, int gy)
 {
     LoadMap(gx, gy);
+   // Only load the data for the base map
     if (i_InstanceId == 0)
-        LoadVMap(gx, gy);                                   // Only load the data for the base map
+    {
+        LoadVMap(gx, gy);
+        LoadMMap(gx, gy);
+    }
 }
 
 void Map::InitStateMachine()
@@ -994,8 +1009,8 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
                 GridMaps[gx][gy]->unloadData();
                 delete GridMaps[gx][gy];
             }
-            // x and y are swapped
             VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gx, gy);
+            MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId(), gx, gy);
         }
         else
             ((MapInstanced*)m_parentMap)->RemoveGridMapReference(GridCoord(gx, gy));
@@ -1067,7 +1082,7 @@ GridMap::~GridMap()
     unloadData();
 }
 
-bool GridMap::loadData(char *filename)
+bool GridMap::loadData(char* filename)
 {
     // Unload old data if exist
     unloadData();
@@ -2511,6 +2526,7 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
     Map::RemovePlayerFromMap(player, remove);
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);
+          
 }
 
 void InstanceMap::CreateInstanceData(bool load)
@@ -2743,8 +2759,16 @@ bool BattlegroundMap::AddPlayerToMap(Player* player)
 
 void BattlegroundMap::RemovePlayerFromMap(Player* player, bool remove)
 {
+   if (player && player->isSpectator() && !player->isSpectateCanceled())
+    {
+        if (GetBG())
+            GetBG()->RemoveSpectator(player->GetGUID());
+        player->SetSpectate(false);
+    }
+
     sLog->outInfo(LOG_FILTER_MAPS, "MAP: Removing player '%s' from bg '%u' of map '%s' before relocating to another map", player->GetName().c_str(), GetInstanceId(), GetMapName());
     Map::RemovePlayerFromMap(player, remove);
+          
 }
 
 void BattlegroundMap::SetUnload()

@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "PathGenerator.h"
 
 enum WarriorSpells
 {
@@ -228,6 +229,8 @@ class spell_warr_charge : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_charge_SpellScript);
 
+  
+
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_JUGGERNAUT_CRIT_BONUS_TALENT) || !sSpellMgr->GetSpellInfo(SPELL_JUGGERNAUT_CRIT_BONUS_BUFF) || !sSpellMgr->GetSpellInfo(SPELL_CHARGE))
@@ -248,7 +251,7 @@ class spell_warr_charge : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
+             }
         };
 
         SpellScript* GetSpellScript() const
