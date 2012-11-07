@@ -14,22 +14,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+#include "ScriptPCH.h"
 
-#ifndef SC_SCRIPTLOADER_H
-#define SC_SCRIPTLOADER_H
-
-void AddScripts();
-void AddExampleScripts();
-void AddSpellScripts();
-void AddCommandScripts();
-void AddWorldScripts();
-void AddEasternKingdomsScripts();
-void AddKalimdorScripts();
-void AddOutlandScripts();
-void AddNorthrendScripts();
-void AddMaelstromeScripts();
-void AddBattlegroundScripts();
-void AddOutdoorPvPScripts();
-void AddCustomScripts();
-
-#endif
+void AddSC_kezan()
+{
+}

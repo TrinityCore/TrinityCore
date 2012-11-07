@@ -595,6 +595,13 @@ void AddSC_shattrath_city();
 void AddSC_terokkar_forest();
 void AddSC_zangarmarsh();
 
+// Maelstrome
+void AddSC_kezan();
+void AddSC_darkmoon_island();
+void AddSC_lost_isles();
+void AddSC_deepholm();
+void AddSC_the_maelstrom();
+
 // battlegrounds
 
 // outdoor pvp
@@ -621,6 +628,7 @@ void AddScripts()
     AddKalimdorScripts();
     AddOutlandScripts();
     AddNorthrendScripts();
+	AddMaelstromeScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
@@ -1227,6 +1235,17 @@ void AddNorthrendScripts()
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
+#endif
+}
+
+void AddMaelstromeScripts()
+{
+#ifdef SCRIPTS
+    AddSC_kezan();
+	AddSC_darkmoon_island();
+    AddSC_lost_isles();
+    AddSC_deepholm();
+    AddSC_the_maelstrom();
 #endif
 }
 
