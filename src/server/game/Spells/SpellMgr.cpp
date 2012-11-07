@@ -3659,11 +3659,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
-<<<<<<< HEAD
-            case 75888: // Awaken Flames	
-=======
             case 75888: // Awaken Flames
->>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
             case 75889: // Awaken Flames
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 break;

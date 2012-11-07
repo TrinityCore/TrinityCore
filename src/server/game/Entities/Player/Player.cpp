@@ -23630,7 +23630,6 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 {
     if (apply)
     {
-<<<<<<< HEAD
         if (target->ToPlayer() == this)
             return;
 
@@ -23641,10 +23640,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             spectateFrom = NULL;
         }
 
-        sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
-=======
-        sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
->>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
+       sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
 
 
         if (!AddUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
@@ -23667,15 +23663,11 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
     }
     else
     {
-<<<<<<< HEAD
 
         if (isSpectator() && !spectateFrom)
             return;
 
-        sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s remove seer", GetName());
-=======
         sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s remove seer", GetName().c_str());
->>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
 
         if (!RemoveUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
         {
@@ -23706,22 +23698,14 @@ WorldObject* Player::GetViewpoint() const
 
 bool Player::CanUseBattlegroundObject(GameObject* gameobject)
 {
-<<<<<<< HEAD
-    // It is possible to call this method will a null pointer, only skipping faction check.	
-=======
     // It is possible to call this method with a null pointer, only skipping faction check.
->>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
     if (gameobject)
     {
         FactionTemplateEntry const* playerFaction = getFactionTemplateEntry();
         FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
 
         if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
-<<<<<<< HEAD
-           return false;
-=======
             return false;
->>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
     }
 
     // BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet

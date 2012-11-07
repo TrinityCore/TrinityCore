@@ -397,17 +397,11 @@ void LFGMgr::Update(uint32 diff)
                 uint64 pguid = itVotes->first;
                 if (pguid != boot.victim)
                     SendLfgBootProposalUpdate(pguid, boot);
-<<<<<<< HEAD
                SetState(pguid, LFG_STATE_DUNGEON);
             }
             SetState(itBoot->first, LFG_STATE_DUNGEON);
             m_Boots.erase(itBoot);
-=======
-                SetState(pguid, LFG_STATE_DUNGEON);
-            }
-            SetState(itBoot->first, LFG_STATE_DUNGEON);
-            BootsStore.erase(itBoot);
->>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
+
         }
     }
 
