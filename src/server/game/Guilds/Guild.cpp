@@ -223,10 +223,9 @@ void Guild::RankInfo::SaveToDB(SQLTransaction& trans) const
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-bool Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& trans)
+void Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 tabs, SQLTransaction& trans, bool logOnCreate /* = false */)
 {
-    bool ret = false;
-    for (uint8 i = 0; i < ranks; ++i)
+    for (uint8 i = 0; i < tabs; ++i)
     {
         GuildBankRightsAndSlots& rightsAndSlots = m_bankTabRightsAndSlots[i];
         if (rightsAndSlots.GetTabId() == i)
@@ -236,7 +235,9 @@ bool Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& tra
         if (m_rankId == GR_GUILDMASTER)
             rightsAndSlots.SetGuildMasterValues();
 
-        ret = true;
+        if (logOnCreate)
+            sLog->outError(LOG_FILTER_GUILD, "Guild %u has broken Tab %u for rank %u. Created default tab.", m_guildId, i, m_rankId);
+
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_BANK_RIGHT);
         stmt->setUInt32(0, m_guildId);
         stmt->setUInt8 (1, i);
@@ -245,8 +246,6 @@ bool Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& tra
         stmt->setUInt32(4, rightsAndSlots.GetSlots());
         trans->Append(stmt);
     }
-
-    return ret;
 }
 
 void Guild::RankInfo::WritePacket(WorldPacket& data) const
@@ -2018,11 +2017,8 @@ bool Guild::Validate()
             else
             {
                 SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                if (rankInfo->CreateMissingTabsIfNeeded(_GetPurchasedTabsSize(), trans))
-                {
-                    sLog->outError(LOG_FILTER_GUILD, "Guild %u has broken Tabs for rank id %u, creating default tab...", m_id, rankId);
-                    CharacterDatabase.CommitTransaction(trans);
-                }
+                rankInfo->CreateMissingTabsIfNeeded(_GetPurchasedTabsSize(), trans, true);
+                CharacterDatabase.CommitTransaction(trans);
             }
         }
     }
