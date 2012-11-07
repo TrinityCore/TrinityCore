@@ -400,7 +400,7 @@ void LFGMgr::Update(uint32 diff)
                SetState(pguid, LFG_STATE_DUNGEON);
             }
             SetState(itBoot->first, LFG_STATE_DUNGEON);
-            m_Boots.erase(itBoot);
+            BootsStore.erase(itBoot);
 
         }
     }

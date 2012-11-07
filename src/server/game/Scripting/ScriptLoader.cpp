@@ -26,7 +26,7 @@ void AddSC_example_commandscript();
 
 // SAQIRMDEV USEFULL FIXES! A SAQIRM JE PAN
 void AddSC_transmogrify_script();
-void AddSC_arena_spectator_script();
+//void AddSC_arena_spectator_script();
 void AddSC_utility_commandscript();
 void AddSC_npc_teleport();
 
@@ -1280,7 +1280,7 @@ void AddCustomScripts()
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
     AddSC_transmogrify_script();
-    AddSC_arena_spectator_script();
+ //   AddSC_arena_spectator_script();
     AddSC_utility_commandscript();
     AddSC_EM_trader();
     AddSC_npc_teleport();

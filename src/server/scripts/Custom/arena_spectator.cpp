@@ -363,7 +363,7 @@ class npc_arena_spectator : public CreatureScript
                 if (Player* target = ObjectAccessor::FindPlayer(guid))
                 {
                     ChatHandler handler(player);
-                    arena_spectator_commands::HandleSpectateCommand(&handler, target->GetName());
+                    arena_spectator_commands::HandleSpectateCommand(handler, target->GetName());
                 }
             }
             return true;

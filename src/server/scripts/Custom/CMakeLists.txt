@@ -12,7 +12,6 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Custom/vendor.cpp
   Custom/npc_transmogrify.cpp
-  Custom/arena_spectator.cpp
   Custom/utility.cpp
 )
 
