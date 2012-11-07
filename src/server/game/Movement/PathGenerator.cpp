@@ -170,6 +170,7 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
         sLog->outDebug(LOG_FILTER_MAPS, "++ BuildPolyPath :: (startPoly == 0 || endPoly == 0)\n");
         BuildShortcut();
         bool path = _sourceUnit->GetTypeId() == TYPEID_UNIT && _sourceUnit->ToCreature()->CanFly();
+
         bool waterPath = _sourceUnit->GetTypeId() == TYPEID_UNIT && _sourceUnit->ToCreature()->canSwim();
         if (waterPath)
         {
@@ -330,7 +331,6 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
                 _type = PATHFIND_NOPATH;
                 return;
             }
-
         }
 
         // generate suffix
@@ -474,7 +474,8 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
 
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
     }
-     //Custom Point for Bugged Zone (By saqi
+
+    //Custom Point for Bugged Zone (By saqi
       float startEndDist = Dist3DSqr(GetStartPosition(), GetEndPosition());   
 
 
@@ -545,17 +546,15 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
             }
          }
      //Custom Point for Bugged Zone 
-
     sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", _type, pointCount, _polyLength);
 }
-
 
 void PathGenerator::NormalizePath()
 {
     for (uint32 i = 0; i < _pathPoints.size(); ++i)
         _sourceUnit->UpdateAllowedPositionZ(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
-
 }
+
 void PathGenerator::BuildShortcut()
 {
     sLog->outDebug(LOG_FILTER_MAPS, "++ BuildShortcut :: making shortcut\n");
