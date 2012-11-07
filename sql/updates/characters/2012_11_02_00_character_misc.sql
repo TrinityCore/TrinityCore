@@ -27,4 +27,3 @@ ALTER TABLE `guild_member` DROP COLUMN `BankResetTimeTab5`;
 
 DELETE FROM `worldstates` WHERE `entry`=20006;
 INSERT INTO `worldstates` (`entry`,`value`,`comment`) VALUES (20006,0, 'Guild daily reset');
-
