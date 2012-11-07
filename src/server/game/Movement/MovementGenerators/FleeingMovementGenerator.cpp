@@ -41,10 +41,25 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
 
     float x, y, z;
     if (!_getPoint(owner, x, y, z))
+    {
+        i_nextCheckTime.Reset(100);
         return;
+    }
 
     owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
 
+<<<<<<< HEAD
+=======
+    PathGenerator path(owner);
+    path.SetPathLengthLimit(20.0f);
+    bool result = path.CalculatePath(x, y, z);
+    if (!result || (path.GetPathType() & PATHFIND_NOPATH))
+    {
+        i_nextCheckTime.Reset(100);
+        return;
+    }
+
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
     Movement::MoveSplineInit init(owner);
     init.MoveTo(x, y, z, false);
     init.SetWalk(false);
@@ -259,7 +274,11 @@ bool FleeingMovementGenerator<T>::_setMoveData(T* owner)
         _to_distance_from_caster = MIN_QUIET_DISTANCE;
         _only_forward = true;
     }
+<<<<<<< HEAD
     else if (cur_dist < MIN_QUIET_DISTANCE)
+=======
+    else if (dist_from_caster > MAX_QUIET_DISTANCE)
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
     {
         angle = static_cast<float>(M_PI/6) + (float)rand_norm()*static_cast<float>(M_PI*2/3);
         _to_distance_from_caster = cur_dist*2/3 + (float)rand_norm()*(MIN_QUIET_DISTANCE - cur_dist*2/3);
@@ -275,11 +294,30 @@ bool FleeingMovementGenerator<T>::_setMoveData(T* owner)
         _to_distance_from_caster = MIN_QUIET_DISTANCE + 2.5f + (float)rand_norm()*(MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE - 2.5f);
     }
 
+<<<<<<< HEAD
     int8 sign = (float)rand_norm() > 0.5f ? 1 : -1;
     _cur_angle = sign*angle + angle_to_caster;
 
     // current distance
     _last_distance_from_caster = cur_dist;
+=======
+    float curr_x, curr_y, curr_z;
+    owner->GetPosition(curr_x, curr_y, curr_z);
+
+    x = curr_x + dist * std::cos(angle);
+    y = curr_y + dist * std::sin(angle);
+
+    Trinity::NormalizeMapCoord(x);
+    Trinity::NormalizeMapCoord(y);
+
+    z = owner->GetBaseMap()->GetHeight(owner->GetPhaseMask(), x, y, 10.0f, true);
+
+    if (z <= INVALID_HEIGHT)
+        return false;
+
+    if (fabs(curr_z - z) > 10.0f || !owner->IsWithinLOS(x, y, z))
+        return false;
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
 
     return true;
 }
@@ -361,14 +399,20 @@ bool FleeingMovementGenerator<T>::Update(T* owner, const uint32 &time_diff)
 {
     if (!owner || !owner->isAlive())
         return false;
+
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
     {
         owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
         return true;
     }
 
+<<<<<<< HEAD
     _nextCheckTime.Update(time_diff);
     if (_nextCheckTime.Passed() && owner->movespline->Finalized())
+=======
+    i_nextCheckTime.Update(time_diff);
+    if (i_nextCheckTime.Passed())
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
         _setTargetLocation(owner);
 
     return true;

@@ -230,7 +230,11 @@ struct generic_halionAI : public BossAI
 
     void EnterCombat(Unit* who)
     {
+<<<<<<< HEAD
        BossAI::EnterCombat(who);
+=======
+        BossAI::EnterCombat(who);
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
         _canEvade = false;
         events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
         events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
@@ -259,7 +263,12 @@ struct generic_halionAI : public BossAI
             case EVENT_TAIL_LASH:
                 DoCastAOE(SPELL_TAIL_LASH);
                 events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
+<<<<<<< HEAD
                 break;        }
+=======
+                break;
+        }
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
     }
 
     void UpdateAI(uint32 const diff)
@@ -368,7 +377,7 @@ class boss_halion : public CreatureScript
                 {
                     events.SetPhase(PHASE_TWO);
                     Talk(SAY_PHASE_TWO);
-                    
+
                     me->CastStop();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoCast(me, SPELL_TWILIGHT_PHASING);
@@ -402,6 +411,10 @@ class boss_halion : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_ACTIVATE_FIREWALL:
+<<<<<<< HEAD
+=======
+                        // Flame ring is activated 5 seconds after starting encounter, DOOR_TYPE_ROOM is only instant.
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
                         for (uint8 i = DATA_FLAME_RING; i <= DATA_TWILIGHT_FLAME_RING; ++i)
                             if (GameObject* flameRing = ObjectAccessor::GetGameObject(*me, instance->GetData64(i)))
                                 instance->HandleGameObject(instance->GetData64(DATA_FLAME_RING), false, flameRing);
@@ -480,6 +493,10 @@ class boss_twilight_halion : public CreatureScript
                 me->SetPhaseMask(0x20, true);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
             void EnterCombat(Unit* who)
             {
                 events.Reset();
@@ -492,6 +509,9 @@ class boss_twilight_halion : public CreatureScript
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
             }
+            // Never evade
+            void EnterEvadeMode() { }
+
             // Never evade
             void EnterEvadeMode() { }
 
@@ -1188,17 +1208,30 @@ class npc_living_inferno : public CreatureScript
         {
             npc_living_infernoAI(Creature* creature) : ScriptedAI(creature) { }
 
+<<<<<<< HEAD
             void IsSummoned(Unit* /*summoner*/)
+=======
+            void IsSummonedBy(Unit* /*summoner*/)
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
             {
                 me->SetInCombatWithZone();
                 me->CastSpell(me, SPELL_BLAZING_AURA, true);
 
                 if (InstanceScript* instance = me->GetInstanceScript())
+<<<<<<< HEAD
                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->JustSummoned(me);
             }	
             void JustDied(Unit* /*killer*/)
            {
+=======
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                        controller->AI()->JustSummoned(me);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
                 me->DespawnOrUnsummon(1);
             }
         };
@@ -1233,6 +1266,7 @@ class npc_living_ember : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/)
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
+<<<<<<< HEAD
                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                       controller->AI()->JustSummoned(me);
            }
@@ -1242,6 +1276,16 @@ class npc_living_ember : public CreatureScript
               me->DespawnOrUnsummon(1);
             }
 
+=======
+                    if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
+                        controller->AI()->JustSummoned(me);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                me->DespawnOrUnsummon(1);
+            }
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
 
             void UpdateAI(uint32 const diff)
             {
@@ -1737,7 +1781,7 @@ void AddSC_boss_halion()
 {
     new boss_halion();
     new boss_twilight_halion();
-    
+
     new npc_halion_controller();
     new npc_meteor_strike_initial();
     new npc_meteor_strike();

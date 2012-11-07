@@ -129,11 +129,38 @@ bool ConfusedMovementGenerator<T>::Update(T *unit, const uint32 &diff)
         {
             // start moving
             unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+<<<<<<< HEAD
  
             ASSERT(i_nextMove <= MAX_CONF_WAYPOINTS);
             float x = i_waypoints[i_nextMove][0];
             float y = i_waypoints[i_nextMove][1];
             float z = i_waypoints[i_nextMove][2];
+=======
+
+            float x = i_x + (4.0f * (float)rand_norm() - 2.0f);
+            float y = i_y + (4.0f * (float)rand_norm() - 2.0f);
+
+            Trinity::NormalizeMapCoord(x);
+            Trinity::NormalizeMapCoord(y);
+
+            float z = unit->GetBaseMap()->GetHeight(unit->GetPhaseMask(), x, y, 10.0f, true);
+
+            if (z <= INVALID_HEIGHT || fabs(i_z - z) > 10.0f || !unit->IsWithinLOS(x, y, z))
+            {
+                i_nextMoveTime.Reset(100);
+                return true;
+            }
+
+            PathGenerator path(unit);
+            path.SetPathLengthLimit(20.0f);
+            bool result = path.CalculatePath(x, y, z);
+            if (!result || (path.GetPathType() & PATHFIND_NOPATH))
+            {
+                i_nextMoveTime.Reset(100); // short reset
+                return true;
+            }
+
+>>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
             Movement::MoveSplineInit init(unit);
             init.MoveTo(x, y, z, false);
             init.SetWalk(true);

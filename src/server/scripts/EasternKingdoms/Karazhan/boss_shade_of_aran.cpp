@@ -187,13 +187,13 @@ public:
         void FlameWreathEffect()
         {
             std::vector<Unit*> targets;
-            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
 
             if (t_list.empty())
                 return;
 
             //store the threat list in a different container
-            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
@@ -508,7 +508,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_aran_elemental : public CreatureScript
@@ -546,7 +545,6 @@ public:
             } else CastTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_shade_of_aran()

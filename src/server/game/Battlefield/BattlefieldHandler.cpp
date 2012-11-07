@@ -95,12 +95,12 @@ void WorldSession::SendBfLeaveMessage(uint32 BattleId, BFLeaveReason reason)
 }
 
 //Send by client when he click on accept for queue
-void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recv_data)
+void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
 {
     uint32 BattleId;
     uint8 Accepted;
 
-    recv_data >> BattleId >> Accepted;
+    recvData >> BattleId >> Accepted;
     sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
@@ -113,12 +113,12 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recv_data)
 }
 
 //Send by client on clicking in accept or refuse of invitation windows for join game
-void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recv_data)
+void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
 {
     uint32 BattleId;
     uint8 Accepted;
 
-    recv_data >> BattleId >> Accepted;
+    recvData >> BattleId >> Accepted;
     sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
@@ -136,11 +136,11 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleBfExitRequest(WorldPacket & recv_data)
+void WorldSession::HandleBfExitRequest(WorldPacket & recvData)
 {
     uint32 BattleId;
 
-    recv_data >> BattleId;
+    recvData >> BattleId;
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitRequest: BattleID:%u ", BattleId);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)

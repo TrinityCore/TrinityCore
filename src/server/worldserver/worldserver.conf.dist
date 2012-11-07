@@ -983,6 +983,14 @@ Quests.IgnoreAutoComplete = 0
 Guild.EventLogRecordsCount = 100
 
 #
+#    Guild.ResetHour
+#        Description: Hour of the day when the daily cap resets occur.
+#        Range:       0-23
+#        Default:     6 - (06:00 AM)
+
+Guild.ResetHour = 6
+
+#
 #    Guild.BankEventLogRecordsCount
 #        Description: Number of log entries for guild bank events that are stored per guild. Old
 #                     entries will be overwritten if the number of log entries exceed the
@@ -1113,12 +1121,15 @@ Command.LookupMaxResults = 0
 AllowTickets = 1
 
 #
-#     DungeonFinder.Enable
+#     DungeonFinder.OptionsMask
 #        Description: Dungeon and raid finder system.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
+#        Value is a bitmask consisting of:
+#           LFG_OPTION_ENABLE_DUNGEON_FINDER = 1,     Enable the dungeon finder browser
+#           LFG_OPTION_ENABLE_RAID_BROWSER   = 2,     Enable the raid browser
+#        Default:     1
 
-DungeonFinder.Enable = 1
+DungeonFinder.OptionsMask = 1
+
 
 #
 #   DBC.EnforceItemAttributes
@@ -2790,6 +2801,8 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                        39 - Battlefield
 #                        40 - Server Loading
 #                        41 - Opcodes (just id and name sent / received)
+#                        42 - SOAP
+#
 #                     LogLevel
 #                         0 - (Disabled)
 #                         1 - (Trace)

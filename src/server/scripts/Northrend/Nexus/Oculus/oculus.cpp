@@ -32,7 +32,7 @@
 #define GOSSIP_ITEM_ETERNOS1       "I want to fly on the wings of the Bronze Flight"
 #define GOSSIP_ITEM_ETERNOS2       "What abilities do Amber Drakes have?"
 
-#define HAS_ESSENCE(a) ((a)->HasItemCount(ITEM_EMERALD_ESSENCE, 1) || (a)->HasItemCount(ITEM_AMBER_ESSENCE, 1) || (a)->HasItemCount(ITEM_RUBY_ESSENCE, 1))
+#define HAS_ESSENCE(a) ((a)->HasItemCount(ITEM_EMERALD_ESSENCE) || (a)->HasItemCount(ITEM_AMBER_ESSENCE) || (a)->HasItemCount(ITEM_RUBY_ESSENCE))
 
 enum GossipNPCs
 {
