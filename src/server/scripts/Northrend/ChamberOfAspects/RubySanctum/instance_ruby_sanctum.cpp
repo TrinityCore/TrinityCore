@@ -56,15 +56,6 @@ class instance_ruby_sanctum : public InstanceMapScript
             }
 
             void OnPlayerEnter(Player* /*player*/)
-<<<<<<< HEAD
-           {
-               if (!GetData64(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
-                   if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-                        halionController->AI()->DoAction(ACTION_INTRO_HALION);
-           }
-
-           void OnCreatureCreate(Creature* creature)
-=======
             {
                 if (!GetData64(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                     if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
@@ -72,7 +63,6 @@ class instance_ruby_sanctum : public InstanceMapScript
             }
 
             void OnCreatureCreate(Creature* creature)
->>>>>>> 68291eed03b44f5659f7f5143ed66b2f0e67e026
             {
                 switch (creature->GetEntry())
                 {
